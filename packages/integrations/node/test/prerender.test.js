@@ -30,6 +30,7 @@ describe('Prerendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
+			// biome-ignore lint/style/useConst: <explanation>
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -38,6 +39,7 @@ describe('Prerendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
+			// biome-ignore lint/performance/noDelete: <explanation>
 			delete process.env.PRERENDER;
 		});
 
@@ -105,6 +107,7 @@ describe('Prerendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
+			// biome-ignore lint/style/useConst: <explanation>
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -113,6 +116,7 @@ describe('Prerendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
+			// biome-ignore lint/performance/noDelete: <explanation>
 			delete process.env.PRERENDER;
 		});
 
@@ -181,6 +185,7 @@ describe('Prerendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
+			// biome-ignore lint/style/useConst: <explanation>
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -189,6 +194,7 @@ describe('Prerendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
+			// biome-ignore lint/performance/noDelete: <explanation>
 			delete process.env.PRERENDER;
 		});
 
@@ -233,10 +239,12 @@ describe('Prerendering', () => {
 
 		after(async () => {
 			await devServer.stop();
+			// biome-ignore lint/performance/noDelete: <explanation>
 			delete process.env.PRERENDER;
 		});
 
 		it('Can render SSR route', async () => {
+			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			const res = await fixture.fetch(`/one`);
 			const html = await res.text();
 			const $ = cheerio.load(html);
@@ -246,6 +254,7 @@ describe('Prerendering', () => {
 		});
 
 		it('Can render prerendered route', async () => {
+			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			const res = await fixture.fetch(`/two`);
 			const html = await res.text();
 			const $ = cheerio.load(html);
@@ -277,6 +286,7 @@ describe('Hybrid rendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
+			// biome-ignore lint/style/useConst: <explanation>
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -285,6 +295,7 @@ describe('Hybrid rendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
+			// biome-ignore lint/performance/noDelete: <explanation>
 			delete process.env.PRERENDER;
 		});
 
@@ -350,6 +361,7 @@ describe('Hybrid rendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
+			// biome-ignore lint/style/useConst: <explanation>
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -358,6 +370,7 @@ describe('Hybrid rendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
+			// biome-ignore lint/performance/noDelete: <explanation>
 			delete process.env.PRERENDER;
 		});
 
@@ -415,6 +428,7 @@ describe('Hybrid rendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
+			// biome-ignore lint/style/useConst: <explanation>
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -423,6 +437,7 @@ describe('Hybrid rendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
+			// biome-ignore lint/performance/noDelete: <explanation>
 			delete process.env.PRERENDER;
 		});
 

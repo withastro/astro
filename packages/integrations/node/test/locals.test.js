@@ -18,15 +18,18 @@ describe('API routes', () => {
 
 	it('Can use locals added by node middleware', async () => {
 		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		// biome-ignore lint/style/useConst: <explanation>
 		let { req, res, text } = createRequestAndResponse({
 			url: '/from-node-middleware',
 		});
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let locals = { foo: 'bar' };
 
 		handler(req, res, () => {}, locals);
 		req.send();
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let html = await text();
 
 		assert.equal(html.includes('<h1>bar</h1>'), true);
@@ -34,6 +37,7 @@ describe('API routes', () => {
 
 	it('Throws an error when provided non-objects as locals', async () => {
 		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		// biome-ignore lint/style/useConst: <explanation>
 		let { req, res, done } = createRequestAndResponse({
 			url: '/from-node-middleware',
 		});
@@ -62,18 +66,22 @@ describe('API routes', () => {
 
 	it('Can access locals in API', async () => {
 		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		// biome-ignore lint/style/useConst: <explanation>
 		let { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/api',
 		});
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let locals = { foo: 'bar' };
 
 		handler(req, res, () => {}, locals);
 		req.send();
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let [buffer] = await done;
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let json = JSON.parse(buffer.toString('utf-8'));
 
 		assert.equal(json.foo, 'bar');

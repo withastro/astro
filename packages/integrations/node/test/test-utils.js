@@ -20,17 +20,21 @@ export function loadFixture(inlineConfig) {
 }
 
 export function createRequestAndResponse(reqOptions) {
+	// biome-ignore lint/style/useConst: <explanation>
 	let req = httpMocks.createRequest(reqOptions);
 
+	// biome-ignore lint/style/useConst: <explanation>
 	let res = httpMocks.createResponse({
 		eventEmitter: EventEmitter,
 		req,
 	});
 
+	// biome-ignore lint/style/useConst: <explanation>
 	let done = toPromise(res);
 
 	// Get the response as text
 	const text = async () => {
+		// biome-ignore lint/style/useConst: <explanation>
 		let chunks = await done;
 		return buffersToString(chunks);
 	};
@@ -45,11 +49,13 @@ export function toPromise(res) {
 		const write = res.write;
 		res.write = function (data, encoding) {
 			if (ArrayBuffer.isView(data) && !Buffer.isBuffer(data)) {
+				// biome-ignore lint/style/noParameterAssign: <explanation>
 				data = Buffer.from(data.buffer);
 			}
 			return write.call(this, data, encoding);
 		};
 		res.on('end', () => {
+			// biome-ignore lint/style/useConst: <explanation>
 			let chunks = res._getChunks();
 			resolve(chunks);
 		});
@@ -57,6 +63,7 @@ export function toPromise(res) {
 }
 
 export function buffersToString(buffers) {
+	// biome-ignore lint/style/useConst: <explanation>
 	let decoder = new TextDecoder();
 	let str = '';
 	for (const buffer of buffers) {

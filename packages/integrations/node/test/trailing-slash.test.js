@@ -32,6 +32,7 @@ describe('Trailing slash', () => {
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
+				// biome-ignore lint/style/useConst: <explanation>
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);
@@ -40,6 +41,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
+				// biome-ignore lint/performance/noDelete: <explanation>
 				delete process.env.PRERENDER;
 			});
 
@@ -103,6 +105,7 @@ describe('Trailing slash', () => {
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
+				// biome-ignore lint/style/useConst: <explanation>
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);
@@ -111,6 +114,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
+				// biome-ignore lint/performance/noDelete: <explanation>
 				delete process.env.PRERENDER;
 			});
 
@@ -177,6 +181,7 @@ describe('Trailing slash', () => {
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
+				// biome-ignore lint/style/useConst: <explanation>
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);
@@ -185,6 +190,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
+				// biome-ignore lint/performance/noDelete: <explanation>
 				delete process.env.PRERENDER;
 			});
 
@@ -241,6 +247,7 @@ describe('Trailing slash', () => {
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
+				// biome-ignore lint/style/useConst: <explanation>
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);
@@ -249,6 +256,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
+				// biome-ignore lint/performance/noDelete: <explanation>
 				delete process.env.PRERENDER;
 			});
 
@@ -308,6 +316,7 @@ describe('Trailing slash', () => {
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
+				// biome-ignore lint/style/useConst: <explanation>
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);
@@ -316,6 +325,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
+				// biome-ignore lint/performance/noDelete: <explanation>
 				delete process.env.PRERENDER;
 			});
 
@@ -390,6 +400,7 @@ describe('Trailing slash', () => {
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
+				// biome-ignore lint/style/useConst: <explanation>
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);
@@ -398,6 +409,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
+				// biome-ignore lint/performance/noDelete: <explanation>
 				delete process.env.PRERENDER;
 			});
 

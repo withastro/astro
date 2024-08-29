@@ -20,6 +20,7 @@ describe('Errors', () => {
 	});
 	let devPreview;
 
+	// biome-ignore lint/suspicious/noDuplicateTestHooks: <explanation>
 	before(async () => {
 		// The two tests that need the server to run are skipped
 		// devPreview = await fixture.preview();
@@ -58,7 +59,7 @@ describe('Errors', () => {
 			const $ = cheerio.load(html);
 
 			assert.equal($('p').text().trim(), 'Internal server error');
-		},
+		}
 	);
 
 	it(
@@ -86,6 +87,6 @@ describe('Errors', () => {
 			} else {
 				throw new Error('The response should take at most 2 chunks.');
 			}
-		},
+		}
 	);
 });

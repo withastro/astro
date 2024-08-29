@@ -23,7 +23,9 @@ export default function createMiddleware(app: NodeApp): RequestHandler {
 			const error = req;
 			if (next) {
 				return next(error);
+				// biome-ignore lint/style/noUselessElse: <explanation>
 			} else {
+				// biome-ignore lint/complexity/useArrowFunction: <explanation>
 				throw error;
 			}
 		}
@@ -33,6 +35,7 @@ export default function createMiddleware(app: NodeApp): RequestHandler {
 			logger.error(`Could not render ${req.url}`);
 			console.error(err);
 			if (!res.headersSent) {
+				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 				res.writeHead(500, `Server error`);
 				res.end();
 			}

@@ -23,6 +23,7 @@ describe('behavior from middleware, standalone', () => {
 		});
 		await fixture.build();
 		const { startServer } = await fixture.loadAdapterEntryModule();
+		// biome-ignore lint/style/useConst: <explanation>
 		let res = startServer();
 		server = res.server;
 		await waitServerListen(server.server);
@@ -31,6 +32,7 @@ describe('behavior from middleware, standalone', () => {
 	after(async () => {
 		await server.stop();
 		await fixture.clean();
+		// biome-ignore lint/performance/noDelete: <explanation>
 		delete process.env.PRERENDER;
 	});
 
@@ -71,10 +73,12 @@ describe('behavior from middleware, middleware', () => {
 	after(async () => {
 		server.close();
 		await fixture.clean();
+		// biome-ignore lint/performance/noDelete: <explanation>
 		delete process.env.PRERENDER;
 	});
 
 	it('when mode is standalone', async () => {
+		// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 		const res = await fetch(`http://localhost:8888/ssr`);
 
 		assert.equal(res.status, 200);

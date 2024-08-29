@@ -72,7 +72,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 
 				if (config.output === 'static') {
 					logger.warn(
-						`\`output: "server"\` or  \`output: "hybrid"\` is required to use this adapter.`,
+						`\`output: "server"\` or  \`output: "hybrid"\` is required to use this adapter.`
 					);
 				}
 			},

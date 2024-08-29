@@ -27,6 +27,7 @@ describe('API routes', () => {
 
 	it('Can get the request body', async () => {
 		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		// biome-ignore lint/style/useConst: <explanation>
 		let { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/recipes',
@@ -38,8 +39,10 @@ describe('API routes', () => {
 
 		handler(req, res);
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let [buffer] = await done;
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let json = JSON.parse(buffer.toString('utf-8'));
 
 		assert.equal(json.length, 1);
@@ -50,6 +53,7 @@ describe('API routes', () => {
 	it('Can get binary data', async () => {
 		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/binary',
@@ -61,7 +65,9 @@ describe('API routes', () => {
 
 		handler(req, res);
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let [out] = await done;
+		// biome-ignore lint/style/useConst: <explanation>
 		let arr = Array.from(new Uint8Array(out.buffer));
 		assert.deepEqual(arr, [5, 4, 3, 2, 1]);
 	});
@@ -69,6 +75,7 @@ describe('API routes', () => {
 	it('Can post large binary data', async () => {
 		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/hash',
@@ -95,16 +102,19 @@ describe('API routes', () => {
 			expectedDigest = hash.digest();
 		});
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let [out] = await done;
 		assert.deepEqual(new Uint8Array(out.buffer), new Uint8Array(expectedDigest));
 	});
 
 	it('Can bail on streaming', async () => {
 		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		// biome-ignore lint/style/useConst: <explanation>
 		let { req, res, done } = createRequestAndResponse({
 			url: '/streaming',
 		});
 
+		// biome-ignore lint/style/useConst: <explanation>
 		let locals = { cancelledByTheServer: false };
 
 		handler(req, res, () => {}, locals);

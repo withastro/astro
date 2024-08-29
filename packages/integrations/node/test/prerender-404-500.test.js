@@ -34,6 +34,7 @@ describe('Prerender 404', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
+			// biome-ignore lint/style/useConst: <explanation>
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -42,7 +43,7 @@ describe('Prerender 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			delete process.env.PRERENDER;
+			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {
@@ -124,6 +125,7 @@ describe('Prerender 404', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
+			// biome-ignore lint/style/useConst: <explanation>
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -132,7 +134,7 @@ describe('Prerender 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			delete process.env.PRERENDER;
+			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {
@@ -193,6 +195,7 @@ describe('Hybrid 404', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
+			// biome-ignore lint/style/useConst: <explanation>
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -201,7 +204,7 @@ describe('Hybrid 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			delete process.env.PRERENDER;
+			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {
@@ -255,6 +258,7 @@ describe('Hybrid 404', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
+			// biome-ignore lint/style/useConst: <explanation>
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -263,7 +267,7 @@ describe('Hybrid 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			delete process.env.PRERENDER;
+			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {
