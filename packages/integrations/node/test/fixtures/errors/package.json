@@ -1,0 +1,9 @@
+{
+  "name": "@test/nodejs-errors",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "^5.0.0-alpha.0",
+    "@astrojs/node": "workspace:*"
+  }
+}
