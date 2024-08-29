@@ -1,0 +1,9 @@
+{
+  "name": "@test/astro-vercel-prerendered-error-pages",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/vercel": "workspace:*",
+    "astro": "^5.0.0-alpha.0"
+  }
+}
