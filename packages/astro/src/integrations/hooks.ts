@@ -126,9 +126,9 @@ export async function runHookConfigSetup({
 	isRestart?: boolean;
 	fs?: typeof fsMod;
 }): Promise<AstroSettings> {
-	// An adapter is an integration, so if one is provided push it.
+	// An adapter is an integration, so if one is provided add it to the list of integrations.
 	if (settings.config.adapter) {
-		settings.config.integrations.push(settings.config.adapter);
+		settings.config.integrations.unshift(settings.config.adapter);
 	}
 	if (await isActionsFilePresent(fs, settings.config.srcDir)) {
 		settings.config.integrations.push(astroIntegrationActionsRouteHandler({ settings }));

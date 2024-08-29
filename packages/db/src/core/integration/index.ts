@@ -59,6 +59,7 @@ function astroDBIntegration(): AstroIntegration {
 	};
 
 	let command: 'dev' | 'build' | 'preview' | 'sync';
+	let finalBuildOutput: string;
 	return {
 		name: 'astro:db',
 		hooks: {
@@ -103,8 +104,10 @@ function astroDBIntegration(): AstroIntegration {
 					},
 				});
 			},
-			'astro:config:done': async ({ config, injectTypes }) => {
+			'astro:config:done': async ({ config, injectTypes, buildOutput }) => {
 				if (command === 'preview') return;
+
+				finalBuildOutput = buildOutput();
 
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
@@ -157,7 +160,7 @@ function astroDBIntegration(): AstroIntegration {
 				}, 100);
 			},
 			'astro:build:start': async ({ logger }) => {
-				if (!connectToStudio && !databaseFileEnvDefined()) {
+				if (!connectToStudio && !databaseFileEnvDefined() && finalBuildOutput === 'server') {
 					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
 					const hint =
 						'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
