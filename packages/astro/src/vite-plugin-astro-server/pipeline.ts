@@ -29,8 +29,6 @@ import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
 import { getScriptsForURL } from './scripts.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
-import { sequence } from '../core/middleware/index.js';
-import { createOriginCheckMiddleware } from '../core/app/middlewares.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,

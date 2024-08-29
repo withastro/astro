@@ -29,8 +29,6 @@ import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './p
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
-import { sequence } from '../middleware/index.js';
-import { createOriginCheckMiddleware } from '../app/middlewares.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.

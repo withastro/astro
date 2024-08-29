@@ -1,7 +1,6 @@
 import type {
 	ComponentInstance,
 	Locales,
-	MiddlewareHandler,
 	RouteData,
 	SSRComponentMetadata,
 	SSRLoadedRenderer,
