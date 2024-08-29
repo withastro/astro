@@ -29,7 +29,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			let isDirectory = false;
 			try {
 				isDirectory = fs.lstatSync(filePath).isDirectory();
-			} catch { }
+			} catch {}
 
 			const { trailingSlash = 'ignore' } = options;
 
