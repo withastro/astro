@@ -16,6 +16,7 @@ import type {
 	RouteData,
 	RouteOptions,
 } from '../@types/astro.js';
+import { globalContentLayer } from '../content/content-layer.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
@@ -23,7 +24,6 @@ import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import { globalContentLayer } from '../content/content-layer.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -378,7 +378,7 @@ export async function runHookServerSetup({
 	if (config.experimental?.contentLayer) {
 		refreshContent = async (options: RefreshContentOptions) => {
 			const contentLayer = await globalContentLayer.get();
-			await contentLayer.sync(options);
+			await contentLayer?.sync(options);
 		};
 	}
 
