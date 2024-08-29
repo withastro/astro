@@ -7,8 +7,11 @@ type Options = { path: string; analyticsId: string };
 
 const getConnectionSpeed = () => {
 	return 'connection' in navigator &&
+		// biome-ignore lint/complexity/useLiteralKeys: <explanation>
 		navigator['connection'] &&
+		// biome-ignore lint/complexity/useLiteralKeys: <explanation>
 		'effectiveType' in (navigator['connection'] as unknown as { effectiveType: string })
+		// biome-ignore lint/complexity/useLiteralKeys: <explanation>
 		? (navigator['connection'] as unknown as { effectiveType: string })['effectiveType']
 		: '';
 };

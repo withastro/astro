@@ -68,7 +68,7 @@ export function getAstroImageConfig(
 	imagesConfig: VercelImageConfig | undefined,
 	command: string,
 	devImageService: DevImageService,
-	astroImageConfig: AstroConfig['image'],
+	astroImageConfig: AstroConfig['image']
 ) {
 	let devService = '@astrojs/vercel/dev-image-service';
 
@@ -105,7 +105,7 @@ export function getAstroImageConfig(
 export function sharedValidateOptions(
 	options: ImageTransform,
 	serviceConfig: Record<string, any>,
-	mode: 'development' | 'production',
+	mode: 'development' | 'production'
 ) {
 	const vercelImageOptions = serviceConfig as VercelImageConfig;
 
@@ -145,6 +145,7 @@ export function sharedValidateOptions(
 	} else {
 		if (!configuredWidths.includes(options.width)) {
 			const nearestWidth = configuredWidths.reduce((prev, curr) => {
+				// biome-ignore lint/style/noNonNullAssertion: <explanation>
 				return Math.abs(curr - options.width!) < Math.abs(prev - options.width!) ? curr : prev;
 			});
 

@@ -49,19 +49,19 @@ function getMatchPattern(segments: RoutePart[][]) {
 			return segment[0].spread
 				? '(?:\\/(.*?))?'
 				: segment
-						.map((part) => {
-							if (part)
-								return part.dynamic
-									? '([^/]+?)'
-									: part.content
-											.normalize()
-											.replace(/\?/g, '%3F')
-											.replace(/#/g, '%23')
-											.replace(/%5B/g, '[')
-											.replace(/%5D/g, ']')
-											.replace(/[*+?^${}()|[\]\\]/g, '\\$&');
-						})
-						.join('');
+					.map((part) => {
+						if (part)
+							return part.dynamic
+								? '([^/]+?)'
+								: part.content
+									.normalize()
+									.replace(/\?/g, '%3F')
+									.replace(/#/g, '%23')
+									.replace(/%5B/g, '[')
+									.replace(/%5D/g, ']')
+									.replace(/[*+?^${}()|[\]\\]/g, '\\$&');
+					})
+					.join('');
 		})
 		.join('/');
 }
@@ -72,6 +72,7 @@ function getReplacePattern(segments: RoutePart[][]) {
 
 	for (const segment of segments) {
 		for (const part of segment) {
+			// biome-ignore lint/style/useTemplate: <explanation>
 			if (part.dynamic) result += '$' + ++n;
 			else result += part.content;
 		}
@@ -89,8 +90,10 @@ function getRedirectLocation(route: RouteData, config: AstroConfig): string {
 		const pattern = getReplacePattern(route.redirectRoute.segments);
 		const path = config.trailingSlash === 'always' ? appendForwardSlash(pattern) : pattern;
 		return pathJoin(config.base, path);
+		// biome-ignore lint/style/noUselessElse: <explanation>
 	} else if (typeof route.redirect === 'object') {
 		return pathJoin(config.base, route.redirect.destination);
+		// biome-ignore lint/style/noUselessElse: <explanation>
 	} else {
 		return pathJoin(config.base, route.redirect || '');
 	}
@@ -114,7 +117,7 @@ export function escapeRegex(content: string) {
 }
 
 export function getRedirects(routes: RouteData[], config: AstroConfig): VercelRoute[] {
-	let redirects: VercelRoute[] = [];
+	const redirects: VercelRoute[] = [];
 
 	for (const route of routes) {
 		if (route.type === 'redirect') {
@@ -127,11 +130,13 @@ export function getRedirects(routes: RouteData[], config: AstroConfig): VercelRo
 			if (config.trailingSlash === 'always') {
 				redirects.push({
 					src: config.base + getMatchPattern(route.segments),
+					// biome-ignore lint/style/useTemplate: <explanation>
 					headers: { Location: config.base + getReplacePattern(route.segments) + '/' },
 					status: 308,
 				});
 			} else if (config.trailingSlash === 'never') {
 				redirects.push({
+					// biome-ignore lint/style/useTemplate: <explanation>
 					src: config.base + getMatchPattern(route.segments) + '/',
 					headers: { Location: config.base + getReplacePattern(route.segments) },
 					status: 308,
