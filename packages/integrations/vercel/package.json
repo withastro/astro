@@ -7,11 +7,14 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
-    "directory": "packages/integrations/vercel"
+    "url": "https://github.com/withastro/adapters.git",
+    "directory": "packages/vercel"
   },
-  "keywords": ["withastro", "astro-adapter"],
-  "bugs": "https://github.com/withastro/astro/issues",
+  "keywords": [
+    "withastro",
+    "astro-adapter"
+  ],
+  "bugs": "https://github.com/withastro/adapters/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/vercel/",
   "exports": {
     ".": {
@@ -28,11 +31,18 @@
   },
   "typesVersions": {
     "*": {
-      "serverless": ["dist/serverless/adapter.d.ts"],
-      "static": ["dist/static/adapter.d.ts"]
+      "serverless": [
+        "dist/serverless/adapter.d.ts"
+      ],
+      "static": [
+        "dist/static/adapter.d.ts"
+      ]
     }
   },
-  "files": ["dist", "types.d.ts"],
+  "files": [
+    "dist",
+    "types.d.ts"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "astro-scripts test --timeout 50000 \"test/**/!(hosted).test.js\"",
