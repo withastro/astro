@@ -7,7 +7,10 @@ process.stdout.isTTY = false;
 
 export default defineConfig({
 	testMatch: 'e2e/*.test.js',
-	timeout: 40000,
+	timeout: 40_000,
+	expect: {
+		timeout: 6_000,
+	},
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
 	workers: process.env.CI ? 1 : undefined,

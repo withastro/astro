@@ -1,4 +1,5 @@
-import { defineAction, ActionError, z } from 'astro:actions';
+import { defineAction, ActionError } from 'astro:actions';
+import { z } from 'astro:schema';
 
 const passwordSchema = z
 	.string()
