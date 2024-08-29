@@ -6,8 +6,7 @@ import type {
 	AstroAdapter,
 	AstroConfig,
 	AstroIntegration,
-	AstroIntegrationLogger,
-	RouteData,
+	AstroIntegrationLogger, IntegrationRouteData,
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
@@ -193,7 +192,7 @@ export default function vercelServerless({
 	let _config: AstroConfig;
 	let _buildTempFolder: URL;
 	let _serverEntry: string;
-	let _entryPoints: Map<RouteData, URL>;
+	let _entryPoints: Map<IntegrationRouteData, URL>;
 	let _middlewareEntryPoint: URL | undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
@@ -321,7 +320,7 @@ export default function vercelServerless({
 
 				// Multiple entrypoint support
 				if (_entryPoints.size) {
-					const getRouteFuncName = (route: RouteData) => route.component.replace('src/pages/', '');
+					const getRouteFuncName = (route: IntegrationRouteData) => route.component.replace('src/pages/', '');
 
 					const getFallbackFuncName = (entryFile: URL) =>
 						basename(entryFile.toString())
