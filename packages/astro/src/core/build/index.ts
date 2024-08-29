@@ -118,8 +118,6 @@ class AstroBuilder {
 			logger: logger,
 		});
 
-		// TODO: Make injectImageEndpoint work from the manifest instead of the settings, so that we can add it to the manifest only in server builds
-
 		this.manifest = createRouteManifest({ settings: this.settings }, this.logger);
 
 		if (this.settings.buildOutput === 'server') {

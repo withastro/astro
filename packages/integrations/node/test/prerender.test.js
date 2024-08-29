@@ -267,7 +267,7 @@ describe('Hybrid rendering', () => {
 			fixture = await loadFixture({
 				base: '/some-base',
 				root: './fixtures/prerender/',
-				output: 'hybrid',
+				output: 'static',
 				outDir: './dist/hybrid-with-base',
 				build: {
 					client: './dist/hybrid-with-base/client',
@@ -340,7 +340,7 @@ describe('Hybrid rendering', () => {
 			process.env.PRERENDER = false;
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
-				output: 'hybrid',
+				output: 'static',
 				outDir: './dist/hybrid-without-base',
 				build: {
 					client: './dist/hybrid-without-base/client',
@@ -405,7 +405,7 @@ describe('Hybrid rendering', () => {
 
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
-				output: 'hybrid',
+				output: 'static',
 				outDir: './dist/hybrid-shared-modules',
 				build: {
 					client: './dist/hybrid-shared-modules/client',

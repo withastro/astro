@@ -9,6 +9,10 @@ export function getAdapter(options: Options): AstroAdapter {
 		previewEntrypoint: '@astrojs/node/preview.js',
 		exports: ['handler', 'startServer', 'options'],
 		args: options,
+		adapterFeatures: {
+			forceServerOutput: true,
+			edgeMiddleware: false,
+		},
 		supportedAstroFeatures: {
 			hybridOutput: 'stable',
 			staticOutput: 'stable',

@@ -71,7 +71,7 @@ describe('astro:db local database', () => {
 		it('should throw during the build for hybrid output', async () => {
 			let fixture2 = await loadFixture({
 				root: new URL('./fixtures/local-prod/', import.meta.url),
-				output: 'hybrid',
+				output: 'static',
 				adapter: testAdapter(),
 			});
 

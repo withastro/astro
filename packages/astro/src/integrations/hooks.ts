@@ -307,6 +307,11 @@ export async function runHookConfigDone({
 								`Integration "${integration.name}" conflicts with "${settings.adapter.name}". You can only configure one deployment integration.`,
 							);
 						}
+
+						if (adapter.adapterFeatures?.forceServerOutput) {
+							settings.buildOutput = 'server';
+						}
+
 						if (!adapter.supportedAstroFeatures) {
 							throw new Error(
 								`The adapter ${adapter.name} doesn't provide a feature map. It is required in Astro 4.0.`,
@@ -334,10 +339,6 @@ export async function runHookConfigDone({
 							}
 						}
 						settings.adapter = adapter;
-
-						if (adapter.adapterFeatures?.forceServerOutput) {
-							settings.buildOutput = 'server';
-						}
 					},
 					injectTypes(injectedType) {
 						const normalizedFilename = normalizeInjectedTypeFilename(
@@ -355,7 +356,7 @@ export async function runHookConfigDone({
 						return new URL(normalizedFilename, settings.dotAstroDir);
 					},
 					logger: getLogger(integration, logger),
-					buildOutput: settings.buildOutput,
+					buildOutput: () => settings.buildOutput!, // settings.buildOutput is always set at this point
 				}),
 				logger,
 			});
