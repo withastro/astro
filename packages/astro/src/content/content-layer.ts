@@ -1,12 +1,13 @@
 import { promises as fs, existsSync } from 'node:fs';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import * as fastq from 'fastq';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import { AstroUserError } from '../core/errors/errors.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
-import type { ContentEntryType } from '../types/public/content.js';
+import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
 import {
 	ASSET_IMPORTS_FILE,
 	CONTENT_LAYER_TYPE,
@@ -39,7 +40,8 @@ export class ContentLayer {
 
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 
-	#loading = false;
+	#queue: fastq.queueAsPromised<RefreshContentOptions, void>;
+
 	constructor({ settings, logger, store, watcher }: ContentLayerOptions) {
 		// The default max listeners is 10, which can be exceeded when using a lot of loaders
 		watcher?.setMaxListeners(50);
@@ -48,13 +50,14 @@ export class ContentLayer {
 		this.#store = store;
 		this.#settings = settings;
 		this.#watcher = watcher;
+		this.#queue = fastq.promise(this.#doSync.bind(this), 1);
 	}
 
 	/**
 	 * Whether the content layer is currently loading content
 	 */
 	get loading() {
-		return this.#loading;
+		return !this.#queue.idle();
 	}
 
 	/**
@@ -63,11 +66,7 @@ export class ContentLayer {
 	watchContentConfig() {
 		this.#unsubscribe?.();
 		this.#unsubscribe = globalContentConfigObserver.subscribe(async (ctx) => {
-			if (
-				!this.#loading &&
-				ctx.status === 'loaded' &&
-				ctx.config.digest !== this.#lastConfigDigest
-			) {
+			if (ctx.status === 'loaded' && ctx.config.digest !== this.#lastConfigDigest) {
 				this.sync();
 			}
 		});
@@ -75,23 +74,6 @@ export class ContentLayer {
 
 	unwatchContentConfig() {
 		this.#unsubscribe?.();
-	}
-
-	/**
-	 * Run the `load()` method of each collection's loader, which will load the data and save it in the data store.
-	 * The loader itself is responsible for deciding whether this will clear and reload the full collection, or
-	 * perform an incremental update. After the data is loaded, the data store is written to disk.
-	 */
-	async sync() {
-		if (this.#loading) {
-			return;
-		}
-		this.#loading = true;
-		try {
-			await this.#doSync();
-		} finally {
-			this.#loading = false;
-		}
 	}
 
 	async #getGenerateDigest() {
@@ -114,10 +96,12 @@ export class ContentLayer {
 		collectionName,
 		loaderName = 'content',
 		parseData,
+		refreshContextData,
 	}: {
 		collectionName: string;
 		loaderName: string;
 		parseData: LoaderContext['parseData'];
+		refreshContextData?: Record<string, unknown>;
 	}): Promise<LoaderContext> {
 		return {
 			collection: collectionName,
@@ -128,6 +112,7 @@ export class ContentLayer {
 			parseData,
 			generateDigest: await this.#getGenerateDigest(),
 			watcher: this.#watcher,
+			refreshContextData,
 			entryTypes: getEntryConfigByExtMap([
 				...this.#settings.contentEntryTypes,
 				...this.#settings.dataEntryTypes,
@@ -135,7 +120,18 @@ export class ContentLayer {
 		};
 	}
 
-	async #doSync() {
+	/**
+	 * Enqueues a sync job that runs the `load()` method of each collection's loader, which will load the data and save it in the data store.
+	 * The loader itself is responsible for deciding whether this will clear and reload the full collection, or
+	 * perform an incremental update. After the data is loaded, the data store is written to disk. Jobs are queued,
+	 * so that only one sync can run at a time. The function returns a promise that resolves when this sync job is complete.
+	 */
+
+	sync(options: RefreshContentOptions = {}): Promise<void> {
+		return this.#queue.push(options);
+	}
+
+	async #doSync(options: RefreshContentOptions) {
 		const contentConfig = globalContentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 		if (contentConfig?.status !== 'loaded') {
@@ -181,6 +177,15 @@ export class ContentLayer {
 					}
 				}
 
+				// If loaders are specified, only sync the specified loaders
+				if (
+					options?.loaders &&
+					(typeof collection.loader !== 'object' ||
+						!options.loaders.includes(collection.loader.name))
+				) {
+					return;
+				}
+
 				const collectionWithResolvedSchema = { ...collection, schema };
 
 				const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
@@ -214,6 +219,7 @@ export class ContentLayer {
 					collectionName: name,
 					parseData,
 					loaderName: collection.loader.name,
+					refreshContextData: options?.context,
 				});
 
 				if (typeof collection.loader === 'function') {
@@ -294,18 +300,12 @@ export async function simpleLoader<TData extends { id: string }>(
 function contentLayerSingleton() {
 	let instance: ContentLayer | null = null;
 	return {
-		initialized: () => Boolean(instance),
 		init: (options: ContentLayerOptions) => {
 			instance?.unwatchContentConfig();
 			instance = new ContentLayer(options);
 			return instance;
 		},
-		get: () => {
-			if (!instance) {
-				throw new Error('Content layer not initialized');
-			}
-			return instance;
-		},
+		get: () => instance,
 		dispose: () => {
 			instance?.unwatchContentConfig();
 			instance = null;

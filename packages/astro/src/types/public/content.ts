@@ -98,6 +98,11 @@ export interface ContentEntryType {
 	handlePropagation?: boolean;
 }
 
+export interface RefreshContentOptions {
+	loaders?: Array<string>;
+	context?: Record<string, any>;
+}
+
 type GetContentEntryInfoReturnType = {
 	data: Record<string, unknown>;
 	/**
