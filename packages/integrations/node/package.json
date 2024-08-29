@@ -11,7 +11,10 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/integrations/node"
   },
-  "keywords": ["withastro", "astro-adapter"],
+  "keywords": [
+    "withastro",
+    "astro-adapter"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/node/",
   "exports": {
@@ -20,7 +23,9 @@
     "./preview.js": "./dist/preview.js",
     "./package.json": "./package.json"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "astro-scripts test \"test/**/*.test.js\""
@@ -33,6 +38,7 @@
     "astro": "^4.2.0"
   },
   "devDependencies": {
+    "@astrojs/test-utils": "workspace:*",
     "@types/node": "^18.17.8",
     "@types/send": "^0.17.4",
     "@types/server-destroy": "^1.0.4",
