@@ -290,5 +290,19 @@ describe('Content Layer', () => {
 			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
 			await fixture.resetAllFiles();
 		});
+
+		it('reloads data when an integration triggers a content refresh', async () => {
+			const rawJsonResponse = await fixture.fetch('/collections.json');
+			const initialJson = devalue.parse(await rawJsonResponse.text());
+			assert.equal(initialJson.increment.data.lastValue, 1);
+
+			const refreshResponse = await fixture.fetch('/_refresh', { method: 'POST', body: JSON.stringify({}) });
+			const refreshData = await refreshResponse.json();
+			assert.equal(refreshData.message, 'Content refreshed successfully');
+
+			const updatedJsonResponse = await fixture.fetch('/collections.json');
+			const updated = devalue.parse(await updatedJsonResponse.text());
+			assert.equal(updated.increment.data.lastValue, 2);
+		})
 	});
 });

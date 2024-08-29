@@ -28,7 +28,7 @@ export default defineConfig({
 												res.end(JSON.stringify({ message: 'Content refreshed successfully' }));
 										} catch (error) {
 												res.writeHead(500, { 'Content-Type': 'application/json' });
-												res.end(JSON.stringify({ error: 'Failed to refresh content' }));
+												res.end(JSON.stringify({ error: 'Failed to refresh content: ' + error.message }));
 										}
 								});
 						});
