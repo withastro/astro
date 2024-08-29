@@ -35,4 +35,4 @@ export default defineConfig({
 
 If you have been waiting for stabilization before using Actions, you can now do so.
 
-For more information and usage examples, see our [all-new Actions guide](https://docs.astro.build/en/guides/actions).
+For more information and usage examples, see our [brand new Actions guide](https://docs.astro.build/en/guides/actions).
