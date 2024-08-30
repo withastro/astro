@@ -27,6 +27,7 @@ export type LoggerLabel =
 	| 'middleware'
 	| 'preferences'
 	| 'redirects'
+	| 'sync'
 	| 'toolbar'
 	| 'assets'
 	| 'env'
