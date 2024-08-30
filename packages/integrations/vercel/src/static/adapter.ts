@@ -1,5 +1,4 @@
-import type {AstroAdapter, AstroConfig, AstroIntegration, HookParameters} from 'astro';
-
+import type {AstroAdapter, AstroConfig, AstroIntegration} from 'astro';
 import { emptyDir, writeJson } from '@astrojs/internal-helpers/fs';
 import {
 	type DevImageService,
