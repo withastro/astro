@@ -54,8 +54,6 @@ export function validateSupportedFeatures(
 		() => settings.buildOutput === 'static',
 	);
 
-	// TODO: Update these checks to make sense for the new hybrid output
-
 	validationResult.hybridOutput = validateSupportKind(
 		hybridOutput,
 		adapterName,

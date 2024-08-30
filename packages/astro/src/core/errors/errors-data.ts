@@ -92,6 +92,7 @@ export const PrerenderClientAddressNotAvailable = {
 export const StaticClientAddressNotAvailable = {
 	name: 'StaticClientAddressNotAvailable',
 	title: '`Astro.clientAddress` is not available in static mode.',
+	// TODO: Update this for the new static mode? I'm not sure this error can even still happen.
 	message:
 		"`Astro.clientAddress` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
 	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information on how to enable SSR.',
@@ -400,8 +401,7 @@ export const GetStaticPathsRequired = {
 		'`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths` function from your dynamic route.',
 	hint: `See https://docs.astro.build/en/guides/routing/#dynamic-routes for more information on dynamic routes.
 
-Alternatively, set \`output: "server"\` or \`output: "hybrid"\` in your Astro config file to switch to a non-static server build. This error can also occur if using \`export const prerender = true;\`.
-See https://docs.astro.build/en/guides/server-side-rendering/ for more information on non-static rendering.`,
+	If you meant for this route to be server-rendered, set \`export const prerender = false;\` in the page.`,
 } satisfies ErrorData;
 /**
  * @docs
@@ -426,8 +426,7 @@ export const ReservedSlotName = {
 export const NoAdapterInstalled = {
 	name: 'NoAdapterInstalled',
 	title: 'Cannot use Server-side Rendering without an adapter.',
-	// TODO: Update this error message
-	message: `Cannot use \`output: 'server'\` or \`output: 'hybrid'\` without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
+	message: `Cannot use server-rendered pages without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
 	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
 } satisfies ErrorData;
 /**

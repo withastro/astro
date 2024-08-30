@@ -137,7 +137,7 @@ describe('Prerender', () => {
 		});
 	});
 
-	describe('output: "hybrid"', () => {
+	describe('output: "static" with server output', () => {
 		describe('getStaticPaths - build calls', () => {
 			before(async () => {
 				fixture = await loadFixture({

@@ -150,7 +150,12 @@ export class RenderContext {
 
 			switch (this.routeData.type) {
 				case 'endpoint': {
-					response = await renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+					response = await renderEndpoint(
+						componentInstance as any,
+						ctx,
+						this.routeData.prerender,
+						logger,
+					);
 					break;
 				}
 				case 'redirect':
