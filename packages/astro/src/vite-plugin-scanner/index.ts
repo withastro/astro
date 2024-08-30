@@ -43,7 +43,7 @@ export default function astroScannerPlugin({
 
 			const route = manifest.routes.find((r) => {
 				const filePath = new URL(`./${r.component}`, settings.config.root);
-				return fileURLToPath(filePath) === filename;
+				return normalizePath(fileURLToPath(filePath)) === filename;
 			});
 
 			if (!route) {
