@@ -12,36 +12,36 @@ It can also pass a `context` object, which will be passed to the loaders. This c
 
 ```ts
  {
-		name: 'my-integration',
-		hooks: {
-				'astro:server:setup': async ({ server, refreshContent }) => {
-						server.middlewares.use('/_refresh', async (req, res) => {
-								if(req.method !== 'POST') {
-									res.statusCode = 405
-									res.end('Method Not Allowed');
-									return
-								}
-								let body = '';
-								req.on('data', chunk => {
-										body += chunk.toString();
-								});
-								req.on('end', async () => {
-										try {
-												const webhookBody = JSON.parse(body);
-												await refreshContent({
-													context: { webhookBody },
-													loaders: ['my-loader']
-												});
-												res.writeHead(200, { 'Content-Type': 'application/json' });
-												res.end(JSON.stringify({ message: 'Content refreshed successfully' }));
-										} catch (error) {
-												res.writeHead(500, { 'Content-Type': 'application/json' });
-												res.end(JSON.stringify({ error: 'Failed to refresh content: ' + error.message }));
-										}
-								});
-						});
-				}
-		}
+    name: 'my-integration',
+    hooks: {
+        'astro:server:setup': async ({ server, refreshContent }) => {
+            server.middlewares.use('/_refresh', async (req, res) => {
+                if(req.method !== 'POST') {
+                  res.statusCode = 405
+                  res.end('Method Not Allowed');
+                  return
+                }
+                let body = '';
+                req.on('data', chunk => {
+                    body += chunk.toString();
+                });
+                req.on('end', async () => {
+                    try {
+                        const webhookBody = JSON.parse(body);
+                        await refreshContent({
+                          context: { webhookBody },
+                          loaders: ['my-loader']
+                        });
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ message: 'Content refreshed successfully' }));
+                    } catch (error) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Failed to refresh content: ' + error.message }));
+                    }
+                });
+            });
+        }
+    }
 }
 ```
 
