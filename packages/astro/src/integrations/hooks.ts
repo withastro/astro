@@ -5,7 +5,9 @@ import { bold } from 'kleur/colors';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 import { isActionsFilePresent } from '../actions/utils.js';
+import { CONTENT_LAYER_TYPE } from '../content/consts.js';
 import { globalContentLayer } from '../content/content-layer.js';
+import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
@@ -375,6 +377,16 @@ export async function runHookServerSetup({
 	let refreshContent: undefined | ((options: RefreshContentOptions) => Promise<void>);
 	if (config.experimental?.contentLayer) {
 		refreshContent = async (options: RefreshContentOptions) => {
+			const contentConfig = globalContentConfigObserver.get();
+			if (
+				contentConfig.status !== 'loaded' ||
+				!Object.values(contentConfig.config.collections).some(
+					(collection) => collection.type === CONTENT_LAYER_TYPE,
+				)
+			) {
+				return;
+			}
+
 			const contentLayer = await globalContentLayer.get();
 			await contentLayer?.sync(options);
 		};
