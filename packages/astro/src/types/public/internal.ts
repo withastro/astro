@@ -48,7 +48,7 @@ export interface RouteData {
 	 */
 	route: string;
 	/**
-	 * The file system path of the component that crated this route
+	 *  Source component URL 
 	 */
 	component: string;
 	/**
@@ -67,11 +67,13 @@ export interface RouteData {
 	 */
 	generate: (data?: any) => string;
 	/**
-	 * The parameters of the route. For example, for `[date]/[slug].astro`, the params are `['date', 'slug']`
+	 * Dynamic and spread route params
+	 * ex. "/pages/[lang]/[...slug].astro" will output the params ['lang', '...slug']
 	 */
 	params: string[];
 	/**
-	 * The path name of the route.
+	 * Output URL pathname where this route will be served
+	 * note: will be undefined for [dynamic] and [...spread] routes
 	 */
 	pathname?: string;
 	/**
@@ -79,7 +81,10 @@ export interface RouteData {
 	 */
 	distURL?: URL[];
 	/**
-	 * A regular expression that represents this route. Use this expression to match a string to this route:
+	 * 
+	 * regex used for matching an input URL against a requested route
+	 * ex. "[fruit]/about.astro" will generate the pattern: /^\/([^/]+?)\/about\/?$/
+	 * where pattern.test("banana/about") is "true"
 	 *
 	 * ## Example
 	 *
@@ -91,7 +96,7 @@ export interface RouteData {
 	 */
 	pattern: RegExp;
 	/**
-	 * A broken down version of the route. For example, for `/site/[blog]/[...slug].astro`, the segments are:
+	 * Similar to the "params" field, but with more associated metadata. For example, for `/site/[blog]/[...slug].astro`, the segments are:
 	 *
 	 * 1. `{ content: 'site', dynamic: false, spread: false }`
 	 * 2. `{ content: 'blog', dynamic: true, spread: false }`
@@ -99,6 +104,7 @@ export interface RouteData {
 	 */
 	segments: RoutePart[][];
 	/**
+	 * 
 	 * The type of the route. It can be:
 	 * - `page`: a route that lives in the file system, usually an Astro component
 	 * - `endpoint`: a route that lives in the file system, usually a JS file that exposes endpoints methods
