@@ -5,9 +5,14 @@ import { serializeActionResult } from './virtual/shared.js';
 
 export const POST: APIRoute = async (context) => {
 	const { request, url } = context;
-	const baseAction = await getAction(url.pathname);
-	if (!baseAction) {
-		return new Response(null, { status: 404 });
+	let baseAction;
+	try {
+		baseAction = await getAction(url.pathname);
+	} catch (e) {
+		if (import.meta.env.DEV) throw e;
+		// eslint-disable-next-line no-console
+		console.error(e);
+		return new Response(e instanceof Error ? e.message : null, { status: 404 });
 	}
 	const contentType = request.headers.get('Content-Type');
 	const contentLength = request.headers.get('Content-Length');

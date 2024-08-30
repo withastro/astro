@@ -1,8 +1,16 @@
 import { parse as devalueParse, stringify as devalueStringify } from 'devalue';
 import type { z } from 'zod';
+import { REDIRECT_STATUS_CODES } from '../../../core/constants.js';
+import { ActionsReturnedInvalidDataError } from '../../../core/errors/errors-data.js';
+import { AstroError } from '../../../core/errors/errors.js';
 import { ACTION_QUERY_PARAMS as _ACTION_QUERY_PARAMS } from '../../consts.js';
-import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
+import type {
+	ErrorInferenceObject,
+	MaybePromise,
+	ActionAPIContext as _ActionAPIContext,
+} from '../utils.js';
 
+export type ActionAPIContext = _ActionAPIContext;
 export const ACTION_QUERY_PARAMS = _ACTION_QUERY_PARAMS;
 
 export const ACTION_ERROR_CODES = [
@@ -173,26 +181,6 @@ export function getActionQueryString(name: string) {
 	return `?${searchParams.toString()}`;
 }
 
-/**
- * @deprecated You can now pass action functions
- * directly to the `action` attribute on a form.
- *
- * Example: `<form action={actions.like} />`
- */
-export function getActionProps<T extends (args: FormData) => MaybePromise<unknown>>(action: T) {
-	const params = new URLSearchParams(action.toString());
-	const actionName = params.get('_astroAction');
-	if (!actionName) {
-		// No need for AstroError. `getActionProps()` will be removed for stable.
-		throw new Error('Invalid actions function was passed to getActionProps()');
-	}
-	return {
-		type: 'hidden',
-		name: '_astroAction',
-		value: actionName,
-	} as const;
-}
-
 export type SerializedActionResult =
 	| {
 			type: 'data';
@@ -232,23 +220,51 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 			status: 204,
 		};
 	}
+	let body;
+	try {
+		body = devalueStringify(res.data, {
+			// Add support for URL objects
+			URL: (value) => value instanceof URL && value.href,
+		});
+	} catch (e) {
+		let hint = ActionsReturnedInvalidDataError.hint;
+		if (res.data instanceof Response) {
+			hint = REDIRECT_STATUS_CODES.includes(res.data.status as any)
+				? 'If you need to redirect when the action succeeds, trigger a redirect where the action is called. See the Actions guide for server and client redirect examples: https://docs.astro.build/en/guides/actions.'
+				: 'If you need to return a Response object, try using a server endpoint instead. See https://docs.astro.build/en/guides/endpoints/#server-endpoints-api-routes';
+		}
+		throw new AstroError({
+			...ActionsReturnedInvalidDataError,
+			message: ActionsReturnedInvalidDataError.message(String(e)),
+			hint,
+		});
+	}
 	return {
 		type: 'data',
 		status: 200,
 		contentType: 'application/json+devalue',
-		body: devalueStringify(res.data, {
-			// Add support for URL objects
-			URL: (value) => value instanceof URL && value.href,
-		}),
+		body,
 	};
 }
 
 export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {
 	if (res.type === 'error') {
+		let json;
+		try {
+			json = JSON.parse(res.body);
+		} catch {
+			return {
+				data: undefined,
+				error: new ActionError({
+					message: res.body,
+					code: 'INTERNAL_SERVER_ERROR',
+				}),
+			};
+		}
 		if (import.meta.env?.PROD) {
-			return { error: ActionError.fromJson(JSON.parse(res.body)), data: undefined };
+			return { error: ActionError.fromJson(json), data: undefined };
 		} else {
-			const error = ActionError.fromJson(JSON.parse(res.body));
+			const error = ActionError.fromJson(json);
 			error.stack = actionResultErrorStack.get();
 			return {
 				error,

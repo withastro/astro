@@ -58,7 +58,7 @@ function astroDBIntegration(): AstroIntegration {
 		inProgress: false,
 	};
 
-	let command: 'dev' | 'build' | 'preview';
+	let command: 'dev' | 'build' | 'preview' | 'sync';
 	let output: AstroConfig['output'] = 'server';
 	return {
 		name: 'astro:db',

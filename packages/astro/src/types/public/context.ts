@@ -1,7 +1,7 @@
+import type { z } from 'zod';
 import type {
 	ActionAccept,
 	ActionClient,
-	ActionInputSchema,
 	ActionReturnType,
 } from '../../actions/runtime/virtual/server.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../core/constants.js';
@@ -140,7 +140,7 @@ export interface AstroGlobal<
 
 	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
-	 * 
+	 *
 	 * ## Example
 	 * - The value when rendering `src/pages/index.astro` will `index`.
 	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
@@ -273,7 +273,7 @@ interface AstroSharedContext<
 	 */
 	getActionResult: <
 		TAccept extends ActionAccept,
-		TInputSchema extends ActionInputSchema<TAccept>,
+		TInputSchema extends z.ZodType,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction,
@@ -283,7 +283,7 @@ interface AstroSharedContext<
 	 */
 	callAction: <
 		TAccept extends ActionAccept,
-		TInputSchema extends ActionInputSchema<TAccept>,
+		TInputSchema extends z.ZodType,
 		TOutput,
 		TAction extends
 			| ActionClient<TOutput, TAccept, TInputSchema>
@@ -518,5 +518,5 @@ export interface APIContext<
 	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
 	 * - The value when rendering `src/pages/[...path].astro` will `[...path]`.
 	 */
-	routePattern: string
+	routePattern: string;
 }

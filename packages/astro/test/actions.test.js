@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
+import { serializeActionResult } from '../dist/actions/runtime/virtual/shared.js';
+import { REDIRECT_STATUS_CODES } from '../dist/core/constants.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
@@ -23,6 +25,28 @@ describe('Astro Actions', () => {
 
 		after(async () => {
 			await devServer.stop();
+		});
+
+		it('Does not process middleware cookie for prerendered routes', async () => {
+			const cookie = new URLSearchParams();
+			cookie.append(
+				'_astroActionPayload',
+				JSON.stringify({
+					actionName: 'subscribe',
+					actionResult: serializeActionResult({
+						data: { channel: 'bholmesdev', subscribeButtonState: 'smashed' },
+						error: undefined,
+					}),
+				}),
+			);
+			const res = await fixture.fetch('/subscribe-prerendered', {
+				headers: {
+					Cookie: cookie.toString(),
+				},
+			});
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal($('body').text().trim(), 'No cookie found.');
 		});
 
 		it('Exposes subscribe action', async () => {
@@ -217,43 +241,69 @@ describe('Astro Actions', () => {
 			assert.ok($('#user'));
 		});
 
-		describe('legacy', () => {
-			it('Response middleware fallback', async () => {
-				const formData = new FormData();
-				formData.append('_astroAction', 'getUser');
-				const req = new Request('http://example.com/user', {
-					method: 'POST',
-					body: formData,
-					headers: {
-						Referer: 'http://example.com/user',
-					},
-				});
-				const res = await followExpectedRedirect(req, app);
-				assert.equal(res.ok, true);
+		it('Supports effects on form input validators', async () => {
+			const formData = new FormData();
+			formData.set('password', 'benisawesome');
+			formData.set('confirmPassword', 'benisveryawesome');
 
-				const html = await res.text();
-				let $ = cheerio.load(html);
-				assert.equal($('#user').text(), 'Houston');
+			const req = new Request('http://example.com/_actions/validatePassword', {
+				method: 'POST',
+				body: formData,
 			});
 
-			it('Respects custom errors', async () => {
-				const formData = new FormData();
-				formData.append('_astroAction', 'getUserOrThrow');
-				const req = new Request('http://example.com/user-or-throw', {
-					method: 'POST',
-					body: formData,
-					headers: {
-						Referer: 'http://example.com/user-or-throw',
-					},
-				});
-				const res = await followExpectedRedirect(req, app);
-				assert.equal(res.status, 401);
+			const res = await app.render(req);
 
-				const html = await res.text();
-				let $ = cheerio.load(html);
-				assert.equal($('#error-message').text(), 'Not logged in');
-				assert.equal($('#error-code').text(), 'UNAUTHORIZED');
+			assert.equal(res.ok, false);
+			assert.equal(res.status, 400);
+			assert.equal(res.headers.get('Content-Type'), 'application/json');
+
+			const data = await res.json();
+			assert.equal(data.type, 'AstroActionInputError');
+			assert.equal(data.issues?.[0]?.message, 'Passwords do not match');
+		});
+
+		it('Supports complex chained effects on form input validators', async () => {
+			const formData = new FormData();
+			formData.set('currentPassword', 'benisboring');
+			formData.set('newPassword', 'benisawesome');
+			formData.set('confirmNewPassword', 'benisawesome');
+
+			const req = new Request('http://example.com/_actions/validatePasswordComplex', {
+				method: 'POST',
+				body: formData,
 			});
+
+			const res = await app.render(req);
+
+			assert.equal(res.ok, true);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const data = devalue.parse(await res.text());
+			assert.equal(Object.keys(data).length, 2, 'More keys than expected');
+			assert.deepEqual(data, {
+				currentPassword: 'benisboring',
+				newPassword: 'benisawesome',
+			});
+		});
+
+		it('Supports input form data transforms', async () => {
+			const formData = new FormData();
+			formData.set('name', 'ben');
+			formData.set('age', '42');
+
+			const req = new Request('http://example.com/_actions/transformFormInput', {
+				method: 'POST',
+				body: formData,
+			});
+
+			const res = await app.render(req);
+
+			assert.equal(res.ok, true);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const data = devalue.parse(await res.text());
+			assert.equal(data?.name, 'ben');
+			assert.equal(data?.age, '42');
 		});
 
 		it('Sets status to 204 when content-length is 0', async () => {
@@ -348,8 +398,6 @@ describe('Astro Actions', () => {
 	});
 });
 
-const validRedirectStatuses = new Set([301, 302, 303, 304, 307, 308]);
-
 /**
  * Follow an expected redirect response.
  *
@@ -360,7 +408,7 @@ const validRedirectStatuses = new Set([301, 302, 303, 304, 307, 308]);
 async function followExpectedRedirect(req, app) {
 	const redirect = await app.render(req, { addCookieHeader: true });
 	assert.ok(
-		validRedirectStatuses.has(redirect.status),
+		REDIRECT_STATUS_CODES.includes(redirect.status),
 		`Expected redirect status, got ${redirect.status}`,
 	);
 

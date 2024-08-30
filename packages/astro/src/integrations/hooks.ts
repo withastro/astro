@@ -3,6 +3,8 @@ import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import type { InlineConfig, ViteDevServer } from 'vite';
+import astroIntegrationActionsRouteHandler from '../actions/integration.js';
+import { isActionsFilePresent } from '../actions/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
@@ -119,7 +121,7 @@ export async function runHookConfigSetup({
 	fs = fsMod,
 }: {
 	settings: AstroSettings;
-	command: 'dev' | 'build' | 'preview';
+	command: 'dev' | 'build' | 'preview' | 'sync';
 	logger: Logger;
 	isRestart?: boolean;
 	fs?: typeof fsMod;
@@ -128,9 +130,8 @@ export async function runHookConfigSetup({
 	if (settings.config.adapter) {
 		settings.config.integrations.push(settings.config.adapter);
 	}
-	if (settings.config.experimental?.actions) {
-		const { default: actionsIntegration } = await import('../actions/index.js');
-		settings.config.integrations.push(actionsIntegration({ fs, settings }));
+	if (await isActionsFilePresent(fs, settings.config.srcDir)) {
+		settings.config.integrations.push(astroIntegrationActionsRouteHandler({ settings }));
 	}
 
 	let updatedConfig: AstroConfig = { ...settings.config };

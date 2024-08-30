@@ -192,4 +192,22 @@ describe('formDataToObject', () => {
 		assert.equal(res.files instanceof Array, true);
 		assert.deepEqual(res.files, [file1, file2]);
 	});
+
+	it('should allow object passthrough when chaining .passthrough() on root object', () => {
+		const formData = new FormData();
+		formData.set('expected', '42');
+		formData.set('unexpected', '42');
+
+		const input = z
+			.object({
+				expected: z.number(),
+			})
+			.passthrough();
+
+		const res = formDataToObject(formData, input);
+		assert.deepEqual(res, {
+			expected: 42,
+			unexpected: '42',
+		});
+	});
 });

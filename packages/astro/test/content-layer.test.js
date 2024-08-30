@@ -129,6 +129,21 @@ describe('Content Layer', () => {
 			assert.ok(json.entryWithReference.data.publishedDate instanceof Date);
 		});
 
+		it('loads images in frontmatter', async () => {
+			assert.ok(json.entryWithReference.data.heroImage.src.startsWith('/_astro'));
+			assert.equal(json.entryWithReference.data.heroImage.format, 'jpg');
+		});
+
+		it('loads images from custom loaders', async () => {
+			assert.ok(json.images[0].data.image.src.startsWith('/_astro'));
+			assert.equal(json.images[0].data.image.format, 'jpg');
+		});
+
+		it('handles remote images in custom loaders', async () => {
+			console.log(json.images[1].data.image);
+			assert.ok(json.images[1].data.image.startsWith('https://'));
+		});
+
 		it('returns a referenced entry', async () => {
 			assert.ok(json.hasOwnProperty('referencedEntry'));
 			assert.deepEqual(json.referencedEntry, {

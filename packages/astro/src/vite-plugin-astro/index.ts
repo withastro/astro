@@ -148,22 +148,22 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				}
 				case 'script': {
 					if (typeof query.index === 'undefined') {
-						throw new Error(`Requests for hoisted scripts must include an index`);
+						throw new Error(`Requests for scripts must include an index`);
 					}
-					// HMR hoisted script only exists to make them appear in the module graph.
+					// SSR script only exists to make them appear in the module graph.
 					if (opts?.ssr) {
 						return {
-							code: `/* client hoisted script, empty in SSR: ${id} */`,
+							code: `/* client script, empty in SSR: ${id} */`,
 						};
 					}
 
-					const hoistedScript = compileMetadata.scripts[query.index];
-					if (!hoistedScript) {
-						throw new Error(`No hoisted script at index ${query.index}`);
+					const script = compileMetadata.scripts[query.index];
+					if (!script) {
+						throw new Error(`No script at index ${query.index}`);
 					}
 
-					if (hoistedScript.type === 'external') {
-						const src = hoistedScript.src;
+					if (script.type === 'external') {
+						const src = script.src;
 						if (src.startsWith('/') && !isBrowserPath(src)) {
 							const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
 							throw new Error(
@@ -181,14 +181,14 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						},
 					};
 
-					switch (hoistedScript.type) {
+					switch (script.type) {
 						case 'inline': {
-							const { code, map } = hoistedScript;
+							const { code, map } = script;
 							result.code = appendSourceMap(code, map);
 							break;
 						}
 						case 'external': {
-							const { src } = hoistedScript;
+							const { src } = script;
 							result.code = `import "${src}"`;
 							break;
 						}

@@ -6,7 +6,7 @@ import micromatch from 'micromatch';
 import pLimit from 'p-limit';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
 import type { RenderedContent } from '../data-store.js';
-import { getContentEntryIdAndSlug, getEntryConfigByExtMap, posixRelative } from '../utils.js';
+import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
 
 export interface GenerateIdOptions {
@@ -66,7 +66,7 @@ export function glob(globOptions: GlobOptions): Loader {
 
 	return {
 		name: 'glob-loader',
-		load: async ({ settings, logger, watcher, parseData, store, generateDigest }) => {
+		load: async ({ config, logger, watcher, parseData, store, generateDigest, entryTypes }) => {
 			const renderFunctionByContentType = new WeakMap<
 				ContentEntryType,
 				ContentEntryRenderFunction
@@ -121,7 +121,7 @@ export function glob(globOptions: GlobOptions): Loader {
 
 				const filePath = fileURLToPath(fileUrl);
 
-				const relativePath = posixRelative(fileURLToPath(settings.config.root), filePath);
+				const relativePath = posixRelative(fileURLToPath(config.root), filePath);
 
 				const parsedData = await parseData({
 					id,
@@ -131,7 +131,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				if (entryType.getRenderFunction) {
 					let render = renderFunctionByContentType.get(entryType);
 					if (!render) {
-						render = await entryType.getRenderFunction(settings.config);
+						render = await entryType.getRenderFunction(config);
 						// Cache the render function for this content type, so it can re-use parsers and other expensive setup
 						renderFunctionByContentType.set(entryType, render);
 					}
@@ -177,14 +177,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				fileToIdMap.set(filePath, id);
 			}
 
-			const entryConfigByExt = getEntryConfigByExtMap([
-				...settings.contentEntryTypes,
-				...settings.dataEntryTypes,
-			] as Array<ContentEntryType>);
-
-			const baseDir = globOptions.base
-				? new URL(globOptions.base, settings.config.root)
-				: settings.config.root;
+			const baseDir = globOptions.base ? new URL(globOptions.base, config.root) : config.root;
 
 			if (!baseDir.pathname.endsWith('/')) {
 				baseDir.pathname = `${baseDir.pathname}/`;
@@ -200,13 +193,13 @@ export function glob(globOptions: GlobOptions): Loader {
 					logger.warn(`No extension found for ${file}`);
 					return;
 				}
-				return entryConfigByExt.get(`.${ext}`);
+				return entryTypes.get(`.${ext}`);
 			}
 
 			const limit = pLimit(10);
 			const skippedFiles: Array<string> = [];
 
-			const contentDir = new URL('content/', settings.config.srcDir);
+			const contentDir = new URL('content/', config.srcDir);
 
 			function isInContentDir(file: string) {
 				const fileUrl = new URL(file, baseDir);

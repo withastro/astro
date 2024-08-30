@@ -3,9 +3,7 @@ import { defineConfig } from 'astro/config';
 // https://astro.build/config
 export default defineConfig({
 	output: 'server',
-	experimental: {
-		actions: true,
-	},
+	// we stub actions coming from another domain for testing purposes
 	security: {
 		checkOrigin: false
 	}

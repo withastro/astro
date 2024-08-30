@@ -104,7 +104,7 @@ describe('Dev rewrite, trailing slash -> never, with base', () => {
 	});
 
 	it('should rewrite to the homepage', async () => {
-		const html = await fixture.fetch('/foo').then((res) => res.text());
+		const html = await fixture.fetch('/base/foo').then((res) => res.text());
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');

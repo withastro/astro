@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/server-islands/' });
+const test = testFactory(import.meta.url, { root: './fixtures/server-islands/' });
 
 test.describe('Server islands', () => {
 	test.describe('Development', () => {
