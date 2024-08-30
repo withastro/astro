@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Provide error message when Actions throws in setup
+Fixes a missing error message when actions throws during `astro sync`
