@@ -474,14 +474,13 @@ export class experimental_AstroContainer {
 			routeType === 'endpoint'
 				? (component as unknown as ComponentInstance)
 				: this.#wrapComponent(component, options.params);
+		const middleware = await this.#pipeline.getMiddleware();
 		const routeData = this.#insertRoute({
 			path: request.url,
 			componentInstance,
 			params: options.params,
 			type: routeType,
 		});
-		const middlewareInstance = await this.#pipeline.middleware();
-		const middleware = middlewareInstance.onRequest;
 		const renderContext = await RenderContext.create({
 			pipeline: this.#pipeline,
 			routeData,
