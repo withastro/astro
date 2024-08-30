@@ -1,6 +1,5 @@
 import type {
 	ComponentInstance,
-	MiddlewareHandler,
 	RewritePayload,
 	RouteData,
 	SSRLoadedRenderer,
@@ -28,7 +27,6 @@ import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
-import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -49,19 +47,6 @@ export class BuildPipeline extends Pipeline {
 		return ssr
 			? this.settings.config.build.server
 			: getOutDirWithinCwd(this.settings.config.outDir);
-	}
-
-	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
-
-	async getMiddleware(): Promise<MiddlewareHandler> {
-		if (this.resolvedMiddleware) {
-			return this.resolvedMiddleware;
-		} else {
-			const middlewareInstance = await this.middleware();
-			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
-			this.resolvedMiddleware = onRequest;
-			return this.resolvedMiddleware;
-		}
 	}
 
 	private constructor(

@@ -15,6 +15,9 @@ import { AstroErrorData } from './errors/index.js';
 import type { Logger } from './logger/core.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
+import {NOOP_MIDDLEWARE_FN} from "./middleware/noop-middleware.js";
+import {sequence} from "./middleware/index.js";
+import {createOriginCheckMiddleware} from "./app/middlewares.js";
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -24,7 +27,8 @@ import { createDefaultRoutes } from './routing/default.js';
  */
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
-
+	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
+	
 	constructor(
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
@@ -102,7 +106,20 @@ export abstract class Pipeline {
 	 * Resolves the middleware from the manifest, and returns the `onRequest` function. If `onRequest` isn't there,
 	 * it returns a no-op function
 	 */
-	abstract getMiddleware(): Promise<MiddlewareHandler>;
+	async getMiddleware(): Promise<MiddlewareHandler> {
+		if (this.resolvedMiddleware) {
+			return this.resolvedMiddleware;
+		} else {
+			const middlewareInstance = await this.middleware();
+			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
+			if (this.manifest.checkOrigin) {
+				this.resolvedMiddleware = sequence(createOriginCheckMiddleware(), onRequest);
+			} else {
+				this.resolvedMiddleware = onRequest;
+			}
+			return this.resolvedMiddleware;
+		}
+	}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

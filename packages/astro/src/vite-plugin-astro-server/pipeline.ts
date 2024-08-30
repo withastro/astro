@@ -4,7 +4,6 @@ import type {
 	ComponentInstance,
 	DevToolbarMetadata,
 	ManifestData,
-	MiddlewareHandler,
 	RewritePayload,
 	RouteData,
 	SSRElement,
@@ -28,7 +27,6 @@ import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
 import { getScriptsForURL } from './scripts.js';
-import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -36,18 +34,6 @@ export class DevPipeline extends Pipeline {
 	override renderers = new Array<SSRLoadedRenderer>();
 
 	manifestData: ManifestData | undefined;
-	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
-
-	async getMiddleware(): Promise<MiddlewareHandler> {
-		if (this.resolvedMiddleware) {
-			return this.resolvedMiddleware;
-		} else {
-			const middlewareInstance = await this.middleware();
-			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
-			this.resolvedMiddleware = onRequest;
-			return this.resolvedMiddleware;
-		}
-	}
 
 	componentInterner: WeakMap<RouteData, ComponentInstance> = new WeakMap<
 		RouteData,
