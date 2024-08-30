@@ -10,9 +10,31 @@ export function getAstroEnv(envMode = ''): Record<`ASTRO_${string}`, string> {
 	return env;
 }
 
-export function getRemoteDatabaseUrl(): string {
-	const env = getAstroStudioEnv();
-	return env.ASTRO_STUDIO_REMOTE_DB_URL || 'https://db.services.astro.build';
+export type RemoteDatabaseInfo = {
+	type: 'libsql' | 'studio';
+	url: string;
+};
+
+export function getRemoteDatabaseInfo(): RemoteDatabaseInfo {
+	const astroEnv = getAstroEnv();
+	const studioEnv = getAstroStudioEnv();
+
+	if (studioEnv.ASTRO_STUDIO_REMOTE_DB_URL)
+		return {
+			type: 'studio',
+			url: studioEnv.ASTRO_STUDIO_REMOTE_DB_URL,
+		};
+
+	if (astroEnv.ASTRO_DB_REMOTE_URL)
+		return {
+			type: 'libsql',
+			url: astroEnv.ASTRO_DB_REMOTE_URL,
+		};
+
+	return {
+		type: 'studio',
+		url: 'https://db.services.astro.build',
+	};
 }
 
 export function getDbDirectoryUrl(root: URL | string) {

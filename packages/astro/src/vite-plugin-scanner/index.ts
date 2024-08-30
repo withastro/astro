@@ -2,7 +2,7 @@ import { extname } from 'node:path';
 import { bold } from 'kleur/colors';
 import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
-import { type Logger } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import { isEndpoint, isPage, isServerLikeOutput } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import { runHookRouteSetup } from '../integrations/hooks.js';

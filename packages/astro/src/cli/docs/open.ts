@@ -1,5 +1,4 @@
-import type { ExecaChildProcess } from 'execa';
-import { execa } from 'execa';
+import { type Result, exec } from 'tinyexec';
 
 /**
  *  Credit: Azhar22
@@ -26,7 +25,7 @@ const getPlatformSpecificCommand = (): [string] | [string, string[]] => {
 	}
 };
 
-export async function openInBrowser(url: string): Promise<ExecaChildProcess> {
+export async function openInBrowser(url: string): Promise<Result> {
 	const [command, args = []] = getPlatformSpecificCommand();
-	return execa(command, [...args, encodeURI(url)]);
+	return exec(command, [...args, encodeURI(url)]);
 }
