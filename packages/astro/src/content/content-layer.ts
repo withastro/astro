@@ -188,7 +188,7 @@ export class ContentLayer {
 				const collectionWithResolvedSchema = { ...collection, schema };
 
 				const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
-					const { imageImports, data: parsedData } = await getEntryDataAndImages(
+					const { data: parsedData } = await getEntryDataAndImages(
 						{
 							id,
 							collection: name,
@@ -201,15 +201,6 @@ export class ContentLayer {
 						collectionWithResolvedSchema,
 						false,
 					);
-					if (imageImports?.length) {
-						this.#store.addAssetImports(
-							imageImports,
-							// This path may already be relative, if we're re-parsing an existing entry
-							isAbsolute(filePath)
-								? posixRelative(fileURLToPath(this.#settings.config.root), filePath)
-								: filePath,
-						);
-					}
 
 					return parsedData;
 				};
