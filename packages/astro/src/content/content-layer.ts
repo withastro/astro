@@ -76,6 +76,11 @@ export class ContentLayer {
 		this.#unsubscribe?.();
 	}
 
+	dispose() {
+		this.#queue.kill();
+		this.#unsubscribe?.();
+	}
+
 	async #getGenerateDigest() {
 		if (this.#generateDigest) {
 			return this.#generateDigest;
@@ -301,13 +306,13 @@ function contentLayerSingleton() {
 	let instance: ContentLayer | null = null;
 	return {
 		init: (options: ContentLayerOptions) => {
-			instance?.unwatchContentConfig();
+			instance?.dispose();
 			instance = new ContentLayer(options);
 			return instance;
 		},
 		get: () => instance,
 		dispose: () => {
-			instance?.unwatchContentConfig();
+			instance?.dispose();
 			instance = null;
 		},
 	};
