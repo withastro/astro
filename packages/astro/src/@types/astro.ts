@@ -1683,7 +1683,7 @@ export interface AstroUserConfig {
 					 *
 					 * When `i18n.routing.fallback: "rewrite"` is configured, Astro will create pages that render the contents of the fallback page on the original, requested URL.
 					 *
-					 * With the following configuration, if you have the file `src/pages/en/about.astro` but not `src/pages/fr/about.astro`, the `astro build` command will generate `dist/fr/about.html` with the same content as the `dist/en/index.html` page.
+					 * With the following configuration, if you have the file `src/pages/en/about.astro` but not `src/pages/fr/about.astro`, the `astro build` command will generate `dist/fr/about.html` with the same content as the `dist/en/about.html` page.
 					 * Your site visitor will see the English version of the page at `https://example.com/fr/about/` and will not be redirected.
 					 *
 					 * ```js
