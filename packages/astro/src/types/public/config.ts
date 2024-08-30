@@ -467,7 +467,7 @@ export interface AstroUserConfig {
 		 * @name security.checkOrigin
 		 * @kind h4
 		 * @type {boolean}
-		 * @default 'true'
+		 * @default `true`
 		 * @version 4.9.0
 		 * @description
 		 *
@@ -1417,13 +1417,16 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @kind heading
 	 * @name env
 	 * @type {object}
 	 * @default `{}`
 	 * @version 5.0.0
 	 * @description
 	 *
-	 * Holds `astro:env` options.
+	 * Configuration options for type-safe environment variables.
+	 *
+	 * See our guide for more information on [environment variables in Astro](/en/guides/environment-variables/).
 	 */
 	env?: {
 		/**
