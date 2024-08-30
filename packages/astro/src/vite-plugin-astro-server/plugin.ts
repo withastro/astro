@@ -49,12 +49,12 @@ export default function createVitePluginAstroServer({
 			const localStorage = new AsyncLocalStorage();
 
 			/** rebuild the route cache + manifest, as needed. */
-			function rebuildManifest(needsManifestRebuild: boolean) {
+			async function rebuildManifest(needsManifestRebuild: boolean) {
 				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
 					manifestData = injectDefaultRoutes(
 						devSSRManifest,
-						createRouteManifest({ settings, fsMod }, logger),
+						await createRouteManifest({ settings, fsMod }, logger),
 					);
 					pipeline.setManifestData(manifestData);
 				}

@@ -52,7 +52,7 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 		});
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -89,7 +89,7 @@ describe('routing - createRouteManifest', () => {
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -132,7 +132,7 @@ describe('routing - createRouteManifest', () => {
 			trailingSlash: 'never',
 		});
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -169,7 +169,7 @@ describe('routing - createRouteManifest', () => {
 			trailingSlash: 'never',
 		});
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -215,7 +215,7 @@ describe('routing - createRouteManifest', () => {
 			trailingSlash: 'never',
 		});
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -280,7 +280,7 @@ describe('routing - createRouteManifest', () => {
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -330,7 +330,7 @@ describe('routing - createRouteManifest', () => {
 				},
 			},
 		});
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -387,7 +387,7 @@ describe('routing - createRouteManifest', () => {
 
 		const { logger, logs } = getLogger();
 
-		createRouteManifest(manifestOptions, logger);
+		await createRouteManifest(manifestOptions, logger);
 
 		assert.deepEqual(logs, [
 			{
@@ -430,7 +430,7 @@ describe('routing - createRouteManifest', () => {
 
 		const { logger, logs } = getLogger();
 
-		createRouteManifest(manifestOptions, logger);
+		await createRouteManifest(manifestOptions, logger);
 
 		assert.deepEqual(logs, [
 			{
@@ -477,7 +477,7 @@ describe('routing - createRouteManifest', () => {
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,

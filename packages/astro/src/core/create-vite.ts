@@ -48,7 +48,7 @@ interface CreateViteOptions {
 	command?: 'dev' | 'build';
 	fs?: typeof nodeFs;
 	sync: boolean;
-	manifest?: ManifestData;
+	manifest: ManifestData;
 }
 
 const ALWAYS_NOEXTERNAL = [
@@ -132,7 +132,7 @@ export async function createVite(
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs, manifest: manifest! }), // The manifest is always defined in dev mode
+			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs, manifest }),
 			envVitePlugin({ settings, logger }),
 			astroEnv({ settings, mode, sync }),
 			markdownVitePlugin({ settings, logger }),
@@ -141,7 +141,7 @@ export async function createVite(
 			astroIntegrationsContainerPlugin({ settings, logger }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
-			astroScannerPlugin({ settings, logger }),
+			astroScannerPlugin({ settings, logger, manifest }),
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
 			astroContentAssetPropagationPlugin({ mode, settings }),

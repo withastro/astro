@@ -1,5 +1,6 @@
 import type { UserConfig as ViteUserConfig } from 'vite';
 import { Logger } from '../core/logger/core.js';
+import { createRouteManifest } from '../core/routing/index.js';
 import type { AstroInlineConfig, AstroUserConfig } from '../types/public/config.js';
 
 export function defineConfig(config: AstroUserConfig) {
@@ -40,6 +41,7 @@ export function getViteConfig(
 		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
 		let settings = await createSettings(config, userViteConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
+		const manifest = await createRouteManifest({ settings }, logger);
 		const viteConfig = await createVite(
 			{
 				mode,
@@ -48,7 +50,7 @@ export function getViteConfig(
 					astroContentListenPlugin({ settings, logger, fs }),
 				],
 			},
-			{ settings, logger, mode, sync: false },
+			{ settings, logger, mode, sync: false, manifest },
 		);
 		await runHookConfigDone({ settings, logger });
 		return mergeConfig(viteConfig, userViteConfig);

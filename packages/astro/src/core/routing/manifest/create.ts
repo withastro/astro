@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
+import { runHookRouteSetup } from '../../../integrations/hooks.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RouteData, RoutePart } from '../../../types/public/internal.js';
@@ -472,10 +473,10 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 }
 
 /** Create manifest of all static routes */
-export function createRouteManifest(
+export async function createRouteManifest(
 	params: CreateRouteManifestParams,
 	logger: Logger,
-): ManifestData {
+): Promise<ManifestData> {
 	const { settings } = params;
 	const { config } = settings;
 	// Create a map of all routes so redirects can refer to any route
@@ -499,21 +500,9 @@ export function createRouteManifest(
 
 	settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
 
-	// Scan all the routes to see if they're prerendered or not
+	// Check if
 	for (const route of routes) {
-		if (route.type !== 'page' && route.type !== 'endpoint') continue;
-		const localFs = params.fsMod ?? nodeFs;
-		const content = localFs.readFileSync(
-			fileURLToPath(new URL(route.component, config.root)),
-			'utf-8',
-		);
-
-		// Check if the route is pre-rendered or not
-		const match = /^export\s+const\s+prerender\s*=\s*(true|false);?/m.exec(content);
-		if (match) {
-			route.prerender = match[1] === 'true';
-			if (!route.prerender) settings.buildOutput = 'server';
-		}
+		await getRoutePrerenderOption(route, settings, params.fsMod, logger);
 	}
 
 	// Report route collisions
@@ -717,6 +706,30 @@ export function createRouteManifest(
 	return {
 		routes,
 	};
+}
+
+async function getRoutePrerenderOption(
+	route: RouteData,
+	settings: AstroSettings,
+	fsMod: typeof nodeFs | undefined,
+	logger: Logger,
+) {
+	if (route.type !== 'page' && route.type !== 'endpoint') return;
+	const localFs = fsMod ?? nodeFs;
+	const content = localFs.readFileSync(
+		fileURLToPath(new URL(route.component, settings.config.root)),
+		'utf-8',
+	);
+
+	// Check if the route is pre-rendered or not
+	const match = /^\s*export\s+const\s+prerender\s*=\s*(true|false);?/m.exec(content);
+	if (match) {
+		route.prerender = match[1] === 'true';
+	}
+
+	await runHookRouteSetup({ route, settings, logger });
+
+	if (!route.prerender) settings.buildOutput = 'server';
 }
 
 export function resolveInjectedRoute(entrypoint: string, root: URL, cwd?: string) {

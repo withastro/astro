@@ -147,7 +147,7 @@ describe('Route matching', () => {
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);
 		pipeline = DevPipeline.create(undefined, { loader, logger: defaultLogger, manifest, settings });
-		manifestData = createRouteManifest(
+		manifestData = await createRouteManifest(
 			{
 				cwd: fileURLToPath(root),
 				settings,

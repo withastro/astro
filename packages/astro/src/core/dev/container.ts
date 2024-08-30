@@ -81,7 +81,7 @@ export async function createContainer({
 		.filter(Boolean) as string[];
 
 	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
-	const manifest = createRouteManifest({ settings, fsMod: fs }, logger);
+	const manifest = await createRouteManifest({ settings, fsMod: fs }, logger);
 
 	injectImageEndpoint(settings, manifest, 'dev');
 
@@ -104,6 +104,7 @@ export async function createContainer({
 			content: true,
 		},
 		force: inlineConfig?.force,
+		manifest,
 	});
 
 	const viteServer = await vite.createServer(viteConfig);

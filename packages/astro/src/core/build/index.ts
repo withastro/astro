@@ -118,7 +118,7 @@ class AstroBuilder {
 			logger: logger,
 		});
 
-		this.manifest = createRouteManifest({ settings: this.settings }, this.logger);
+		this.manifest = await createRouteManifest({ settings: this.settings }, this.logger);
 
 		if (this.settings.buildOutput === 'server') {
 			injectImageEndpoint(this.settings, this.manifest, 'build');
@@ -143,6 +143,7 @@ class AstroBuilder {
 				mode: 'build',
 				command: 'build',
 				sync: false,
+				manifest: this.manifest,
 			},
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
@@ -152,6 +153,7 @@ class AstroBuilder {
 			settings: this.settings,
 			logger,
 			fs,
+			manifest: this.manifest,
 		});
 
 		return { viteConfig };
