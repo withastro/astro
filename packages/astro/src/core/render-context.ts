@@ -105,7 +105,9 @@ export class RenderContext {
 		slots: Record<string, any> = {},
 	): Promise<Response> {
 		const { cookies, middleware, pipeline } = this;
-		const { logger, serverLike, streaming } = pipeline;
+		const { logger, serverLike, streaming, manifest } = pipeline;
+
+		const isPrerendered = !serverLike || this.routeData.prerender;
 
 		const props =
 			Object.keys(this.props).length > 0
@@ -117,8 +119,9 @@ export class RenderContext {
 						pathname: this.pathname,
 						logger,
 						serverLike,
+						base: manifest.base,
 					});
-		const apiContext = this.createAPIContext(props);
+		const apiContext = this.createAPIContext(props, isPrerendered);
 
 		this.counter++;
 		if (this.counter === 4) {
@@ -133,13 +136,13 @@ export class RenderContext {
 			if (payload) {
 				pipeline.logger.debug('router', 'Called rewriting to:', payload);
 				// we intentionally let the error bubble up
-				const [routeData, component] = await pipeline.tryRewrite(
+				const { routeData, componentInstance: newComponent } = await pipeline.tryRewrite(
 					payload,
 					this.request,
 					this.originalRoute,
 				);
 				this.routeData = routeData;
-				componentInstance = component;
+				componentInstance = newComponent;
 				this.isRewriting = true;
 				this.status = 200;
 			}
@@ -205,18 +208,27 @@ export class RenderContext {
 		return response;
 	}
 
-	createAPIContext(props: APIContext['props']): APIContext {
+	createAPIContext(props: APIContext['props'], isPrerendered: boolean): APIContext {
 		const context = this.createActionAPIContext();
+		const redirect = (path: string, status = 302) =>
+			new Response(null, { status, headers: { Location: path } });
+
 		return Object.assign(context, {
 			props,
+			redirect,
 			getActionResult: createGetActionResult(context.locals),
 			callAction: createCallAction(context),
+			// Used internally by Actions middleware.
+			// TODO: discuss exposing this information from APIContext.
+			// middleware runs on prerendered routes in the dev server,
+			// so this is useful information to have.
+			_isPrerendered: isPrerendered,
 		});
 	}
 
 	async #executeRewrite(reroutePayload: RewritePayload) {
 		this.pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
-		const [routeData, component, newURL] = await this.pipeline.tryRewrite(
+		const { routeData, componentInstance, newUrl, pathname } = await this.pipeline.tryRewrite(
 			reroutePayload,
 			this.request,
 			this.originalRoute,
@@ -225,24 +237,22 @@ export class RenderContext {
 		if (reroutePayload instanceof Request) {
 			this.request = reroutePayload;
 		} else {
-			this.request = this.#copyRequest(newURL, this.request);
+			this.request = this.#copyRequest(newUrl, this.request);
 		}
 		this.url = new URL(this.request.url);
 		this.cookies = new AstroCookies(this.request);
-		this.params = getParams(routeData, this.url.pathname);
-		this.pathname = this.url.pathname;
+		this.params = getParams(routeData, pathname);
+		this.pathname = pathname;
 		this.isRewriting = true;
 		// we found a route and a component, we can change the status code to 200
 		this.status = 200;
-		return await this.render(component);
+		return await this.render(componentInstance);
 	}
 
 	createActionAPIContext(): ActionAPIContext {
 		const renderContext = this;
 		const { cookies, params, pipeline, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
-		const redirect = (path: string, status = 302) =>
-			new Response(null, { status, headers: { Location: path } });
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			return await this.#executeRewrite(reroutePayload);
@@ -250,6 +260,7 @@ export class RenderContext {
 
 		return {
 			cookies,
+			routePattern: this.routeData.route,
 			get clientAddress() {
 				return renderContext.clientAddress();
 			},
@@ -278,7 +289,6 @@ export class RenderContext {
 			get preferredLocaleList() {
 				return renderContext.computePreferredLocaleList();
 			},
-			redirect,
 			rewrite,
 			request: this.request,
 			site: pipeline.site,
@@ -435,6 +445,7 @@ export class RenderContext {
 		return {
 			generator: astroStaticPartial.generator,
 			glob: astroStaticPartial.glob,
+			routePattern: this.routeData.route,
 			cookies,
 			get clientAddress() {
 				return renderContext.clientAddress();

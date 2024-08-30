@@ -1,14 +1,30 @@
 # @astrojs/mdx
 
+## 4.0.0-alpha.1
+
+### Minor Changes
+
+- [#11741](https://github.com/withastro/astro/pull/11741) [`6617491`](https://github.com/withastro/astro/commit/6617491c3bc2bde87f7867d7dec2580781852cfc) Thanks [@bluwy](https://github.com/bluwy)! - Updates adapter server entrypoint to use `@astrojs/mdx/server.js`
+
+  This is an internal change. Handling JSX in your `.mdx` files has been moved from Astro internals and is now the responsibility of this integration. You should not notice a change in your project, and no update to your code is required.
+
 ## 4.0.0-alpha.0
-
-### Patch Changes
-
-- [#11717](https://github.com/withastro/astro/pull/11717) [`423614e`](https://github.com/withastro/astro/commit/423614ebb6ddb76cc8d11f3e3b6ae111a4a82662) Thanks [@bluwy](https://github.com/bluwy)! - Fixes stack trace location when failed to parse an MDX file with frontmatter
 
 - Updated dependencies [[`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0), [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f), [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e), [`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e), [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9), [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6), [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6)]:
   - astro@5.0.0-alpha.0
   - @astrojs/markdown-remark@6.0.0-alpha.0
+
+## 3.1.5
+
+### Patch Changes
+
+- [#11818](https://github.com/withastro/astro/pull/11818) [`88ef1d0`](https://github.com/withastro/astro/commit/88ef1d0e774e8ab8798b9912da1b069f97736623) Thanks [@bluwy](https://github.com/bluwy)! - Fixes CSS in the layout component to be ordered first before any other components in the MDX file
+
+## 3.1.4
+
+### Patch Changes
+
+- [#11717](https://github.com/withastro/astro/pull/11717) [`423614e`](https://github.com/withastro/astro/commit/423614ebb6ddb76cc8d11f3e3b6ae111a4a82662) Thanks [@bluwy](https://github.com/bluwy)! - Fixes stack trace location when failed to parse an MDX file with frontmatter
 
 ## 3.1.3
 

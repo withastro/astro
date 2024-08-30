@@ -6,7 +6,6 @@ import { pluginChunks } from './plugin-chunks.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginContent } from './plugin-content.js';
 import { pluginCSS } from './plugin-css.js';
-import { pluginHoistedScripts } from './plugin-hoisted-scripts.js';
 import { pluginInternals } from './plugin-internals.js';
 import { pluginManifest } from './plugin-manifest.js';
 import { pluginMiddleware } from './plugin-middleware.js';
@@ -18,7 +17,7 @@ import { pluginSSR } from './plugin-ssr.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
 	register(pluginComponentEntry(internals));
-	register(pluginAnalyzer(options, internals));
+	register(pluginAnalyzer(internals));
 	register(pluginInternals(internals));
 	register(pluginManifest(options, internals));
 	register(pluginRenderers(options));
@@ -29,11 +28,7 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(astroHeadBuildPlugin(internals));
 	register(pluginPrerender(options, internals));
 	register(astroConfigBuildPlugin(options, internals));
-	if (options.settings.config.experimental.directRenderScript) {
-		register(pluginScripts(internals));
-	} else {
-		register(pluginHoistedScripts(options, internals));
-	}
+	register(pluginScripts(internals));
 	register(pluginSSR(options, internals));
 	register(pluginChunks());
 }

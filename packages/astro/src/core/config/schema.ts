@@ -81,14 +81,14 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	vite: {},
 	legacy: {},
 	redirects: {},
-	security: {},
+	security: {
+		checkOrigin: true,
+	},
 	env: {
 		schema: {},
 		validateSecrets: false,
 	},
 	experimental: {
-		actions: false,
-		directRenderScript: false,
 		contentCollectionCache: false,
 		clientPrerender: false,
 		serverIslands: false,
@@ -399,6 +399,7 @@ export const AstroConfigSchema = z.object({
 							.object({
 								prefixDefaultLocale: z.boolean().optional().default(false),
 								redirectToDefaultLocale: z.boolean().optional().default(true),
+								fallbackType: z.enum(['redirect', 'rewrite']).optional().default('redirect'),
 							})
 							.refine(
 								({ prefixDefaultLocale, redirectToDefaultLocale }) => {
@@ -499,7 +500,7 @@ export const AstroConfigSchema = z.object({
 	),
 	security: z
 		.object({
-			checkOrigin: z.boolean().default(false),
+			checkOrigin: z.boolean().default(ASTRO_CONFIG_DEFAULTS.security.checkOrigin),
 		})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.security),
@@ -513,11 +514,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.env),
 	experimental: z
 		.object({
-			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
-			directRenderScript: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.directRenderScript),
 			contentCollectionCache: z
 				.boolean()
 				.optional()

@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/server-islands/' });
+const test = testFactory(import.meta.url, { root: './fixtures/server-islands/' });
 
 test.describe('Server islands', () => {
 	test.describe('Development', () => {
@@ -51,7 +51,10 @@ test.describe('Server islands', () => {
 			await expect(el).toHaveCount(2);
 		});
 
-		test('Large islands that exceed URL length still work through POST', async ({ page, astro }) => {
+		test('Large islands that exceed URL length still work through POST', async ({
+			page,
+			astro,
+		}) => {
 			await page.goto(astro.resolveUrl('/base/'));
 			let el = page.locator('#basics .island');
 

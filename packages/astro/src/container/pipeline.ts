@@ -1,4 +1,4 @@
-import { type HeadElements, Pipeline } from '../core/base-pipeline.js';
+import { type HeadElements, Pipeline, type TryRewriteResult } from '../core/base-pipeline.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
 import {
 	createModuleScriptElement,
@@ -64,11 +64,8 @@ export class ContainerPipeline extends Pipeline {
 		return { links, styles, scripts };
 	}
 
-	async tryRewrite(
-		payload: RewritePayload,
-		request: Request,
-	): Promise<[RouteData, ComponentInstance, URL]> {
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
+		const { newUrl, pathname, routeData } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.manifest?.routes.map((r) => r.routeData),
@@ -77,8 +74,8 @@ export class ContainerPipeline extends Pipeline {
 			base: this.manifest.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { componentInstance, routeData, newUrl, pathname };
 	}
 
 	insertRoute(route: RouteData, componentInstance: ComponentInstance): void {

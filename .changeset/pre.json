@@ -32,15 +32,30 @@
     "@astrojs/upgrade": "0.3.1"
   },
   "changesets": [
+    "blue-boats-relax",
     "chatty-teachers-sit",
+    "eighty-boxes-applaud",
+    "fair-rats-fail",
+    "healthy-ads-scream",
+    "itchy-toys-march",
+    "long-months-burn",
+    "many-garlics-lick",
     "mighty-trees-teach",
+    "modern-bears-deny",
     "new-pillows-kick",
+    "odd-donuts-impress",
+    "perfect-fans-fly",
     "poor-frogs-dream",
     "quick-ads-exercise",
+    "selfish-impalas-grin",
     "small-ties-sort",
     "smart-comics-doubt",
+    "smooth-melons-cough",
     "spicy-houses-fry",
+    "spotty-garlics-cheat",
     "ten-students-repair",
-    "weak-dancers-beam"
+    "tiny-lamps-lick",
+    "weak-dancers-beam",
+    "weak-masks-do"
   ]
 }

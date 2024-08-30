@@ -13,15 +13,12 @@ export type StylesheetAsset =
 	| { type: 'inline'; content: string }
 	| { type: 'external'; src: string };
 
-export type HoistedScriptAsset = { type: 'inline' | 'external'; value: string };
-
 /** Public type exposed through the `astro:build:setup` integration hook */
 export interface PageBuildData {
 	key: string;
 	component: ComponentPath;
 	route: RouteData;
 	moduleSpecifier: string;
-	hoistedScript: HoistedScriptAsset | undefined;
 	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
 }
 
