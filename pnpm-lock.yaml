@@ -3316,6 +3316,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/integration-route-setup:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/integration-server-setup:
     dependencies:
       astro:
