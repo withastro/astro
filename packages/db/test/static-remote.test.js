@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from '../../astro/test/test-utils.js';
-import { setupRemoteDbServer } from './test-utils.js';
+import { clearEnvironment, setupRemoteDbServer } from './test-utils.js';
 
 describe('astro:db', () => {
 	let fixture;
@@ -44,6 +44,7 @@ describe('astro:db', () => {
 		let remoteDbServer;
 
 		before(async () => {
+			clearEnvironment();
 			process.env.ASTRO_DB_REMOTE_URL = `memory:`;
 			await fixture.build();
 		});
