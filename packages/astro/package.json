@@ -196,8 +196,6 @@
     "@astrojs/check": "^0.9.3",
     "@playwright/test": "^1.46.1",
     "@types/aria-query": "^5.0.4",
-    "@types/babel__generator": "^7.6.8",
-    "@types/babel__traverse": "^7.20.6",
     "@types/common-ancestor-path": "^1.0.2",
     "@types/cssesc": "^3.0.2",
     "@types/debug": "^4.1.12",
