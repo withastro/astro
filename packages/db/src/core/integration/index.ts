@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type ManagedAppToken, getManagedAppTokenOrExit } from '@astrojs/studio';
+import type { ManagedAppToken } from '@astrojs/studio';
 import { LibsqlError } from '@libsql/client';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { blue, yellow } from 'kleur/colors';
