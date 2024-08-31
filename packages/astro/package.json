@@ -125,8 +125,6 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
-    "@babel/core": "^7.25.2",
-    "@babel/plugin-transform-react-jsx": "^7.25.2",
     "@babel/types": "^7.25.4",
     "@oslojs/encoding": "^0.4.1",
     "@rollup/pluginutils": "^5.1.0",
