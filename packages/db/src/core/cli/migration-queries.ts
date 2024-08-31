@@ -35,7 +35,7 @@ import type {
 	ResolvedIndexes,
 	TextColumn,
 } from '../types.js';
-import { type RemoteDatabaseInfo, type Result } from '../utils.js';
+import type { RemoteDatabaseInfo, Result } from '../utils.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
