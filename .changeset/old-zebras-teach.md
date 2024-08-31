@@ -2,7 +2,7 @@
 'astro': major
 ---
 
-Updates `astro sync` behavior
+Changes the default `tsconfig.json` with better defaults, and makes `src/env.d.ts`  optional
 
 Astro examples default `tsconfig.json` has been updated to include generated types and exclude your build output. This means that `src/env.d.ts` is only necessary if you have added custom or if you're not using a `tsconfig.json` file.
 
