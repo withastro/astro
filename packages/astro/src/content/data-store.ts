@@ -33,6 +33,7 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	 * If an entry is a deferred, its rendering phase is delegated to a virtual module during the runtime phase when calling `renderEntry`.
 	 */
 	deferredRender?: boolean;
+	assetImports?: Array<string>;
 }
 
 /**
