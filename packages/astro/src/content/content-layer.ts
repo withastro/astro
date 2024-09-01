@@ -1,6 +1,4 @@
 import { promises as fs, existsSync } from 'node:fs';
-import { isAbsolute } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import * as fastq from 'fastq';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -19,7 +17,6 @@ import {
 	getEntryConfigByExtMap,
 	getEntryDataAndImages,
 	globalContentConfigObserver,
-	posixRelative,
 } from './utils.js';
 
 export interface ContentLayerOptions {
