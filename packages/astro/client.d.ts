@@ -150,6 +150,9 @@ declare module 'astro:transitions/client' {
 		import('./dist/virtual-modules/transitions-events.js').TransitionBeforeSwapEvent;
 	export const isTransitionBeforePreparationEvent: EventModule['isTransitionBeforePreparationEvent'];
 	export const isTransitionBeforeSwapEvent: EventModule['isTransitionBeforeSwapEvent'];
+	type TransitionSwapFunctionModule =
+		typeof import('./dist/virtual-modules/transitions-swap-functions.js');
+	export const swapFunctions: TransitionSwapFunctionModule['swapFunctions'];
 }
 
 declare module 'astro:prefetch' {
@@ -170,6 +173,10 @@ declare module 'astro:middleware' {
 
 declare module 'astro:components' {
 	export * from 'astro/components';
+}
+
+declare module 'astro:schema' {
+	export * from 'astro/zod';
 }
 
 type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;

@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 2.1.2
+
+### Patch Changes
+
+- [#11829](https://github.com/withastro/astro/pull/11829) [`f1df1b3`](https://github.com/withastro/astro/commit/f1df1b3b462309444a9a50ecbf229840dff8c9d0) Thanks [@oosawy](https://github.com/oosawy)! - Prevent Partytown integration from inserting a 'null' string into the body
+
 ## 2.1.1
 
 ### Patch Changes

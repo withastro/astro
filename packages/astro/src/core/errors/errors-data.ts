@@ -541,7 +541,7 @@ export const MissingImageDimension = {
 	message: (missingDimension: 'width' | 'height' | 'both', imageURL: string) =>
 		`Missing ${
 			missingDimension === 'both' ? 'width and height attributes' : `${missingDimension} attribute`
-		} for ${imageURL}. When using remote images, both dimensions are required unless in order to avoid CLS.`,
+		} for ${imageURL}. When using remote images, both dimensions are required in order to avoid CLS.`,
 	hint: 'If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets). You can also use `inferSize={true}` for remote images to get the original dimensions.',
 } satisfies ErrorData;
 /**
@@ -1667,44 +1667,44 @@ export const ActionsWithoutServerOutputError = {
 /**
  * @docs
  * @see
- * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
+ * - [Actions handler reference](https://docs.astro.build/en/reference/api-reference/#handler-property)
  * @description
- * Action was called from a form using a GET request, but only POST requests are supported. This often occurs if `method="POST"` is missing on the form.
- * @deprecated Deprecated since version 4.13.2.
+ * Action handler returned invalid data. Handlers should return serializable data types, and cannot return a Response object.
  */
-export const ActionsUsedWithForGetError = {
-	name: 'ActionsUsedWithForGetError',
-	title: 'An invalid Action query string was passed by a form.',
+export const ActionsReturnedInvalidDataError = {
+	name: 'ActionsReturnedInvalidDataError',
+	title: 'Action handler returned invalid data.',
+	message: (error: string) =>
+		`Action handler returned invalid data. Handlers should return serializable data types like objects, arrays, strings, and numbers. Parse error: ${error}`,
+	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The server received a request for an action but could not find a match with the same name.
+ */
+export const ActionNotFoundError = {
+	name: 'ActionNotFoundError',
+	title: 'Action not found.',
 	message: (actionName: string) =>
-		`Action ${actionName} was called from a form using a GET request, but only POST requests are supported. This often occurs if \`method="POST"\` is missing on the form.`,
-	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
+		`The server received a request for an action named \`${actionName}\` but could not find a match. If you renamed an action, check that you've updated your \`actions/index\` file and your calling code to match.`,
+	hint: 'You can run `astro check` to detect type errors caused by mismatched action names.',
 } satisfies ErrorData;
 
 /**
  * @docs
  * @see
- * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
- * @description
- * The server received the query string `?_astroAction=name`, but could not find an action with that name. Use the action function's `.queryString` property to retrieve the form `action` URL.
- */
-export const ActionQueryStringInvalidError = {
-	name: 'ActionQueryStringInvalidError',
-	title: 'An invalid Action query string was passed by a form.',
-	message: (actionName: string) =>
-		`The server received the query string \`?_astroAction=${actionName}\`, but could not find an action with that name. If you changed an action's name in development, remove this query param from your URL and refresh.`,
-	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
-} satisfies ErrorData;
-
-/**
- * @docs
+ * - [`Astro.callAction()` reference](https://docs.astro.build/en/reference/api-reference/#astrocallaction)
  * @description
  * Action called from a server page or endpoint without using `Astro.callAction()`.
  */
 export const ActionCalledFromServerError = {
 	name: 'ActionCalledFromServerError',
 	title: 'Action unexpected called from the server.',
-	message: 'Action called from a server page or endpoint without using `Astro.callAction()`.',
-	hint: 'See the RFC section on server calls for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md#call-actions-directly-from-server-code',
+	message:
+		'Action called from a server page or endpoint without using `Astro.callAction()`. This wrapper must be used to call actions from server code.',
+	hint: 'See the `Astro.callAction()` reference for usage examples: https://docs.astro.build/en/reference/api-reference/#astrocallaction',
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.

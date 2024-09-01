@@ -8,10 +8,16 @@ import {
 } from '../../../dist/integrations/hooks.js';
 import { defaultLogger } from '../test-utils.js';
 
+const defaultConfig = {
+	root: new URL('./', import.meta.url),
+	srcDir: new URL('src/', import.meta.url),
+};
+
 describe('Integration API', () => {
 	it('runHookBuildSetup should work', async () => {
 		const updatedViteConfig = await runHookBuildSetup({
 			config: {
+				...defaultConfig,
 				integrations: [
 					{
 						name: 'test',
@@ -39,6 +45,7 @@ describe('Integration API', () => {
 		let updatedInternalConfig;
 		const updatedViteConfig = await runHookBuildSetup({
 			config: {
+				...defaultConfig,
 				integrations: [
 					{
 						name: 'test',
@@ -68,6 +75,7 @@ describe('Integration API', () => {
 			logger: defaultLogger,
 			settings: {
 				config: {
+					...defaultConfig,
 					integrations: [
 						{
 							name: 'test',
@@ -90,6 +98,7 @@ describe('Integration API', () => {
 			logger: defaultLogger,
 			settings: {
 				config: {
+					...defaultConfig,
 					integrations: [
 						{
 							name: 'test',

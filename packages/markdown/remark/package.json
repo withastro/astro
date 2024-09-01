@@ -35,7 +35,7 @@
   "dependencies": {
     "@astrojs/prism": "workspace:*",
     "github-slugger": "^2.0.0",
-    "hast-util-from-html": "^2.0.1",
+    "hast-util-from-html": "^2.0.2",
     "hast-util-to-text": "^4.0.2",
     "import-meta-resolve": "^4.1.0",
     "mdast-util-definitions": "^6.0.0",
@@ -50,7 +50,7 @@
     "unist-util-remove-position": "^5.0.0",
     "unist-util-visit": "^5.0.0",
     "unist-util-visit-parents": "^6.0.1",
-    "vfile": "^6.0.2"
+    "vfile": "^6.0.3"
   },
   "devDependencies": {
     "@types/estree": "^1.0.5",

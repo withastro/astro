@@ -16,6 +16,7 @@ export async function GET() {
 
 	const increment = await getEntry('increment', 'value');
 
+	const images = await getCollection('images');
 	return new Response(
 		devalue.stringify({
 			customLoader,
@@ -25,6 +26,7 @@ export async function GET() {
 			entryWithReference,
 			referencedEntry,
 			increment,
+			images
 		})
 	);
 }
