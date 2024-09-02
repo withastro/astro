@@ -1,10 +1,10 @@
-import type { AstroConfig, AstroIntegrationLogger } from 'astro';
+import type { AstroConfig, AstroIntegrationLogger, HookParameters } from 'astro';
 import { passthroughImageService, sharpImageService } from 'astro/config';
 
 export function setImageConfig(
 	service: string,
 	config: AstroConfig['image'],
-	command: 'dev' | 'build' | 'preview',
+	command: HookParameters<'astro:config:setup'>['command'],
 	logger: AstroIntegrationLogger
 ) {
 	switch (service) {
