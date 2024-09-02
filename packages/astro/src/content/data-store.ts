@@ -90,6 +90,9 @@ export class DataStore {
 		try {
 			// @ts-expect-error - this is a virtual module
 			const data = await import('astro:data-layer-content');
+			if (data.default instanceof Map) {
+				return DataStore.fromMap(data.default);
+			}
 			const map = devalue.unflatten(data.default);
 			return DataStore.fromMap(map);
 		} catch {}
