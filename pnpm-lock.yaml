@@ -116,7 +116,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/blog:
@@ -131,13 +131,13 @@ importers:
         specifier: ^3.1.6
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -146,7 +146,7 @@ importers:
         specifier: ^3.6.2
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -177,7 +177,7 @@ importers:
         specifier: ^3.14.1
         version: 3.14.1
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -204,7 +204,7 @@ importers:
         specifier: ^18.3.0
         version: 18.3.0
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       preact:
         specifier: ^10.23.2
@@ -234,7 +234,7 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0(preact@10.23.2)
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       preact:
         specifier: ^10.23.2
@@ -252,7 +252,7 @@ importers:
         specifier: ^18.3.0
         version: 18.3.0
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -267,7 +267,7 @@ importers:
         specifier: ^4.4.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.8.21
@@ -279,7 +279,7 @@ importers:
         specifier: ^6.0.0-alpha.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.18
@@ -291,7 +291,7 @@ importers:
         specifier: ^5.0.0-alpha.0
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       vue:
         specifier: ^3.4.38
@@ -303,13 +303,13 @@ importers:
         specifier: ^9.0.0-alpha.1
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/middleware:
@@ -318,7 +318,7 @@ importers:
         specifier: ^9.0.0-alpha.1
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -331,19 +331,19 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/server-islands:
@@ -370,7 +370,7 @@ importers:
         specifier: ^18.3.0
         version: 18.3.0
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       postcss:
         specifier: ^8.4.41
@@ -394,7 +394,7 @@ importers:
         specifier: ^6.0.0-alpha.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.18
@@ -403,7 +403,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       sass:
         specifier: ^1.77.8
@@ -415,7 +415,7 @@ importers:
   examples/toolbar-app:
     devDependencies:
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/view-transitions:
@@ -427,7 +427,7 @@ importers:
         specifier: ^6.0.0-alpha.0
         version: link:../../packages/integrations/tailwind
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -436,7 +436,7 @@ importers:
         specifier: ^1.0.0-alpha.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
@@ -445,7 +445,7 @@ importers:
         specifier: ^6.0.0-alpha.0
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^6.0.2
@@ -466,7 +466,7 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -475,10 +475,10 @@ importers:
         specifier: ^4.0.0-alpha.1
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^3.5.1
+        specifier: ^3.5.2
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       preact:
         specifier: ^10.23.2
@@ -493,7 +493,7 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(nanostores@0.11.3)(preact@10.23.2)
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.11.2
@@ -514,7 +514,7 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.20
@@ -532,7 +532,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^5.0.0-alpha.1
+        specifier: ^5.0.0-alpha.2
         version: link:../../packages/astro
       vitest:
         specifier: ^2.0.5
@@ -552,12 +552,6 @@ importers:
       '@astrojs/telemetry':
         specifier: workspace:*
         version: link:../telemetry
-      '@babel/core':
-        specifier: ^7.25.2
-        version: 7.25.2
-      '@babel/plugin-transform-react-jsx':
-        specifier: ^7.25.2
-        version: 7.25.2(@babel/core@7.25.2)
       '@babel/types':
         specifier: ^7.25.4
         version: 7.25.4

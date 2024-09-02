@@ -254,20 +254,19 @@ export async function generateContentEntryFile({
 	}
 
 	let virtualModContents: string;
-	if(isClient) {
+	if (isClient) {
 		throw new AstroError({
 			...AstroErrorData.ServerOnlyModule,
 			message: AstroErrorData.ServerOnlyModule.message('astro:content'),
 		});
 	} else {
-		 virtualModContents =
-			nodeFs
-				.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
-				.replace('@@CONTENT_DIR@@', relContentDir)
-				.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
-				.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
-				.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
-				.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`);
+		virtualModContents = nodeFs
+			.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
+			.replace('@@CONTENT_DIR@@', relContentDir)
+			.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
+			.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
+			.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
+			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`);
 	}
 
 	return virtualModContents;

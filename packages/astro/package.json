@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.0.0-alpha.1",
+  "version": "5.0.0-alpha.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -125,8 +125,6 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
-    "@babel/core": "^7.25.2",
-    "@babel/plugin-transform-react-jsx": "^7.25.2",
     "@babel/types": "^7.25.4",
     "@oslojs/encoding": "^0.4.1",
     "@rollup/pluginutils": "^5.1.0",

@@ -1,5 +1,95 @@
 # astro
 
+## 5.0.0-alpha.2
+
+### Major Changes
+
+- [#11826](https://github.com/withastro/astro/pull/11826) [`7315050`](https://github.com/withastro/astro/commit/7315050fc1192fa72ae92aef92b920f63b46118f) Thanks [@matthewp](https://github.com/matthewp)! - Deprecate Astro.glob
+
+  The `Astro.glob` function has been deprecated in favor of Content Collections and `import.meta.glob`.
+
+  - If you want to query for markdown and MDX in your project, use Content Collections.
+  - If you want to query source files in your project, use `import.meta.glob`(https://vitejs.dev/guide/features.html#glob-import).
+
+  Also consider using glob packages from npm, like [fast-glob](https://www.npmjs.com/package/fast-glob), especially if statically generating your site, as it is faster for most use-cases.
+
+  The easiest path is to migrate to `import.meta.glob` like so:
+
+  ```diff
+  - const posts = Astro.glob('./posts/*.md');
+  + const posts = Object.values(import.meta.glob('./posts/*.md', { eager: true }));
+  ```
+
+- [#11827](https://github.com/withastro/astro/pull/11827) [`a83e362`](https://github.com/withastro/astro/commit/a83e362ee41174501a433c210a24696784d7368f) Thanks [@matthewp](https://github.com/matthewp)! - Prevent usage of `astro:content` in the client
+
+  Usage of `astro:content` in the client has always been discouraged because it leads to all of your content winding up in your client bundle, and can possibly leaks secrets.
+
+  This formally makes doing so impossible, adding to the previous warning with errors.
+
+  In the future Astro might add APIs for client-usage based on needs.
+
+- [#11253](https://github.com/withastro/astro/pull/11253) [`4e5cc5a`](https://github.com/withastro/astro/commit/4e5cc5aadd7d864bc5194ee67dc2ea74dbe80473) Thanks [@kevinzunigacuellar](https://github.com/kevinzunigacuellar)! - Changes the data returned for `page.url.current`, `page.url.next`, `page.url.prev`, `page.url.first` and `page.url.last` to include the value set for `base` in your Astro config.
+
+  Previously, you had to manually prepend your configured value for `base` to the URL path. Now, Astro automatically includes your `base` value in `next` and `prev` URLs.
+
+  If you are using the `paginate()` function for "previous" and "next" URLs, remove any existing `base` value as it is now added for you:
+
+  ```diff
+  ---
+  export async function getStaticPaths({ paginate }) {
+    const astronautPages = [{
+      astronaut: 'Neil Armstrong',
+    }, {
+      astronaut: 'Buzz Aldrin',
+    }, {
+      astronaut: 'Sally Ride',
+    }, {
+      astronaut: 'John Glenn',
+    }];
+    return paginate(astronautPages, { pageSize: 1 });
+  }
+  const { page } = Astro.props;
+  // `base: /'docs'` configured in `astro.config.mjs`
+  - const prev = "/docs" + page.url.prev;
+  + const prev = page.url.prev;
+  ---
+  <a id="prev" href={prev}>Back</a>
+  ```
+
+### Minor Changes
+
+- [#11698](https://github.com/withastro/astro/pull/11698) [`05139ef`](https://github.com/withastro/astro/commit/05139ef8b46de96539cc1d08148489eaf3cfd837) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new property to the globals `Astro` and `APIContext` called `routePattern`. The `routePattern` represents the current route (component)
+  that is being rendered by Astro. It's usually a path pattern will look like this: `blog/[slug]`:
+
+  ```asto
+  ---
+  // src/pages/blog/[slug].astro
+  const route = Astro.routePattern;
+  console.log(route); // it will log "blog/[slug]"
+  ---
+  ```
+
+  ```js
+  // src/pages/index.js
+
+  export const GET = (ctx) => {
+    console.log(ctx.routePattern); // it will log src/pages/index.js
+    return new Response.json({ loreum: 'ipsum' });
+  };
+  ```
+
+### Patch Changes
+
+- [#11791](https://github.com/withastro/astro/pull/11791) [`9393243`](https://github.com/withastro/astro/commit/93932432e7239a1d31c68ea916945302286268e9) Thanks [@bluwy](https://github.com/bluwy)! - Updates Astro's default `<script>` rendering strategy and removes the `experimental.directRenderScript` option as this is now the default behavior: scripts are always rendered directly. This new strategy prevents scripts from being executed in pages where they are not used.
+
+  Scripts will directly render as declared in Astro files (including existing features like TypeScript, importing `node_modules`, and deduplicating scripts). You can also now conditionally render scripts in your Astro file.
+
+  However, this means scripts are no longer hoisted to the `<head>`, multiple scripts on a page are no longer bundled together, and the `<script>` tag may interfere with the CSS styling.
+
+  As this is a potentially breaking change to your script behavior, please review your `<script>` tags and ensure that they behave as expected.
+
+- [#11767](https://github.com/withastro/astro/pull/11767) [`d1bd1a1`](https://github.com/withastro/astro/commit/d1bd1a11f7aca4d2141d1c4665f2db0440393d03) Thanks [@ascorbic](https://github.com/ascorbic)! - Refactors content layer sync to use a queue
+
 ## 4.15.0
 
 ### Minor Changes
