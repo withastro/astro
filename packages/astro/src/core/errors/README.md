@@ -21,8 +21,8 @@ Message:
 
 - Begin with **what happened** and **why**. (ex: `Could not use {feature} because Server-side Rendering is not enabled.`)
 - Then, **describe the action the user should take**. (ex: `Update your Astro config with `output: 'server'` to enable Server-side Rendering.`)
-- Although this does not need to be as brief as the `title`, try to keep sentences short, clear and direct to give the reader all the necessary information quickly as possible.
-- Instead of writing a longer message, consider using a `hint`.
+- Although this does not need to be as brief as the `title`, try to keep sentences short, clear and direct to give the reader all the necessary information quickly as possible. Users should be able to skim the message and understand the problem and solution.
+- If your message is too long, or the solution is not guaranteed to work, use the `hint` property to provide more information.
 
 Hint:
 
@@ -44,10 +44,10 @@ If you are unsure about anything, ask [Erika](https://github.com/Princesseuh)!
 
 ### Shape
 
-- **Names are permanent**, and should never be changed, nor deleted. Users should always be able to find an error by searching, and this ensures a matching result. When an error is no longer relevant, it should be deprecated, not removed.
+- **Names are permanent**, and should never be changed. Users should always be able to find an error by searching, and this ensures a matching result.
 - Contextual information may be used to enhance the message or the hint. However, the code that caused the error or the position of the error should not be included in the message as they will already be shown as part of the error.
 - Do not prefix `title`, `message` and `hint` with descriptive words such as "Error:" or "Hint:" as it may lead to duplicated labels in the UI / CLI.
-- Dynamic error messages must use the following shape:
+- Dynamic error messages **must** use the following shape:
 
 ```js
 message: (arguments) => `text ${substitute}`;
@@ -69,8 +69,9 @@ Here's how to create and format the comments:
 /**
  * @docs <- Needed for the comment to be used for docs
  * @message <- (Optional) Clearer error message to show in cases where the original one is too complex (ex: because of conditional messages)
- * @see <- List of additional references users can look at
+ * @see <- (Optional) List of additional references users can look at
  * @description <- Description of the error
+ * @deprecated <- (Optional) If the error is no longer relevant, when it was removed and why (see "Removing errors" section below)
  */
 ```
 
@@ -89,6 +90,19 @@ Example:
 
 The `@message` property is intended to provide slightly more context when it is helpful: a more descriptive error message or a collection of common messages if there are multiple possible error messages. Try to avoid making substantial changes to existing messages so that they are easy to find for users who copy and search the exact content of an error message.
 
+### Removing errors
+
+If the error cannot be triggered at all anymore, it can deprecated by adding a `@deprecated` tag to the JSDoc comment with a message that will be shown in the docs. This message is useful for users on previous versions who might still encounter the error so that they can know that upgrading to a newer version of Astro would perhaps solve their issue.
+
+```js
+/**
+ * @docs
+ * @deprecated Removed in Astro v9.8.6 as it is no longer relevant due to...
+ */
+```
+
+Alternatively, if no special deprecation message is needed, errors can be directly removed from the `errors-data.ts` file. A basic message will be shown in the docs stating that the error can no longer appear in the latest version of Astro.
+
 ### Always remember
 
 Error are a reactive strategy. They are the last line of defense against a mistake.
@@ -99,5 +113,7 @@ While adding a new error message, ask yourself, "Was there a way this situation 
 
 ## Additional resources on writing good error messages
 
+- [Compiler errors for humans](https://elm-lang.org/news/compiler-errors-for-humans)
 - [When life gives you lemons, write better error messages](https://wix-ux.com/when-life-gives-you-lemons-write-better-error-messages-46c5223e1a2f)
-- [RustConf 2020 - Bending the Curve: A Personal Tutor at Your Fingertips by Esteban Kuber](https://www.youtube.com/watch?v=Z6X7Ada0ugE) (part on error messages starts around 19:17)
+- [RustConf 2020 - Bending the Curve: A Personal Tutor at Your Fingertips by Esteban Kuber](https://www.youtube.com/watch?v=Z6X7Ada0ugE)
+- [What's in a good error](https://erika.florist/articles/gooderrors) (by the person who wrote this document!)

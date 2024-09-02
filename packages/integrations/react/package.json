@@ -59,7 +59,7 @@
     "ultrahtml": "^1.5.3"
   },
   "devDependencies": {
-    "@types/react": "^18.3.4",
+    "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
