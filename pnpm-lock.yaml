@@ -733,8 +733,8 @@ importers:
         specifier: ^5.4.2
         version: 5.4.2(@types/node@18.19.31)(sass@1.77.8)
       vitefu:
-        specifier: ^0.2.5
-        version: 0.2.5(vite@5.4.2(@types/node@18.19.31)(sass@1.77.8))
+        specifier: ^1.0.2
+        version: 1.0.2(vite@5.4.2(@types/node@18.19.31)(sass@1.77.8))
       which-pm:
         specifier: ^3.0.0
         version: 3.0.0
@@ -10803,6 +10803,14 @@ packages:
       vite:
         optional: true
 
+  vitefu@1.0.2:
+    resolution: {integrity: sha512-0/iAvbXyM3RiPPJ4lyD4w6Mjgtf4ejTK6TPvTNG3H32PLwuT0N/ZjJLiXug7ETE/LWtTeHw9WRv7uX/tIKYyKg==}
+    peerDependencies:
+      vite: ^3.0.0 || ^4.0.0 || ^5.0.0
+    peerDependenciesMeta:
+      vite:
+        optional: true
+
   vitest@2.0.5:
     resolution: {integrity: sha512-8GUxONfauuIdeSl5f9GTgVEpg5BTOlplET4WEDaeY2QBiN8wSm68vxN/tb5z405OwppfoCavnwXafiaYBC/xOA==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -17019,6 +17027,10 @@ snapshots:
       sass: 1.77.8
 
   vitefu@0.2.5(vite@5.4.2(@types/node@18.19.31)(sass@1.77.8)):
+    optionalDependencies:
+      vite: 5.4.2(@types/node@18.19.31)(sass@1.77.8)
+
+  vitefu@1.0.2(vite@5.4.2(@types/node@18.19.31)(sass@1.77.8)):
     optionalDependencies:
       vite: 5.4.2(@types/node@18.19.31)(sass@1.77.8)
 
