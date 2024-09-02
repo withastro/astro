@@ -315,8 +315,8 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^0.0.0
-        version: link:../../packages/integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       astro:
         specifier: ^4.15.2
         version: link:../../packages/astro
@@ -330,8 +330,8 @@ importers:
   examples/middleware:
     dependencies:
       '@astrojs/node':
-        specifier: ^0.0.0
-        version: link:../../packages/integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       astro:
         specifier: ^4.15.2
         version: link:../../packages/astro
@@ -364,8 +364,8 @@ importers:
   examples/server-islands:
     devDependencies:
       '@astrojs/node':
-        specifier: ^0.0.0
-        version: link:../../packages/integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       '@astrojs/react':
         specifier: ^3.6.2
         version: link:../../packages/integrations/react
@@ -403,8 +403,8 @@ importers:
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^0.0.0
-        version: link:../../packages/integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       '@astrojs/svelte':
         specifier: ^5.7.0
         version: link:../../packages/integrations/svelte
@@ -436,8 +436,8 @@ importers:
   examples/view-transitions:
     devDependencies:
       '@astrojs/node':
-        specifier: ^0.0.0
-        version: link:../../packages/integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       '@astrojs/tailwind':
         specifier: ^5.1.0
         version: link:../../packages/integrations/tailwind

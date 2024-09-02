@@ -10,7 +10,7 @@
     "astro": "astro"
   },
   "devDependencies": {
-    "@astrojs/node": "^0.0.0",
+    "@astrojs/node": "^8.3.3",
     "@astrojs/react": "^3.6.2",
     "@astrojs/tailwind": "^5.1.0",
     "@fortawesome/fontawesome-free": "^6.6.0",
