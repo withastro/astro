@@ -223,7 +223,7 @@ export class ContentLayer {
 		if (!existsSync(this.#settings.config.cacheDir)) {
 			await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		}
-		const cacheFile = new URL(DATA_STORE_FILE, this.#settings.config.cacheDir);
+		const cacheFile = getDataStoreFile(this.#settings);
 		await this.#store.writeToDisk(cacheFile);
 		if (!existsSync(this.#settings.dotAstroDir)) {
 			await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
@@ -282,6 +282,13 @@ export async function simpleLoader<TData extends { id: string }>(
 		const item = await context.parseData({ id: raw.id, data: raw });
 		context.store.set({ id: raw.id, data: item });
 	}
+}
+
+export function getDataStoreFile(settings: AstroSettings) {
+	return new URL(
+		DATA_STORE_FILE,
+		process?.env.NODE_ENV === 'development' ? settings.dotAstroDir : settings.config.cacheDir,
+	);
 }
 
 function contentLayerSingleton() {
