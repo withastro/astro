@@ -10,4 +10,4 @@ Cleans up Astro-specfic metadata attached to `vfile.data` in Remark and Rehype p
 
 The types of `imagePaths` has also been updated from `Set<string>` to `string[]`. The `vfile.data.astro.frontmatter` metadata is left unchanged.
 
-While we don't consider these APIs public, it can be accessed by Remark and Rehype plugins that wants to re-use Astro's metadata. If you are using these APIs, make sure to access them in the new locations.
+While we don't consider these APIs public, it can be accessed by Remark and Rehype plugins that want to re-use Astro's metadata. If you are using these APIs, make sure to access them in the new locations.
