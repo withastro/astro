@@ -5,6 +5,8 @@ import { sep as posixSep } from 'node:path/posix';
 import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
 
+const pause = (ms = 700) => new Promise((r) => setTimeout(r, ms));
+
 import { loadFixture } from './test-utils.js';
 describe('Content Layer', () => {
 	/** @type {import("./test-utils.js").Fixture} */
@@ -192,7 +194,8 @@ describe('Content Layer', () => {
 		let devServer;
 		let json;
 		before(async () => {
-			devServer = await fixture.startDevServer();
+			devServer = await fixture.startDevServer({ force: true });
+			await pause()
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const rawJson = await rawJsonResponse.text();
 			json = devalue.parse(rawJson);
@@ -282,13 +285,14 @@ describe('Content Layer', () => {
 				return JSON.stringify(data, null, 2);
 			});
 
-			// Writes are debounced to 500ms
-			await new Promise((r) => setTimeout(r, 700));
+			// Writes are debounced, so we need to wait a few ms
+			await pause()
 
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
 			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
 			await fixture.resetAllFiles();
+			await pause()
 		});
 
 		it('reloads data when an integration triggers a content refresh', async () => {
