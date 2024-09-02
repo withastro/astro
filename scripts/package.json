@@ -14,6 +14,6 @@
     "kleur": "^4.1.5",
     "p-limit": "^6.1.0",
     "tinyexec": "^0.3.0",
-    "tsconfck": "^3.1.1"
+    "tsconfck": "^3.1.3"
   }
 }

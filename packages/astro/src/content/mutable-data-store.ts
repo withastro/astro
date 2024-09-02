@@ -1,7 +1,9 @@
 import { promises as fs, type PathLike, existsSync } from 'node:fs';
 import * as devalue from 'devalue';
+import { Traverse } from 'neotraverse/modern';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, DataStore, type RenderedContent } from './data-store.js';
 import { contentModuleToId } from './utils.js';
 
@@ -53,7 +55,7 @@ export class MutableDataStore extends DataStore {
 		this.#saveToDiskDebounced();
 	}
 
-	addAssetImport(assetImport: string, filePath: string) {
+	addAssetImport(assetImport: string, filePath?: string) {
 		const id = imageSrcToImportId(assetImport, filePath);
 		if (id) {
 			this.#assetImports.add(id);
@@ -64,7 +66,7 @@ export class MutableDataStore extends DataStore {
 		}
 	}
 
-	addAssetImports(assets: Array<string>, filePath: string) {
+	addAssetImports(assets: Array<string>, filePath?: string) {
 		assets.forEach((asset) => this.addAssetImport(asset, filePath));
 	}
 
@@ -195,7 +197,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({ id: key, data, body, filePath, deferredRender, digest, rendered }) => {
+			set: ({ id: key, data, body, filePath, deferredRender, digest, rendered, assetImports }) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
 				}
@@ -206,6 +208,15 @@ export default new Map([\n${lines.join(',\n')}]);
 						return false;
 					}
 				}
+				const foundAssets = new Set<string>(assetImports);
+				// Check for image imports in the data. These will have been prefixed during schema parsing
+				new Traverse(data).forEach((_, val) => {
+					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
+						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
+						foundAssets.add(src);
+					}
+				});
+
 				const entry: DataEntry = {
 					id,
 					data,
@@ -221,6 +232,12 @@ export default new Map([\n${lines.join(',\n')}]);
 					}
 					entry.filePath = filePath;
 				}
+
+				if (foundAssets.size) {
+					entry.assetImports = Array.from(foundAssets);
+					this.addAssetImports(entry.assetImports, filePath);
+				}
+
 				if (digest) {
 					entry.digest = digest;
 				}
@@ -334,6 +351,12 @@ export interface ScopedDataStore {
 		 * If an entry is a deferred, its rendering phase is delegated to a virtual module during the runtime phase.
 		 */
 		deferredRender?: boolean;
+		/**
+		 * Assets such as images to process during the build. These should be files on disk, with a path relative to filePath.
+		 * Any values that use image() in the schema will already be added automatically.
+		 * @internal
+		 */
+		assetImports?: Array<string>;
 	}) => boolean;
 	values: () => Array<DataEntry>;
 	keys: () => Array<string>;
