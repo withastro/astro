@@ -42,6 +42,7 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 					TRANSITION_BEFORE_SWAP, isTransitionBeforeSwapEvent, TransitionBeforeSwapEvent,
 					TRANSITION_AFTER_SWAP, TRANSITION_PAGE_LOAD
 				} from "astro/virtual-modules/transitions-events.js";
+				export { swapFunctions } from "astro/virtual-modules/transitions-swap-functions.js";
 			`;
 			}
 		},

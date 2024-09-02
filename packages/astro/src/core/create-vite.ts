@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
+import { vitePluginActions, vitePluginUserActions } from '../actions/plugins.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import astroContainer from '../container/vite-plugin-container.js';
@@ -149,8 +150,10 @@ export async function createVite(
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
 			astroDevToolbar({ settings, logger }),
-			vitePluginFileURL({}),
+			vitePluginFileURL(),
 			astroInternationalization({ settings }),
+			vitePluginActions({ fs, settings }),
+			vitePluginUserActions({ settings }),
 			settings.config.experimental.serverIslands && vitePluginServerIslands({ settings }),
 			astroContainer(),
 		],
@@ -188,6 +191,10 @@ export async function createVite(
 				{
 					find: 'astro:middleware',
 					replacement: 'astro/virtual-modules/middleware.js',
+				},
+				{
+					find: 'astro:schema',
+					replacement: 'astro/zod',
 				},
 				{
 					find: 'astro:components',

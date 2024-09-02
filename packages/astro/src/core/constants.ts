@@ -46,6 +46,11 @@ export const DEFAULT_404_COMPONENT = 'astro-default-404.astro';
 export const DEFAULT_500_COMPONENT = 'astro-default-500.astro';
 
 /**
+ * A response with one of these status codes will create a redirect response.
+ */
+export const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308, 300, 304] as const;
+
+/**
  * A response with one of these status codes will be rewritten
  * with the result of rendering the respective error page.
  */

@@ -10,7 +10,10 @@ export function hasContentType(contentType: string, expected: string[]) {
 	return expected.some((t) => type === t);
 }
 
-export type ActionAPIContext = Omit<APIContext, 'getActionResult' | 'callAction' | 'props'>;
+export type ActionAPIContext = Omit<
+	APIContext,
+	'getActionResult' | 'callAction' | 'props' | 'redirect'
+>;
 export type MaybePromise<T> = T | Promise<T>;
 
 /**

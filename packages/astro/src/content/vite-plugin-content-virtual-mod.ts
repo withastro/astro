@@ -253,18 +253,21 @@ export async function generateContentEntryFile({
 		renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
 	}
 
-	let virtualModContents =
-		nodeFs
+	let virtualModContents: string;
+	if (isClient) {
+		throw new AstroError({
+			...AstroErrorData.ServerOnlyModule,
+			message: AstroErrorData.ServerOnlyModule.message('astro:content'),
+		});
+	} else {
+		virtualModContents = nodeFs
 			.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 			.replace('@@CONTENT_DIR@@', relContentDir)
 			.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
 			.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
 			.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
-			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`) +
-		(isClient
-			? `
-console.warn('astro:content is only supported running server-side. Using it in the browser will lead to bloated bundles and slow down page load. In the future it will not be supported.');`
-			: '');
+			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`);
+	}
 
 	return virtualModContents;
 }
@@ -360,7 +363,7 @@ export async function generateLookupMap({
 					const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
 					if (!contentEntryType) throw UnexpectedLookupMapError;
 
-					const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
+					const { id, slug: generatedSlug } = getContentEntryIdAndSlug({
 						entry: pathToFileURL(filePath),
 						contentDir,
 						collection,

@@ -31,7 +31,8 @@
     "rules": {
       "recommended": false,
       "style": {
-        "useNodejsImportProtocol": "error"
+        "useNodejsImportProtocol": "error",
+        "useImportType": "error"
       }
     }
   },

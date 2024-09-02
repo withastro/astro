@@ -9,9 +9,10 @@ import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
+import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
-import type { AstroIntegration, RoutePriorityOverride } from './integrations.js';
+import type { AstroIntegration } from './integrations.js';
 
 export type Locales = (string | { codes: string[]; path: string })[];
 
@@ -22,14 +23,13 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 
 export type RuntimeMode = 'development' | 'production';
 
-export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
+export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
 
 export type RedirectConfig =
 	| string
 	| {
 			status: ValidRedirectStatus;
 			destination: string;
-			priority?: RoutePriorityOverride;
 	  };
 
 export type ServerConfig = {
@@ -468,11 +468,11 @@ export interface AstroUserConfig {
 		 * @name security.checkOrigin
 		 * @kind h4
 		 * @type {boolean}
-		 * @default 'false'
+		 * @default `true`
 		 * @version 4.9.0
 		 * @description
 		 *
-		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
+		 * Performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
 		 *
 		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST`, `PATCH`, `DELETE` and `PUT` with
 		 * one of the following `content-type` headers: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
@@ -1299,6 +1299,43 @@ export interface AstroUserConfig {
 					redirectToDefaultLocale?: boolean;
 
 					/**
+					 * @docs
+					 * @name i18n.routing.fallbackType
+					 * @kind h4
+					 * @type {"redirect" | "rewrite"}
+					 * @default `"redirect"`
+					 * @version 4.15.0
+					 * @description
+					 *
+					 * When [`i18n.fallback`](#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
+					 *
+					 * By default, Astro's i18n routing creates pages that redirect your visitors to a new destination based on your fallback configuration. The browser will refresh and show the destination address in the URL bar.
+					 *
+					 * When `i18n.routing.fallback: "rewrite"` is configured, Astro will create pages that render the contents of the fallback page on the original, requested URL.
+					 *
+					 * With the following configuration, if you have the file `src/pages/en/about.astro` but not `src/pages/fr/about.astro`, the `astro build` command will generate `dist/fr/about.html` with the same content as the `dist/en/index.html` page.
+					 * Your site visitor will see the English version of the page at `https://example.com/fr/about/` and will not be redirected.
+					 *
+					 * ```js
+					 * //astro.config.mjs
+					 * export default defineConfig({
+					 * 	 i18n: {
+					 *     defaultLocale: "en",
+					 *     locales: ["en", "fr"],
+					 *     routing: {
+					 *     	prefixDefaultLocale: false,
+					 *     	fallbackType: "rewrite",
+					 *     },
+					 *     fallback: {
+					 *     	fr: "en",
+					 *     }
+					 *   },
+					 * })
+					 * ```
+					 */
+					fallbackType: 'redirect' | 'rewrite';
+
+					/**
 					 * @name i18n.routing.strategy
 					 * @type {"pathname"}
 					 * @default `"pathname"`
@@ -1381,13 +1418,16 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @kind heading
 	 * @name env
 	 * @type {object}
 	 * @default `{}`
 	 * @version 5.0.0
 	 * @description
 	 *
-	 * Holds `astro:env` options.
+	 * Configuration options for type-safe environment variables.
+	 *
+	 * See our guide for more information on [environment variables in Astro](/en/guides/environment-variables/).
 	 */
 	env?: {
 		/**
@@ -1445,7 +1485,6 @@ export interface AstroUserConfig {
 		validateSecrets?: boolean;
 	};
 
-
 	/**
 	 * @docs
 	 * @kind heading
@@ -1466,134 +1505,6 @@ export interface AstroUserConfig {
 	 * These flags are not guaranteed to be stable.
 	 */
 	experimental?: {
-		/**
-		 * @docs
-		 * @name experimental.directRenderScript
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.5.0
-		 * @description
-		 * Enables a more reliable strategy to prevent scripts from being executed in pages where they are not used.
-		 *
-		 * Scripts will directly render as declared in Astro files (including existing features like TypeScript, importing `node_modules`,
-		 * and deduplicating scripts). You can also now conditionally render scripts in your Astro file.
-
-		 * However, this means scripts are no longer hoisted to the `<head>` and multiple scripts on a page are no longer bundled together.
-		 * If you enable this option, you should check that all your `<script>` tags behave as expected.
-		 *
-		 * This option will be enabled by default in Astro 5.0.
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     directRenderScript: true,
-		 *   },
-		 * }
-		 * ```
-		 */
-		directRenderScript?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.actions
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.8.0
-		 * @description
-		 *
-		 * Actions help you write type-safe backend functions you can call from anywhere. Enable server rendering [using the `output` property](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) and add the `actions` flag to the `experimental` object:
-		 *
-		 * ```js
-		 * {
-		 *   output: 'hybrid', // or 'server'
-		 *   experimental: {
-		 *     actions: true,
-		 *   },
-		 * }
-		 * ```
-		 *
-		 * Declare all your actions in `src/actions/index.ts`. This file is the global actions handler.
-		 *
-		 * Define an action using the `defineAction()` utility from the `astro:actions` module. An action accepts the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
-		 *
-		 * This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings. Each `handler` updates your database and return a type-safe response.
-		 *
-		 * ```ts
-		 * // src/actions/index.ts
-		 * import { defineAction, z } from "astro:actions";
-		 *
-		 * export const server = {
-		 *   like: defineAction({
-		 *     input: z.object({ postId: z.string() }),
-		 *     handler: async ({ postId }) => {
-		 *       // update likes in db
-		 *
-		 *       return likes;
-		 *     },
-		 *   }),
-		 *   comment: defineAction({
-		 *     accept: 'form',
-		 *     input: z.object({
-		 *       postId: z.string(),
-		 *       author: z.string(),
-		 *       body: z.string(),
-		 *     }),
-		 *     handler: async ({ postId }) => {
-		 *       // insert comments in db
-		 *
-		 *       return comment;
-		 *     },
-		 *   }),
-		 * };
-		 * ```
-		 *
-		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition.
-		 *
-		 * This example calls the `like` and `comment` actions from a React component:
-		 *
-		 * ```tsx "actions"
-		 * // src/components/blog.tsx
-		 * import { actions } from "astro:actions";
-		 * import { useState } from "react";
-		 *
-		 * export function Like({ postId }: { postId: string }) {
-		 *   const [likes, setLikes] = useState(0);
-		 *   return (
-		 *     <button
-		 *       onClick={async () => {
-		 *         const newLikes = await actions.like({ postId });
-		 *         setLikes(newLikes);
-		 *       }}
-		 *     >
-		 *       {likes} likes
-		 *     </button>
-		 *   );
-		 * }
-		 *
-		 * export function Comment({ postId }: { postId: string }) {
-		 *   return (
-		 *     <form
-		 *       onSubmit={async (e) => {
-		 *         e.preventDefault();
-		 *         const formData = new FormData(e.target as HTMLFormElement);
-		 *         const result = await actions.blog.comment(formData);
-		 *         // handle result
-		 *       }}
-		 *     >
-		 *       <input type="hidden" name="postId" value={postId} />
-		 *       <label htmlFor="author">Author</label>
-		 *       <input id="author" type="text" name="author" />
-		 *       <textarea rows={10} name="body"></textarea>
-		 *       <button type="submit">Post</button>
-		 *     </form>
-		 *   );
-		 * }
-		 * ```
-		 *
-		 * For a complete overview, and to give feedback on this experimental API, see the [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md).
-		 */
-		actions?: boolean;
-
 		/**
 		 * @docs
 		 * @name experimental.contentCollectionCache
@@ -1648,36 +1559,6 @@ export interface AstroUserConfig {
 		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */
 		clientPrerender?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.globalRoutePriority
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.2.0
-		 * @description
-		 *
-		 * Prioritizes redirects and injected routes equally alongside file-based project routes, following the same [route priority order rules](https://docs.astro.build/en/guides/routing/#route-priority-order) for all routes.
-		 *
-		 * This allows more control over routing in your project by not automatically prioritizing certain types of routes, and standardizes the route priority ordering for all routes.
-		 *
-		 * The following example shows which route will build certain page URLs when file-based routes, injected routes, and redirects are combined as shown below:
-		 * - File-based route: `/blog/post/[pid]`
-		 * - File-based route: `/[page]`
-		 * - Injected route: `/blog/[...slug]`
-		 * - Redirect: `/blog/tags/[tag]` -> `/[tag]`
-		 * - Redirect: `/posts` -> `/blog`
-		 *
-		 * With `experimental.globalRoutingPriority` enabled (instead of Astro 4.0 default route priority order):
-		 *
-		 * - `/blog/tags/astro` is built by the redirect to `/tags/[tag]` (instead of the injected route `/blog/[...slug]`)
-		 * - `/blog/post/0` is built by the file-based route `/blog/post/[pid]` (instead of the injected route `/blog/[...slug]`)
-		 * - `/posts` is built by the redirect to `/blog` (instead of the file-based route `/[page]`)
-		 *
-		 *
-		 * In the event of route collisions, where two routes of equal route priority attempt to build the same URL, Astro will log a warning identifying the conflicting routes.
-		 */
-		globalRoutePriority?: boolean;
 
 		/**
 		 * @docs
@@ -1834,7 +1715,7 @@ export interface AstroUserConfig {
 		 * ```
 		 *
 		 * :::note
-		 * Loaders will not automatically [exclude files prefaced with an `_`](/en/guides/routing/#excluding-pages). Use a regular expression such as `pattern: '**\/[^_]*.md` in your loader to ignore these files.
+		 * Loaders will not automatically [exclude files prefaced with an `_`](/en/guides/routing/#excluding-pages). Use a regular expression such as `pattern: '**\/[^_]*.md'` in your loader to ignore these files.
 		 * :::
 		 *
 		 * #### Querying and rendering with the Content Layer API
@@ -1866,7 +1747,7 @@ export interface AstroUserConfig {
 		 *
 		 * const post = await getEntry('blog', Astro.params.slug);
 		 *
-		 * const { Content, headings } = await render(entry);
+		 * const { Content, headings } = await render(post);
 		 * ---
 		 *
 		 * <Content />
@@ -1971,6 +1852,7 @@ export interface AstroUserConfig {
 
 /**
  * Resolved Astro Config
+ *
  * Config with user settings along with all defaults filled in.
  */
 export interface AstroConfig extends AstroConfigType {
@@ -1992,7 +1874,7 @@ export interface AstroInlineOnlyConfig {
 	 * If this value is undefined or unset, Astro will search for an `astro.config.(js,mjs,ts)` file relative to
 	 * the `root` and load the config file if found.
 	 *
-	 * The inline config passed in this object will take highest priority when merging with the loaded user config.
+	 * The inline config passed in this object will take the highest priority when merging with the loaded user config.
 	 */
 	configFile?: string | false;
 	/**

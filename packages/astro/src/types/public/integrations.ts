@@ -136,15 +136,6 @@ export interface AstroInternationalizationFeature {
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
 
-/**
- * IDs for different priorities of injected routes and redirects:
- * - "normal": Merge with discovered file-based project routes, behaving the same as if the route
- *   was defined as a file in the project.
- * - "legacy": Use the old ordering of routes. Inject routes will override any file-based project route,
- *   and redirects will be overridden by any project route on conflict.
- */
-export type RoutePriorityOverride = 'normal' | 'legacy';
-
 export interface InjectedRoute {
 	pattern: string;
 	entrypoint: string;
@@ -173,7 +164,7 @@ export type HookParameters<
 export interface BaseIntegrationHooks {
 	'astro:config:setup': (options: {
 		config: AstroConfig;
-		command: 'dev' | 'build' | 'preview';
+		command: 'dev' | 'build' | 'preview' | 'sync';
 		isRestart: boolean;
 		updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 		addRenderer: (renderer: AstroRenderer) => void;
