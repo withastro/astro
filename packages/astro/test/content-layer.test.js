@@ -196,7 +196,8 @@ describe('Content Layer', () => {
 		let devServer;
 		let json;
 		before(async () => {
-			devServer = await fixture.startDevServer();
+			devServer = await fixture.startDevServer({ force: true });
+			await new Promise((r) => setTimeout(r, 700));
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const rawJson = await rawJsonResponse.text();
 			json = devalue.parse(rawJson);
