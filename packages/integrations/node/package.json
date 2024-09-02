@@ -34,10 +34,10 @@
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
-    "@types/node": "^18.17.8",
+    "@types/node": "^18.19.48",
     "@types/send": "^0.17.4",
     "@types/server-destroy": "^1.0.4",
-    "astro": "^4.14.6",
+    "astro": "^4.15.1",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "express": "^4.19.2",
