@@ -181,7 +181,7 @@
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.3",
     "vite": "^5.4.2",
-    "vitefu": "^0.2.5",
+    "vitefu": "^1.0.2",
     "which-pm": "^3.0.0",
     "xxhash-wasm": "^1.0.2",
     "yargs-parser": "^21.1.1",
