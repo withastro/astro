@@ -35,6 +35,8 @@ export type SitemapOptions =
 
 			// called for each sitemap item just before to save them on disk, sync or async
 			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
+
+			separator?: string;
 	  }
 	| undefined;
 
@@ -44,7 +46,6 @@ function formatConfigErrorMessage(err: ZodError) {
 }
 
 const PKG_NAME = '@astrojs/sitemap';
-const OUTFILE = 'sitemap-index.xml';
 const STATUS_CODE_PAGES = new Set(['404', '500']);
 
 const isStatusCodePage = (locales: string[]) => {
@@ -66,6 +67,9 @@ const isStatusCodePage = (locales: string[]) => {
 };
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 	let config: AstroConfig;
+	let separator = options?.separator ?? '-';
+
+	let outfile = `sitemap${separator}index.xml`;
 
 	return {
 		name: PKG_NAME,
@@ -142,7 +146,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					}
 
 					if (pageUrls.length === 0) {
-						logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
+						logger.warn(`No pages found!\n\`${outfile}\` not created.`);
 						return;
 					}
 
@@ -175,10 +179,11 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							publicBasePath: config.base,
 							sourceData: urlData,
 							limit: entryLimit,
+							separator,
 						},
 						config,
 					);
-					logger.info(`\`${OUTFILE}\` created at \`${path.relative(process.cwd(), destDir)}\``);
+					logger.info(`\`${outfile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {
 					if (err instanceof ZodError) {
 						logger.warn(formatConfigErrorMessage(err));
