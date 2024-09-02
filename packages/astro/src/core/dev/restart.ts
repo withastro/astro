@@ -185,9 +185,7 @@ export async function createContainerWithAutomaticRestart({
 				key: 's',
 				description: 'sync content layer',
 				action: () => {
-					if (globalContentLayer.initialized()) {
-						globalContentLayer.get().sync();
-					}
+					globalContentLayer.get()?.sync();
 				},
 			});
 		}

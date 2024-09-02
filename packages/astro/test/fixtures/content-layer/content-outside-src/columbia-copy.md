@@ -4,6 +4,8 @@ description: 'Learn about the Columbia NASA space shuttle.'
 publishedDate: 'Sat May 21 2022 00:00:00 GMT-0400 (Eastern Daylight Time)'
 tags: [space, 90s]
 cat: tabby
+heroImage: "./shuttle.jpg"
+something: "transform me"
 ---
 
 **Source:** [Wikipedia](https://en.wikipedia.org/wiki/Space_Shuttle_Endeavour)

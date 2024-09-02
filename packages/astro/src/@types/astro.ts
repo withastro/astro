@@ -91,7 +91,7 @@ export type {
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
-	'client:idle'?: boolean;
+	'client:idle'?: IdleRequestOptions | boolean;
 	'client:media'?: string;
 	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
@@ -1669,6 +1669,43 @@ export interface AstroUserConfig {
 					redirectToDefaultLocale?: boolean;
 
 					/**
+					 * @docs
+					 * @name i18n.routing.fallbackType
+					 * @kind h4
+					 * @type {"redirect" | "rewrite"}
+					 * @default `"redirect"`
+					 * @version 4.15.0
+					 * @description
+					 *
+					 * When [`i18n.fallback`](#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
+					 *
+					 * By default, Astro's i18n routing creates pages that redirect your visitors to a new destination based on your fallback configuration. The browser will refresh and show the destination address in the URL bar.
+					 *
+					 * When `i18n.routing.fallback: "rewrite"` is configured, Astro will create pages that render the contents of the fallback page on the original, requested URL.
+					 *
+					 * With the following configuration, if you have the file `src/pages/en/about.astro` but not `src/pages/fr/about.astro`, the `astro build` command will generate `dist/fr/about.html` with the same content as the `dist/en/about.html` page.
+					 * Your site visitor will see the English version of the page at `https://example.com/fr/about/` and will not be redirected.
+					 *
+					 * ```js
+					 * //astro.config.mjs
+					 * export default defineConfig({
+					 * 	 i18n: {
+					 *     defaultLocale: "en",
+					 *     locales: ["en", "fr"],
+					 *     routing: {
+					 *     	prefixDefaultLocale: false,
+					 *     	fallbackType: "rewrite",
+					 *     },
+					 *     fallback: {
+					 *     	fr: "en",
+					 *     }
+					 *   },
+					 * })
+					 * ```
+					 */
+					fallbackType: 'redirect' | 'rewrite';
+
+					/**
 					 * @name i18n.routing.strategy
 					 * @type {"pathname"}
 					 * @default `"pathname"`
@@ -1795,107 +1832,6 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		directRenderScript?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.actions
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.8.0
-		 * @description
-		 *
-		 * Actions help you write type-safe backend functions you can call from anywhere. Enable server rendering [using the `output` property](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) and add the `actions` flag to the `experimental` object:
-		 *
-		 * ```js
-		 * {
-		 *   output: 'hybrid', // or 'server'
-		 *   experimental: {
-		 *     actions: true,
-		 *   },
-		 * }
-		 * ```
-		 *
-		 * Declare all your actions in `src/actions/index.ts`. This file is the global actions handler.
-		 *
-		 * Define an action using the `defineAction()` utility from the `astro:actions` module. An action accepts the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
-		 *
-		 * This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings. Each `handler` updates your database and return a type-safe response.
-		 *
-		 * ```ts
-		 * // src/actions/index.ts
-		 * import { defineAction, z } from "astro:actions";
-		 *
-		 * export const server = {
-		 *   like: defineAction({
-		 *     input: z.object({ postId: z.string() }),
-		 *     handler: async ({ postId }) => {
-		 *       // update likes in db
-		 *
-		 *       return likes;
-		 *     },
-		 *   }),
-		 *   comment: defineAction({
-		 *     accept: 'form',
-		 *     input: z.object({
-		 *       postId: z.string(),
-		 *       author: z.string(),
-		 *       body: z.string(),
-		 *     }),
-		 *     handler: async ({ postId }) => {
-		 *       // insert comments in db
-		 *
-		 *       return comment;
-		 *     },
-		 *   }),
-		 * };
-		 * ```
-		 *
-		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition.
-		 *
-		 * This example calls the `like` and `comment` actions from a React component:
-		 *
-		 * ```tsx "actions"
-		 * // src/components/blog.tsx
-		 * import { actions } from "astro:actions";
-		 * import { useState } from "react";
-		 *
-		 * export function Like({ postId }: { postId: string }) {
-		 *   const [likes, setLikes] = useState(0);
-		 *   return (
-		 *     <button
-		 *       onClick={async () => {
-		 *         const newLikes = await actions.like({ postId });
-		 *         setLikes(newLikes);
-		 *       }}
-		 *     >
-		 *       {likes} likes
-		 *     </button>
-		 *   );
-		 * }
-		 *
-		 * export function Comment({ postId }: { postId: string }) {
-		 *   return (
-		 *     <form
-		 *       onSubmit={async (e) => {
-		 *         e.preventDefault();
-		 *         const formData = new FormData(e.target as HTMLFormElement);
-		 *         const result = await actions.blog.comment(formData);
-		 *         // handle result
-		 *       }}
-		 *     >
-		 *       <input type="hidden" name="postId" value={postId} />
-		 *       <label htmlFor="author">Author</label>
-		 *       <input id="author" type="text" name="author" />
-		 *       <textarea rows={10} name="body"></textarea>
-		 *       <button type="submit">Post</button>
-		 *     </form>
-		 *   );
-		 * }
-		 * ```
-		 *
-		 * For a complete overview, and to give feedback on this experimental API, see the [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md).
-		 */
-		actions?: boolean;
 
 		/**
 		 * @docs
@@ -2468,6 +2404,7 @@ export interface RouteOptions {
 
 /**
  * Resolved Astro Config
+ *
  * Config with user settings along with all defaults filled in.
  */
 export interface AstroConfig extends AstroConfigType {
@@ -2556,7 +2493,7 @@ export interface ContentEntryType {
 		},
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
-	getRenderFunction?(settings: AstroSettings): Promise<ContentEntryRenderFuction>;
+	getRenderFunction?(config: AstroConfig): Promise<ContentEntryRenderFuction>;
 
 	/**
 	 * Handle asset propagation for rendered content to avoid bleed.
@@ -3305,6 +3242,11 @@ export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientE
 	ssr: SSRLoadedRendererValue;
 }
 
+export interface RefreshContentOptions {
+	loaders?: Array<string>;
+	context?: Record<string, any>;
+}
+
 export type HookParameters<
 	Hook extends keyof AstroIntegration['hooks'],
 	Fn = AstroIntegration['hooks'][Hook],
@@ -3316,7 +3258,7 @@ declare global {
 		export interface IntegrationHooks {
 			'astro:config:setup': (options: {
 				config: AstroConfig;
-				command: 'dev' | 'build' | 'preview';
+				command: 'dev' | 'build' | 'preview' | 'sync';
 				isRestart: boolean;
 				updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 				addRenderer: (renderer: AstroRenderer) => void;
