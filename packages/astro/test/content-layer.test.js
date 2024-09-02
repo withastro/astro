@@ -5,7 +5,7 @@ import { sep as posixSep } from 'node:path/posix';
 import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
 
-const pause = (ms = 700) => new Promise((r) => setTimeout(r, ms));
+const pause = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
 
 import { loadFixture } from './test-utils.js';
 describe('Content Layer', () => {
