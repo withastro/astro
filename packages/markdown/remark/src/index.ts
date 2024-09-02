@@ -26,7 +26,12 @@ export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export { rehypePrism } from './rehype-prism.js';
 export { rehypeShiki } from './rehype-shiki.js';
-export { createShikiHighlighter, type ShikiHighlighter } from './shiki.js';
+export {
+	createShikiHighlighter,
+	type ShikiHighlighter,
+	type CreateShikiHighlighterOptions,
+	type ShikiHighlighterHighlightOptions,
+} from './shiki.js';
 export * from './types.js';
 
 export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
