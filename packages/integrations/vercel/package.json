@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
-    "astro": "^4.14.6",
+    "astro": "^4.15.1",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0"
   },
