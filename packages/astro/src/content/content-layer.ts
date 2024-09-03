@@ -2,7 +2,6 @@ import { promises as fs, existsSync } from 'node:fs';
 import * as fastq from 'fastq';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
-import { AstroUserError } from '../core/errors/errors.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
