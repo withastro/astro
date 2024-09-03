@@ -1,9 +1,9 @@
 import { visit } from 'unist-util-visit';
-import type { MarkdownVFile } from './types.js';
+import type { VFile } from 'vfile';
 
 export function rehypeImages() {
 	return () =>
-		function (tree: any, file: MarkdownVFile) {
+		function (tree: any, file: VFile) {
 			const imageOccurrenceMap = new Map();
 
 			visit(tree, (node) => {
@@ -13,7 +13,7 @@ export function rehypeImages() {
 				if (node.properties?.src) {
 					node.properties.src = decodeURI(node.properties.src);
 
-					if (file.data.imagePaths?.has(node.properties.src)) {
+					if (file.data.astro?.imagePaths?.includes(node.properties.src)) {
 						const { ...props } = node.properties;
 
 						// Initialize or increment occurrence count for this image

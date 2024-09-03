@@ -5,6 +5,9 @@ import { bold } from 'kleur/colors';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 import { isActionsFilePresent } from '../actions/utils.js';
+import { CONTENT_LAYER_TYPE } from '../content/consts.js';
+import { globalContentLayer } from '../content/content-layer.js';
+import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
@@ -13,7 +16,11 @@ import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
-import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
+import type {
+	ContentEntryType,
+	DataEntryType,
+	RefreshContentOptions,
+} from '../types/public/content.js';
 import type {
 	AstroIntegration,
 	AstroRenderer,
@@ -367,6 +374,24 @@ export async function runHookServerSetup({
 	server: ViteDevServer;
 	logger: Logger;
 }) {
+	let refreshContent: undefined | ((options: RefreshContentOptions) => Promise<void>);
+	if (config.experimental?.contentLayer) {
+		refreshContent = async (options: RefreshContentOptions) => {
+			const contentConfig = globalContentConfigObserver.get();
+			if (
+				contentConfig.status !== 'loaded' ||
+				!Object.values(contentConfig.config.collections).some(
+					(collection) => collection.type === CONTENT_LAYER_TYPE,
+				)
+			) {
+				return;
+			}
+
+			const contentLayer = await globalContentLayer.get();
+			await contentLayer?.sync(options);
+		};
+	}
+
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:setup']) {
 			await withTakingALongTimeMsg({
@@ -376,6 +401,7 @@ export async function runHookServerSetup({
 					server,
 					logger: getLogger(integration, logger),
 					toolbar: getToolbarServerCommunicationHelpers(server),
+					refreshContent,
 				}),
 				logger,
 			});
