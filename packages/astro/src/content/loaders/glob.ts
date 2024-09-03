@@ -107,15 +107,11 @@ export function glob(globOptions: GlobOptions): Loader {
 						store.addModuleImport(existingEntry.filePath);
 					}
 
-					if (existingEntry.rendered?.metadata?.imagePaths?.length) {
+					if (existingEntry.assetImports?.length) {
 						// Add asset imports for existing entries
-						store.addAssetImports(
-							existingEntry.rendered.metadata.imagePaths,
-							existingEntry.filePath,
-						);
+						store.addAssetImports(existingEntry.assetImports, existingEntry.filePath);
 					}
-					// Re-parsing to resolve images and other effects
-					await parseData(existingEntry);
+
 					return;
 				}
 
@@ -156,10 +152,9 @@ export function glob(globOptions: GlobOptions): Loader {
 						filePath: relativePath,
 						digest,
 						rendered,
+						assetImports: rendered?.metadata?.imagePaths,
 					});
-					if (rendered?.metadata?.imagePaths?.length) {
-						store.addAssetImports(rendered.metadata.imagePaths, relativePath);
-					}
+
 					// todo: add an explicit way to opt in to deferred rendering
 				} else if ('contentModuleTypes' in entryType) {
 					store.set({
