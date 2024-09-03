@@ -11,7 +11,7 @@ import type { ActionAccept, ActionClient } from './server.js';
 export async function getAction(
 	path: string,
 ): Promise<ActionClient<unknown, ActionAccept, ZodType>> {
-	const pathKeys = path.replace('/_actions/', '').split('.');
+	const pathKey = decodeURIComponent(path.replace("/_actions/", ""))
 	// @ts-expect-error virtual module
 	let { server: actionLookup } = await import('astro:internal-actions');
 
@@ -20,19 +20,16 @@ export async function getAction(
 			`Expected \`server\` export in actions file to be an object. Received ${typeof actionLookup}.`,
 		);
 	}
-
-	for (const key of pathKeys) {
-		if (!(key in actionLookup)) {
-			throw new AstroError({
-				...ActionNotFoundError,
-				message: ActionNotFoundError.message(pathKeys.join('.')),
-			});
-		}
-		actionLookup = actionLookup[key];
-	}
+	if (!(pathKey in actionLookup)) {
+    throw new AstroError({
+      ...ActionNotFoundError,
+      message: ActionNotFoundError.message(pathKey)
+    })
+  }
+  actionLookup = actionLookup[pathKey];
 	if (typeof actionLookup !== 'function') {
 		throw new TypeError(
-			`Expected handler for action ${pathKeys.join('.')} to be a function. Received ${typeof actionLookup}.`,
+			`Expected handler for action ${pathKey} to be a function. Received ${typeof actionLookup}.`,
 		);
 	}
 	return actionLookup;
