@@ -196,7 +196,11 @@ describe('Content Layer', () => {
 		let devServer;
 		let json;
 		before(async () => {
-			devServer = await fixture.startDevServer();
+			devServer = await fixture.startDevServer({ force: true });
+			// Vite may not have noticed the saved data store yet. Wait a little just in case.
+			await fixture.onNextDataStoreChange(1000).catch(() => {
+				// Ignore timeout, because it may have saved before we get here.
+			})
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const rawJson = await rawJsonResponse.text();
 			json = devalue.parse(rawJson);
@@ -286,9 +290,7 @@ describe('Content Layer', () => {
 				return JSON.stringify(data, null, 2);
 			});
 
-			// Writes are debounced to 500ms
-			await new Promise((r) => setTimeout(r, 700));
-
+			await fixture.onNextDataStoreChange();
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
 			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));

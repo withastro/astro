@@ -223,7 +223,7 @@ export class ContentLayer {
 		if (!existsSync(this.#settings.config.cacheDir)) {
 			await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		}
-		const cacheFile = new URL(DATA_STORE_FILE, this.#settings.config.cacheDir);
+		const cacheFile = getDataStoreFile(this.#settings);
 		await this.#store.writeToDisk(cacheFile);
 		if (!existsSync(this.#settings.dotAstroDir)) {
 			await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
@@ -282,6 +282,15 @@ export async function simpleLoader<TData extends { id: string }>(
 		const item = await context.parseData({ id: raw.id, data: raw });
 		context.store.set({ id: raw.id, data: item });
 	}
+}
+/**
+ * Get the path to the data store file.
+ * During development, this is in the `.astro` directory so that the Vite watcher can see it.
+ * In production, it's in the cache directory so that it's preserved between builds.
+ */
+export function getDataStoreFile(settings: AstroSettings, isDev?: boolean) {
+	isDev ??= process?.env.NODE_ENV === 'development';
+	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }
 
 function contentLayerSingleton() {

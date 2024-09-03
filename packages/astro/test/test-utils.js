@@ -48,6 +48,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {() => Promise<App>} loadTestAdapterApp
  * @property {() => Promise<(req: NodeRequest, res: NodeResponse) => void>} loadNodeAdapterHandler
  * @property {() => Promise<void>} onNextChange
+ * @property {(timeout?: number) => Promise<void>} onNextDataStoreChange
  * @property {typeof check} check
  * @property {typeof sync} sync
  * @property {AstroConfig} config
@@ -182,6 +183,27 @@ export async function loadFixture(inlineConfig) {
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			return devServer;
+		},
+		onNextDataStoreChange: (timeout = 5000) => {
+			if (!devServer) {
+				return Promise.reject(new Error('No dev server running'));
+			}
+
+			const dataStoreFile = path.join(root, '.astro', 'data-store.json');
+
+			return new Promise((resolve, reject) => {
+				const changeHandler = (fileName) => {
+					if (fileName === dataStoreFile) {
+						devServer.watcher.removeListener('change', changeHandler);
+						resolve();
+					}
+				};
+				devServer.watcher.on('change', changeHandler);
+				setTimeout(() => {
+					devServer.watcher.removeListener('change', changeHandler);
+					reject(new Error('Data store did not update within timeout'));
+				}, timeout);
+			});
 		},
 		config,
 		resolveUrl,
