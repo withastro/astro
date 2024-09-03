@@ -20,7 +20,6 @@ import {
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
-	DATA_STORE_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
@@ -29,6 +28,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
+import { getDataStoreFile } from './content-layer.js';
 import {
 	type ContentLookupMap,
 	getContentEntryIdAndSlug,
@@ -42,7 +42,6 @@ import {
 	getExtGlob,
 	isDeferredModule,
 } from './utils.js';
-import { getDataStoreFile } from './content-layer.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;

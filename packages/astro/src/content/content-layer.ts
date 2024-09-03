@@ -284,8 +284,8 @@ export async function simpleLoader<TData extends { id: string }>(
 	}
 }
 /**
- * Get the path to the data store file. 
- * During development, this is in the `.astro` directory so that the Vite watcher can see it. 
+ * Get the path to the data store file.
+ * During development, this is in the `.astro` directory so that the Vite watcher can see it.
  * In production, it's in the cache directory so that it's preserved between builds.
  */
 export function getDataStoreFile(settings: AstroSettings, isDev?: boolean) {
