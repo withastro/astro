@@ -66,8 +66,8 @@ export default async function sync(
 	// Actions will throw if there is misconfiguration, so catch here.
 	try {
 		await runHookConfigDone({ settings, logger });
-	} catch(err) {
-		if(err instanceof Error) {
+	} catch (err) {
+		if (err instanceof Error) {
 			const errorMessage = err.toString();
 			logger.error('sync', errorMessage);
 		}
