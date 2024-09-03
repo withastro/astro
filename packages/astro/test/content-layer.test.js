@@ -197,7 +197,10 @@ describe('Content Layer', () => {
 		let json;
 		before(async () => {
 			devServer = await fixture.startDevServer({ force: true });
-			await fixture.onNextDataStoreChange();
+			// Vite may not have noticed the saved data store yet. Wait a little just in case.
+			await fixture.onNextDataStoreChange(1000).catch(() => {
+				// Ignore timeout, because it may have saved before we get here.
+			})
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const rawJson = await rawJsonResponse.text();
 			json = devalue.parse(rawJson);
