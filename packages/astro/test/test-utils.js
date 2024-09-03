@@ -182,25 +182,25 @@ export async function loadFixture(inlineConfig) {
 			return devServer;
 		},
 		onNextDataStoreChange: (timeout = 5000) => {
-			if(!devServer) {
+			if (!devServer) {
 				return Promise.reject(new Error('No dev server running'));
 			}
-	
+
 			const dataStoreFile = path.join(root, '.astro', 'data-store.json');
-	
+
 			return new Promise((resolve, reject) => {
 				const changeHandler = (fileName) => {
 					if (fileName === dataStoreFile) {
 						devServer.watcher.removeListener('change', changeHandler);
 						resolve();
 					}
-				}
+				};
 				devServer.watcher.on('change', changeHandler);
 				setTimeout(() => {
 					devServer.watcher.removeListener('change', changeHandler);
 					reject(new Error('Data store did not update within timeout'));
 				}, timeout);
-			})
+			});
 		},
 		config,
 		resolveUrl,

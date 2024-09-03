@@ -309,7 +309,5 @@ describe('Content Layer', () => {
 			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
 			await fixture.resetAllFiles();
 		});
-
-
 	});
 });
