@@ -6,6 +6,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
+import pLimit from 'p-limit';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookRouteSetup } from '../../../integrations/hooks.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
@@ -501,9 +502,14 @@ export async function createRouteManifest(
 	settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
 
 	// Check the prerender option for each route
+	const limit = pLimit(10);
+	let promises = [];
 	for (const route of routes) {
-		await getRoutePrerenderOption(route, settings, params.fsMod, logger);
+		promises.push(
+			limit(async () => await getRoutePrerenderOption(route, settings, params.fsMod, logger)),
+		);
 	}
+	await Promise.all(promises);
 
 	// Report route collisions
 	for (const [index, higherRoute] of routes.entries()) {
