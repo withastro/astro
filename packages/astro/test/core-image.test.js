@@ -646,7 +646,7 @@ describe('astro:image', () => {
 				customEndpointFixture = await loadFixture({
 					root: './fixtures/core-image/',
 					image: {
-						endpoint: './src/custom-endpoint.ts',
+						endpoint: { entrypoint: './src/custom-endpoint.ts' },
 						service: testImageService({ foo: 'bar' }),
 						domains: ['avatars.githubusercontent.com'],
 					},
@@ -1145,7 +1145,7 @@ describe('astro:image', () => {
 				},
 				adapter: testAdapter(),
 				image: {
-					endpoint: 'astro/assets/endpoint/node',
+					endpoint: { entrypoint: 'astro/assets/endpoint/node' },
 					service: testImageService(),
 				},
 			});
