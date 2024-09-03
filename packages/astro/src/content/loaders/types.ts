@@ -3,9 +3,9 @@ import type { ZodSchema } from 'zod';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { ContentEntryType } from '../../types/public/content.js';
-import type { MetaStore, AstroDataStore } from '../mutable-data-store.js';
+import type { AstroDataStore, MetaStore } from '../mutable-data-store.js';
 
-export type { MetaStore, AstroDataStore };
+export type { AstroDataStore, MetaStore };
 
 export interface ParseDataOptions<TData extends Record<string, unknown>> {
 	/** The ID of the entry. Unique per collection */
