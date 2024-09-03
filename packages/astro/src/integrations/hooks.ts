@@ -355,7 +355,9 @@ export async function runHookConfigDone({
 						return new URL(normalizedFilename, settings.dotAstroDir);
 					},
 					logger: getLogger(integration, logger),
-					buildOutput: () => settings.buildOutput!, // settings.buildOutput is always set at this point
+					get buildOutput() {
+						return settings.buildOutput!; // settings.buildOutput is always set at this point
+					},
 				}),
 				logger,
 			});

@@ -500,7 +500,7 @@ export async function createRouteManifest(
 
 	settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
 
-	// Check if
+	// Check the prerender option for each route
 	for (const route of routes) {
 		await getRoutePrerenderOption(route, settings, params.fsMod, logger);
 	}
@@ -721,10 +721,12 @@ async function getRoutePrerenderOption(
 		'utf-8',
 	);
 
-	// Check if the route is pre-rendered or not
+	// Check if the route is pre-rendered or not, if not explicitly set, default to the global setting
 	const match = /^\s*export\s+const\s+prerender\s*=\s*(true|false);?/m.exec(content);
 	if (match) {
 		route.prerender = match[1] === 'true';
+	} else {
+		route.prerender = getPrerenderDefault(settings.config);
 	}
 
 	await runHookRouteSetup({ route, settings, logger });

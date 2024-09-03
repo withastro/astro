@@ -30,7 +30,7 @@ export default function astroIntegrationActionsRouteHandler({
 				});
 			},
 			'astro:config:done': async (params) => {
-				if (params.buildOutput() === 'static') {
+				if (params.buildOutput === 'static') {
 					const error = new AstroError(ActionsWithoutServerOutputError);
 					error.stack = undefined;
 					throw error;

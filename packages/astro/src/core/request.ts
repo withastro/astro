@@ -35,7 +35,6 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
  * This is used by the static build to create fake requests for prerendering, and by the dev server to convert node requests into the standard request object.
  */
 export function createRequest({
-	base,
 	url,
 	headers,
 	clientAddress,
@@ -59,13 +58,6 @@ export function createRequest({
 				);
 
 	if (typeof url === 'string') url = new URL(url);
-
-	const imageEndpoint = prependForwardSlash(appendForwardSlash(base)) + '_image';
-
-	// HACK! astro:assets uses query params for the injected route in `dev`
-	if (staticLike && url.pathname !== imageEndpoint) {
-		url.search = '';
-	}
 
 	const request = new Request(url, {
 		method: method,

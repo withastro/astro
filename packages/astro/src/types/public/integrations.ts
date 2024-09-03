@@ -186,7 +186,7 @@ export interface BaseIntegrationHooks {
 		setAdapter: (adapter: AstroAdapter) => void;
 		injectTypes: (injectedType: InjectedType) => URL;
 		logger: AstroIntegrationLogger;
-		buildOutput: () => 'static' | 'server';
+		buildOutput: 'static' | 'server';
 	}) => void | Promise<void>;
 	'astro:server:setup': (options: {
 		server: ViteDevServer;

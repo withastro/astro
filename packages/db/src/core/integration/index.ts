@@ -107,7 +107,7 @@ function astroDBIntegration(): AstroIntegration {
 			'astro:config:done': async ({ config, injectTypes, buildOutput }) => {
 				if (command === 'preview') return;
 
-				finalBuildOutput = buildOutput();
+				finalBuildOutput = buildOutput;
 
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
