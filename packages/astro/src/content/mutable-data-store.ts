@@ -190,7 +190,7 @@ export default new Map([\n${lines.join(',\n')}]);
 		}
 	}
 
-	scopedStore(collectionName: string): ScopedDataStore {
+	scopedStore(collectionName: string): AstroDataStore {
 		return {
 			get: <TData extends Record<string, unknown> = Record<string, unknown>>(key: string) =>
 				this.get<DataEntry<TData>>(collectionName, key),
@@ -329,7 +329,7 @@ export default new Map([\n${lines.join(',\n')}]);
 	}
 }
 
-export interface ScopedDataStore {
+export interface AstroDataStore {
 	get: <TData extends Record<string, unknown> = Record<string, unknown>>(
 		key: string,
 	) => DataEntry<TData> | undefined;
