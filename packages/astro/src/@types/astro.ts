@@ -1703,7 +1703,7 @@ export interface AstroUserConfig {
 					 * })
 					 * ```
 					 */
-					fallbackType: 'redirect' | 'rewrite';
+					fallbackType?: 'redirect' | 'rewrite';
 
 					/**
 					 * @name i18n.routing.strategy
