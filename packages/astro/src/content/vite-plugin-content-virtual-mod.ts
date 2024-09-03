@@ -42,6 +42,7 @@ import {
 	getExtGlob,
 	isDeferredModule,
 } from './utils.js';
+import { getDataStoreFile } from './content-layer.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -60,10 +61,7 @@ export function astroContentVirtualModPlugin({
 		enforce: 'pre',
 		configResolved(config) {
 			IS_DEV = config.mode === 'development';
-			dataStoreFile = new URL(
-				DATA_STORE_FILE,
-				IS_DEV ? settings.dotAstroDir : settings.config.cacheDir,
-			);
+			dataStoreFile = getDataStoreFile(settings, IS_DEV);
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
