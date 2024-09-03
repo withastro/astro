@@ -283,12 +283,14 @@ export async function simpleLoader<TData extends { id: string }>(
 		context.store.set({ id: raw.id, data: item });
 	}
 }
-
-export function getDataStoreFile(settings: AstroSettings) {
-	return new URL(
-		DATA_STORE_FILE,
-		process?.env.NODE_ENV === 'development' ? settings.dotAstroDir : settings.config.cacheDir,
-	);
+/**
+ * Get the path to the data store file. 
+ * During development, this is in the `.astro` directory so that the Vite watcher can see it. 
+ * In production, it's in the cache directory so that it's preserved between builds.
+ */
+export function getDataStoreFile(settings: AstroSettings, isDev?: boolean) {
+	isDev ??= process?.env.NODE_ENV === 'development';
+	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }
 
 function contentLayerSingleton() {
