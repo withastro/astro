@@ -1,7 +1,7 @@
-import test, { after, beforeEach, describe } from "node:test";
-import assert from "node:assert";
-import { getRemoteDatabaseInfo, getManagedRemoteToken } from '../../dist/core/utils.js';
-import { clearEnvironment } from "../test-utils.js";
+import assert from 'node:assert';
+import test, { after, beforeEach, describe } from 'node:test';
+import { getManagedRemoteToken, getRemoteDatabaseInfo } from '../../dist/core/utils.js';
+import { clearEnvironment } from '../test-utils.js';
 
 describe('RemoteDatabaseInfo', () => {
 	beforeEach(() => {
@@ -53,10 +53,12 @@ describe('RemoteManagedToken', () => {
 	// Avoid conflicts with other tests
 	beforeEach(() => {
 		clearEnvironment();
-		process.env.ASTRO_STUDIO_APP_TOKEN = 'studio token'
-		process.env.ASTRO_DB_APP_TOKEN = 'db token'
+		process.env.ASTRO_STUDIO_APP_TOKEN = 'studio token';
+		process.env.ASTRO_DB_APP_TOKEN = 'db token';
 	});
-	after(() => { clearEnvironment(); });
+	after(() => {
+		clearEnvironment();
+	});
 
 	test('given token for default remote', async () => {
 		const { token } = await getManagedRemoteToken('given token');

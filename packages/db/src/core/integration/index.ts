@@ -178,7 +178,7 @@ function astroDBIntegration(): AstroIntegration {
 					await executeSeedFile({ fileUrl, viteServer: tempViteServer! });
 				};
 			},
-			'astro:build:done': async ({ }) => {
+			'astro:build:done': async ({}) => {
 				await appToken?.destroy();
 				await tempViteServer?.close();
 			},

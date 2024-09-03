@@ -1,4 +1,4 @@
-import { getAstroStudioEnv, getManagedAppTokenOrExit, type ManagedAppToken } from '@astrojs/studio';
+import { type ManagedAppToken, getAstroStudioEnv, getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { loadEnv } from 'vite';
 import './types.js';
@@ -37,11 +37,14 @@ export function getRemoteDatabaseInfo(): RemoteDatabaseInfo {
 	};
 }
 
-export function getManagedRemoteToken(token?: string, dbInfo?: RemoteDatabaseInfo): Promise<ManagedAppToken> {
+export function getManagedRemoteToken(
+	token?: string,
+	dbInfo?: RemoteDatabaseInfo,
+): Promise<ManagedAppToken> {
 	dbInfo ??= getRemoteDatabaseInfo();
 
 	if (dbInfo.type === 'studio') {
-		return getManagedAppTokenOrExit(token)
+		return getManagedAppTokenOrExit(token);
 	}
 
 	const astroEnv = getAstroEnv();

@@ -6,7 +6,12 @@ import { createRemoteDatabaseClient } from '../../../../runtime/index.js';
 import { safeFetch } from '../../../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import type { DBConfig, DBSnapshot } from '../../../types.js';
-import { type RemoteDatabaseInfo, type Result, getManagedRemoteToken, getRemoteDatabaseInfo } from '../../../utils.js';
+import {
+	type RemoteDatabaseInfo,
+	type Result,
+	getManagedRemoteToken,
+	getRemoteDatabaseInfo,
+} from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,

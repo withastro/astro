@@ -1,6 +1,7 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
 import type { DBConfig } from '../../../types.js';
+import { getManagedRemoteToken, getRemoteDatabaseInfo } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -8,7 +9,6 @@ import {
 	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
-import { getManagedRemoteToken, getRemoteDatabaseInfo } from '../../../utils.js';
 
 export async function cmd({
 	dbConfig,
