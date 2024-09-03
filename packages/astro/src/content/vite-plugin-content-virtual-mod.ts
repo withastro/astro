@@ -20,7 +20,6 @@ import {
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
-	DATA_STORE_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
@@ -29,6 +28,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
+import { getDataStoreFile } from './content-layer.js';
 import {
 	type ContentLookupMap,
 	getContentEntryIdAndSlug,
@@ -60,10 +60,7 @@ export function astroContentVirtualModPlugin({
 		enforce: 'pre',
 		configResolved(config) {
 			IS_DEV = config.mode === 'development';
-			dataStoreFile = new URL(
-				DATA_STORE_FILE,
-				IS_DEV ? settings.dotAstroDir : settings.config.cacheDir,
-			);
+			dataStoreFile = getDataStoreFile(settings, IS_DEV);
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
