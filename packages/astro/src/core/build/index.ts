@@ -57,6 +57,9 @@ export default async function build(
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
+
+	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+
 	if (inlineConfig.force) {
 		if (astroConfig.experimental.contentCollectionCache) {
 			const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
@@ -66,10 +69,8 @@ export default async function build(
 				logger.warn('content', 'content cache cleared (force)');
 			}
 		}
-		await clearContentLayerCache({ astroConfig, logger, fs });
+		await clearContentLayerCache({ settings, logger, fs });
 	}
-
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const builder = new AstroBuilder(settings, {
 		...options,

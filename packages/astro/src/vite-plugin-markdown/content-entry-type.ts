@@ -32,10 +32,7 @@ export const markdownContentEntryType: ContentEntryType = {
 			});
 			return {
 				html: result.code,
-				metadata: {
-					...result.metadata,
-					imagePaths: Array.from(result.metadata.imagePaths),
-				},
+				metadata: result.metadata,
 			};
 		};
 	},
