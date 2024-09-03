@@ -74,9 +74,6 @@ import mdx from '@astrojs/mdx';
 
 export default defineConfig({
   integrations: [mdx()],
-		experimental: {
-			contentLayer: true
-		}
 });`,
 		'utf-8'
 	);

@@ -140,18 +140,6 @@ export class ContentLayer {
 			logger.debug('Content config not loaded, skipping sync');
 			return;
 		}
-		if (!this.#settings.config.experimental.contentLayer) {
-			const contentLayerCollections = Object.entries(contentConfig.config.collections).filter(
-				([_, collection]) => collection.type === CONTENT_LAYER_TYPE,
-			);
-			if (contentLayerCollections.length > 0) {
-				throw new AstroUserError(
-					`The following collections have a loader defined, but the content layer is not enabled: ${contentLayerCollections.map(([title]) => title).join(', ')}.`,
-					'To enable the Content Layer API, set `experimental: { contentLayer: true }` in your Astro config file.',
-				);
-			}
-			return;
-		}
 
 		logger.info('Syncing content');
 		const { digest: currentConfigDigest } = contentConfig.config;
