@@ -4,5 +4,6 @@
     // This is only needed because we link Astro locally.
     "preserveSymlinks": true
   },
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*", ".astro/types.d.ts"],
+  "exclude": ["dist"]
 }

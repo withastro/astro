@@ -31,7 +31,8 @@ import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { createRouteManifest } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { writeFiles } from './write-files.js';
+import { dirname, relative } from 'node:path';
+import { normalizePath } from 'vite';
 
 export type SyncOptions = {
 	/**
@@ -139,7 +140,7 @@ export async function syncInternal({
 		}
 		syncAstroEnv(settings);
 
-		await writeFiles(settings, fs, logger);
+		writeInjectedTypes(settings, fs);
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	} catch (err) {
 		const error = createSafeError(err);
@@ -150,6 +151,33 @@ export async function syncInternal({
 		// Will return exit code 1 in CLI
 		throw error;
 	}
+}
+
+function getTsReference(type: 'path' | 'types', value: string) {
+	return `/// <reference ${type}=${JSON.stringify(value)} />`;
+}
+
+const CLIENT_TYPES_REFERENCE = getTsReference('types', 'astro/client');
+
+function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
+	const references: Array<string> = [];
+
+	for (const { filename, content } of settings.injectedTypes) {
+		const filepath = fileURLToPath(new URL(filename, settings.dotAstroDir));
+		fs.mkdirSync(dirname(filepath), { recursive: true });
+		fs.writeFileSync(filepath, content, 'utf-8');
+		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), filepath)));
+	}
+
+	const astroDtsContent = `${CLIENT_TYPES_REFERENCE}\n${references.map((reference) => getTsReference('path', reference)).join('\n')}`;
+	if (references.length === 0) {
+		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
+	}
+	fs.writeFileSync(
+		fileURLToPath(new URL('./types.d.ts', settings.dotAstroDir)),
+		astroDtsContent,
+		'utf-8',
+	);
 }
 
 /**
