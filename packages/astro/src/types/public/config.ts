@@ -905,18 +905,18 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name image.endpoint
-		 * @type {{route: '/_image' | (string & {}), entrypoint: 'default' | (string & {})}}
-		 * @default `undefined`
+		 * @type {{route: string, entrypoint: undefined | string}}
+		 * @default `{route: '/_image', entrypoint: undefined}`
 		 * @version 3.1.0
 		 * @description
-		 * Set the endpoint to use for image optimization in dev and SSR.
+		 * Set the endpoint to use for image optimization in dev and SSR. The `entrypoint` property can be set to `undefined` to use the default image endpoint.
 		 *
 		 * ```js
 		 * {
 		 *   image: {
-		 *     // Example: Use a custom image endpoint
+		 *     // Example: Use a custom image endpoint at `/custom_endpoint`
 		 *     endpoint: {
-		 * 		 	route: '/_image',
+		 * 		 	route: '/custom_endpoint',
 		 * 		 	entrypoint: 'src/my_endpoint.ts',
 		 * 		},
 		 *   },
@@ -925,7 +925,7 @@ export interface AstroUserConfig {
 		 */
 		endpoint?: {
 			route: '/_image' | (string & {});
-			entrypoint: 'default' | (string & {});
+			entrypoint: undefined | string;
 		};
 
 		/**

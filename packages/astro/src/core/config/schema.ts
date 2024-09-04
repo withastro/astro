@@ -65,7 +65,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		inlineStylesheets: 'auto',
 	},
 	image: {
-		endpoint: { entrypoint: 'default', route: '/_image' },
+		endpoint: { entrypoint: undefined, route: '/_image' },
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 	},
 	devToolbar: {
@@ -244,8 +244,11 @@ export const AstroConfigSchema = z.object({
 		.object({
 			endpoint: z
 				.object({
-					route: z.literal('/_image').or(z.string()).default(ASTRO_CONFIG_DEFAULTS.image.endpoint.route),
-					entrypoint: z.literal('default').or(z.string()).default(ASTRO_CONFIG_DEFAULTS.image.endpoint.entrypoint),
+					route: z
+						.literal('/_image')
+						.or(z.string())
+						.default(ASTRO_CONFIG_DEFAULTS.image.endpoint.route),
+					entrypoint: z.string().optional(),
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.endpoint),
 			service: z
