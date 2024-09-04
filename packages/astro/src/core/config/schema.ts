@@ -244,8 +244,8 @@ export const AstroConfigSchema = z.object({
 		.object({
 			endpoint: z
 				.object({
-					route: z.literal('/_image').or(z.string()).default('/_image'),
-					entrypoint: z.literal('default').or(z.string()).default('default'),
+					route: z.literal('/_image').or(z.string()).default(ASTRO_CONFIG_DEFAULTS.image.endpoint.route),
+					entrypoint: z.literal('default').or(z.string()).default(ASTRO_CONFIG_DEFAULTS.image.endpoint.entrypoint),
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.endpoint),
 			service: z
