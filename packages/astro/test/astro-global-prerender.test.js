@@ -17,7 +17,7 @@ const createFixture = (output = undefined) =>
 		output,
 	});
 
-describe('Astro Global prerender', () => {
+describe('Astro Global isPrerendered', () => {
 	/** @type {import('../dist/core/dev/dev.js').DevServer | undefined} */
 	let devServer;
 

@@ -70,7 +70,7 @@ function createContext({
 				},
 			});
 		},
-		prerender: false,
+		isPrerendered: false,
 		get preferredLocale(): string | undefined {
 			return (preferredLocale ??= computePreferredLocale(request, userDefinedLocales));
 		},

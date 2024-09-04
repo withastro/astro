@@ -2,7 +2,7 @@
 
 export function onRequest(ctx, next) {
 	ctx.locals = {
-		localsPrerender: ctx.prerender
+		localsPrerender: ctx.isPrerendered
 	};
 	return next()
 }

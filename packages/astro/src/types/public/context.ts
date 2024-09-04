@@ -343,7 +343,7 @@ interface AstroSharedContext<
 	/**
 	 * Whether the current route is prerendered or not.
 	 */
-	prerender: boolean;
+	isPrerendered: boolean;
 }
 
 /**

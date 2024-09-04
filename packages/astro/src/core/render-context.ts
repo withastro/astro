@@ -254,7 +254,7 @@ export class RenderContext {
 		return {
 			cookies,
 			routePattern: this.routeData.route,
-			prerender: !pipeline.serverLike || this.routeData.prerender,
+			isPrerendered: !pipeline.serverLike || this.routeData.prerender,
 			get clientAddress() {
 				return renderContext.clientAddress();
 			},
@@ -440,7 +440,7 @@ export class RenderContext {
 			generator: astroStaticPartial.generator,
 			glob: astroStaticPartial.glob,
 			routePattern: this.routeData.route,
-			prerender: !pipeline.serverLike || this.routeData.prerender,
+			isPrerendered: !pipeline.serverLike || this.routeData.prerender,
 			cookies,
 			get clientAddress() {
 				return renderContext.clientAddress();
