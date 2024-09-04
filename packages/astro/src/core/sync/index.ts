@@ -1,10 +1,12 @@
 import fsMod, { existsSync } from 'node:fs';
+import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
-import { CONTENT_TYPES_FILE, DATA_STORE_FILE } from '../../content/consts.js';
-import { globalContentLayer } from '../../content/content-layer.js';
+import { normalizePath } from 'vite';
+import { CONTENT_TYPES_FILE } from '../../content/consts.js';
+import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
@@ -13,7 +15,7 @@ import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
 import type { AstroSettings } from '../../types/astro.js';
-import type { AstroConfig, AstroInlineConfig } from '../../types/public/config.js';
+import type { AstroInlineConfig } from '../../types/public/config.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
@@ -30,7 +32,6 @@ import {
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { writeFiles } from './write-files.js';
 
 export type SyncOptions = {
 	/**
@@ -70,11 +71,11 @@ export default async function sync(
  * Clears the content layer and content collection cache, forcing a full rebuild.
  */
 export async function clearContentLayerCache({
-	astroConfig,
+	settings,
 	logger,
 	fs = fsMod,
-}: { astroConfig: AstroConfig; logger: Logger; fs?: typeof fsMod }) {
-	const dataStore = new URL(DATA_STORE_FILE, astroConfig.cacheDir);
+}: { settings: AstroSettings; logger: Logger; fs?: typeof fsMod }) {
+	const dataStore = getDataStoreFile(settings);
 	if (fs.existsSync(dataStore)) {
 		logger.debug('content', 'clearing data store');
 		await fs.promises.rm(dataStore, { force: true });
@@ -96,7 +97,7 @@ export async function syncInternal({
 	force,
 }: SyncOptions): Promise<void> {
 	if (force) {
-		await clearContentLayerCache({ astroConfig: settings.config, logger, fs });
+		await clearContentLayerCache({ settings, logger, fs });
 	}
 
 	const timerStart = performance.now();
@@ -107,7 +108,7 @@ export async function syncInternal({
 			settings.timer.start('Sync content layer');
 			let store: MutableDataStore | undefined;
 			try {
-				const dataStoreFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
+				const dataStoreFile = getDataStoreFile(settings);
 				if (existsSync(dataStoreFile)) {
 					store = await MutableDataStore.fromFile(dataStoreFile);
 				}
@@ -135,7 +136,7 @@ export async function syncInternal({
 		}
 		syncAstroEnv(settings);
 
-		await writeFiles(settings, fs, logger);
+		writeInjectedTypes(settings, fs);
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	} catch (err) {
 		const error = createSafeError(err);
@@ -146,6 +147,33 @@ export async function syncInternal({
 		// Will return exit code 1 in CLI
 		throw error;
 	}
+}
+
+function getTsReference(type: 'path' | 'types', value: string) {
+	return `/// <reference ${type}=${JSON.stringify(value)} />`;
+}
+
+const CLIENT_TYPES_REFERENCE = getTsReference('types', 'astro/client');
+
+function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
+	const references: Array<string> = [];
+
+	for (const { filename, content } of settings.injectedTypes) {
+		const filepath = fileURLToPath(new URL(filename, settings.dotAstroDir));
+		fs.mkdirSync(dirname(filepath), { recursive: true });
+		fs.writeFileSync(filepath, content, 'utf-8');
+		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), filepath)));
+	}
+
+	const astroDtsContent = `${CLIENT_TYPES_REFERENCE}\n${references.map((reference) => getTsReference('path', reference)).join('\n')}`;
+	if (references.length === 0) {
+		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
+	}
+	fs.writeFileSync(
+		fileURLToPath(new URL('./types.d.ts', settings.dotAstroDir)),
+		astroDtsContent,
+		'utf-8',
+	);
 }
 
 /**

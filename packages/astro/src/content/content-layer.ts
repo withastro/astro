@@ -1,10 +1,7 @@
 import { promises as fs, existsSync } from 'node:fs';
-import { isAbsolute } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import * as fastq from 'fastq';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
-import { AstroUserError } from '../core/errors/errors.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
@@ -20,7 +17,6 @@ import {
 	getEntryConfigByExtMap,
 	getEntryDataAndImages,
 	globalContentConfigObserver,
-	posixRelative,
 } from './utils.js';
 
 export interface ContentLayerOptions {
@@ -73,6 +69,11 @@ export class ContentLayer {
 	}
 
 	unwatchContentConfig() {
+		this.#unsubscribe?.();
+	}
+
+	dispose() {
+		this.#queue.kill();
 		this.#unsubscribe?.();
 	}
 
@@ -138,18 +139,6 @@ export class ContentLayer {
 			logger.debug('Content config not loaded, skipping sync');
 			return;
 		}
-		if (!this.#settings.config.experimental.contentLayer) {
-			const contentLayerCollections = Object.entries(contentConfig.config.collections).filter(
-				([_, collection]) => collection.type === CONTENT_LAYER_TYPE,
-			);
-			if (contentLayerCollections.length > 0) {
-				throw new AstroUserError(
-					`The following collections have a loader defined, but the content layer is not enabled: ${contentLayerCollections.map(([title]) => title).join(', ')}.`,
-					'To enable the Content Layer API, set `experimental: { contentLayer: true }` in your Astro config file.',
-				);
-			}
-			return;
-		}
 
 		logger.info('Syncing content');
 		const { digest: currentConfigDigest } = contentConfig.config;
@@ -189,7 +178,7 @@ export class ContentLayer {
 				const collectionWithResolvedSchema = { ...collection, schema };
 
 				const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
-					const { imageImports, data: parsedData } = await getEntryDataAndImages(
+					const { data: parsedData } = await getEntryDataAndImages(
 						{
 							id,
 							collection: name,
@@ -202,15 +191,6 @@ export class ContentLayer {
 						collectionWithResolvedSchema,
 						false,
 					);
-					if (imageImports?.length) {
-						this.#store.addAssetImports(
-							imageImports,
-							// This path may already be relative, if we're re-parsing an existing entry
-							isAbsolute(filePath)
-								? posixRelative(fileURLToPath(this.#settings.config.root), filePath)
-								: filePath,
-						);
-					}
 
 					return parsedData;
 				};
@@ -236,7 +216,7 @@ export class ContentLayer {
 		if (!existsSync(this.#settings.config.cacheDir)) {
 			await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		}
-		const cacheFile = new URL(DATA_STORE_FILE, this.#settings.config.cacheDir);
+		const cacheFile = getDataStoreFile(this.#settings);
 		await this.#store.writeToDisk(cacheFile);
 		if (!existsSync(this.#settings.dotAstroDir)) {
 			await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
@@ -296,18 +276,27 @@ export async function simpleLoader<TData extends { id: string }>(
 		context.store.set({ id: raw.id, data: item });
 	}
 }
+/**
+ * Get the path to the data store file.
+ * During development, this is in the `.astro` directory so that the Vite watcher can see it.
+ * In production, it's in the cache directory so that it's preserved between builds.
+ */
+export function getDataStoreFile(settings: AstroSettings, isDev?: boolean) {
+	isDev ??= process?.env.NODE_ENV === 'development';
+	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
+}
 
 function contentLayerSingleton() {
 	let instance: ContentLayer | null = null;
 	return {
 		init: (options: ContentLayerOptions) => {
-			instance?.unwatchContentConfig();
+			instance?.dispose();
 			instance = new ContentLayer(options);
 			return instance;
 		},
 		get: () => instance,
 		dispose: () => {
-			instance?.unwatchContentConfig();
+			instance?.dispose();
 			instance = null;
 		},
 	};

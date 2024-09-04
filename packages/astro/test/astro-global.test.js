@@ -50,13 +50,16 @@ describe('Astro Global', () => {
 		it("Astro.routePattern has the right value in pages and components", async () => {
 			let html = await fixture.fetch('/blog').then((res) => res.text());
 			let $ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \//);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \//);
+			assert.match($('#pattern').text(), /Astro route pattern: \//);
+			assert.match($('#pattern-middleware').text(), /Astro route pattern middleware: \//);
 			html = await fixture.fetch('/blog/omit-markdown-extensions/').then((res) => res.text());
 			$ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \/omit-markdown-extensions/);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \/omit-markdown-extensions/);
-		})
+			assert.match($('#pattern').text(), /Astro route pattern: \/omit-markdown-extensions/);
+			assert.match(
+				$('#pattern-middleware').text(),
+				/Astro route pattern middleware: \/omit-markdown-extensions/,
+			);
+		});
 	});
 
 	describe('build', () => {
@@ -96,20 +99,25 @@ describe('Astro Global', () => {
 		it("Astro.routePattern has the right value in pages and components", async () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \//);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \//);
+			assert.match($('#pattern').text(), /Astro route pattern: \//);
+			assert.match($('#pattern-middleware').text(), /Astro route pattern middleware: \//);
 
-			html =await fixture.readFile('/omit-markdown-extensions/index.html');
+			html = await fixture.readFile('/omit-markdown-extensions/index.html');
 			$ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \/omit-markdown-extensions/);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \/omit-markdown-extensions/);
+			assert.match($('#pattern').text(), /Astro route pattern: \/omit-markdown-extensions/);
+			assert.match(
+				$('#pattern-middleware').text(),
+				/Astro route pattern middleware: \/omit-markdown-extensions/,
+			);
 
 			html = await fixture.readFile('/posts/1/index.html');
 			$ = cheerio.load(html);
-			assert.equal($("#pattern").text(),  "Astro route pattern: /posts/[page]");
-			assert.equal($("#pattern-middleware").text(),  "Astro route pattern middleware: /posts/[page]");
-
-		})
+			assert.equal($('#pattern').text(), 'Astro route pattern: /posts/[page]');
+			assert.equal(
+				$('#pattern-middleware').text(),
+				'Astro route pattern middleware: /posts/[page]',
+			);
+		});
 	});
 
 	describe('app', () => {
@@ -139,14 +147,17 @@ describe('Astro Global', () => {
 			let response = await app.render(new Request('https://example.com/'));
 			let html = await response.text();
 			let $ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \//);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \//);
+			assert.match($('#pattern').text(), /Astro route pattern: \//);
+			assert.match($('#pattern-middleware').text(), /Astro route pattern middleware: \//);
 			response = await app.render(new Request('https://example.com/omit-markdown-extensions'));
 			html = await response.text();
 			$ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \/omit-markdown-extensions/);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \/omit-markdown-extensions/);
-		})
+			assert.match($('#pattern').text(), /Astro route pattern: \/omit-markdown-extensions/);
+			assert.match(
+				$('#pattern-middleware').text(),
+				/Astro route pattern middleware: \/omit-markdown-extensions/,
+			);
+		});
 	});
 });
 

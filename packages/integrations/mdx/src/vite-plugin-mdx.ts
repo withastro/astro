@@ -1,4 +1,3 @@
-import { setVfileFrontmatter } from '@astrojs/markdown-remark';
 import type { SSRError } from 'astro';
 import { getAstroMetadata } from 'astro/jsx/rehype.js';
 import { VFile } from 'vfile';
@@ -47,9 +46,15 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 			const { data: frontmatter, content: pageContent, matter } = parseFrontmatter(code, id);
 			const frontmatterLines = matter ? matter.match(/\n/g)?.join('') + '\n\n' : '';
 
-			const vfile = new VFile({ value: frontmatterLines + pageContent, path: id });
-			// Ensure `data.astro` is available to all remark plugins
-			setVfileFrontmatter(vfile, frontmatter);
+			const vfile = new VFile({
+				value: frontmatterLines + pageContent,
+				path: id,
+				data: {
+					astro: {
+						frontmatter,
+					},
+				},
+			});
 
 			// `processor` is initialized in `configResolved`, and removed in `buildEnd`. `transform`
 			// should be called in between those two lifecycle, so this error should never happen
