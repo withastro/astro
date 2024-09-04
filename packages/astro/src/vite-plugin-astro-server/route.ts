@@ -1,4 +1,5 @@
 import type http from 'node:http';
+import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import {
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
@@ -166,16 +167,20 @@ export async function handleRoute({
 	const filePath: URL | undefined = matchedRoute.filePath;
 	const { preloadedComponent } = matchedRoute;
 	route = matchedRoute.route;
+
+	// The image endpoint is a special case where in dev mode, it acts as a non-static route despite the output being static.
+	const imageEndpoint = prependForwardSlash(config.image.endpoint.route);
+
 	// Allows adapters to pass in locals in dev mode.
 	request = createRequest({
-		base: config.base,
 		url,
 		headers: incomingRequest.headers,
 		method: incomingRequest.method,
 		body,
 		logger,
 		clientAddress: incomingRequest.socket.remoteAddress,
-		staticLike: config.output === 'static' || route.prerender,
+		staticLike:
+			url.pathname === imageEndpoint ? false : config.output === 'static' || route.prerender,
 	});
 
 	// Set user specified headers to response object.

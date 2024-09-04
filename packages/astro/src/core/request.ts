@@ -1,12 +1,10 @@
 import type { IncomingHttpHeaders } from 'node:http';
 import type { Logger } from './logger/core.js';
-import { appendForwardSlash, prependForwardSlash } from './path.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
 type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;
 
 export interface CreateRequestOptions {
-	base: string;
 	url: URL | string;
 	clientAddress?: string | undefined;
 	headers: HeaderType;
@@ -35,7 +33,6 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
  * This is used by the static build to create fake requests for prerendering, and by the dev server to convert node requests into the standard request object.
  */
 export function createRequest({
-	base,
 	url,
 	headers,
 	clientAddress,
@@ -60,10 +57,7 @@ export function createRequest({
 
 	if (typeof url === 'string') url = new URL(url);
 
-	const imageEndpoint = prependForwardSlash(appendForwardSlash(base)) + '_image';
-
-	// HACK! astro:assets uses query params for the injected route in `dev`
-	if (staticLike && url.pathname !== imageEndpoint) {
+	if (staticLike) {
 		url.search = '';
 	}
 
