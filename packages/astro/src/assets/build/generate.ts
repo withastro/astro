@@ -98,11 +98,11 @@ export async function generateImagesForPath(
 	env: AssetEnv,
 	queue: PQueue,
 ) {
-	const originalImageData = await loadImage(originalFilePath, env);
+	let originalImage: ImageData;
 
 	for (const [_, transform] of transformsAndPath.transforms) {
 		await queue
-			.add(async () => generateImage(originalImageData, transform.finalPath, transform.transform))
+			.add(async () => generateImage(transform.finalPath, transform.transform))
 			.catch((e) => {
 				throw e;
 			});
@@ -128,13 +128,9 @@ export async function generateImagesForPath(
 		}
 	}
 
-	async function generateImage(
-		originalImage: ImageData,
-		filepath: string,
-		options: ImageTransform,
-	) {
+	async function generateImage(filepath: string, options: ImageTransform) {
 		const timeStart = performance.now();
-		const generationData = await generateImageInternal(originalImage, filepath, options);
+		const generationData = await generateImageInternal(filepath, options);
 
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
@@ -151,7 +147,6 @@ export async function generateImagesForPath(
 	}
 
 	async function generateImageInternal(
-		originalImage: ImageData,
 		filepath: string,
 		options: ImageTransform,
 	): Promise<GenerationData> {
@@ -206,6 +201,10 @@ export async function generateImagesForPath(
 		const originalImagePath = isLocalImage
 			? (options.src as ImageMetadata).src
 			: (options.src as string);
+
+		if (!originalImage) {
+			originalImage = await loadImage(originalFilePath, env);
+		}
 
 		let resultData: Partial<ImageData> = {
 			data: undefined,
