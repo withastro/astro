@@ -1,5 +1,206 @@
 # astro
 
+## 5.0.0-alpha.4
+
+### Major Changes
+
+- [#11859](https://github.com/withastro/astro/pull/11859) [`3804711`](https://github.com/withastro/astro/commit/38047119ff454e80cddd115bff53e33b32cd9930) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Changes the default `tsconfig.json` with better defaults, and makes `src/env.d.ts` optional
+
+  Astro's default `tsconfig.json` in starter examples has been updated to include generated types and exclude your build output. This means that `src/env.d.ts` is only necessary if you have added custom type declarations or if you're not using a `tsconfig.json` file.
+
+  Additionally, running `astro sync` no longer creates, nor updates, `src/env.d.ts` as it is not required for type-checking standard Astro projects.
+
+  To update your project to Astro's recommended TypeScript settings, please add the following `include` and `exclude` properties to `tsconfig.json`:
+
+  ```diff
+  {
+      "extends": "astro/tsconfigs/base",
+  +    "include": ["**/*", ".astro/types.d.ts"],
+  +    "exclude": ["dist"]
+  }
+  ```
+
+### Minor Changes
+
+- [#11911](https://github.com/withastro/astro/pull/11911) [`c3dce83`](https://github.com/withastro/astro/commit/c3dce8363be22121a567df22df2ec566a3ebda17) Thanks [@ascorbic](https://github.com/ascorbic)! - The Content Layer API introduced behind a flag in [4.14.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#4140) is now stable and ready for use in Astro v5.0.
+
+  The new Content Layer API builds upon content collections, taking them beyond local files in `src/content/` and allowing you to fetch content from anywhere, including remote APIs. These new collections work alongside your existing content collections, and you can migrate them to the new API at your own pace. There are significant improvements to performance with large collections of local files. For more details, see [the Content Layer RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0050-content-layer.md).
+
+  If you previously used this feature, you can now remove the `experimental.contentLayer` flag from your Astro config:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro'
+
+  export default defineConfig({
+  -  experimental: {
+  -    contentLayer: true
+  -  }
+  })
+  ```
+
+  ### Loading your content
+
+  The core of the new Content Layer API is the loader, a function that fetches content from a source and caches it in a local data store. Astro 4.14 ships with built-in `glob()` and `file()` loaders to handle your local Markdown, MDX, Markdoc, and JSON files:
+
+  ```ts {3,7}
+  // src/content/config.ts
+  import { defineCollection, z } from 'astro:content';
+  import { glob } from 'astro/loaders';
+
+  const blog = defineCollection({
+    // The ID is a slug generated from the path of the file relative to `base`
+    loader: glob({ pattern: '**/*.md', base: './src/data/blog' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string(),
+      publishDate: z.coerce.date(),
+    }),
+  });
+
+  export const collections = { blog };
+  ```
+
+  You can then query using the existing content collections functions, and use a simplified `render()` function to display your content:
+
+  ```astro
+  ---
+  import { getEntry, render } from 'astro:content';
+
+  const post = await getEntry('blog', Astro.params.slug);
+
+  const { Content } = await render(entry);
+  ---
+
+  <Content />
+  ```
+
+  ### Creating a loader
+
+  You're not restricted to the built-in loaders – we hope you'll try building your own. You can fetch content from anywhere and return an array of entries:
+
+  ```ts
+  // src/content/config.ts
+  const countries = defineCollection({
+    loader: async () => {
+      const response = await fetch('https://restcountries.com/v3.1/all');
+      const data = await response.json();
+      // Must return an array of entries with an id property,
+      // or an object with IDs as keys and entries as values
+      return data.map((country) => ({
+        id: country.cca3,
+        ...country,
+      }));
+    },
+    // optionally add a schema to validate the data and make it type-safe for users
+    // schema: z.object...
+  });
+
+  export const collections = { countries };
+  ```
+
+  For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. It also allows a loader to define its own schema, including generating it dynamically based on the source API. See the [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0050-content-layer.md#loaders) for more details.
+
+  ### Sharing your loaders
+
+  Loaders are better when they're shared. You can create a package that exports a loader and publish it to npm, and then anyone can use it on their site. We're excited to see what the community comes up with! To get started, [take a look at some examples](https://github.com/ascorbic/astro-loaders/). Here's how to load content using an RSS/Atom feed loader:
+
+  ```ts
+  // src/content/config.ts
+  import { defineCollection } from 'astro:content';
+  import { feedLoader } from '@ascorbic/feed-loader';
+
+  const podcasts = defineCollection({
+    loader: feedLoader({
+      url: 'https://feeds.99percentinvisible.org/99percentinvisible',
+    }),
+  });
+
+  export const collections = { podcasts };
+  ```
+
+  To learn more, see [the Content Layer RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0050-content-layer.md).
+
+### Patch Changes
+
+- [#11902](https://github.com/withastro/astro/pull/11902) [`d63bc50`](https://github.com/withastro/astro/commit/d63bc50d9940c1107e0fee7687e5c332549a0eff) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes case where content layer did not update during clean dev builds on Linux and Windows
+
+- [#11914](https://github.com/withastro/astro/pull/11914) [`b5d827b`](https://github.com/withastro/astro/commit/b5d827ba6852d046c33643f795e1542bc2818b2c) Thanks [@ascorbic](https://github.com/ascorbic)! - Exports types for all `LoaderContext` properties from `astro/loaders` to make it easier to use them in custom loaders.
+  The `ScopedDataStore` interface (which was previously internal) is renamed to `DataStore`, to reflect the fact that it's the only public API for the data store.
+
+## 5.0.0-alpha.3
+
+### Major Changes
+
+- [#11861](https://github.com/withastro/astro/pull/11861) [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59) Thanks [@bluwy](https://github.com/bluwy)! - Cleans up Astro-specfic metadata attached to `vfile.data` in Remark and Rehype plugins. Previously, the metadata was attached in different locations with inconsistent names. The metadata is now renamed as below:
+
+  - `vfile.data.__astroHeadings` -> `vfile.data.astro.headings`
+  - `vfile.data.imagePaths` -> `vfile.data.astro.imagePaths`
+
+  The types of `imagePaths` has also been updated from `Set<string>` to `string[]`. The `vfile.data.astro.frontmatter` metadata is left unchanged.
+
+  While we don't consider these APIs public, they can be accessed by Remark and Rehype plugins that want to re-use Astro's metadata. If you are using these APIs, make sure to access them in the new locations.
+
+- [#11825](https://github.com/withastro/astro/pull/11825) [`560ef15`](https://github.com/withastro/astro/commit/560ef15ad23bd137b56ef1048eb2df548b99fdce) Thanks [@bluwy](https://github.com/bluwy)! - Updates internal Shiki rehype plugin to highlight code blocks as hast (using Shiki's `codeToHast()` API). This allows a more direct Markdown and MDX processing, and improves the performance when building the project, but may cause issues with existing Shiki transformers.
+
+  If you are using Shiki transformers passed to `markdown.shikiConfig.transformers`, you must make sure they do not use the `postprocess` hook as it no longer runs on code blocks in `.md` and `.mdx` files. (See [the Shiki documentation on transformer hooks](https://shiki.style/guide/transformers#transformer-hooks) for more information).
+
+  Code blocks in `.mdoc` files and `<Code />` component do not use the internal Shiki rehype plugin and are unaffected.
+
+- [#11819](https://github.com/withastro/astro/pull/11819) [`2bdde80`](https://github.com/withastro/astro/commit/2bdde80cd3107d875e2d77e6e9621001e0e8b38a) Thanks [@bluwy](https://github.com/bluwy)! - Updates the Astro config loading flow to ignore processing locally-linked dependencies with Vite (e.g. `npm link`, in a monorepo, etc). Instead, they will be normally imported by the Node.js runtime the same way as other dependencies from `node_modules`.
+
+  Previously, Astro would process locally-linked dependencies which were able to use Vite features like TypeScript when imported by the Astro config file.
+
+  However, this caused confusion as integration authors may test against a package that worked locally, but not when published. This method also restricts using CJS-only dependencies because Vite requires the code to be ESM. Therefore, Astro's behaviour is now changed to ignore processing any type of dependencies by Vite.
+
+  In most cases, make sure your locally-linked dependencies are built to JS before running the Astro project, and the config loading should work as before.
+
+### Patch Changes
+
+- [#11878](https://github.com/withastro/astro/pull/11878) [`334948c`](https://github.com/withastro/astro/commit/334948ced29ed9ab03992f2174547bb9ee3a20c0) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a new function `refreshContent` to the `astro:server:setup` hook that allows integrations to refresh the content layer. This can be used, for example, to register a webhook endpoint during dev, or to open a socket to a CMS to listen for changes.
+
+  By default, `refreshContent` will refresh all collections. You can optionally pass a `loaders` property, which is an array of loader names. If provided, only collections that use those loaders will be refreshed. For example, A CMS integration could use this property to only refresh its own collections.
+
+  You can also pass a `context` object to the loaders. This can be used to pass arbitrary data, such as the webhook body, or an event from the websocket.
+
+  ```ts
+   {
+      name: 'my-integration',
+      hooks: {
+          'astro:server:setup': async ({ server, refreshContent }) => {
+              server.middlewares.use('/_refresh', async (req, res) => {
+                  if(req.method !== 'POST') {
+                    res.statusCode = 405
+                    res.end('Method Not Allowed');
+                    return
+                  }
+                  let body = '';
+                  req.on('data', chunk => {
+                      body += chunk.toString();
+                  });
+                  req.on('end', async () => {
+                      try {
+                          const webhookBody = JSON.parse(body);
+                          await refreshContent({
+                            context: { webhookBody },
+                            loaders: ['my-loader']
+                          });
+                          res.writeHead(200, { 'Content-Type': 'application/json' });
+                          res.end(JSON.stringify({ message: 'Content refreshed successfully' }));
+                      } catch (error) {
+                          res.writeHead(500, { 'Content-Type': 'application/json' });
+                          res.end(JSON.stringify({ error: 'Failed to refresh content: ' + error.message }));
+                      }
+                  });
+              });
+          }
+      }
+  }
+  ```
+
+- Updated dependencies [[`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59), [`560ef15`](https://github.com/withastro/astro/commit/560ef15ad23bd137b56ef1048eb2df548b99fdce), [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59)]:
+  - @astrojs/markdown-remark@6.0.0-alpha.1
+
 ## 5.0.0-alpha.2
 
 ### Major Changes
@@ -87,6 +288,22 @@
   However, this means scripts are no longer hoisted to the `<head>`, multiple scripts on a page are no longer bundled together, and the `<script>` tag may interfere with the CSS styling.
 
   As this is a potentially breaking change to your script behavior, please review your `<script>` tags and ensure that they behave as expected.
+
+## 4.15.2
+
+### Patch Changes
+
+- [#11870](https://github.com/withastro/astro/pull/11870) [`8e5257a`](https://github.com/withastro/astro/commit/8e5257addaeff809ed6f0c47ac0ed4ded755320e) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes typo in documenting the `fallbackType` property in i18n routing
+
+- [#11884](https://github.com/withastro/astro/pull/11884) [`e450704`](https://github.com/withastro/astro/commit/e45070459f18976400fc8939812e172781eba351) Thanks [@ascorbic](https://github.com/ascorbic)! - Correctly handles content layer data where the transformed value does not match the input schema
+
+- [#11900](https://github.com/withastro/astro/pull/11900) [`80b4a18`](https://github.com/withastro/astro/commit/80b4a181a077266c44065a737e61cc7cff6bc6d7) Thanks [@delucis](https://github.com/delucis)! - Fixes the user-facing type of the new `i18n.routing.fallbackType` option to be optional
+
+## 4.15.1
+
+### Patch Changes
+
+- [#11872](https://github.com/withastro/astro/pull/11872) [`9327d56`](https://github.com/withastro/astro/commit/9327d56755404b481993b058bbfc4aa7880b2304) Thanks [@bluwy](https://github.com/bluwy)! - Fixes `astro add` importing adapters and integrations
 
 - [#11767](https://github.com/withastro/astro/pull/11767) [`d1bd1a1`](https://github.com/withastro/astro/commit/d1bd1a11f7aca4d2141d1c4665f2db0440393d03) Thanks [@ascorbic](https://github.com/ascorbic)! - Refactors content layer sync to use a queue
 

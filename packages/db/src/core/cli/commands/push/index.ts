@@ -1,4 +1,3 @@
-import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { AstroConfig } from 'astro';
 import { sql } from 'drizzle-orm';
 import prompts from 'prompts';
@@ -7,7 +6,12 @@ import { createRemoteDatabaseClient } from '../../../../runtime/index.js';
 import { safeFetch } from '../../../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import type { DBConfig, DBSnapshot } from '../../../types.js';
-import { type Result, getRemoteDatabaseInfo } from '../../../utils.js';
+import {
+	type RemoteDatabaseInfo,
+	type Result,
+	getManagedRemoteToken,
+	getRemoteDatabaseInfo,
+} from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -26,8 +30,12 @@ export async function cmd({
 }) {
 	const isDryRun = flags.dryRun;
 	const isForceReset = flags.forceReset;
-	const appToken = await getManagedAppTokenOrExit(flags.token);
-	const productionSnapshot = await getProductionCurrentSnapshot({ appToken: appToken.token });
+	const dbInfo = getRemoteDatabaseInfo();
+	const appToken = await getManagedRemoteToken(flags.token, dbInfo);
+	const productionSnapshot = await getProductionCurrentSnapshot({
+		dbInfo,
+		appToken: appToken.token,
+	});
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const isFromScratch = !productionSnapshot;
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
@@ -68,6 +76,7 @@ export async function cmd({
 		console.log(`Pushing database schema updates...`);
 		await pushSchema({
 			statements: migrationQueries,
+			dbInfo,
 			appToken: appToken.token,
 			isDryRun,
 			currentSnapshot: currentSnapshot,
@@ -80,11 +89,13 @@ export async function cmd({
 
 async function pushSchema({
 	statements,
+	dbInfo,
 	appToken,
 	isDryRun,
 	currentSnapshot,
 }: {
 	statements: string[];
+	dbInfo: RemoteDatabaseInfo;
 	appToken: string;
 	isDryRun: boolean;
 	currentSnapshot: DBSnapshot;
@@ -98,8 +109,6 @@ async function pushSchema({
 		console.info('[DRY RUN] Batch query:', JSON.stringify(requestBody, null, 2));
 		return new Response(null, { status: 200 });
 	}
-
-	const dbInfo = getRemoteDatabaseInfo();
 
 	return dbInfo.type === 'studio'
 		? pushToStudio(requestBody, appToken, dbInfo.url)

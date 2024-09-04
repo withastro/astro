@@ -78,6 +78,7 @@ const spacecraft = defineCollection({
 			tags: z.array(z.string()),
 			heroImage: image().optional(),
 			cat: reference('cats').optional(),
+			something: z.string().optional().transform(str => ({ type: 'test', content: str }))
 		}),
 });
 
@@ -120,9 +121,9 @@ const increment = defineCollection({
 		schema: async () => z.object({
 			lastValue: z.number(),
 			lastUpdated: z.date(),
+
 		}),
 	},
-
 });
 
 export const collections = { blog, dogs, cats, numbers, spacecraft, increment, images };
