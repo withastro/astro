@@ -561,7 +561,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.client
 		 * @type {string}
-		 * @default `'./dist/client'`
+		 * @default `'./client'`
 		 * @description
 		 * Controls the output directory of your client-side CSS and JavaScript when `output: 'server'` or `output: 'hybrid'` only.
 		 * `outDir` controls where the code is built to.
@@ -582,7 +582,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.server
 		 * @type {string}
-		 * @default `'./dist/server'`
+		 * @default `'./server'`
 		 * @description
 		 * Controls the output directory of server JavaScript when building to SSR.
 		 *
