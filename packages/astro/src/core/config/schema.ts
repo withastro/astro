@@ -655,8 +655,11 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		.transform((config) => {
 			// If the user changed `outDir`, we need to also update `build.client` and `build.server`
 			// the be based on the correct `outDir`
-			const outDirPath = fileURLToPath(config.outDir);
-			if (outDirPath !== ASTRO_CONFIG_DEFAULTS.outDir) {
+			if (
+				config.outDir.toString() !==
+				resolveDirAsUrl(ASTRO_CONFIG_DEFAULTS.outDir, fileProtocolRoot).toString()
+			) {
+				const outDirPath = fileURLToPath(config.outDir);
 				config.build.client = resolveDirAsUrl(originalBuildClient, outDirPath);
 				config.build.server = resolveDirAsUrl(originalBuildServer, outDirPath);
 			}
