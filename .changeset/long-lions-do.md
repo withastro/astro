@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds a new property to the globals `Astro` and `APIContext` called `prerender`. The `prerender` represents whether or not the current page is prerendered:
+Adds a new property `isPrerendered` to the globals `Astro` and `APIContext` . This boolean value represents whether or not the current page is prerendered:
 
 ```astro
 ---
