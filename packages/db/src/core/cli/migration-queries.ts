@@ -35,7 +35,7 @@ import type {
 	ResolvedIndexes,
 	TextColumn,
 } from '../types.js';
-import { type Result, getRemoteDatabaseInfo } from '../utils.js';
+import type { RemoteDatabaseInfo, Result } from '../utils.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -425,13 +425,12 @@ function hasRuntimeDefault(column: DBColumn): column is DBColumnWithDefault {
 }
 
 export function getProductionCurrentSnapshot(options: {
+	dbInfo: RemoteDatabaseInfo;
 	appToken: string;
 }): Promise<DBSnapshot | undefined> {
-	const dbInfo = getRemoteDatabaseInfo();
-
-	return dbInfo.type === 'studio'
-		? getStudioCurrentSnapshot(options.appToken, dbInfo.url)
-		: getDbCurrentSnapshot(options.appToken, dbInfo.url);
+	return options.dbInfo.type === 'studio'
+		? getStudioCurrentSnapshot(options.appToken, options.dbInfo.url)
+		: getDbCurrentSnapshot(options.appToken, options.dbInfo.url);
 }
 
 async function getDbCurrentSnapshot(

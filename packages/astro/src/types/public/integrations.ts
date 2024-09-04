@@ -6,6 +6,7 @@ import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { getToolbarServerCommunicationHelpers } from '../../integrations/hooks.js';
 import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig } from './config.js';
+import type { RefreshContentOptions } from './content.js';
 import type { RouteData } from './internal.js';
 import type { DevToolbarAppEntry } from './toolbar.js';
 
@@ -187,6 +188,7 @@ export interface BaseIntegrationHooks {
 		server: ViteDevServer;
 		logger: AstroIntegrationLogger;
 		toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
+		refreshContent?: (options: RefreshContentOptions) => Promise<void>;
 	}) => void | Promise<void>;
 	'astro:server:start': (options: {
 		address: AddressInfo;
