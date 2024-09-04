@@ -4,7 +4,7 @@ import { Traverse } from 'neotraverse/modern';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { IMAGE_IMPORT_PREFIX } from './consts.js';
-import { type DataEntry, DataStore, type RenderedContent } from './data-store.js';
+import { type DataEntry, ImmutableDataStore, type RenderedContent } from './data-store.js';
 import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
@@ -13,7 +13,7 @@ const SAVE_DEBOUNCE_MS = 500;
  * Extends the DataStore with the ability to change entries and write them to disk.
  * This is kept as a separate class to avoid needing node builtins at runtime, when read-only access is all that is needed.
  */
-export class MutableDataStore extends DataStore {
+export class MutableDataStore extends ImmutableDataStore {
 	#file?: PathLike;
 
 	#assetsFile?: PathLike;
@@ -190,7 +190,7 @@ export default new Map([\n${lines.join(',\n')}]);
 		}
 	}
 
-	scopedStore(collectionName: string): ScopedDataStore {
+	scopedStore(collectionName: string): DataStore {
 		return {
 			get: <TData extends Record<string, unknown> = Record<string, unknown>>(key: string) =>
 				this.get<DataEntry<TData>>(collectionName, key),
@@ -329,7 +329,8 @@ export default new Map([\n${lines.join(',\n')}]);
 	}
 }
 
-export interface ScopedDataStore {
+// This is the scoped store for a single collection. It's a subset of the MutableDataStore API, and is the only public type.
+export interface DataStore {
 	get: <TData extends Record<string, unknown> = Record<string, unknown>>(
 		key: string,
 	) => DataEntry<TData> | undefined;

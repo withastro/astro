@@ -3,7 +3,9 @@ import type { ZodSchema } from 'zod';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { ContentEntryType } from '../../types/public/content.js';
-import type { MetaStore, ScopedDataStore } from '../mutable-data-store.js';
+import type { DataStore, MetaStore } from '../mutable-data-store.js';
+
+export type { DataStore, MetaStore };
 
 export interface ParseDataOptions<TData extends Record<string, unknown>> {
 	/** The ID of the entry. Unique per collection */
@@ -17,8 +19,8 @@ export interface ParseDataOptions<TData extends Record<string, unknown>> {
 export interface LoaderContext {
 	/** The unique name of the collection */
 	collection: string;
-	/** A database abstraction to store the actual data */
-	store: ScopedDataStore;
+	/** A database to store the actual data */
+	store: DataStore;
 	/**  A simple KV store, designed for things like sync tokens */
 	meta: MetaStore;
 	logger: AstroIntegrationLogger;
@@ -35,6 +37,7 @@ export interface LoaderContext {
 
 	/** If the loader has been triggered by an integration, this may optionally contain extra data set by that integration */
 	refreshContextData?: Record<string, unknown>;
+	/** @internal */
 	entryTypes: Map<string, ContentEntryType>;
 }
 
