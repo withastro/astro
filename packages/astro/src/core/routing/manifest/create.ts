@@ -727,13 +727,14 @@ async function getRoutePrerenderOption(
 		'utf-8',
 	);
 
-	// Check if the route is pre-rendered or not, if not explicitly set, default to the global setting
+	// Check if the route is pre-rendered or not
 	const match = /^\s*export\s+const\s+prerender\s*=\s*(true|false);?/m.exec(content);
 	if (match) {
 		route.prerender = match[1] === 'true';
 	}
 
-	if (route.prerender === undefined) {
+	// If not explicitly set, default to the global setting
+	if (typeof route.prerender === undefined) {
 		route.prerender = getPrerenderDefault(settings.config);
 	}
 
