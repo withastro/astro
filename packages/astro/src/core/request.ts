@@ -1,6 +1,5 @@
 import type { IncomingHttpHeaders } from 'node:http';
 import type { Logger } from './logger/core.js';
-import { appendForwardSlash, prependForwardSlash } from './path.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
 type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;
@@ -58,6 +57,10 @@ export function createRequest({
 				);
 
 	if (typeof url === 'string') url = new URL(url);
+
+	if (staticLike) {
+		url.search = '';
+	}
 
 	const request = new Request(url, {
 		method: method,

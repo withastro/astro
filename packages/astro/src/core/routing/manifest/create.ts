@@ -722,7 +722,7 @@ async function getRoutePrerenderOption(
 ) {
 	if (route.type !== 'page' && route.type !== 'endpoint') return;
 	const localFs = fsMod ?? nodeFs;
-	const content = localFs.readFileSync(
+	const content = await localFs.promises.readFile(
 		fileURLToPath(new URL(route.component, settings.config.root)),
 		'utf-8',
 	);
@@ -731,7 +731,9 @@ async function getRoutePrerenderOption(
 	const match = /^\s*export\s+const\s+prerender\s*=\s*(true|false);?/m.exec(content);
 	if (match) {
 		route.prerender = match[1] === 'true';
-	} else {
+	}
+
+	if (route.prerender === undefined) {
 		route.prerender = getPrerenderDefault(settings.config);
 	}
 
