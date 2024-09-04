@@ -375,22 +375,20 @@ export async function runHookServerSetup({
 	logger: Logger;
 }) {
 	let refreshContent: undefined | ((options: RefreshContentOptions) => Promise<void>);
-	if (config.experimental?.contentLayer) {
-		refreshContent = async (options: RefreshContentOptions) => {
-			const contentConfig = globalContentConfigObserver.get();
-			if (
-				contentConfig.status !== 'loaded' ||
-				!Object.values(contentConfig.config.collections).some(
-					(collection) => collection.type === CONTENT_LAYER_TYPE,
-				)
-			) {
-				return;
-			}
+	refreshContent = async (options: RefreshContentOptions) => {
+		const contentConfig = globalContentConfigObserver.get();
+		if (
+			contentConfig.status !== 'loaded' ||
+			!Object.values(contentConfig.config.collections).some(
+				(collection) => collection.type === CONTENT_LAYER_TYPE,
+			)
+		) {
+			return;
+		}
 
-			const contentLayer = await globalContentLayer.get();
-			await contentLayer?.sync(options);
-		};
-	}
+		const contentLayer = await globalContentLayer.get();
+		await contentLayer?.sync(options);
+	};
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:setup']) {
