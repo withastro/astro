@@ -27,7 +27,7 @@ describe('Static build: pages routes have distURL', () => {
 		checkRoutes.forEach((p) => {
 			p.distURL.forEach((distURL) => {
 				assert.equal(distURL instanceof URL, true, `${p.pathname} doesn't include distURL`);
-			})
+			});
 		});
 	});
 });

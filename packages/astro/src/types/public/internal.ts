@@ -48,21 +48,21 @@ export interface RouteData {
 	 */
 	route: string;
 	/**
-	 *  Source component URL 
+	 *  Source component URL
 	 */
 	component: string;
 	/**
 	 * @param {any} data The optional parameters of the route
-	 * 
+	 *
 	 * @description
 	 * A function that accepts a list of params, interpolates them with the route pattern, and returns the path name of the route.
-	 * 
+	 *
 	 * ## Example
-	 * 
+	 *
 	 * For a route such as `/blog/[...id].astro`, the `generate` function would return something like this:
-	 * 
+	 *
 	 * ```js
-	 * console.log(generate({ id: 'presentation' })) // will log `/blog/presentation` 
+	 * console.log(generate({ id: 'presentation' })) // will log `/blog/presentation`
 	 * ```
 	 */
 	generate: (data?: any) => string;
@@ -81,7 +81,7 @@ export interface RouteData {
 	 */
 	distURL?: URL[];
 	/**
-	 * 
+	 *
 	 * regex used for matching an input URL against a requested route
 	 * ex. "[fruit]/about.astro" will generate the pattern: /^\/([^/]+?)\/about\/?$/
 	 * where pattern.test("banana/about") is "true"
@@ -104,7 +104,7 @@ export interface RouteData {
 	 */
 	segments: RoutePart[][];
 	/**
-	 * 
+	 *
 	 * The type of the route. It can be:
 	 * - `page`: a route that lives in the file system, usually an Astro component
 	 * - `endpoint`: a route that lives in the file system, usually a JS file that exposes endpoints methods

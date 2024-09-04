@@ -6,8 +6,8 @@ import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { getToolbarServerCommunicationHelpers } from '../../integrations/hooks.js';
 import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig } from './config.js';
-import type { DevToolbarAppEntry } from './toolbar.js';
 import type { RouteData } from './internal.js';
+import type { DevToolbarAppEntry } from './toolbar.js';
 
 export interface RouteOptions {
 	/**
@@ -243,9 +243,12 @@ export interface AstroIntegration {
 /**
  * A smaller version of the {@link RouteData} that is used in the integrations.
  */
-export type IntegrationRouteData = Omit<RouteData, 'isIndex' | 'fallbackRoutes' | 'redirectRoute'> & {
+export type IntegrationRouteData = Omit<
+	RouteData,
+	'isIndex' | 'fallbackRoutes' | 'redirectRoute'
+> & {
 	/**
 	 * {@link RouteData.redirectRoute}
 	 */
-	redirectRoute?: IntegrationRouteData
+	redirectRoute?: IntegrationRouteData;
 };
