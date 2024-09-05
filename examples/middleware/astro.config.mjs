@@ -1,3 +1,4 @@
+/// <reference types='astro/client' />
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 
