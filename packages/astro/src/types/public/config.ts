@@ -1454,7 +1454,7 @@ export interface AstroUserConfig {
 		 * })
 		 * ```
 		 * 
-		 * `envField` currently supports 4 data types: string, number, enum and boolean. `context` and `access` are required for all data types. Certain data types have optional and more required options:
+		 * `envField` supports four data types: string, number, enum, and boolean. `context` and `access` are required properties for all data types. The following shows the complete list of properties available for each data type:
 		 * 
 		 * ```js
 		 * import { envField } from "astro/config"
