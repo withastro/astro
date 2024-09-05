@@ -60,7 +60,7 @@ describe('Static build', () => {
 		const $ = cheerioLoad(html);
 		const link = $('.posts a');
 		const href = link.attr('href');
-		assert.equal(href, '/subpath/posts/thoughts');
+		assert.equal(href, '/subpath/posts/thoughts/');
 	});
 
 	it('Builds out .md pages', async () => {

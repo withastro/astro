@@ -258,7 +258,7 @@ describe('Development Routing', () => {
 		});
 
 		it('error responses are served untouched', async () => {
-			const response = await fixture.fetch('/not-ok');
+			const response = await fixture.fetch('/not-ok/');
 			assert.equal(response.status, 404);
 			assert.equal(response.headers.get('Content-Type'), 'text/plain;charset=UTF-8');
 			const body = await response.text();
@@ -286,7 +286,7 @@ describe('Development Routing', () => {
 		});
 
 		it('correct encoding when loading /images/hex.ts', async () => {
-			const response = await fixture.fetch('/images/hex');
+			const response = await fixture.fetch('/images/hex/');
 			const body = await response.arrayBuffer();
 			const hex = Buffer.from(body).toString('hex', 0, 4);
 
@@ -295,7 +295,7 @@ describe('Development Routing', () => {
 		});
 	});
 
-	describe('file format routing', () => {
+	describe('trailingSlash: never', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		/** @type {import('./test-utils').DevServer} */
@@ -303,9 +303,7 @@ describe('Development Routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				build: {
-					format: 'file',
-				},
+				trailingSlash: 'never',
 				root: './fixtures/without-site-config/',
 				site: 'http://example.com/',
 			});

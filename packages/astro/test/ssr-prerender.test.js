@@ -56,7 +56,7 @@ describe('SSR: prerender', () => {
 		// bug id #6020
 		it('fix bug id #6020', async () => {
 			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/some');
+			const request = new Request('http://example.com/some/');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 			const html = await response.text();

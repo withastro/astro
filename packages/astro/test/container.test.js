@@ -247,7 +247,7 @@ describe('Container with renderers', () => {
 	});
 
 	it('the endpoint should return the HTML of the React component', async () => {
-		const request = new Request('https://example.com/react');
+		const request = new Request('https://example.com/react/');
 		const response = await app.render(request);
 		const html = await response.text();
 
@@ -255,7 +255,7 @@ describe('Container with renderers', () => {
 	});
 
 	it('the endpoint should return the HTML of the Vue component', async () => {
-		const request = new Request('https://example.com/vue');
+		const request = new Request('https://example.com/vue/');
 		const response = await app.render(request);
 		const html = await response.text();
 
@@ -263,7 +263,7 @@ describe('Container with renderers', () => {
 	});
 
 	it('Should render a component with directives', async () => {
-		const request = new Request('https://example.com/button-directive');
+		const request = new Request('https://example.com/button-directive/');
 		const response = await app.render(request);
 		const html = await response.text();
 

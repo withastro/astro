@@ -202,7 +202,7 @@ describe('Astro basic development', () => {
 	});
 
 	it('Renders markdown in utf-8 by default', async () => {
-		const res = await fixture.fetch('/chinese-encoding-md');
+		const res = await fixture.fetch('/chinese-encoding-md/');
 		assert.equal(res.status, 200);
 		const html = await res.text();
 		const $ = cheerio.load(html);
@@ -214,7 +214,7 @@ describe('Astro basic development', () => {
 	});
 
 	it('Renders MDX in utf-8 by default', async () => {
-		const res = await fixture.fetch('/chinese-encoding-mdx');
+		const res = await fixture.fetch('/chinese-encoding-mdx/');
 		assert.equal(res.status, 200);
 		const html = await res.text();
 		const $ = cheerio.load(html);

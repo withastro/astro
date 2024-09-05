@@ -30,31 +30,31 @@ describe('Dev server manual routing', () => {
 	});
 
 	it('should render a route that is not related to the i18n routing', async () => {
-		const response = await fixture.fetch('/help');
+		const response = await fixture.fetch('/help/');
 		assert.equal(response.status, 200);
 		const text = await response.text();
 		assert.equal(text.includes('Outside route'), true);
 	});
 
 	it('should render a i18n route', async () => {
-		let response = await fixture.fetch('/en/blog');
+		let response = await fixture.fetch('/en/blog/');
 		assert.equal(response.status, 200);
 		let text = await response.text();
 		assert.equal(text.includes('Blog start'), true);
 
-		response = await fixture.fetch('/pt/start');
+		response = await fixture.fetch('/pt/start/');
 		assert.equal(response.status, 200);
 		text = await response.text();
 		assert.equal(text.includes('Oi'), true);
 
-		response = await fixture.fetch('/spanish');
+		response = await fixture.fetch('/spanish/');
 		assert.equal(response.status, 200);
 		text = await response.text();
 		assert.equal(text.includes('Hola.'), true);
 	});
 
 	it('should not redirect prerendered 404 routes in dev', async () => {
-		const response = await fixture.fetch('/redirect-me');
+		const response = await fixture.fetch('/redirect-me/');
 		assert.equal(response.status, 404);
 	});
 });
@@ -121,7 +121,7 @@ describe('SSR manual routing', () => {
 	});
 
 	it('should render a route that is not related to the i18n routing', async () => {
-		let request = new Request('http://example.com/help');
+		let request = new Request('http://example.com/help/');
 		let response = await app.render(request);
 		assert.equal(response.status, 200);
 		const text = await response.text();
@@ -129,19 +129,19 @@ describe('SSR manual routing', () => {
 	});
 
 	it('should render a i18n route', async () => {
-		let request = new Request('http://example.com/en/blog');
+		let request = new Request('http://example.com/en/blog/');
 		let response = await app.render(request);
 		assert.equal(response.status, 200);
 		let text = await response.text();
 		assert.equal(text.includes('Blog start'), true);
 
-		request = new Request('http://example.com/pt/start');
+		request = new Request('http://example.com/pt/start/');
 		response = await app.render(request);
 		assert.equal(response.status, 200);
 		text = await response.text();
 		assert.equal(text.includes('Oi'), true);
 
-		request = new Request('http://example.com/spanish');
+		request = new Request('http://example.com/spanish/');
 		response = await app.render(request);
 		assert.equal(response.status, 200);
 		text = await response.text();

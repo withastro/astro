@@ -87,7 +87,7 @@ describe('endpoints', () => {
 	it('Can bail on streaming', async () => {
 		const { req, res, done } = createRequestAndResponse({
 			method: 'GET',
-			url: '/streaming',
+			url: '/streaming/',
 		});
 
 		const locals = { cancelledByTheServer: false };

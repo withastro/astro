@@ -50,7 +50,7 @@ describe('Public dev with base', () => {
 		assert.equal(response.status, 404);
 		const html = await response.text();
 		$ = cheerio.load(html);
-		assert.equal($('a').first().text(), '/blog');
+		assert.equal($('a').first().text(), '/blog/');
 	});
 
 	it('default 404 page when loading /none/', async () => {

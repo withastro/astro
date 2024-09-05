@@ -39,7 +39,7 @@ describe('Astro Actions', () => {
 					}),
 				}),
 			);
-			const res = await fixture.fetch('/subscribe-prerendered', {
+			const res = await fixture.fetch('/subscribe-prerendered/', {
 				headers: {
 					Cookie: cookie.toString(),
 				},
@@ -197,7 +197,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Response middleware fallback', async () => {
-			const req = new Request('http://example.com/user?_astroAction=getUser', {
+			const req = new Request('http://example.com/user/?_astroAction=getUser', {
 				method: 'POST',
 				body: new FormData(),
 				headers: {
@@ -213,11 +213,11 @@ describe('Astro Actions', () => {
 		});
 
 		it('Respects custom errors', async () => {
-			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
+			const req = new Request('http://example.com/user-or-throw/?_astroAction=getUserOrThrow', {
 				method: 'POST',
 				body: new FormData(),
 				headers: {
-					Referer: 'http://example.com/user-or-throw',
+					Referer: 'http://example.com/user-or-throw/',
 				},
 			});
 			const res = await followExpectedRedirect(req, app);
@@ -230,7 +230,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Ignores `_astroAction` name for GET requests', async () => {
-			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
+			const req = new Request('http://example.com/user-or-throw/?_astroAction=getUserOrThrow', {
 				method: 'GET',
 			});
 			const res = await app.render(req);
@@ -338,7 +338,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Is callable from the server with rewrite', async () => {
-			const req = new Request('http://example.com/rewrite');
+			const req = new Request('http://example.com/rewrite/');
 			const res = await app.render(req);
 			assert.equal(res.ok, true);
 

@@ -29,7 +29,7 @@ describe('Astro.cookies', () => {
 		});
 
 		it('is able to get cookies from the request', async () => {
-			const response = await fixture.fetch('/get-json', {
+			const response = await fixture.fetch('/get-json/', {
 				headers: {
 					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
 				},
@@ -42,7 +42,7 @@ describe('Astro.cookies', () => {
 		});
 
 		it('can set the cookie value', async () => {
-			const response = await fixture.fetch('/set-value', {
+			const response = await fixture.fetch('/set-value/', {
 				method: 'POST',
 			});
 			assert.equal(response.status, 200);
@@ -54,26 +54,26 @@ describe('Astro.cookies', () => {
 		});
 
 		it('can set cookies in a rewritten page request', async () => {
-			const response = await fixture.fetch('/from');
+			const response = await fixture.fetch('/from/');
 			assert.equal(response.status, 200);
 
 			assert.match(response.headers.get('set-cookie'), /my_cookie=value/);
 		});
 
 		it('overwrites cookie values set in the source page with values from the target page', async () => {
-			const response = await fixture.fetch('/from');
+			const response = await fixture.fetch('/from/');
 			assert.equal(response.status, 200);
 			assert.match(response.headers.get('set-cookie'), /another=set-in-target/);
 		});
 
 		it('allows cookies to be set in the source page', async () => {
-			const response = await fixture.fetch('/from');
+			const response = await fixture.fetch('/from/');
 			assert.equal(response.status, 200);
 			assert.match(response.headers.get('set-cookie'), /set-in-from=yes/);
 		});
 
 		it('can set cookies in a rewritten endpoint request', async () => {
-			const response = await fixture.fetch('/from-endpoint');
+			const response = await fixture.fetch('/from-endpoint/');
 			assert.equal(response.status, 200);
 			assert.match(response.headers.get('set-cookie'), /test=value/);
 		});
@@ -93,7 +93,7 @@ describe('Astro.cookies', () => {
 		}
 
 		it('is able to get cookies from the request', async () => {
-			const response = await fetchResponse('/get-json', {
+			const response = await fetchResponse('/get-json/', {
 				headers: {
 					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
 				},
@@ -106,7 +106,7 @@ describe('Astro.cookies', () => {
 		});
 
 		it('can set the cookie value', async () => {
-			const response = await fetchResponse('/set-value', {
+			const response = await fetchResponse('/set-value/', {
 				method: 'POST',
 			});
 			assert.equal(response.status, 200);
@@ -116,7 +116,7 @@ describe('Astro.cookies', () => {
 		});
 
 		it('app.render can include the cookie in the Set-Cookie header', async () => {
-			const request = new Request('http://example.com/set-value', {
+			const request = new Request('http://example.com/set-value/', {
 				method: 'POST',
 			});
 			const response = await app.render(request, { addCookieHeader: true });
@@ -127,7 +127,7 @@ describe('Astro.cookies', () => {
 		});
 
 		it('app.render can exclude the cookie from the Set-Cookie header', async () => {
-			const request = new Request('http://example.com/set-value', {
+			const request = new Request('http://example.com/set-value/', {
 				method: 'POST',
 			});
 			const response = await app.render(request, { addCookieHeader: false });
@@ -136,7 +136,7 @@ describe('Astro.cookies', () => {
 		});
 
 		it('Early returning a Response still includes set headers', async () => {
-			const response = await fetchResponse('/early-return', {
+			const response = await fetchResponse('/early-return/', {
 				headers: {
 					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
 				},
@@ -151,7 +151,7 @@ describe('Astro.cookies', () => {
 		});
 
 		it('API route can get and set cookies', async () => {
-			const response = await fetchResponse('/set-prefs', {
+			const response = await fetchResponse('/set-prefs/', {
 				method: 'POST',
 				headers: {
 					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
@@ -167,7 +167,7 @@ describe('Astro.cookies', () => {
 		});
 
 		it('can set cookies in a rewritten page request', async () => {
-			const request = new Request('http://example.com/from');
+			const request = new Request('http://example.com/from/');
 			const response = await app.render(request, { addCookieHeader: true });
 			assert.equal(response.status, 200);
 
@@ -175,21 +175,21 @@ describe('Astro.cookies', () => {
 		});
 
 		it('overwrites cookie values set in the source page with values from the target page', async () => {
-			const request = new Request('http://example.com/from');
+			const request = new Request('http://example.com/from/');
 			const response = await app.render(request, { addCookieHeader: true });
 			assert.equal(response.status, 200);
 			assert.match(response.headers.get('Set-Cookie'), /another=set-in-target/);
 		});
 
 		it('allows cookies to be set in the source page', async () => {
-			const request = new Request('http://example.com/from');
+			const request = new Request('http://example.com/from/');
 			const response = await app.render(request, { addCookieHeader: true });
 			assert.equal(response.status, 200);
 			assert.match(response.headers.get('Set-Cookie'), /set-in-from=yes/);
 		});
 
 		it('can set cookies in a rewritten endpoint request', async () => {
-			const request = new Request('http://example.com/from-endpoint');
+			const request = new Request('http://example.com/from-endpoint/');
 			const response = await app.render(request, { addCookieHeader: true });
 			assert.equal(response.status, 200);
 			assert.match(response.headers.get('Set-Cookie'), /test=value/);

@@ -17,7 +17,7 @@ describe('View Transitions styles', () => {
 	});
 
 	it('style tag added for each instance of the component', async () => {
-		let res = await fixture.fetch('/multiple');
+		let res = await fixture.fetch('/multiple/');
 		let html = await res.text();
 		let $ = cheerio.load(html);
 
@@ -25,7 +25,7 @@ describe('View Transitions styles', () => {
 	});
 
 	it('should not duplicate transition attributes on island contents', async () => {
-		let res = await fixture.fetch('/hasIsland');
+		let res = await fixture.fetch('/hasIsland/');
 		let html = await res.text();
 		let $ = cheerio.load(html);
 		assert.equal($('astro-island[data-astro-transition-persist]').length, 1);

@@ -101,7 +101,7 @@ describe('Content Collections - render()', () => {
 
 		it('Includes CSS for rendered entry', async () => {
 			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/launch-week');
+			const request = new Request('http://example.com/launch-week/');
 			const response = await app.render(request);
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -192,7 +192,7 @@ describe('Content Collections - render()', () => {
 		});
 
 		it('Includes CSS for rendered entry', async () => {
-			const response = await fixture.fetch('/launch-week', { method: 'GET' });
+			const response = await fixture.fetch('/launch-week/', { method: 'GET' });
 			assert.equal(response.status, 200);
 
 			const html = await response.text();
@@ -207,7 +207,7 @@ describe('Content Collections - render()', () => {
 		});
 
 		it('Includes component scripts for rendered entry', async () => {
-			const response = await fixture.fetch('/launch-week-component-scripts', { method: 'GET' });
+			const response = await fixture.fetch('/launch-week-component-scripts/', { method: 'GET' });
 			assert.equal(response.status, 200);
 
 			const html = await response.text();
@@ -221,7 +221,7 @@ describe('Content Collections - render()', () => {
 		});
 
 		it('Applies MDX components export', async () => {
-			const response = await fixture.fetch('/launch-week-components-export', { method: 'GET' });
+			const response = await fixture.fetch('/launch-week-components-export/', { method: 'GET' });
 			assert.equal(response.status, 200);
 
 			const html = await response.text();
@@ -233,7 +233,7 @@ describe('Content Collections - render()', () => {
 		});
 
 		it('Supports layout prop with recursive getCollection() call', async () => {
-			const response = await fixture.fetch('/with-layout-prop', { method: 'GET' });
+			const response = await fixture.fetch('/with-layout-prop/', { method: 'GET' });
 			assert.equal(response.status, 200);
 
 			const html = await response.text();

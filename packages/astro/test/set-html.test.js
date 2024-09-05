@@ -29,7 +29,7 @@ describe('set:html', () => {
 		});
 
 		it('can take a fetch()', async () => {
-			let res = await fixture.fetch('/fetch');
+			let res = await fixture.fetch('/fetch/');
 			assert.equal(res.status, 200);
 			let html = await res.text();
 			const $ = cheerio.load(html);
@@ -37,7 +37,7 @@ describe('set:html', () => {
 			assert.equal($('#fetched-html').text(), 'works');
 		});
 		it('test Fragment when Fragment is as a slot', async () => {
-			let res = await fixture.fetch('/children');
+			let res = await fixture.fetch('/children/');
 			assert.equal(res.status, 200);
 			let html = await res.text();
 			assert.equal(html.includes('Test'), true);

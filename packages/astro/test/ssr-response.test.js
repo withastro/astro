@@ -18,21 +18,21 @@ describe('Using Astro.response in SSR', () => {
 
 	it('Can set the status', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/status-code');
+		const request = new Request('http://example.com/status-code/');
 		const response = await app.render(request);
 		assert.equal(response.status, 404);
 	});
 
 	it('Can set the statusText', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/status-code');
+		const request = new Request('http://example.com/status-code/');
 		const response = await app.render(request);
 		assert.equal(response.statusText, 'Oops');
 	});
 
 	it('Can set headers for 404 page', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/status-code');
+		const request = new Request('http://example.com/status-code/');
 		const response = await app.render(request);
 		const headers = response.headers;
 		assert.equal(headers.get('one-two'), 'three');
@@ -40,7 +40,7 @@ describe('Using Astro.response in SSR', () => {
 
 	it('Can add headers', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/some-header');
+		const request = new Request('http://example.com/some-header/');
 		const response = await app.render(request);
 		const headers = response.headers;
 		assert.equal(headers.get('one-two'), 'three');

@@ -110,21 +110,21 @@ describe('vite-plugin-astro-server', () => {
 		it('params are included', async () => {
 			const { req, res, text } = createRequestAndResponse({
 				method: 'GET',
-				url: '/url?xyz=123',
+				url: '/url/?xyz=123',
 			});
 			container.handle(req, res);
 			const html = await text();
-			assert.deepEqual(html, '<!DOCTYPE html>http://undefined/url?xyz=123');
+			assert.deepEqual(html, '<!DOCTYPE html>http://undefined/url/?xyz=123');
 		});
 
 		it('params are excluded on prerendered routes', async () => {
 			const { req, res, text } = createRequestAndResponse({
 				method: 'GET',
-				url: '/prerendered?xyz=123',
+				url: '/prerendered/?xyz=123',
 			});
 			container.handle(req, res);
 			const html = await text();
-			assert.deepEqual(html, '<!DOCTYPE html>http://undefined/prerendered');
+			assert.deepEqual(html, '<!DOCTYPE html>http://undefined/prerendered/');
 		});
 	});
 });

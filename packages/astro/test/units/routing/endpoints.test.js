@@ -43,7 +43,7 @@ describe('endpoints', () => {
 	it('should return a redirect response with location header', async () => {
 		const { req, res, done } = createRequestAndResponse({
 			method: 'GET',
-			url: '/response-redirect',
+			url: '/response-redirect/',
 		});
 		container.handle(req, res);
 		await done;
@@ -56,7 +56,7 @@ describe('endpoints', () => {
 	it('should return a response with location header', async () => {
 		const { req, res, done } = createRequestAndResponse({
 			method: 'GET',
-			url: '/response',
+			url: '/response/',
 		});
 		container.handle(req, res);
 		await done;
@@ -80,7 +80,7 @@ describe('endpoints', () => {
 	it('should remove internally-used header for HTTP status 500', async () => {
 		const { req, res, done } = createRequestAndResponse({
 			method: 'GET',
-			url: '/internal-error',
+			url: '/internal-error/',
 		});
 		container.handle(req, res);
 		await done;

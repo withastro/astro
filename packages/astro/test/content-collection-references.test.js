@@ -119,7 +119,7 @@ describe('Content Collections - references', () => {
 						const html = await fixture.readFile('/welcome/index.html');
 						$ = cheerio.load(html);
 					} else if (mode === 'dev') {
-						const htmlResponse = await fixture.fetch('/welcome');
+						const htmlResponse = await fixture.fetch('/welcome/');
 						const html = await htmlResponse.text();
 						$ = cheerio.load(html);
 					}

@@ -35,7 +35,7 @@ describe('Using Astro.request in SSR', () => {
 
 	it('Gets the request passed in', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/subpath/request');
+		const request = new Request('http://example.com/subpath/request/');
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();
@@ -50,7 +50,7 @@ describe('Using Astro.request in SSR', () => {
 
 	it('CSS assets have their base prefix', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		let request = new Request('http://example.com/subpath/request');
+		let request = new Request('http://example.com/subpath/request/');
 		let response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();
@@ -69,7 +69,7 @@ describe('Using Astro.request in SSR', () => {
 
 	it('script assets have their base prefix', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		let request = new Request('http://example.com/subpath/request');
+		let request = new Request('http://example.com/subpath/request/');
 		let response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();

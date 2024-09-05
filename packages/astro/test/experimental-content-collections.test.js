@@ -335,7 +335,7 @@ describe('Experimental Content Collections cache', () => {
 
 		it('Responds 200 for expected pages', async () => {
 			for (const slug in blogSlugToContents) {
-				const request = new Request('http://example.com/posts/' + slug);
+				const request = new Request('http://example.com/posts/' + slug + '/');
 				const response = await app.render(request);
 				assert.equal(response.status, 200);
 			}
@@ -343,7 +343,7 @@ describe('Experimental Content Collections cache', () => {
 
 		it('Renders titles', async () => {
 			for (const slug in blogSlugToContents) {
-				const request = new Request('http://example.com/posts/' + slug);
+				const request = new Request('http://example.com/posts/' + slug + '/');
 				const response = await app.render(request);
 				const body = await response.text();
 				const $ = cheerio.load(body);

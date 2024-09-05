@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
+// import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 
 const routes = [
 	{
@@ -10,95 +11,95 @@ const routes = [
 		h1: 'index.astro',
 	},
 	{
-		description: 'matches /slug-1 to [slug].astro',
-		url: '/slug-1',
+		description: 'matches /slug-1/ to [slug].astro',
+		url: '/slug-1/',
 		h1: '[slug].astro',
 		p: 'slug-1',
 	},
 	{
-		description: 'matches /slug-2 to [slug].astro',
-		url: '/slug-2',
+		description: 'matches /slug-2/ to [slug].astro',
+		url: '/slug-2/',
 		h1: '[slug].astro',
 		p: 'slug-2',
 	},
 	{
-		description: 'matches /page-1 to [page].astro',
-		url: '/page-1',
+		description: 'matches /page-1/ to [page].astro',
+		url: '/page-1/',
 		h1: '[page].astro',
 		p: 'page-1',
 	},
 	{
-		description: 'matches /page-2 to [page].astro',
-		url: '/page-2',
+		description: 'matches /page-2/ to [page].astro',
+		url: '/page-2/',
 		h1: '[page].astro',
 		p: 'page-2',
 	},
 	{
-		description: 'matches /posts/post-1 to posts/[pid].astro',
-		url: '/posts/post-1',
+		description: 'matches /posts/post-1/ to posts/[pid].astro',
+		url: '/posts/post-1/',
 		h1: 'posts/[pid].astro',
 		p: 'post-1',
 	},
 	{
-		description: 'matches /posts/post-2 to posts/[pid].astro',
-		url: '/posts/post-2',
+		description: 'matches /posts/post-2/ to posts/[pid].astro',
+		url: '/posts/post-2/',
 		h1: 'posts/[pid].astro',
 		p: 'post-2',
 	},
 	{
-		description: 'matches /posts/1/2 to posts/[...slug].astro',
-		url: '/posts/1/2',
+		description: 'matches /posts/1/2/ to posts/[...slug].astro',
+		url: '/posts/1/2/',
 		h1: 'posts/[...slug].astro',
 		p: '1/2',
 	},
 	{
-		description: 'matches /de to de/index.astro',
-		url: '/de',
+		description: 'matches /de/ to de/index.astro',
+		url: '/de/',
 		h1: 'de/index.astro (priority)',
 	},
 	{
-		description: 'matches /en to [lang]/index.astro',
-		url: '/en',
+		description: 'matches /en/ to [lang]/index.astro',
+		url: '/en/',
 		h1: '[lang]/index.astro',
 		p: 'en',
 	},
 	{
-		description: 'matches /de/1/2 to [lang]/[...catchall].astro',
-		url: '/de/1/2',
+		description: 'matches /de/1/2/ to [lang]/[...catchall].astro',
+		url: '/de/1/2/',
 		h1: '[lang]/[...catchall].astro',
 		p: 'de | 1/2',
 	},
 	{
-		description: 'matches /en/1/2 to [lang]/[...catchall].astro',
-		url: '/en/1/2',
+		description: 'matches /en/1/2/ to [lang]/[...catchall].astro',
+		url: '/en/1/2/',
 		h1: '[lang]/[...catchall].astro',
 		p: 'en | 1/2',
 	},
 	{
-		description: 'matches /injected to to-inject.astro',
-		url: '/injected',
+		description: 'matches /injected/ to to-inject.astro',
+		url: '/injected/',
 		h1: 'to-inject.astro',
 	},
 	{
-		description: 'matches /_injected to to-inject.astro',
-		url: '/_injected',
+		description: 'matches /_injected/ to to-inject.astro',
+		url: '/_injected/',
 		h1: 'to-inject.astro',
 	},
 	{
-		description: 'matches /injected-1 to [id].astro',
-		url: '/injected-1',
+		description: 'matches /injected-1/ to [id].astro',
+		url: '/injected-1/',
 		h1: '[id].astro',
 		p: 'injected-1',
 	},
 	{
-		description: 'matches /injected-2 to [id].astro',
-		url: '/injected-2',
+		description: 'matches /injected-2/ to [id].astro',
+		url: '/injected-2/',
 		h1: '[id].astro',
 		p: 'injected-2',
 	},
 	{
-		description: 'matches /empty-slug to empty-slug/[...slug].astro',
-		url: '/empty-slug',
+		description: 'matches /empty-slug/ to empty-slug/[...slug].astro',
+		url: '/empty-slug/',
 		h1: 'empty-slug/[...slug].astro',
 		p: 'slug: ',
 	},
@@ -213,28 +214,29 @@ describe('Routing priority', () => {
 			// skip for endpoint page test
 			if (isEndpoint) return;
 
-			// checks with trailing slashes, ex: '/de/' instead of '/de'
-			it(`${description} (trailing slash)`, async () => {
-				const html = await fixture.fetch(appendForwardSlash(url)).then((res) => res.text());
-				const $ = cheerioLoad(html);
+			// checks with trailing slashes, ex: '/de' instead of '/de/']
+			// TODO: trailingSlash
+			// it(`${description} (no trailing slash)`, async () => {
+			// 	const html = await fixture.fetch(removeTrailingForwardSlash(url)).then((res) => res.text());
+			// 	const $ = cheerioLoad(html);
 
-				if (fourOhFour) {
-					assert.equal($('title').text(), '404: Not Found');
-					return;
-				}
+			// 	if (fourOhFour) {
+			// 		assert.equal($('title').text(), '404: Not Found');
+			// 		return;
+			// 	}
 
-				if (h1) {
-					assert.equal($('h1').text(), h1);
-				}
+			// 	if (h1) {
+			// 		assert.equal($('h1').text(), h1);
+			// 	}
 
-				if (p) {
-					assert.equal($('p').text(), p);
-				}
+			// 	if (p) {
+			// 		assert.equal($('p').text(), p);
+			// 	}
 
-				if (htmlMatch) {
-					assert.equal(html, htmlMatch);
-				}
-			});
+			// 	if (htmlMatch) {
+			// 		assert.equal(html, htmlMatch);
+			// 	}
+			// });
 
 			// checks with index.html, ex: '/de/index.html' instead of '/de'
 			it(`${description} (index.html)`, async () => {

@@ -31,7 +31,7 @@ describe('SSR Astro.locals from server', () => {
 	});
 
 	it('Can access Astro.locals in api context', async () => {
-		const request = new Request('http://example.com/api');
+		const request = new Request('http://example.com/api/');
 		const locals = { foo: 'bar' };
 		const response = await app.render(request, { routeData: undefined, locals });
 		assert.equal(response.status, 200);
@@ -40,7 +40,7 @@ describe('SSR Astro.locals from server', () => {
 		assert.equal(body.foo, 'bar');
 	});
 
-	it('404.astro can access locals provided to app.render()', async () => {
+	it('404.astro can access locals provided to app.rendDer()', async () => {
 		const request = new Request('http://example.com/slkfnasf');
 		const locals = { foo: 'par' };
 		const response = await app.render(request, { locals });
@@ -52,7 +52,7 @@ describe('SSR Astro.locals from server', () => {
 	});
 
 	it('500.astro can access locals provided to app.render()', async () => {
-		const request = new Request('http://example.com/go-to-error-page');
+		const request = new Request('http://example.com/go-to-error-page/');
 		const locals = { foo: 'par' };
 		const response = await app.render(request, { locals });
 		assert.equal(response.status, 500);

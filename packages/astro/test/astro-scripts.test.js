@@ -132,7 +132,7 @@ describe('Scripts', () => {
 		});
 
 		it('Scripts added via Astro.glob are hoisted', async () => {
-			let res = await fixture.fetch('/glob');
+			let res = await fixture.fetch('/glob/');
 			let html = await res.text();
 			let $ = cheerio.load(html);
 
@@ -149,7 +149,7 @@ describe('Scripts', () => {
 		});
 
 		it('Using injectScript does not interfere', async () => {
-			let res = await fixture.fetch('/inline-in-page');
+			let res = await fixture.fetch('/inline-in-page/');
 			let html = await res.text();
 			let $ = cheerio.load(html);
 			let found = 0;
@@ -163,7 +163,7 @@ describe('Scripts', () => {
 		});
 
 		it('Injected scripts are injected to injected routes', async () => {
-			let res = await fixture.fetch('/injected-route');
+			let res = await fixture.fetch('/injected-route/');
 			let html = await res.text();
 			let $ = cheerio.load(html);
 			let found = 0;

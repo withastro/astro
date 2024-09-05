@@ -41,7 +41,7 @@ describe('Streaming', () => {
 		});
 
 		it('Body of slots is chunked', async () => {
-			let res = await fixture.fetch('/slot');
+			let res = await fixture.fetch('/slot/');
 			let chunks = [];
 			for await (const bytes of streamAsyncIterator(res.body)) {
 				let chunk = decoder.decode(bytes);
@@ -81,7 +81,7 @@ describe('Streaming', () => {
 		// if the offshoot promise goes unhandled, this test will pass immediately but fail the test suite
 		it('Stays alive on failed component renders initiated by failed render templates', async () => {
 			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/multiple-errors');
+			const request = new Request('http://example.com/multiple-errors/');
 			const response = await app.render(request);
 			assert.equal(response.status, 500);
 			const text = await response.text();

@@ -111,7 +111,7 @@ describe('Special chars in component import paths', () => {
 		});
 
 		it('Special chars in imports work from .mdx files', async () => {
-			const html = await fixture.fetch('/mdx').then((res) => res.text());
+			const html = await fixture.fetch('/mdx/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
 			// Test 1: Correct page

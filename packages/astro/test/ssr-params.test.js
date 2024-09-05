@@ -20,7 +20,7 @@ describe('Astro.params in SSR', () => {
 
 	it('Params are passed to component', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/users/houston/food');
+		const request = new Request('http://example.com/users/houston/food/');
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();
@@ -31,7 +31,7 @@ describe('Astro.params in SSR', () => {
 	describe('Non-english characters in the URL', () => {
 		it('Params are passed to component', async () => {
 			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/users/houston/東西/food');
+			const request = new Request('http://example.com/users/houston/東西/food/');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 			const html = await response.text();

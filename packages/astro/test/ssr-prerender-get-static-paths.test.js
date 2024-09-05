@@ -78,24 +78,24 @@ describe('Prerender', () => {
 
 			describe('404 behavior', () => {
 				it('resolves 200 on matching static path - named params', async () => {
-					const res = await fixture.fetch('/blog/pizza/provolone-sausage');
+					const res = await fixture.fetch('/blog/pizza/provolone-sausage/');
 					assert.equal(res.status, 200);
 				});
 
 				it('resolves 404 on pattern match without static path - named params', async () => {
-					const res = await fixture.fetch('/blog/pizza/provolone-pineapple');
+					const res = await fixture.fetch('/blog/pizza/provolone-pineapple/');
 					const html = await res.text();
 					assert.equal(res.status, 404);
 					assert.match(html, /404/);
 				});
 
 				it('resolves 200 on matching static path - rest params', async () => {
-					const res = await fixture.fetch('/blog/pizza/grimaldis/new-york');
+					const res = await fixture.fetch('/blog/pizza/grimaldis/new-york/');
 					assert.equal(res.status, 200);
 				});
 
 				it('resolves 404 on pattern match without static path - rest params', async () => {
-					const res = await fixture.fetch('/blog/pizza/pizza-hut');
+					const res = await fixture.fetch('/blog/pizza/pizza-hut/');
 					const html = await res.text();
 
 					assert.equal(res.status, 404);
@@ -106,21 +106,21 @@ describe('Prerender', () => {
 			describe('route params type validation', () => {
 				it('resolves 200 on matching static path - string params', async () => {
 					// route provided with { params: { year: "2022", slug: "post-2" }}
-					const res = await fixture.fetch('/blog/blog/2022/post-1');
+					const res = await fixture.fetch('/blog/blog/2022/post-1/');
 					assert.equal(res.status, 200);
 				});
 
 				it('resolves 200 on matching static path - numeric params', async () => {
 					// route provided with { params: { year: 2022, slug: "post-2" }}
-					const res = await fixture.fetch('/blog/blog/2022/post-2');
+					const res = await fixture.fetch('/blog/blog/2022/post-2/');
 					assert.equal(res.status, 200);
 				});
 			});
 
 			it('resolves 200 on matching static paths', async () => {
-				// routes params provided for pages /posts/1, /posts/2, and /posts/3
+				// routes params provided for pages /posts/1/, /posts/2/, and /posts/3/
 				for (const page of [1, 2, 3]) {
-					let res = await fixture.fetch(`/blog/posts/${page}`);
+					let res = await fixture.fetch(`/blog/posts/${page}/`);
 					assert.equal(res.status, 200);
 
 					const html = await res.text();
@@ -206,24 +206,24 @@ describe('Prerender', () => {
 
 			describe('404 behavior', () => {
 				it('resolves 200 on matching static path - named params', async () => {
-					const res = await fixture.fetch('/blog/pizza/provolone-sausage');
+					const res = await fixture.fetch('/blog/pizza/provolone-sausage/');
 					assert.equal(res.status, 200);
 				});
 
 				it('resolves 404 on pattern match without static path - named params', async () => {
-					const res = await fixture.fetch('/blog/pizza/provolone-pineapple');
+					const res = await fixture.fetch('/blog/pizza/provolone-pineapple/');
 					const html = await res.text();
 					assert.equal(res.status, 404);
 					assert.match(html, /404/);
 				});
 
 				it('resolves 200 on matching static path - rest params', async () => {
-					const res = await fixture.fetch('/blog/pizza/grimaldis/new-york');
+					const res = await fixture.fetch('/blog/pizza/grimaldis/new-york/');
 					assert.equal(res.status, 200);
 				});
 
 				it('resolves 404 on pattern match without static path - rest params', async () => {
-					const res = await fixture.fetch('/blog/pizza/pizza-hut');
+					const res = await fixture.fetch('/blog/pizza/pizza-hut/');
 					const html = await res.text();
 
 					assert.equal(res.status, 404);
@@ -234,21 +234,21 @@ describe('Prerender', () => {
 			describe('route params type validation', () => {
 				it('resolves 200 on matching static path - string params', async () => {
 					// route provided with { params: { year: "2022", slug: "post-2" }}
-					const res = await fixture.fetch('/blog/blog/2022/post-1');
+					const res = await fixture.fetch('/blog/blog/2022/post-1/');
 					assert.equal(res.status, 200);
 				});
 
 				it('resolves 200 on matching static path - numeric params', async () => {
 					// route provided with { params: { year: 2022, slug: "post-2" }}
-					const res = await fixture.fetch('/blog/blog/2022/post-2');
+					const res = await fixture.fetch('/blog/blog/2022/post-2/');
 					assert.equal(res.status, 200);
 				});
 			});
 
 			it('resolves 200 on matching static paths', async () => {
-				// routes params provided for pages /posts/1, /posts/2, and /posts/3
+				// routes params provided for pages /posts/1/, /posts/2/, and /posts/3/
 				for (const page of [1, 2, 3]) {
-					let res = await fixture.fetch(`/blog/posts/${page}`);
+					let res = await fixture.fetch(`/blog/posts/${page}/`);
 					assert.equal(res.status, 200);
 
 					const html = await res.text();

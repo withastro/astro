@@ -3,6 +3,9 @@ import { after, before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
+// TODO: trailingSlash
+// How does redirect interact with trailingSlash
+
 describe('Astro.redirect', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -71,7 +74,7 @@ describe('Astro.redirect', () => {
 
 			it('Uses 308 for non-GET methods', async () => {
 				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/api/redirect', {
+				const request = new Request('http://example.com/api/redirect/', {
 					method: 'POST',
 				});
 				const response = await app.render(request);
@@ -80,28 +83,28 @@ describe('Astro.redirect', () => {
 
 			it('Forwards params to the target path - single param', async () => {
 				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/source/x');
+				const request = new Request('http://example.com/source/x/');
 				const response = await app.render(request);
 				assert.equal(response.headers.get('Location'), '/not-verbatim/target1/x');
 			});
 
 			it('Forwards params to the target path - multiple params', async () => {
 				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/source/x/y');
+				const request = new Request('http://example.com/source/x/y/');
 				const response = await app.render(request);
 				assert.equal(response.headers.get('Location'), '/not-verbatim/target2/x/y');
 			});
 
 			it('Forwards params to the target path - spread param', async () => {
 				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/source/x/y/z');
+				const request = new Request('http://example.com/source/x/y/z/');
 				const response = await app.render(request);
 				assert.equal(response.headers.get('Location'), '/not-verbatim/target3/x/y/z');
 			});
 
 			it('Forwards params to the target path - special characters', async () => {
 				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/source/Las Vegas’');
+				const request = new Request('http://example.com/source/Las Vegas’/');
 				const response = await app.render(request);
 				assert.equal(
 					response.headers.get('Location'),
@@ -233,7 +236,7 @@ describe('Astro.redirect', () => {
 			});
 
 			it('performs simple redirects', async () => {
-				let res = await fixture.fetch('/one', {
+				let res = await fixture.fetch('/one/', {
 					redirect: 'manual',
 				});
 				assert.equal(res.status, 301);
@@ -241,25 +244,25 @@ describe('Astro.redirect', () => {
 			});
 
 			it('performs dynamic redirects', async () => {
-				const response = await fixture.fetch('/more/old/hello', { redirect: 'manual' });
+				const response = await fixture.fetch('/more/old/hello/', { redirect: 'manual' });
 				assert.equal(response.status, 301);
 				assert.equal(response.headers.get('Location'), '/more/hello');
 			});
 
 			it('performs dynamic redirects with special characters', async () => {
 				// encodeURI("/more/old/’")
-				const response = await fixture.fetch('/more/old/%E2%80%99', { redirect: 'manual' });
+				const response = await fixture.fetch('/more/old/%E2%80%99/', { redirect: 'manual' });
 				assert.equal(response.status, 301);
 				assert.equal(response.headers.get('Location'), '/more/%E2%80%99');
 			});
 
 			it('performs dynamic redirects with multiple params', async () => {
-				const response = await fixture.fetch('/more/old/hello/world', { redirect: 'manual' });
+				const response = await fixture.fetch('/more/old/hello/world/', { redirect: 'manual' });
 				assert.equal(response.headers.get('Location'), '/more/hello/world');
 			});
 
 			it.skip('falls back to spread rule when dynamic rules should not match', async () => {
-				const response = await fixture.fetch('/more/old/welcome/world', { redirect: 'manual' });
+				const response = await fixture.fetch('/more/old/welcome/world/', { redirect: 'manual' });
 				assert.equal(response.headers.get('Location'), '/more/new/welcome/world');
 			});
 		});

@@ -40,13 +40,13 @@ describe('Dynamic endpoint collision', () => {
 		});
 
 		it('throw error when dynamic endpoint has path collision', async () => {
-			const html = await fixture.fetch('/api/catch').then((res) => res.text());
+			const html = await fixture.fetch('/api/catch/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 			assert.equal($('title').text(), 'PrerenderDynamicEndpointPathCollide');
 		});
 
 		it("don't throw error when dynamic endpoint doesn't load the colliding path", async () => {
-			const res = await fixture.fetch('/api/catch/one').then((r) => r.text());
+			const res = await fixture.fetch('/api/catch/one/').then((r) => r.text());
 			assert.equal(res, '{"slug":"one"}');
 		});
 	});

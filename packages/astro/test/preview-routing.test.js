@@ -208,8 +208,8 @@ describe('Preview Routing', () => {
 				await previewServer.stop();
 			});
 
-			it('renders custom 404 for /a', async () => {
-				const res = await fixture.fetch('/a');
+			it('renders custom 404 for /a/', async () => {
+				const res = await fixture.fetch('/a/');
 				assert.equal(res.status, 404);
 
 				const html = await res.text();

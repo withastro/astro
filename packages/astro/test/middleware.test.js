@@ -39,33 +39,33 @@ describe('Middleware in DEV mode', () => {
 	});
 
 	it('should call a second middleware', async () => {
-		const html = await fixture.fetch('/second').then((res) => res.text());
+		const html = await fixture.fetch('/second/').then((res) => res.text());
 		const $ = cheerio.load(html);
 		assert.equal($('p').html(), 'second');
 	});
 
 	it('should successfully create a new response', async () => {
-		const html = await fixture.fetch('/rewrite').then((res) => res.text());
+		const html = await fixture.fetch('/rewrite/').then((res) => res.text());
 		const $ = cheerio.load(html);
 		assert.equal($('p').html(), null);
 		assert.equal($('span').html(), 'New content!!');
 	});
 
 	it('should return a new response that is a 500', async () => {
-		await fixture.fetch('/broken-500').then((res) => {
+		await fixture.fetch('/broken-500/').then((res) => {
 			assert.equal(res.status, 500);
 			return res.text();
 		});
 	});
 
 	it('should successfully render a page if the middleware calls only next() and returns nothing', async () => {
-		const html = await fixture.fetch('/not-interested').then((res) => res.text());
+		const html = await fixture.fetch('/not-interested/').then((res) => res.text());
 		const $ = cheerio.load(html);
 		assert.equal($('p').html(), 'Not interested');
 	});
 
 	it("should throw an error when the middleware doesn't call next or doesn't return a response", async () => {
-		const html = await fixture.fetch('/does-nothing').then((res) => res.text());
+		const html = await fixture.fetch('/does-nothing/').then((res) => res.text());
 		const $ = cheerio.load(html);
 		assert.equal($('title').html(), 'MiddlewareNoDataOrNextCalled');
 	});
@@ -76,26 +76,26 @@ describe('Middleware in DEV mode', () => {
 	});
 
 	it('should be able to clone the response', async () => {
-		const res = await fixture.fetch('/clone');
+		const res = await fixture.fetch('/clone/');
 		const html = await res.text();
 		assert.equal(html.includes('it works'), true);
 	});
 
 	it('should forward cookies set in a component when the middleware returns a new response', async () => {
-		const res = await fixture.fetch('/return-response-cookies');
+		const res = await fixture.fetch('/return-response-cookies/');
 		const headers = res.headers;
 		assert.notEqual(headers.get('set-cookie'), null);
 	});
 
 	describe('Integration hooks', () => {
 		it('Integration middleware marked as "pre" runs', async () => {
-			const res = await fixture.fetch('/integration-pre');
+			const res = await fixture.fetch('/integration-pre/');
 			const json = await res.json();
 			assert.equal(json.pre, 'works');
 		});
 
 		it('Integration middleware marked as "post" runs', async () => {
-			const res = await fixture.fetch('/integration-post');
+			const res = await fixture.fetch('/integration-post/');
 			const json = await res.json();
 			assert.equal(json.post, 'works');
 		});
@@ -189,27 +189,27 @@ describe('Middleware API in PROD mode, SSR', () => {
 		let $ = cheerio.load(html);
 		assert.equal($('p').html(), 'bar');
 
-		response = await app.render(new Request('http://example.com/lorem'));
+		response = await app.render(new Request('http://example.com/lorem/'));
 		html = await response.text();
 		$ = cheerio.load(html);
 		assert.equal($('p').html(), 'ipsum');
 	});
 
 	it('should successfully redirect to another page', async () => {
-		const request = new Request('http://example.com/redirect');
+		const request = new Request('http://example.com/redirect/');
 		const response = await app.render(request);
 		assert.equal(response.status, 302);
 	});
 
 	it('should call a second middleware', async () => {
-		const response = await app.render(new Request('http://example.com/second'));
+		const response = await app.render(new Request('http://example.com/second/'));
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		assert.equal($('p').html(), 'second');
 	});
 
 	it('should successfully create a new response', async () => {
-		const request = new Request('http://example.com/rewrite');
+		const request = new Request('http://example.com/rewrite/');
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerio.load(html);
@@ -218,13 +218,13 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('should return a new response that is a 500', async () => {
-		const request = new Request('http://example.com/broken-500');
+		const request = new Request('http://example.com/broken-500/');
 		const response = await app.render(request);
 		assert.equal(response.status, 500);
 	});
 
 	it('should successfully render a page if the middleware calls only next() and returns nothing', async () => {
-		const request = new Request('http://example.com/not-interested');
+		const request = new Request('http://example.com/not-interested/');
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerio.load(html);
@@ -232,7 +232,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it("should throw an error when the middleware doesn't call next or doesn't return a response", async () => {
-		const request = new Request('http://example.com/does-nothing');
+		const request = new Request('http://example.com/does-nothing/');
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerio.load(html);
@@ -240,21 +240,21 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('should correctly work for API endpoints that return a Response object', async () => {
-		const request = new Request('http://example.com/api/endpoint');
+		const request = new Request('http://example.com/api/endpoint/');
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
 		assert.equal(response.headers.get('Content-Type'), 'application/json');
 	});
 
 	it('should correctly manipulate the response coming from API endpoints (not simple)', async () => {
-		const request = new Request('http://example.com/api/endpoint');
+		const request = new Request('http://example.com/api/endpoint/');
 		const response = await app.render(request);
 		const text = await response.text();
 		assert.equal(text.includes('REDACTED'), true);
 	});
 
 	it('should correctly call the middleware function for 404', async () => {
-		const request = new Request('http://example.com/funky-url');
+		const request = new Request('http://example.com/funky-url/');
 		const routeData = app.match(request);
 		const response = await app.render(request, { routeData });
 		const text = await response.text();
@@ -263,7 +263,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	it('should render 500.astro when the middleware throws an error', async () => {
-		const request = new Request('http://example.com/throw');
+		const request = new Request('http://example.com/throw/');
 		const routeData = app.match(request);
 
 		const response = await app.render(request, { routeData });

@@ -38,7 +38,7 @@ describe('API routes in SSR', () => {
 		});
 
 		it('Has valid api context', async () => {
-			const request = new Request('http://example.com/context/any');
+			const request = new Request('http://example.com/context/any/');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 			const data = await response.json();
@@ -86,7 +86,7 @@ describe('API routes in SSR', () => {
 			const file = new File([raw], 'penguin.jpg', { type: 'text/jpg' });
 			formData.set('file', file, 'penguin.jpg');
 
-			const res = await fixture.fetch('/binary', {
+			const res = await fixture.fetch('/binary/', {
 				method: 'POST',
 				body: formData,
 			});
@@ -126,7 +126,7 @@ describe('API routes in SSR', () => {
 		});
 
 		it('Has valid api context', async () => {
-			const response = await fixture.fetch('/context/any');
+			const response = await fixture.fetch('/context/any/');
 			assert.equal(response.status, 200);
 			const data = await response.json();
 			assert.equal(data.cookiesExist, true);

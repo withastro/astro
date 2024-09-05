@@ -40,7 +40,7 @@ describe('endpoints', () => {
 	it('should respond with 500 for incorrect implementation', async () => {
 		const { req, res, done } = createRequestAndResponse({
 			method: 'GET',
-			url: '/incorrect',
+			url: '/incorrect/',
 		});
 		container.handle(req, res);
 		await done;

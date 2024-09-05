@@ -145,7 +145,7 @@ describe('dev container', () => {
 			async (container) => {
 				let r = createRequestAndResponse({
 					method: 'GET',
-					url: '/test-one',
+					url: '/test-one/',
 				});
 				container.handle(r.req, r.res);
 				await r.done;
@@ -154,7 +154,7 @@ describe('dev container', () => {
 				// Try with the injected route
 				r = createRequestAndResponse({
 					method: 'GET',
-					url: '/another-two',
+					url: '/another-two/',
 				});
 				container.handle(r.req, r.res);
 				await r.done;
@@ -196,7 +196,7 @@ describe('dev container', () => {
 			async (container) => {
 				{
 					// Regular pages are served as expected.
-					const r = createRequestAndResponse({ method: 'GET', url: '/page' });
+					const r = createRequestAndResponse({ method: 'GET', url: '/page/' });
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();

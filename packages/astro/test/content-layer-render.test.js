@@ -19,7 +19,7 @@ describe('Content Layer MDX rendering dev', () => {
 	});
 
 	it('Render an MDX file', async () => {
-		const html = await fixture.fetch('/reptiles/iguana').then((r) => r.text());
+		const html = await fixture.fetch('/reptiles/iguana/').then((r) => r.text());
 
 		assert.match(html, /Iguana/);
 		assert.match(html, /This is a rendered entry/);

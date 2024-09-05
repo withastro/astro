@@ -111,7 +111,7 @@ describe('astro:image', () => {
 			});
 
 			it('properly skip processing SVGs, but does not error', async () => {
-				let res = await fixture.fetch('/svgSupport');
+				let res = await fixture.fetch('/svgSupport/');
 				let html = await res.text();
 
 				$ = cheerio.load(html);
@@ -125,7 +125,7 @@ describe('astro:image', () => {
 
 			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import", async () => {
 				logs.length = 0;
-				let res = await fixture.fetch('/error-image-src-passed');
+				let res = await fixture.fetch('/error-image-src-passed/');
 				await res.text();
 
 				assert.equal(logs.length, 1);
@@ -133,7 +133,7 @@ describe('astro:image', () => {
 			});
 
 			it('supports images from outside the project', async () => {
-				let res = await fixture.fetch('/outsideProject');
+				let res = await fixture.fetch('/outsideProject/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 
@@ -151,7 +151,7 @@ describe('astro:image', () => {
 			});
 
 			it('supports inlined imports', async () => {
-				let res = await fixture.fetch('/inlineImport');
+				let res = await fixture.fetch('/inlineImport/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 
@@ -164,7 +164,7 @@ describe('astro:image', () => {
 			});
 
 			it('supports uppercased imports', async () => {
-				let res = await fixture.fetch('/uppercase');
+				let res = await fixture.fetch('/uppercase/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 
@@ -179,7 +179,7 @@ describe('astro:image', () => {
 			});
 
 			it('supports avif', async () => {
-				let res = await fixture.fetch('/avif');
+				let res = await fixture.fetch('/avif/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 
@@ -193,7 +193,7 @@ describe('astro:image', () => {
 			});
 
 			it('has a working Picture component', async () => {
-				let res = await fixture.fetch('/picturecomponent');
+				let res = await fixture.fetch('/picturecomponent/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 
@@ -267,7 +267,7 @@ describe('astro:image', () => {
 			});
 
 			it('Picture component scope styles work', async () => {
-				let res = await fixture.fetch('/picturecomponent');
+				let res = await fixture.fetch('/picturecomponent/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 
@@ -280,7 +280,7 @@ describe('astro:image', () => {
 			});
 
 			it('properly deduplicate srcset images', async () => {
-				let res = await fixture.fetch('/srcset');
+				let res = await fixture.fetch('/srcset/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 
@@ -346,7 +346,7 @@ describe('astro:image', () => {
 			 */
 			let $;
 			before(async () => {
-				let res = await fixture.fetch('/vite');
+				let res = await fixture.fetch('/vite/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 			});
@@ -422,7 +422,7 @@ describe('astro:image', () => {
 
 			it('error if no width and height', async () => {
 				logs.length = 0;
-				let res = await fixture.fetch('/remote-error-no-dimensions');
+				let res = await fixture.fetch('/remote-error-no-dimensions/');
 				await res.text();
 
 				assert.equal(logs.length, 1);
@@ -431,7 +431,7 @@ describe('astro:image', () => {
 
 			it('error if no height', async () => {
 				logs.length = 0;
-				let res = await fixture.fetch('/remote-error-no-height');
+				let res = await fixture.fetch('/remote-error-no-height/');
 				await res.text();
 
 				assert.equal(logs.length, 1);
@@ -439,7 +439,7 @@ describe('astro:image', () => {
 			});
 
 			it('supports aliases', async () => {
-				let res = await fixture.fetch('/alias');
+				let res = await fixture.fetch('/alias/');
 				let html = await res.text();
 				let $ = cheerio.load(html);
 
@@ -452,7 +452,7 @@ describe('astro:image', () => {
 		describe('markdown', () => {
 			let $;
 			before(async () => {
-				let res = await fixture.fetch('/post');
+				let res = await fixture.fetch('/post/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 			});
@@ -475,7 +475,7 @@ describe('astro:image', () => {
 			});
 
 			it('Supports aliased paths', async () => {
-				let res = await fixture.fetch('/aliasMarkdown');
+				let res = await fixture.fetch('/aliasMarkdown/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 
@@ -512,7 +512,7 @@ describe('astro:image', () => {
 		describe('getImage', () => {
 			let $;
 			before(async () => {
-				let res = await fixture.fetch('/get-image');
+				let res = await fixture.fetch('/get-image/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 			});
@@ -532,7 +532,7 @@ describe('astro:image', () => {
 		describe('content collections', () => {
 			let $;
 			before(async () => {
-				let res = await fixture.fetch('/blog/one');
+				let res = await fixture.fetch('/blog/one/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 			});
@@ -595,7 +595,7 @@ describe('astro:image', () => {
 			/** @type {ReturnType<import('cheerio')['load']>} */
 			let $;
 			before(async () => {
-				let res = await fixture.fetch('/regular-img');
+				let res = await fixture.fetch('/regular-img/');
 				let html = await res.text();
 				$ = cheerio.load(html);
 			});
@@ -610,7 +610,7 @@ describe('astro:image', () => {
 		});
 
 		describe('custom service', () => {
-			it('custom service implements getHTMLAttributes', async () => {
+			it('custom service implements getHTMLAttributes/', async () => {
 				const response = await fixture.fetch('/');
 				const html = await response.text();
 
@@ -619,7 +619,7 @@ describe('astro:image', () => {
 			});
 
 			it('custom service works in Markdown', async () => {
-				const response = await fixture.fetch('/post');
+				const response = await fixture.fetch('/post/');
 				const html = await response.text();
 
 				const $ = cheerio.load(html);
@@ -712,7 +712,7 @@ describe('astro:image', () => {
 
 		it("properly error when getImage's first parameter isn't filled", async () => {
 			logs.length = 0;
-			let res = await fixture.fetch('/get-image-empty');
+			let res = await fixture.fetch('/get-image-empty/');
 			await res.text();
 
 			assert.equal(logs.length >= 1, true);
@@ -721,7 +721,7 @@ describe('astro:image', () => {
 
 		it('properly error when src is undefined', async () => {
 			logs.length = 0;
-			let res = await fixture.fetch('/get-image-undefined');
+			let res = await fixture.fetch('/get-image-undefined/');
 			await res.text();
 
 			assert.equal(logs.length >= 1, true);
@@ -730,7 +730,7 @@ describe('astro:image', () => {
 
 		it('errors when an ESM imported image is passed directly to getImage', async () => {
 			logs.length = 0;
-			let res = await fixture.fetch('/get-image-import-passed');
+			let res = await fixture.fetch('/get-image-import-passed/');
 			await res.text();
 			assert.equal(logs.length >= 1, true);
 			assert.equal(
@@ -741,7 +741,7 @@ describe('astro:image', () => {
 
 		it('properly error image in Markdown frontmatter is not found', async () => {
 			logs.length = 0;
-			let res = await fixture.fetch('/blog/one');
+			let res = await fixture.fetch('/blog/one/');
 			await res.text();
 
 			assert.equal(logs.length, 1);
@@ -750,7 +750,7 @@ describe('astro:image', () => {
 
 		it('properly error image in Markdown content is not found', async () => {
 			logs.length = 0;
-			let res = await fixture.fetch('/post');
+			let res = await fixture.fetch('/post/');
 			await res.text();
 			assert.equal(logs.length, 1);
 			assert.equal(logs[0].message.includes('Could not find requested image'), true);
@@ -1127,7 +1127,7 @@ describe('astro:image', () => {
 		});
 
 		it('does not interfere with query params', async () => {
-			let res = await fixture.fetch('/api?src=image.png');
+			let res = await fixture.fetch('/api/?src=image.png');
 			const html = await res.text();
 			assert.equal(html, 'An image: "image.png"');
 		});
