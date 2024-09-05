@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import path from 'node:path'
 import ancestor from 'common-ancestor-path';
 import {
 	appendExtension,
@@ -19,7 +20,7 @@ export function getFileInfo(id: string, config: AstroConfig) {
 				.replace(/^.*?\/pages\//, sitePathname)
 				.replace(/(?:\/index)?\.(?:md|markdown|mdown|mkdn|mkd|mdwn|astro)$/, '')
 		: undefined;
-	if (fileUrl && config.trailingSlash === 'always') {
+	if (fileUrl && config.trailingSlash === 'always' && !path.basename(fileUrl).includes('.')) {
 		fileUrl = appendForwardSlash(fileUrl);
 	}
 	if (fileUrl && config.build.format === 'file') {

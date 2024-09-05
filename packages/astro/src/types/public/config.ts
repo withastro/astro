@@ -170,18 +170,27 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name trailingSlash
 	 * @type {('always' | 'never' | 'ignore')}
-	 * @default `'ignore'`
+	 * @default `'always'`
 	 * @see build.format
 	 * @description
 	 *
-	 * Set the route matching behavior of the dev server. Choose from the following options:
+	 * Set the route matching behavior of the dev server and serving of on-demand routes in production. Choose from the following options:
 	 *   - `'always'` - Only match URLs that include a trailing slash (ex: "/foo/")
 	 *   - `'never'` - Never match URLs that include a trailing slash (ex: "/foo")
 	 *   - `'ignore'` - Match URLs regardless of whether a trailing "/" exists
 	 *
-	 * Use this configuration option if your production host has strict handling of how trailing slashes work or do not work.
+	 * For pages that are prerendered (e.g. `src/pages/foo.html`), they will be written as `.html` files like below:
+	 * | `trailingSlash` | `src/pages/about.astro` | `src/pages/about/index.astro` |
+	 * | - | - | - |
+	 * | `'always'` | `dist/about/index.html` | `dist/about/index.html` |
+	 * | `'never'` | `dist/about.html` | `dist/about.html` |
+	 * | `'ignore'` | `dist/about.html` | `dist/about/index.html` |
 	 *
-	 * You can also set this if you prefer to be more strict yourself, so that URLs with or without trailing slashes won't work during development.
+	 * Using `'ignore'` is not recommended as it allows the same page to exist in two paths and affects SEO. See
+	 * https://www.seroundtable.com/google-trailing-slashes-url-24943.html for more details.
+	 *
+	 * When set to `'always'`, URL paths already contains an extension, e.g. endpoints from `src/pages/api.json.ts`, do not need a trailing slash.
+	 *
 	 *
 	 * ```js
 	 * {
@@ -527,7 +536,8 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.format
 		 * @typeraw {('file' | 'directory' | 'preserve')}
-		 * @default `'directory'`
+		 * @default `'directory'` if `trailingSlash: 'always'`, `'file'` if `trailingSlash: 'never'`, `'preserve'` if `trailingSlash: 'ignore'`
+		 * @deprecated Use the `trailingSlash` option instead.
 		 * @description
 		 * Control the output file format of each page. This value may be set by an adapter for you.
 		 *   - `'file'`: Astro will generate an HTML file named for each page route. (e.g. `src/pages/about.astro` and `src/pages/about/index.astro` both build the file `/about.html`)

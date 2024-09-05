@@ -47,6 +47,12 @@ type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
 type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
 type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 
+const suggestedTrailingSlashToBuildFormat = {
+	always: 'directory',
+	never: 'file',
+	ignore: 'preserve',
+} as const;
+
 export const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
 	srcDir: './src',
@@ -54,7 +60,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	outDir: './dist',
 	cacheDir: './node_modules/.astro',
 	base: '/',
-	trailingSlash: 'ignore',
+	trailingSlash: 'always',
 	build: {
 		format: 'directory',
 		client: './dist/client/',
@@ -540,6 +546,8 @@ export const AstroConfigSchema = z.object({
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
 
 export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
+	let originalBuildFormat: 'file' | 'directory' | 'preserve' | undefined;
+
 	// We need to extend the global schema to add transforms that are relative to root.
 	// This is type checked against the global schema to make sure we still match.
 	const AstroConfigRelativeSchema = AstroConfigSchema.extend({
@@ -566,10 +574,14 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		build: z
 			.object({
+				// NOTE: The `format` default will be set later as it's based on the `trailingSlash` value
 				format: z
 					.union([z.literal('file'), z.literal('directory'), z.literal('preserve')])
 					.optional()
-					.default(ASTRO_CONFIG_DEFAULTS.build.format),
+					.transform((val) => {
+						originalBuildFormat = val;
+						return val ?? ASTRO_CONFIG_DEFAULTS.build.format;
+					}),
 				client: z
 					.string()
 					.optional()
@@ -658,6 +670,23 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				config.base = prependForwardSlash(appendForwardSlash(config.base));
 			} else {
 				config.base = prependForwardSlash(config.base);
+			}
+
+			// Handle `build.format` default based on `trailingSlash` config
+			const suggestedBuildFormat = suggestedTrailingSlashToBuildFormat[config.trailingSlash];
+			if (originalBuildFormat === undefined) {
+				config.build.format = suggestedBuildFormat;
+			} else if (config.build.format !== suggestedBuildFormat) {
+				const suggestedTrailingSlash = Object.entries(suggestedTrailingSlashToBuildFormat).find(
+					([_, format]) => format === config.build.format,
+				)?.[0];
+				// Use console.warn instead of logger because it's hard to pass the logger here
+				// eslint-disable-next-line no-console
+				console.warn(
+					`The trailingSlash option is set as "${config.trailingSlash}", but build.format is set as "${config.build.format}". ` +
+						`This will likely cause inconsistencies in relative paths when developing your app. To fix this, remove the build.format ` +
+						`option so it defaults to "${suggestedBuildFormat}", or set trailingSlash to "${suggestedTrailingSlash}".`,
+				);
 			}
 
 			return config;
