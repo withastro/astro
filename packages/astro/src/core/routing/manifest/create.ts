@@ -733,12 +733,12 @@ async function getRoutePrerenderOption(
 		route.prerender = match[1] === 'true';
 	}
 
+	await runHookRouteSetup({ route, settings, logger });
+
 	// If not explicitly set, default to the global setting
 	if (typeof route.prerender === undefined) {
 		route.prerender = getPrerenderDefault(settings.config);
 	}
-
-	await runHookRouteSetup({ route, settings, logger });
 
 	if (!route.prerender) settings.buildOutput = 'server';
 }
