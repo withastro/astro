@@ -244,10 +244,10 @@ importers:
         version: 0.14.1
     devDependencies:
       '@astrojs/language-server':
-        specifier: ^2.14.1
+        specifier: ^2.14.2
         version: link:../language-server
       '@astrojs/ts-plugin':
-        specifier: ^1.10.1
+        specifier: ^1.10.2
         version: link:../ts-plugin
       '@types/glob':
         specifier: ^8.1.0

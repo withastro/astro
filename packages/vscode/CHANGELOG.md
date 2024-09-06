@@ -1,5 +1,12 @@
 # astro-vscode
 
+## 2.14.2
+
+### Patch Changes
+
+- 572e9cb: Fix Astro codeblock syntax highlighting for MDX files
+- af5bbc5: Fixes content intellisense not working inside Markdoc files using the `markdoc` language identifier
+
 ## 2.14.1
 
 ### Patch Changes

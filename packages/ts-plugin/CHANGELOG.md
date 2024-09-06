@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.10.2
+
+### Patch Changes
+
+- af5bbc5: Fixes content intellisense not working inside Markdoc files using the `markdoc` language identifier
+
 ## 1.10.1
 
 ### Patch Changes

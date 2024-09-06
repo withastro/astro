@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.14.2
+
+### Patch Changes
+
+- af5bbc5: Fixes content intellisense not working inside Markdoc files using the `markdoc` language identifier
+
 ## 2.14.1
 
 ### Patch Changes
