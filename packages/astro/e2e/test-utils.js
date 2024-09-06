@@ -15,7 +15,7 @@ for (let i = 0; i < testFiles.length; i++) {
 	const file = testFiles[i];
 	if (file.endsWith('.test.js')) {
 		// Port 4045 is an unsafe port in Chrome, so skip it.
-		if((4000 + i) === 4045) {
+		if (4000 + i === 4045) {
 			i++;
 		}
 		testFileToPort.set(file, 4000 + i);

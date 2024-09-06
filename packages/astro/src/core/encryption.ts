@@ -42,8 +42,10 @@ export function hasEnvironmentKey(): boolean {
  */
 export async function getEnvironmentKey(): Promise<CryptoKey> {
 	// This should never happen, because we always check `hasEnvironmentKey` before this is called.
-	if(!hasEnvironmentKey()) {
-		throw new Error(`There is no environment key defined. If you see this error there is a bug in Astro.`)
+	if (!hasEnvironmentKey()) {
+		throw new Error(
+			`There is no environment key defined. If you see this error there is a bug in Astro.`,
+		);
 	}
 	const encodedKey = getEncodedEnvironmentKey();
 	return decodeKey(encodedKey);
