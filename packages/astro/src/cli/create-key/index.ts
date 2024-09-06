@@ -1,7 +1,5 @@
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
-import { resolveConfig } from '../../core/config/config.js';
 import { createNodeLogger } from '../../core/config/logging.js';
-import { createSettings } from '../../core/config/settings.js';
 import { createKey as createCryptoKey,encodeKey } from '../../core/encryption.js';
 
 interface CreateKeyOptions {
