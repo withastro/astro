@@ -18,6 +18,7 @@ export type LoggerLabel =
 	| 'check'
 	| 'config'
 	| 'content'
+	| 'crypto'
 	| 'deprecated'
 	| 'markdown'
 	| 'router'

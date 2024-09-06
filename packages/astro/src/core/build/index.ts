@@ -23,7 +23,7 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
+import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
@@ -232,13 +232,6 @@ class AstroBuilder {
 			logging: this.logger,
 			cacheManifest: internals.cacheManifestUsed,
 		});
-
-		if(!hasKey && opts.settings.config.experimental.serverIslands) {
-			this.logger.info('build', `This build generated a key to encrypt props passed to Server islands. To reuse the same key across builds, set this value as ASTRO_KEY in an environment variable on your build server.
-
-ASTRO_KEY=${await encodeKey(await keyPromise)}
-`);
-		}
 
 		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {
 			await this.printStats({
