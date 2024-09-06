@@ -21,7 +21,7 @@ export type Locals = {
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
-	if ((context as any)._isPrerendered) {
+	if (context.isPrerendered) {
 		if (context.request.method === 'POST') {
 			// eslint-disable-next-line no-console
 			console.warn(
