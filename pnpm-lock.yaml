@@ -1615,6 +1615,15 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
+  packages/astro/e2e/fixtures/server-islands-key:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/e2e/fixtures/solid-circular:
     dependencies:
       '@astrojs/solid-js':

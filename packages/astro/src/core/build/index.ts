@@ -23,7 +23,7 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { createKey } from '../encryption.js';
+import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
@@ -188,6 +188,9 @@ class AstroBuilder {
 			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`),
 		);
 
+		const hasKey = hasEnvironmentKey();
+		const keyPromise = hasKey ? getEnvironmentKey() : createKey();
+
 		const opts: StaticBuildOptions = {
 			allPages,
 			settings: this.settings,
@@ -198,7 +201,7 @@ class AstroBuilder {
 			pageNames,
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
-			key: createKey(),
+			key: keyPromise,
 		};
 
 		const { internals, ssrOutputChunkNames, contentFileNames } = await viteBuild(opts);
