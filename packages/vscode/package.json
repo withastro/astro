@@ -217,13 +217,14 @@
         }
       },
       {
-        "scopeName": "text.mdx.astro.codeblock",
+        "scopeName": "source.mdx.astro",
         "path": "./syntaxes/mdx.astro.tmLanguage.json",
         "injectTo": [
           "source.mdx"
         ],
         "embeddedLanguages": {
-          "mdx.embedded.astro": "astro"
+          "mdx.embedded.astro": "astro",
+          "mdx.embedded.astro.frontmatter": "typescriptreact"
         }
       }
     ]

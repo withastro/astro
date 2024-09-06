@@ -1,82 +1,59 @@
 {
-  "fileTypes": [],
-  "scopeName": "text.mdx.astro.codeblock",
+  "scopeName": "source.mdx.astro",
   "injectionSelector": "L:source.mdx",
   "patterns": [
     {
-      "begin": "(?:^|\\G)[\\t ]*(`{3,})(?:[\\t ]*((?i:(?:.*\\.)?astro))(?:[\\t ]+((?:[^\\n\\r`])+))?)(?:[\\t ]*$)",
-      "beginCaptures": {
-        "1": {
-          "name": "string.other.begin.code.fenced.mdx"
-        },
-        "2": {
-          "name": "entity.name.function.mdx"
-        }
-      },
-      "contentName": "meta.embedded.astro",
-      "end": "(\\1)(?:[\\t ]*$)",
-      "endCaptures": {
-        "1": {
-          "name": "string.other.end.code.fenced.mdx"
-        }
-      },
-      "name": "markup.code.astro.mdx",
-      "patterns": [
-        {
-          "include": "#astro-code-block"
-        }
-      ]
-    },
-    {
-      "begin": "(?:^|\\G)[\\t ]*(~{3,})(?:[\\t ]*((?i:(?:.*\\.)?astro))(?:[\\t ]+((?:[^\\n\\r])+))?)(?:[\\t ]*$)",
-      "beginCaptures": {
-        "1": {
-          "name": "string.other.begin.code.fenced.mdx"
-        },
-        "2": {
-          "name": "entity.name.function.mdx"
-        }
-      },
-      "contentName": "meta.embedded.astro",
-      "end": "(\\1)(?:[\\t ]*$)",
-      "endCaptures": {
-        "1": {
-          "name": "string.other.end.code.fenced.mdx"
-        }
-      },
-      "name": "markup.code.astro.mdx",
-      "patterns": [
-        {
-          "include": "#astro-code-block"
-        }
-      ]
+      "include": "#mdx_fenced_code_block_astro"
     }
   ],
   "repository": {
-    "astro-code-block": {
+    "mdx_fenced_code_block_astro": {
+      "begin": "(?:^|\\G)[\\t ]*([`~]{3,})(?:[\\t ]*((?:astro|(?:.*\\.)?(?:astro)))(?:[\\t ]+((?:[^\\n\\r`])+))?)(?:[\\t ]*$)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.markdown"
+        },
+        "2": {
+          "name": "entity.name.function.markdown"
+        }
+      },
+      "end": "(^\\1)\\s*$",
+      "endCaptures": {
+        "3": {
+          "name": "punctuation.definition.markdown"
+        }
+      },
+      "name": "markup.code.astro.mdx",
       "patterns": [
         {
-          "begin": "^\\s*---\\s*$",
-          "end": "^\\s*---\\s*$",
-          "beginCaptures": {
-            "0": {
-              "name": "punctuation.definition.tag.xi.begin.t"
-            }
-          },
-          "endCaptures": {
-            "0": {
-              "name": "punctuation.definition.tag.xi.end.t"
-            }
-          },
-          "contentName": "meta.embedded.block.astro.frontmatter",
+          "begin": "(^|\\G)(\\s*)(.*)",
+          "while": "(^|\\G)(?!\\s*([`~]{3,})\\s*$)",
           "patterns": [
             {
-              "include": "source.tsx"
+              "begin": "^\\s*---\\s*$",
+              "end": "^\\s*---\\s*$",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.definition.tag.xi.begin.t"
+                }
+              },
+              "endCaptures": {
+                "0": {
+                  "name": "punctuation.definition.tag.xi.end.t"
+                }
+              },
+              "contentName": "mdx.embedded.astro.frontmatter",
+              "patterns": [
+                {
+                  "include": "source.tsx"
+                }
+              ]
+            },
+            {
+              "contentName": "mdx.embedded.astro",
+              "include": "source.astro"
             }
           ]
-        },
-        {
-          "include": "source.astro"
         }
       ]
     }
