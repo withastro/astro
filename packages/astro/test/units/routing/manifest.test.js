@@ -52,7 +52,7 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 		});
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -67,6 +67,8 @@ describe('routing - createRouteManifest', () => {
 			{
 				'/src/pages/[contact].astro': `<h1>test</h1>`,
 				'/src/pages/[contact].ts': `<h1>test</h1>`,
+				'/src/entrypoint.astro': `<h1>test</h1>`,
+				'/src/entrypoint.ts': `<h1>test</h1>`,
 			},
 			root,
 		);
@@ -79,15 +81,15 @@ describe('routing - createRouteManifest', () => {
 		settings.injectedRoutes = [
 			{
 				pattern: '/about',
-				entrypoint: '@lib/legacy/static.astro',
+				entrypoint: 'src/entrypoint.astro',
 			},
 			{
 				pattern: '/api',
-				entrypoint: '@lib/legacy/static.ts',
+				entrypoint: 'src/entrypoint.ts',
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -130,7 +132,7 @@ describe('routing - createRouteManifest', () => {
 			trailingSlash: 'never',
 		});
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -167,7 +169,7 @@ describe('routing - createRouteManifest', () => {
 			trailingSlash: 'never',
 		});
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -213,7 +215,7 @@ describe('routing - createRouteManifest', () => {
 			trailingSlash: 'never',
 		});
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -255,6 +257,7 @@ describe('routing - createRouteManifest', () => {
 			{
 				'/src/pages/index.astro': `<h1>test</h1>`,
 				'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
+				'/src/entrypoint.astro': `<h1>test</h1>`,
 			},
 			root,
 		);
@@ -268,16 +271,16 @@ describe('routing - createRouteManifest', () => {
 		settings.injectedRoutes = [
 			{
 				pattern: '/contributing',
-				entrypoint: '@lib/legacy/static.astro',
+				entrypoint: 'src/entrypoint.astro',
 			},
 			{
 				pattern: '/[...slug]',
-				entrypoint: '@lib/legacy/dynamic.astro',
+				entrypoint: 'src/entrypoint.astro',
 				priority: 'normal',
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -327,7 +330,7 @@ describe('routing - createRouteManifest', () => {
 				},
 			},
 		});
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
@@ -357,6 +360,7 @@ describe('routing - createRouteManifest', () => {
 		const fs = createFs(
 			{
 				'/src/pages/contributing.astro': `<h1>test</h1>`,
+				'/src/entrypoint.astro': `<h1>test</h1>`,
 			},
 			root,
 		);
@@ -371,7 +375,7 @@ describe('routing - createRouteManifest', () => {
 		settings.injectedRoutes = [
 			{
 				pattern: '/contributing',
-				entrypoint: '@lib/legacy/static.astro',
+				entrypoint: 'src/entrypoint.astro',
 			},
 		];
 
@@ -383,14 +387,14 @@ describe('routing - createRouteManifest', () => {
 
 		const { logger, logs } = getLogger();
 
-		createRouteManifest(manifestOptions, logger);
+		await createRouteManifest(manifestOptions, logger);
 
 		assert.deepEqual(logs, [
 			{
 				label: 'router',
 				level: 'warn',
 				message:
-					'The route "/contributing" is defined in both "src/pages/contributing.astro" and "@lib/legacy/static.astro". A static route cannot be defined more than once.',
+					'The route "/contributing" is defined in both "src/pages/contributing.astro" and "src/entrypoint.astro". A static route cannot be defined more than once.',
 				newLine: true,
 			},
 			{
@@ -426,7 +430,7 @@ describe('routing - createRouteManifest', () => {
 
 		const { logger, logs } = getLogger();
 
-		createRouteManifest(manifestOptions, logger);
+		await createRouteManifest(manifestOptions, logger);
 
 		assert.deepEqual(logs, [
 			{
@@ -450,6 +454,7 @@ describe('routing - createRouteManifest', () => {
 			{
 				'/src/pages/a-[b].astro': `<h1>test</h1>`,
 				'/src/pages/blog/a-[b].233.ts': ``,
+				'/src/entrypoint.astro': `<h1>test</h1>`,
 			},
 			root,
 		);
@@ -467,12 +472,12 @@ describe('routing - createRouteManifest', () => {
 		settings.injectedRoutes = [
 			{
 				pattern: '/[c]-d',
-				entrypoint: '@lib/legacy/dynamic.astro',
+				entrypoint: 'src/entrypoint.astro',
 				priority: 'normal',
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,

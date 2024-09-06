@@ -41,7 +41,7 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 				styles: [],
 			};
 
-			if (settings.config.output === 'static') {
+			if (settings.buildOutput === 'static') {
 				const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
 				debug(
 					'build',

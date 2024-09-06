@@ -11,6 +11,7 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { apply as applyPolyfills } from '../polyfill.js';
+import { createRouteManifest } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
@@ -35,9 +36,13 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		command: 'preview',
 		logger: logger,
 	});
+
+	// Create a route manifest so we can know if the build output is a static site or not
+	await createRouteManifest({ settings: settings, cwd: inlineConfig.root }, logger);
+
 	await runHookConfigDone({ settings: settings, logger: logger });
 
-	if (settings.config.output === 'static') {
+	if (settings.buildOutput === 'static') {
 		if (!fs.existsSync(settings.config.outDir)) {
 			const outDirPath = fileURLToPath(settings.config.outDir);
 			throw new Error(
@@ -47,9 +52,11 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		const server = await createStaticPreviewServer(settings, logger);
 		return server;
 	}
+
 	if (!settings.adapter) {
 		throw new Error(`[preview] No adapter found.`);
 	}
+
 	if (!settings.adapter.previewEntrypoint) {
 		throw new Error(
 			`[preview] The ${settings.adapter.name} adapter does not support the preview command.`,

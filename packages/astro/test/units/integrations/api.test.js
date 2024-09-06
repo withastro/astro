@@ -137,7 +137,7 @@ describe('Astro feature map', function () {
 				hybridOutput: 'stable',
 			},
 			{
-				output: 'hybrid',
+				config: { output: 'static' },
 			},
 			{},
 			defaultLogger,
@@ -150,7 +150,8 @@ describe('Astro feature map', function () {
 			'test',
 			{},
 			{
-				output: 'hybrid',
+				buildOutput: 'server',
+				config: { output: 'static' },
 			},
 			{},
 			defaultLogger,
@@ -163,7 +164,8 @@ describe('Astro feature map', function () {
 			'test',
 			{},
 			{
-				output: 'hybrid',
+				buildOutput: 'server',
+				config: { output: 'static' },
 			},
 			{},
 			defaultLogger,
@@ -177,7 +179,7 @@ describe('Astro feature map', function () {
 				'test',
 				{ staticOutput: 'stable' },
 				{
-					output: 'static',
+					config: { output: 'static' },
 				},
 				{},
 				defaultLogger,
@@ -190,7 +192,8 @@ describe('Astro feature map', function () {
 				'test',
 				{ staticOutput: 'unsupported' },
 				{
-					output: 'static',
+					buildOutput: 'static',
+					config: { output: 'static' },
 				},
 				{},
 				defaultLogger,
@@ -204,7 +207,7 @@ describe('Astro feature map', function () {
 				'test',
 				{ hybridOutput: 'stable' },
 				{
-					output: 'hybrid',
+					config: { output: 'static' },
 				},
 				{},
 				defaultLogger,
@@ -219,7 +222,8 @@ describe('Astro feature map', function () {
 					hybridOutput: 'unsupported',
 				},
 				{
-					output: 'hybrid',
+					buildOutput: 'server',
+					config: { output: 'static' },
 				},
 				{},
 				defaultLogger,
@@ -233,7 +237,7 @@ describe('Astro feature map', function () {
 				'test',
 				{ serverOutput: 'stable' },
 				{
-					output: 'server',
+					config: { output: 'server' },
 				},
 				{},
 				defaultLogger,
@@ -248,7 +252,7 @@ describe('Astro feature map', function () {
 					serverOutput: 'unsupported',
 				},
 				{
-					output: 'server',
+					config: { output: 'server' },
 				},
 				{},
 				defaultLogger,
@@ -268,9 +272,11 @@ describe('Astro feature map', function () {
 					},
 				},
 				{
-					image: {
-						service: {
-							entrypoint: 'astro/assets/services/sharp',
+					config: {
+						image: {
+							service: {
+								entrypoint: 'astro/assets/services/sharp',
+							},
 						},
 					},
 				},
@@ -290,9 +296,11 @@ describe('Astro feature map', function () {
 					},
 				},
 				{
-					image: {
-						service: {
-							entrypoint: 'astro/assets/services/sharp',
+					config: {
+						image: {
+							service: {
+								entrypoint: 'astro/assets/services/sharp',
+							},
 						},
 					},
 				},
