@@ -20,6 +20,7 @@ export async function createKey({ flags }: CreateKeyOptions): Promise<0 | 1> {
 ASTRO_KEY=${encoded}`);
   } catch(err: unknown) {
     if(err != null) {
+      // eslint-disable-next-line no-console
       console.error(err.toString()); 
     }
     return 1;
