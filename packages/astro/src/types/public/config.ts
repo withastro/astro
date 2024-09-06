@@ -1437,7 +1437,7 @@ export interface AstroUserConfig {
 		 * @version 5.0.0
 		 * @description
 		 *
-		 * An object that uses `envField` to define the data type (`string`, `number`, or `boolean`) and properties of your environment variables: `context` (client or server), `access` (public or secret), a `default` value to use, and whether or not this environment variable is `optional` (defaults to `false`).
+		 * An object that uses `envField` to define the data type and properties of your environment variables: `context` (client or server), `access` (public or secret), a `default` value to use, and whether or not this environment variable is `optional` (defaults to `false`).
 		 * ```js
 		 * // astro.config.mjs
 		 * import { defineConfig, envField } from "astro/config"
@@ -1450,6 +1450,46 @@ export interface AstroUserConfig {
 		 *       API_SECRET: envField.string({ context: "server", access: "secret" }),
 		 *     }
 		 *   }
+		 * })
+		 * ```
+		 * 
+		 * `envField` supports four data types: string, number, enum, and boolean. `context` and `access` are required properties for all data types. The following shows the complete list of properties available for each data type:
+		 * 
+		 * ```js
+		 * import { envField } from "astro/config"
+		 * 
+		 * envField.string({
+		 *    // context & access
+		 *    optional: true,
+		 *    default: "foo",
+		 *    max: 20,
+		 *    min: 1,
+		 *    length: 13,
+		 *    url: true,
+		 *    includes: "oo",
+		 *    startsWith: "f",
+		 *    endsWith: "o",
+		 * })
+		 * envField.number({
+		 *    // context & access
+		 *    optional: true,
+		 *    default: 15,
+		 *    gt: 2,
+		 *    min: 1,
+		 *    lt: 3,
+		 *    max: 4,
+		 *    int: true,
+		 * })
+		 * envField.boolean({
+		 *    // context & access
+		 *    optional: true,
+		 *    default: true,
+		 * })
+		 * envField.enum({
+		 *    // context & access
+		 *    values: ['foo', 'bar', 'baz'], // required
+		 *    optional: true,
+		 *    default: 'baz',
 		 * })
 		 * ```
 		 */
