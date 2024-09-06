@@ -1,5 +1,31 @@
 # astro
 
+## 4.15.4
+
+### Patch Changes
+
+- [#11879](https://github.com/withastro/astro/pull/11879) [`bd1d4aa`](https://github.com/withastro/astro/commit/bd1d4aaf8262187b4f132d7fe0365902131ddf1a) Thanks [@matthewp](https://github.com/matthewp)! - Allow passing a cryptography key via ASTRO_KEY
+
+  For Server islands Astro creates a cryptography key in order to hash props for the islands, preventing accidental leakage of secrets.
+
+  If you deploy to an environment with rolling updates then there could be multiple instances of your app with different keys, causing potential key mismatches.
+
+  To fix this you can now pass the `ASTRO_KEY` environment variable to your build in order to reuse the same key.
+
+  To generate a key use:
+
+  ```
+  astro create-key
+  ```
+
+  This will print out an environment variable to set like:
+
+  ```
+  ASTRO_KEY=PIAuyPNn2aKU/bviapEuc/nVzdzZPizKNo3OqF/5PmQ=
+  ```
+
+- [#11935](https://github.com/withastro/astro/pull/11935) [`c58193a`](https://github.com/withastro/astro/commit/c58193a691775af5c568e461c63040a42e2471f7) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `astro add` not using the proper export point when adding certain adapters
+
 ## 4.15.3
 
 ### Patch Changes
