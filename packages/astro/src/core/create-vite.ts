@@ -33,6 +33,7 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
+import type { SSRManifest } from './app/types.js';
 import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
@@ -49,6 +50,7 @@ interface CreateViteOptions {
 	fs?: typeof nodeFs;
 	sync: boolean;
 	manifest: ManifestData;
+	ssrManifest?: SSRManifest;
 }
 
 const ALWAYS_NOEXTERNAL = [
@@ -76,7 +78,7 @@ const ONLY_DEV_EXTERNAL = [
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logger, mode, command, fs = nodeFs, sync, manifest }: CreateViteOptions,
+	{ settings, logger, mode, command, fs = nodeFs, sync, manifest, ssrManifest }: CreateViteOptions,
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -132,7 +134,8 @@ export async function createVite(
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs, manifest }),
+			mode !== 'build' &&
+				vitePluginAstroServer({ settings, logger, fs, manifest, ssrManifest: ssrManifest! }), // ssrManifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
 			envVitePlugin({ settings }),
 			astroEnv({ settings, mode, sync }),
 			markdownVitePlugin({ settings, logger }),

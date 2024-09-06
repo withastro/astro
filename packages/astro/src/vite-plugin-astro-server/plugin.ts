@@ -9,7 +9,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { injectDefaultRoutes } from '../core/routing/default.js';
+import { injectDefaultDevRoutes } from '../core/routing/dev-default.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import type { AstroSettings, ManifestData } from '../types/astro.js';
@@ -25,6 +25,7 @@ export interface AstroPluginOptions {
 	logger: Logger;
 	fs: typeof fs;
 	manifest: ManifestData;
+	ssrManifest: SSRManifest;
 }
 
 export default function createVitePluginAstroServer({
@@ -32,14 +33,13 @@ export default function createVitePluginAstroServer({
 	logger,
 	fs: fsMod,
 	manifest: routeManifest,
+	ssrManifest: devSSRManifest,
 }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
-			const devSSRManifest = createDevelopmentManifest(settings);
-			let manifestData: ManifestData = injectDefaultRoutes(devSSRManifest, routeManifest);
-			const pipeline = DevPipeline.create(manifestData, {
+			const pipeline = DevPipeline.create(routeManifest, {
 				loader,
 				logger,
 				manifest: devSSRManifest,
@@ -52,11 +52,12 @@ export default function createVitePluginAstroServer({
 			async function rebuildManifest(needsManifestRebuild: boolean) {
 				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
-					manifestData = injectDefaultRoutes(
+					routeManifest = injectDefaultDevRoutes(
+						settings,
 						devSSRManifest,
-						await createRouteManifest({ settings, fsMod }, logger),
+						await createRouteManifest({ settings, fsMod }, logger), // TODO: Handle partial updates to the manifest
 					);
-					pipeline.setManifestData(manifestData);
+					pipeline.setManifestData(routeManifest);
 				}
 			}
 
@@ -101,7 +102,7 @@ export default function createVitePluginAstroServer({
 					localStorage.run(request, () => {
 						handleRequest({
 							pipeline,
-							manifestData,
+							manifestData: routeManifest,
 							controller,
 							incomingRequest: request,
 							incomingResponse: response,

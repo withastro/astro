@@ -4,7 +4,6 @@ import type { AstroSettings } from '../../types/astro.js';
 
 import nodeFs from 'node:fs';
 import * as vite from 'vite';
-import { injectImageEndpoint } from '../../assets/endpoint/config.js';
 import {
 	runHookConfigDone,
 	runHookConfigSetup,
@@ -12,9 +11,11 @@ import {
 	runHookServerStart,
 } from '../../integrations/hooks.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
+import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
+import { injectDefaultDevRoutes } from '../routing/dev-default.js';
 import { createRouteManifest } from '../routing/index.js';
 import { syncInternal } from '../sync/index.js';
 
@@ -81,9 +82,10 @@ export async function createContainer({
 		.filter(Boolean) as string[];
 
 	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
-	const manifest = await createRouteManifest({ settings, fsMod: fs }, logger);
+	let manifest = await createRouteManifest({ settings, fsMod: fs }, logger);
+	const devSSRManifest = createDevelopmentManifest(settings);
 
-	injectImageEndpoint(settings, manifest, 'dev');
+	manifest = injectDefaultDevRoutes(settings, devSSRManifest, manifest);
 
 	const viteConfig = await createVite(
 		{
@@ -93,7 +95,16 @@ export async function createContainer({
 				include: rendererClientEntries,
 			},
 		},
-		{ settings, logger, mode: 'dev', command: 'dev', fs, sync: false, manifest },
+		{
+			settings,
+			logger,
+			mode: 'dev',
+			command: 'dev',
+			fs,
+			sync: false,
+			manifest,
+			ssrManifest: devSSRManifest,
+		},
 	);
 
 	await runHookConfigDone({ settings, logger });
