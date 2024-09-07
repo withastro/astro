@@ -114,7 +114,7 @@ export default function ({
 						i18nDomains: 'stable',
 					},
 					adapterFeatures: {
-						forceServerOutput: true,
+						buildOutput: 'server',
 					},
 					...extendAdapter,
 				});

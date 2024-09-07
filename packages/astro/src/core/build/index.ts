@@ -125,7 +125,10 @@ class AstroBuilder {
 			injectImageEndpoint(this.settings, this.manifest, 'build');
 		}
 
+		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
+
 		// If we're building for the server, we need to ensure that an adapter is installed.
+		// If the adapter installed does not support a server output, an error will be thrown when the adapter is added, so no need to check here.
 		if (!this.settings.config.adapter && this.settings.buildOutput === 'server') {
 			throw new AstroError(AstroErrorData.NoAdapterInstalled);
 		}
@@ -147,7 +150,6 @@ class AstroBuilder {
 				manifest: this.manifest,
 			},
 		);
-		await runHookConfigDone({ settings: this.settings, logger: logger });
 
 		const { syncInternal } = await import('../sync/index.js');
 		await syncInternal({
@@ -239,7 +241,7 @@ class AstroBuilder {
 				logger: this.logger,
 				timeStart: this.timer.init,
 				pageCount: pageNames.length,
-				buildMode: this.settings.config.output,
+				buildMode: this.settings.buildOutput!, // buildOutput is always set at this point
 			});
 		}
 	}

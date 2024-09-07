@@ -3,6 +3,7 @@ import type fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
+import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import { createKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -57,6 +58,7 @@ export default function createVitePluginAstroServer({
 						devSSRManifest,
 						await createRouteManifest({ settings, fsMod }, logger), // TODO: Handle partial updates to the manifest
 					);
+					warnMissingAdapter(logger, settings);
 					pipeline.setManifestData(routeManifest);
 				}
 			}

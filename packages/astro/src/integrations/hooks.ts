@@ -12,6 +12,7 @@ import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
+import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -296,9 +297,11 @@ export async function runHookConfigSetup({
 export async function runHookConfigDone({
 	settings,
 	logger,
+	command,
 }: {
 	settings: AstroSettings;
 	logger: Logger;
+	command?: 'dev' | 'build' | 'preview' | 'sync';
 }) {
 	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:config:done']) {
@@ -308,13 +311,9 @@ export async function runHookConfigDone({
 				hookResult: integration.hooks['astro:config:done']({
 					config: settings.config,
 					setAdapter(adapter) {
-						if (settings.adapter && settings.adapter.name !== adapter.name) {
-							throw new Error(
-								`Integration "${integration.name}" conflicts with "${settings.adapter.name}". You can only configure one deployment integration.`,
-							);
-						}
+						validateSetAdapter(logger, settings, adapter, integration.name, command);
 
-						if (adapter.adapterFeatures?.forceServerOutput) {
+						if (adapter.adapterFeatures?.buildOutput !== 'static') {
 							settings.buildOutput = 'server';
 						}
 

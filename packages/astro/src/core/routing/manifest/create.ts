@@ -8,7 +8,6 @@ import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import pLimit from 'p-limit';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
-import { runHookRouteSetup } from '../../../integrations/hooks.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RouteData, RoutePart } from '../../../types/public/internal.js';
@@ -20,6 +19,7 @@ import { resolvePages } from '../../util.js';
 import { routeComparator } from '../priority.js';
 import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
+import { getRoutePrerenderOption } from './prerender.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -506,7 +506,16 @@ export async function createRouteManifest(
 	let promises = [];
 	for (const route of routes) {
 		promises.push(
-			limit(async () => await getRoutePrerenderOption(route, settings, params.fsMod, logger)),
+			limit(async () => {
+				if (route.type !== 'page' && route.type !== 'endpoint') return;
+				const localFs = params.fsMod ?? nodeFs;
+				const content = await localFs.promises.readFile(
+					fileURLToPath(new URL(route.component, settings.config.root)),
+					'utf-8',
+				);
+
+				await getRoutePrerenderOption(content, route, settings, logger);
+			}),
 		);
 	}
 	await Promise.all(promises);
@@ -712,35 +721,6 @@ export async function createRouteManifest(
 	return {
 		routes,
 	};
-}
-
-async function getRoutePrerenderOption(
-	route: RouteData,
-	settings: AstroSettings,
-	fsMod: typeof nodeFs | undefined,
-	logger: Logger,
-) {
-	if (route.type !== 'page' && route.type !== 'endpoint') return;
-	const localFs = fsMod ?? nodeFs;
-	const content = await localFs.promises.readFile(
-		fileURLToPath(new URL(route.component, settings.config.root)),
-		'utf-8',
-	);
-
-	// Check if the route is pre-rendered or not
-	const match = /^\s*export\s+const\s+prerender\s*=\s*(true|false);?/m.exec(content);
-	if (match) {
-		route.prerender = match[1] === 'true';
-	}
-
-	await runHookRouteSetup({ route, settings, logger });
-
-	// If not explicitly set, default to the global setting
-	if (typeof route.prerender === undefined) {
-		route.prerender = getPrerenderDefault(settings.config);
-	}
-
-	if (!route.prerender) settings.buildOutput = 'server';
 }
 
 export function resolveInjectedRoute(entrypoint: string, root: URL, cwd?: string) {
