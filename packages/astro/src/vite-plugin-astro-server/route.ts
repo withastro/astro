@@ -168,9 +168,6 @@ export async function handleRoute({
 	const { preloadedComponent } = matchedRoute;
 	route = matchedRoute.route;
 
-	// The image endpoint is a special case where in dev mode, it acts as a non-static route despite the output being static.
-	const imageEndpoint = prependForwardSlash(config.image.endpoint.route);
-
 	// Allows adapters to pass in locals in dev mode.
 	request = createRequest({
 		url,
@@ -179,8 +176,7 @@ export async function handleRoute({
 		body,
 		logger,
 		clientAddress: incomingRequest.socket.remoteAddress,
-		staticLike:
-			url.pathname === imageEndpoint ? false : config.output === 'static' || route.prerender,
+		staticLike: route.prerender,
 	});
 
 	// Set user specified headers to response object.

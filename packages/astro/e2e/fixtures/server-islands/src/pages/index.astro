@@ -5,6 +5,8 @@ import HTMLError from '../components/HTMLError.astro';
 import { generateLongText } from '../lorem';
 
 const content = generateLongText(5);
+
+export const prerender = false;
 ---
 
 <html>
