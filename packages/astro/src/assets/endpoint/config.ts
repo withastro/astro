@@ -2,7 +2,6 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
-import { set } from 'zod';
 import { resolveInjectedRoute } from '../../core/routing/manifest/create.js';
 import { getPattern } from '../../core/routing/manifest/pattern.js';
 import type { AstroSettings, ManifestData } from '../../types/astro.js';
