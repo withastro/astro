@@ -1,5 +1,4 @@
 import type http from 'node:http';
-import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import {
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
