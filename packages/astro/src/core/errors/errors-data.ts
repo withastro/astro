@@ -400,6 +400,9 @@ export const NoAdapterInstalled = {
  * @see
  * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
  * @description
+ * The currently configured adapter does not support server-side rendering, which is required for the current project setup.
+ *
+ * Depending on your adapter, there may be a different entrypoint to use for server-side rendering. For example, the `@astrojs/vercel` adapter has a `@astrojs/vercel/static` entrypoint for static rendering, and a `@astrojs/vercel/serverless` entrypoint for server-side rendering.
  *
  */
 export const AdapterSupportOutputMismatch = {
