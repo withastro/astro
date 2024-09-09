@@ -66,11 +66,6 @@ describe('Astro Global', () => {
 			let $ = cheerio.load(html);
 			assert.match($('#prerender').text(), /Astro route prerender: true/);
 			assert.match($('#prerender-middleware').text(), /Astro route prerender middleware: true/);
-
-			html = await fixture.fetch('/blog/about', {}).then((res) => res.text());
-			$ = cheerio.load(html);
-			assert.match($('#prerender').text(), /Astro route prerender: false/);
-			assert.match($('#prerender-middleware').text(), /Astro route prerender middleware: false/);
 		});
 	});
 

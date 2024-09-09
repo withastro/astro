@@ -67,6 +67,10 @@ export interface AstroAdapterFeatures {
 	 * Creates an edge function that will communiate with the Astro middleware
 	 */
 	edgeMiddleware: boolean;
+	/**
+	 * Force Astro to output a server output, even if all the pages are prerendered
+	 */
+	forceServerOutput?: boolean;
 }
 
 export interface AstroAdapter {
@@ -183,6 +187,7 @@ export interface BaseIntegrationHooks {
 		setAdapter: (adapter: AstroAdapter) => void;
 		injectTypes: (injectedType: InjectedType) => URL;
 		logger: AstroIntegrationLogger;
+		buildOutput: 'static' | 'server';
 	}) => void | Promise<void>;
 	'astro:server:setup': (options: {
 		server: ViteDevServer;

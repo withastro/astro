@@ -6,7 +6,7 @@ import { defineConfig } from 'astro/config';
 // https://astro.build/config
 export default defineConfig({
 	integrations: [db(), webVitals()],
-	output: 'hybrid',
+	output: 'static',
 	adapter: node({ mode: 'standalone' }),
 	devToolbar: {
 		enabled: false,

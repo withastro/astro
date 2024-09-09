@@ -3,7 +3,6 @@ import type { AstroSettings } from '../../../types/astro.js';
 import type { AstroAdapter } from '../../../types/public/integrations.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
-import { isServerLikeOutput } from '../../util.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
@@ -131,11 +130,12 @@ export function pluginSSR(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
 ): AstroBuildPlugin {
-	const ssr = isServerLikeOutput(options.settings.config);
+	const ssr = options.settings.buildOutput === 'server';
 	return {
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
+				// We check before this point if there's an adapter, so we can safely assume it exists here.
 				const adapter = options.settings.adapter!;
 				const ssrPlugin = ssr && vitePluginSSR(internals, adapter, options);
 				const vitePlugin = [vitePluginAdapter(adapter)];

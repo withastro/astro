@@ -158,19 +158,11 @@ export function isEndpoint(file: URL, settings: AstroSettings): boolean {
 	return !endsWithPageExt(file, settings) && !file.toString().includes('?astro');
 }
 
-export function isServerLikeOutput(config: AstroConfig) {
-	return config.output === 'server' || config.output === 'hybrid';
-}
-
-export function isModeServerWithNoAdapter(settings: AstroSettings): boolean {
-	return isServerLikeOutput(settings.config) && !settings.adapter;
-}
-
-export function isContentCollectionsCacheEnabled(config: AstroConfig): boolean {
+export function isContentCollectionsCacheEnabled(settings: AstroSettings): boolean {
 	return (
-		config.experimental.contentCollectionCache &&
+		settings.config.experimental.contentCollectionCache &&
 		// contentCollectionsCache is an SSG only feature
-		!isServerLikeOutput(config)
+		settings.buildOutput !== 'server'
 	);
 }
 
