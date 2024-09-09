@@ -1,5 +1,48 @@
 # astro
 
+## 5.0.0-alpha.5
+
+### Major Changes
+
+- [#11916](https://github.com/withastro/astro/pull/11916) [`46ea29f`](https://github.com/withastro/astro/commit/46ea29f91df83ea638ecbc544ce99375538636d4) Thanks [@bluwy](https://github.com/bluwy)! - Updates how the `build.client` and `build.server` option values get resolved to match existing documentation. With this fix, the option values will now correctly resolve relative to the `outDir` option. So if `outDir` is set to `./dist/nested/`, then by default:
+
+  - `build.client` will resolve to `<root>/dist/nested/client/`
+  - `build.server` will resolve to `<root>/dist/nested/server/`
+
+  Previously the values were incorrectly resolved:
+
+  - `build.client` was resolved to `<root>/dist/nested/dist/client/`
+  - `build.server` was resolved to `<root>/dist/nested/dist/server/`
+
+  If you were relying on the previous build paths, make sure that your project code is updated to the new build paths.
+
+### Minor Changes
+
+- [#11875](https://github.com/withastro/astro/pull/11875) [`a8a3d2c`](https://github.com/withastro/astro/commit/a8a3d2cde813d891dd9c63f07f91ce4e77d4f93b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new property `isPrerendered` to the globals `Astro` and `APIContext` . This boolean value represents whether or not the current page is prerendered:
+
+  ```astro
+  ---
+  // src/pages/index.astro
+
+  export const prerender = true;
+  ---
+  ```
+
+  ```js
+  // src/middleware.js
+
+  export const onRequest = (ctx, next) => {
+    console.log(ctx.isPrerendered); // it will log true
+    return next();
+  };
+  ```
+
+### Patch Changes
+
+- [#11927](https://github.com/withastro/astro/pull/11927) [`5b4e3ab`](https://github.com/withastro/astro/commit/5b4e3abbb152146b71c1af05d33c96211000b2a6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the `env` configuration reference docs to include a full API reference for `envField`.
+
+- [#11943](https://github.com/withastro/astro/pull/11943) [`fa4671c`](https://github.com/withastro/astro/commit/fa4671ca283266092cf4f52357836d2f57817089) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates error messages that assume content collections are located in `src/content/` with more generic language
+
 ## 5.0.0-alpha.4
 
 ### Major Changes
