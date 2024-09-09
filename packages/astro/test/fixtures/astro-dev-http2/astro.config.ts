@@ -2,7 +2,7 @@ import { defineConfig } from "astro/config";
 import { readFileSync } from "fs";
 // https://astro.build/config
 export default defineConfig({
-	output: "hybrid",
+	output: "static",
   vite: {
     server: {
       https: {

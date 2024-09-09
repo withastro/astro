@@ -19,13 +19,14 @@ import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { createKey } from '../encryption.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { createRouteManifest } from '../routing/index.js';
 import { getServerIslandRouteData } from '../server-islands/endpoint.js';
 import { clearContentLayerCache } from '../sync/index.js';
-import { ensureProcessNodeEnv, isServerLikeOutput } from '../util.js';
+import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
@@ -118,11 +119,16 @@ class AstroBuilder {
 			logger: logger,
 		});
 
-		if (isServerLikeOutput(this.settings.config)) {
-			this.settings = injectImageEndpoint(this.settings, 'build');
+		this.manifest = await createRouteManifest({ settings: this.settings }, this.logger);
+
+		if (this.settings.buildOutput === 'server') {
+			injectImageEndpoint(this.settings, this.manifest, 'build');
 		}
 
-		this.manifest = createRouteManifest({ settings: this.settings }, this.logger);
+		// If we're building for the server, we need to ensure that an adapter is installed.
+		if (!this.settings.config.adapter && this.settings.buildOutput === 'server') {
+			throw new AstroError(AstroErrorData.NoAdapterInstalled);
+		}
 
 		const viteConfig = await createVite(
 			{
@@ -138,6 +144,7 @@ class AstroBuilder {
 				mode: 'build',
 				command: 'build',
 				sync: false,
+				manifest: this.manifest,
 			},
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
@@ -147,6 +154,7 @@ class AstroBuilder {
 			settings: this.settings,
 			logger,
 			fs,
+			manifest: this.manifest,
 		});
 
 		return { viteConfig };
@@ -212,7 +220,7 @@ class AstroBuilder {
 
 		// You're done! Time to clean up.
 		await runHookBuildDone({
-			config: this.settings.config,
+			settings: this.settings,
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()

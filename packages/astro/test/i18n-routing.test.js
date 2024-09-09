@@ -1755,7 +1755,7 @@ describe('[SSR] i18n routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-routing-prefix-always/',
-				output: 'hybrid',
+				output: 'static',
 				adapter: testAdapter(),
 			});
 			await fixture.build();

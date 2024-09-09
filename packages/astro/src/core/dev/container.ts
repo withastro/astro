@@ -4,7 +4,6 @@ import type { AstroSettings } from '../../types/astro.js';
 
 import nodeFs from 'node:fs';
 import * as vite from 'vite';
-import { injectImageEndpoint } from '../../assets/endpoint/config.js';
 import {
 	runHookConfigDone,
 	runHookConfigSetup,
@@ -12,9 +11,12 @@ import {
 	runHookServerStart,
 } from '../../integrations/hooks.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
+import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
+import { injectDefaultDevRoutes } from '../routing/dev-default.js';
+import { createRouteManifest } from '../routing/index.js';
 import { syncInternal } from '../sync/index.js';
 
 export interface Container {
@@ -52,8 +54,6 @@ export async function createContainer({
 		isRestart,
 	});
 
-	settings = injectImageEndpoint(settings, 'dev');
-
 	const {
 		base,
 		server: { host, headers, open: serverOpen },
@@ -81,6 +81,12 @@ export async function createContainer({
 		.map((r) => r.clientEntrypoint)
 		.filter(Boolean) as string[];
 
+	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
+	let manifest = await createRouteManifest({ settings, fsMod: fs }, logger);
+	const devSSRManifest = createDevelopmentManifest(settings);
+
+	manifest = injectDefaultDevRoutes(settings, devSSRManifest, manifest);
+
 	const viteConfig = await createVite(
 		{
 			mode: 'development',
@@ -89,8 +95,18 @@ export async function createContainer({
 				include: rendererClientEntries,
 			},
 		},
-		{ settings, logger, mode: 'dev', command: 'dev', fs, sync: false },
+		{
+			settings,
+			logger,
+			mode: 'dev',
+			command: 'dev',
+			fs,
+			sync: false,
+			manifest,
+			ssrManifest: devSSRManifest,
+		},
 	);
+
 	await runHookConfigDone({ settings, logger });
 	await syncInternal({
 		settings,
@@ -99,6 +115,7 @@ export async function createContainer({
 			content: true,
 		},
 		force: inlineConfig?.force,
+		manifest,
 	});
 
 	const viteServer = await vite.createServer(viteConfig);

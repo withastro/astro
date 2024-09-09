@@ -240,16 +240,15 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name output
-	 * @type {('static' | 'server' | 'hybrid')}
+	 * @type {('static' | 'server')}
 	 * @default `'static'`
 	 * @see adapter
 	 * @description
 	 *
 	 * Specifies the output target for builds.
 	 *
-	 * - `'static'` - Building a static site to be deployed to any static host.
-	 * - `'server'` - Building an app to be deployed to a host supporting SSR (server-side rendering).
-	 * - `'hybrid'` - Building a static site with a few server-side rendered pages.
+	 * - `'static'` - Prerender all your pages by default, outputting a completely static site if none of your pages opt out of prerendering.
+	 * - `'server'` - Use server-side rendering (SSR) for all pages by default, always outputting a server-rendered site.
 	 *
 	 * ```js
 	 * import { defineConfig } from 'astro/config';
@@ -259,7 +258,7 @@ export interface AstroUserConfig {
 	 * })
 	 * ```
 	 */
-	output?: 'static' | 'server' | 'hybrid';
+	output?: 'static' | 'server';
 
 	/**
 	 * @docs
@@ -450,7 +449,7 @@ export interface AstroUserConfig {
 	 *
 	 * Enables security measures for an Astro website.
 	 *
-	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `hybrid` mode.
+	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `static` mode.
 	 *
 	 * ```js
 	 * // astro.config.mjs
@@ -563,14 +562,14 @@ export interface AstroUserConfig {
 		 * @type {string}
 		 * @default `'./client'`
 		 * @description
-		 * Controls the output directory of your client-side CSS and JavaScript when `output: 'server'` or `output: 'hybrid'` only.
+		 * Controls the output directory of your client-side CSS and JavaScript when building a website with server-rendered pages.
 		 * `outDir` controls where the code is built to.
 		 *
 		 * This value is relative to the `outDir`.
 		 *
 		 * ```js
 		 * {
-		 *   output: 'server', // or 'hybrid'
+		 *   output: 'server',
 		 *   build: {
 		 *     client: './client'
 		 *   }
@@ -1438,7 +1437,7 @@ export interface AstroUserConfig {
 		 * @version 5.0.0
 		 * @description
 		 *
-		 * An object that uses `envField` to define the data type (`string`, `number`, or `boolean`) and properties of your environment variables: `context` (client or server), `access` (public or secret), a `default` value to use, and whether or not this environment variable is `optional` (defaults to `false`).
+		 * An object that uses `envField` to define the data type and properties of your environment variables: `context` (client or server), `access` (public or secret), a `default` value to use, and whether or not this environment variable is `optional` (defaults to `false`).
 		 * ```js
 		 * // astro.config.mjs
 		 * import { defineConfig, envField } from "astro/config"
@@ -1451,6 +1450,46 @@ export interface AstroUserConfig {
 		 *       API_SECRET: envField.string({ context: "server", access: "secret" }),
 		 *     }
 		 *   }
+		 * })
+		 * ```
+		 * 
+		 * `envField` supports four data types: string, number, enum, and boolean. `context` and `access` are required properties for all data types. The following shows the complete list of properties available for each data type:
+		 * 
+		 * ```js
+		 * import { envField } from "astro/config"
+		 * 
+		 * envField.string({
+		 *    // context & access
+		 *    optional: true,
+		 *    default: "foo",
+		 *    max: 20,
+		 *    min: 1,
+		 *    length: 13,
+		 *    url: true,
+		 *    includes: "oo",
+		 *    startsWith: "f",
+		 *    endsWith: "o",
+		 * })
+		 * envField.number({
+		 *    // context & access
+		 *    optional: true,
+		 *    default: 15,
+		 *    gt: 2,
+		 *    min: 1,
+		 *    lt: 3,
+		 *    max: 4,
+		 *    int: true,
+		 * })
+		 * envField.boolean({
+		 *    // context & access
+		 *    optional: true,
+		 *    default: true,
+		 * })
+		 * envField.enum({
+		 *    // context & access
+		 *    values: ['foo', 'bar', 'baz'], // required
+		 *    optional: true,
+		 *    default: 'baz',
 		 * })
 		 * ```
 		 */

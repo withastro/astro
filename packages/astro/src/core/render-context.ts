@@ -107,8 +107,6 @@ export class RenderContext {
 		const { cookies, middleware, pipeline } = this;
 		const { logger, serverLike, streaming, manifest } = pipeline;
 
-		const isPrerendered = !serverLike || this.routeData.prerender;
-
 		const props =
 			Object.keys(this.props).length > 0
 				? this.props
@@ -121,7 +119,7 @@ export class RenderContext {
 						serverLike,
 						base: manifest.base,
 					});
-		const apiContext = this.createAPIContext(props, isPrerendered);
+		const apiContext = this.createAPIContext(props);
 
 		this.counter++;
 		if (this.counter === 4) {
@@ -150,7 +148,12 @@ export class RenderContext {
 
 			switch (this.routeData.type) {
 				case 'endpoint': {
-					response = await renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+					response = await renderEndpoint(
+						componentInstance as any,
+						ctx,
+						this.routeData.prerender,
+						logger,
+					);
 					break;
 				}
 				case 'redirect':
@@ -208,7 +211,7 @@ export class RenderContext {
 		return response;
 	}
 
-	createAPIContext(props: APIContext['props'], isPrerendered: boolean): APIContext {
+	createAPIContext(props: APIContext['props']): APIContext {
 		const context = this.createActionAPIContext();
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
@@ -218,11 +221,6 @@ export class RenderContext {
 			redirect,
 			getActionResult: createGetActionResult(context.locals),
 			callAction: createCallAction(context),
-			// Used internally by Actions middleware.
-			// TODO: discuss exposing this information from APIContext.
-			// middleware runs on prerendered routes in the dev server,
-			// so this is useful information to have.
-			_isPrerendered: isPrerendered,
 		});
 	}
 
@@ -261,6 +259,7 @@ export class RenderContext {
 		return {
 			cookies,
 			routePattern: this.routeData.route,
+			isPrerendered: this.routeData.prerender,
 			get clientAddress() {
 				return renderContext.clientAddress();
 			},
@@ -446,6 +445,7 @@ export class RenderContext {
 			generator: astroStaticPartial.generator,
 			glob: astroStaticPartial.glob,
 			routePattern: this.routeData.route,
+			isPrerendered: this.routeData.prerender,
 			cookies,
 			get clientAddress() {
 				return renderContext.clientAddress();
