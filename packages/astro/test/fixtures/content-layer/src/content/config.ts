@@ -66,7 +66,7 @@ const cats = defineCollection({
 });
 
 // Absolute paths should also work
-const absoluteRoot = new URL('../../content-outside-src', import.meta.url);
+const absoluteRoot = new URL('../../content/space', import.meta.url);
 
 const spacecraft = defineCollection({
 	loader: glob({ pattern: '*.md', base: absoluteRoot }),
@@ -78,8 +78,24 @@ const spacecraft = defineCollection({
 			tags: z.array(z.string()),
 			heroImage: image().optional(),
 			cat: reference('cats').optional(),
-			something: z.string().optional().transform(str => ({ type: 'test', content: str }))
+			something: z
+				.string()
+				.optional()
+				.transform((str) => ({ type: 'test', content: str })),
 		}),
+});
+
+const probes = defineCollection({
+	loader: glob({ pattern: ['*.md', '!voyager-*'], base: 'src/data/space-probes' }),
+	schema: z.object({
+		name: z.string(),
+		type: z.enum(['Space Probe', 'Mars Rover', 'Comet Lander']),
+		launch_date: z.date(),
+		status: z.enum(['Active', 'Inactive', 'Decommissioned']),
+		destination: z.string(),
+		operator: z.string(),
+		notable_discoveries: z.array(z.string()),
+	}),
 });
 
 const numbers = defineCollection({
@@ -90,24 +106,25 @@ const images = defineCollection({
 	loader: () => [
 		{
 			id: '1',
-			image: '@images/shuttle.jpg'
+			image: '@images/shuttle.jpg',
 		},
 		{
 			id: '2',
-			image: 'https://images.unsplash.com/photo-1457364887197-9150188c107b?w=800&fm=jpg&fit=crop'
-		}
+			image: 'https://images.unsplash.com/photo-1457364887197-9150188c107b?w=800&fm=jpg&fit=crop',
+		},
 	],
-	schema: ({image}) => z.object({
-		id: z.string(),
-		image: image()
-	})
+	schema: ({ image }) =>
+		z.object({
+			id: z.string(),
+			image: image(),
+		}),
 });
 
 const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
 		load: async ({ store }) => {
-			const entry = store.get<{lastValue: number}>('value');
+			const entry = store.get<{ lastValue: number }>('value');
 			const lastValue = entry?.data.lastValue ?? 0;
 			store.set({
 				id: 'value',
@@ -118,12 +135,12 @@ const increment = defineCollection({
 			});
 		},
 		// Example of a loader that returns an async schema function
-		schema: async () => z.object({
-			lastValue: z.number(),
-			lastUpdated: z.date(),
-
-		}),
+		schema: async () =>
+			z.object({
+				lastValue: z.number(),
+				lastUpdated: z.date(),
+			}),
 	},
 });
 
-export const collections = { blog, dogs, cats, numbers, spacecraft, increment, images };
+export const collections = { blog, dogs, cats, numbers, spacecraft, increment, images, probes };

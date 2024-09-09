@@ -236,13 +236,17 @@ export function glob(globOptions: GlobOptions): Loader {
 			const skipCount = skippedFiles.length;
 
 			if (skipCount > 0) {
+				const patternList = Array.isArray(globOptions.pattern)
+					? globOptions.pattern.join(', ')
+					: globOptions.pattern;
+
 				logger.warn(`The glob() loader cannot be used for files in ${bold('src/content')}.`);
 				if (skipCount > 10) {
 					logger.warn(
-						`Skipped ${green(skippedFiles.length)} files that matched ${green(globOptions.pattern)}.`,
+						`Skipped ${green(skippedFiles.length)} files that matched ${green(patternList)}.`,
 					);
 				} else {
-					logger.warn(`Skipped the following files that matched ${green(globOptions.pattern)}:`);
+					logger.warn(`Skipped the following files that matched ${green(patternList)}:`);
 					skippedFiles.forEach((file) => logger.warn(`• ${green(file)}`));
 				}
 			}
@@ -254,8 +258,8 @@ export function glob(globOptions: GlobOptions): Loader {
 				return;
 			}
 
-
-			const matchesGlob = (entry: string) => !entry.startsWith('../') && micromatch.isMatch(entry, globOptions.pattern);
+			const matchesGlob = (entry: string) =>
+				!entry.startsWith('../') && micromatch.isMatch(entry, globOptions.pattern);
 
 			const basePath = fileURLToPath(baseDir);
 

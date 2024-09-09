@@ -83,6 +83,13 @@ describe('Content Layer', () => {
 			]);
 		});
 
+		it('handles negative matches in glob() loader', async () => {
+			assert.ok(json.hasOwnProperty('probes'));
+			assert.ok(Array.isArray(json.probes));
+			assert.equal(json.probes.length, 5);
+			assert.equal(json.probes.at(-1).id, 'philae-lander', 'Voyager probes should not be included');
+		});
+
 		it('Returns data entry by id', async () => {
 			assert.ok(json.hasOwnProperty('dataEntry'));
 			assert.equal(json.dataEntry.filePath?.split(sep).join(posixSep), 'src/data/dogs.json');
