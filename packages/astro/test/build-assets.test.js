@@ -148,11 +148,13 @@ describe('build assets (server)', () => {
 					assets: 'custom-assets',
 					inlineStylesheets: 'never',
 				},
-				adapter: testAdapter({extendAdapter: {
-					adapterFeatures: {
-						forceServerOutput: false,
-					}
-				}}),
+				adapter: testAdapter({
+					extendAdapter: {
+						adapterFeatures: {
+							forceServerOutput: false,
+						},
+					},
+				}),
 			});
 			await fixture.build();
 		});
