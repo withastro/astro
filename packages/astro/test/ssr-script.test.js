@@ -28,10 +28,6 @@ describe('Inline scripts in SSR', () => {
 			fixture = await loadFixture({
 				...defaultFixtureOptions,
 				outDir: './dist/inline-scripts-without-base-path',
-				build: {
-					client: './dist/inline-scripts-without-base-path/client',
-					server: './dist/inline-scripts-without-base-path/server',
-				},
 			});
 			await fixture.build();
 		});
@@ -50,10 +46,6 @@ describe('Inline scripts in SSR', () => {
 			fixture = await loadFixture({
 				...defaultFixtureOptions,
 				outDir: './dist/inline-scripts-with-base-path',
-				build: {
-					client: './dist/inline-scripts-with-base-path/client',
-					server: './dist/inline-scripts-with-base-path/server',
-				},
 				base,
 			});
 			await fixture.build();
@@ -76,10 +68,6 @@ describe('External scripts in SSR', () => {
 			fixture = await loadFixture({
 				...defaultFixtureOptions,
 				outDir: './dist/external-scripts-without-base-path',
-				build: {
-					client: './dist/external-scripts-without-base-path/client',
-					server: './dist/external-scripts-without-base-path/server',
-				},
 				vite: {
 					build: {
 						assetsInlineLimit: 0,
@@ -101,10 +89,6 @@ describe('External scripts in SSR', () => {
 			fixture = await loadFixture({
 				...defaultFixtureOptions,
 				outDir: './dist/external-scripts-with-base-path',
-				build: {
-					client: './dist/external-scripts-with-base-path/client',
-					server: './dist/external-scripts-with-base-path/server',
-				},
 				vite: {
 					build: {
 						assetsInlineLimit: 0,
@@ -128,8 +112,6 @@ describe('External scripts in SSR', () => {
 				...defaultFixtureOptions,
 				outDir: './dist/with-assets-prefix',
 				build: {
-					client: './dist/with-assets-prefix/client',
-					server: './dist/with-assets-prefix/server',
 					assetsPrefix: 'https://cdn.example.com',
 				},
 				vite: {
@@ -153,10 +135,6 @@ describe('External scripts in SSR', () => {
 			fixture = await loadFixture({
 				...defaultFixtureOptions,
 				outDir: './dist/with-rollup-output-file-names',
-				build: {
-					client: './dist/with-rollup-output-file-names/client',
-					server: './dist/with-rollup-output-file-names/server',
-				},
 				vite: {
 					build: {
 						assetsInlineLimit: 0,
@@ -185,10 +163,6 @@ describe('External scripts in SSR', () => {
 			fixture = await loadFixture({
 				...defaultFixtureOptions,
 				outDir: './dist/with-rollup-output-file-names-and-base',
-				build: {
-					client: './dist/with-rollup-output-file-names-and-base/client',
-					server: './dist/with-rollup-output-file-names-and-base/server',
-				},
 				vite: {
 					build: {
 						assetsInlineLimit: 0,
@@ -219,8 +193,6 @@ describe('External scripts in SSR', () => {
 				...defaultFixtureOptions,
 				outDir: './dist/with-rollup-output-file-names-and-assets-prefix',
 				build: {
-					client: './dist/with-rollup-output-file-names-and-assets-prefix/client',
-					server: './dist/with-rollup-output-file-names-and-assets-prefix/server',
 					assetsPrefix: 'https://cdn.example.com',
 				},
 				vite: {
