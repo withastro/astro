@@ -205,6 +205,12 @@ class AstroBuilder {
 		};
 
 		const { internals, ssrOutputChunkNames, contentFileNames } = await viteBuild(opts);
+
+		// Error if there are server islands but no adapter provided.
+		if(this.settings.serverIslandNameMap.size && !this.settings.adapter) {
+			throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
+		}
+
 		await staticBuild(opts, internals, ssrOutputChunkNames, contentFileNames);
 
 		// Write any additionally generated assets to disk.
@@ -225,11 +231,7 @@ class AstroBuilder {
 			routes: Object.values(allPages)
 				.flat()
 				.map((pageData) => pageData.route)
-				.concat(
-					this.settings.config.experimental.serverIslands
-						? [getServerIslandRouteData(this.settings.config)]
-						: [],
-				),
+				.concat(getServerIslandRouteData(this.settings.config)),
 			logging: this.logger,
 			cacheManifest: internals.cacheManifestUsed,
 		});

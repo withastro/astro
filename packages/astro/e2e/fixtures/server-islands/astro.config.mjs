@@ -10,7 +10,4 @@ export default defineConfig({
 	adapter: nodejs({ mode: 'standalone' }),
 	integrations: [react(), mdx()],
 	trailingSlash: process.env.TRAILING_SLASH ?? 'always',
-	experimental: {
-		serverIslands: true,
-	}
 });
