@@ -6,7 +6,7 @@ import matter from 'gray-matter';
 import type { PluginContext } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
-import { z } from 'zod';
+import { z, ZodDiscriminatedUnion, ZodEffects, ZodObject, type ZodTypeAny } from 'zod';
 import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
@@ -23,6 +23,8 @@ import {
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
 import { createImage } from './runtime-assets.js';
+import { glob, type GenerateIdOptions } from './loaders/glob.js';
+import { appendForwardSlash } from '../core/path.js';
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
@@ -67,24 +69,23 @@ const collectionConfigParser = z.union([
 			),
 			z.object({
 				name: z.string(),
-				load: z.function(
-					z.tuple(
-						[
-							z.object({
-								collection: z.string(),
-								store: z.any(),
-								meta: z.any(),
-								logger: z.any(),
-								config: z.any(),
-								entryTypes: z.any(),
-								parseData: z.any(),
-								generateDigest: z.function(z.tuple([z.any()], z.string())),
-								watcher: z.any().optional(),
-							}),
-						],
-						z.unknown(),
-					),
-				),
+				load: z
+					.function()
+					.args(
+						z.object({
+							collection: z.string(),
+							store: z.any(),
+							meta: z.any(),
+							logger: z.any(),
+							config: z.any(),
+							entryTypes: z.any(),
+							parseData: z.any(),
+							generateDigest: z.function(z.tuple([z.any()], z.string())),
+							watcher: z.any().optional(),
+						}),
+					)
+					.returns(z.promise(z.void())),
+
 				schema: z.any().optional(),
 				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
 			}),
@@ -508,6 +509,112 @@ async function loadContentConfig({
 	}
 }
 
+function generateLegacyId({ entry, base }: GenerateIdOptions): string {
+	const entryURL = new URL(entry, base);
+	const { id } = getContentEntryIdAndSlug({
+		entry: entryURL,
+		contentDir: base,
+		collection: '',
+	});
+	return id;
+}
+
+function extendSchema<T extends ZodTypeAny>(
+	schema: T,
+	newFields: z.ZodRawShape,
+): ZodObject<any> | ZodEffects<any> | ZodDiscriminatedUnion<any, any> {
+	// If the schema is a ZodEffects, extract the inner schema
+	if (schema instanceof ZodEffects) {
+		const innerSchema = schema._def.schema;
+
+		if (innerSchema instanceof ZodObject) {
+			// Extend the inner object schema and reapply the effects
+			const extendedSchema = innerSchema.extend(newFields);
+			return new ZodEffects({
+				...schema._def, // keep the existing effects
+				schema: extendedSchema, // apply effects to the extended schema
+			});
+		}
+	}
+
+	// If the schema is a ZodObject, extend it directly
+	if (schema instanceof ZodObject) {
+		return schema.extend(newFields);
+	}
+
+	// If the schema is a ZodDiscriminatedUnion, extend the inner schemas
+	if (schema instanceof ZodDiscriminatedUnion) {
+		const innerSchema = schema._def.schema;
+		const extendedSchema = innerSchema.extend(newFields);
+		return new ZodDiscriminatedUnion({
+			...schema._def,
+			schemas: [extendedSchema],
+		});
+	}
+
+	// If the schema is neither a ZodObject nor a ZodEffects containing a ZodObject, throw an error
+	throw new Error('Schema is neither ZodObject nor ZodEffects containing a ZodObject.');
+}
+
+export async function autogenerateCollections({
+	config,
+	settings,
+	fs,
+}: {
+	config?: ContentConfig;
+	settings: AstroSettings;
+	fs: typeof fsMod;
+}): Promise<ContentConfig | undefined> {
+	if (!settings.config.experimental.emulateLegacyCollections) {
+		return config;
+	}
+	const contentDir = new URL('./content/', settings.config.srcDir);
+	// Find all directories in the content directory
+	const collectionDirs = await fs.promises.readdir(contentDir, { withFileTypes: true });
+
+	const collections: Record<string, CollectionConfig> = config?.collections ?? {};
+
+	const contentExts = getContentEntryExts(settings);
+	const dataExts = getDataEntryExts(settings);
+
+	const contentPattern = globWithUnderscoresIgnored('', contentExts);
+	const dataPattern = globWithUnderscoresIgnored('', dataExts);
+	for (const dir of collectionDirs) {
+		if (!dir.isDirectory() || dir.name.startsWith('_')) {
+			continue;
+		}
+		const collectionName = dir.name;
+		if (collections[collectionName]?.type === 'content_layer') {
+			// This is already a content layer, skip
+			continue;
+		}
+
+		let schema = (collections[collectionName]?.schema as ZodTypeAny) ?? z.object({}).passthrough();
+		schema = extendSchema(schema, {
+			slug: z.string(),
+		});
+		schema = schema.transform((val) => {
+			return {
+				...val,
+				slug: (val.slug ?? val.id) as string,
+			};
+		});
+
+		collections[collectionName] = {
+			...collections[collectionName],
+			type: 'content_layer',
+			loader: glob({
+				base: new URL(collectionName, contentDir),
+				pattern: collections[collectionName]?.type === 'data' ? dataPattern : contentPattern,
+				generateId: generateLegacyId,
+				// Zod weirdness has trouble with typing the args to the load function
+			}) as any,
+			schema,
+		};
+	}
+	return { ...config, collections };
+}
+
 export async function reloadContentConfigObserver({
 	observer = globalContentConfigObserver,
 	...loadContentConfigOpts
@@ -519,7 +626,15 @@ export async function reloadContentConfigObserver({
 }) {
 	observer.set({ status: 'loading' });
 	try {
-		const config = await loadContentConfig(loadContentConfigOpts);
+		let config = await loadContentConfig(loadContentConfigOpts);
+
+		if (loadContentConfigOpts.settings.config.experimental.emulateLegacyCollections) {
+			config = await autogenerateCollections({
+				config,
+				...loadContentConfigOpts,
+			});
+		}
+
 		if (config) {
 			observer.set({ status: 'loaded', config });
 		} else {
@@ -655,6 +770,16 @@ export function hasAssetPropagationFlag(id: string): boolean {
 	} catch {
 		return false;
 	}
+}
+
+export function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
+	const extGlob = getExtGlob(exts);
+	const contentDir = relContentDir.length > 0 ? appendForwardSlash(relContentDir) : relContentDir;
+	return [
+		`${contentDir}**/*${extGlob}`,
+		`!${contentDir}**/_*/**/*${extGlob}`,
+		`!${contentDir}**/_*${extGlob}`,
+	];
 }
 
 /**

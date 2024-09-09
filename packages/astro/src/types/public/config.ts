@@ -1687,6 +1687,11 @@ export interface AstroUserConfig {
 		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
 		 */
 		contentIntellisense?: boolean;
+
+		/**
+		 * Emulate legacy content collection behavior using glob loader
+		 */
+		emulateLegacyCollections?: boolean;
 	};
 }
 
