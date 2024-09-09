@@ -2,9 +2,9 @@
 'astro': patch
 ---
 
-Adds support for array patterns in glob loader
+Adds support for array patterns in the built-in `glob()` content collections loader
 
-The glob loader can now accept an array of multiple patterns as well as string patterns. This allows you to more easily combine multiple patterns into a single collection, but also means you can use negative matches to exclude files from the collection.
+The glob loader can now accept an array of multiple patterns as well as string patterns. This allows you to more easily combine multiple patterns into a single collection, and also means you can use negative matches to exclude files from the collection.
 
 ```ts
 const probes = defineCollection({
