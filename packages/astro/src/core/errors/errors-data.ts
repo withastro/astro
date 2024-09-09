@@ -1447,7 +1447,7 @@ export const GetEntryDeprecationError = {
  * "title" is required.<br/>
  * "date" must be a valid date.
  * @description
- * A Markdown or MDX entry in `src/content/` does not match its collection schema.
+ * A Markdown or MDX entry does not match its collection schema.
  * Make sure that all required fields are present, and that all fields are of the correct type.
  * You can check against the collection schema in your `src/content/config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
@@ -1471,7 +1471,7 @@ export const InvalidContentEntryFrontmatterError = {
  * @see
  * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
  * @description
- * An entry in `src/content/` has an invalid `slug`. This field is reserved for generating entry slugs, and must be a string when present.
+ * A collection entry has an invalid `slug`. This field is reserved for generating entry slugs, and must be a string when present.
  */
 export const InvalidContentEntrySlugError = {
 	name: 'InvalidContentEntrySlugError',
