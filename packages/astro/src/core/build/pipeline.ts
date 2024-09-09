@@ -16,7 +16,6 @@ import { Pipeline } from '../render/index.js';
 import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
-import { isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
 import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
@@ -39,8 +38,7 @@ export class BuildPipeline extends Pipeline {
 	#routesByFilePath: WeakMap<RouteData, string> = new WeakMap<RouteData, string>();
 
 	get outFolder() {
-		const ssr = isServerLikeOutput(this.settings.config);
-		return ssr
+		return this.settings.buildOutput === 'server'
 			? this.settings.config.build.server
 			: getOutDirWithinCwd(this.settings.config.outDir);
 	}
@@ -74,7 +72,7 @@ export class BuildPipeline extends Pipeline {
 			return assetLink;
 		}
 
-		const serverLike = isServerLikeOutput(config);
+		const serverLike = settings.buildOutput === 'server';
 		// We can skip streaming in SSG for performance as writing as strings are faster
 		const streaming = serverLike;
 		super(
@@ -113,8 +111,7 @@ export class BuildPipeline extends Pipeline {
 		staticBuildOptions: StaticBuildOptions,
 		internals: BuildInternals,
 	): Promise<SSRManifest> {
-		const config = staticBuildOptions.settings.config;
-		const baseDirectory = getOutputDirectory(config);
+		const baseDirectory = getOutputDirectory(staticBuildOptions.settings);
 		const manifestEntryUrl = new URL(
 			`${internals.manifestFileName}?time=${Date.now()}`,
 			baseDirectory,

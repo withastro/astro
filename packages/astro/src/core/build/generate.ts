@@ -35,7 +35,7 @@ import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
-import { getOutputFilename, isServerLikeOutput } from '../util.js';
+import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { cssOrder, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
@@ -49,12 +49,12 @@ import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
-	const ssr = isServerLikeOutput(options.settings.config);
+	const ssr = options.settings.buildOutput === 'server';
 	let manifest: SSRManifest;
 	if (ssr) {
 		manifest = await BuildPipeline.retrieveManifest(options, internals);
 	} else {
-		const baseDirectory = getOutputDirectory(options.settings.config);
+		const baseDirectory = getOutputDirectory(options.settings);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
 		let middleware: MiddlewareHandler = (_, next) => next();
@@ -138,7 +138,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
 
-	await runHookBuildGenerated({ config, logger });
+	await runHookBuildGenerated({ settings: options.settings, logger });
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
@@ -466,7 +466,7 @@ async function generatePath(
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	const outFolder = getOutFolder(config, pathname, route);
+	const outFolder = getOutFolder(pipeline.settings, pathname, route);
 	const outFile = getOutFile(config, outFolder, pathname, route);
 	route.distURL = outFile;
 

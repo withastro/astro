@@ -1,20 +1,17 @@
 import { extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { Logger } from '../core/logger/core.js';
-import { isEndpoint, isPage, isServerLikeOutput } from '../core/util.js';
+import { isEndpoint, isPage } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
-import { runHookRouteSetup } from '../integrations/hooks.js';
-import { getPrerenderDefault } from '../prerender/utils.js';
-import type { AstroSettings } from '../types/astro.js';
-import type { RouteOptions } from '../types/public/integrations.js';
-import type { PageOptions } from '../vite-plugin-astro/types.js';
-import { scan } from './scan.js';
+import type { AstroSettings, ManifestData } from '../types/astro.js';
 
 export interface AstroPluginScannerOptions {
 	settings: AstroSettings;
 	logger: Logger;
+	manifest: ManifestData;
 }
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
@@ -22,6 +19,7 @@ const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
 export default function astroScannerPlugin({
 	settings,
 	logger,
+	manifest,
 }: AstroPluginScannerOptions): VitePlugin {
 	return {
 		name: 'astro:scanner',
@@ -42,12 +40,19 @@ export default function astroScannerPlugin({
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			const pageOptions = await getPageOptions(code, id, fileURL, settings, logger);
+
+			const route = manifest.routes.find((r) => {
+				const filePath = new URL(`./${r.component}`, settings.config.root);
+				return normalizePath(fileURLToPath(filePath)) === filename;
+			});
+
+			if (!route) {
+				return;
+			}
 
 			// `getStaticPaths` warning is just a string check, should be good enough for most cases
 			if (
-				!pageOptions.prerender &&
-				isServerLikeOutput(settings.config) &&
+				!route.prerender &&
 				code.includes('getStaticPaths') &&
 				// this should only be valid for `.astro`, `.js` and `.ts` files
 				KNOWN_FILE_EXTENSIONS.includes(extname(filename))
@@ -68,36 +73,12 @@ export default function astroScannerPlugin({
 					...meta,
 					astro: {
 						...(meta.astro ?? { hydratedComponents: [], clientOnlyComponents: [], scripts: [] }),
-						pageOptions,
+						pageOptions: {
+							prerender: route.prerender,
+						},
 					},
 				},
 			};
 		},
 	};
-}
-
-async function getPageOptions(
-	code: string,
-	id: string,
-	fileURL: URL,
-	settings: AstroSettings,
-	logger: Logger,
-): Promise<PageOptions> {
-	// Run initial scan
-	const pageOptions = await scan(code, id, settings);
-
-	// Run integration hooks to alter page options
-	const route: RouteOptions = {
-		component: rootRelativePath(settings.config.root, fileURL, false),
-		prerender: pageOptions.prerender,
-	};
-	await runHookRouteSetup({ route, settings, logger });
-	pageOptions.prerender = route.prerender;
-
-	// Fallback if unset
-	if (typeof pageOptions.prerender === 'undefined') {
-		pageOptions.prerender = getPrerenderDefault(settings.config);
-	}
-
-	return pageOptions;
 }

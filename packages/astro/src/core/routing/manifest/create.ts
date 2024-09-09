@@ -6,7 +6,9 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
+import pLimit from 'p-limit';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
+import { runHookRouteSetup } from '../../../integrations/hooks.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RouteData, RoutePart } from '../../../types/public/internal.js';
@@ -278,13 +280,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 
 	for (const injectedRoute of settings.injectedRoutes) {
 		const { pattern: name, entrypoint, prerender: prerenderInjected } = injectedRoute;
-		let resolved: string;
-		try {
-			resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
-		} catch {
-			resolved = fileURLToPath(new URL(entrypoint, config.root));
-		}
-		const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
+		const { resolved, component } = resolveInjectedRoute(entrypoint, config.root, cwd);
 
 		const segments = removeLeadingForwardSlash(name)
 			.split(path.posix.sep)
@@ -478,10 +474,10 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 }
 
 /** Create manifest of all static routes */
-export function createRouteManifest(
+export async function createRouteManifest(
 	params: CreateRouteManifestParams,
 	logger: Logger,
-): ManifestData {
+): Promise<ManifestData> {
 	const { settings } = params;
 	const { config } = settings;
 	// Create a map of all routes so redirects can refer to any route
@@ -502,6 +498,18 @@ export function createRouteManifest(
 	const routes: RouteData[] = [
 		...[...fileBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
 	];
+
+	settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
+
+	// Check the prerender option for each route
+	const limit = pLimit(10);
+	let promises = [];
+	for (const route of routes) {
+		promises.push(
+			limit(async () => await getRoutePrerenderOption(route, settings, params.fsMod, logger)),
+		);
+	}
+	await Promise.all(promises);
 
 	// Report route collisions
 	for (const [index, higherRoute] of routes.entries()) {
@@ -703,6 +711,49 @@ export function createRouteManifest(
 
 	return {
 		routes,
+	};
+}
+
+async function getRoutePrerenderOption(
+	route: RouteData,
+	settings: AstroSettings,
+	fsMod: typeof nodeFs | undefined,
+	logger: Logger,
+) {
+	if (route.type !== 'page' && route.type !== 'endpoint') return;
+	const localFs = fsMod ?? nodeFs;
+	const content = await localFs.promises.readFile(
+		fileURLToPath(new URL(route.component, settings.config.root)),
+		'utf-8',
+	);
+
+	// Check if the route is pre-rendered or not
+	const match = /^\s*export\s+const\s+prerender\s*=\s*(true|false);?/m.exec(content);
+	if (match) {
+		route.prerender = match[1] === 'true';
+	}
+
+	await runHookRouteSetup({ route, settings, logger });
+
+	// If not explicitly set, default to the global setting
+	if (typeof route.prerender === undefined) {
+		route.prerender = getPrerenderDefault(settings.config);
+	}
+
+	if (!route.prerender) settings.buildOutput = 'server';
+}
+
+export function resolveInjectedRoute(entrypoint: string, root: URL, cwd?: string) {
+	let resolved;
+	try {
+		resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(root)] });
+	} catch {
+		resolved = fileURLToPath(new URL(entrypoint, root));
+	}
+
+	return {
+		resolved: resolved,
+		component: slash(path.relative(cwd || fileURLToPath(root), resolved)),
 	};
 }
 
