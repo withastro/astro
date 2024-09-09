@@ -27,10 +27,11 @@ export default (element) =>
 				props,
 				slots,
 			};
-			appInstance.app = bootstrap({
+			const app = bootstrap({
 				name,
 				render() {
 					let content = h(Component, appInstance.props, appInstance.slots);
+					appInstance.component = this;
 					// related to https://github.com/withastro/astro/issues/6549
 					// if the component is async, wrap it in a Suspense component
 					if (isAsync(Component.setup)) {
@@ -39,13 +40,13 @@ export default (element) =>
 					return content;
 				},
 			});
-			await setup(appInstance.app);
-			appInstance.app.mount(element, isHydrate);
+			await setup(app);
+			app.mount(element, isHydrate);
 			appMap.set(element, appInstance);
 		} else {
 			appInstance.props = props;
 			appInstance.slots = slots;
-			appInstance.app._instance.proxy.$forceUpdate();
+			appInstance.component.$forceUpdate();
 		}
 		element.addEventListener('astro:unmount', () => app.unmount(), { once: true });
 	};
