@@ -43,7 +43,7 @@ test.describe('Custom Client Directives - build server', () => {
 			adapter: testAdapter({
 				extendAdapter: {
 					adapterFeatures: {
-						forceServerOutput: false,
+						buildOutput: 'static',
 					},
 				},
 			}),
