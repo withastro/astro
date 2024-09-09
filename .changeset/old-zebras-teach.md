@@ -13,7 +13,7 @@ To update your project to Astro's recommended TypeScript settings, please add th
 ```diff
 {
     "extends": "astro/tsconfigs/base",
-+    "include": ["**/*", ".astro/types.d.ts"],
++    "include": [".astro/types.d.ts", "**/*"],
 +    "exclude": ["dist"]
 }
 ```

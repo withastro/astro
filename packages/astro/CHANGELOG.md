@@ -15,7 +15,7 @@
   ```diff
   {
       "extends": "astro/tsconfigs/base",
-  +    "include": ["**/*", ".astro/types.d.ts"],
+  +    "include": [".astro/types.d.ts", "**/*"],
   +    "exclude": ["dist"]
   }
   ```
