@@ -32,7 +32,7 @@ export const server = {
     input: z.object({
       id: z.number()
     }),
-    handler: async ({ id }, context) => {
+    handler: async ({ id }) => {
       const todo = await db.select().from(Todo).where(eq(Todo.id, id)).get();
       if (!todo) {
         throw new Error("Id not found.");
