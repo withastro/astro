@@ -37,7 +37,7 @@ export default async function createStaticPreviewServer(
 				headers: settings.config.server.headers,
 				open: settings.config.server.open,
 			},
-			plugins: [vitePluginAstroPreview(settings)],
+			plugins: [vitePluginAstroPreview(settings, logger)],
 		});
 	} catch (err) {
 		if (err instanceof Error) {

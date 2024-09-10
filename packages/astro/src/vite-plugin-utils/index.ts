@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import path from 'node:path'
+import path from 'node:path';
 import ancestor from 'common-ancestor-path';
 import {
 	appendExtension,
@@ -8,6 +8,8 @@ import {
 } from '../core/path.js';
 import { viteID } from '../core/util.js';
 import type { AstroConfig } from '../types/public/config.js';
+
+export { trailingSlashMiddleware } from './trailing-slash-middleware.js';
 
 export function getFileInfo(id: string, config: AstroConfig) {
 	const sitePathname = appendForwardSlash(
