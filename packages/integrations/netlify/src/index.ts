@@ -240,7 +240,12 @@ export default function netlifyIntegration(
 	async function writeSSRFunction({
 		notFoundContent,
 		logger,
-	}: { notFoundContent?: string; logger: AstroIntegrationLogger }) {
+		root,
+	}: {
+		notFoundContent?: string;
+		logger: AstroIntegrationLogger;
+		root: URL;
+	}) {
 		const entry = new URL('./entry.mjs', ssrBuildDir());
 
 		const { handler } = await copyDependenciesToFunction(
@@ -250,6 +255,7 @@ export default function netlifyIntegration(
 				includeFiles: [],
 				excludeFiles: [],
 				logger,
+				root,
 			},
 			TRACE_CACHE
 		);
@@ -484,7 +490,7 @@ export default function netlifyIntegration(
 					try {
 						notFoundContent = await readFile(new URL('./404.html', dir), 'utf8');
 					} catch {}
-					await writeSSRFunction({ notFoundContent, logger });
+					await writeSSRFunction({ notFoundContent, logger, root: _config.root });
 					logger.info('Generated SSR Function');
 				}
 				if (astroMiddlewareEntryPoint) {

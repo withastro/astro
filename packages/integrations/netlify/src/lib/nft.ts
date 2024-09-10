@@ -1,7 +1,9 @@
 import { posix, relative, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { copyFilesToFolder } from '@astrojs/internal-helpers/fs';
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { AstroIntegrationLogger } from 'astro';
+import { searchForWorkspaceRoot } from 'vite';
 
 // Based on the equivalent function in `@astrojs/vercel`
 export async function copyDependenciesToFunction(
@@ -11,12 +13,14 @@ export async function copyDependenciesToFunction(
 		includeFiles,
 		excludeFiles,
 		logger,
+		root,
 	}: {
 		entry: URL;
 		outDir: URL;
 		includeFiles: URL[];
 		excludeFiles: URL[];
 		logger: AstroIntegrationLogger;
+		root: URL;
 	},
 	// we want to pass the caching by reference, and not by value
 	cache: object
@@ -24,11 +28,8 @@ export async function copyDependenciesToFunction(
 	const entryPath = fileURLToPath(entry);
 	logger.info(`Bundling function ${relative(fileURLToPath(outDir), entryPath)}`);
 
-	// Get root of folder of the system (like C:\ on Windows or / on Linux)
-	let base = entry;
-	while (fileURLToPath(base) !== fileURLToPath(new URL('../', base))) {
-		base = new URL('../', base);
-	}
+	// Set the base to the workspace root
+	const base = pathToFileURL(appendForwardSlash(searchForWorkspaceRoot(fileURLToPath(root))));
 
 	// The Vite bundle includes an import to `@vercel/nft` for some reason,
 	// and that trips up `@vercel/nft` itself during the adapter build. Using a
@@ -37,9 +38,6 @@ export async function copyDependenciesToFunction(
 	const { nodeFileTrace } = await import('@vercel/nft');
 	const result = await nodeFileTrace([entryPath], {
 		base: fileURLToPath(base),
-		// If you have a route of /dev this appears in source and NFT will try to
-		// scan your local /dev :8
-		ignore: ['/dev/**'],
 		cache,
 	});
 

@@ -35,7 +35,8 @@
     "@astrojs/underscore-redirects": "^0.3.4",
     "@netlify/functions": "^2.8.0",
     "@vercel/nft": "^0.27.4",
-    "esbuild": "^0.21.5"
+    "esbuild": "^0.21.5",
+    "vite": "^5.4.2"
   },
   "peerDependencies": {
     "astro": "^4.2.0"
@@ -51,8 +52,7 @@
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
     "strip-ansi": "^7.1.0",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.3"
+    "typescript": "^5.5.4"
   },
   "astro": {
     "external": true
