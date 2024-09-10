@@ -11,17 +11,17 @@ describe('Content Collections - data collections', () => {
 
 	describe('Translations Collection', () => {
 		it('Generates schema file', async () => {
-			const schemaExists = await fixture.pathExists('../.astro/collections/i18n.schema.json');
+			const schemaExists = await fixture.pathExists('../.astro/astro/collections/i18n.schema.json');
 			assert.equal(schemaExists, true);
 		});
 
 		it('Generates schema file when the schema is a function', async () => {
-			const schemaExists = await fixture.pathExists('../.astro/collections/func.schema.json');
+			const schemaExists = await fixture.pathExists('../.astro/astro/collections/func.schema.json');
 			assert.equal(schemaExists, true);
 		});
 
 		it('Generates valid schema file', async () => {
-			const rawJson = await fixture.readFile('../.astro/collections/i18n.schema.json');
+			const rawJson = await fixture.readFile('../.astro/astro/collections/i18n.schema.json');
 			assert.deepEqual(
 				JSON.stringify({
 					$ref: '#/definitions/i18n',
@@ -57,12 +57,12 @@ describe('Content Collections - data collections', () => {
 		});
 
 		it('Generates schema file when the schema uses the image function', async () => {
-			const schemaExists = await fixture.pathExists('../.astro/collections/image.schema.json');
+			const schemaExists = await fixture.pathExists('../.astro/astro/collections/image.schema.json');
 			assert.equal(schemaExists, true);
 		});
 
 		it('Generates valid schema file for an image', async () => {
-			const rawJson = await fixture.readFile('../.astro/collections/image.schema.json');
+			const rawJson = await fixture.readFile('../.astro/astro/collections/image.schema.json');
 			assert.deepEqual(
 				JSON.stringify({
 					$ref: '#/definitions/image',

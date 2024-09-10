@@ -16,8 +16,8 @@ describe('Content Intellisense', () => {
 		fixture = await loadFixture({ root: './fixtures/content-intellisense/' });
 		await fixture.build();
 
-		collectionsDir = await fixture.readdir('../.astro/collections');
-		manifest = JSON.parse(await fixture.readFile('../.astro/collections/collections.json'));
+		collectionsDir = await fixture.readdir('../.astro/astro/collections');
+		manifest = JSON.parse(await fixture.readFile('../.astro/astro/collections/collections.json'));
 	});
 
 	it('generate JSON schemas for content collections', async () => {
