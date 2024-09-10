@@ -1,5 +1,74 @@
 # astro
 
+## 5.0.0-alpha.6
+
+### Major Changes
+
+- [#11941](https://github.com/withastro/astro/pull/11941) [`b6a5f39`](https://github.com/withastro/astro/commit/b6a5f39846581d0e9cfd7ae6f056c8d1209f71bd) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Merges the `output: 'hybrid'` and `output: 'static'` configurations into one single configuration (now called `'static'`) that works the same way as the previous `hybrid` option.
+
+  It is no longer necessary to specify `output: 'hybrid'` in your Astro config to use server-rendered pages. The new `output: 'static'` has this capability included. Astro will now automatically provide the ability to opt out of prerendering in your static site with no change to your `output` configuration required. Any page route or endpoint can include `export const prerender = false` to be server-rendered, while the rest of your site is statically-generated.
+
+  If your project used hybrid rendering, you must now remove the `output: 'hybrid'` option from your Astro config as it no longer exists. However, no other changes to your project are required, and you should have no breaking changes. The previous `'hybrid'` behavior is now the default, under a new name `'static'`.
+
+  If you were using the `output: 'static'` (default) option, you can continue to use it as before. By default, all of your pages will continue to be prerendered and you will have a completely static site. You should have no breaking changes to your project.
+
+  ```diff
+  import { defineConfig } from "astro/config";
+
+  export default defineConfig({
+  -  output: 'hybrid',
+  });
+  ```
+
+  An adapter is still required to deploy an Astro project with any server-rendered pages. Failure to include an adapter will result in a warning in development and an error at build time.
+
+### Minor Changes
+
+- [#11941](https://github.com/withastro/astro/pull/11941) [`b6a5f39`](https://github.com/withastro/astro/commit/b6a5f39846581d0e9cfd7ae6f056c8d1209f71bd) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adapters can now specify the build output type they're intended for using the `adapterFeatures.buildOutput` property. This property can be used to always generate a server output, even if the project doesn't have any server-rendered pages.
+
+  ```ts
+  {
+    'astro:config:done': ({ setAdapter, config }) => {
+      setAdapter({
+        name: 'my-adapter',
+        adapterFeatures: {
+          buildOutput: 'server',
+        },
+      });
+    },
+  }
+  ```
+
+  If your adapter specifies `buildOutput: 'static'`, and the user's project contains server-rendered pages, Astro will warn in development and error at build time. Note that a hybrid output, containing both static and server-rendered pages, is considered to be a `server` output, as a server is required to serve the server-rendered pages.
+
+- [#11941](https://github.com/withastro/astro/pull/11941) [`b6a5f39`](https://github.com/withastro/astro/commit/b6a5f39846581d0e9cfd7ae6f056c8d1209f71bd) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new `buildOutput` property to the `astro:config:done` hook returning the build output type.
+
+  This can be used to know if the user's project will be built as a static site (HTML files), or a server-rendered site (whose exact output depends on the adapter).
+
+### Patch Changes
+
+- [#11960](https://github.com/withastro/astro/pull/11960) [`4410130`](https://github.com/withastro/astro/commit/4410130df722eae494caaa46b17c8eeb6223f160) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue where the refresh context data was not passed correctly to content layer loaders
+
+- [#11952](https://github.com/withastro/astro/pull/11952) [`50a0146`](https://github.com/withastro/astro/commit/50a0146e9aff78a245914125f34719cfb32c585f) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for array patterns in the built-in `glob()` content collections loader
+
+  The glob loader can now accept an array of multiple patterns as well as string patterns. This allows you to more easily combine multiple patterns into a single collection, and also means you can use negative matches to exclude files from the collection.
+
+  ```ts
+  const probes = defineCollection({
+    // Load all markdown files in the space-probes directory, except for those that start with "voyager-"
+    loader: glob({ pattern: ['*.md', '!voyager-*'], base: 'src/data/space-probes' }),
+    schema: z.object({
+      name: z.string(),
+      type: z.enum(['Space Probe', 'Mars Rover', 'Comet Lander']),
+      launch_date: z.date(),
+      status: z.enum(['Active', 'Inactive', 'Decommissioned']),
+      destination: z.string(),
+      operator: z.string(),
+      notable_discoveries: z.array(z.string()),
+    }),
+  });
+  ```
+
 ## 5.0.0-alpha.5
 
 ### Major Changes
