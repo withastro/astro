@@ -87,7 +87,10 @@ describe('Content Layer', () => {
 			assert.ok(json.hasOwnProperty('probes'));
 			assert.ok(Array.isArray(json.probes));
 			assert.equal(json.probes.length, 5);
-			assert.equal(json.probes.at(-1).id, 'philae-lander', 'Voyager probes should not be included');
+			assert.ok(
+				json.probes.every(({ id }) => !id.startsWith('voyager')),
+				'Voyager probes should not be included',
+			);
 		});
 
 		it('Returns data entry by id', async () => {
@@ -290,16 +293,18 @@ describe('Content Layer', () => {
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const initialJson = devalue.parse(await rawJsonResponse.text());
 			assert.equal(initialJson.increment.data.lastValue, 1);
+			const now = new Date().toISOString();
 
 			const refreshResponse = await fixture.fetch('/_refresh', {
 				method: 'POST',
-				body: JSON.stringify({}),
+				body: JSON.stringify({ now }),
 			});
 			const refreshData = await refreshResponse.json();
 			assert.equal(refreshData.message, 'Content refreshed successfully');
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
 			assert.equal(updated.increment.data.lastValue, 2);
+			assert.deepEqual(updated.increment.data.refreshContextData, { webhookBody: { now } });
 		});
 
 		it('updates collection when data file is changed', async () => {

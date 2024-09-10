@@ -123,7 +123,7 @@ const images = defineCollection({
 const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
-		load: async ({ store }) => {
+		load: async ({ store, refreshContextData }) => {
 			const entry = store.get<{ lastValue: number }>('value');
 			const lastValue = entry?.data.lastValue ?? 0;
 			store.set({
@@ -131,6 +131,7 @@ const increment = defineCollection({
 				data: {
 					lastValue: lastValue + 1,
 					lastUpdated: new Date(),
+					refreshContextData
 				},
 			});
 		},
@@ -139,6 +140,7 @@ const increment = defineCollection({
 			z.object({
 				lastValue: z.number(),
 				lastUpdated: z.date(),
+				refreshContextData: z.record(z.unknown()),
 			}),
 	},
 });

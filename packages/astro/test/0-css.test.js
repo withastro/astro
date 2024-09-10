@@ -225,7 +225,7 @@ describe('CSS', function () {
 			it('<style module>', async () => {
 				const el = $('#vue-modules');
 				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
+				const moduleClass = classes.find((name) => /^_vueModules_[\w-]+/.test(name));
 
 				// 1. check HTML
 				assert.equal(el.attr('class').includes(moduleClass), true);
@@ -405,18 +405,13 @@ describe('CSS', function () {
 		});
 
 		it('resolves CSS from Vue', async () => {
-			const styles = ['VueModules.vue?vue&type=style&index=0&lang.module.scss'];
-			for (const style of styles) {
-				const href = $(`link[href$="${style}"]`).attr('href');
-				assert.equal((await fixture.fetch(href)).status, 200, style);
-			}
-
 			const allInjectedStyles = $('style').text().replace(/\s*/g, '');
 
 			assert.equal(allInjectedStyles.includes('.vue-css{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-sass{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-scss{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-scoped[data-v-'), true);
+			assert.equal(allInjectedStyles.includes('._vueModules_'), true);
 		});
 
 		it('remove unused styles from client:load components', async () => {

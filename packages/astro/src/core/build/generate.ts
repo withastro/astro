@@ -80,7 +80,6 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
 	if (ssr && !hasPrerenderedPages(internals)) {
 		delete globalThis?.astroAsset?.addStaticImage;
-		return;
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
@@ -417,7 +416,7 @@ async function generatePath(
 		url,
 		headers: new Headers(),
 		logger,
-		staticLike: true,
+		isPrerendered: true,
 	});
 	const renderContext = RenderContext.create({ pipeline, pathname, request, routeData: route });
 

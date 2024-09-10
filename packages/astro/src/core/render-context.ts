@@ -480,17 +480,15 @@ export class RenderContext {
 			return Reflect.get(request, clientAddressSymbol) as string;
 		}
 
-		if (pipeline.serverLike) {
-			if (request.body === null) {
-				throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
-			}
+		if (request.body === null) {
+			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
+		}
 
-			if (pipeline.adapterName) {
-				throw new AstroError({
-					...AstroErrorData.ClientAddressNotAvailable,
-					message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
-				});
-			}
+		if (pipeline.adapterName) {
+			throw new AstroError({
+				...AstroErrorData.ClientAddressNotAvailable,
+				message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
+			});
 		}
 
 		throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);

@@ -38,7 +38,9 @@ export function serializeSignals(
 	const signals: Signals = {};
 	for (const [key, value] of Object.entries(props)) {
 		const isPropArray = Array.isArray(value);
-		const isPropObject = !isSignal(value) && typeof props[key] === 'object' && !isPropArray;
+		// `typeof null` is 'object' in JS, so we need to check for `null` specifically
+		const isPropObject =
+			!isSignal(value) && typeof props[key] === 'object' && props[key] !== null && !isPropArray;
 
 		if (isPropObject || isPropArray) {
 			const values = isPropObject ? Object.keys(props[key]) : value;

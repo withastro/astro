@@ -73,10 +73,8 @@ export const PrerenderClientAddressNotAvailable = {
  */
 export const StaticClientAddressNotAvailable = {
 	name: 'StaticClientAddressNotAvailable',
-	title: '`Astro.clientAddress` is not available in static mode.',
-	// TODO: Update this for the new static mode? I'm not sure this error can even still happen.
-	message:
-		"`Astro.clientAddress` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
+	title: '`Astro.clientAddress` is not available in prerendered pages.',
+	message: '`Astro.clientAddress` is only available on pages that are server-rendered.',
 	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information on how to enable SSR.',
 } satisfies ErrorData;
 /**
@@ -396,6 +394,24 @@ export const NoAdapterInstalled = {
 	message: `Cannot use server-rendered pages without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
 	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
+ * @description
+ * The currently configured adapter does not support server-side rendering, which is required for the current project setup.
+ *
+ * Depending on your adapter, there may be a different entrypoint to use for server-side rendering. For example, the `@astrojs/vercel` adapter has a `@astrojs/vercel/static` entrypoint for static rendering, and a `@astrojs/vercel/serverless` entrypoint for server-side rendering.
+ *
+ */
+export const AdapterSupportOutputMismatch = {
+	name: 'AdapterSupportOutputMismatch',
+	title: 'Adapter does not support server output.',
+	message: (adapterName: string) =>
+		`The \`${adapterName}\` adapter is configured to output a static website, but the project contains server-rendered pages. Please install and configure the appropriate server adapter for your final deployment.`,
+} satisfies ErrorData;
+
 /**
  * @docs
  * @see
@@ -1483,9 +1499,9 @@ export const InvalidContentEntrySlugError = {
 /**
  * @docs
  * @see
- * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/#defining-custom-slugs)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
  * @description
- * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
+ * A legacy content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
  */
 export const ContentSchemaContainsSlugError = {
 	name: 'ContentSchemaContainsSlugError',
@@ -1498,9 +1514,9 @@ export const ContentSchemaContainsSlugError = {
 /**
  * @docs
  * @see
- * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
  * @description
- * A content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
+ * A legacy content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
  */
 export const MixedContentDataCollectionError = {
 	name: 'MixedContentDataCollectionError',
@@ -1512,9 +1528,9 @@ export const MixedContentDataCollectionError = {
 /**
  * @docs
  * @see
- * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
  * @description
- * Content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
+ * Legacy content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
  */
 export const ContentCollectionTypeMismatchError = {
 	name: 'ContentCollectionTypeMismatchError',
