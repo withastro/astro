@@ -408,7 +408,8 @@ export const NoAdapterInstalledServerIslands = {
 	title: 'Cannot use Server Islands without an adapter.',
 	message: `Cannot use server islands without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
 	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
-} satisfies ErrorData;/**
+} satisfies ErrorData;
+/**
  * @docs
  * @description
  * No import statement was found for one of the components. If there is an import statement, make sure you are using the same identifier in both the imports and the component usage.
