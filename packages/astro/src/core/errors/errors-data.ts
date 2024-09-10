@@ -1486,9 +1486,9 @@ export const InvalidContentEntrySlugError = {
 /**
  * @docs
  * @see
- * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/#defining-custom-slugs)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
  * @description
- * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
+ * A legacy content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
  */
 export const ContentSchemaContainsSlugError = {
 	name: 'ContentSchemaContainsSlugError',
@@ -1501,9 +1501,9 @@ export const ContentSchemaContainsSlugError = {
 /**
  * @docs
  * @see
- * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
  * @description
- * A content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
+ * A legacy content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
  */
 export const MixedContentDataCollectionError = {
 	name: 'MixedContentDataCollectionError',
@@ -1515,9 +1515,9 @@ export const MixedContentDataCollectionError = {
 /**
  * @docs
  * @see
- * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
  * @description
- * Content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
+ * Legacy content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
  */
 export const ContentCollectionTypeMismatchError = {
 	name: 'ContentCollectionTypeMismatchError',
