@@ -7,6 +7,7 @@ import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
 import {
 	ASSET_IMPORTS_FILE,
+	COLLECTIONS_MANIFEST_FILE,
 	CONTENT_LAYER_TYPE,
 	DATA_STORE_FILE,
 	MODULES_IMPORTS_FILE,
@@ -18,6 +19,8 @@ import {
 	getEntryDataAndImages,
 	globalContentConfigObserver,
 } from './utils.js';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -213,15 +216,12 @@ export class ContentLayer {
 				return collection.loader.load(context);
 			}),
 		);
-		if (!existsSync(this.#settings.config.cacheDir)) {
-			await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
-		}
+		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		const cacheFile = getDataStoreFile(this.#settings);
 		await this.#store.writeToDisk(cacheFile);
-		if (!existsSync(this.#settings.dotAstroDir)) {
-			await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
-		}
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
+		const dotAstroAstroDir = dirname(fileURLToPath(assetImportsFile));
+		await fs.mkdir(dotAstroAstroDir, { recursive: true });
 		await this.#store.writeAssetImports(assetImportsFile);
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeModuleImports(modulesImportsFile);
@@ -232,7 +232,7 @@ export class ContentLayer {
 	}
 
 	async regenerateCollectionFileManifest() {
-		const collectionsManifest = new URL('collections/collections.json', this.#settings.dotAstroDir);
+		const collectionsManifest = new URL(COLLECTIONS_MANIFEST_FILE, this.#settings.dotAstroDir);
 		this.#logger.debug('content', 'Regenerating collection file manifest');
 		if (existsSync(collectionsManifest)) {
 			try {
@@ -283,7 +283,10 @@ export async function simpleLoader<TData extends { id: string }>(
  */
 export function getDataStoreFile(settings: AstroSettings, isDev?: boolean) {
 	isDev ??= process?.env.NODE_ENV === 'development';
-	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
+	return new URL(
+		DATA_STORE_FILE,
+		isDev ? new URL('./astro/', settings.dotAstroDir) : settings.config.cacheDir,
+	);
 }
 
 function contentLayerSingleton() {

@@ -13,7 +13,12 @@ import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType } from '../types/public/content.js';
-import { CONTENT_LAYER_TYPE, CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
+import {
+	COLLECTIONS_DIR,
+	CONTENT_LAYER_TYPE,
+	CONTENT_TYPES_FILE,
+	VIRTUAL_MODULE_ID,
+} from './consts.js';
 import {
 	type CollectionConfig,
 	type ContentConfig,
@@ -428,10 +433,8 @@ async function writeContentFiles({
 	let contentTypesStr = '';
 	let dataTypesStr = '';
 
-	const collectionSchemasDir = new URL('./collections/', settings.dotAstroDir);
-	if (!fs.existsSync(collectionSchemasDir)) {
-		fs.mkdirSync(collectionSchemasDir, { recursive: true });
-	}
+	const collectionSchemasDir = new URL(COLLECTIONS_DIR, settings.dotAstroDir);
+	fs.mkdirSync(collectionSchemasDir, { recursive: true });
 
 	for (const [collection, config] of Object.entries(contentConfig?.collections ?? {})) {
 		collectionEntryMap[JSON.stringify(collection)] ??= {
@@ -568,9 +571,7 @@ async function writeContentFiles({
 		);
 	}
 
-	if (!fs.existsSync(settings.dotAstroDir)) {
-		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
-	}
+	fs.mkdirSync(settings.dotAstroDir, { recursive: true });
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(
 		new URL('astro', settings.dotAstroDir).pathname,

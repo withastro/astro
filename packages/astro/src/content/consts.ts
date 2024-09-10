@@ -36,7 +36,9 @@ export const CONTENT_FLAGS = [
 export const CONTENT_TYPES_FILE = 'astro/content.d.ts';
 
 export const DATA_STORE_FILE = 'data-store.json';
-export const ASSET_IMPORTS_FILE = 'assets.mjs';
-export const MODULES_IMPORTS_FILE = 'modules.mjs';
+export const ASSET_IMPORTS_FILE = 'astro/content-assets.mjs';
+export const MODULES_IMPORTS_FILE = 'astro/content-modules.mjs';
+export const COLLECTIONS_MANIFEST_FILE = 'astro/collections/collections.json';
+export const COLLECTIONS_DIR = 'astro/collections/'
 
 export const CONTENT_LAYER_TYPE = 'content_layer';
