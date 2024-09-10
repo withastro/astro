@@ -369,7 +369,7 @@ export default function vercelServerless({
 							? getRouteFuncName(route)
 							: getFallbackFuncName(entryFile);
 
-						await builder.buildServerlessFolder(entryFile, func);
+						await builder.buildServerlessFolder(entryFile, func, _config.root);
 
 						routeDefinitions.push({
 							src: route.pattern.source,
@@ -380,7 +380,7 @@ export default function vercelServerless({
 					const entryFile = new URL(_serverEntry, _buildTempFolder);
 					if (isr) {
 						const isrConfig = typeof isr === 'object' ? isr : {};
-						await builder.buildServerlessFolder(entryFile, NODE_PATH);
+						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 						if (isrConfig.exclude?.length) {
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of isrConfig.exclude) {
@@ -388,14 +388,14 @@ export default function vercelServerless({
 								routeDefinitions.push({ src: escapeRegex(route), dest });
 							}
 						}
-						await builder.buildISRFolder(entryFile, '_isr', isrConfig);
+						await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
 						for (const route of routes) {
 							const src = route.pattern.source;
 							const dest = src.startsWith('^\\/_image') ? NODE_PATH : ISR_PATH;
 							if (!route.prerender) routeDefinitions.push({ src, dest });
 						}
 					} else {
-						await builder.buildServerlessFolder(entryFile, NODE_PATH);
+						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 						const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 						for (const route of routes) {
 							if (!route.prerender) routeDefinitions.push({ src: route.pattern.source, dest });
@@ -485,7 +485,7 @@ class VercelBuilder {
 		readonly runtime = getRuntime(process, logger)
 	) {}
 
-	async buildServerlessFolder(entry: URL, functionName: string) {
+	async buildServerlessFolder(entry: URL, functionName: string, root: URL) {
 		const { config, includeFiles, excludeFiles, logger, NTF_CACHE, runtime, maxDuration } = this;
 		// .vercel/output/functions/<name>.func/
 		const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
@@ -500,6 +500,7 @@ class VercelBuilder {
 				includeFiles,
 				excludeFiles,
 				logger,
+				root,
 			},
 			NTF_CACHE
 		);
@@ -519,8 +520,8 @@ class VercelBuilder {
 		});
 	}
 
-	async buildISRFolder(entry: URL, functionName: string, isr: VercelISRConfig) {
-		await this.buildServerlessFolder(entry, functionName);
+	async buildISRFolder(entry: URL, functionName: string, isr: VercelISRConfig, root: URL) {
+		await this.buildServerlessFolder(entry, functionName, root);
 		const prerenderConfig = new URL(
 			`./functions/${functionName}.prerender-config.json`,
 			this.config.outDir
