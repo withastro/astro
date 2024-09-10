@@ -157,3 +157,10 @@ function validateAssetsFeature(
 
 	return validateSupportKind(supportKind, adapterName, logger, 'assets', () => true);
 }
+
+export function getAdapterStaticRecommendation(adapterName: string): string | undefined {
+	return {
+		'@astrojs/vercel/static':
+			'Update your configuration to use `@astrojs/vercel/serverless` to unlock server-side rendering capabilities.',
+	}[adapterName];
+}

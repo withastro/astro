@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { teardown } from '@astrojs/compiler';
 import glob from 'fast-glob';
-import { bgGreen, bgMagenta, black, green } from 'kleur/colors';
+import { bgGreen, black, green } from 'kleur/colors';
 import * as vite from 'vite';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 import {
@@ -150,12 +150,11 @@ export async function staticBuild(
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
 			await cleanStaticOutput(opts, internals);
-			opts.logger.info(null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
 			settings.timer.end('Server generate');
 			return;
 		}
-		default: // `settings.buildOutput` will always be one of the above, but TS doesn't know that
+		default: // `settings.buildOutput` will always be one of the above at this point, but TS doesn't know that
 			return;
 	}
 }

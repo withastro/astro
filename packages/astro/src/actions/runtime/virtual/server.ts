@@ -92,7 +92,7 @@ function getFormServerHandler<TOutput, TInputSchema extends z.ZodType>(
 
 		if (!inputSchema) return await handler(unparsedInput, context);
 
-		const baseSchema = unwrapSchemaEffects(inputSchema);
+		const baseSchema = unwrapBaseObjectSchema(inputSchema, unparsedInput);
 		const parsed = await inputSchema.safeParseAsync(
 			baseSchema instanceof z.ZodObject
 				? formDataToObject(unparsedInput, baseSchema)
@@ -191,7 +191,7 @@ function handleFormDataGet(
 	return validator instanceof z.ZodNumber ? Number(value) : value;
 }
 
-function unwrapSchemaEffects(schema: z.ZodType) {
+function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 	while (schema instanceof z.ZodEffects || schema instanceof z.ZodPipeline) {
 		if (schema instanceof z.ZodEffects) {
 			schema = schema._def.schema;
@@ -199,6 +199,16 @@ function unwrapSchemaEffects(schema: z.ZodType) {
 		if (schema instanceof z.ZodPipeline) {
 			schema = schema._def.in;
 		}
+	}
+	if (schema instanceof z.ZodDiscriminatedUnion) {
+		const typeKey = schema._def.discriminator;
+		const typeValue = unparsedInput.get(typeKey);
+		if (typeof typeValue !== 'string') return schema;
+
+		const objSchema = schema._def.optionsMap.get(typeValue);
+		if (!objSchema) return schema;
+
+		return objSchema;
 	}
 	return schema;
 }

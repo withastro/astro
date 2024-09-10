@@ -16,7 +16,7 @@ export const prerender = true
 // src/middleware.js
 
 export const onRequest = (ctx, next) => {
-  console.log(ctx.prerender) // it will log true
+  console.log(ctx.isPrerendered) // it will log true
   return next()
 }
 ```

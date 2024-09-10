@@ -1,10 +1,10 @@
 <style module lang="scss">
 $type: cursive;
-.title {
+.vueModules {
   font-family: $type;
 }
 </style>
 
 <template>
-  <h1 id="vue-modules" :class="$style.title">Vue CSS Modules</h1>
+  <h1 id="vue-modules" :class="$style.vueModules">Vue CSS Modules</h1>
 </template>

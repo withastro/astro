@@ -99,7 +99,7 @@ describe('build assets (server)', () => {
 			fixture = await loadFixture({
 				root: './fixtures/build-assets/',
 				integrations: [preact()],
-				adapter: testAdapter({ extendAdapter: { adapterFeatures: { forceServerOutput: false } } }),
+				adapter: testAdapter({ extendAdapter: { adapterFeatures: { buildOutput: 'static' } } }),
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
 			});
@@ -148,11 +148,13 @@ describe('build assets (server)', () => {
 					assets: 'custom-assets',
 					inlineStylesheets: 'never',
 				},
-				adapter: testAdapter({extendAdapter: {
-					adapterFeatures: {
-						forceServerOutput: false,
-					}
-				}}),
+				adapter: testAdapter({
+					extendAdapter: {
+						adapterFeatures: {
+							buildOutput: 'static',
+						},
+					},
+				}),
 			});
 			await fixture.build();
 		});

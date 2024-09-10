@@ -175,7 +175,7 @@ export async function handleRoute({
 		body,
 		logger,
 		clientAddress: incomingRequest.socket.remoteAddress,
-		staticLike: route.prerender,
+		isPrerendered: route.prerender,
 	});
 
 	// Set user specified headers to response object.
