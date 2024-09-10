@@ -69,6 +69,42 @@
   });
   ```
 
+## 4.15.4
+
+### Patch Changes
+
+- [#11879](https://github.com/withastro/astro/pull/11879) [`bd1d4aa`](https://github.com/withastro/astro/commit/bd1d4aaf8262187b4f132d7fe0365902131ddf1a) Thanks [@matthewp](https://github.com/matthewp)! - Allow passing a cryptography key via ASTRO_KEY
+
+  For Server islands Astro creates a cryptography key in order to hash props for the islands, preventing accidental leakage of secrets.
+
+  If you deploy to an environment with rolling updates then there could be multiple instances of your app with different keys, causing potential key mismatches.
+
+  To fix this you can now pass the `ASTRO_KEY` environment variable to your build in order to reuse the same key.
+
+  To generate a key use:
+
+  ```
+  astro create-key
+  ```
+
+  This will print out an environment variable to set like:
+
+  ```
+  ASTRO_KEY=PIAuyPNn2aKU/bviapEuc/nVzdzZPizKNo3OqF/5PmQ=
+  ```
+
+- [#11935](https://github.com/withastro/astro/pull/11935) [`c58193a`](https://github.com/withastro/astro/commit/c58193a691775af5c568e461c63040a42e2471f7) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `astro add` not using the proper export point when adding certain adapters
+
+## 4.15.3
+
+### Patch Changes
+
+- [#11902](https://github.com/withastro/astro/pull/11902) [`d63bc50`](https://github.com/withastro/astro/commit/d63bc50d9940c1107e0fee7687e5c332549a0eff) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes case where content layer did not update during clean dev builds on Linux and Windows
+
+- [#11886](https://github.com/withastro/astro/pull/11886) [`7ff7134`](https://github.com/withastro/astro/commit/7ff7134b8038a3b798293b2218bbf6dd02d2ac32) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a missing error message when actions throws during `astro sync`
+
+- [#11904](https://github.com/withastro/astro/pull/11904) [`ca54e3f`](https://github.com/withastro/astro/commit/ca54e3f819fad009ac3c3c8b57a26014a2652a73) Thanks [@wtchnm](https://github.com/wtchnm)! - perf(assets): avoid downloading original image when using cache
+
 ## 5.0.0-alpha.5
 
 ### Major Changes

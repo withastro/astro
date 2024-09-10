@@ -140,6 +140,21 @@ const FILES_TO_UPDATE = {
 			}
 		}
 	},
+	'astro.config.mjs': async (file: string, options: { value: string }) => {
+		if (!(options.value === 'strict' || options.value === 'strictest')) {
+			return;
+		}
+
+		try {
+			let data = await readFile(file, { encoding: 'utf-8' });
+			data = `// @ts-check\n${data}`;
+			await writeFile(file, data, { encoding: 'utf-8' });
+		} catch (err) {
+			// if there's no astro.config.mjs (which is very unlikely), then do nothing
+			if (err && (err as any).code === 'ENOENT') return;
+			if (err instanceof Error) throw new Error(err.message);
+		}
+	},
 };
 
 export async function setupTypeScript(value: string, ctx: PickedTypeScriptContext) {

@@ -66,7 +66,19 @@ export default async function sync(
 		logger,
 	});
 	const manifest = await createRouteManifest({ settings, fsMod: fs }, logger);
-	await runHookConfigDone({ settings, logger, command: 'sync' });
+
+	// Run `astro:config:done`
+	// Actions will throw if there is misconfiguration, so catch here.
+	try {
+		await runHookConfigDone({ settings, logger });
+	} catch (err) {
+		if (err instanceof Error) {
+			const errorMessage = err.toString();
+			logger.error('sync', errorMessage);
+		}
+		throw err;
+	}
+
 	return await syncInternal({ settings, logger, fs, force: inlineConfig.force, manifest });
 }
 
