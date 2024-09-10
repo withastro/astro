@@ -9,7 +9,7 @@ interface ImportedStyle {
 	content: string;
 }
 
-const inlineQueryRE = /(?:\?|&)inline(?:$|&)/
+const inlineQueryRE = /(?:\?|&)inline(?:$|&)/;
 
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export async function getStylesForURL(
@@ -34,7 +34,7 @@ export async function getStylesForURL(
 			}
 			// Else try to load it
 			else {
-				let modId = importedModule.url
+				let modId = importedModule.url;
 				// Mark url with ?inline so Vite will return the CSS as plain string, even for CSS modules
 				if (!inlineQueryRE.test(importedModule.url)) {
 					if (importedModule.url.includes('?')) {
