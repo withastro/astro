@@ -5,7 +5,6 @@ type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
 type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;
 
 export interface CreateRequestOptions {
-	base: string;
 	url: URL | string;
 	clientAddress?: string | undefined;
 	headers: HeaderType;
