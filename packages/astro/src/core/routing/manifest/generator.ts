@@ -1,5 +1,4 @@
 import type { AstroConfig, RoutePart } from '../../../@types/astro.js';
-
 import { compile } from 'path-to-regexp';
 
 /**
@@ -9,11 +8,14 @@ import { compile } from 'path-to-regexp';
  */
 function sanitizeParams(
 	params: Record<string, string | number | undefined>,
-): Record<string, string | number | undefined> {
+): Record<string, string | undefined> {
 	return Object.fromEntries(
 		Object.entries(params).map(([key, value]) => {
 			if (typeof value === 'string') {
 				return [key, value.normalize().replace(/#/g, '%23').replace(/\?/g, '%3F')];
+			} else if (typeof value === 'number') {
+				// Explicitly convert numbers to strings
+				return [key, String(value)];
 			}
 			return [key, value];
 		}),
@@ -31,7 +33,7 @@ export function getRouteGenerator(
 				segment
 					.map((part) => {
 						if (part.spread) {
-							return `:${part.content.slice(3)}(.*)?`;
+							return `${part.content.slice(3)}`;
 						} else if (part.dynamic) {
 							return `:${part.content}`;
 						} else {
