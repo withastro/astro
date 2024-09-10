@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { teardown } from '@astrojs/compiler';
 import glob from 'fast-glob';
-import { bgGreen, bgMagenta, black, green } from 'kleur/colors';
+import { bgGreen, black, green } from 'kleur/colors';
 import * as vite from 'vite';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 import {
@@ -18,12 +18,10 @@ import {
 } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '../../core/path.js';
-import { isModeServerWithNoAdapter, isServerLikeOutput } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
@@ -43,10 +41,6 @@ import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings, logger } = opts;
-	// Make sure we have an adapter before building
-	if (isModeServerWithNoAdapter(opts.settings)) {
-		throw new AstroError(AstroErrorData.NoAdapterInstalled);
-	}
 
 	settings.timer.start('SSR build');
 
@@ -144,24 +138,23 @@ export async function staticBuild(
 	contentFileNames?: string[],
 ) {
 	const { settings } = opts;
-	switch (true) {
-		case settings.config.output === 'static': {
+	switch (settings.buildOutput) {
+		case 'static': {
 			settings.timer.start('Static generate');
 			await generatePages(opts, internals);
 			await cleanServerOutput(opts, ssrOutputChunkNames, contentFileNames, internals);
 			settings.timer.end('Static generate');
 			return;
 		}
-		case isServerLikeOutput(settings.config): {
+		case 'server': {
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
 			await cleanStaticOutput(opts, internals);
-			opts.logger.info(null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
 			settings.timer.end('Server generate');
 			return;
 		}
-		default:
+		default: // `settings.buildOutput` will always be one of the above at this point, but TS doesn't know that
 			return;
 	}
 }
@@ -175,8 +168,8 @@ async function ssrBuild(
 ) {
 	const buildID = Date.now().toString();
 	const { allPages, settings, viteConfig } = opts;
-	const ssr = isServerLikeOutput(settings.config);
-	const out = getOutputDirectory(settings.config);
+	const ssr = settings.buildOutput === 'server';
+	const out = getOutputDirectory(settings);
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
 	const isContentCache = !ssr && settings.config.experimental.contentCollectionCache;
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
@@ -306,7 +299,7 @@ async function clientBuild(
 	container: AstroBuildPluginContainer,
 ) {
 	const { settings, viteConfig } = opts;
-	const ssr = isServerLikeOutput(settings.config);
+	const ssr = settings.buildOutput === 'server';
 	const out = ssr ? settings.config.build.client : getOutDirWithinCwd(settings.config.outDir);
 
 	// Nothing to do if there is no client-side JS.
@@ -370,11 +363,12 @@ async function runPostBuildHooks(
 	const config = container.options.settings.config;
 	const build = container.options.settings.config.build;
 	for (const [fileName, mutation] of mutations) {
-		const root = isServerLikeOutput(config)
-			? mutation.targets.includes('server')
-				? build.server
-				: build.client
-			: getOutDirWithinCwd(config.outDir);
+		const root =
+			container.options.settings.buildOutput === 'server'
+				? mutation.targets.includes('server')
+					? build.server
+					: build.client
+				: getOutDirWithinCwd(config.outDir);
 		const fullPath = path.join(fileURLToPath(root), fileName);
 		const fileURL = pathToFileURL(fullPath);
 		await fs.promises.mkdir(new URL('./', fileURL), { recursive: true });
@@ -386,7 +380,7 @@ async function runPostBuildHooks(
  * Remove chunks that are used for prerendering only
  */
 async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInternals) {
-	const ssr = isServerLikeOutput(opts.settings.config);
+	const ssr = opts.settings.buildOutput === 'server';
 	const out = ssr
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
@@ -478,7 +472,7 @@ export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
 	opts.logger.info('build', 'Rearranging server assets...');
 	const serverRoot =
-		opts.settings.config.output === 'static'
+		opts.settings.buildOutput === 'static'
 			? opts.settings.config.build.client
 			: opts.settings.config.build.server;
 	const clientRoot = opts.settings.config.build.client;

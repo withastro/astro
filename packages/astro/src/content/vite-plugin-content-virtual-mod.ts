@@ -8,7 +8,6 @@ import type { Plugin } from 'vite';
 import { encodeName } from '../core/build/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { appendForwardSlash, removeFileExtension } from '../core/path.js';
-import { isServerLikeOutput } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
@@ -53,7 +52,7 @@ export function astroContentVirtualModPlugin({
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
-	const IS_SERVER = isServerLikeOutput(settings.config);
+	const IS_SERVER = settings.buildOutput === 'server';
 	let dataStoreFile: URL;
 	return {
 		name: 'astro-content-virtual-mod-plugin',

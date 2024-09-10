@@ -21,7 +21,7 @@ export interface GenerateIdOptions {
 
 export interface GlobOptions {
 	/** The glob pattern to match files, relative to the base directory */
-	pattern: string;
+	pattern: string | Array<string>;
 	/** The base directory to resolve the glob pattern from. Relative to the root directory, or an absolute file URL. Defaults to `.` */
 	base?: string | URL;
 	/**
@@ -44,17 +44,24 @@ function generateIdDefault({ entry, base, data }: GenerateIdOptions): string {
 	return slug;
 }
 
+function checkPrefix(pattern: string | Array<string>, prefix: string) {
+	if (Array.isArray(pattern)) {
+		return pattern.some((p) => p.startsWith(prefix));
+	}
+	return pattern.startsWith(prefix);
+}
+
 /**
  * Loads multiple entries, using a glob pattern to match files.
  * @param pattern A glob pattern to match files, relative to the content directory.
  */
 export function glob(globOptions: GlobOptions): Loader {
-	if (globOptions.pattern.startsWith('../')) {
+	if (checkPrefix(globOptions.pattern, '../')) {
 		throw new Error(
 			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.',
 		);
 	}
-	if (globOptions.pattern.startsWith('/')) {
+	if (checkPrefix(globOptions.pattern, '/')) {
 		throw new Error(
 			'Glob patterns cannot start with `/`. Set the `base` option to a parent directory or use a relative path instead.',
 		);
@@ -229,13 +236,17 @@ export function glob(globOptions: GlobOptions): Loader {
 			const skipCount = skippedFiles.length;
 
 			if (skipCount > 0) {
+				const patternList = Array.isArray(globOptions.pattern)
+					? globOptions.pattern.join(', ')
+					: globOptions.pattern;
+
 				logger.warn(`The glob() loader cannot be used for files in ${bold('src/content')}.`);
 				if (skipCount > 10) {
 					logger.warn(
-						`Skipped ${green(skippedFiles.length)} files that matched ${green(globOptions.pattern)}.`,
+						`Skipped ${green(skippedFiles.length)} files that matched ${green(patternList)}.`,
 					);
 				} else {
-					logger.warn(`Skipped the following files that matched ${green(globOptions.pattern)}:`);
+					logger.warn(`Skipped the following files that matched ${green(patternList)}:`);
 					skippedFiles.forEach((file) => logger.warn(`• ${green(file)}`));
 				}
 			}
@@ -247,9 +258,8 @@ export function glob(globOptions: GlobOptions): Loader {
 				return;
 			}
 
-			const matcher: RegExp = micromatch.makeRe(globOptions.pattern);
-
-			const matchesGlob = (entry: string) => !entry.startsWith('../') && matcher.test(entry);
+			const matchesGlob = (entry: string) =>
+				!entry.startsWith('../') && micromatch.isMatch(entry, globOptions.pattern);
 
 			const basePath = fileURLToPath(baseDir);
 

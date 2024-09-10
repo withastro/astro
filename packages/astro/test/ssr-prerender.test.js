@@ -13,10 +13,6 @@ describe('SSR: prerender', () => {
 			root: './fixtures/ssr-prerender/',
 			output: 'server',
 			outDir: './dist/normal',
-			build: {
-				client: './dist/normal/client',
-				server: './dist/normal/server',
-			},
 			adapter: testAdapter(),
 		});
 		await fixture.build();
@@ -93,10 +89,6 @@ describe.skip('Integrations can hook into the prerendering decision', () => {
 			root: './fixtures/ssr-prerender/',
 			output: 'server',
 			outDir: './dist/integration-prerender',
-			build: {
-				client: './dist/integration-prerender/client',
-				server: './dist/integration-prerender/server',
-			},
 			integrations: [testIntegration],
 			adapter: testAdapter(),
 		});

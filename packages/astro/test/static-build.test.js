@@ -186,7 +186,7 @@ describe('Static build', () => {
 	it('warns when accessing headers', async () => {
 		let found = false;
 		for (const log of logs) {
-			if (/`Astro\.request\.headers` is unavailable in "static" output mode/.test(log.message)) {
+			if (/`Astro\.request\.headers` is not available on prerendered pages./.test(log.message)) {
 				found = true;
 			}
 		}

@@ -64,9 +64,13 @@ export type AdapterSupportsKind = 'unsupported' | 'stable' | 'experimental' | 'd
 
 export interface AstroAdapterFeatures {
 	/**
-	 * Creates an edge function that will communiate with the Astro middleware
+	 * Creates an edge function that will communicate with the Astro middleware
 	 */
 	edgeMiddleware: boolean;
+	/**
+	 * Determine the type of build output the adapter is intended for. Defaults to `server`;
+	 */
+	buildOutput?: 'static' | 'server';
 }
 
 export interface AstroAdapter {
@@ -183,6 +187,7 @@ export interface BaseIntegrationHooks {
 		setAdapter: (adapter: AstroAdapter) => void;
 		injectTypes: (injectedType: InjectedType) => URL;
 		logger: AstroIntegrationLogger;
+		buildOutput: 'static' | 'server';
 	}) => void | Promise<void>;
 	'astro:server:setup': (options: {
 		server: ViteDevServer;

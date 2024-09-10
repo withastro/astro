@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.0.0-alpha.4",
+  "version": "5.0.0-alpha.6",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -118,7 +118,8 @@
     "test:e2e:chrome": "playwright test",
     "test:e2e:firefox": "playwright test --config playwright.firefox.config.js",
     "test:types": "tsc --project tsconfig.tests.json",
-    "test:node": "astro-scripts test \"test/**/*.test.js\""
+    "test:node": "astro-scripts test \"test/**/*.test.js\"",
+    "test:units": "astro-scripts test \"test/**/units/**/*.test.js\""
   },
   "dependencies": {
     "@astrojs/compiler": "^2.10.3",

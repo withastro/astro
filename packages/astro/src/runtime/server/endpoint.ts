@@ -12,7 +12,7 @@ export async function renderEndpoint(
 		[method: string]: APIRoute;
 	},
 	context: APIContext,
-	ssr: boolean,
+	isPrerendered: boolean,
 	logger: Logger,
 ) {
 	const { request, url } = context;
@@ -20,12 +20,12 @@ export async function renderEndpoint(
 	const method = request.method.toUpperCase();
 	// use the exact match on `method`, fallback to ALL
 	const handler = mod[method] ?? mod['ALL'];
-	if (!ssr && ssr === false && method !== 'GET') {
+	if (isPrerendered && method !== 'GET') {
 		logger.warn(
 			'router',
 			`${url.pathname} ${bold(
 				method,
-			)} requests are not available for a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` to enable.`,
+			)} requests are not available in static endpoints. Mark this page as server-rendered (\`export const prerender = false;\`) or update your config to \`output: 'server'\` to make all your pages server-rendered by default.`,
 		);
 	}
 	if (handler === undefined) {

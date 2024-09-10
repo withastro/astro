@@ -9,7 +9,7 @@ import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
 import { createDefaultRoutes } from '../core/routing/default.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
-import { isPage, isServerLikeOutput, viteID } from '../core/util.js';
+import { isPage, viteID } from '../core/util.js';
 import { resolveIdToUrl } from '../core/viteUtils.js';
 import type { AstroSettings, ComponentInstance, ManifestData } from '../types/astro.js';
 import type { RewritePayload } from '../types/public/common.js';
@@ -47,7 +47,7 @@ export class DevPipeline extends Pipeline {
 	) {
 		const mode = 'development';
 		const resolve = createResolve(loader, config.root);
-		const serverLike = isServerLikeOutput(config);
+		const serverLike = settings.buildOutput === 'server';
 		const streaming = true;
 		super(logger, manifest, mode, [], resolve, serverLike, streaming);
 		manifest.serverIslandMap = settings.serverIslandMap;
@@ -219,7 +219,7 @@ export class DevPipeline extends Pipeline {
 	}
 
 	rewriteKnownRoute(route: string, sourceRoute: RouteData): ComponentInstance {
-		if (isServerLikeOutput(this.config) && sourceRoute.prerender) {
+		if (this.serverLike && sourceRoute.prerender) {
 			for (let def of this.defaultRoutes) {
 				if (route === def.route) {
 					return def.instance;

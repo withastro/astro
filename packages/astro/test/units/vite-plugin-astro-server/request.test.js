@@ -50,7 +50,7 @@ describe('vite-plugin-astro-server', () => {
 				},
 				'/',
 			);
-			const manifestData = createRouteManifest(
+			const manifestData = await createRouteManifest(
 				{
 					fsMod: fs,
 					settings: pipeline.settings,

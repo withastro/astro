@@ -80,6 +80,7 @@ const collectionConfigParser = z.union([
 								parseData: z.any(),
 								generateDigest: z.function(z.tuple([z.any()], z.string())),
 								watcher: z.any().optional(),
+								refreshContextData: z.record(z.unknown()).optional(),
 							}),
 						],
 						z.unknown(),
