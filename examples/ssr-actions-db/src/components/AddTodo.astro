@@ -1,0 +1,19 @@
+---
+import { actions } from "astro:actions";
+
+
+---
+
+<form method="post" action={actions.addTodo} class="flex items-center space-x-2">
+  <input 
+    class="flex-grow px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition duration-200 ease-in-out shadow-sm"
+    name="task"
+    placeholder="Enter a new task..."
+  >
+  <button 
+    type="submit"
+    class="px-4 py-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-bold rounded-lg shadow-md hover:from-cyan-500 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-200 ease-in-out"
+  >
+    +
+  </button>
+</form>

@@ -1,0 +1,36 @@
+---
+import { actions } from 'astro:actions';
+import { Todo } from 'astro:db';
+import { ViewTransitions } from 'astro:transitions';
+
+interface Props {
+  id: number;
+  task: string;
+  completed: Date | null;
+}
+---
+<li class="flex items-center justify-between w-full py-3 px-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out">
+  <form method="post" action={actions.toggleTodo} class="flex items-center flex-grow">
+    <input type="hidden" name="id" value={Astro.props.id} />
+    <input
+      type="checkbox"
+      onchange="this.form.requestSubmit()"
+      checked={Astro.props.completed != null}
+      class="w-5 h-5 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500 mr-3 cursor-pointer"
+    />
+    <p class:list={[
+      "text-gray-800 text-lg transition-all duration-200 ease-in-out",
+      { "line-through text-gray-400": Astro.props.completed != null }
+    ]}>
+      {Astro.props.task}
+    </p>
+  </form>
+  <form method="post" action={actions.deleteTodo} class="ml-4">
+    <input type="hidden" name="id" value={Astro.props.id} />
+    <button type="submit" class="text-red-500 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1 transition-colors duration-200 ease-in-out">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-line-cap="round" stroke-line-join="round" stroke-width={2} d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </form>
+</li>

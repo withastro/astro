@@ -1,0 +1,44 @@
+---
+import { asc } from "astro:db"
+import { db, Todo } from "astro:db"
+import Item from "../components/Item.astro"
+import { ViewTransitions } from "astro:transitions"
+import AddTodo from "../components/AddTodo.astro"
+const todos = await db.select().from(Todo).orderBy(asc(Todo.created))
+
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro Tasks</title>
+		<ViewTransitions />
+	</head>
+	<body>
+		<div class="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
+			<div class="relative py-3 sm:max-w-xl sm:mx-auto">
+				<div class="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
+				<div class="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
+					<div class="max-w-md mx-auto">
+						<div class="divide-y divide-gray-200">
+							<div class="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
+								<h1 class="text-3xl font-extrabold text-gray-900">Astro Tasks</h1>
+								<AddTodo />
+								{todos.length > 0 ? (
+									<ul class="space-y-2">
+										{todos.map(todo => <Item id={todo.id} task={todo.task} completed={todo.completed} />)}
+									</ul>
+								) : (
+									<p class="text-gray-500 text-center py-4">No tasks yet. Add one above!</p>
+								)}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
