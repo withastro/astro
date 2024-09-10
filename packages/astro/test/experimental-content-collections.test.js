@@ -353,7 +353,7 @@ describe('Experimental Content Collections cache', () => {
 
 		it('Renders content', async () => {
 			for (const slug in blogSlugToContents) {
-				const request = new Request('http://example.com/posts/' + slug);
+				const request = new Request('http://example.com/posts/' + slug + '/');
 				const response = await app.render(request);
 				const body = await response.text();
 				const $ = cheerio.load(body);

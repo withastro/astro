@@ -48,6 +48,7 @@ describe('trailingSlash', () => {
 		assert.equal(json, '{"success":true}');
 	});
 
+	// TODO: 301 redirect make it work
 	it('should NOT match the API route when request lacks a trailing slash', async () => {
 		const { req, res, text } = createRequestAndResponse({
 			method: 'GET',

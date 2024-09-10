@@ -58,7 +58,7 @@ describe('astro:image', () => {
 			it('Adds the <img> tag', () => {
 				let $img = $('#local img');
 				assert.equal($img.length, 1);
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.attr('src').startsWith('/_image/'), true);
 			});
 
 			it('includes loading and decoding attributes', () => {
@@ -99,6 +99,7 @@ describe('astro:image', () => {
 			it('middleware loads the file', async () => {
 				let $img = $('#local img');
 				let src = $img.attr('src');
+				console.log('aaaaa', src)
 				let res = await fixture.fetch(src);
 				assert.equal(res.status, 200);
 			});
@@ -143,7 +144,7 @@ describe('astro:image', () => {
 					$img.toArray().every((img) => {
 						return (
 							img.attribs['src'].startsWith('/@fs/') ||
-							img.attribs['src'].startsWith('/_image?href=%2F%40fs%2F')
+							img.attribs['src'].startsWith('/_image/?href=%2F%40fs%2F')
 						);
 					}),
 					true,
@@ -215,7 +216,7 @@ describe('astro:image', () => {
 
 				const srcset = parseSrcset($source.attr('srcset'));
 				assert.equal(
-					srcset.every((src) => src.url.startsWith('/_image')),
+					srcset.every((src) => src.url.startsWith('/_image/')),
 					true,
 				);
 				assert.deepEqual(
@@ -237,7 +238,7 @@ describe('astro:image', () => {
 
 				const srcset2 = parseSrcset($source.attr('srcset'));
 				assert.equal(
-					srcset2.every((src) => src.url.startsWith('/_image')),
+					srcset2.every((src) => src.url.startsWith('/_image/')),
 					true,
 				);
 				assert.deepEqual(
@@ -380,7 +381,7 @@ describe('astro:image', () => {
 					let $img = $('#remote img');
 
 					let src = $img.attr('src');
-					assert.ok(src.startsWith('/_image?'));
+					assert.ok(src.startsWith('/_image/?'));
 					const imageRequest = await fixture.fetch(src);
 					assert.equal(imageRequest.status, 200);
 				});
@@ -463,7 +464,7 @@ describe('astro:image', () => {
 
 				// Verbose test for the full URL to make sure the image went through the full pipeline
 				assert.equal(
-					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp'),
+					$img.attr('src').startsWith('/_image/') && $img.attr('src').endsWith('f=webp'),
 					true,
 				);
 			});
@@ -480,7 +481,7 @@ describe('astro:image', () => {
 				$ = cheerio.load(html);
 
 				let $img = $('img');
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.attr('src').startsWith('/_image/'), true);
 			});
 
 			it('Supports special characters in file name', async () => {
@@ -491,7 +492,7 @@ describe('astro:image', () => {
 				let $img = $('img');
 				assert.equal($img.length, 3);
 				$img.each((_, el) => {
-					assert.equal(el.attribs.src?.startsWith('/_image'), true);
+					assert.equal(el.attribs.src?.startsWith('/_image/'), true);
 				});
 			});
 
@@ -520,7 +521,7 @@ describe('astro:image', () => {
 			it('Adds the <img> tag', () => {
 				let $img = $('img');
 				assert.equal($img.length, 1);
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.attr('src').startsWith('/_image/'), true);
 			});
 
 			it('includes the provided alt', () => {
@@ -572,14 +573,14 @@ describe('astro:image', () => {
 
 			it('has proper attributes for optimized image through getImage', () => {
 				let $img = $('#optimized-image-get-image img');
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.attr('src').startsWith('/_image/'), true);
 				assert.equal($img.attr('width'), '207');
 				assert.equal($img.attr('height'), '243');
 			});
 
 			it('has proper attributes for optimized image through Image component', () => {
 				let $img = $('#optimized-image-component img');
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.attr('src').startsWith('/_image/'), true);
 				assert.equal($img.attr('width'), '207');
 				assert.equal($img.attr('height'), '243');
 				assert.equal($img.attr('alt'), 'A penguin!');
@@ -1109,11 +1110,11 @@ describe('astro:image', () => {
 			await devServer.stop();
 		});
 
-		it('serves the image at /_image', async () => {
+		it('serves the image at /_image/', async () => {
 			const params = new URLSearchParams();
 			params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
 			params.set('f', 'webp');
-			const response = await fixture.fetch('/some-base/_image?' + String(params));
+			const response = await fixture.fetch('/some-base/_image/?' + String(params));
 			assert.equal(response.status, 200);
 			assert.equal(response.headers.get('content-type'), 'image/webp');
 		});
@@ -1229,7 +1230,7 @@ describe('astro:image', () => {
 			const app = await fixture.loadTestAdapterApp();
 
 			for (const path of badPaths) {
-				let request = new Request('http://example.com/_image?href=' + path);
+				let request = new Request('http://example.com/_image/?href=' + path);
 				let response = await app.render(request);
 				const body = await response.text();
 

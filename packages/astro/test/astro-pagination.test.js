@@ -58,10 +58,10 @@ describe('Pagination', () => {
 				}
 				if (color === 'blue' && p === '1') {
 					assert.equal(prevHref, undefined);
-					assert.equal(nextHref, '/blog/posts/blue/2');
+					assert.equal(nextHref, '/blog/posts/blue/2/');
 				}
 				if (color === 'blue' && p === '2') {
-					assert.equal(prevHref, '/blog/posts/blue/1');
+					assert.equal(prevHref, '/blog/posts/blue/1/');
 					assert.equal(nextHref, undefined);
 				}
 			}),

@@ -1171,7 +1171,7 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('renders the page', async () => {
-			let request = new Request('http://example.com/endurance');
+			let request = new Request('http://example.com/endurance/');
 			let response = await app.render(request);
 			assert.equal(response.status, 200);
 			assert.equal((await response.text()).includes('Endurance'), true);
@@ -1193,7 +1193,7 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('should redirect to the index of the default locale', async () => {
-			let request = new Request('http://example.com/new-site');
+			let request = new Request('http://example.com/new-site/');
 			let response = await app.render(request);
 			assert.equal(response.status, 302);
 			assert.equal(response.headers.get('location'), '/new-site/en/');

@@ -50,7 +50,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Exposes subscribe action', async () => {
-			const res = await fixture.fetch('/_actions/subscribe', {
+			const res = await fixture.fetch('/_actions/subscribe/', {
 				method: 'POST',
 				body: JSON.stringify({ channel: 'bholmesdev' }),
 				headers: {
@@ -70,7 +70,7 @@ describe('Astro Actions', () => {
 			const formData = new FormData();
 			formData.append('channel', 'bholmesdev');
 			formData.append('comment', 'Hello, World!');
-			const res = await fixture.fetch('/_actions/comment', {
+			const res = await fixture.fetch('/_actions/comment/', {
 				method: 'POST',
 				body: formData,
 			});
@@ -86,7 +86,7 @@ describe('Astro Actions', () => {
 		it('Raises validation error on bad form data', async () => {
 			const formData = new FormData();
 			formData.append('channel', 'bholmesdev');
-			const res = await fixture.fetch('/_actions/comment', {
+			const res = await fixture.fetch('/_actions/comment/', {
 				method: 'POST',
 				body: formData,
 			});
@@ -103,7 +103,7 @@ describe('Astro Actions', () => {
 			const formData = new FormData();
 			formData.append('channel', 'bholmesdev');
 			formData.append('comment', 'Hello, World!');
-			const res = await fixture.fetch('/_actions/commentPlainFormData', {
+			const res = await fixture.fetch('/_actions/commentPlainFormData/', {
 				method: 'POST',
 				body: formData,
 			});

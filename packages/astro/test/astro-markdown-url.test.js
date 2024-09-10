@@ -34,7 +34,7 @@ describe('Astro Markdown URL', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			assert.equal($('#url').attr('href'), baseUrl);
+			assert.equal($('#url').attr('href'), baseUrl + '.html');
 		});
 
 		it('trailingSlash: ignore', async () => {
@@ -81,7 +81,7 @@ describe('Astro Markdown URL', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			assert.equal($('#url').attr('href'), baseUrl);
+			assert.equal($('#url').attr('href'), baseUrl + '.html');
 		});
 
 		it('trailingSlash: ignore', async () => {

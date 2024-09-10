@@ -343,8 +343,11 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			options[key] && searchParams.append(param, options[key].toString());
 		});
 
+		// @ts-expect-error temporary hack. make sure Bjorn fixes this or else
+		const trailing = imageConfig.__trailingSlash === 'always' ? '/' : '';
+
 		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, '/_image');
-		return `${imageEndpoint}?${searchParams}`;
+		return `${imageEndpoint}${trailing}?${searchParams}`;
 	},
 	parseURL(url) {
 		const params = url.searchParams;

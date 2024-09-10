@@ -169,7 +169,7 @@ describe('Astro Global', () => {
 			let $ = cheerio.load(html);
 			assert.match($('#pattern').text(), /Astro route pattern: \//);
 			assert.match($('#pattern-middleware').text(), /Astro route pattern middleware: \//);
-			response = await app.render(new Request('https://example.com/omit-markdown-extensions'));
+			response = await app.render(new Request('https://example.com/omit-markdown-extensions/'));
 			html = await response.text();
 			$ = cheerio.load(html);
 			assert.match($('#pattern').text(), /Astro route pattern: \/omit-markdown-extensions/);
