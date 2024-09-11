@@ -2,22 +2,26 @@ import type { AstroConfig, RoutePart } from '../../../@types/astro.js';
 import { compile } from 'path-to-regexp';
 
 /**
- * Sanitizes the parameters object by normalizing string values and replacing certain characters with their URL-encoded equivalents.
- * @param {Record<string, string | number | undefined>} params - The parameters object to be sanitized.
- * @returns {Record<string, string | number | undefined>} The sanitized parameters object.
+ * Sanitizes the parameters object by normalizing string values, replacing certain characters with their URL-encoded equivalents,
+ * and retaining arrays for spread parameters (e.g., `slug`).
+ * 
+ * @param {Record<string, string | number | string[] | undefined>} params - The parameters object to be sanitized, which may include strings, numbers, arrays, or undefined values.
+ * @returns {Record<string, string | number | string[] | undefined>} The sanitized parameters object with normalized strings and preserved arrays.
  */
 function sanitizeParams(
-	params: Record<string, string | number | undefined>,
-): Record<string, string | undefined> {
+	params: Record<string, string | number | string[] | undefined>,
+): Record<string, string | number  | undefined> {
 	return Object.fromEntries(
 		Object.entries(params).map(([key, value]) => {
-			if (typeof value === 'string') {
+			if (Array.isArray(value)) {
+			// Keep the array as is for spread parameters (e.g., `slug`)
+			return [key,value];
+			} else if (typeof value === 'string') {
+				// Only call normalize on strings
 				return [key, value.normalize().replace(/#/g, '%23').replace(/\?/g, '%3F')];
-			} else if (typeof value === 'number') {
-				// Explicitly convert numbers to strings
-				return [key, String(value)];
+			} else {
+				return [key, value];
 			}
-			return [key, value];
 		}),
 	);
 }
@@ -51,13 +55,18 @@ export function getRouteGenerator(
 		})
 		.join('');
 
-	// Unless trailingSlash config is set to 'always', don't automatically append it.
 	let trailing: '/' | '' = '';
 	if (addTrailingSlash === 'always' && segments.length) {
 		trailing = '/';
 	}
 	const toPath = compile(template + trailing);
-	return (params: Record<string, string | number | undefined>): string => {
+	return (params: Record<string, string[] | number | undefined>): string => {
+
+		// Convert `slug` to an array if it's a string
+		if (typeof params.slug === 'string') {
+			params.slug = [params.slug];
+		}
+		
 		const sanitizedParams = sanitizeParams(params);
 		const path = toPath(sanitizedParams);
 
