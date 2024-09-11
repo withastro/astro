@@ -5,7 +5,7 @@
 Adds a new property to the globals `Astro` and `APIContext` called `routePattern`. The `routePattern` represents the current route (component)
 that is being rendered by Astro. It's usually a path pattern will look like this: `blog/[slug]`:
 
-```asto
+```astro
 ---
 // src/pages/blog/[slug].astro
 const route = Astro.routePattern;

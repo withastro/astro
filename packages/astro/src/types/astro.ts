@@ -67,6 +67,11 @@ export interface AstroSettings {
 	serverIslandMap: NonNullable<SSRManifest['serverIslandMap']>;
 	serverIslandNameMap: NonNullable<SSRManifest['serverIslandNameMap']>;
 	injectedTypes: Array<InjectedType>;
+	/**
+	 * Determine if the build output should be a static, dist folder or a adapter-based server output
+	 * undefined when unknown
+	 */
+	buildOutput: undefined | 'static' | 'server';
 }
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */

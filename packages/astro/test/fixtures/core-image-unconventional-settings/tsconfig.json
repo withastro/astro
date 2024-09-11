@@ -6,6 +6,6 @@
       "~/assets/*": ["src/assets/*"]
     },
   },
-  "include": ["**/*", ".astro/types.d.ts"],
+  "include": [".astro/types.d.ts", "**/*"],
   "exclude": ["dist"]
 }

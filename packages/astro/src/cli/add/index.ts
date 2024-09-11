@@ -279,7 +279,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			if (isAdapter(integration)) {
 				const officialExportName = OFFICIAL_ADAPTER_TO_IMPORT_MAP[integration.id];
 				if (officialExportName) {
-					setAdapter(mod, integration);
+					setAdapter(mod, integration, officialExportName);
 				} else {
 					logger.info(
 						'SKIP_FORMAT',
@@ -447,7 +447,11 @@ function addIntegration(mod: ProxifiedModule<any>, integration: IntegrationInfo)
 	}
 }
 
-export function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo) {
+export function setAdapter(
+	mod: ProxifiedModule<any>,
+	adapter: IntegrationInfo,
+	exportName: string,
+) {
 	const config = getDefaultExportOptions(mod);
 	const adapterId = toIdent(adapter.id);
 
@@ -455,7 +459,7 @@ export function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo) 
 		mod.imports.$append({
 			imported: 'default',
 			local: adapterId,
-			from: adapter.packageName,
+			from: exportName,
 		});
 	}
 

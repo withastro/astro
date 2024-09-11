@@ -12,8 +12,8 @@ import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
+import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
-import { isServerLikeOutput } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {
@@ -134,9 +134,9 @@ export async function runHookConfigSetup({
 	isRestart?: boolean;
 	fs?: typeof fsMod;
 }): Promise<AstroSettings> {
-	// An adapter is an integration, so if one is provided push it.
+	// An adapter is an integration, so if one is provided add it to the list of integrations.
 	if (settings.config.adapter) {
-		settings.config.integrations.push(settings.config.adapter);
+		settings.config.integrations.unshift(settings.config.adapter);
 	}
 	if (await isActionsFilePresent(fs, settings.config.srcDir)) {
 		settings.config.integrations.push(astroIntegrationActionsRouteHandler({ settings }));
@@ -298,9 +298,11 @@ export async function runHookConfigSetup({
 export async function runHookConfigDone({
 	settings,
 	logger,
+	command,
 }: {
 	settings: AstroSettings;
 	logger: Logger;
+	command?: 'dev' | 'build' | 'preview' | 'sync';
 }) {
 	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:config:done']) {
@@ -310,11 +312,12 @@ export async function runHookConfigDone({
 				hookResult: integration.hooks['astro:config:done']({
 					config: settings.config,
 					setAdapter(adapter) {
-						if (settings.adapter && settings.adapter.name !== adapter.name) {
-							throw new Error(
-								`Integration "${integration.name}" conflicts with "${settings.adapter.name}". You can only configure one deployment integration.`,
-							);
+						validateSetAdapter(logger, settings, adapter, integration.name, command);
+
+						if (adapter.adapterFeatures?.buildOutput !== 'static') {
+							settings.buildOutput = 'server';
 						}
+
 						if (!adapter.supportedAstroFeatures) {
 							throw new Error(
 								`The adapter ${adapter.name} doesn't provide a feature map. It is required in Astro 4.0.`,
@@ -323,7 +326,7 @@ export async function runHookConfigDone({
 							const validationResult = validateSupportedFeatures(
 								adapter.name,
 								adapter.supportedAstroFeatures,
-								settings.config,
+								settings,
 								// SAFETY: we checked before if it's not present, and we throw an error
 								adapter.adapterFeatures,
 								logger,
@@ -359,6 +362,9 @@ export async function runHookConfigDone({
 						return new URL(normalizedFilename, settings.dotAstroDir);
 					},
 					logger: getLogger(integration, logger),
+					get buildOutput() {
+						return settings.buildOutput!; // settings.buildOutput is always set at this point
+					},
 				}),
 				logger,
 			});
@@ -549,15 +555,16 @@ export async function runHookBuildSsr({
 }
 
 export async function runHookBuildGenerated({
-	config,
+	settings,
 	logger,
 }: {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logger: Logger;
 }) {
-	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
+	const dir =
+		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
 
-	for (const integration of config.integrations) {
+	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:build:generated']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
@@ -573,7 +580,7 @@ export async function runHookBuildGenerated({
 }
 
 type RunHookBuildDone = {
-	config: AstroConfig;
+	settings: AstroSettings;
 	pages: string[];
 	routes: RouteData[];
 	logging: Logger;
@@ -581,16 +588,17 @@ type RunHookBuildDone = {
 };
 
 export async function runHookBuildDone({
-	config,
+	settings,
 	pages,
 	routes,
 	logging,
 	cacheManifest,
 }: RunHookBuildDone) {
-	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
+	const dir =
+		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
 	await fsMod.promises.mkdir(dir, { recursive: true });
 	const integrationRoutes = routes.map(toIntegrationRouteData);
-	for (const integration of config.integrations) {
+	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {
 			const logger = getLogger(integration, logging);
 

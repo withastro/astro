@@ -113,6 +113,9 @@ export default function ({
 						assets: 'stable',
 						i18nDomains: 'stable',
 					},
+					adapterFeatures: {
+						buildOutput: 'server',
+					},
 					...extendAdapter,
 				});
 			},

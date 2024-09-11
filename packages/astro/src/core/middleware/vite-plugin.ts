@@ -126,7 +126,7 @@ export function vitePluginMiddlewareBuild(
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'asset' && chunk.fileName === 'middleware.mjs') {
-					const outputDirectory = getOutputDirectory(opts.settings.config);
+					const outputDirectory = getOutputDirectory(opts.settings);
 					internals.middlewareEntryPoint = new URL(chunkName, outputDirectory);
 				}
 			}
