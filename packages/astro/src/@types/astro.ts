@@ -2094,7 +2094,7 @@ export interface AstroUserConfig {
 		 *
 		 * The outer page will be rendered, either at build time (`hybrid`) or at runtime (`server`) with the island content omitted and a `<script>` tag included in its place.
 		 *
-		 * After the page loads in the browser, the script tag will replace itself with the the contents of the island by making a request.
+		 * After the page loads in the browser, the script tag will replace itself with the contents of the island by making a request.
 		 *
 		 * Any Astro component can be given the `server: defer` attribute to delay its rendering. There is no special API and you can write `.astro` code as normal:
 		 *
