@@ -141,10 +141,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					order: 'pre',
 				});
 			},
-			'astro:config:done': ({ setAdapter, config }) => {
-				if (config.output === 'static') {
-					throw new AstroError(
-						'[@astrojs/cloudflare] `output: "server"` or `output: "hybrid"` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.'
+			'astro:config:done': ({ setAdapter, config, buildOutput, logger }) => {
+				if (buildOutput === 'static') {
+					logger.warn(
+						'[@astrojs/cloudflare] This adapter is intended to be used with server rendered pages, which this project does not contain any of. As such, this adapter is unnecessary.'
 					);
 				}
 
@@ -156,6 +156,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					exports: ['default'],
 					adapterFeatures: {
 						edgeMiddleware: false,
+						buildOutput: 'server',
 					},
 					supportedAstroFeatures: {
 						serverOutput: 'stable',

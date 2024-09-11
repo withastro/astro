@@ -5,7 +5,7 @@
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
     "@astrojs/solid-js": "^4.4.1",
-    "astro": "^5.0.0-alpha.0",
+    "astro": "^5.0.0-alpha.6",
     "solid-js": "^1.8.21"
   }
 }

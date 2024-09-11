@@ -40,11 +40,11 @@
     "@inox-tools/astro-when": "^0.2.2"
   },
   "peerDependencies": {
-    "astro": "^5.0.0-alpha.0"
+    "astro": "^5.0.0-alpha.6"
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
-    "astro": "^5.0.0-alpha.0",
+    "astro": "^5.0.0-alpha.6",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "execa": "^8.0.1",
