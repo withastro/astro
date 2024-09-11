@@ -44,7 +44,7 @@ describe('Serverless hybrid rendering', () => {
 		process.env.PRERENDER = true;
 		fixture = await loadFixture({
 			root: './fixtures/serverless-prerender/',
-			output: 'hybrid',
+			output: 'static',
 		});
 		await fixture.build();
 	});

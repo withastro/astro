@@ -10,7 +10,7 @@ describe('Serverless with dynamic routes', () => {
 		process.env.PRERENDER = true;
 		fixture = await loadFixture({
 			root: './fixtures/serverless-with-dynamic-routes/',
-			output: 'hybrid',
+			output: 'static',
 		});
 		await fixture.build();
 	});
