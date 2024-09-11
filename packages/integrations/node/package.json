@@ -30,14 +30,14 @@
     "server-destroy": "^1.0.1"
   },
   "peerDependencies": {
-    "astro": "^5.0.0-alpha.0"
+    "astro": "^5.0.0-alpha.6"
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
     "@types/node": "^18.17.8",
     "@types/send": "^0.17.4",
     "@types/server-destroy": "^1.0.4",
-    "astro": "^5.0.0-alpha.0",
+    "astro": "^5.0.0-alpha.6",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "express": "^4.19.2",

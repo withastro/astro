@@ -21,13 +21,9 @@ describe('Trailing slash', () => {
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
 					base: '/some-base',
-					output: 'hybrid',
+					output: 'static',
 					trailingSlash: 'always',
 					outDir: './dist/always-with-base',
-					build: {
-						client: './dist/always-with-base/client',
-						server: './dist/always-with-base/server',
-					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
@@ -94,13 +90,9 @@ describe('Trailing slash', () => {
 
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
-					output: 'hybrid',
+					output: 'static',
 					trailingSlash: 'always',
 					outDir: './dist/always-without-base',
-					build: {
-						client: './dist/always-without-base/client',
-						server: './dist/always-without-base/server',
-					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
@@ -170,13 +162,9 @@ describe('Trailing slash', () => {
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
 					base: '/some-base',
-					output: 'hybrid',
+					output: 'static',
 					trailingSlash: 'never',
 					outDir: './dist/never-with-base',
-					build: {
-						client: './dist/never-with-base/client',
-						server: './dist/never-with-base/server',
-					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
@@ -236,13 +224,9 @@ describe('Trailing slash', () => {
 
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
-					output: 'hybrid',
+					output: 'static',
 					trailingSlash: 'never',
 					outDir: './dist/never-without-base',
-					build: {
-						client: './dist/never-without-base/client',
-						server: './dist/never-without-base/server',
-					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
@@ -305,13 +289,9 @@ describe('Trailing slash', () => {
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
 					base: '/some-base',
-					output: 'hybrid',
+					output: 'static',
 					trailingSlash: 'ignore',
 					outDir: './dist/ignore-with-base',
-					build: {
-						client: './dist/ignore-with-base/client',
-						server: './dist/ignore-with-base/server',
-					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
@@ -389,13 +369,9 @@ describe('Trailing slash', () => {
 
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
-					output: 'hybrid',
+					output: 'static',
 					trailingSlash: 'ignore',
 					outDir: './dist/ignore-without-base',
-					build: {
-						client: './dist/ignore-without-base/client',
-						server: './dist/ignore-without-base/server',
-					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
