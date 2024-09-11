@@ -64,13 +64,13 @@ export type AdapterSupportsKind = 'unsupported' | 'stable' | 'experimental' | 'd
 
 export interface AstroAdapterFeatures {
 	/**
-	 * Creates an edge function that will communiate with the Astro middleware
+	 * Creates an edge function that will communicate with the Astro middleware
 	 */
 	edgeMiddleware: boolean;
 	/**
-	 * Force Astro to output a server output, even if all the pages are prerendered
+	 * Determine the type of build output the adapter is intended for. Defaults to `server`;
 	 */
-	forceServerOutput?: boolean;
+	buildOutput?: 'static' | 'server';
 }
 
 export interface AstroAdapter {

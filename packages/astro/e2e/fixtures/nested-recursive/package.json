@@ -16,7 +16,7 @@
     "react-dom": "^18.3.1",
     "solid-js": "^1.8.22",
     "svelte": "^4.2.19",
-    "vue": "^3.4.38"
+    "vue": "^3.5.3"
   },
   "scripts": {
     "dev": "astro dev"

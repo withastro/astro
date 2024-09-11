@@ -18,6 +18,7 @@ import { apply as applyPolyfill } from '../polyfill.js';
 import { injectDefaultDevRoutes } from '../routing/dev-default.js';
 import { createRouteManifest } from '../routing/index.js';
 import { syncInternal } from '../sync/index.js';
+import { warnMissingAdapter } from './adapter-validation.js';
 
 export interface Container {
 	fs: typeof nodeFs;
@@ -87,6 +88,10 @@ export async function createContainer({
 
 	manifest = injectDefaultDevRoutes(settings, devSSRManifest, manifest);
 
+	await runHookConfigDone({ settings, logger, command: 'dev' });
+
+	warnMissingAdapter(logger, settings);
+
 	const viteConfig = await createVite(
 		{
 			mode: 'development',
@@ -107,7 +112,6 @@ export async function createContainer({
 		},
 	);
 
-	await runHookConfigDone({ settings, logger });
 	await syncInternal({
 		settings,
 		logger,

@@ -560,7 +560,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.client
 		 * @type {string}
-		 * @default `'./dist/client'`
+		 * @default `'./client'`
 		 * @description
 		 * Controls the output directory of your client-side CSS and JavaScript when building a website with server-rendered pages.
 		 * `outDir` controls where the code is built to.
@@ -581,7 +581,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.server
 		 * @type {string}
-		 * @default `'./dist/server'`
+		 * @default `'./server'`
 		 * @description
 		 * Controls the output directory of server JavaScript when building to SSR.
 		 *
@@ -904,24 +904,28 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name image.endpoint
-		 * @type {string}
-		 * @default `undefined`
+		 * @type {{route: string, entrypoint: undefined | string}}
+		 * @default `{route: '/_image', entrypoint: undefined}`
 		 * @version 3.1.0
 		 * @description
-		 * Set the endpoint to use for image optimization in dev and SSR. Set to `undefined` to use the default endpoint.
-		 *
-		 * The endpoint will always be injected at `/_image`.
+		 * Set the endpoint to use for image optimization in dev and SSR. The `entrypoint` property can be set to `undefined` to use the default image endpoint.
 		 *
 		 * ```js
 		 * {
 		 *   image: {
-		 *     // Example: Use a custom image endpoint
-		 *     endpoint: './src/image-endpoint.ts',
+		 *     // Example: Use a custom image endpoint at `/custom_endpoint`
+		 *     endpoint: {
+		 * 		 	route: '/custom_endpoint',
+		 * 		 	entrypoint: 'src/my_endpoint.ts',
+		 * 		},
 		 *   },
 		 * }
 		 * ```
 		 */
-		endpoint?: string;
+		endpoint?: {
+			route: '/_image' | (string & {});
+			entrypoint: undefined | string;
+		};
 
 		/**
 		 * @docs
@@ -1452,12 +1456,12 @@ export interface AstroUserConfig {
 		 *   }
 		 * })
 		 * ```
-		 * 
+		 *
 		 * `envField` supports four data types: string, number, enum, and boolean. `context` and `access` are required properties for all data types. The following shows the complete list of properties available for each data type:
-		 * 
+		 *
 		 * ```js
 		 * import { envField } from "astro/config"
-		 * 
+		 *
 		 * envField.string({
 		 *    // context & access
 		 *    optional: true,

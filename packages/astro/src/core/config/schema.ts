@@ -9,7 +9,7 @@ import { type BuiltinTheme, bundledThemes } from 'shiki';
 
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { EnvSchema } from '../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
@@ -57,14 +57,15 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	trailingSlash: 'ignore',
 	build: {
 		format: 'directory',
-		client: './dist/client/',
-		server: './dist/server/',
+		client: './client/',
+		server: './server/',
 		assets: '_astro',
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
 	},
 	image: {
+		endpoint: { entrypoint: undefined, route: '/_image' },
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 	},
 	devToolbar: {
@@ -240,7 +241,15 @@ export const AstroConfigSchema = z.object({
 		.optional(),
 	image: z
 		.object({
-			endpoint: z.string().optional(),
+			endpoint: z
+				.object({
+					route: z
+						.literal('/_image')
+						.or(z.string())
+						.default(ASTRO_CONFIG_DEFAULTS.image.endpoint.route),
+					entrypoint: z.string().optional(),
+				})
+				.default(ASTRO_CONFIG_DEFAULTS.image.endpoint),
 			service: z
 				.object({
 					entrypoint: z
@@ -540,6 +549,9 @@ export const AstroConfigSchema = z.object({
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
 
 export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
+	let originalBuildClient: string;
+	let originalBuildServer: string;
+
 	// We need to extend the global schema to add transforms that are relative to root.
 	// This is type checked against the global schema to make sure we still match.
 	const AstroConfigRelativeSchema = AstroConfigSchema.extend({
@@ -570,16 +582,30 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.union([z.literal('file'), z.literal('directory'), z.literal('preserve')])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.format),
+				// NOTE: `client` and `server` are transformed relative to the default outDir first,
+				// later we'll fix this to be relative to the actual `outDir`
 				client: z
 					.string()
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.client)
-					.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
+					.transform((val) => {
+						originalBuildClient = val;
+						return resolveDirAsUrl(
+							val,
+							path.resolve(fileProtocolRoot, ASTRO_CONFIG_DEFAULTS.outDir),
+						);
+					}),
 				server: z
 					.string()
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.server)
-					.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
+					.transform((val) => {
+						originalBuildServer = val;
+						return resolveDirAsUrl(
+							val,
+							path.resolve(fileProtocolRoot, ASTRO_CONFIG_DEFAULTS.outDir),
+						);
+					}),
 				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
 				assetsPrefix: z
 					.string()
@@ -636,19 +662,15 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		),
 	})
 		.transform((config) => {
-			// If the user changed outDir but not build.server, build.config, adjust so those
-			// are relative to the outDir, as is the expected default.
+			// If the user changed `outDir`, we need to also update `build.client` and `build.server`
+			// the be based on the correct `outDir`
 			if (
-				!config.build.server.toString().startsWith(config.outDir.toString()) &&
-				config.build.server.toString().endsWith('dist/server/')
+				config.outDir.toString() !==
+				resolveDirAsUrl(ASTRO_CONFIG_DEFAULTS.outDir, fileProtocolRoot).toString()
 			) {
-				config.build.server = new URL('./dist/server/', config.outDir);
-			}
-			if (
-				!config.build.client.toString().startsWith(config.outDir.toString()) &&
-				config.build.client.toString().endsWith('dist/client/')
-			) {
-				config.build.client = new URL('./dist/client/', config.outDir);
+				const outDirPath = fileURLToPath(config.outDir);
+				config.build.client = resolveDirAsUrl(originalBuildClient, outDirPath);
+				config.build.server = resolveDirAsUrl(originalBuildServer, outDirPath);
 			}
 
 			// Handle `base` trailing slash based on `trailingSlash` config
