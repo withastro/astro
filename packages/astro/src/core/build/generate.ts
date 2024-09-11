@@ -412,7 +412,6 @@ async function generatePath(
 	);
 
 	const request = createRequest({
-		base: config.base,
 		url,
 		headers: new Headers(),
 		logger,

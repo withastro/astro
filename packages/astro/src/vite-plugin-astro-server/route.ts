@@ -166,9 +166,9 @@ export async function handleRoute({
 	const filePath: URL | undefined = matchedRoute.filePath;
 	const { preloadedComponent } = matchedRoute;
 	route = matchedRoute.route;
+
 	// Allows adapters to pass in locals in dev mode.
 	request = createRequest({
-		base: config.base,
 		url,
 		headers: incomingRequest.headers,
 		method: incomingRequest.method,
