@@ -33,7 +33,7 @@ export function getRouteGenerator(
 				segment
 					.map((part) => {
 						if (part.spread) {
-							return `${part.content.slice(3)}`;
+							return `*${part.content.slice(3)}`;
 						} else if (part.dynamic) {
 							return `:${part.content}`;
 						} else {
