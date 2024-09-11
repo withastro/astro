@@ -130,7 +130,10 @@ export interface RouteData {
 	fallbackRoutes: RouteData[];
 
 	/**
-	 * If this route is the index
+	 * If this route is a directory index
+	 * For example:
+	 * - src/pages/index.astro
+	 * - src/pages/blog/index.astro
 	 */
 	isIndex: boolean;
 }
