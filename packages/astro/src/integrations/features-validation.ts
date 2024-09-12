@@ -90,7 +90,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'sharp',
-		() => settings.config?.image.service.entrypoint === 'astro/assets/services/sharp',
+		() => settings.config?.image?.service?.entrypoint === 'astro/assets/services/sharp',
 	);
 
 	return validationResult;

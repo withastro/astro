@@ -153,7 +153,6 @@ describe('Astro feature map', function () {
 				buildOutput: 'server',
 				config: { output: 'static' },
 			},
-			{},
 			defaultLogger,
 		);
 		assert.equal(result['hybridOutput'], false);
@@ -167,7 +166,6 @@ describe('Astro feature map', function () {
 				buildOutput: 'server',
 				config: { output: 'static' },
 			},
-			{},
 			defaultLogger,
 		);
 		assert.equal(result['hybridOutput'], false);
@@ -181,7 +179,6 @@ describe('Astro feature map', function () {
 				{
 					config: { output: 'static' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['staticOutput'], true);
@@ -195,7 +192,6 @@ describe('Astro feature map', function () {
 					buildOutput: 'static',
 					config: { output: 'static' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['staticOutput'], false);
@@ -209,7 +205,6 @@ describe('Astro feature map', function () {
 				{
 					config: { output: 'static' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['hybridOutput'], true);
@@ -225,7 +220,6 @@ describe('Astro feature map', function () {
 					buildOutput: 'server',
 					config: { output: 'static' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['hybridOutput'], false);
@@ -239,7 +233,6 @@ describe('Astro feature map', function () {
 				{
 					config: { output: 'server' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['serverOutput'], true);
@@ -254,7 +247,6 @@ describe('Astro feature map', function () {
 				{
 					config: { output: 'server' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['serverOutput'], false);
