@@ -1,6 +1,9 @@
+// Keep at the top
+import './polyfill.js';
+
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { SSRManifest } from 'astro';
-import { NodeApp, applyPolyfills } from 'astro/app/node';
+import { NodeApp } from 'astro/app/node';
 import { setGetEnv } from 'astro/env/setup';
 import {
 	ASTRO_LOCALS_HEADER,
@@ -9,8 +12,6 @@ import {
 	ASTRO_PATH_PARAM,
 } from './adapter.js';
 
-// Run polyfills immediately so any dependent code can use the globals
-applyPolyfills();
 setGetEnv((key) => process.env[key]);
 
 export const createExports = (
