@@ -339,6 +339,11 @@ interface AstroSharedContext<
 	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
 	 */
 	currentLocale: string | undefined;
+
+	/**
+	 * Whether the current route is prerendered or not.
+	 */
+	isPrerendered: boolean;
 }
 
 /**

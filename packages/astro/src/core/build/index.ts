@@ -18,14 +18,15 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { createKey } from '../encryption.js';
+import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { createRouteManifest } from '../routing/index.js';
 import { getServerIslandRouteData } from '../server-islands/endpoint.js';
 import { clearContentLayerCache } from '../sync/index.js';
-import { ensureProcessNodeEnv, isServerLikeOutput } from '../util.js';
+import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
@@ -56,6 +57,9 @@ export default async function build(
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
+
+	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+
 	if (inlineConfig.force) {
 		if (astroConfig.experimental.contentCollectionCache) {
 			const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
@@ -65,10 +69,8 @@ export default async function build(
 				logger.warn('content', 'content cache cleared (force)');
 			}
 		}
-		await clearContentLayerCache({ astroConfig, logger, fs });
+		await clearContentLayerCache({ settings, logger, fs });
 	}
-
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const builder = new AstroBuilder(settings, {
 		...options,
@@ -117,11 +119,19 @@ class AstroBuilder {
 			logger: logger,
 		});
 
-		if (isServerLikeOutput(this.settings.config)) {
-			this.settings = injectImageEndpoint(this.settings, 'build');
+		this.manifest = await createRouteManifest({ settings: this.settings }, this.logger);
+
+		if (this.settings.buildOutput === 'server') {
+			injectImageEndpoint(this.settings, this.manifest, 'build');
 		}
 
-		this.manifest = createRouteManifest({ settings: this.settings }, this.logger);
+		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
+
+		// If we're building for the server, we need to ensure that an adapter is installed.
+		// If the adapter installed does not support a server output, an error will be thrown when the adapter is added, so no need to check here.
+		if (!this.settings.config.adapter && this.settings.buildOutput === 'server') {
+			throw new AstroError(AstroErrorData.NoAdapterInstalled);
+		}
 
 		const viteConfig = await createVite(
 			{
@@ -137,15 +147,16 @@ class AstroBuilder {
 				mode: 'build',
 				command: 'build',
 				sync: false,
+				manifest: this.manifest,
 			},
 		);
-		await runHookConfigDone({ settings: this.settings, logger: logger });
 
 		const { syncInternal } = await import('../sync/index.js');
 		await syncInternal({
 			settings: this.settings,
 			logger,
 			fs,
+			manifest: this.manifest,
 		});
 
 		return { viteConfig };
@@ -182,6 +193,9 @@ class AstroBuilder {
 			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`),
 		);
 
+		const hasKey = hasEnvironmentKey();
+		const keyPromise = hasKey ? getEnvironmentKey() : createKey();
+
 		const opts: StaticBuildOptions = {
 			allPages,
 			settings: this.settings,
@@ -192,7 +206,7 @@ class AstroBuilder {
 			pageNames,
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
-			key: createKey(),
+			key: keyPromise,
 		};
 
 		const { internals, ssrOutputChunkNames, contentFileNames } = await viteBuild(opts);
@@ -211,7 +225,7 @@ class AstroBuilder {
 
 		// You're done! Time to clean up.
 		await runHookBuildDone({
-			config: this.settings.config,
+			settings: this.settings,
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
@@ -230,7 +244,7 @@ class AstroBuilder {
 				logger: this.logger,
 				timeStart: this.timer.init,
 				pageCount: pageNames.length,
-				buildMode: this.settings.config.output,
+				buildMode: this.settings.buildOutput!, // buildOutput is always set at this point
 			});
 		}
 	}

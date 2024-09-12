@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "6.0.0-alpha.0",
+  "version": "6.0.0-alpha.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -13,8 +13,7 @@
   "homepage": "https://astro.build",
   "main": "./dist/index.js",
   "exports": {
-    ".": "./dist/index.js",
-    "./dist/internal.js": "./dist/internal.js"
+    ".": "./dist/index.js"
   },
   "imports": {
     "#import-plugin": {
@@ -45,7 +44,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.0",
     "remark-smartypants": "^3.0.2",
-    "shiki": "^1.14.1",
+    "shiki": "^1.16.2",
     "unified": "^11.0.5",
     "unist-util-remove-position": "^5.0.0",
     "unist-util-visit": "^5.0.0",

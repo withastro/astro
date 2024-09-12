@@ -1,10 +1,5 @@
-import type { AstroMarkdownOptions, MarkdownProcessor, MarkdownVFile } from './types.js';
+import type { AstroMarkdownOptions, MarkdownProcessor } from './types.js';
 
-import {
-	InvalidAstroDataError,
-	safelyGetAstroData,
-	setVfileFrontmatter,
-} from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
 import { rehypePrism } from './rehype-prism.js';
@@ -21,12 +16,17 @@ import { unified } from 'unified';
 import { VFile } from 'vfile';
 import { rehypeImages } from './rehype-images.js';
 
-export { InvalidAstroDataError, setVfileFrontmatter } from './frontmatter-injection.js';
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export { rehypePrism } from './rehype-prism.js';
 export { rehypeShiki } from './rehype-shiki.js';
-export { createShikiHighlighter, type ShikiHighlighter } from './shiki.js';
+export { isFrontmatterValid } from './frontmatter.js';
+export {
+	createShikiHighlighter,
+	type ShikiHighlighter,
+	type CreateShikiHighlighterOptions,
+	type ShikiHighlighterHighlightOptions,
+} from './shiki.js';
 export * from './types.js';
 
 export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
@@ -123,10 +123,17 @@ export async function createMarkdownProcessor(
 
 	return {
 		async render(content, renderOpts) {
-			const vfile = new VFile({ value: content, path: renderOpts?.fileURL });
-			setVfileFrontmatter(vfile, renderOpts?.frontmatter ?? {});
+			const vfile = new VFile({
+				value: content,
+				path: renderOpts?.fileURL,
+				data: {
+					astro: {
+						frontmatter: renderOpts?.frontmatter ?? {},
+					},
+				},
+			});
 
-			const result: MarkdownVFile = await parser.process(vfile).catch((err) => {
+			const result = await parser.process(vfile).catch((err) => {
 				// Ensure that the error message contains the input filename
 				// to make it easier for the user to fix the issue
 				err = prefixError(err, `Failed to parse Markdown file "${vfile.path}"`);
@@ -135,17 +142,12 @@ export async function createMarkdownProcessor(
 				throw err;
 			});
 
-			const astroData = safelyGetAstroData(result.data);
-			if (astroData instanceof InvalidAstroDataError) {
-				throw astroData;
-			}
-
 			return {
 				code: String(result.value),
 				metadata: {
-					headings: result.data.__astroHeadings ?? [],
-					imagePaths: result.data.imagePaths ?? new Set(),
-					frontmatter: astroData.frontmatter ?? {},
+					headings: result.data.astro?.headings ?? [],
+					imagePaths: result.data.astro?.imagePaths ?? [],
+					frontmatter: result.data.astro?.frontmatter ?? {},
 				},
 			};
 		},

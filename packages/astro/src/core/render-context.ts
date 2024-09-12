@@ -38,9 +38,6 @@ export class RenderContext {
 	// The first route that this instance of the context attempts to render
 	originalRoute: RouteData;
 
-	// The component pattern to send to the users
-	routePattern: string;
-
 	private constructor(
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
@@ -55,7 +52,6 @@ export class RenderContext {
 		public props: Props = {},
 	) {
 		this.originalRoute = routeData;
-		this.routePattern = getAstroRoutePattern(routeData.component);
 	}
 
 	/**
@@ -111,8 +107,6 @@ export class RenderContext {
 		const { cookies, middleware, pipeline } = this;
 		const { logger, serverLike, streaming, manifest } = pipeline;
 
-		const isPrerendered = !serverLike || this.routeData.prerender;
-
 		const props =
 			Object.keys(this.props).length > 0
 				? this.props
@@ -125,7 +119,7 @@ export class RenderContext {
 						serverLike,
 						base: manifest.base,
 					});
-		const apiContext = this.createAPIContext(props, isPrerendered);
+		const apiContext = this.createAPIContext(props);
 
 		this.counter++;
 		if (this.counter === 4) {
@@ -154,7 +148,12 @@ export class RenderContext {
 
 			switch (this.routeData.type) {
 				case 'endpoint': {
-					response = await renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+					response = await renderEndpoint(
+						componentInstance as any,
+						ctx,
+						this.routeData.prerender,
+						logger,
+					);
 					break;
 				}
 				case 'redirect':
@@ -212,7 +211,7 @@ export class RenderContext {
 		return response;
 	}
 
-	createAPIContext(props: APIContext['props'], isPrerendered: boolean): APIContext {
+	createAPIContext(props: APIContext['props']): APIContext {
 		const context = this.createActionAPIContext();
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
@@ -222,11 +221,6 @@ export class RenderContext {
 			redirect,
 			getActionResult: createGetActionResult(context.locals),
 			callAction: createCallAction(context),
-			// Used internally by Actions middleware.
-			// TODO: discuss exposing this information from APIContext.
-			// middleware runs on prerendered routes in the dev server,
-			// so this is useful information to have.
-			_isPrerendered: isPrerendered,
 		});
 	}
 
@@ -264,7 +258,8 @@ export class RenderContext {
 
 		return {
 			cookies,
-			routePattern: this.routePattern,
+			routePattern: this.routeData.route,
+			isPrerendered: this.routeData.prerender,
 			get clientAddress() {
 				return renderContext.clientAddress();
 			},
@@ -449,7 +444,8 @@ export class RenderContext {
 		return {
 			generator: astroStaticPartial.generator,
 			glob: astroStaticPartial.glob,
-			routePattern: this.routePattern,
+			routePattern: this.routeData.route,
+			isPrerendered: this.routeData.prerender,
 			cookies,
 			get clientAddress() {
 				return renderContext.clientAddress();
@@ -484,17 +480,15 @@ export class RenderContext {
 			return Reflect.get(request, clientAddressSymbol) as string;
 		}
 
-		if (pipeline.serverLike) {
-			if (request.body === null) {
-				throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
-			}
+		if (request.body === null) {
+			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
+		}
 
-			if (pipeline.adapterName) {
-				throw new AstroError({
-					...AstroErrorData.ClientAddressNotAvailable,
-					message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
-				});
-			}
+		if (pipeline.adapterName) {
+			throw new AstroError({
+				...AstroErrorData.ClientAddressNotAvailable,
+				message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
+			});
 		}
 
 		throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
@@ -580,34 +574,4 @@ export class RenderContext {
 			duplex: 'half',
 		});
 	}
-}
-
-/**
- * Return the component path without the `srcDir` and `pages`
- * @param component
- */
-function getAstroRoutePattern(component: RouteData['component']): string {
-	let splitComponent = component.split('/');
-	while (true) {
-		const currentPart = splitComponent.shift();
-		if (!currentPart) {
-			break;
-		}
-
-		// "pages" isn't configurable, so it's safe to stop here
-		if (currentPart === 'pages') {
-			break;
-		}
-	}
-
-	const pathWithoutPages = splitComponent.join('/');
-	// This covers cases where routes don't have extensions, so they can be: [slug] or [...slug]
-	if (pathWithoutPages.endsWith(']')) {
-		return pathWithoutPages;
-	}
-	splitComponent = splitComponent.join('/').split('.');
-
-	// this should remove the extension
-	splitComponent.pop();
-	return '/' + splitComponent.join('/');
 }

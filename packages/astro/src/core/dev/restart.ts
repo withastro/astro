@@ -181,17 +181,13 @@ export async function createContainerWithAutomaticRestart({
 			{ key: 'c', description: '' },
 		];
 
-		if (restart.container.settings.config.experimental.contentLayer) {
-			customShortcuts.push({
-				key: 's',
-				description: 'sync content layer',
-				action: () => {
-					if (globalContentLayer.initialized()) {
-						globalContentLayer.get().sync();
-					}
-				},
-			});
-		}
+		customShortcuts.push({
+			key: 's',
+			description: 'sync content layer',
+			action: () => {
+				globalContentLayer.get()?.sync();
+			},
+		});
 		restart.container.viteServer.bindCLIShortcuts({
 			customShortcuts,
 		});

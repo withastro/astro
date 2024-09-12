@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 3.5.3
+
+### Patch Changes
+
+- [#11930](https://github.com/withastro/astro/pull/11930) [`4a44e82`](https://github.com/withastro/astro/commit/4a44e82bbdf0572190618d8c5882c63a6525a198) Thanks [@lukasbachlechner](https://github.com/lukasbachlechner)! - Preact components no longer throw an error if a property is null.
+
 ## 3.5.2
 
 ### Patch Changes

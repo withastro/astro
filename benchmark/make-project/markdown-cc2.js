@@ -70,11 +70,7 @@ const { Content } = await render(entry);
 		`\
 import { defineConfig } from 'astro/config';
 
-export default defineConfig({
-		experimental: {
-			contentLayer: true
-		}
-});`,
+export default defineConfig({});`,
 		'utf-8'
 	);
 }

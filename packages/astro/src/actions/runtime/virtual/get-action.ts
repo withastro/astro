@@ -1,4 +1,6 @@
 import type { ZodType } from 'zod';
+import { ActionNotFoundError } from '../../../core/errors/errors-data.js';
+import { AstroError } from '../../../core/errors/errors.js';
 import type { ActionAccept, ActionClient } from './server.js';
 
 /**
@@ -8,19 +10,30 @@ import type { ActionAccept, ActionClient } from './server.js';
  */
 export async function getAction(
 	path: string,
-): Promise<ActionClient<unknown, ActionAccept, ZodType> | undefined> {
+): Promise<ActionClient<unknown, ActionAccept, ZodType>> {
 	const pathKeys = path.replace('/_actions/', '').split('.');
 	// @ts-expect-error virtual module
 	let { server: actionLookup } = await import('astro:internal-actions');
 
+	if (actionLookup == null || !(typeof actionLookup === 'object')) {
+		throw new TypeError(
+			`Expected \`server\` export in actions file to be an object. Received ${typeof actionLookup}.`,
+		);
+	}
+
 	for (const key of pathKeys) {
 		if (!(key in actionLookup)) {
-			return undefined;
+			throw new AstroError({
+				...ActionNotFoundError,
+				message: ActionNotFoundError.message(pathKeys.join('.')),
+			});
 		}
 		actionLookup = actionLookup[key];
 	}
 	if (typeof actionLookup !== 'function') {
-		return undefined;
+		throw new TypeError(
+			`Expected handler for action ${pathKeys.join('.')} to be a function. Received ${typeof actionLookup}.`,
+		);
 	}
 	return actionLookup;
 }

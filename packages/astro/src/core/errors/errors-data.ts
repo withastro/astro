@@ -33,25 +33,7 @@ export const UnknownCompilerError = {
 	title: 'Unknown compiler error.',
 	hint: 'This is almost always a problem with the Astro compiler, not your code. Please open an issue at https://astro.build/issues/compiler.',
 } satisfies ErrorData;
-// 1xxx and 2xxx codes are reserved for compiler errors and warnings respectively
-/**
- * @docs
- * @see
- * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/)
- * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#astroredirect)
- * @description
- * The `Astro.redirect` function is only available when [Server-side rendering](/en/guides/server-side-rendering/) is enabled.
- *
- * To redirect on a static website, the [meta refresh attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) can be used. Certain hosts also provide config-based redirects (ex: [Netlify redirects](https://docs.netlify.com/routing/redirects/)).
- * @deprecated Deprecated since version 2.6.
- */
-export const StaticRedirectNotAvailable = {
-	name: 'StaticRedirectNotAvailable',
-	title: '`Astro.redirect` is not available in static mode.',
-	message:
-		"Redirects are only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
-	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information on how to enable SSR.',
-} satisfies ErrorData;
+
 /**
  * @docs
  * @see
@@ -91,9 +73,8 @@ export const PrerenderClientAddressNotAvailable = {
  */
 export const StaticClientAddressNotAvailable = {
 	name: 'StaticClientAddressNotAvailable',
-	title: '`Astro.clientAddress` is not available in static mode.',
-	message:
-		"`Astro.clientAddress` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
+	title: '`Astro.clientAddress` is not available in prerendered pages.',
+	message: '`Astro.clientAddress` is only available on pages that are server-rendered.',
 	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information on how to enable SSR.',
 } satisfies ErrorData;
 /**
@@ -304,21 +285,6 @@ export const InvalidGetStaticPathsReturn = {
 
 /**
  * @docs
- * @deprecated Deprecated since Astro 4.0. The RSS helper no longer exists with an error fallback.
- * @see
- * - [RSS Guide](https://docs.astro.build/en/guides/rss/)
- * @description
- * `getStaticPaths` no longer expose an helper for generating a RSS feed. We recommend migrating to the [@astrojs/rss](https://docs.astro.build/en/guides/rss/#setting-up-astrojsrss)integration instead.
- */
-export const GetStaticPathsRemovedRSSHelper = {
-	name: 'GetStaticPathsRemovedRSSHelper',
-	title: 'getStaticPaths RSS helper is not available anymore.',
-	message:
-		'The RSS helper has been removed from `getStaticPaths`. Try the new @astrojs/rss package instead.',
-	hint: 'See https://docs.astro.build/en/guides/rss/ for more information.',
-} satisfies ErrorData;
-/**
- * @docs
  * @see
  * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
  * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
@@ -400,8 +366,7 @@ export const GetStaticPathsRequired = {
 		'`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths` function from your dynamic route.',
 	hint: `See https://docs.astro.build/en/guides/routing/#dynamic-routes for more information on dynamic routes.
 
-Alternatively, set \`output: "server"\` or \`output: "hybrid"\` in your Astro config file to switch to a non-static server build. This error can also occur if using \`export const prerender = true;\`.
-See https://docs.astro.build/en/guides/server-side-rendering/ for more information on non-static rendering.`,
+	If you meant for this route to be server-rendered, set \`export const prerender = false;\` in the page.`,
 } satisfies ErrorData;
 /**
  * @docs
@@ -426,9 +391,27 @@ export const ReservedSlotName = {
 export const NoAdapterInstalled = {
 	name: 'NoAdapterInstalled',
 	title: 'Cannot use Server-side Rendering without an adapter.',
-	message: `Cannot use \`output: 'server'\` or \`output: 'hybrid'\` without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
+	message: `Cannot use server-rendered pages without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
 	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
+ * @description
+ * The currently configured adapter does not support server-side rendering, which is required for the current project setup.
+ *
+ * Depending on your adapter, there may be a different entrypoint to use for server-side rendering. For example, the `@astrojs/vercel` adapter has a `@astrojs/vercel/static` entrypoint for static rendering, and a `@astrojs/vercel/serverless` entrypoint for server-side rendering.
+ *
+ */
+export const AdapterSupportOutputMismatch = {
+	name: 'AdapterSupportOutputMismatch',
+	title: 'Adapter does not support server output.',
+	message: (adapterName: string) =>
+		`The \`${adapterName}\` adapter is configured to output a static website, but the project contains server-rendered pages. Please install and configure the appropriate server adapter for your final deployment.`,
+} satisfies ErrorData;
+
 /**
  * @docs
  * @description
@@ -730,28 +713,6 @@ export const NoImageMetadata = {
 	message: (imagePath: string | undefined) =>
 		`Could not process image metadata${imagePath ? ` for \`${imagePath}\`` : ''}.`,
 	hint: 'This is often caused by a corrupted or malformed image. Re-exporting the image from your image editor may fix this issue.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @deprecated This error is no longer Markdown specific and as such, as been replaced by `ImageNotFound`
- * @message
- * Could not find requested image `IMAGE_PATH` at `FULL_IMAGE_PATH`.
- * @see
- * - [Images](https://docs.astro.build/en/guides/images/)
- * @description
- * Astro could not find an image you included in your Markdown content. Usually, this is simply caused by a typo in the path.
- *
- * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `./`
- */
-export const MarkdownImageNotFound = {
-	name: 'MarkdownImageNotFound',
-	title: 'Image not found.',
-	message: (imagePath: string, fullImagePath: string | undefined) =>
-		`Could not find requested image \`${imagePath}\`${
-			fullImagePath ? ` at \`${fullImagePath}\`.` : '.'
-		}`,
-	hint: 'This is often caused by a typo in the image path. Please make sure the file exists, and is spelled correctly.',
 } satisfies ErrorData;
 
 /**
@@ -1141,22 +1102,6 @@ export const MissingMiddlewareForInternationalization = {
 } satisfies ErrorData;
 
 /**
- * @deprecated
- * @docs
- * @description
- * The user tried to rewrite using a route that doesn't exist, or it emitted a runtime error during its rendering phase.
- */
-export const RewriteEncounteredAnError = {
-	name: 'RewriteEncounteredAnError',
-	title:
-		"Astro couldn't find the route to rewrite, or if was found but it emitted an error during the rendering phase.",
-	message: (route: string, stack?: string) =>
-		`The route ${route} that you tried to render doesn't exist, or it emitted an error during the rendering phase. ${
-			stack ? stack : ''
-		}.`,
-} satisfies ErrorData;
-
-/**
  * @docs
  * @description
  * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error. If restarting the dev server does not fix the problem, please file an issue.
@@ -1502,7 +1447,7 @@ export const GetEntryDeprecationError = {
  * "title" is required.<br/>
  * "date" must be a valid date.
  * @description
- * A Markdown or MDX entry in `src/content/` does not match its collection schema.
+ * A Markdown or MDX entry does not match its collection schema.
  * Make sure that all required fields are present, and that all fields are of the correct type.
  * You can check against the collection schema in your `src/content/config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
@@ -1526,7 +1471,7 @@ export const InvalidContentEntryFrontmatterError = {
  * @see
  * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
  * @description
- * An entry in `src/content/` has an invalid `slug`. This field is reserved for generating entry slugs, and must be a string when present.
+ * A collection entry has an invalid `slug`. This field is reserved for generating entry slugs, and must be a string when present.
  */
 export const InvalidContentEntrySlugError = {
 	name: 'InvalidContentEntrySlugError',
@@ -1541,9 +1486,9 @@ export const InvalidContentEntrySlugError = {
 /**
  * @docs
  * @see
- * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/#defining-custom-slugs)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
- * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
+ * A legacy content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
  */
 export const ContentSchemaContainsSlugError = {
 	name: 'ContentSchemaContainsSlugError',
@@ -1555,24 +1500,10 @@ export const ContentSchemaContainsSlugError = {
 
 /**
  * @docs
- * @message A collection queried via `getCollection()` does not exist.
- * @deprecated Collections that do not exist no longer result in an error. A warning is given instead.
- * @description
- * When querying a collection, ensure a collection directory with the requested name exists under `src/content/`.
- */
-export const CollectionDoesNotExistError = {
-	name: 'CollectionDoesNotExistError',
-	title: 'Collection does not exist',
-	message: (collectionName: string) =>
-		`The collection **${collectionName}** does not exist. Ensure a collection directory with this name exists.`,
-	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on creating collections.',
-} satisfies ErrorData;
-/**
- * @docs
  * @see
- * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
- * A content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
+ * A legacy content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
  */
 export const MixedContentDataCollectionError = {
 	name: 'MixedContentDataCollectionError',
@@ -1584,9 +1515,9 @@ export const MixedContentDataCollectionError = {
 /**
  * @docs
  * @see
- * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
- * Content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
+ * Legacy content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
  */
 export const ContentCollectionTypeMismatchError = {
 	name: 'ContentCollectionTypeMismatchError',
@@ -1667,23 +1598,7 @@ export const ActionsWithoutServerOutputError = {
 /**
  * @docs
  * @see
- * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
- * @description
- * Action was called from a form using a GET request, but only POST requests are supported. This often occurs if `method="POST"` is missing on the form.
- * @deprecated Deprecated since version 4.13.2.
- */
-export const ActionsUsedWithForGetError = {
-	name: 'ActionsUsedWithForGetError',
-	title: 'An invalid Action query string was passed by a form.',
-	message: (actionName: string) =>
-		`Action ${actionName} was called from a form using a GET request, but only POST requests are supported. This often occurs if \`method="POST"\` is missing on the form.`,
-	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @see
- * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
+ * - [Actions handler reference](https://docs.astro.build/en/reference/api-reference/#handler-property)
  * @description
  * Action handler returned invalid data. Handlers should return serializable data types, and cannot return a Response object.
  */
@@ -1697,29 +1612,30 @@ export const ActionsReturnedInvalidDataError = {
 
 /**
  * @docs
- * @see
- * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
  * @description
- * The server received the query string `?_astroAction=name`, but could not find an action with that name. Use the action function's `.queryString` property to retrieve the form `action` URL.
+ * The server received a request for an action but could not find a match with the same name.
  */
-export const ActionQueryStringInvalidError = {
-	name: 'ActionQueryStringInvalidError',
-	title: 'An invalid Action query string was passed by a form.',
+export const ActionNotFoundError = {
+	name: 'ActionNotFoundError',
+	title: 'Action not found.',
 	message: (actionName: string) =>
-		`The server received the query string \`?_astroAction=${actionName}\`, but could not find an action with that name. If you changed an action's name in development, remove this query param from your URL and refresh.`,
-	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
+		`The server received a request for an action named \`${actionName}\` but could not find a match. If you renamed an action, check that you've updated your \`actions/index\` file and your calling code to match.`,
+	hint: 'You can run `astro check` to detect type errors caused by mismatched action names.',
 } satisfies ErrorData;
 
 /**
  * @docs
+ * @see
+ * - [`Astro.callAction()` reference](https://docs.astro.build/en/reference/api-reference/#astrocallaction)
  * @description
  * Action called from a server page or endpoint without using `Astro.callAction()`.
  */
 export const ActionCalledFromServerError = {
 	name: 'ActionCalledFromServerError',
 	title: 'Action unexpected called from the server.',
-	message: 'Action called from a server page or endpoint without using `Astro.callAction()`.',
-	hint: 'See the RFC section on server calls for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md#call-actions-directly-from-server-code',
+	message:
+		'Action called from a server page or endpoint without using `Astro.callAction()`. This wrapper must be used to call actions from server code.',
+	hint: 'See the `Astro.callAction()` reference for usage examples: https://docs.astro.build/en/reference/api-reference/#astrocallaction',
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.

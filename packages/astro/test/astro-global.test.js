@@ -46,17 +46,27 @@ describe('Astro Global', () => {
 				false,
 			);
 		});
-		
-		it("Astro.route.pattern has the right value in pages and components", async () => {
+
+		it('Astro.routePattern has the right value in pages and components', async () => {
 			let html = await fixture.fetch('/blog').then((res) => res.text());
 			let $ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \/index/);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \/index/);
+			assert.match($('#pattern').text(), /Astro route pattern: \//);
+			assert.match($('#pattern-middleware').text(), /Astro route pattern middleware: \//);
 			html = await fixture.fetch('/blog/omit-markdown-extensions/').then((res) => res.text());
 			$ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \/omit-markdown-extensions/);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \/omit-markdown-extensions/);
-		})
+			assert.match($('#pattern').text(), /Astro route pattern: \/omit-markdown-extensions/);
+			assert.match(
+				$('#pattern-middleware').text(),
+				/Astro route pattern middleware: \/omit-markdown-extensions/,
+			);
+		});
+
+		it('Astro.isPrerendered has the right value in pages and components', async () => {
+			let html = await fixture.fetch('/blog', {}).then((res) => res.text());
+			let $ = cheerio.load(html);
+			assert.match($('#prerender').text(), /Astro route prerender: true/);
+			assert.match($('#prerender-middleware').text(), /Astro route prerender middleware: true/);
+		});
 	});
 
 	describe('build', () => {
@@ -93,23 +103,41 @@ describe('Astro Global', () => {
 			assert.equal($('.post-url[href]').length, 8);
 		});
 
-		it("Astro.route.pattern has the right value in pages and components", async () => {
+		it('Astro.routePattern has the right value in pages and components', async () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \/index/);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \/index/);
+			assert.match($('#pattern').text(), /Astro route pattern: \//);
+			assert.match($('#pattern-middleware').text(), /Astro route pattern middleware: \//);
 
-			html =await fixture.readFile('/omit-markdown-extensions/index.html');
+			html = await fixture.readFile('/omit-markdown-extensions/index.html');
 			$ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \/omit-markdown-extensions/);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \/omit-markdown-extensions/);
+			assert.match($('#pattern').text(), /Astro route pattern: \/omit-markdown-extensions/);
+			assert.match(
+				$('#pattern-middleware').text(),
+				/Astro route pattern middleware: \/omit-markdown-extensions/,
+			);
 
 			html = await fixture.readFile('/posts/1/index.html');
 			$ = cheerio.load(html);
-			assert.equal($("#pattern").text(),  "Astro route pattern: /posts/[page]");
-			assert.equal($("#pattern-middleware").text(),  "Astro route pattern middleware: /posts/[page]");
+			assert.equal($('#pattern').text(), 'Astro route pattern: /posts/[page]');
+			assert.equal(
+				$('#pattern-middleware').text(),
+				'Astro route pattern middleware: /posts/[page]',
+			);
+		});
 
-		})
+		it('Astro.isPrerendered has the right value in pages and components', async () => {
+			let html = await fixture.readFile('/index.html');
+			let $ = cheerio.load(html);
+			assert.match($('#prerender').text(), /Astro route prerender: true/);
+			assert.match($('#prerender-middleware').text(), /Astro route prerender middleware: true/);
+
+			html = await fixture.readFile('/about/index.html');
+			$ = cheerio.load(html);
+			// It's prerendered since there's no adapter
+			assert.match($('#prerender').text(), /Astro route prerender: true/);
+			assert.match($('#prerender-middleware').text(), /Astro route prerender middleware: true/);
+		});
 	});
 
 	describe('app', () => {
@@ -135,18 +163,34 @@ describe('Astro Global', () => {
 			assert.equal($('#site').attr('href'), 'https://mysite.dev/subsite/');
 		});
 
-		it("Astro.route.pattern has the right value in pages and components", async () => {
+		it('Astro.routePattern has the right value in pages and components', async () => {
 			let response = await app.render(new Request('https://example.com/'));
 			let html = await response.text();
 			let $ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \/index/);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \/index/);
+			assert.match($('#pattern').text(), /Astro route pattern: \//);
+			assert.match($('#pattern-middleware').text(), /Astro route pattern middleware: \//);
 			response = await app.render(new Request('https://example.com/omit-markdown-extensions'));
 			html = await response.text();
 			$ = cheerio.load(html);
-			assert.match($("#pattern").text(),  /Astro route pattern: \/omit-markdown-extensions/);
-			assert.match($("#pattern-middleware").text(),  /Astro route pattern middleware: \/omit-markdown-extensions/);
-		})
+			assert.match($('#pattern').text(), /Astro route pattern: \/omit-markdown-extensions/);
+			assert.match(
+				$('#pattern-middleware').text(),
+				/Astro route pattern middleware: \/omit-markdown-extensions/,
+			);
+		});
+
+		it('Astro.isPrerendered has the right value in pages and components', async () => {
+			let html = await app.render(new Request('https://example.com/')).then((res) => res.text());
+			let $ = cheerio.load(html);
+			// It's NOT prerendered since there's an adapter + output server
+			assert.match($('#prerender').text(), /Astro route prerender: false/);
+			assert.match($('#prerender-middleware').text(), /Astro route prerender middleware: false/);
+
+			html = await app.render(new Request('https://example.com/about')).then((res) => res.text());
+			$ = cheerio.load(html);
+			assert.match($('#prerender').text(), /Astro route prerender: false/);
+			assert.match($('#prerender-middleware').text(), /Astro route prerender middleware: false/);
+		});
 	});
 });
 

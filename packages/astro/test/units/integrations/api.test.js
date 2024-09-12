@@ -8,10 +8,16 @@ import {
 } from '../../../dist/integrations/hooks.js';
 import { defaultLogger } from '../test-utils.js';
 
+const defaultConfig = {
+	root: new URL('./', import.meta.url),
+	srcDir: new URL('src/', import.meta.url),
+};
+
 describe('Integration API', () => {
 	it('runHookBuildSetup should work', async () => {
 		const updatedViteConfig = await runHookBuildSetup({
 			config: {
+				...defaultConfig,
 				integrations: [
 					{
 						name: 'test',
@@ -39,6 +45,7 @@ describe('Integration API', () => {
 		let updatedInternalConfig;
 		const updatedViteConfig = await runHookBuildSetup({
 			config: {
+				...defaultConfig,
 				integrations: [
 					{
 						name: 'test',
@@ -68,6 +75,7 @@ describe('Integration API', () => {
 			logger: defaultLogger,
 			settings: {
 				config: {
+					...defaultConfig,
 					integrations: [
 						{
 							name: 'test',
@@ -90,6 +98,7 @@ describe('Integration API', () => {
 			logger: defaultLogger,
 			settings: {
 				config: {
+					...defaultConfig,
 					integrations: [
 						{
 							name: 'test',
@@ -128,7 +137,7 @@ describe('Astro feature map', function () {
 				hybridOutput: 'stable',
 			},
 			{
-				output: 'hybrid',
+				config: { output: 'static' },
 			},
 			{},
 			defaultLogger,
@@ -141,7 +150,8 @@ describe('Astro feature map', function () {
 			'test',
 			{},
 			{
-				output: 'hybrid',
+				buildOutput: 'server',
+				config: { output: 'static' },
 			},
 			{},
 			defaultLogger,
@@ -154,7 +164,8 @@ describe('Astro feature map', function () {
 			'test',
 			{},
 			{
-				output: 'hybrid',
+				buildOutput: 'server',
+				config: { output: 'static' },
 			},
 			{},
 			defaultLogger,
@@ -168,7 +179,7 @@ describe('Astro feature map', function () {
 				'test',
 				{ staticOutput: 'stable' },
 				{
-					output: 'static',
+					config: { output: 'static' },
 				},
 				{},
 				defaultLogger,
@@ -181,7 +192,8 @@ describe('Astro feature map', function () {
 				'test',
 				{ staticOutput: 'unsupported' },
 				{
-					output: 'static',
+					buildOutput: 'static',
+					config: { output: 'static' },
 				},
 				{},
 				defaultLogger,
@@ -195,7 +207,7 @@ describe('Astro feature map', function () {
 				'test',
 				{ hybridOutput: 'stable' },
 				{
-					output: 'hybrid',
+					config: { output: 'static' },
 				},
 				{},
 				defaultLogger,
@@ -210,7 +222,8 @@ describe('Astro feature map', function () {
 					hybridOutput: 'unsupported',
 				},
 				{
-					output: 'hybrid',
+					buildOutput: 'server',
+					config: { output: 'static' },
 				},
 				{},
 				defaultLogger,
@@ -224,7 +237,7 @@ describe('Astro feature map', function () {
 				'test',
 				{ serverOutput: 'stable' },
 				{
-					output: 'server',
+					config: { output: 'server' },
 				},
 				{},
 				defaultLogger,
@@ -239,7 +252,7 @@ describe('Astro feature map', function () {
 					serverOutput: 'unsupported',
 				},
 				{
-					output: 'server',
+					config: { output: 'server' },
 				},
 				{},
 				defaultLogger,
@@ -259,9 +272,11 @@ describe('Astro feature map', function () {
 					},
 				},
 				{
-					image: {
-						service: {
-							entrypoint: 'astro/assets/services/sharp',
+					config: {
+						image: {
+							service: {
+								entrypoint: 'astro/assets/services/sharp',
+							},
 						},
 					},
 				},
@@ -281,9 +296,11 @@ describe('Astro feature map', function () {
 					},
 				},
 				{
-					image: {
-						service: {
-							entrypoint: 'astro/assets/services/sharp',
+					config: {
+						image: {
+							service: {
+								entrypoint: 'astro/assets/services/sharp',
+							},
 						},
 					},
 				},

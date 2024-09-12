@@ -11,8 +11,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "^6.0.0-alpha.0",
-    "astro": "^5.0.0-alpha.1",
+    "@astrojs/markdown-remark": "^6.0.0-alpha.1",
+    "astro": "^5.0.0-alpha.6",
     "hast-util-select": "^6.0.2",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slug": "^6.0.0",
