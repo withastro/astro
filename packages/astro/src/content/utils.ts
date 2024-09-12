@@ -535,7 +535,7 @@ export async function autogenerateCollections({
 	const contentPattern = globWithUnderscoresIgnored('', contentExts);
 	const dataPattern = globWithUnderscoresIgnored('', dataExts);
 	for (const dir of collectionDirs) {
-		if (!dir.isDirectory() || dir.name.startsWith('_')) {
+		if (!(dir.isDirectory() || dir.isSymbolicLink()) || dir.name.startsWith('_')) {
 			continue;
 		}
 		const collectionName = dir.name;

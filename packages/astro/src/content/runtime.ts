@@ -166,16 +166,22 @@ export function createGetEntryBySlug({
 	getEntryImport,
 	getRenderEntryImport,
 	collectionNames,
+	getEntry,
 }: {
 	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
 	collectionNames: Set<string>;
+	getEntry: ReturnType<typeof createGetEntry>;
 }) {
 	return async function getEntryBySlug(collection: string, slug: string) {
 		const store = await globalDataStore.get();
 
 		if (!collectionNames.has(collection)) {
 			if (store.hasCollection(collection)) {
+				const entry = await getEntry(collection, slug);
+				if(entry && 'slug' in entry) {
+					return entry;
+				}
 				throw new AstroError({
 					...AstroErrorData.GetEntryDeprecationError,
 					message: AstroErrorData.GetEntryDeprecationError.message(collection, 'getEntryBySlug'),
@@ -211,19 +217,18 @@ export function createGetEntryBySlug({
 export function createGetDataEntryById({
 	getEntryImport,
 	collectionNames,
+	getEntry
 }: {
 	getEntryImport: GetEntryImport;
 	collectionNames: Set<string>;
+	getEntry: ReturnType<typeof createGetEntry>;
 }) {
 	return async function getDataEntryById(collection: string, id: string) {
 		const store = await globalDataStore.get();
 
 		if (!collectionNames.has(collection)) {
 			if (store.hasCollection(collection)) {
-				throw new AstroError({
-					...AstroErrorData.GetEntryDeprecationError,
-					message: AstroErrorData.GetEntryDeprecationError.message(collection, 'getDataEntryById'),
-				});
+				return getEntry(collection, id);
 			}
 			// eslint-disable-next-line no-console
 			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);

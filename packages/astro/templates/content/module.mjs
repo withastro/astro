@@ -58,22 +58,25 @@ export const getCollection = createGetCollection({
 	cacheEntriesByCollection,
 });
 
-export const getEntryBySlug = createGetEntryBySlug({
-	getEntryImport: createGlobLookup(contentCollectionToEntryMap),
-	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
-	collectionNames,
-});
-
-export const getDataEntryById = createGetDataEntryById({
-	getEntryImport: createGlobLookup(dataCollectionToEntryMap),
-	collectionNames,
-});
-
 export const getEntry = createGetEntry({
 	getEntryImport: createGlobLookup(collectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 	collectionNames,
 });
+
+export const getEntryBySlug = createGetEntryBySlug({
+	getEntryImport: createGlobLookup(contentCollectionToEntryMap),
+	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
+	collectionNames,
+	getEntry
+});
+
+export const getDataEntryById = createGetDataEntryById({
+	getEntryImport: createGlobLookup(dataCollectionToEntryMap),
+	collectionNames,
+	getEntry
+});
+
 
 export const getEntries = createGetEntries(getEntry);
 

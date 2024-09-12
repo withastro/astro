@@ -35,7 +35,7 @@ function generateIdDefault({ entry, base, data }: GenerateIdOptions): string {
 	if (data.slug) {
 		return data.slug as string;
 	}
-	const entryURL = new URL(entry, base);
+	const entryURL = new URL(encodeURI(entry), base);
 	const { slug } = getContentEntryIdAndSlug({
 		entry: entryURL,
 		contentDir: base,
@@ -97,7 +97,7 @@ export function glob(globOptions: GlobOptions): Loader {
 			>();
 
 			const untouchedEntries = new Set(store.keys());
-			const _legacy = '_legacy' in globOptions || undefined;
+			const isLegacy = '_legacy' in globOptions || undefined;
 
 
 			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
@@ -105,7 +105,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					logger.warn(`No entry type found for ${entry}`);
 					return;
 				}
-				const fileUrl = new URL(entry, base);
+				const fileUrl = new URL(encodeURI(entry), base);
 				const contents = await fs.readFile(fileUrl, 'utf-8').catch((err) => {
 					logger.error(`Error reading ${entry}: ${err.message}`);
 					return;
@@ -124,8 +124,8 @@ export function glob(globOptions: GlobOptions): Loader {
 				const id = generateId({ entry, base, data })
 				let legacyId: string | undefined;
 
-				if (_legacy) {
-					const entryURL = new URL(entry, base);
+				if (isLegacy) {
+					const entryURL = new URL(encodeURI(entry), base);
 					const legacyOptions = getContentEntryIdAndSlug({
 						entry: entryURL,
 						contentDir: base,
@@ -254,7 +254,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					if (isConfigFile(entry)) {
 						return;
 					}
-					if (!_legacy && isInContentDir(entry)) {
+					if (!isLegacy && isInContentDir(entry)) {
 						skippedFiles.push(entry);
 						return;
 					}
