@@ -1486,7 +1486,7 @@ export const InvalidContentEntrySlugError = {
 /**
  * @docs
  * @see
- * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
  * A legacy content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
  */
@@ -1501,7 +1501,7 @@ export const ContentSchemaContainsSlugError = {
 /**
  * @docs
  * @see
- * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
  * A legacy content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
  */
@@ -1515,7 +1515,7 @@ export const MixedContentDataCollectionError = {
 /**
  * @docs
  * @see
- * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
  * Legacy content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
  */
