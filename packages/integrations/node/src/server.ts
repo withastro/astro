@@ -1,13 +1,14 @@
+// Keep at the top
+import './polyfill.js';
+
 import type { SSRManifest } from 'astro';
-import { NodeApp, applyPolyfills } from 'astro/app/node';
+import { NodeApp } from 'astro/app/node';
 import { setGetEnv } from 'astro/env/setup';
 import createMiddleware from './middleware.js';
 import { createStandaloneHandler } from './standalone.js';
 import startServer from './standalone.js';
 import type { Options } from './types.js';
 
-// This needs to run first because some internals depend on `crypto`
-applyPolyfills();
 setGetEnv((key) => process.env[key]);
 
 export function createExports(manifest: SSRManifest, options: Options) {
