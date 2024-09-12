@@ -1,8 +1,8 @@
-import type { MarkdownVFile } from '@astrojs/markdown-remark';
 import type { Properties, Root } from 'hast';
 import type { MdxJsxAttribute, MdxjsEsm } from 'mdast-util-mdx';
 import type { MdxJsxFlowElementHast } from 'mdast-util-mdx-jsx';
 import { visit } from 'unist-util-visit';
+import type { VFile } from 'vfile';
 import { jsToTreeNode } from './utils.js';
 
 export const ASTRO_IMAGE_ELEMENT = 'astro-image';
@@ -72,18 +72,18 @@ function getImageComponentAttributes(props: Properties): MdxJsxAttribute[] {
 }
 
 export function rehypeImageToComponent() {
-	return function (tree: Root, file: MarkdownVFile) {
-		if (!file.data.imagePaths) return;
+	return function (tree: Root, file: VFile) {
+		if (!file.data.astro?.imagePaths) return;
 
 		const importsStatements: MdxjsEsm[] = [];
 		const importedImages = new Map<string, string>();
 
 		visit(tree, 'element', (node, index, parent) => {
-			if (!file.data.imagePaths || node.tagName !== 'img' || !node.properties.src) return;
+			if (!file.data.astro?.imagePaths || node.tagName !== 'img' || !node.properties.src) return;
 
 			const src = decodeURI(String(node.properties.src));
 
-			if (!file.data.imagePaths.has(src)) return;
+			if (!file.data.astro.imagePaths?.includes(src)) return;
 
 			let importName = importedImages.get(src);
 

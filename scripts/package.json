@@ -10,10 +10,10 @@
   "dependencies": {
     "esbuild": "^0.21.5",
     "esbuild-plugin-copy": "^2.1.1",
-    "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
     "kleur": "^4.1.5",
     "p-limit": "^6.1.0",
-    "tsconfck": "^3.1.1"
+    "tinyexec": "^0.3.0",
+    "tsconfck": "^3.1.3"
   }
 }

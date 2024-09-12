@@ -1337,10 +1337,6 @@ describe('[SSR] i18n routing', () => {
 				root: './fixtures/i18n-routing-prefix-always/',
 				output: 'server',
 				outDir: './dist/pathname-prefix-always-no-redirect',
-				build: {
-					client: './dist/pathname-prefix-always-no-redirect/client',
-					server: './dist/pathname-prefix-always-no-redirect/server',
-				},
 				adapter: testAdapter(),
 				i18n: {
 					routing: {
@@ -1628,10 +1624,6 @@ describe('[SSR] i18n routing', () => {
 					root: './fixtures/i18n-routing/',
 					output: 'server',
 					outDir: './dist/locales-underscore',
-					build: {
-						client: './dist/locales-underscore/client',
-						server: './dist/locales-underscore/server',
-					},
 					adapter: testAdapter(),
 					i18n: {
 						defaultLocale: 'en',
@@ -1763,7 +1755,7 @@ describe('[SSR] i18n routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-routing-prefix-always/',
-				output: 'hybrid',
+				output: 'static',
 				adapter: testAdapter(),
 			});
 			await fixture.build();
@@ -1902,10 +1894,6 @@ describe('SSR fallback from missing locale index to default locale index', () =>
 			root: './fixtures/i18n-routing-prefix-other-locales/',
 			output: 'server',
 			outDir: './dist/missing-locale-to-default',
-			build: {
-				client: './dist/missing-locale-to-default/client',
-				server: './dist/missing-locale-to-default/server',
-			},
 			adapter: testAdapter(),
 			i18n: {
 				defaultLocale: 'en',
@@ -1927,5 +1915,104 @@ describe('SSR fallback from missing locale index to default locale index', () =>
 		let response = await app.render(request);
 		assert.equal(response.status, 302);
 		assert.equal(response.headers.get('location'), '/');
+	});
+});
+
+describe('Fallback rewrite dev server', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-fallback/',
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr'],
+				routing: {
+					prefixDefaultLocale: false,
+				},
+				fallback: {
+					fr: 'en',
+				},
+				fallbackType: 'rewrite',
+			},
+		});
+		devServer = await fixture.startDevServer();
+	});
+	after(async () => {
+		devServer.stop();
+	});
+
+	it('should correctly rewrite to en', async () => {
+		const html = await fixture.fetch('/fr').then((res) => res.text());
+		assert.match(html, /Hello/);
+		// assert.fail()
+	});
+});
+
+describe('Fallback rewrite SSG', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-fallback/',
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr'],
+				routing: {
+					prefixDefaultLocale: false,
+					fallbackType: 'rewrite',
+				},
+				fallback: {
+					fr: 'en',
+				},
+			},
+		});
+		await fixture.build();
+		// app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly rewrite to en', async () => {
+		const html = await fixture.readFile('/fr/index.html');
+		assert.match(html, /Hello/);
+		// assert.fail()
+	});
+});
+
+describe('Fallback rewrite SSR', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-fallback/',
+			output: 'server',
+			outDir: './dist/i18n-routing-fallback',
+			adapter: testAdapter(),
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr'],
+				routing: {
+					prefixDefaultLocale: false,
+					fallbackType: 'rewrite',
+				},
+				fallback: {
+					fr: 'en',
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly rewrite to en', async () => {
+		const request = new Request('http://example.com/fr');
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		assert.match(html, /Hello/);
 	});
 });

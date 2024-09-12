@@ -14,7 +14,7 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
-import { toRoutingStrategy } from '../../i18n/utils.js';
+import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated } from '../../integrations/hooks.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
@@ -35,7 +35,7 @@ import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
-import { getOutputFilename, isServerLikeOutput } from '../util.js';
+import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { cssOrder, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
@@ -49,12 +49,12 @@ import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
-	const ssr = isServerLikeOutput(options.settings.config);
+	const ssr = options.settings.buildOutput === 'server';
 	let manifest: SSRManifest;
 	if (ssr) {
 		manifest = await BuildPipeline.retrieveManifest(options, internals);
 	} else {
-		const baseDirectory = getOutputDirectory(options.settings.config);
+		const baseDirectory = getOutputDirectory(options.settings);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
 		let middleware: MiddlewareHandler = (_, next) => next();
@@ -80,7 +80,6 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
 	if (ssr && !hasPrerenderedPages(internals)) {
 		delete globalThis?.astroAsset?.addStaticImage;
-		return;
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
@@ -138,7 +137,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
 
-	await runHookBuildGenerated({ config, logger });
+	await runHookBuildGenerated({ settings: options.settings, logger });
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
@@ -160,7 +159,6 @@ async function generatePage(
 		.reduce(mergeInlineCss, []);
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 	const linkIds: [] = [];
-	const scripts = pageData.hoistedScript ?? null;
 	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`,
@@ -170,7 +168,7 @@ async function generatePage(
 	const generationOptions: Readonly<GeneratePathOptions> = {
 		pageData,
 		linkIds,
-		scripts,
+		scripts: null,
 		styles,
 		mod: pageModule,
 	};
@@ -220,7 +218,7 @@ async function getPathsForRoute(
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
-	const { logger, options, routeCache, serverLike } = pipeline;
+	const { logger, options, routeCache, serverLike, config } = pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
@@ -232,6 +230,7 @@ async function getPathsForRoute(
 			routeCache,
 			logger,
 			ssr: serverLike,
+			base: config.base,
 		}).catch((err) => {
 			logger.error('build', `Failed to call getStaticPaths for ${route.component}`);
 			throw err;
@@ -413,11 +412,10 @@ async function generatePath(
 	);
 
 	const request = createRequest({
-		base: config.base,
 		url,
 		headers: new Headers(),
 		logger,
-		staticLike: true,
+		isPrerendered: true,
 	});
 	const renderContext = RenderContext.create({ pipeline, pathname, request, routeData: route });
 
@@ -466,7 +464,7 @@ async function generatePath(
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	const outFolder = getOutFolder(config, pathname, route);
+	const outFolder = getOutFolder(pipeline.settings, pathname, route);
 	const outFile = getOutFile(config, outFolder, pathname, route);
 	route.distURL = outFile;
 
@@ -504,6 +502,7 @@ function createBuildManifest(
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
+			fallbackType: toFallbackType(settings.config.i18n.routing),
 			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,

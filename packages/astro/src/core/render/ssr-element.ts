@@ -73,13 +73,3 @@ export function createModuleScriptElementWithSrc(
 		children: '',
 	};
 }
-
-export function createModuleScriptsSet(
-	scripts: { type: 'inline' | 'external'; value: string }[],
-	base?: string,
-	assetsPrefix?: AssetsPrefix,
-): Set<SSRElement> {
-	return new Set<SSRElement>(
-		scripts.map((script) => createModuleScriptElement(script, base, assetsPrefix)),
-	);
-}

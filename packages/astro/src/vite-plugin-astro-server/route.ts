@@ -66,6 +66,7 @@ export async function matchRoute(
 				pathname: pathname,
 				logger,
 				serverLike,
+				base: config.base,
 			});
 			return {
 				route: maybeRoute,
@@ -165,16 +166,16 @@ export async function handleRoute({
 	const filePath: URL | undefined = matchedRoute.filePath;
 	const { preloadedComponent } = matchedRoute;
 	route = matchedRoute.route;
+
 	// Allows adapters to pass in locals in dev mode.
 	request = createRequest({
-		base: config.base,
 		url,
 		headers: incomingRequest.headers,
 		method: incomingRequest.method,
 		body,
 		logger,
 		clientAddress: incomingRequest.socket.remoteAddress,
-		staticLike: config.output === 'static' || route.prerender,
+		isPrerendered: route.prerender,
 	});
 
 	// Set user specified headers to response object.

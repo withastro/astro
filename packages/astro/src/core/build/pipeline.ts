@@ -1,20 +1,21 @@
 import { getOutputDirectory } from '../../prerender/utils.js';
 import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
-import type { RouteData, SSRLoadedRenderer, SSRResult } from '../../types/public/internal.js';
+import type {
+	RouteData,
+	SSRElement,
+	SSRLoadedRenderer,
+	SSRResult,
+} from '../../types/public/internal.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
+import type { TryRewriteResult } from '../base-pipeline.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
-import {
-	createAssetLink,
-	createModuleScriptsSet,
-	createStylesheetElementSet,
-} from '../render/ssr-element.js';
+import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
-import { isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
 import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
@@ -37,8 +38,7 @@ export class BuildPipeline extends Pipeline {
 	#routesByFilePath: WeakMap<RouteData, string> = new WeakMap<RouteData, string>();
 
 	get outFolder() {
-		const ssr = isServerLikeOutput(this.settings.config);
-		return ssr
+		return this.settings.buildOutput === 'server'
 			? this.settings.config.build.server
 			: getOutDirWithinCwd(this.settings.config.outDir);
 	}
@@ -72,7 +72,7 @@ export class BuildPipeline extends Pipeline {
 			return assetLink;
 		}
 
-		const serverLike = isServerLikeOutput(config);
+		const serverLike = settings.buildOutput === 'server';
 		// We can skip streaming in SSG for performance as writing as strings are faster
 		const streaming = serverLike;
 		super(
@@ -111,8 +111,7 @@ export class BuildPipeline extends Pipeline {
 		staticBuildOptions: StaticBuildOptions,
 		internals: BuildInternals,
 	): Promise<SSRManifest> {
-		const config = staticBuildOptions.settings.config;
-		const baseDirectory = getOutputDirectory(config);
+		const baseDirectory = getOutputDirectory(staticBuildOptions.settings);
 		const manifestEntryUrl = new URL(
 			`${internals.manifestFileName}?time=${Date.now()}`,
 			baseDirectory,
@@ -153,11 +152,7 @@ export class BuildPipeline extends Pipeline {
 		} = this;
 		const links = new Set<never>();
 		const pageBuildData = getPageData(internals, routeData.route, routeData.component);
-		const scripts = createModuleScriptsSet(
-			pageBuildData?.hoistedScript ? [pageBuildData.hoistedScript] : [],
-			base,
-			assetsPrefix,
-		);
+		const scripts = new Set<SSRElement>();
 		const sortedCssAssets = pageBuildData?.styles
 			.sort(cssOrder)
 			.map(({ sheet }) => sheet)
@@ -268,8 +263,8 @@ export class BuildPipeline extends Pipeline {
 		payload: RewritePayload,
 		request: Request,
 		_sourceRoute: RouteData,
-	): Promise<[RouteData, ComponentInstance, URL]> {
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+	): Promise<TryRewriteResult> {
+		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.options.manifest.routes,
@@ -278,8 +273,8 @@ export class BuildPipeline extends Pipeline {
 			base: this.config.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { routeData, componentInstance, newUrl, pathname };
 	}
 
 	async retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {

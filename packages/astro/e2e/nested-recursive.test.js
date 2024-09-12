@@ -3,7 +3,7 @@ import { loadFixture, waitForHydrate } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
-		const fixture = await loadFixture({ root: './fixtures/nested-recursive/' });
+		const fixture = await loadFixture(import.meta.url, { root: './fixtures/nested-recursive/' });
 		await use(fixture);
 	},
 });

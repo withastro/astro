@@ -1,7 +1,7 @@
+import type { z } from 'zod';
 import type {
 	ActionAccept,
 	ActionClient,
-	ActionInputSchema,
 	ActionReturnType,
 } from '../../actions/runtime/virtual/server.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../core/constants.js';
@@ -137,6 +137,16 @@ export interface AstroGlobal<
 	 * ```
 	 */
 	rewrite: AstroSharedContext['rewrite'];
+
+	/**
+	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
+	 *
+	 * ## Example
+	 * - The value when rendering `src/pages/index.astro` will `index`.
+	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
+	 * - The value when rendering `src/pages/[...path].astro` will `[...path]`.
+	 */
+	routePattern: string;
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
@@ -209,6 +219,7 @@ export interface AstroGlobalPartial {
 	 * ```
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroglob)
+	 * @deprecated Astro.glob is deprecated and will be removed in the next major version of Astro. Use `import.meta.glob` instead: https://vitejs.dev/guide/features.html#glob-import
 	 */
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(
@@ -262,7 +273,7 @@ interface AstroSharedContext<
 	 */
 	getActionResult: <
 		TAccept extends ActionAccept,
-		TInputSchema extends ActionInputSchema<TAccept>,
+		TInputSchema extends z.ZodType,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction,
@@ -272,7 +283,7 @@ interface AstroSharedContext<
 	 */
 	callAction: <
 		TAccept extends ActionAccept,
-		TInputSchema extends ActionInputSchema<TAccept>,
+		TInputSchema extends z.ZodType,
 		TOutput,
 		TAction extends
 			| ActionClient<TOutput, TAccept, TInputSchema>
@@ -328,6 +339,11 @@ interface AstroSharedContext<
 	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
 	 */
 	currentLocale: string | undefined;
+
+	/**
+	 * Whether the current route is prerendered or not.
+	 */
+	isPrerendered: boolean;
 }
 
 /**
@@ -498,4 +514,14 @@ export interface APIContext<
 	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
 	 */
 	currentLocale: string | undefined;
+
+	/**
+	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
+	 *
+	 * ## Example
+	 * - The value when rendering `src/pages/index.astro` will `index`.
+	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
+	 * - The value when rendering `src/pages/[...path].astro` will `[...path]`.
+	 */
+	routePattern: string;
 }

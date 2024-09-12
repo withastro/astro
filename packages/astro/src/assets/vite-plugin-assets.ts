@@ -10,7 +10,6 @@ import {
 	removeBase,
 	removeQueryString,
 } from '../core/path.js';
-import { isServerLikeOutput } from '../core/util.js';
 import type { AstroPluginOptions, AstroSettings } from '../types/astro.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import type { ImageTransform } from './types.js';
@@ -102,7 +101,7 @@ export default function assets({
 	};
 
 	return [
-		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
+		// Expose the components and different utilities from `astro:assets`
 		{
 			name: 'astro:assets',
 			async resolveId(id) {
@@ -131,7 +130,7 @@ export default function assets({
 					// so that it's tree-shaken away for all platforms that don't need it.
 					export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
 						new URL(
-							isServerLikeOutput(settings.config)
+							settings.buildOutput === 'server'
 								? settings.config.build.client
 								: settings.config.outDir,
 						),
@@ -222,7 +221,7 @@ export default function assets({
 					if (options?.ssr) {
 						return `export default ${getProxyCode(
 							imageMetadata,
-							isServerLikeOutput(settings.config),
+							settings.buildOutput === 'server',
 						)}`;
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);

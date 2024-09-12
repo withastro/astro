@@ -1,3 +1,4 @@
+/// <reference path='./client.d.ts' />
 type ViteUserConfig = import('vite').UserConfig;
 type ViteUserConfigFn = import('vite').UserConfigFn;
 type AstroUserConfig = import('./dist/types/public/config.js').AstroUserConfig;

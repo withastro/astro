@@ -9,7 +9,6 @@ import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
-import { isServerLikeOutput } from '../../core/util.js';
 import type { MapValue } from '../../type-utils.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import { getConfiguredImageService } from '../internal.js';
@@ -50,7 +49,7 @@ export async function prepareAssetsGenerationEnv(
 	pipeline: BuildPipeline,
 	totalCount: number,
 ): Promise<AssetEnv> {
-	const { config, logger } = pipeline;
+	const { config, logger, settings } = pipeline;
 	let useCache = true;
 	const assetsCacheDir = new URL('assets/', config.cacheDir);
 	const count = { total: totalCount, current: 1 };
@@ -66,8 +65,9 @@ export async function prepareAssetsGenerationEnv(
 		useCache = false;
 	}
 
+	const isServerOutput = settings.buildOutput === 'server';
 	let serverRoot: URL, clientRoot: URL;
-	if (isServerLikeOutput(config)) {
+	if (isServerOutput) {
 		serverRoot = config.build.server;
 		clientRoot = config.build.client;
 	} else {
@@ -77,7 +77,7 @@ export async function prepareAssetsGenerationEnv(
 
 	return {
 		logger,
-		isSSR: isServerLikeOutput(config),
+		isSSR: isServerOutput,
 		count,
 		useCache,
 		assetsCacheDir,
@@ -98,11 +98,11 @@ export async function generateImagesForPath(
 	env: AssetEnv,
 	queue: PQueue,
 ) {
-	const originalImageData = await loadImage(originalFilePath, env);
+	let originalImage: ImageData;
 
 	for (const [_, transform] of transformsAndPath.transforms) {
 		await queue
-			.add(async () => generateImage(originalImageData, transform.finalPath, transform.transform))
+			.add(async () => generateImage(transform.finalPath, transform.transform))
 			.catch((e) => {
 				throw e;
 			});
@@ -128,13 +128,9 @@ export async function generateImagesForPath(
 		}
 	}
 
-	async function generateImage(
-		originalImage: ImageData,
-		filepath: string,
-		options: ImageTransform,
-	) {
+	async function generateImage(filepath: string, options: ImageTransform) {
 		const timeStart = performance.now();
-		const generationData = await generateImageInternal(originalImage, filepath, options);
+		const generationData = await generateImageInternal(filepath, options);
 
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
@@ -151,7 +147,6 @@ export async function generateImagesForPath(
 	}
 
 	async function generateImageInternal(
-		originalImage: ImageData,
 		filepath: string,
 		options: ImageTransform,
 	): Promise<GenerationData> {
@@ -206,6 +201,10 @@ export async function generateImagesForPath(
 		const originalImagePath = isLocalImage
 			? (options.src as ImageMetadata).src
 			: (options.src as string);
+
+		if (!originalImage) {
+			originalImage = await loadImage(originalFilePath, env);
+		}
 
 		let resultData: Partial<ImageData> = {
 			data: undefined,

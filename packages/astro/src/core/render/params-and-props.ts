@@ -16,10 +16,11 @@ interface GetParamsAndPropsOptions {
 	pathname: string;
 	logger: Logger;
 	serverLike: boolean;
+	base: string;
 }
 
 export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
-	const { logger, mod, routeData: route, routeCache, pathname, serverLike } = opts;
+	const { logger, mod, routeData: route, routeCache, pathname, serverLike, base } = opts;
 
 	// If there's no route, or if there's a pathname (e.g. a static `src/pages/normal.astro` file),
 	// then we know for sure they don't have params and props, return a fallback value.
@@ -49,6 +50,7 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		routeCache,
 		logger,
 		ssr: serverLike,
+		base,
 	});
 
 	const matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger);

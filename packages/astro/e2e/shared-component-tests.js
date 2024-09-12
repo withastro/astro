@@ -1,8 +1,8 @@
 import { expect } from '@playwright/test';
 import { scrollToElement, testFactory, waitForHydrate } from './test-utils.js';
 
-export function prepareTestFactory(opts, { canReplayClicks = false } = {}) {
-	const test = testFactory(opts);
+export function prepareTestFactory(testFile, opts, { canReplayClicks = false } = {}) {
+	const test = testFactory(testFile, opts);
 
 	let devServer;
 
@@ -120,6 +120,7 @@ export function prepareTestFactory(opts, { canReplayClicks = false } = {}) {
 			await page.goto(astro.resolveUrl(pageUrl));
 
 			const label = page.locator('#client-only');
+			await waitForHydrate(page, label);
 			await expect(label, 'component is visible').toBeVisible();
 
 			await expect(label, 'slot text is visible').toHaveText('Framework client:only component');

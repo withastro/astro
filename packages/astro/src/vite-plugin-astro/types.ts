@@ -44,6 +44,6 @@ export interface CompileMetadata {
 	originalCode: string;
 	/** For Astro CSS virtual module */
 	css: CompileCssResult[];
-	/** For Astro hoisted scripts virtual module */
+	/** For Astro scripts virtual module */
 	scripts: HoistedScript[];
 }

@@ -57,12 +57,12 @@ function badRequest(reason: string) {
 }
 
 async function getRequestData(request: Request): Promise<Response | RenderOptions> {
-	switch(request.method) {
+	switch (request.method) {
 		case 'GET': {
 			const url = new URL(request.url);
 			const params = url.searchParams;
 
-			if(!params.has('s') || !params.has('e') || !params.has('p')) {
+			if (!params.has('s') || !params.has('e') || !params.has('p')) {
 				return badRequest('Missing required query parameters.');
 			}
 
@@ -79,9 +79,9 @@ async function getRequestData(request: Request): Promise<Response | RenderOption
 		}
 		case 'POST': {
 			try {
-			const raw = await request.text();
-			const data = JSON.parse(raw) as RenderOptions;
-			return data;
+				const raw = await request.text();
+				const data = JSON.parse(raw) as RenderOptions;
+				return data;
 			} catch {
 				return badRequest('Request format is invalid.');
 			}
@@ -106,7 +106,7 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		// Get the request data from the body or search params
 		const data = await getRequestData(result.request);
-		if(data instanceof Response) {
+		if (data instanceof Response) {
 			return data;
 		}
 

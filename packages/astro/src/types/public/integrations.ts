@@ -7,6 +7,7 @@ import type { AdapterFeatureStability } from '../../integrations/features-valida
 import type { getToolbarServerCommunicationHelpers } from '../../integrations/hooks.js';
 import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig } from './config.js';
+import type { RefreshContentOptions } from './content.js';
 import type { RouteData } from './internal.js';
 import type { DevToolbarAppEntry } from './toolbar.js';
 
@@ -75,6 +76,10 @@ export interface AstroAdapterFeatures {
 	 * Creates an edge function that will communicate with the Astro middleware
 	 */
 	edgeMiddleware: boolean;
+	/**
+	 * Determine the type of build output the adapter is intended for. Defaults to `server`;
+	 */
+	buildOutput?: 'static' | 'server';
 }
 
 export interface AstroAdapter {
@@ -133,15 +138,6 @@ export type AstroAdapterFeatureMap = {
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
 
-/**
- * IDs for different priorities of injected routes and redirects:
- * - "normal": Merge with discovered file-based project routes, behaving the same as if the route
- *   was defined as a file in the project.
- * - "legacy": Use the old ordering of routes. Inject routes will override any file-based project route,
- *   and redirects will be overridden by any project route on conflict.
- */
-export type RoutePriorityOverride = 'normal' | 'legacy';
-
 export interface InjectedRoute {
 	pattern: string;
 	entrypoint: string;
@@ -170,7 +166,7 @@ export type HookParameters<
 export interface BaseIntegrationHooks {
 	'astro:config:setup': (options: {
 		config: AstroConfig;
-		command: 'dev' | 'build' | 'preview';
+		command: 'dev' | 'build' | 'preview' | 'sync';
 		isRestart: boolean;
 		updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 		addRenderer: (renderer: AstroRenderer) => void;
@@ -188,11 +184,13 @@ export interface BaseIntegrationHooks {
 		setAdapter: (adapter: AstroAdapter) => void;
 		injectTypes: (injectedType: InjectedType) => URL;
 		logger: AstroIntegrationLogger;
+		buildOutput: 'static' | 'server';
 	}) => void | Promise<void>;
 	'astro:server:setup': (options: {
 		server: ViteDevServer;
 		logger: AstroIntegrationLogger;
 		toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
+		refreshContent?: (options: RefreshContentOptions) => Promise<void>;
 	}) => void | Promise<void>;
 	'astro:server:start': (options: {
 		address: AddressInfo;

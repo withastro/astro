@@ -1,5 +1,5 @@
 import type { Logger } from '../core/logger/core.js';
-import type { AstroConfig } from '../types/public/config.js';
+import type { AstroSettings } from '../types/astro.js';
 import type {
 	AdapterSupport,
 	AdapterSupportsKind,
@@ -28,7 +28,7 @@ type ValidationResult = {
 export function validateSupportedFeatures(
 	adapterName: string,
 	featureMap: AstroAdapterFeatureMap,
-	config: AstroConfig,
+	settings: AstroSettings,
 	logger: Logger,
 ): ValidationResult {
 	const {
@@ -46,7 +46,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'staticOutput',
-		() => config?.output === 'static',
+		() => settings.buildOutput === 'static',
 	);
 
 	validationResult.hybridOutput = validateSupportKind(
@@ -54,7 +54,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'hybridOutput',
-		() => config?.output === 'hybrid',
+		() => settings.config.output == 'static' && settings.buildOutput === 'server',
 	);
 
 	validationResult.serverOutput = validateSupportKind(
@@ -62,17 +62,17 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'serverOutput',
-		() => config?.output === 'server',
+		() => settings.config?.output === 'server' || settings.buildOutput === 'server',
 	);
 
-	if (config.i18n?.domains) {
+	if (settings.config.i18n?.domains) {
 		validationResult.i18nDomains = validateSupportKind(
 			i18nDomains,
 			adapterName,
 			logger,
 			'i18nDomains',
 			() => {
-				return config?.output === 'server' && !config?.site;
+				return settings.config?.output === 'server' && !settings.config?.site;
 			},
 		);
 	}
@@ -82,7 +82,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'astro:env getSecret',
-		() => Object.keys(config?.env?.schema ?? {}).length !== 0,
+		() => Object.keys(settings.config?.env?.schema ?? {}).length !== 0,
 	);
 
 	validationResult.sharpImageService = validateSupportKind(
@@ -90,7 +90,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'sharp',
-		() => config?.image.service.entrypoint === 'astro/assets/services/sharp',
+		() => settings.config?.image.service.entrypoint === 'astro/assets/services/sharp',
 	);
 
 	return validationResult;
@@ -172,4 +172,11 @@ function logFeatureSupport(
 	if (adapterMessage) {
 		logger.warn('adapter', adapterMessage);
 	}
+}
+
+export function getAdapterStaticRecommendation(adapterName: string): string | undefined {
+	return {
+		'@astrojs/vercel/static':
+			'Update your configuration to use `@astrojs/vercel/serverless` to unlock server-side rendering capabilities.',
+	}[adapterName];
 }

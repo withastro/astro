@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-	InvalidAstroDataError,
 	type MarkdownProcessor,
 	createMarkdownProcessor,
+	isFrontmatterValid,
 } from '@astrojs/markdown-remark';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
@@ -69,26 +69,23 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					);
 				}
 
-				const renderResult = await processor
-					.render(raw.content, {
-						// @ts-expect-error passing internal prop
-						fileURL,
-						frontmatter: raw.data,
-					})
-					.catch((err) => {
-						// Improve error message for invalid astro data
-						if (err instanceof InvalidAstroDataError) {
-							throw new AstroError(AstroErrorData.InvalidFrontmatterInjectionError);
-						}
-						throw err;
-					});
+				const renderResult = await processor.render(raw.content, {
+					// @ts-expect-error passing internal prop
+					fileURL,
+					frontmatter: raw.data,
+				});
+
+				// Improve error message for invalid astro frontmatter
+				if (!isFrontmatterValid(renderResult.metadata.frontmatter)) {
+					throw new AstroError(AstroErrorData.InvalidFrontmatterInjectionError);
+				}
 
 				let html = renderResult.code;
 				const { headings, imagePaths: rawImagePaths, frontmatter } = renderResult.metadata;
 
 				// Resolve all the extracted images from the content
 				const imagePaths: MarkdownImagePath[] = [];
-				for (const imagePath of rawImagePaths.values()) {
+				for (const imagePath of rawImagePaths) {
 					imagePaths.push({
 						raw: imagePath,
 						safeName: shorthash(imagePath),

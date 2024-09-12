@@ -22,7 +22,7 @@ import {
 import { isContentCollectionsCacheEnabled } from '../../util.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { CHUNKS_PATH, CONTENT_PATH } from '../consts.js';
-import { type BuildInternals } from '../internal.js';
+import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import { copyFiles } from '../static-build.js';
 import type { StaticBuildOptions } from '../types.js';
@@ -496,7 +496,7 @@ export function pluginContent(
 		targets: ['server'],
 		hooks: {
 			async 'build:before'() {
-				if (!isContentCollectionsCacheEnabled(opts.settings.config)) {
+				if (!isContentCollectionsCacheEnabled(opts.settings)) {
 					return { vitePlugin: undefined };
 				}
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
@@ -506,7 +506,7 @@ export function pluginContent(
 			},
 
 			async 'build:post'() {
-				if (!isContentCollectionsCacheEnabled(opts.settings.config)) {
+				if (!isContentCollectionsCacheEnabled(opts.settings)) {
 					return;
 				}
 				// Cache build output of chunks and assets

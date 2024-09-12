@@ -8,7 +8,6 @@ import type { Plugin } from 'vite';
 import { encodeName } from '../core/build/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { appendForwardSlash, removeFileExtension } from '../core/path.js';
-import { isServerLikeOutput } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
@@ -20,7 +19,6 @@ import {
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
-	DATA_STORE_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
@@ -29,6 +27,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
+import { getDataStoreFile } from './content-layer.js';
 import {
 	type ContentLookupMap,
 	getContentEntryIdAndSlug,
@@ -53,13 +52,14 @@ export function astroContentVirtualModPlugin({
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
-	const IS_SERVER = isServerLikeOutput(settings.config);
-	const dataStoreFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
+	const IS_SERVER = settings.buildOutput === 'server';
+	let dataStoreFile: URL;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		configResolved(config) {
 			IS_DEV = config.mode === 'development';
+			dataStoreFile = getDataStoreFile(settings, IS_DEV);
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
@@ -180,25 +180,31 @@ export function astroContentVirtualModPlugin({
 
 		configureServer(server) {
 			const dataStorePath = fileURLToPath(dataStoreFile);
-			// Watch for changes to the data store file
-			if (Array.isArray(server.watcher.options.ignored)) {
-				// The data store file is in node_modules, so is ignored by default,
-				// so we need to un-ignore it.
-				server.watcher.options.ignored.push(`!${dataStorePath}`);
-			}
+
 			server.watcher.add(dataStorePath);
 
+			function invalidateDataStore() {
+				const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+				if (module) {
+					server.moduleGraph.invalidateModule(module);
+				}
+				server.ws.send({
+					type: 'full-reload',
+					path: '*',
+				});
+			}
+
+			// If the datastore file changes, invalidate the virtual module
+
+			server.watcher.on('add', (addedPath) => {
+				if (addedPath === dataStorePath) {
+					invalidateDataStore();
+				}
+			});
+
 			server.watcher.on('change', (changedPath) => {
-				// If the datastore file changes, invalidate the virtual module
 				if (changedPath === dataStorePath) {
-					const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
-					if (module) {
-						server.moduleGraph.invalidateModule(module);
-					}
-					server.ws.send({
-						type: 'full-reload',
-						path: '*',
-					});
+					invalidateDataStore();
 				}
 			});
 		},
@@ -253,18 +259,21 @@ export async function generateContentEntryFile({
 		renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
 	}
 
-	let virtualModContents =
-		nodeFs
+	let virtualModContents: string;
+	if (isClient) {
+		throw new AstroError({
+			...AstroErrorData.ServerOnlyModule,
+			message: AstroErrorData.ServerOnlyModule.message('astro:content'),
+		});
+	} else {
+		virtualModContents = nodeFs
 			.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 			.replace('@@CONTENT_DIR@@', relContentDir)
 			.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
 			.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
 			.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
-			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`) +
-		(isClient
-			? `
-console.warn('astro:content is only supported running server-side. Using it in the browser will lead to bloated bundles and slow down page load. In the future it will not be supported.');`
-			: '');
+			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`);
+	}
 
 	return virtualModContents;
 }
@@ -360,7 +369,7 @@ export async function generateLookupMap({
 					const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
 					if (!contentEntryType) throw UnexpectedLookupMapError;
 
-					const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
+					const { id, slug: generatedSlug } = getContentEntryIdAndSlug({
 						entry: pathToFileURL(filePath),
 						contentDir,
 						collection,

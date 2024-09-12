@@ -61,6 +61,7 @@ function createContext({
 		generator: `Astro v${ASTRO_VERSION}`,
 		props: {},
 		rewrite,
+		routePattern: '',
 		redirect(path, status) {
 			return new Response(null, {
 				status: status || 302,
@@ -69,6 +70,7 @@ function createContext({
 				},
 			});
 		},
+		isPrerendered: false,
 		get preferredLocale(): string | undefined {
 			return (preferredLocale ??= computePreferredLocale(request, userDefinedLocales));
 		},
