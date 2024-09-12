@@ -94,7 +94,11 @@ export function createGetCollection({
 				if (hasFilter && !filter(entry)) {
 					continue;
 				}
-				result.push(entry);
+				if (entry.legacyId) {
+					result.push(emulateLegacyEntry(entry));
+				} else {
+					result.push(entry);
+				}
 			}
 			return result;
 		} else {
@@ -257,6 +261,14 @@ type DataEntryResult = {
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
 
+function emulateLegacyEntry({ legacyId, id, ...entry }: DataEntry) {
+	const legacyEntry = { ...entry, id: legacyId!, slug: id };
+	return {
+		...legacyEntry,
+		render: () => renderEntry(legacyEntry),
+	};
+}
+
 export function createGetEntry({
 	getEntryImport,
 	getRenderEntryImport,
@@ -304,6 +316,9 @@ export function createGetEntry({
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 			entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+			if (entry.legacyId) {
+				return { ...emulateLegacyEntry(entry), collection } as ContentEntryResult;
+			}
 			return {
 				...entry,
 				collection,
@@ -434,9 +449,12 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 }
 
 export async function renderEntry(
-	entry: DataEntry | { render: () => Promise<{ Content: AstroComponentFactory }> },
+	entry:
+		| DataEntry
+		| { render: () => Promise<{ Content: AstroComponentFactory }> }
+		| (DataEntry & { render: () => Promise<{ Content: AstroComponentFactory }> }),
 ) {
-	if (entry && 'render' in entry) {
+	if (entry && 'render' in entry && !('legacyId' in entry)) {
 		// This is an old content collection entry, so we use its render method
 		return entry.render();
 	}

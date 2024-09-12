@@ -7,5 +7,8 @@ export default defineConfig({
 		build: {
 			assetsInlineLimit: 0
 		}
+	},
+	experimental: {
+		emulateLegacyCollections: true,
 	}
 });

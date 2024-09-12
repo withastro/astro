@@ -109,10 +109,12 @@ export function astroContentVirtualModPlugin({
 		},
 		async load(id, args) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				const lookupMap = await generateLookupMap({
-					settings,
-					fs,
-				});
+				const lookupMap = settings.config.experimental.emulateLegacyCollections
+					? {}
+					: await generateLookupMap({
+							settings,
+							fs,
+						});
 				const isClient = !args?.ssr;
 				const code = await generateContentEntryFile({
 					settings,

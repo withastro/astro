@@ -55,6 +55,15 @@ function checkPrefix(pattern: string | Array<string>, prefix: string) {
  * Loads multiple entries, using a glob pattern to match files.
  * @param pattern A glob pattern to match files, relative to the content directory.
  */
+export function glob(globOptions: GlobOptions): Loader;
+/** @private */
+export function glob(
+	globOptions: GlobOptions & {
+		/** @deprecated */
+		_legacy: true;
+	},
+): Loader;
+
 export function glob(globOptions: GlobOptions): Loader {
 	if (checkPrefix(globOptions.pattern, '../')) {
 		throw new Error(
@@ -73,13 +82,23 @@ export function glob(globOptions: GlobOptions): Loader {
 
 	return {
 		name: 'glob-loader',
-		load: async ({ config, logger, watcher, parseData, store, generateDigest, entryTypes }) => {
+		load: async ({
+			config,
+			logger,
+			watcher,
+			parseData,
+			store,
+			generateDigest,
+			entryTypes,
+		}) => {
 			const renderFunctionByContentType = new WeakMap<
 				ContentEntryType,
 				ContentEntryRenderFunction
 			>();
 
 			const untouchedEntries = new Set(store.keys());
+			const _legacy = '_legacy' in globOptions || undefined;
+
 
 			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
 				if (!entryType) {
@@ -102,7 +121,18 @@ export function glob(globOptions: GlobOptions): Loader {
 					fileUrl,
 				});
 
-				const id = generateId({ entry, base, data });
+				const id = generateId({ entry, base, data })
+				let legacyId: string | undefined;
+
+				if (_legacy) {
+					const entryURL = new URL(entry, base);
+					const legacyOptions = getContentEntryIdAndSlug({
+						entry: entryURL,
+						contentDir: base,
+						collection: '',
+					});
+					legacyId = legacyOptions.id;
+				} 
 				untouchedEntries.delete(id);
 
 				const existingEntry = store.get(id);
@@ -160,6 +190,7 @@ export function glob(globOptions: GlobOptions): Loader {
 						digest,
 						rendered,
 						assetImports: rendered?.metadata?.imagePaths,
+						legacyId,
 					});
 
 					// todo: add an explicit way to opt in to deferred rendering
@@ -171,9 +202,10 @@ export function glob(globOptions: GlobOptions): Loader {
 						filePath: relativePath,
 						digest,
 						deferredRender: true,
+						legacyId,
 					});
 				} else {
-					store.set({ id, data: parsedData, body, filePath: relativePath, digest });
+					store.set({ id, data: parsedData, body, filePath: relativePath, digest, legacyId });
 				}
 
 				fileToIdMap.set(filePath, id);
@@ -222,7 +254,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					if (isConfigFile(entry)) {
 						return;
 					}
-					if (isInContentDir(entry)) {
+					if (!_legacy && isInContentDir(entry)) {
 						skippedFiles.push(entry);
 						return;
 					}
