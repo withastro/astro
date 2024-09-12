@@ -3,6 +3,14 @@
 'astro': major
 ---
 
-Remove the prerender option from injectRoute
+Removes the `prerender` option from `injectRoute` in the Integrations API.
 
-The `injectRoute` integration method no longer accepts `prerender: true`. Instead the route's entrypoint needs to contain `export const prerender = true`, the same as non-injected routes.
+The `injectRoute` integration method no longer accepts `prerender: true`. 
+
+Instead,  add the `prerender` export to your injected route like you would for other routes defined in the `src/pages` directory:
+
+```astro
+---
+export const prerender = true
+---
+```
