@@ -1,15 +1,12 @@
+// Keep at the top
+import './polyfill.js';
+
 import type { Context } from '@netlify/functions';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
-import { applyPolyfills } from 'astro/app/node';
+import { setGetEnv } from 'astro/env/setup';
 
-applyPolyfills();
-
-// Won't throw if the virtual module is not available because it's not supported in
-// the users's astro version or if astro:env is not enabled in the project
-await import('astro/env/setup')
-	.then((mod) => mod.setGetEnv((key) => process.env[key]))
-	.catch(() => {});
+setGetEnv((key) => process.env[key]);
 
 export interface Args {
 	middlewareSecret: string;
