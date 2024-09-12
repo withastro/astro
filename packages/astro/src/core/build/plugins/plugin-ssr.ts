@@ -171,13 +171,10 @@ function generateSSRCode(settings: AstroSettings, adapter: AstroAdapter, middlew
 		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		edgeMiddleware ? `` : `import { onRequest as middleware } from '${middlewareId}';`,
-		settings.config.experimental.serverIslands
-			? `import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`
-			: '',
+		`import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`,
 	];
 
 	const contents = [
-		settings.config.experimental.serverIslands ? '' : `const serverIslandMap = new Map()`,
 		edgeMiddleware ? `const middleware = (_, next) => next()` : '',
 		`const _manifest = Object.assign(defaultManifest, {`,
 		`    pageMap,`,
