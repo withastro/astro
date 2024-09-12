@@ -6,11 +6,16 @@ import testAdapter from './test-adapter.js';
 import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
 import { loadFixture } from './test-utils.js';
 
-describe('Content Collections', () => {
+describe('Content Collections - Emulate Legacy', () => {
 	describe('Query', () => {
 		let fixture;
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/content-collections/' });
+			fixture = await loadFixture({
+				root: './fixtures/content-collections/',
+				experimental: {
+					emulateLegacyCollections: true,
+				},
+			});
 			await fixture.build();
 		});
 

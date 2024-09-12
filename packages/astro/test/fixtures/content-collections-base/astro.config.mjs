@@ -10,7 +10,4 @@ export default defineConfig({
 			assetsInlineLimit: 0
 		}
 	},
-	experimental: {
-		emulateLegacyCollections: true,
-	}
 });

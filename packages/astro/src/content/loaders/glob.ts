@@ -82,15 +82,7 @@ export function glob(globOptions: GlobOptions): Loader {
 
 	return {
 		name: 'glob-loader',
-		load: async ({
-			config,
-			logger,
-			watcher,
-			parseData,
-			store,
-			generateDigest,
-			entryTypes,
-		}) => {
+		load: async ({ config, logger, watcher, parseData, store, generateDigest, entryTypes }) => {
 			const renderFunctionByContentType = new WeakMap<
 				ContentEntryType,
 				ContentEntryRenderFunction
@@ -98,7 +90,7 @@ export function glob(globOptions: GlobOptions): Loader {
 
 			const untouchedEntries = new Set(store.keys());
 			const isLegacy = (globOptions as any)._legacy;
-			const legacyEnabled = config.experimental?.emulateLegacyCollections
+			const legacyEnabled = config.experimental?.emulateLegacyCollections;
 			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
 				if (!entryType) {
 					logger.warn(`No entry type found for ${entry}`);
@@ -120,7 +112,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					fileUrl,
 				});
 
-				const id = generateId({ entry, base, data })
+				const id = generateId({ entry, base, data });
 				let legacyId: string | undefined;
 
 				if (isLegacy) {
@@ -131,7 +123,7 @@ export function glob(globOptions: GlobOptions): Loader {
 						collection: '',
 					});
 					legacyId = legacyOptions.id;
-				} 
+				}
 				untouchedEntries.delete(id);
 
 				const existingEntry = store.get(id);

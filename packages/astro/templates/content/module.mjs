@@ -68,15 +68,14 @@ export const getEntryBySlug = createGetEntryBySlug({
 	getEntryImport: createGlobLookup(contentCollectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 	collectionNames,
-	getEntry
+	getEntry,
 });
 
 export const getDataEntryById = createGetDataEntryById({
 	getEntryImport: createGlobLookup(dataCollectionToEntryMap),
 	collectionNames,
-	getEntry
+	getEntry,
 });
-
 
 export const getEntries = createGetEntries(getEntry);
 

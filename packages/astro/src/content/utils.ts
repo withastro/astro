@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
+import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -22,9 +23,8 @@ import {
 	IMAGE_IMPORT_PREFIX,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
-import { createImage } from './runtime-assets.js';
 import { glob } from './loaders/glob.js';
-import { appendForwardSlash } from '../core/path.js';
+import { createImage } from './runtime-assets.js';
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
@@ -543,7 +543,6 @@ export async function autogenerateCollections({
 			// This is already a content layer, skip
 			continue;
 		}
-
 
 		collections[collectionName] = {
 			...collections[collectionName],

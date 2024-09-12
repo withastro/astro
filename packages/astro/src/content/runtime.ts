@@ -179,7 +179,7 @@ export function createGetEntryBySlug({
 		if (!collectionNames.has(collection)) {
 			if (store.hasCollection(collection)) {
 				const entry = await getEntry(collection, slug);
-				if(entry && 'slug' in entry) {
+				if (entry && 'slug' in entry) {
 					return entry;
 				}
 				throw new AstroError({
@@ -217,7 +217,7 @@ export function createGetEntryBySlug({
 export function createGetDataEntryById({
 	getEntryImport,
 	collectionNames,
-	getEntry
+	getEntry,
 }: {
 	getEntryImport: GetEntryImport;
 	collectionNames: Set<string>;
