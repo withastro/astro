@@ -92,7 +92,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		contentCollectionCache: false,
 		clientPrerender: false,
-		serverIslands: false,
 		contentIntellisense: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -530,10 +529,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.clientPrerender),
-			serverIslands: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.serverIslands),
 			contentIntellisense: z
 				.boolean()
 				.optional()
