@@ -69,23 +69,25 @@ const collectionConfigParser = z.union([
 			),
 			z.object({
 				name: z.string(),
-				load: z
-					.function()
-					.args(
-						z.object({
-							collection: z.string(),
-							store: z.any(),
-							meta: z.any(),
-							logger: z.any(),
-							config: z.any(),
-							entryTypes: z.any(),
-							parseData: z.any(),
-							generateDigest: z.function(z.tuple([z.any()], z.string())),
-							watcher: z.any().optional(),
-						}),
-					)
-					.returns(z.promise(z.void())),
-
+				load: z.function(
+					z.tuple(
+						[
+							z.object({
+								collection: z.string(),
+								store: z.any(),
+								meta: z.any(),
+								logger: z.any(),
+								config: z.any(),
+								entryTypes: z.any(),
+								parseData: z.any(),
+								generateDigest: z.function(z.tuple([z.any()], z.string())),
+								watcher: z.any().optional(),
+								refreshContextData: z.record(z.unknown()).optional(),
+							}),
+						],
+						z.unknown(),
+					),
+				),
 				schema: z.any().optional(),
 				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
 			}),

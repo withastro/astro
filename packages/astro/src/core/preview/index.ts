@@ -40,7 +40,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	// Create a route manifest so we can know if the build output is a static site or not
 	await createRouteManifest({ settings: settings, cwd: inlineConfig.root }, logger);
 
-	await runHookConfigDone({ settings: settings, logger: logger });
+	await runHookConfigDone({ settings: settings, logger: logger, command: 'preview' });
 
 	if (settings.buildOutput === 'static') {
 		if (!fs.existsSync(settings.config.outDir)) {

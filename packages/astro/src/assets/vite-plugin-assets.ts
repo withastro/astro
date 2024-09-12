@@ -101,7 +101,7 @@ export default function assets({
 	};
 
 	return [
-		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
+		// Expose the components and different utilities from `astro:assets`
 		{
 			name: 'astro:assets',
 			async resolveId(id) {

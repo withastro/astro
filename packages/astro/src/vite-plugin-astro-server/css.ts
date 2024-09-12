@@ -9,6 +9,8 @@ interface ImportedStyle {
 	content: string;
 }
 
+const inlineQueryRE = /(?:\?|&)inline(?:$|&)/;
+
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export async function getStylesForURL(
 	filePath: URL,
@@ -32,21 +34,20 @@ export async function getStylesForURL(
 			}
 			// Else try to load it
 			else {
-				const url = new URL(importedModule.url, 'http://localhost');
+				let modId = importedModule.url;
 				// Mark url with ?inline so Vite will return the CSS as plain string, even for CSS modules
-				url.searchParams.set('inline', '');
-				const modId = `${decodeURI(url.pathname)}${url.search}`;
-
+				if (!inlineQueryRE.test(importedModule.url)) {
+					if (importedModule.url.includes('?')) {
+						modId = importedModule.url.replace('?', '?inline&');
+					} else {
+						modId += '?inline';
+					}
+				}
 				try {
 					// The SSR module is possibly not loaded. Load it if it's null.
 					const ssrModule = await loader.import(modId);
 					css = ssrModule.default;
 				} catch {
-					// Some CSS modules, e.g. from Vue files, may not work with the ?inline query.
-					// If so, we fallback to a url instead
-					if (modId.includes('.module.')) {
-						importedCssUrls.add(importedModule.url);
-					}
 					// The module may not be inline-able, e.g. SCSS partials. Skip it as it may already
 					// be inlined into other modules if it happens to be in the graph.
 					continue;
