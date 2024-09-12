@@ -192,13 +192,6 @@ export async function runHookConfigSetup({
 					return { ...updatedConfig };
 				},
 				injectRoute: (injectRoute) => {
-					if (injectRoute.entrypoint == null && 'entryPoint' in injectRoute) {
-						logger.warn(
-							null,
-							`The injected route "${injectRoute.pattern}" by ${integration.name} specifies the entry point with the "entryPoint" property. This property is deprecated, please use "entrypoint" instead.`,
-						);
-						injectRoute.entrypoint = injectRoute.entryPoint as string;
-					}
 					updatedSettings.injectedRoutes.push(injectRoute);
 				},
 				addWatchFile: (path) => {

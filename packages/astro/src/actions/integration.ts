@@ -21,7 +21,6 @@ export default function astroIntegrationActionsRouteHandler({
 				params.injectRoute({
 					pattern: '/_actions/[...path]',
 					entrypoint: 'astro/actions/runtime/route.js',
-					prerender: false,
 				});
 
 				params.addMiddleware({
