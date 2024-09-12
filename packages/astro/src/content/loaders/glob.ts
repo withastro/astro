@@ -60,7 +60,7 @@ export function glob(globOptions: GlobOptions): Loader;
 export function glob(
 	globOptions: GlobOptions & {
 		/** @deprecated */
-		_legacy: true;
+		_legacy?: true;
 	},
 ): Loader;
 
@@ -97,9 +97,8 @@ export function glob(globOptions: GlobOptions): Loader {
 			>();
 
 			const untouchedEntries = new Set(store.keys());
-			const isLegacy = '_legacy' in globOptions || undefined;
-
-
+			const isLegacy = (globOptions as any)._legacy;
+			const legacyEnabled = config.experimental?.emulateLegacyCollections
 			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
 				if (!entryType) {
 					logger.warn(`No entry type found for ${entry}`);
@@ -254,7 +253,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					if (isConfigFile(entry)) {
 						return;
 					}
-					if (!isLegacy && isInContentDir(entry)) {
+					if (!legacyEnabled && isInContentDir(entry)) {
 						skippedFiles.push(entry);
 						return;
 					}

@@ -551,7 +551,7 @@ export async function autogenerateCollections({
 			loader: glob({
 				base: new URL(collectionName, contentDir),
 				pattern: collections[collectionName]?.type === 'data' ? dataPattern : contentPattern,
-				_legacy: true,
+				_legacy: collections[collectionName]?.type !== 'data' || undefined,
 				// Zod weirdness has trouble with typing the args to the load function
 			}) as any,
 		};
