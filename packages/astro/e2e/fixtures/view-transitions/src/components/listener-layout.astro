@@ -1,21 +1,21 @@
 ---
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 ---
+
 <html>
 	<head>
-		<ViewTransitions/>
+		<ClientRouter />
 	</head>
 	<body>
 		<p>Local transitions</p>
-		<slot/>
+		<slot />
 		<script>
-			document.addEventListener("astro:after-swap", () => {
-				document.documentElement.setAttribute("class", "blue");
-				document.documentElement.setAttribute("animations", "" + document.getAnimations().length);
+			document.addEventListener('astro:after-swap', () => {
+				document.documentElement.setAttribute('class', 'blue');
+				document.documentElement.setAttribute('animations', '' + document.getAnimations().length);
 			});
 		</script>
-	</body>
-	<style>
+	</body><style>
 		p {
 			transition: color 1s;
 		}

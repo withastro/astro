@@ -1,6 +1,6 @@
 ---
 import '../styles/styles.css';
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 import Footer from '../components/Footer.astro';
 import Nav from '../components/Nav.astro';
 
@@ -20,7 +20,7 @@ const { title } = Astro.props as Props;
 		<meta name="generator" content={Astro.generator} />
 		<meta name="view-transition" content="same-origin" />
 		<title>{title}</title>
-		<ViewTransitions />
+		<ClientRouter />
 	</head>
 	<body class="font-sans bg-gray-900 text-white">
 		<div class="h-screen overflow-hidden flex flex-col">
