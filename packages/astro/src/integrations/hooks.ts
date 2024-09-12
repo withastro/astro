@@ -325,7 +325,7 @@ export async function runHookConfigDone({
 							validateSupportedFeatures(
 								adapter.name,
 								adapter.supportedAstroFeatures,
-								settings.config,
+								settings,
 								logger,
 							);
 						}
