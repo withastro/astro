@@ -4,7 +4,7 @@ import { Traverse } from 'neotraverse/modern';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { IMAGE_IMPORT_PREFIX } from './consts.js';
-import { type DataEntry, ImmutableDataStore, type RenderedContent } from './data-store.js';
+import { type DataEntry, ImmutableDataStore } from './data-store.js';
 import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
