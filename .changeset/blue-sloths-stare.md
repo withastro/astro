@@ -2,7 +2,7 @@
 'astro': patch
 ---
 
-App class now accepts renderOptions
+`render()` signature now takes `renderOptions` as 2nd argument
 
 The signature for `app.render()` has changed, and the second argument is now an options object called `renderOptions` with more options for customizing rendering.
 
