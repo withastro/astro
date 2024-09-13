@@ -335,17 +335,6 @@ export const AstroConfigSchema = z.object({
 					transformers: z
 						.custom<ShikiTransformer>()
 						.array()
-						.transform((transformers) => {
-							for (const transformer of transformers) {
-								// When updating shikiji to shiki, the `token` property was renamed to `span`.
-								// We apply the compat here for now until the next Astro major.
-								// TODO: Remove this in Astro 5.0
-								if ((transformer as any).token && !('span' in transformer)) {
-									transformer.span = (transformer as any).token;
-								}
-							}
-							return transformers;
-						})
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.transformers!),
 				})
 				.default({}),
