@@ -855,7 +855,6 @@ export const LocalsReassigned = {
 	hint: 'Set a `locals` property instead.',
 } satisfies ErrorData;
 
-
 /**
  * @docs
  * @description

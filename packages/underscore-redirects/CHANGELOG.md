@@ -1,5 +1,11 @@
 # @astrojs/underscore-redirects
 
+## 0.4.0-alpha.0
+
+### Minor Changes
+
+- [#11989](https://github.com/withastro/astro/pull/11989) [`3e70853`](https://github.com/withastro/astro/commit/3e70853b767b124bf867072b1c67474dd0b51c3f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the type from `RouteData` to `IntegrationRouteData`
+
 ## 0.3.4
 
 ### Patch Changes
