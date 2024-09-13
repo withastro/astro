@@ -154,6 +154,11 @@ export function glob(globOptions: GlobOptions): Loader {
 					filePath,
 				});
 				if (entryType.getRenderFunction) {
+
+					if(isLegacy && data.layout) {
+						logger.error(`The Markdown "layout" field is not supported in content collections in Astro 5. Ignoring layout for ${JSON.stringify(entry)}. Enable "legacy.legacyContentCollections" if you need to use the layout field.`);
+					}
+
 					let render = renderFunctionByContentType.get(entryType);
 					if (!render) {
 						render = await entryType.getRenderFunction(config);
