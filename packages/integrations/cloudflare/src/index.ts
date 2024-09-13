@@ -163,10 +163,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						hybridOutput: 'stable',
 						staticOutput: 'unsupported',
 						i18nDomains: 'experimental',
-						assets: {
-							supportKind: 'stable',
-							isSharpCompatible: false,
-						},
+						sharpImageService: 'limited',
 						envGetSecret: 'experimental',
 					},
 				});
