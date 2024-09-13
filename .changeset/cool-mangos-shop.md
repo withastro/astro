@@ -2,9 +2,9 @@
 'astro': major
 ---
 
-The locals object can no longer be overridden
+The `locals` object can no longer be overridden
 
-Middleware, API endpoints, and pages can no longer override the `locals` object in its entirety. You can still append locals onto the object, but you can not replace the entire object, wiping out old values.
+Middleware, API endpoints, and pages can no longer override the `locals` object in its entirety. You can still append values onto the object, but you can not replace the entire object and delete its existing values.
 
 If you were previously overwriting like so:
 
