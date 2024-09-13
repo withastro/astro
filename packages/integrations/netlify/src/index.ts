@@ -455,12 +455,7 @@ export default function netlifyIntegration(
 						hybridOutput: 'stable',
 						staticOutput: 'stable',
 						serverOutput: 'stable',
-						assets: {
-							// keeping this as experimental at least until Netlify Image CDN is out of beta
-							supportKind: 'experimental',
-							// still using Netlify Image CDN instead
-							isSharpCompatible: true,
-						},
+						sharpImageService: 'stable',
 						envGetSecret: 'experimental',
 					},
 				});
