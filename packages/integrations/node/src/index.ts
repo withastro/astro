@@ -17,10 +17,7 @@ export function getAdapter(options: Options): AstroAdapter {
 			hybridOutput: 'stable',
 			staticOutput: 'stable',
 			serverOutput: 'stable',
-			assets: {
-				supportKind: 'stable',
-				isSharpCompatible: true,
-			},
+			sharpImageService: 'stable',
 			i18nDomains: 'experimental',
 			envGetSecret: 'stable',
 		},
