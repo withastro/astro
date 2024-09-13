@@ -47,4 +47,15 @@ describe('MDX optimize', () => {
 		assert.notEqual(blockquote, null);
 		assert.equal(blockquote.textContent.includes('I like pancakes'), true);
 	});
+
+	it('renders MDX with rehype plugin that incorrectly injects root hast node', async () => {
+		const html = await fixture.readFile('/import/index.html');
+		const { document } = parseHTML(html);
+
+		assert.doesNotMatch(html, /set:html=/);
+		assert.equal(
+			document.getElementById('injected-root-hast').textContent,
+			'Injected root hast from rehype plugin',
+		);
+	});
 });
