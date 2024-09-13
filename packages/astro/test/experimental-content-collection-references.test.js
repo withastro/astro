@@ -10,6 +10,9 @@ describe('Experimental Content Collections cache - references', () => {
 		fixture = await loadFixture({
 			root: './fixtures/content-collection-references/',
 			experimental: { contentCollectionCache: true },
+			legacy: {
+				legacyContentCollections: true,
+			},
 		});
 	});
 

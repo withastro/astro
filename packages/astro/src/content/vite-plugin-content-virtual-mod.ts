@@ -109,12 +109,12 @@ export function astroContentVirtualModPlugin({
 		},
 		async load(id, args) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				const lookupMap = settings.config.experimental.emulateLegacyCollections
-					? {}
-					: await generateLookupMap({
+				const lookupMap = settings.config.legacy.legacyContentCollections
+					? await generateLookupMap({
 							settings,
 							fs,
-						});
+						})
+					: {};
 				const isClient = !args?.ssr;
 				const code = await generateContentEntryFile({
 					settings,
@@ -234,7 +234,7 @@ export async function generateContentEntryFile({
 	let contentEntryGlobResult = '""';
 	let dataEntryGlobResult = '""';
 	let renderEntryGlobResult = '""';
-	if (!settings.config.experimental.emulateLegacyCollections) {
+	if (settings.config.legacy.legacyContentCollections) {
 		if (IS_DEV || IS_SERVER || !settings.config.experimental.contentCollectionCache) {
 			const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 			const contentEntryExts = [...contentEntryConfigByExt.keys()];

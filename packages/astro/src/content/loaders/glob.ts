@@ -90,7 +90,8 @@ export function glob(globOptions: GlobOptions): Loader {
 
 			const untouchedEntries = new Set(store.keys());
 			const isLegacy = (globOptions as any)._legacy;
-			const legacyEnabled = config.experimental?.emulateLegacyCollections;
+			// If legacy mode is *not* enabled then we use emulate legacy collections instead
+			const emulateLegacyCollections = !config.legacy.legacyContentCollections;
 			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
 				if (!entryType) {
 					logger.warn(`No entry type found for ${entry}`);
@@ -245,7 +246,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					if (isConfigFile(entry)) {
 						return;
 					}
-					if (!legacyEnabled && isInContentDir(entry)) {
+					if (!emulateLegacyCollections && isInContentDir(entry)) {
 						skippedFiles.push(entry);
 						return;
 					}
@@ -263,7 +264,9 @@ export function glob(globOptions: GlobOptions): Loader {
 					? globOptions.pattern.join(', ')
 					: globOptions.pattern;
 
-				logger.warn(`The glob() loader cannot be used for files in ${bold('src/content')}.`);
+				logger.warn(
+					`The glob() loader cannot be used for files in ${bold('src/content')} when legacy mode is enabled.`,
+				);
 				if (skipCount > 10) {
 					logger.warn(
 						`Skipped ${green(skippedFiles.length)} files that matched ${green(patternList)}.`,

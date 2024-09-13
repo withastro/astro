@@ -17,6 +17,9 @@ if (!isWindows) {
 					experimental: {
 						contentCollectionCache: true,
 					},
+					legacy: {
+						legacyContentCollections: true,
+					},
 				});
 				await fixture.build();
 			});

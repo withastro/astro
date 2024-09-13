@@ -94,11 +94,7 @@ export function createGetCollection({
 				if (hasFilter && !filter(entry)) {
 					continue;
 				}
-				if (entry.legacyId) {
-					result.push(emulateLegacyEntry(entry));
-				} else {
-					result.push(entry);
-				}
+				result.push(entry.legacyId ? emulateLegacyEntry(entry) : entry);
 			}
 			return result;
 		} else {

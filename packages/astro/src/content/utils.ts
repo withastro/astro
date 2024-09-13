@@ -514,18 +514,15 @@ async function loadContentConfig({
 export async function autogenerateCollections({
 	config,
 	settings,
-	fs,
 }: {
 	config?: ContentConfig;
 	settings: AstroSettings;
 	fs: typeof fsMod;
 }): Promise<ContentConfig | undefined> {
-	if (!settings.config.experimental.emulateLegacyCollections) {
+	if (settings.config.legacy.legacyContentCollections) {
 		return config;
 	}
 	const contentDir = new URL('./content/', settings.config.srcDir);
-	// Find all directories in the content directory
-	const collectionDirs = await fs.promises.readdir(contentDir, { withFileTypes: true });
 
 	const collections: Record<string, CollectionConfig> = config?.collections ?? {};
 
@@ -534,11 +531,7 @@ export async function autogenerateCollections({
 
 	const contentPattern = globWithUnderscoresIgnored('', contentExts);
 	const dataPattern = globWithUnderscoresIgnored('', dataExts);
-	for (const dir of collectionDirs) {
-		if (!(dir.isDirectory() || dir.isSymbolicLink()) || dir.name.startsWith('_')) {
-			continue;
-		}
-		const collectionName = dir.name;
+	for (const collectionName of Object.keys(collections)) {
 		if (collections[collectionName]?.type === 'content_layer') {
 			// This is already a content layer, skip
 			continue;
@@ -550,6 +543,7 @@ export async function autogenerateCollections({
 			loader: glob({
 				base: new URL(collectionName, contentDir),
 				pattern: collections[collectionName]?.type === 'data' ? dataPattern : contentPattern,
+				// Only "content" collections need special legacy handling
 				_legacy: collections[collectionName]?.type !== 'data' || undefined,
 				// Zod weirdness has trouble with typing the args to the load function
 			}) as any,
@@ -571,12 +565,10 @@ export async function reloadContentConfigObserver({
 	try {
 		let config = await loadContentConfig(loadContentConfigOpts);
 
-		if (loadContentConfigOpts.settings.config.experimental.emulateLegacyCollections) {
-			config = await autogenerateCollections({
-				config,
-				...loadContentConfigOpts,
-			});
-		}
+		config = await autogenerateCollections({
+			config,
+			...loadContentConfigOpts,
+		});
 
 		if (config) {
 			observer.set({ status: 'loaded', config });

@@ -21,6 +21,9 @@ describe('Experimental Content Collections cache inlineStylesheets', () => {
 			experimental: {
 				contentCollectionCache: true,
 			},
+			legacy: {
+				legacyContentCollections: true,
+			},
 		});
 		await fixture.build();
 	});
@@ -65,6 +68,9 @@ describe('Experimental Content Collections cache - inlineStylesheets to never in
 			},
 			experimental: {
 				contentCollectionCache: true,
+			},
+			legacy: {
+				legacyContentCollections: true,
 			},
 		});
 		await fixture.build();
@@ -115,6 +121,9 @@ describe('Experimental Content Collections cache - inlineStylesheets to auto in 
 			},
 			experimental: {
 				contentCollectionCache: true,
+			},
+			legacy: {
+				legacyContentCollections: true,
 			},
 		});
 		await fixture.build();
@@ -167,6 +176,9 @@ describe('Setting inlineStylesheets to always in static output', () => {
 			experimental: {
 				contentCollectionCache: true,
 			},
+			legacy: {
+				legacyContentCollections: true,
+			},
 		});
 		await fixture.build();
 	});
@@ -210,6 +222,9 @@ describe('Setting inlineStylesheets to always in server output', () => {
 			},
 			experimental: {
 				contentCollectionCache: true,
+			},
+			legacy: {
+				legacyContentCollections: true,
 			},
 		});
 		await fixture.build();

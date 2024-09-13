@@ -53,6 +53,9 @@ describe('Experimental Content Collections cache - invalidation', () => {
 				root: './fixtures/content-collections-cache-invalidation/',
 				cacheDir: './cache/version-mismatch/',
 				experimental: { contentCollectionCache: true },
+				legacy: {
+					legacyContentCollections: true,
+				},
 				integrations: [testPlugin.plugin()],
 			});
 			backup = new CacheBackup(
@@ -84,6 +87,9 @@ describe('Experimental Content Collections cache - invalidation', () => {
 				root: './fixtures/content-collections-cache-invalidation/',
 				cacheDir: './cache/lockfile-mismatch/',
 				experimental: { contentCollectionCache: true },
+				legacy: {
+					legacyContentCollections: true,
+				},
 				integrations: [testPlugin.plugin()],
 			});
 			backup = new CacheBackup(
@@ -115,6 +121,9 @@ describe('Experimental Content Collections cache - invalidation', () => {
 				root: './fixtures/content-collections-same-contents/',
 				cacheDir: './cache/same-contents/',
 				experimental: { contentCollectionCache: true },
+				legacy: {
+					legacyContentCollections: true,
+				},
 				integrations: [testPlugin.plugin()],
 			});
 			backup = new CacheBackup(

@@ -12,9 +12,6 @@ describe('Content Collections - Emulate Legacy', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections/',
-				experimental: {
-					emulateLegacyCollections: true,
-				},
 			});
 			await fixture.build();
 		});

@@ -13,6 +13,9 @@ describe('Experimental Content Collections cache', () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections/',
 				experimental: { contentCollectionCache: true },
+				legacy: {
+					legacyContentCollections: true,
+				},
 			});
 			await fixture.build();
 		});
@@ -180,6 +183,9 @@ describe('Experimental Content Collections cache', () => {
 				experimental: {
 					contentCollectionCache: true,
 				},
+				legacy: {
+					legacyContentCollections: true,
+				},
 			});
 			await fixture.build();
 		});
@@ -219,6 +225,9 @@ describe('Experimental Content Collections cache', () => {
 				experimental: {
 					contentCollectionCache: true,
 				},
+				legacy: {
+					legacyContentCollections: true,
+				},
 			});
 			let error = null;
 			try {
@@ -238,6 +247,9 @@ describe('Experimental Content Collections cache', () => {
 				experimental: {
 					contentCollectionCache: true,
 				},
+				legacy: {
+					legacyContentCollections: true,
+				},
 			});
 			let error;
 			try {
@@ -256,6 +268,9 @@ describe('Experimental Content Collections cache', () => {
 				root: './fixtures/content-collections-with-config-mts/',
 				experimental: {
 					contentCollectionCache: true,
+				},
+				legacy: {
+					legacyContentCollections: true,
 				},
 			});
 			let error;
@@ -277,6 +292,9 @@ describe('Experimental Content Collections cache', () => {
 				experimental: {
 					contentCollectionCache: true,
 				},
+				legacy: {
+					legacyContentCollections: true,
+				},
 			});
 			let error;
 			try {
@@ -296,6 +314,9 @@ describe('Experimental Content Collections cache', () => {
 				root: './fixtures/content-collections-empty-dir/',
 				experimental: {
 					contentCollectionCache: true,
+				},
+				legacy: {
+					legacyContentCollections: true,
 				},
 			});
 			let error;
@@ -325,6 +346,9 @@ describe('Experimental Content Collections cache', () => {
 				},
 				experimental: {
 					contentCollectionCache: true,
+				},
+				legacy: {
+					legacyContentCollections: true,
 				},
 			});
 			await fixture.build();

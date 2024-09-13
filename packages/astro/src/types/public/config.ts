@@ -1537,7 +1537,25 @@ export interface AstroUserConfig {
 	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
-	legacy?: object;
+	legacy?: {
+		/**
+		 * @docs
+		 * @name legacy.contentCollections
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.0.0
+		 * @description
+		 * Enable legacy behavior for content collections. This flag is intended to help users migrate from Astro 4.x to 5.x.
+		 * If it enabled, data and content collections are handled using the legacy code instead of Content Layer API, including generating
+		 * implicit collections for directories in `src/content`. Any collections with a loader defined will still use the Content Layer API.
+		 * When enabled, you cannot use the glob loader for any collections in the `src/content` directory, and they will instead be handled by
+		 * the legacy code.
+		 *
+		 * To migrate to the new Content Layer API, you should remove this flag and define a collection for any directories in `src/content` that
+		 * you want to use as a collection.
+		 */
+		legacyContentCollections?: boolean;
+	};
 
 	/**
 	 * @docs
@@ -1691,11 +1709,6 @@ export interface AstroUserConfig {
 		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
 		 */
 		contentIntellisense?: boolean;
-
-		/**
-		 * Emulate legacy content collection behavior using glob loader
-		 */
-		emulateLegacyCollections?: boolean;
 	};
 }
 

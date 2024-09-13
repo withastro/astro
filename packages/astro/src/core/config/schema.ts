@@ -80,7 +80,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	integrations: [],
 	markdown: markdownConfigDefaults,
 	vite: {},
-	legacy: {},
+	legacy: {
+		legacyContentCollections: false,
+	},
 	redirects: {},
 	security: {
 		checkOrigin: true,
@@ -93,7 +95,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		contentCollectionCache: false,
 		clientPrerender: false,
 		contentIntellisense: false,
-		emulateLegacyCollections: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -534,16 +535,19 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
-			emulateLegacyCollections: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.emulateLegacyCollections),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,
 		)
 		.default({}),
-	legacy: z.object({}).default({}),
+	legacy: z
+		.object({
+			legacyContentCollections: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.legacy.legacyContentCollections),
+		})
+		.default({}),
 });
 
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
@@ -705,6 +709,17 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 						message: 'Domain support is only available when `output` is `"server"`.',
 					});
 				}
+			}
+
+			if (
+				configuration.experimental.contentCollectionCache &&
+				!configuration.legacy.legacyContentCollections
+			) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message:
+						'Content collections cache is not supported with the Content Layer API. Please remove the `experimental.contentCollectionsCache` option from your Astro config or enable `legacy.legacyContentCollections`',
+				});
 			}
 		});
 

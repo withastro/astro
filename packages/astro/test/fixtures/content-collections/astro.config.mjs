@@ -6,5 +6,6 @@ export default defineConfig({
 	integrations: [mdx()],
 	experimental: {
 		contentIntellisense: true,
+		
 	}
 });
