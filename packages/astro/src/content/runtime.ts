@@ -184,7 +184,7 @@ export function createGetEntryBySlug({
 				});
 			}
 			// eslint-disable-next-line no-console
-			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			console.warn(`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`);
 			return undefined;
 		}
 
@@ -227,7 +227,7 @@ export function createGetDataEntryById({
 				return getEntry(collection, id);
 			}
 			// eslint-disable-next-line no-console
-			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			console.warn(`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`);
 			return undefined;
 		}
 
@@ -328,7 +328,7 @@ export function createGetEntry({
 
 		if (!collectionNames.has(collection)) {
 			// eslint-disable-next-line no-console
-			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			console.warn(`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`);
 			return undefined;
 		}
 
@@ -644,13 +644,13 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						return { id: lookup, collection };
 					}
 
-					if (!lookupMap[collection] && store.collections().size === 0) {
+					if (!lookupMap[collection] && store.collections().size < 2) {
 						// If the collection is not in the lookup map or store, it may be a content layer collection and the store may not yet be populated.
+						// The store may still have a single collection, which would be the top level metadata collection.
 						// For now, we can't validate this reference, so we'll optimistically convert it to a reference object which we'll validate
 						// later in the pipeline when we do have access to the store.
 						return { id: lookup, collection };
 					}
-
 					const { type, entries } = lookupMap[collection];
 					const entry = entries[lookup];
 
