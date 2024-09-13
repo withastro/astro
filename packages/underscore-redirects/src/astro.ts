@@ -1,10 +1,10 @@
 import { posix } from 'node:path';
-import type { AstroConfig, RouteData, ValidRedirectStatus } from 'astro';
+import type { AstroConfig, IntegrationRouteData, ValidRedirectStatus } from 'astro';
 import { Redirects } from './redirects.js';
 
 const pathJoin = posix.join;
 
-function getRedirectStatus(route: RouteData): ValidRedirectStatus {
+function getRedirectStatus(route: IntegrationRouteData): ValidRedirectStatus {
 	if (typeof route.redirect === 'object') {
 		return route.redirect.status;
 	}
@@ -16,7 +16,7 @@ interface CreateRedirectsFromAstroRoutesParams {
 	/**
 	 * Maps a `RouteData` to a dynamic target
 	 */
-	routeToDynamicTargetMap: Map<RouteData, string>;
+	routeToDynamicTargetMap: Map<IntegrationRouteData, string>;
 	dir: URL;
 }
 
@@ -125,7 +125,7 @@ export function createRedirectsFromAstroRoutes({
  * /team/articles/*
  * With stars replacing spread and :id syntax replacing [id]
  */
-function generateDynamicPattern(route: RouteData) {
+function generateDynamicPattern(route: IntegrationRouteData) {
 	const pattern =
 		'/' +
 		route.segments
