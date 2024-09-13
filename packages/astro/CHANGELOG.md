@@ -1,5 +1,15 @@
 # astro
 
+## 4.15.6
+
+### Patch Changes
+
+- [#11993](https://github.com/withastro/astro/pull/11993) [`ffba5d7`](https://github.com/withastro/astro/commit/ffba5d716edcdfc42899afaa4188b7a4cd0c91eb) Thanks [@matthewp](https://github.com/matthewp)! - Fix getStaticPaths regression
+
+  This reverts a previous change meant to remove a dependency, to fix a regression with multiple nested spread routes.
+
+- [#11964](https://github.com/withastro/astro/pull/11964) [`06eff60`](https://github.com/withastro/astro/commit/06eff60cabb55d91fe4075421b1693b1ab33225c) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Add wayland (wl-copy) support to `astro info`
+
 ## 4.15.5
 
 ### Patch Changes
