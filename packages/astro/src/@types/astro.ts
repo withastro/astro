@@ -1094,6 +1094,23 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
+		/**
+		 * @docs
+		 * @name build.concurrency
+		 * @type {boolean}
+		 * @default `1`
+		 * @description
+		 * When greater than 1 using parallel builds during the build.
+		 * 
+		 * ```js
+		 * {
+		 *   build: {
+		 *     concurrency: 1
+		 *   }
+		 * }
+		 * ```
+		 */
+		concurrency?: number;
 	};
 
 	/**

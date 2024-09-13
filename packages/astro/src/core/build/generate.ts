@@ -166,6 +166,9 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
+/**
+ * Creates a slice of array from start up to, but not including, end.
+ */
 function slice(array: any, start: any, end: any) {
   let length = array == null ? 0 : array.length;
   if (!length) {
@@ -191,7 +194,9 @@ function slice(array: any, start: any, end: any) {
   }
   return result;
 }
-
+/**
+ * Creates an array of elements split into groups the length of size. If array can't be split evenly, the final chunk will be the remaining elements.
+ */
 function chunk(array: any, size = 1) {
   size = Math.max(size, 0);
   const length = array == null ? 0 : array.length;
@@ -250,14 +255,14 @@ async function generatePage(
 		let timeStart = performance.now();
 		let prevTimeEnd = timeStart;
 		if(Number(config.build.concurrency) > 1){
-			const arr1 = chunk(paths, 10);
-			for (const arr of arr1) {
+			const chunks_arr = chunk(paths, 10);
+			for (const chunks_arr_elem of chunks_arr) {
 				let promises = [];
-				for (let i in arr) {
-					const path = arr[i];
+				for (let i in chunks_arr_elem) {
+					const path = chunks_arr_elem[i];
 					pipeline.logger.debug("build", `Generating: ${path}`);
 					const filePath = getOutputFilename(config, path, pageData.route.type);
-					const lineIcon = Number(i) === arr.length - 1 ? "\u2514\u2500" : "\u251C\u2500";
+					const lineIcon = Number(i) === chunks_arr_elem.length - 1 ? "\u2514\u2500" : "\u251C\u2500";
 					promises.push(new Promise((resolve, reject) => {
 						generatePath(path, pipeline, generationOptions, route).then(() => {
 							const timeEnd = performance.now();
