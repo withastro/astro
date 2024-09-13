@@ -55,7 +55,7 @@ export async function printInfo({ flags }: InfoOptions) {
 }
 
 async function copyToClipboard(text: string) {
-	text = text.trim()
+	text = text.trim();
 	const system = platform();
 	let command = '';
 	if (system === 'darwin') {
@@ -66,8 +66,8 @@ async function copyToClipboard(text: string) {
 		// Unix: check if a supported command is installed
 		const unixCommands = [
 			['xclip', '-sel clipboard -l 1'],
-			['wl-copy', '"$0"']
-		]
+			['wl-copy', '"$0"'],
+		];
 		for (const [unixCommand, args] of unixCommands) {
 			try {
 				const output = execSync(`which ${unixCommand}`, { encoding: 'utf8', stdio: 'pipe' });
@@ -77,7 +77,7 @@ async function copyToClipboard(text: string) {
 				}
 				command = `${unixCommand} ${args}`;
 			} catch {
-					// Failed to execute which. Skip!
+				// Failed to execute which. Skip!
 				continue;
 			}
 		}
