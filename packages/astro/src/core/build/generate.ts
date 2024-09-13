@@ -166,7 +166,47 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
+function slice(array: any, start: any, end: any) {
+  let length = array == null ? 0 : array.length;
+  if (!length) {
+    return [];
+  }
+  start = start == null ? 0 : start;
+  end = end === undefined ? length : end;
 
+  if (start < 0) {
+    start = -start > length ? 0 : length + start;
+  }
+  end = end > length ? length : end;
+  if (end < 0) {
+    end += length;
+  }
+  length = start > end ? 0 : (end - start) >>> 0;
+  start >>>= 0;
+
+  let index = -1;
+  const result = new Array(length);
+  while (++index < length) {
+    result[index] = array[index + start];
+  }
+  return result;
+}
+
+function chunk(array: any, size = 1) {
+  size = Math.max(size, 0);
+  const length = array == null ? 0 : array.length;
+  if (!length || size < 1) {
+    return [];
+  }
+  let index = 0;
+  let resIndex = 0;
+  const result = new Array(Math.ceil(length / size));
+
+  while (index < length) {
+    result[resIndex++] = slice(array, index, (index += size));
+  }
+  return result;
+}
 async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,
@@ -209,24 +249,57 @@ async function generatePage(
 		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
 		let timeStart = performance.now();
 		let prevTimeEnd = timeStart;
-		for (let i = 0; i < paths.length; i++) {
-			const path = paths[i];
-			pipeline.logger.debug('build', `Generating: ${path}`);
-			const filePath = getOutputFilename(config, path, pageData.route.type);
-			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
-			await generatePath(path, pipeline, generationOptions, route);
-			const timeEnd = performance.now();
-			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
-			const timeIncrease = `(+${timeChange})`;
-			let timeIncreaseLabel;
-			if (timeEnd - prevTimeEnd > THRESHOLD_SLOW_RENDER_TIME_MS) {
-				timeIncreaseLabel = red(timeIncrease);
-			} else {
-				timeIncreaseLabel = dim(timeIncrease);
+		if(Number(config.build.concurrency) > 1){
+			const arr1 = chunk(paths, 10);
+			for (const arr of arr1) {
+				let promises = [];
+				for (let i in arr) {
+					const path = arr[i];
+					pipeline.logger.debug("build", `Generating: ${path}`);
+					const filePath = getOutputFilename(config, path, pageData.route.type);
+					const lineIcon = Number(i) === arr.length - 1 ? "\u2514\u2500" : "\u251C\u2500";
+					promises.push(new Promise((resolve, reject) => {
+						generatePath(path, pipeline, generationOptions, route).then(() => {
+							const timeEnd = performance.now();
+							const timeChange = getTimeStat(prevTimeEnd, timeEnd);
+							const timeIncrease = `(+${timeChange})`;
+							let timeIncreaseLabel;
+							if (timeEnd - prevTimeEnd > THRESHOLD_SLOW_RENDER_TIME_MS) {
+								timeIncreaseLabel = red(timeIncrease);
+							} else {
+								timeIncreaseLabel = dim(timeIncrease);
+							}
+							logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncreaseLabel}`);
+	
+							resolve('');
+						}).catch(() => {
+							reject();
+						});
+					}));
+					prevTimeEnd = performance.now();
+				}
+				await Promise.all(promises);
 			}
-			logger.info('SKIP_FORMAT', ` ${timeIncreaseLabel}`);
-			prevTimeEnd = timeEnd;
+		}else{
+			for (let i = 0; i < paths.length; i++) {
+				const path = paths[i];
+				pipeline.logger.debug('build', `Generating: ${path}`);
+				const filePath = getOutputFilename(config, path, pageData.route.type);
+				const lineIcon = i === paths.length - 1 ? '└─' : '├─';
+				logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
+				await generatePath(path, pipeline, generationOptions, route);
+				const timeEnd = performance.now();
+				const timeChange = getTimeStat(prevTimeEnd, timeEnd);
+				const timeIncrease = `(+${timeChange})`;
+				let timeIncreaseLabel;
+				if (timeEnd - prevTimeEnd > THRESHOLD_SLOW_RENDER_TIME_MS) {
+					timeIncreaseLabel = red(timeIncrease);
+				} else {
+					timeIncreaseLabel = dim(timeIncrease);
+				}
+				logger.info('SKIP_FORMAT', ` ${timeIncreaseLabel}`);
+				prevTimeEnd = timeEnd;
+			}			
 		}
 	}
 }
