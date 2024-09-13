@@ -24,9 +24,9 @@ describe('Experimental Content Collections cache - references', () => {
 		describe(mode, () => {
 			before(async () => {
 				if (mode === 'prod') {
-					await fixture.build();
+					await fixture.build({ force: true });
 				} else if (mode === 'dev') {
-					devServer = await fixture.startDevServer();
+					devServer = await fixture.startDevServer({ force: true });
 				}
 			});
 
