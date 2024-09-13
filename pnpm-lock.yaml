@@ -373,7 +373,7 @@ importers:
         specifier: ^5.0.0-alpha.7
         version: link:../../packages/astro
       postcss:
-        specifier: ^8.4.43
+        specifier: ^8.4.45
         version: 8.4.45
       react:
         specifier: ^18.3.1
@@ -406,7 +406,7 @@ importers:
         specifier: ^5.0.0-alpha.7
         version: link:../../packages/astro
       sass:
-        specifier: ^1.77.8
+        specifier: ^1.78.0
         version: 1.78.0
       sharp:
         specifier: ^0.33.3
@@ -670,7 +670,7 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
       path-to-regexp:
-        specifier: ^6.2.2
+        specifier: 6.2.2
         version: 6.2.2
       preferred-pm:
         specifier: ^4.0.0
