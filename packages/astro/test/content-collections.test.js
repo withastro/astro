@@ -11,7 +11,7 @@ describe('Content Collections', () => {
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-collections/' });
-			await fixture.build();
+			await fixture.build({ force: true });
 		});
 
 		describe('Collection', () => {
@@ -181,7 +181,7 @@ describe('Content Collections', () => {
 
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-static-paths-integration/' });
-			await fixture.build();
+			await fixture.build({ force: true });
 		});
 
 		it('Generates expected pages', async () => {
@@ -215,7 +215,7 @@ describe('Content Collections', () => {
 			const fixture = await loadFixture({ root: './fixtures/content with spaces in folder name/' });
 			let error = null;
 			try {
-				await fixture.build();
+				await fixture.build({ force: true });
 			} catch (e) {
 				error = e.message;
 			}
@@ -229,7 +229,7 @@ describe('Content Collections', () => {
 			});
 			let error;
 			try {
-				await fixture.build();
+				await fixture.build({ force: true });
 			} catch (e) {
 				error = e.message;
 			}
@@ -243,7 +243,7 @@ describe('Content Collections', () => {
 			});
 			let error;
 			try {
-				await fixture.build();
+				await fixture.build({ force: true });
 			} catch (e) {
 				error = e.message;
 			}
@@ -258,7 +258,7 @@ describe('Content Collections', () => {
 			});
 			let error;
 			try {
-				await fixture.build();
+				await fixture.build({ force: true });
 			} catch (e) {
 				error = e.message;
 			}
@@ -273,7 +273,7 @@ describe('Content Collections', () => {
 			});
 			let error;
 			try {
-				await fixture.build();
+				await fixture.build({ force: true });
 			} catch (e) {
 				error = e.message;
 			}
@@ -299,7 +299,7 @@ describe('Content Collections', () => {
 					plugins: [preventNodeBuiltinDependencyPlugin()],
 				},
 			});
-			await fixture.build();
+			await fixture.build({ force: true });
 			app = await fixture.loadTestAdapterApp();
 		});
 
@@ -342,7 +342,7 @@ describe('Content Collections', () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-base/',
 			});
-			await fixture.build();
+			await fixture.build({ force: true });
 		});
 
 		it('Includes base in links', async () => {
@@ -365,7 +365,7 @@ describe('Content Collections', () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-mutation/',
 			});
-			await fixture.build();
+			await fixture.build({ force: true });
 		});
 
 		it('Does not mutate cached collection', async () => {

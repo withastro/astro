@@ -9,7 +9,7 @@ describe('Content Collections - data collections', () => {
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/data-collections/' });
-		await fixture.build();
+		await fixture.build({ force: true });
 	});
 
 	describe('Authors Collection', () => {
