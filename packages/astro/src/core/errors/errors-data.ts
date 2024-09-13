@@ -415,7 +415,7 @@ export const AdapterSupportOutputMismatch = {
 /**
  * @docs
  * @see
- * - [On-demand Rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
+ * - [On-demand Rendering](https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * To use server islands, the same constraints exist as for sever-side rendering, so an adapter is needed.
  */
