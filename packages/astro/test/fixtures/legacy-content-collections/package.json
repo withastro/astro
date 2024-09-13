@@ -1,5 +1,5 @@
 {
-  "name": "@test/content-collections",
+  "name": "@test/legacy-content-collections",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
