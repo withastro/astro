@@ -255,7 +255,7 @@ async function generatePage(
 		let timeStart = performance.now();
 		let prevTimeEnd = timeStart;
 		if(Number(config.build.concurrency) > 1){
-			const chunks_arr = chunk(paths, 10);
+			const chunks_arr = chunk(paths, Number(config.build.concurrency));
 			for (const chunks_arr_elem of chunks_arr) {
 				let promises = [];
 				for (let i in chunks_arr_elem) {
