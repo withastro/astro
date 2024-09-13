@@ -31,29 +31,30 @@ export function getRouteGenerator(
 			trailing = '/';
 		}
 
-		const path = segments
-			.map((segment) => {
-				return (
-					'/' +
-					segment
-						.map((part) => {
-							if (part.spread) {
-								return `${sanitizedParams[part.content.slice(3)] || ''}`;
-							} else if (part.dynamic) {
-								return `${sanitizedParams[part.content] || ''}`;
-							} else {
-								return part.content
-									.normalize()
-									.replace(/\?/g, '%3F')
-									.replace(/#/g, '%23')
-									.replace(/%5B/g, '[')
-									.replace(/%5D/g, ']');
-							}
-						})
-						.join('')
-				);
-			})
-			.join('') + trailing;
+		const path =
+			segments
+				.map((segment) => {
+					return (
+						'/' +
+						segment
+							.map((part) => {
+								if (part.spread) {
+									return `${sanitizedParams[part.content.slice(3)] || ''}`;
+								} else if (part.dynamic) {
+									return `${sanitizedParams[part.content] || ''}`;
+								} else {
+									return part.content
+										.normalize()
+										.replace(/\?/g, '%3F')
+										.replace(/#/g, '%23')
+										.replace(/%5B/g, '[')
+										.replace(/%5D/g, ']');
+								}
+							})
+							.join('')
+					);
+				})
+				.join('') + trailing;
 
 		return path || '/';
 	};
