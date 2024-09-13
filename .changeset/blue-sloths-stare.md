@@ -4,7 +4,7 @@
 
 App class now accepts renderOptions
 
-The signature for `app.render()` has changed, and the second argument is now an options object called `renderOptions`. This allows you greater customization of rendering than with the old signature.
+The signature for `app.render()` has changed, and the second argument is now an options object called `renderOptions` with more options for customizing rendering.
 
 The renderOptions are:
 
