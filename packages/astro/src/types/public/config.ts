@@ -835,7 +835,7 @@ export interface AstroUserConfig {
 	 * @type {boolean | object}
 	 * @description
 	 * Enable prefetching for links on your site to provide faster page transitions.
-	 * (Enabled by default on pages using the `<ViewTransitions />` router. Set `prefetch: false` to opt out of this behaviour.)
+	 * (Enabled by default on pages using the `<ClientRouter />` router. Set `prefetch: false` to opt out of this behaviour.)
 	 *
 	 * This configuration automatically adds a prefetch script to every page in the project
 	 * giving you access to the `data-astro-prefetch` attribute.
@@ -857,7 +857,7 @@ export interface AstroUserConfig {
 				 * @type {boolean}
 				 * @description
 				 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
-				 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
+				 * This value defaults to `true` when using the `<ClientRouter />` router. Otherwise, the default value is `false`.
 				 *
 				 * ```js
 				 * prefetch: {
