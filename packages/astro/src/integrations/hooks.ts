@@ -323,26 +323,12 @@ export async function runHookConfigDone({
 								`The adapter ${adapter.name} doesn't provide a feature map. It is required in Astro 4.0.`,
 							);
 						} else {
-							const validationResult = validateSupportedFeatures(
+							validateSupportedFeatures(
 								adapter.name,
 								adapter.supportedAstroFeatures,
 								settings,
-								// SAFETY: we checked before if it's not present, and we throw an error
-								adapter.adapterFeatures,
 								logger,
 							);
-							for (const [featureName, supported] of Object.entries(validationResult)) {
-								// If `supported` / `validationResult[featureName]` only allows boolean,
-								// in theory 'assets' false, doesn't mean that the feature is not supported, but rather that the chosen image service is unsupported
-								// in this case we should not show an error, that the featrue is not supported
-								// if we would refactor the validation to support more than boolean, we could still be able to differentiate between the two cases
-								if (!supported && featureName !== 'assets') {
-									logger.error(
-										null,
-										`The adapter ${adapter.name} doesn't support the feature ${featureName}. Your project won't be built. You should not use it.`,
-									);
-								}
-							}
 						}
 						settings.adapter = adapter;
 					},
