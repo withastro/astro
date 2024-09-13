@@ -6,13 +6,11 @@ import testAdapter from './test-adapter.js';
 import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
 import { loadFixture } from './test-utils.js';
 
-describe('Content Collections - Emulate Legacy', () => {
+describe('Legacy Content Collections', () => {
 	describe('Query', () => {
 		let fixture;
 		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/content-collections/',
-			});
+			fixture = await loadFixture({ root: './fixtures/legacy-content-collections/' });
 			await fixture.build();
 		});
 
@@ -221,7 +219,12 @@ describe('Content Collections - Emulate Legacy', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/content-static-paths-integration/' });
+			fixture = await loadFixture({
+				root: './fixtures/content-static-paths-integration/',
+				legacy: {
+					legacyContentCollections: true,
+				},
+			});
 			await fixture.build();
 		});
 
@@ -253,7 +256,10 @@ describe('Content Collections - Emulate Legacy', () => {
 
 	describe('With spaces in path', () => {
 		it('Does not throw', async () => {
-			const fixture = await loadFixture({ root: './fixtures/content with spaces in folder name/' });
+			const fixture = await loadFixture({ root: './fixtures/content with spaces in folder name/',
+				legacy: {
+					legacyContentCollections: true,
+				}, });
 			let error = null;
 			try {
 				await fixture.build();
@@ -267,6 +273,10 @@ describe('Content Collections - Emulate Legacy', () => {
 		it("Errors when frontmatter doesn't match schema", async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-with-config-mjs/',
+				legacy: {
+					legacyContentCollections: true,
+				},
+				
 			});
 			let error;
 			try {
@@ -281,6 +291,9 @@ describe('Content Collections - Emulate Legacy', () => {
 		it("Errors when frontmatter doesn't match schema", async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-with-config-mts/',
+				legacy: {
+					legacyContentCollections: true,
+				},
 			});
 			let error;
 			try {
@@ -296,6 +309,9 @@ describe('Content Collections - Emulate Legacy', () => {
 		it('Throws the right error', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-md-file/',
+				legacy: {
+					legacyContentCollections: true,
+				},
 			});
 			let error;
 			try {
@@ -311,6 +327,9 @@ describe('Content Collections - Emulate Legacy', () => {
 		it('Handles the empty directory correctly', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-dir/',
+				legacy: {
+					legacyContentCollections: true,
+				},
 			});
 			let error;
 			try {
@@ -338,6 +357,9 @@ describe('Content Collections - Emulate Legacy', () => {
 				adapter: testAdapter(),
 				vite: {
 					plugins: [preventNodeBuiltinDependencyPlugin()],
+				},
+				legacy: {
+					legacyContentCollections: true,
 				},
 			});
 			await fixture.build();
@@ -382,6 +404,9 @@ describe('Content Collections - Emulate Legacy', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-base/',
+				legacy: {
+					legacyContentCollections: true,
+				},
 			});
 			await fixture.build();
 		});
@@ -405,6 +430,9 @@ describe('Content Collections - Emulate Legacy', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-mutation/',
+				legacy: {
+					legacyContentCollections: true,
+				},
 			});
 			await fixture.build();
 		});

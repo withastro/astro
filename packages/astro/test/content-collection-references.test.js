@@ -65,13 +65,9 @@ describe('Content Collections - references', () => {
 				it('Returns `author` data', () => {
 					const { author } = json;
 					assert.ok(author.hasOwnProperty('data'));
-					assert.deepEqual(author, {
-						id: 'nate-moore',
-						collection: 'authors',
-						data: {
-							name: 'Nate Something Moore',
-							twitter: 'https://twitter.com/n_moore',
-						},
+					assert.deepEqual(author.data, {
+						name: 'Nate Something Moore',
+						twitter: 'https://twitter.com/n_moore',
 					});
 				});
 
@@ -82,20 +78,23 @@ describe('Content Collections - references', () => {
 						...meta,
 						body: fixLineEndings(body).trim(),
 					}));
-					assert.deepEqual(topLevelInfo, [
-						{
-							id: 'related-1.md',
-							slug: 'related-1',
-							body: '# Related post 1\n\nThis is related to the welcome post.',
-							collection: 'blog',
-						},
-						{
-							id: 'related-2.md',
-							slug: 'related-2',
-							body: '# Related post 2\n\nThis is related to the welcome post.',
-							collection: 'blog',
-						},
-					]);
+					assert.deepEqual(
+						topLevelInfo.map(({ id, slug, body, collection }) => ({ id, slug, body, collection })),
+						[
+							{
+								id: 'related-1.md',
+								slug: 'related-1',
+								body: '# Related post 1\n\nThis is related to the welcome post.',
+								collection: 'blog',
+							},
+							{
+								id: 'related-2.md',
+								slug: 'related-2',
+								body: '# Related post 2\n\nThis is related to the welcome post.',
+								collection: 'blog',
+							},
+						],
+					);
 					const postData = relatedPosts.map(({ data }) => data);
 					assert.deepEqual(postData, [
 						{

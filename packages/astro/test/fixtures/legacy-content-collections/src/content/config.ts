@@ -52,8 +52,6 @@ const withSymlinkedContent = defineCollection({
 	}),
 });
 
-const withScripts = defineCollection({});
-
 export const collections = {
 	'with-data': withData,
 	'with-custom-slugs': withCustomSlugs,
@@ -61,5 +59,4 @@ export const collections = {
 	'with-union-schema': withUnionSchema,
 	'with-symlinked-data': withSymlinkedData,
 	'with-symlinked-content': withSymlinkedContent,
-	'with-scripts': withScripts,
 };

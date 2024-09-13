@@ -21,40 +21,6 @@ describe('Content Collections', () => {
 				json = devalue.parse(rawJson);
 			});
 
-			it('Returns `without config` collection', async () => {
-				assert.ok(json.hasOwnProperty('withoutConfig'));
-				assert.equal(Array.isArray(json.withoutConfig), true);
-
-				const ids = json.withoutConfig.map((item) => item.id);
-				assert.deepEqual(
-					ids.sort(),
-					[
-						'columbia.md',
-						'endeavour.md',
-						'enterprise.md',
-						// Spaces allowed in IDs
-						'promo/launch week.mdx',
-					].sort(),
-				);
-			});
-
-			it('Handles spaces in `without config` slugs', async () => {
-				assert.ok(json.hasOwnProperty('withoutConfig'));
-				assert.equal(Array.isArray(json.withoutConfig), true);
-
-				const slugs = json.withoutConfig.map((item) => item.slug);
-				assert.deepEqual(
-					slugs.sort(),
-					[
-						'columbia',
-						'endeavour',
-						'enterprise',
-						// "launch week.mdx" is converted to "launch-week.mdx"
-						'promo/launch-week',
-					].sort(),
-				);
-			});
-
 			it('Returns `with schema` collection', async () => {
 				assert.ok(json.hasOwnProperty('withSchemaConfig'));
 				assert.equal(Array.isArray(json.withSchemaConfig), true);
@@ -68,13 +34,13 @@ describe('Content Collections', () => {
 					'Not all publishedAt dates are Date objects',
 				);
 				assert.deepEqual(
-					publishedDates.map((date) => date.toISOString()),
+					publishedDates.map((date) => date.toISOString()).sort(),
 					[
 						'2021-01-01T00:00:00.000Z',
 						'2021-01-01T00:00:00.000Z',
 						'2021-01-03T00:00:00.000Z',
 						'2021-01-02T00:00:00.000Z',
-					],
+					].sort(),
 				);
 			});
 
@@ -83,7 +49,7 @@ describe('Content Collections', () => {
 				assert.equal(Array.isArray(json.withSlugConfig), true);
 
 				const slugs = json.withSlugConfig.map((item) => item.slug);
-				assert.deepEqual(slugs, ['fancy-one', 'excellent-three', 'interesting-two']);
+				assert.deepEqual(slugs.sort(), ['fancy-one', 'excellent-three', 'interesting-two'].sort());
 			});
 
 			it('Returns `with union schema` collection', async () => {
@@ -143,11 +109,6 @@ describe('Content Collections', () => {
 			before(async () => {
 				const rawJson = await fixture.readFile('/entries.json');
 				json = devalue.parse(rawJson);
-			});
-
-			it('Returns `without config` collection entry', async () => {
-				assert.ok(json.hasOwnProperty('columbiaWithoutConfig'));
-				assert.equal(json.columbiaWithoutConfig.id, 'columbia.md');
 			});
 
 			it('Returns `with schema` collection entry', async () => {

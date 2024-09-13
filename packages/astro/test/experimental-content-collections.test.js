@@ -11,11 +11,8 @@ describe('Experimental Content Collections cache', () => {
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/content-collections/',
+				root: './fixtures/legacy-content-collections/',
 				experimental: { contentCollectionCache: true },
-				legacy: {
-					legacyContentCollections: true,
-				},
 			});
 			await fixture.build();
 		});

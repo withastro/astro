@@ -17,8 +17,4 @@ const i18n = defineCollection({
 	}),
 });
 
-const authors = defineCollection({
-	type: 'data'
-});
-
-export const collections = { docs, i18n, authors };
+export const collections = { docs, i18n };
