@@ -3,6 +3,7 @@ import type { ViteDevServer, InlineConfig as ViteInlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
 import type { PageBuildData } from '../../core/build/types.js';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
+import type { AdapterFeatureStability } from '../../integrations/features-validation.js';
 import type { getToolbarServerCommunicationHelpers } from '../../integrations/hooks.js';
 import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig } from './config.js';
@@ -60,7 +61,15 @@ export interface AstroRenderer {
 	serverEntrypoint: string;
 }
 
-export type AdapterSupportsKind = 'unsupported' | 'stable' | 'experimental' | 'deprecated';
+export type AdapterSupportsKind =
+	(typeof AdapterFeatureStability)[keyof typeof AdapterFeatureStability];
+
+export type AdapterSupportWithMessage = {
+	support: Exclude<AdapterSupportsKind, 'stable'>;
+	message: string;
+};
+
+export type AdapterSupport = AdapterSupportsKind | AdapterSupportWithMessage;
 
 export interface AstroAdapterFeatures {
 	/**
@@ -92,45 +101,33 @@ export type AstroAdapterFeatureMap = {
 	/**
 	 * The adapter is able serve static pages
 	 */
-	staticOutput?: AdapterSupportsKind;
+	staticOutput?: AdapterSupport;
+
 	/**
 	 * The adapter is able to serve pages that are static or rendered via server
 	 */
-	hybridOutput?: AdapterSupportsKind;
+	hybridOutput?: AdapterSupport;
+
 	/**
 	 * The adapter is able to serve SSR pages
 	 */
-	serverOutput?: AdapterSupportsKind;
-	/**
-	 * The adapter can emit static assets
-	 */
-	assets?: AstroAssetsFeature;
+	serverOutput?: AdapterSupport;
 
 	/**
-	 * List of features that orbit around the i18n routing
+	 * The adapter is able to support i18n domains
 	 */
-	i18nDomains?: AdapterSupportsKind;
+	i18nDomains?: AdapterSupport;
 
 	/**
 	 * The adapter is able to support `getSecret` exported from `astro:env/server`
 	 */
-	envGetSecret?: AdapterSupportsKind;
+	envGetSecret?: AdapterSupport;
+
+	/**
+	 * The adapter supports image transformation using the built-in Sharp image service
+	 */
+	sharpImageService?: AdapterSupport;
 };
-
-export interface AstroAssetsFeature {
-	supportKind?: AdapterSupportsKind;
-	/**
-	 * Whether if this adapter deploys files in an environment that is compatible with the library `sharp`
-	 */
-	isSharpCompatible?: boolean;
-}
-
-export interface AstroInternationalizationFeature {
-	/**
-	 * The adapter should be able to create the proper redirects
-	 */
-	domains?: AdapterSupportsKind;
-}
 
 /**
  * IDs for different stages of JS script injection:
@@ -206,7 +203,7 @@ export interface BaseIntegrationHooks {
 		 * This maps a {@link RouteData} to an {@link URL}, this URL represents
 		 * the physical file you should import.
 		 */
-		entryPoints: Map<RouteData, URL>;
+		entryPoints: Map<IntegrationRouteData, URL>;
 		/**
 		 * File path of the emitted middleware
 		 */
@@ -228,7 +225,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
 		dir: URL;
-		routes: RouteData[];
+		routes: IntegrationRouteData[];
 		logger: AstroIntegrationLogger;
 		cacheManifest: boolean;
 	}) => void | Promise<void>;
@@ -246,3 +243,16 @@ export interface AstroIntegration {
 		[K in keyof Astro.IntegrationHooks]?: Astro.IntegrationHooks[K];
 	} & Partial<Record<string, unknown>>;
 }
+
+/**
+ * A smaller version of the {@link RouteData} that is used in the integrations.
+ */
+export type IntegrationRouteData = Omit<
+	RouteData,
+	'isIndex' | 'fallbackRoutes' | 'redirectRoute'
+> & {
+	/**
+	 * {@link RouteData.redirectRoute}
+	 */
+	redirectRoute?: IntegrationRouteData;
+};

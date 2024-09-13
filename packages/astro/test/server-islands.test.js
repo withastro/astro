@@ -69,7 +69,7 @@ describe('Server islands', () => {
 		describe('build', () => {
 			before(async () => {
 				await fixture.build({
-					adapter: testAdapter()
+					adapter: testAdapter(),
 				});
 			});
 
@@ -89,10 +89,10 @@ describe('Server islands', () => {
 			it('Errors during the build', async () => {
 				try {
 					await fixture.build({
-						adapter: undefined
+						adapter: undefined,
 					});
 					assert.equal(true, false, 'should not have succeeded');
-				} catch(err) {
+				} catch (err) {
 					assert.equal(err.title, 'Cannot use Server Islands without an adapter.');
 				}
 			});
