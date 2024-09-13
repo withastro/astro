@@ -1,5 +1,8 @@
 import { escape as escapeHTML } from 'html-escaper';
-import type { DevToolbarApp, DevToolbarMetadata } from '../../../../types/public/toolbar.js';
+import type {
+	DevToolbarMetadata,
+	ResolvedDevToolbarApp,
+} from '../../../../types/public/toolbar.js';
 import type { DevToolbarHighlight } from '../ui-library/highlight.js';
 import {
 	attachTooltipToHighlight,
@@ -177,4 +180,4 @@ export default {
 			return tooltip;
 		}
 	},
-} satisfies DevToolbarApp;
+} satisfies ResolvedDevToolbarApp;

@@ -175,8 +175,6 @@ export interface BaseIntegrationHooks {
 		injectRoute: (injectRoute: InjectedRoute) => void;
 		addClientDirective: (directive: ClientDirectiveConfig) => void;
 		addDevToolbarApp: (entrypoint: DevToolbarAppEntry) => void;
-		/** @deprecated */
-		addDevToolbarApp: (entrypoint: string) => void;
 		addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
