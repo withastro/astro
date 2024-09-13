@@ -1,5 +1,73 @@
 # astro
 
+## 4.15.5
+
+### Patch Changes
+
+- [#11939](https://github.com/withastro/astro/pull/11939) [`7b09c62`](https://github.com/withastro/astro/commit/7b09c62b565cd7b50c35fb68d390729f936a43fb) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds support for Zod discriminated unions on Action form inputs. This allows forms with different inputs to be submitted to the same action, using a given input to decide which object should be used for validation.
+
+  This example accepts either a `create` or `update` form submission, and uses the `type` field to determine which object to validate against.
+
+  ```ts
+  import { defineAction } from 'astro:actions';
+  import { z } from 'astro:schema';
+
+  export const server = {
+    changeUser: defineAction({
+      accept: 'form',
+      input: z.discriminatedUnion('type', [
+        z.object({
+          type: z.literal('create'),
+          name: z.string(),
+          email: z.string().email(),
+        }),
+        z.object({
+          type: z.literal('update'),
+          id: z.number(),
+          name: z.string(),
+          email: z.string().email(),
+        }),
+      ]),
+      async handler(input) {
+        if (input.type === 'create') {
+          // input is { type: 'create', name: string, email: string }
+        } else {
+          // input is { type: 'update', id: number, name: string, email: string }
+        }
+      },
+    }),
+  };
+  ```
+
+  The corresponding `create` and `update` forms may look like this:
+
+  ```astro
+  ---
+  import { actions } from 'astro:actions';
+  ---
+
+  <!--Create-->
+  <form action={actions.changeUser} method="POST">
+    <input type="hidden" name="type" value="create" />
+    <input type="text" name="name" required />
+    <input type="email" name="email" required />
+    <button type="submit">Create User</button>
+  </form>
+
+  <!--Update-->
+  <form action={actions.changeUser} method="POST">
+    <input type="hidden" name="type" value="update" />
+    <input type="hidden" name="id" value="user-123" />
+    <input type="text" name="name" required />
+    <input type="email" name="email" required />
+    <button type="submit">Update User</button>
+  </form>
+  ```
+
+- [#11968](https://github.com/withastro/astro/pull/11968) [`86ad1fd`](https://github.com/withastro/astro/commit/86ad1fd223e2d2c448372caa159090efbee69237) Thanks [@NikolaRHristov](https://github.com/NikolaRHristov)! - Fixes a typo in the server island JSDoc
+
+- [#11983](https://github.com/withastro/astro/pull/11983) [`633eeaa`](https://github.com/withastro/astro/commit/633eeaa9d8a8a35bba638fde06fd8f52cc1c2ce3) Thanks [@uwej711](https://github.com/uwej711)! - Remove dependency on path-to-regexp
+
 ## 4.15.4
 
 ### Patch Changes

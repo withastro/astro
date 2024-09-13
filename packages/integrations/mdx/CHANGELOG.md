@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 3.1.6
+
+### Patch Changes
+
+- [#11975](https://github.com/withastro/astro/pull/11975) [`c9ae7b1`](https://github.com/withastro/astro/commit/c9ae7b1b89e050900bbc111f29e8c5d95c26bf36) Thanks [@bluwy](https://github.com/bluwy)! - Handles nested root hast node when optimizing MDX
+
 ## 3.1.5
 
 ### Patch Changes
