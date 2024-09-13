@@ -31,13 +31,13 @@ describe('Content Collections - data collections', () => {
 
 		it('Generates correct data', async () => {
 			const names = json.map((item) => item.data.name);
-			assert.deepEqual(names, ['Ben J Holmes', 'Fred K Schott', 'Nate Something Moore']);
+			assert.deepEqual(names, ['Ben J Holmes', 'Nate Something Moore', 'Fred K Schott']);
 
 			const twitterUrls = json.map((item) => item.data.twitter);
 			assert.deepEqual(twitterUrls, [
 				'https://twitter.com/bholmesdev',
-				'https://twitter.com/FredKSchott',
 				'https://twitter.com/n_moore',
+				'https://twitter.com/FredKSchott',
 			]);
 		});
 	});

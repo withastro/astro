@@ -256,10 +256,12 @@ describe('Legacy Content Collections', () => {
 
 	describe('With spaces in path', () => {
 		it('Does not throw', async () => {
-			const fixture = await loadFixture({ root: './fixtures/content with spaces in folder name/',
+			const fixture = await loadFixture({
+				root: './fixtures/content with spaces in folder name/',
 				legacy: {
 					legacyContentCollections: true,
-				}, });
+				},
+			});
 			let error = null;
 			try {
 				await fixture.build();
@@ -276,7 +278,6 @@ describe('Legacy Content Collections', () => {
 				legacy: {
 					legacyContentCollections: true,
 				},
-				
 			});
 			let error;
 			try {

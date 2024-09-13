@@ -184,7 +184,9 @@ export function createGetEntryBySlug({
 				});
 			}
 			// eslint-disable-next-line no-console
-			console.warn(`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`);
+			console.warn(
+				`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`,
+			);
 			return undefined;
 		}
 
@@ -227,7 +229,9 @@ export function createGetDataEntryById({
 				return getEntry(collection, id);
 			}
 			// eslint-disable-next-line no-console
-			console.warn(`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`);
+			console.warn(
+				`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`,
+			);
 			return undefined;
 		}
 
@@ -328,7 +332,9 @@ export function createGetEntry({
 
 		if (!collectionNames.has(collection)) {
 			// eslint-disable-next-line no-console
-			console.warn(`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`);
+			console.warn(
+				`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`,
+			);
 			return undefined;
 		}
 

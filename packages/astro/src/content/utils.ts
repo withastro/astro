@@ -537,14 +537,26 @@ export async function autogenerateCollections({
 			continue;
 		}
 
+		const isDataCollection = collections[collectionName]?.type === 'data';
+		const base = new URL(`${collectionName}/`, contentDir);
 		collections[collectionName] = {
 			...collections[collectionName],
 			type: 'content_layer',
 			loader: glob({
-				base: new URL(collectionName, contentDir),
-				pattern: collections[collectionName]?.type === 'data' ? dataPattern : contentPattern,
+				base,
+				pattern: isDataCollection ? dataPattern : contentPattern,
 				// Only "content" collections need special legacy handling
-				_legacy: collections[collectionName]?.type !== 'data' || undefined,
+				_legacy: !isDataCollection || undefined,
+				// Legacy data collections IDs aren't slugified
+				generateId: isDataCollection
+					? ({ entry }) =>
+							getDataEntryId({
+								entry: new URL(entry, base),
+								collection: collectionName,
+								contentDir,
+							})
+					: undefined,
+
 				// Zod weirdness has trouble with typing the args to the load function
 			}) as any,
 		};
