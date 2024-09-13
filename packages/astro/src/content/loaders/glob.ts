@@ -103,7 +103,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					return;
 				});
 
-				if (!contents) {
+				if (!contents && contents !== '') {
 					logger.warn(`No contents found for ${entry}`);
 					return;
 				}
