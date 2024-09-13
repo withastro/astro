@@ -694,7 +694,7 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
       path-to-regexp:
-        specifier: ^6.2.2
+        specifier: 6.2.2
         version: 6.2.2
       preferred-pm:
         specifier: ^4.0.0
