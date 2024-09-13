@@ -423,7 +423,7 @@ export const NoAdapterInstalledServerIslands = {
 	name: 'NoAdapterInstalledServerIslands',
 	title: 'Cannot use Server Islands without an adapter.',
 	message: `Cannot use server islands without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
-	hint: 'See https://docs.astro.build/en/guides/on-demand-rendering/ for more information.',
+	hint: 'See https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/ for more information.',
 } satisfies ErrorData;
 /**
  * @docs
