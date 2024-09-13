@@ -19,7 +19,6 @@ import {
 	REWRITE_DIRECTIVE_HEADER_VALUE,
 	ROUTE_TYPE_HEADER,
 	clientAddressSymbol,
-	clientLocalsSymbol,
 	responseSentSymbol,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
@@ -270,16 +269,8 @@ export class RenderContext {
 			get locals() {
 				return renderContext.locals;
 			},
-			// TODO(breaking): disallow replacing the locals object
-			set locals(val) {
-				if (typeof val !== 'object') {
-					throw new AstroError(AstroErrorData.LocalsNotAnObject);
-				} else {
-					renderContext.locals = val;
-					// we also put it on the original Request object,
-					// where the adapter might be expecting to read it after the response.
-					Reflect.set(this.request, clientLocalsSymbol, val);
-				}
+			set locals(_) {
+				throw new AstroError(AstroErrorData.LocalsReassigned);
 			},
 			params,
 			get preferredLocale() {

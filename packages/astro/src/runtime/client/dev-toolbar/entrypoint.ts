@@ -51,20 +51,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 	customElements.define('astro-dev-toolbar-select', DevToolbarSelect);
 	customElements.define('astro-dev-toolbar-radio-checkbox', DevToolbarRadioCheckbox);
 
-	// Add deprecated names
-	// TODO: Remove in Astro 5.0
-	const deprecated = (Parent: any) => class extends Parent {};
-	customElements.define('astro-dev-overlay', deprecated(AstroDevToolbar));
-	customElements.define('astro-dev-overlay-window', deprecated(DevToolbarWindow));
-	customElements.define('astro-dev-overlay-plugin-canvas', deprecated(DevToolbarCanvas));
-	customElements.define('astro-dev-overlay-tooltip', deprecated(DevToolbarTooltip));
-	customElements.define('astro-dev-overlay-highlight', deprecated(DevToolbarHighlight));
-	customElements.define('astro-dev-overlay-card', deprecated(DevToolbarCard));
-	customElements.define('astro-dev-overlay-toggle', deprecated(DevToolbarToggle));
-	customElements.define('astro-dev-overlay-button', deprecated(DevToolbarButton));
-	customElements.define('astro-dev-overlay-badge', deprecated(DevToolbarBadge));
-	customElements.define('astro-dev-overlay-icon', deprecated(DevToolbarIcon));
-
 	overlay = document.createElement('astro-dev-toolbar');
 
 	const notificationLevels = ['error', 'warning', 'info'] as const;
@@ -121,9 +107,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		};
 
 		eventTarget.addEventListener('toggle-app', onToggleApp);
-		// Deprecated
-		// TODO: Remove in Astro 5.0
-		eventTarget.addEventListener('toggle-plugin', onToggleApp);
 
 		return app;
 	};
