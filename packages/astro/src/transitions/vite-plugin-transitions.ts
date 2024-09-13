@@ -29,7 +29,10 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 			if (id === resolvedVirtualModuleId) {
 				return `
 				export * from "astro/virtual-modules/transitions.js";
-				export { default as ViewTransitions } from "astro/components/ViewTransitions.astro";
+				export {
+					default as ViewTransitions,
+					default as ClientRouter
+				} from "astro/components/ClientRouter.astro";
 			`;
 			}
 			if (id === resolvedVirtualClientModuleId) {
@@ -47,7 +50,7 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 			}
 		},
 		transform(code, id) {
-			if (id.includes('ViewTransitions.astro') && id.endsWith('.ts')) {
+			if (id.includes('ClientRouter.astro') && id.endsWith('.ts')) {
 				const prefetchDisabled = settings.config.prefetch === false;
 				return code.replace('__PREFETCH_DISABLED__', JSON.stringify(prefetchDisabled));
 			}
