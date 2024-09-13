@@ -1,4 +1,4 @@
-import type { ModuleNode, HmrContext } from 'vite';
+import type { HmrContext } from 'vite';
 import type { Logger } from '../core/logger/core.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
@@ -40,18 +40,6 @@ export async function handleHotUpdate(
 		// Only return the Astro styles that have changed!
 		return ctx.modules.filter((mod) => mod.id?.includes('astro&type=style'));
 	}
-
-	// HANDLING 3: If the template has updated, we need to issue the browser to do a full reload
-	//
-	// We don't have HMR support for Astro pages yet, so we need to fallback to a full reload.
-	// to HMR the page yet. We also need to manually invalidate the module as we'll return `[]` to prevent Vite
-	// trigger unnecessary HMR work and possible browser page reload flash.
-	const invalidatedModules = new Set<ModuleNode>();
-	for (const mod of ctx.modules) {
-		ctx.server.moduleGraph.invalidateModule(mod, invalidatedModules, ctx.timestamp, true);
-	}
-	ctx.server.ws.send({ type: 'full-reload' });
-	return [];
 }
 
 // Disable eslint as we're not sure how to improve this regex yet
