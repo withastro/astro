@@ -32,5 +32,5 @@ describe('getStaticPaths with trailingSlash: ignore', () => {
 		let $ = cheerio.load(html);
 		assert.equal($('#slug').text(), 'news');
 		assert.equal($('#page').text(), 'july-2024/2');
-	})
+	});
 });
