@@ -23,10 +23,7 @@ function getAdapter(): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
 		supportedAstroFeatures: {
-			assets: {
-				supportKind: 'stable',
-				isSharpCompatible: true,
-			},
+			sharpImageService: 'stable',
 			staticOutput: 'stable',
 			serverOutput: 'unsupported',
 			hybridOutput: 'unsupported',
