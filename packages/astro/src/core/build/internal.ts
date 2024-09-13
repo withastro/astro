@@ -228,47 +228,6 @@ export function getPageData(
 	return undefined;
 }
 
-// TODO: Should be removed in the future. (Astro 5?)
-/**
- * Map internals.pagesByKeys to a new map with the public key instead of the internal key.
- * This function is only used to avoid breaking changes in the Integrations API, after we changed the way
- * we identify pages, from the entrypoint component to an internal key.
- * If the page component is unique -> the public key is the component path. (old behavior)
- * If the page component is shared -> the public key is the internal key. (new behavior)
- * The new behavior on shared entrypoint it's not a breaking change, because it was not supported before.
- * @param pagesByKeys A map of all page data by their internal key
- */
-export function getPageDatasWithPublicKey(
-	pagesByKeys: Map<string, PageBuildData>,
-): Map<string, PageBuildData> {
-	// Create a map to store the pages with the public key, mimicking internal.pagesByKeys
-	const pagesWithPublicKey = new Map<string, PageBuildData>();
-
-	const pagesByComponentsArray = Array.from(pagesByKeys.values()).map((pageData) => {
-		return { component: pageData.component, pageData: pageData };
-	});
-
-	// Get pages with unique component, and set the public key to the component.
-	const pagesWithUniqueComponent = pagesByComponentsArray.filter((page) => {
-		return pagesByComponentsArray.filter((p) => p.component === page.component).length === 1;
-	});
-
-	pagesWithUniqueComponent.forEach((page) => {
-		pagesWithPublicKey.set(page.component, page.pageData);
-	});
-
-	// Get pages with shared component, and set the public key to the internal key.
-	const pagesWithSharedComponent = pagesByComponentsArray.filter((page) => {
-		return pagesByComponentsArray.filter((p) => p.component === page.component).length > 1;
-	});
-
-	pagesWithSharedComponent.forEach((page) => {
-		pagesWithPublicKey.set(page.pageData.key, page.pageData);
-	});
-
-	return pagesWithPublicKey;
-}
-
 export function getPageDataByViteID(
 	internals: BuildInternals,
 	viteid: ViteID,

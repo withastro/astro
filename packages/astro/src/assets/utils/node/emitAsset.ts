@@ -12,7 +12,7 @@ export async function emitESMImage(
 	id: string | undefined,
 	/** @deprecated */
 	_watchMode: boolean,
-	// FIX: in Astro 5, this function should not be passed in dev mode at all.
+	// FIX: in Astro 6, this function should not be passed in dev mode at all.
 	// Or rethink the API so that a function that throws isn't passed through.
 	fileEmitter?: FileEmitter,
 ): Promise<ImageMetadata | undefined> {

@@ -174,8 +174,7 @@ export interface BaseIntegrationHooks {
 		injectScript: (stage: InjectedScriptStage, content: string) => void;
 		injectRoute: (injectRoute: InjectedRoute) => void;
 		addClientDirective: (directive: ClientDirectiveConfig) => void;
-		// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
-		addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
+		addDevToolbarApp: (entrypoint: DevToolbarAppEntry) => void;
 		addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;

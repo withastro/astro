@@ -846,6 +846,19 @@ export const LocalsNotAnObject = {
 /**
  * @docs
  * @description
+ * Thrown when a value is being set as the `locals` field on the Astro global or context.
+ */
+export const LocalsReassigned = {
+	name: 'LocalsReassigned',
+	title: '`locals` must not be reassigned.',
+	message: '`locals` can not be assigned directly.',
+	hint: 'Set a `locals` property instead.',
+} satisfies ErrorData;
+
+
+/**
+ * @docs
+ * @description
  * Thrown when a value is being set as the `headers` field on the `ResponseInit` object available as `Astro.response`.
  */
 export const AstroResponseHeadersReassigned = {
