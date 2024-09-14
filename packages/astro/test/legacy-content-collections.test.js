@@ -264,7 +264,7 @@ describe('Legacy Content Collections', () => {
 			});
 			let error = null;
 			try {
-				await fixture.build();
+				await fixture.build({ force: true });
 			} catch (e) {
 				error = e.message;
 			}

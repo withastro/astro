@@ -474,7 +474,7 @@ async function writeContentFiles({
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
-					(collectionConfig?.type ?? 'data')
+					collectionConfig?.type ?? 'data'
 				: collection.type;
 
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
@@ -498,7 +498,9 @@ async function writeContentFiles({
 				contentTypesStr += `};\n`;
 				break;
 			case CONTENT_LAYER_TYPE:
-				const legacyTypes = (collectionConfig as any)?._legacy ? 'render(): Render[".md"];\n  slug: string;\n  body: string;\n' : 'body?: string;\n';
+				const legacyTypes = (collectionConfig as any)?._legacy
+					? 'render(): Render[".md"];\n  slug: string;\n  body: string;\n'
+					: 'body?: string;\n';
 				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  ${legacyTypes}  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n}>;\n`;
 				break;
 			case 'data':

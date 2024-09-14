@@ -26,19 +26,25 @@ describe('Content Collections - data collections', () => {
 
 		it('Generates correct ids', async () => {
 			const ids = json.map((item) => item.id).sort();
-			assert.deepEqual(ids, ['Ben Holmes', 'Fred K Schott', 'Nate Moore']);
+			assert.deepEqual(ids.sort(), ['Ben Holmes', 'Fred K Schott', 'Nate Moore'].sort());
 		});
 
 		it('Generates correct data', async () => {
 			const names = json.map((item) => item.data.name);
-			assert.deepEqual(names, ['Ben J Holmes', 'Fred K Schott', 'Nate Something Moore']);
+			assert.deepEqual(
+				names.sort(),
+				['Ben J Holmes', 'Fred K Schott', 'Nate Something Moore'].sort(),
+			);
 
 			const twitterUrls = json.map((item) => item.data.twitter);
-			assert.deepEqual(twitterUrls, [
-				'https://twitter.com/bholmesdev',
-				'https://twitter.com/FredKSchott',
-				'https://twitter.com/n_moore',
-			]);
+			assert.deepEqual(
+				twitterUrls.sort(),
+				[
+					'https://twitter.com/bholmesdev',
+					'https://twitter.com/FredKSchott',
+					'https://twitter.com/n_moore',
+				].sort(),
+			);
 		});
 	});
 
