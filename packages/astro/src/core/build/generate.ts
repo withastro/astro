@@ -264,12 +264,13 @@ async function generatePage(
 					const filePath = getOutputFilename(config, path, pageData.route.type);
 					const lineIcon = Number(i) === chunks_arr_elem.length - 1 ? "\u2514\u2500" : "\u251C\u2500";
 					promises.push(new Promise((resolve, reject) => {
+						let innerPrevTimeEnd = performance.now();
 						generatePath(path, pipeline, generationOptions, route).then(() => {
 							const timeEnd = performance.now();
-							const timeChange = getTimeStat(prevTimeEnd, timeEnd);
+							const timeChange = getTimeStat(innerPrevTimeEnd, timeEnd);
 							const timeIncrease = `(+${timeChange})`;
 							let timeIncreaseLabel;
-							if (timeEnd - prevTimeEnd > THRESHOLD_SLOW_RENDER_TIME_MS) {
+							if (timeEnd - innerPrevTimeEnd > THRESHOLD_SLOW_RENDER_TIME_MS) {
 								timeIncreaseLabel = red(timeIncrease);
 							} else {
 								timeIncreaseLabel = dim(timeIncrease);
