@@ -92,6 +92,8 @@ const collectionConfigParser = z.union([
 				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
 			}),
 		]),
+		/** deprecated */
+		_legacy: z.boolean().optional(),
 	}),
 ]);
 
@@ -539,14 +541,16 @@ export async function autogenerateCollections({
 
 		const isDataCollection = collections[collectionName]?.type === 'data';
 		const base = new URL(`${collectionName}/`, contentDir);
+		// Only "content" collections need special legacy handling
+		const _legacy = !isDataCollection || undefined;
 		collections[collectionName] = {
 			...collections[collectionName],
 			type: 'content_layer',
+			_legacy,
 			loader: glob({
 				base,
 				pattern: isDataCollection ? dataPattern : contentPattern,
-				// Only "content" collections need special legacy handling
-				_legacy: !isDataCollection || undefined,
+				_legacy,
 				// Legacy data collections IDs aren't slugified
 				generateId: isDataCollection
 					? ({ entry }) =>
