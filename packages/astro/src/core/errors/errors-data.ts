@@ -1608,7 +1608,7 @@ export const UnsupportedConfigTransformError = {
 /**
  * @docs
  * @see
- * - [On-demand rendering](/en/guides/on-demand-rendering/)
+ * - [On-demand rendering](https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * Your project must have a server output to create backend functions with Actions.
  */
@@ -1617,7 +1617,7 @@ export const ActionsWithoutServerOutputError = {
 	title: 'Actions must be used with server output.',
 	message:
 		'A server is required to create callable backend functions. To deploy routes to a server, add an adapter to your Astro config and configure your route for on-demand rendering',
-	hint: 'Add an adapter and enable on-demand rendering: https://docs.astro.build/en/guides/on-demand-rendering/',
+	hint: 'Add an adapter and enable on-demand rendering: https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/',
 } satisfies ErrorData;
 
 /**
