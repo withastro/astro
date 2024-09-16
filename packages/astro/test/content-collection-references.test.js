@@ -19,6 +19,9 @@ describe('Content Collections - references', () => {
 					await fixture.build({ force: true });
 				} else if (mode === 'dev') {
 					devServer = await fixture.startDevServer({ force: true });
+					await fixture.onNextDataStoreChange(1000).catch(() => {
+						// Ignore timeout, because it may have saved before we get here.
+					});
 				}
 			});
 
