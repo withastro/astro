@@ -15,6 +15,10 @@ describe('Head injection w/ MDX', () => {
 			integrations: [mdx()],
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			legacy: {
+				// There is currently an issue with CSS injection in emulated mode
+				legacyContentCollections: true,
+			}
 		});
 	});
 
