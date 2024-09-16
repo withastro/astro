@@ -19,7 +19,6 @@ describe('Content Collections - references', () => {
 					await fixture.build({ force: true });
 				} else if (mode === 'dev') {
 					devServer = await fixture.startDevServer({ force: true });
-					await fixture.onNextDataStoreChange();
 				}
 			});
 
