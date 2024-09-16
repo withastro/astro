@@ -442,8 +442,8 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name security
-	 * @type {boolean}
-	 * @default `{}`
+	 * @type {Record<"checkOrigin", boolean> | undefined}
+	 * @default `{checkOrigin: true}`
 	 * @version 4.9.0
 	 * @description
 	 *
@@ -451,12 +451,16 @@ export interface AstroUserConfig {
 	 *
 	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `static` mode.
 	 *
+	 * By default, Astro will automatically check that the “origin” header
+	 * matches the URL sent by each request in on-demand rendered pages. You can
+	 * disable this behavior by setting `checkOrigin` to `false`:
+	 *
 	 * ```js
 	 * // astro.config.mjs
 	 * export default defineConfig({
 	 *   output: "server",
 	 *   security: {
-	 *     checkOrigin: true
+	 *     checkOrigin: false
 	 *   }
 	 * })
 	 * ```

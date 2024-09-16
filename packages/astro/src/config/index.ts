@@ -2,6 +2,7 @@ import type { UserConfig as ViteUserConfig } from 'vite';
 import { Logger } from '../core/logger/core.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import type { AstroInlineConfig, AstroUserConfig } from '../types/public/config.js';
+import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js';
 
 export function defineConfig(config: AstroUserConfig) {
 	return config;
@@ -12,7 +13,7 @@ export function getViteConfig(
 	inlineAstroConfig: AstroInlineConfig = {},
 ) {
 	// Return an async Vite config getter which exposes a resolved `mode` and `command`
-	return async ({ mode, command }: { mode: string; command: 'serve' | 'build' }) => {
+	return async ({ mode, command }: { mode: 'dev'; command: 'serve' | 'build' }) => {
 		// Vite `command` is `serve | build`, but Astro uses `dev | build`
 		const cmd = command === 'serve' ? 'dev' : command;
 
@@ -42,6 +43,7 @@ export function getViteConfig(
 		let settings = await createSettings(config, userViteConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
 		const manifest = await createRouteManifest({ settings }, logger);
+		const devSSRManifest = createDevelopmentManifest(settings);
 		const viteConfig = await createVite(
 			{
 				mode,
@@ -50,7 +52,7 @@ export function getViteConfig(
 					astroContentListenPlugin({ settings, logger, fs }),
 				],
 			},
-			{ settings, logger, mode, sync: false, manifest },
+			{ settings, logger, mode, sync: false, manifest, ssrManifest: devSSRManifest },
 		);
 		await runHookConfigDone({ settings, logger });
 		return mergeConfig(viteConfig, userViteConfig);
