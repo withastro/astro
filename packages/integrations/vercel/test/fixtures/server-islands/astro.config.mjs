@@ -3,8 +3,5 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
 	output: "server",
-	adapter: vercel(),
-	experimental: {
-		serverIslands: true,
-	}
+	adapter: vercel()
 });

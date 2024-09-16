@@ -47,11 +47,11 @@
     "web-vitals": "^3.5.2"
   },
   "peerDependencies": {
-    "astro": "^5.0.0-alpha.6"
+    "astro": "^5.0.0-alpha.8"
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
-    "astro": "^5.0.0-alpha.6",
+    "astro": "^5.0.0-alpha.8",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0"
   },

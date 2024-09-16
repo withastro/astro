@@ -50,7 +50,7 @@ describe('ISR', () => {
 				dest: '/_isr?x_astro_path=$0',
 			},
 			{
-				src: '^\\/_image$',
+				src: '^\\/_image\\/?$',
 				dest: '_render',
 			},
 		]);
