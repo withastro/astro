@@ -10,7 +10,7 @@ import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
 	HookParameters,
-	RouteData,
+	IntegrationRouteData,
 } from 'astro';
 import { build } from 'esbuild';
 import { copyDependenciesToFunction } from './lib/nft.js';
@@ -26,7 +26,7 @@ export interface NetlifyLocals {
 	};
 }
 
-const isStaticRedirect = (route: RouteData) =>
+const isStaticRedirect = (route: IntegrationRouteData) =>
 	route.type === 'redirect' && (route.redirect || route.redirectRoute);
 
 type RemotePattern = AstroConfig['image']['remotePatterns'][number];
@@ -212,7 +212,7 @@ export default function netlifyIntegration(
 			emptyDir(ssrBuildDir()),
 		]);
 
-	async function writeRedirects(routes: RouteData[], dir: URL) {
+	async function writeRedirects(routes: IntegrationRouteData[], dir: URL) {
 		const fallback = finalBuildOutput === 'static' ? '/.netlify/static' : '/.netlify/functions/ssr';
 		const redirects = createRedirectsFromAstroRoutes({
 			config: _config,
