@@ -13,6 +13,8 @@ function formatPost(post) {
 
 const root = new URL('./fixtures/content-collections/', import.meta.url);
 
+const sortById = (a, b) => a.id.localeCompare(b.id);
+
 describe('Markdoc - Content Collections', () => {
 	let baseFixture;
 
@@ -46,7 +48,7 @@ describe('Markdoc - Content Collections', () => {
 			assert.notEqual(posts, null);
 
 			assert.deepEqual(
-				posts.sort().map((post) => formatPost(post)),
+				posts.sort(sortById).map((post) => formatPost(post)),
 				[post1Entry, post2Entry, post3Entry],
 			);
 		});
@@ -84,6 +86,9 @@ const post1Entry = {
 		title: 'Post 1',
 	},
 	body: '\n## Post 1\n\nThis is the contents of post 1.\n',
+	deferredRender: true,
+	filePath: 'src/content/blog/post-1.mdoc',
+	digest: '5d5bd98d949e2b9a',
 };
 
 const post2Entry = {
@@ -95,6 +100,9 @@ const post2Entry = {
 		title: 'Post 2',
 	},
 	body: '\n## Post 2\n\nThis is the contents of post 2.\n',
+	deferredRender: true,
+	filePath: 'src/content/blog/post-2.mdoc',
+	digest: '595af4b93a4af072',
 };
 
 const post3Entry = {
@@ -106,4 +114,7 @@ const post3Entry = {
 		title: 'Post 3',
 	},
 	body: '\n## Post 3\n\nThis is the contents of post 3.\n',
+	deferredRender: true,
+	filePath: 'src/content/blog/post-3.mdoc',
+	digest: 'ef589606e542247e',
 };
