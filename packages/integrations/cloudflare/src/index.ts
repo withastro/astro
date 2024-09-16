@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
+import type { AstroConfig, AstroIntegration, IntegrationRouteData } from 'astro';
 import type { PluginOption } from 'vite';
 
 import { createReadStream } from 'node:fs';
@@ -295,7 +295,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					redirectsExists = false;
 				}
 
-				const redirects: RouteData['segments'][] = [];
+				const redirects: IntegrationRouteData['segments'][] = [];
 				if (redirectsExists) {
 					const rl = createInterface({
 						input: createReadStream(new URL('./_redirects', _config.outDir)),
@@ -342,7 +342,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					);
 				}
 
-				const redirectRoutes: [RouteData, string][] = [];
+				const redirectRoutes: [IntegrationRouteData, string][] = [];
 				for (const route of routes) {
 					if (route.type === 'redirect') redirectRoutes.push([route, '']);
 				}

@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroIntegrationLogger, RouteData, RoutePart } from 'astro';
+import type { AstroConfig, AstroIntegrationLogger, IntegrationRouteData, RoutePart } from 'astro';
 
 import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
@@ -63,7 +63,7 @@ async function writeRoutesFileToOutDir(
 	}
 }
 
-function segmentsToCfSyntax(segments: RouteData['segments'], _config: AstroConfig) {
+function segmentsToCfSyntax(segments: IntegrationRouteData['segments'], _config: AstroConfig) {
 	const pathSegments = [];
 	if (removeLeadingForwardSlash(removeTrailingForwardSlash(_config.base)).length > 0) {
 		pathSegments.push(removeLeadingForwardSlash(removeTrailingForwardSlash(_config.base)));
@@ -138,11 +138,11 @@ class PathTrie {
 export async function createRoutesFile(
 	_config: AstroConfig,
 	logger: AstroIntegrationLogger,
-	routes: RouteData[],
+	routes: IntegrationRouteData[],
 	pages: {
 		pathname: string;
 	}[],
-	redirects: RouteData['segments'][],
+	redirects: IntegrationRouteData['segments'][],
 	includeExtends:
 		| {
 				pattern: string;

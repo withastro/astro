@@ -24,17 +24,16 @@ export function setImageConfig(
 			return {
 				...config,
 				service: sharpImageService(),
-				endpoint: command === 'dev' ? undefined : '@astrojs/cloudflare/image-endpoint',
+				endpoint: {
+					entrypoint: command === 'dev' ? undefined : '@astrojs/cloudflare/image-endpoint',
+				},
 			};
 
 		case 'custom':
 			return { ...config };
 
 		default:
-			if (
-				config.service.entrypoint === 'astro/assets/services/sharp' ||
-				config.service.entrypoint === 'astro/assets/services/squoosh'
-			) {
+			if (config.service.entrypoint === 'astro/assets/services/sharp') {
 				logger.warn(
 					`The current configuration does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'noop' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`
 				);
