@@ -1,5 +1,13 @@
 # astro
 
+## 5.0.0-alpha.9
+
+### Patch Changes
+
+- [#12011](https://github.com/withastro/astro/pull/12011) [`cfdaab2`](https://github.com/withastro/astro/commit/cfdaab257cd167e0d4631ab66d9406754b3c1836) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a type and an example in documenting the `security.checkOrigin` property of Astro config.
+
+- [#12009](https://github.com/withastro/astro/pull/12009) [`f10a3b7`](https://github.com/withastro/astro/commit/f10a3b7fe6892bd2f4f98ad602a64cfe6efde061) Thanks [@matthewp](https://github.com/matthewp)! - Fixes use of Vitest with Astro 5
+
 ## 5.0.0-alpha.8
 
 ### Major Changes

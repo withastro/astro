@@ -49,13 +49,16 @@ type CreateViteOptions = {
 	fs?: typeof nodeFs;
 	sync: boolean;
 	manifest: ManifestData;
-} & ({
-	mode: 'dev';
-	ssrManifest: SSRManifest;
-} | {
-	mode: 'build';
-	ssrManifest?: SSRManifest;
-});
+} & (
+	| {
+			mode: 'dev';
+			ssrManifest: SSRManifest;
+	  }
+	| {
+			mode: 'build';
+			ssrManifest?: SSRManifest;
+	  }
+);
 
 const ALWAYS_NOEXTERNAL = [
 	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
@@ -138,8 +141,7 @@ export async function createVite(
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode === 'dev' &&
-				vitePluginAstroServer({ settings, logger, fs, manifest, ssrManifest }), // ssrManifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
+			mode === 'dev' && vitePluginAstroServer({ settings, logger, fs, manifest, ssrManifest }), // ssrManifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
 			envVitePlugin({ settings }),
 			astroEnv({ settings, mode, sync }),
 			markdownVitePlugin({ settings, logger }),
