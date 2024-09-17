@@ -2,6 +2,9 @@ import { setup } from 'virtual:@astrojs/vue/app';
 import { Suspense, createApp, createSSRApp, h } from 'vue';
 import StaticHtml from './static-html.js';
 
+// keep track of already initialized apps, so we don't hydrate again for view transitions
+let appMap = new WeakMap();
+
 export default (element) =>
 	async (Component, props, slotted, { client }) => {
 		if (!element.hasAttribute('ssr')) return;
@@ -15,21 +18,36 @@ export default (element) =>
 
 		const isHydrate = client !== 'only';
 		const bootstrap = isHydrate ? createSSRApp : createApp;
-		const app = bootstrap({
-			name,
-			render() {
-				let content = h(Component, props, slots);
-				// related to https://github.com/withastro/astro/issues/6549
-				// if the component is async, wrap it in a Suspense component
-				if (isAsync(Component.setup)) {
-					content = h(Suspense, null, content);
-				}
-				return content;
-			},
-		});
-		await setup(app);
-		app.mount(element, isHydrate);
 
+		// keep a reference to the app, props and slots so we can update a running instance later
+		let appInstance = appMap.get(element);
+
+		if (!appInstance) {
+			appInstance = {
+				props,
+				slots,
+			};
+			const app = bootstrap({
+				name,
+				render() {
+					let content = h(Component, appInstance.props, appInstance.slots);
+					appInstance.component = this;
+					// related to https://github.com/withastro/astro/issues/6549
+					// if the component is async, wrap it in a Suspense component
+					if (isAsync(Component.setup)) {
+						content = h(Suspense, null, content);
+					}
+					return content;
+				},
+			});
+			await setup(app);
+			app.mount(element, isHydrate);
+			appMap.set(element, appInstance);
+		} else {
+			appInstance.props = props;
+			appInstance.slots = slots;
+			appInstance.component.$forceUpdate();
+		}
 		element.addEventListener('astro:unmount', () => app.unmount(), { once: true });
 	};
 
