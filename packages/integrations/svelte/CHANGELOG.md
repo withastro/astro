@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 5.7.1
+
+### Patch Changes
+
+- [#12006](https://github.com/withastro/astro/pull/12006) [`a582cb6`](https://github.com/withastro/astro/commit/a582cb61241b9c2a6f95900920145c055d5d6c12) Thanks [@johannesspohr](https://github.com/johannesspohr)! - Fix Svelte component view transition state persistence
+
 ## 5.7.0
 
 ### Minor Changes
