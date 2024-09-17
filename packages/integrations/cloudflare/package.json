@@ -11,7 +11,10 @@
     "url": "https://github.com/withastro/adapters.git",
     "directory": "packages/cloudflare"
   },
-  "keywords": ["withastro", "astro-adapter"],
+  "keywords": [
+    "withastro",
+    "astro-adapter"
+  ],
   "bugs": "https://github.com/withastro/adapters/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
@@ -22,7 +25,9 @@
     "./image-endpoint": "./dist/entrypoints/image-endpoint.js",
     "./package.json": "./package.json"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "astro-scripts test \"test/**/*.test.js\""
@@ -30,13 +35,13 @@
   "dependencies": {
     "@astrojs/internal-helpers": "0.4.1",
     "@astrojs/underscore-redirects": "^0.4.0-alpha.0",
-    "@cloudflare/workers-types": "^4.20240821.1",
+    "@cloudflare/workers-types": "^4.20240903.0",
     "esbuild": "^0.23.1",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.11",
-    "miniflare": "^3.20240821.0",
+    "miniflare": "^3.20240821.1",
     "tiny-glob": "^0.2.9",
-    "wrangler": "^3.72.2",
+    "wrangler": "^3.75.0",
     "@inox-tools/astro-when": "^0.2.2"
   },
   "peerDependencies": {
@@ -49,9 +54,9 @@
     "cheerio": "1.0.0",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
-    "rollup": "^4.21.0",
+    "rollup": "^4.21.2",
     "strip-ansi": "^7.1.0",
-    "vite": "^5.4.2"
+    "vite": "^5.4.3"
   },
   "publishConfig": {
     "provenance": true
