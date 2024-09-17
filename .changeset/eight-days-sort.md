@@ -1,11 +1,13 @@
 ---
 'astro': major
 '@astrojs/mdx': major
-'@astrojs/vue': major
 '@astrojs/markdown-remark': major
+'@astrojs/db': major
+'@astrojs/web-vitals': major
+'@astrojs/underscore-redirects': minor
 ---
 
-Welcome to the Astro 5 beta! This release has no changes from the latest alpha, but it does bring us one step closer to the final, stable release.
+Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
 
 Starting from this release, no breaking changes will be introduced unless absolutely necessary.
 
