@@ -2,7 +2,7 @@ import type { AstroConfig, AstroIntegrationLogger, RouteData, RoutePart } from '
 
 import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
-import { posix } from 'node:path';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
 	prependForwardSlash,
@@ -186,7 +186,7 @@ export async function createRoutesFile(
 			const staticPath = staticFile;
 
 			const segments = removeLeadingForwardSlash(staticPath)
-				.split(posix.sep)
+				.split(path.sep)
 				.filter(Boolean)
 				.map((s: string) => {
 					return getParts(s);
@@ -232,7 +232,7 @@ export async function createRoutesFile(
 	for (const page of pages) {
 		if (page.pathname === '404') hasPrerendered404 = true;
 		const pageSegments = removeLeadingForwardSlash(page.pathname)
-			.split(posix.sep)
+			.split(path.posix.sep)
 			.filter(Boolean)
 			.map((s) => {
 				return getParts(s);
