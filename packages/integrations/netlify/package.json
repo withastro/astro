@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "5.5.1",
+  "version": "5.5.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -11,7 +11,10 @@
     "url": "https://github.com/withastro/adapters.git",
     "directory": "packages/netlify"
   },
-  "keywords": ["withastro", "astro-adapter"],
+  "keywords": [
+    "withastro",
+    "astro-adapter"
+  ],
   "bugs": "https://github.com/withastro/adapters/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/netlify/",
   "exports": {
@@ -22,7 +25,9 @@
     "./image-service.js": "./dist/image-service.js",
     "./package.json": "./package.json"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test-fn": "astro-scripts test \"test/functions/*.test.js\"",
@@ -34,8 +39,9 @@
     "@astrojs/internal-helpers": "0.4.1",
     "@astrojs/underscore-redirects": "^0.4.0-alpha.0",
     "@netlify/functions": "^2.8.0",
-    "@vercel/nft": "^0.27.3",
-    "esbuild": "^0.23.1"
+    "@vercel/nft": "^0.27.4",
+    "esbuild": "^0.21.5",
+    "vite": "^5.4.2"
   },
   "peerDependencies": {
     "astro": "^5.0.0-alpha.8"
@@ -51,8 +57,7 @@
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
     "strip-ansi": "^7.1.0",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.2"
+    "typescript": "^5.5.4"
   },
   "astro": {
     "external": true

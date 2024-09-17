@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.5.2
+
+### Patch Changes
+
+- [#381](https://github.com/withastro/adapters/pull/381) [`46fbb26`](https://github.com/withastro/adapters/commit/46fbb26175ab09d12f95dba63cfe76bdcc25ef59) Thanks [@matthewp](https://github.com/matthewp)! - Prevent crawling for dependencies outside of the workspace root
+
 ## 5.5.1
 
 ### Patch Changes

@@ -52,11 +52,11 @@ export function remotePatternToRegex(
 	if (hostname) {
 		if (hostname.startsWith('**.')) {
 			// match any number of subdomains
-			regexStr += '([a-z0-9]+\\.)*';
+			regexStr += '([a-z0-9-]+\\.)*';
 			hostname = hostname.substring(3);
 		} else if (hostname.startsWith('*.')) {
 			// match one subdomain
-			regexStr += '([a-z0-9]+\\.)?';
+			regexStr += '([a-z0-9-]+\\.)?';
 			hostname = hostname.substring(2); // Remove '*.' from the beginning
 		}
 		// Escape dots in the hostname
@@ -238,7 +238,12 @@ export default function netlifyIntegration(
 	async function writeSSRFunction({
 		notFoundContent,
 		logger,
-	}: { notFoundContent?: string; logger: AstroIntegrationLogger }) {
+		root,
+	}: {
+		notFoundContent?: string;
+		logger: AstroIntegrationLogger;
+		root: URL;
+	}) {
 		const entry = new URL('./entry.mjs', ssrBuildDir());
 
 		const { handler } = await copyDependenciesToFunction(
@@ -248,6 +253,7 @@ export default function netlifyIntegration(
 				includeFiles: [],
 				excludeFiles: [],
 				logger,
+				root,
 			},
 			TRACE_CACHE
 		);
@@ -472,7 +478,7 @@ export default function netlifyIntegration(
 					try {
 						notFoundContent = await readFile(new URL('./404.html', dir), 'utf8');
 					} catch {}
-					await writeSSRFunction({ notFoundContent, logger });
+					await writeSSRFunction({ notFoundContent, logger, root: _config.root });
 					logger.info('Generated SSR Function');
 				}
 				if (astroMiddlewareEntryPoint) {
