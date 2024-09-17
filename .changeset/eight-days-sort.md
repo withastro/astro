@@ -2,7 +2,7 @@
 'astro': major
 '@astrojs/mdx': major
 '@astrojs/markdown-remark': major
-'@astrojs/db': major
+'@astrojs/db': minor
 '@astrojs/web-vitals': major
 '@astrojs/underscore-redirects': minor
 ---
