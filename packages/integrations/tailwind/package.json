@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/tailwind",
   "description": "Use Tailwind CSS to style your Astro site",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
