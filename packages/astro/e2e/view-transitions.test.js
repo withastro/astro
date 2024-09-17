@@ -567,8 +567,8 @@ test.describe('View Transitions', () => {
 		cnt = page.locator('.counter pre');
 		// Count should remain, but the postfix should be removed again (to test unsetting props)
 		await expect(cnt).toHaveText('A1');
-  });
-  
+	});
+
 	test('Vue Islands can persist using transition:persist', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-vue-one'));
