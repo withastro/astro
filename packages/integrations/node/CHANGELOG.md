@@ -1,5 +1,23 @@
 # @astrojs/node
 
+## 9.0.0-beta.2
+
+### Major Changes
+
+- [#375](https://github.com/withastro/adapters/pull/375) [`e7881f7`](https://github.com/withastro/adapters/commit/e7881f7928c6ca62d43c763033f9ed065a907f3b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates internal code to works with Astro 5 changes to hybrid rendering. No changes are necessary to your project, apart from using Astro 5
+
+- [#397](https://github.com/withastro/adapters/pull/397) [`776a266`](https://github.com/withastro/adapters/commit/776a26670cf483e37ec0e6eba27a0bde09db0146) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
+
+  Starting from this release, no breaking changes will be introduced unless absolutely necessary.
+
+  To learn how to upgrade, check out the [Astro v5.0 upgrade guide in our beta docs site](https://5-0-0-beta.docs.astro.build/en/guides/upgrade-to/v5/).
+
+- [#392](https://github.com/withastro/adapters/pull/392) [`3a49eb7`](https://github.com/withastro/adapters/commit/3a49eb7802c44212ccfab06034b7dc5f2b060e94) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates internal code for Astro 5 changes. No changes is required to your project, apart from using Astro 5
+
+### Minor Changes
+
+- [#385](https://github.com/withastro/adapters/pull/385) [`bb725b7`](https://github.com/withastro/adapters/commit/bb725b7a430a01a3cd197e3e84381be4fa0c945c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Cleans up `astro:env` support
+
 ## 9.0.0-alpha.1
 
 ### Major Changes
