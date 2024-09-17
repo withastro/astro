@@ -128,7 +128,6 @@ function createManifest(
 	return {
 		hrefRoot: import.meta.url,
 		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
-		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
 		assets: manifest?.assets ?? new Set(),
 		assetsPrefix: manifest?.assetsPrefix ?? undefined,
@@ -221,7 +220,6 @@ type AstroContainerManifest = Pick<
 	| 'entryModules'
 	| 'compressHTML'
 	| 'trailingSlash'
-	| 'buildFormat'
 	| 'i18n'
 >;
 
@@ -525,7 +523,7 @@ export class experimental_AstroContainer {
 			pattern: getPattern(
 				segments,
 				ASTRO_CONFIG_DEFAULTS.base,
-				ASTRO_CONFIG_DEFAULTS.trailingSlash,
+				ASTRO_CONFIG_DEFAULTS.trailingSlash[type === 'endpoint' ? 'endpoint' : 'page'],
 			),
 			prerender: false,
 			segments,

@@ -269,7 +269,6 @@ function buildManifest(
 		inlinedScripts: Array.from(internals.inlinedScripts),
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
-		buildFormat: settings.config.build.format,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,

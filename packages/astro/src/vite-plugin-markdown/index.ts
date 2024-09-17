@@ -14,7 +14,7 @@ import { isMarkdownFile } from '../core/util.js';
 import { shorthash } from '../runtime/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
-import { getFileInfo } from '../vite-plugin-utils/index.js';
+import { getFileInfoForPage } from '../vite-plugin-utils/index.js';
 import { type MarkdownImagePath, getMarkdownCodeForImages } from './images.js';
 
 interface AstroPluginOptions {
@@ -55,7 +55,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 		// to escape "import.meta.env" ourselves.
 		async load(id) {
 			if (isMarkdownFile(id)) {
-				const { fileId, fileUrl } = getFileInfo(id, settings.config);
+				const { fileId, fileUrl } = getFileInfoForPage(id, settings.config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeParseFrontmatter(rawFile, id);
 

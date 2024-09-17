@@ -269,7 +269,6 @@ export class BuildPipeline extends Pipeline {
 			request,
 			routes: this.options.manifest.routes,
 			trailingSlash: this.config.trailingSlash,
-			buildFormat: this.config.build.format,
 			base: this.config.base,
 		});
 

@@ -26,7 +26,7 @@ export function getServerIslandRouteData(config: ConfigFields) {
 		generate: () => '',
 		params: ['name'],
 		segments,
-		pattern: getPattern(segments, config.base, config.trailingSlash),
+		pattern: getPattern(segments, config.base, config.trailingSlash.page),
 		prerender: false,
 		isIndex: false,
 		fallbackRoutes: [],

@@ -2,7 +2,7 @@ import { type ESBuildTransformResult, transformWithEsbuild } from 'vite';
 import { type CompileProps, type CompileResult, compile } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroConfig } from '../types/public/config.js';
-import { getFileInfo } from '../vite-plugin-utils/index.js';
+import { getFileInfoForPage } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
 
@@ -59,7 +59,7 @@ export async function compileAstro({
 		throw err;
 	}
 
-	const { fileId: file, fileUrl: url } = getFileInfo(
+	const { fileId: file, fileUrl: url } = getFileInfoForPage(
 		compileProps.filename,
 		compileProps.astroConfig,
 	);

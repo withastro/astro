@@ -54,7 +54,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	outDir: './dist',
 	cacheDir: './node_modules/.astro',
 	base: '/',
-	trailingSlash: 'ignore',
+	trailingSlash: {
+		page: 'always',
+		endpoint: 'ignore',
+	},
 	build: {
 		format: 'directory',
 		client: './client/',
@@ -96,6 +99,8 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
+const trailingSlashSchema = z.union([z.literal('always'), z.literal('never'), z.literal('ignore')]);
+
 export const AstroConfigSchema = z.object({
 	root: z
 		.string()
@@ -126,9 +131,19 @@ export const AstroConfigSchema = z.object({
 	compressHTML: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.compressHTML),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
 	trailingSlash: z
-		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
+		.union([
+			trailingSlashSchema,
+			z.object({ page: trailingSlashSchema, endpoint: trailingSlashSchema }),
+		])
 		.optional()
-		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
+		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash)
+		.transform((val) => {
+			if (typeof val === 'string') {
+				return { page: val, endpoint: val };
+			} else {
+				return val;
+			}
+		}),
 	output: z
 		.union([z.literal('static'), z.literal('server')])
 		.optional()
@@ -658,9 +673,9 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			}
 
 			// Handle `base` trailing slash based on `trailingSlash` config
-			if (config.trailingSlash === 'never') {
+			if (config.trailingSlash.page === 'never') {
 				config.base = prependForwardSlash(removeTrailingForwardSlash(config.base));
-			} else if (config.trailingSlash === 'always') {
+			} else if (config.trailingSlash.page === 'always') {
 				config.base = prependForwardSlash(appendForwardSlash(config.base));
 			} else {
 				config.base = prependForwardSlash(config.base);

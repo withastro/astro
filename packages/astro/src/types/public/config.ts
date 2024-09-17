@@ -169,8 +169,8 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name trailingSlash
-	 * @type {('always' | 'never' | 'ignore')}
-	 * @default `'ignore'`
+	 * @type {('always' | 'never' | 'ignore' | { page: 'always' | 'never' | 'ignore', endpoint: 'always' | 'never' | 'ignore' })}
+	 * @default `{ page: 'always', endpoint: 'ignore' }`
 	 * @see build.format
 	 * @description
 	 *
@@ -190,7 +190,11 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	trailingSlash?: 'always' | 'never' | 'ignore';
+	trailingSlash?:
+		| 'always'
+		| 'never'
+		| 'ignore'
+		| { page: 'always' | 'never' | 'ignore'; endpoint: 'always' | 'never' | 'ignore' };
 
 	/**
 	 * @docs
@@ -530,7 +534,8 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.format
 		 * @typeraw {('file' | 'directory' | 'preserve')}
-		 * @default `'directory'`
+		 * @default `'directory'` if `trailingSlash.page: 'always'`, `'file'` if `trailingSlash.page: 'never'`, `'preserve'` if `trailingSlash.page: 'ignore'`
+		 * @deprecated Use the `trailingSlash` option instead.
 		 * @description
 		 * Control the output file format of each page. This value may be set by an adapter for you.
 		 *   - `'file'`: Astro will generate an HTML file named for each page route. (e.g. `src/pages/about.astro` and `src/pages/about/index.astro` both build the file `/about.html`)

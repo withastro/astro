@@ -38,7 +38,7 @@ export function getFileInfo(id: string, config: AstroConfig): FileInfo {
 		fileUrl = fileId;
 	}
 
-	if (fileUrl && config.trailingSlash === 'always') {
+	if (fileUrl && config.trailingSlash.page === 'always') {
 		fileUrl = appendForwardSlash(fileUrl);
 	}
 	return { fileId, fileUrl };

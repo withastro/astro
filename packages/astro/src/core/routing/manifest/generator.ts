@@ -22,7 +22,7 @@ function sanitizeParams(
 
 export function getRouteGenerator(
 	segments: RoutePart[][],
-	addTrailingSlash: AstroConfig['trailingSlash'],
+	addTrailingSlash: AstroConfig['trailingSlash']['page'],
 ) {
 	const template = segments
 		.map((segment) => {

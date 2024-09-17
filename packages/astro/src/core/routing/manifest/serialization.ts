@@ -29,7 +29,10 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		pattern: new RegExp(rawRouteData.pattern),
 		params: rawRouteData.params,
 		component: rawRouteData.component,
-		generate: getRouteGenerator(rawRouteData.segments, rawRouteData._meta.trailingSlash),
+		generate: getRouteGenerator(
+			rawRouteData.segments,
+			rawRouteData._meta.trailingSlash[rawRouteData.type === 'endpoint' ? 'endpoint' : 'page'],
+		),
 		pathname: rawRouteData.pathname || undefined,
 		segments: rawRouteData.segments,
 		prerender: rawRouteData.prerender,

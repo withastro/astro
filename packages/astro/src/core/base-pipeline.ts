@@ -63,7 +63,7 @@ export abstract class Pipeline {
 		// We do use our middleware only if the user isn't using the manual setup
 		if (i18n?.strategy !== 'manual') {
 			this.internalMiddleware.push(
-				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
+				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash),
 			);
 		}
 		// In SSR, getSecret should fail by default. Setting it here will run before the

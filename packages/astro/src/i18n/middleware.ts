@@ -16,14 +16,12 @@ export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
-	format: SSRManifest['buildFormat'],
 ): MiddlewareHandler {
 	if (!i18n) return (_, next) => next();
 	const payload: MiddlewarePayload = {
 		...i18n,
 		trailingSlash,
 		base,
-		format,
 		domains: {},
 	};
 	const _redirectToDefaultLocale = redirectToDefaultLocale(payload);

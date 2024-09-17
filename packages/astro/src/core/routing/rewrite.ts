@@ -1,7 +1,6 @@
 import type { RewritePayload } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
-import { shouldAppendForwardSlash } from '../build/util.js';
 import { appendForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';
 
@@ -10,7 +9,6 @@ export type FindRouteToRewrite = {
 	routes: RouteData[];
 	request: Request;
 	trailingSlash: AstroConfig['trailingSlash'];
-	buildFormat: AstroConfig['build']['format'];
 	base: AstroConfig['base'];
 };
 
@@ -30,7 +28,6 @@ export function findRouteToRewrite({
 	routes,
 	request,
 	trailingSlash,
-	buildFormat,
 	base,
 }: FindRouteToRewrite): FindRouteToRewriteResult {
 	let newUrl: URL | undefined = undefined;
@@ -43,9 +40,10 @@ export function findRouteToRewrite({
 	}
 	let pathname = newUrl.pathname;
 	if (base !== '/' && newUrl.pathname.startsWith(base)) {
-		pathname = shouldAppendForwardSlash(trailingSlash, buildFormat)
-			? appendForwardSlash(newUrl.pathname)
-			: removeTrailingForwardSlash(newUrl.pathname);
+		pathname =
+			trailingSlash.page === 'always'
+				? appendForwardSlash(newUrl.pathname)
+				: removeTrailingForwardSlash(newUrl.pathname);
 		pathname = pathname.slice(base.length);
 	}
 

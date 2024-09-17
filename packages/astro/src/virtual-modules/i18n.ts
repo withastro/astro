@@ -11,9 +11,8 @@ import type { APIContext } from '../types/public/context.js';
 
 export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 
-const { trailingSlash, format, site, i18n, isBuild } =
-	// @ts-expect-error
-	__ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
+// @ts-expect-error
+const { trailingSlash, site, i18n, isBuild } = __ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
 const { defaultLocale, locales, domains, fallback, routing } = i18n!;
 const base = import.meta.env.BASE_URL;
 
@@ -57,7 +56,6 @@ export const getRelativeLocaleUrl = (locale: string, path?: string, options?: Ge
 		path,
 		base,
 		trailingSlash,
-		format,
 		defaultLocale,
 		locales,
 		strategy,
@@ -96,7 +94,6 @@ export const getAbsoluteLocaleUrl = (locale: string, path?: string, options?: Ge
 		path,
 		base,
 		trailingSlash,
-		format,
 		site,
 		defaultLocale,
 		locales,
@@ -117,7 +114,6 @@ export const getRelativeLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		base,
 		path,
 		trailingSlash,
-		format,
 		defaultLocale,
 		locales,
 		strategy,
@@ -137,7 +133,6 @@ export const getAbsoluteLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		base,
 		path,
 		trailingSlash,
-		format,
 		defaultLocale,
 		locales,
 		strategy,
@@ -259,7 +254,6 @@ if (i18n?.routing === 'manual') {
 	redirectToDefaultLocale = I18nInternals.redirectToDefaultLocale({
 		base,
 		trailingSlash,
-		format,
 		defaultLocale,
 		locales,
 		strategy,
@@ -288,7 +282,6 @@ if (i18n?.routing === 'manual') {
 	notFound = I18nInternals.notFound({
 		base,
 		trailingSlash,
-		format,
 		defaultLocale,
 		locales,
 		strategy,
@@ -325,7 +318,6 @@ if (i18n?.routing === 'manual') {
 	redirectToFallback = I18nInternals.redirectToFallback({
 		base,
 		trailingSlash,
-		format,
 		defaultLocale,
 		locales,
 		strategy,
@@ -383,7 +375,7 @@ if (i18n?.routing === 'manual') {
 			domainLookupTable: {},
 			fallbackType,
 		};
-		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
+		return I18nInternals.createMiddleware(manifest, base, trailingSlash);
 	};
 } else {
 	middleware = noop('middleware');

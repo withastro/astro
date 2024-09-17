@@ -1,6 +1,5 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { SSRManifest } from '../core/app/types.js';
-import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
 import { MissingLocale, i18nNoLocaleFoundInPath } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
@@ -44,7 +43,6 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	base: string;
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
-	format: AstroConfig['build']['format'];
 	strategy?: RoutingStrategies;
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;
@@ -76,7 +74,6 @@ export function getLocaleRelativeUrl({
 	base,
 	locales: _locales,
 	trailingSlash,
-	format,
 	path,
 	prependWith,
 	normalizeLocale = true,
@@ -104,7 +101,7 @@ export function getLocaleRelativeUrl({
 	}
 	pathsToJoin.push(path);
 
-	if (shouldAppendForwardSlash(trailingSlash, format)) {
+	if (trailingSlash.page === 'always') {
 		return appendForwardSlash(joinPaths(...pathsToJoin));
 	} else {
 		return joinPaths(...pathsToJoin);
@@ -129,7 +126,7 @@ export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsolu
 		}
 	}
 
-	if (shouldAppendForwardSlash(rest.trailingSlash, rest.format)) {
+	if (rest.trailingSlash.page === 'always') {
 		return appendForwardSlash(url);
 	} else {
 		return url;
@@ -141,7 +138,6 @@ interface GetLocalesRelativeUrlList extends GetLocaleOptions {
 	path?: string;
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
-	format: AstroConfig['build']['format'];
 	strategy?: RoutingStrategies;
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;
@@ -273,7 +269,6 @@ export type MiddlewarePayload = {
 	base: string;
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
-	format: AstroConfig['build']['format'];
 	strategy: RoutingStrategies;
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;
@@ -282,14 +277,9 @@ export type MiddlewarePayload = {
 };
 
 // NOTE: public function exported to the users via `astro:i18n` module
-export function redirectToDefaultLocale({
-	trailingSlash,
-	format,
-	base,
-	defaultLocale,
-}: MiddlewarePayload) {
+export function redirectToDefaultLocale({ trailingSlash, base, defaultLocale }: MiddlewarePayload) {
 	return function (context: APIContext, statusCode?: ValidRedirectStatus) {
-		if (shouldAppendForwardSlash(trailingSlash, format)) {
+		if (trailingSlash.page === 'always') {
 			return context.redirect(`${appendForwardSlash(joinPaths(base, defaultLocale))}`, statusCode);
 		} else {
 			return context.redirect(`${joinPaths(base, defaultLocale)}`, statusCode);
@@ -390,7 +380,6 @@ export function createMiddleware(
 	i18nManifest: SSRManifest['i18n'],
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
-	format: SSRManifest['buildFormat'],
 ) {
-	return createI18nMiddleware(i18nManifest, base, trailingSlash, format);
+	return createI18nMiddleware(i18nManifest, base, trailingSlash);
 }

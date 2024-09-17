@@ -55,7 +55,7 @@ function getImageEndpointData(
 		type: 'endpoint',
 		isIndex: false,
 		route: settings.config.image.endpoint.route,
-		pattern: getPattern(segments, settings.config.base, settings.config.trailingSlash),
+		pattern: getPattern(segments, settings.config.base, settings.config.trailingSlash.endpoint),
 		segments,
 		params: [],
 		component: resolveInjectedRoute(endpointEntrypoint, settings.config.root, cwd).component,

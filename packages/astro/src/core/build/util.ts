@@ -7,30 +7,6 @@ export function getTimeStat(timeStart: number, timeEnd: number) {
 	return buildTime < 1000 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
 }
 
-/**
- * Given the Astro configuration, it tells if a slash should be appended or not
- */
-export function shouldAppendForwardSlash(
-	trailingSlash: AstroConfig['trailingSlash'],
-	buildFormat: AstroConfig['build']['format'],
-): boolean {
-	switch (trailingSlash) {
-		case 'always':
-			return true;
-		case 'never':
-			return false;
-		case 'ignore': {
-			switch (buildFormat) {
-				case 'directory':
-					return true;
-				case 'preserve':
-				case 'file':
-					return false;
-			}
-		}
-	}
-}
-
 export function i18nHasFallback(config: AstroConfig): boolean {
 	if (config.i18n && config.i18n.fallback) {
 		// we have some fallback and the control is not none

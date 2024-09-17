@@ -206,7 +206,6 @@ export class DevPipeline extends Pipeline {
 			request,
 			routes: this.manifestData?.routes,
 			trailingSlash: this.config.trailingSlash,
-			buildFormat: this.config.build.format,
 			base: this.config.base,
 		});
 

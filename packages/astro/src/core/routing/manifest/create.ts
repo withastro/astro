@@ -235,7 +235,7 @@ function createFileBasedRoutes(
 			} else {
 				components.push(item.file);
 				const component = item.file;
-				const { trailingSlash } = settings.config;
+				const trailingSlash = settings.config.trailingSlash[item.isPage ? 'page' : 'endpoint'];
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
@@ -292,8 +292,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			});
 
 		const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
-		const isPage = type === 'page';
-		const trailingSlash = isPage ? config.trailingSlash : 'never';
+		const trailingSlash = config.trailingSlash[type];
 
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const generate = getRouteGenerator(segments, trailingSlash);
@@ -348,8 +347,8 @@ function createRedirectRoutes(
 				return getParts(s, from);
 			});
 
-		const pattern = getPattern(segments, settings.config.base, trailingSlash);
-		const generate = getRouteGenerator(segments, trailingSlash);
+		const pattern = getPattern(segments, settings.config.base, trailingSlash.page);
+		const generate = getRouteGenerator(segments, trailingSlash.page);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
@@ -630,7 +629,7 @@ export async function createRouteManifest(
 						pathname,
 						route,
 						segments,
-						pattern: getPattern(segments, config.base, config.trailingSlash),
+						pattern: getPattern(segments, config.base, config.trailingSlash.page),
 						type: 'fallback',
 					});
 				}
@@ -698,7 +697,7 @@ export async function createRouteManifest(
 									validateSegment(s);
 									return getParts(s, route);
 								});
-							const generate = getRouteGenerator(segments, config.trailingSlash);
+							const generate = getRouteGenerator(segments, config.trailingSlash.page);
 							const index = routes.findIndex((r) => r === fallbackToRoute);
 							if (index >= 0) {
 								const fallbackRoute: RouteData = {
@@ -707,7 +706,7 @@ export async function createRouteManifest(
 									route,
 									segments,
 									generate,
-									pattern: getPattern(segments, config.base, config.trailingSlash),
+									pattern: getPattern(segments, config.base, config.trailingSlash.page),
 									type: 'fallback',
 									fallbackRoutes: [],
 								};

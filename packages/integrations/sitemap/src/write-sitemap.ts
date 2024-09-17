@@ -47,7 +47,7 @@ export async function writeSitemap(
 			const publicPath = normalize(publicBasePath + path);
 
 			let stream: WriteStream;
-			if (astroConfig.trailingSlash === 'never' || astroConfig.build.format === 'file') {
+			if (astroConfig.trailingSlash.page === 'never' || astroConfig.build.format === 'file') {
 				// workaround for trailing slash issue in sitemap.js: https://github.com/ekalinin/sitemap.js/issues/403
 				const host = hostname.endsWith('/') ? hostname.slice(0, -1) : hostname;
 				const searchStr = `<loc>${host}/</loc>`;

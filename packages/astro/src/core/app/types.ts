@@ -1,7 +1,7 @@
 import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { MiddlewareHandler } from '../../types/public/common.js';
-import type { Locales } from '../../types/public/config.js';
+import type { AstroConfig, Locales } from '../../types/public/config.js';
 import type {
 	RouteData,
 	SSRComponentMetadata,
@@ -48,8 +48,7 @@ export type SSRManifest = {
 	routes: RouteInfo[];
 	site?: string;
 	base: string;
-	trailingSlash: 'always' | 'never' | 'ignore';
-	buildFormat: 'file' | 'directory' | 'preserve';
+	trailingSlash: AstroConfig['trailingSlash'];
 	compressHTML: boolean;
 	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];

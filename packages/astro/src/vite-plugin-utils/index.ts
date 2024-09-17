@@ -1,14 +1,10 @@
 import { fileURLToPath } from 'node:url';
 import ancestor from 'common-ancestor-path';
-import {
-	appendExtension,
-	appendForwardSlash,
-	removeLeadingForwardSlashWindows,
-} from '../core/path.js';
+import { appendForwardSlash, removeLeadingForwardSlashWindows } from '../core/path.js';
 import { viteID } from '../core/util.js';
 import type { AstroConfig } from '../types/public/config.js';
 
-export function getFileInfo(id: string, config: AstroConfig) {
+export function getFileInfoForPage(id: string, config: AstroConfig) {
 	const sitePathname = appendForwardSlash(
 		config.site ? new URL(config.base, config.site).pathname : config.base,
 	);
@@ -19,11 +15,8 @@ export function getFileInfo(id: string, config: AstroConfig) {
 				.replace(/^.*?\/pages\//, sitePathname)
 				.replace(/(?:\/index)?\.(?:md|markdown|mdown|mkdn|mkd|mdwn|astro)$/, '')
 		: undefined;
-	if (fileUrl && config.trailingSlash === 'always') {
+	if (fileUrl && config.trailingSlash.page === 'always') {
 		fileUrl = appendForwardSlash(fileUrl);
-	}
-	if (fileUrl && config.build.format === 'file') {
-		fileUrl = appendExtension(fileUrl, 'html');
 	}
 	return { fileId, fileUrl };
 }

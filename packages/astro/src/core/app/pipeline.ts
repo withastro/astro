@@ -95,7 +95,6 @@ export class AppPipeline extends Pipeline {
 			request,
 			routes: this.manifest?.routes.map((r) => r.routeData),
 			trailingSlash: this.manifest.trailingSlash,
-			buildFormat: this.manifest.buildFormat,
 			base: this.manifest.base,
 		});
 

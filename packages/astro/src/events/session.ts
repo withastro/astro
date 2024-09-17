@@ -81,6 +81,10 @@ function createAnonymousConfigInfo(userConfig: AstroUserConfig) {
 	// any changes between versions will be detected.
 	const configInfo: ConfigInfo = {
 		...sanitizeConfigInfo(userConfig, Object.keys(AstroConfigSchema.shape)),
+		trailingSlash:
+			typeof userConfig.trailingSlash === 'string'
+				? measureStringLiteral(userConfig.trailingSlash)
+				: sanitizeConfigInfo(userConfig.trailingSlash, ['page', 'endpoint']),
 		build: sanitizeConfigInfo(
 			userConfig.build,
 			Object.keys(AstroConfigSchema.shape.build._def.innerType.shape),
@@ -110,7 +114,6 @@ function createAnonymousConfigInfo(userConfig: AstroUserConfig) {
 	configInfo.markdown.syntaxHighlight = measureStringLiteral(userConfig.markdown?.syntaxHighlight);
 	configInfo.output = measureStringLiteral(userConfig.output);
 	configInfo.scopedStyleStrategy = measureStringLiteral(userConfig.scopedStyleStrategy);
-	configInfo.trailingSlash = measureStringLiteral(userConfig.trailingSlash);
 	// Measure integration & adapter usage
 	configInfo.adapter = measureIntegration(userConfig.adapter);
 	configInfo.integrations = userConfig.integrations

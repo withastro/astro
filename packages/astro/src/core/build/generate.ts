@@ -9,9 +9,9 @@ import {
 } from '../../assets/build/generate.js';
 import { type BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import {
+	appendForwardSlash,
 	isRelativePath,
 	joinPaths,
-	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
@@ -45,7 +45,7 @@ import type {
 	StaticBuildOptions,
 	StylesheetAsset,
 } from './types.js';
-import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { getTimeStat } from './util.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
@@ -318,10 +318,10 @@ interface GeneratePathOptions {
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	const trailingSlash = opts.settings.config.trailingSlash;
-	const buildFormat = opts.settings.config.build.format;
-	const pageName = shouldAppendForwardSlash(trailingSlash, buildFormat)
-		? pathname.replace(/\/?$/, '/').replace(/^\//, '')
-		: pathname.replace(/^\//, '');
+	const pageName =
+		trailingSlash.page === 'always'
+			? pathname.replace(/\/?$/, '/').replace(/^\//, '')
+			: pathname.replace(/^\//, '');
 	opts.pageNames.push(pageName);
 }
 
@@ -329,7 +329,6 @@ function getUrlForPath(
 	pathname: string,
 	base: string,
 	origin: string,
-	format: AstroConfig['build']['format'],
 	trailingSlash: AstroConfig['trailingSlash'],
 	routeType: RouteType,
 ): URL {
@@ -339,27 +338,25 @@ function getUrlForPath(
 	 * base: /
 	 */
 
-	let ending: string;
-	switch (format) {
-		case 'directory':
-		case 'preserve': {
-			ending = trailingSlash === 'never' ? '' : '/';
-			break;
-		}
-		default: {
-			ending = '.html';
-			break;
-		}
-	}
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
 		buildPathname = base;
 	} else if (routeType === 'endpoint') {
-		const buildPathRelative = removeLeadingForwardSlash(pathname);
-		buildPathname = joinPaths(base, buildPathRelative);
+		// Endpoint can only be written as files, so no trailing slash (that implies a folder)
+		buildPathname = joinPaths(base, pathname);
 	} else {
-		const buildPathRelative =
-			removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
+		let buildPathRelative: string;
+		switch (trailingSlash.page) {
+			case 'always':
+				buildPathRelative = appendForwardSlash(pathname);
+				break;
+			case 'never':
+				buildPathRelative = removeTrailingForwardSlash(pathname);
+				break;
+			case 'ignore':
+				buildPathRelative = pathname;
+				break;
+		}
 		buildPathname = joinPaths(base, buildPathRelative);
 	}
 	const url = new URL(buildPathname, origin);
@@ -406,7 +403,6 @@ async function generatePath(
 		pathname,
 		config.base,
 		options.origin,
-		config.build.format,
 		config.trailingSlash,
 		route.type,
 	);
@@ -529,7 +525,6 @@ function createBuildManifest(
 		site: settings.config.site,
 		componentMetadata: internals.componentMetadata,
 		i18n: i18nManifest,
-		buildFormat: settings.config.build.format,
 		middleware,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		key,

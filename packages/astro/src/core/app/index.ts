@@ -367,7 +367,7 @@ export class App {
 			error,
 		}: RenderErrorOptions,
 	): Promise<Response> {
-		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
+		const errorRoutePath = `/${status}${this.#manifest.trailingSlash.page === 'always' ? '/' : ''}`;
 		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
