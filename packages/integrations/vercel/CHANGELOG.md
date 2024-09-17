@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.8.1
+
+### Patch Changes
+
+- [#381](https://github.com/withastro/adapters/pull/381) [`46fbb26`](https://github.com/withastro/adapters/commit/46fbb26175ab09d12f95dba63cfe76bdcc25ef59) Thanks [@matthewp](https://github.com/matthewp)! - Prevent crawling for dependencies outside of the workspace root
+
 ## 8.0.0-alpha.1
 
 ### Major Changes
@@ -1282,6 +1288,7 @@
     { darkMode: true },
     {
       expires: '1 month',
+    }
     }
   );
 

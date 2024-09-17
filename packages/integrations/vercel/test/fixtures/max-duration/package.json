@@ -1,9 +1,9 @@
 {
-  "name": "@test/vercel-max-duration",
-  "version": "0.0.0",
-  "private": true,
-  "dependencies": {
-    "@astrojs/vercel": "workspace:*",
-    "astro": "^5.0.0-alpha.8"
-  }
+    "name": "@test/vercel-max-duration",
+    "version": "0.0.0",
+    "private": true,
+    "dependencies": {
+        "@astrojs/vercel": "workspace:*",
+        "astro": "^5.0.0-alpha.8"
+    }
 }

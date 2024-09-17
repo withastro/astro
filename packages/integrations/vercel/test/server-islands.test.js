@@ -16,8 +16,7 @@ describe('Server Islands', () => {
 	it('server islands route is in the config', async () => {
 		const config = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
 		let found = null;
-		// biome-ignore lint/style/useConst: <explanation>
-		for (let route of config.routes) {
+		for (const route of config.routes) {
 			if (route.src?.includes('_server-islands')) {
 				found = route;
 				break;

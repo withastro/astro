@@ -28,9 +28,8 @@ export const baseDevService: Omit<LocalImageService, 'transform'> = {
 		const transform = {
 			// biome-ignore lint/style/noNonNullAssertion: <explanation>
 			src: params.get('href')!,
-			// biome-ignore lint/style/useNumberNamespace: <explanation>
 			// biome-ignore lint/style/noNonNullAssertion: <explanation>
-			width: params.has('w') ? parseInt(params.get('w')!) : undefined,
+			width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
 			quality: params.get('q'),
 		};
 

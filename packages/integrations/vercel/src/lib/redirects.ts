@@ -49,19 +49,19 @@ function getMatchPattern(segments: RoutePart[][]) {
 			return segment[0].spread
 				? '(?:\\/(.*?))?'
 				: segment
-						.map((part) => {
-							if (part)
-								return part.dynamic
-									? '([^/]+?)'
-									: part.content
-											.normalize()
-											.replace(/\?/g, '%3F')
-											.replace(/#/g, '%23')
-											.replace(/%5B/g, '[')
-											.replace(/%5D/g, ']')
-											.replace(/[*+?^${}()|[\]\\]/g, '\\$&');
-						})
-						.join('');
+					.map((part) => {
+						if (part)
+							return part.dynamic
+								? '([^/]+?)'
+								: part.content
+									.normalize()
+									.replace(/\?/g, '%3F')
+									.replace(/#/g, '%23')
+									.replace(/%5B/g, '[')
+									.replace(/%5D/g, ']')
+									.replace(/[*+?^${}()|[\]\\]/g, '\\$&');
+					})
+					.join('');
 		})
 		.join('/');
 }
@@ -117,8 +117,7 @@ export function escapeRegex(content: string) {
 }
 
 export function getRedirects(routes: IntegrationRouteData[], config: AstroConfig): VercelRoute[] {
-	// biome-ignore lint/style/useConst: <explanation>
-	let redirects: VercelRoute[] = [];
+	const redirects: VercelRoute[] = [];
 
 	for (const route of routes) {
 		if (route.type === 'redirect') {

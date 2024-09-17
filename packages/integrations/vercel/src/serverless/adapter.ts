@@ -233,10 +233,10 @@ export default function vercelServerless({
 						if (vercelConfig.trailingSlash === true && config.trailingSlash === 'always') {
 							logger.warn(
 								'\n' +
-									`\tYour "vercel.json" \`trailingSlash\` configuration (set to \`true\`) will conflict with your Astro \`trailinglSlash\` configuration (set to \`"always"\`).\n` +
-									// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
-									`\tThis would cause infinite redirects under certain conditions and throw an \`ERR_TOO_MANY_REDIRECTS\` error.\n` +
-									`\tTo prevent this, your Astro configuration is updated to \`"ignore"\` during builds.\n`
+								`\tYour "vercel.json" \`trailingSlash\` configuration (set to \`true\`) will conflict with your Astro \`trailinglSlash\` configuration (set to \`"always"\`).\n` +
+								// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
+								`\tThis would cause infinite redirects under certain conditions and throw an \`ERR_TOO_MANY_REDIRECTS\` error.\n` +
+								`\tTo prevent this, your Astro configuration is updated to \`"ignore"\` during builds.\n`
 							);
 							updateConfig({
 								trailingSlash: 'ignore',
@@ -327,7 +327,7 @@ export default function vercelServerless({
 							? getRouteFuncName(route)
 							: getFallbackFuncName(entryFile);
 
-						await builder.buildServerlessFolder(entryFile, func);
+						await builder.buildServerlessFolder(entryFile, func, _config.root);
 
 						routeDefinitions.push({
 							src: route.pattern.source,
@@ -338,7 +338,7 @@ export default function vercelServerless({
 					const entryFile = new URL(_serverEntry, _buildTempFolder);
 					if (isr) {
 						const isrConfig = typeof isr === 'object' ? isr : {};
-						await builder.buildServerlessFolder(entryFile, NODE_PATH);
+						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 						if (isrConfig.exclude?.length) {
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of isrConfig.exclude) {
@@ -346,14 +346,14 @@ export default function vercelServerless({
 								routeDefinitions.push({ src: escapeRegex(route), dest });
 							}
 						}
-						await builder.buildISRFolder(entryFile, '_isr', isrConfig);
+						await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
 						for (const route of routes) {
 							const src = route.pattern.source;
 							const dest = src.startsWith('^\\/_image') ? NODE_PATH : ISR_PATH;
 							if (!route.prerender) routeDefinitions.push({ src, dest });
 						}
 					} else {
-						await builder.buildServerlessFolder(entryFile, NODE_PATH);
+						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 						const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 						for (const route of routes) {
 							if (!route.prerender) routeDefinitions.push({ src: route.pattern.source, dest });
@@ -384,31 +384,31 @@ export default function vercelServerless({
 						...routeDefinitions,
 						...(fourOhFourRoute
 							? [
-									{
-										src: '/.*',
-										dest: fourOhFourRoute.prerender
-											? '/404.html'
-											: _middlewareEntryPoint
-												? MIDDLEWARE_PATH
-												: NODE_PATH,
-										status: 404,
-									},
-								]
+								{
+									src: '/.*',
+									dest: fourOhFourRoute.prerender
+										? '/404.html'
+										: _middlewareEntryPoint
+											? MIDDLEWARE_PATH
+											: NODE_PATH,
+									status: 404,
+								},
+							]
 							: []),
 					],
 					...(imageService || imagesConfig
 						? {
-								images: imagesConfig
-									? {
-											...imagesConfig,
-											domains: [...imagesConfig.domains, ..._config.image.domains],
-											remotePatterns: [
-												...(imagesConfig.remotePatterns ?? []),
-												..._config.image.remotePatterns,
-											],
-										}
-									: getDefaultImageConfig(_config.image),
-							}
+							images: imagesConfig
+								? {
+									...imagesConfig,
+									domains: [...imagesConfig.domains, ..._config.image.domains],
+									remotePatterns: [
+										...(imagesConfig.remotePatterns ?? []),
+										..._config.image.remotePatterns,
+									],
+								}
+								: getDefaultImageConfig(_config.image),
+						}
 						: {}),
 				});
 
@@ -431,9 +431,9 @@ class VercelBuilder {
 		readonly logger: AstroIntegrationLogger,
 		readonly maxDuration?: number,
 		readonly runtime = getRuntime(process, logger)
-	) {}
+	) { }
 
-	async buildServerlessFolder(entry: URL, functionName: string) {
+	async buildServerlessFolder(entry: URL, functionName: string, root: URL) {
 		const { config, includeFiles, excludeFiles, logger, NTF_CACHE, runtime, maxDuration } = this;
 		// .vercel/output/functions/<name>.func/
 		const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
@@ -448,6 +448,7 @@ class VercelBuilder {
 				includeFiles,
 				excludeFiles,
 				logger,
+				root,
 			},
 			NTF_CACHE
 		);
@@ -467,8 +468,8 @@ class VercelBuilder {
 		});
 	}
 
-	async buildISRFolder(entry: URL, functionName: string, isr: VercelISRConfig) {
-		await this.buildServerlessFolder(entry, functionName);
+	async buildISRFolder(entry: URL, functionName: string, isr: VercelISRConfig, root: URL) {
+		await this.buildServerlessFolder(entry, functionName, root);
 		const prerenderConfig = new URL(
 			`./functions/${functionName}.prerender-config.json`,
 			this.config.outDir
@@ -511,11 +512,11 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 			// biome-ignore lint/style/useTemplate: <explanation>
 			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			`\n` +
-				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
-				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
-				`\tYour project will use Node.js 18 as the runtime instead.\n` +
-				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
-				`\tConsider switching your local version to 18.\n`
+			`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
+			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
+			`\tYour project will use Node.js 18 as the runtime instead.\n` +
+			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
+			`\tConsider switching your local version to 18.\n`
 		);
 		return 'nodejs18.x';
 	}
@@ -544,10 +545,10 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 			// biome-ignore lint/style/useTemplate: <explanation>
 			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			`\n` +
-				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
-				`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
-				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
-				`\tConsider upgrading your local version to 18.\n`
+			`\tYour project is being built for Node.js ${major} as the runtime.\n` +
+			`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
+			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
+			`\tConsider upgrading your local version to 18.\n`
 		);
 		return `nodejs${major}.x`;
 	}
