@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.5.3
+
+### Patch Changes
+
+- [#388](https://github.com/withastro/adapters/pull/388) [`3f280f1`](https://github.com/withastro/adapters/commit/3f280f113ce768b1c27a2e3cfb36cbc4c43bafa7) Thanks [@hrishikesh-k](https://github.com/hrishikesh-k)! - Allows `-` in hostnames for Netlify Image CDN RegEx
+
 ## 5.5.2
 
 ### Patch Changes
