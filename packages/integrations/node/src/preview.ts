@@ -8,7 +8,7 @@ import { createServer } from './standalone.js';
 type ServerModule = ReturnType<typeof createExports>;
 type MaybeServerModule = Partial<ServerModule>;
 
-const createPreviewServer: CreatePreviewServer = async function (preview) {
+const createPreviewServer: CreatePreviewServer = async (preview) => {
 	let ssrHandler: ServerModule['handler'];
 	let options: ServerModule['options'];
 	try {

@@ -15,7 +15,7 @@ export default function createMiddleware(app: NodeApp): RequestHandler {
 	const logger = app.getAdapterLogger();
 	// using spread args because express trips up if the function's
 	// stringified body includes req, res, next, locals directly
-	return async function (...args) {
+	return async (...args) => {
 		// assume normal invocation at first
 		const [req, res, next, locals] = args;
 		// short circuit if it is an error invocation

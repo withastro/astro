@@ -132,8 +132,7 @@ describe('Node Adapter Headers', () => {
 async function runTest(url, expectedHeaders) {
 	const { handler } = await import('./fixtures/headers/dist/server/entry.mjs');
 
-	// biome-ignore lint/style/useConst: <explanation>
-	let { req, res, done } = createRequestAndResponse({
+	const { req, res, done } = createRequestAndResponse({
 		method: 'GET',
 		url,
 	});

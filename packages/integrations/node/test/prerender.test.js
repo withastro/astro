@@ -26,8 +26,7 @@ describe('Prerendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			// biome-ignore lint/style/useConst: <explanation>
-			let res = startServer();
+			const res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
 		});
@@ -99,8 +98,7 @@ describe('Prerendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			// biome-ignore lint/style/useConst: <explanation>
-			let res = startServer();
+			const res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
 		});
@@ -173,8 +171,7 @@ describe('Prerendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			// biome-ignore lint/style/useConst: <explanation>
-			let res = startServer();
+			const res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
 		});
@@ -266,8 +263,7 @@ describe('Hybrid rendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			// biome-ignore lint/style/useConst: <explanation>
-			let res = startServer();
+			const res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
 		});
@@ -337,8 +333,7 @@ describe('Hybrid rendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			// biome-ignore lint/style/useConst: <explanation>
-			let res = startServer();
+			const res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
 		});
@@ -400,8 +395,7 @@ describe('Hybrid rendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			// biome-ignore lint/style/useConst: <explanation>
-			let res = startServer();
+			const res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
 		});

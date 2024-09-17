@@ -23,8 +23,7 @@ describe('behavior from middleware, standalone', () => {
 		});
 		await fixture.build();
 		const { startServer } = await fixture.loadAdapterEntryModule();
-		// biome-ignore lint/style/useConst: <explanation>
-		let res = startServer();
+		const res = startServer();
 		server = res.server;
 		await waitServerListen(server.server);
 	});
