@@ -24,7 +24,11 @@
     "@astrojs/studio": "0.1.1",
     "@astrojs/telemetry": "3.1.0",
     "@astrojs/underscore-redirects": "0.4.0-alpha.0",
-    "@astrojs/upgrade": "0.3.3"
+    "@astrojs/upgrade": "0.3.3",
+    "@astrojs/cloudflare": "0.0.0",
+    "@astrojs/netlify": "0.0.0",
+    "@astrojs/node": "0.0.0",
+    "@astrojs/vercel": "0.0.0"
   },
   "changesets": [
     "afraid-apricots-buy",
@@ -41,6 +45,7 @@
     "curvy-walls-kneel",
     "dry-lamps-smile",
     "dry-worms-knock",
+    "eight-days-sort",
     "eighty-bags-cross",
     "eighty-boxes-applaud",
     "five-jars-hear",

@@ -11,8 +11,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/vue": "^5.0.0-alpha.0",
-    "astro": "^5.0.0-alpha.9",
+    "@astrojs/vue": "^4.5.0",
+    "astro": "^5.0.0-beta.1",
     "vue": "^3.4.38"
   }
 }
