@@ -17,7 +17,10 @@ export function requestHasLocale(locales: Locales) {
 export function requestIs404Or500(request: Request, base = '') {
 	const url = new URL(request.url);
 
-	return url.pathname.startsWith(`${base}/404`) || url.pathname.startsWith(`${base}/500`);
+	return (
+		url.pathname.startsWith(joinPaths(base, '404')) ||
+		url.pathname.startsWith(joinPaths(base, '500'))
+	);
 }
 
 // Checks if the pathname has any locale
@@ -326,7 +329,6 @@ export function redirectToFallback({
 	locales,
 	defaultLocale,
 	strategy,
-	base,
 	fallbackType,
 }: MiddlewarePayload) {
 	return async function (context: APIContext, response: Response): Promise<Response> {
@@ -355,11 +357,7 @@ export function redirectToFallback({
 				// If a locale falls back to the default locale, we want to **remove** the locale because
 				// the default locale doesn't have a prefix
 				if (pathFallbackLocale === defaultLocale && strategy === 'pathname-prefix-other-locales') {
-					if (context.url.pathname.includes(`${base}`)) {
-						newPathname = context.url.pathname.replace(`/${urlLocale}`, ``);
-					} else {
-						newPathname = context.url.pathname.replace(`/${urlLocale}`, `/`);
-					}
+					newPathname = context.url.pathname.replace(`/${urlLocale}`, ``);
 				} else {
 					newPathname = context.url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
 				}
