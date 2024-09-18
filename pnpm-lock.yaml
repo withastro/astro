@@ -355,7 +355,7 @@ importers:
         specifier: ^3.6.2
         version: link:../../packages/integrations/react
       '@astrojs/tailwind':
-        specifier: ^5.1.0
+        specifier: ^5.1.1
         version: link:../../packages/integrations/tailwind
       '@fortawesome/fontawesome-free':
         specifier: ^6.6.0
@@ -1682,6 +1682,9 @@ importers:
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
+      '@astrojs/solid-js':
+        specifier: workspace:*
+        version: link:../../../../integrations/solid
       '@astrojs/svelte':
         specifier: workspace:*
         version: link:../../../../integrations/svelte
@@ -1697,6 +1700,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      solid-js:
+        specifier: ^1.8.0
+        version: 1.8.22
       svelte:
         specifier: ^4.2.19
         version: 4.2.19
