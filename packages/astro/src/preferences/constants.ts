@@ -1,1 +1,1 @@
-export const SETTINGS_FILE = 'astro/settings.json';
+export const SETTINGS_FILE = 'settings.json';

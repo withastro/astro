@@ -19,8 +19,6 @@ import {
 	getEntryDataAndImages,
 	globalContentConfigObserver,
 } from './utils.js';
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 export interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -217,11 +215,10 @@ export class ContentLayer {
 			}),
 		);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
+		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
 		const cacheFile = getDataStoreFile(this.#settings);
 		await this.#store.writeToDisk(cacheFile);
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
-		const dotAstroAstroDir = dirname(fileURLToPath(assetImportsFile));
-		await fs.mkdir(dotAstroAstroDir, { recursive: true });
 		await this.#store.writeAssetImports(assetImportsFile);
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeModuleImports(modulesImportsFile);
@@ -283,10 +280,7 @@ export async function simpleLoader<TData extends { id: string }>(
  */
 export function getDataStoreFile(settings: AstroSettings, isDev?: boolean) {
 	isDev ??= process?.env.NODE_ENV === 'development';
-	return new URL(
-		DATA_STORE_FILE,
-		isDev ? new URL('./astro/', settings.dotAstroDir) : settings.config.cacheDir,
-	);
+	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }
 
 function contentLayerSingleton() {
