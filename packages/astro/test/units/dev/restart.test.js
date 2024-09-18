@@ -195,11 +195,11 @@ describe('dev container restarts', () => {
 		}
 	});
 
-	it('Is able to restart project on .astro/astro/settings.json changes', async () => {
+	it('Is able to restart project on .astro/settings.json changes', async () => {
 		const fs = createFs(
 			{
 				'/src/pages/index.astro': ``,
-				'/.astro/astro/settings.json': `{}`,
+				'/.astro/settings.json': `{}`,
 			},
 			root,
 		);
@@ -213,9 +213,9 @@ describe('dev container restarts', () => {
 
 		try {
 			let restartComplete = restart.restarted();
-			fs.mkdirSync('/.astro/astro/', { recursive: true });
-			fs.writeFileSync('/.astro/astro/settings.json', `{ }`);
-			triggerFSEvent(restart.container, fs, '/.astro/astro/settings.json', 'change');
+			fs.mkdirSync('/.astro/', { recursive: true });
+			fs.writeFileSync('/.astro/settings.json', `{ }`);
+			triggerFSEvent(restart.container, fs, '/.astro/settings.json', 'change');
 			await restartComplete;
 		} finally {
 			await restart.container.close();
