@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 11.0.5
+
+### Patch Changes
+
+- [#387](https://github.com/withastro/adapters/pull/387) [`04e5c38`](https://github.com/withastro/adapters/commit/04e5c389f251efa02fe7b973ed95cdc61fad3389) Thanks [@veitbjarsch](https://github.com/veitbjarsch)! - Fixes a bug which was caused on windows when splitting static file paths
+
 ## 11.0.4
 
 ### Patch Changes
