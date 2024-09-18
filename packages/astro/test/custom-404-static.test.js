@@ -40,7 +40,7 @@ describe('Custom 404 with Static', () => {
 			$ = cheerio.load(html);
 
 			assert.equal($('h1').text(), 'Page not found');
-			assert.equal($('p').text(), '/a');
+			assert.equal($('p').text(), '/a/');
 		});
 	});
 

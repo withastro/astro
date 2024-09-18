@@ -19,7 +19,7 @@ describe('Markdown pages in SSR', () => {
 
 	async function fetchHTML(path) {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com' + path);
+		const request = new Request('http://example.com' + path + '/');
 		const response = await app.render(request);
 		const html = await response.text();
 		return html;

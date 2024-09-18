@@ -9,9 +9,6 @@ describe('Events', () => {
 		it('string literal "build.format" is included', () => {
 			const config = {
 				srcDir: 1,
-				build: {
-					format: 'file',
-				},
 			};
 			const [{ payload }] = events.eventCliSession(
 				{

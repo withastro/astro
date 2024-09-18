@@ -123,7 +123,7 @@ describe('Astro Markdown', () => {
 			true,
 			'"file" prop does not end with correct path or is undefined',
 		);
-		assert.equal(frontmatterUrl, '/with-layout');
+		assert.equal(frontmatterUrl, '/with-layout/');
 		assert.equal(file, frontmatterFile);
 		assert.equal(url, frontmatterUrl);
 	});

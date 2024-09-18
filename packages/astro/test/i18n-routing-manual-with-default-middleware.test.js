@@ -94,7 +94,7 @@ describe('SSR manual routing', () => {
 	});
 
 	it('should return a 404', async () => {
-		let request = new Request('http://example.com/blog');
+		let request = new Request('http://example.com/blog/');
 		let response = await app.render(request);
 		assert.equal(response.status, 404);
 		const text = await response.text();
@@ -102,7 +102,7 @@ describe('SSR manual routing', () => {
 	});
 
 	it('should return a 200 because the custom middleware allows it', async () => {
-		let request = new Request('http://example.com/about');
+		let request = new Request('http://example.com/about/');
 		let response = await app.render(request);
 		assert.equal(response.status, 200);
 		const text = await response.text();
@@ -110,7 +110,7 @@ describe('SSR manual routing', () => {
 	});
 
 	it('should correctly print the relative locale url', async () => {
-		let request = new Request('http://example.com/en/start');
+		let request = new Request('http://example.com/en/start/');
 		let response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();

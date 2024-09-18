@@ -49,7 +49,7 @@ describe('Environment Variables', () => {
 
 		it('does render builtin BASE_URL env', async () => {
 			let indexHtml = await fixture.readFile('/index.html');
-			assert.equal(indexHtml.includes('/blog'), true);
+			assert.equal(indexHtml.includes('/blog/'), true);
 		});
 
 		it('includes public env in client-side JS', async () => {
@@ -110,7 +110,7 @@ describe('Environment Variables', () => {
 			assert.equal(res.status, 200);
 			let indexHtml = await res.text();
 			let $ = cheerio.load(indexHtml);
-			assert.equal($('#base-url').text(), '/blog');
+			assert.equal($('#base-url').text(), '/blog/');
 		});
 
 		it('does render destructured builtin SITE env', async () => {
@@ -118,7 +118,7 @@ describe('Environment Variables', () => {
 			assert.equal(res.status, 200);
 			let indexHtml = await res.text();
 			let $ = cheerio.load(indexHtml);
-			assert.equal($('#base-url').text(), '/blog');
+			assert.equal($('#base-url').text(), '/blog/');
 		});
 	});
 });

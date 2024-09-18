@@ -101,7 +101,7 @@ describe('Content Collections - render()', () => {
 
 		it('Includes CSS for rendered entry', async () => {
 			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/launch-week');
+			const request = new Request('http://example.com/launch-week/');
 			const response = await app.render(request);
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -148,7 +148,7 @@ describe('Content Collections - render()', () => {
 
 		it('Applies MDX components export', async () => {
 			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/launch-week-components-export');
+			const request = new Request('http://example.com/launch-week-components-export/');
 			const response = await app.render(request);
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -161,7 +161,7 @@ describe('Content Collections - render()', () => {
 		it('getCollection should return new instances of the array to be mutated safely', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
-			let request = new Request('http://example.com/sort-blog-collection');
+			let request = new Request('http://example.com/sort-blog-collection/');
 			let response = await app.render(request);
 			let html = await response.text();
 			let $ = cheerio.load(html);

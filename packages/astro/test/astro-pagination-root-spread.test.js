@@ -17,8 +17,8 @@ describe('Pagination root', () => {
 
 	it('correct prev url in root spread', async () => {
 		const prevMap = {
-			'/4/': '/blog/3',
-			'/3/': '/blog/2',
+			'/4/': '/blog/3/',
+			'/3/': '/blog/2/',
 			'/2/': '/blog/',
 			'/': undefined,
 		};

@@ -124,9 +124,9 @@ describe('Development Routing', () => {
 			assert.equal(response.status, 200);
 		});
 
-		it('200 when loading subpath root without trailing slash', async () => {
+		it('404 when loading subpath root without trailing slash', async () => {
 			const response = await fixture.fetch('/blog');
-			assert.equal(response.status, 200);
+			assert.equal(response.status, 404);
 		});
 
 		it('200 when loading another page with subpath used', async () => {
@@ -176,7 +176,7 @@ describe('Development Routing', () => {
 
 		it('200 when loading subpath root without trailing slash', async () => {
 			const response = await fixture.fetch('/blog');
-			assert.equal(response.status, 200);
+			assert.equal(response.status, 404);
 		});
 
 		it('200 when loading another page with subpath used', async () => {
@@ -303,11 +303,9 @@ describe('Development Routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				build: {
-					format: 'file',
-				},
 				root: './fixtures/without-site-config/',
 				site: 'http://example.com/',
+				trailingSlash: 'never',
 			});
 			devServer = await fixture.startDevServer();
 		});

@@ -1,19 +1,19 @@
 import { defineMiddleware, sequence } from 'astro:middleware';
 
 const first = defineMiddleware(async (context, next) => {
-	if (context.request.url.includes('/lorem')) {
+	if (context.request.url.includes('/lorem/')) {
 		context.locals.name = 'ipsum';
 	} else if (context.request.url.includes('/rewrite')) {
 		return new Response('<span>New content!!</span>', {
 			status: 200,
 		});
-	} else if (context.request.url.includes('/content-policy')) {
+	} else if (context.request.url.includes('/content-policy/')) {
 		const response = await next();
 		response.headers.append('X-Content-Type-Options', 'nosniff');
 		response.headers.append('Content-Type', 'application/json');
 
 		return next();
-	} else if (context.request.url.includes('/broken-500')) {
+	} else if (context.request.url.includes('/broken-500/')) {
 		return new Response(null, {
 			status: 500,
 		});
@@ -24,9 +24,9 @@ const first = defineMiddleware(async (context, next) => {
 		return new Response(JSON.stringify(object), {
 			headers: response.headers,
 		});
-	} else if (context.url.pathname === '/throw') {
+	} else if (context.url.pathname === '/throw/') {
 		throw new Error();
-	} else if (context.url.pathname === '/clone') {
+	} else if (context.url.pathname === '/clone/') {
 		const response = await next();
 		const newResponse = response.clone();
 		const /** @type {string} */ html = await newResponse.text();

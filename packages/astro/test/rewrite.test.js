@@ -20,36 +20,36 @@ describe('Dev reroute', () => {
 		await devServer.stop();
 	});
 
-	it('should render the index page when navigating /reroute ', async () => {
-		const html = await fixture.fetch('/reroute').then((res) => res.text());
+	it('should render the index page when navigating /reroute/', async () => {
+		const html = await fixture.fetch('/reroute/').then((res) => res.text());
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating /blog/hello ', async () => {
-		const html = await fixture.fetch('/blog/hello').then((res) => res.text());
+	it('should render the index page when navigating /blog/hello/', async () => {
+		const html = await fixture.fetch('/blog/hello/').then((res) => res.text());
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating /blog/salut ', async () => {
-		const html = await fixture.fetch('/blog/salut').then((res) => res.text());
+	it('should render the index page when navigating /blog/salut/', async () => {
+		const html = await fixture.fetch('/blog/salut/').then((res) => res.text());
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating dynamic route /dynamic/[id] ', async () => {
-		const html = await fixture.fetch('/dynamic/hello').then((res) => res.text());
+	it('should render the index page when navigating dynamic route /dynamic/[id]/', async () => {
+		const html = await fixture.fetch('/dynamic/hello/').then((res) => res.text());
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating spread route /spread/[...spread] ', async () => {
-		const html = await fixture.fetch('/spread/hello').then((res) => res.text());
+	it('should render the index page when navigating spread route /spread/[...spread]/', async () => {
+		const html = await fixture.fetch('/spread/hello/').then((res) => res.text());
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
@@ -139,11 +139,11 @@ describe('Dev rewrite, hybrid/server', () => {
 		const formData = new FormData();
 		formData.append('email', 'example@example.com');
 
-		const request = new Request('http://example.com/post/post-body-used', {
+		const request = new Request('http://example.com/post/post-body-used/', {
 			method: 'POST',
 			body: formData,
 		});
-		const response = await fixture.fetch('/post/post-body-used', request);
+		const response = await fixture.fetch('/post/post-body-used/', request);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
 
@@ -184,14 +184,14 @@ describe('Build reroute', () => {
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should create the index page when navigating dynamic route /dynamic/[id] ', async () => {
+	it('should create the index page when navigating dynamic route /dynamic/[id]/', async () => {
 		const html = await fixture.readFile('/dynamic/hello/index.html');
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should create the index page when navigating spread route /spread/[...spread] ', async () => {
+	it('should create the index page when navigating spread route /spread/[...spread]/', async () => {
 		const html = await fixture.readFile('/spread/hello/index.html');
 		const $ = cheerioLoad(html);
 
@@ -238,8 +238,8 @@ describe('SSR reroute', () => {
 		app = await fixture.loadTestAdapterApp();
 	});
 
-	it('should render the index page when navigating /reroute ', async () => {
-		const request = new Request('http://example.com/reroute');
+	it('should render the index page when navigating /reroute/', async () => {
+		const request = new Request('http://example.com/reroute/');
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
@@ -247,8 +247,8 @@ describe('SSR reroute', () => {
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating /blog/hello ', async () => {
-		const request = new Request('http://example.com/blog/hello');
+	it('should render the index page when navigating /blog/hello/', async () => {
+		const request = new Request('http://example.com/blog/hello/');
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
@@ -256,8 +256,8 @@ describe('SSR reroute', () => {
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating /blog/salut ', async () => {
-		const request = new Request('http://example.com/blog/salut');
+	it('should render the index page when navigating /blog/salut/', async () => {
+		const request = new Request('http://example.com/blog/salut/');
 		const response = await app.render(request);
 		const html = await response.text();
 
@@ -266,8 +266,8 @@ describe('SSR reroute', () => {
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating dynamic route /dynamic/[id] ', async () => {
-		const request = new Request('http://example.com/dynamic/hello');
+	it('should render the index page when navigating dynamic route /dynamic/[id]/', async () => {
+		const request = new Request('http://example.com/dynamic/hello/');
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
@@ -275,8 +275,8 @@ describe('SSR reroute', () => {
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating spread route /spread/[...spread] ', async () => {
-		const request = new Request('http://example.com/spread/hello');
+	it('should render the index page when navigating spread route /spread/[...spread]/', async () => {
+		const request = new Request('http://example.com/spread/hello/');
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
@@ -285,13 +285,13 @@ describe('SSR reroute', () => {
 	});
 
 	it('should render the 404 built-in page', async () => {
-		const request = new Request('http://example.com/blog/oops');
+		const request = new Request('http://example.com/blog/oops/');
 		const response = await app.render(request);
 		assert.equal(response.status, 404);
 	});
 
 	it('should pass the POST data from one page to another', async () => {
-		const request = new Request('http://example.com/post/post-a', {
+		const request = new Request('http://example.com/post/post-a/', {
 			method: 'POST',
 			body: JSON.stringify({
 				email: 'example@example.com',
@@ -331,8 +331,6 @@ describe('SSR rewrite, hybrid/server', () => {
 		const html = await response.text();
 		const $ = cheerioLoad(html);
 
-		console.log(html);
-
 		assert.match($('h1').text(), /Title/);
 		assert.match($('p').text(), /some-slug/);
 	});
@@ -341,7 +339,7 @@ describe('SSR rewrite, hybrid/server', () => {
 		const formData = new FormData();
 		formData.append('email', 'example@example.com');
 
-		const request = new Request('http://example.com/post/post-body-used', {
+		const request = new Request('http://example.com/post/post-body-used/', {
 			method: 'POST',
 			body: formData,
 		});
@@ -407,7 +405,7 @@ describe('Middleware with custom 404.astro and 500.astro', () => {
 	});
 
 	it('The `next()` function should return a Response with status code 404', async () => {
-		const html = await fixture.fetch('/about').then((res) => res.text());
+		const html = await fixture.fetch('/about/').then((res) => res.text());
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Custom error');
@@ -415,7 +413,7 @@ describe('Middleware with custom 404.astro and 500.astro', () => {
 	});
 
 	it('The `next()` function should return a Response with status code 500', async () => {
-		const html = await fixture.fetch('/about-2').then((res) => res.text());
+		const html = await fixture.fetch('/about-2/').then((res) => res.text());
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Custom error');
@@ -440,7 +438,7 @@ describe('Runtime error, default 500', () => {
 	});
 
 	it('should return a 500 status code, but not render the custom 500', async () => {
-		const response = await fixture.fetch('/errors/from');
+		const response = await fixture.fetch('/errors/from/');
 		assert.equal(response.status, 500);
 		const text = await response.text();
 		assert.match(text, /@vite\/client/);
@@ -463,7 +461,7 @@ describe('Runtime error in SSR, default 500', () => {
 	});
 
 	it('should return a 500 status code, but not render the custom 500', async () => {
-		const request = new Request('http://example.com/errors/from');
+		const request = new Request('http://example.com/errors/from/');
 		const response = await app.render(request);
 		const text = await response.text();
 		assert.equal(text, '');
@@ -487,7 +485,7 @@ describe('Runtime error in dev, custom 500', () => {
 	});
 
 	it('should render the custom 500 when rewriting a page that throws an error', async () => {
-		const response = await fixture.fetch('/errors/start');
+		const response = await fixture.fetch('/errors/start/');
 		assert.equal(response.status, 500);
 		const html = await response.text();
 		assert.match(html, /I am the custom 500/);
@@ -510,7 +508,7 @@ describe('Runtime error in SSR, custom 500', () => {
 	});
 
 	it('should render the custom 500 when rewriting a page that throws an error', async () => {
-		const request = new Request('http://example.com/errors/start');
+		const request = new Request('http://example.com/errors/start/');
 		const response = await app.render(request);
 		const html = await response.text();
 

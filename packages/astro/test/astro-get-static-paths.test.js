@@ -113,11 +113,7 @@ describe('getStaticPaths - dev calls', () => {
 			const $ = cheerio.load(html);
 
 			const canonical = $('link[rel=canonical]');
-			assert.equal(
-				canonical.attr('href'),
-				`https://mysite.dev/posts/${page}`,
-				`doesn't trim the /${page} route param`,
-			);
+			assert.equal(canonical.attr('href'), `https://mysite.dev/posts/${page}/`);
 		}
 	});
 

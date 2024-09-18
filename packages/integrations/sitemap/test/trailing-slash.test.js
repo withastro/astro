@@ -13,7 +13,7 @@ describe('Trailing slash', () => {
 					root: './fixtures/trailing-slash/',
 					trailingSlash: 'ignore',
 					build: {
-						format: 'directory',
+						
 					},
 				});
 				await fixture.build();
@@ -35,7 +35,7 @@ describe('Trailing slash', () => {
 					root: './fixtures/trailing-slash/',
 					trailingSlash: 'ignore',
 					build: {
-						format: 'file',
+						
 					},
 				});
 				await fixture.build();

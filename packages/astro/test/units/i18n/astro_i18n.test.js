@@ -12,6 +12,8 @@ import {
 import { toRoutingStrategy } from '../../../dist/i18n/utils.js';
 import { parseLocale } from '../../../dist/i18n/utils.js';
 
+// UPDATE ALMOST EVERYTHING AHHH
+
 describe('getLocaleRelativeUrl', () => {
 	it('should correctly return the URL with the base', () => {
 		/**
@@ -36,13 +38,11 @@ describe('getLocaleRelativeUrl', () => {
 			},
 		};
 
-		// directory format
 		assert.equal(
 			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog/',
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 				...config.experimental.i18n,
 			}),
 			'/blog/',
@@ -52,20 +52,17 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'es',
 				base: '/blog/',
 				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 			}),
 			'/blog/es/',
 		);
 
-		// file format
 		assert.equal(
 			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'file',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 			}),
 			'/blog/',
 		);
@@ -74,8 +71,7 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'es',
 				base: '/blog/',
 				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'file',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 			}),
 			'/blog/es/',
 		);
@@ -85,8 +81,7 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'it-VA',
 				base: '/blog/',
 				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'file',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 			}),
 			'/blog/italiano/',
 		);
@@ -111,8 +106,7 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'en',
 				base: '/',
 				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 			}),
 			'/',
 		);
@@ -121,8 +115,7 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'es',
 				base: '/',
 				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 			}),
 			'/es/',
 		);
@@ -152,8 +145,7 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'en',
 				base: '/blog',
 				...config.i18n,
-				trailingSlash: 'never',
-				format: 'directory',
+				trailingSlash: { page: 'never', endpoint: 'never' },
 			}),
 			'/blog',
 		);
@@ -162,8 +154,7 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 			}),
 			'/blog/es/',
 		);
@@ -173,8 +164,7 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'it-VA',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'file',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 			}),
 			'/blog/italiano/',
 		);
@@ -184,8 +174,7 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'ignore',
-				format: 'directory',
+				trailingSlash: { page: 'ignore', endpoint: 'ignore' },
 			}),
 			'/blog/',
 		);
@@ -196,8 +185,7 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'en',
 				base: '/blog',
 				...config.i18n,
-				trailingSlash: 'never',
-				format: 'file',
+				trailingSlash: { page: 'never', endpoint: 'never' },
 			}),
 			'/blog',
 		);
@@ -206,8 +194,7 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'file',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 			}),
 			'/blog/es/',
 		);
@@ -218,8 +205,7 @@ describe('getLocaleRelativeUrl', () => {
 				// ignore + file => no trailing slash
 				base: '/blog',
 				...config.i18n,
-				trailingSlash: 'ignore',
-				format: 'file',
+				trailingSlash: { page: 'ignore', endpoint: 'ignore' },
 			}),
 			'/blog',
 		);
@@ -243,8 +229,8 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'en_US',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/en-us/',
@@ -255,8 +241,8 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'en_US',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				normalizeLocale: false,
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
@@ -268,8 +254,8 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'en_AU',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/en-au/',
@@ -297,8 +283,8 @@ describe('getLocaleRelativeUrl', () => {
 			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog/',
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				...config.i18n,
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
@@ -309,8 +295,8 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/es/',
@@ -322,8 +308,8 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'file',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/en/',
@@ -333,8 +319,8 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'file',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/es/',
@@ -363,8 +349,8 @@ describe('getLocaleRelativeUrl', () => {
 			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog/',
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				...config.i18n,
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
@@ -375,8 +361,8 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/es/',
@@ -388,8 +374,8 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'file',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/en/',
@@ -399,8 +385,8 @@ describe('getLocaleRelativeUrl', () => {
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'file',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/es/',
@@ -436,8 +422,7 @@ describe('getLocaleRelativeUrlList', () => {
 				locale: 'en',
 				base: '/blog',
 				...config.experimental.i18n,
-				trailingSlash: 'never',
-				format: 'directory',
+				trailingSlash: { page: 'never', endpoint: 'never' },
 			}),
 			['/blog', '/blog/en-us', '/blog/es', '/blog/italiano'],
 		);
@@ -470,8 +455,7 @@ describe('getLocaleRelativeUrlList', () => {
 				locale: 'en',
 				base: '/blog/',
 				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 			}),
 			['/blog/', '/blog/en-us/', '/blog/es/', '/blog/italiano/'],
 		);
@@ -496,8 +480,7 @@ describe('getLocaleRelativeUrlList', () => {
 				locale: 'en',
 				base: '/blog/',
 				...config.experimental.i18n,
-				trailingSlash: 'always',
-				format: 'file',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 			}),
 			['/blog/', '/blog/en-us/', '/blog/es/'],
 		);
@@ -522,8 +505,7 @@ describe('getLocaleRelativeUrlList', () => {
 				locale: 'en',
 				base: '/blog',
 				...config.experimental.i18n,
-				trailingSlash: 'never',
-				format: 'file',
+				trailingSlash: { page: 'never', endpoint: 'never' },
 			}),
 			['/blog', '/blog/en-us', '/blog/es'],
 		);
@@ -548,8 +530,7 @@ describe('getLocaleRelativeUrlList', () => {
 				locale: 'en',
 				base: '/blog',
 				...config.experimental.i18n,
-				trailingSlash: 'ignore',
-				format: 'file',
+				trailingSlash: { page: 'ignore', endpoint: 'ignore' },
 			}),
 			['/blog', '/blog/en-us', '/blog/es'],
 		);
@@ -574,8 +555,7 @@ describe('getLocaleRelativeUrlList', () => {
 				locale: 'en',
 				base: '/blog/',
 				...config.experimental.i18n,
-				trailingSlash: 'ignore',
-				format: 'directory',
+				trailingSlash: { page: 'ignore', endpoint: 'ignore' },
 			}),
 			['/blog/', '/blog/en-us/', '/blog/es/'],
 		);
@@ -601,8 +581,8 @@ describe('getLocaleRelativeUrlList', () => {
 				locale: 'en',
 				base: '/blog',
 				...config.i18n,
-				trailingSlash: 'never',
-				format: 'directory',
+				trailingSlash: { page: 'never', endpoint: 'never' },
+
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			['/blog/en', '/blog/en-us', '/blog/es'],
@@ -630,8 +610,8 @@ describe('getLocaleRelativeUrlList', () => {
 				locale: 'en',
 				base: '/blog',
 				...config.i18n,
-				trailingSlash: 'never',
-				format: 'directory',
+				trailingSlash: { page: 'never', endpoint: 'never' },
+
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			['/blog/en', '/blog/en-us', '/blog/es'],
@@ -671,8 +651,8 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'en',
 					base: '/blog/',
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					...config.i18n,
 				}),
@@ -683,8 +663,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog/es/',
@@ -695,8 +675,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					isBuild: true,
 				}),
@@ -709,8 +689,8 @@ describe('getLocaleAbsoluteUrl', () => {
 						locale: 'ff',
 						base: '/blog/',
 						...config.i18n,
-						trailingSlash: 'always',
-						format: 'directory',
+						trailingSlash: { page: 'always', endpoint: 'always' },
+
 						site: 'https://example.com',
 					}),
 
@@ -726,8 +706,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog/',
@@ -737,8 +717,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog/es/',
@@ -749,8 +729,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'it-VA',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog/italiano/',
@@ -761,8 +741,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					isBuild: true,
 				}),
@@ -775,8 +755,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					prependWith: 'some-name',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					path: 'first-post',
 					isBuild: true,
@@ -791,8 +771,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					prependWith: 'some-name',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					path: 'first-post',
 					isBuild: true,
@@ -826,8 +806,8 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'en',
 					base: '/blog/',
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					...config.i18n,
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
@@ -840,8 +820,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -854,8 +834,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -866,8 +846,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -879,8 +859,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					isBuild: true,
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
@@ -894,8 +874,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					prependWith: 'some-name',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					path: 'first-post',
 					isBuild: true,
@@ -924,8 +904,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					base: '/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -936,8 +916,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -965,8 +945,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					base: '/blog',
 					...config.i18n,
-					trailingSlash: 'never',
-					format: 'directory',
+					trailingSlash: { page: 'never', endpoint: 'never' },
+
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -977,8 +957,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -990,8 +970,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'ignore',
-					format: 'directory',
+					trailingSlash: { page: 'ignore', endpoint: 'ignore' },
+
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -1004,8 +984,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					base: '/blog',
 					...config.i18n,
-					trailingSlash: 'never',
-					format: 'file',
+					trailingSlash: { page: 'never', endpoint: 'never' },
+
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -1016,8 +996,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -1030,8 +1010,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					// ignore + file => no trailing slash
 					base: '/blog',
 					...config.i18n,
-					trailingSlash: 'ignore',
-					format: 'file',
+					trailingSlash: { page: 'ignore', endpoint: 'ignore' },
+
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -1060,8 +1040,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en_US',
 					base: '/blog/',
 					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
 				}),
 				'/blog/en-us/',
 			);
@@ -1071,8 +1050,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en_AU',
 					base: '/blog/',
 					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
 				}),
 				'/blog/en-au/',
 			);
@@ -1082,8 +1060,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en_US',
 					base: '/blog/',
 					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					normalizeLocale: true,
 				}),
 				'/blog/en-us/',
@@ -1111,9 +1089,9 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'en',
 					base: '/blog/',
-					trailingSlash: 'always',
+					trailingSlash: { page: 'always', endpoint: 'always' },
 					site: 'https://example.com',
-					format: 'directory',
+
 					...config.i18n,
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -1125,8 +1103,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					site: 'https://example.com',
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
 				'https://example.com/blog/es/',
@@ -1139,8 +1117,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					site: 'https://example.com',
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
 				'https://example.com/blog/en/',
@@ -1151,8 +1129,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					site: 'https://example.com',
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
 				'https://example.com/blog/es/',
@@ -1181,9 +1159,9 @@ describe('getLocaleAbsoluteUrl', () => {
 				getLocaleAbsoluteUrl({
 					locale: 'en',
 					base: '/blog/',
-					trailingSlash: 'always',
+					trailingSlash: { page: 'always', endpoint: 'always' },
 					site: 'https://example.com',
-					format: 'directory',
+
 					...config.i18n,
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -1195,8 +1173,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					site: 'https://example.com',
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
 				'https://example.com/blog/es/',
@@ -1209,8 +1187,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					site: 'https://example.com',
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
 				'https://example.com/blog/en/',
@@ -1221,8 +1199,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					site: 'https://example.com',
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
 				'https://example.com/blog/es/',
@@ -1255,8 +1233,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					base: '/',
 					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/',
@@ -1266,8 +1244,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/',
 					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/es/',
@@ -1277,8 +1255,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'it-VA',
 					base: '/',
 					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/italiano/',
@@ -1305,8 +1283,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					base: '/blog',
 					...config.experimental.i18n,
-					trailingSlash: 'never',
-					format: 'directory',
+					trailingSlash: { page: 'never', endpoint: 'never' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog',
@@ -1316,8 +1294,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog/es/',
@@ -1328,8 +1306,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					base: '/blog/',
 					...config.experimental.i18n,
-					trailingSlash: 'ignore',
-					format: 'directory',
+					trailingSlash: { page: 'ignore', endpoint: 'ignore' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog/',
@@ -1341,8 +1319,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en',
 					base: '/blog',
 					...config.experimental.i18n,
-					trailingSlash: 'never',
-					format: 'file',
+					trailingSlash: { page: 'never', endpoint: 'never' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog',
@@ -1352,8 +1330,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'es',
 					base: '/blog/',
 					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'file',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog/es/',
@@ -1365,8 +1343,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					// ignore + file => no trailing slash
 					base: '/blog',
 					...config.experimental.i18n,
-					trailingSlash: 'ignore',
-					format: 'file',
+					trailingSlash: { page: 'ignore', endpoint: 'ignore' },
+
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog',
@@ -1394,8 +1372,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en_US',
 					base: '/blog/',
 					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
 				}),
 				'/blog/en-us/',
 			);
@@ -1405,8 +1382,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en_AU',
 					base: '/blog/',
 					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
 				}),
 				'/blog/en-au/',
 			);
@@ -1416,8 +1392,8 @@ describe('getLocaleAbsoluteUrl', () => {
 					locale: 'en_US',
 					base: '/blog/',
 					...config.experimental.i18n,
-					trailingSlash: 'always',
-					format: 'directory',
+					trailingSlash: { page: 'always', endpoint: 'always' },
+
 					normalizeLocale: true,
 				}),
 				'/blog/en-us/',
@@ -1434,8 +1410,8 @@ describe('getLocaleAbsoluteUrlList', () => {
 		 */
 		const config = await validateConfig(
 			{
-				trailingSlash: 'never',
-				format: 'directory',
+				trailingSlash: { page: 'never', endpoint: 'never' },
+
 				site: 'https://example.com',
 				base: '/blog',
 				i18n: {
@@ -1477,8 +1453,8 @@ describe('getLocaleAbsoluteUrlList', () => {
 		 */
 		const config = await validateConfig(
 			{
-				trailingSlash: 'always',
-				format: 'directory',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				base: '/blog/',
 				site: 'https://example.com',
 				i18n: {
@@ -1510,9 +1486,8 @@ describe('getLocaleAbsoluteUrlList', () => {
 		 */
 		const config = await validateConfig(
 			{
-				format: 'directory',
 				site: 'https://example.com/',
-				trailingSlash: 'always',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'en_US', 'es'],
@@ -1547,10 +1522,9 @@ describe('getLocaleAbsoluteUrlList', () => {
 		 */
 		const config = await validateConfig(
 			{
-				format: 'directory',
 				output: 'server',
 				site: 'https://example.com/',
-				trailingSlash: 'always',
+				trailingSlash: { page: 'always', endpoint: 'always' },
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['en', 'en_US', 'es'],
@@ -1607,8 +1581,8 @@ describe('getLocaleAbsoluteUrlList', () => {
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
-				trailingSlash: 'always',
-				format: 'file',
+				trailingSlash: { page: 'always', endpoint: 'always' },
+
 				site: 'https://example.com',
 			}),
 			[
@@ -1639,8 +1613,8 @@ describe('getLocaleAbsoluteUrlList', () => {
 				locale: 'en',
 				base: '/blog',
 				...config.experimental.i18n,
-				trailingSlash: 'never',
-				format: 'file',
+				trailingSlash: { page: 'never', endpoint: 'never' },
+
 				site: 'https://example.com',
 			}),
 			['https://example.com/blog', 'https://example.com/blog/en-us', 'https://example.com/blog/es'],
@@ -1666,8 +1640,8 @@ describe('getLocaleAbsoluteUrlList', () => {
 				locale: 'en',
 				base: '/blog',
 				...config.experimental.i18n,
-				trailingSlash: 'ignore',
-				format: 'file',
+				trailingSlash: { page: 'ignore', endpoint: 'ignore' },
+
 				site: 'https://example.com',
 			}),
 			['https://example.com/blog', 'https://example.com/blog/en-us', 'https://example.com/blog/es'],
@@ -1693,8 +1667,8 @@ describe('getLocaleAbsoluteUrlList', () => {
 				locale: 'en',
 				base: '/blog/',
 				...config.experimental.i18n,
-				trailingSlash: 'ignore',
-				format: 'directory',
+				trailingSlash: { page: 'ignore', endpoint: 'ignore' },
+
 				site: 'https://example.com',
 			}),
 			[
@@ -1726,8 +1700,8 @@ describe('getLocaleAbsoluteUrlList', () => {
 				base: '/blog/',
 				...config.i18n,
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
-				trailingSlash: 'ignore',
-				format: 'directory',
+				trailingSlash: { page: 'ignore', endpoint: 'ignore' },
+
 				site: 'https://example.com',
 			}),
 			[
@@ -1760,8 +1734,8 @@ describe('getLocaleAbsoluteUrlList', () => {
 				base: '/blog/',
 				...config.i18n,
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
-				trailingSlash: 'ignore',
-				format: 'directory',
+				trailingSlash: { page: 'ignore', endpoint: 'ignore' },
+
 				site: 'https://example.com',
 			}),
 			[
@@ -1790,21 +1764,15 @@ describe('getLocaleAbsoluteUrlList', () => {
 				},
 			},
 		};
-		// directory format
 		assert.deepEqual(
 			getLocaleAbsoluteUrlList({
 				base: '/blog/',
 				...config.experimental.i18n,
-				trailingSlash: 'ignore',
-				format: 'directory',
+				trailingSlash: { page: 'ignore', endpoint: 'ignore' },
 				site: 'https://example.com',
 				isBuild: true,
 			}),
-			[
-				'https://example.uk/blog/',
-				'https://example.com/blog/en-us/',
-				'https://es.example.com/blog/',
-			],
+			['https://example.uk/blog', 'https://example.com/blog/en-us', 'https://es.example.com/blog'],
 		);
 	});
 });

@@ -127,11 +127,7 @@ describe('Prerender', () => {
 					const $ = cheerio.load(html);
 
 					const canonical = $('link[rel=canonical]');
-					assert.equal(
-						canonical.attr('href'),
-						`https://mysite.dev/blog/posts/${page}`,
-						`doesn't trim the /${page} route param`,
-					);
+					assert.equal(canonical.attr('href'), `https://mysite.dev/blog/posts/${page}/`);
 				}
 			});
 		});
@@ -255,11 +251,7 @@ describe('Prerender', () => {
 					const $ = cheerio.load(html);
 
 					const canonical = $('link[rel=canonical]');
-					assert.equal(
-						canonical.attr('href'),
-						`https://mysite.dev/blog/posts/${page}`,
-						`doesn't trim the /${page} route param`,
-					);
+					assert.equal(canonical.attr('href'), `https://mysite.dev/blog/posts/${page}/`);
 				}
 			});
 		});

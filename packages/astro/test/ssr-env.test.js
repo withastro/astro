@@ -19,7 +19,7 @@ describe('SSR Environment Variables', () => {
 
 	it('import.meta.env.SSR is true', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/ssr');
+		const request = new Request('http://example.com/ssr/');
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerio.load(html);

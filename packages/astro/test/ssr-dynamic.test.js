@@ -71,24 +71,24 @@ describe('Dynamic pages in SSR', () => {
 	}
 
 	it('Do not have to implement getStaticPaths', async () => {
-		const html = await fetchHTML('/123');
+		const html = await fetchHTML('/123/');
 		const $ = cheerioLoad(html);
 		assert.equal($('h1').text(), 'Item 123');
 	});
 
 	it('Includes page styles', async () => {
-		const html = await fetchHTML('/123');
+		const html = await fetchHTML('/123/');
 		const $ = cheerioLoad(html);
 		assert.equal($('link').length, 1);
 	});
 
 	it('Dynamic API routes work', async () => {
-		const json = await fetchJSON('/api/products/33');
+		const json = await fetchJSON('/api/products/33/');
 		assert.equal(json.id, '33');
 	});
 
 	it('Injected route work', async () => {
-		const json = await fetchJSON('/path-alias/33');
+		const json = await fetchJSON('/path-alias/33/');
 		assert.equal(json.id, '33');
 	});
 
@@ -98,7 +98,7 @@ describe('Dynamic pages in SSR', () => {
 	});
 
 	it('injectRoute entrypoint should not fail build if containing the extension several times in the path', async () => {
-		const html = await fetchHTML('/test');
+		const html = await fetchHTML('/test/');
 		const $ = cheerioLoad(html);
 		assert.equal($('h1').text(), 'Index');
 	});

@@ -78,10 +78,10 @@ describe('Astro Global', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			assert.equal($('#pathname').text(), '/blog');
+			assert.equal($('#pathname').text(), '/blog/');
 			assert.equal($('#searchparams').text(), '{}');
-			assert.equal($('#child-pathname').text(), '/blog');
-			assert.equal($('#nested-child-pathname').text(), '/blog');
+			assert.equal($('#child-pathname').text(), '/blog/');
+			assert.equal($('#nested-child-pathname').text(), '/blog/');
 		});
 
 		it('Astro.site', async () => {
@@ -93,7 +93,7 @@ describe('Astro Global', () => {
 		it('Astro.glob() correctly returns an array of all posts', async () => {
 			const html = await fixture.readFile('/posts/1/index.html');
 			const $ = cheerio.load(html);
-			assert.equal($('.post-url').attr('href'), '/blog/post/post-2');
+			assert.equal($('.post-url').attr('href'), '/blog/post/post-2/');
 		});
 
 		it('Astro.glob() correctly returns meta info for MD and Astro files', async () => {
@@ -169,7 +169,7 @@ describe('Astro Global', () => {
 			let $ = cheerio.load(html);
 			assert.match($('#pattern').text(), /Astro route pattern: \//);
 			assert.match($('#pattern-middleware').text(), /Astro route pattern middleware: \//);
-			response = await app.render(new Request('https://example.com/omit-markdown-extensions'));
+			response = await app.render(new Request('https://example.com/omit-markdown-extensions/'));
 			html = await response.text();
 			$ = cheerio.load(html);
 			assert.match($('#pattern').text(), /Astro route pattern: \/omit-markdown-extensions/);
@@ -186,7 +186,7 @@ describe('Astro Global', () => {
 			assert.match($('#prerender').text(), /Astro route prerender: false/);
 			assert.match($('#prerender-middleware').text(), /Astro route prerender middleware: false/);
 
-			html = await app.render(new Request('https://example.com/about')).then((res) => res.text());
+			html = await app.render(new Request('https://example.com/about/')).then((res) => res.text());
 			$ = cheerio.load(html);
 			assert.match($('#prerender').text(), /Astro route prerender: false/);
 			assert.match($('#prerender-middleware').text(), /Astro route prerender middleware: false/);

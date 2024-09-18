@@ -23,7 +23,7 @@ describe('SSR: prerender', () => {
 		// they're served _in front of_ the app as static assets!
 		it('Does not render static page', async () => {
 			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/static');
+			const request = new Request('http://example.com/static/');
 			const response = await app.render(request);
 			assert.equal(response.status, 404);
 		});
@@ -39,7 +39,7 @@ describe('SSR: prerender', () => {
 	describe('Astro.params in SSR', () => {
 		it('Params are passed to component', async () => {
 			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/users/houston');
+			const request = new Request('http://example.com/users/houston/');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 			const html = await response.text();
@@ -52,7 +52,7 @@ describe('SSR: prerender', () => {
 		// bug id #6020
 		it('fix bug id #6020', async () => {
 			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/some');
+			const request = new Request('http://example.com/some/');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 			const html = await response.text();

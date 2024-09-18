@@ -21,7 +21,7 @@ describe('SSR Astro.locals from server', () => {
 	});
 
 	it('Can access Astro.locals in page', async () => {
-		const request = new Request('http://example.com/foo');
+		const request = new Request('http://example.com/foo/');
 		const locals = { foo: 'bar' };
 		const response = await app.render(request, { locals });
 		const html = await response.text();
@@ -52,7 +52,7 @@ describe('SSR Astro.locals from server', () => {
 	});
 
 	it('500.astro can access locals provided to app.render()', async () => {
-		const request = new Request('http://example.com/go-to-error-page');
+		const request = new Request('http://example.com/go-to-error-page/');
 		const locals = { foo: 'par' };
 		const response = await app.render(request, { locals });
 		assert.equal(response.status, 500);

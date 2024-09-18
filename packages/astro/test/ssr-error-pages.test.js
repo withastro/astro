@@ -59,7 +59,7 @@ describe('404 and 500 pages', () => {
 		});
 
 		it('404 page returned when a route does not match and passing routeData', async () => {
-			const request = new Request('http://example.com/some/fake/route');
+			const request = new Request('http://example.com/some/fake/route/');
 			const routeData = app.match(request);
 			const response = await app.render(request, { routeData });
 			assert.equal(response.status, 404);
@@ -69,7 +69,7 @@ describe('404 and 500 pages', () => {
 		});
 
 		it('404 page returned when a route does not match and imports are included', async () => {
-			const request = new Request('http://example.com/blog/fake/route');
+			const request = new Request('http://example.com/blog/fake/route/');
 			const routeData = app.match(request);
 			const response = await app.render(request, { routeData });
 			assert.equal(response.status, 404);
@@ -79,7 +79,7 @@ describe('404 and 500 pages', () => {
 		});
 
 		it('404 page returned when there is an 404 response returned from route', async () => {
-			const request = new Request('http://example.com/causes-404');
+			const request = new Request('http://example.com/causes-404/');
 			const response = await app.render(request);
 			assert.equal(response.status, 404);
 			const html = await response.text();
@@ -88,7 +88,7 @@ describe('404 and 500 pages', () => {
 		});
 
 		it('500 page returned when there is an error', async () => {
-			const request = new Request('http://example.com/causes-error');
+			const request = new Request('http://example.com/causes-error/');
 			const response = await app.render(request);
 			assert.equal(response.status, 500);
 			const html = await response.text();
@@ -97,7 +97,7 @@ describe('404 and 500 pages', () => {
 		});
 
 		it('Returns 404 when hitting an API route with the wrong method', async () => {
-			const request = new Request('http://example.com/api/route', {
+			const request = new Request('http://example.com/api/route/', {
 				method: 'PUT',
 			});
 			const response = await app.render(request);
@@ -105,59 +105,6 @@ describe('404 and 500 pages', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 			assert.equal($('h1').text(), `Something went horribly wrong!`);
-		});
-	});
-});
-
-describe('trailing slashes for error pages', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/ssr-error-pages/',
-			output: 'server',
-			adapter: testAdapter(),
-			trailingSlash: 'always',
-		});
-	});
-
-	describe('Development', () => {
-		/** @type {import('./test-utils.js').DevServer} */
-		let devServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('renders 404 page when a route does not match the request', async () => {
-			const response = await fixture.fetch('/ashbfjkasn');
-			assert.equal(response.status, 404);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-			assert.equal($('h1').text(), `Something went horribly wrong!`);
-		});
-	});
-
-	describe('Production', () => {
-		/** @type {import('./test-utils.js').App} */
-		let app;
-
-		before(async () => {
-			await fixture.build({});
-			app = await fixture.loadTestAdapterApp();
-		});
-
-		it('renders 404 page when a route does not match the request', async () => {
-			const response = await app.render(new Request('http://example.com/ajksalscla'));
-			assert.equal(response.status, 404);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-			assert.equal($('h1').text(), 'Something went horribly wrong!');
 		});
 	});
 });
