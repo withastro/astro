@@ -3,6 +3,8 @@ const noop = () => {};
 let originalConsoleWarning;
 let consoleFilterRefs = 0;
 
+const existingApplications = new WeakMap();
+
 export default (element) => {
 	return (Component, props, slotted, { client }) => {
 		if (!element.hasAttribute('ssr')) return;
@@ -14,18 +16,23 @@ export default (element) => {
 		try {
 			if (import.meta.env.DEV) useConsoleFilter();
 
-			const component = new Component({
-				target: element,
-				props: {
-					...props,
-					$$slots: slots,
-					$$scope: { ctx: [] },
-				},
-				hydrate: client !== 'only',
-				$$inline: true,
-			});
+			if (existingApplications.has(element)) {
+				existingApplications.get(element).$set({ ...props, $$slots: slots, $$scope: { ctx: [] } });
+			} else {
+				const component = new Component({
+					target: element,
+					props: {
+						...props,
+						$$slots: slots,
+						$$scope: { ctx: [] },
+					},
+					hydrate: client !== 'only',
+					$$inline: true,
+				});
+				existingApplications.set(element, component);
 
-			element.addEventListener('astro:unmount', () => component.$destroy(), { once: true });
+				element.addEventListener('astro:unmount', () => component.$destroy(), { once: true });
+			}
 		} finally {
 			if (import.meta.env.DEV) finishUsingConsoleFilter();
 		}
