@@ -25,6 +25,7 @@ import type {
 	AstroIntegration,
 	AstroRenderer,
 	HookParameters,
+	IntegrationRouteData,
 	RouteOptions,
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
@@ -322,26 +323,12 @@ export async function runHookConfigDone({
 								`The adapter ${adapter.name} doesn't provide a feature map. It is required in Astro 4.0.`,
 							);
 						} else {
-							const validationResult = validateSupportedFeatures(
+							validateSupportedFeatures(
 								adapter.name,
 								adapter.supportedAstroFeatures,
 								settings,
-								// SAFETY: we checked before if it's not present, and we throw an error
-								adapter.adapterFeatures,
 								logger,
 							);
-							for (const [featureName, supported] of Object.entries(validationResult)) {
-								// If `supported` / `validationResult[featureName]` only allows boolean,
-								// in theory 'assets' false, doesn't mean that the feature is not supported, but rather that the chosen image service is unsupported
-								// in this case we should not show an error, that the featrue is not supported
-								// if we would refactor the validation to support more than boolean, we could still be able to differentiate between the two cases
-								if (!supported && featureName !== 'assets') {
-									logger.error(
-										null,
-										`The adapter ${adapter.name} doesn't support the feature ${featureName}. Your project won't be built. You should not use it.`,
-									);
-								}
-							}
 						}
 						settings.adapter = adapter;
 					},
@@ -532,6 +519,10 @@ export async function runHookBuildSsr({
 	entryPoints,
 	middlewareEntryPoint,
 }: RunHookBuildSsr) {
+	const entryPointsMap = new Map();
+	for (const [key, value] of entryPoints) {
+		entryPointsMap.set(toIntegrationRouteData(key), value);
+	}
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:ssr']) {
 			await withTakingALongTimeMsg({
@@ -539,7 +530,7 @@ export async function runHookBuildSsr({
 				hookName: 'astro:build:ssr',
 				hookResult: integration.hooks['astro:build:ssr']({
 					manifest,
-					entryPoints,
+					entryPoints: entryPointsMap,
 					middlewareEntryPoint,
 					logger: getLogger(integration, logger),
 				}),
@@ -592,7 +583,7 @@ export async function runHookBuildDone({
 	const dir =
 		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
 	await fsMod.promises.mkdir(dir, { recursive: true });
-
+	const integrationRoutes = routes.map(toIntegrationRouteData);
 	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {
 			const logger = getLogger(integration, logging);
@@ -603,7 +594,7 @@ export async function runHookBuildDone({
 				hookResult: integration.hooks['astro:build:done']({
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,
-					routes,
+					routes: integrationRoutes,
 					logger,
 					cacheManifest,
 				}),
@@ -652,4 +643,21 @@ export async function runHookRouteSetup({
 				prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
 		);
 	}
+}
+
+function toIntegrationRouteData(route: RouteData): IntegrationRouteData {
+	return {
+		route: route.route,
+		component: route.component,
+		generate: route.generate,
+		params: route.params,
+		pathname: route.pathname,
+		segments: route.segments,
+		prerender: route.prerender,
+		redirect: route.redirect,
+		redirectRoute: route.redirectRoute ? toIntegrationRouteData(route.redirectRoute) : undefined,
+		type: route.type,
+		pattern: route.pattern,
+		distURL: route.distURL,
+	};
 }

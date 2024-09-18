@@ -1,5 +1,21 @@
 # @astrojs/underscore-redirects
 
+## 0.4.0-beta.1
+
+### Minor Changes
+
+- [#12008](https://github.com/withastro/astro/pull/12008) [`5608338`](https://github.com/withastro/astro/commit/560833843c6d3ce2b6c6c473ec4ae70e744bf255) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
+
+  Starting from this release, no breaking changes will be introduced unless absolutely necessary.
+
+  To learn how to upgrade, check out the [Astro v5.0 upgrade guide in our beta docs site](https://5-0-0-beta.docs.astro.build/en/guides/upgrade-to/v5/).
+
+## 0.4.0-alpha.0
+
+### Minor Changes
+
+- [#11989](https://github.com/withastro/astro/pull/11989) [`3e70853`](https://github.com/withastro/astro/commit/3e70853b767b124bf867072b1c67474dd0b51c3f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the type from `RouteData` to `IntegrationRouteData`
+
 ## 0.3.4
 
 ### Patch Changes

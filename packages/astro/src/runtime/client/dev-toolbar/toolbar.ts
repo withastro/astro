@@ -16,8 +16,6 @@ export type DevToolbarApp = DevToolbarAppDefinition & {
 	eventTarget: ToolbarAppEventTarget;
 };
 const WS_EVENT_NAME = 'astro-dev-toolbar';
-// TODO: Remove in Astro 5.0
-const WS_EVENT_NAME_DEPRECATED = 'astro-dev-overlay';
 
 const HOVER_DELAY = 2 * 1000;
 const DEVBAR_HITBOX_ABOVE = 42;
@@ -396,8 +394,6 @@ export class AstroDevToolbar extends HTMLElement {
 
 			if (import.meta.hot) {
 				import.meta.hot.send(`${WS_EVENT_NAME}:${app.id}:initialized`);
-				// TODO: Remove in Astro 5.0
-				import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${app.id}:initialized`);
 			}
 		} catch (e) {
 			console.error(`Failed to init app ${app.id}, error: ${e}`);
@@ -501,28 +497,16 @@ export class AstroDevToolbar extends HTMLElement {
 			appCanvas.removeAttribute('data-active');
 		}
 
-		[
-			'app-toggled',
-			// Deprecated
-			// TODO: Remove in Astro 5.0
-			'plugin-toggled',
-		].forEach((eventName) => {
-			app.eventTarget.dispatchEvent(
-				new CustomEvent(eventName, {
-					detail: {
-						state: app.active,
-						app,
-					},
-				}),
-			);
-		});
+		app.eventTarget.dispatchEvent(
+			new CustomEvent('app-toggled', {
+				detail: {
+					state: app.active,
+					app,
+				},
+			}),
+		);
 
-		if (import.meta.hot) {
-			import.meta.hot.send(`${WS_EVENT_NAME}:${app.id}:toggled`, { state: app.active });
-			import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${app.id}:toggled`, {
-				state: app.active,
-			});
-		}
+		import.meta.hot?.send(`${WS_EVENT_NAME}:${app.id}:toggled`, { state: app.active });
 
 		return true;
 	}

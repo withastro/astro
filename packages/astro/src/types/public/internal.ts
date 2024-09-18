@@ -36,21 +36,105 @@ export interface SSRLoadedRendererValue {
 	renderHydrationScript?: () => string;
 }
 
+/**
+ * It contains the information about a route
+ */
 export interface RouteData {
+	/**
+	 * The current **pattern** of the route. For example:
+	 * - `src/pages/index.astro` has a pattern of `/`
+	 * - `src/pages/blog/[...slug].astro` has a pattern of `/blog/[...slug]`
+	 * - `src/pages/site/[blog]/[...slug].astro` has a pattern of `/site/[blog]/[...slug]`
+	 */
 	route: string;
+	/**
+	 *  Source component URL
+	 */
 	component: string;
+	/**
+	 * @param {any} data The optional parameters of the route
+	 *
+	 * @description
+	 * A function that accepts a list of params, interpolates them with the route pattern, and returns the path name of the route.
+	 *
+	 * ## Example
+	 *
+	 * For a route such as `/blog/[...id].astro`, the `generate` function would return something like this:
+	 *
+	 * ```js
+	 * console.log(generate({ id: 'presentation' })) // will log `/blog/presentation`
+	 * ```
+	 */
 	generate: (data?: any) => string;
+	/**
+	 * Dynamic and spread route params
+	 * ex. "/pages/[lang]/[...slug].astro" will output the params ['lang', '...slug']
+	 */
 	params: string[];
+	/**
+	 * Output URL pathname where this route will be served
+	 * note: will be undefined for [dynamic] and [...spread] routes
+	 */
 	pathname?: string;
-	// expose the real path name on SSG
-	distURL?: URL;
+	/**
+	 * The paths of the physical files emitted by this route. When a route **isn't** prerendered, the value is either `undefined` or an empty array.
+	 */
+	distURL?: URL[];
+	/**
+	 *
+	 * regex used for matching an input URL against a requested route
+	 * ex. "[fruit]/about.astro" will generate the pattern: /^\/([^/]+?)\/about\/?$/
+	 * where pattern.test("banana/about") is "true"
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * if (route.pattern.test('/blog')) {
+	 *  // do something
+	 * }
+	 * ```
+	 */
 	pattern: RegExp;
+	/**
+	 * Similar to the "params" field, but with more associated metadata. For example, for `/site/[blog]/[...slug].astro`, the segments are:
+	 *
+	 * 1. `{ content: 'site', dynamic: false, spread: false }`
+	 * 2. `{ content: 'blog', dynamic: true, spread: false }`
+	 * 3. `{ content: '...slug', dynamic: true, spread: true }`
+	 */
 	segments: RoutePart[][];
+	/**
+	 *
+	 * The type of the route. It can be:
+	 * - `page`: a route that lives in the file system, usually an Astro component
+	 * - `endpoint`: a route that lives in the file system, usually a JS file that exposes endpoints methods
+	 * - `redirect`: a route points to another route that lives in the file system
+	 * - `fallback`: a route that doesn't exist in the file system that needs to be handled with other means, usually the middleware
+	 */
 	type: RouteType;
+	/**
+	 * Whether the route is prerendered or not
+	 */
 	prerender: boolean;
+	/**
+	 * The route to redirect to. It holds information regarding the status code and its destination.
+	 */
 	redirect?: RedirectConfig;
+	/**
+	 * The {@link RouteData} to redirect to. It's present when `RouteData.type` is `redirect`.
+	 */
 	redirectRoute?: RouteData;
+	/**
+	 * A list of {@link RouteData} to fallback to. They are present when `i18n.fallback` has a list of locales.
+	 */
 	fallbackRoutes: RouteData[];
+
+	/**
+	 * If this route is a directory index
+	 * For example:
+	 * - src/pages/index.astro
+	 * - src/pages/blog/index.astro
+	 */
 	isIndex: boolean;
 }
 

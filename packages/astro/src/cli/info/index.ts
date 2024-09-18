@@ -55,6 +55,7 @@ export async function printInfo({ flags }: InfoOptions) {
 }
 
 async function copyToClipboard(text: string) {
+	text = text.trim();
 	const system = platform();
 	let command = '';
 	if (system === 'darwin') {
@@ -62,18 +63,26 @@ async function copyToClipboard(text: string) {
 	} else if (system === 'win32') {
 		command = 'clip';
 	} else {
-		try {
-			// Unix: check if `xclip` is installed
-			const output = execSync('which xclip', { encoding: 'utf8' });
-			if (output[0] !== '/') {
-				// Did not find a path for xclip, bail out!
-				return;
+		// Unix: check if a supported command is installed
+		const unixCommands = [
+			['xclip', '-sel clipboard -l 1'],
+			['wl-copy', '"$0"'],
+		];
+		for (const [unixCommand, args] of unixCommands) {
+			try {
+				const output = execSync(`which ${unixCommand}`, { encoding: 'utf8', stdio: 'pipe' });
+				if (output[0] !== '/') {
+					// Did not find a path. Skip!
+					continue;
+				}
+				command = `${unixCommand} ${args}`;
+			} catch {
+				// Failed to execute which. Skip!
+				continue;
 			}
-			command = 'xclip -sel clipboard -l 1';
-		} catch {
-			// Did not find xclip, bail out!
-			return;
 		}
+		// Did not find supported command. Bail out!
+		if (!command) return;
 	}
 
 	console.log();
@@ -86,8 +95,9 @@ async function copyToClipboard(text: string) {
 	if (!shouldCopy) return;
 
 	try {
-		execSync(command, {
-			input: text.trim(),
+		execSync(command.replaceAll('$0', text), {
+			stdio: 'ignore',
+			input: text,
 			encoding: 'utf8',
 		});
 	} catch {

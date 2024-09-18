@@ -42,17 +42,24 @@ import { vitePluginServerIslands } from './server-islands/vite-plugin-server-isl
 import { isObject } from './util.js';
 import astroHmrReloadPlugin from '../vite-plugin-hmr-reload/index.js';
 
-interface CreateViteOptions {
+type CreateViteOptions = {
 	settings: AstroSettings;
 	logger: Logger;
-	mode: 'dev' | 'build' | string;
 	// will be undefined when using `getViteConfig`
 	command?: 'dev' | 'build';
 	fs?: typeof nodeFs;
 	sync: boolean;
 	manifest: ManifestData;
-	ssrManifest?: SSRManifest;
-}
+} & (
+	| {
+			mode: 'dev';
+			ssrManifest: SSRManifest;
+	  }
+	| {
+			mode: 'build';
+			ssrManifest?: SSRManifest;
+	  }
+);
 
 const ALWAYS_NOEXTERNAL = [
 	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
@@ -135,8 +142,7 @@ export async function createVite(
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode !== 'build' &&
-				vitePluginAstroServer({ settings, logger, fs, manifest, ssrManifest: ssrManifest! }), // ssrManifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
+			mode === 'dev' && vitePluginAstroServer({ settings, logger, fs, manifest, ssrManifest }), // ssrManifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
 			envVitePlugin({ settings }),
 			astroEnv({ settings, mode, sync }),
 			markdownVitePlugin({ settings, logger }),

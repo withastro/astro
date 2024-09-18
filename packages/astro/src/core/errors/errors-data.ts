@@ -415,7 +415,7 @@ export const AdapterSupportOutputMismatch = {
 /**
  * @docs
  * @see
- * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
+ * - [On-demand Rendering](https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * To use server islands, the same constraints exist as for sever-side rendering, so an adapter is needed.
  */
@@ -423,7 +423,7 @@ export const NoAdapterInstalledServerIslands = {
 	name: 'NoAdapterInstalledServerIslands',
 	title: 'Cannot use Server Islands without an adapter.',
 	message: `Cannot use server islands without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
-	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
+	hint: 'See https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/ for more information.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -841,6 +841,18 @@ export const LocalsNotAnObject = {
 	message:
 		'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 	hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Thrown when a value is being set as the `locals` field on the Astro global or context.
+ */
+export const LocalsReassigned = {
+	name: 'LocalsReassigned',
+	title: '`locals` must not be reassigned.',
+	message: '`locals` can not be assigned directly.',
+	hint: 'Set a `locals` property instead.',
 } satisfies ErrorData;
 
 /**
@@ -1596,7 +1608,7 @@ export const UnsupportedConfigTransformError = {
 /**
  * @docs
  * @see
- * - [On-demand rendering](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered)
+ * - [On-demand rendering](https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * Your project must have a server output to create backend functions with Actions.
  */
@@ -1604,8 +1616,8 @@ export const ActionsWithoutServerOutputError = {
 	name: 'ActionsWithoutServerOutputError',
 	title: 'Actions must be used with server output.',
 	message:
-		'Actions enabled without setting a server build output. A server is required to create callable backend functions. To deploy routes to a server, add a server adapter to your astro config.',
-	hint: 'Learn about on-demand rendering: https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered',
+		'A server is required to create callable backend functions. To deploy routes to a server, add an adapter to your Astro config and configure your route for on-demand rendering',
+	hint: 'Add an adapter and enable on-demand rendering: https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/',
 } satisfies ErrorData;
 
 /**

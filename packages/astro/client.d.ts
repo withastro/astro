@@ -116,8 +116,12 @@ declare module 'astro:transitions' {
 	export const fade: TransitionModule['fade'];
 	export const createAnimationScope: TransitionModule['createAnimationScope'];
 
-	type ViewTransitionsModule = typeof import('./components/ViewTransitions.astro');
-	export const ViewTransitions: ViewTransitionsModule['default'];
+	type ClientRouterModule = typeof import('./components/ClientRouter.astro');
+	/**
+	 * @deprecated The ViewTransitions component has been renamed to ClientRouter
+	 */
+	export const ViewTransitions: ClientRouterModule['default'];
+	export const ClientRouter: ClientRouterModule['default'];
 }
 
 declare module 'astro:transitions/client' {

@@ -1,9 +1,9 @@
 ---
-import { ViewTransitions, fade } from 'astro:transitions';
+import { ClientRouter, fade } from 'astro:transitions';
 ---
 <html transition:animate="none">
 	<head>
-		<ViewTransitions />
+		<ClientRouter />
 	</head>
 	<body>
 		<h1 transition:name="h1" transition:animate={fade({duration:500})}>Abort</h1>
