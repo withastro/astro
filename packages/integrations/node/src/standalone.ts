@@ -18,7 +18,7 @@ export const hostOptions = (host: Options['host']): string => {
 };
 
 export default function standalone(app: NodeApp, options: Options) {
-	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
+	const port = process.env.PORT ? Number(process.env.PORT) : (options.port ?? 8080);
 	const host = process.env.HOST ?? hostOptions(options.host);
 	const handler = createStandaloneHandler(app, options);
 	const server = createServer(handler, host, port);

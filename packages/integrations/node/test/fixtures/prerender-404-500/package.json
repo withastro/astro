@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "astro": "^4.15.4",
+    "astro": "^4.15.6",
     "@astrojs/node": "workspace:*"
   }
 }
