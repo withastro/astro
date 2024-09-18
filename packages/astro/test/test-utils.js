@@ -186,7 +186,7 @@ export async function loadFixture(inlineConfig) {
 				return Promise.reject(new Error('No dev server running'));
 			}
 
-			const dataStoreFile = path.join(root, '.astro/astro/data-store.json');
+			const dataStoreFile = path.join(root, '.astro', 'data-store.json');
 
 			return new Promise((resolve, reject) => {
 				const changeHandler = (fileName) => {
