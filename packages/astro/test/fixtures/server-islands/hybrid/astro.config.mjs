@@ -6,7 +6,4 @@ export default defineConfig({
   integrations: [
     svelte()
   ],
-  experimental: {
-    serverIslands: true,
-  }
 });

@@ -63,13 +63,14 @@ describe('Server islands', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/server-islands/hybrid',
-				adapter: testAdapter(),
 			});
 		});
 
 		describe('build', () => {
 			before(async () => {
-				await fixture.build();
+				await fixture.build({
+					adapter: testAdapter(),
+				});
 			});
 
 			it('Omits the island HTML from the static HTML', async () => {
@@ -81,6 +82,19 @@ describe('Server islands', () => {
 
 				const serverIslandScript = $('script[data-island-id]');
 				assert.equal(serverIslandScript.length, 1, 'has the island script');
+			});
+		});
+
+		describe('build (no adapter)', () => {
+			it('Errors during the build', async () => {
+				try {
+					await fixture.build({
+						adapter: undefined,
+					});
+					assert.equal(true, false, 'should not have succeeded');
+				} catch (err) {
+					assert.equal(err.title, 'Cannot use Server Islands without an adapter.');
+				}
 			});
 		});
 	});

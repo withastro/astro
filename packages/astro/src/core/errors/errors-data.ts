@@ -414,6 +414,19 @@ export const AdapterSupportOutputMismatch = {
 
 /**
  * @docs
+ * @see
+ * - [On-demand Rendering](https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/)
+ * @description
+ * To use server islands, the same constraints exist as for sever-side rendering, so an adapter is needed.
+ */
+export const NoAdapterInstalledServerIslands = {
+	name: 'NoAdapterInstalledServerIslands',
+	title: 'Cannot use Server Islands without an adapter.',
+	message: `Cannot use server islands without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
+	hint: 'See https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/ for more information.',
+} satisfies ErrorData;
+/**
+ * @docs
  * @description
  * No import statement was found for one of the components. If there is an import statement, make sure you are using the same identifier in both the imports and the component usage.
  */
@@ -828,6 +841,18 @@ export const LocalsNotAnObject = {
 	message:
 		'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 	hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Thrown when a value is being set as the `locals` field on the Astro global or context.
+ */
+export const LocalsReassigned = {
+	name: 'LocalsReassigned',
+	title: '`locals` must not be reassigned.',
+	message: '`locals` can not be assigned directly.',
+	hint: 'Set a `locals` property instead.',
 } satisfies ErrorData;
 
 /**
@@ -1486,7 +1511,7 @@ export const InvalidContentEntrySlugError = {
 /**
  * @docs
  * @see
- * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
  * A legacy content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
  */
@@ -1501,7 +1526,7 @@ export const ContentSchemaContainsSlugError = {
 /**
  * @docs
  * @see
- * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
  * A legacy content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
  */
@@ -1515,7 +1540,7 @@ export const MixedContentDataCollectionError = {
 /**
  * @docs
  * @see
- * - [Legacy content collections](https://docs.astro.build/en/guides/content-collections/#collections-using-the-previous-api)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
  * Legacy content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
  */
@@ -1583,7 +1608,7 @@ export const UnsupportedConfigTransformError = {
 /**
  * @docs
  * @see
- * - [On-demand rendering](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered)
+ * - [On-demand rendering](https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * Your project must have a server output to create backend functions with Actions.
  */
@@ -1591,8 +1616,8 @@ export const ActionsWithoutServerOutputError = {
 	name: 'ActionsWithoutServerOutputError',
 	title: 'Actions must be used with server output.',
 	message:
-		'Actions enabled without setting a server build output. A server is required to create callable backend functions. To deploy routes to a server, add a server adapter to your astro config.',
-	hint: 'Learn about on-demand rendering: https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered',
+		'A server is required to create callable backend functions. To deploy routes to a server, add an adapter to your Astro config and configure your route for on-demand rendering',
+	hint: 'Add an adapter and enable on-demand rendering: https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/',
 } satisfies ErrorData;
 
 /**

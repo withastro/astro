@@ -98,13 +98,8 @@ function createContext({
 			}
 			return locals;
 		},
-		// We define a custom property, so we can check the value passed to locals
-		set locals(val) {
-			if (typeof val !== 'object') {
-				throw new AstroError(AstroErrorData.LocalsNotAnObject);
-			} else {
-				Reflect.set(request, clientLocalsSymbol, val);
-			}
+		set locals(_) {
+			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
 	};
 	return Object.assign(context, {

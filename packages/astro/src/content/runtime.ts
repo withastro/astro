@@ -228,7 +228,6 @@ export function createGetDataEntryById({
 
 		const lazyImport = await getEntryImport(collection, id);
 
-		// TODO: AstroError
 		if (!lazyImport) throw new Error(`Entry ${collection} → ${id} was not found.`);
 		const entry = await lazyImport();
 

@@ -50,30 +50,6 @@ export type DevToolbarAppEntry = DevToolbarAppMeta & {
 
 // Public API for the dev toolbar
 export type DevToolbarApp = {
-	/**
-	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
-	 *
-	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
-	 *
-	 * In the future, putting these properties directly on the app object will be removed.
-	 */
-	id?: string;
-	/**
-	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
-	 *
-	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
-	 *
-	 * In the future, putting these properties directly on the app object will be removed.
-	 */
-	name?: string;
-	/**
-	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
-	 *
-	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
-	 *
-	 * In the future, putting these properties directly on the app object will be removed.
-	 */
-	icon?: Icon;
 	init?(
 		canvas: ShadowRoot,
 		app: ToolbarAppEventTarget,
@@ -83,7 +59,7 @@ export type DevToolbarApp = {
 };
 
 // An app that has been loaded and as such contain all of its properties
-export type ResolvedDevToolbarApp = DevToolbarAppMeta & Omit<DevToolbarApp, 'id' | 'name' | 'icon'>;
+export type ResolvedDevToolbarApp = DevToolbarAppMeta & DevToolbarApp;
 
 export type DevToolbarMetadata = Window &
 	typeof globalThis & {

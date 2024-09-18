@@ -442,8 +442,8 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name security
-	 * @type {boolean}
-	 * @default `{}`
+	 * @type {Record<"checkOrigin", boolean> | undefined}
+	 * @default `{checkOrigin: true}`
 	 * @version 4.9.0
 	 * @description
 	 *
@@ -451,12 +451,16 @@ export interface AstroUserConfig {
 	 *
 	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `static` mode.
 	 *
+	 * By default, Astro will automatically check that the “origin” header
+	 * matches the URL sent by each request in on-demand rendered pages. You can
+	 * disable this behavior by setting `checkOrigin` to `false`:
+	 *
 	 * ```js
 	 * // astro.config.mjs
 	 * export default defineConfig({
 	 *   output: "server",
 	 *   security: {
-	 *     checkOrigin: true
+	 *     checkOrigin: false
 	 *   }
 	 * })
 	 * ```
@@ -835,7 +839,7 @@ export interface AstroUserConfig {
 	 * @type {boolean | object}
 	 * @description
 	 * Enable prefetching for links on your site to provide faster page transitions.
-	 * (Enabled by default on pages using the `<ViewTransitions />` router. Set `prefetch: false` to opt out of this behaviour.)
+	 * (Enabled by default on pages using the `<ClientRouter />` router. Set `prefetch: false` to opt out of this behaviour.)
 	 *
 	 * This configuration automatically adds a prefetch script to every page in the project
 	 * giving you access to the `data-astro-prefetch` attribute.
@@ -857,7 +861,7 @@ export interface AstroUserConfig {
 				 * @type {boolean}
 				 * @description
 				 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
-				 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
+				 * This value defaults to `true` when using the `<ClientRouter />` router. Otherwise, the default value is `false`.
 				 *
 				 * ```js
 				 * prefetch: {
@@ -1602,71 +1606,6 @@ export interface AstroUserConfig {
 		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */
 		clientPrerender?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.serverIslands
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.12.0
-		 * @description
-		 *
-		 * Enables experimental Server Island features.
-		 * Server Islands offer the ability to defer a component to render asynchronously after the page has already rendered.
-		 *
-		 * To enable, configure an [on-demand server rendering `output` mode](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) with an adapter, and add the `serverIslands` flag to the `experimental` object:
-		 *
-		 * ```js
-		 * {
-		 *   output: 'hybrid', // or 'server'
-		 *   adapter: nodejs({ mode: 'standalone' }),
-		 *   experimental: {
-		 *     serverIslands: true,
-		 *   },
-		 * }
-		 * ```
-		 *
-		 * Use the `server:defer` directive on any Astro component to delay initial rendering:
-		 *
-		 * ```astro "server:defer"
-		 * ---
-		 * import Avatar from '~/components/Avatar.astro';
-		 * ---
-		 * <Avatar server:defer />
-		 * ```
-		 *
-		 * The outer page will be rendered, either at build time (`hybrid`) or at runtime (`server`) with the island content omitted and a `<script>` tag included in its place.
-		 *
-		 * After the page loads in the browser, the script tag will replace itself with the the contents of the island by making a request.
-		 *
-		 * Any Astro component can be given the `server: defer` attribute to delay its rendering. There is no special API and you can write `.astro` code as normal:
-		 *
-		 * ```astro
-		 * ---
-		 * import { getUser } from '../api';
-		 *
-		 * const user = await getUser(Astro.locals.userId);
-		 * ---
-		 * <img class="avatar" src={user.imageUrl}>
-		 * ```
-		 *
-		 * #### Server island fallback content
-		 *
-		 * Since your component will not render with the rest of the page, you may want to add generic content (e.g. a loading message) to temporarily show in its place. This content will be displayed when the page first renders but before the island has loaded.
-		 *
-		 * Add placeholder content as a child of your Astro component with the `slot="fallback"` attribute. When your island content is available, the fallback content will be replaced.
-		 *
-		 * The example below displays a generic avatar as fallback content, then animates into a personalized avatar using view transitions:
-		 *
-		 * ```astro
-		 * <Avatar server:defer>
-		 *   <svg slot="fallback" class="generic-avatar" transition:name="avatar">...</svg>
-		 * </Avatar>
-		 * ```
-		 *
-		 * For a complete overview, and to give feedback on this experimental API, see the [Server Islands RFC](https://github.com/withastro/roadmap/pull/963).
-		 */
-		serverIslands?: boolean;
 
 		/**
 		 * @docs

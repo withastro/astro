@@ -11,11 +11,7 @@ import {
 	hasAnyContentFlag,
 	reverseSymlink,
 } from '../../content/utils.js';
-import {
-	type BuildInternals,
-	createBuildInternals,
-	getPageDatasWithPublicKey,
-} from '../../core/build/internal.js';
+import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
@@ -283,7 +279,7 @@ async function ssrBuild(
 
 	const updatedViteBuildConfig = await runHookBuildSetup({
 		config: settings.config,
-		pages: getPageDatasWithPublicKey(internals.pagesByKeys),
+		pages: internals.pagesByKeys,
 		vite: viteBuildConfig,
 		target: 'server',
 		logger: opts.logger,
@@ -344,7 +340,7 @@ async function clientBuild(
 
 	await runHookBuildSetup({
 		config: settings.config,
-		pages: getPageDatasWithPublicKey(internals.pagesByKeys),
+		pages: internals.pagesByKeys,
 		vite: viteBuildConfig,
 		target: 'client',
 		logger: opts.logger,
