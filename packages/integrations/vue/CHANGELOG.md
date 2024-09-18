@@ -7,6 +7,12 @@
 - Updated dependencies [[`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0), [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f), [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e), [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9), [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6), [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6)]:
   - astro@5.0.0-alpha.0
 
+## 4.5.1
+
+### Patch Changes
+
+- [#11946](https://github.com/withastro/astro/pull/11946) [`b75bfc8`](https://github.com/withastro/astro/commit/b75bfc8cc41f5c631c10055b78670fdc26dff23a) Thanks [@johannesspohr](https://github.com/johannesspohr)! - Fix vue islands keeping their state when using view transition persistence
+
 ## 4.5.0
 
 ### Minor Changes
