@@ -174,6 +174,7 @@ export async function createVite(
 			'import.meta.env.SITE': stringifyForDefine(settings.config.site),
 			'import.meta.env.BASE_URL': stringifyForDefine(settings.config.base),
 			'import.meta.env.ASSETS_PREFIX': stringifyForDefine(settings.config.build.assetsPrefix),
+			'import.meta.env.TRAILING_SLASH': stringifyForDefine(settings.config.trailingSlash),
 		},
 		server: {
 			hmr:

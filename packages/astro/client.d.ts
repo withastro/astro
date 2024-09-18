@@ -4,6 +4,7 @@
 /// <reference path="./types/env.d.ts" />
 
 interface ImportMetaEnv {
+	readonly TRAILING_SLASH: import('./dist/types/public/config').AstroConfig['trailingSlash'];
 	/**
 	 * The prefix for Astro-generated asset links if the build.assetsPrefix config option is set. This can be used to create asset links not handled by Astro.
 	 */

@@ -343,7 +343,11 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			options[key] && searchParams.append(param, options[key].toString());
 		});
 
-		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, imageConfig.endpoint.route);
+		const imageEndpoint = joinPaths(
+			import.meta.env.BASE_URL,
+			imageConfig.endpoint.route,
+			import.meta.env.TRAILING_SLASH === 'always' ? '/' : '',
+		);
 		return `${imageEndpoint}?${searchParams}`;
 	},
 	parseURL(url) {
