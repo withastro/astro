@@ -23,6 +23,7 @@ import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import { createDefaultRoutes, injectDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
+import { validateRouteTrailingSlash } from '../routing/trailing-slash.js';
 import { createOriginCheckMiddleware } from './middlewares.js';
 import { AppPipeline } from './pipeline.js';
 
@@ -89,7 +90,7 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = injectDefaultRoutes(manifest, {
+		this.#manifestData = injectDefaultRoutes({
 			routes: manifest.routes.map((route) => route.routeData),
 		});
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
@@ -285,6 +286,21 @@ export class App {
 			this.#logger.debug('router', "Here's the available routes:\n", this.#manifestData);
 			return this.#renderError(request, { locals, status: 404 });
 		}
+
+		const trailingSlashValidation = validateRouteTrailingSlash({
+			routeData,
+			url: request.url,
+			trailingSlash: this.#manifest.trailingSlash,
+		});
+		if (!trailingSlashValidation.valid) {
+			return new Response(null, {
+				status: 308, // 308 instead of 301 to preserve the request method
+				headers: {
+					Location: trailingSlashValidation.redirectUrl,
+				},
+			});
+		}
+
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 

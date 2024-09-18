@@ -13,9 +13,9 @@ import {
 	ensure404Route,
 } from './astro-designed-error-pages.js';
 
-export function injectDefaultRoutes(ssrManifest: SSRManifest, routeManifest: ManifestData) {
+export function injectDefaultRoutes(routeManifest: ManifestData) {
 	ensure404Route(routeManifest);
-	ensureServerIslandRoute(ssrManifest, routeManifest);
+	ensureServerIslandRoute(routeManifest);
 	return routeManifest;
 }
 

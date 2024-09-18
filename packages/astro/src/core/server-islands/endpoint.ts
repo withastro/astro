@@ -13,9 +13,7 @@ import { getPattern } from '../routing/manifest/pattern.js';
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
 export const SERVER_ISLAND_COMPONENT = '_server-islands.astro';
 
-type ConfigFields = Pick<SSRManifest, 'base' | 'trailingSlash'>;
-
-export function getServerIslandRouteData(config: ConfigFields) {
+export function getServerIslandRouteData() {
 	const segments = [
 		[{ content: '_server-islands', dynamic: false, spread: false }],
 		[{ content: 'name', dynamic: true, spread: false }],
@@ -26,7 +24,7 @@ export function getServerIslandRouteData(config: ConfigFields) {
 		generate: () => '',
 		params: ['name'],
 		segments,
-		pattern: getPattern(segments, config.base, config.trailingSlash.page),
+		pattern: getPattern(segments),
 		prerender: false,
 		isIndex: false,
 		fallbackRoutes: [],
@@ -35,12 +33,12 @@ export function getServerIslandRouteData(config: ConfigFields) {
 	return route;
 }
 
-export function ensureServerIslandRoute(config: ConfigFields, routeManifest: ManifestData) {
+export function ensureServerIslandRoute(routeManifest: ManifestData) {
 	if (routeManifest.routes.some((route) => route.route === '/_server-islands/[name]')) {
 		return;
 	}
 
-	routeManifest.routes.push(getServerIslandRouteData(config));
+	routeManifest.routes.push(getServerIslandRouteData());
 }
 
 type RenderOptions = {

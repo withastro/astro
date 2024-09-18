@@ -520,11 +520,7 @@ export class experimental_AstroContainer {
 				return '';
 			},
 			params: Object.keys(params),
-			pattern: getPattern(
-				segments,
-				ASTRO_CONFIG_DEFAULTS.base,
-				ASTRO_CONFIG_DEFAULTS.trailingSlash[type === 'endpoint' ? 'endpoint' : 'page'],
-			),
+			pattern: getPattern(segments),
 			prerender: false,
 			segments,
 			type,

@@ -237,7 +237,7 @@ class AstroBuilder {
 			routes: Object.values(allPages)
 				.flat()
 				.map((pageData) => pageData.route)
-				.concat(hasServerIslands ? getServerIslandRouteData(this.settings.config) : []),
+				.concat(hasServerIslands ? getServerIslandRouteData() : []),
 			logging: this.logger,
 			cacheManifest: internals.cacheManifestUsed,
 		});

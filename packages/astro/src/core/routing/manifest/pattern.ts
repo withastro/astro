@@ -1,11 +1,6 @@
-import type { AstroConfig } from '../../../types/public/config.js';
 import type { RoutePart } from '../../../types/public/internal.js';
 
-export function getPattern(
-	segments: RoutePart[][],
-	base: AstroConfig['base'],
-	trailingSlash: AstroConfig['trailingSlash']['page'],
-) {
+export function getPattern(segments: RoutePart[][]) {
 	const pathname = segments
 		.map((segment) => {
 			if (segment.length === 1 && segment[0].spread) {
@@ -35,20 +30,7 @@ export function getPattern(
 		})
 		.join('');
 
-	const trailing = trailingSlash && segments.length ? getTrailingSlashPattern(trailingSlash) : '$';
-	let initial = '\\/';
-	if (trailingSlash === 'never' && base !== '/') {
-		initial = '';
-	}
-	return new RegExp(`^${pathname || initial}${trailing}`);
-}
-
-function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash']['page']): string {
-	if (addTrailingSlash === 'always') {
-		return '\\/$';
-	}
-	if (addTrailingSlash === 'never') {
-		return '$';
-	}
-	return '\\/?$';
+	// NOTE: Pattern should always assume `trailingSlash: 'ignore'` so it matches loosely and
+	// later flows can determine the matched route type (page or endpoint) to enforce trailingSlash.
+	return new RegExp(`^${pathname}\\/?$`);
 }

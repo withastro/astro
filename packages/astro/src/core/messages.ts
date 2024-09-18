@@ -37,12 +37,14 @@ export function req({
 	statusCode,
 	reqTime,
 	isRewrite,
+	redirectLocation,
 }: {
 	url: string;
 	statusCode: number;
 	method?: string;
 	reqTime?: number;
 	isRewrite?: boolean;
+	redirectLocation?: string;
 }): string {
 	const color = statusCode >= 500 ? red : statusCode >= 300 ? yellow : blue;
 	return (
@@ -51,6 +53,7 @@ export function req({
 		`${isRewrite ? color('(rewrite) ') : ''}` +
 		(method && method !== 'GET' ? color(method) + ' ' : '') +
 		url +
+		(statusCode >= 300 && statusCode < 400 && redirectLocation ? ` → ${redirectLocation}` : '') +
 		` ` +
 		(reqTime ? dim(Math.round(reqTime) + 'ms') : '')
 	);

@@ -40,6 +40,14 @@ export function baseMiddleware(
 			return writeHtmlResponse(res, 404, html);
 		}
 
+		// If visits the base path but missing a trailing slash, redirect to the correct path
+		// just like how we handle other missing/required trailing slash routes
+		if (pathname + '/' === devRoot) {
+			res.writeHead(308, { Location: devRoot });
+			res.end();
+			return;
+		}
+
 		if (req.headers.accept?.includes('text/html')) {
 			const html = notFoundTemplate({
 				statusCode: 404,

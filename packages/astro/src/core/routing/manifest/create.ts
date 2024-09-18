@@ -236,7 +236,7 @@ function createFileBasedRoutes(
 				components.push(item.file);
 				const component = item.file;
 				const trailingSlash = settings.config.trailingSlash[item.isPage ? 'page' : 'endpoint'];
-				const pattern = getPattern(segments, settings.config.base, trailingSlash);
+				const pattern = getPattern(segments);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -294,7 +294,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 		const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
 		const trailingSlash = config.trailingSlash[type];
 
-		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const pattern = getPattern(segments);
 		const generate = getRouteGenerator(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -347,7 +347,7 @@ function createRedirectRoutes(
 				return getParts(s, from);
 			});
 
-		const pattern = getPattern(segments, settings.config.base, trailingSlash.page);
+		const pattern = getPattern(segments);
 		const generate = getRouteGenerator(segments, trailingSlash.page);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -629,7 +629,7 @@ export async function createRouteManifest(
 						pathname,
 						route,
 						segments,
-						pattern: getPattern(segments, config.base, config.trailingSlash.page),
+						pattern: getPattern(segments),
 						type: 'fallback',
 					});
 				}
@@ -706,7 +706,7 @@ export async function createRouteManifest(
 									route,
 									segments,
 									generate,
-									pattern: getPattern(segments, config.base, config.trailingSlash.page),
+									pattern: getPattern(segments),
 									type: 'fallback',
 									fallbackRoutes: [],
 								};

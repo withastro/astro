@@ -9,6 +9,6 @@ export function injectDefaultDevRoutes(
 	routeManifest: ManifestData,
 ) {
 	ensureImageEndpointRoute(settings, routeManifest, 'dev');
-	injectDefaultRoutes(ssrManifest, routeManifest);
+	injectDefaultRoutes(routeManifest);
 	return routeManifest;
 }

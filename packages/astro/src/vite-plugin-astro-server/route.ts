@@ -1,16 +1,19 @@
 import type http from 'node:http';
+import { bold } from 'kleur/colors';
 import {
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	clientLocalsSymbol,
 } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
+import type { Logger } from '../core/logger/core.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { RenderContext } from '../core/render-context.js';
 import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
+import { validateRouteTrailingSlash } from '../core/routing/trailing-slash.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { ComponentInstance, ManifestData } from '../types/astro.js';
 import type { RouteData } from '../types/public/internal.js';
@@ -153,6 +156,25 @@ export async function handleRoute({
 	if (!matchedRoute) {
 		// This should never happen, because ensure404Route will add a 404 route if none exists.
 		throw new Error('No route matched, and default 404 route was not found.');
+	}
+
+	const trailingSlashValidation = validateRouteTrailingSlash({
+		url: url.pathname + url.search,
+		routeData: matchedRoute.route,
+		trailingSlash: config.trailingSlash,
+	});
+	if (!trailingSlashValidation.valid) {
+		logRedirect(
+			logger,
+			incomingRequest,
+			trailingSlashValidation.redirectUrl,
+			matchedRoute.route.prerender,
+			timeStart,
+		);
+		// 308 instead of 301 to preserve the request method
+		incomingResponse.writeHead(308, { Location: trailingSlashValidation.redirectUrl });
+		incomingResponse.end();
+		return;
 	}
 
 	let request: Request;
@@ -302,4 +324,41 @@ function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | 200 {
 	if (matchedRoute.route.route === '/404') return 404;
 	if (matchedRoute.route.route === '/500') return 500;
 	return 200;
+}
+
+function logRedirect(
+	logger: Logger,
+	incomingRequest: http.IncomingMessage,
+	redirectUrl: string,
+	isPrerendered: boolean,
+	timeStart: number,
+) {
+	logger.info(
+		null,
+		req({
+			url: incomingRequest.url!, // `req.url` is already checked before calling this function
+			method: incomingRequest.method,
+			statusCode: 301,
+			redirectLocation: redirectUrl,
+			reqTime: performance.now() - timeStart,
+		}),
+	);
+
+	// If the route is being prerendered, we may not have control of how they serve prerendered pages,
+	// so this special trailingSlash redirect behaviour may not work after deployed. In which case,
+	// we log a helpful warning here to suggest using the correct trailing slash in the first place.
+	// However, we also try to detect the referer first so we can provide a better warning message.
+	if (isPrerendered && incomingRequest.headers.referer) {
+		try {
+			const referrerUrl = new URL(incomingRequest.headers.referer);
+			logger.warn(
+				'router',
+				`${bold(referrerUrl.pathname + referrerUrl.search)} has a link to ${bold(incomingRequest.url!)}, but it redirected to ${bold(redirectUrl)}. ` +
+					`Some hosts may not redirect automatically, or worse, serve the page anyway, which can lead to issues with relative links ` +
+					`on your page in production only. To prevent this, make sure the page links to ${bold(redirectUrl)} directly instead.`,
+			);
+		} catch {
+			// Ignore URL parse errors
+		}
+	}
 }
