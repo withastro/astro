@@ -168,6 +168,7 @@ export interface BaseIntegrationHooks {
 		config: AstroConfig;
 		command: 'dev' | 'build' | 'preview' | 'sync';
 		isRestart: boolean;
+		codegenDir: URL;
 		updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 		addRenderer: (renderer: AstroRenderer) => void;
 		addWatchFile: (path: URL | string) => void;

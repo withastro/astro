@@ -123,7 +123,7 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('.astro/types.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'.astro/types.d.ts',
-				`/// <reference path="astro/content.d.ts" />`,
+				`/// <reference path="content.d.ts" />`,
 			);
 			fixture.thenFileShouldExist('.astro/content.d.ts');
 			fixture.thenFileContentShouldInclude(
@@ -170,7 +170,7 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('.astro/types.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'.astro/types.d.ts',
-				`/// <reference path="astro/env.d.ts" />`,
+				`/// <reference path="env.d.ts" />`,
 			);
 			fixture.thenFileShouldExist('.astro/env.d.ts');
 			fixture.thenFileContentShouldInclude(
@@ -210,7 +210,7 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('.astro/types.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'.astro/types.d.ts',
-				`/// <reference path="astro/actions.d.ts" />`,
+				`/// <reference path="actions.d.ts" />`,
 			);
 			fixture.thenFileShouldExist('.astro/actions.d.ts');
 			fixture.thenFileContentShouldInclude(

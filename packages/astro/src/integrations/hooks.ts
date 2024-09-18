@@ -112,13 +112,17 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 // Will match any invalid characters (will be converted to _). We only allow a-zA-Z0-9.-_
 const SAFE_CHARS_RE = /[^\w.-]/g;
 
+export function normalizeCodegenDir(integrationName: string): string {
+	return `./integrations/${integrationName.replace(SAFE_CHARS_RE, '_')}/`;
+}
+
 export function normalizeInjectedTypeFilename(filename: string, integrationName: string): string {
 	if (!filename.endsWith('.d.ts')) {
 		throw new Error(
 			`Integration ${bold(integrationName)} is injecting a type that does not end with "${bold('.d.ts')}"`,
 		);
 	}
-	return `./integrations/${integrationName.replace(SAFE_CHARS_RE, '_')}/${filename.replace(SAFE_CHARS_RE, '_')}`;
+	return `${normalizeCodegenDir(integrationName)}${filename.replace(SAFE_CHARS_RE, '_')}`;
 }
 
 export async function runHookConfigSetup({
@@ -151,6 +155,9 @@ export async function runHookConfigSetup({
 	for (let i = 0; i < updatedConfig.integrations.length; i++) {
 		const integration = updatedConfig.integrations[i];
 
+		const codegenDir = new URL(normalizeCodegenDir(integration.name), settings.dotAstroDir);
+		await fs.promises.mkdir(codegenDir, { recursive: true });
+
 		/**
 		 * By making integration hooks optional, Astro can now ignore null or undefined Integrations
 		 * instead of giving an internal error most people can't read
@@ -170,6 +177,7 @@ export async function runHookConfigSetup({
 				config: updatedConfig,
 				command,
 				isRestart,
+				codegenDir,
 				addRenderer(renderer: AstroRenderer) {
 					if (!renderer.name) {
 						throw new Error(`Integration ${bold(integration.name)} has an unnamed renderer.`);
