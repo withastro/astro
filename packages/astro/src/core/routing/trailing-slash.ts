@@ -6,6 +6,7 @@ const HAS_FILE_EXTENSION_REGEXP = /\.[^/]+$/;
 interface ValidateRouteTrailingSlashOptions {
 	url: string;
 	routeData: RouteData;
+	base: string;
 	trailingSlash: AstroConfig['trailingSlash'];
 }
 
@@ -20,7 +21,8 @@ export function validateRouteTrailingSlash(
 	if (trailingSlash === 'ignore') return { valid: true };
 
 	const pathname = cleanUrl(opts.url);
-	if (pathname === '/') return { valid: true };
+	if (pathname === '' || pathname === '/' || pathname === opts.base || pathname === opts.base + '/')
+		return { valid: true };
 
 	const hasTrailingSlash = pathname.endsWith('/');
 

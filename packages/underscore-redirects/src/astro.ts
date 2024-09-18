@@ -12,7 +12,7 @@ function getRedirectStatus(route: IntegrationRouteData): ValidRedirectStatus {
 }
 
 interface CreateRedirectsFromAstroRoutesParams {
-	config: Pick<AstroConfig, 'build' | 'output' | 'base'>;
+	config: Pick<AstroConfig, 'trailingSlash' | 'output' | 'base'>;
 	/**
 	 * Maps a `RouteData` to a dynamic target
 	 */
@@ -93,7 +93,7 @@ export function createRedirectsFromAstroRoutes({
 				const targetRoute = route.redirectRoute ?? route;
 				const targetPattern = generateDynamicPattern(targetRoute);
 				let target = targetPattern;
-				if (config.build.format === 'directory') {
+				if (config.trailingSlash.page === 'always') {
 					target = pathJoin(target, 'index.html');
 				} else {
 					target += '.html';

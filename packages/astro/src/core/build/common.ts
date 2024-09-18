@@ -31,18 +31,20 @@ export function getOutFolder(
 		case 'fallback':
 		case 'page':
 		case 'redirect':
-			switch (astroSettings.config.build.format) {
-				case 'directory': {
+			switch (
+				astroSettings.config.trailingSlash[routeData.type === 'endpoint' ? 'endpoint' : 'page']
+			) {
+				case 'always': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 					}
 					return new URL('.' + appendForwardSlash(pathname), outRoot);
 				}
-				case 'file': {
+				case 'never': {
 					const d = pathname === '' ? pathname : npath.dirname(pathname);
 					return new URL('.' + appendForwardSlash(d), outRoot);
 				}
-				case 'preserve': {
+				case 'ignore': {
 					let dir;
 					// If the pathname is '' then this is the root index.html
 					// If this is an index route, the folder should be the pathname, not the parent
@@ -70,19 +72,19 @@ export function getOutFile(
 		case 'page':
 		case 'fallback':
 		case 'redirect':
-			switch (astroConfig.build.format) {
-				case 'directory': {
+			switch (astroConfig.trailingSlash[routeData.type === 'endpoint' ? 'endpoint' : 'page']) {
+				case 'always': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						const baseName = npath.basename(pathname);
 						return new URL('./' + (baseName || 'index') + '.html', outFolder);
 					}
 					return new URL('./index.html', outFolder);
 				}
-				case 'file': {
+				case 'never': {
 					const baseName = npath.basename(pathname);
 					return new URL('./' + (baseName || 'index') + '.html', outFolder);
 				}
-				case 'preserve': {
+				case 'ignore': {
 					let baseName = npath.basename(pathname);
 					// If there is no base name this is the root route.
 					// If this is an index route, the name should be `index.html`.

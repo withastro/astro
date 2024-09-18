@@ -49,7 +49,7 @@ export function getOutputFilename(astroConfig: AstroConfig, name: string, type: 
 	if (name === '/' || name === '') {
 		return path.posix.join(name, 'index.html');
 	}
-	if (astroConfig.build.format === 'file' || STATUS_CODE_PAGES.has(name)) {
+	if (astroConfig.trailingSlash.page === 'never' || STATUS_CODE_PAGES.has(name)) {
 		return `${removeTrailingForwardSlash(name || 'index')}.html`;
 	}
 	return path.posix.join(name, 'index.html');

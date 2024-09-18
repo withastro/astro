@@ -120,7 +120,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 							if (config.trailingSlash.page === 'never') {
 								urls.push(newUrl);
-							} else if (config.build.format === 'directory' && !newUrl.endsWith('/')) {
+							} else if (config.trailingSlash.page === 'always' && !newUrl.endsWith('/')) {
 								urls.push(newUrl + '/');
 							} else {
 								urls.push(newUrl);

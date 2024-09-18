@@ -161,6 +161,7 @@ export async function handleRoute({
 	const trailingSlashValidation = validateRouteTrailingSlash({
 		url: url.pathname + url.search,
 		routeData: matchedRoute.route,
+		base: config.base,
 		trailingSlash: config.trailingSlash,
 	});
 	if (!trailingSlashValidation.valid) {
@@ -338,7 +339,7 @@ function logRedirect(
 		req({
 			url: incomingRequest.url!, // `req.url` is already checked before calling this function
 			method: incomingRequest.method,
-			statusCode: 301,
+			statusCode: 308,
 			redirectLocation: redirectUrl,
 			reqTime: performance.now() - timeStart,
 		}),

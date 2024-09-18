@@ -290,6 +290,7 @@ export class App {
 		const trailingSlashValidation = validateRouteTrailingSlash({
 			routeData,
 			url: request.url,
+			base: this.#baseWithoutTrailingSlash,
 			trailingSlash: this.#manifest.trailingSlash,
 		});
 		if (!trailingSlashValidation.valid) {
