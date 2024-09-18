@@ -84,10 +84,10 @@ export function astroContentVirtualModPlugin({
 				const fileName = params.get('fileName');
 				let importPath = undefined;
 				if (fileName && URL.canParse(fileName, settings.config.root.toString())) {
-					importPath = fileURLToPath(new URL(fileName, settings.config.root))
+					importPath = fileURLToPath(new URL(fileName, settings.config.root));
 				}
 				if (importPath) {
-					return await this.resolve(`${importPath}?${CONTENT_RENDER_FLAG}`);					
+					return await this.resolve(`${importPath}?${CONTENT_RENDER_FLAG}`);
 				}
 			}
 
