@@ -571,10 +571,8 @@ async function writeContentFiles({
 		);
 	}
 
-	fs.mkdirSync(settings.dotAstroDir, { recursive: true });
-
 	const configPathRelativeToCacheDir = normalizeConfigPath(
-		new URL('astro', settings.dotAstroDir).pathname,
+		settings.dotAstroDir.pathname,
 		contentPaths.config.url.pathname,
 	);
 
@@ -590,11 +588,14 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never',
 	);
 
+	fs.mkdirSync(settings.dotAstroDir, { recursive: true });
 	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content
 	if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
-		const filePath = fileURLToPath(new URL(CONTENT_TYPES_FILE, settings.dotAstroDir));
-		await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-		await fs.promises.writeFile(filePath, typeTemplateContent, 'utf-8');
+		await fs.promises.writeFile(
+			new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
+			typeTemplateContent,
+			'utf-8',
+		);
 	} else {
 		settings.injectedTypes.push({
 			filename: CONTENT_TYPES_FILE,
