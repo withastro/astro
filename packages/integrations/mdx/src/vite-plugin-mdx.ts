@@ -9,6 +9,7 @@ import { parseFrontmatter } from './utils.js';
 
 export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 	let processor: ReturnType<typeof createMdxProcessor> | undefined;
+	let sourcemapEnabled: boolean;
 
 	return {
 		name: '@mdx-js/rollup',
@@ -17,13 +18,7 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 			processor = undefined;
 		},
 		configResolved(resolved) {
-			// `mdxOptions` should be populated at this point, but `astro sync` doesn't call `astro:config:done` :(
-			// Workaround this for now by skipping here. `astro sync` shouldn't call the `transform()` hook here anyways.
-			if (Object.keys(mdxOptions).length === 0) return;
-
-			processor = createMdxProcessor(mdxOptions, {
-				sourcemap: !!resolved.build.sourcemap,
-			});
+			sourcemapEnabled = !!resolved.build.sourcemap;
 
 			// HACK: Remove the `astro:jsx` plugin if defined as we handle the JSX transformation ourselves
 			const jsxPluginIndex = resolved.plugins.findIndex((p) => p.name === 'astro:jsx');
@@ -51,12 +46,9 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 			// Ensure `data.astro` is available to all remark plugins
 			setVfileFrontmatter(vfile, frontmatter);
 
-			// `processor` is initialized in `configResolved`, and removed in `buildEnd`. `transform`
-			// should be called in between those two lifecycle, so this error should never happen
+			// Lazily initialize the MDX processor
 			if (!processor) {
-				return this.error(
-					'MDX processor is not initialized. This is an internal error. Please file an issue.',
-				);
+				processor = createMdxProcessor(mdxOptions, { sourcemap: sourcemapEnabled });
 			}
 
 			try {
