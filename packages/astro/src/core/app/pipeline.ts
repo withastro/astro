@@ -90,11 +90,7 @@ export class AppPipeline extends Pipeline {
 		return module.page();
 	}
 
-	async tryRewrite(
-		payload: RewritePayload,
-		request: Request,
-		_sourceRoute: RouteData,
-	): Promise<TryRewriteResult> {
+	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
 		const { newUrl, pathname, routeData } = findRouteToRewrite({
 			payload,
 			request,
