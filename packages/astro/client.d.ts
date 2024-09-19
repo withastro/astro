@@ -4,6 +4,9 @@
 /// <reference path="./types/env.d.ts" />
 
 interface ImportMetaEnv {
+	/**
+	 * The value of the `trailingSlash` option in your Astro config file. This can be useful to build URLs dynamically that respect the trailing slash setting.
+	 */
 	readonly TRAILING_SLASH: import('./dist/types/public/config').AstroConfig['trailingSlash'];
 	/**
 	 * The prefix for Astro-generated asset links if the build.assetsPrefix config option is set. This can be used to create asset links not handled by Astro.
