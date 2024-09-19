@@ -92,6 +92,10 @@ export class BuildPipeline extends Pipeline {
 		);
 	}
 
+	getRoutes(): RouteData[] {
+		return this.options.manifest.routes;
+	}
+
 	static create({
 		internals,
 		manifest,
@@ -286,11 +290,7 @@ export class BuildPipeline extends Pipeline {
 		return module.page();
 	}
 
-	async tryRewrite(
-		payload: RewritePayload,
-		request: Request,
-		_sourceRoute: RouteData,
-	): Promise<TryRewriteResult> {
+	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
 		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,

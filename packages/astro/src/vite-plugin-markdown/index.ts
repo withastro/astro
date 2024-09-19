@@ -31,14 +31,11 @@ const astroErrorModulePath = normalizePath(
 );
 
 export default function markdown({ settings, logger }: AstroPluginOptions): Plugin {
-	let processor: MarkdownProcessor | undefined;
+	let processor: Promise<MarkdownProcessor> | undefined;
 
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
-		async buildStart() {
-			processor = await createMarkdownProcessor(settings.config.markdown);
-		},
 		buildEnd() {
 			processor = undefined;
 		},
@@ -61,15 +58,12 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				const fileURL = pathToFileURL(fileId);
 
-				// `processor` is initialized in `buildStart`, and removed in `buildEnd`. `load`
-				// should be called in between those two lifecycles, so this error should never happen
+				// Lazily initialize the Markdown processor
 				if (!processor) {
-					return this.error(
-						'MDX processor is not initialized. This is an internal error. Please file an issue.',
-					);
+					processor = createMarkdownProcessor(settings.config.markdown);
 				}
 
-				const renderResult = await processor
+				const renderResult = await (await processor)
 					.render(raw.content, {
 						// @ts-expect-error passing internal prop
 						fileURL,
