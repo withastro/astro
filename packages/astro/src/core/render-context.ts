@@ -44,9 +44,6 @@ export const apiContextRoutesSymbol = Symbol.for('context.routes');
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
  */
 export class RenderContext {
-	// The first route that this instance of the context attempts to render
-	originalRoute: RouteData;
-
 	private constructor(
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
@@ -59,9 +56,7 @@ export class RenderContext {
 		public params = getParams(routeData, pathname),
 		protected url = new URL(request.url),
 		public props: Props = {},
-	) {
-		this.originalRoute = routeData;
-	}
+	) {}
 
 	/**
 	 * A flag that tells the render content if the rewriting was triggered
@@ -149,7 +144,7 @@ export class RenderContext {
 					componentInstance: newComponent,
 					pathname,
 					newUrl,
-				} = await pipeline.tryRewrite(payload, this.request, this.originalRoute);
+				} = await pipeline.tryRewrite(payload, this.request);
 				this.routeData = routeData;
 				componentInstance = newComponent;
 				if (payload instanceof Request) {
@@ -250,7 +245,6 @@ export class RenderContext {
 		const { routeData, componentInstance, newUrl, pathname } = await this.pipeline.tryRewrite(
 			reroutePayload,
 			this.request,
-			this.originalRoute,
 		);
 		this.routeData = routeData;
 		if (reroutePayload instanceof Request) {
