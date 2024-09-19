@@ -20,10 +20,6 @@ import {
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { escapeRegex, getRedirects } from '../lib/redirects.js';
 import {
-	type VercelSpeedInsightsConfig,
-	getSpeedInsightsViteConfig,
-} from '../lib/speed-insights.js';
-import {
 	type VercelWebAnalyticsConfig,
 	getInjectableWebAnalyticsContent,
 } from '../lib/web-analytics.js';
@@ -101,15 +97,6 @@ export interface VercelServerlessConfig {
 	/** Configuration for [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics). */
 	webAnalytics?: VercelWebAnalyticsConfig;
 
-	/**
-	 * @deprecated This option lets you configure the legacy speed insights API which is now deprecated by Vercel.
-	 *
-	 * See [Vercel Speed Insights Quickstart](https://vercel.com/docs/speed-insights/quickstart) for instructions on how to use the library instead.
-	 *
-	 * https://vercel.com/docs/speed-insights/quickstart
-	 */
-	speedInsights?: VercelSpeedInsightsConfig;
-
 	/** Force files to be bundled with your function. This is helpful when you notice missing files. */
 	includeFiles?: string[];
 
@@ -168,7 +155,6 @@ interface VercelISRConfig {
 
 export default function vercelServerless({
 	webAnalytics,
-	speedInsights,
 	includeFiles: _includeFiles = [],
 	excludeFiles: _excludeFiles = [],
 	imageService,
@@ -222,9 +208,6 @@ export default function vercelServerless({
 						})
 					);
 				}
-				if (command === 'build' && speedInsights?.enabled) {
-					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
-				}
 
 				const vercelConfigPath = new URL('vercel.json', config.root);
 				if (existsSync(vercelConfigPath)) {
@@ -255,7 +238,6 @@ export default function vercelServerless({
 						redirects: false,
 					},
 					vite: {
-						...getSpeedInsightsViteConfig(speedInsights?.enabled),
 						ssr: {
 							external: ['@vercel/nft'],
 						},

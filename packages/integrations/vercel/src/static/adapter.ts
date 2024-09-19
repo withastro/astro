@@ -9,10 +9,6 @@ import {
 } from '../image/shared.js';
 import { getRedirects } from '../lib/redirects.js';
 import {
-	type VercelSpeedInsightsConfig,
-	getSpeedInsightsViteConfig,
-} from '../lib/speed-insights.js';
-import {
 	type VercelWebAnalyticsConfig,
 	getInjectableWebAnalyticsContent,
 } from '../lib/web-analytics.js';
@@ -38,14 +34,6 @@ function getAdapter(): AstroAdapter {
 
 export interface VercelStaticConfig {
 	webAnalytics?: VercelWebAnalyticsConfig;
-	/**
-	 * @deprecated This option lets you configure the legacy speed insights API which is now deprecated by Vercel.
-	 *
-	 * See [Vercel Speed Insights Quickstart](https://vercel.com/docs/speed-insights/quickstart) for instructions on how to use the library instead.
-	 *
-	 * https://vercel.com/docs/speed-insights/quickstart
-	 */
-	speedInsights?: VercelSpeedInsightsConfig;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
 	devImageService?: DevImageService;
@@ -53,7 +41,6 @@ export interface VercelStaticConfig {
 
 export default function vercelStatic({
 	webAnalytics,
-	speedInsights,
 	imageService,
 	imagesConfig,
 	devImageService = 'sharp',
@@ -72,18 +59,12 @@ export default function vercelStatic({
 						})
 					);
 				}
-				if (command === 'build' && speedInsights?.enabled) {
-					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
-				}
 				const outDir = new URL('./.vercel/output/static/', config.root);
 				updateConfig({
 					outDir,
 					build: {
 						format: 'directory',
 						redirects: false,
-					},
-					vite: {
-						...getSpeedInsightsViteConfig(speedInsights?.enabled),
 					},
 					...getAstroImageConfig(
 						imageService,

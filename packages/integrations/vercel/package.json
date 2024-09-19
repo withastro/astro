@@ -20,7 +20,6 @@
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./static": "./dist/static/adapter.js",
-    "./speed-insights": "./dist/speed-insights.js",
     "./build-image-service": "./dist/image/build-service.js",
     "./dev-image-service": "./dist/image/dev-service.js",
     "./package.json": "./package.json"
@@ -43,8 +42,7 @@
     "@vercel/edge": "^1.1.2",
     "@vercel/nft": "^0.27.4",
     "esbuild": "^0.21.5",
-    "fast-glob": "^3.3.2",
-    "web-vitals": "^3.5.2"
+    "fast-glob": "^3.3.2"
   },
   "peerDependencies": {
     "astro": "^5.0.0-alpha.8"
