@@ -37,6 +37,8 @@ import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 
+export const apiContextRoutesSymbol = Symbol.for('context.routes');
+
 /**
  * Each request is rendered using a `RenderContext`.
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
@@ -142,14 +144,24 @@ export class RenderContext {
 			if (payload) {
 				pipeline.logger.debug('router', 'Called rewriting to:', payload);
 				// we intentionally let the error bubble up
-				const { routeData, componentInstance: newComponent } = await pipeline.tryRewrite(
-					payload,
-					this.request,
-					this.originalRoute,
-				);
+				const {
+					routeData,
+					componentInstance: newComponent,
+					pathname,
+					newUrl,
+				} = await pipeline.tryRewrite(payload, this.request, this.originalRoute);
 				this.routeData = routeData;
 				componentInstance = newComponent;
+				if (payload instanceof Request) {
+					this.request = payload;
+				} else {
+					this.request = this.#copyRequest(newUrl, this.request);
+				}
 				this.isRewriting = true;
+				this.url = new URL(this.request.url);
+				this.cookies = new AstroCookies(this.request);
+				this.params = getParams(routeData, pathname);
+				this.pathname = pathname;
 				this.status = 200;
 			}
 			let response: Response;
@@ -218,6 +230,7 @@ export class RenderContext {
 		const context = this.createActionAPIContext();
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
+		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
 
 		return Object.assign(context, {
 			props,
