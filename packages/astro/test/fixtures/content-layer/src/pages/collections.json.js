@@ -20,6 +20,8 @@ export async function GET() {
 
 	const images = await getCollection('images');
 
+	const simpleLoaderObject = await getCollection('rodents')
+
 	const probes = await getCollection('probes');
 	return new Response(
 		devalue.stringify({
@@ -27,6 +29,7 @@ export async function GET() {
 			fileLoader,
 			dataEntry,
 			simpleLoader,
+			simpleLoaderObject,
 			entryWithReference,
 			entryWithImagePath,
 			referencedEntry,
