@@ -15,7 +15,6 @@ describe('Head injection w/ MDX', () => {
 			integrations: [mdx()],
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
-			experimental: { contentLayer: true },
 		});
 	});
 
