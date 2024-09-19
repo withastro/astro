@@ -16,7 +16,7 @@ export function imageSrcToImportId(imageSrc: string, filePath?: string): string 
 	imageSrc = removeBase(imageSrc, IMAGE_IMPORT_PREFIX);
 
 	// We only care about local imports
-	if (isRemotePath(imageSrc) || imageSrc.startsWith('/')) {
+	if (isRemotePath(imageSrc)) {
 		return;
 	}
 	// We only care about images

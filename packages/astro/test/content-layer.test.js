@@ -21,7 +21,7 @@ describe('Content Layer', () => {
 			await fs
 				.unlink(new URL('./node_modules/.astro/data-store.json', fixture.config.root))
 				.catch(() => {});
-			await fixture.build();
+			await fixture.build({ force: true });
 			const rawJson = await fixture.readFile('/collections.json');
 			json = devalue.parse(rawJson);
 		});
@@ -147,6 +147,11 @@ describe('Content Layer', () => {
 		it('loads images from custom loaders', async () => {
 			assert.ok(json.images[0].data.image.src.startsWith('/_astro'));
 			assert.equal(json.images[0].data.image.format, 'jpg');
+		});
+
+		it('loads images with absolute paths', async () => {
+			assert.ok(json.entryWithImagePath.data.heroImage.src.startsWith('/_astro'));
+			assert.equal(json.entryWithImagePath.data.heroImage.format, 'jpg');
 		});
 
 		it('handles remote images in custom loaders', async () => {

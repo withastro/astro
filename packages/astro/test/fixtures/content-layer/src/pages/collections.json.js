@@ -14,6 +14,8 @@ export async function GET() {
 	const entryWithReference = await getEntry('spacecraft', 'columbia-copy');
 	const referencedEntry = await getEntry(entryWithReference.data.cat);
 
+	const entryWithImagePath = await getEntry('spacecraft', 'lunar-module');
+
 	const increment = await getEntry('increment', 'value');
 
 	const images = await getCollection('images');
@@ -26,6 +28,7 @@ export async function GET() {
 			dataEntry,
 			simpleLoader,
 			entryWithReference,
+			entryWithImagePath,
 			referencedEntry,
 			increment,
 			images, 
