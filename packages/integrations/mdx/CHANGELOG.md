@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 3.1.7
+
+### Patch Changes
+
+- [#12026](https://github.com/withastro/astro/pull/12026) [`40e7a1b`](https://github.com/withastro/astro/commit/40e7a1b05d9e5ea3fcda176c9663bbcff86edb63) Thanks [@bluwy](https://github.com/bluwy)! - Initializes the MDX processor only when there's `.mdx` files
+
 ## 3.1.6
 
 ### Patch Changes
