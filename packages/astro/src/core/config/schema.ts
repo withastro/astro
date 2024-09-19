@@ -657,13 +657,16 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				config.build.server = resolveDirAsUrl(originalBuildServer, outDirPath);
 			}
 
-			// Handle `base` trailing slash based on `trailingSlash` config
+			// Handle `base` and `image.endpoint.route` trailing slash based on `trailingSlash` config
 			if (config.trailingSlash === 'never') {
 				config.base = prependForwardSlash(removeTrailingForwardSlash(config.base));
+				config.image.endpoint.route = prependForwardSlash(removeTrailingForwardSlash(config.image.endpoint.route));
 			} else if (config.trailingSlash === 'always') {
 				config.base = prependForwardSlash(appendForwardSlash(config.base));
+				config.image.endpoint.route = prependForwardSlash(appendForwardSlash(config.image.endpoint.route));
 			} else {
 				config.base = prependForwardSlash(config.base);
+				config.image.endpoint.route = prependForwardSlash(config.image.endpoint.route);
 			}
 
 			return config;

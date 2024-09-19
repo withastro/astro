@@ -345,8 +345,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		const imageEndpoint = joinPaths(
 			import.meta.env.BASE_URL,
-			imageConfig.endpoint.route,
-			import.meta.env.TRAILING_SLASH === 'always' ? '/' : '',
+			imageConfig.endpoint.route
 		);
 		return `${imageEndpoint}?${searchParams}`;
 	},
