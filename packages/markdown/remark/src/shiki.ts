@@ -45,11 +45,18 @@ export async function createShikiHighlighter({
 	defaultColor,
 	wrap = false,
 	transformers = [],
+	langAlias = {},
 }: ShikiConfig = {}): Promise<ShikiHighlighter> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
+	const aliasKeys = [];
 
+	for (const [fromLang, toLang] of Object.entries(langAlias)) {
+		langs?.push(toLang);
+		aliasKeys.push(fromLang);
+	}
 	const highlighter = await getHighlighter({
 		langs: ['plaintext', ...langs],
+		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
 	});
 

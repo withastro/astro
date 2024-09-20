@@ -37,6 +37,7 @@ export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
 		themes: {},
 		wrap: false,
 		transformers: [],
+		langAlias: {},
 	},
 	remarkPlugins: [],
 	rehypePlugins: [],

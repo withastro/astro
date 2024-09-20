@@ -3,6 +3,7 @@ import type * as mdast from 'mdast';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type {
 	BuiltinTheme,
+	HighlighterCoreOptions,
 	LanguageRegistration,
 	ShikiTransformer,
 	ThemeRegistration,
@@ -36,7 +37,8 @@ export type RemarkRehype = RemarkRehypeOptions;
 export type ThemePresets = BuiltinTheme | 'css-variables';
 
 export interface ShikiConfig {
-	langs?: LanguageRegistration[];
+	langs?: (LanguageRegistration | string)[];
+	langAlias?: HighlighterCoreOptions['langAlias'];
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	defaultColor?: 'light' | 'dark' | string | false;
