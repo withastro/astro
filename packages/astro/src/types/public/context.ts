@@ -146,7 +146,7 @@ export interface AstroGlobal<
 	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
 	 * - The value when rendering `src/pages/[...path].astro` will `[...path]`.
 	 */
-	routePattern: string;
+	routePattern: keyof App.RoutePattern extends never ? string : keyof App.RoutePattern;
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
@@ -523,5 +523,5 @@ export interface APIContext<
 	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
 	 * - The value when rendering `src/pages/[...path].astro` will `[...path]`.
 	 */
-	routePattern: string;
+	routePattern: keyof App.RoutePattern extends never ? string : keyof App.RoutePattern;
 }
