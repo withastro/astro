@@ -14,9 +14,13 @@ export async function GET() {
 	const entryWithReference = await getEntry('spacecraft', 'columbia-copy');
 	const referencedEntry = await getEntry(entryWithReference.data.cat);
 
+	const entryWithImagePath = await getEntry('spacecraft', 'lunar-module');
+
 	const increment = await getEntry('increment', 'value');
 
 	const images = await getCollection('images');
+
+	const simpleLoaderObject = await getCollection('rodents')
 
 	const probes = await getCollection('probes');
 	return new Response(
@@ -25,7 +29,9 @@ export async function GET() {
 			fileLoader,
 			dataEntry,
 			simpleLoader,
+			simpleLoaderObject,
 			entryWithReference,
+			entryWithImagePath,
 			referencedEntry,
 			increment,
 			images, 

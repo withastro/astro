@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 
 import { loadFixture } from './test-utils.js';
@@ -16,13 +17,16 @@ describe('Content Layer', () => {
 
 	describe('Build', () => {
 		let json;
+		let $;
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-layer/' });
 			await fs
 				.unlink(new URL('./node_modules/.astro/data-store.json', fixture.config.root))
 				.catch(() => {});
-			await fixture.build();
+			await fixture.build({ force: true });
 			const rawJson = await fixture.readFile('/collections.json');
+			const html = await fixture.readFile('/spacecraft/lunar-module/index.html');
+			$ = cheerio.load(html);
 			json = devalue.parse(rawJson);
 		});
 
@@ -130,6 +134,23 @@ describe('Content Layer', () => {
 			});
 		});
 
+		it('returns a collection from a simple loader that uses an object', async () => {
+			assert.ok(json.hasOwnProperty('simpleLoaderObject'));
+			assert.ok(Array.isArray(json.simpleLoaderObject));
+			assert.deepEqual(json.simpleLoaderObject[0], {
+				id: 'capybara',
+				collection: 'rodents',
+				data: {
+					name: 'Capybara',
+					scientificName: 'Hydrochoerus hydrochaeris',
+					lifespan: 10,
+					weight: 50000,
+					diet: ['grass', 'aquatic plants', 'bark', 'fruits'],
+					nocturnal: false,
+				},
+			});
+		});
+
 		it('transforms a reference id to a reference object', async () => {
 			assert.ok(json.hasOwnProperty('entryWithReference'));
 			assert.deepEqual(json.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
@@ -149,9 +170,26 @@ describe('Content Layer', () => {
 			assert.equal(json.images[0].data.image.format, 'jpg');
 		});
 
+		it('loads images with absolute paths', async () => {
+			assert.ok(json.entryWithImagePath.data.heroImage.src.startsWith('/_astro'));
+			assert.equal(json.entryWithImagePath.data.heroImage.format, 'jpg');
+		});
+
 		it('handles remote images in custom loaders', async () => {
 			console.log(json.images[1].data.image);
 			assert.ok(json.images[1].data.image.startsWith('https://'));
+		});
+
+		it('renders images from frontmatter', async () => {
+			assert.ok($('img[alt="Lunar Module"]').attr('src').startsWith('/_astro'));
+		});
+
+		it('displays public images unchanged', async () => {
+			assert.equal($('img[alt="buzz"]').attr('src'), '/buzz.jpg');
+		});
+
+		it('renders local images', async () => {
+			assert.ok($('img[alt="shuttle"]').attr('src').startsWith('/_astro'));
 		});
 
 		it('returns a referenced entry', async () => {
