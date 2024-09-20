@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 8.3.4
+
+### Patch Changes
+
+- [#398](https://github.com/withastro/adapters/pull/398) [`0cf7e91`](https://github.com/withastro/adapters/commit/0cf7e912607fcd76072bf710b8f857dc8cc07a33) Thanks [@bluwy](https://github.com/bluwy)! - Updates `send` dependency to 0.19.0
+
 ## 8.3.3
 
 ### Patch Changes
