@@ -1,8 +1,8 @@
 import { promises as fs, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import yaml from 'js-yaml';
 import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
-import yaml from 'js-yaml';
 
 export interface FileOptions {
 	/**
@@ -70,16 +70,16 @@ export function file(fileName: string, options?: FileOptions): Loader {
 					logger.error(`Item in ${fileName} is missing an id or slug field.`);
 					continue;
 				}
-				const data = await parseData({ id, data: rawItem, filePath });
-				store.set({ id, data, filePath: normalizedFilePath });
+				const parsedData = await parseData({ id, data: rawItem, filePath });
+				store.set({ id, data: parsedData, filePath: normalizedFilePath });
 			}
 		} else if (typeof data === 'object') {
 			const entries = Object.entries<Record<string, unknown>>(data);
 			logger.debug(`Found object with ${entries.length} entries in ${fileName}`);
 			store.clear();
 			for (const [id, rawItem] of entries) {
-				const data = await parseData({ id, data: rawItem, filePath });
-				store.set({ id, data, filePath: normalizedFilePath });
+				const parsedData = await parseData({ id, data: rawItem, filePath });
+				store.set({ id, data: parsedData, filePath: normalizedFilePath });
 			}
 		} else {
 			logger.error(`Invalid data in ${fileName}. Must be an array or object.`);
