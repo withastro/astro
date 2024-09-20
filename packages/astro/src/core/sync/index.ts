@@ -33,6 +33,7 @@ import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { createRouteManifest } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
+import { syncTypedLinks } from '../../typed-links/sync.js';
 
 export type SyncOptions = {
 	/**
@@ -151,6 +152,7 @@ export async function syncInternal({
 			});
 		}
 		syncAstroEnv(settings);
+		syncTypedLinks(settings, manifest);
 
 		writeInjectedTypes(settings, fs);
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
