@@ -129,6 +129,18 @@ const fish = defineCollection({
 	}),
 });
 
+const birds = defineCollection({
+	loader: file('src/data/birds.json', {
+		parser: (text) => JSON.parse(text).birds,
+	}),
+	schema: z.object({
+		id: z.string(),
+		name: z.string(),
+		breed: z.string(),
+		age: z.number(),
+	}),
+});
+
 // Absolute paths should also work
 const absoluteRoot = new URL('../../content/space', import.meta.url);
 
@@ -213,6 +225,8 @@ export const collections = {
 	blog,
 	dogs,
 	cats,
+	fish,
+	birds,
 	numbers,
 	spacecraft,
 	increment,

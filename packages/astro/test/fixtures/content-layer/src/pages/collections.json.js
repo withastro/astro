@@ -28,6 +28,8 @@ export async function GET() {
 
 	const tomlLoader = await getCollection('songs');
 
+	const nestedJsonLoader = await getCollection('birds');
+
 	return new Response(
 		devalue.stringify({
 			customLoader,
@@ -43,6 +45,7 @@ export async function GET() {
 			probes,
 			yamlLoader,
 			tomlLoader,
+			nestedJsonLoader,
 		}),
 	);
 }
