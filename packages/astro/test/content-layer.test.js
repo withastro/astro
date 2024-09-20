@@ -3,8 +3,8 @@ import { promises as fs } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { after, before, describe, it } from 'node:test';
-import * as devalue from 'devalue';
 import * as cheerio from 'cheerio';
+import * as devalue from 'devalue';
 
 import { loadFixture } from './test-utils.js';
 describe('Content Layer', () => {
@@ -134,6 +134,23 @@ describe('Content Layer', () => {
 			});
 		});
 
+		it('returns a collection from a simple loader that uses an object', async () => {
+			assert.ok(json.hasOwnProperty('simpleLoaderObject'));
+			assert.ok(Array.isArray(json.simpleLoaderObject));
+			assert.deepEqual(json.simpleLoaderObject[0], {
+				id: 'capybara',
+				collection: 'rodents',
+				data: {
+					name: 'Capybara',
+					scientificName: 'Hydrochoerus hydrochaeris',
+					lifespan: 10,
+					weight: 50000,
+					diet: ['grass', 'aquatic plants', 'bark', 'fruits'],
+					nocturnal: false,
+				},
+			});
+		});
+
 		it('transforms a reference id to a reference object', async () => {
 			assert.ok(json.hasOwnProperty('entryWithReference'));
 			assert.deepEqual(json.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
@@ -168,7 +185,7 @@ describe('Content Layer', () => {
 		});
 
 		it('displays public images unchanged', async () => {
-			assert.equal($('img[alt="buzz"]').attr('src'), "/buzz.jpg");
+			assert.equal($('img[alt="buzz"]').attr('src'), '/buzz.jpg');
 		});
 
 		it('renders local images', async () => {
