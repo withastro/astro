@@ -3,8 +3,8 @@ import { promises as fs } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { after, before, describe, it } from 'node:test';
-import * as devalue from 'devalue';
 import * as cheerio from 'cheerio';
+import * as devalue from 'devalue';
 
 import { loadFixture } from './test-utils.js';
 describe('Content Layer', () => {
@@ -158,7 +158,7 @@ describe('Content Layer', () => {
 		});
 
 		it('displays public images unchanged', async () => {
-			assert.equal($('img[alt="buzz"]').attr('src'), "/buzz.jpg");
+			assert.equal($('img[alt="buzz"]').attr('src'), '/buzz.jpg');
 		});
 
 		it('renders local images', async () => {
