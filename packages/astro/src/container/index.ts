@@ -1,3 +1,4 @@
+import './polyfill.js';
 import { posix } from 'node:path';
 import type {
 	AstroConfig,
