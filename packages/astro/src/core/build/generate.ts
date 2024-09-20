@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import PQueue from 'p-queue';
+import PLimit from 'p-limit';
 import type {
 	AstroConfig,
 	AstroSettings,
@@ -166,52 +167,6 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
-/**
- * Creates a slice of array from start up to, but not including, end.
- */
-function slice(array: any, start: any, end: any) {
-  let length = array == null ? 0 : array.length;
-  if (!length) {
-    return [];
-  }
-  start = start == null ? 0 : start;
-  end = end === undefined ? length : end;
-
-  if (start < 0) {
-    start = -start > length ? 0 : length + start;
-  }
-  end = end > length ? length : end;
-  if (end < 0) {
-    end += length;
-  }
-  length = start > end ? 0 : (end - start) >>> 0;
-  start >>>= 0;
-
-  let index = -1;
-  const result = new Array(length);
-  while (++index < length) {
-    result[index] = array[index + start];
-  }
-  return result;
-}
-/**
- * Creates an array of elements split into groups the length of size. If array can't be split evenly, the final chunk will be the remaining elements.
- */
-function chunk(array: any, size = 1) {
-  size = Math.max(size, 0);
-  const length = array == null ? 0 : array.length;
-  if (!length || size < 1) {
-    return [];
-  }
-  let index = 0;
-  let resIndex = 0;
-  const result = new Array(Math.ceil(length / size));
-
-  while (index < length) {
-    result[resIndex++] = slice(array, index, (index += size));
-  }
-  return result;
-}
 async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,
@@ -255,38 +210,30 @@ async function generatePage(
 		let timeStart = performance.now();
 		let prevTimeEnd = timeStart;
 		if(Number(config.build.concurrency) > 1){
-			const chunks_arr = chunk(paths, Number(config.build.concurrency));
-			for (const chunks_arr_elem of chunks_arr) {
-				let promises = [];
-				for (let i in chunks_arr_elem) {
-					const path = chunks_arr_elem[i];
-					pipeline.logger.debug("build", `Generating: ${path}`);
-					const filePath = getOutputFilename(config, path, pageData.route.type);
-					const lineIcon = Number(i) === chunks_arr_elem.length - 1 ? "\u2514\u2500" : "\u251C\u2500";
-					promises.push(new Promise((resolve, reject) => {
-						let innerTimeStart = performance.now();
-						generatePath(path, pipeline, generationOptions, route).then(() => {
-							const timeEnd = performance.now();
-							const timeChange = getTimeStat(innerTimeStart, timeEnd);
-							const timeIncrease = `(+${timeChange})`;
-							let timeIncreaseLabel;
-							if (timeEnd - innerTimeStart > THRESHOLD_SLOW_RENDER_TIME_MS) {
-								timeIncreaseLabel = red(timeIncrease);
-							} else {
-								timeIncreaseLabel = dim(timeIncrease);
-							}
-							logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncreaseLabel}`);
-	
-							resolve('');
-						}).catch(() => {
-							reject();
-						});
-					}));
-					
-				}
-				await Promise.all(promises);
-				prevTimeEnd = performance.now();
+			const limit = PLimit(Number(config.build.concurrency));
+			const promises = [];
+			for (let i = 0; i < paths.length; i++) {
+				const path = paths[i];
+				pipeline.logger.debug('build', `Generating: ${path}`);
+				const filePath = getOutputFilename(config, path, pageData.route.type);
+				const lineIcon = i === paths.length - 1 ? '└─' : '├─';
+				promises.push(limit(async () => {
+					let innerTimeStart = performance.now();
+					await generatePath(path, pipeline, generationOptions, route);
+					const timeEnd = performance.now();
+					const timeChange = getTimeStat(innerTimeStart, timeEnd);
+					const timeIncrease = `(+${timeChange})`;
+					let timeIncreaseLabel;
+					if (timeEnd - innerTimeStart > THRESHOLD_SLOW_RENDER_TIME_MS) {
+						timeIncreaseLabel = red(timeIncrease);
+					} else {
+						timeIncreaseLabel = dim(timeIncrease);
+					}
+					logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncreaseLabel}`);
+				}));
 			}
+			await Promise.allSettled(promises);
+			prevTimeEnd = performance.now();
 		}else{
 			for (let i = 0; i < paths.length; i++) {
 				const path = paths[i];
