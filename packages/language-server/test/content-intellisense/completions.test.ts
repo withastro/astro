@@ -33,7 +33,7 @@ describe('Content Intellisense - Completions', async () => {
 
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(1, 6),
+			Position.create(1, 7),
 		);
 
 		const labels = (completions?.items ?? []).map((item) => item.label);
