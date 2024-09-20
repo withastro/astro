@@ -155,22 +155,36 @@ export class AstroCheck {
 					const { languageServiceHost } = project.typescript!;
 					const astroInstall = getAstroInstall([this.workspacePath]);
 
-					addAstroTypes(typeof astroInstall === 'string' ? undefined : astroInstall, this.ts, languageServiceHost);
+					addAstroTypes(
+						typeof astroInstall === 'string' ? undefined : astroInstall,
+						this.ts,
+						languageServiceHost,
+					);
 				},
 			);
 		} else {
-			this.linter = kit.createTypeScriptInferredChecker(languagePlugins, services, () => {
-				return fg.sync('**/*.astro', {
-					cwd: this.workspacePath,
-					ignore: ['node_modules'],
-					absolute: true,
-				});
-			}, undefined, ({ project }) => {
-				const { languageServiceHost } = project.typescript!;
-				const astroInstall = getAstroInstall([this.workspacePath]);
+			this.linter = kit.createTypeScriptInferredChecker(
+				languagePlugins,
+				services,
+				() => {
+					return fg.sync('**/*.astro', {
+						cwd: this.workspacePath,
+						ignore: ['node_modules'],
+						absolute: true,
+					});
+				},
+				undefined,
+				({ project }) => {
+					const { languageServiceHost } = project.typescript!;
+					const astroInstall = getAstroInstall([this.workspacePath]);
 
-				addAstroTypes(typeof astroInstall === 'string' ? undefined : astroInstall, this.ts, languageServiceHost);
-			});
+					addAstroTypes(
+						typeof astroInstall === 'string' ? undefined : astroInstall,
+						this.ts,
+						languageServiceHost,
+					);
+				},
+			);
 		}
 	}
 

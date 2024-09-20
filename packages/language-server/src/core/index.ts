@@ -23,7 +23,7 @@ const decoratedHosts = new WeakSet<ts.LanguageServiceHost>();
 export function addAstroTypes(
 	astroInstall: AstroInstall | undefined,
 	ts: typeof import('typescript'),
-	host: ts.LanguageServiceHost
+	host: ts.LanguageServiceHost,
 ) {
 	if (decoratedHosts.has(host)) {
 		return;
@@ -70,7 +70,7 @@ export function addAstroTypes(
 		}
 
 		return [...fileNames, ...addedFileNames];
-	}
+	};
 	host.getCompilationSettings = () => {
 		const baseCompilationSettings = getCompilationSettings();
 		return {
@@ -83,7 +83,7 @@ export function addAstroTypes(
 			isolatedModules: true,
 			moduleResolution:
 				baseCompilationSettings.moduleResolution === ts.ModuleResolutionKind.Classic ||
-					!baseCompilationSettings.moduleResolution
+				!baseCompilationSettings.moduleResolution
 					? ts.ModuleResolutionKind.Node10
 					: baseCompilationSettings.moduleResolution,
 		};
