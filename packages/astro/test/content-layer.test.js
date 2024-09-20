@@ -53,11 +53,11 @@ describe('Content Layer', () => {
 			assert.equal(json.customLoader.length, 5);
 		});
 
-		it('Returns `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('fileLoader'));
-			assert.ok(Array.isArray(json.fileLoader));
+		it('Returns json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('jsonLoader'));
+			assert.ok(Array.isArray(json.jsonLoader));
 
-			const ids = json.fileLoader.map((item) => item.data.id);
+			const ids = json.jsonLoader.map((item) => item.data.id);
 			assert.deepEqual(ids, [
 				'labrador-retriever',
 				'german-shepherd',
@@ -276,10 +276,10 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('fileLoader'));
-			assert.ok(Array.isArray(json.fileLoader));
+			assert.ok(json.hasOwnProperty('jsonLoader'));
+			assert.ok(Array.isArray(json.jsonLoader));
 
-			const ids = json.fileLoader.map((item) => item.data.id);
+			const ids = json.jsonLoader.map((item) => item.data.id);
 			assert.deepEqual(ids, [
 				'labrador-retriever',
 				'german-shepherd',
@@ -348,7 +348,7 @@ describe('Content Layer', () => {
 		it('updates collection when data file is changed', async () => {
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const initialJson = devalue.parse(await rawJsonResponse.text());
-			assert.equal(initialJson.fileLoader[0].data.temperament.includes('Bouncy'), false);
+			assert.equal(initialJson.jsonLoader[0].data.temperament.includes('Bouncy'), false);
 
 			await fixture.editFile('/src/data/dogs.json', (prev) => {
 				const data = JSON.parse(prev);
@@ -359,7 +359,7 @@ describe('Content Layer', () => {
 			await fixture.onNextDataStoreChange();
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
-			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
+			assert.ok(updated.jsonLoader[0].data.temperament.includes('Bouncy'));
 			await fixture.resetAllFiles();
 		});
 	});
