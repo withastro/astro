@@ -1,6 +1,7 @@
 import { defineCollection, z, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { loader } from '../loaders/post-loader.js';
+import { parse as parseToml } from 'toml';
 
 const blog = defineCollection({
 	loader: loader({ url: 'https://jsonplaceholder.typicode.com/posts' }),
@@ -118,6 +119,16 @@ const cats = defineCollection({
 	}),
 });
 
+const fish = defineCollection({
+	loader: file('src/data/fish.yaml'),
+	schema: z.object({
+		id: z.string(),
+		name: z.string(),
+		breed: z.string(),
+		age: z.number(),
+	}),
+});
+
 // Absolute paths should also work
 const absoluteRoot = new URL('../../content/space', import.meta.url);
 
@@ -176,7 +187,7 @@ const images = defineCollection({
 const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
-		load: async ({ store, refreshContextData }) => {
+		load: async ({ store }) => {
 			const entry = store.get<{ lastValue: number }>('value');
 			const lastValue = entry?.data.lastValue ?? 0;
 			store.set({

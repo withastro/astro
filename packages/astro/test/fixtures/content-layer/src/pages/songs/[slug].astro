@@ -1,0 +1,47 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
+
+export const getStaticPaths = (async () => {
+	const collection = await getCollection('songs');
+	if (!collection) return [];
+	return Promise.all(
+		collection.map(async (song) => ({
+			params: {
+				slug: song.id,
+			},
+			props: {
+				song: song.data,
+				artists: await Promise.all(
+					song.data.artists.map(async ({ id }) => (await getEntry('artists', id)).data),
+				),
+			},
+		})),
+	);
+}) satisfies GetStaticPaths;
+
+interface Props {
+	song: {
+		id: string;
+		name: string;
+	};
+	artists: CollectionEntry<'artists'>[];
+}
+
+const { song, artists } = Astro.props;
+
+console.log(artists);
+---
+
+<h1>{song.name}</h1>
+<h2>Authors:</h2>
+<ul>
+	{
+		artists.map((artist) => (
+			<li>
+				<a href={`/artists/${artist.id}`}>{artist.name}</a>
+				<p>Genres: {artist.genre.join(', ')}</p>
+			</li>
+		))
+	}
+</ul>
