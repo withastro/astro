@@ -18,10 +18,79 @@ import { extractStylesheets } from './parseCSS';
 import { parseHTML } from './parseHTML';
 import { extractScriptTags } from './parseJS.js';
 
-export function getAstroLanguagePlugin(
+const decoratedHosts = new WeakSet<ts.LanguageServiceHost>();
+
+export function addAstroTypes(
 	astroInstall: AstroInstall | undefined,
 	ts: typeof import('typescript'),
-): LanguagePlugin<URI, AstroVirtualCode> {
+	host: ts.LanguageServiceHost
+) {
+	if (decoratedHosts.has(host)) {
+		return;
+	}
+	decoratedHosts.add(host);
+
+	const getScriptFileNames = host.getScriptFileNames.bind(host);
+	const getCompilationSettings = host.getCompilationSettings.bind(host);
+
+	host.getScriptFileNames = () => {
+		const languageServerTypesDirectory = getLanguageServerTypesDir(ts);
+		const fileNames = getScriptFileNames();
+		const addedFileNames = [];
+
+		if (astroInstall) {
+			addedFileNames.push(
+				...['./env.d.ts', './astro-jsx.d.ts'].map((filePath) =>
+					ts.sys.resolvePath(path.resolve(astroInstall.path, filePath)),
+				),
+			);
+
+			// If Astro version is < 4.0.8, add jsx-runtime-augment.d.ts to the files to fake `JSX` being available from "astro/jsx-runtime".
+			// TODO: Remove this once a majority of users are on Astro 4.0.8+, erika - 2023-12-28
+			if (
+				astroInstall.version.major < 4 ||
+				(astroInstall.version.major === 4 &&
+					astroInstall.version.minor === 0 &&
+					astroInstall.version.patch < 8)
+			) {
+				addedFileNames.push(
+					...['./jsx-runtime-augment.d.ts'].map((filePath) =>
+						ts.sys.resolvePath(path.resolve(languageServerTypesDirectory, filePath)),
+					),
+				);
+			}
+		} else {
+			// If we don't have an Astro installation, add the fallback types from the language server.
+			// See the README in packages/language-server/types for more information.
+			addedFileNames.push(
+				...['./env.d.ts', './astro-jsx.d.ts', './jsx-runtime-fallback.d.ts'].map((f) =>
+					ts.sys.resolvePath(path.resolve(languageServerTypesDirectory, f)),
+				),
+			);
+		}
+
+		return [...fileNames, ...addedFileNames];
+	}
+	host.getCompilationSettings = () => {
+		const baseCompilationSettings = getCompilationSettings();
+		return {
+			...baseCompilationSettings,
+			module: ts.ModuleKind.ESNext ?? 99,
+			target: ts.ScriptTarget.ESNext ?? 99,
+			jsx: ts.JsxEmit.Preserve ?? 1,
+			resolveJsonModule: true,
+			allowJs: true, // Needed for inline scripts, which are virtual .js files
+			isolatedModules: true,
+			moduleResolution:
+				baseCompilationSettings.moduleResolution === ts.ModuleResolutionKind.Classic ||
+					!baseCompilationSettings.moduleResolution
+					? ts.ModuleResolutionKind.Node10
+					: baseCompilationSettings.moduleResolution,
+		};
+	};
+}
+
+export function getAstroLanguagePlugin(): LanguagePlugin<URI, AstroVirtualCode> {
 	return {
 		getLanguageId(uri) {
 			if (uri.path.endsWith('.astro')) {
@@ -65,66 +134,6 @@ export function getAstroLanguagePlugin(
 					}
 				}
 				return result;
-			},
-			resolveLanguageServiceHost(host) {
-				return {
-					...host,
-					getScriptFileNames() {
-						const languageServerTypesDirectory = getLanguageServerTypesDir(ts);
-						const fileNames = host.getScriptFileNames();
-						const addedFileNames = [];
-
-						if (astroInstall) {
-							addedFileNames.push(
-								...['./env.d.ts', './astro-jsx.d.ts'].map((filePath) =>
-									ts.sys.resolvePath(path.resolve(astroInstall.path, filePath)),
-								),
-							);
-
-							// If Astro version is < 4.0.8, add jsx-runtime-augment.d.ts to the files to fake `JSX` being available from "astro/jsx-runtime".
-							// TODO: Remove this once a majority of users are on Astro 4.0.8+, erika - 2023-12-28
-							if (
-								astroInstall.version.major < 4 ||
-								(astroInstall.version.major === 4 &&
-									astroInstall.version.minor === 0 &&
-									astroInstall.version.patch < 8)
-							) {
-								addedFileNames.push(
-									...['./jsx-runtime-augment.d.ts'].map((filePath) =>
-										ts.sys.resolvePath(path.resolve(languageServerTypesDirectory, filePath)),
-									),
-								);
-							}
-						} else {
-							// If we don't have an Astro installation, add the fallback types from the language server.
-							// See the README in packages/language-server/types for more information.
-							addedFileNames.push(
-								...['./env.d.ts', './astro-jsx.d.ts', './jsx-runtime-fallback.d.ts'].map((f) =>
-									ts.sys.resolvePath(path.resolve(languageServerTypesDirectory, f)),
-								),
-							);
-						}
-
-						return [...fileNames, ...addedFileNames];
-					},
-					getCompilationSettings() {
-						const baseCompilationSettings = host.getCompilationSettings();
-						return {
-							...baseCompilationSettings,
-							module: ts.ModuleKind.ESNext ?? 99,
-							target: ts.ScriptTarget.ESNext ?? 99,
-							jsx: ts.JsxEmit.Preserve ?? 1,
-							resolveJsonModule: true,
-							allowJs: true, // Needed for inline scripts, which are virtual .js files
-							isolatedModules: true,
-							moduleResolution:
-								baseCompilationSettings.moduleResolution === ts.ModuleResolutionKind.Classic ||
-								!baseCompilationSettings.moduleResolution
-									? ts.ModuleResolutionKind.Node10
-									: baseCompilationSettings.moduleResolution,
-						};
-					},
-				};
 			},
 		},
 	};

@@ -30,8 +30,8 @@
     "@astrojs/compiler": "^2.10.3",
     "@astrojs/yaml2ts": "^0.2.1",
     "@jridgewell/sourcemap-codec": "^1.4.15",
-    "@volar/language-core": "~2.4.0",
-    "@volar/typescript": "~2.4.0",
+    "@volar/language-core": "~2.4.5",
+    "@volar/typescript": "~2.4.5",
     "semver": "^7.3.8",
     "vscode-languageserver-textdocument": "^1.0.11"
   },

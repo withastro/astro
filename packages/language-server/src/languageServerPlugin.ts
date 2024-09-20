@@ -1,7 +1,6 @@
 import {
 	type Connection,
 	type LanguagePlugin,
-	type LanguageServiceEnvironment,
 	MessageType,
 	ShowMessageNotification,
 } from '@volar/language-server/node';
@@ -10,7 +9,6 @@ import { getAstroLanguagePlugin } from './core';
 import { getSvelteLanguagePlugin } from './core/svelte.js';
 import { getVueLanguagePlugin } from './core/vue.js';
 import { getPrettierPluginPath, importPrettier } from './importPackage.js';
-import { getAstroInstall } from './utils.js';
 
 // Services
 import { create as createCssService } from 'volar-service-css';
@@ -25,42 +23,16 @@ import { create as createTypescriptAddonsService } from './plugins/typescript-ad
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
 import { create as createYAMLService } from './plugins/yaml.js';
 
-export function getLanguagePlugins(
-	connection: Connection,
-	ts: typeof import('typescript'),
-	serviceEnv: LanguageServiceEnvironment,
-	tsconfig: string | undefined,
-	collectionConfigs: CollectionConfig[],
-) {
+export function getLanguagePlugins(collectionConfigs: CollectionConfig[]) {
 	const languagePlugins: LanguagePlugin<URI>[] = [
+		getAstroLanguagePlugin(),
 		getVueLanguagePlugin(),
 		getSvelteLanguagePlugin(),
 	];
 
-	const rootPath = tsconfig
-		? tsconfig.split('/').slice(0, -1).join('/')
-		: serviceEnv.workspaceFolders[0]!.fsPath;
-	const nearestPackageJson = ts.findConfigFile(rootPath, ts.sys.fileExists, 'package.json');
-
-	const astroInstall = getAstroInstall([rootPath], {
-		nearestPackageJson: nearestPackageJson,
-		readDirectory: ts.sys.readDirectory,
-	});
-
-	if (astroInstall === 'not-found') {
-		connection.sendNotification(ShowMessageNotification.type, {
-			message: `Couldn't find Astro in workspace "${rootPath}". Experience might be degraded. For the best experience, please make sure Astro is installed into your project and restart the language server.`,
-			type: MessageType.Warning,
-		});
-	}
-
 	if (collectionConfigs.length) {
 		languagePlugins.push(getFrontmatterLanguagePlugin(collectionConfigs));
 	}
-
-	languagePlugins.unshift(
-		getAstroLanguagePlugin(typeof astroInstall === 'string' ? undefined : astroInstall, ts),
-	);
 
 	return languagePlugins;
 }
