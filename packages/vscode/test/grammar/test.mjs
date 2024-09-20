@@ -44,7 +44,7 @@ async function snapShotTest() {
 		'./test/grammar/fixtures/**/*.astro',
 		...allGrammars.reduce((/** @type string[] */ previous, path) => [...previous, '-g', path], []),
 		...extraArgs,
-	].map((arg) => (isWindows && arg.includes(' ') ? `"${arg}"` : arg))
+	].map((arg) => (isWindows && arg.includes(' ') ? `"${arg}"` : arg));
 
 	const code = await promisifySpawn(isWindows ? 'pnpm.cmd' : 'pnpm', args, {
 		stdio: 'inherit',
