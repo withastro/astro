@@ -1,5 +1,3 @@
-import { DeepPartial } from './dist/type-utils.js';
-
 type ViteUserConfig = import('vite').UserConfig;
 type ViteUserConfigFn = import('vite').UserConfigFn;
 type AstroConfig = import('./dist/@types/astro.js').AstroConfig;
@@ -8,6 +6,7 @@ type AstroInlineConfig = import('./dist/@types/astro.js').AstroInlineConfig;
 type ImageServiceConfig = import('./dist/@types/astro.js').ImageServiceConfig;
 type SharpImageServiceConfig = import('./dist/assets/services/sharp.js').SharpImageServiceConfig;
 type EnvField = typeof import('./dist/env/config.js').envField;
+type DeepPartial<T> = import('./dist/type-utils.js').DeepPartial<T>;
 
 /**
  * See the full Astro Configuration API Documentation
