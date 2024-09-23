@@ -11,6 +11,7 @@ import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
+import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -22,7 +23,6 @@ import { createAssetLink } from '../render/ssr-element.js';
 import { createDefaultRoutes, injectDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { AppPipeline } from './pipeline.js';
-import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 
 export { deserializeManifest } from './common.js';
 

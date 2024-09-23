@@ -1,4 +1,5 @@
 import type {
+	AstroMiddlewareInstance,
 	ComponentInstance,
 	Locales,
 	RouteData,
@@ -6,7 +7,6 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 	SerializedRouteData,
-	AstroMiddlewareInstance,
 } from '../../@types/astro.js';
 import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { SinglePageBuiltModule } from '../build/types.js';

@@ -10,14 +10,14 @@ import type {
 } from '../@types/astro.js';
 import { setGetEnv } from '../env/runtime.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
+import { createOriginCheckMiddleware } from './app/middlewares.js';
 import { AstroError } from './errors/errors.js';
 import { AstroErrorData } from './errors/index.js';
 import type { Logger } from './logger/core.js';
+import { sequence } from './middleware/index.js';
+import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
-import {NOOP_MIDDLEWARE_FN} from "./middleware/noop-middleware.js";
-import {sequence} from "./middleware/index.js";
-import {createOriginCheckMiddleware} from "./app/middlewares.js";
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -28,7 +28,7 @@ import {createOriginCheckMiddleware} from "./app/middlewares.js";
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
-	
+
 	constructor(
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
