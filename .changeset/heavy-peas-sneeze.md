@@ -3,4 +3,4 @@
 '@astrojs/vue': patch
 ---
 
-Makes compatible with Astro 5
+Updates peer dependency range to support Astro 5
