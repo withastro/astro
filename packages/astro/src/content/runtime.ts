@@ -444,13 +444,12 @@ export async function renderEntry(
 		try {
 			// @ts-expect-error	virtual module
 			const { default: contentModules } = await import('astro:content-module-imports');
-			const module = contentModules.get(entry.filePath);
-			const deferredMod = await module();
-			return {
-				Content: deferredMod.Content,
-				headings: deferredMod.getHeadings?.() ?? [],
-				remarkPluginFrontmatter: deferredMod.frontmatter ?? {},
-			};
+			const renderEntryImport = contentModules.get(entry.filePath);
+			return render({
+				collection: '',
+				id: entry.id,
+				renderEntryImport,
+			});
 		} catch (e) {
 			// eslint-disable-next-line
 			console.error(e);

@@ -522,7 +522,7 @@ test.describe('View Transitions', () => {
 		expect(secondTime).toBeGreaterThanOrEqual(firstTime);
 	});
 
-	test('Islands can persist using transition:persist', async ({ page, astro }) => {
+	test('React Islands can persist using transition:persist', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-one'));
 		let cnt = page.locator('.counter pre');
@@ -542,6 +542,67 @@ test.describe('View Transitions', () => {
 		// Props should have changed
 		const pageTitle = page.locator('.page');
 		await expect(pageTitle).toHaveText('Island 2');
+	});
+
+	test('Solid Islands can persist using transition:persist', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/island-solid-one'));
+		let cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('A0');
+
+		await page.click('.increment');
+		await expect(cnt).toHaveText('A1');
+
+		// Navigate to page 2
+		await page.click('#click-two');
+		let p = page.locator('#island-two');
+		await expect(p).toBeVisible();
+		cnt = page.locator('.counter pre');
+		// Count should remain, but the prefix should be updated
+		await expect(cnt).toHaveText('B1!');
+
+		await page.click('#click-one');
+		p = page.locator('#island-one');
+		await expect(p).toBeVisible();
+		cnt = page.locator('.counter pre');
+		// Count should remain, but the postfix should be removed again (to test unsetting props)
+		await expect(cnt).toHaveText('A1');
+	});
+
+	test('Svelte Islands can persist using transition:persist', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/island-svelte-one'));
+		let cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('A0');
+
+		await page.click('.increment');
+		await expect(cnt).toHaveText('A1');
+
+		// Navigate to page 2
+		await page.click('#click-two');
+		let p = page.locator('#island-two');
+		await expect(p).toBeVisible();
+		cnt = page.locator('.counter pre');
+		// Count should remain, but the prefix should be updated
+		await expect(cnt).toHaveText('B1');
+	});
+
+	test('Vue Islands can persist using transition:persist', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/island-vue-one'));
+		let cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('AA0');
+
+		await page.click('.increment');
+		await expect(cnt).toHaveText('AA1');
+
+		// Navigate to page 2
+		await page.click('#click-two');
+		const p = page.locator('#island-two');
+		await expect(p).toBeVisible();
+		cnt = page.locator('.counter pre');
+		// Count should remain, but the prefix should be updated
+		await expect(cnt).toHaveText('BB1');
 	});
 
 	test('transition:persist-props prevents props from changing', async ({ page, astro }) => {

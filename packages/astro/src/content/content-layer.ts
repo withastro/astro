@@ -2,6 +2,7 @@ import { promises as fs, existsSync } from 'node:fs';
 import * as fastq from 'fastq';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
@@ -263,15 +264,54 @@ export class ContentLayer {
 }
 
 export async function simpleLoader<TData extends { id: string }>(
-	handler: () => Array<TData> | Promise<Array<TData>>,
+	handler: () =>
+		| Array<TData>
+		| Promise<Array<TData>>
+		| Record<string, Record<string, unknown>>
+		| Promise<Record<string, Record<string, unknown>>>,
 	context: LoaderContext,
 ) {
 	const data = await handler();
 	context.store.clear();
-	for (const raw of data) {
-		const item = await context.parseData({ id: raw.id, data: raw });
-		context.store.set({ id: raw.id, data: item });
+	if (Array.isArray(data)) {
+		for (const raw of data) {
+			if (!raw.id) {
+				throw new AstroError({
+					...AstroErrorData.ContentLoaderInvalidDataError,
+					message: AstroErrorData.ContentLoaderInvalidDataError.message(
+						context.collection,
+						`Entry missing ID:\n${JSON.stringify({ ...raw, id: undefined }, null, 2)}`,
+					),
+				});
+			}
+			const item = await context.parseData({ id: raw.id, data: raw });
+			context.store.set({ id: raw.id, data: item });
+		}
+		return;
 	}
+	if (typeof data === 'object') {
+		for (const [id, raw] of Object.entries(data)) {
+			if (raw.id && raw.id !== id) {
+				throw new AstroError({
+					...AstroErrorData.ContentLoaderInvalidDataError,
+					message: AstroErrorData.ContentLoaderInvalidDataError.message(
+						context.collection,
+						`Object key ${JSON.stringify(id)} does not match ID ${JSON.stringify(raw.id)}`,
+					),
+				});
+			}
+			const item = await context.parseData({ id, data: raw });
+			context.store.set({ id, data: item });
+		}
+		return;
+	}
+	throw new AstroError({
+		...AstroErrorData.ExpectedImageOptions,
+		message: AstroErrorData.ContentLoaderInvalidDataError.message(
+			context.collection,
+			`Invalid data type: ${typeof data}`,
+		),
+	});
 }
 /**
  * Get the path to the data store file.
