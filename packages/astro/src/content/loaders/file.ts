@@ -9,7 +9,9 @@ export interface FileOptions {
 	 * the parsing function to use for this data
 	 * @default JSON.parse or yaml.load, depending on the extension of the file
 	 * */
-	parser?: (text: string) => any;
+	parser?: (
+		text: string,
+	) => Record<string, unknown> | Array<{ id: string } & Record<string, unknown>>;
 }
 
 /**
