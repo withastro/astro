@@ -128,6 +128,31 @@ class PathTrie {
 		}
 	}
 
+	/**
+	 * The reduce function is used to remove unnecessary paths from the trie.
+	 * It receives a trie node to compare with the current node.
+	 */
+	private reduce(compNode: TrieNode, node: TrieNode): void {
+		if (node.hasWildcardChild || compNode.hasWildcardChild) return;
+
+		for (const [segment, childNode] of node.children) {
+			if (childNode.children.size === 0) continue;
+
+			const compChildNode = compNode.children.get(segment);
+			if (compChildNode === undefined) {
+				childNode.hasWildcardChild = true;
+				continue;
+			}
+
+			this.reduce(compChildNode, childNode);
+		}
+	}
+
+	reduceAllPaths(compTrie: PathTrie): this {
+		this.reduce(compTrie.root, this.root);
+		return this;
+	}
+
 	getAllPaths(): [string[][], boolean] {
 		const allPaths: string[][] = [];
 		this.dfs(this.root, [], allPaths);
@@ -244,7 +269,6 @@ export async function createRoutesFile(
 	for (const includePath of includePaths) {
 		includeTrie.insert(includePath);
 	}
-	const [deduplicatedIncludePaths, includedPathsHaveWildcard] = includeTrie.getAllPaths();
 
 	const excludeTrie = new PathTrie();
 	for (const excludePath of excludePaths) {
@@ -256,7 +280,14 @@ export async function createRoutesFile(
 		if (excludePath[0] === '*') continue;
 		excludeTrie.insert(excludePath);
 	}
-	const [deduplicatedExcludePaths, _excludedPathsHaveWildcard] = excludeTrie.getAllPaths();
+
+	const [deduplicatedIncludePaths, includedPathsHaveWildcard] = includeTrie
+		.reduceAllPaths(excludeTrie)
+		.getAllPaths();
+
+	const [deduplicatedExcludePaths, _excludedPathsHaveWildcard] = excludeTrie
+		.reduceAllPaths(includeTrie)
+		.getAllPaths();
 
 	/**
 	 * Cloudflare allows no more than 100 include/exclude rules combined
