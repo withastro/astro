@@ -22,13 +22,13 @@ import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
+import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
 import { RenderContext } from '../core/render-context.js';
 import { getParts, validateSegment } from '../core/routing/manifest/create.js';
 import { getPattern } from '../core/routing/manifest/pattern.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import { ContainerPipeline } from './pipeline.js';
-import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 
 /**
  * Options to be passed when rendering a route
@@ -474,7 +474,6 @@ export class experimental_AstroContainer {
 			routeType === 'endpoint'
 				? (component as unknown as ComponentInstance)
 				: this.#wrapComponent(component, options.params);
-		const middleware = await this.#pipeline.getMiddleware();
 		const routeData = this.#insertRoute({
 			path: request.url,
 			componentInstance,
@@ -485,7 +484,6 @@ export class experimental_AstroContainer {
 			pipeline: this.#pipeline,
 			routeData,
 			status: 200,
-			middleware,
 			request,
 			pathname: url.pathname,
 			locals: options?.locals ?? {},
