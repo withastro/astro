@@ -1,5 +1,107 @@
 # astro
 
+## 4.15.8
+
+### Patch Changes
+
+- [#12014](https://github.com/withastro/astro/pull/12014) [`53cb41e`](https://github.com/withastro/astro/commit/53cb41e30ea5768bf33d9f6be608fb57d31b7b9e) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue where component styles were not correctly included in rendered MDX
+
+- [#12031](https://github.com/withastro/astro/pull/12031) [`8c0cae6`](https://github.com/withastro/astro/commit/8c0cae6d1bd70b332286d83d0f01cfce5272fbbe) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the rewrite via `next(/*..*/)` inside a middleware didn't compute the new `APIContext.params`
+
+- [#12026](https://github.com/withastro/astro/pull/12026) [`40e7a1b`](https://github.com/withastro/astro/commit/40e7a1b05d9e5ea3fcda176c9663bbcff86edb63) Thanks [@bluwy](https://github.com/bluwy)! - Initializes the Markdown processor only when there's `.md` files
+
+- [#12028](https://github.com/withastro/astro/pull/12028) [`d3bd673`](https://github.com/withastro/astro/commit/d3bd673392e63720e241d6a002a131a3564c169c) Thanks [@bluwy](https://github.com/bluwy)! - Handles route collision detection only if it matches `getStaticPaths`
+
+- [#12027](https://github.com/withastro/astro/pull/12027) [`dd3b753`](https://github.com/withastro/astro/commit/dd3b753aba6400558671d85214e27b8e4fb1654b) Thanks [@fviolette](https://github.com/fviolette)! - Add `selected` to the list of boolean attributes
+
+- [#12001](https://github.com/withastro/astro/pull/12001) [`9be3e1b`](https://github.com/withastro/astro/commit/9be3e1bba789af96d8b21d9c8eca8542cfb4ff77) Thanks [@uwej711](https://github.com/uwej711)! - Remove dependency on path-to-regexp
+
+## 4.15.7
+
+### Patch Changes
+
+- [#12000](https://github.com/withastro/astro/pull/12000) [`a2f8c5d`](https://github.com/withastro/astro/commit/a2f8c5d85ff15803f5cedf9148cd70ffc138ddef) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes an outdated link used to document Content Layer API
+
+- [#11915](https://github.com/withastro/astro/pull/11915) [`0b59fe7`](https://github.com/withastro/astro/commit/0b59fe74d5922c572007572ddca8d11482e2fb5c) Thanks [@azhirov](https://github.com/azhirov)! - Fix: prevent island from re-rendering when using transition:persist (#11854)
+
+## 4.15.6
+
+### Patch Changes
+
+- [#11993](https://github.com/withastro/astro/pull/11993) [`ffba5d7`](https://github.com/withastro/astro/commit/ffba5d716edcdfc42899afaa4188b7a4cd0c91eb) Thanks [@matthewp](https://github.com/matthewp)! - Fix getStaticPaths regression
+
+  This reverts a previous change meant to remove a dependency, to fix a regression with multiple nested spread routes.
+
+- [#11964](https://github.com/withastro/astro/pull/11964) [`06eff60`](https://github.com/withastro/astro/commit/06eff60cabb55d91fe4075421b1693b1ab33225c) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Add wayland (wl-copy) support to `astro info`
+
+## 4.15.5
+
+### Patch Changes
+
+- [#11939](https://github.com/withastro/astro/pull/11939) [`7b09c62`](https://github.com/withastro/astro/commit/7b09c62b565cd7b50c35fb68d390729f936a43fb) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds support for Zod discriminated unions on Action form inputs. This allows forms with different inputs to be submitted to the same action, using a given input to decide which object should be used for validation.
+
+  This example accepts either a `create` or `update` form submission, and uses the `type` field to determine which object to validate against.
+
+  ```ts
+  import { defineAction } from 'astro:actions';
+  import { z } from 'astro:schema';
+
+  export const server = {
+    changeUser: defineAction({
+      accept: 'form',
+      input: z.discriminatedUnion('type', [
+        z.object({
+          type: z.literal('create'),
+          name: z.string(),
+          email: z.string().email(),
+        }),
+        z.object({
+          type: z.literal('update'),
+          id: z.number(),
+          name: z.string(),
+          email: z.string().email(),
+        }),
+      ]),
+      async handler(input) {
+        if (input.type === 'create') {
+          // input is { type: 'create', name: string, email: string }
+        } else {
+          // input is { type: 'update', id: number, name: string, email: string }
+        }
+      },
+    }),
+  };
+  ```
+
+  The corresponding `create` and `update` forms may look like this:
+
+  ```astro
+  ---
+  import { actions } from 'astro:actions';
+  ---
+
+  <!--Create-->
+  <form action={actions.changeUser} method="POST">
+    <input type="hidden" name="type" value="create" />
+    <input type="text" name="name" required />
+    <input type="email" name="email" required />
+    <button type="submit">Create User</button>
+  </form>
+
+  <!--Update-->
+  <form action={actions.changeUser} method="POST">
+    <input type="hidden" name="type" value="update" />
+    <input type="hidden" name="id" value="user-123" />
+    <input type="text" name="name" required />
+    <input type="email" name="email" required />
+    <button type="submit">Update User</button>
+  </form>
+  ```
+
+- [#11968](https://github.com/withastro/astro/pull/11968) [`86ad1fd`](https://github.com/withastro/astro/commit/86ad1fd223e2d2c448372caa159090efbee69237) Thanks [@NikolaRHristov](https://github.com/NikolaRHristov)! - Fixes a typo in the server island JSDoc
+
+- [#11983](https://github.com/withastro/astro/pull/11983) [`633eeaa`](https://github.com/withastro/astro/commit/633eeaa9d8a8a35bba638fde06fd8f52cc1c2ce3) Thanks [@uwej711](https://github.com/uwej711)! - Remove dependency on path-to-regexp
+
 ## 4.15.4
 
 ### Patch Changes

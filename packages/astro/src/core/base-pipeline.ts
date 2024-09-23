@@ -89,13 +89,8 @@ export abstract class Pipeline {
 	 *
 	 * @param {RewritePayload} rewritePayload The payload provided by the user
 	 * @param {Request} request The original request
-	 * @param {RouteData} sourceRoute The original `RouteData`
 	 */
-	abstract tryRewrite(
-		rewritePayload: RewritePayload,
-		request: Request,
-		sourceRoute: RouteData,
-	): Promise<TryRewriteResult>;
+	abstract tryRewrite(rewritePayload: RewritePayload, request: Request): Promise<TryRewriteResult>;
 
 	/**
 	 * Tells the pipeline how to retrieve a component give a `RouteData`

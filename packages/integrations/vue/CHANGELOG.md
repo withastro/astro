@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 4.5.1
+
+### Patch Changes
+
+- [#11946](https://github.com/withastro/astro/pull/11946) [`b75bfc8`](https://github.com/withastro/astro/commit/b75bfc8cc41f5c631c10055b78670fdc26dff23a) Thanks [@johannesspohr](https://github.com/johannesspohr)! - Fix vue islands keeping their state when using view transition persistence
+
 ## 4.5.0
 
 ### Minor Changes

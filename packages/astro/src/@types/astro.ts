@@ -2095,7 +2095,7 @@ export interface AstroUserConfig {
 		 *
 		 * The outer page will be rendered, either at build time (`hybrid`) or at runtime (`server`) with the island content omitted and a `<script>` tag included in its place.
 		 *
-		 * After the page loads in the browser, the script tag will replace itself with the the contents of the island by making a request.
+		 * After the page loads in the browser, the script tag will replace itself with the contents of the island by making a request.
 		 *
 		 * Any Astro component can be given the `server: defer` attribute to delay its rendering. There is no special API and you can write `.astro` code as normal:
 		 *
@@ -2280,7 +2280,7 @@ export interface AstroUserConfig {
 		 * export const collections = { countries };
 		 * ```
 		 *
-		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading while also giving full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders).
+		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading while also giving full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0050-content-layer.md#loaders).
 		 *
 		 * #### Migrating an existing content collection to use the Content Layer API
 		 *
@@ -2345,7 +2345,7 @@ export interface AstroUserConfig {
 		 *
 		 * #### Learn more
 		 *
-		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
+		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0050-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
 		 */
 		contentLayer?: boolean;
 	};

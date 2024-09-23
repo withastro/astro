@@ -7,10 +7,12 @@
     "@astrojs/react": "workspace:*",
     "@astrojs/svelte": "workspace:*",
     "@astrojs/vue": "workspace:*",
+    "@astrojs/solid-js": "workspace:*",
     "astro": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "svelte": "^4.2.19",
-    "vue": "^3.4.38"
+    "vue": "^3.5.3",
+    "solid-js": "^1.8.0"
   }
 }
