@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 5.1.1
+
+### Patch Changes
+
+- [#12018](https://github.com/withastro/astro/pull/12018) [`dcd1158`](https://github.com/withastro/astro/commit/dcd115892a23b17309347c13ce4d82af73d204b2) Thanks [@matthewp](https://github.com/matthewp)! - Make @astrojs/tailwind compat with Astro 5
+
 ## 5.1.0
 
 ### Minor Changes

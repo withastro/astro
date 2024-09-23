@@ -1,5 +1,29 @@
 # astro
 
+## 4.15.8
+
+### Patch Changes
+
+- [#12014](https://github.com/withastro/astro/pull/12014) [`53cb41e`](https://github.com/withastro/astro/commit/53cb41e30ea5768bf33d9f6be608fb57d31b7b9e) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue where component styles were not correctly included in rendered MDX
+
+- [#12031](https://github.com/withastro/astro/pull/12031) [`8c0cae6`](https://github.com/withastro/astro/commit/8c0cae6d1bd70b332286d83d0f01cfce5272fbbe) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the rewrite via `next(/*..*/)` inside a middleware didn't compute the new `APIContext.params`
+
+- [#12026](https://github.com/withastro/astro/pull/12026) [`40e7a1b`](https://github.com/withastro/astro/commit/40e7a1b05d9e5ea3fcda176c9663bbcff86edb63) Thanks [@bluwy](https://github.com/bluwy)! - Initializes the Markdown processor only when there's `.md` files
+
+- [#12028](https://github.com/withastro/astro/pull/12028) [`d3bd673`](https://github.com/withastro/astro/commit/d3bd673392e63720e241d6a002a131a3564c169c) Thanks [@bluwy](https://github.com/bluwy)! - Handles route collision detection only if it matches `getStaticPaths`
+
+- [#12027](https://github.com/withastro/astro/pull/12027) [`dd3b753`](https://github.com/withastro/astro/commit/dd3b753aba6400558671d85214e27b8e4fb1654b) Thanks [@fviolette](https://github.com/fviolette)! - Add `selected` to the list of boolean attributes
+
+- [#12001](https://github.com/withastro/astro/pull/12001) [`9be3e1b`](https://github.com/withastro/astro/commit/9be3e1bba789af96d8b21d9c8eca8542cfb4ff77) Thanks [@uwej711](https://github.com/uwej711)! - Remove dependency on path-to-regexp
+
+## 4.15.7
+
+### Patch Changes
+
+- [#12000](https://github.com/withastro/astro/pull/12000) [`a2f8c5d`](https://github.com/withastro/astro/commit/a2f8c5d85ff15803f5cedf9148cd70ffc138ddef) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes an outdated link used to document Content Layer API
+
+- [#11915](https://github.com/withastro/astro/pull/11915) [`0b59fe7`](https://github.com/withastro/astro/commit/0b59fe74d5922c572007572ddca8d11482e2fb5c) Thanks [@azhirov](https://github.com/azhirov)! - Fix: prevent island from re-rendering when using transition:persist (#11854)
+
 ## 4.15.6
 
 ### Patch Changes
