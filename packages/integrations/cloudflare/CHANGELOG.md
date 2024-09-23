@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 11.1.0
+
+### Minor Changes
+
+- [#394](https://github.com/withastro/adapters/pull/394) [`44dfa99`](https://github.com/withastro/adapters/commit/44dfa9935e22edab16490d625a88aaa0f1942a19) Thanks [@veitbjarsch](https://github.com/veitbjarsch)! - Added functionality to compare include and exclude rules to reduce the amount of cloudflare rules
+
 ## 11.0.5
 
 ### Patch Changes
