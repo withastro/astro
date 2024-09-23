@@ -129,7 +129,7 @@
     "@babel/core": "^7.25.2",
     "@babel/plugin-transform-react-jsx": "^7.25.2",
     "@babel/types": "^7.25.6",
-    "@oslojs/encoding": "^0.4.1",
+    "@oslojs/encoding": "^1.0.0",
     "@rollup/pluginutils": "^5.1.0",
     "@types/babel__core": "^7.20.5",
     "@types/cookie": "^0.6.0",
