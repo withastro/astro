@@ -155,9 +155,6 @@ export async function runHookConfigSetup({
 	for (let i = 0; i < updatedConfig.integrations.length; i++) {
 		const integration = updatedConfig.integrations[i];
 
-		const codegenDir = new URL(normalizeCodegenDir(integration.name), settings.dotAstroDir);
-		await fs.promises.mkdir(codegenDir, { recursive: true });
-
 		/**
 		 * By making integration hooks optional, Astro can now ignore null or undefined Integrations
 		 * instead of giving an internal error most people can't read
@@ -177,7 +174,6 @@ export async function runHookConfigSetup({
 				config: updatedConfig,
 				command,
 				isRestart,
-				codegenDir,
 				addRenderer(renderer: AstroRenderer) {
 					if (!renderer.name) {
 						throw new Error(`Integration ${bold(integration.name)} has an unnamed renderer.`);
@@ -241,6 +237,11 @@ export async function runHookConfigSetup({
 						} any application middleware you define.`,
 					);
 					updatedSettings.middlewares[order].push(entrypoint);
+				},
+				createCodegenDir: () => {
+					const codegenDir = new URL(normalizeCodegenDir(integration.name), settings.dotAstroDir);
+					fs.mkdirSync(codegenDir, { recursive: true });
+					return codegenDir;
 				},
 				logger: integrationLogger,
 			};
