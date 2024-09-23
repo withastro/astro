@@ -13,6 +13,7 @@ import { nodeLogDestination } from '../../dist/core/logger/node.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
 import { unixify } from './correct-path.js';
+import {NOOP_MIDDLEWARE_FN} from "../../dist/core/middleware/noop-middleware.js";
 
 /** @type {import('../../src/core/logger/core').Logger} */
 export const defaultLogger = new Logger({
@@ -207,6 +208,9 @@ export function createBasicPipeline(options = {}) {
 	);
 	pipeline.headElements = () => ({ scripts: new Set(), styles: new Set(), links: new Set() });
 	pipeline.componentMetadata = () => new Map();
+	pipeline.getMiddleware = () => {
+		return NOOP_MIDDLEWARE_FN;
+	}
 	return pipeline;
 }
 
