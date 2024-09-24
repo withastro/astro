@@ -117,6 +117,10 @@ declare module '*.svg' {
 		 * Shorthand for setting the `height` and `width` properties
 		 */
 		size?: number | string;
+		/**
+		 * Bypasses automatic sprite optimization by directly inlinining the SVG
+		 */
+		inline?: boolean
 	} & astroHTML.JSX.SVGAttributes
 	
 	const Component: ((_props: Props) => any) & ImageMetadata;
