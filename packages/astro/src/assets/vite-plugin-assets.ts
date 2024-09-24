@@ -19,6 +19,7 @@ import { isESMImportedImage } from './utils/imageKind.js';
 import { emitESMImage } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { makeSvgComponent } from './utils/svg.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -53,7 +54,7 @@ const addStaticImageFactory = (
 
 		let finalFilePath: string;
 		let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalPath);
-		let transformForHash = transformsForPath?.transforms.get(hash);
+		const transformForHash = transformsForPath?.transforms.get(hash);
 
 		// If the same image has already been transformed with the same options, we'll reuse the final path
 		if (transformsForPath && transformForHash) {
@@ -227,6 +228,11 @@ export default function assets({
 							...AstroErrorData.ImageNotFound,
 							message: AstroErrorData.ImageNotFound.message(id),
 						});
+					}
+
+					if (/\.svg$/.test(id)) {
+						const { contents, ...metadata } = imageMetadata;
+						return makeSvgComponent(metadata, contents!);
 					}
 
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
