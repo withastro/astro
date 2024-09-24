@@ -50,9 +50,6 @@ const cats = defineCollection({
 });
 ```
 
-```typescript
-```
-
 And it continues to work with maps of `id` to `data`
 ```yaml
 bubbles:
@@ -64,5 +61,8 @@ finn:
 ```
 
 ```typescript
-const fish = defineCollection({ loader: file("src/data/fish.yaml"), schema: z.object({ breed: z.string(), age: z.number() }) });
+const fish = defineCollection({ 
+  loader: file("src/data/fish.yaml"), 
+  schema: z.object({ breed: z.string(), age: z.number() }) 
+});
 ```
