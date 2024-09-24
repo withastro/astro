@@ -1,5 +1,19 @@
 # astro
 
+## 5.0.0-beta.2
+
+### Patch Changes
+
+- [#12035](https://github.com/withastro/astro/pull/12035) [`325a57c`](https://github.com/withastro/astro/commit/325a57c543d88eab5e3ab32ee1bbfb534aed9c7c) Thanks [@ascorbic](https://github.com/ascorbic)! - Correctly parse values returned from inline loader
+
+- [#12022](https://github.com/withastro/astro/pull/12022) [`ddc3a08`](https://github.com/withastro/astro/commit/ddc3a08e8facdaf0b0298ee5a7adb73a53e1575e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Properly handle including trailing slash on the image endpoint route based on the trailingSlash config
+
+- [#12016](https://github.com/withastro/astro/pull/12016) [`837ee3a`](https://github.com/withastro/astro/commit/837ee3a4aa6b33362bd680d4a7fc786ed8639444) Thanks [@matthewp](https://github.com/matthewp)! - Fixes actions with large amount of validation errors
+
+- [#12030](https://github.com/withastro/astro/pull/12030) [`10a756a`](https://github.com/withastro/astro/commit/10a756ad872ab0311524fca5438bff13d4df25c1) Thanks [@ascorbic](https://github.com/ascorbic)! - Resolves image paths in content layer with initial slash as project-relative
+
+  When using the `image()` schema helper, previously paths with an initial slash were treated as public URLs. This was to match the behavior of markdown images. However this is a change from before, where paths with an initial slash were treated as project-relative. This change restores the previous behavior, so that paths with an initial slash are treated as project-relative.
+
 ## 5.0.0-beta.1
 
 ### Major Changes

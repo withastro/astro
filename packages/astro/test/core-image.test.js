@@ -1273,7 +1273,7 @@ describe('astro:image', () => {
 			const src = $('#local img').attr('src');
 
 			assert.equal(src.startsWith('/_image/?'), true);
-		})
+		});
 
 		it('does not includes a trailing slash if trailing slash is set to never', async () => {
 			fixture = await loadFixture({
@@ -1292,10 +1292,10 @@ describe('astro:image', () => {
 			const src = $('#local img').attr('src');
 
 			assert.equal(src.startsWith('/_image?'), true);
-		})
+		});
 
 		afterEach(async () => {
 			await devServer.stop();
 		});
-	})
+	});
 });

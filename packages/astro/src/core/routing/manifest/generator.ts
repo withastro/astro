@@ -1,5 +1,5 @@
-import type { AstroConfig } from "../../../types/public/config.js";
-import type { RoutePart } from "../../../types/public/internal.js";
+import type { AstroConfig } from '../../../types/public/config.js';
+import type { RoutePart } from '../../../types/public/internal.js';
 
 /**
  * Sanitizes the parameters object by normalizing string values and replacing certain characters with their URL-encoded equivalents.

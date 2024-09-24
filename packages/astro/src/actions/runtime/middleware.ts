@@ -1,3 +1,4 @@
+import { decodeBase64, encodeBase64 } from '@oslojs/encoding';
 import { yellow } from 'kleur/colors';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import type { MiddlewareNext } from '../../types/public/common.js';
@@ -10,7 +11,6 @@ import {
 	type SerializedActionResult,
 	serializeActionResult,
 } from './virtual/shared.js';
-import { encodeBase64, decodeBase64 } from '@oslojs/encoding';
 
 export type ActionPayload = {
 	actionResult: SerializedActionResult;
@@ -46,7 +46,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const actionPayloadCookie = context.cookies.get(ACTION_QUERY_PARAMS.actionPayload)?.value;
 	if (actionPayloadCookie) {
 		const actionPayload = JSON.parse(decoder.decode(decodeBase64(actionPayloadCookie)));
-		
+
 		if (!isActionPayload(actionPayload)) {
 			throw new Error('Internal: Invalid action payload in cookie.');
 		}
@@ -130,10 +130,14 @@ async function redirectWithResult({
 	actionName: string;
 	actionResult: SafeResult<any, any>;
 }) {
-	const cookieValue = encodeBase64(encoder.encode(JSON.stringify({
-		actionName: actionName,
-		actionResult: serializeActionResult(actionResult),
-	})));
+	const cookieValue = encodeBase64(
+		encoder.encode(
+			JSON.stringify({
+				actionName: actionName,
+				actionResult: serializeActionResult(actionResult),
+			}),
+		),
+	);
 	context.cookies.set(ACTION_QUERY_PARAMS.actionPayload, cookieValue);
 
 	if (actionResult.error) {
