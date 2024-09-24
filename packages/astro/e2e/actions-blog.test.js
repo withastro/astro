@@ -72,7 +72,10 @@ test.describe('Astro Actions - Blog', () => {
 		await expect(form.locator('p[data-error="body"]')).toBeVisible();
 	});
 
-	test('Comment action - progressive fallback lots of validation errors', async ({ page, astro }) => {
+	test('Comment action - progressive fallback lots of validation errors', async ({
+		page,
+		astro,
+	}) => {
 		await page.goto(astro.resolveUrl('/lots-of-fields/'));
 
 		const form = page.getByTestId('lots');
@@ -81,12 +84,9 @@ test.describe('Astro Actions - Blog', () => {
 
 		const expectedText = 'Expected string, received null';
 
-		const fields = [
-			'one', 'two', 'three', 'four', 'five',
-			'six', 'seven', 'eight', 'nine', 'ten'
-		];
+		const fields = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
-		for await(const field of fields) {
+		for await (const field of fields) {
 			await expect(form.locator(`.${field}.error`)).toHaveText(expectedText);
 		}
 	});

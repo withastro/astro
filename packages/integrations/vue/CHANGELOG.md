@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 5.0.0-beta.0
+
+### Major Changes
+
+- [#12060](https://github.com/withastro/astro/pull/12060) [`cb5d3ae`](https://github.com/withastro/astro/commit/cb5d3ae6ee6af646c9d7d46a9d8f551edac3092e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates peer dependency range to support Astro 5
+
 ## 5.0.0-alpha.0
 
 ### Patch Changes

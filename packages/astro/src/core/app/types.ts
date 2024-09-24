@@ -2,7 +2,12 @@ import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
 import type { Locales } from '../../types/public/config.js';
-import type { RouteData, SSRComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../types/public/internal.js';
+import type {
+	RouteData,
+	SSRComponentMetadata,
+	SSRLoadedRenderer,
+	SSRResult,
+} from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 
 export type ComponentPath = string;
