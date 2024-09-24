@@ -11,7 +11,7 @@ export interface FileOptions {
 	 * */
 	parser?: (
 		text: string,
-	) => Record<string, unknown> | Array<{ id: string } & Record<string, unknown>>;
+	) => Record<string, Record<string, unknown>> | Array<Record<string, unknown>>;
 }
 
 /**
@@ -46,7 +46,7 @@ export function file(fileName: string, options?: FileOptions): Loader {
 	}
 
 	async function syncData(filePath: string, { logger, parseData, store, config }: LoaderContext) {
-		let data: Array<Record<string, unknown>>;
+		let data: Array<Record<string, unknown>> | Record<string, Record<string, unknown>>;
 
 		try {
 			const contents = await fs.readFile(filePath, 'utf-8');

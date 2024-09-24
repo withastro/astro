@@ -97,6 +97,58 @@ describe('Content Layer', () => {
 			);
 		});
 
+		it('Returns nested json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('nestedJsonLoader'));
+			assert.ok(Array.isArray(json.nestedJsonLoader));
+
+			const ids = json.nestedJsonLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
+		});
+
+		it('Returns yaml `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('yamlLoader'));
+			assert.ok(Array.isArray(json.yamlLoader));
+
+			const ids = json.yamlLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, [
+				'bubbles',
+				'finn',
+				'shadow',
+				'spark',
+				'splash',
+				'nemo',
+				'angel-fish',
+				'gold-stripe',
+				'blue-tail',
+				'bubble-buddy',
+			]);
+		});
+
+		it('Returns toml `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('tomlLoader'));
+			assert.ok(Array.isArray(json.tomlLoader));
+
+			const ids = json.tomlLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, [
+				'crown',
+				'nikes-on-my-feet',
+				'stars',
+				'never-let-me-down',
+				'no-church-in-the-wild',
+				'family-ties',
+				'somebody',
+				'honest',
+			]);
+		});
+
+		it('Returns nested json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('nestedJsonLoader'));
+			assert.ok(Array.isArray(json.nestedJsonLoader));
+
+			const ids = json.nestedJsonLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
+		});
+
 		it('Returns data entry by id', async () => {
 			assert.ok(json.hasOwnProperty('dataEntry'));
 			assert.equal(json.dataEntry.filePath?.split(sep).join(posixSep), 'src/data/dogs.json');

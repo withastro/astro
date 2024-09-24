@@ -122,7 +122,6 @@ const cats = defineCollection({
 const fish = defineCollection({
 	loader: file('src/data/fish.yaml'),
 	schema: z.object({
-		id: z.string(),
 		name: z.string(),
 		breed: z.string(),
 		age: z.number(),

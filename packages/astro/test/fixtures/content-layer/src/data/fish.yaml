@@ -1,40 +1,41 @@
-- id: "bubbles"
+# map of ids to data
+bubbles:
   name: "Bubbles"
   breed: "Goldfish"
   age: 2
-- id: "finn"
+finn:
   name: "Finn"
   breed: "Betta"
   age: 1
-- id: "shadow"
+shadow:
   name: "Shadow"
   breed: "Catfish"
   age: 3
-- id: "spark"
+spark:
   name: "Spark"
   breed: "Tetra"
   age: 1
-- id: "splash"
+splash:
   name: "Splash"
   breed: "Guppy"
   age: 2
-- id: "nemo"
+nemo:
   name: "Nemo"
   breed: "Clownfish"
   age: 3
-- id: "angel-fish"
+angel-fish:
   name: "Angel Fish"
   breed: "Angelfish"
   age: 4
-- id: "gold-stripe"
+gold-stripe:
   name: "Gold Stripe"
   breed: "Molly"
   age: 1
-- id: "blue-tail"
+blue-tail:
   name: "Blue Tail"
   breed: "Swordtail"
   age: 2
-- id: "bubble-buddy"
+bubble-buddy:
   name: "Bubble Buddy"
   breed: "Betta"
   age: 3
