@@ -49,5 +49,10 @@ describe('Dynamic endpoint collision', () => {
 			const res = await fixture.fetch('/api/catch/one').then((r) => r.text());
 			assert.equal(res, '{"slug":"one"}');
 		});
+
+		it('returns 404 when user visits dynamic endpoint that has collision but not specified in getStaticPaths', async () => {
+			const res = await fixture.fetch('/api/safe');
+			assert.equal(res.status, 404);
+		});
 	});
 });

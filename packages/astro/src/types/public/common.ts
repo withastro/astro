@@ -110,6 +110,12 @@ export type MiddlewareHandler = (
 	next: MiddlewareNext,
 ) => Promise<Response> | Response | Promise<void> | void;
 
+// NOTE: when updating this file with other functions,
+// remember to update `plugin-page.ts` too, to add that function as a no-op function.
+export type AstroMiddlewareInstance = {
+	onRequest?: MiddlewareHandler;
+};
+
 /**
  * Infers the shape of the `params` property returned by `getStaticPaths()`.
  *

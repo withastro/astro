@@ -1,4 +1,5 @@
 import { decodeKey } from '../encryption.js';
+import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import { deserializeRouteData } from '../routing/manifest/serialization.js';
 import type { RouteInfo, SSRManifest, SerializedSSRManifest } from './types.js';
 
@@ -23,8 +24,8 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 
 	return {
 		// in case user middleware exists, this no-op middleware will be reassigned (see plugin-ssr.ts)
-		middleware(_, next) {
-			return next();
+		middleware() {
+			return { onRequest: NOOP_MIDDLEWARE_FN };
 		},
 		...serializedManifest,
 		assets,

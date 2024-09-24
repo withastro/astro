@@ -417,7 +417,12 @@ async function generatePath(
 		logger,
 		isPrerendered: true,
 	});
-	const renderContext = RenderContext.create({ pipeline, pathname, request, routeData: route });
+	const renderContext = await RenderContext.create({
+		pipeline,
+		pathname,
+		request,
+		routeData: route,
+	});
 
 	let body: string | Uint8Array;
 	let response: Response;
@@ -530,7 +535,11 @@ function createBuildManifest(
 		componentMetadata: internals.componentMetadata,
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
-		middleware,
+		middleware() {
+			return {
+				onRequest: middleware,
+			};
+		},
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		key,
 		envGetSecretEnabled: false,
