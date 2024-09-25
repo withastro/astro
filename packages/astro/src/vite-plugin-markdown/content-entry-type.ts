@@ -8,10 +8,10 @@ export const markdownContentEntryType: ContentEntryType = {
 	async getEntryInfo({ contents, fileUrl }: { contents: string; fileUrl: URL }) {
 		const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
 		return {
-			data: parsed.data,
+			data: parsed.frontmatter,
 			body: parsed.content,
-			slug: parsed.data.slug,
-			rawData: parsed.matter,
+			slug: parsed.frontmatter.slug,
+			rawData: parsed.rawFrontmatter,
 		};
 	},
 	// We need to handle propagation for Markdown because they support layouts which will bring in styles.

@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseFrontmatter } from '@astrojs/markdown-remark';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import { emitESMImage } from 'astro/assets/utils';
-import matter from 'gray-matter';
 import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
@@ -283,12 +283,12 @@ function getUsedTags(markdocAst: Node) {
 }
 
 function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
-	const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
+	const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
 	return {
-		data: parsed.data,
+		data: parsed.frontmatter,
 		body: parsed.content,
-		slug: parsed.data.slug,
-		rawData: parsed.matter,
+		slug: parsed.frontmatter.slug,
+		rawData: parsed.rawFrontmatter,
 	};
 }
 
@@ -410,12 +410,9 @@ function getStringifiedMap(
  * Match YAML exception handling from Astro core errors
  * @see 'astro/src/core/errors.ts'
  */
-function parseFrontmatter(fileContents: string, filePath: string) {
+function safeParseFrontmatter(fileContents: string, filePath: string) {
 	try {
-		// `matter` is empty string on cache results
-		// clear cache to prevent this
-		(matter as any).clearCache();
-		return matter(fileContents);
+		return parseFrontmatter(fileContents);
 	} catch (e: any) {
 		if (e.name === 'YAMLException') {
 			const err: Error & ViteErrorPayload['err'] = e;

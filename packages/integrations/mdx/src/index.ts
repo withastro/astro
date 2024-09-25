@@ -11,7 +11,7 @@ import type {
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
-import { ignoreStringPlugins, parseFrontmatter } from './utils.js';
+import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
 import { vitePluginMdx } from './vite-plugin-mdx.js';
 
@@ -60,12 +60,12 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				addContentEntryType({
 					extensions: ['.mdx'],
 					async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
-						const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
+						const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
 						return {
-							data: parsed.data,
+							data: parsed.frontmatter,
 							body: parsed.content,
-							slug: parsed.data.slug,
-							rawData: parsed.matter,
+							slug: parsed.frontmatter.slug,
+							rawData: parsed.rawFrontmatter,
 						};
 					},
 					contentModuleTypes: await fs.readFile(

@@ -39,7 +39,6 @@
     "acorn": "^8.12.1",
     "es-module-lexer": "^1.5.4",
     "estree-util-visit": "^2.0.0",
-    "gray-matter": "^4.0.3",
     "hast-util-to-html": "^9.0.2",
     "kleur": "^4.1.5",
     "rehype-raw": "^7.0.0",
