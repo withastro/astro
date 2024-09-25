@@ -198,7 +198,7 @@ export async function handleRoute({
 		matchedRoute.route.prerender &&
 		matchedRoute.route.component === DEFAULT_404_COMPONENT;
 
-	renderContext = RenderContext.create({
+	renderContext = await RenderContext.create({
 		locals,
 		pipeline,
 		pathname,

@@ -113,7 +113,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/blog:
@@ -128,13 +128,13 @@ importers:
         specifier: ^3.1.6
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -143,7 +143,7 @@ importers:
         specifier: ^3.6.2
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -174,7 +174,7 @@ importers:
         specifier: ^3.14.1
         version: 3.14.1
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/framework-lit:
@@ -186,7 +186,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       lit:
         specifier: ^3.2.0
@@ -216,7 +216,7 @@ importers:
         specifier: ^18.3.0
         version: 18.3.0
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       preact:
         specifier: ^10.23.2
@@ -246,7 +246,7 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0(preact@10.23.2)
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       preact:
         specifier: ^10.23.2
@@ -264,7 +264,7 @@ importers:
         specifier: ^18.3.0
         version: 18.3.0
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -279,7 +279,7 @@ importers:
         specifier: ^4.4.2
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.8.22
@@ -291,7 +291,7 @@ importers:
         specifier: ^5.7.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.19
@@ -303,7 +303,7 @@ importers:
         specifier: ^4.5.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.3
@@ -315,13 +315,13 @@ importers:
         specifier: ^8.3.3
         version: 8.3.3(astro@packages+astro)
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/middleware:
@@ -330,7 +330,7 @@ importers:
         specifier: ^8.3.3
         version: 8.3.3(astro@packages+astro)
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -343,19 +343,19 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/server-islands:
@@ -382,7 +382,7 @@ importers:
         specifier: ^18.3.0
         version: 18.3.0
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       postcss:
         specifier: ^8.4.45
@@ -406,7 +406,7 @@ importers:
         specifier: ^5.7.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.19
@@ -415,7 +415,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       sass:
         specifier: ^1.78.0
@@ -427,7 +427,7 @@ importers:
   examples/toolbar-app:
     devDependencies:
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/view-transitions:
@@ -439,7 +439,7 @@ importers:
         specifier: ^5.1.1
         version: link:../../packages/integrations/tailwind
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -448,7 +448,7 @@ importers:
         specifier: ^0.11.4
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
@@ -457,7 +457,7 @@ importers:
         specifier: ^5.2.0
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^6.0.2
@@ -478,7 +478,7 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -490,7 +490,7 @@ importers:
         specifier: ^3.5.3
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       preact:
         specifier: ^10.23.2
@@ -505,7 +505,7 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(nanostores@0.11.3)(preact@10.23.2)
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.11.3
@@ -526,7 +526,7 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.20
@@ -544,7 +544,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^4.15.8
+        specifier: ^4.15.9
         version: link:../../packages/astro
       vitest:
         specifier: ^2.0.5
@@ -574,8 +574,8 @@ importers:
         specifier: ^7.25.6
         version: 7.25.6
       '@oslojs/encoding':
-        specifier: ^0.4.1
-        version: 0.4.1
+        specifier: ^1.0.0
+        version: 1.0.0
       '@rollup/pluginutils':
         specifier: ^5.1.0
         version: 5.1.0(rollup@4.21.2)
@@ -6806,8 +6806,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@oslojs/encoding@0.4.1':
-    resolution: {integrity: sha512-hkjo6MuIK/kQR5CrGNdAPZhS01ZCXuWDRJ187zh6qqF2+yMHZpD9fAYpX8q2bOO6Ryhl3XpCT6kUX76N8hhm4Q==}
+  '@oslojs/encoding@1.0.0':
+    resolution: {integrity: sha512-dyIB0SdZgMm5BhGwdSp8rMxEFIopLKxDG1vxIBaiogyom6ZqH2aXPb6DEC2WzOOWKdPSq1cxdNeRx2wAn1Z+ZQ==}
 
   '@parse5/tools@0.3.0':
     resolution: {integrity: sha512-zxRyTHkqb7WQMV8kTNBKWb1BeOFUKXBXTBWuxg9H9hfvQB3IwP6Iw2U75Ia5eyRxPNltmY7E8YAlz6zWwUnjKg==}
@@ -12375,7 +12375,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
 
-  '@oslojs/encoding@0.4.1': {}
+  '@oslojs/encoding@1.0.0': {}
 
   '@parse5/tools@0.3.0':
     dependencies:
