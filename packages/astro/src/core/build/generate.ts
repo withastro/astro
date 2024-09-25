@@ -540,7 +540,7 @@ function createBuildManifest(
 				onRequest: middleware,
 			};
 		},
-		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		checkOrigin: (settings.config.security?.checkOrigin && settings.buildOutput === "server") ?? false,
 		key,
 		envGetSecretEnabled: false,
 	};
