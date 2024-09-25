@@ -530,16 +530,11 @@ function createBuildManifest(
 		site: settings.config.site,
 		componentMetadata: internals.componentMetadata,
 		i18n: i18nManifest,
-<<<<<<< HEAD
-		middleware,
-=======
-		buildFormat: settings.config.build.format,
 		middleware() {
 			return {
 				onRequest: middleware,
 			};
 		},
->>>>>>> next
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		key,
 		envGetSecretEnabled: false,
