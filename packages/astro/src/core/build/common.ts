@@ -31,9 +31,7 @@ export function getOutFolder(
 		case 'fallback':
 		case 'page':
 		case 'redirect':
-			switch (
-				astroSettings.config.trailingSlash[routeData.type === 'endpoint' ? 'endpoint' : 'page']
-			) {
+			switch (astroSettings.config.trailingSlash.page) {
 				case 'always': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
@@ -72,7 +70,7 @@ export function getOutFile(
 		case 'page':
 		case 'fallback':
 		case 'redirect':
-			switch (astroConfig.trailingSlash[routeData.type === 'endpoint' ? 'endpoint' : 'page']) {
+			switch (astroConfig.trailingSlash.page) {
 				case 'always': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						const baseName = npath.basename(pathname);

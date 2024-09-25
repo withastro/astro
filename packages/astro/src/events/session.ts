@@ -110,7 +110,6 @@ function createAnonymousConfigInfo(userConfig: AstroUserConfig) {
 			: undefined,
 	};
 	// Measure string literal/enum configuration values
-	configInfo.build.format = measureStringLiteral(userConfig.build?.format);
 	configInfo.markdown.syntaxHighlight = measureStringLiteral(userConfig.markdown?.syntaxHighlight);
 	configInfo.output = measureStringLiteral(userConfig.output);
 	configInfo.scopedStyleStrategy = measureStringLiteral(userConfig.scopedStyleStrategy);

@@ -7,14 +7,10 @@ describe('Trailing slash', () => {
 	let fixture;
 
 	describe('trailingSlash: ignore', () => {
-		describe('build.format: directory', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
 					trailingSlash: 'ignore',
-					build: {
-						
-					},
 				});
 				await fixture.build();
 			});
@@ -24,32 +20,9 @@ describe('Trailing slash', () => {
 				const urls = data.urlset.url;
 
 				assert.equal(urls[0].loc[0], 'http://example.com/');
-				assert.equal(urls[1].loc[0], 'http://example.com/one/');
-				assert.equal(urls[2].loc[0], 'http://example.com/two/');
-			});
-		});
-
-		describe('build.format: file', () => {
-			before(async () => {
-				fixture = await loadFixture({
-					root: './fixtures/trailing-slash/',
-					trailingSlash: 'ignore',
-					build: {
-						
-					},
-				});
-				await fixture.build();
-			});
-
-			it('URLs do not end with trailing slash', async () => {
-				const data = await readXML(fixture.readFile('/sitemap-0.xml'));
-				const urls = data.urlset.url;
-
-				assert.equal(urls[0].loc[0], 'http://example.com');
 				assert.equal(urls[1].loc[0], 'http://example.com/one');
 				assert.equal(urls[2].loc[0], 'http://example.com/two');
 			});
-		});
 	});
 
 	describe('trailingSlash: never', () => {

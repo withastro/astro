@@ -295,7 +295,7 @@ describe('Development Routing', () => {
 		});
 	});
 
-	describe('file format routing', () => {
+	describe('trailingSlash: never routing', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		/** @type {import('./test-utils').DevServer} */

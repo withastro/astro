@@ -283,7 +283,7 @@ describe('[DEV] i18n routing', () => {
 		});
 	});
 
-	describe('i18n routing with routing strategy [prefix-other-locales], when `build.format` is `directory`', () => {
+	describe('i18n routing with routing strategy [prefix-other-locales], when `trailingSlash` is `always`', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		/** @type {import('./test-utils').DevServer} */
@@ -307,6 +307,7 @@ describe('[DEV] i18n routing', () => {
 						spanish: 'en',
 					},
 				},
+				trailingSlash: 'always',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -848,10 +849,11 @@ describe('[SSG] i18n routing', () => {
 			});
 		});
 
-		describe('when `build.format` is `directory`', () => {
+		describe('when `trailingSlash` is `always`', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/i18n-routing-prefix-always/',
+					trailingSlash: 'always',
 				});
 				await fixture.build();
 			});
@@ -1430,12 +1432,13 @@ describe('[SSR] i18n routing', () => {
 			});
 		});
 
-		describe('when `build.format` is `directory`', () => {
+		describe('when `trailingSlash` is `always`', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/i18n-routing-prefix-always/',
 					output: 'server',
 					adapter: testAdapter(),
+					trailingSlash: 'always',
 				});
 				await fixture.build();
 				app = await fixture.loadTestAdapterApp();

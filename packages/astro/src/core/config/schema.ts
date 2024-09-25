@@ -59,7 +59,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		endpoint: 'ignore',
 	},
 	build: {
-		format: 'directory',
 		client: './client/',
 		server: './server/',
 		assets: '_astro',
@@ -163,10 +162,6 @@ export const AstroConfigSchema = z.object({
 	),
 	build: z
 		.object({
-			format: z
-				.union([z.literal('file'), z.literal('directory'), z.literal('preserve')])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.build.format),
 			client: z
 				.string()
 				.optional()
@@ -577,10 +572,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		build: z
 			.object({
-				format: z
-					.union([z.literal('file'), z.literal('directory'), z.literal('preserve')])
-					.optional()
-					.default(ASTRO_CONFIG_DEFAULTS.build.format),
 				// NOTE: `client` and `server` are transformed relative to the default outDir first,
 				// later we'll fix this to be relative to the actual `outDir`
 				client: z

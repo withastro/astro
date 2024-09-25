@@ -4,8 +4,6 @@ import { fileURLToPath } from 'node:url';
 import type { Connect, Plugin } from 'vite';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../../template/4xx.js';
 import type { AstroSettings } from '../../types/astro.js';
-import { cleanUrl } from '../../vite-plugin-utils/index.js';
-import { joinPaths } from '../path.js';
 
 export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 	const { base, outDir } = settings.config;
@@ -44,35 +42,6 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 
 				next();
 			});
-
-			return () => {
-				// NOTE: the `base` is stripped from `req.url` for post middlewares
-				server.middlewares.use((req, res, next) => {
-					const pathname = cleanUrl(req.url!);
-
-					// Redirect /foo/ to /foo if /foo.html exists
-					if (pathname.endsWith('/')) {
-						const pathnameWithoutSlash = pathname.slice(0, -1);
-						const htmlPath = fileURLToPath(outDir + pathnameWithoutSlash + '.html');
-						if (fs.existsSync(htmlPath)) {
-							res.writeHead(308, { Location: joinPaths(base, pathnameWithoutSlash) });
-							res.end();
-							return;
-						}
-					}
-					// Redirect /foo to /foo/ if /foo/index.html exists
-					else {
-						const htmlPath = fileURLToPath(outDir + pathname + '/index.html');
-						if (fs.existsSync(htmlPath)) {
-							res.writeHead(308, { Location: joinPaths(base, pathname + '/') });
-							res.end();
-							return;
-						}
-					}
-
-					next();
-				});
-			};
 		},
 	};
 }

@@ -30,7 +30,6 @@ describe('Config Validation', () => {
 	it('Multiple validation errors can be formatted correctly', async () => {
 		const veryBadConfig = {
 			integrations: [42],
-			build: { format: 'invalid' },
 		};
 		const configError = await validateConfig(veryBadConfig, process.cwd()).catch((err) => err);
 		assert.equal(configError instanceof z.ZodError, true);
@@ -38,8 +37,7 @@ describe('Config Validation', () => {
 		assert.equal(
 			formattedError,
 			`[config] Astro found issue(s) with your configuration:
-  ! integrations.0  Expected object, received number.
-  ! build.format  Invalid input.`,
+  ! integrations.0  Expected object, received number.`,
 		);
 	});
 

@@ -6,6 +6,7 @@ import * as events from '../dist/events/index.js';
 
 describe('Events', () => {
 	describe('eventCliSession()', () => {
+<<<<<<< Updated upstream
 		it('string literal "build.format" is included', () => {
 			const config = {
 				srcDir: 1,
@@ -19,6 +20,8 @@ describe('Events', () => {
 			assert.equal(payload.config.build.format, 'file');
 		});
 
+=======
+>>>>>>> Stashed changes
 		it('string literal "markdown.syntaxHighlight" is included', () => {
 			const config = {
 				markdown: {
