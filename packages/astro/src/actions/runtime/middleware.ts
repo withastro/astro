@@ -1,3 +1,4 @@
+import { decodeBase64, encodeBase64 } from '@oslojs/encoding';
 import { yellow } from 'kleur/colors';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import type { MiddlewareNext } from '../../types/public/common.js';
@@ -20,6 +21,9 @@ export type Locals = {
 	_actionPayload: ActionPayload;
 };
 
+const decoder = new TextDecoder();
+const encoder = new TextEncoder();
+
 export const onRequest = defineMiddleware(async (context, next) => {
 	if (context.isPrerendered) {
 		if (context.request.method === 'POST') {
@@ -39,8 +43,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// so short circuit if already defined.
 	if (locals._actionPayload) return next();
 
-	const actionPayload = context.cookies.get(ACTION_QUERY_PARAMS.actionPayload)?.json();
-	if (actionPayload) {
+	const actionPayloadCookie = context.cookies.get(ACTION_QUERY_PARAMS.actionPayload)?.value;
+	if (actionPayloadCookie) {
+		const actionPayload = JSON.parse(decoder.decode(decodeBase64(actionPayloadCookie)));
+
 		if (!isActionPayload(actionPayload)) {
 			throw new Error('Internal: Invalid action payload in cookie.');
 		}
@@ -124,10 +130,15 @@ async function redirectWithResult({
 	actionName: string;
 	actionResult: SafeResult<any, any>;
 }) {
-	context.cookies.set(ACTION_QUERY_PARAMS.actionPayload, {
-		actionName,
-		actionResult: serializeActionResult(actionResult),
-	});
+	const cookieValue = encodeBase64(
+		encoder.encode(
+			JSON.stringify({
+				actionName: actionName,
+				actionResult: serializeActionResult(actionResult),
+			}),
+		),
+	);
+	context.cookies.set(ACTION_QUERY_PARAMS.actionPayload, cookieValue);
 
 	if (actionResult.error) {
 		const referer = context.request.headers.get('Referer');

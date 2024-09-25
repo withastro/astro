@@ -204,14 +204,26 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 		if (import.meta.env?.DEV) {
 			actionResultErrorStack.set(res.error.stack);
 		}
+
+		let body: Record<string, any>;
+		if (res.error instanceof ActionInputError) {
+			body = {
+				type: res.error.type,
+				issues: res.error.issues,
+				fields: res.error.fields,
+			};
+		} else {
+			body = {
+				...res.error,
+				message: res.error.message,
+			};
+		}
+
 		return {
 			type: 'error',
 			status: res.error.status,
 			contentType: 'application/json',
-			body: JSON.stringify({
-				...res.error,
-				message: res.error.message,
-			}),
+			body: JSON.stringify(body),
 		};
 	}
 	if (res.data === undefined) {

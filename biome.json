@@ -61,6 +61,16 @@
           "lineWidth": 1
         }
       }
+    },
+    {
+      "include": ["*.test.js"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noFocusedTests": "error"
+          }
+        }
+      }
     }
   ]
 }

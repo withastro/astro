@@ -1,6 +1,6 @@
 import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
-import type { MiddlewareHandler } from '../../types/public/common.js';
+import type { AstroMiddlewareInstance } from '../../types/public/common.js';
 import type { AstroConfig, Locales } from '../../types/public/config.js';
 import type {
 	RouteData,
@@ -66,7 +66,7 @@ export type SSRManifest = {
 	serverIslandNameMap?: Map<string, string>;
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
-	middleware: MiddlewareHandler;
+	middleware: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	checkOrigin: boolean;
 	envGetSecretEnabled: boolean;
 };

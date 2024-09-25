@@ -9,9 +9,12 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../types/public/internal.js';
+import { createOriginCheckMiddleware } from './app/middlewares.js';
 import { AstroError } from './errors/errors.js';
 import { AstroErrorData } from './errors/index.js';
 import type { Logger } from './logger/core.js';
+import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
+import { sequence } from './middleware/sequence.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
 
@@ -23,6 +26,7 @@ import { createDefaultRoutes } from './routing/default.js';
  */
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
+	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -88,19 +92,33 @@ export abstract class Pipeline {
 	 *
 	 * @param {RewritePayload} rewritePayload The payload provided by the user
 	 * @param {Request} request The original request
-	 * @param {RouteData} sourceRoute The original `RouteData`
 	 */
-	abstract tryRewrite(
-		rewritePayload: RewritePayload,
-		request: Request,
-		sourceRoute: RouteData,
-	): Promise<TryRewriteResult>;
+	abstract tryRewrite(rewritePayload: RewritePayload, request: Request): Promise<TryRewriteResult>;
 
 	/**
 	 * Tells the pipeline how to retrieve a component give a `RouteData`
 	 * @param routeData
 	 */
 	abstract getComponentByRoute(routeData: RouteData): Promise<ComponentInstance>;
+
+	/**
+	 * Resolves the middleware from the manifest, and returns the `onRequest` function. If `onRequest` isn't there,
+	 * it returns a no-op function
+	 */
+	async getMiddleware(): Promise<MiddlewareHandler> {
+		if (this.resolvedMiddleware) {
+			return this.resolvedMiddleware;
+		} else {
+			const middlewareInstance = await this.middleware();
+			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
+			if (this.manifest.checkOrigin) {
+				this.resolvedMiddleware = sequence(createOriginCheckMiddleware(), onRequest);
+			} else {
+				this.resolvedMiddleware = onRequest;
+			}
+			return this.resolvedMiddleware;
+		}
+	}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

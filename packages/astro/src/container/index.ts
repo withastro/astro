@@ -1,3 +1,4 @@
+import './polyfill.js';
 import { posix } from 'node:path';
 import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
@@ -5,13 +6,14 @@ import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
+import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
 import { RenderContext } from '../core/render-context.js';
 import { getParts, validateSegment } from '../core/routing/manifest/create.js';
 import { getPattern } from '../core/routing/manifest/pattern.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
-import type { MiddlewareHandler, Props } from '../types/public/common.js';
+import type { AstroMiddlewareInstance, MiddlewareHandler, Props } from '../types/public/common.js';
 import type { AstroConfig, AstroUserConfig } from '../types/public/config.js';
 import type {
 	NamedSSRLoadedRendererValue,
@@ -121,9 +123,11 @@ function createManifest(
 	renderers?: SSRLoadedRenderer[],
 	middleware?: MiddlewareHandler,
 ): SSRManifest {
-	const defaultMiddleware: MiddlewareHandler = (_, next) => {
-		return next();
-	};
+	function middlewareInstance(): AstroMiddlewareInstance {
+		return {
+			onRequest: middleware ?? NOOP_MIDDLEWARE_FN,
+		};
+	}
 
 	return {
 		hrefRoot: import.meta.url,
@@ -141,7 +145,7 @@ function createManifest(
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
 		checkOrigin: false,
-		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
+		middleware: manifest?.middleware ?? middlewareInstance,
 		envGetSecretEnabled: false,
 		key: createKey(),
 	};
@@ -486,11 +490,10 @@ export class experimental_AstroContainer {
 			params: options.params,
 			type: routeType,
 		});
-		const renderContext = RenderContext.create({
+		const renderContext = await RenderContext.create({
 			pipeline: this.#pipeline,
 			routeData,
 			status: 200,
-			middleware: this.#pipeline.middleware,
 			request,
 			pathname: url.pathname,
 			locals: options?.locals ?? {},

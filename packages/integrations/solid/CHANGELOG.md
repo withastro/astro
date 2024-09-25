@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 4.4.2
+
+### Patch Changes
+
+- [#11998](https://github.com/withastro/astro/pull/11998) [`082f450`](https://github.com/withastro/astro/commit/082f45094471d52e55c55d3291f541306d9388b1) Thanks [@johannesspohr](https://github.com/johannesspohr)! - Fix view transition state persistence
+
 ## 4.4.1
 
 ### Patch Changes

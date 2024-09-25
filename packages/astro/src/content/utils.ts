@@ -32,6 +32,17 @@ export type ContentLookupMap = {
 	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
 };
 
+const entryTypeSchema = z
+	.object({
+		id: z
+			.string({
+				invalid_type_error: 'Content entry `id` must be a string',
+				// Default to empty string so we can validate properly in the loader
+			})
+			.catch(''),
+	})
+	.catchall(z.unknown());
+
 const collectionConfigParser = z.union([
 	z.object({
 		type: z.literal('content').optional().default('content'),
@@ -47,18 +58,31 @@ const collectionConfigParser = z.union([
 		loader: z.union([
 			z.function().returns(
 				z.union([
-					z.array(
+					z.array(entryTypeSchema),
+					z.promise(z.array(entryTypeSchema)),
+					z.record(
+						z.string(),
 						z
 							.object({
-								id: z.string(),
+								id: z
+									.string({
+										invalid_type_error: 'Content entry `id` must be a string',
+									})
+									.optional(),
 							})
 							.catchall(z.unknown()),
 					),
+
 					z.promise(
-						z.array(
+						z.record(
+							z.string(),
 							z
 								.object({
-									id: z.string(),
+									id: z
+										.string({
+											invalid_type_error: 'Content entry `id` must be a string',
+										})
+										.optional(),
 								})
 								.catchall(z.unknown()),
 						),
@@ -194,16 +218,19 @@ export async function getEntryDataAndImages<
 			data = parsed.data as TOutputData;
 		} else {
 			if (!formattedError) {
+				const errorType =
+					collectionConfig.type === 'content'
+						? AstroErrorData.InvalidContentEntryFrontmatterError
+						: AstroErrorData.InvalidContentEntryDataError;
 				formattedError = new AstroError({
-					...AstroErrorData.InvalidContentEntryFrontmatterError,
-					message: AstroErrorData.InvalidContentEntryFrontmatterError.message(
-						entry.collection,
-						entry.id,
-						parsed.error,
-					),
+					...errorType,
+					message: errorType.message(entry.collection, entry.id, parsed.error),
 					location: {
-						file: entry._internal.filePath,
-						line: getYAMLErrorLine(entry._internal.rawData, String(parsed.error.errors[0].path[0])),
+						file: entry._internal?.filePath,
+						line: getYAMLErrorLine(
+							entry._internal?.rawData,
+							String(parsed.error.errors[0].path[0]),
+						),
 						column: 0,
 					},
 				});

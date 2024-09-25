@@ -12,7 +12,7 @@ import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
-import { sequence } from '../middleware/index.js';
+import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -24,7 +24,6 @@ import { createAssetLink } from '../render/ssr-element.js';
 import { createDefaultRoutes, injectDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { validateRouteTrailingSlash } from '../routing/trailing-slash.js';
-import { createOriginCheckMiddleware } from './middlewares.js';
 import { AppPipeline } from './pipeline.js';
 
 export { deserializeManifest } from './common.js';
@@ -113,13 +112,6 @@ export class App {
 	 * @private
 	 */
 	#createPipeline(manifestData: ManifestData, streaming = false) {
-		if (this.#manifest.checkOrigin) {
-			this.#manifest.middleware = sequence(
-				createOriginCheckMiddleware(),
-				this.#manifest.middleware,
-			);
-		}
-
 		return AppPipeline.create(manifestData, {
 			logger: this.#logger,
 			manifest: this.#manifest,
@@ -310,7 +302,7 @@ export class App {
 			// Load route module. We also catch its error here if it fails on initialization
 			const mod = await this.#pipeline.getModuleForRoute(routeData);
 
-			const renderContext = RenderContext.create({
+			const renderContext = await RenderContext.create({
 				pipeline: this.#pipeline,
 				locals,
 				pathname,
@@ -406,10 +398,10 @@ export class App {
 			}
 			const mod = await this.#pipeline.getModuleForRoute(errorRouteData);
 			try {
-				const renderContext = RenderContext.create({
+				const renderContext = await RenderContext.create({
 					locals,
 					pipeline: this.#pipeline,
-					middleware: skipMiddleware ? (_, next) => next() : undefined,
+					middleware: skipMiddleware ? NOOP_MIDDLEWARE_FN : undefined,
 					pathname: this.#getPathnameFromRequest(request),
 					request,
 					routeData: errorRouteData,

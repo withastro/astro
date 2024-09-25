@@ -386,6 +386,15 @@ describe('Middleware', () => {
 
 		assert.match($('h1').text(), /Index/);
 	});
+
+	it('should render correctly compute the new params next("/auth/1234")', async () => {
+		const html = await fixture.fetch('/auth/astro-params').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.match($('h1').text(), /Index with params/);
+		assert.match($('#params').text(), /Param: 1234/);
+		assert.match($('#locals').text(), /Locals: Params changed/);
+	});
 });
 
 describe('Middleware with custom 404.astro and 500.astro', () => {
