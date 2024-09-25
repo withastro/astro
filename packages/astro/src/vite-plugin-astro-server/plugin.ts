@@ -160,7 +160,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		componentMetadata: new Map(),
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
-		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		checkOrigin: (settings.config.security?.checkOrigin && settings.buildOutput === "server") ?? false,
 		envGetSecretEnabled: false,
 		key: createKey(),
 		middleware() {
