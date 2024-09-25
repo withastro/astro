@@ -1,7 +1,7 @@
 import type {
+	AstroMiddlewareInstance,
 	ComponentInstance,
 	Locales,
-	MiddlewareHandler,
 	RouteData,
 	SSRComponentMetadata,
 	SSRLoadedRenderer,
@@ -68,7 +68,7 @@ export type SSRManifest = {
 	serverIslandNameMap?: Map<string, string>;
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
-	middleware: MiddlewareHandler;
+	middleware: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	checkOrigin: boolean;
 	// TODO: remove experimental prefix
 	experimentalEnvGetSecretEnabled: boolean;

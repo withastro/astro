@@ -2,6 +2,7 @@ import './polyfill.js';
 import { posix } from 'node:path';
 import type {
 	AstroConfig,
+	AstroMiddlewareInstance,
 	AstroUserConfig,
 	ComponentInstance,
 	ContainerImportRendererFn,
@@ -21,6 +22,7 @@ import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
+import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
 import { RenderContext } from '../core/render-context.js';
 import { getParts, validateSegment } from '../core/routing/manifest/create.js';
@@ -109,9 +111,11 @@ function createManifest(
 	renderers?: SSRLoadedRenderer[],
 	middleware?: MiddlewareHandler,
 ): SSRManifest {
-	const defaultMiddleware: MiddlewareHandler = (_, next) => {
-		return next();
-	};
+	function middlewareInstance(): AstroMiddlewareInstance {
+		return {
+			onRequest: middleware ?? NOOP_MIDDLEWARE_FN,
+		};
+	}
 
 	return {
 		hrefRoot: import.meta.url,
@@ -130,7 +134,7 @@ function createManifest(
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
 		checkOrigin: false,
-		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
+		middleware: manifest?.middleware ?? middlewareInstance,
 		experimentalEnvGetSecretEnabled: false,
 		key: createKey(),
 	};
@@ -476,11 +480,10 @@ export class experimental_AstroContainer {
 			params: options.params,
 			type: routeType,
 		});
-		const renderContext = RenderContext.create({
+		const renderContext = await RenderContext.create({
 			pipeline: this.#pipeline,
 			routeData,
 			status: 200,
-			middleware: this.#pipeline.middleware,
 			request,
 			pathname: url.pathname,
 			locals: options?.locals ?? {},
