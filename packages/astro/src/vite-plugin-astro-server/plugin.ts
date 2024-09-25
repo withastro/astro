@@ -60,6 +60,7 @@ export default function createVitePluginAstroServer({
 						await createRouteManifest({ settings, fsMod }, logger), // TODO: Handle partial updates to the manifest
 					);
 					warnMissingAdapter(logger, settings);
+					pipeline.manifest.checkOrigin = settings.config.security.checkOrigin && settings.buildOutput === "server";
 					pipeline.setManifestData(routeManifest);
 				}
 			}
