@@ -5,7 +5,7 @@ import type { AstroConfig } from 'astro';
 import { listen } from 'async-listen';
 import { cyan } from 'kleur/colors';
 import open from 'open';
-import ora from 'ora';
+import yoctoSpinner from 'yocto-spinner';
 import prompt from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import type { DBConfig } from '../../../types.js';
@@ -48,9 +48,9 @@ export async function cmd({
 		console.log(cyan(loginUrl.href));
 		console.log(`If something goes wrong, copy-and-paste the URL into your browser.`);
 		open(loginUrl.href);
-		const spinner = ora('Waiting for confirmation...');
+		const spinner = yoctoSpinner({ text: 'Waiting for confirmation...' });
 		session = await promise;
-		spinner.succeed('Successfully logged in');
+		spinner.success('Successfully logged in');
 	}
 
 	await mkdir(new URL('.', SESSION_LOGIN_FILE), { recursive: true });

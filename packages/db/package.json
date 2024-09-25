@@ -78,10 +78,10 @@
     "kleur": "^4.1.5",
     "nanoid": "^5.0.7",
     "open": "^10.1.0",
-    "ora": "^8.1.0",
     "prompts": "^2.4.2",
     "strip-ansi": "^7.1.0",
     "yargs-parser": "^21.1.1",
+    "yocto-spinner": "^0.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

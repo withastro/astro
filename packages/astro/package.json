@@ -162,7 +162,6 @@
     "micromatch": "^4.0.8",
     "mrmime": "^2.0.0",
     "neotraverse": "^0.6.18",
-    "ora": "^8.1.0",
     "p-limit": "^6.1.0",
     "p-queue": "^8.0.1",
     "preferred-pm": "^4.0.0",
@@ -181,6 +180,7 @@
     "which-pm": "^3.0.0",
     "xxhash-wasm": "^1.0.2",
     "yargs-parser": "^21.1.1",
+    "yocto-spinner": "^0.1.0",
     "zod": "^3.23.8",
     "zod-to-json-schema": "^3.23.2",
     "zod-to-ts": "^1.2.0"
