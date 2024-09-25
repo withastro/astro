@@ -198,7 +198,7 @@ const images = defineCollection({
 const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
-		load: async ({ store }) => {
+		load: async ({ store, refreshContextData }) => {
 			const entry = store.get<{ lastValue: number }>('value');
 			const lastValue = entry?.data.lastValue ?? 0;
 			store.set({
@@ -220,6 +220,24 @@ const increment = defineCollection({
 	},
 });
 
+const artists = defineCollection({
+        loader: file('src/data/music.toml', { parser: (text) => parseToml(text).artists }),
+        schema: z.object({
+                id: z.string(),
+                name: z.string(),
+                genre: z.string().array(),
+        }),
+});
+
+const songs = defineCollection({
+        loader: file('src/data/music.toml', { parser: (text) => parseToml(text).songs }),
+        schema: z.object({
+                id: z.string(),
+                name: z.string(),
+                artists: z.array(reference('artists')),
+        }),
+});
+
 export const collections = {
 	blog,
 	dogs,
@@ -230,6 +248,8 @@ export const collections = {
 	spacecraft,
 	increment,
 	images,
+	artists,
+	songs,
 	probes,
 	rodents,
 };

@@ -109,7 +109,7 @@ describe('Content Layer', () => {
 			assert.ok(json.hasOwnProperty('yamlLoader'));
 			assert.ok(Array.isArray(json.yamlLoader));
 
-			const ids = json.yamlLoader.map((item) => item.data.id);
+			const ids = json.yamlLoader.map((item) => item.id);
 			assert.deepEqual(ids, [
 				'bubbles',
 				'finn',
