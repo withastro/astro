@@ -6,7 +6,7 @@ import { diffWords } from 'diff';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
 import { type ASTNode, type ProxifiedModule, builders, generateCode, loadFile } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
-import ora from 'ora';
+import yoctoSpinner from 'yocto-spinner';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
@@ -665,7 +665,7 @@ async function tryToInstallIntegrations({
 		);
 
 		if (await askToContinue({ flags })) {
-			const spinner = ora('Installing dependencies...').start();
+			const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
 			try {
 				await exec(
 					installCommand.pm,
@@ -683,10 +683,10 @@ async function tryToInstallIntegrations({
 						},
 					},
 				);
-				spinner.succeed();
+				spinner.success();
 				return UpdateResult.updated;
 			} catch (err: any) {
-				spinner.fail();
+				spinner.error();
 				logger.debug('add', 'Error installing dependencies', err);
 				// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
 				// eslint-disable-next-line no-console
@@ -700,7 +700,7 @@ async function tryToInstallIntegrations({
 }
 
 async function validateIntegrations(integrations: string[]): Promise<IntegrationInfo[]> {
-	const spinner = ora('Resolving packages...').start();
+	const spinner = yoctoSpinner({ text: 'Resolving packages...' }).start();
 	try {
 		const integrationEntries = await Promise.all(
 			integrations.map(async (integration): Promise<IntegrationInfo> => {
@@ -718,9 +718,9 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 					const firstPartyPkgCheck = await fetchPackageJson('@astrojs', name, tag);
 					if (firstPartyPkgCheck instanceof Error) {
 						if (firstPartyPkgCheck.message) {
-							spinner.warn(yellow(firstPartyPkgCheck.message));
+							spinner.warning(yellow(firstPartyPkgCheck.message));
 						}
-						spinner.warn(yellow(`${bold(integration)} is not an official Astro package.`));
+						spinner.warning(yellow(`${bold(integration)} is not an official Astro package.`));
 						const response = await prompts({
 							type: 'confirm',
 							name: 'askToContinue',
@@ -745,7 +745,7 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 					const thirdPartyPkgCheck = await fetchPackageJson(scope, name, tag);
 					if (thirdPartyPkgCheck instanceof Error) {
 						if (thirdPartyPkgCheck.message) {
-							spinner.warn(yellow(thirdPartyPkgCheck.message));
+							spinner.warning(yellow(thirdPartyPkgCheck.message));
 						}
 						throw new Error(`Unable to fetch ${bold(integration)}. Does the package exist?`);
 					} else {
@@ -790,11 +790,11 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 				return { id: integration, packageName, dependencies, type: integrationType };
 			}),
 		);
-		spinner.succeed();
+		spinner.success();
 		return integrationEntries;
 	} catch (e) {
 		if (e instanceof Error) {
-			spinner.fail(e.message);
+			spinner.error(e.message);
 			process.exit(1);
 		} else {
 			throw e;
