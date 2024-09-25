@@ -463,10 +463,6 @@ export function setAdapter(
 		});
 	}
 
-	if (!config.output) {
-		config.output = 'server';
-	}
-
 	switch (adapter.id) {
 		case 'node':
 			config.adapter = builders.functionCall(adapterId, { mode: 'standalone' });
