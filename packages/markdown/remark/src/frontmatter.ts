@@ -34,6 +34,9 @@ export function parseFrontmatter(code: string): ParseFrontmatterResult {
 	return {
 		frontmatter,
 		rawFrontmatter,
-		content: code.replace(rawFrontmatter, rawFrontmatter.replace(/[^\r\n]/g, ' ')),
+		content: code.replace(
+			`---${rawFrontmatter}---`,
+			`   ${rawFrontmatter.replace(/[^\r\n]/g, ' ')}   `,
+		),
 	};
 }
