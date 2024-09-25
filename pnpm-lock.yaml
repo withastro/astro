@@ -2347,12 +2347,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/astro-page-directory-url:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/astro-pagination:
     dependencies:
       astro:
@@ -3037,12 +3031,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/dynamic-route-build-file:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/dynamic-route-collision:
     dependencies:
       astro:
@@ -3418,12 +3406,6 @@ importers:
         version: link:../../../..
 
   packages/astro/test/fixtures/non-html-pages:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/page-format:
     dependencies:
       astro:
         specifier: workspace:*
@@ -4029,12 +4011,6 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
-
-  packages/astro/test/fixtures/static-build-page-url-format:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
 
   packages/astro/test/fixtures/static-build-ssr:
     dependencies:

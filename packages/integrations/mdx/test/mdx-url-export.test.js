@@ -18,8 +18,8 @@ describe('MDX url export', () => {
 
 	it('generates correct urls in glob result', async () => {
 		const { urls } = JSON.parse(await fixture.readFile('/pages.json'));
-		assert.equal(urls.includes('/test-1'), true);
-		assert.equal(urls.includes('/test-2'), true);
+		assert.equal(urls.includes('/test-1/'), true);
+		assert.equal(urls.includes('/test-2/'), true);
 	});
 
 	it('respects "export url" overrides in glob result', async () => {

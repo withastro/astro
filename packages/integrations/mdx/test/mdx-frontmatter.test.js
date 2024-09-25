@@ -72,7 +72,7 @@ describe('MDX frontmatter', () => {
 			true,
 			'"file" prop does not end with correct path or is undefined',
 		);
-		assert.equal(frontmatterUrl, '/with-headings');
+		assert.equal(frontmatterUrl, '/with-headings/');
 		assert.equal(file, frontmatterFile);
 		assert.equal(url, frontmatterUrl);
 	});

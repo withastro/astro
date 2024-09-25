@@ -15,6 +15,8 @@ export interface FileInfo {
 	fileUrl: string;
 }
 
+const HAS_FILE_EXTENSION_REGEXP = /\.[^/]+$/;
+
 /** @see 'vite-plugin-utils' for source */
 export function getFileInfo(id: string, config: AstroConfig): FileInfo {
 	const sitePathname = appendForwardSlash(
@@ -38,7 +40,11 @@ export function getFileInfo(id: string, config: AstroConfig): FileInfo {
 		fileUrl = fileId;
 	}
 
-	if (fileUrl && config.trailingSlash.page === 'always') {
+	if (
+		fileUrl &&
+		config.trailingSlash.page === 'always' &&
+		!HAS_FILE_EXTENSION_REGEXP.test(fileUrl)
+	) {
 		fileUrl = appendForwardSlash(fileUrl);
 	}
 	return { fileId, fileUrl };
