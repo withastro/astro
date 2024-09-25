@@ -82,8 +82,16 @@ async function getPageOptions(
 	settings: AstroSettings,
 	logger: Logger,
 ): Promise<PageOptions> {
+	const fileUrlStr = fileURL.toString();
+	const injectedRoute = settings.resolvedInjectedRoutes.find(
+		(route) => route.resolvedEntryPoint && fileUrlStr === route.resolvedEntryPoint.toString(),
+	);
+
 	// Run initial scan
-	const pageOptions = await scan(code, id, settings);
+	const pageOptions =
+		injectedRoute?.prerender != null
+			? { prerender: injectedRoute.prerender }
+			: await scan(code, id, settings);
 
 	// Run integration hooks to alter page options
 	const route: RouteOptions = {
