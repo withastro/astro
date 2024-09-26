@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 const isWindows = process.platform === 'win32';
 
 export function removeEmptyDirs(dir: string): void {
-	// const dir = fileURLToPath(root);
 	if (!fs.statSync(dir).isDirectory()) return;
 	let files = fs.readdirSync(dir);
 
