@@ -776,9 +776,6 @@ importers:
       '@types/dlv':
         specifier: ^1.1.4
         version: 1.1.4
-      '@types/dom-view-transitions':
-        specifier: ^1.0.5
-        version: 1.0.5
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
@@ -7023,9 +7020,6 @@ packages:
   '@types/dlv@1.1.4':
     resolution: {integrity: sha512-m8KmImw4Jt+4rIgupwfivrWEOnj1LzkmKkqbh075uG13eTQ1ZxHWT6T0vIdSQhLIjQCiR0n0lZdtyDOPO1x2Mw==}
 
-  '@types/dom-view-transitions@1.0.5':
-    resolution: {integrity: sha512-N2sILR7fxSMnaFaAPwGj4DtHCXjIyQTHt+xJyf9jATpzUsTkMNM0DWtqZB6W7f501B/Y0tq3uqat/VlbjuTpMA==}
-
   '@types/estree-jsx@1.0.5':
     resolution: {integrity: sha512-52CcUVNFyfb1A2ALocQw/Dd1BQFNmSdkuC3BkZ6iqhdMfQz7JWOFRuJFloOzjk+6WijU56m9oKXFAXc7o3Towg==}
 
@@ -8862,7 +8856,6 @@ packages:
 
   libsql@0.4.5:
     resolution: {integrity: sha512-sorTJV6PNt94Wap27Sai5gtVLIea4Otb2LUiAUyr3p6BPOScGMKGt5F1b5X/XgkNtcsDKeX5qfeBDj+PdShclQ==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -12612,8 +12605,6 @@ snapshots:
   '@types/diff@5.2.2': {}
 
   '@types/dlv@1.1.4': {}
-
-  '@types/dom-view-transitions@1.0.5': {}
 
   '@types/estree-jsx@1.0.5':
     dependencies:

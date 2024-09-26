@@ -200,7 +200,6 @@
     "@types/debug": "^4.1.12",
     "@types/diff": "^5.2.2",
     "@types/dlv": "^1.1.4",
-    "@types/dom-view-transitions": "^1.0.5",
     "@types/hast": "^3.0.4",
     "@types/html-escaper": "^3.0.2",
     "@types/http-cache-semantics": "^4.0.4",
