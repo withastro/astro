@@ -77,7 +77,7 @@ export class RenderContext {
 			pipeline,
 			locals,
 			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
-			pathname,
+			decodeURI(pathname),
 			request,
 			routeData,
 			status,
