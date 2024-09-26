@@ -193,11 +193,7 @@ export class DevPipeline extends Pipeline {
 		}
 	}
 
-	async tryRewrite(
-		payload: RewritePayload,
-		request: Request,
-		_sourceRoute: RouteData,
-	): Promise<TryRewriteResult> {
+	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
 		if (!this.manifestData) {
 			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
 		}

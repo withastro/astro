@@ -1,11 +1,23 @@
 # @astrojs/svelte
 
+## 6.0.0-beta.0
+
+### Major Changes
+
+- [#12060](https://github.com/withastro/astro/pull/12060) [`cb5d3ae`](https://github.com/withastro/astro/commit/cb5d3ae6ee6af646c9d7d46a9d8f551edac3092e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates peer dependency range to support Astro 5
+
 ## 6.0.0-alpha.0
 
 ### Patch Changes
 
 - Updated dependencies [[`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0), [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f), [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e), [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9), [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6), [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6)]:
   - astro@5.0.0-alpha.0
+
+## 5.7.1
+
+### Patch Changes
+
+- [#12006](https://github.com/withastro/astro/pull/12006) [`a582cb6`](https://github.com/withastro/astro/commit/a582cb61241b9c2a6f95900920145c055d5d6c12) Thanks [@johannesspohr](https://github.com/johannesspohr)! - Fix Svelte component view transition state persistence
 
 ## 5.7.0
 

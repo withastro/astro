@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
-import { after, before, describe, it } from 'node:test';
+import { after, afterEach, before, describe, it } from 'node:test';
 import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
@@ -1249,6 +1249,53 @@ describe('astro:image', () => {
 			const src = $('img').attr('src');
 			const imgData = await fixture.readFile('/client' + src, null);
 			assert.equal(imgData instanceof Buffer, true);
+		});
+	});
+
+	describe('trailing slash on the endpoint', () => {
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		it('includes a trailing slash if trailing slash is set to always', async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image/',
+				image: {
+					service: testImageService(),
+				},
+				trailingSlash: 'always',
+			});
+			devServer = await fixture.startDevServer();
+
+			let res = await fixture.fetch('/');
+			let html = await res.text();
+
+			const $ = cheerio.load(html);
+			const src = $('#local img').attr('src');
+
+			assert.equal(src.startsWith('/_image/?'), true);
+		});
+
+		it('does not includes a trailing slash if trailing slash is set to never', async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image/',
+				image: {
+					service: testImageService(),
+				},
+				trailingSlash: 'never',
+			});
+			devServer = await fixture.startDevServer();
+
+			let res = await fixture.fetch('/');
+			let html = await res.text();
+
+			const $ = cheerio.load(html);
+			const src = $('#local img').attr('src');
+
+			assert.equal(src.startsWith('/_image?'), true);
+		});
+
+		afterEach(async () => {
+			await devServer.stop();
 		});
 	});
 });

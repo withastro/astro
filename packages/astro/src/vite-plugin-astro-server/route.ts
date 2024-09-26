@@ -1,5 +1,6 @@
 import type http from 'node:http';
 import {
+	DEFAULT_404_COMPONENT,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	clientLocalsSymbol,
@@ -194,13 +195,16 @@ export async function handleRoute({
 
 	mod = preloadedComponent;
 
-	const isPrerendered404 = matchedRoute.route.route === '/404' && matchedRoute.route.prerender;
+	const isDefaultPrerendered404 =
+		matchedRoute.route.route === '/404' &&
+		matchedRoute.route.prerender &&
+		matchedRoute.route.component === DEFAULT_404_COMPONENT;
 
-	renderContext = RenderContext.create({
+	renderContext = await RenderContext.create({
 		locals,
 		pipeline,
 		pathname,
-		middleware: isPrerendered404 ? undefined : middleware,
+		middleware: isDefaultPrerendered404 ? undefined : middleware,
 		request,
 		routeData: route,
 	});

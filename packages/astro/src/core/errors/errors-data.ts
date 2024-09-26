@@ -1490,6 +1490,76 @@ export const InvalidContentEntryFrontmatterError = {
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * **blog** → **post** frontmatter does not match collection schema.<br/>
+ * "title" is required.<br/>
+ * "date" must be a valid date.
+ * @description
+ * A content entry does not match its collection schema.
+ * Make sure that all required fields are present, and that all fields are of the correct type.
+ * You can check against the collection schema in your `src/content/config.*` file.
+ * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ */
+export const InvalidContentEntryDataError = {
+	name: 'InvalidContentEntryDataError',
+	title: 'Content entry data does not match schema.',
+	message(collection: string, entryId: string, error: ZodError) {
+		return [
+			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.`,
+			...error.errors.map((zodError) => zodError.message),
+		].join('\n');
+	},
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * **blog** → **post** data does not match collection schema.<br/>
+ * "title" is required.<br/>
+ * "date" must be a valid date.
+ * @description
+ * A content entry does not match its collection schema.
+ * Make sure that all required fields are present, and that all fields are of the correct type.
+ * You can check against the collection schema in your `src/content/config.*` file.
+ * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ */
+export const ContentEntryDataError = {
+	name: 'ContentEntryDataError',
+	title: 'Content entry data does not match schema.',
+	message(collection: string, entryId: string, error: ZodError) {
+		return [
+			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.`,
+			...error.errors.map((zodError) => zodError.message),
+		].join('\n');
+	},
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * The loader for **blog** returned invalid data.<br/>
+ * Object is missing required property "id".
+ * @description
+ * The loader for a content collection returned invalid data.
+ * Inline loaders must return an array of objects with unique ID fields or a plain object with IDs as keys and entries as values.
+ */
+export const ContentLoaderInvalidDataError = {
+	name: 'ContentLoaderInvalidDataError',
+	title: 'Content entry is missing an ID',
+	message(collection: string, extra: string) {
+		return `**${String(collection)}** entry is missing an ID.\n${extra}`;
+	},
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @message `COLLECTION_NAME` → `ENTRY_ID` has an invalid slug. `slug` must be a string.
