@@ -10,17 +10,17 @@
     "astro": "astro"
   },
   "devDependencies": {
-    "@astrojs/node": "^8.3.3",
+    "@astrojs/node": "^8.3.4",
     "@astrojs/react": "^3.6.2",
     "@astrojs/tailwind": "^5.1.1",
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@tailwindcss/forms": "^0.5.9",
-    "@types/react": "^18.3.5",
+    "@types/react": "^18.3.9",
     "@types/react-dom": "^18.3.0",
     "astro": "^4.15.9",
-    "postcss": "^8.4.45",
+    "postcss": "^8.4.47",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwindcss": "^3.4.10"
+    "tailwindcss": "^3.4.13"
   }
 }
