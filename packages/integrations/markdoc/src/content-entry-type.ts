@@ -26,12 +26,20 @@ export async function getContentEntryType({
 }): Promise<ContentEntryType> {
 	return {
 		extensions: ['.mdoc'],
-		getEntryInfo,
+		getEntryInfo({ fileUrl, contents }) {
+			const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
+			return {
+				data: parsed.frontmatter,
+				body: parsed.content.trim(),
+				slug: parsed.frontmatter.slug,
+				rawData: parsed.rawFrontmatter,
+			};
+		},
 		handlePropagation: true,
 		async getRenderModule({ contents, fileUrl, viteId }) {
-			const entry = getEntryInfo({ contents, fileUrl });
+			const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
 			const tokenizer = getMarkdocTokenizer(options);
-			let tokens = tokenizer.tokenize(entry.body);
+			let tokens = tokenizer.tokenize(parsed.content);
 
 			if (options?.allowHTML) {
 				tokens = htmlTokenTransform(tokenizer, tokens);
@@ -47,7 +55,6 @@ export async function getContentEntryType({
 				ast,
 				/* Raised generics issue with Markdoc core https://github.com/markdoc/markdoc/discussions/400 */
 				markdocConfig: markdocConfig as MarkdocConfig,
-				entry,
 				viteId,
 				astroConfig,
 				filePath,
@@ -64,7 +71,6 @@ export async function getContentEntryType({
 					raiseValidationErrors({
 						ast: partialAst,
 						markdocConfig: markdocConfig as MarkdocConfig,
-						entry,
 						viteId,
 						astroConfig,
 						filePath: partialPath,
@@ -224,14 +230,12 @@ async function resolvePartials({
 function raiseValidationErrors({
 	ast,
 	markdocConfig,
-	entry,
 	viteId,
 	astroConfig,
 	filePath,
 }: {
 	ast: Node;
 	markdocConfig: MarkdocConfig;
-	entry: ReturnType<typeof getEntryInfo>;
 	viteId: string;
 	astroConfig: AstroConfig;
 	filePath: string;
@@ -250,8 +254,6 @@ function raiseValidationErrors({
 	});
 
 	if (validationErrors.length) {
-		// Heuristic: take number of newlines for `rawData` and add 2 for the `---` fences
-		const frontmatterBlockOffset = entry.rawData.split('\n').length + 2;
 		const rootRelativePath = path.relative(fileURLToPath(astroConfig.root), filePath);
 		throw new MarkdocError({
 			message: [
@@ -261,7 +263,7 @@ function raiseValidationErrors({
 			location: {
 				// Error overlay does not support multi-line or ranges.
 				// Just point to the first line.
-				line: frontmatterBlockOffset + validationErrors[0].lines[0],
+				line: validationErrors[0].lines[0],
 				file: viteId,
 			},
 		});
@@ -280,16 +282,6 @@ function getUsedTags(markdocAst: Node) {
 		}
 	}
 	return tags;
-}
-
-function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
-	const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
-	return {
-		data: parsed.frontmatter,
-		body: parsed.content,
-		slug: parsed.frontmatter.slug,
-		rawData: parsed.rawFrontmatter,
-	};
 }
 
 /**
@@ -412,7 +404,9 @@ function getStringifiedMap(
  */
 function safeParseFrontmatter(fileContents: string, filePath: string) {
 	try {
-		return parseFrontmatter(fileContents);
+		// empty with lines to preserve sourcemap location, but not `empty-with-spaces`
+		// because markdoc struggles with spaces
+		return parseFrontmatter(fileContents, { frontmatter: 'empty-with-lines' });
 	} catch (e: any) {
 		if (e.name === 'YAMLException') {
 			const err: Error & ViteErrorPayload['err'] = e;

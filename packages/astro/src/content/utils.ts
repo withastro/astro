@@ -455,7 +455,7 @@ function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
 
 export function safeParseFrontmatter(source: string, id?: string) {
 	try {
-		return parseFrontmatter(source);
+		return parseFrontmatter(source, { frontmatter: 'empty-with-spaces' });
 	} catch (err: any) {
 		const markdownError = new MarkdownError({
 			name: 'MarkdownError',

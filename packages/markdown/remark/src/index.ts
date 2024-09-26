@@ -24,6 +24,7 @@ export {
 	isFrontmatterValid,
 	extractFrontmatter,
 	parseFrontmatter,
+	type ParseFrontmatterOptions,
 	type ParseFrontmatterResult,
 } from './frontmatter.js';
 export {

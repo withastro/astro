@@ -9,7 +9,7 @@ export const markdownContentEntryType: ContentEntryType = {
 		const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
 		return {
 			data: parsed.frontmatter,
-			body: parsed.content,
+			body: parsed.content.trim(),
 			slug: parsed.frontmatter.slug,
 			rawData: parsed.rawFrontmatter,
 		};

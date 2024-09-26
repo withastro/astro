@@ -50,7 +50,7 @@ export function getFileInfo(id: string, config: AstroConfig): FileInfo {
  */
 export function safeParseFrontmatter(code: string, id: string) {
 	try {
-		return parseFrontmatter(code);
+		return parseFrontmatter(code, { frontmatter: 'empty-with-spaces' });
 	} catch (e: any) {
 		if (e.name === 'YAMLException') {
 			const err: SSRError = e;
