@@ -1,14 +1,15 @@
-import { parseFrontmatter } from '@astrojs/markdown-remark';
-import { slug as githubSlug } from 'github-slugger';
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseFrontmatter } from '@astrojs/markdown-remark';
+import { slug as githubSlug } from 'github-slugger';
 import type { PluginContext } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
 import { z } from 'zod';
 import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
+import type { Logger } from '../core/logger/core.js';
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -279,6 +280,44 @@ export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | Dat
 		}
 	}
 	return map;
+}
+
+export async function getSymlinkedContentCollections({
+	contentDir,
+	logger,
+	fs,
+}: {
+	contentDir: URL;
+	logger: Logger;
+	fs: typeof fsMod;
+}): Promise<Map<string, string>> {
+	const contentPaths = new Map<string, string>();
+	const contentDirPath = fileURLToPath(contentDir);
+	try {
+		if (!fs.existsSync(contentDirPath) || !fs.lstatSync(contentDirPath).isDirectory()) {
+			return contentPaths;
+		}
+	} catch {
+		// Ignore if there isn't a valid content directory
+		return contentPaths;
+	}
+	try {
+		const contentDirEntries = await fs.promises.readdir(contentDir, { withFileTypes: true });
+		for (const entry of contentDirEntries) {
+			if (entry.isSymbolicLink()) {
+				const entryPath = path.join(contentDirPath, entry.name);
+				const realPath = await fs.promises.realpath(entryPath);
+				contentPaths.set(normalizePath(realPath), entry.name);
+			}
+		}
+	} catch (e) {
+		logger.warn('content', `Error when reading content directory "${contentDir}"`);
+		logger.debug('content', e);
+		// If there's an error, return an empty map
+		return new Map<string, string>();
+	}
+
+	return contentPaths;
 }
 
 export function reverseSymlink({
