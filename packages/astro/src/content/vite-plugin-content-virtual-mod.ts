@@ -63,15 +63,7 @@ export function astroContentVirtualModPlugin({
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
-				if (!settings.config.experimental.contentCollectionCache) {
-					return RESOLVED_VIRTUAL_MODULE_ID;
-				}
-				if (IS_DEV || IS_SERVER) {
-					return RESOLVED_VIRTUAL_MODULE_ID;
-				} else {
-					// For SSG (production), we will build this file ourselves
-					return { id: RESOLVED_VIRTUAL_MODULE_ID, external: true };
-				}
+				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
 			if (id === DATA_STORE_VIRTUAL_ID) {
 				return RESOLVED_DATA_STORE_VIRTUAL_ID;
@@ -167,17 +159,6 @@ export function astroContentVirtualModPlugin({
 				return fs.readFileSync(modules, 'utf-8');
 			}
 		},
-		renderChunk(code, chunk) {
-			if (!settings.config.experimental.contentCollectionCache) {
-				return;
-			}
-			if (code.includes(RESOLVED_VIRTUAL_MODULE_ID)) {
-				const depth = chunk.fileName.split('/').length - 1;
-				const prefix = depth > 0 ? '../'.repeat(depth) : './';
-				return code.replaceAll(RESOLVED_VIRTUAL_MODULE_ID, `${prefix}content/entry.mjs`);
-			}
-		},
-
 		configureServer(server) {
 			const dataStorePath = fileURLToPath(dataStoreFile);
 
@@ -231,7 +212,7 @@ export async function generateContentEntryFile({
 	let contentEntryGlobResult: string;
 	let dataEntryGlobResult: string;
 	let renderEntryGlobResult: string;
-	if (IS_DEV || IS_SERVER || !settings.config.experimental.contentCollectionCache) {
+	if (IS_DEV || IS_SERVER) {
 		const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 		const contentEntryExts = [...contentEntryConfigByExt.keys()];
 		const dataEntryExts = getDataEntryExts(settings);
