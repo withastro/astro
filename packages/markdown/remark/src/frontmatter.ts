@@ -18,14 +18,14 @@ export function extractFrontmatter(code: string): string | undefined {
 export interface ParseFrontmatterOptions {
 	/**
 	 * How the frontmatter should be handled in the returned `content` string.
-	 * - `preserve`: Keep the frontmatter in the returned `content` string.
-	 * - `strip`: Completely remove the frontmatter from the returned `content` string.
-	 * - `empty-with-spaces`: Replace the frontmatter with spaces in the returned `content` string. (preserves sourcemap offset/line/col)
-	 * - `empty-with-lines`: Replace the frontmatter with newlines in the returned `content` string. (preserves sourcemap line/col)
+	 * - `preserve`: Keep the frontmatter.
+	 * - `remove`: Remove the frontmatter.
+	 * - `empty-with-spaces`: Replace the frontmatter with empty spaces. (preserves sourcemap line/col/offset)
+	 * - `empty-with-lines`: Replace the frontmatter with empty line breaks. (preserves sourcemap line/col)
 	 *
-	 * @default 'strip'
+	 * @default 'remove'
 	 */
-	frontmatter: 'preserve' | 'strip' | 'empty-with-spaces' | 'empty-with-lines';
+	frontmatter: 'preserve' | 'remove' | 'empty-with-spaces' | 'empty-with-lines';
 }
 
 export interface ParseFrontmatterResult {
@@ -48,11 +48,11 @@ export function parseFrontmatter(
 	const frontmatter = (parsed && typeof parsed === 'object' ? parsed : {}) as Record<string, any>;
 
 	let content: string;
-	switch (options?.frontmatter ?? 'strip') {
+	switch (options?.frontmatter ?? 'remove') {
 		case 'preserve':
 			content = code;
 			break;
-		case 'strip':
+		case 'remove':
 			content = code.replace(`---${rawFrontmatter}---`, '');
 			break;
 		case 'empty-with-spaces':
