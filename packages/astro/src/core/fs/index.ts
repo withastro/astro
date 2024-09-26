@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { appendForwardSlash } from '../path.js';
 
 const isWindows = process.platform === 'win32';
 
