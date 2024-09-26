@@ -375,18 +375,18 @@ interface GeneratePathOptions {
 }
 
 async function generatePath(
-	path: string,
+	pathname: string,
 	pipeline: BuildPipeline,
 	gopts: GeneratePathOptions,
 	route: RouteData,
 ) {
 	const { mod } = gopts;
 	const { config, logger, options } = pipeline;
-	logger.debug('build', `Generating: ${path}`);
+	logger.debug('build', `Generating: ${pathname}`);
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (route.type === 'page') {
-		addPageName(path, options);
+		addPageName(pathname, options);
 	}
 
 	// Do not render the fallback route if there is already a translated page
@@ -397,13 +397,13 @@ async function generatePath(
 		// always be rendered
 		route.pathname !== '/' &&
 		// Check if there is a translated page with the same path
-		Object.values(options.allPages).some((val) => val.route.pattern.test(path))
+		Object.values(options.allPages).some((val) => val.route.pattern.test(pathname))
 	) {
 		return;
 	}
 
 	const url = getUrlForPath(
-		path,
+		pathname,
 		config.base,
 		options.origin,
 		config.build.format,
@@ -419,7 +419,7 @@ async function generatePath(
 	});
 	const renderContext = await RenderContext.create({
 		pipeline,
-		pathname: path,
+		pathname: pathname,
 		request,
 		routeData: route,
 	});
@@ -471,7 +471,7 @@ async function generatePath(
 
 	// We encode the path because some paths will received encoded characters, e.g. /[page] VS /%5Bpage%5D.
 	// Node.js decodes the paths, so to avoid a clash between paths, do encode paths again, so we create the correct files and folders requested by the user.
-	const encodedPath = encodeURI(path);
+	const encodedPath = encodeURI(pathname);
 	const outFolder = getOutFolder(pipeline.settings, encodedPath, route);
 	const outFile = getOutFile(config, outFolder, encodedPath, route);
 	if (route.distURL) {
