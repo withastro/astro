@@ -12,6 +12,7 @@ import { createSafeError } from '../errors/index.js';
 import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
+import { SETTINGS_FILE } from '../../preferences/constants.js';
 
 async function createRestartedContainer(
 	container: Container,
@@ -50,7 +51,7 @@ function shouldRestartContainer(
 	else {
 		shouldRestart = configRE.test(normalizedChangedFile);
 		const settingsPath = vite.normalizePath(
-			fileURLToPath(new URL('settings.json', settings.dotAstroDir)),
+			fileURLToPath(new URL(SETTINGS_FILE, settings.dotAstroDir)),
 		);
 		if (settingsPath.endsWith(normalizedChangedFile)) {
 			shouldRestart = settings.preferences.ignoreNextPreferenceReload ? false : true;

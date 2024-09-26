@@ -112,13 +112,17 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 // Will match any invalid characters (will be converted to _). We only allow a-zA-Z0-9.-_
 const SAFE_CHARS_RE = /[^\w.-]/g;
 
+export function normalizeCodegenDir(integrationName: string): string {
+	return `./integrations/${integrationName.replace(SAFE_CHARS_RE, '_')}/`;
+}
+
 export function normalizeInjectedTypeFilename(filename: string, integrationName: string): string {
 	if (!filename.endsWith('.d.ts')) {
 		throw new Error(
 			`Integration ${bold(integrationName)} is injecting a type that does not end with "${bold('.d.ts')}"`,
 		);
 	}
-	return `./integrations/${integrationName.replace(SAFE_CHARS_RE, '_')}/${filename.replace(SAFE_CHARS_RE, '_')}`;
+	return `${normalizeCodegenDir(integrationName)}${filename.replace(SAFE_CHARS_RE, '_')}`;
 }
 
 export async function runHookConfigSetup({
@@ -233,6 +237,11 @@ export async function runHookConfigSetup({
 						} any application middleware you define.`,
 					);
 					updatedSettings.middlewares[order].push(entrypoint);
+				},
+				createCodegenDir: () => {
+					const codegenDir = new URL(normalizeCodegenDir(integration.name), settings.dotAstroDir);
+					fs.mkdirSync(codegenDir, { recursive: true });
+					return codegenDir;
 				},
 				logger: integrationLogger,
 			};
