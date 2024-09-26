@@ -4,7 +4,7 @@ import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
 import { createMdxProcessor } from './plugins.js';
-import { parseFrontmatter } from './utils.js';
+import { safeParseFrontmatter } from './utils.js';
 
 export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 	let processor: ReturnType<typeof createMdxProcessor> | undefined;
@@ -38,11 +38,10 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 		async transform(code, id) {
 			if (!id.endsWith('.mdx')) return;
 
-			const { data: frontmatter, content: pageContent, matter } = parseFrontmatter(code, id);
-			const frontmatterLines = matter ? matter.match(/\n/g)?.join('') + '\n\n' : '';
+			const { frontmatter, content } = safeParseFrontmatter(code, id);
 
 			const vfile = new VFile({
-				value: frontmatterLines + pageContent,
+				value: content,
 				path: id,
 				data: {
 					astro: {

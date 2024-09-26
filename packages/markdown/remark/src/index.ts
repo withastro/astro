@@ -20,7 +20,13 @@ export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export { rehypePrism } from './rehype-prism.js';
 export { rehypeShiki } from './rehype-shiki.js';
-export { isFrontmatterValid } from './frontmatter.js';
+export {
+	isFrontmatterValid,
+	extractFrontmatter,
+	parseFrontmatter,
+	type ParseFrontmatterOptions,
+	type ParseFrontmatterResult,
+} from './frontmatter.js';
 export {
 	createShikiHighlighter,
 	type ShikiHighlighter,

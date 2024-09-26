@@ -83,7 +83,7 @@ const post1Entry = {
 		schemaWorks: true,
 		title: 'Post 1',
 	},
-	body: '\n## Post 1\n\nThis is the contents of post 1.\n',
+	body: '## Post 1\n\nThis is the contents of post 1.',
 };
 
 const post2Entry = {
@@ -94,7 +94,7 @@ const post2Entry = {
 		schemaWorks: true,
 		title: 'Post 2',
 	},
-	body: '\n## Post 2\n\nThis is the contents of post 2.\n',
+	body: '## Post 2\n\nThis is the contents of post 2.',
 };
 
 const post3Entry = {
@@ -105,5 +105,5 @@ const post3Entry = {
 		schemaWorks: true,
 		title: 'Post 3',
 	},
-	body: '\n## Post 3\n\nThis is the contents of post 3.\n',
+	body: '## Post 3\n\nThis is the contents of post 3.',
 };

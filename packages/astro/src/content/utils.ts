@@ -1,8 +1,8 @@
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
-import matter from 'gray-matter';
 import type { PluginContext } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -455,7 +455,7 @@ function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
 
 export function safeParseFrontmatter(source: string, id?: string) {
 	try {
-		return matter(source);
+		return parseFrontmatter(source, { frontmatter: 'empty-with-spaces' });
 	} catch (err: any) {
 		const markdownError = new MarkdownError({
 			name: 'MarkdownError',
