@@ -34,6 +34,17 @@ export async function compileAstro({
 
 	try {
 		transformResult = await compile(compileProps);
+
+		// Check for client: hydration directives in the compiled JSX structure
+		const hasHydrationDirective = transformResult.code.includes('client:');
+		if (hasHydrationDirective) {			
+			// Optionally log a warning or error for devs
+			logger.warn(
+				null,
+				`Hydration directive found in ${compileProps.filename}. Astro components should not use client-side rendering.`
+			);			
+		}
+		
 		// Compile all TypeScript to JavaScript.
 		// Also, catches invalid JS/TS in the compiled output before returning.
 		esbuildResult = await transformWithEsbuild(transformResult.code, compileProps.filename, {
