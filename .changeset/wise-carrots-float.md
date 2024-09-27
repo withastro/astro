@@ -13,3 +13,17 @@ export default defineConfig({
     }
 })
 ```
+
+The `cacheManifest` boolean argument is no longer passed to the `astro:build:done` integration hook:
+
+```
+const integration = {
+    name: "my-integration",
+    hooks: {
+        "astro:build:done": ({
+-            cacheManifest,
+            logger
+        }) => {}
+    }
+}
+```
