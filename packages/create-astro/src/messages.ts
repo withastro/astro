@@ -60,10 +60,10 @@ export const getName = () =>
 		});
 	});
 
-export const getVersion = (packageManager: string, packageName: string, fallback = '') =>
+export const getVersion = (packageManager: string, packageName: string, ref: string, fallback = '') =>
 	new Promise<string>(async (resolve) => {
 		let registry = await getRegistry(packageManager);
-		const { version } = await fetch(`${registry}/${packageName}/latest`, {
+		const { version } = await fetch(`${registry}/${packageName}/${ref}`, {
 			redirect: 'follow',
 		})
 			.then((res) => res.json())
