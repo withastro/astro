@@ -579,16 +579,9 @@ type RunHookBuildDone = {
 	pages: string[];
 	routes: RouteData[];
 	logging: Logger;
-	cacheManifest: boolean;
 };
 
-export async function runHookBuildDone({
-	settings,
-	pages,
-	routes,
-	logging,
-	cacheManifest,
-}: RunHookBuildDone) {
+export async function runHookBuildDone({ settings, pages, routes, logging }: RunHookBuildDone) {
 	const dir =
 		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
 	await fsMod.promises.mkdir(dir, { recursive: true });
@@ -605,7 +598,6 @@ export async function runHookBuildDone({
 					dir,
 					routes: integrationRoutes,
 					logger,
-					cacheManifest,
 				}),
 				logger: logging,
 			});

@@ -227,7 +227,6 @@ export interface BaseIntegrationHooks {
 		dir: URL;
 		routes: IntegrationRouteData[];
 		logger: AstroIntegrationLogger;
-		cacheManifest: boolean;
 	}) => void | Promise<void>;
 	'astro:route:setup': (options: {
 		route: RouteOptions;

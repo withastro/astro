@@ -231,7 +231,6 @@ class AstroBuilder {
 				.map((pageData) => pageData.route)
 				.concat(hasServerIslands ? getServerIslandRouteData(this.settings.config) : []),
 			logging: this.logger,
-			cacheManifest: internals.cacheManifestUsed,
 		});
 
 		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {
