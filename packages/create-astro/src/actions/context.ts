@@ -15,6 +15,7 @@ export interface Context {
 	version: Promise<string>;
 	skipHouston: boolean;
 	fancy?: boolean;
+	add?: string[];
 	dryRun?: boolean;
 	yes?: boolean;
 	projectName?: string;
@@ -48,6 +49,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 			'--dry-run': Boolean,
 			'--help': Boolean,
 			'--fancy': Boolean,
+			'--add': [String],
 
 			'-y': '--yes',
 			'-n': '--no',
@@ -72,6 +74,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		'--skip-houston': skipHouston,
 		'--dry-run': dryRun,
 		'--ref': ref,
+		'--add': add,
 	} = flags;
 	let projectName = cwd;
 
@@ -96,6 +99,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		version: getVersion(packageManager, 'astro', process.env.ASTRO_VERSION),
 		skipHouston,
 		fancy,
+		add,
 		dryRun,
 		projectName,
 		template,
