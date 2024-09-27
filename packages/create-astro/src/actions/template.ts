@@ -23,7 +23,7 @@ export async function template(
 			choices: [
 				{ value: 'basics', label: 'Include sample files', hint: '(recommended)' },
 				{ value: 'blog', label: 'Use blog template' },
-				{ value: 'minimal', label: 'Empty' },
+				{ value: 'starlight', label: 'Use Docs (Starlight) template' },
 			],
 		});
 		ctx.template = tmpl;
