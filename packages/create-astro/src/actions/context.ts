@@ -75,6 +75,8 @@ export async function getContext(argv: string[]): Promise<Context> {
 	} = flags;
 	let projectName = cwd;
 
+	ref ??= 'latest'
+
 	if (no) {
 		yes = false;
 		if (install == undefined) install = false;
@@ -93,13 +95,13 @@ export async function getContext(argv: string[]): Promise<Context> {
 		prompt,
 		packageManager,
 		username: getName(),
-		version: getVersion(packageManager, 'astro', process.env.ASTRO_VERSION),
+		version: getVersion(packageManager, 'astro', ref, process.env.ASTRO_VERSION),
 		skipHouston,
 		fancy,
 		dryRun,
 		projectName,
 		template,
-		ref: ref ?? 'latest',
+		ref,
 		welcome: random(messages),
 		hat: hats ? random(hats) : undefined,
 		tie: ties ? random(ties) : undefined,
