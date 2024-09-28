@@ -20,7 +20,7 @@ describe('astro:db local database', () => {
 		before(async () => {
 			clearEnvironment();
 
-			const absoluteFileUrl = new URL('./fixtures/libsql-remote/dist/astro.db', import.meta.url);
+			const absoluteFileUrl = new URL('./fixtures/libsql-remote/dist/absolute.db', import.meta.url);
 
 			process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
 			process.env.ASTRO_DB_REMOTE_URL = absoluteFileUrl.toString();
@@ -45,7 +45,7 @@ describe('astro:db local database', () => {
 		before(async () => {
 			clearEnvironment();
 
-			const absoluteFileUrl = new URL('./fixtures/libsql-remote/dist/astro.db', import.meta.url);
+			const absoluteFileUrl = new URL('./fixtures/libsql-remote/dist/relative.db', import.meta.url);
 			const prodDbPath = relative(
 				fileURLToPath(fixture.config.root),
 				fileURLToPath(absoluteFileUrl),
