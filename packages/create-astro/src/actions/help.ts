@@ -18,7 +18,6 @@ export function help() {
 				['--skip-houston', 'Skip Houston animation.'],
 				['--ref', 'Choose astro branch (default: latest).'],
 				['--fancy', 'Enable full Unicode support for Windows.'],
-				['--typescript <option>', 'TypeScript option: strict | strictest | relaxed.'],
 			],
 		},
 	});

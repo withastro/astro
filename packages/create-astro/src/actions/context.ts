@@ -44,7 +44,6 @@ export async function getContext(argv: string[]): Promise<Context> {
 			'--no-install': Boolean,
 			'--git': Boolean,
 			'--no-git': Boolean,
-			'--typescript': String,
 			'--skip-houston': Boolean,
 			'--dry-run': Boolean,
 			'--help': Boolean,
@@ -69,7 +68,6 @@ export async function getContext(argv: string[]): Promise<Context> {
 		'--no-install': noInstall,
 		'--git': git,
 		'--no-git': noGit,
-		'--typescript': typescript,
 		'--fancy': fancy,
 		'--skip-houston': skipHouston,
 		'--dry-run': dryRun,
@@ -82,12 +80,11 @@ export async function getContext(argv: string[]): Promise<Context> {
 		yes = false;
 		if (install == undefined) install = false;
 		if (git == undefined) git = false;
-		if (typescript == undefined) typescript = 'strict';
 	}
 
 	skipHouston =
 		((os.platform() === 'win32' && !fancy) || skipHouston) ??
-		[yes, no, install, git, typescript].some((v) => v !== undefined);
+		[yes, no, install, git].some((v) => v !== undefined);
 
 	const { messages, hats, ties } = getSeasonalData({ fancy });
 
@@ -110,7 +107,6 @@ export async function getContext(argv: string[]): Promise<Context> {
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
-		typescript,
 		cwd,
 		exit(code) {
 			process.exit(code);
