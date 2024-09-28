@@ -2,4 +2,4 @@
 'create-astro': patch
 ---
 
-Fix the version printed in messages
+Fix the printed astro version when `--ref` is specified.
