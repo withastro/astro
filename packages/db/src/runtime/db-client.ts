@@ -53,7 +53,7 @@ export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
 
 	return options.dbType === 'studio'
 		? createStudioDatabaseClient(options.appToken, remoteUrl)
-		: createRemoteLibSQLClient(options.appToken, remoteUrl, options.remoteUrl);
+		: createRemoteLibSQLClient(options.appToken, remoteUrl, options.remoteUrl.toString());
 }
 
 function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: string) {
