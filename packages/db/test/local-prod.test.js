@@ -4,6 +4,7 @@ import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
+import { clearEnvironment } from './test-utils.js';
 
 describe('astro:db local database', () => {
 	let fixture;
@@ -45,6 +46,41 @@ describe('astro:db local database', () => {
 
 		after(async () => {
 			delete process.env.ASTRO_DATABASE_FILE;
+		});
+
+		it('Can render page', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+		});
+	});
+
+	describe('build --remote with local libSQL file (relative path)', () => {
+		before(async () => {
+			clearEnvironment();
+
+			const absoluteFileUrl = new URL('./fixtures/basics/dist/astro.db', import.meta.url);
+			const prodDbPath = relative(
+				fileURLToPath(fixture.config.root),
+				fileURLToPath(absoluteFileUrl),
+			);
+			console.log({
+				root: fixture.config.root.toString(),
+				absoluteFileUrl: absoluteFileUrl.toString(),
+				prodDbPath: prodDbPath,
+			})
+
+			process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
+			process.env.ASTRO_DB_REMOTE_URL = `file:${prodDbPath}`;
+			delete process.env.ASTRO_DATABASE_FILE;
+			console.log(process.env);
+			await fixture.build();
+		});
+
+		after(async () => {
+			delete process.env.ASTRO_INTERNAL_TEST_REMOTE;
+			delete process.env.ASTRO_DB_REMOTE_URL;
 		});
 
 		it('Can render page', async () => {

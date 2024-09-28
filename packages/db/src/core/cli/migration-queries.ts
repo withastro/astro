@@ -451,7 +451,10 @@ async function getDbCurrentSnapshot(
 
 		return JSON.parse(res.snapshot);
 	} catch (error: any) {
-		if (error.code === 'SQLITE_UNKNOWN') {
+		if (
+			error.code === 'SQLITE_UNKNOWN'
+			|| (error.code === 'SQLITE_ERROR' && error.rawCode === 1)
+		) {
 			// If the schema was never pushed to the database yet the table won't exist.
 			// Treat a missing snapshot table as an empty table.
 			return;
