@@ -4,7 +4,6 @@ import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
-import { clearEnvironment } from './test-utils.js';
 
 describe('astro:db local database', () => {
 	let fixture;
