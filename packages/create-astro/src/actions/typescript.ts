@@ -102,8 +102,8 @@ const FILES_TO_UPDATE = {
 			}
 
 			const [astroCheckVersion, typescriptVersion] = await Promise.all([
-				getVersion(options.ctx.packageManager, options.ctx.ref, '@astrojs/check', process.env.ASTRO_CHECK_VERSION),
-				getVersion(options.ctx.packageManager, options.ctx.ref, 'typescript', process.env.TYPESCRIPT_VERSION),
+				getVersion(options.ctx.packageManager, '@astrojs/check', 'latest', process.env.ASTRO_CHECK_VERSION),
+				getVersion(options.ctx.packageManager, 'typescript', 'latest', process.env.TYPESCRIPT_VERSION),
 			]);
 			parsedPackageJson.dependencies ??= {};
 			parsedPackageJson.dependencies['@astrojs/check'] = `^${astroCheckVersion}`;
