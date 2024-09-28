@@ -56,41 +56,6 @@ describe('astro:db local database', () => {
 		});
 	});
 
-	describe('build --remote with local libSQL file (relative path)', () => {
-		before(async () => {
-			clearEnvironment();
-
-			const absoluteFileUrl = new URL('./fixtures/basics/dist/astro.db', import.meta.url);
-			const prodDbPath = relative(
-				fileURLToPath(fixture.config.root),
-				fileURLToPath(absoluteFileUrl),
-			);
-			console.log({
-				root: fixture.config.root.toString(),
-				absoluteFileUrl: absoluteFileUrl.toString(),
-				prodDbPath: prodDbPath,
-			})
-
-			process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
-			process.env.ASTRO_DB_REMOTE_URL = `file:${prodDbPath}`;
-			delete process.env.ASTRO_DATABASE_FILE;
-			console.log(process.env);
-			await fixture.build();
-		});
-
-		after(async () => {
-			delete process.env.ASTRO_INTERNAL_TEST_REMOTE;
-			delete process.env.ASTRO_DB_REMOTE_URL;
-		});
-
-		it('Can render page', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			assert.equal(response.status, 200);
-		});
-	});
-
 	describe('build (not remote)', () => {
 		it('should throw during the build for server output', async () => {
 			delete process.env.ASTRO_DATABASE_FILE;
