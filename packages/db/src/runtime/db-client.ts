@@ -66,9 +66,9 @@ function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: st
 		// for in-memory DBs.
 		url = ':memory:';
 	} else if (
-		remoteDbURL.protocol === 'file:'
-		&& remoteDbURL.pathname.startsWith('/')
-		&& !rawUrl.startsWith('file:/')
+		remoteDbURL.protocol === 'file:' &&
+		remoteDbURL.pathname.startsWith('/') &&
+		!rawUrl.startsWith('file:/')
 	) {
 		// libSQL accepts relative and absolute file URLs
 		// for local DBs. This doesn't match the URL specification.
