@@ -16,7 +16,7 @@ export default defineConfig({
 
 The `cacheManifest` boolean argument is no longer passed to the `astro:build:done` integration hook:
 
-```
+```diff
 const integration = {
     name: "my-integration",
     hooks: {
