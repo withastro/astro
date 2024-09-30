@@ -4,7 +4,6 @@ import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
-import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { isPromise } from '../util.js';
 import { type AstroComponentFactory, isAstroComponentFactory } from './astro/factory.js';
@@ -29,6 +28,7 @@ import { maybeRenderHead } from './head.js';
 import { containsServerDirective, renderServerIsland } from './server-islands.js';
 import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
+import { serializeProps } from '../serialize.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -331,7 +331,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	const astroId = shorthash(
 		`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}\n${serializeProps(
 			props,
-			metadata,
 		)}`,
 	);
 

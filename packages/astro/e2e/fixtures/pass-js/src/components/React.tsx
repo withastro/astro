@@ -11,12 +11,13 @@ interface Props {
 	array: any[];
 	map: Map<string, string>;
 	set: Set<string>;
+	infinity: number;
 }
 
 const isNode = typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]';
 
 /** a counter written in React */
-export default function Component({ undefined: undefinedProp, null: nullProp, boolean, number, string, bigint, object, array, map, set }: Props) {
+export default function Component({ undefined: undefinedProp, null: nullProp, boolean, number, string, bigint, object, array, map, set, infinity }: Props) {
 	// We are testing hydration, so don't return anything in the server.
 	if(isNode) {
 		return <div></div>
@@ -47,6 +48,7 @@ export default function Component({ undefined: undefinedProp, null: nullProp, bo
 			</ul>
 			<span id="set-type">{Object.prototype.toString.call(set)}</span>
 			<span id="set-value">{Array.from(set).join(',')}</span>
+			<span id="infinity-value">{infinity.toString()}</span>
 		</div>
 	);
 }

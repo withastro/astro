@@ -13,37 +13,6 @@ declare const Astro: {
 };
 
 {
-	interface PropTypeSelector {
-		[k: string]: (value: any) => any;
-	}
-
-	const propTypes: PropTypeSelector = {
-		0: (value) => reviveObject(value),
-		1: (value) => reviveArray(value),
-		2: (value) => new RegExp(value),
-		3: (value) => new Date(value),
-		4: (value) => new Map(reviveArray(value)),
-		5: (value) => new Set(reviveArray(value)),
-		6: (value) => BigInt(value),
-		7: (value) => new URL(value),
-		8: (value) => new Uint8Array(value),
-		9: (value) => new Uint16Array(value),
-		10: (value) => new Uint32Array(value),
-	};
-
-	// Not using JSON.parse reviver because it's bottom-up but we want top-down
-	const reviveTuple = (raw: any): any => {
-		const [type, value] = raw;
-		return type in propTypes ? propTypes[type](value) : undefined;
-	};
-
-	const reviveArray = (raw: any): any => (raw as Array<any>).map(reviveTuple);
-
-	const reviveObject = (raw: any): any => {
-		if (typeof raw !== 'object' || raw === null) return raw;
-		return Object.fromEntries(Object.entries(raw).map(([key, value]) => [key, reviveTuple(value)]));
-	};
-
 	// 🌊🏝️🌴
 	class AstroIsland extends HTMLElement {
 		public Component: any;
@@ -167,9 +136,9 @@ declare const Astro: {
 			let props: Record<string, unknown>;
 
 			try {
-				props = this.hasAttribute('props')
-					? reviveObject(JSON.parse(this.getAttribute('props')!))
-					: {};
+				// eval should be safe as only Astro serializes the props. This uses `(0, eval)` to cause an
+				// indirect eval, which causes the eval to run in the global scope rather than this current scope
+				props = this.hasAttribute('props') ? (0, eval)('(' + this.getAttribute('props') + ')') : {};
 			} catch (e) {
 				let componentName: string = this.getAttribute('component-url') || '<unknown>';
 				const componentExport = this.getAttribute('component-export');

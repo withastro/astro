@@ -128,7 +128,7 @@ export default {
 			tooltip.sections = [];
 
 			const islandProps = island.getAttribute('props')
-				? JSON.parse(island.getAttribute('props')!)
+				? (0, eval)('(' + island.getAttribute('props') + ')')
 				: {};
 			const islandClientDirective = island.getAttribute('client');
 
@@ -147,7 +147,7 @@ export default {
 			);
 			if (islandPropsEntries.length > 0) {
 				const stringifiedProps = JSON.stringify(
-					Object.fromEntries(islandPropsEntries.map((prop: any) => [prop[0], prop[1][1]])),
+					Object.fromEntries(islandPropsEntries),
 					undefined,
 					2,
 				);

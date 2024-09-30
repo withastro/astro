@@ -47,6 +47,10 @@ test.describe('Passing JS into client components', () => {
 		await expect(numberValue, 'is visible').toBeVisible();
 		await expect(numberValue).toHaveText('16');
 
+		const infinityValue = page.locator('#infinity-value');
+		await expect(infinityValue, 'is visible').toBeVisible();
+		await expect(infinityValue).toHaveText('Infinity');
+
 		// string
 		const stringType = page.locator('#string-type');
 		await expect(stringType, 'is visible').toBeVisible();
