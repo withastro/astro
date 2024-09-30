@@ -371,7 +371,7 @@ function getUrlForPath(
 			break;
 		}
 		default: {
-			ending = '.html';
+			ending = '';
 			break;
 		}
 	}

@@ -132,18 +132,6 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					pageUrls = Array.from(new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])]));
 
-					if(config.build.format === 'file') {
-						pageUrls = pageUrls.map((url) => {
-
-							if(url.endsWith('/')) {
-								return url;
-							}
-
-							return url + '.html';
-
-						});
-					}
-
 					try {
 						if (filter) {
 							pageUrls = pageUrls.filter(filter);
