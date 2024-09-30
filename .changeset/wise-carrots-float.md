@@ -4,7 +4,7 @@
 
 Removes the experimental `contentCollectionsCache` introduced in `3.5.0`.
 
-Astro Content Layer is now stable, and solves some of the issues of the legacy Content Collections. A Content Layer Cache may be introduced in the future but in the meantime, remove the flag from your Astro config:
+Astro Content Layer API independently solves some of the caching and performance issues with legacy content collections that this strategy attempted to address.  This feature has been replaced with continued work on improvements to the content layer. If you were using this experimental feature, you must now remove the flag from your Astro config as it no longer exists:
 
 ```diff
 export default defineConfig({
