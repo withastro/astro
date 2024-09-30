@@ -1,13 +1,15 @@
 import path from 'node:path';
-import type { Arguments } from 'yargs-parser';
 import { ensureProcessNodeEnv } from '../../core/util.js';
-import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
 
-export async function check(flags: Arguments) {
+export async function check(flags: Flags) {
 	ensureProcessNodeEnv('production');
 	const logger = createLoggerFromFlags(flags);
-	const getPackageOpts = { skipAsk: flags.yes || flags.y, cwd: flags.root };
+	const getPackageOpts = {
+		skipAsk: !!flags.yes || !!flags.y,
+		cwd: flags.root,
+	};
 	const checkPackage = await getPackage<typeof import('@astrojs/check')>(
 		'@astrojs/check',
 		logger,
@@ -30,7 +32,7 @@ export async function check(flags: Arguments) {
 		// For now, we run this once as usually `astro check --watch` is ran alongside `astro dev` which also calls `astro sync`.
 		const { default: sync } = await import('../../core/sync/index.js');
 		try {
-			await sync({ inlineConfig: flagsToAstroInlineConfig(flags) });
+			await sync(flagsToAstroInlineConfig(flags));
 		} catch (_) {
 			return process.exit(1);
 		}

@@ -65,7 +65,13 @@ export async function scan(
 				.trim();
 			// For a given export, check the value of the first non-whitespace token.
 			// Basically extract the `true` from the statement `export const prerender = true`
-			const suffix = code.slice(endOfLocalName).trim().replace(/=/, '').trim().split(/[;\n]/)[0];
+			const suffix = code
+				.slice(endOfLocalName)
+				.trim()
+				.replace(/=/, '')
+				.trim()
+				.split(/[;\n\r]/)[0]
+				.trim();
 			if (prefix !== 'const' || !(isTruthy(suffix) || isFalsy(suffix))) {
 				throw new AstroError({
 					...AstroErrorData.InvalidPrerenderExport,

@@ -55,7 +55,7 @@ async function init({ cwd }: { cwd: string }) {
 			[
 				'commit',
 				'-m',
-				'Initial commit from Astro',
+				'"Initial commit from Astro"',
 				'--author="houston[bot] <astrobot-houston@users.noreply.github.com>"',
 			],
 			{ cwd, stdio: 'ignore' },

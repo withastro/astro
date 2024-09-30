@@ -50,7 +50,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.mdx',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 
 			assert.equal(response.status, 200);
@@ -97,7 +97,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.mdx',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 
 			assert.equal(response.status, 200);
@@ -128,7 +128,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.mdx',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 
 			try {

@@ -2,7 +2,7 @@
 
 // @ts-check
 
-import { execa } from 'execa';
+import { exec } from 'tinyexec';
 import { promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -36,7 +36,9 @@ async function run() {
 
 	console.log('🤖', 'Resetting', 'pnpm');
 
-	await execa('pnpm', ['install'], { cwd: fileURLToPath(rootDir), stdout: 'inherit', stderr: 'inherit' });
+	await exec('pnpm', ['install'], {
+		nodeOptions: { cwd: fileURLToPath(rootDir), stdio: ['pipe', 'inherit', 'inherit'] },
+	});
 }
 
 /* Functionality

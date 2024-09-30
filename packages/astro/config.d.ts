@@ -26,6 +26,9 @@ export function getViteConfig(
 export function sharpImageService(config?: SharpImageServiceConfig): ImageServiceConfig;
 
 /**
+ * @deprecated The Squoosh image service is deprecated and will be removed in Astro 5.x.
+ * We suggest migrating to the default Sharp image service instead, as it is faster, more powerful and better maintained.
+ *
  * Return the configuration needed to use the Squoosh-based image service
  * See: https://docs.astro.build/en/guides/images/#configure-squoosh
  */

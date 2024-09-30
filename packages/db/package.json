@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/db",
-  "version": "0.12.0",
+  "version": "0.14.1",
   "description": "Add libSQL and Astro Studio support to your Astro site",
   "license": "MIT",
   "repository": {
@@ -70,7 +70,7 @@
   },
   "dependencies": {
     "@astrojs/studio": "workspace:*",
-    "@libsql/client": "^0.8.1",
+    "@libsql/client": "^0.14.0",
     "async-listen": "^3.0.1",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.31.2",
@@ -78,7 +78,7 @@
     "kleur": "^4.1.5",
     "nanoid": "^5.0.7",
     "open": "^10.1.0",
-    "ora": "^8.0.1",
+    "ora": "^8.1.0",
     "prompts": "^2.4.2",
     "strip-ansi": "^7.1.0",
     "yargs-parser": "^21.1.1",
@@ -90,8 +90,8 @@
     "@types/yargs-parser": "^21.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.0.0-rc.12",
-    "typescript": "^5.5.4",
-    "vite": "^5.3.5"
+    "cheerio": "1.0.0",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
   }
 }

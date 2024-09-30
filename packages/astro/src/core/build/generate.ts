@@ -26,7 +26,7 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
-import { toRoutingStrategy } from '../../i18n/utils.js';
+import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated } from '../../integrations/hooks.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
 import type { SSRManifestI18n } from '../app/types.js';
@@ -77,6 +77,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			internals,
 			renderers.renderers as SSRLoadedRenderer[],
 			middleware,
+			options.key,
 		);
 	}
 	const pipeline = BuildPipeline.create({ internals, manifest, options });
@@ -442,7 +443,12 @@ async function generatePath(
 		logger,
 		staticLike: true,
 	});
-	const renderContext = RenderContext.create({ pipeline, pathname, request, routeData: route });
+	const renderContext = await RenderContext.create({
+		pipeline,
+		pathname,
+		request,
+		routeData: route,
+	});
 
 	let body: string | Uint8Array;
 	let response: Response;
@@ -521,11 +527,13 @@ function createBuildManifest(
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[],
 	middleware: MiddlewareHandler,
+	key: Promise<CryptoKey>,
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
+			fallbackType: toFallbackType(settings.config.i18n.routing),
 			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
@@ -549,8 +557,13 @@ function createBuildManifest(
 		componentMetadata: internals.componentMetadata,
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
-		middleware,
+		middleware() {
+			return {
+				onRequest: middleware,
+			};
+		},
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		key,
 		experimentalEnvGetSecretEnabled: false,
 	};
 }

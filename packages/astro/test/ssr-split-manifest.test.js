@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
@@ -62,12 +61,13 @@ describe('astro:ssr-manifest, split', () => {
 	});
 
 	it('should correctly emit the the pre render page', async () => {
-		const text = readFileSync(
-			resolve('./test/fixtures/ssr-split-manifest/dist/client/prerender/index.html'),
-			{
-				encoding: 'utf8',
-			},
+		const indexUrl = new URL(
+			'./fixtures/ssr-split-manifest/dist/client/prerender/index.html',
+			import.meta.url,
 		);
+		const text = readFileSync(indexUrl, {
+			encoding: 'utf8',
+		});
 		assert.equal(text.includes('<title>Pre render me</title>'), true);
 	});
 

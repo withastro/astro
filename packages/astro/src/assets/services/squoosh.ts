@@ -1,5 +1,4 @@
-// TODO: Investigate removing this service once sharp lands WASM support, as libsquoosh is deprecated
-
+import { yellow } from 'kleur/colors';
 import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import { imageMetadata } from '../utils/metadata.js';
 import {
@@ -10,6 +9,13 @@ import {
 } from './service.js';
 import { processBuffer } from './vendor/squoosh/image-pool.js';
 import type { Operation } from './vendor/squoosh/image.js';
+
+// eslint-disable-next-line no-console
+console.warn(
+	yellow(
+		'The Squoosh image service is deprecated and will be removed in Astro 5.x. We suggest migrating to the default Sharp image service instead, as it is faster, more powerful and better maintained.',
+	),
+);
 
 const baseQuality = { low: 25, mid: 50, high: 80, max: 100 };
 const qualityTable: Record<

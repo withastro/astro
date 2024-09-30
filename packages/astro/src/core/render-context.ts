@@ -37,14 +37,13 @@ import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 
+export const apiContextRoutesSymbol = Symbol.for('context.routes');
+
 /**
  * Each request is rendered using a `RenderContext`.
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
  */
 export class RenderContext {
-	// The first route that this instance of the context attempts to render
-	originalRoute: RouteData;
-
 	private constructor(
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
@@ -57,9 +56,7 @@ export class RenderContext {
 		public params = getParams(routeData, pathname),
 		protected url = new URL(request.url),
 		public props: Props = {},
-	) {
-		this.originalRoute = routeData;
-	}
+	) {}
 
 	/**
 	 * A flag that tells the render content if the rewriting was triggered
@@ -70,7 +67,7 @@ export class RenderContext {
 	 */
 	counter = 0;
 
-	static create({
+	static async create({
 		locals = {},
 		middleware,
 		pathname,
@@ -80,11 +77,14 @@ export class RenderContext {
 		status = 200,
 		props,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
-		Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>>): RenderContext {
+		Partial<
+			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>
+		>): Promise<RenderContext> {
+		const pipelineMiddleware = await pipeline.getMiddleware();
 		return new RenderContext(
 			pipeline,
 			locals,
-			sequence(...pipeline.internalMiddleware, middleware ?? pipeline.middleware),
+			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
 			pathname,
 			request,
 			routeData,
@@ -114,6 +114,8 @@ export class RenderContext {
 		const { cookies, middleware, pipeline } = this;
 		const { logger, serverLike, streaming } = pipeline;
 
+		const isPrerendered = !serverLike || this.routeData.prerender;
+
 		const props =
 			Object.keys(this.props).length > 0
 				? this.props
@@ -125,7 +127,7 @@ export class RenderContext {
 						logger,
 						serverLike,
 					});
-		const apiContext = this.createAPIContext(props);
+		const apiContext = this.createAPIContext(props, isPrerendered);
 
 		this.counter++;
 		if (this.counter === 4) {
@@ -140,14 +142,24 @@ export class RenderContext {
 			if (payload) {
 				pipeline.logger.debug('router', 'Called rewriting to:', payload);
 				// we intentionally let the error bubble up
-				const [routeData, component] = await pipeline.tryRewrite(
-					payload,
-					this.request,
-					this.originalRoute,
-				);
+				const {
+					routeData,
+					componentInstance: newComponent,
+					pathname,
+					newUrl,
+				} = await pipeline.tryRewrite(payload, this.request);
 				this.routeData = routeData;
-				componentInstance = component;
+				componentInstance = newComponent;
+				if (payload instanceof Request) {
+					this.request = payload;
+				} else {
+					this.request = this.#copyRequest(newUrl, this.request);
+				}
 				this.isRewriting = true;
+				this.url = new URL(this.request.url);
+				this.cookies = new AstroCookies(this.request);
+				this.params = getParams(routeData, pathname);
+				this.pathname = pathname;
 				this.status = 200;
 			}
 			let response: Response;
@@ -212,44 +224,51 @@ export class RenderContext {
 		return response;
 	}
 
-	createAPIContext(props: APIContext['props']): APIContext {
+	createAPIContext(props: APIContext['props'], isPrerendered: boolean): APIContext {
 		const context = this.createActionAPIContext();
+		const redirect = (path: string, status = 302) =>
+			new Response(null, { status, headers: { Location: path } });
+		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
+
 		return Object.assign(context, {
 			props,
+			redirect,
 			getActionResult: createGetActionResult(context.locals),
 			callAction: createCallAction(context),
+			// Used internally by Actions middleware.
+			// TODO: discuss exposing this information from APIContext.
+			// middleware runs on prerendered routes in the dev server,
+			// so this is useful information to have.
+			_isPrerendered: isPrerendered,
 		});
 	}
 
 	async #executeRewrite(reroutePayload: RewritePayload) {
 		this.pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
-		const [routeData, component, newURL] = await this.pipeline.tryRewrite(
+		const { routeData, componentInstance, newUrl, pathname } = await this.pipeline.tryRewrite(
 			reroutePayload,
 			this.request,
-			this.originalRoute,
 		);
 		this.routeData = routeData;
 		if (reroutePayload instanceof Request) {
 			this.request = reroutePayload;
 		} else {
-			this.request = this.#copyRequest(newURL, this.request);
+			this.request = this.#copyRequest(newUrl, this.request);
 		}
 		this.url = new URL(this.request.url);
 		this.cookies = new AstroCookies(this.request);
-		this.params = getParams(routeData, this.url.pathname);
-		this.pathname = this.url.pathname;
+		this.params = getParams(routeData, pathname);
+		this.pathname = pathname;
 		this.isRewriting = true;
 		// we found a route and a component, we can change the status code to 200
 		this.status = 200;
-		return await this.render(component);
+		return await this.render(componentInstance);
 	}
 
 	createActionAPIContext(): ActionAPIContext {
 		const renderContext = this;
 		const { cookies, params, pipeline, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
-		const redirect = (path: string, status = 302) =>
-			new Response(null, { status, headers: { Location: path } });
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			return await this.#executeRewrite(reroutePayload);
@@ -285,7 +304,6 @@ export class RenderContext {
 			get preferredLocaleList() {
 				return renderContext.computePreferredLocaleList();
 			},
-			redirect,
 			rewrite,
 			request: this.request,
 			site: pipeline.site,
@@ -344,6 +362,7 @@ export class RenderContext {
 			styles,
 			actionResult,
 			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
+			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
 			_metadata: {
 				hasHydrationScript: false,

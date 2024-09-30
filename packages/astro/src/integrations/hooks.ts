@@ -13,7 +13,10 @@ import type {
 	DataEntryType,
 	HookParameters,
 	RouteData,
+	RouteOptions,
 } from '../@types/astro.js';
+import astroIntegrationActionsRouteHandler from '../actions/integration.js';
+import { isActionsFilePresent } from '../actions/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
@@ -100,6 +103,18 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 	};
 }
 
+// Will match any invalid characters (will be converted to _). We only allow a-zA-Z0-9.-_
+const SAFE_CHARS_RE = /[^\w.-]/g;
+
+export function normalizeInjectedTypeFilename(filename: string, integrationName: string): string {
+	if (!filename.endsWith('.d.ts')) {
+		throw new Error(
+			`Integration ${bold(integrationName)} is injecting a type that does not end with "${bold('.d.ts')}"`,
+		);
+	}
+	return `./integrations/${integrationName.replace(SAFE_CHARS_RE, '_')}/${filename.replace(SAFE_CHARS_RE, '_')}`;
+}
+
 export async function runHookConfigSetup({
 	settings,
 	command,
@@ -108,7 +123,7 @@ export async function runHookConfigSetup({
 	fs = fsMod,
 }: {
 	settings: AstroSettings;
-	command: 'dev' | 'build' | 'preview';
+	command: 'dev' | 'build' | 'preview' | 'sync';
 	logger: Logger;
 	isRestart?: boolean;
 	fs?: typeof fsMod;
@@ -117,9 +132,8 @@ export async function runHookConfigSetup({
 	if (settings.config.adapter) {
 		settings.config.integrations.push(settings.config.adapter);
 	}
-	if (settings.config.experimental?.actions) {
-		const { default: actionsIntegration } = await import('../actions/index.js');
-		settings.config.integrations.push(actionsIntegration({ fs, settings }));
+	if (await isActionsFilePresent(fs, settings.config.srcDir)) {
+		settings.config.integrations.push(astroIntegrationActionsRouteHandler({ settings }));
 	}
 
 	let updatedConfig: AstroConfig = { ...settings.config };
@@ -326,6 +340,21 @@ export async function runHookConfigDone({
 							}
 						}
 						settings.adapter = adapter;
+					},
+					injectTypes(injectedType) {
+						const normalizedFilename = normalizeInjectedTypeFilename(
+							injectedType.filename,
+							integration.name,
+						);
+
+						settings.injectedTypes.push({
+							filename: normalizedFilename,
+							content: injectedType.content,
+						});
+
+						// It must be relative to dotAstroDir here and not inside normalizeInjectedTypeFilename
+						// because injectedTypes are handled relatively to the dotAstroDir already
+						return new URL(normalizedFilename, settings.dotAstroDir);
 					},
 					logger: getLogger(integration, logger),
 				}),
@@ -555,6 +584,47 @@ export async function runHookBuildDone({
 				logger: logging,
 			});
 		}
+	}
+}
+
+export async function runHookRouteSetup({
+	route,
+	settings,
+	logger,
+}: {
+	route: RouteOptions;
+	settings: AstroSettings;
+	logger: Logger;
+}) {
+	const prerenderChangeLogs: { integrationName: string; value: boolean | undefined }[] = [];
+
+	for (const integration of settings.config.integrations) {
+		if (integration?.hooks?.['astro:route:setup']) {
+			const originalRoute = { ...route };
+			const integrationLogger = getLogger(integration, logger);
+
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookName: 'astro:route:setup',
+				hookResult: integration.hooks['astro:route:setup']({
+					route,
+					logger: integrationLogger,
+				}),
+				logger,
+			});
+
+			if (route.prerender !== originalRoute.prerender) {
+				prerenderChangeLogs.push({ integrationName: integration.name, value: route.prerender });
+			}
+		}
+	}
+
+	if (prerenderChangeLogs.length > 1) {
+		logger.debug(
+			'router',
+			`The ${route.component} route's prerender option has been changed multiple times by integrations:\n` +
+				prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
+		);
 	}
 }
 

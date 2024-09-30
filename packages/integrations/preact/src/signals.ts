@@ -1,6 +1,13 @@
 import type { Context } from './context.js';
 import { incrementId } from './context.js';
-import type { AstroPreactAttrs, PropNameToSignalMap, SignalLike } from './types.js';
+import type {
+	ArrayObjectMapping,
+	AstroPreactAttrs,
+	PropNameToSignalMap,
+	SignalLike,
+	SignalToKeyOrIndexMap,
+	Signals,
+} from './types.js';
 
 function isSignal(x: any): x is SignalLike {
 	return x != null && typeof x === 'object' && typeof x.peek === 'function' && 'value' in x;
@@ -28,26 +35,54 @@ export function serializeSignals(
 	map: PropNameToSignalMap,
 ) {
 	// Check for signals
-	const signals: Record<string, string> = {};
+	const signals: Signals = {};
 	for (const [key, value] of Object.entries(props)) {
-		if (isSignal(value)) {
+		const isPropArray = Array.isArray(value);
+		// `typeof null` is 'object' in JS, so we need to check for `null` specifically
+		const isPropObject =
+			!isSignal(value) && typeof props[key] === 'object' && props[key] !== null && !isPropArray;
+
+		if (isPropObject || isPropArray) {
+			const values = isPropObject ? Object.keys(props[key]) : value;
+			values.forEach((valueKey: number | string, valueIndex: number) => {
+				const signal = isPropObject ? props[key][valueKey] : valueKey;
+				if (isSignal(signal)) {
+					const keyOrIndex = isPropObject ? valueKey.toString() : valueIndex;
+
+					props[key] = isPropObject
+						? Object.assign({}, props[key], { [keyOrIndex]: signal.peek() })
+						: props[key].map((v: SignalLike, i: number) =>
+								i === valueIndex ? [signal.peek(), i] : v,
+							);
+
+					const currentMap = (map.get(key) || []) as SignalToKeyOrIndexMap;
+					map.set(key, [...currentMap, [signal, keyOrIndex]]);
+
+					const currentSignals = (signals[key] || []) as ArrayObjectMapping;
+					signals[key] = [...currentSignals, [getSignalId(ctx, signal), keyOrIndex]];
+				}
+			});
+		} else if (isSignal(value)) {
 			// Set the value to the current signal value
 			// This mutates the props on purpose, so that it will be serialized correct.
 			props[key] = value.peek();
 			map.set(key, value);
 
-			let id: string;
-			if (ctx.signals.has(value)) {
-				id = ctx.signals.get(value)!;
-			} else {
-				id = incrementId(ctx);
-				ctx.signals.set(value, id);
-			}
-			signals[key] = id;
+			signals[key] = getSignalId(ctx, value);
 		}
 	}
 
 	if (Object.keys(signals).length) {
 		attrs['data-preact-signals'] = JSON.stringify(signals);
 	}
+}
+
+function getSignalId(ctx: Context, item: SignalLike) {
+	let id = ctx.signals.get(item);
+	if (!id) {
+		id = incrementId(ctx);
+		ctx.signals.set(item, id);
+	}
+
+	return id;
 }

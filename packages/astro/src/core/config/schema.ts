@@ -83,15 +83,16 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	redirects: {},
 	security: {},
 	experimental: {
-		actions: false,
 		directRenderScript: false,
 		contentCollectionCache: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
 		serverIslands: false,
+		contentIntellisense: false,
 		env: {
 			validateSecrets: false,
 		},
+		contentLayer: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -401,6 +402,7 @@ export const AstroConfigSchema = z.object({
 							.object({
 								prefixDefaultLocale: z.boolean().optional().default(false),
 								redirectToDefaultLocale: z.boolean().optional().default(true),
+								fallbackType: z.enum(['redirect', 'rewrite']).optional().default('redirect'),
 							})
 							.refine(
 								({ prefixDefaultLocale, redirectToDefaultLocale }) => {
@@ -507,7 +509,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.security),
 	experimental: z
 		.object({
-			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
 			directRenderScript: z
 				.boolean()
 				.optional()
@@ -538,6 +539,11 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.serverIslands),
+			contentIntellisense: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
+			contentLayer: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.contentLayer),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,

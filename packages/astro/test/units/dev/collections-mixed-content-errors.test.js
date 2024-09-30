@@ -8,13 +8,15 @@ const root = new URL('../../fixtures/content-mixed-errors/', import.meta.url);
 
 async function sync({ fs }) {
 	try {
-		await _sync({
-			inlineConfig: {
+		await _sync(
+			{
 				root: fileURLToPath(root),
 				logLevel: 'silent',
 			},
-			fs,
-		});
+			{
+				fs,
+			},
+		);
 		return 0;
 	} catch (_) {
 		return 1;
@@ -121,11 +123,7 @@ title: Post
 			root,
 		);
 
-		try {
-			const res = await sync({ fs });
-			assert.equal(res, 0);
-		} catch (e) {
-			assert.fail(`Did not expect sync to throw: ${e.message}`);
-		}
+		const res = await sync({ fs });
+		assert.equal(res, 0);
 	});
 });

@@ -1,11 +1,8 @@
 import { prepareTestFactory } from './shared-component-tests.js';
 
-const { test, createTests } = prepareTestFactory(
-	{ root: './fixtures/solid-component/' },
-	{
-		canReplayClicks: true,
-	},
-);
+const { test, createTests } = prepareTestFactory(import.meta.url, {
+	root: './fixtures/solid-component/',
+});
 
 const config = {
 	componentFilePath: './src/components/SolidComponent.jsx',

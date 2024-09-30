@@ -19,6 +19,26 @@ import { getComponentFromVirtualModulePageName, getVirtualModulePageName } from 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
 
+const ADAPTER_VIRTUAL_MODULE_ID = '@astrojs-ssr-adapter';
+const RESOLVED_ADAPTER_VIRTUAL_MODULE_ID = '\0' + ADAPTER_VIRTUAL_MODULE_ID;
+
+function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
+	return {
+		name: '@astrojs/vite-plugin-astro-adapter',
+		enforce: 'post',
+		resolveId(id) {
+			if (id === ADAPTER_VIRTUAL_MODULE_ID) {
+				return RESOLVED_ADAPTER_VIRTUAL_MODULE_ID;
+			}
+		},
+		async load(id) {
+			if (id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
+				return `export * from '${adapter.serverEntrypoint}';`;
+			}
+		},
+	};
+}
+
 function vitePluginSSR(
 	internals: BuildInternals,
 	adapter: AstroAdapter,
@@ -35,6 +55,11 @@ function vitePluginSSR(
 					continue;
 				}
 				inputs.add(getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component));
+			}
+
+			const adapterServerEntrypoint = options.settings.adapter?.serverEntrypoint;
+			if (adapterServerEntrypoint) {
+				inputs.add(ADAPTER_VIRTUAL_MODULE_ID);
 			}
 
 			inputs.add(SSR_VIRTUAL_MODULE_ID);
@@ -114,14 +139,19 @@ export function pluginSSR(
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
-				let vitePlugin =
+				const adapter = options.settings.adapter!;
+				let ssrPlugin =
 					ssr && functionPerRouteEnabled === false
-						? vitePluginSSR(internals, options.settings.adapter!, options)
+						? vitePluginSSR(internals, adapter, options)
 						: undefined;
+				const vitePlugin = [vitePluginAdapter(adapter)];
+				if (ssrPlugin) {
+					vitePlugin.unshift(ssrPlugin);
+				}
 
 				return {
 					enforce: 'after-user-plugins',
-					vitePlugin,
+					vitePlugin: vitePlugin,
 				};
 			},
 			'build:post': async () => {
@@ -226,10 +256,15 @@ export function pluginSSRSplit(
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
-				let vitePlugin =
+				const adapter = options.settings.adapter!;
+				let ssrPlugin =
 					ssr && functionPerRouteEnabled
-						? vitePluginSSRSplit(internals, options.settings.adapter!, options)
+						? vitePluginSSRSplit(internals, adapter, options)
 						: undefined;
+				const vitePlugin = [vitePluginAdapter(adapter)];
+				if (ssrPlugin) {
+					vitePlugin.unshift(ssrPlugin);
+				}
 
 				return {
 					enforce: 'after-user-plugins',
@@ -246,8 +281,8 @@ function generateSSRCode(settings: AstroSettings, adapter: AstroAdapter, middlew
 
 	const imports = [
 		`import { renderers } from '${RENDERERS_MODULE_ID}';`,
+		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
-		`import * as serverEntrypointModule from '${adapter.serverEntrypoint}';`,
 		edgeMiddleware ? `` : `import { onRequest as middleware } from '${middlewareId}';`,
 		settings.config.experimental.serverIslands
 			? `import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`
@@ -256,12 +291,11 @@ function generateSSRCode(settings: AstroSettings, adapter: AstroAdapter, middlew
 
 	const contents = [
 		settings.config.experimental.serverIslands ? '' : `const serverIslandMap = new Map()`,
-		edgeMiddleware ? `const middleware = (_, next) => next()` : '',
 		`const _manifest = Object.assign(defaultManifest, {`,
 		`    ${pageMap},`,
 		`    serverIslandMap,`,
 		`    renderers,`,
-		`    middleware`,
+		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${middlewareId}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,
 		adapter.exports

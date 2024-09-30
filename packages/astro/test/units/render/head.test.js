@@ -103,7 +103,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
@@ -184,7 +184,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
@@ -232,7 +232,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();

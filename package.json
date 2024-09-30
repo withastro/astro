@@ -30,12 +30,12 @@
     "test:smoke:example": "turbo run build --concurrency=100% --filter=\"@example/*\"",
     "test:smoke:docs": "turbo run build --filter=docs",
     "test:check-examples": "node ./scripts/smoke/check.js",
-    "test:vite-ci": "turbo run test --filter=astro",
+    "test:vite-ci": "cd packages/astro && pnpm run test:node",
     "test:e2e": "cd packages/astro && pnpm playwright install chromium firefox && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install chromium firefox && pnpm run test:e2e:match",
     "test:e2e:hosts": "turbo run test:hosted",
     "benchmark": "astro-benchmark",
-    "lint": "eslint . --report-unused-disable-directives",
+    "lint": "biome lint && eslint . --report-unused-disable-directives",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
     "preinstall": "npx only-allow pnpm"
   },
@@ -52,22 +52,21 @@
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.1",
-    "@biomejs/biome": "1.8.1",
+    "@astrojs/check": "^0.9.3",
+    "@biomejs/biome": "1.8.3",
     "@changesets/changelog-github": "^0.5.0",
-    "@changesets/cli": "^2.27.7",
+    "@changesets/cli": "^2.27.8",
     "@types/node": "^18.17.8",
     "esbuild": "^0.21.5",
-    "eslint": "^9.8.0",
-    "eslint-plugin-no-only-tests": "^3.1.0",
+    "eslint": "^9.11.1",
     "eslint-plugin-regexp": "^2.6.0",
     "globby": "^14.0.2",
     "only-allow": "^1.2.1",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",
-    "turbo": "^1.13.4",
-    "typescript": "~5.5.4",
-    "typescript-eslint": "^8.0.1"
+    "turbo": "^2.1.2",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.7.0"
   },
   "pnpm": {
     "peerDependencyRules": {

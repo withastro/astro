@@ -3,13 +3,14 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import boxen from 'boxen';
 import { diffWords } from 'diff';
-import { execa } from 'execa';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
+import { type ASTNode, type ProxifiedModule, builders, generateCode, loadFile } from 'magicast';
+import { getDefaultExportOptions } from 'magicast/helpers';
 import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
-import type yargs from 'yargs-parser';
+import { exec } from 'tinyexec';
 import {
 	loadTSConfig,
 	resolveConfig,
@@ -29,14 +30,11 @@ import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
-import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
-import { generate, parse, t, visit } from './babel.js';
-import { ensureImport } from './imports.js';
-import { wrapDefaultExport } from './wrapper.js';
 
 interface AddOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 interface IntegrationInfo {
@@ -143,7 +141,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	}
 
 	// Some packages might have a common alias! We normalize those here.
-	const cwd = flags.root;
+	const cwd = inlineConfig.root;
 	const logger = createLoggerFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames);
@@ -249,7 +247,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	const rawConfigPath = await resolveConfigPath({
 		root: rootPath,
-		configFile: flags.config,
+		configFile: inlineConfig.configFile,
 		fs: fsMod,
 	});
 	let configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
@@ -262,29 +260,26 @@ export async function add(names: string[], { flags }: AddOptions) {
 		await fs.writeFile(fileURLToPath(configURL), STUBS.ASTRO_CONFIG, { encoding: 'utf-8' });
 	}
 
-	let ast: t.File | null = null;
+	let mod: ProxifiedModule<any> | undefined;
 	try {
-		ast = await parseAstroConfig(configURL);
-
+		mod = await loadFile(fileURLToPath(configURL));
 		logger.debug('add', 'Parsed astro config');
 
-		const defineConfig = t.identifier('defineConfig');
-		ensureImport(
-			ast,
-			t.importDeclaration(
-				[t.importSpecifier(defineConfig, defineConfig)],
-				t.stringLiteral('astro/config'),
-			),
-		);
-		wrapDefaultExport(ast, defineConfig);
-
+		if (mod.exports.default.$type !== 'function-call') {
+			// ensure config is wrapped with `defineConfig`
+			mod.imports.$prepend({ imported: 'defineConfig', from: 'astro/config' });
+			mod.exports.default = builders.functionCall('defineConfig', mod.exports.default);
+		} else if (mod.exports.default.$args[0] == null) {
+			// ensure first argument of `defineConfig` is not empty
+			mod.exports.default.$args[0] = {};
+		}
 		logger.debug('add', 'Astro config ensured `defineConfig`');
 
 		for (const integration of integrations) {
 			if (isAdapter(integration)) {
 				const officialExportName = OFFICIAL_ADAPTER_TO_IMPORT_MAP[integration.id];
 				if (officialExportName) {
-					await setAdapter(ast, integration, officialExportName);
+					setAdapter(mod, integration, officialExportName);
 				} else {
 					logger.info(
 						'SKIP_FORMAT',
@@ -296,7 +291,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					);
 				}
 			} else {
-				await addIntegration(ast, integration);
+				addIntegration(mod, integration);
 			}
 			logger.debug('add', `Astro config added integration ${integration.id}`);
 		}
@@ -307,11 +302,11 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	let configResult: UpdateResult | undefined;
 
-	if (ast) {
+	if (mod) {
 		try {
 			configResult = await updateAstroConfig({
 				configURL,
-				ast,
+				mod,
 				flags,
 				logger,
 				logAdapterInstructions: integrations.some(isAdapter),
@@ -391,17 +386,6 @@ function isAdapter(
 	return integration.type === 'adapter';
 }
 
-async function parseAstroConfig(configURL: URL): Promise<t.File> {
-	const source = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
-	const result = parse(source);
-
-	if (!result) throw new Error('Unknown error parsing astro config');
-	if (result.errors.length > 0)
-		throw new Error('Error parsing astro config: ' + JSON.stringify(result.errors));
-
-	return result;
-}
-
 // Convert an arbitrary NPM package name into a JS identifier
 // Some examples:
 //  - @astrojs/image => image
@@ -438,130 +422,59 @@ Documentation: https://docs.astro.build/en/guides/integrations-guide/`;
 	return err;
 }
 
-async function addIntegration(ast: t.File, integration: IntegrationInfo) {
-	const integrationId = t.identifier(toIdent(integration.id));
+function addIntegration(mod: ProxifiedModule<any>, integration: IntegrationInfo) {
+	const config = getDefaultExportOptions(mod);
+	const integrationId = toIdent(integration.id);
 
-	ensureImport(
-		ast,
-		t.importDeclaration(
-			[t.importDefaultSpecifier(integrationId)],
-			t.stringLiteral(integration.packageName),
-		),
-	);
+	if (!mod.imports.$items.some((imp) => imp.local === integrationId)) {
+		mod.imports.$append({
+			imported: 'default',
+			local: integrationId,
+			from: integration.packageName,
+		});
+	}
 
-	visit(ast, {
-		// eslint-disable-next-line @typescript-eslint/no-shadow
-		ExportDefaultDeclaration(path) {
-			if (!t.isCallExpression(path.node.declaration)) return;
-
-			const configObject = path.node.declaration.arguments[0];
-			if (!t.isObjectExpression(configObject)) return;
-
-			let integrationsProp = configObject.properties.find((prop) => {
-				if (prop.type !== 'ObjectProperty') return false;
-				if (prop.key.type === 'Identifier') {
-					if (prop.key.name === 'integrations') return true;
-				}
-				if (prop.key.type === 'StringLiteral') {
-					if (prop.key.value === 'integrations') return true;
-				}
-				return false;
-			}) as t.ObjectProperty | undefined;
-
-			const integrationCall = t.callExpression(integrationId, []);
-
-			if (!integrationsProp) {
-				configObject.properties.push(
-					t.objectProperty(t.identifier('integrations'), t.arrayExpression([integrationCall])),
-				);
-				return;
-			}
-
-			if (integrationsProp.value.type !== 'ArrayExpression')
-				throw new Error('Unable to parse integrations');
-
-			const existingIntegrationCall = integrationsProp.value.elements.find(
-				(expr) =>
-					t.isCallExpression(expr) &&
-					t.isIdentifier(expr.callee) &&
-					expr.callee.name === integrationId.name,
-			);
-
-			if (existingIntegrationCall) return;
-
-			integrationsProp.value.elements.push(integrationCall);
-		},
-	});
+	config.integrations ??= [];
+	if (
+		!config.integrations.$ast.elements.some(
+			(el: ASTNode) =>
+				el.type === 'CallExpression' &&
+				el.callee.type === 'Identifier' &&
+				el.callee.name === integrationId,
+		)
+	) {
+		config.integrations.push(builders.functionCall(integrationId));
+	}
 }
 
-async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: string) {
-	const adapterId = t.identifier(toIdent(adapter.id));
+export function setAdapter(
+	mod: ProxifiedModule<any>,
+	adapter: IntegrationInfo,
+	exportName: string,
+) {
+	const config = getDefaultExportOptions(mod);
+	const adapterId = toIdent(adapter.id);
 
-	ensureImport(
-		ast,
-		t.importDeclaration([t.importDefaultSpecifier(adapterId)], t.stringLiteral(exportName)),
-	);
+	if (!mod.imports.$items.some((imp) => imp.local === adapterId)) {
+		mod.imports.$append({
+			imported: 'default',
+			local: adapterId,
+			from: exportName,
+		});
+	}
 
-	visit(ast, {
-		// eslint-disable-next-line @typescript-eslint/no-shadow
-		ExportDefaultDeclaration(path) {
-			if (!t.isCallExpression(path.node.declaration)) return;
+	if (!config.output) {
+		config.output = 'server';
+	}
 
-			const configObject = path.node.declaration.arguments[0];
-			if (!t.isObjectExpression(configObject)) return;
-
-			let outputProp = configObject.properties.find((prop) => {
-				if (prop.type !== 'ObjectProperty') return false;
-				if (prop.key.type === 'Identifier') {
-					if (prop.key.name === 'output') return true;
-				}
-				if (prop.key.type === 'StringLiteral') {
-					if (prop.key.value === 'output') return true;
-				}
-				return false;
-			}) as t.ObjectProperty | undefined;
-
-			if (!outputProp) {
-				configObject.properties.push(
-					t.objectProperty(t.identifier('output'), t.stringLiteral('server')),
-				);
-			}
-
-			let adapterProp = configObject.properties.find((prop) => {
-				if (prop.type !== 'ObjectProperty') return false;
-				if (prop.key.type === 'Identifier') {
-					if (prop.key.name === 'adapter') return true;
-				}
-				if (prop.key.type === 'StringLiteral') {
-					if (prop.key.value === 'adapter') return true;
-				}
-				return false;
-			}) as t.ObjectProperty | undefined;
-
-			let adapterCall;
-			switch (adapter.id) {
-				// the node adapter requires a mode
-				case 'node': {
-					adapterCall = t.callExpression(adapterId, [
-						t.objectExpression([
-							t.objectProperty(t.identifier('mode'), t.stringLiteral('standalone')),
-						]),
-					]);
-					break;
-				}
-				default: {
-					adapterCall = t.callExpression(adapterId, []);
-				}
-			}
-
-			if (!adapterProp) {
-				configObject.properties.push(t.objectProperty(t.identifier('adapter'), adapterCall));
-				return;
-			}
-
-			adapterProp.value = adapterCall;
-		},
-	});
+	switch (adapter.id) {
+		case 'node':
+			config.adapter = builders.functionCall(adapterId, { mode: 'standalone' });
+			break;
+		default:
+			config.adapter = builders.functionCall(adapterId);
+			break;
+	}
 }
 
 const enum UpdateResult {
@@ -573,23 +486,25 @@ const enum UpdateResult {
 
 async function updateAstroConfig({
 	configURL,
-	ast,
+	mod,
 	flags,
 	logger,
 	logAdapterInstructions,
 }: {
 	configURL: URL;
-	ast: t.File;
-	flags: yargs.Arguments;
+	mod: ProxifiedModule<any>;
+	flags: Flags;
 	logger: Logger;
 	logAdapterInstructions: boolean;
 }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
-	let output = await generate(ast);
-	const comment = '// https://astro.build/config';
-	const defaultExport = 'export default defineConfig';
-	output = output.replace(`\n${comment}`, '');
-	output = output.replace(`${defaultExport}`, `\n${comment}\n${defaultExport}`);
+	const output = generateCode(mod, {
+		format: {
+			objectCurlySpacing: true,
+			useTabs: false,
+			tabWidth: 2,
+		},
+	}).code;
 
 	if (input === output) {
 		return UpdateResult.none;
@@ -717,7 +632,7 @@ async function tryToInstallIntegrations({
 }: {
 	integrations: IntegrationInfo[];
 	cwd?: string;
-	flags: yargs.Arguments;
+	flags: Flags;
 	logger: Logger;
 }): Promise<UpdateResult> {
 	const installCommand = await getInstallIntegrationsCommand({ integrations, cwd, logger });
@@ -756,7 +671,7 @@ async function tryToInstallIntegrations({
 		if (await askToContinue({ flags })) {
 			const spinner = ora('Installing dependencies...').start();
 			try {
-				await execa(
+				await exec(
 					installCommand.pm,
 					[
 						installCommand.command,
@@ -765,9 +680,11 @@ async function tryToInstallIntegrations({
 						...installCommand.dependencies,
 					],
 					{
-						cwd,
-						// reset NODE_ENV to ensure install command run in dev mode
-						env: { NODE_ENV: undefined },
+						nodeOptions: {
+							cwd,
+							// reset NODE_ENV to ensure install command run in dev mode
+							env: { NODE_ENV: undefined },
+						},
 					},
 				);
 				spinner.succeed();
@@ -893,7 +810,7 @@ async function updateTSConfig(
 	cwd = process.cwd(),
 	logger: Logger,
 	integrationsInfo: IntegrationInfo[],
-	flags: yargs.Arguments,
+	flags: Flags,
 ): Promise<UpdateResult> {
 	const integrations = integrationsInfo.map(
 		(integration) => integration.id as frameworkWithTSSettings,
@@ -996,7 +913,7 @@ function parseIntegrationName(spec: string) {
 	return { scope, name, tag };
 }
 
-async function askToContinue({ flags }: { flags: yargs.Arguments }): Promise<boolean> {
+async function askToContinue({ flags }: { flags: Flags }): Promise<boolean> {
 	if (flags.yes || flags.y) return true;
 
 	const response = await prompts({
@@ -1038,7 +955,7 @@ function getDiffContent(input: string, output: string): string | null {
 async function setupIntegrationConfig(opts: {
 	root: URL;
 	logger: Logger;
-	flags: yargs.Arguments;
+	flags: Flags;
 	integrationName: string;
 	possibleConfigFiles: string[];
 	defaultConfigFile: string;

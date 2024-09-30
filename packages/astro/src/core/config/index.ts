@@ -2,7 +2,6 @@ export {
 	configPaths,
 	resolveConfig,
 	resolveConfigPath,
-	resolveFlags,
 	resolveRoot,
 } from './config.js';
 export { createNodeLogger } from './logging.js';

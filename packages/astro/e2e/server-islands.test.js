@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/server-islands/' });
+const test = testFactory(import.meta.url, { root: './fixtures/server-islands/' });
 
 test.describe('Server islands', () => {
 	test.describe('Development', () => {
@@ -38,14 +38,49 @@ test.describe('Server islands', () => {
 			await expect(el, 'element rendered').toBeVisible();
 		});
 
+		test('Props are encrypted', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/base/'));
+			let el = page.locator('#secret');
+			await expect(el).toHaveText('test');
+		});
+
 		test('Self imported module can server defer', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/base/'));
 			let el = page.locator('.now');
 
 			await expect(el).toHaveCount(2);
 		});
+
+		test("Missing server island start comment doesn't cause browser to lock up", async ({
+			page,
+			astro,
+		}) => {
+			await page.goto(astro.resolveUrl('/base/'));
+			let el = page.locator('#first');
+			await expect(el).toHaveCount(1);
+		});
 	});
 
+	test.describe('Development - trailingSlash: ignore', () => {
+		let devServer;
+
+		test.beforeAll(async ({ astro }) => {
+			process.env.TRAILING_SLASH = 'ignore';
+			devServer = await astro.startDevServer();
+		});
+
+		test.afterAll(async () => {
+			await devServer.stop();
+		});
+
+		test('Load content from the server', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/base/'));
+			let el = page.locator('#island');
+
+			await expect(el, 'element rendered').toBeVisible();
+			await expect(el, 'should have content').toHaveText('I am an island');
+		});
+	});
 	test.describe('Production', () => {
 		let previewServer;
 
@@ -68,6 +103,12 @@ test.describe('Server islands', () => {
 
 			await expect(el, 'element rendered').toBeVisible();
 			await expect(el, 'should have content').toHaveText('I am an island');
+		});
+
+		test('Props are encrypted', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/'));
+			let el = page.locator('#secret');
+			await expect(el).toHaveText('test');
 		});
 	});
 });

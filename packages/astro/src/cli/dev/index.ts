@@ -1,11 +1,10 @@
 import { cyan } from 'kleur/colors';
-import type yargs from 'yargs-parser';
 import devServer from '../../core/dev/index.js';
 import { printHelp } from '../../core/messages.js';
-import { flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 export async function dev({ flags }: DevOptions) {
@@ -19,6 +18,7 @@ export async function dev({ flags }: DevOptions) {
 					['--host', `Listen on all addresses, including LAN and public addresses.`],
 					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
 					['--open', 'Automatically open the app in the browser on server start'],
+					['--force', 'Clear the content layer cache, forcing a full rebuild.'],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},

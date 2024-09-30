@@ -9,7 +9,7 @@ export default defineConfig({
 	output: 'hybrid',
 	adapter: nodejs({ mode: 'standalone' }),
 	integrations: [react(), mdx()],
-	trailingSlash: 'always',
+	trailingSlash: process.env.TRAILING_SLASH ?? 'always',
 	experimental: {
 		serverIslands: true,
 	}

@@ -194,4 +194,31 @@ describe('dev container restarts', () => {
 			await restart.container.close();
 		}
 	});
+
+	it('Is able to restart project on .astro/settings.json changes', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/index.astro': ``,
+				'/.astro/settings.json': `{}`,
+			},
+			root,
+		);
+
+		const restart = await createContainerWithAutomaticRestart({
+			fs,
+			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
+		});
+		await startContainer(restart.container);
+		assert.equal(isStarted(restart.container), true);
+
+		try {
+			let restartComplete = restart.restarted();
+			fs.mkdirSync('/.astro/', { recursive: true });
+			fs.writeFileSync('/.astro/settings.json', `{ }`);
+			triggerFSEvent(restart.container, fs, '/.astro/settings.json', 'change');
+			await restartComplete;
+		} finally {
+			await restart.container.close();
+		}
+	});
 });

@@ -1,5 +1,4 @@
 import * as assert from 'node:assert/strict';
-import os from 'node:os';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
@@ -9,8 +8,6 @@ import { createFsWithFallback, createRequestAndResponse, runInContainer } from '
 
 const root = new URL('../../fixtures/content/', import.meta.url);
 
-const _describe = os.platform() === 'win32' ? describe.skip : describe;
-
 /** @type {typeof runInContainer} */
 async function runInContainerWithContentListeners(params, callback) {
 	return await runInContainer(params, async (container) => {
@@ -19,7 +16,7 @@ async function runInContainerWithContentListeners(params, callback) {
 	});
 }
 
-_describe('Content Collections - render()', () => {
+describe('Content Collections - render()', () => {
 	it('can be called in a page component', async () => {
 		const fs = createFsWithFallback(
 			{

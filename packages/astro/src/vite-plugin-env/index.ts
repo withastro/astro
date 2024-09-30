@@ -1,12 +1,15 @@
 import { fileURLToPath } from 'node:url';
 import { transform } from 'esbuild';
+import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { loadEnv } from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
+import type { Logger } from '../core/logger/core.js';
 
 interface EnvPluginOptions {
 	settings: AstroSettings;
+	logger: Logger;
 }
 
 // Match `import.meta.env` directly without trailing property access
@@ -116,7 +119,7 @@ async function replaceDefine(
 	};
 }
 
-export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plugin {
+export default function envVitePlugin({ settings, logger }: EnvPluginOptions): vite.Plugin {
 	let privateEnv: Record<string, string>;
 	let defaultDefines: Record<string, string>;
 	let isDev: boolean;
@@ -170,13 +173,25 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 				s.prepend(devImportMetaEnvPrepend);
 
 				// EDGE CASE: We need to do a static replacement for `export const prerender` for `vite-plugin-scanner`
+				// TODO: Remove in Astro 5
+				let exportConstPrerenderStr: string | undefined;
 				s.replace(exportConstPrerenderRe, (m, key) => {
 					if (privateEnv[key] != null) {
+						exportConstPrerenderStr = m;
 						return `export const prerender = ${privateEnv[key]}`;
 					} else {
 						return m;
 					}
 				});
+				if (exportConstPrerenderStr) {
+					logger.warn(
+						'router',
+						`Exporting dynamic values from prerender is deprecated. Please use an integration with the "astro:route:setup" hook ` +
+							`to update the route's \`prerender\` option instead. This allows for better treeshaking and bundling configuration ` +
+							`in the future. See https://docs.astro.build/en/reference/integrations-reference/#astroroutesetup for a migration example.` +
+							`\nFound \`${bold(exportConstPrerenderStr)}\` in ${bold(id)}.`,
+					);
+				}
 
 				return {
 					code: s.toString(),

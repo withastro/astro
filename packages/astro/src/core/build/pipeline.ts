@@ -8,6 +8,7 @@ import type {
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
+import type { TryRewriteResult } from '../base-pipeline.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
@@ -91,6 +92,10 @@ export class BuildPipeline extends Pipeline {
 		);
 	}
 
+	getRoutes(): RouteData[] {
+		return this.options.manifest.routes;
+	}
+
 	static create({
 		internals,
 		manifest,
@@ -133,7 +138,11 @@ export class BuildPipeline extends Pipeline {
 		const renderers = await import(renderersEntryUrl.toString());
 
 		const middleware = await import(new URL('middleware.mjs', baseDirectory).toString())
-			.then((mod) => mod.onRequest)
+			.then((mod) => {
+				return function () {
+					return { onRequest: mod.onRequest };
+				};
+			})
 			// middleware.mjs is not emitted if there is no user middleware
 			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
 			.catch(() => manifest.middleware);
@@ -285,12 +294,8 @@ export class BuildPipeline extends Pipeline {
 		return module.page();
 	}
 
-	async tryRewrite(
-		payload: RewritePayload,
-		request: Request,
-		_sourceRoute: RouteData,
-	): Promise<[RouteData, ComponentInstance, URL]> {
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
+		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.options.manifest.routes,
@@ -299,8 +304,8 @@ export class BuildPipeline extends Pipeline {
 			base: this.config.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { routeData, componentInstance, newUrl, pathname };
 	}
 
 	async retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {

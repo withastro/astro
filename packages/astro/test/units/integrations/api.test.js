@@ -1,13 +1,23 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { validateSupportedFeatures } from '../../../dist/integrations/features-validation.js';
-import { runHookBuildSetup, runHookConfigSetup } from '../../../dist/integrations/hooks.js';
+import {
+	normalizeInjectedTypeFilename,
+	runHookBuildSetup,
+	runHookConfigSetup,
+} from '../../../dist/integrations/hooks.js';
 import { defaultLogger } from '../test-utils.js';
+
+const defaultConfig = {
+	root: new URL('./', import.meta.url),
+	srcDir: new URL('src/', import.meta.url),
+};
 
 describe('Integration API', () => {
 	it('runHookBuildSetup should work', async () => {
 		const updatedViteConfig = await runHookBuildSetup({
 			config: {
+				...defaultConfig,
 				integrations: [
 					{
 						name: 'test',
@@ -35,6 +45,7 @@ describe('Integration API', () => {
 		let updatedInternalConfig;
 		const updatedViteConfig = await runHookBuildSetup({
 			config: {
+				...defaultConfig,
 				integrations: [
 					{
 						name: 'test',
@@ -64,6 +75,7 @@ describe('Integration API', () => {
 			logger: defaultLogger,
 			settings: {
 				config: {
+					...defaultConfig,
 					integrations: [
 						{
 							name: 'test',
@@ -86,6 +98,7 @@ describe('Integration API', () => {
 			logger: defaultLogger,
 			settings: {
 				config: {
+					...defaultConfig,
 					integrations: [
 						{
 							name: 'test',
@@ -310,4 +323,21 @@ describe('Astro feature map', function () {
 			assert.equal(result['assets'], false);
 		});
 	});
+});
+
+describe('normalizeInjectedTypeFilename', () => {
+	// invalid filename
+	assert.throws(() => normalizeInjectedTypeFilename('types', 'integration'));
+	// valid filename
+	assert.doesNotThrow(() => normalizeInjectedTypeFilename('types.d.ts', 'integration'));
+	// filename normalization
+	assert.equal(
+		normalizeInjectedTypeFilename('aA1-*/_"~.d.ts', 'integration'),
+		'./integrations/integration/aA1-_____.d.ts',
+	);
+	// integration name normalization
+	assert.equal(
+		normalizeInjectedTypeFilename('types.d.ts', 'aA1-*/_"~.'),
+		'./integrations/aA1-_____./types.d.ts',
+	);
 });

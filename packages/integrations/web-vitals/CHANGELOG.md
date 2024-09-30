@@ -1,5 +1,19 @@
 # @astrojs/web-vitals
 
+## 3.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`d6611e8`](https://github.com/withastro/astro/commit/d6611e8bb05e7d913aeb5e59e90906b8b919d48e)]:
+  - @astrojs/db@0.14.0
+
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`849e4c6`](https://github.com/withastro/astro/commit/849e4c6c23e61f7fa59f583419048b998bef2475), [`a79a8b0`](https://github.com/withastro/astro/commit/a79a8b0230b06ed32ce1802f2a5f84a6cf92dbe7)]:
+  - @astrojs/db@0.13.0
+
 ## 1.0.0
 
 ### Patch Changes

@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
 import type { LogLevel, Rollup, Logger as ViteLogger } from 'vite';
 import { isAstroError } from '../errors/errors.js';

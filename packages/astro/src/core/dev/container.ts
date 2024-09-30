@@ -97,6 +97,7 @@ export async function createContainer({
 		skip: {
 			content: true,
 		},
+		force: inlineConfig?.force,
 	});
 
 	const viteServer = await vite.createServer(viteConfig);

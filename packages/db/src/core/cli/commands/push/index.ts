@@ -1,11 +1,17 @@
-import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { AstroConfig } from 'astro';
+import { sql } from 'drizzle-orm';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
+import { createRemoteDatabaseClient } from '../../../../runtime/index.js';
 import { safeFetch } from '../../../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../../../consts.js';
-import { type DBConfig, type DBSnapshot } from '../../../types.js';
-import { type Result, getRemoteDatabaseUrl } from '../../../utils.js';
+import type { DBConfig, DBSnapshot } from '../../../types.js';
+import {
+	type RemoteDatabaseInfo,
+	type Result,
+	getManagedRemoteToken,
+	getRemoteDatabaseInfo,
+} from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -24,8 +30,12 @@ export async function cmd({
 }) {
 	const isDryRun = flags.dryRun;
 	const isForceReset = flags.forceReset;
-	const appToken = await getManagedAppTokenOrExit(flags.token);
-	const productionSnapshot = await getProductionCurrentSnapshot({ appToken: appToken.token });
+	const dbInfo = getRemoteDatabaseInfo();
+	const appToken = await getManagedRemoteToken(flags.token, dbInfo);
+	const productionSnapshot = await getProductionCurrentSnapshot({
+		dbInfo,
+		appToken: appToken.token,
+	});
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const isFromScratch = !productionSnapshot;
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
@@ -66,6 +76,7 @@ export async function cmd({
 		console.log(`Pushing database schema updates...`);
 		await pushSchema({
 			statements: migrationQueries,
+			dbInfo,
 			appToken: appToken.token,
 			isDryRun,
 			currentSnapshot: currentSnapshot,
@@ -78,16 +89,18 @@ export async function cmd({
 
 async function pushSchema({
 	statements,
+	dbInfo,
 	appToken,
 	isDryRun,
 	currentSnapshot,
 }: {
 	statements: string[];
+	dbInfo: RemoteDatabaseInfo;
 	appToken: string;
 	isDryRun: boolean;
 	currentSnapshot: DBSnapshot;
 }) {
-	const requestBody = {
+	const requestBody: RequestBody = {
 		snapshot: currentSnapshot,
 		sql: statements,
 		version: MIGRATION_VERSION,
@@ -96,7 +109,45 @@ async function pushSchema({
 		console.info('[DRY RUN] Batch query:', JSON.stringify(requestBody, null, 2));
 		return new Response(null, { status: 200 });
 	}
-	const url = new URL('/db/push', getRemoteDatabaseUrl());
+
+	return dbInfo.type === 'studio'
+		? pushToStudio(requestBody, appToken, dbInfo.url)
+		: pushToDb(requestBody, appToken, dbInfo.url);
+}
+
+type RequestBody = {
+	snapshot: DBSnapshot;
+	sql: string[];
+	version: string;
+};
+
+async function pushToDb(requestBody: RequestBody, appToken: string, remoteUrl: string) {
+	const client = createRemoteDatabaseClient({
+		dbType: 'libsql',
+		appToken,
+		remoteUrl,
+	});
+
+	await client.run(sql`create table if not exists _astro_db_snapshot (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		version TEXT,
+		snapshot BLOB
+	);`);
+
+	await client.transaction(async (tx) => {
+		for (const stmt of requestBody.sql) {
+			await tx.run(sql.raw(stmt));
+		}
+
+		await tx.run(sql`insert into _astro_db_snapshot (version, snapshot) values (
+			${requestBody.version},
+			${JSON.stringify(requestBody.snapshot)}
+		)`);
+	});
+}
+
+async function pushToStudio(requestBody: RequestBody, appToken: string, remoteUrl: string) {
+	const url = new URL('/db/push', remoteUrl);
 	const response = await safeFetch(
 		url,
 		{
