@@ -1,13 +1,12 @@
+import { dataToEsm } from '@rollup/pluginutils';
+import glob from 'fast-glob';
 import nodeFs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { dataToEsm } from '@rollup/pluginutils';
-import glob from 'fast-glob';
 import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
-import { encodeName } from '../core/build/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { appendForwardSlash, removeFileExtension } from '../core/path.js';
+import { appendForwardSlash } from '../core/path.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
@@ -52,7 +51,6 @@ export function astroContentVirtualModPlugin({
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
-	const IS_SERVER = settings.buildOutput === 'server';
 	let dataStoreFile: URL;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
@@ -63,15 +61,7 @@ export function astroContentVirtualModPlugin({
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
-				if (!settings.config.experimental.contentCollectionCache) {
-					return RESOLVED_VIRTUAL_MODULE_ID;
-				}
-				if (IS_DEV || IS_SERVER) {
-					return RESOLVED_VIRTUAL_MODULE_ID;
-				} else {
-					// For SSG (production), we will build this file ourselves
-					return { id: RESOLVED_VIRTUAL_MODULE_ID, external: true };
-				}
+				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
 			if (id === DATA_STORE_VIRTUAL_ID) {
 				return RESOLVED_DATA_STORE_VIRTUAL_ID;
@@ -117,8 +107,6 @@ export function astroContentVirtualModPlugin({
 					settings,
 					fs,
 					lookupMap,
-					IS_DEV,
-					IS_SERVER,
 					isClient,
 				});
 
@@ -167,17 +155,6 @@ export function astroContentVirtualModPlugin({
 				return fs.readFileSync(modules, 'utf-8');
 			}
 		},
-		renderChunk(code, chunk) {
-			if (!settings.config.experimental.contentCollectionCache) {
-				return;
-			}
-			if (code.includes(RESOLVED_VIRTUAL_MODULE_ID)) {
-				const depth = chunk.fileName.split('/').length - 1;
-				const prefix = depth > 0 ? '../'.repeat(depth) : './';
-				return code.replaceAll(RESOLVED_VIRTUAL_MODULE_ID, `${prefix}content/entry.mjs`);
-			}
-		},
-
 		configureServer(server) {
 			const dataStorePath = fileURLToPath(dataStoreFile);
 
@@ -214,15 +191,11 @@ export function astroContentVirtualModPlugin({
 export async function generateContentEntryFile({
 	settings,
 	lookupMap,
-	IS_DEV,
-	IS_SERVER,
 	isClient,
 }: {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
 	lookupMap: ContentLookupMap;
-	IS_DEV: boolean;
-	IS_SERVER: boolean;
 	isClient: boolean;
 }) {
 	const contentPaths = getContentPaths(settings.config);
@@ -231,33 +204,23 @@ export async function generateContentEntryFile({
 	let contentEntryGlobResult: string;
 	let dataEntryGlobResult: string;
 	let renderEntryGlobResult: string;
-	if (IS_DEV || IS_SERVER || !settings.config.experimental.contentCollectionCache) {
-		const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
-		const contentEntryExts = [...contentEntryConfigByExt.keys()];
-		const dataEntryExts = getDataEntryExts(settings);
-		const createGlob = (value: string[], flag: string) =>
-			`import.meta.glob(${JSON.stringify(value)}, { query: { ${flag}: true } })`;
-		contentEntryGlobResult = createGlob(
-			globWithUnderscoresIgnored(relContentDir, contentEntryExts),
-			CONTENT_FLAG,
-		);
-		dataEntryGlobResult = createGlob(
-			globWithUnderscoresIgnored(relContentDir, dataEntryExts),
-			DATA_FLAG,
-		);
-		renderEntryGlobResult = createGlob(
-			globWithUnderscoresIgnored(relContentDir, contentEntryExts),
-			CONTENT_RENDER_FLAG,
-		);
-	} else {
-		contentEntryGlobResult = getStringifiedCollectionFromLookup(
-			'content',
-			relContentDir,
-			lookupMap,
-		);
-		dataEntryGlobResult = getStringifiedCollectionFromLookup('data', relContentDir, lookupMap);
-		renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
-	}
+	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
+	const contentEntryExts = [...contentEntryConfigByExt.keys()];
+	const dataEntryExts = getDataEntryExts(settings);
+	const createGlob = (value: string[], flag: string) =>
+		`import.meta.glob(${JSON.stringify(value)}, { query: { ${flag}: true } })`;
+	contentEntryGlobResult = createGlob(
+		globWithUnderscoresIgnored(relContentDir, contentEntryExts),
+		CONTENT_FLAG,
+	);
+	dataEntryGlobResult = createGlob(
+		globWithUnderscoresIgnored(relContentDir, dataEntryExts),
+		DATA_FLAG,
+	);
+	renderEntryGlobResult = createGlob(
+		globWithUnderscoresIgnored(relContentDir, contentEntryExts),
+		CONTENT_RENDER_FLAG,
+	);
 
 	let virtualModContents: string;
 	if (isClient) {
@@ -276,37 +239,6 @@ export async function generateContentEntryFile({
 	}
 
 	return virtualModContents;
-}
-
-function getStringifiedCollectionFromLookup(
-	wantedType: 'content' | 'data' | 'render',
-	relContentDir: string,
-	lookupMap: ContentLookupMap,
-) {
-	let str = '{';
-	// In dev, we don't need to normalize the import specifier at all. Vite handles it.
-	let normalize = (slug: string) => slug;
-	// For prod builds, we need to transform from `/src/content/**/*.{md,mdx,json,yaml}` to a relative `./**/*.mjs` import
-	if (process.env.NODE_ENV === 'production') {
-		const suffix = wantedType === 'render' ? '.entry.mjs' : '.mjs';
-		normalize = (slug: string) =>
-			`${removeFileExtension(encodeName(slug)).replace(relContentDir, './')}${suffix}`;
-	} else {
-		let suffix = '';
-		if (wantedType === 'content') suffix = CONTENT_FLAG;
-		else if (wantedType === 'data') suffix = DATA_FLAG;
-		else if (wantedType === 'render') suffix = CONTENT_RENDER_FLAG;
-		normalize = (slug: string) => `${slug}?${suffix}`;
-	}
-	for (const { type, entries } of Object.values(lookupMap)) {
-		if (type === wantedType || (wantedType === 'render' && type === 'content')) {
-			for (const slug of Object.values(entries)) {
-				str += `\n  "${slug}": () => import("${normalize(slug)}"),`;
-			}
-		}
-	}
-	str += '\n}';
-	return str;
 }
 
 /**

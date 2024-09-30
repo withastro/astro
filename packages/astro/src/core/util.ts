@@ -158,14 +158,6 @@ export function isEndpoint(file: URL, settings: AstroSettings): boolean {
 	return !endsWithPageExt(file, settings) && !file.toString().includes('?astro');
 }
 
-export function isContentCollectionsCacheEnabled(settings: AstroSettings): boolean {
-	return (
-		settings.config.experimental.contentCollectionCache &&
-		// contentCollectionsCache is an SSG only feature
-		settings.buildOutput !== 'server'
-	);
-}
-
 export function resolveJsToTs(filePath: string) {
 	if (filePath.endsWith('.jsx') && !fs.existsSync(filePath)) {
 		const tryPath = filePath.slice(0, -4) + '.tsx';

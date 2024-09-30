@@ -90,7 +90,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	experimental: {
-		contentCollectionCache: false,
 		clientPrerender: false,
 		contentIntellisense: false,
 	},
@@ -510,10 +509,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.env),
 	experimental: z
 		.object({
-			contentCollectionCache: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
 			clientPrerender: z
 				.boolean()
 				.optional()
