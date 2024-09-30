@@ -5,7 +5,7 @@ import { LitElementRenderer } from '@lit-labs/ssr/lib/lit-element-renderer.js';
 import * as parse5 from 'parse5';
 
 function isCustomElementTag(name) {
-	return typeof name === 'string' && /-/.test(name);
+	return typeof name === 'string' && name.includes('-');
 }
 
 function getCustomElementConstructor(name) {

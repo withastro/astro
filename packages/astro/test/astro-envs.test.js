@@ -67,7 +67,7 @@ describe('Environment Variables', () => {
 							found = true;
 						}
 					}
-				})
+				}),
 			);
 
 			assert.equal(found, true, 'found the public env variable in the JS build');
@@ -88,7 +88,7 @@ describe('Environment Variables', () => {
 							found = true;
 						}
 					}
-				})
+				}),
 			);
 
 			assert.equal(found, false, 'found the private env variable in the JS build');

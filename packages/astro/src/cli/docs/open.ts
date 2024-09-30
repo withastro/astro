@@ -1,5 +1,4 @@
-import type { ExecaChildProcess } from 'execa';
-import { execa } from 'execa';
+import { type Result, exec } from 'tinyexec';
 
 /**
  *  Credit: Azhar22
@@ -21,12 +20,12 @@ const getPlatformSpecificCommand = (): [string] | [string, string[]] => {
 			return ['/ide/bin/remote-cli/gitpod-code', ['--openExternal']];
 		default:
 			throw new Error(
-				`It looks like your platform ("${platform}") isn't supported!\nTo view Astro's docs, please visit https://docs.astro.build`
+				`It looks like your platform ("${platform}") isn't supported!\nTo view Astro's docs, please visit https://docs.astro.build`,
 			);
 	}
 };
 
-export async function openInBrowser(url: string): Promise<ExecaChildProcess> {
+export async function openInBrowser(url: string): Promise<Result> {
 	const [command, args = []] = getPlatformSpecificCommand();
-	return execa(command, [...args, encodeURI(url)]);
+	return exec(command, [...args, encodeURI(url)]);
 }

@@ -15,14 +15,14 @@ export async function renderToString(
 	props: any,
 	children: any,
 	isPage = false,
-	route?: RouteData
+	route?: RouteData,
 ): Promise<string | Response> {
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,
 		componentFactory,
 		props,
 		children,
-		route
+		route,
 	);
 
 	// If the Astro component returns a Response on init, return that response
@@ -65,14 +65,14 @@ export async function renderToReadableStream(
 	props: any,
 	children: any,
 	isPage = false,
-	route?: RouteData
+	route?: RouteData,
 ): Promise<ReadableStream | Response> {
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,
 		componentFactory,
 		props,
 		children,
-		route
+		route,
 	);
 
 	// If the Astro component returns a Response on init, return that response
@@ -142,7 +142,7 @@ async function callComponentAsTemplateResultOrResponse(
 	componentFactory: AstroComponentFactory,
 	props: any,
 	children: any,
-	route?: RouteData
+	route?: RouteData,
 ) {
 	const factoryResult = await componentFactory(result, props, children);
 
@@ -157,7 +157,7 @@ async function callComponentAsTemplateResultOrResponse(
 				...AstroErrorData.OnlyResponseCanBeReturned,
 				message: AstroErrorData.OnlyResponseCanBeReturned.message(
 					route?.route,
-					typeof factoryResult
+					typeof factoryResult,
 				),
 				location: {
 					file: route?.component,
@@ -203,14 +203,14 @@ export async function renderToAsyncIterable(
 	props: any,
 	children: any,
 	isPage = false,
-	route?: RouteData
+	route?: RouteData,
 ): Promise<AsyncIterable<Uint8Array> | Response> {
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,
 		componentFactory,
 		props,
 		children,
-		route
+		route,
 	);
 	if (templateResult instanceof Response) return templateResult;
 	let renderedFirstPageChunk = false;

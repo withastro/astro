@@ -174,7 +174,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 
 		const unoptimizedData = await fixture.readFile(
 			unoptimizedSrc.replace('https://cdn.example.com/', ''),
-			null
+			null,
 		);
 		assert.equal(unoptimizedData instanceof Buffer, true);
 

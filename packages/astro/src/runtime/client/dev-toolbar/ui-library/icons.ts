@@ -8,7 +8,7 @@ export function isDefinedIcon(icon: Icon): icon is DefinedIcon {
 export function getIconElement(name: DefinedIcon): SVGElement;
 export function getIconElement(name: string & NonNullable<unknown>): undefined;
 export function getIconElement(
-	name: DefinedIcon | (string & NonNullable<unknown>)
+	name: DefinedIcon | (string & NonNullable<unknown>),
 ): SVGElement | undefined {
 	const icon = icons[name as DefinedIcon];
 

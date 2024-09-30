@@ -51,7 +51,7 @@ describe('astro:image:infersize', () => {
 				let $img = $('img');
 				assert.equal(
 					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp'),
-					true
+					true,
 				);
 			});
 
@@ -59,7 +59,7 @@ describe('astro:image:infersize', () => {
 				let $img = $('picture img');
 				assert.equal(
 					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=png'),
-					true
+					true,
 				);
 			});
 
@@ -67,7 +67,7 @@ describe('astro:image:infersize', () => {
 				let $img = $('#getImage');
 				assert.equal(
 					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp'),
-					true
+					true,
 				);
 			});
 

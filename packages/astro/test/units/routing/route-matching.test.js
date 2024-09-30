@@ -153,7 +153,7 @@ describe('Route matching', () => {
 				settings,
 				fsMod: fs,
 			},
-			defaultLogger
+			defaultLogger,
 		);
 	});
 

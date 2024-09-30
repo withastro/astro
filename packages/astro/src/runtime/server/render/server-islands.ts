@@ -1,4 +1,5 @@
 import type { SSRResult } from '../../../@types/astro.js';
+import { encryptString } from '../../../core/encryption.js';
 import { renderChild } from './any.js';
 import type { RenderInstance } from './common.js';
 import { type ComponentSlots, renderSlotToString } from './slot.js';
@@ -14,11 +15,20 @@ export function containsServerDirective(props: Record<string | number, any>) {
 	return 'server:component-directive' in props;
 }
 
+function safeJsonStringify(obj: any) {
+	return JSON.stringify(obj)
+		.replace(/\u2028/g, '\\u2028')
+		.replace(/\u2029/g, '\\u2029')
+		.replace(/</g, '\\u003c')
+		.replace(/>/g, '\\u003e')
+		.replace(/\//g, '\\u002f');
+}
+
 export function renderServerIsland(
 	result: SSRResult,
 	_displayName: string,
 	props: Record<string | number, any>,
-	slots: ComponentSlots
+	slots: ComponentSlots,
 ): RenderInstance {
 	return {
 		async render(destination) {
@@ -50,19 +60,24 @@ export function renderServerIsland(
 				}
 			}
 
+			const key = await result.key;
+			const propsEncrypted = await encryptString(key, JSON.stringify(props));
+
 			const hostId = crypto.randomUUID();
+			const slash = result.base.endsWith('/') ? '' : '/';
+			const serverIslandUrl = `${result.base}${slash}_server-islands/${componentId}${result.trailingSlash === 'always' ? '/' : ''}`;
 
 			destination.write(`<script async type="module" data-island-id="${hostId}">
-let componentId = ${JSON.stringify(componentId)};
-let componentExport = ${JSON.stringify(componentExport)};
+let componentId = ${safeJsonStringify(componentId)};
+let componentExport = ${safeJsonStringify(componentExport)};
 let script = document.querySelector('script[data-island-id="${hostId}"]');
 let data = {
 	componentExport,
-	props: ${JSON.stringify(props)},
-	slots: ${JSON.stringify(renderedSlots)},
+	encryptedProps: ${safeJsonStringify(propsEncrypted)},
+	slots: ${safeJsonStringify(renderedSlots)},
 };
 
-let response = await fetch('/_server-islands/${componentId}', {
+let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
 });
@@ -71,9 +86,10 @@ if(response.status === 200 && response.headers.get('content-type') === 'text/htm
 	let html = await response.text();
 
 	// Swap!
-	while(script.previousSibling?.nodeType !== 8 &&
-		script.previousSibling?.data !== 'server-island-start') {
-		script.previousSibling?.remove();
+	while(script.previousSibling &&
+		script.previousSibling.nodeType !== 8 &&
+		script.previousSibling.data !== 'server-island-start') {
+		script.previousSibling.remove();
 	}
 	script.previousSibling?.remove();
 

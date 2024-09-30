@@ -1,12 +1,15 @@
 import { fileURLToPath } from 'node:url';
 import { transform } from 'esbuild';
+import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { loadEnv } from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
+import type { Logger } from '../core/logger/core.js';
 
 interface EnvPluginOptions {
 	settings: AstroSettings;
+	logger: Logger;
 }
 
 // Match `import.meta.env` directly without trailing property access
@@ -20,7 +23,7 @@ const exportConstPrerenderRe = /\bexport\s+const\s+prerender\s*=\s*import\.meta\
 
 function getPrivateEnv(
 	viteConfig: vite.ResolvedConfig,
-	astroConfig: AstroConfig
+	astroConfig: AstroConfig,
 ): Record<string, string> {
 	let envPrefixes: string[] = ['PUBLIC_'];
 	if (viteConfig.envPrefix) {
@@ -33,7 +36,7 @@ function getPrivateEnv(
 	const fullEnv = loadEnv(
 		viteConfig.mode,
 		viteConfig.envDir ?? fileURLToPath(astroConfig.root),
-		''
+		'',
 	);
 
 	const privateEnv: Record<string, string> = {};
@@ -79,7 +82,7 @@ async function replaceDefine(
 	code: string,
 	id: string,
 	define: Record<string, string>,
-	config: vite.ResolvedConfig
+	config: vite.ResolvedConfig,
 ): Promise<{ code: string; map: string | null }> {
 	// Since esbuild doesn't support replacing complex expressions, we replace `import.meta.env`
 	// with a marker string first, then postprocess and apply the `Object.assign` code.
@@ -89,7 +92,7 @@ async function replaceDefine(
 		// Compute the marker from the length of the replaced code. We do this so that esbuild generates
 		// the sourcemap with the right column offset when we do the postprocessing.
 		const marker = `__astro_import_meta_env${'_'.repeat(
-			env.length - 23 /* length of preceding string */
+			env.length - 23 /* length of preceding string */,
 		)}`;
 		replacementMarkers[marker] = env;
 		define = { ...define, 'import.meta.env': marker };
@@ -116,7 +119,7 @@ async function replaceDefine(
 	};
 }
 
-export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plugin {
+export default function envVitePlugin({ settings, logger }: EnvPluginOptions): vite.Plugin {
 	let privateEnv: Record<string, string>;
 	let defaultDefines: Record<string, string>;
 	let isDev: boolean;
@@ -133,11 +136,11 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 
 			// HACK: move ourselves before Vite's define plugin to apply replacements at the right time (before Vite normal plugins)
 			const viteDefinePluginIndex = resolvedConfig.plugins.findIndex(
-				(p) => p.name === 'vite:define'
+				(p) => p.name === 'vite:define',
 			);
 			if (viteDefinePluginIndex !== -1) {
 				const myPluginIndex = resolvedConfig.plugins.findIndex(
-					(p) => p.name === 'astro:vite-plugin-env'
+					(p) => p.name === 'astro:vite-plugin-env',
 				);
 				if (myPluginIndex !== -1) {
 					const myPlugin = resolvedConfig.plugins[myPluginIndex];
@@ -170,13 +173,25 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 				s.prepend(devImportMetaEnvPrepend);
 
 				// EDGE CASE: We need to do a static replacement for `export const prerender` for `vite-plugin-scanner`
+				// TODO: Remove in Astro 5
+				let exportConstPrerenderStr: string | undefined;
 				s.replace(exportConstPrerenderRe, (m, key) => {
 					if (privateEnv[key] != null) {
+						exportConstPrerenderStr = m;
 						return `export const prerender = ${privateEnv[key]}`;
 					} else {
 						return m;
 					}
 				});
+				if (exportConstPrerenderStr) {
+					logger.warn(
+						'router',
+						`Exporting dynamic values from prerender is deprecated. Please use an integration with the "astro:route:setup" hook ` +
+							`to update the route's \`prerender\` option instead. This allows for better treeshaking and bundling configuration ` +
+							`in the future. See https://docs.astro.build/en/reference/integrations-reference/#astroroutesetup for a migration example.` +
+							`\nFound \`${bold(exportConstPrerenderStr)}\` in ${bold(id)}.`,
+					);
+				}
 
 				return {
 					code: s.toString(),

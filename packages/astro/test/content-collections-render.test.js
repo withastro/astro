@@ -65,12 +65,12 @@ describe('Content Collections - render()', () => {
 
 			// Includes hoisted script
 			const scriptWithSrc = [...allScripts].find((script) =>
-				$(script).attr('src')?.includes('WithScripts')
+				$(script).attr('src')?.includes('WithScripts'),
 			);
 			assert.notEqual(
 				scriptWithSrc,
 				undefined,
-				'`WithScripts.astro` hoisted script missing from head.'
+				'`WithScripts.astro` hoisted script missing from head.',
 			);
 
 			// Includes inline script
@@ -85,12 +85,12 @@ describe('Content Collections - render()', () => {
 
 			// Excludes hoisted script
 			const scriptWithText = [...allScripts].find((script) =>
-				$(script).text().includes('document.querySelector("#update-me")')
+				$(script).text().includes('document.querySelector("#update-me")'),
 			);
 			assert.equal(
 				scriptWithText,
 				undefined,
-				'`WithScripts.astro` hoisted script included unexpectedly.'
+				'`WithScripts.astro` hoisted script included unexpectedly.',
 			);
 		});
 
@@ -237,12 +237,12 @@ describe('Content Collections - render()', () => {
 			assert.ok(allScripts.length);
 			// Includes hoisted script
 			const scriptWithSrc = [...allScripts].find((script) =>
-				script.attribs.src.includes('WithScripts.astro')
+				script.attribs.src.includes('WithScripts.astro'),
 			);
 			assert.notEqual(
 				scriptWithSrc,
 				undefined,
-				'`WithScripts.astro` hoisted script missing from head.'
+				'`WithScripts.astro` hoisted script missing from head.',
 			);
 
 			// Includes inline script

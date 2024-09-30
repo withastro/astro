@@ -12,7 +12,7 @@ export default function prism(): AstroMarkdocConfig {
 
 					// Use `unescapeHTML` to return `HTMLString` for Astro renderer to inline as HTML
 					return unescapeHTML(
-						`<pre class="${classLanguage}"><code class="${classLanguage}">${html}</code></pre>`
+						`<pre class="${classLanguage}"><code class="${classLanguage}">${html}</code></pre>`,
 					) as any;
 				},
 			},

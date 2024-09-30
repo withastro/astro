@@ -48,7 +48,7 @@ function getCustom500Route(manifestData: ManifestData): RouteData | undefined {
 export async function matchRoute(
 	pathname: string,
 	manifestData: ManifestData,
-	pipeline: DevPipeline
+	pipeline: DevPipeline,
 ): Promise<MatchedRoute | undefined> {
 	const { config, logger, routeCache, serverLike, settings } = pipeline;
 	const matches = matchAllRoutes(pathname, manifestData);
@@ -98,8 +98,8 @@ export async function matchRoute(
 		logger.warn(
 			'router',
 			`${AstroErrorData.NoMatchingStaticPathFound.message(
-				pathname
-			)}\n\n${AstroErrorData.NoMatchingStaticPathFound.hint(possibleRoutes)}`
+				pathname,
+			)}\n\n${AstroErrorData.NoMatchingStaticPathFound.hint(possibleRoutes)}`,
 		);
 	}
 
@@ -130,7 +130,7 @@ type HandleRoute = {
 	manifestData: ManifestData;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
-	status?: 404 | 500;
+	status?: 404 | 500 | 200;
 	pipeline: DevPipeline;
 };
 
@@ -193,13 +193,16 @@ export async function handleRoute({
 
 	mod = preloadedComponent;
 
-	const isPrerendered404 = matchedRoute.route.route === '/404' && matchedRoute.route.prerender;
+	const isDefaultPrerendered404 =
+		matchedRoute.route.route === '/404' &&
+		matchedRoute.route.prerender &&
+		matchedRoute.route.component === DEFAULT_404_COMPONENT;
 
-	renderContext = RenderContext.create({
+	renderContext = await RenderContext.create({
 		locals,
 		pipeline,
 		pathname,
-		middleware: isPrerendered404 ? undefined : middleware,
+		middleware: isDefaultPrerendered404 ? undefined : middleware,
 		request,
 		routeData: route,
 	});
@@ -232,9 +235,10 @@ export async function handleRoute({
 			req({
 				url: pathname,
 				method: incomingRequest.method,
-				statusCode: status ?? response.status,
+				statusCode: isRewrite ? response.status : status ?? response.status,
+				isRewrite,
 				reqTime: timeEnd - timeStart,
-			})
+			}),
 		);
 	}
 	if (response.status === 404 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {
@@ -295,8 +299,9 @@ export async function handleRoute({
 	await writeSSRResult(request, response, incomingResponse);
 }
 
-function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | undefined {
+function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | 200 {
 	if (!matchedRoute) return 404;
 	if (matchedRoute.route.route === '/404') return 404;
 	if (matchedRoute.route.route === '/500') return 500;
+	return 200;
 }

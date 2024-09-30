@@ -1,16 +1,18 @@
-import fsMod from 'node:fs';
+import fsMod, { existsSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
-import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
-import { getPackage } from '../../cli/install-package.js';
+import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
+import { CONTENT_TYPES_FILE } from '../../content/consts.js';
+import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { createContentTypesGenerator } from '../../content/index.js';
-import { globalContentConfigObserver } from '../../content/utils.js';
+import { MutableDataStore } from '../../content/mutable-data-store.js';
+import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
-import { runHookConfigSetup } from '../../integrations/hooks.js';
+import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
@@ -27,7 +29,7 @@ import {
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { setUpEnvTs } from './setup-env-ts.js';
+import { writeFiles } from './write-files.js';
 
 export type SyncOptions = {
 	/**
@@ -36,21 +38,17 @@ export type SyncOptions = {
 	fs?: typeof fsMod;
 	logger: Logger;
 	settings: AstroSettings;
+	force?: boolean;
 	skip?: {
 		// Must be skipped in dev
 		content?: boolean;
 	};
 };
 
-type DBPackage = {
-	typegen?: (args: Pick<AstroConfig, 'root' | 'integrations'>) => Promise<void>;
-};
-
-export default async function sync({
-	inlineConfig,
-	fs,
-	telemetry: _telemetry = false,
-}: { inlineConfig: AstroInlineConfig; fs?: typeof fsMod; telemetry?: boolean }) {
+export default async function sync(
+	inlineConfig: AstroInlineConfig,
+	{ fs, telemetry: _telemetry = false }: { fs?: typeof fsMod; telemetry?: boolean } = {},
+) {
 	ensureProcessNodeEnv('production');
 	const logger = createNodeLogger(inlineConfig);
 	const { astroConfig, userConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
@@ -59,11 +57,40 @@ export default async function sync({
 	}
 	let settings = await createSettings(astroConfig, inlineConfig.root);
 	settings = await runHookConfigSetup({
-		command: 'build',
+		command: 'sync',
 		settings,
 		logger,
 	});
-	return await syncInternal({ settings, logger, fs });
+
+	// Run `astro:config:done`
+	// Actions will throw if there is misconfiguration, so catch here.
+	try {
+		await runHookConfigDone({ settings, logger });
+	} catch (err) {
+		if (err instanceof Error) {
+			const errorMessage = err.toString();
+			logger.error('sync', errorMessage);
+		}
+		throw err;
+	}
+
+	return await syncInternal({ settings, logger, fs, force: inlineConfig.force });
+}
+
+/**
+ * Clears the content layer and content collection cache, forcing a full rebuild.
+ */
+export async function clearContentLayerCache({
+	settings,
+	logger,
+	fs = fsMod,
+}: { settings: AstroSettings; logger: Logger; fs?: typeof fsMod }) {
+	const dataStore = getDataStoreFile(settings);
+	if (fs.existsSync(dataStore)) {
+		logger.debug('content', 'clearing data store');
+		await fs.promises.rm(dataStore, { force: true });
+		logger.warn('content', 'data store cleared (force)');
+	}
 }
 
 /**
@@ -77,34 +104,55 @@ export async function syncInternal({
 	fs = fsMod,
 	settings,
 	skip,
+	force,
 }: SyncOptions): Promise<void> {
-	const cwd = fileURLToPath(settings.config.root);
+	if (force) {
+		await clearContentLayerCache({ settings, logger, fs });
+	}
 
 	const timerStart = performance.now();
-	const dbPackage = await getPackage<DBPackage>(
-		'@astrojs/db',
-		logger,
-		{
-			optional: true,
-			cwd,
-		},
-		[]
-	);
 
 	try {
-		await dbPackage?.typegen?.(settings.config);
 		if (!skip?.content) {
 			await syncContentCollections(settings, { fs, logger });
+			settings.timer.start('Sync content layer');
+			let store: MutableDataStore | undefined;
+			try {
+				const dataStoreFile = getDataStoreFile(settings);
+				if (existsSync(dataStoreFile)) {
+					store = await MutableDataStore.fromFile(dataStoreFile);
+				}
+			} catch (err: any) {
+				logger.error('content', err.message);
+			}
+			if (!store) {
+				store = new MutableDataStore();
+			}
+			const contentLayer = globalContentLayer.init({
+				settings,
+				logger,
+				store,
+			});
+			await contentLayer.sync();
+			settings.timer.end('Sync content layer');
+		} else if (fs.existsSync(fileURLToPath(getContentPaths(settings.config, fs).contentDir))) {
+			// Content is synced after writeFiles. That means references are not created
+			// To work around it, we create a stub so the reference is created and content
+			// sync will override the empty file
+			settings.injectedTypes.push({
+				filename: CONTENT_TYPES_FILE,
+				content: '',
+			});
 		}
 		syncAstroEnv(settings, fs);
 
-		await setUpEnvTs({ settings, logger, fs });
+		await writeFiles(settings, fs, logger);
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	} catch (err) {
 		const error = createSafeError(err);
 		logger.error(
 			'types',
-			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
+			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
 		);
 		// Will return exit code 1 in CLI
 		throw error;
@@ -127,19 +175,19 @@ export async function syncInternal({
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs }: Required<Pick<SyncOptions, 'logger' | 'fs'>>
+	{ logger, fs }: Required<Pick<SyncOptions, 'logger' | 'fs'>>,
 ): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
 		await createVite(
 			{
-				server: { middlewareMode: true, hmr: false, watch: null },
+				server: { middlewareMode: true, hmr: false, watch: null, ws: false },
 				optimizeDeps: { noDiscovery: true },
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command: 'build', fs, sync: true }
-		)
+			{ settings, logger, mode: 'build', command: 'build', fs, sync: true },
+		),
 	);
 
 	// Patch `hot.send` to bubble up error events
@@ -186,7 +234,7 @@ async function syncContentCollections(
 				hint,
 				message: AstroErrorData.GenerateContentTypesError.message(safeError.message),
 			},
-			{ cause: e }
+			{ cause: e },
 		);
 	} finally {
 		await tempViteServer.close();

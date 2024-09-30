@@ -2,11 +2,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { builtinModules } from 'node:module';
 
-import { FlatCompat } from '@eslint/eslintrc';
 import tseslint from 'typescript-eslint';
 
 // plugins
-import noOnlyTestsEslint from 'eslint-plugin-no-only-tests';
 import regexpEslint from 'eslint-plugin-regexp';
 const typescriptEslint = tseslint.plugin;
 
@@ -15,12 +13,6 @@ const typescriptParser = tseslint.parser;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// ref: https://eslint.org/docs/latest/use/configure/migration-guide#using-eslintrc-configs-in-flat-config
-// mimic CommonJS variables -- not needed if using CommonJS
-const compat = new FlatCompat({
-	baseDirectory: __dirname,
-});
 
 export default [
 	// If ignores is used without any other keys in the configuration object, then the patterns act as global ignores.
@@ -43,8 +35,7 @@ export default [
 
 	...tseslint.configs.recommendedTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,
-	// mimic ESLintRC-style extends
-	...compat.extends('plugin:regexp/recommended'),
+	regexpEslint.configs['flat/recommended'],
 	{
 		languageOptions: {
 			parser: typescriptParser,
@@ -55,14 +46,13 @@ export default [
 		},
 		plugins: {
 			'@typescript-eslint': typescriptEslint,
-			'no-only-tests': noOnlyTestsEslint,
 			regexp: regexpEslint,
 		},
 		rules: {
 			// These off/configured-differently-by-default rules fit well for us
 			'@typescript-eslint/switch-exhaustiveness-check': 'error',
 			'@typescript-eslint/no-unused-vars': [
-				'warn',
+				'error',
 				{
 					argsIgnorePattern: '^_',
 					varsIgnorePattern: '^_',
@@ -70,7 +60,6 @@ export default [
 					ignoreRestSiblings: true,
 				},
 			],
-			'no-only-tests/no-only-tests': 'error',
 			'@typescript-eslint/no-shadow': 'error',
 			'no-console': 'warn',
 
@@ -91,10 +80,13 @@ export default [
 			'@typescript-eslint/no-unsafe-assignment': 'off',
 			'@typescript-eslint/no-unsafe-call': 'off',
 			'@typescript-eslint/no-unsafe-member-access': 'off',
+			'@typescript-eslint/no-unused-expressions': 'off',
+			'@typescript-eslint/only-throw-error': 'off',
 			'@typescript-eslint/no-unsafe-return': 'off',
 			'@typescript-eslint/no-unnecessary-type-assertion': 'off',
 			'@typescript-eslint/prefer-nullish-coalescing': 'off',
 			'@typescript-eslint/prefer-optional-chain': 'off',
+			'@typescript-eslint/prefer-promise-reject-errors': 'off',
 			'@typescript-eslint/prefer-string-starts-ends-with': 'off',
 			'@typescript-eslint/require-await': 'off',
 			'@typescript-eslint/restrict-plus-operands': 'off',
@@ -119,6 +111,8 @@ export default [
 
 			// In some cases, using explicit letter-casing is more performant than the `i` flag
 			'regexp/use-ignore-case': 'off',
+			'regexp/prefer-regexp-exec': 'warn',
+			'regexp/prefer-regexp-test': 'warn',
 		},
 	},
 
@@ -147,7 +141,6 @@ export default [
 		files: ['packages/**/test/*.js', 'packages/**/*.js'],
 		languageOptions: {
 			globals: {
-				mocha: true,
 				globalThis: false, // false means read-only
 			},
 		},

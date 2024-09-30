@@ -296,7 +296,7 @@ async function stylesFromServer(app) {
 			const cssRequest = new Request(`http://example.com${href}`);
 			const cssResponse = await app.render(cssRequest);
 			return await cssResponse.text();
-		})
+		}),
 	);
 	const allLinkedStyles = allLinkedStylesheets.join('');
 

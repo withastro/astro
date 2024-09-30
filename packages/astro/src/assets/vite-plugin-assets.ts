@@ -25,7 +25,7 @@ const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})`, 'i');
 const assetRegexEnds = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
 const addStaticImageFactory = (
-	settings: AstroSettings
+	settings: AstroSettings,
 ): typeof globalThis.astroAsset.addStaticImage => {
 	return (options, hashProperties, originalFSPath) => {
 		if (!globalThis.astroAsset.staticImages) {
@@ -46,7 +46,7 @@ const addStaticImageFactory = (
 		// This is the path to the original image, from the dist root, without the base or the asset prefix (e.g. /_astro/image.hash.png)
 		const finalOriginalPath = removeBase(
 			removeBase(ESMImportedImageSrc, settings.config.base),
-			assetPrefix
+			assetPrefix,
 		);
 
 		const hash = hashTransform(options, settings.config.image.service.entrypoint, hashProperties);
@@ -62,8 +62,8 @@ const addStaticImageFactory = (
 			finalFilePath = prependForwardSlash(
 				joinPaths(
 					isESMImportedImage(options.src) ? '' : settings.config.build.assets,
-					prependForwardSlash(propsToFilename(finalOriginalPath, options, hash))
-				)
+					prependForwardSlash(propsToFilename(finalOriginalPath, options, hash)),
+				),
 			);
 
 			if (!transformsForPath) {
@@ -146,11 +146,11 @@ export default function assets({
 						new URL(
 							isServerLikeOutput(settings.config)
 								? settings.config.build.client
-								: settings.config.outDir
-						)
+								: settings.config.outDir,
+						),
 					)});
 					export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(
-						settings.config.build.assets
+						settings.config.build.assets,
 					)}, outDir);
 					export const getImage = async (options) => await getImageInternal(options, imageConfig);
 				`;
@@ -235,7 +235,7 @@ export default function assets({
 					if (options?.ssr) {
 						return `export default ${getProxyCode(
 							imageMetadata,
-							isServerLikeOutput(settings.config)
+							isServerLikeOutput(settings.config),
 						)}`;
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);

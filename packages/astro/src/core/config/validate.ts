@@ -5,7 +5,7 @@ import { createRelativeSchema } from './schema.js';
 export async function validateConfig(
 	userConfig: any,
 	root: string,
-	cmd: string
+	cmd: string,
 ): Promise<AstroConfig> {
 	const AstroConfigRelativeSchema = createRelativeSchema(cmd, root);
 

@@ -5,12 +5,6 @@ import { appendForwardSlash } from '../path.js';
 
 const isWindows = process.platform === 'win32';
 
-/** An fs utility, similar to `rimraf` or `rm -rf` */
-export function removeDir(_dir: URL): void {
-	const dir = fileURLToPath(_dir);
-	fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 });
-}
-
 export function removeEmptyDirs(root: URL): void {
 	const dir = fileURLToPath(root);
 	if (!fs.statSync(dir).isDirectory()) return;

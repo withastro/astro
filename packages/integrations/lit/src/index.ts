@@ -34,7 +34,7 @@ export default function (): AstroIntegration {
 				// Inject the necessary polyfills on every page (inlined for speed).
 				injectScript(
 					'head-inline',
-					readFileSync(new URL('../client-shim.min.js', import.meta.url), { encoding: 'utf-8' })
+					readFileSync(new URL('../client-shim.min.js', import.meta.url), { encoding: 'utf-8' }),
 				);
 				// Inject the hydration code, before a component is hydrated.
 				injectScript('before-hydration', `import '@astrojs/lit/hydration-support.js';`);

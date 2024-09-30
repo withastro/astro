@@ -16,14 +16,14 @@ describe('Astro config formats', () => {
 					export default {}
 				`,
 			},
-			root
+			root,
 		);
 
 		await runInContainer({ fs, inlineConfig: { root: fileURLToPath(root) } }, () => {
 			assert.equal(
 				true,
 				true,
-				'We were able to get into the container which means the config loaded.'
+				'We were able to get into the container which means the config loaded.',
 			);
 		});
 	});

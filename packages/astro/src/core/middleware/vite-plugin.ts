@@ -28,7 +28,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 		async resolveId(id) {
 			if (id === MIDDLEWARE_MODULE_ID) {
 				const middlewareId = await this.resolve(
-					`${decodeURI(settings.config.srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`
+					`${decodeURI(settings.config.srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`,
 				);
 				userMiddlewareIsPresent = !!middlewareId;
 				if (middlewareId) {
@@ -91,7 +91,7 @@ export const onRequest = sequence(
 
 function createMiddlewareImports(
 	entrypoints: string[],
-	prefix: string
+	prefix: string,
 ): {
 	importsCode: string;
 	sequenceCode: string;
@@ -114,7 +114,7 @@ function createMiddlewareImports(
 
 export function vitePluginMiddlewareBuild(
 	opts: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): VitePlugin {
 	return {
 		name: '@astro/plugin-middleware-build',

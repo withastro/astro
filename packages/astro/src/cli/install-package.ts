@@ -1,11 +1,11 @@
 import { createRequire } from 'node:module';
 import boxen from 'boxen';
 import ci from 'ci-info';
-import { execa } from 'execa';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
 import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
+import { exec } from 'tinyexec';
 import whichPm from 'which-pm';
 import type { Logger } from '../core/logger/core.js';
 
@@ -21,7 +21,7 @@ export async function getPackage<T>(
 	packageName: string,
 	logger: Logger,
 	options: GetPackageOptions,
-	otherDeps: string[] = []
+	otherDeps: string[] = [],
 ): Promise<T | undefined> {
 	try {
 		// Try to resolve with `createRequire` first to prevent ESM caching of the package
@@ -29,10 +29,10 @@ export async function getPackage<T>(
 		require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
 		const packageImport = await import(packageName);
 		return packageImport as T;
-	} catch (e) {
+	} catch {
 		if (options.optional) return undefined;
 		let message = `To continue, Astro requires the following dependency to be installed: ${bold(
-			packageName
+			packageName,
 		)}.`;
 
 		if (ci.isCI) {
@@ -98,7 +98,7 @@ export async function getExecCommand(packageManager?: string): Promise<string> {
 async function installPackage(
 	packageNames: string[],
 	options: GetPackageOptions,
-	logger: Logger
+	logger: Logger,
 ): Promise<boolean> {
 	const cwd = options.cwd ?? process.cwd();
 	const packageManager = (await whichPm(cwd))?.name ?? 'npm';
@@ -120,8 +120,8 @@ async function installPackage(
 	logger.info(
 		'SKIP_FORMAT',
 		`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
-			'If you skip this step, you can always run it yourself later'
-		)}\n${message}`
+			'If you skip this step, you can always run it yourself later',
+		)}\n${message}`,
 	);
 
 	let response;
@@ -141,10 +141,10 @@ async function installPackage(
 	if (Boolean(response)) {
 		const spinner = ora('Installing dependencies...').start();
 		try {
-			await execa(
+			await exec(
 				installCommand.pm,
 				[installCommand.command, ...installCommand.flags, ...installCommand.dependencies],
-				{ cwd: cwd }
+				{ nodeOptions: { cwd: cwd } },
 			);
 			spinner.succeed();
 
@@ -163,7 +163,7 @@ async function installPackage(
 export async function fetchPackageJson(
 	scope: string | undefined,
 	name: string,
-	tag: string
+	tag: string,
 ): Promise<Record<string, any> | Error> {
 	const packageName = `${scope ? `${scope}/` : ''}${name}`;
 	const registry = await getRegistry();
@@ -198,16 +198,16 @@ export async function fetchPackageVersions(packageName: string): Promise<string[
 //
 // A copy of this function also exists in the create-astro package
 let _registry: string;
-export async function getRegistry(): Promise<string> {
+async function getRegistry(): Promise<string> {
 	if (_registry) return _registry;
 	const fallback = 'https://registry.npmjs.org';
 	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
 	try {
-		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
-		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
+		const { stdout } = await exec(packageManager, ['config', 'get', 'registry']);
+		_registry = stdout.trim()?.replace(/\/$/, '') || fallback;
 		// Detect cases where the shell command returned a non-URL (e.g. a warning)
 		if (!new URL(_registry).host) _registry = fallback;
-	} catch (e) {
+	} catch {
 		_registry = fallback;
 	}
 	return _registry;

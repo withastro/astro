@@ -11,7 +11,7 @@ import type {
 	SSRManifest,
 } from '../@types/astro.js';
 import { getInfoOutput } from '../cli/info/index.js';
-import { type HeadElements } from '../core/base-pipeline.js';
+import type { HeadElements, TryRewriteResult } from '../core/base-pipeline.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
@@ -46,7 +46,7 @@ export class DevPipeline extends Pipeline {
 		readonly manifest: SSRManifest,
 		readonly settings: AstroSettings,
 		readonly config = settings.config,
-		readonly defaultRoutes = createDefaultRoutes(manifest, config.root)
+		readonly defaultRoutes = createDefaultRoutes(manifest),
 	) {
 		const mode = 'development';
 		const resolve = createResolve(loader, config.root);
@@ -64,7 +64,7 @@ export class DevPipeline extends Pipeline {
 			logger,
 			manifest,
 			settings,
-		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>
+		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>,
 	) {
 		const pipeline = new DevPipeline(loader, logger, manifest, settings);
 		pipeline.manifestData = manifestData;
@@ -199,15 +199,11 @@ export class DevPipeline extends Pipeline {
 		}
 	}
 
-	async tryRewrite(
-		payload: RewritePayload,
-		request: Request,
-		_sourceRoute: RouteData
-	): Promise<[RouteData, ComponentInstance, URL]> {
+	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
 		if (!this.manifestData) {
 			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
 		}
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.manifestData?.routes,
@@ -216,8 +212,8 @@ export class DevPipeline extends Pipeline {
 			base: this.config.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { newUrl, pathname, componentInstance, routeData };
 	}
 
 	setManifestData(manifestData: ManifestData) {

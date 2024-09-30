@@ -29,8 +29,8 @@ describe('assets dir takes the URL path inside the output directory', () => {
 		assert.equal(
 			removeTrailingSlash(new URL('./custom_dir_1', checkDir).toString()),
 			removeTrailingSlash(
-				new URL('./fixtures/astro-assets-dir/dist/custom_dir_1', import.meta.url).toString()
-			)
+				new URL('./fixtures/astro-assets-dir/dist/custom_dir_1', import.meta.url).toString(),
+			),
 		);
 	});
 });

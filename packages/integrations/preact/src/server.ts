@@ -15,7 +15,7 @@ async function check(
 	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
-	children: any
+	children: any,
 ) {
 	if (typeof Component !== 'function') return false;
 	if (Component.name === 'QwikComponent') return false;
@@ -27,19 +27,17 @@ async function check(
 	useConsoleFilter();
 
 	try {
-		try {
-			const { html } = await renderToStaticMarkup.call(this, Component, props, children, undefined);
-			if (typeof html !== 'string') {
-				return false;
-			}
-
-			// There are edge cases (SolidJS) where Preact *might* render a string,
-			// but components would be <undefined></undefined>
-			// It also might render an empty sting.
-			return html == '' ? false : !/<undefined>/.test(html);
-		} catch (err) {
+		const { html } = await renderToStaticMarkup.call(this, Component, props, children, undefined);
+		if (typeof html !== 'string') {
 			return false;
 		}
+
+		// There are edge cases (SolidJS) where Preact *might* render a string,
+		// but components would be <undefined></undefined>
+		// It also might render an empty sting.
+		return html == '' ? false : !html.includes('<undefined>');
+	} catch {
+		return false;
 	} finally {
 		finishUsingConsoleFilter();
 	}
@@ -55,7 +53,7 @@ async function renderToStaticMarkup(
 	Component: any,
 	props: Record<string, any>,
 	{ default: children, ...slotted }: Record<string, any>,
-	metadata: AstroComponentMetadata | undefined
+	metadata: AstroComponentMetadata | undefined,
 ) {
 	const ctx = getContext(this.result);
 
@@ -85,7 +83,7 @@ async function renderToStaticMarkup(
 					hydrate: shouldHydrate(metadata),
 					value: children,
 				})
-			: children
+			: children,
 	);
 
 	const html = await renderToStringAsync(vNode);
@@ -108,7 +106,7 @@ function useConsoleFilter() {
 
 		try {
 			console.error = filteredConsoleError;
-		} catch (error) {
+		} catch {
 			// If we're unable to hook `console.error`, just accept it
 		}
 	}

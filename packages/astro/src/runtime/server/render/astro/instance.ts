@@ -1,6 +1,6 @@
 import type { SSRResult } from '../../../../@types/astro.js';
 import type { ComponentSlots } from '../slot.js';
-import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
+import type { AstroComponentFactory } from './factory.js';
 
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
@@ -24,7 +24,7 @@ export class AstroComponentInstance {
 		result: SSRResult,
 		props: ComponentProps,
 		slots: ComponentSlots,
-		factory: AstroComponentFactory
+		factory: AstroComponentFactory,
 	) {
 		this.result = result;
 		this.props = props;
@@ -79,7 +79,7 @@ function validateComponentProps(props: any, displayName: string) {
 			if (prop.startsWith('client:')) {
 				// eslint-disable-next-line
 				console.warn(
-					`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`
+					`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
 				);
 			}
 		}
@@ -91,7 +91,7 @@ export function createAstroComponentInstance(
 	displayName: string,
 	factory: AstroComponentFactory,
 	props: ComponentProps,
-	slots: any = {}
+	slots: any = {},
 ) {
 	validateComponentProps(props, displayName);
 	const instance = new AstroComponentInstance(result, props, slots, factory);

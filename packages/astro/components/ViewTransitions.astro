@@ -53,7 +53,7 @@ const { fallback = 'animate' } = Astro.props;
 	if (supportsViewTransitions || getFallback() !== 'none') {
 		if (import.meta.env.DEV && window.matchMedia('(prefers-reduced-motion)').matches) {
 			console.warn(
-				`[transitions]: all view transition animations, including fallback animation, are disabled as this device has the prefer-reduced-motion setting enabled.`
+				`[transitions]: all view transition animations, including fallback animation, are disabled as this device has the prefer-reduced-motion setting enabled.`,
 			);
 		}
 		document.addEventListener('click', (ev) => {

@@ -108,7 +108,7 @@ describe('Astro.clientAddress', () => {
 					assert.match(
 						err.message,
 						/Astro\.clientAddress/,
-						'Error message mentions Astro.clientAddress'
+						'Error message mentions Astro.clientAddress',
 					);
 				}
 			});

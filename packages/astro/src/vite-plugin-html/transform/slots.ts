@@ -21,7 +21,7 @@ const rehypeSlots: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
 				s.overwrite(
 					start,
 					end,
-					`\${${SLOT_PREFIX}["${name}"] ?? \`${escapeTemplateLiteralCharacters(text).trim()}\`}`
+					`\${${SLOT_PREFIX}["${name}"] ?? \`${escapeTemplateLiteralCharacters(text).trim()}\`}`,
 				);
 			}
 		});

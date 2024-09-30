@@ -50,7 +50,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 
 	static async createToken(
 		sessionToken: string,
-		projectId: string
+		projectId: string,
 	): Promise<{ token: string; ttl: number }> {
 		const spinner = ora('Connecting to remote database...').start();
 		const response = await safeFetch(
@@ -64,7 +64,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 			},
 			(res) => {
 				throw new Error(`Failed to create token: ${res.status} ${res.statusText}`);
-			}
+			},
 		);
 		spinner.succeed(green('Connected to remote database.'));
 
@@ -94,7 +94,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 			},
 			() => {
 				throw new Error(`Failed to fetch ${url}.`);
-			}
+			},
 		);
 	}
 
@@ -125,7 +125,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 			try {
 				const { token, ttl } = await ManagedRemoteAppToken.createToken(
 					this.session,
-					this.projectId
+					this.projectId,
 				);
 				this.token = token;
 				this.ttl = ttl;
@@ -135,7 +135,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 				// If we get here we couldn't create a new token. Since the existing token
 				// is expired we really can't do anything and should exit.
 				throw new Error(
-					`Token has expired and attempts to renew it have failed, please try again.`
+					`Token has expired and attempts to renew it have failed, please try again.`,
 				);
 			}
 		}
@@ -160,7 +160,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 export async function getProjectIdFromFile() {
 	try {
 		return await readFile(PROJECT_ID_FILE, 'utf-8');
-	} catch (error) {
+	} catch {
 		return undefined;
 	}
 }
@@ -168,7 +168,7 @@ export async function getProjectIdFromFile() {
 export async function getSessionIdFromFile() {
 	try {
 		return await readFile(SESSION_LOGIN_FILE, 'utf-8');
-	} catch (error) {
+	} catch {
 		return undefined;
 	}
 }
@@ -217,7 +217,7 @@ async function safeFetch(
 	options: Parameters<typeof fetch>[1] = {},
 	onNotOK: (response: Response) => void | Promise<void> = () => {
 		throw new Error(`Request to ${url} returned a non-OK status code.`);
-	}
+	},
 ): Promise<Response> {
 	const response = await fetch(url, options);
 

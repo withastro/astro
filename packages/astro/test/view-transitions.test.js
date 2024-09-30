@@ -31,7 +31,7 @@ describe('View Transitions styles', () => {
 		assert.equal($('astro-island[data-astro-transition-persist]').length, 1);
 		assert.equal(
 			$('astro-island[data-astro-transition-persist] > [data-astro-transition-persist]').length,
-			0
+			0,
 		);
 	});
 });

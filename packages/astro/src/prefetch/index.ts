@@ -62,7 +62,7 @@ function initTapStrategy() {
 					prefetch(e.target.href, { ignoreSlowConnection: true });
 				}
 			},
-			{ passive: true }
+			{ passive: true },
 		);
 	}
 }
@@ -81,7 +81,7 @@ function initHoverStrategy() {
 				handleHoverIn(e);
 			}
 		},
-		{ passive: true }
+		{ passive: true },
 	);
 	document.body.addEventListener('focusout', handleHoverOut, { passive: true });
 
@@ -159,7 +159,7 @@ function createViewportIntersectionObserver() {
 						observer.unobserve(anchor);
 						timeouts.delete(anchor);
 						prefetch(anchor.href);
-					}, 300) as unknown as number
+					}, 300) as unknown as number,
 				);
 			} else {
 				// If exited viewport but haven't prefetched, cancel it
@@ -215,6 +215,9 @@ export interface PrefetchOptions {
  * @param opts Additional options for prefetching.
  */
 export function prefetch(url: string, opts?: PrefetchOptions) {
+	// Remove url hash to avoid prefetching the same URL multiple times
+	url = url.replace(/#.*/, '');
+
 	const ignoreSlowConnection = opts?.ignoreSlowConnection ?? false;
 	if (!canPrefetchUrl(url, ignoreSlowConnection)) return;
 	prefetchedUrls.add(url);

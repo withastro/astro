@@ -13,7 +13,7 @@ describe('base configuration', () => {
 					{
 						'/src/pages/index.astro': `<h1>testing</h1>`,
 					},
-					root
+					root,
 				);
 
 				await runInContainer(
@@ -33,7 +33,7 @@ describe('base configuration', () => {
 						container.handle(req, res);
 						await done;
 						assert.equal(res.statusCode, 404);
-					}
+					},
 				);
 			});
 
@@ -42,7 +42,7 @@ describe('base configuration', () => {
 					{
 						'/src/pages/index.astro': `<h1>testing</h1>`,
 					},
-					root
+					root,
 				);
 
 				await runInContainer(
@@ -62,7 +62,7 @@ describe('base configuration', () => {
 						container.handle(req, res);
 						await done;
 						assert.equal(res.statusCode, 200);
-					}
+					},
 				);
 			});
 		});
@@ -73,7 +73,7 @@ describe('base configuration', () => {
 					{
 						'/src/pages/sub/index.astro': `<h1>testing</h1>`,
 					},
-					root
+					root,
 				);
 
 				await runInContainer(
@@ -93,7 +93,7 @@ describe('base configuration', () => {
 						container.handle(req, res);
 						await done;
 						assert.equal(res.statusCode, 404);
-					}
+					},
 				);
 			});
 
@@ -102,7 +102,7 @@ describe('base configuration', () => {
 					{
 						'/src/pages/sub/index.astro': `<h1>testing</h1>`,
 					},
-					root
+					root,
 				);
 
 				await runInContainer(
@@ -122,7 +122,7 @@ describe('base configuration', () => {
 						container.handle(req, res);
 						await done;
 						assert.equal(res.statusCode, 200);
-					}
+					},
 				);
 			});
 		});

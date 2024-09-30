@@ -4,6 +4,7 @@ import glob from 'fast-glob';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import type { AstroSettings } from '../@types/astro.js';
+import { vitePluginActions, vitePluginUserActions } from '../actions/plugins.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import astroContainer from '../container/vite-plugin-container.js';
@@ -75,7 +76,7 @@ const ONLY_DEV_EXTERNAL = [
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logger, mode, command, fs = nodeFs, sync }: CreateViteOptions
+	{ settings, logger, mode, command, fs = nodeFs, sync }: CreateViteOptions,
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -132,7 +133,7 @@ export async function createVite(
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs }),
-			envVitePlugin({ settings }),
+			envVitePlugin({ settings, logger }),
 			astroEnv({ settings, mode, fs, sync }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
@@ -151,8 +152,10 @@ export async function createVite(
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
 			astroDevToolbar({ settings, logger }),
-			vitePluginFileURL({}),
+			vitePluginFileURL(),
 			astroInternationalization({ settings }),
+			vitePluginActions({ fs, settings }),
+			vitePluginUserActions({ settings }),
 			settings.config.experimental.serverIslands && vitePluginServerIslands({ settings }),
 			astroContainer(),
 		],
@@ -190,6 +193,10 @@ export async function createVite(
 				{
 					find: 'astro:middleware',
 					replacement: 'astro/virtual-modules/middleware.js',
+				},
+				{
+					find: 'astro:schema',
+					replacement: 'astro/zod',
 				},
 				{
 					find: 'astro:components',
@@ -312,7 +319,7 @@ function isCommonNotAstro(dep: string): boolean {
 			(prefix) =>
 				prefix.startsWith('@')
 					? dep.startsWith(prefix)
-					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix) // check prefix omitting @scope/
+					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix), // check prefix omitting @scope/
 		)
 	);
 }

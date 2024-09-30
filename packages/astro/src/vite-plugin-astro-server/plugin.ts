@@ -4,14 +4,16 @@ import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
 import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
+import { createKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
+import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { injectDefaultRoutes } from '../core/routing/default.js';
 import { createRouteManifest } from '../core/routing/index.js';
-import { toRoutingStrategy } from '../i18n/utils.js';
+import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import { recordServerError } from './error.js';
@@ -36,7 +38,8 @@ export default function createVitePluginAstroServer({
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
 			let manifestData: ManifestData = injectDefaultRoutes(
-				createRouteManifest({ settings, fsMod }, logger)
+				manifest,
+				createRouteManifest({ settings, fsMod }, logger),
 			);
 			const pipeline = DevPipeline.create(manifestData, { loader, logger, manifest, settings });
 			const controller = createController({ loader });
@@ -46,10 +49,11 @@ export default function createVitePluginAstroServer({
 			function rebuildManifest(needsManifestRebuild: boolean) {
 				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
-					manifestData = injectDefaultRoutes(createRouteManifest({ settings }, logger));
+					manifestData = injectDefaultRoutes(manifest, createRouteManifest({ settings }, logger));
 					pipeline.setManifestData(manifestData);
 				}
 			}
+
 			// Rebuild route manifest on file change, if needed.
 			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
 			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
@@ -68,7 +72,7 @@ export default function createVitePluginAstroServer({
 				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
 				setTimeout(
 					async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
-					200
+					200,
 				);
 			}
 
@@ -125,9 +129,12 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
+			fallbackType: toFallbackType(settings.config.i18n.routing),
 		};
 	}
+
 	return {
+		hrefRoot: settings.config.root.toString(),
 		trailingSlash: settings.config.trailingSlash,
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
@@ -144,10 +151,12 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
-		rewritingEnabled: settings.config.experimental.rewriting,
 		experimentalEnvGetSecretEnabled: false,
-		middleware(_, next) {
-			return next();
+		key: createKey(),
+		middleware() {
+			return {
+				onRequest: NOOP_MIDDLEWARE_FN,
+			};
 		},
 	};
 }

@@ -48,7 +48,7 @@ export default function astro(): Plugin {
 						s.overwrite(
 							firstArgStart,
 							lastArgEnd,
-							`import.meta.glob(${firstArg}), () => ${firstArg}`
+							`import.meta.glob(${firstArg}), () => ${firstArg}`,
 						);
 					}
 				},

@@ -10,6 +10,7 @@ import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { createContainer } from '../../dist/core/dev/container.js';
 import { Logger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
+import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
 import { unixify } from './correct-path.js';
@@ -82,7 +83,7 @@ class VirtualVolumeWithFallback extends VirtualVolume {
 	readFileSync(p, ...args) {
 		try {
 			return super.readFileSync(p, ...args);
-		} catch (e) {
+		} catch {
 			return realFS.readFileSync(p, ...args);
 		}
 	}
@@ -188,7 +189,9 @@ export function createBasicPipeline(options = {}) {
 	const mode = options.mode ?? 'development';
 	const pipeline = new Pipeline(
 		options.logger ?? defaultLogger,
-		options.manifest ?? {},
+		options.manifest ?? {
+			hrefRoot: import.meta.url,
+		},
 		options.mode ?? 'development',
 		options.renderers ?? [],
 		options.resolve ?? ((s) => Promise.resolve(s)),
@@ -201,10 +204,13 @@ export function createBasicPipeline(options = {}) {
 		options.i18n,
 		options.middleware,
 		options.routeCache ?? new RouteCache(options.logging, mode),
-		options.site
+		options.site,
 	);
 	pipeline.headElements = () => ({ scripts: new Set(), styles: new Set(), links: new Set() });
 	pipeline.componentMetadata = () => new Map();
+	pipeline.getMiddleware = () => {
+		return NOOP_MIDDLEWARE_FN;
+	};
 	return pipeline;
 }
 

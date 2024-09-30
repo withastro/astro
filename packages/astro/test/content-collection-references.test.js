@@ -53,7 +53,7 @@ describe('Content Collections - references', () => {
 					assert.equal(banner.collection, 'banners');
 					assert.equal(
 						banner.data.alt,
-						'Futuristic landscape with chrome buildings and blue skies'
+						'Futuristic landscape with chrome buildings and blue skies',
 					);
 
 					assert.equal(banner.data.src.width, 400);
@@ -131,7 +131,7 @@ describe('Content Collections - references', () => {
 					assert.ok(banner.attr('src').includes('the-future'));
 					assert.equal(
 						banner.attr('alt'),
-						'Futuristic landscape with chrome buildings and blue skies'
+						'Futuristic landscape with chrome buildings and blue skies',
 					);
 					assert.equal(banner.attr('width'), '400');
 					assert.equal(banner.attr('height'), '225');

@@ -56,7 +56,7 @@ describe('Pages', () => {
 			assert.equal(
 				html.includes('/@vite/client'),
 				true,
-				'Markdown page does not have Vite client for HMR'
+				'Markdown page does not have Vite client for HMR',
 			);
 		});
 	});

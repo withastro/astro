@@ -163,7 +163,7 @@ export default {
 						Run <code>astro preferences disable devToolbar</code> in your terminal to disable the toolbar. <a href="https://docs.astro.build/en/reference/cli-reference/#astro-preferences" target="_blank">Learn more</a>.
 					</section>
 				</label>
-				`
+				`,
 			);
 			const general = windowElement.querySelector('#general')!;
 			for (const settingsRow of settingsRows) {
@@ -196,7 +196,7 @@ export default {
 								option.selected = true;
 							}
 							option.textContent = `${placement.slice(0, 1).toUpperCase()}${placement.slice(
-								1
+								1,
 							)}`.replace('-', ' ');
 							astroSelect.append(option);
 						});

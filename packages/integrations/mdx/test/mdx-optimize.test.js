@@ -21,7 +21,7 @@ describe('MDX optimize', () => {
 		assert.equal(document.querySelector('h1').textContent.includes('MDX page'), true);
 		assert.equal(
 			document.querySelector('p').textContent.includes('I once heard a very inspirational quote:'),
-			true
+			true,
 		);
 
 		const blockquote = document.querySelector('blockquote.custom-blockquote');
@@ -40,11 +40,22 @@ describe('MDX optimize', () => {
 		assert.equal(document.querySelector('h1').textContent.includes('Astro page'), true);
 		assert.equal(
 			document.querySelector('p').textContent.includes('I once heard a very inspirational quote:'),
-			true
+			true,
 		);
 
 		const blockquote = document.querySelector('blockquote.custom-blockquote');
 		assert.notEqual(blockquote, null);
 		assert.equal(blockquote.textContent.includes('I like pancakes'), true);
+	});
+
+	it('renders MDX with rehype plugin that incorrectly injects root hast node', async () => {
+		const html = await fixture.readFile('/import/index.html');
+		const { document } = parseHTML(html);
+
+		assert.doesNotMatch(html, /set:html=/);
+		assert.equal(
+			document.getElementById('injected-root-hast').textContent,
+			'Injected root hast from rehype plugin',
+		);
 	});
 });

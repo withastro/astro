@@ -8,7 +8,7 @@ export class PreferenceStore {
 
 	constructor(
 		private dir: string,
-		filename = 'settings.json'
+		filename = 'settings.json',
 	) {
 		this.file = path.join(this.dir, filename);
 	}

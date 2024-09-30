@@ -33,12 +33,6 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		return {};
 	}
 
-	// This is a dynamic route, start getting the params
-	const params = getParams(route, pathname);
-	if (mod) {
-		validatePrerenderEndpointCollision(route, mod, params);
-	}
-
 	// During build, the route cache should already be populated.
 	// During development, the route cache is filled on-demand and may be empty.
 	const staticPaths = await callGetStaticPaths({
@@ -49,6 +43,7 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		ssr: serverLike,
 	});
 
+	const params = getParams(route, pathname);
 	const matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger);
 	if (!matchedStaticPath && (serverLike ? route.prerender : true)) {
 		throw new AstroError({
@@ -56,6 +51,10 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 			message: AstroErrorData.NoMatchingStaticPathFound.message(pathname),
 			hint: AstroErrorData.NoMatchingStaticPathFound.hint([route.component]),
 		});
+	}
+
+	if (mod) {
+		validatePrerenderEndpointCollision(route, mod, params);
 	}
 
 	const props: Props = matchedStaticPath?.props ? { ...matchedStaticPath.props } : {};
@@ -92,7 +91,7 @@ export function getParams(route: RouteData, pathname: string): Params {
 function validatePrerenderEndpointCollision(
 	route: RouteData,
 	mod: ComponentInstance,
-	params: Params
+	params: Params,
 ) {
 	if (route.type === 'endpoint' && mod.getStaticPaths) {
 		const lastSegment = route.segments[route.segments.length - 1];

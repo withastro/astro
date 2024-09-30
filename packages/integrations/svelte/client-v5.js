@@ -1,8 +1,6 @@
-import { hydrate, mount, unmount } from 'svelte';
-import { add_snippet_symbol } from 'svelte/internal/client';
+import { createRawSnippet, hydrate, mount, unmount } from 'svelte';
 
-// Allow a slot to be rendered as a snippet (dev validation only)
-const tagSlotAsSnippet = import.meta.env.DEV ? add_snippet_symbol : (s) => s;
+const existingApplications = new WeakMap();
 
 export default (element) => {
 	return async (Component, props, slotted, { client }) => {
@@ -11,40 +9,38 @@ export default (element) => {
 		let children = undefined;
 		let $$slots = undefined;
 		for (const [key, value] of Object.entries(slotted)) {
+			$$slots ??= {};
 			if (key === 'default') {
-				children = createSlotDefinition(key, value);
+				$$slots.default = true;
+				children = createRawSnippet(() => ({
+					render: () => `<astro-slot>${value}</astro-slot>`,
+				}));
 			} else {
-				$$slots ??= {};
-				$$slots[key] = createSlotDefinition(key, value);
+				$$slots[key] = createRawSnippet(() => ({
+					render: () => `<astro-slot name="${key}">${value}</astro-slot>`,
+				}));
 			}
 		}
 
 		const bootstrap = client !== 'only' ? hydrate : mount;
-
-		const component = bootstrap(Component, {
-			target: element,
-			props: {
+		if (existingApplications.has(element)) {
+			existingApplications.get(element).$set({
 				...props,
 				children,
 				$$slots,
-			},
-		});
+			});
+		} else {
+			const component = bootstrap(Component, {
+				target: element,
+				props: {
+					...props,
+					children,
+					$$slots,
+				},
+			});
+			existingApplications.set(element, component);
+		}
 
 		element.addEventListener('astro:unmount', () => unmount(component), { once: true });
 	};
 };
-
-function createSlotDefinition(key, children) {
-	/**
-	 * @param {Comment} $$anchor A comment node for slots in Svelte 5
-	 */
-	const fn = ($$anchor, _$$slotProps) => {
-		const parent = $$anchor.parentNode;
-		const el = document.createElement('div');
-		el.innerHTML = `<astro-slot${
-			key === 'default' ? '' : ` name="${key}"`
-		}>${children}</astro-slot>`;
-		parent.insertBefore(el.children[0], $$anchor);
-	};
-	return tagSlotAsSnippet(fn);
-}

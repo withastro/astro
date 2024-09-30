@@ -9,7 +9,7 @@ import type { SSRError } from '../../@types/astro.js';
  */
 export function positionAt(
 	offset: number,
-	text: string
+	text: string,
 ): {
 	line: number;
 	column: number;

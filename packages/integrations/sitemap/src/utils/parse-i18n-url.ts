@@ -8,7 +8,7 @@ export function parseI18nUrl(
 	url: string,
 	defaultLocale: string,
 	locales: Record<string, string>,
-	base: string
+	base: string,
 ): ParsedI18nUrl | undefined {
 	if (!url.startsWith(base)) {
 		return undefined;

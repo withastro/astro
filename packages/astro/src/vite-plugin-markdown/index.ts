@@ -23,22 +23,19 @@ interface AstroPluginOptions {
 }
 
 const astroServerRuntimeModulePath = normalizePath(
-	fileURLToPath(new URL('../runtime/server/index.js', import.meta.url))
+	fileURLToPath(new URL('../runtime/server/index.js', import.meta.url)),
 );
 
 const astroErrorModulePath = normalizePath(
-	fileURLToPath(new URL('../core/errors/index.js', import.meta.url))
+	fileURLToPath(new URL('../core/errors/index.js', import.meta.url)),
 );
 
 export default function markdown({ settings, logger }: AstroPluginOptions): Plugin {
-	let processor: MarkdownProcessor | undefined;
+	let processor: Promise<MarkdownProcessor> | undefined;
 
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
-		async buildStart() {
-			processor = await createMarkdownProcessor(settings.config.markdown);
-		},
 		buildEnd() {
 			processor = undefined;
 		},
@@ -61,15 +58,12 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				const fileURL = pathToFileURL(fileId);
 
-				// `processor` is initialized in `buildStart`, and removed in `buildEnd`. `load`
-				// should be called in between those two lifecycles, so this error should never happen
+				// Lazily initialize the Markdown processor
 				if (!processor) {
-					return this.error(
-						'MDX processor is not initialized. This is an internal error. Please file an issue.'
-					);
+					processor = createMarkdownProcessor(settings.config.markdown);
 				}
 
-				const renderResult = await processor
+				const renderResult = await (await processor)
 					.render(raw.content, {
 						// @ts-expect-error passing internal prop
 						fileURL,
@@ -100,13 +94,13 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				if (frontmatter.setup) {
 					logger.warn(
 						'markdown',
-						`[${id}] Astro now supports MDX! Support for components in ".md" (or alternative extensions like ".markdown") files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX.`
+						`[${id}] Astro now supports MDX! Support for components in ".md" (or alternative extensions like ".markdown") files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX.`,
 					);
 				}
 
 				const code = `
 				import { unescapeHTML, spreadAttributes, createComponent, render, renderComponent, maybeRenderHead } from ${JSON.stringify(
-					astroServerRuntimeModulePath
+					astroServerRuntimeModulePath,
 				)};
 				import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}

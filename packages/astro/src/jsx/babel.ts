@@ -58,15 +58,15 @@ function jsxAttributeToString(attr: t.JSXAttribute): string {
 
 function addClientMetadata(
 	node: t.JSXElement,
-	meta: { resolvedPath: string; path: string; name: string }
+	meta: { resolvedPath: string; path: string; name: string },
 ) {
 	const existingAttributes = node.openingElement.attributes.map((attr) =>
-		t.isJSXAttribute(attr) ? jsxAttributeToString(attr) : null
+		t.isJSXAttribute(attr) ? jsxAttributeToString(attr) : null,
 	);
 	if (!existingAttributes.find((attr) => attr === 'client:component-path')) {
 		const componentPath = t.jsxAttribute(
 			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-path')),
-			t.stringLiteral(meta.resolvedPath)
+			t.stringLiteral(meta.resolvedPath),
 		);
 		node.openingElement.attributes.push(componentPath);
 	}
@@ -76,13 +76,13 @@ function addClientMetadata(
 		}
 		const componentExport = t.jsxAttribute(
 			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-export')),
-			t.stringLiteral(meta.name)
+			t.stringLiteral(meta.name),
 		);
 		node.openingElement.attributes.push(componentExport);
 	}
 	if (!existingAttributes.find((attr) => attr === 'client:component-hydration')) {
 		const staticMarker = t.jsxAttribute(
-			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-hydration'))
+			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-hydration')),
 		);
 		node.openingElement.attributes.push(staticMarker);
 	}
@@ -90,30 +90,30 @@ function addClientMetadata(
 
 function addClientOnlyMetadata(
 	node: t.JSXElement,
-	meta: { resolvedPath: string; path: string; name: string }
+	meta: { resolvedPath: string; path: string; name: string },
 ) {
 	const tagName = getTagName(node);
 	node.openingElement = t.jsxOpeningElement(
 		t.jsxIdentifier(ClientOnlyPlaceholder),
-		node.openingElement.attributes
+		node.openingElement.attributes,
 	);
 	if (node.closingElement) {
 		node.closingElement = t.jsxClosingElement(t.jsxIdentifier(ClientOnlyPlaceholder));
 	}
 	const existingAttributes = node.openingElement.attributes.map((attr) =>
-		t.isJSXAttribute(attr) ? jsxAttributeToString(attr) : null
+		t.isJSXAttribute(attr) ? jsxAttributeToString(attr) : null,
 	);
 	if (!existingAttributes.find((attr) => attr === 'client:display-name')) {
 		const displayName = t.jsxAttribute(
 			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('display-name')),
-			t.stringLiteral(tagName)
+			t.stringLiteral(tagName),
 		);
 		node.openingElement.attributes.push(displayName);
 	}
 	if (!existingAttributes.find((attr) => attr === 'client:component-path')) {
 		const componentPath = t.jsxAttribute(
 			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-path')),
-			t.stringLiteral(meta.resolvedPath)
+			t.stringLiteral(meta.resolvedPath),
 		);
 		node.openingElement.attributes.push(componentPath);
 	}
@@ -123,13 +123,13 @@ function addClientOnlyMetadata(
 		}
 		const componentExport = t.jsxAttribute(
 			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-export')),
-			t.stringLiteral(meta.name)
+			t.stringLiteral(meta.name),
 		);
 		node.openingElement.attributes.push(componentExport);
 	}
 	if (!existingAttributes.find((attr) => attr === 'client:component-hydration')) {
 		const staticMarker = t.jsxAttribute(
-			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-hydration'))
+			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-hydration')),
 		);
 		node.openingElement.attributes.push(staticMarker);
 	}
@@ -151,8 +151,8 @@ export default function astroJSX(): PluginObj {
 						0,
 						t.importDeclaration(
 							[t.importSpecifier(t.identifier('Fragment'), t.identifier('Fragment'))],
-							t.stringLiteral('astro/jsx-runtime')
-						)
+							t.stringLiteral('astro/jsx-runtime'),
+						),
 					);
 				},
 			},
@@ -242,8 +242,8 @@ export default function astroJSX(): PluginObj {
 				} else {
 					throw new Error(
 						`Unable to match <${getTagName(
-							parentNode
-						)}> with client:* directive to an import statement!`
+							parentNode,
+						)}> with client:* directive to an import statement!`,
 					);
 				}
 			},
@@ -286,7 +286,7 @@ export default function astroJSX(): PluginObj {
 								if (name.startsWith('client:')) {
 									// eslint-disable-next-line
 									console.warn(
-										`You are attempting to render <${displayName} ${name} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`
+										`You are attempting to render <${displayName} ${name} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
 									);
 								}
 							}

@@ -677,7 +677,7 @@ class ErrorOverlay extends HTMLElement {
 								'afterend',
 								`\n<span class="line error-caret"><span style="padding-left:${
 									err.loc.column - 1
-								}ch;">^</span></span>`
+								}ch;">^</span></span>`,
 							);
 						}
 					}

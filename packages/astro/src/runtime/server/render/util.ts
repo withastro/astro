@@ -7,7 +7,7 @@ import { HTMLString, markHTMLString } from '../escape.js';
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
-	/^(?:allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
+	/^(?:allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|selected|itemscope)$/i;
 const htmlEnumAttributes = /^(?:contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
 const svgEnumAttributes = /^(?:autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
@@ -48,7 +48,7 @@ export function defineScriptVars(vars: Record<any, any>) {
 		// https://stackoverflow.com/questions/29194024/cant-use-let-keyword-in-safari-javascript
 		output += `const ${toIdent(key)} = ${JSON.stringify(value)?.replace(
 			/<\/script>/g,
-			'\\x3C/script>'
+			'\\x3C/script>',
 		)};\n`;
 	}
 	return markHTMLString(output);
@@ -96,7 +96,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	if (key === 'style' && !(value instanceof HTMLString)) {
 		if (Array.isArray(value) && value.length === 2) {
 			return markHTMLString(
-				` ${key}="${toAttributeString(`${toStyleString(value[0])};${value[1]}`, shouldEscape)}"`
+				` ${key}="${toAttributeString(`${toStyleString(value[0])};${value[1]}`, shouldEscape)}"`,
 			);
 		}
 		if (typeof value === 'object') {
@@ -134,7 +134,7 @@ export function internalSpreadAttributes(values: Record<any, any>, shouldEscape 
 export function renderElement(
 	name: string,
 	{ props: _props, children = '' }: SSRElement,
-	shouldEscape = true
+	shouldEscape = true,
 ) {
 	// Do not print `hoist`, `lang`, `is:global`
 	const { lang: _, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;

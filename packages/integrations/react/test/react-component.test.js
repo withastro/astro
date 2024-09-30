@@ -54,7 +54,7 @@ describe('React Components', () => {
 			assert.equal(islandsWithChildren.length, 2);
 			assert.equal(
 				$(islandsWithChildren[0]).html(),
-				$(islandsWithChildren[1]).find('astro-slot').html()
+				$(islandsWithChildren[1]).find('astro-slot').html(),
 			);
 
 			// test 11: Should generate unique React.useId per island
@@ -150,8 +150,8 @@ describe('React Components', () => {
 					`[/window]
 			The window object is not available during server-side rendering (SSR).
 			Try using \`import.meta.env.SSR\` to write SSR-friendly code.
-			https://docs.astro.build/reference/api-reference/#importmeta`
-				)
+			https://docs.astro.build/reference/api-reference/#importmeta`,
+				),
 			);
 		});
 

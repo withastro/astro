@@ -37,7 +37,7 @@ export class NodeApp extends App {
 	render(
 		req: NodeRequest | Request,
 		routeDataOrOptions?: RouteData | RenderOptions,
-		maybeLocals?: object
+		maybeLocals?: object,
 	) {
 		if (!(req instanceof Request)) {
 			req = NodeApp.createRequest(req);
@@ -120,7 +120,7 @@ export class NodeApp extends App {
 					// eslint-disable-next-line no-console
 					console.error(
 						`There was an uncaught error in the middle of the stream while rendering ${destination.req.url}.`,
-						err
+						err,
 					);
 				});
 			});

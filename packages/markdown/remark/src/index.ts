@@ -52,7 +52,7 @@ const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
  * Create a markdown preprocessor to render multiple markdown files
  */
 export async function createMarkdownProcessor(
-	opts?: AstroMarkdownOptions
+	opts?: AstroMarkdownOptions,
 ): Promise<MarkdownProcessor> {
 	const {
 		syntaxHighlight = markdownConfigDefaults.syntaxHighlight,
@@ -158,7 +158,7 @@ function prefixError(err: any, prefix: string) {
 		try {
 			err.message = `${prefix}:\n${err.message}`;
 			return err;
-		} catch (error) {
+		} catch {
 			// Any errors here are ok, there's fallback code below
 		}
 	}

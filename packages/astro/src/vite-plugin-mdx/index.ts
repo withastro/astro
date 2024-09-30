@@ -6,7 +6,7 @@ import { transformJSX } from './transform-jsx.js';
 
 // Format inspired by https://github.com/vitejs/vite/blob/main/packages/vite/src/node/constants.ts#L54
 const SPECIAL_QUERY_REGEX = new RegExp(
-	`[?&](?:worker|sharedworker|raw|url|${CONTENT_FLAG}|${PROPAGATED_ASSET_FLAG})\\b`
+	`[?&](?:worker|sharedworker|raw|url|${CONTENT_FLAG}|${PROPAGATED_ASSET_FLAG})\\b`,
 );
 
 /**

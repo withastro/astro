@@ -18,7 +18,7 @@ export interface FileInfo {
 /** @see 'vite-plugin-utils' for source */
 export function getFileInfo(id: string, config: AstroConfig): FileInfo {
 	const sitePathname = appendForwardSlash(
-		config.site ? new URL(config.base, config.site).pathname : config.base
+		config.site ? new URL(config.base, config.site).pathname : config.base,
 	);
 
 	// Try to grab the file's actual URL
@@ -69,7 +69,7 @@ export function jsToTreeNode(
 	acornOpts: AcornOpts = {
 		ecmaVersion: 'latest',
 		sourceType: 'module',
-	}
+	},
 ): MdxjsEsm {
 	return {
 		type: 'mdxjsEsm',
@@ -101,7 +101,7 @@ export function ignoreStringPlugins(plugins: any[], logger: AstroIntegrationLogg
 	}
 	if (hasInvalidPlugin) {
 		logger.warn(
-			`To inherit Markdown plugins in MDX, please use explicit imports in your config instead of "strings." See Markdown docs: https://docs.astro.build/en/guides/markdown-content/#markdown-plugins`
+			`To inherit Markdown plugins in MDX, please use explicit imports in your config instead of "strings." See Markdown docs: https://docs.astro.build/en/guides/markdown-content/#markdown-plugins`,
 		);
 	}
 	return validPlugins;

@@ -72,7 +72,7 @@ export default function ({
 												async render(request, { routeData, clientAddress, locals, addCookieHeader } = {}) {
 													const url = new URL(request.url);
 													if(this.#manifest.assets.has(url.pathname)) {
-														const filePath = new URL('../client/' + this.removeBase(url.pathname), import.meta.url);
+														const filePath = new URL('../../client/' + this.removeBase(url.pathname), import.meta.url);
 														const data = await fs.promises.readFile(filePath);
 														return new Response(data);
 													}
@@ -108,6 +108,10 @@ export default function ({
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						envGetSecret: 'experimental',
+						staticOutput: 'stable',
+						hybridOutput: 'stable',
+						assets: 'stable',
+						i18nDomains: 'stable',
 					},
 					...extendAdapter,
 				});

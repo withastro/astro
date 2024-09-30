@@ -27,7 +27,7 @@ describe('hydration', () => {
 				</html>
 			`,
 				},
-				root
+				root,
 			);
 
 			await runInContainer(
@@ -48,10 +48,10 @@ describe('hydration', () => {
 					assert.equal(
 						res.statusCode,
 						200,
-						"We get a 200 because the error occurs in the template, but we didn't crash!"
+						"We get a 200 because the error occurs in the template, but we didn't crash!",
 					);
-				}
+				},
 			);
-		}
+		},
 	);
 });

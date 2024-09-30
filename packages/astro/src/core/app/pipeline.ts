@@ -6,7 +6,7 @@ import type {
 	SSRElement,
 	SSRResult,
 } from '../../@types/astro.js';
-import { Pipeline } from '../base-pipeline.js';
+import { Pipeline, type TryRewriteResult } from '../base-pipeline.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
@@ -25,10 +25,18 @@ export class AppPipeline extends Pipeline {
 			resolve,
 			serverLike,
 			streaming,
+			defaultRoutes,
 		}: Pick<
 			AppPipeline,
-			'logger' | 'manifest' | 'mode' | 'renderers' | 'resolve' | 'serverLike' | 'streaming'
-		>
+			| 'logger'
+			| 'manifest'
+			| 'mode'
+			| 'renderers'
+			| 'resolve'
+			| 'serverLike'
+			| 'streaming'
+			| 'defaultRoutes'
+		>,
 	) {
 		const pipeline = new AppPipeline(
 			logger,
@@ -46,7 +54,8 @@ export class AppPipeline extends Pipeline {
 			undefined,
 			undefined,
 			undefined,
-			false
+			false,
+			defaultRoutes,
 		);
 		pipeline.#manifestData = manifestData;
 		return pipeline;
@@ -75,17 +84,14 @@ export class AppPipeline extends Pipeline {
 	}
 
 	componentMetadata() {}
+
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		const module = await this.getModuleForRoute(routeData);
 		return module.page();
 	}
 
-	async tryRewrite(
-		payload: RewritePayload,
-		request: Request,
-		_sourceRoute: RouteData
-	): Promise<[RouteData, ComponentInstance, URL]> {
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
+		const { newUrl, pathname, routeData } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.manifest?.routes.map((r) => r.routeData),
@@ -94,8 +100,8 @@ export class AppPipeline extends Pipeline {
 			base: this.manifest.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { newUrl, pathname, componentInstance, routeData };
 	}
 
 	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
@@ -115,7 +121,7 @@ export class AppPipeline extends Pipeline {
 				const importComponentInstance = this.manifest.pageMap.get(route.component);
 				if (!importComponentInstance) {
 					throw new Error(
-						`Unexpectedly unable to find a component instance for route ${route.route}`
+						`Unexpectedly unable to find a component instance for route ${route.route}`,
 					);
 				}
 				return await importComponentInstance();
@@ -123,7 +129,7 @@ export class AppPipeline extends Pipeline {
 				return this.manifest.pageModule;
 			}
 			throw new Error(
-				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
+				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
 			);
 		}
 	}

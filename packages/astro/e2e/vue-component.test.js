@@ -1,6 +1,8 @@
 import { expect } from '@playwright/test';
 import { prepareTestFactory } from './shared-component-tests.js';
-const { test, createTests } = prepareTestFactory({ root: './fixtures/vue-component/' });
+const { test, createTests } = prepareTestFactory(import.meta.url, {
+	root: './fixtures/vue-component/',
+});
 
 const config = {
 	componentFilePath: './src/components/VueComponent.vue',
@@ -47,7 +49,7 @@ test('hmr works', async ({ page, astro }) => {
 	await expect(span).toHaveText('Count is 1');
 
 	await astro.editFile('./src/components/State.vue', (content) =>
-		content.replace('ref(1)', 'ref(2)')
+		content.replace('ref(1)', 'ref(2)'),
 	);
 
 	await expect(span).toHaveText('Count is 2');

@@ -9,7 +9,7 @@ import { type RenderDestination, type RenderInstance, chunkToString } from './co
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
 export type ComponentSlotValue = (
-	result: SSRResult
+	result: SSRResult,
 ) => RenderTemplateResult | Promise<RenderTemplateResult>;
 
 const slotString = Symbol.for('astro:slot-string');
@@ -31,7 +31,7 @@ export function isSlotString(str: string): str is any {
 export function renderSlot(
 	result: SSRResult,
 	slotted: ComponentSlotValue | RenderTemplateResult,
-	fallback?: ComponentSlotValue | RenderTemplateResult
+	fallback?: ComponentSlotValue | RenderTemplateResult,
 ): RenderInstance {
 	if (!slotted && fallback) {
 		return renderSlot(result, fallback);
@@ -46,7 +46,7 @@ export function renderSlot(
 export async function renderSlotToString(
 	result: SSRResult,
 	slotted: ComponentSlotValue | RenderTemplateResult,
-	fallback?: ComponentSlotValue | RenderTemplateResult
+	fallback?: ComponentSlotValue | RenderTemplateResult,
 ): Promise<string> {
 	let content = '';
 	let instructions: null | RenderInstruction[] = null;
@@ -82,7 +82,7 @@ interface RenderSlotsResult {
 
 export async function renderSlots(
 	result: SSRResult,
-	slots: ComponentSlots = {}
+	slots: ComponentSlots = {},
 ): Promise<RenderSlotsResult> {
 	let slotInstructions: RenderSlotsResult['slotInstructions'] = null;
 	let children: RenderSlotsResult['children'] = {};
@@ -97,8 +97,8 @@ export async function renderSlots(
 						slotInstructions.push(...output.instructions);
 					}
 					children[key] = output;
-				})
-			)
+				}),
+			),
 		);
 	}
 	return { slotInstructions, children };

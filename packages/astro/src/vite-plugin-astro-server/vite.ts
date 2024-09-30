@@ -2,6 +2,7 @@ import npath from 'node:path';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
 import type { ModuleLoader, ModuleNode } from '../core/module-loader/index.js';
 import { unwrapId } from '../core/util.js';
+import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
 import { isCSSRequest } from './util.js';
 
 /**
@@ -11,14 +12,13 @@ import { isCSSRequest } from './util.js';
 const fileExtensionsToSSR = new Set(['.astro', '.mdoc', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS]);
 
 const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
-const ASTRO_PROPAGATED_ASSET_REGEX = /\?astroPropagatedAssets/;
 
 /** recursively crawl the module graph to get all style files imported by parent id */
 export async function* crawlGraph(
 	loader: ModuleLoader,
 	_id: string,
 	isRootFile: boolean,
-	scanned = new Set<string>()
+	scanned = new Set<string>(),
 ): AsyncGenerator<ModuleNode, void, unknown> {
 	const id = unwrapId(_id);
 	const importedModules = new Set<ModuleNode>();
@@ -42,12 +42,23 @@ export async function* crawlGraph(
 		if (id === entry.id) {
 			scanned.add(id);
 
+			// NOTE: It may be worth revisiting if we can crawl direct imports of the module since
+			// `.importedModules` would also include modules that are dynamically watched, not imported.
+			// That way we no longer need the below `continue` skips.
+
 			// CSS requests `importedModules` are usually from `@import`, but we don't really need
 			// to crawl into those as the `@import` code are already inlined into this `id`.
 			// If CSS requests `importedModules` contain non-CSS files, e.g. Tailwind might add HMR
 			// dependencies as `importedModules`, we should also skip them as they aren't really
 			// imported. Without this, every hoisted script in the project is added to every page!
 			if (isCSSRequest(id)) {
+				continue;
+			}
+			// Some special Vite queries like `?url` or `?raw` are known to be a simple default export
+			// and doesn't have any imports to crawl. However, since they would `this.addWatchFile` the
+			// underlying module, our logic would crawl into them anyways which is incorrect as they
+			// don't take part in the final rendering, so we skip it here.
+			if (hasSpecialQueries(id)) {
 				continue;
 			}
 
@@ -66,7 +77,7 @@ export async function* crawlGraph(
 				const isFileTypeNeedingSSR = fileExtensionsToSSR.has(npath.extname(importedModulePathname));
 				// A propagation stopping point is a module with the ?astroPropagatedAssets flag.
 				// When we encounter one of these modules we don't want to continue traversing.
-				const isPropagationStoppingPoint = ASTRO_PROPAGATED_ASSET_REGEX.test(importedModule.id);
+				const isPropagationStoppingPoint = importedModule.id.includes('?astroPropagatedAssets');
 				if (
 					isFileTypeNeedingSSR &&
 					// Should not SSR a module with ?astroPropagatedAssets

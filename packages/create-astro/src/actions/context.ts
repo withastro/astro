@@ -53,7 +53,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 			'-n': '--no',
 			'-h': '--help',
 		},
-		{ argv, permissive: true }
+		{ argv, permissive: true },
 	);
 
 	const packageManager = detectPackageManager() ?? 'npm';

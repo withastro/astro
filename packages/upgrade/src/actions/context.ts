@@ -35,7 +35,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 
 			'-h': '--help',
 		},
-		{ argv, permissive: true }
+		{ argv, permissive: true },
 	);
 
 	const packageManager = (await detectPackageManager(process.cwd()))?.name ?? 'npm';

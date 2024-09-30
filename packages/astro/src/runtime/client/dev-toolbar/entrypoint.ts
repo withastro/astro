@@ -270,11 +270,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 											hiddenApps.some(
 												(p) =>
 													p.notification.state === true &&
-													p.notification.level === notificationLevel
-											)
+													p.notification.level === notificationLevel,
+											),
 										) ?? 'error',
 								},
-							})
+							}),
 						);
 					});
 				}
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	const apps: DevToolbarApp[] = [
 		...[astroDevToolApp, astroXrayApp, astroAuditApp, astroSettingsApp, astroMoreApp].map(
-			(appDef) => prepareApp(appDef, true)
+			(appDef) => prepareApp(appDef, true),
 		),
 		...customAppsDefinitions.map((appDef) => prepareApp(appDef, false)),
 	];

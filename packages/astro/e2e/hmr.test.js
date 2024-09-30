@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/hmr/',
 	devToolbar: {
 		enabled: false,
@@ -34,7 +34,7 @@ test.describe('Scripts with dependencies', () => {
 		await expect(h, 'original text set').toHaveText('before');
 
 		await astro.editFile('./src/scripts/heading.js', (original) =>
-			original.replace('before', 'after')
+			original.replace('before', 'after'),
 		);
 
 		await expect(h, 'text changed').toHaveText('after');
@@ -64,7 +64,7 @@ test.describe('Styles', () => {
 		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
 
 		await astro.editFile('./src/styles/css-external.css', (original) =>
-			original.replace('blue', 'red')
+			original.replace('blue', 'red'),
 		);
 
 		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');

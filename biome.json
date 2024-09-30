@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.8.1/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
   "files": {
     "ignore": [
       "vendor",
@@ -9,7 +9,7 @@
       "**/vendor/**",
       "**/.vercel/**"
     ],
-    "include": ["test/**", "e2e/**", "packages/**"]
+    "include": ["test/**", "e2e/**", "packages/**", "/scripts/**"]
   },
   "formatter": {
     "indentStyle": "tab",
@@ -26,10 +26,19 @@
   "organizeImports": {
     "enabled": true
   },
-  "linter": { "enabled": false },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": false,
+      "style": {
+        "useNodejsImportProtocol": "error",
+        "useImportType": "error"
+      }
+    }
+  },
   "javascript": {
     "formatter": {
-      "trailingCommas": "es5",
+      "trailingCommas": "all",
       "quoteStyle": "single",
       "semicolons": "always"
     }
@@ -50,6 +59,16 @@
       "json": {
         "formatter": {
           "lineWidth": 1
+        }
+      }
+    },
+    {
+      "include": ["*.test.js"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noFocusedTests": "error"
+          }
         }
       }
     }

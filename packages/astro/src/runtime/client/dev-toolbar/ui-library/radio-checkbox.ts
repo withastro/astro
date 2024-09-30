@@ -14,6 +14,7 @@ export class DevToolbarRadioCheckbox extends HTMLElement {
 
 	set radioStyle(value) {
 		if (!styles.includes(value)) {
+			// eslint-disable-next-line no-console
 			console.error(`Invalid style: ${value}, expected one of ${styles.join(', ')}.`);
 			return;
 		}

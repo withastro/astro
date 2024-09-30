@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/content-collections/' });
+const test = testFactory(import.meta.url, { root: './fixtures/content-collections/' });
 
 let devServer;
 
@@ -19,7 +19,7 @@ test.describe('Content Collections', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		await astro.editFile('./src/components/MyComponent.astro', (original) =>
-			original.replace('red', 'green')
+			original.replace('red', 'green'),
 		);
 
 		const h1 = page.locator('#my-heading');

@@ -36,16 +36,19 @@ export function req({
 	method,
 	statusCode,
 	reqTime,
+	isRewrite,
 }: {
 	url: string;
 	statusCode: number;
 	method?: string;
 	reqTime?: number;
+	isRewrite?: boolean;
 }): string {
 	const color = statusCode >= 500 ? red : statusCode >= 300 ? yellow : blue;
 	return (
 		color(`[${statusCode}]`) +
 		` ` +
+		`${isRewrite ? color('(rewrite) ') : ''}` +
 		(method && method !== 'GET' ? color(method) + ' ' : '') +
 		url +
 		` ` +
@@ -90,7 +93,7 @@ export function serverStart({
 	const messages = [
 		'',
 		`${bgGreen(bold(` astro `))} ${green(`v${version}`)} ${dim(`ready in`)} ${Math.round(
-			startupTime
+			startupTime,
 		)} ${dim('ms')}`,
 		'',
 		...localUrlMessages,
@@ -148,7 +151,7 @@ export function preferenceDefaultIntro(name: string) {
 
 export function preferenceDefault(name: string, value: any) {
 	return `${yellow('◯')} ${name} has not been set. It defaults to ${bgYellow(
-		black(` ${JSON.stringify(value)} `)
+		black(` ${JSON.stringify(value)} `),
 	)}\n`;
 }
 
@@ -218,7 +221,7 @@ export function cancelled(message: string, tip?: string) {
 
 const LOCAL_IP_HOSTS = new Set(['localhost', '127.0.0.1']);
 
-export function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 'visible' {
+function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 'visible' {
 	if (host === false) {
 		return 'host-to-expose';
 	} else if (typeof host === 'string' && LOCAL_IP_HOSTS.has(host)) {
@@ -230,19 +233,20 @@ export function getNetworkLogging(host: string | boolean): 'none' | 'host-to-exp
 
 export function formatConfigErrorMessage(err: ZodError) {
 	const errorList = err.issues.map(
-		(issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`
+		(issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`,
 	);
 	return `${red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join(
-		'\n'
+		'\n',
 	)}`;
 }
 
 // a regex to match the first line of a stack trace
 const STACK_LINE_REGEXP = /^\s+at /g;
 const IRRELEVANT_STACK_REGEXP = /node_modules|astro[/\\]dist/g;
+
 function formatErrorStackTrace(
 	err: Error | ErrorWithMetadata,
-	showFullStacktrace: boolean
+	showFullStacktrace: boolean,
 ): string {
 	const stackLines = (err.stack || '').split('\n').filter((line) => STACK_LINE_REGEXP.test(line));
 	// If full details are required, just return the entire stack trace.
@@ -351,8 +355,8 @@ export function printHelp({
 		message.push(
 			linebreak(),
 			`  ${bgGreen(black(` ${commandName} `))} ${green(
-				`v${process.env.PACKAGE_VERSION ?? ''}`
-			)} ${headline}`
+				`v${process.env.PACKAGE_VERSION ?? ''}`,
+			)} ${headline}`,
 		);
 	}
 
@@ -364,6 +368,7 @@ export function printHelp({
 		function calculateTablePadding(rows: [string, string][]) {
 			return rows.reduce((val, [first]) => Math.max(val, first.length), 0) + 2;
 		}
+
 		const tableEntries = Object.entries(tables);
 		const padding = Math.max(...tableEntries.map(([, rows]) => calculateTablePadding(rows)));
 		for (const [tableTitle, tableRows] of tableEntries) {

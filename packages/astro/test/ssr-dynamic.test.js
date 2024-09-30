@@ -27,7 +27,7 @@ describe('Dynamic pages in SSR', () => {
 							});
 
 							const entrypoint = fileURLToPath(
-								new URL(`${root}.astro/test.astro`, import.meta.url)
+								new URL(`${root}.astro/test.astro`, import.meta.url),
 							);
 							console.log(entrypoint);
 							mkdirSync(dirname(entrypoint), { recursive: true });

@@ -6,7 +6,7 @@ import { crawlGraph } from './vite.js';
 
 export async function getComponentMetadata(
 	filePath: URL,
-	loader: ModuleLoader
+	loader: ModuleLoader,
 ): Promise<SSRResult['componentMetadata']> {
 	const map: SSRResult['componentMetadata'] = new Map();
 

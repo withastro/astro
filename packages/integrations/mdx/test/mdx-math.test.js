@@ -32,7 +32,7 @@ describe('MDX math', () => {
 			assert.equal(
 				mjxStyle.includes('mjx-container[jax="SVG"]'),
 				true,
-				'style should not be html-escaped'
+				'style should not be html-escaped',
 			);
 		});
 
@@ -66,7 +66,7 @@ describe('MDX math', () => {
 			assert.equal(
 				mjxStyle.includes('mjx-container[jax="CHTML"]'),
 				true,
-				'style should not be html-escaped'
+				'style should not be html-escaped',
 			);
 		});
 	});

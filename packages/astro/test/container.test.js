@@ -46,10 +46,10 @@ describe('Container', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-				}
+				},
 			)}`;
 		});
 
@@ -80,14 +80,14 @@ describe('Container', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-					}
+					},
 				)}`;
 			},
 			'Component2.astro',
-			undefined
+			undefined,
 		);
 
 		const container = await experimental_AstroContainer.create();
@@ -122,14 +122,14 @@ describe('Container', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-					}
+					},
 				)}`;
 			},
 			'Component2.astro',
-			undefined
+			undefined,
 		);
 
 		const container = await experimental_AstroContainer.create();
@@ -168,15 +168,15 @@ describe('Container', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-						}
-					)}`
+						},
+					)}`,
 				);
 			},
 			'Component2.astro',
-			undefined
+			undefined,
 		);
 
 		const container = await experimental_AstroContainer.create();
@@ -212,14 +212,14 @@ describe('Container', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-					}
+					},
 				)}`;
 			},
 			'Component2.astro',
-			undefined
+			undefined,
 		);
 
 		const container = await experimental_AstroContainer.create();
@@ -260,5 +260,14 @@ describe('Container with renderers', () => {
 		const html = await response.text();
 
 		assert.match(html, /I am a vue button/);
+	});
+
+	it('Should render a component with directives', async () => {
+		const request = new Request('https://example.com/button-directive');
+		const response = await app.render(request);
+		const html = await response.text();
+
+		assert.match(html, /Button not rendered/);
+		assert.match(html, /I am a react button/);
 	});
 });

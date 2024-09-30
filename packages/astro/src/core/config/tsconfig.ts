@@ -53,8 +53,7 @@ export const presets = new Map<frameworkWithTSSettings, TSConfig>([
 	],
 ]);
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type TSConfigResult<T = {}> = Promise<
+type TSConfigResult<T = object> = Promise<
 	(TSConfckParseResult & T) | 'invalid-config' | 'missing-config' | 'unknown-error'
 >;
 
@@ -65,7 +64,7 @@ type TSConfigResult<T = {}> = Promise<
  */
 export async function loadTSConfig(
 	root: string | undefined,
-	findUp = false
+	findUp = false,
 ): Promise<TSConfigResult<{ rawConfig: TSConfig }>> {
 	const safeCwd = root ?? process.cwd();
 
@@ -75,8 +74,8 @@ export async function loadTSConfig(
 			find(join(safeCwd, './dummy.txt'), {
 				root: findUp ? undefined : root,
 				configName: configName,
-			})
-		)
+			}),
+		),
 	);
 
 	// If we have both files, prefer tsconfig.json
@@ -133,7 +132,7 @@ async function safeParse(tsconfigPath: string, options: TSConfckParseOptions = {
 
 export function updateTSConfigForFramework(
 	target: TSConfig,
-	framework: frameworkWithTSSettings
+	framework: frameworkWithTSSettings,
 ): TSConfig {
 	if (!presets.has(framework)) {
 		return target;

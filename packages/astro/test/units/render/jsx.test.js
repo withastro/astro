@@ -50,7 +50,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.mdx',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 
 			assert.equal(response.status, 200);
@@ -97,7 +97,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.mdx',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 
 			assert.equal(response.status, 200);
@@ -105,9 +105,9 @@ describe('core/render', () => {
 			const html = await response.text();
 			assert.equal(
 				html.includes(
-					'<main><div><p class="n">works</p></div><div><p class="p">works</p></div></main>'
+					'<main><div><p class="n">works</p></div><div><p class="p">works</p></div></main>',
 				),
-				true
+				true,
 			);
 		});
 
@@ -128,7 +128,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.mdx',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 
 			try {

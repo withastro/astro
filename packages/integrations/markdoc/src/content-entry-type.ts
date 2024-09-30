@@ -78,13 +78,13 @@ export async function getContentEntryType({
 			// Only include component imports for tags used in the document.
 			// Avoids style and script bleed.
 			for (const tag of usedTags) {
-				const render = userMarkdocConfig.tags?.[tag]?.render;
+				const render = markdocConfig.tags?.[tag]?.render;
 				if (isComponentConfig(render)) {
 					componentConfigByTagMap[tag] = render;
 				}
 			}
 			let componentConfigByNodeMap: Record<string, ComponentConfig> = {};
-			for (const [nodeType, schema] of Object.entries(userMarkdocConfig.nodes ?? {})) {
+			for (const [nodeType, schema] of Object.entries(markdocConfig.nodes ?? {})) {
 				const render = schema?.render;
 				if (isComponentConfig(render)) {
 					componentConfigByNodeMap[nodeType] = render;
@@ -117,7 +117,7 @@ const nodeComponentMap = ${getStringifiedMap(componentConfigByNodeMap, 'Node')};
 const options = ${JSON.stringify(options)};
 
 const stringifiedAst = ${JSON.stringify(
-				/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
+				/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast),
 			)};
 
 export const getHeadings = createGetHeadings(stringifiedAst, markdocConfig, options);
@@ -133,7 +133,7 @@ export const Content = createContentComponent(
 		},
 		contentModuleTypes: await fs.promises.readFile(
 			new URL('../template/content-module-types.d.ts', import.meta.url),
-			'utf-8'
+			'utf-8',
 		),
 	};
 }
@@ -182,7 +182,7 @@ async function resolvePartials({
 				if (!partialId) {
 					const attemptResolveAsRelative = await pluginContext.resolve(
 						'./' + file,
-						fileURLToPath(fileUrl)
+						fileURLToPath(fileUrl),
 					);
 					if (!attemptResolveAsRelative?.id) throw new Error();
 					partialId = attemptResolveAsRelative.id;
@@ -245,7 +245,7 @@ function raiseValidationErrors({
 			e.error.id !== 'variable-undefined' &&
 			// Ignore missing partial errors.
 			// We will resolve these in `resolvePartials`.
-			!(e.error.id === 'attribute-value-invalid' && e.error.message.match(/^Partial .+ not found/))
+			!(e.error.id === 'attribute-value-invalid' && /^Partial .+ not found/.test(e.error.message))
 		);
 	});
 
@@ -275,7 +275,7 @@ function getUsedTags(markdocAst: Node) {
 	// This is our signal that a tag is being used!
 	for (const { error } of validationErrors) {
 		if (error.id === 'tag-undefined') {
-			const [, tagName] = error.message.match(/Undefined tag: '(.*)'/) ?? [];
+			const [, tagName] = /Undefined tag: '(.*)'/.exec(error.message) ?? [];
 			tags.add(tagName);
 		}
 	}
@@ -302,7 +302,7 @@ async function emitOptimizedImages(
 		pluginContext: Rollup.PluginContext;
 		filePath: string;
 		astroConfig: AstroConfig;
-	}
+	},
 ) {
 	for (const node of nodeChildren) {
 		let isComponent = node.type === 'tag' && node.tag === 'image';
@@ -320,7 +320,7 @@ async function emitOptimizedImages(
 					const src = await emitESMImage(
 						resolved.id,
 						ctx.pluginContext.meta.watchMode,
-						ctx.pluginContext.emitFile
+						ctx.pluginContext.emitFile,
 					);
 
 					const fsPath = resolved.id;
@@ -338,7 +338,7 @@ async function emitOptimizedImages(
 				} else {
 					throw new MarkdocError({
 						message: `Could not resolve image ${JSON.stringify(
-							node.attributes.src
+							node.attributes.src,
 						)} from ${JSON.stringify(ctx.filePath)}. Does the file exist?`,
 					});
 				}
@@ -366,7 +366,7 @@ function shouldOptimizeImage(src: string) {
 function getStringifiedImports(
 	componentConfigMap: Record<string, ComponentConfig>,
 	componentNamePrefix: string,
-	root: URL
+	root: URL,
 ) {
 	let stringifiedComponentImports = '';
 	for (const [key, config] of Object.entries(componentConfigMap)) {
@@ -394,7 +394,7 @@ function toImportName(unsafeName: string) {
  */
 function getStringifiedMap(
 	componentConfigMap: Record<string, ComponentConfig>,
-	componentNamePrefix: string
+	componentNamePrefix: string,
 ) {
 	let stringifiedComponentMap = '{';
 	for (const key in componentConfigMap) {

@@ -10,7 +10,7 @@ export interface HandleHotUpdateOptions {
 
 export async function handleHotUpdate(
 	ctx: HmrContext,
-	{ logger, astroFileToCompileMetadata }: HandleHotUpdateOptions
+	{ logger, astroFileToCompileMetadata }: HandleHotUpdateOptions,
 ) {
 	// HANDLING 1: Invalidate compile metadata if CSS dependency updated
 	//

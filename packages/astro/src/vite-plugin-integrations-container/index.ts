@@ -24,7 +24,7 @@ export default function astroIntegrationsContainerPlugin({
 			if (settings.injectedRoutes.length === settings.resolvedInjectedRoutes.length) return;
 			// Ensure the injectedRoutes are all resolved to their final paths through Rollup
 			settings.resolvedInjectedRoutes = await Promise.all(
-				settings.injectedRoutes.map((route) => resolveEntryPoint.call(this, route))
+				settings.injectedRoutes.map((route) => resolveEntryPoint.call(this, route)),
 			);
 		},
 	};
@@ -32,7 +32,7 @@ export default function astroIntegrationsContainerPlugin({
 
 async function resolveEntryPoint(
 	this: PluginContext,
-	route: InjectedRoute
+	route: InjectedRoute,
 ): Promise<ResolvedInjectedRoute> {
 	const resolvedId = await this.resolve(route.entrypoint)
 		.then((res) => res?.id)

@@ -57,7 +57,7 @@ export interface AstroMarkdownOptions {
 export interface MarkdownProcessor {
 	render: (
 		content: string,
-		opts?: MarkdownProcessorRenderOptions
+		opts?: MarkdownProcessorRenderOptions,
 	) => Promise<MarkdownProcessorRenderResult>;
 }
 

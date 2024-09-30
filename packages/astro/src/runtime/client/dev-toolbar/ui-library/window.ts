@@ -18,7 +18,7 @@ export class DevToolbarWindow extends HTMLElement {
 	set placement(value) {
 		if (!isValidPlacement(value)) {
 			settings.logger.error(
-				`Invalid placement: ${value}, expected one of ${placements.join(', ')}, got ${value}.`
+				`Invalid placement: ${value}, expected one of ${placements.join(', ')}, got ${value}.`,
 			);
 			return;
 		}

@@ -55,9 +55,9 @@ describe('astro scan', () => {
 		} catch (e) {
 			assert.equal(
 				e.message.includes(
-					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`,
 				),
-				true
+				true,
 			);
 		}
 	});
@@ -69,9 +69,9 @@ describe('astro scan', () => {
 		} catch (e) {
 			assert.equal(
 				e.message.includes(
-					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`,
 				),
-				true
+				true,
 			);
 		}
 	});
@@ -83,9 +83,9 @@ describe('astro scan', () => {
 		} catch (e) {
 			assert.equal(
 				e.message.includes(
-					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`,
 				),
-				true
+				true,
 			);
 		}
 	});
@@ -97,9 +97,9 @@ describe('astro scan', () => {
 		} catch (e) {
 			assert.equal(
 				e.message.includes(
-					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`,
 				),
-				true
+				true,
 			);
 		}
 	});
@@ -108,15 +108,15 @@ describe('astro scan', () => {
 		try {
 			await scan(
 				`export let prerender = undefined; prerender = true;`,
-				'/src/components/index.astro'
+				'/src/components/index.astro',
 			);
 			assert.equal(false).to.be.true;
 		} catch (e) {
 			assert.equal(
 				e.message.includes(
-					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`,
 				),
-				true
+				true,
 			);
 		}
 	});
@@ -128,9 +128,9 @@ describe('astro scan', () => {
 		} catch (e) {
 			assert.equal(
 				e.message.includes(
-					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`,
 				),
-				true
+				true,
 			);
 		}
 	});

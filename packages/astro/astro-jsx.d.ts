@@ -14,7 +14,6 @@ declare namespace astroHTML.JSX {
 	export type Children = Child | Child[];
 
 	interface ElementChildrenAttribute {
-		// eslint-disable-next-line @typescript-eslint/ban-types
 		children: {};
 	}
 

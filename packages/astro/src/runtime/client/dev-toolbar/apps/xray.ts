@@ -71,7 +71,7 @@ export default {
 					<p>
 						It looks like there are no interactive component islands on this page. Did you forget to add a client directive to your interactive UI component?
 					</p>
-					`
+					`,
 				);
 
 				canvas.append(window);
@@ -140,13 +140,13 @@ export default {
 			// Display the props if we have any
 			// Ignore the "data-astro-cid-XXXXXX" prop (internal)
 			const islandPropsEntries = Object.entries(islandProps).filter(
-				(prop: any) => !prop[0].startsWith('data-astro-cid-')
+				(prop: any) => !prop[0].startsWith('data-astro-cid-'),
 			);
 			if (islandPropsEntries.length > 0) {
 				const stringifiedProps = JSON.stringify(
 					Object.fromEntries(islandPropsEntries.map((prop: any) => [prop[0], prop[1][1]])),
 					undefined,
-					2
+					2,
 				);
 				tooltip.sections.push({
 					title: 'Props',
@@ -167,8 +167,8 @@ export default {
 							'/__open-in-editor?file=' +
 								encodeURIComponent(
 									(window as DevToolbarMetadata).__astro_dev_toolbar__.root +
-										islandComponentPath.slice(1)
-								)
+										islandComponentPath.slice(1),
+								),
 						);
 					},
 				});

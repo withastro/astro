@@ -49,7 +49,7 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 					viteConfig.optimizeDeps!.include!.push(
 						'preact/compat',
 						'preact/test-utils',
-						'preact/compat/jsx-runtime'
+						'preact/compat/jsx-runtime',
 					);
 					viteConfig.resolve = {
 						dedupe: ['preact/compat', 'preact'],

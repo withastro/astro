@@ -40,7 +40,7 @@ describe(
 			// test 3: string reactive property set
 			assert.equal(
 				stripExpressionMarkers($('#default').html()).includes(`<div id="str">initialized</div>`),
-				true
+				true,
 			);
 
 			// test 4: boolean reactive property correctly set
@@ -48,14 +48,14 @@ describe(
 			// this.hasAttribute to determine its value
 			assert.equal(
 				stripExpressionMarkers($('#default').html()).includes(`<div id="bool">B</div>`),
-				true
+				true,
 			);
 
 			// test 5: object reactive property set
 			// by default objects will be stringified to [object Object]
 			assert.equal(
 				stripExpressionMarkers($('#default').html()).includes(`<div id="data">data: 1</div>`),
-				true
+				true,
 			);
 
 			// test 6: reactive properties are not rendered as attributes
@@ -119,30 +119,30 @@ describe(
 			assert.equal($slottedMyElement.children('.default').length, 1);
 			assert.equal(
 				$slottedMyElement.children('.default').eq(0).text(),
-				'slotted my-element default'
+				'slotted my-element default',
 			);
 
 			assert.equal($slottedMyElement.children('[slot="named"]').length, 3);
 			assert.equal(
 				$slottedMyElement.children('[slot="named"]').eq(1).text(),
-				'slotted my-element named 2'
+				'slotted my-element named 2',
 			);
 			assert.equal(
 				$slottedMyElement.children('[slot="named"]').eq(2).attr('id'),
-				'slotted-slotted'
+				'slotted-slotted',
 			);
 
 			// Slotted my-element second level
 			assert.equal($slottedSlottedMyElement.children('.default').length, 2);
 			assert.equal(
 				$slottedSlottedMyElement.children('.default').eq(1).text(),
-				'slotted slotted my-element default 2'
+				'slotted slotted my-element default 2',
 			);
 
 			assert.equal($slottedSlottedMyElement.children('[slot="named"]').length, 2);
 			assert.equal(
 				$slottedSlottedMyElement.children('[slot="named"]').eq(1).text(),
-				'slotted slotted my-element named 2'
+				'slotted slotted my-element named 2',
 			);
 		});
 
@@ -150,5 +150,5 @@ describe(
 			const dynamicPage = await fixture.readFile('/1/index.html');
 			assert.equal(dynamicPage.length > 0, true);
 		});
-	}
+	},
 );

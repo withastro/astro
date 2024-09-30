@@ -22,7 +22,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		id: string,
 		prop: P,
 		value: V,
-		seen = new Set<string>()
+		seen = new Set<string>(),
 	) {
 		if (seen.has(id)) return;
 		seen.add(id);

@@ -47,7 +47,7 @@ describe('Markdoc - Content Collections', () => {
 
 			assert.deepEqual(
 				posts.sort().map((post) => formatPost(post)),
-				[post1Entry, post2Entry, post3Entry]
+				[post1Entry, post2Entry, post3Entry],
 			);
 		});
 	});
@@ -69,7 +69,7 @@ describe('Markdoc - Content Collections', () => {
 			assert.notEqual(posts, null);
 			assert.deepEqual(
 				posts.sort().map((post) => formatPost(post)),
-				[post1Entry, post2Entry, post3Entry]
+				[post1Entry, post2Entry, post3Entry],
 			);
 		});
 	});

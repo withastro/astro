@@ -12,7 +12,7 @@ import { bgRed, cyan } from 'kleur/colors';
 import ora from 'ora';
 import prompts from 'prompts';
 import { safeFetch } from '../../../../runtime/utils.js';
-import { type Result } from '../../../utils.js';
+import type { Result } from '../../../utils.js';
 
 export async function cmd() {
 	const sessionToken = await getSessionIdFromFile();
@@ -69,12 +69,12 @@ async function getWorkspaces(sessionToken: string) {
 			if (res.status === 401) {
 				throw new Error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro login'
-					)} to authenticate and then try linking again.\n\n`
+						'astro login',
+					)} to authenticate and then try linking again.\n\n`,
 				);
 			}
 			throw new Error(`Failed to fetch user workspace: ${res.status} ${res.statusText}`);
-		}
+		},
 	);
 
 	const { data, success } = (await response.json()) as Result<{ id: string; name: string }[]>;
@@ -139,14 +139,14 @@ export async function createNewProject({
 			if (res.status === 401) {
 				console.error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro login'
-					)} to authenticate and then try linking again.\n\n`
+						'astro login',
+					)} to authenticate and then try linking again.\n\n`,
 				);
 				process.exit(1);
 			}
 			console.error(`Failed to create project: ${res.status} ${res.statusText}`);
 			process.exit(1);
-		}
+		},
 	);
 
 	const { data, success } = (await response.json()) as Result<{ id: string; idName: string }>;
@@ -173,14 +173,14 @@ export async function promptExistingProjectName({ workspaceId }: { workspaceId: 
 			if (res.status === 401) {
 				console.error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro login'
-					)} to authenticate and then try linking again.\n\n`
+						'astro login',
+					)} to authenticate and then try linking again.\n\n`,
 				);
 				process.exit(1);
 			}
 			console.error(`Failed to fetch projects: ${res.status} ${res.statusText}`);
 			process.exit(1);
-		}
+		},
 	);
 
 	const { data, success } = (await response.json()) as Result<

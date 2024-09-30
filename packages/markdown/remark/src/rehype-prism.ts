@@ -9,7 +9,7 @@ export const rehypePrism: Plugin<[], Root> = () => {
 			let { html, classLanguage } = runHighlighterWithAstro(language, code);
 
 			return Promise.resolve(
-				`<pre class="${classLanguage}" data-language="${language}"><code is:raw class="${classLanguage}">${html}</code></pre>`
+				`<pre class="${classLanguage}" data-language="${language}"><code is:raw class="${classLanguage}">${html}</code></pre>`,
 			);
 		});
 	};

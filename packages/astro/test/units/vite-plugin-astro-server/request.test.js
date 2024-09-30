@@ -48,14 +48,14 @@ describe('vite-plugin-astro-server', () => {
 					// Note that the content doesn't matter here because we are using a custom loader.
 					'/src/pages/index.astro': '',
 				},
-				'/'
+				'/',
 			);
 			const manifestData = createRouteManifest(
 				{
 					fsMod: fs,
 					settings: pipeline.settings,
 				},
-				defaultLogger
+				defaultLogger,
 			);
 
 			try {

@@ -3,7 +3,7 @@ import type { ResolvedDevToolbarApp as DevToolbarAppDefinition } from '../../../
 import { type ToolbarAppEventTarget, serverHelpers } from './helpers.js';
 import { settings } from './settings.js';
 import { type Icon, getIconElement, isDefinedIcon } from './ui-library/icons.js';
-import { type Placement } from './ui-library/window.js';
+import type { Placement } from './ui-library/window.js';
 
 export type DevToolbarApp = DevToolbarAppDefinition & {
 	builtIn: boolean;
@@ -49,6 +49,11 @@ export class AstroDevToolbar extends HTMLElement {
 				z-index: 999999;
 				view-transition-name: astro-dev-toolbar;
 				display: contents;
+
+				/* Hide the dev toolbar on window.print() (CTRL + P) */
+				@media print {
+					display: none;
+				}
 			}
 
 			::view-transition-old(astro-dev-toolbar),
@@ -279,13 +284,13 @@ export class AstroDevToolbar extends HTMLElement {
 					${
 						this.apps.filter((app) => !app.builtIn).length > this.customAppsToShow
 							? this.getAppTemplate(
-									this.apps.find((app) => app.builtIn && app.id === 'astro:more')!
+									this.apps.find((app) => app.builtIn && app.id === 'astro:more')!,
 								)
 							: ''
 					}
 					<div class="separator"></div>
 					${this.getAppTemplate(
-						this.apps.find((app) => app.builtIn && app.id === 'astro:settings')!
+						this.apps.find((app) => app.builtIn && app.id === 'astro:settings')!,
 					)}
 				</div>
 			</div>
@@ -310,7 +315,7 @@ export class AstroDevToolbar extends HTMLElement {
 				async () => {
 					this.apps.map((app) => this.initApp(app));
 				},
-				{ timeout: 300 }
+				{ timeout: 300 },
 			);
 		} else {
 			setTimeout(async () => {
@@ -428,7 +433,7 @@ export class AstroDevToolbar extends HTMLElement {
 
 	getAppCanvasById(id: string) {
 		return this.shadowRoot.querySelector<HTMLElement>(
-			`astro-dev-toolbar-app-canvas[data-app-id="${id}"]`
+			`astro-dev-toolbar-app-canvas[data-app-id="${id}"]`,
 		);
 	}
 
@@ -477,7 +482,7 @@ export class AstroDevToolbar extends HTMLElement {
 		app.active = newStatus ?? !app.active;
 		const mainBarButton = this.getAppButtonById(app.id);
 		const moreBarButton = this.getAppCanvasById('astro:more')?.shadowRoot?.querySelector(
-			`[data-app-id="${app.id}"]`
+			`[data-app-id="${app.id}"]`,
 		);
 
 		if (mainBarButton) {
@@ -508,7 +513,7 @@ export class AstroDevToolbar extends HTMLElement {
 						state: app.active,
 						app,
 					},
-				})
+				}),
 			);
 		});
 
@@ -581,7 +586,7 @@ export class AstroDevToolbar extends HTMLElement {
 					detail: {
 						placement: newPlacement,
 					},
-				})
+				}),
 			);
 		});
 	}

@@ -125,7 +125,7 @@ export function htmlTokenTransform(tokenizer: Tokenizer, tokens: Token[]): Token
 			decodeEntities: false,
 			recognizeCDATA: true,
 			recognizeSelfClosing: true,
-		}
+		},
 	);
 
 	// for every detected token...

@@ -106,8 +106,6 @@ describe('Reuse injected entrypoint', () => {
 		});
 
 		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch }) => {
-			const isEndpoint = htmlMatch && !h1 && !p;
-
 			// checks URLs as written above
 			it(description, async () => {
 				const html = await fixture.fetch(url).then((res) => res.text());

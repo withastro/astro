@@ -39,7 +39,7 @@ import {
 
 function getContentRendererByViteId(
 	viteId: string,
-	settings: Pick<AstroSettings, 'contentEntryTypes'>
+	settings: Pick<AstroSettings, 'contentEntryTypes'>,
 ): ContentEntryType['getRenderModule'] | undefined {
 	let ext = viteId.split('.').pop();
 	if (!ext) return undefined;
@@ -158,6 +158,7 @@ export const _internal = {
 
 						// The content config could depend on collection entries via `reference()`.
 						// Reload the config in case of changes.
+						// Changes to the config file itself are handled in types-generator.ts, so we skip them here
 						if (entryType === 'content' || entryType === 'data') {
 							await reloadContentConfigObserver({ fs, settings, viteServer });
 						}
@@ -215,7 +216,7 @@ type GetEntryModuleParams<TEntryType extends ContentEntryType | DataEntryType> =
 };
 
 async function getContentEntryModule(
-	params: GetEntryModuleParams<ContentEntryType>
+	params: GetEntryModuleParams<ContentEntryType>,
 ): Promise<ContentEntryModule> {
 	const { fileId, contentDir, pluginContext } = params;
 	const { collectionConfig, entryConfig, entry, rawContents, collection } =
@@ -245,7 +246,7 @@ async function getContentEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				params.shouldEmitFile,
-				pluginContext
+				pluginContext,
 			)
 		: unvalidatedData;
 
@@ -262,7 +263,7 @@ async function getContentEntryModule(
 }
 
 async function getDataEntryModule(
-	params: GetEntryModuleParams<DataEntryType>
+	params: GetEntryModuleParams<DataEntryType>,
 ): Promise<DataEntryModule> {
 	const { fileId, contentDir, pluginContext } = params;
 	const { collectionConfig, entryConfig, entry, rawContents, collection } =
@@ -280,7 +281,7 @@ async function getDataEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				params.shouldEmitFile,
-				pluginContext
+				pluginContext,
 			)
 		: unvalidatedData;
 
@@ -320,7 +321,7 @@ async function getEntryModuleBaseInfo<TEntryType extends ContentEntryType | Data
 		throw new AstroError({
 			...AstroErrorData.UnknownContentCollectionError,
 			message: `No parser found for data entry ${JSON.stringify(
-				fileId
+				fileId,
 			)}. Did you apply an integration for this file type?`,
 		});
 	}

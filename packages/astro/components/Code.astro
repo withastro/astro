@@ -24,6 +24,13 @@ interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	 */
 	lang?: BuiltinLanguage | SpecialLanguage | LanguageRegistration;
 	/**
+	 * A metastring to pass to the highlighter.
+	 * Allows passing information to transformers: https://shiki.style/guide/transformers#meta
+	 *
+	 * @default undefined
+	 */
+	meta?: string;
+	/**
 	 * The styling theme.
 	 * Supports all themes listed here: https://shiki.style/themes
 	 * Instructions for loading a custom theme: https://shiki.style/guide/load-theme
@@ -72,6 +79,7 @@ interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 const {
 	code,
 	lang = 'plaintext',
+	meta,
 	theme = 'github-dark',
 	themes = {},
 	defaultColor = 'light',
@@ -110,6 +118,7 @@ const highlighter = await getCachedHighlighter({
 
 const html = await highlighter.highlight(code, typeof lang === 'string' ? lang : lang.name, {
 	inline,
+	meta,
 	attributes: rest as any,
 });
 ---

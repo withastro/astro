@@ -18,7 +18,7 @@ const PROP_TYPE = {
 function serializeArray(
 	value: any[],
 	metadata: AstroComponentMetadata | Record<string, any> = {},
-	parents = new WeakSet<any>()
+	parents = new WeakSet<any>(),
 ): any[] {
 	if (parents.has(value)) {
 		throw new Error(`Cyclic reference detected while serializing props for <${metadata.displayName} client:${metadata.hydrate}>!
@@ -36,7 +36,7 @@ Cyclic references cannot be safely serialized for client-side usage. Please remo
 function serializeObject(
 	value: Record<any, any>,
 	metadata: AstroComponentMetadata | Record<string, any> = {},
-	parents = new WeakSet<any>()
+	parents = new WeakSet<any>(),
 ): Record<any, any> {
 	if (parents.has(value)) {
 		throw new Error(`Cyclic reference detected while serializing props for <${metadata.displayName} client:${metadata.hydrate}>!
@@ -47,7 +47,7 @@ Cyclic references cannot be safely serialized for client-side usage. Please remo
 	const serialized = Object.fromEntries(
 		Object.entries(value).map(([k, v]) => {
 			return [k, convertToSerializedForm(v, metadata, parents)];
-		})
+		}),
 	);
 	parents.delete(value);
 	return serialized;
@@ -56,7 +56,7 @@ Cyclic references cannot be safely serialized for client-side usage. Please remo
 function convertToSerializedForm(
 	value: any,
 	metadata: AstroComponentMetadata | Record<string, any> = {},
-	parents = new WeakSet<any>()
+	parents = new WeakSet<any>(),
 ): [ValueOf<typeof PROP_TYPE>, any] | [ValueOf<typeof PROP_TYPE>] {
 	const tag = Object.prototype.toString.call(value);
 	switch (tag) {

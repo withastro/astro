@@ -130,7 +130,7 @@ describe('Prerender', () => {
 					assert.equal(
 						canonical.attr('href'),
 						`https://mysite.dev/blog/posts/${page}`,
-						`doesn't trim the /${page} route param`
+						`doesn't trim the /${page} route param`,
 					);
 				}
 			});
@@ -258,7 +258,7 @@ describe('Prerender', () => {
 					assert.equal(
 						canonical.attr('href'),
 						`https://mysite.dev/blog/posts/${page}`,
-						`doesn't trim the /${page} route param`
+						`doesn't trim the /${page} route param`,
 					);
 				}
 			});

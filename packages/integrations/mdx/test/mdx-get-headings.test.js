@@ -43,7 +43,7 @@ describe('MDX getHeadings', () => {
 				{ depth: 3, slug: 'subsection-1', text: 'Subsection 1' },
 				{ depth: 3, slug: 'subsection-2', text: 'Subsection 2' },
 				{ depth: 2, slug: 'section-2', text: 'Section 2' },
-			])
+			]),
 		);
 	});
 
@@ -59,7 +59,7 @@ describe('MDX getHeadings', () => {
 				},
 				{ depth: 2, slug: 'h2title', text: 'h2Title' },
 				{ depth: 3, slug: 'h3title', text: 'h3Title' },
-			])
+			]),
 		);
 	});
 });
@@ -100,7 +100,7 @@ describe('MDX heading IDs can be customized by user plugins', () => {
 		const headingIDs = document.querySelectorAll('h1,h2,h3').map((el) => el.id);
 		assert.equal(
 			JSON.stringify(headingIDs),
-			JSON.stringify(Array.from({ length: headingIDs.length }, (_, idx) => String(idx)))
+			JSON.stringify(Array.from({ length: headingIDs.length }, (_, idx) => String(idx))),
 		);
 	});
 
@@ -114,7 +114,7 @@ describe('MDX heading IDs can be customized by user plugins', () => {
 				{ depth: 3, slug: '2', text: 'Subsection 1' },
 				{ depth: 3, slug: '3', text: 'Subsection 2' },
 				{ depth: 2, slug: '4', text: 'Section 2' },
-			])
+			]),
 		);
 	});
 });
@@ -194,7 +194,7 @@ describe('MDX headings with frontmatter', () => {
 				{ depth: 4, slug: 'item-2', text: 'Item 2' },
 				{ depth: 5, slug: 'nested-item-3', text: 'Nested Item 3' },
 				{ depth: 6, slug: 'frontmatterunknown', text: 'frontmatter.unknown' },
-			])
+			]),
 		);
 	});
 });

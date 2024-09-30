@@ -64,10 +64,10 @@ describe('core/render', () => {
 								{ slot: 'head' },
 								{
 									default: () => render`${renderSlot(result, slots['head'])}`,
-								}
+								},
 							)}
 						`,
-					}
+					},
 				)}
 				`;
 			});
@@ -88,10 +88,10 @@ describe('core/render', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-					}
+					},
 				)}`;
 			});
 
@@ -103,7 +103,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
@@ -145,10 +145,10 @@ describe('core/render', () => {
 								{ slot: 'head' },
 								{
 									default: () => render`${renderSlot(result, slots['head'])}`,
-								}
+								},
 							)}
 						`,
-					}
+					},
 				)}
 				`;
 			});
@@ -169,10 +169,10 @@ describe('core/render', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-					}
+					},
 				)}`;
 			});
 
@@ -184,7 +184,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
@@ -207,7 +207,7 @@ describe('core/render', () => {
 					{},
 					{
 						default: () => render`${renderSlot(result, slots['default'])}	`,
-					}
+					},
 				)}
 				`;
 			});
@@ -220,7 +220,7 @@ describe('core/render', () => {
 					{},
 					{
 						default: () => render`${maybeRenderHead(result)}<div>hello world</div>`,
-					}
+					},
 				)}`;
 			});
 
@@ -232,7 +232,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();

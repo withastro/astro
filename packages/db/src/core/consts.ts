@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 
 export const PACKAGE_NAME = JSON.parse(
-	readFileSync(new URL('../../package.json', import.meta.url), 'utf8')
+	readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
 ).name;
 
 export const RUNTIME_IMPORT = JSON.stringify(`${PACKAGE_NAME}/runtime`);

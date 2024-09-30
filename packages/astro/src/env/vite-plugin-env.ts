@@ -8,8 +8,9 @@ import {
 	VIRTUAL_MODULES_IDS,
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
+import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
-import { type ValidationResultErrors, getEnvFieldType, validateEnvVariable } from './validators.js';
+import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
 // TODO: reminders for when astro:env comes out of experimental
 // Types should always be generated (like in types/content.d.ts). That means the client module will be empty
@@ -30,7 +31,7 @@ export function astroEnv({
 	fs,
 	sync,
 }: AstroEnvVirtualModPluginParams): Plugin | undefined {
-	if (!settings.config.experimental.env || sync) {
+	if (!settings.config.experimental.env) {
 		return;
 	}
 	const schema = settings.config.experimental.env.schema ?? {};
@@ -44,7 +45,7 @@ export function astroEnv({
 			const loadedEnv = loadEnv(
 				mode === 'dev' ? 'development' : 'production',
 				fileURLToPath(settings.config.root),
-				''
+				'',
 			);
 			for (const [key, value] of Object.entries(loadedEnv)) {
 				if (value !== undefined) {
@@ -56,6 +57,7 @@ export function astroEnv({
 				schema,
 				loadedEnv,
 				validateSecrets: settings.config.experimental.env?.validateSecrets ?? false,
+				sync,
 			});
 
 			templates = {
@@ -99,13 +101,15 @@ function validatePublicVariables({
 	schema,
 	loadedEnv,
 	validateSecrets,
+	sync,
 }: {
 	schema: EnvSchema;
 	loadedEnv: Record<string, string>;
 	validateSecrets: boolean;
+	sync: boolean;
 }) {
 	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
-	const invalid: Array<{ key: string; type: string; errors: ValidationResultErrors }> = [];
+	const invalid: Array<InvalidVariable> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
 		const variable = loadedEnv[key] === '' ? undefined : loadedEnv[key];
@@ -124,21 +128,10 @@ function validatePublicVariables({
 		}
 	}
 
-	if (invalid.length > 0) {
-		const _errors: Array<string> = [];
-		for (const { key, type, errors } of invalid) {
-			if (errors[0] === 'missing') {
-				_errors.push(`${key} is missing`);
-			} else if (errors[0] === 'type') {
-				_errors.push(`${key}'s type is invalid, expected: ${type}`);
-			} else {
-				// constraints
-				_errors.push(`The following constraints for ${key} are not met: ${errors.join(', ')}`);
-			}
-		}
+	if (invalid.length > 0 && !sync) {
 		throw new AstroError({
 			...AstroErrorData.EnvInvalidVariables,
-			message: AstroErrorData.EnvInvalidVariables.message(_errors),
+			message: AstroErrorData.EnvInvalidVariables.message(invalidVariablesToError(invalid)),
 		});
 	}
 
@@ -148,7 +141,7 @@ function validatePublicVariables({
 function getTemplates(
 	schema: EnvSchema,
 	fs: typeof fsMod,
-	validatedVariables: ReturnType<typeof validatePublicVariables>
+	validatedVariables: ReturnType<typeof validatePublicVariables>,
 ) {
 	let client = '';
 	let server = fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8');

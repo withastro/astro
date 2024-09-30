@@ -51,7 +51,7 @@ const isStatusCodePage = (locales: string[]) => {
 	const statusPathNames = new Set(
 		locales
 			.flatMap((locale) => [...STATUS_CODE_PAGES].map((page) => `${locale}/${page}`))
-			.concat([...STATUS_CODE_PAGES])
+			.concat([...STATUS_CODE_PAGES]),
 	);
 
 	return (pathname: string): boolean => {
@@ -79,7 +79,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 				try {
 					if (!config.site) {
 						logger.warn(
-							'The Sitemap integration requires the `site` astro.config option. Skipping.'
+							'The Sitemap integration requires the `site` astro.config option. Skipping.',
 						);
 						return;
 					}
@@ -178,7 +178,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							limit: entryLimit,
 							xslURL: xslURL,
 						},
-						config
+						config,
 					);
 					logger.info(`\`${OUTFILE}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {

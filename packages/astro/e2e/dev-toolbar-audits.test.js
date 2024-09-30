@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/dev-toolbar/',
 });
 
@@ -79,7 +79,7 @@ test.describe('Dev Toolbar - Audits', () => {
 				'astro:dev-toolbar:settings',
 				JSON.stringify({
 					verbose: true,
-				})
+				}),
 			);
 		});
 
@@ -93,7 +93,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		const badButton = page.locator('#bad-button');
 
 		let consolePromise = page.waitForEvent('console', (msg) =>
-			msg.text().includes('Rerunning audit lints')
+			msg.text().includes('Rerunning audit lints'),
 		);
 		await badButton.click({ clickCount: 5 });
 		await consolePromise;
@@ -102,7 +102,7 @@ test.describe('Dev Toolbar - Audits', () => {
 
 		expect(
 			logs.filter((log) => log.includes('Rerunning audit lints because the DOM has been updated'))
-				.length === 1
+				.length === 1,
 		).toBe(true);
 	});
 
@@ -114,7 +114,7 @@ test.describe('Dev Toolbar - Audits', () => {
 				'astro:dev-toolbar:settings',
 				JSON.stringify({
 					verbose: true,
-				})
+				}),
 			);
 		});
 
@@ -153,7 +153,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		// Make sure we only reran audits once
 		expect(
 			logs.filter((log) => log.includes('Rerunning audit lints because the DOM has been updated'))
-				.length === 1
+				.length === 1,
 		).toBe(true);
 	});
 

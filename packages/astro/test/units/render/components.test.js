@@ -24,7 +24,7 @@ describe('core/render components', () => {
 				</html>
 			`,
 			},
-			root
+			root,
 		);
 
 		await runInContainer(
@@ -53,7 +53,7 @@ describe('core/render components', () => {
 				assert.equal(typeof target.attr('style'), 'undefined');
 
 				assert.equal($('#pwnd').length, 0);
-			}
+			},
 		);
 	});
 
@@ -80,7 +80,7 @@ describe('core/render components', () => {
 				'/src/components/BothFlipped.astro': `<pre id="both-flipped" set:html={JSON.stringify(Astro.props)} />`,
 				'/src/components/BothSpread.astro': `<pre id="both-spread" set:html={JSON.stringify(Astro.props)} />`,
 			},
-			root
+			root,
 		);
 
 		await runInContainer(
@@ -116,7 +116,7 @@ describe('core/render components', () => {
 				assert.deepEqual(BothLiteral, { class: 'red blue' }, '#both-literal');
 				assert.deepEqual(BothFlipped, { class: 'red blue' }, '#both-flipped');
 				assert.deepEqual(BothSpread, { class: 'red blue' }, '#both-spread');
-			}
+			},
 		);
 	});
 });

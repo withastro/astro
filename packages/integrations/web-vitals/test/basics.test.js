@@ -124,7 +124,7 @@ describe('Web Vitals integration basics', () => {
 			assert.equal(
 				consoleErrorMock.calls.length,
 				0,
-				'Endpoint logged errors:\n' + consoleErrorMock.calls[0]?.join(' ')
+				'Endpoint logged errors:\n' + consoleErrorMock.calls[0]?.join(' '),
 			);
 		});
 

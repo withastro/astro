@@ -4,7 +4,7 @@ import { lookup as probe } from '../utils/vendor/image-size/lookup.js';
 
 export async function imageMetadata(
 	data: Uint8Array,
-	src?: string
+	src?: string,
 ): Promise<Omit<ImageMetadata, 'src' | 'fsPath'>> {
 	try {
 		const result = probe(data);
@@ -24,7 +24,7 @@ export async function imageMetadata(
 			format: type as ImageInputFormat,
 			orientation,
 		};
-	} catch (e) {
+	} catch {
 		throw new AstroError({
 			...AstroErrorData.NoImageMetadata,
 			message: AstroErrorData.NoImageMetadata.message(src),

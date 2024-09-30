@@ -6,7 +6,7 @@ import { bannerAbort, error, info, log } from '../messages.js';
 import { getTemplateTarget } from './template.js';
 
 export async function verify(
-	ctx: Pick<Context, 'version' | 'dryRun' | 'template' | 'ref' | 'exit'>
+	ctx: Pick<Context, 'version' | 'dryRun' | 'template' | 'ref' | 'exit'>,
 ) {
 	if (!ctx.dryRun) {
 		const online = await isOnline();
@@ -33,7 +33,7 @@ export async function verify(
 function isOnline(): Promise<boolean> {
 	return dns.lookup('github.com').then(
 		() => true,
-		() => false
+		() => false,
 	);
 }
 
@@ -84,7 +84,7 @@ async function verifyTemplate(tmpl: string, ref?: string) {
 const GIT_RE = /^(?<repo>[\w.-]+\/[\w.-]+)(?<subdir>[^#]+)?(?<ref>#[\w.-]+)?/;
 
 function parseGitURI(input: string) {
-	const m = input.match(GIT_RE)?.groups;
+	const m = GIT_RE.exec(input)?.groups;
 	if (!m) throw new Error(`Unable to parse "${input}"`);
 	return {
 		repo: m.repo,

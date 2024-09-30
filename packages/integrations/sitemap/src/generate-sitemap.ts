@@ -35,7 +35,7 @@ function createGetI18nLinks(
 	urls: string[],
 	defaultLocale: string,
 	locales: Record<string, string>,
-	finalSiteUrl: string
+	finalSiteUrl: string,
 ): GetI18nLinks {
 	// `parsedI18nUrls` will have the same length as `urls`, matching correspondingly
 	const parsedI18nUrls = urls.map((url) => parseI18nUrl(url, defaultLocale, locales, finalSiteUrl));

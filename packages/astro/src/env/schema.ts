@@ -37,7 +37,7 @@ const EnumSchema = z.object({
 			.string()
 			.refine((v) => !v.includes("'"), {
 				message: `The "'" character can't be used as an enum value`,
-			})
+			}),
 	),
 	optional: z.boolean().optional(),
 	default: z.string().optional(),
@@ -96,7 +96,6 @@ export const EnvSchema = z.record(EnvSchemaKey, z.intersection(EnvFieldMetadata,
 // https://www.totaltypescript.com/concepts/the-prettify-helper
 type Prettify<T> = {
 	[K in keyof T]: T[K];
-	// eslint-disable-next-line @typescript-eslint/ban-types
 } & {};
 
 export type EnvSchema = z.infer<typeof EnvSchema>;

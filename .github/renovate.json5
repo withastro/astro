@@ -16,7 +16,7 @@
     "@biomejs/biome",
     "@types/node",
     "@preact/preset-vite", // v2.8.3 starts to use Vite's esbuild for perf, but this conflicts with the react plugin
-    "preact-render-to-string", // https://github.com/withastro/astro/pull/10200
+    "drizzle-orm", // TODO: investigate upgrade (has type issues)
     "sharp",
 
     // manually bumping workflow actions

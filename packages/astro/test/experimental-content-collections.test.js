@@ -39,7 +39,7 @@ describe('Experimental Content Collections cache', () => {
 						'enterprise.md',
 						// Spaces allowed in IDs
 						'promo/launch week.mdx',
-					].sort()
+					].sort(),
 				);
 			});
 
@@ -56,7 +56,7 @@ describe('Experimental Content Collections cache', () => {
 						'enterprise',
 						// "launch week.mdx" is converted to "launch-week.mdx"
 						'promo/launch-week',
-					].sort()
+					].sort(),
 				);
 			});
 
@@ -71,7 +71,7 @@ describe('Experimental Content Collections cache', () => {
 				assert.equal(
 					publishedDates.every((date) => date instanceof Date),
 					true,
-					'Not all publishedAt dates are Date objects'
+					'Not all publishedAt dates are Date objects',
 				);
 				assert.deepEqual(publishedDates.map((date) => date.toISOString()).sort(), [
 					'2021-01-01T00:00:00.000Z',
@@ -127,7 +127,7 @@ describe('Experimental Content Collections cache', () => {
 				assert.equal(json.oneWithSchemaConfig.data.publishedAt instanceof Date, true);
 				assert.equal(
 					json.oneWithSchemaConfig.data.publishedAt.toISOString(),
-					'2021-01-01T00:00:00.000Z'
+					'2021-01-01T00:00:00.000Z',
 				);
 			});
 
@@ -206,7 +206,7 @@ describe('Experimental Content Collections cache', () => {
 				const $ = cheerio.load(post);
 				assert.equal(
 					$(blogSlugToContents[slug].element).text().trim(),
-					blogSlugToContents[slug].content
+					blogSlugToContents[slug].content,
 				);
 			}
 		});
@@ -359,7 +359,7 @@ describe('Experimental Content Collections cache', () => {
 				const $ = cheerio.load(body);
 				assert.equal(
 					$(blogSlugToContents[slug].element).text().trim(),
-					blogSlugToContents[slug].content
+					blogSlugToContents[slug].content,
 				);
 			}
 		});

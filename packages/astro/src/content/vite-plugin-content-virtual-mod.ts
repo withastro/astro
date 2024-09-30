@@ -1,6 +1,7 @@
 import nodeFs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { dataToEsm } from '@rollup/pluginutils';
 import glob from 'fast-glob';
 import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
@@ -13,12 +14,21 @@ import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import {
+	ASSET_IMPORTS_FILE,
+	ASSET_IMPORTS_RESOLVED_STUB_ID,
+	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
+	DATA_STORE_VIRTUAL_ID,
+	MODULES_IMPORTS_FILE,
+	MODULES_MJS_ID,
+	MODULES_MJS_VIRTUAL_ID,
+	RESOLVED_DATA_STORE_VIRTUAL_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
+import { getDataStoreFile } from './content-layer.js';
 import {
 	type ContentLookupMap,
 	getContentEntryIdAndSlug,
@@ -30,6 +40,7 @@ import {
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,
+	isDeferredModule,
 } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -43,13 +54,15 @@ export function astroContentVirtualModPlugin({
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
 	const IS_SERVER = isServerLikeOutput(settings.config);
+	let dataStoreFile: URL;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		configResolved(config) {
 			IS_DEV = config.mode === 'development';
+			dataStoreFile = getDataStoreFile(settings, IS_DEV);
 		},
-		resolveId(id) {
+		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
 				if (!settings.config.experimental.contentCollectionCache) {
 					return RESOLVED_VIRTUAL_MODULE_ID;
@@ -60,6 +73,38 @@ export function astroContentVirtualModPlugin({
 					// For SSG (production), we will build this file ourselves
 					return { id: RESOLVED_VIRTUAL_MODULE_ID, external: true };
 				}
+			}
+			if (id === DATA_STORE_VIRTUAL_ID) {
+				return RESOLVED_DATA_STORE_VIRTUAL_ID;
+			}
+
+			if (isDeferredModule(id)) {
+				const [, query] = id.split('?');
+				const params = new URLSearchParams(query);
+				const fileName = params.get('fileName');
+				let importPath = undefined;
+				if (fileName && URL.canParse(fileName, settings.config.root.toString())) {
+					importPath = fileURLToPath(new URL(fileName, settings.config.root));
+				}
+				if (importPath) {
+					return await this.resolve(`${importPath}?${CONTENT_RENDER_FLAG}`);
+				}
+			}
+
+			if (id === MODULES_MJS_ID) {
+				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
+				if (fs.existsSync(modules)) {
+					return fileURLToPath(modules);
+				}
+				return MODULES_MJS_VIRTUAL_ID;
+			}
+
+			if (id === ASSET_IMPORTS_VIRTUAL_ID) {
+				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
+				if (fs.existsSync(assetImportsFile)) {
+					return fileURLToPath(assetImportsFile);
+				}
+				return ASSET_IMPORTS_RESOLVED_STUB_ID;
 			}
 		},
 		async load(id, args) {
@@ -87,6 +132,41 @@ export function astroContentVirtualModPlugin({
 					} satisfies AstroPluginMetadata,
 				};
 			}
+			if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
+				if (!fs.existsSync(dataStoreFile)) {
+					return 'export default new Map()';
+				}
+				const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
+
+				try {
+					const parsed = JSON.parse(jsonData);
+					return {
+						code: dataToEsm(parsed, {
+							compact: true,
+						}),
+						map: { mappings: '' },
+					};
+				} catch (err) {
+					const message = 'Could not parse JSON file';
+					this.error({ message, id, cause: err });
+				}
+			}
+
+			if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
+				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
+				if (!fs.existsSync(assetImportsFile)) {
+					return 'export default new Map()';
+				}
+				return fs.readFileSync(assetImportsFile, 'utf-8');
+			}
+
+			if (id === MODULES_MJS_VIRTUAL_ID) {
+				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
+				if (!fs.existsSync(modules)) {
+					return 'export default new Map()';
+				}
+				return fs.readFileSync(modules, 'utf-8');
+			}
 		},
 		renderChunk(code, chunk) {
 			if (!settings.config.experimental.contentCollectionCache) {
@@ -97,6 +177,37 @@ export function astroContentVirtualModPlugin({
 				const prefix = depth > 0 ? '../'.repeat(depth) : './';
 				return code.replaceAll(RESOLVED_VIRTUAL_MODULE_ID, `${prefix}content/entry.mjs`);
 			}
+		},
+
+		configureServer(server) {
+			const dataStorePath = fileURLToPath(dataStoreFile);
+
+			server.watcher.add(dataStorePath);
+
+			function invalidateDataStore() {
+				const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+				if (module) {
+					server.moduleGraph.invalidateModule(module);
+				}
+				server.ws.send({
+					type: 'full-reload',
+					path: '*',
+				});
+			}
+
+			// If the datastore file changes, invalidate the virtual module
+
+			server.watcher.on('add', (addedPath) => {
+				if (addedPath === dataStorePath) {
+					invalidateDataStore();
+				}
+			});
+
+			server.watcher.on('change', (changedPath) => {
+				if (changedPath === dataStorePath) {
+					invalidateDataStore();
+				}
+			});
 		},
 	};
 }
@@ -129,21 +240,21 @@ export async function generateContentEntryFile({
 			`import.meta.glob(${JSON.stringify(value)}, { query: { ${flag}: true } })`;
 		contentEntryGlobResult = createGlob(
 			globWithUnderscoresIgnored(relContentDir, contentEntryExts),
-			CONTENT_FLAG
+			CONTENT_FLAG,
 		);
 		dataEntryGlobResult = createGlob(
 			globWithUnderscoresIgnored(relContentDir, dataEntryExts),
-			DATA_FLAG
+			DATA_FLAG,
 		);
 		renderEntryGlobResult = createGlob(
 			globWithUnderscoresIgnored(relContentDir, contentEntryExts),
-			CONTENT_RENDER_FLAG
+			CONTENT_RENDER_FLAG,
 		);
 	} else {
 		contentEntryGlobResult = getStringifiedCollectionFromLookup(
 			'content',
 			relContentDir,
-			lookupMap
+			lookupMap,
 		);
 		dataEntryGlobResult = getStringifiedCollectionFromLookup('data', relContentDir, lookupMap);
 		renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
@@ -168,7 +279,7 @@ console.warn('astro:content is only supported running server-side. Using it in t
 function getStringifiedCollectionFromLookup(
 	wantedType: 'content' | 'data' | 'render',
 	relContentDir: string,
-	lookupMap: ContentLookupMap
+	lookupMap: ContentLookupMap,
 ) {
 	let str = '{';
 	// In dev, we don't need to normalize the import specifier at all. Vite handles it.
@@ -226,7 +337,7 @@ export async function generateLookupMap({
 			absolute: true,
 			cwd: fileURLToPath(root),
 			fs,
-		}
+		},
 	);
 
 	// Run 10 at a time to prevent `await getEntrySlug` from accessing the filesystem all at once.
@@ -276,7 +387,7 @@ export async function generateLookupMap({
 								collection,
 								slug,
 								lookupMap[collection].entries[slug],
-								rootRelativePath(root, filePath)
+								rootRelativePath(root, filePath),
 							),
 							hint:
 								slug !== generatedSlug
@@ -301,7 +412,7 @@ export async function generateLookupMap({
 						},
 					};
 				}
-			})
+			}),
 		);
 	}
 

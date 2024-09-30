@@ -33,7 +33,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 
 export async function getImage(
 	options: UnresolvedImageTransform,
-	imageConfig: AstroConfig['image']
+	imageConfig: AstroConfig['image'],
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
 		throw new AstroError({
@@ -47,7 +47,7 @@ export async function getImage(
 			message: AstroErrorData.ExpectedImage.message(
 				options.src,
 				'undefined',
-				JSON.stringify(options)
+				JSON.stringify(options),
 			),
 		});
 	}
@@ -101,7 +101,7 @@ export async function getImage(
 			url: await service.getURL(srcSet.transform, imageConfig),
 			descriptor: srcSet.descriptor,
 			attributes: srcSet.attributes,
-		}))
+		})),
 	);
 
 	if (
@@ -113,7 +113,7 @@ export async function getImage(
 		imageURL = globalThis.astroAsset.addStaticImage(
 			validatedOptions,
 			propsToHash,
-			originalFilePath
+			originalFilePath,
 		);
 		srcSets = srcSetTransforms.map((srcSet) => ({
 			transform: srcSet.transform,
