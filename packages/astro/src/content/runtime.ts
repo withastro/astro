@@ -598,16 +598,9 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 							});
 							return;
 						}
+						// We won't throw if the collection is missing, because it may be a content layer collection and the store may not yet be populated.
+						// If it is an object then we're validating later in the build, so we can check the collection at that point.
 
-						// A reference object might refer to an invalid collection, because when we convert it we don't have access to the store.
-						// If it is an object then we're validating later in the pipeline, so we can check the collection at that point.
-						if (!lookupMap[collection] && !collectionIsInStore) {
-							ctx.addIssue({
-								code: ZodIssueCode.custom,
-								message: `**${flattenedErrorPath}:** Reference to ${collection} invalid. Collection does not exist or is empty.`,
-							});
-							return;
-						}
 						return lookup;
 					}
 
@@ -622,9 +615,10 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						}
 						return { id: lookup, collection };
 					}
-
-					if (!lookupMap[collection] && store.collections().size === 0) {
-						// If the collection is not in the lookup map or store, it may be a content layer collection and the store may not yet be populated.
+					// If the collection is not in the lookup map or store, it may be a content layer collection and the store may not yet be populated.
+					// If the store has 0 or 1 entries it probably means that the entries have not yet been loaded.
+					// The store may have a single entry even if the collections have not loaded, because the top-level metadata collection is generated early.
+					if (!lookupMap[collection] && store.collections().size <= 1) {
 						// For now, we can't validate this reference, so we'll optimistically convert it to a reference object which we'll validate
 						// later in the pipeline when we do have access to the store.
 						return { id: lookup, collection };
