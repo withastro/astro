@@ -621,7 +621,7 @@ export async function autogenerateCollections({
 		if (orphanedCollections.length > 0) {
 			console.warn(
 				`
-Auto-generating collections for folders in the content directory that are not defined as collections.
+Auto-generating collections for folders in "src/content/" that are not defined as collections.
 This is deprecated, so you should define these collections yourself in "src/content/config.ts".
 The following collections have been auto-generated: ${orphanedCollections
 					.map((name) => green(name))
