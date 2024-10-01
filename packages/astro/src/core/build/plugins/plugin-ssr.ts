@@ -180,7 +180,7 @@ function generateSSRCode(settings: AstroSettings, adapter: AstroAdapter, middlew
 		`    pageMap,`,
 		`    serverIslandMap,`,
 		`    renderers,`,
-		`    middleware`,
+		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${middlewareId}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,
 		adapter.exports

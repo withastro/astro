@@ -176,6 +176,7 @@ export interface BaseIntegrationHooks {
 		addClientDirective: (directive: ClientDirectiveConfig) => void;
 		addDevToolbarApp: (entrypoint: DevToolbarAppEntry) => void;
 		addMiddleware: (mid: AstroIntegrationMiddleware) => void;
+		createCodegenDir: () => URL;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 	'astro:config:done': (options: {
@@ -226,7 +227,6 @@ export interface BaseIntegrationHooks {
 		dir: URL;
 		routes: IntegrationRouteData[];
 		logger: AstroIntegrationLogger;
-		cacheManifest: boolean;
 	}) => void | Promise<void>;
 	'astro:route:setup': (options: {
 		route: RouteOptions;

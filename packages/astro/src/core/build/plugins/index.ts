@@ -4,7 +4,6 @@ import type { AstroBuildPluginContainer } from '../plugin.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginChunks } from './plugin-chunks.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
-import { pluginContent } from './plugin-content.js';
 import { pluginCSS } from './plugin-css.js';
 import { pluginInternals } from './plugin-internals.js';
 import { pluginManifest } from './plugin-manifest.js';
@@ -23,7 +22,6 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginRenderers(options));
 	register(pluginMiddleware(options, internals));
 	register(pluginPages(options, internals));
-	register(pluginContent(options, internals));
 	register(pluginCSS(options, internals));
 	register(astroHeadBuildPlugin(internals));
 	register(pluginPrerender(options, internals));

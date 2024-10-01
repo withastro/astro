@@ -15,12 +15,12 @@
     "@astrojs/tailwind": "^5.1.1",
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@tailwindcss/forms": "^0.5.9",
-    "@types/react": "^18.3.5",
+    "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
-    "astro": "^5.0.0-beta.1",
-    "postcss": "^8.4.45",
+    "astro": "^5.0.0-beta.2",
+    "postcss": "^8.4.47",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwindcss": "^3.4.10"
+    "tailwindcss": "^3.4.13"
   }
 }

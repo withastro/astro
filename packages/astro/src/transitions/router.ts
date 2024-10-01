@@ -490,6 +490,7 @@ async function transition(
 			// Immediately paused to setup the ViewTransition object for Fallback mode
 			await Promise.resolve(); // hop through the micro task queue
 			await updateDOM(prepEvent, options, currentTransition, historyState, getFallback());
+			return undefined;
 		})();
 
 		// When the updateDone promise is settled,
@@ -509,7 +510,7 @@ async function transition(
 			ready: updateDone, // good enough
 			// Finished promise could have been done better: finished rejects iff updateDone does.
 			// Our simulation always resolves, never rejects.
-			finished: new Promise((r) => (currentTransition.viewTransitionFinished = r)), // see end of updateDOM
+			finished: new Promise((r) => (currentTransition.viewTransitionFinished = r as () => void)), // see end of updateDOM
 			skipTransition: () => {
 				currentTransition.transitionSkipped = true;
 				// This cancels all animations of the simulation
@@ -519,14 +520,14 @@ async function transition(
 	}
 	// In earlier versions was then'ed on viewTransition.ready which would not execute
 	// if the visual part of the transition has errors or was skipped
-	currentTransition.viewTransition.updateCallbackDone.finally(async () => {
+	currentTransition.viewTransition?.updateCallbackDone.finally(async () => {
 		await runScripts();
 		onPageLoad();
 		announce();
 	});
 	// finished.ready and finished.finally are the same for the simulation but not
 	// necessarily for native view transition, where finished rejects when updateCallbackDone does.
-	currentTransition.viewTransition.finished.finally(() => {
+	currentTransition.viewTransition?.finished.finally(() => {
 		currentTransition.viewTransition = undefined;
 		if (currentTransition === mostRecentTransition) mostRecentTransition = undefined;
 		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
@@ -537,7 +538,7 @@ async function transition(
 		// Compatibility:
 		// In an earlier version we awaited viewTransition.ready, which includes animation setup.
 		// Scripts that depend on the view transition pseudo elements should hook on viewTransition.ready.
-		await currentTransition.viewTransition.updateCallbackDone;
+		await currentTransition.viewTransition?.updateCallbackDone;
 	} catch (e) {
 		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be caught when the trigger was a click or history traversal.
 		// Needs more investigation on root causes if errors still occur sporadically

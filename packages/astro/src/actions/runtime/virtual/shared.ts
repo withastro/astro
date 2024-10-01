@@ -206,16 +206,16 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 		}
 
 		let body: Record<string, any>;
-		if(res.error instanceof ActionInputError) {
+		if (res.error instanceof ActionInputError) {
 			body = {
 				type: res.error.type,
 				issues: res.error.issues,
-				fields: res.error.fields
+				fields: res.error.fields,
 			};
 		} else {
 			body = {
 				...res.error,
-				message: res.error.message
+				message: res.error.message,
 			};
 		}
 
@@ -264,7 +264,6 @@ export function deserializeActionResult(res: SerializedActionResult): SafeResult
 		let json;
 		try {
 			json = JSON.parse(res.body);
-		
 		} catch {
 			return {
 				data: undefined,

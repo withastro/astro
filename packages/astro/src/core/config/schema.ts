@@ -92,7 +92,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	experimental: {
-		contentCollectionCache: false,
 		clientPrerender: false,
 		contentIntellisense: false,
 	},
@@ -512,10 +511,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.env),
 	experimental: z
 		.object({
-			contentCollectionCache: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
 			clientPrerender: z
 				.boolean()
 				.optional()
@@ -669,10 +664,14 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			// Handle `base` and `image.endpoint.route` trailing slash based on `trailingSlash` config
 			if (config.trailingSlash === 'never') {
 				config.base = prependForwardSlash(removeTrailingForwardSlash(config.base));
-				config.image.endpoint.route = prependForwardSlash(removeTrailingForwardSlash(config.image.endpoint.route));
+				config.image.endpoint.route = prependForwardSlash(
+					removeTrailingForwardSlash(config.image.endpoint.route),
+				);
 			} else if (config.trailingSlash === 'always') {
 				config.base = prependForwardSlash(appendForwardSlash(config.base));
-				config.image.endpoint.route = prependForwardSlash(appendForwardSlash(config.image.endpoint.route));
+				config.image.endpoint.route = prependForwardSlash(
+					appendForwardSlash(config.image.endpoint.route),
+				);
 			} else {
 				config.base = prependForwardSlash(config.base);
 				config.image.endpoint.route = prependForwardSlash(config.image.endpoint.route);
