@@ -167,6 +167,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
+
 async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,

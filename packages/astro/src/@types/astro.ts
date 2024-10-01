@@ -1100,8 +1100,12 @@ export interface AstroUserConfig {
 		 * @type {boolean}
 		 * @default `1`
 		 * @description
-		 * When greater than 1 using parallel builds during the build.
-		 * 
+		 * The number of pages to build in parallel. While JS is single-threaded, this option may be helpful
+		 * if the pages take a sizable time to render but aren't performing resource-intensive tasks, for example,
+		 * due to network fetch calls or accessing external data.
+		 *
+		 * In the future, Astro may reuse this option to render pages concurrently with mutliple threads.
+		 *
 		 * ```js
 		 * {
 		 *   build: {

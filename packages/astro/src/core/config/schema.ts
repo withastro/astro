@@ -63,7 +63,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
-		concurrency: 1
+		concurrency: 1,
 	},
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
