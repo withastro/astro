@@ -265,10 +265,16 @@ type DataEntryResult = {
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
 
-function emulateLegacyEntry({ legacyId, id, ...entry }: DataEntry) {
-	const legacyEntry = { ...entry, id: legacyId!, slug: id };
+function emulateLegacyEntry(entry: DataEntry) {
+	// Define this first so it's in scope for the render function
+	const legacyEntry = {
+		...entry,
+		id: entry.legacyId!,
+		slug: entry.id,
+	};
 	return {
 		...legacyEntry,
+		// Define separately so the render function isn't included in the object passed to `renderEntry()`
 		render: () => renderEntry(legacyEntry),
 	};
 }

@@ -26,7 +26,6 @@ While these emulate most of the features of legacy collections, they have these 
 
 - No implicit collections. In order to be generated, a collection must be defined in `config.ts`. For legacy collections these can just be empty declarations: e.g.`const blog = defineCollection({})`. Removing implicit collections means that we can allow content layer collections in `src/content`.
 - The `layout` field is not supported in Markdown
-- Experimental content collection cache is not supported
 - Sort order of generated collections is non-deterministic and platform-dependent.
 - `image().refine()` is not supported
 - the key for `getEntry` is typed as `string`, rather than having types for every entry.
