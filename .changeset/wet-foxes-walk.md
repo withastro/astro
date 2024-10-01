@@ -2,17 +2,17 @@
 'astro': major
 ---
 
-`Astro.params` aren't decoded anymore. 
+`params` passed in `getStaticPaths` are no longer automatically decoded.
 
 ### [changed]: `Astro.params` aren't decoded anymore.
-In Astro v4.x, `Astro.params` were decoded using `decodeURIComponent`. 
+In Astro v4.x, `params` in ` were automatically decoded using `decodeURIComponent`. 
 
-Astro v5.0 doesn't decode `Astro.params` anymore, so you'll need to manually decode them yourself.
+Astro v5.0 doesn't automatically decode `params` in `getStaticPaths` anymore, so you'll need to manually decode them yourself if needed
 
 #### What should I do?
-If you were relying on `Astro.params` being decoded for you, you'll need to manually decode it using `decodeURI`.
+If you were relying on the automatic decode, you'll need to manually decode it using `decodeURI`.
 
-The use of [`decodeURIComponent`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent)) is discouraged because it decodes more characters than it should, for example `/`, `?`, `#` and more.
+Note that the use of [`decodeURIComponent`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent)) is discouraged for `getStaticPaths` because it decodes more characters than it should, for example `/`, `?`, `#` and more.
 
 ```diff
 ---
