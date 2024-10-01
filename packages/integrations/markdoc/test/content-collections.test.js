@@ -70,7 +70,7 @@ describe('Markdoc - Content Collections', () => {
 			const posts = parseDevalue(res);
 			assert.notEqual(posts, null);
 			assert.deepEqual(
-				posts.sort().map((post) => formatPost(post)),
+				posts.sort(sortById).map((post) => formatPost(post)),
 				[post1Entry, post2Entry, post3Entry],
 			);
 		});
