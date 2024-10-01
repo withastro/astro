@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 6.0.0-beta.2
+
+### Patch Changes
+
+- [#12075](https://github.com/withastro/astro/pull/12075) [`a19530e`](https://github.com/withastro/astro/commit/a19530e377b7d7afad58a33b23c0a5df1c376819) Thanks [@bluwy](https://github.com/bluwy)! - Parses frontmatter ourselves
+
 ## 6.0.0-beta.1
 
 ### Major Changes
