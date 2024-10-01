@@ -4,8 +4,10 @@
 ---
 
 Adds a configuration called https://shiki.style/guide/load-lang#custom-language-aliases, that allows a non-supported code language to a known language.
- 
-The below example will tell shiki to highlight the code blocks `cjs` using the `javascript` syntax highlighting.  
+
+This option requires `langs` to be defined with the correct values. The option will tell shiki which language to load when mapping the alias.
+
+The below example will tell shiki to highlight the code blocks `cjs` using the `javascript` syntax highlighting, The `langs` list will contain the `javascript` language.  
 
 ```js
 import { defineConfig } from "astro/config";
@@ -15,7 +17,8 @@ export default defineConfig({
     shikiConfig: {
       langAlias: {
         cjs: "javascript"
-      }
+      },
+      langs: ['javascript']
     }
   }
 })
@@ -30,3 +33,10 @@ function commonJs() {
 }
 ```
 ``````
+
+Failing to define `langs` will result in an error:
+
+```
+Error [ShikiError]: Failed to parse Markdown file "undefined":
+Language `cjs` not found, you may need to load it first 
+```

@@ -107,6 +107,7 @@ describe('shiki syntax highlighting', () => {
 			langAlias: {
 				cjs: 'javascript',
 			},
+			langs: ['javascript']
 		});
 
 		const html = await highlighter.highlight(`let test = "some string"`, 'cjs', {
@@ -122,6 +123,7 @@ describe('shiki syntax highlighting', () => {
 				langAlias: {
 					cjs: 'javascript',
 				},
+				langs: ['javascript']
 			},
 		});
 
