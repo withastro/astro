@@ -813,7 +813,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name security
-	 * @type {boolean}
+	 * @type {object}
 	 * @default `{}`
 	 * @version 4.9.0
 	 * @description
@@ -838,7 +838,7 @@ export interface AstroUserConfig {
 		 * @name security.checkOrigin
 		 * @kind h4
 		 * @type {boolean}
-		 * @default 'false'
+		 * @default `false`
 		 * @version 4.9.0
 		 * @description
 		 *
@@ -1088,7 +1088,7 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 * 	build: {
-		 *		inlineStylesheets: `never`,
+		 *		inlineStylesheets: 'never',
 		 * 	},
 		 * }
 		 * ```
@@ -1127,7 +1127,7 @@ export interface AstroUserConfig {
 	 *
 	 * ```js
 	 * {
-	 *   server: { port: 1234, host: true}
+	 *   server: { port: 1234, host: true }
 	 * }
 	 * ```
 	 *
@@ -1361,7 +1361,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name image.domains
 		 * @type {string[]}
-		 * @default `{domains: []}`
+		 * @default `[]`
 		 * @version 2.10.10
 		 * @description
 		 * Defines a list of permitted image source domains for remote image optimization. No other remote images will be optimized by Astro.
@@ -1408,6 +1408,7 @@ export interface AstroUserConfig {
 		 * ```
 		 *
 		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
+	   *
 		 * `hostname`:
 		 *   - Start with '**.' to allow all subdomains ('endsWith').
 		 *   - Start with '*.' to allow only one level of subdomain.
@@ -1468,7 +1469,7 @@ export interface AstroUserConfig {
 		 * import remarkToc from 'remark-toc';
 		 * {
 		 *   markdown: {
-		 *     remarkPlugins: [ [remarkToc, { heading: "contents"} ] ]
+		 *     remarkPlugins: [ [remarkToc, { heading: "contents" }] ]
 		 *   }
 		 * }
 		 * ```
@@ -1538,7 +1539,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: Translate the footnotes text to another language, here are the default English values
-		 *     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to reference 1"},
+		 *     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to reference 1" },
 		 *   },
 		 * };
 		 * ```

@@ -58,15 +58,15 @@
     "@changesets/cli": "^2.27.8",
     "@types/node": "^18.17.8",
     "esbuild": "^0.21.5",
-    "eslint": "^9.10.0",
+    "eslint": "^9.11.1",
     "eslint-plugin-regexp": "^2.6.0",
     "globby": "^14.0.2",
     "only-allow": "^1.2.1",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",
-    "turbo": "^2.1.1",
-    "typescript": "~5.5.4",
-    "typescript-eslint": "^8.4.0"
+    "turbo": "^2.1.2",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.7.0"
   },
   "pnpm": {
     "peerDependencyRules": {

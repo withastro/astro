@@ -9,6 +9,7 @@ import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
+import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { injectDefaultRoutes } from '../core/routing/default.js';
 import { createRouteManifest } from '../core/routing/index.js';
@@ -152,8 +153,10 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		experimentalEnvGetSecretEnabled: false,
 		key: createKey(),
-		middleware(_, next) {
-			return next();
+		middleware() {
+			return {
+				onRequest: NOOP_MIDDLEWARE_FN,
+			};
 		},
 	};
 }
