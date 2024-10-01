@@ -24,7 +24,7 @@ Legacy data collections are handled like this:
 
 While these emulate most of the features of legacy collections, they have these differences:
 
-- No implicit collections. In order to be generated, a collection must be defined in `config.ts`. For legacy collections these can just be empty declarations: e.g.`const blog = defineCollection({})`. Removing implicit collections means that we can allow content layer collections in `src/content`.
+- Implicit collections for folders in `src/content` are only defined if no other collections use content layer. If no content layer collections are defined, and there are folders in `src/content` that don't match collections in `src/content/config.ts` then collections will be auto-generated for them. This is not recommended, and a warning will be logged that this is deprecated. A collection should always be defined in `config.ts`. For legacy collections these can just be empty declarations: e.g.`const blog = defineCollection({})`. 
 - The `layout` field is not supported in Markdown
 - Sort order of generated collections is non-deterministic and platform-dependent.
 - `image().refine()` is not supported
