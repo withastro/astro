@@ -19,7 +19,7 @@ type EsbuildMessage = ESBuildTransformResult['warnings'][number];
  * Takes any error-like object and returns a standardized Error + metadata object.
  * Useful for consistent reporting regardless of where the error surfaced from.
  */
-export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): ErrorWithMetadata {
+export function collectErrorMetadata(e: any, rootFolder?: URL): ErrorWithMetadata {
 	const err =
 		AggregateError.is(e) || Array.isArray(e.errors) ? (e.errors as SSRError[]) : [e as SSRError];
 
