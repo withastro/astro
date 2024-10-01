@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "astro": "^5.0.0-beta.2",
-    "sass": "^1.78.0",
+    "sass": "^1.79.4",
     "sharp": "^0.33.3"
   }
 }
