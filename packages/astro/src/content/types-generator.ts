@@ -497,7 +497,7 @@ async function writeContentFiles({
 				contentTypesStr += `};\n`;
 				break;
 			case CONTENT_LAYER_TYPE:
-				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent \n}>;\n`;
+				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string \n}>;\n`;
 				break;
 			case 'data':
 				if (collectionEntryKeys.length === 0) {
