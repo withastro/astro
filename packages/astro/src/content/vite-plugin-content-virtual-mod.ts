@@ -1,8 +1,8 @@
-import { dataToEsm } from '@rollup/pluginutils';
-import glob from 'fast-glob';
 import nodeFs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { dataToEsm } from '@rollup/pluginutils';
+import glob from 'fast-glob';
 import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';

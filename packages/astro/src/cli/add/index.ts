@@ -6,11 +6,11 @@ import { diffWords } from 'diff';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
 import { type ASTNode, type ProxifiedModule, builders, generateCode, loadFile } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
-import yoctoSpinner from 'yocto-spinner';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
 import { exec } from 'tinyexec';
+import yoctoSpinner from 'yocto-spinner';
 import {
 	loadTSConfig,
 	resolveConfig,

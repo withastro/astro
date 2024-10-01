@@ -1,9 +1,9 @@
-import { teardown } from '@astrojs/compiler';
-import glob from 'fast-glob';
-import { bgGreen, black, green } from 'kleur/colors';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { teardown } from '@astrojs/compiler';
+import glob from 'fast-glob';
+import { bgGreen, black, green } from 'kleur/colors';
 import * as vite from 'vite';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';

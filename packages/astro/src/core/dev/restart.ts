@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import { globalContentLayer } from '../../content/content-layer.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
+import { SETTINGS_FILE } from '../../preferences/constants.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createNodeLogger, createSettings, resolveConfig } from '../config/index.js';
@@ -12,7 +13,6 @@ import { createSafeError } from '../errors/index.js';
 import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
-import { SETTINGS_FILE } from '../../preferences/constants.js';
 
 async function createRestartedContainer(
 	container: Container,

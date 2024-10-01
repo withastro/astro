@@ -5,9 +5,9 @@ import type { AstroConfig } from 'astro';
 import { listen } from 'async-listen';
 import { cyan } from 'kleur/colors';
 import open from 'open';
-import yoctoSpinner from 'yocto-spinner';
 import prompt from 'prompts';
 import type { Arguments } from 'yargs-parser';
+import yoctoSpinner from 'yocto-spinner';
 import type { DBConfig } from '../../../types.js';
 
 const isWebContainer =
