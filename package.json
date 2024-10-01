@@ -40,6 +40,9 @@
         "svelte",
         "@babel/core"
       ]
+    },
+    "overrides": {
+      "yaml-language-server>prettier": "^3.0.0"
     }
   }
 }
