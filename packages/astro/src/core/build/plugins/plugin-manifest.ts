@@ -270,7 +270,8 @@ function buildManifest(
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
-		checkOrigin: (settings.config.security?.checkOrigin && settings.buildOutput === "server") ?? false,
+		checkOrigin:
+			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
 		envGetSecretEnabled:
