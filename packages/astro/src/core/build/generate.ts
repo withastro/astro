@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
-import PQueue from 'p-queue';
 import PLimit from 'p-limit';
+import PQueue from 'p-queue';
 import type {
 	AstroConfig,
 	AstroSettings,
@@ -199,6 +199,40 @@ async function generatePage(
 		styles,
 		mod: pageModule,
 	};
+
+	async function generatePathWithLogs(
+		path: string,
+		route: RouteData,
+		index: number,
+		paths: string[],
+		isConcurrent: boolean,
+	) {
+		const timeStart = performance.now();
+		pipeline.logger.debug('build', `Generating: ${path}`);
+
+		const filePath = getOutputFilename(config, path, pageData.route.type);
+		const lineIcon =
+			(index === paths.length - 1 && !isConcurrent) || paths.length === 1 ? '└─' : '├─';
+
+		// Log the rendering path first if not concurrent. We'll later append the time taken to render.
+		// We skip if it's concurrent as the logs may overlap
+		if (!isConcurrent) {
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
+		}
+
+		await generatePath(path, pipeline, generationOptions, route);
+
+		const timeEnd = performance.now();
+		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
+		const timeIncrease = (isSlow ? red : dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
+
+		if (isConcurrent) {
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncrease}`);
+		} else {
+			logger.info('SKIP_FORMAT', ` ${timeIncrease}`);
+		}
+	}
+
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
 	for (const route of eachRouteInRouteData(pageData)) {
 		const icon =
@@ -206,55 +240,24 @@ async function generatePage(
 				? green('▶')
 				: magenta('λ');
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
+
 		// Get paths for the route, calling getStaticPaths if needed.
 		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
-		let timeStart = performance.now();
-		let prevTimeEnd = timeStart;
-		if(Number(config.build.concurrency) > 1){
-			const limit = PLimit(Number(config.build.concurrency));
-			const promises = [];
+
+		// Generate each paths
+		if (config.build.concurrency > 1) {
+			const limit = PLimit(config.build.concurrency);
+			const promises: Promise<void>[] = [];
 			for (let i = 0; i < paths.length; i++) {
 				const path = paths[i];
-				pipeline.logger.debug('build', `Generating: ${path}`);
-				const filePath = getOutputFilename(config, path, pageData.route.type);
-				const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-				promises.push(limit(async () => {
-					let innerTimeStart = performance.now();
-					await generatePath(path, pipeline, generationOptions, route);
-					const timeEnd = performance.now();
-					const timeChange = getTimeStat(innerTimeStart, timeEnd);
-					const timeIncrease = `(+${timeChange})`;
-					let timeIncreaseLabel;
-					if (timeEnd - innerTimeStart > THRESHOLD_SLOW_RENDER_TIME_MS) {
-						timeIncreaseLabel = red(timeIncrease);
-					} else {
-						timeIncreaseLabel = dim(timeIncrease);
-					}
-					logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncreaseLabel}`);
-				}));
+				promises.push(limit(() => generatePathWithLogs(path, route, i, paths, true)));
 			}
 			await Promise.allSettled(promises);
-			prevTimeEnd = performance.now();
-		}else{
+		} else {
 			for (let i = 0; i < paths.length; i++) {
 				const path = paths[i];
-				pipeline.logger.debug('build', `Generating: ${path}`);
-				const filePath = getOutputFilename(config, path, pageData.route.type);
-				const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-				logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
-				await generatePath(path, pipeline, generationOptions, route);
-				const timeEnd = performance.now();
-				const timeChange = getTimeStat(prevTimeEnd, timeEnd);
-				const timeIncrease = `(+${timeChange})`;
-				let timeIncreaseLabel;
-				if (timeEnd - prevTimeEnd > THRESHOLD_SLOW_RENDER_TIME_MS) {
-					timeIncreaseLabel = red(timeIncrease);
-				} else {
-					timeIncreaseLabel = dim(timeIncrease);
-				}
-				logger.info('SKIP_FORMAT', ` ${timeIncreaseLabel}`);
-				prevTimeEnd = timeEnd;
-			}			
+				await generatePathWithLogs(path, route, i, paths, false);
+			}
 		}
 	}
 }
