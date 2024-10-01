@@ -48,6 +48,18 @@
 
 - [#392](https://github.com/withastro/adapters/pull/392) [`3a49eb7`](https://github.com/withastro/adapters/commit/3a49eb7802c44212ccfab06034b7dc5f2b060e94) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates internal code for Astro 5 changes. No changes is required to your project, apart from using Astro 5
 
+## 11.1.0
+
+### Minor Changes
+
+- [#394](https://github.com/withastro/adapters/pull/394) [`44dfa99`](https://github.com/withastro/adapters/commit/44dfa9935e22edab16490d625a88aaa0f1942a19) Thanks [@veitbjarsch](https://github.com/veitbjarsch)! - Added functionality to compare include and exclude rules to reduce the amount of cloudflare rules
+
+## 11.0.5
+
+### Patch Changes
+
+- [#387](https://github.com/withastro/adapters/pull/387) [`04e5c38`](https://github.com/withastro/adapters/commit/04e5c389f251efa02fe7b973ed95cdc61fad3389) Thanks [@veitbjarsch](https://github.com/veitbjarsch)! - Fixes a bug which was caused on windows when splitting static file paths
+
 ## 11.0.4
 
 ### Patch Changes

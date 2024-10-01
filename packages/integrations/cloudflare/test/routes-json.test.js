@@ -48,7 +48,7 @@ describe('_routes.json generation', () => {
 			assert.deepEqual(routes, {
 				version: 1,
 				include: ['/*'],
-				exclude: ['/_astro/*', '/redirectme', '/public.txt', '/a/redirect'],
+				exclude: ['/_astro/*', '/redirectme', '/public.txt', '/a/*'],
 			});
 		});
 	});
@@ -142,6 +142,45 @@ describe('_routes.json generation', () => {
 					'/b',
 					'/another',
 					'/a/index.html',
+				],
+			});
+		});
+	});
+
+	describe('with nested on demand and prerendered routes', () => {
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
+				srcDir: './src/reduceComplexity',
+				adapter: cloudflare({}),
+			});
+			await fixture.build();
+		});
+
+		it('reduces the amount of include and exclude entries by applying wildcards wherever possible', async () => {
+			const _routesJson = await fixture.readFile('/_routes.json');
+			const routes = JSON.parse(_routesJson);
+
+			assert.deepEqual(routes, {
+				version: 1,
+				include: [
+					'/',
+					'/dynamicPages/*',
+					'/mixedPages/dynamic',
+					'/mixedPages/subfolder/dynamic',
+					'/_image',
+				],
+				exclude: [
+					'/_astro/*',
+					'/redirectme',
+					'/public.txt',
+					'/a/*',
+					'/404',
+					'/mixedPages/static',
+					'/mixedPages/subfolder/static',
+					'/staticPages/*',
 				],
 			});
 		});
