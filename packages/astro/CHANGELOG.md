@@ -1,5 +1,141 @@
 # astro
 
+## 5.0.0-beta.3
+
+### Minor Changes
+
+- [#12047](https://github.com/withastro/astro/pull/12047) [`21b5e80`](https://github.com/withastro/astro/commit/21b5e806c5df37c6b01da63487568a6ed351ba7d) Thanks [@rgodha24](https://github.com/rgodha24)! - Adds a new optional `parser` property to the built-in `file()` loader for content collections to support additional file types such as `toml` and `csv`.
+
+  The `file()` loader now accepts a second argument that defines a `parser` function. This allows you to specify a custom parser (e.g. `toml.parse` or `csv-parse`) to create a collection from a file's contents. The `file()` loader will automatically detect and parse JSON and YAML files (based on their file extension) with no need for a `parser`.
+
+  This works with any type of custom file formats including `csv` and `toml`. The following example defines a content collection `dogs` using a `.toml` file.
+
+  ```toml
+  [[dogs]]
+  id = "..."
+  age = "..."
+
+  [[dogs]]
+  id = "..."
+  age = "..."
+  ```
+
+  After importing TOML's parser, you can load the `dogs` collection into your project by passing both a file path and `parser` to the `file()` loader.
+
+  ```typescript
+  import { defineCollection } from "astro:content"
+  import { file } from "astro/loaders"
+  import { parse as parseToml } from "toml"
+
+  const dogs = defineCollection({
+    loader: file("src/data/dogs.toml", { parser: (text) => parseToml(text).dogs }),
+    schema: /* ... */
+  })
+
+  // it also works with CSVs!
+  import { parse as parseCsv } from "csv-parse/sync";
+
+  const cats = defineCollection({
+    loader: file("src/data/cats.csv", { parser: (text) => parseCsv(text, { columns: true, skipEmptyLines: true })})
+  });
+  ```
+
+  The `parser` argument also allows you to load a single collection from a nested JSON document. For example, this JSON file contains multiple collections:
+
+  ```json
+  { "dogs": [{}], "cats": [{}] }
+  ```
+
+  You can seperate these collections by passing a custom `parser` to the `file()` loader like so:
+
+  ```typescript
+  const dogs = defineCollection({
+    loader: file('src/data/pets.json', { parser: (text) => JSON.parse(text).dogs }),
+  });
+  const cats = defineCollection({
+    loader: file('src/data/pets.json', { parser: (text) => JSON.parse(text).cats }),
+  });
+  ```
+
+  And it continues to work with maps of `id` to `data`
+
+  ```yaml
+  bubbles:
+    breed: 'Goldfish'
+    age: 2
+  finn:
+    breed: 'Betta'
+    age: 1
+  ```
+
+  ```typescript
+  const fish = defineCollection({
+    loader: file('src/data/fish.yaml'),
+    schema: z.object({ breed: z.string(), age: z.number() }),
+  });
+  ```
+
+- [#12071](https://github.com/withastro/astro/pull/12071) [`61d248e`](https://github.com/withastro/astro/commit/61d248e581a3bebf0ec67169813fc8ae4a2182df) Thanks [@Princesseuh](https://github.com/Princesseuh)! - `astro add` no longer automatically sets `output: 'server'`. Since the default value of output now allows for server-rendered pages, it no longer makes sense to default to full server builds when you add an adapter
+
+- [#11963](https://github.com/withastro/astro/pull/11963) [`0a1036e`](https://github.com/withastro/astro/commit/0a1036eef62f13c9609362874c5b88434d1e9300) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new `createCodegenDir()` function to the `astro:config:setup` hook in the Integrations API
+
+  In 4.14, we introduced the `injectTypes` utility on the `astro:config:done` hook. It can create `.d.ts` files and make their types available to user's projects automatically. Under the hood, it creates a file in `<root>/.astro/integrations/<normalized_integration_name>`.
+
+  While the `.astro` directory has always been the preferred place to write code generated files, it has also been prone to mistakes. For example, you can write a `.astro/types.d.ts` file, breaking Astro types. Or you can create a file that overrides a file created by another integration.
+
+  In this release, `<root>/.astro/integrations/<normalized_integration_name>` can now be retrieved in the `astro:config:setup` hook by calling `createCodegenDir()`. It allows you to have a dedicated folder, avoiding conflicts with another integration or Astro itself. This directory is created by calling this function so it's safe to write files to it directly:
+
+  ```js
+  import { writeFileSync } from 'node:fs';
+
+  const integration = {
+    name: 'my-integration',
+    hooks: {
+      'astro:config:setup': ({ createCodegenDir }) => {
+        const codegenDir = createCodegenDir();
+        writeFileSync(new URL('cache.json', codegenDir), '{}', 'utf-8');
+      },
+    },
+  };
+  ```
+
+- [#12081](https://github.com/withastro/astro/pull/12081) [`8679954`](https://github.com/withastro/astro/commit/8679954bf647529e0f2134053866fc507e64c5e3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the experimental `contentCollectionsCache` introduced in `3.5.0`.
+
+  Astro Content Layer API independently solves some of the caching and performance issues with legacy content collections that this strategy attempted to address. This feature has been replaced with continued work on improvements to the content layer. If you were using this experimental feature, you must now remove the flag from your Astro config as it no longer exists:
+
+  ```diff
+  export default defineConfig({
+      experimental: {
+  -        contentCollectionsCache: true
+      }
+  })
+  ```
+
+  The `cacheManifest` boolean argument is no longer passed to the `astro:build:done` integration hook:
+
+  ```diff
+  const integration = {
+      name: "my-integration",
+      hooks: {
+          "astro:build:done": ({
+  -            cacheManifest,
+              logger
+          }) => {}
+      }
+  }
+  ```
+
+### Patch Changes
+
+- [#12073](https://github.com/withastro/astro/pull/12073) [`acf264d`](https://github.com/withastro/astro/commit/acf264d8c003718cda5a0b9ce5fb7ac1cd6641b6) Thanks [@bluwy](https://github.com/bluwy)! - Replaces `ora` with `yocto-spinner`
+
+- [#12075](https://github.com/withastro/astro/pull/12075) [`a19530e`](https://github.com/withastro/astro/commit/a19530e377b7d7afad58a33b23c0a5df1c376819) Thanks [@bluwy](https://github.com/bluwy)! - Parses frontmatter ourselves
+
+- [#12070](https://github.com/withastro/astro/pull/12070) [`9693ad4`](https://github.com/withastro/astro/commit/9693ad4ffafb02ed1ea02beb3420ba864724b293) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the check origin middleware was incorrectly injected when the build output was `"static"`
+
+- Updated dependencies [[`a19530e`](https://github.com/withastro/astro/commit/a19530e377b7d7afad58a33b23c0a5df1c376819)]:
+  - @astrojs/markdown-remark@6.0.0-beta.2
+
 ## 5.0.0-beta.2
 
 ### Patch Changes
@@ -228,6 +364,18 @@
 ### Patch Changes
 
 - [#11974](https://github.com/withastro/astro/pull/11974) [`60211de`](https://github.com/withastro/astro/commit/60211defbfb2992ba17d1369e71c146d8928b09a) Thanks [@ascorbic](https://github.com/ascorbic)! - Exports the `RenderResult` type
+
+## 4.15.10
+
+### Patch Changes
+
+- [#12084](https://github.com/withastro/astro/pull/12084) [`12dae50`](https://github.com/withastro/astro/commit/12dae50c776474748a80cb65c8bf1c67f0825cb0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds missing filePath property on content layer entries
+
+- [#12046](https://github.com/withastro/astro/pull/12046) [`d7779df`](https://github.com/withastro/astro/commit/d7779dfae7bc00ff94b1e4596ff5b4897f65aabe) Thanks [@martrapp](https://github.com/martrapp)! - View transitions: Fixes Astro's fade animation to prevent flashing during morph transitions.
+
+- [#12043](https://github.com/withastro/astro/pull/12043) [`1720c5b`](https://github.com/withastro/astro/commit/1720c5b1d2bfd106ad065833823aed622bee09bc) Thanks [@bluwy](https://github.com/bluwy)! - Fixes injected endpoint `prerender` option detection
+
+- [#12095](https://github.com/withastro/astro/pull/12095) [`76c5fbd`](https://github.com/withastro/astro/commit/76c5fbd6f3a8d41367f1d7033278d133d518213b) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Fix installing non-stable versions of integrations with `astro add`
 
 ## 4.15.9
 
