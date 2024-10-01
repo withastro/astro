@@ -70,8 +70,8 @@
   },
   "pnpm": {
     "overrides": {
-      "vitest>vite": "^6.0.0-beta.0",
-      "vite-node>vite": "^6.0.0-beta.0"
+      "vitest>vite": "6.0.0-beta.2",
+      "vite-node>vite": "6.0.0-beta.2"
     },
     "peerDependencyRules": {
       "allowAny": [
