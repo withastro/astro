@@ -90,7 +90,7 @@ export function glob(globOptions: GlobOptions): Loader {
 
 			const untouchedEntries = new Set(store.keys());
 			const isLegacy = (globOptions as any)._legacy;
-			// If legacy mode is *not* enabled then we use emulate legacy collections instead
+			// If global legacy flag is *not* enabled then this loader is used to emulate legacy collections instead
 			const emulateLegacyCollections = !config.legacy.legacyContentCollections;
 			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
 				if (!entryType) {

@@ -21,6 +21,40 @@ describe('Content Collections', () => {
 				json = devalue.parse(rawJson);
 			});
 
+			it('Returns `without config` collection', async () => {
+				assert.ok(json.hasOwnProperty('withoutConfig'));
+				assert.equal(Array.isArray(json.withoutConfig), true);
+
+				const ids = json.withoutConfig.map((item) => item.id);
+				assert.deepEqual(
+					ids.sort(),
+					[
+						'columbia.md',
+						'endeavour.md',
+						'enterprise.md',
+						// Spaces allowed in IDs
+						'promo/launch week.mdx',
+					].sort(),
+				);
+			});
+
+			it('Handles spaces in `without config` slugs', async () => {
+				assert.ok(json.hasOwnProperty('withoutConfig'));
+				assert.equal(Array.isArray(json.withoutConfig), true);
+
+				const slugs = json.withoutConfig.map((item) => item.slug);
+				assert.deepEqual(
+					slugs.sort(),
+					[
+						'columbia',
+						'endeavour',
+						'enterprise',
+						// "launch week.mdx" is converted to "launch-week.mdx"
+						'promo/launch-week',
+					].sort(),
+				);
+			});
+
 			it('Returns `with schema` collection', async () => {
 				assert.ok(json.hasOwnProperty('withSchemaConfig'));
 				assert.equal(Array.isArray(json.withSchemaConfig), true);

@@ -701,17 +701,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					});
 				}
 			}
-
-			if (
-				configuration.experimental.contentCollectionCache &&
-				!configuration.legacy.legacyContentCollections
-			) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message:
-						'Content collections cache is not supported with the Content Layer API. Please remove the `experimental.contentCollectionsCache` option from your Astro config or enable `legacy.legacyContentCollections`',
-				});
-			}
 		});
 
 	return AstroConfigRelativeSchema;

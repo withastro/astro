@@ -25,6 +25,7 @@ import {
 } from './consts.js';
 import { glob } from './loaders/glob.js';
 import { createImage } from './runtime-assets.js';
+import { green } from 'kleur/colors';
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
@@ -543,6 +544,7 @@ async function loadContentConfig({
 export async function autogenerateCollections({
 	config,
 	settings,
+	fs,
 }: {
 	config?: ContentConfig;
 	settings: AstroSettings;
@@ -560,8 +562,10 @@ export async function autogenerateCollections({
 
 	const contentPattern = globWithUnderscoresIgnored('', contentExts);
 	const dataPattern = globWithUnderscoresIgnored('', dataExts);
+	let usesContentLayer = false;
 	for (const collectionName of Object.keys(collections)) {
 		if (collections[collectionName]?.type === 'content_layer') {
+			usesContentLayer = true;
 			// This is already a content layer, skip
 			continue;
 		}
@@ -591,6 +595,39 @@ export async function autogenerateCollections({
 				// Zod weirdness has trouble with typing the args to the load function
 			}) as any,
 		};
+	}
+	if (!usesContentLayer) {
+		// If the user hasn't defined any collections using the content layer, we'll try and help out by checking for
+		// any orphaned folders in the content directory and creating collections for them.
+		const orphanedCollections = [];
+		for (const entry of await fs.promises.readdir(contentDir, { withFileTypes: true })) {
+			const collectionName = entry.name;
+			if (['_', '.'].includes(collectionName.at(0) ?? '')) {
+				continue;
+			}
+			if (entry.isDirectory() && !(collectionName in collections)) {
+				orphanedCollections.push(collectionName);
+				const base = new URL(`${collectionName}/`, contentDir);
+				collections[collectionName] = {
+					type: 'content_layer',
+					loader: glob({
+						base,
+						pattern: contentPattern,
+						_legacy: true,
+					}) as any,
+				};
+			}
+		}
+		if (orphanedCollections.length > 0) {
+			console.warn(
+				`
+Auto-generating collections for folders in the content directory that are not defined as collections.
+This is deprecated, so you should define these collections yourself in "src/content/config.ts".
+The following collections have been auto-generated: ${orphanedCollections
+					.map((name) => green(name))
+					.join(', ')}\n`,
+			);
+		}
 	}
 	return { ...config, collections };
 }
