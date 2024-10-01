@@ -8,6 +8,6 @@ export default defineConfig({
 		contentIntellisense: true,	
 	},
 	legacy: {
-		legacyContentCollections: true,
+		collections: true,
 	},
 });

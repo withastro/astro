@@ -90,8 +90,8 @@ export function glob(globOptions: GlobOptions): Loader {
 
 			const untouchedEntries = new Set(store.keys());
 			const isLegacy = (globOptions as any)._legacy;
-			// If global legacy flag is *not* enabled then this loader is used to emulate legacy collections instead
-			const emulateLegacyCollections = !config.legacy.legacyContentCollections;
+			// If global legacy collection handling flag is *not* enabled then this loader is used to emulate them instead
+			const emulateLegacyCollections = !config.legacy.collections;
 			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
 				if (!entryType) {
 					logger.warn(`No entry type found for ${entry}`);
@@ -156,7 +156,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				if (entryType.getRenderFunction) {
 					if (isLegacy && data.layout) {
 						logger.error(
-							`The Markdown "layout" field is not supported in content collections in Astro 5. Ignoring layout for ${JSON.stringify(entry)}. Enable "legacy.legacyContentCollections" if you need to use the layout field.`,
+							`The Markdown "layout" field is not supported in content collections in Astro 5. Ignoring layout for ${JSON.stringify(entry)}. Enable "legacy.collections" if you need to use the layout field.`,
 						);
 					}
 

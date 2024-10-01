@@ -30,4 +30,4 @@ While these emulate most of the features of legacy collections, they have these 
 - `image().refine()` is not supported
 - the key for `getEntry` is typed as `string`, rather than having types for every entry.
 
-A new config flag `legacy.legacyContentCollections` is added for users that need the old behavior. When set, collections in `src/content` are processed in the same way as before rather than being implemented with glob - including implicit collections. When set, content layer collections are forbidden in `src/content`, and will fail a build if defined.
+A new config flag `legacy.collections` is added for users that need the old behavior. When set, collections in `src/content` are processed in the same way as before rather than being implemented with glob - including implicit collections. When set, content layer collections are forbidden in `src/content`, and will fail a build if defined.

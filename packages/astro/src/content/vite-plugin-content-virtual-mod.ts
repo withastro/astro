@@ -98,7 +98,7 @@ export function astroContentVirtualModPlugin({
 		},
 		async load(id, args) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				const lookupMap = settings.config.legacy.legacyContentCollections
+				const lookupMap = settings.config.legacy.collections
 					? await generateLookupMap({
 							settings,
 							fs,
@@ -206,7 +206,7 @@ export async function generateContentEntryFile({
 	let contentEntryGlobResult = '""';
 	let dataEntryGlobResult = '""';
 	let renderEntryGlobResult = '""';
-	if (settings.config.legacy.legacyContentCollections) {
+	if (settings.config.legacy.collections) {
 		const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 		const contentEntryExts = [...contentEntryConfigByExt.keys()];
 		const dataEntryExts = getDataEntryExts(settings);

@@ -222,7 +222,7 @@ describe('Legacy Content Collections', () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-static-paths-integration/',
 				legacy: {
-					legacyContentCollections: true,
+					collections: true,
 				},
 			});
 			await fixture.build();
@@ -259,7 +259,7 @@ describe('Legacy Content Collections', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content with spaces in folder name/',
 				legacy: {
-					legacyContentCollections: true,
+					collections: true,
 				},
 			});
 			let error = null;
@@ -276,7 +276,7 @@ describe('Legacy Content Collections', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-with-config-mjs/',
 				legacy: {
-					legacyContentCollections: true,
+					collections: true,
 				},
 			});
 			let error;
@@ -293,7 +293,7 @@ describe('Legacy Content Collections', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-with-config-mts/',
 				legacy: {
-					legacyContentCollections: true,
+					collections: true,
 				},
 			});
 			let error;
@@ -311,7 +311,7 @@ describe('Legacy Content Collections', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-md-file/',
 				legacy: {
-					legacyContentCollections: true,
+					collections: true,
 				},
 			});
 			let error;
@@ -329,7 +329,7 @@ describe('Legacy Content Collections', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-dir/',
 				legacy: {
-					legacyContentCollections: true,
+					collections: true,
 				},
 			});
 			let error;
@@ -360,7 +360,7 @@ describe('Legacy Content Collections', () => {
 					plugins: [preventNodeBuiltinDependencyPlugin()],
 				},
 				legacy: {
-					legacyContentCollections: true,
+					collections: true,
 				},
 			});
 			await fixture.build();
@@ -406,7 +406,7 @@ describe('Legacy Content Collections', () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-base/',
 				legacy: {
-					legacyContentCollections: true,
+					collections: true,
 				},
 			});
 			await fixture.build();
@@ -432,7 +432,7 @@ describe('Legacy Content Collections', () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-mutation/',
 				legacy: {
-					legacyContentCollections: true,
+					collections: true,
 				},
 			});
 			await fixture.build();

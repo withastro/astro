@@ -81,7 +81,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	markdown: markdownConfigDefaults,
 	vite: {},
 	legacy: {
-		legacyContentCollections: false,
+		collections: false,
 	},
 	redirects: {},
 	security: {
@@ -526,10 +526,10 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	legacy: z
 		.object({
-			legacyContentCollections: z
+			collections: z
 				.boolean()
 				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.legacy.legacyContentCollections),
+				.default(ASTRO_CONFIG_DEFAULTS.legacy.collections),
 		})
 		.default({}),
 });

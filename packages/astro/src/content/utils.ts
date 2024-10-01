@@ -550,7 +550,7 @@ export async function autogenerateCollections({
 	settings: AstroSettings;
 	fs: typeof fsMod;
 }): Promise<ContentConfig | undefined> {
-	if (settings.config.legacy.legacyContentCollections) {
+	if (settings.config.legacy.collections) {
 		return config;
 	}
 	const contentDir = new URL('./content/', settings.config.srcDir);

@@ -1544,21 +1544,21 @@ export interface AstroUserConfig {
 	legacy?: {
 		/**
 		 * @docs
-		 * @name legacy.contentCollections
+		 * @name legacy.collections
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 5.0.0
 		 * @description
 		 * Enable legacy behavior for content collections.
-		 * If it enabled, data and content collections are handled using the legacy code instead of Content Layer API, including generating
-		 * implicit collections for directories in `src/content`. Any collections with a loader defined will still use the Content Layer API.
-		 * When enabled, you cannot use the glob loader for any collections in the `src/content` directory, and they will instead be handled by
+		 * If enabled, data and content collections are handled using the legacy code instead of Content Layer API. 
+		 * Any collections with a loader defined will still use the Content Layer API. When enabled, you cannot use 
+		 * the glob loader for any collections in the `src/content` directory, and they will instead be handled by
 		 * the legacy code.
 		 *
-		 * To migrate to the new Content Layer API, you should remove this flag and define a collection for any directories in `src/content` that
-		 * you want to use as a collection.
+		 * To migrate to the new Content Layer API, you should remove this flag and define a collection for any 
+		 * directories in `src/content` that you want to use as a collection.
 		 */
-		legacyContentCollections?: boolean;
+		collections?: boolean;
 	};
 
 	/**
