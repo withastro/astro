@@ -616,10 +616,10 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						}
 						return { id: lookup, collection };
 					}
-
-					if (!lookupMap[collection] && store.collections().size < 2) {
-						// If the collection is not in the lookup map or store, it may be a content layer collection and the store may not yet be populated.
-						// The store may still have a single collection, which would be the top level metadata collection.
+					// If the collection is not in the lookup map or store, it may be a content layer collection and the store may not yet be populated.
+					// If the store has 0 or 1 entries it probably means that the entries have not yet been loaded.
+					// The store may have a single entry even if the collections have not loaded, because the top-level metadata collection is generated early.
+					if (!lookupMap[collection] && store.collections().size <= 1) {
 						// For now, we can't validate this reference, so we'll optimistically convert it to a reference object which we'll validate
 						// later in the pipeline when we do have access to the store.
 						return { id: lookup, collection };
