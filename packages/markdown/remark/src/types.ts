@@ -37,7 +37,7 @@ export type RemarkRehype = RemarkRehypeOptions;
 export type ThemePresets = BuiltinTheme | 'css-variables';
 
 export interface ShikiConfig {
-	langs?: (LanguageRegistration | string)[];
+	langs?: (LanguageRegistration | BuiltinLanguage | SpecialLanguage)[];
 	langAlias?: HighlighterCoreOptions['langAlias'];
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
