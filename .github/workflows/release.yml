@@ -59,6 +59,10 @@ jobs:
           # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Update next npm tag
+        if: steps.changesets.outputs.published == 'true' && github.ref == 'refs/heads/next' && contains(steps.changesets.outputs.publishedPackages.*.name, 'astro')
+        run: npm dist-tag astro@${{ steps.changesets.outputs.publishedPackages.astro.version }} next
+
       - name: Generate Announcement
         id: message
         if: steps.changesets.outputs.published == 'true'
