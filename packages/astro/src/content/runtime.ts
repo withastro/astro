@@ -272,6 +272,7 @@ function emulateLegacyEntry(entry: DataEntry) {
 		id: entry.legacyId!,
 		slug: entry.id,
 	};
+	delete legacyEntry.legacyId;
 	return {
 		...legacyEntry,
 		// Define separately so the render function isn't included in the object passed to `renderEntry()`
