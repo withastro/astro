@@ -31,8 +31,12 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 
 	if (flags.watch) {
 		function createWatcher(rootPath: string, extensions: string[]) {
-			return watch(`${rootPath}/**/*{${extensions.join(',')}}`, {
-				ignored: (ignoredPath) => ignoredPath.includes('node_modules'),
+			return watch(rootPath, {
+				ignored(pathStr, stats) {
+					if (pathStr.includes('node_modules') || pathStr.includes('.git')) return true;
+					if (stats?.isFile() && !extensions.includes(path.extname(pathStr))) return true;
+					return false;
+				},
 				ignoreInitial: true,
 			});
 		}
