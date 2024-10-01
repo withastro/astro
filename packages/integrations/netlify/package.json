@@ -36,17 +36,17 @@
     "@netlify/functions": "^2.8.0",
     "@vercel/nft": "^0.27.4",
     "esbuild": "^0.21.5",
-    "vite": "^5.4.7"
+    "vite": "^5.4.8"
   },
   "peerDependencies": {
     "astro": "^4.2.0"
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
-    "@netlify/edge-functions": "^2.10.0",
+    "@netlify/edge-functions": "^2.11.0",
     "@netlify/edge-handler-types": "^0.34.1",
-    "@types/node": "^20.16.5",
-    "astro": "^4.15.8",
+    "@types/node": "^20.16.10",
+    "astro": "^4.15.9",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "execa": "^8.0.1",
