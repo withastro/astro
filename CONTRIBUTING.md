@@ -5,7 +5,7 @@
 All Astro projects use [pnpm](https://pnpm.io/) and [Turbo](https://turborepo.org/) to enable development in a monorepo. Once you've cloned the project install dependencies and do an initial build:
 
 ```shell
-pnpm
+pnpm install
 pnpm build
 ```
 
