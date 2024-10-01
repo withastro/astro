@@ -55,11 +55,11 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react": "^4.3.2",
     "ultrahtml": "^1.5.3"
   },
   "devDependencies": {
-    "@types/react": "^18.3.5",
+    "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",

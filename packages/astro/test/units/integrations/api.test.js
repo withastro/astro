@@ -2,6 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { validateSupportedFeatures } from '../../../dist/integrations/features-validation.js';
 import {
+	normalizeCodegenDir,
 	normalizeInjectedTypeFilename,
 	runHookBuildSetup,
 	runHookConfigSetup,
@@ -12,6 +13,7 @@ const defaultConfig = {
 	root: new URL('./', import.meta.url),
 	srcDir: new URL('src/', import.meta.url),
 };
+const dotAstroDir = new URL('./.astro/', defaultConfig.root);
 
 describe('Integration API', () => {
 	it('runHookBuildSetup should work', async () => {
@@ -87,6 +89,7 @@ describe('Integration API', () => {
 						},
 					],
 				},
+				dotAstroDir,
 			},
 		});
 		assert.equal(updatedSettings.config.site, site);
@@ -122,6 +125,7 @@ describe('Integration API', () => {
 						},
 					],
 				},
+				dotAstroDir,
 			},
 		});
 		assert.equal(updatedSettings.config.site, site);
@@ -269,4 +273,8 @@ describe('normalizeInjectedTypeFilename', () => {
 		normalizeInjectedTypeFilename('types.d.ts', 'aA1-*/_"~.'),
 		'./integrations/aA1-_____./types.d.ts',
 	);
+});
+
+describe('normalizeCodegenDir', () => {
+	assert.equal(normalizeCodegenDir('aA1-*/_"~.'), './integrations/aA1-_____./');
 });

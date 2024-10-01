@@ -98,13 +98,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					// `compile` should re-set `filename` in `astroFileToCompileMetadata`
 					if (code != null) await compile(code, filename);
 				}
-				// When cached we might load client-side scripts during the build
-				else if (config.experimental.contentCollectionCache) {
-					await this.load({
-						id: filename,
-						resolveDependencies: false,
-					});
-				}
 
 				compileMetadata = astroFileToCompileMetadata.get(filename);
 			}
