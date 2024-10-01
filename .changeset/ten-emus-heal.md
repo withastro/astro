@@ -8,7 +8,7 @@ and batch or cache long running tasks like fetch calls or data access to improve
 Use this option only if the refactors are not possible. If the number is set too high, the page rendering
 may slow down due to insufficient memory resources and because JS is single-threaded.
 
-In the future, Astro may reuse this option to render pages concurrently with mutliple threads.
+In the future, Astro may reuse this option to render pages concurrently with multiple threads.
 
 ```js
 // astro.config.mjs
