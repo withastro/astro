@@ -378,7 +378,7 @@ export default function netlifyIntegration(
 			ip:
 				typeof req.headers['x-nf-client-connection-ip'] === 'string'
 					? req.headers['x-nf-client-connection-ip']
-					: req.socket.remoteAddress ?? '127.0.0.1',
+					: (req.socket.remoteAddress ?? '127.0.0.1'),
 			server: {
 				region: 'local-dev',
 			},
