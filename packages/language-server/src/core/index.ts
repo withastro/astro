@@ -10,7 +10,8 @@ import type { TypeScriptExtraServiceScript } from '@volar/typescript';
 import type ts from 'typescript';
 import type { HTMLDocument } from 'vscode-html-languageservice';
 import type { URI } from 'vscode-uri';
-import { type AstroInstall, getLanguageServerTypesDir } from '../utils.js';
+import type { PackageInfo } from '../importPackage.js';
+import { getLanguageServerTypesDir } from '../utils.js';
 import { astro2tsx } from './astro2tsx';
 import type { AstroMetadata } from './parseAstro';
 import { getAstroMetadata } from './parseAstro';
@@ -21,7 +22,7 @@ import { extractScriptTags } from './parseJS.js';
 const decoratedHosts = new WeakSet<ts.LanguageServiceHost>();
 
 export function addAstroTypes(
-	astroInstall: AstroInstall | undefined,
+	astroInstall: PackageInfo | undefined,
 	ts: typeof import('typescript'),
 	host: ts.LanguageServiceHost,
 ) {
@@ -41,7 +42,7 @@ export function addAstroTypes(
 		if (astroInstall) {
 			addedFileNames.push(
 				...['./env.d.ts', './astro-jsx.d.ts'].map((filePath) =>
-					ts.sys.resolvePath(path.resolve(astroInstall.path, filePath)),
+					ts.sys.resolvePath(path.resolve(astroInstall.directory, filePath)),
 				),
 			);
 

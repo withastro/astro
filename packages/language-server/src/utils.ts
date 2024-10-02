@@ -1,15 +1,6 @@
 import * as path from 'node:path';
-import { getPackagePath } from './importPackage.js';
-
-export interface AstroInstall {
-	path: string;
-	version: {
-		full: string;
-		major: number;
-		minor: number;
-		patch: number;
-	};
-}
+import type { PackageInfo } from './importPackage.js';
+import { getPackageInfo } from './importPackage.js';
 
 export function getLanguageServerTypesDir(ts: typeof import('typescript')) {
 	return ts.sys.resolvePath(path.resolve(__dirname, '../types'));
@@ -21,10 +12,7 @@ export function getAstroInstall(
 		nearestPackageJson: string | undefined;
 		readDirectory: typeof import('typescript').sys.readDirectory;
 	},
-): AstroInstall | 'not-an-astro-project' | 'not-found' {
-	let astroPath;
-	let version;
-
+): PackageInfo | 'not-an-astro-project' | 'not-found' {
 	if (checkForAstro && checkForAstro.nearestPackageJson) {
 		basePaths.push(path.dirname(checkForAstro.nearestPackageJson));
 
@@ -53,52 +41,21 @@ export function getAstroInstall(
 		}
 	}
 
-	try {
-		astroPath = getPackagePath('astro', basePaths);
+	let astroPackage = getPackageInfo('astro', basePaths);
 
-		if (!astroPath) {
-			throw Error;
-		}
+	if (!astroPackage) {
+		// If we couldn't find it inside the workspace's node_modules, it might means we're in the Astro development monorepo
+		astroPackage = getPackageInfo('./packages/astro', basePaths);
 
-		version = require(path.resolve(astroPath, 'package.json')).version;
-	} catch {
-		// If we couldn't find it inside the workspace's node_modules, it might means we're in the monorepo
-		try {
-			astroPath = getPackagePath('./packages/astro', basePaths);
-
-			if (!astroPath) {
-				throw Error;
-			}
-
-			version = require(path.resolve(astroPath, 'package.json')).version;
-		} catch {
-			// If we still couldn't find it, it probably just doesn't exist
+		if (!astroPackage) {
 			console.error(
 				`${basePaths[0]} seems to be an Astro project, but we couldn't find Astro or Astro is not installed`,
 			);
 
+			// If we still couldn't find it, it probably just doesn't exist
 			return 'not-found';
 		}
 	}
 
-	if (!version) {
-		return 'not-found';
-	}
-
-	let [major, minor, patch] = version.split('.');
-
-	if (patch.includes('-')) {
-		const patchParts = patch.split('-');
-		patch = patchParts[0];
-	}
-
-	return {
-		path: astroPath,
-		version: {
-			full: version,
-			major: Number(major),
-			minor: Number(minor),
-			patch: Number(patch),
-		},
-	};
+	return astroPackage;
 }

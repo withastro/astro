@@ -5,36 +5,48 @@ import type * as svelte from '@astrojs/svelte/dist/editor.cjs';
 import type * as vue from '@astrojs/vue/dist/editor.cjs';
 import type * as prettier from 'prettier';
 
+type PackageVersion = {
+	full: string;
+	major: number;
+	minor: number;
+	patch: number;
+};
+
 let isTrusted = true;
 
 export function setIsTrusted(_isTrusted: boolean) {
 	isTrusted = _isTrusted;
 }
 
+export type PackageInfo = {
+	entrypoint: string;
+	directory: string;
+	version: PackageVersion;
+};
+
 /**
  * Get the path of a package's directory from the paths in `fromPath`, if `root` is set to false, it will return the path of the package's entry point
  */
-export function getPackagePath(
-	packageName: string,
-	fromPath: string[],
-	root = true,
-): string | undefined {
+export function getPackageInfo(packageName: string, fromPath: string[]): PackageInfo | undefined {
 	const paths = [];
 	if (isTrusted) {
 		paths.unshift(...fromPath);
 	}
 
 	try {
-		return root
-			? dirname(require.resolve(packageName + '/package.json', { paths }))
-			: require.resolve(packageName, { paths });
+		const packageJSON = require.resolve(packageName + '/package.json', { paths });
+		return {
+			directory: dirname(packageJSON),
+			entrypoint: require.resolve(packageName, { paths }),
+			version: parsePackageVersion(require(packageJSON).version),
+		};
 	} catch {
 		return undefined;
 	}
 }
 
 function importEditorIntegration<T>(packageName: string, fromPath: string): T | undefined {
-	const pkgPath = getPackagePath(packageName, [fromPath]);
+	const pkgPath = getPackageInfo(packageName, [fromPath])?.directory;
 
 	if (pkgPath) {
 		try {
@@ -66,17 +78,31 @@ export function importVueIntegration(fromPath: string): typeof vue | undefined {
 }
 
 export function importPrettier(fromPath: string): typeof prettier | undefined {
-	const prettierPkg = getPackagePath('prettier', [fromPath, __dirname]);
+	let prettierPkg = getPackageInfo('prettier', [fromPath, __dirname]);
 
 	if (!prettierPkg) {
 		return undefined;
 	}
 
-	return require(prettierPkg);
+	if (prettierPkg.version.major < 3) {
+		console.error(
+			`Prettier version ${prettierPkg.version.full} from ${prettierPkg.directory} is not supported, please update to at least version 3.0.0. Falling back to bundled version to ensure formatting works correctly.`,
+		);
+
+		prettierPkg = getPackageInfo('prettier', [__dirname]);
+		if (!prettierPkg) {
+			return undefined;
+		}
+	}
+
+	return require(prettierPkg.entrypoint);
 }
 
 export function getPrettierPluginPath(fromPath: string): string | undefined {
-	const prettierPluginPath = getPackagePath('prettier-plugin-astro', [fromPath, __dirname], false);
+	const prettierPluginPath = getPackageInfo('prettier-plugin-astro', [
+		fromPath,
+		__dirname,
+	])?.entrypoint;
 
 	if (!prettierPluginPath) {
 		return undefined;
@@ -93,4 +119,20 @@ export function getWorkspacePnpPath(workspacePath: string): string | null {
 	} catch {
 		return null;
 	}
+}
+
+export function parsePackageVersion(version: string): PackageVersion {
+	let [major, minor, patch] = version.split('.');
+
+	if (patch.includes('-')) {
+		const patchParts = patch.split('-');
+		patch = patchParts[0];
+	}
+
+	return {
+		full: version,
+		major: Number(major),
+		minor: Number(minor),
+		patch: Number(patch),
+	};
 }
