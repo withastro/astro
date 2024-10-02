@@ -33,6 +33,7 @@ describe('API routes in SSR', () => {
 			const request = new Request('http://example.com/food.json');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
+			assert.equal(response.statusText, 'tasty');
 			const body = await response.json();
 			assert.equal(body.length, 3);
 		});
@@ -76,6 +77,17 @@ describe('API routes in SSR', () => {
 			assert.equal(response.status, 200);
 			const text = await response.text();
 			assert.equal(text, 'ok');
+		});
+
+		it('Can read custom status text from API routes', async () => {
+			const response = await fixture.fetch('/food.json', {
+				method: 'POST',
+				body: `not some data`,
+			});
+			assert.equal(response.status, 400);
+			assert.equal(response.statusText, 'not ok');
+			const text = await response.text();
+			assert.equal(text, 'not ok');
 		});
 
 		it('Can be passed binary data from multipart formdata', async () => {
