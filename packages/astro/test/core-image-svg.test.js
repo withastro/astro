@@ -118,6 +118,27 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal($svg.attr('width'), '16');
 					assert.equal(!!$svg.attr('size'), false);
 				});
+				it('has unchanged width - size set', () => {
+					let $svg = $('#ignore-size-for-width svg');
+					assert.equal($svg.length, 1);
+					assert.equal($svg.attr('height'), '1em');
+					assert.equal($svg.attr('width'), '24');
+					assert.equal(!!$svg.attr('size'), false);
+				});
+				it('has unchanged height - size set', () => {
+					let $svg = $('#ignore-size-for-height svg');
+					assert.equal($svg.length, 1);
+					assert.equal($svg.attr('height'), '24');
+					assert.equal($svg.attr('width'), '1em');
+					assert.equal(!!$svg.attr('size'), false);
+				});
+				it('has unchanged height and with - size set', () => {
+					let $svg = $('#ignore-size svg');
+					assert.equal($svg.length, 1);
+					assert.equal($svg.attr('height'), '24');
+					assert.equal($svg.attr('width'), '24');
+					assert.equal(!!$svg.attr('size'), false);
+				});
 			});
 			describe('inline', () => {
 				let $;
