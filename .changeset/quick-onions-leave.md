@@ -16,7 +16,7 @@ In order to achieve backwards compatibility with existing `content` collections,
 - A `render()` method is added to the entry, so they can be called using `entry.render()`
 - `getEntryBySlug` is supported
 
-Legacy data collections are handled like this:
+In order to achieve backwards compatibility with existing `data` collections, the following have been implemented:
 
 - a `glob` loader collection is defined, with patterns that match the previous handling (matches `src/content/<collection name>/**/*{.json,.yaml}` and other data extensions, with underscore-prefixed files and folders ignored)
 - Entries have an ID that is not slugified
@@ -24,10 +24,24 @@ Legacy data collections are handled like this:
 
 While this backwards compatibility implementation is able to emulate most of the features of legacy collections, there are some differences and limitations that may cause breaking changes to existing collections:
 
-- Implicit collections for folders in `src/content` are only defined if no other collections use content layer. If no content layer collections are defined, and there are folders in `src/content` that don't match collections in `src/content/config.ts` then collections will be auto-generated for them. This is not recommended, and a warning will be logged that this is deprecated. A collection should always be defined in `config.ts`. For legacy collections these can just be empty declarations: e.g.`const blog = defineCollection({})`. 
+- In previous versions of Astro, collexctions would be generated for all folders in `src/content`, even if they were not defined in `src/content/config.ts`. This behavior is now deprecated, and collections should always be defined in `src/content/config.ts`. For existing collections, these can just be empty declarations: e.g.`const blog = defineCollection({})`. To make it easier to migrate, for now Astro will still generate collections for folders without config, but *only* if no other collections use the new `loader()` syntax. A warning will be logged if this fallback behavior is used, and it will be removed in a future version.
 - The special `layout` field is not supported in Markdown collection entries. This property is intended only for standalone page files located in `src/pages/` and not likely to be in your collection entries. However, if you were using this property, you must now create dynamic routes that include your page styling.
-- Sort order of generated collections is non-deterministic and platform-dependent.
-- `image().refine()` is not supported
-- the key for `getEntry` is typed as `string`, rather than having types for every entry.
+- Sort order of generated collections is non-deterministic and platform-dependent. This means that if you are calling `getCollection`, the order in which they are returned may be different than before. If you need a specific order, you should sort the collection entries yourself.
+- `image().refine()` is not supported. If you need to validate the properties of an image you will need to do this at runtime in your page or component.
+- the `key` argument of `getEntry(collection, key)` is typed as `string`, rather than having types for every entry.
 
-A new config flag `legacy.collections` is added for users that need the old behavior. When set, collections in `src/content` are processed in the same way as before rather than being implemented with glob - including implicit collections. When set, content layer collections are forbidden in `src/content`, and will fail a build if defined.
+A new legacy configuration flag `legacy.collections` is added for users that want to keep their current legacy (content and data) collections behavior (available in Astro v2 - v4), or who are not yet ready to update their projects:
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  legacy: {
+    collections: true
+  }
+});
+```
+
+When set, no changes to your existing collections are necessary, and the restrictions on storing both new and old collections continue to exist: legacy collections (only) must continue to remain in `src/content/`, while new collections using a loader from the Content Layer API are forbidden in that folder.
+
