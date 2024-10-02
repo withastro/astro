@@ -18,7 +18,7 @@ function dropAttributes(attributes: SvgAttributes) {
 }
 
 export function normalizeProps(attributes: SvgAttributes, { size, ...props }: SvgAttributes) {
-	if (size) {
+	if (size !== undefined && props.width === undefined && props.height === undefined) {
 		props.height = size;
 		props.width = size;
 	}
