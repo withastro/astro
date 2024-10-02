@@ -237,6 +237,11 @@ describe('astro:assets - SVG Components', () => {
 					const $use = $svg.find('use')
 					assert.equal($use.length, 1);
 				});
+				it('allows overriding the role attribute', () => {
+					let $svg = $('#role svg');
+					assert.equal($svg.length, 1);
+					assert.equal($svg.attr('role'), 'presentation');
+				});
 			});
 		});
 
