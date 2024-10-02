@@ -383,7 +383,7 @@ async function cleanServerOutput(
 			}),
 		);
 
-		removeEmptyDirs(out);
+		removeEmptyDirs(fileURLToPath(out));
 	}
 
 	// Clean out directly if the outDir is outside of root
@@ -447,7 +447,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 				return fs.promises.rename(currentUrl, clientUrl);
 			}),
 		);
-		removeEmptyDirs(serverAssets);
+		removeEmptyDirs(fileURLToPath(serverAssets));
 	}
 }
 
