@@ -5,7 +5,7 @@
 `params` passed in `getStaticPaths` are no longer automatically decoded.
 
 ### [changed]: `params` aren't decoded anymore.
-In Astro v4.x, `params` in ` were automatically decoded using `decodeURIComponent`. 
+In Astro v4.x, `params` in were automatically decoded using `decodeURIComponent`. 
 
 Astro v5.0 doesn't automatically decode `params` in `getStaticPaths` anymore, so you'll need to manually decode them yourself if needed
 
