@@ -23,6 +23,7 @@ export default (element) => {
 		}
 
 		const bootstrap = client !== 'only' ? hydrate : mount;
+		let component = null;
 		if (existingApplications.has(element)) {
 			existingApplications.get(element).$set({
 				...props,
@@ -30,7 +31,7 @@ export default (element) => {
 				$$slots,
 			});
 		} else {
-			const component = bootstrap(Component, {
+			component = bootstrap(Component, {
 				target: element,
 				props: {
 					...props,
@@ -41,6 +42,6 @@ export default (element) => {
 			existingApplications.set(element, component);
 		}
 
-		element.addEventListener('astro:unmount', () => unmount(component), { once: true });
+		element.addEventListener('astro:unmount', () => component && unmount(component), { once: true });
 	};
 };
