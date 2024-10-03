@@ -317,5 +317,12 @@ describe('Content Layer', () => {
 			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
 			await fixture.resetAllFiles();
 		});
+
+		it('returns an error if we render an undefined entry', async () => {
+			const res = await fixture.fetch('/missing');
+			const text = await res.text();
+			assert.equal(res.status, 500);
+			assert.ok(text.includes('RenderUndefinedEntryError'));
+		});
 	});
 });
