@@ -14,14 +14,58 @@ on:
       - main
       - next
 
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   # Allow auto-branch-sync-action to git push
   contents: write
 
 jobs:
-  sync:
+  check_for_update:
     # Only allow running on `main` and `next` branch to prevent accidental sync overridding
-    if: ${{ github.repository_owner == 'withastro' && github.ref == 'refs/heads/main' || github.ref == 'refs/heads/next' }}
+    if: ${{ github.repository_owner == 'withastro' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/next') }}
+    name: Check for Updates
+    runs-on: ubuntu-latest
+    outputs:
+      run_job: ${{ steps.check_files.outputs.run_job }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Check Modified
+        run: pnpm exec changeset status --output ./status.json
+
+      - name: Check Output
+        id: check_files
+        run: |
+          output=`echo $(cat status.json)`
+          if [[ $output = '{ "changesets": [], "releases": [] }' ]]
+          then
+            echo 'No changeset found'
+            echo "run_job=true" >> $GITHUB_OUTPUT
+          else
+            echo 'changes found, push to latest skipped'
+            echo "run_job=false" >> $GITHUB_OUTPUT
+          fi
+
+  sync:
+    needs: check_for_update
+    if: needs.check_for_update.outputs.run_job == 'true'
+    name: Sync branches
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
