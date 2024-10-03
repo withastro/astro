@@ -137,23 +137,29 @@ describe('API routes in SSR', () => {
 			assert.equal(count, 2, 'Found two separate set-cookie response headers');
 		});
 
+		it('can return an immutable response object', async () => {
+			const response = await fixture.fetch('/fail');
+			const text = await response.text();
+			assert.equal(response.status, 500);
+			assert.equal(text, '');
+		});
+
 		it('Has valid api context', async () => {
 			const response = await fixture.fetch('/context/any');
 			assert.equal(response.status, 200);
 			const data = await response.json();
-			assert.equal(data.cookiesExist, true);
-			assert.equal(data.requestExist, true);
-			assert.equal(data.redirectExist, true);
-			assert.equal(data.propsExist, true);
+			assert.ok(data.cookiesExist);
+			assert.ok(data.requestExist);
+			assert.ok(data.redirectExist);
+			assert.ok(data.propsExist);
 			assert.deepEqual(data.params, { param: 'any' });
 			assert.match(data.generator, /^Astro v/);
-			assert.equal(
+			assert.ok(
 				['http://[::1]:4321/blog/context/any', 'http://127.0.0.1:4321/blog/context/any'].includes(
 					data.url,
 				),
-				true,
 			);
-			assert.equal(['::1', '127.0.0.1'].includes(data.clientAddress), true);
+			assert.ok(['::1', '127.0.0.1'].includes(data.clientAddress));
 			assert.equal(data.site, 'https://mysite.dev/subsite/');
 		});
 	});
