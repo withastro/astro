@@ -21,13 +21,14 @@ export default (element) =>
 
 		// keep a reference to the app, props and slots so we can update a running instance later
 		let appInstance = appMap.get(element);
+		let app = appInstance;
 
 		if (!appInstance) {
 			appInstance = {
 				props,
 				slots,
 			};
-			const app = bootstrap({
+			app = bootstrap({
 				name,
 				render() {
 					let content = h(Component, appInstance.props, appInstance.slots);
