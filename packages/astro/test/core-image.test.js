@@ -1284,9 +1284,9 @@ describe('astro:image', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			const src1 = $('#data-url img').attr('src');
-			assert.equal(basename(src1.length) < 32, true);
+			assert.equal(basename(src1).length < 32, true);
 			const src2 = $('#data-url-no-size img').attr('src');
-			assert.equal(basename(src2.length) < 32, true);
+			assert.equal(basename(src2).length < 32, true);
 			assert.equal(src1.split('_')[0], src2.split('_')[0]);
 		});
 
