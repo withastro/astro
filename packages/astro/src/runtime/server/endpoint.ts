@@ -66,7 +66,7 @@ export async function renderEndpoint(
 			// This is the case if, for example, the user directly returns a `fetch` response
 			// There's no clean way to check if the headers are immutable, so we just catch the error
 			// Note that response.clone() still has immutable headers!
-			if((err as Error).message?.includes('immutable')) {
+			if ((err as Error).message?.includes('immutable')) {
 				response = new Response(response.body, response);
 				response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 			} else {
