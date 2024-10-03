@@ -1,8 +1,8 @@
 import { setup } from 'virtual:@astrojs/vue/app';
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
-import StaticHtml from './static-html.js';
 import { incrementId } from './context.js';
+import StaticHtml from './static-html.js';
 
 function check(Component) {
 	return !!Component['ssrRender'] || !!Component['__ssrInlineRender'];
