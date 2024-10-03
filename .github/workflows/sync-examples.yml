@@ -1,0 +1,65 @@
+name: Sync examples
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip-unchanged-check:
+        type: boolean
+        default: false
+      dry-run:
+        type: boolean
+        default: false
+  push:
+    branches:
+      - main
+      - next
+
+permissions:
+  # Allow auto-branch-sync-action to git push
+  contents: write
+
+jobs:
+  sync:
+    # Only allow running on `main` and `next` branch to prevent accidental sync overridding
+    if: ${{ github.repository_owner == 'withastro' && github.ref == 'refs/heads/main' || github.ref == 'refs/heads/next' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # fetch 2 to compare with previous commit for changes
+
+      # Handle sync from `main` branch to `latest` branch
+      - if: github.ref == 'refs/heads/main'
+        uses: bluwy/auto-branch-sync-action@v1
+        with:
+          map: / -> latest
+          skip-unchanged-check: ${{ inputs.skip-unchanged-check == true }}
+          dry-run: ${{ inputs.dry-run == true }}
+
+      # Check ./changeset/pre.json for matching "tag": "*"
+      - if: github.ref == 'refs/heads/next'
+        id: check-pre-mode
+        run: |
+          if [ -f ./.changeset/pre.json ]; then
+            if grep -q '"tag": "alpha"' ./.changeset/pre.json; then
+              echo "alpha=true" >> $GITHUB_OUTPUT
+            elif grep -q '"tag": "beta"' ./.changeset/pre.json; then
+              echo "beta=true" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      # Handle sync from `next` branch to `alpha` branch
+      - if: steps.check-pre-mode.outputs.alpha == 'true'
+        uses: bluwy/auto-branch-sync-action@v1
+        with:
+          map: / -> alpha
+          skip-unchanged-check: ${{ inputs.skip-unchanged-check == true }}
+          dry-run: ${{ inputs.dry-run == true }}
+
+      # Handle sync from `next` branch to `beta` branch
+      - if: steps.check-pre-mode.outputs.beta == 'true'
+        uses: bluwy/auto-branch-sync-action@v1
+        with:
+          map: / -> beta
+          skip-unchanged-check: ${{ inputs.skip-unchanged-check == true }}
+          dry-run: ${{ inputs.dry-run == true }}
