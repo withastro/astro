@@ -232,9 +232,22 @@ export type PromiseWithResolvers<T> = {
 	reject: (reason?: any) => void;
 };
 
-// This is an implementation of Promise.withResolvers(), which we can't yet rely on.
-// We can remove this once the native function is available in Node.js
+interface PromiseConstructorWithResolvers<T> extends PromiseConstructor {
+	withResolvers: () => PromiseWithResolvers<T>;
+}
+
+function hasWithResolvers<T>(
+	promiseConstructor: PromiseConstructor | PromiseConstructorWithResolvers<T>,
+): promiseConstructor is PromiseConstructorWithResolvers<T> {
+	return 'withResolvers' in promiseConstructor;
+}
+
+// This is an implementation of Promise.withResolvers(), which was added in Node v22
+// We can remove this once we drop support for Node <22.0.0
 export function promiseWithResolvers<T = any>(): PromiseWithResolvers<T> {
+	if (hasWithResolvers<T>(Promise)) {
+		return Promise.withResolvers();
+	}
 	let resolve: any, reject: any;
 	const promise = new Promise<T>((_resolve, _reject) => {
 		resolve = _resolve;

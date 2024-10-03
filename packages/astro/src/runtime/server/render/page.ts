@@ -7,6 +7,28 @@ import { renderToAsyncIterable, renderToReadableStream, renderToString } from '.
 import { encoder } from './common.js';
 import { isDeno, isNode } from './util.js';
 
+function readableStreamFromAsyncIterable(
+	asyncIterable: AsyncIterable<Uint8Array>,
+) {
+	const iterator = asyncIterable[Symbol.asyncIterator]();
+	return new ReadableStream(
+		{
+			async pull(controller) {
+				try {
+					const { value, done } = await iterator.next();
+					if (done) {
+						controller.close();
+					} else {
+						controller.enqueue(value);
+					}
+				} catch (err) {
+					controller.error(err);
+				}
+			}
+		},
+	);
+}
+
 export async function renderPage(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory | NonAstroPageComponent,
@@ -59,9 +81,7 @@ export async function renderPage(
 				true,
 				route,
 			);
-			// Node.js allows passing in an AsyncIterable to the Response constructor.
-			// This is non-standard so using `any` here to preserve types everywhere else.
-			body = nodeBody as any;
+			body = nodeBody instanceof Response ? nodeBody : readableStreamFromAsyncIterable(nodeBody);
 		} else {
 			body = await renderToReadableStream(result, componentFactory, props, children, true, route);
 		}

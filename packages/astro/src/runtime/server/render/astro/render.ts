@@ -125,7 +125,7 @@ export async function renderToReadableStream(
 					}
 
 					// Queue error on next microtask to flush the remaining chunks written synchronously
-					setTimeout(() => controller.error(e), 0);
+					queueMicrotask(() => controller.error(e));
 				}
 			})();
 		},
@@ -229,8 +229,11 @@ export async function renderToAsyncIterable(
 	// The `next` is an object `{ promise, resolve, reject }` that we use to wait
 	// for chunks to be pushed into the buffer.
 	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
-	const buffer: Uint8Array[] = []; // []Uint8Array
+	const buffer: Uint8Array[] = [];
 	let renderingComplete = false;
+
+	const BATCH_SIZE = 1024 * 1;
+	let currentBatchSize = 0;
 
 	const iterator: AsyncIterator<Uint8Array> = {
 		async next() {
@@ -271,8 +274,9 @@ export async function renderToAsyncIterable(
 				offset += item.length;
 			}
 
-			// Empty the array. We do this so that we can reuse the same array.
+			// Empty the buffer and reset the batch size
 			buffer.length = 0;
+			currentBatchSize = 0; // **Reset batch size after sending**
 
 			const returnValue = {
 				// The iterator is done when rendering has finished
@@ -297,7 +301,9 @@ export async function renderToAsyncIterable(
 				renderedFirstPageChunk = true;
 				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
 					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
-					buffer.push(encoder.encode(doctype));
+					const doctypeBytes = encoder.encode(doctype);
+					buffer.push(doctypeBytes);
+					currentBatchSize += doctypeBytes.length; 
 				}
 			}
 			if (chunk instanceof Response) {
@@ -310,7 +316,13 @@ export async function renderToAsyncIterable(
 				// Push the chunks into the buffer and resolve the promise so that next()
 				// will run.
 				buffer.push(bytes);
-				next?.resolve();
+				currentBatchSize += bytes.length;
+
+				// Check if batch size threshold is reached
+				if (currentBatchSize >= BATCH_SIZE) {
+					next?.resolve();
+					// Note: Do not reset currentBatchSize here; it will be reset in `next()`
+				}
 			} else if (buffer.length > 0) {
 				next?.resolve();
 			}
