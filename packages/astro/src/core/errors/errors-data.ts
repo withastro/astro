@@ -1413,6 +1413,17 @@ export const UnknownContentCollectionError = {
 /**
  * @docs
  * @description
+ * Astro tried to render a content collection entry that was undefined. This can happen if you try to render an entry that does not exist.
+ */
+export const RenderUndefinedEntryError = {
+	name: 'RenderUndefinedEntryError',
+	title: 'Attempted to render an undefined content collection entry.',
+	hint: 'Check if the entry is undefined before passing it to `render()`',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * The `getDataEntryById` and `getEntryBySlug` functions are deprecated and cannot be used with content layer collections. Use the `getEntry` function instead.
  */
 export const GetEntryDeprecationError = {
