@@ -46,6 +46,7 @@ export async function getLanguageServer(): Promise<LanguageServer> {
 				workspace: {
 					// Needed for tests that use didChangeWatchedFiles
 					didChangeWatchedFiles: {},
+					configuration: true,
 				},
 			},
 		);

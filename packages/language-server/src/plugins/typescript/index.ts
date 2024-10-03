@@ -16,6 +16,18 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin[]
 					const typeScriptPlugin = plugin.create(context);
 					return {
 						...typeScriptPlugin,
+						async provideFileRenameEdits(oldUri, newUri, token) {
+							const astroConfig = await context.env.getConfiguration?.<{
+								updateImportsOnFileMove: { enabled: boolean };
+							}>('astro');
+
+							// Check for `false` explicitly, as the default value is `true`, but it might not be set explicitly depending on the editor
+							if (astroConfig?.updateImportsOnFileMove.enabled === false) {
+								return null;
+							}
+
+							return typeScriptPlugin.provideFileRenameEdits!(oldUri, newUri, token);
+						},
 						async provideCompletionItems(document, position, completionContext, token) {
 							const originalCompletions = await typeScriptPlugin.provideCompletionItems!(
 								document,

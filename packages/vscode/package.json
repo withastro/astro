@@ -154,6 +154,12 @@
           "type": "boolean",
           "default": false,
           "description": "Enable experimental support for content collection intellisense inside Markdown, MDX and Markdoc. Note that this require also enabling the feature in your Astro config (experimental.contentCollectionIntellisense) (Astro 4.14+)"
+        },
+        "astro.updateImportsOnFileMove.enabled": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": false,
+          "description": "Controls whether the extension updates imports when a file is moved to a new location. In most cases, you'll want to keep this disabled as TypeScript and the Astro TypeScript plugin already handles this for you. Having multiple tools updating imports at the same time can lead to corrupted files."
         }
       }
     },
