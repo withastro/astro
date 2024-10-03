@@ -73,23 +73,39 @@ const projects = (await getCollection('work'))
 		<main class="wrapper stack">
 			<section class="section with-background with-cta">
 				<header class="section-header">
-					<h3>No events at the moment</h3>
+					<h3>Upcoming Events</h3>
 					
 				</header>
+		
 
 				
 			</section>
-			<section class="box skills">
-			<div class="stack gap-2 lg:gap-4">
+			<div class="event-box">
+				<div class="event-content">
 					
+					<div class="event-image">
+						<img src="/assets/placeholder-image.jpg" alt="Event Image">
+					</div>
+					<div class="event-details">
+						<div class="event-meta">
+							<span class="event-date-location">Date | Location</span>
+						</div>
+						<h2 class="event-title">Name of Event</h2>
+						<p class="event-description">Description of the event goes here. It provides details about what to expect at the event, its significance, and any other relevant information.</p>
+						<a href="/rsvp" class="rsvp-button">Sign Up</a>
+					</div>
+				</div>
+			</div>
+			
+			<div class="contact-us-section stack gap-2 lg:gap-4">
 				<h3>CONTACT US</h3>
 				<p>
 					<a href="/contact" class="mention-link">Have any questions? Get in contact with us here!</a>
 				</p>
-				
 			</div>
+			
+
 		
-		</section>
 			
 		</main>
 
@@ -104,6 +120,89 @@ const projects = (await getCollection('work'))
 		align-items: center;
 		gap: 2rem;
 	}
+
+	.contact-us-section {
+    margin-top: 5rem; /* Adjust this value to increase or decrease the space */
+}
+
+	.event-box {
+		border: 1px solid var(--gray-800);
+		border-radius: 0.75rem;
+		padding: 1.5rem;
+		background-color: var(--gray-999_40);
+		box-shadow: var(--shadow-sm);
+		width:50%;
+		
+		
+		
+}
+
+.event-content {
+    display: flex;
+    width: 100%;
+}
+
+.event-image {
+    flex: 1;
+    overflow: hidden;
+}
+
+.event-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.event-details {
+    flex: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    text-align: center; /* Center text within container */
+}
+
+.event-meta {
+    font-size: var(--text-md);
+    color: var(--gray-500);
+    margin-bottom: 0.5rem;
+}
+
+.event-title {
+    font-size: var(--text-xl);
+    color: var(--text-color);
+    margin: 0.5rem 0; /* Added margin for spacing */
+}
+
+.event-description {
+    font-size: var(--text-sm);
+    color: var(--gray-500);
+    margin: 1rem 0;
+}
+
+.rsvp-button {
+	position: relative;
+		display: flex;
+		place-content: center;
+		text-align: center;
+		padding: 0.56em 2em;
+		gap: 0.8em;
+		color: var(--accent-text-over);
+		text-decoration: none;
+		line-height: 1.1;
+		border-radius: 999rem;
+		overflow: hidden;
+		background: var(--gradient-accent-orange);
+		box-shadow: var(--shadow-md);
+		white-space: nowrap;
+}
+
+.rsvp-button:hover {
+    background-color: var(--button-bg-hover);
+}
+
+
 	.box {
 		border: 1px solid var(--gray-800);
 		border-radius: 0.75rem;
@@ -209,7 +308,7 @@ const projects = (await getCollection('work'))
 		.section {
 			grid-template-columns: repeat(4, 1fr);
 			grid-template-areas: 'header header header header' 'gallery gallery gallery gallery';
-			gap: 5rem;
+			/* gap: 5rem; */
 		}
 
 		.section.with-cta {
@@ -231,6 +330,7 @@ const projects = (await getCollection('work'))
 		}
 
 		.gallery {
+			
 			grid-area: gallery;
 		}
 
