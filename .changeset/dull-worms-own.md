@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-use shorthash for data url image output filename to prevent ENAMETOOLONG when optimizing images
+Fixes a bug where [data URL images](https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data) were not correctly handled. The bug resulted in an `ENAMETOOLONG` error.
