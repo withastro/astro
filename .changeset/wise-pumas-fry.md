@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Throw a helpful error if attempting to render undefined entry
+Adds a helpful error when attempting to render an undefined collection entry
