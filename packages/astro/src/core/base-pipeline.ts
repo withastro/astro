@@ -109,7 +109,10 @@ export abstract class Pipeline {
 	async getMiddleware(): Promise<MiddlewareHandler> {
 		if (this.resolvedMiddleware) {
 			return this.resolvedMiddleware;
-		} else {
+		}
+		// The middleware can be undefined when using edge middleware.
+		// This is set to undefined by the plugin-ssr.ts 
+		else if (this.middleware) {
 			const middlewareInstance = await this.middleware();
 			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
 			if (this.manifest.checkOrigin) {
@@ -118,6 +121,9 @@ export abstract class Pipeline {
 				this.resolvedMiddleware = onRequest;
 			}
 			return this.resolvedMiddleware;
+		} else {
+			this.resolvedMiddleware = NOOP_MIDDLEWARE_FN;
+			return this.resolvedMiddleware
 		}
 	}
 }
