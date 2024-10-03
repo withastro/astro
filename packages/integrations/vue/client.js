@@ -40,6 +40,7 @@ export default (element) =>
 					return content;
 				},
 			});
+			app.config.idPrefix = element.getAttribute('prefix');
 			await setup(app);
 			app.mount(element, isHydrate);
 			appMap.set(element, appInstance);

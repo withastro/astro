@@ -30,4 +30,13 @@ describe('Basics', () => {
 		assert.notEqual(img, undefined);
 		assert.equal(img.getAttribute('src'), '/light_walrus.avif');
 	});
+
+	it('Should generate unique ids when using useId()', async () => {
+		const data = await fixture.readFile('/index.html');
+		const { document } = parseHTML(data);
+
+		const els = document.querySelectorAll('.vue-use-id');
+		assert.equal(els.length, 2);
+		assert.notEqual(els[0].getAttribute('id'), els[1].getAttribute('id'));
+	});
 });
