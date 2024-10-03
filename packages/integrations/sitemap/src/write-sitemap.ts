@@ -12,6 +12,7 @@ import type { SitemapItem } from './index.js';
 
 type WriteSitemapConfig = {
 	hostname: string;
+	separator: string;
 	sitemapHostname?: string;
 	sourceData: SitemapItem[];
 	destinationDir: string;
@@ -28,6 +29,7 @@ export async function writeSitemap(
 		destinationDir,
 		limit = 50000,
 		publicBasePath = './',
+		separator,
 	}: WriteSitemapConfig,
 	astroConfig: AstroConfig,
 ) {
@@ -39,7 +41,7 @@ export async function writeSitemap(
 			const sitemapStream = new SitemapStream({
 				hostname,
 			});
-			const path = `./sitemap-${i}.xml`;
+			const path = `./sitemap${separator}${i}.xml`;
 			const writePath = resolve(destinationDir, path);
 			if (!publicBasePath.endsWith('/')) {
 				publicBasePath += '/';
@@ -64,6 +66,6 @@ export async function writeSitemap(
 	});
 
 	let src = Readable.from(sourceData);
-	const indexPath = resolve(destinationDir, `./sitemap-index.xml`);
+	const indexPath = resolve(destinationDir, `./sitemap${separator}index.xml`);
 	return promisify(pipeline)(src, sitemapAndIndexStream, createWriteStream(indexPath));
 }
