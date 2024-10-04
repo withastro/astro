@@ -2716,6 +2716,9 @@ importers:
 
   packages/astro/test/fixtures/core-image-svg:
     dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
       astro:
         specifier: workspace:*
         version: link:../../..
