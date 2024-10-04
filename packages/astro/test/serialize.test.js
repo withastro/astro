@@ -93,7 +93,7 @@ describe('serialize', () => {
 		const input = { a: Infinity, b: -Infinity };
 		const output = `{"a":[11,1],"b":[11,-1]}`;
 		assert.equal(serializeProps(input), output);
-	})
+	});
 	it('cannot serialize a cyclic reference', () => {
 		const a = {};
 		a.b = a;
