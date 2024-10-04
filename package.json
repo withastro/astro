@@ -69,9 +69,14 @@
     "typescript-eslint": "^8.7.0"
   },
   "pnpm": {
+    "overrides": {
+      "vitest>vite": "6.0.0-beta.2",
+      "vite-node>vite": "6.0.0-beta.2"
+    },
     "peerDependencyRules": {
       "allowAny": [
-        "astro"
+        "astro",
+        "vite"
       ]
     }
   }
