@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { stripVTControlCharacters } from 'node:util';
 import { execa } from 'execa';
 import fastGlob from 'fast-glob';
-import stripAnsi from 'strip-ansi';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/content-layer.js';
@@ -344,8 +344,8 @@ export async function parseCliDevStart(proc) {
 	}
 
 	proc.kill();
-	stdout = stripAnsi(stdout);
-	stderr = stripAnsi(stderr);
+	stdout = stripVTControlCharacters(stdout);
+	stderr = stripVTControlCharacters(stderr);
 
 	if (stderr) {
 		throw new Error(stderr);

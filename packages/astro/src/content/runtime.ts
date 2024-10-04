@@ -467,7 +467,11 @@ export async function renderEntry(
 		| { render: () => Promise<{ Content: AstroComponentFactory }> }
 		| (DataEntry & { render: () => Promise<{ Content: AstroComponentFactory }> }),
 ) {
-	if (entry && 'render' in entry && !('legacyId' in entry)) {
+	if (!entry) {
+		throw new AstroError(AstroErrorData.RenderUndefinedEntryError);
+	}
+
+	if ('render' in entry && !('legacyId' in entry)) {
 		// This is an old content collection entry, so we use its render method
 		return entry.render();
 	}

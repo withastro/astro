@@ -1298,4 +1298,56 @@ describe('astro:image', () => {
 			await devServer.stop();
 		});
 	});
+	describe('build data url', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-data-url/',
+				image: {
+					remotePatterns: [
+						{
+							protocol: 'data',
+						},
+					],
+				},
+			});
+
+			await fixture.build();
+		});
+
+		it('uses short hash for data url filename', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src1 = $('#data-url img').attr('src');
+			assert.equal(basename(src1).length < 32, true);
+			const src2 = $('#data-url-no-size img').attr('src');
+			assert.equal(basename(src2).length < 32, true);
+			assert.equal(src1.split('_')[0], src2.split('_')[0]);
+		});
+
+		it('adds file extension for data url images', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#data-url img').attr('src');
+			assert.equal(src.endsWith('.webp'), true);
+		});
+
+		it('writes data url images to dist', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#data-url img').attr('src');
+			assert.equal(src.length > 0, true);
+			const data = await fixture.readFile(src, null);
+			assert.equal(data instanceof Buffer, true);
+		});
+
+		it('infers size of data url images', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const img = $('#data-url-no-size img');
+			const width = img.attr('width');
+			const height = img.attr('height');
+			assert.equal(width, '256');
+			assert.equal(height, '144');
+		});
+	});
 });
