@@ -13,6 +13,7 @@ const PROP_TYPE = {
 	Uint8Array: 8,
 	Uint16Array: 9,
 	Uint32Array: 10,
+	Infinity: 11,
 };
 
 function serializeArray(
@@ -93,11 +94,17 @@ function convertToSerializedForm(
 		default: {
 			if (value !== null && typeof value === 'object') {
 				return [PROP_TYPE.Value, serializeObject(value, metadata, parents)];
-			} else if (value === undefined) {
-				return [PROP_TYPE.Value];
-			} else {
-				return [PROP_TYPE.Value, value];
 			}
+			if (value === Infinity) {
+				return [PROP_TYPE.Infinity, 1];
+			}
+			if (value === -Infinity) {
+				return [PROP_TYPE.Infinity, -1];
+			}
+			if (value === undefined) {
+				return [PROP_TYPE.Value];
+			}
+			return [PROP_TYPE.Value, value];
 		}
 	}
 }

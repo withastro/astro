@@ -1,8 +1,8 @@
 import { exec } from 'node:child_process';
+import { stripVTControlCharacters } from 'node:util';
 /* eslint no-console: 'off' */
 import { color, say as houston, label, spinner as load } from '@astrojs/cli-kit';
 import { align, sleep } from '@astrojs/cli-kit/utils';
-import stripAnsi from 'strip-ansi';
 import { shell } from './shell.js';
 
 // Users might lack access to the global npm registry, this function
@@ -122,7 +122,7 @@ export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string; de
 			`\n${prefix}Enter your project directory using`,
 			color.cyan(`cd ${projectDir}`, ''),
 		];
-		const len = enter[0].length + stripAnsi(enter[1]).length;
+		const len = enter[0].length + stripVTControlCharacters(enter[1]).length;
 		log(enter.join(len > max ? '\n' + prefix : ' '));
 	}
 	log(
