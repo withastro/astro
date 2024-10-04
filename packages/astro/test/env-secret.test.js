@@ -3,6 +3,7 @@ import { afterEach, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
+import { ENV_SYMBOL } from '../dist/env/setup.js';
 
 describe('astro:env secret variables', () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
@@ -12,13 +13,14 @@ describe('astro:env secret variables', () => {
 
 	afterEach(async () => {
 		await devServer?.stop();
-		if (process.env.KNOWN_SECRET) {
-			delete process.env.KNOWN_SECRET;
+		if (globalThis[ENV_SYMBOL]?.KNOWN_SECRET) {
+			delete globalThis[ENV_SYMBOL].KNOWN_SECRET;
 		}
 	});
 
 	it('works in dev', async () => {
-		process.env.KNOWN_SECRET = '5';
+		globalThis[ENV_SYMBOL] ??= {};
+		globalThis[ENV_SYMBOL].KNOWN_SECRET = '5';
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
 		});
