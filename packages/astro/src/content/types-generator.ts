@@ -501,7 +501,10 @@ async function writeContentFiles({
 				contentTypesStr += `};\n`;
 				break;
 			case CONTENT_LAYER_TYPE:
-				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n  body?: string \n}>;\n`;
+				const legacyTypes = (collectionConfig as any)?._legacy
+					? 'render(): Render[".md"];\n  slug: string;\n  body: string;\n'
+					: 'body?: string;\n';
+				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  ${legacyTypes}  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n}>;\n`;
 				break;
 			case 'data':
 				if (collectionEntryKeys.length === 0) {

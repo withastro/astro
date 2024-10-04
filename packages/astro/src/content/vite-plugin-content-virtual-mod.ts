@@ -6,7 +6,6 @@ import glob from 'fast-glob';
 import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { appendForwardSlash } from '../core/path.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
@@ -38,6 +37,7 @@ import {
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,
+	globWithUnderscoresIgnored,
 	isDeferredModule,
 } from './utils.js';
 
@@ -98,10 +98,12 @@ export function astroContentVirtualModPlugin({
 		},
 		async load(id, args) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				const lookupMap = await generateLookupMap({
-					settings,
-					fs,
-				});
+				const lookupMap = settings.config.legacy.collections
+					? await generateLookupMap({
+							settings,
+							fs,
+						})
+					: {};
 				const isClient = !args?.ssr;
 				const code = await generateContentEntryFile({
 					settings,
@@ -201,26 +203,28 @@ export async function generateContentEntryFile({
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
 
-	let contentEntryGlobResult: string;
-	let dataEntryGlobResult: string;
-	let renderEntryGlobResult: string;
-	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
-	const contentEntryExts = [...contentEntryConfigByExt.keys()];
-	const dataEntryExts = getDataEntryExts(settings);
-	const createGlob = (value: string[], flag: string) =>
-		`import.meta.glob(${JSON.stringify(value)}, { query: { ${flag}: true } })`;
-	contentEntryGlobResult = createGlob(
-		globWithUnderscoresIgnored(relContentDir, contentEntryExts),
-		CONTENT_FLAG,
-	);
-	dataEntryGlobResult = createGlob(
-		globWithUnderscoresIgnored(relContentDir, dataEntryExts),
-		DATA_FLAG,
-	);
-	renderEntryGlobResult = createGlob(
-		globWithUnderscoresIgnored(relContentDir, contentEntryExts),
-		CONTENT_RENDER_FLAG,
-	);
+	let contentEntryGlobResult = '""';
+	let dataEntryGlobResult = '""';
+	let renderEntryGlobResult = '""';
+	if (settings.config.legacy.collections) {
+		const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
+		const contentEntryExts = [...contentEntryConfigByExt.keys()];
+		const dataEntryExts = getDataEntryExts(settings);
+		const createGlob = (value: string[], flag: string) =>
+			`import.meta.glob(${JSON.stringify(value)}, { query: { ${flag}: true } })`;
+		contentEntryGlobResult = createGlob(
+			globWithUnderscoresIgnored(relContentDir, contentEntryExts),
+			CONTENT_FLAG,
+		);
+		dataEntryGlobResult = createGlob(
+			globWithUnderscoresIgnored(relContentDir, dataEntryExts),
+			DATA_FLAG,
+		);
+		renderEntryGlobResult = createGlob(
+			globWithUnderscoresIgnored(relContentDir, contentEntryExts),
+			CONTENT_RENDER_FLAG,
+		);
+	}
 
 	let virtualModContents: string;
 	if (isClient) {
@@ -352,16 +356,6 @@ export async function generateLookupMap({
 
 	await Promise.all(promises);
 	return lookupMap;
-}
-
-function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
-	const extGlob = getExtGlob(exts);
-	const contentDir = appendForwardSlash(relContentDir);
-	return [
-		`${contentDir}**/*${extGlob}`,
-		`!${contentDir}**/_*/**/*${extGlob}`,
-		`!${contentDir}**/_*${extGlob}`,
-	];
 }
 
 const UnexpectedLookupMapError = new AstroError({

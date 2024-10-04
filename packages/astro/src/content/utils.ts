@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
+import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -22,7 +23,9 @@ import {
 	IMAGE_IMPORT_PREFIX,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
+import { glob } from './loaders/glob.js';
 import { createImage } from './runtime-assets.js';
+import { green } from 'kleur/colors';
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
@@ -114,6 +117,8 @@ const collectionConfigParser = z.union([
 				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
 			}),
 		]),
+		/** deprecated */
+		_legacy: z.boolean().optional(),
 	}),
 ]);
 
@@ -162,7 +167,7 @@ export async function getEntryDataAndImages<
 	pluginContext?: PluginContext,
 ): Promise<{ data: TOutputData; imageImports: Array<string> }> {
 	let data: TOutputData;
-	if (collectionConfig.type === 'data' || collectionConfig.type === CONTENT_LAYER_TYPE) {
+	if (collectionConfig.type === 'data') {
 		data = entry.unvalidatedData as TOutputData;
 	} else {
 		const { slug, ...unvalidatedData } = entry.unvalidatedData;
@@ -536,6 +541,97 @@ async function loadContentConfig({
 	}
 }
 
+export async function autogenerateCollections({
+	config,
+	settings,
+	fs,
+}: {
+	config?: ContentConfig;
+	settings: AstroSettings;
+	fs: typeof fsMod;
+}): Promise<ContentConfig | undefined> {
+	if (settings.config.legacy.collections) {
+		return config;
+	}
+	const contentDir = new URL('./content/', settings.config.srcDir);
+
+	const collections: Record<string, CollectionConfig> = config?.collections ?? {};
+
+	const contentExts = getContentEntryExts(settings);
+	const dataExts = getDataEntryExts(settings);
+
+	const contentPattern = globWithUnderscoresIgnored('', contentExts);
+	const dataPattern = globWithUnderscoresIgnored('', dataExts);
+	let usesContentLayer = false;
+	for (const collectionName of Object.keys(collections)) {
+		if (collections[collectionName]?.type === 'content_layer') {
+			usesContentLayer = true;
+			// This is already a content layer, skip
+			continue;
+		}
+
+		const isDataCollection = collections[collectionName]?.type === 'data';
+		const base = new URL(`${collectionName}/`, contentDir);
+		// Only "content" collections need special legacy handling
+		const _legacy = !isDataCollection || undefined;
+		collections[collectionName] = {
+			...collections[collectionName],
+			type: 'content_layer',
+			_legacy,
+			loader: glob({
+				base,
+				pattern: isDataCollection ? dataPattern : contentPattern,
+				_legacy,
+				// Legacy data collections IDs aren't slugified
+				generateId: isDataCollection
+					? ({ entry }) =>
+							getDataEntryId({
+								entry: new URL(entry, base),
+								collection: collectionName,
+								contentDir,
+							})
+					: undefined,
+
+				// Zod weirdness has trouble with typing the args to the load function
+			}) as any,
+		};
+	}
+	if (!usesContentLayer) {
+		// If the user hasn't defined any collections using the content layer, we'll try and help out by checking for
+		// any orphaned folders in the content directory and creating collections for them.
+		const orphanedCollections = [];
+		for (const entry of await fs.promises.readdir(contentDir, { withFileTypes: true })) {
+			const collectionName = entry.name;
+			if (['_', '.'].includes(collectionName.at(0) ?? '')) {
+				continue;
+			}
+			if (entry.isDirectory() && !(collectionName in collections)) {
+				orphanedCollections.push(collectionName);
+				const base = new URL(`${collectionName}/`, contentDir);
+				collections[collectionName] = {
+					type: 'content_layer',
+					loader: glob({
+						base,
+						pattern: contentPattern,
+						_legacy: true,
+					}) as any,
+				};
+			}
+		}
+		if (orphanedCollections.length > 0) {
+			console.warn(
+				`
+Auto-generating collections for folders in "src/content/" that are not defined as collections.
+This is deprecated, so you should define these collections yourself in "src/content/config.ts".
+The following collections have been auto-generated: ${orphanedCollections
+					.map((name) => green(name))
+					.join(', ')}\n`,
+			);
+		}
+	}
+	return { ...config, collections };
+}
+
 export async function reloadContentConfigObserver({
 	observer = globalContentConfigObserver,
 	...loadContentConfigOpts
@@ -547,7 +643,13 @@ export async function reloadContentConfigObserver({
 }) {
 	observer.set({ status: 'loading' });
 	try {
-		const config = await loadContentConfig(loadContentConfigOpts);
+		let config = await loadContentConfig(loadContentConfigOpts);
+
+		config = await autogenerateCollections({
+			config,
+			...loadContentConfigOpts,
+		});
+
 		if (config) {
 			observer.set({ status: 'loaded', config });
 		} else {
@@ -683,6 +785,16 @@ export function hasAssetPropagationFlag(id: string): boolean {
 	} catch {
 		return false;
 	}
+}
+
+export function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
+	const extGlob = getExtGlob(exts);
+	const contentDir = relContentDir.length > 0 ? appendForwardSlash(relContentDir) : relContentDir;
+	return [
+		`${contentDir}**/*${extGlob}`,
+		`!${contentDir}**/_*/**/*${extGlob}`,
+		`!${contentDir}**/_*${extGlob}`,
+	];
 }
 
 /**
