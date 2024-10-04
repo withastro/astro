@@ -40,6 +40,7 @@ import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { isObject } from './util.js';
+import { astroTypedLinks } from '../typed-links/vite-plugin-typed-links.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -166,6 +167,7 @@ export async function createVite(
 			vitePluginUserActions({ settings }),
 			vitePluginServerIslands({ settings }),
 			astroContainer(),
+			astroTypedLinks({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
