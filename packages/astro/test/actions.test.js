@@ -131,7 +131,7 @@ describe('Astro Actions', () => {
 				const data = devalue.parse(text);
 				assert.equal(data, 'Hello, ben!');
 			}
-		})
+		});
 	});
 
 	describe('build', () => {

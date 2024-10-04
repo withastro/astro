@@ -5,7 +5,7 @@ import {
 	getActionQueryString,
 } from 'astro:actions';
 
-const ENCODED_DOT = "%2E";
+const ENCODED_DOT = '%2E';
 
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	return new Proxy(actionCallback, {
@@ -14,7 +14,8 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 				return target[objKey];
 			}
 			// Add the key, encoding dots so they're not interpreted as nested properties.
-			const path = aggregatedPath + encodeURIComponent(objKey.toString()).replaceAll('.', ENCODED_DOT);
+			const path =
+				aggregatedPath + encodeURIComponent(objKey.toString()).replaceAll('.', ENCODED_DOT);
 			function action(param) {
 				return handleAction(param, path, this);
 			}
