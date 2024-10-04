@@ -151,13 +151,27 @@ export class ContentLayer {
 		const { digest: currentConfigDigest } = contentConfig.config;
 		this.#lastConfigDigest = currentConfigDigest;
 
+		let shouldClear = false;
 		const previousConfigDigest = await this.#store.metaStore().get('config-digest');
+		const previousAstroVersion = await this.#store.metaStore().get('astro-version');
 		if (currentConfigDigest && previousConfigDigest !== currentConfigDigest) {
-			logger.info('Content config changed, clearing cache');
+			logger.info('Content config changed');
+			shouldClear = true;
+		}
+		if (process.env.ASTRO_VERSION && previousAstroVersion !== process.env.ASTRO_VERSION) {
+			logger.info('Astro version changed');
+			shouldClear = true;
+		}
+		if (shouldClear) {
+			logger.info('Clearing content store');
 			this.#store.clearAll();
+		}
+		if (process.env.ASTRO_VERSION) {
+			await this.#store.metaStore().set('astro-version', process.env.ASTRO_VERSION);
+		}
+		if (currentConfigDigest) {
 			await this.#store.metaStore().set('config-digest', currentConfigDigest);
 		}
-
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
 				if (collection.type !== CONTENT_LAYER_TYPE) {
