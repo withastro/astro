@@ -115,6 +115,23 @@ describe('Astro Actions', () => {
 			assert.equal(data.success, true);
 			assert.equal(data.isFormData, true, 'Should receive plain FormData');
 		});
+
+		it('Handles special characters in action names', async () => {
+			for (const name of ['with%2Fslash', 'with%20space', 'with%2Edot']) {
+				const res = await fixture.fetch(`/_actions/${name}`, {
+					method: 'POST',
+					body: JSON.stringify({ name: 'ben' }),
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+				assert.equal(res.ok, true);
+				const text = await res.text();
+				assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+				const data = devalue.parse(text);
+				assert.equal(data, 'Hello, ben!');
+			}
+		})
 	});
 
 	describe('build', () => {
@@ -427,6 +444,24 @@ describe('Astro Actions', () => {
 			assert.equal(resRest.headers.get('Content-Type'), 'application/json+devalue');
 			const dataRest = devalue.parse(await resRest.text());
 			assert.equal('fake', dataRest?.uploadId);
+		});
+
+		it('Handles special characters in action names', async () => {
+			for (const name of ['with%2Fslash', 'with%20space', 'with%2Edot']) {
+				const req = new Request(`http://example.com/_actions/${name}`, {
+					method: 'POST',
+					body: JSON.stringify({ name: 'ben' }),
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+				const res = await app.render(req);
+				assert.equal(res.ok, true);
+				const text = await res.text();
+				assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+				const data = devalue.parse(text);
+				assert.equal(data, 'Hello, ben!');
+			}
 		});
 	});
 });

@@ -161,4 +161,28 @@ export const server = {
 			};
 		},
 	}),
+	"with.dot": defineAction({ 
+    input: z.object({
+      name: z.string(),
+    }),
+    handler: async (input) => {
+      return `Hello, ${input.name}!`
+    }
+  }),
+  "with space": defineAction({ 
+    input: z.object({
+      name: z.string(),
+    }),
+    handler: async (input) => {
+      return `Hello, ${input.name}!`
+    }
+  }),
+	"with/slash": defineAction({ 
+		input: z.object({
+			name: z.string(),
+		}),
+		handler: async (input) => {
+			return `Hello, ${input.name}!`
+		}
+	}),
 };
