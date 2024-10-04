@@ -8,7 +8,11 @@ import { isESMImportedImage } from './imageKind.js';
 export function propsToFilename(filePath: string, transform: ImageTransform, hash: string) {
 	let filename = decodeURIComponent(removeQueryString(filePath));
 	const ext = extname(filename);
-	filename = basename(filename, ext);
+	if (filePath.startsWith('data:')) {
+		filename = shorthash(filePath);
+	} else {
+		filename = basename(filename, ext);
+	}
 	const prefixDirname = isESMImportedImage(transform.src) ? dirname(filePath) : '';
 
 	let outputExt = transform.format ? `.${transform.format}` : ext;

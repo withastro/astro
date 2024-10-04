@@ -33,6 +33,7 @@
   "files": [
     "dist",
     "client.js",
+    "context.js",
     "server.js",
     "server.d.ts",
     "static-html.js"

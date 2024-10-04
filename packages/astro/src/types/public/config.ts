@@ -494,7 +494,7 @@ export interface AstroUserConfig {
 	 *
 	 * Pass additional configuration options to Vite. Useful when Astro doesn't support some advanced configuration that you may need.
 	 *
-	 * View the full `vite` configuration object documentation on [vitejs.dev](https://vitejs.dev/config/).
+	 * View the full `vite` configuration object documentation on [vite.dev](https://vite.dev/config/).
 	 *
 	 * #### Examples
 	 *

@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import stripAnsi from 'strip-ansi';
+import { stripVTControlCharacters } from 'node:util';
 import { cli, cliServerLogSetup, loadFixture, parseCliDevStart } from './test-utils.js';
 
 describe('astro cli', () => {
@@ -45,7 +45,7 @@ describe('astro cli', () => {
 					dest: new Writable({
 						objectMode: true,
 						write(event, _, callback) {
-							logs.push({ ...event, message: stripAnsi(event.message) });
+							logs.push({ ...event, message: stripVTControlCharacters(event.message) });
 							if (event.message.includes('1 error')) {
 								messageResolve(logs);
 							}

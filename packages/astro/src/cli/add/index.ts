@@ -6,11 +6,11 @@ import { diffWords } from 'diff';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
 import { type ASTNode, type ProxifiedModule, builders, generateCode, loadFile } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
-import yoctoSpinner from 'yocto-spinner';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
 import { exec } from 'tinyexec';
+import yoctoSpinner from 'yocto-spinner';
 import {
 	loadTSConfig,
 	resolveConfig,
@@ -604,7 +604,8 @@ async function resolveRangeToInstallSpecifier(name: string, range: string): Prom
 	if (versions instanceof Error) return name;
 	// Filter out any prerelease versions, but fallback if there are no stable versions
 	const stableVersions = versions.filter((v) => !v.includes('-'));
-	const maxStable = maxSatisfying(stableVersions.length !== 0 ? stableVersions : versions, range);
+	const maxStable = maxSatisfying(stableVersions, range) ?? maxSatisfying(versions, range);
+	if (!maxStable) return name;
 	return `${name}@^${maxStable}`;
 }
 
