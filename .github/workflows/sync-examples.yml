@@ -57,6 +57,8 @@ jobs:
               echo "alpha=true" >> $GITHUB_OUTPUT
             elif grep -q '"tag": "beta"' ./.changeset/pre.json; then
               echo "beta=true" >> $GITHUB_OUTPUT
+            elif grep -q '"tag": "rc"' ./.changeset/pre.json; then
+              echo "rc=true" >> $GITHUB_OUTPUT
             fi
           fi
 
@@ -73,5 +75,13 @@ jobs:
         uses: bluwy/auto-branch-sync-action@v1
         with:
           map: / -> beta
+          skip-unchanged-check: ${{ inputs.skip-unchanged-check == true }}
+          dry-run: ${{ inputs.dry-run == true }}
+
+      - name: Sync from next branch to rc branch
+        if: steps.detect.outputs.has-changesets == 'false' && steps.check-pre-mode.outputs.rc == 'true'
+        uses: bluwy/auto-branch-sync-action@v1
+        with:
+          map: / -> rc
           skip-unchanged-check: ${{ inputs.skip-unchanged-check == true }}
           dry-run: ${{ inputs.dry-run == true }}
