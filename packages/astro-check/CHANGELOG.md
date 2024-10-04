@@ -1,5 +1,15 @@
 # @astrojs/check
 
+## 0.9.4
+
+### Patch Changes
+
+- 6e62aaa: Upgrades chokidar to v4
+- 5a44072: Fixes formatting not working by default in certain circumstances
+- Updated dependencies [5a44072]
+- Updated dependencies [3a836de]
+  - @astrojs/language-server@2.15.0
+
 ## 0.9.3
 
 ### Patch Changes

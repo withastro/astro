@@ -1,5 +1,15 @@
 # @astrojs/language-server
 
+## 2.15.0
+
+### Minor Changes
+
+- 3a836de: Allow disabling the handling of updating imports when files are renamed. This is now disabled by default in VS Code, as the Astro TypeScript plugin will handle it correctly.
+
+### Patch Changes
+
+- 5a44072: Fixes formatting not working by default in certain circumstances
+
 ## 2.14.2
 
 ### Patch Changes
