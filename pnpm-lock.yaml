@@ -678,9 +678,6 @@ importers:
       string-width:
         specifier: ^7.2.0
         version: 7.2.0
-      strip-ansi:
-        specifier: ^7.1.0
-        version: 7.1.0
       tinyexec:
         specifier: ^0.3.0
         version: 0.3.0
@@ -2774,6 +2771,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/core-image-data-url:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/core-image-deletion:
     dependencies:
       '@astrojs/markdoc':
@@ -4257,9 +4260,6 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
-      strip-ansi:
-        specifier: ^7.1.0
-        version: 7.1.0
       strip-json-comments:
         specifier: ^5.0.1
         version: 5.0.1
@@ -4298,9 +4298,6 @@ importers:
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
-      strip-ansi:
-        specifier: ^7.1.0
-        version: 7.1.0
       yargs-parser:
         specifier: ^21.1.1
         version: 21.1.1
@@ -5561,9 +5558,6 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
-      strip-ansi:
-        specifier: ^7.1.0
-        version: 7.1.0
 
   scripts:
     dependencies:
