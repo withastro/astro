@@ -24,6 +24,7 @@ env:
 jobs:
   repository-dispatch:
     name: Repository dispatch
+    if: github.repository_owner == 'withastro'
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch event on push - adapters

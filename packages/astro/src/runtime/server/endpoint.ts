@@ -53,7 +53,7 @@ export async function renderEndpoint(
 		return new Response(null, { status: 500 });
 	}
 
-	const response = await handler.call(mod, context);
+	let response = await handler.call(mod, context);
 
 	if (!response || response instanceof Response === false) {
 		throw new AstroError(EndpointDidNotReturnAResponse);
@@ -62,10 +62,20 @@ export async function renderEndpoint(
 	// Endpoints explicitly returning 404 or 500 response status should
 	// NOT be subject to rerouting to 404.astro or 500.astro.
 	if (REROUTABLE_STATUS_CODES.includes(response.status)) {
-		// Only `Response.redirect` headers are immutable, therefore a `try..catch` is not necessary.
-		// Note: `Response.redirect` can only be called with HTTP status codes: 301, 302, 303, 307, 308.
-		// Source: https://developer.mozilla.org/en-US/docs/Web/API/Response/redirect_static#parameters
-		response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+		try {
+			response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+		} catch (err) {
+			// In some cases the response may have immutable headers
+			// This is the case if, for example, the user directly returns a `fetch` response
+			// There's no clean way to check if the headers are immutable, so we just catch the error
+			// Note that response.clone() still has immutable headers!
+			if ((err as Error).message?.includes('immutable')) {
+				response = new Response(response.body, response);
+				response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+			} else {
+				throw err;
+			}
+		}
 	}
 
 	return response;

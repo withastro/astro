@@ -435,7 +435,11 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 export async function renderEntry(
 	entry: DataEntry | { render: () => Promise<{ Content: AstroComponentFactory }> },
 ) {
-	if (entry && 'render' in entry) {
+	if (!entry) {
+		throw new AstroError(AstroErrorData.RenderUndefinedEntryError);
+	}
+
+	if ('render' in entry) {
 		// This is an old content collection entry, so we use its render method
 		return entry.render();
 	}
