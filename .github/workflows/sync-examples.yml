@@ -24,47 +24,7 @@ permissions:
   contents: write
 
 jobs:
-  check_for_update:
-    # Only allow running on `main` and `next` branch to prevent accidental sync overridding
-    if: ${{ github.repository_owner == 'withastro' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/next') }}
-    name: Check for Updates
-    runs-on: ubuntu-latest
-    outputs:
-      run_job: ${{ steps.check_files.outputs.run_job }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Check Modified
-        run: pnpm exec changeset status --output ./status.json
-
-      - name: Check Output
-        id: check_files
-        run: |
-          output=`echo $(cat status.json)`
-          if [[ $output = '{ "changesets": [], "releases": [] }' ]]
-          then
-            echo 'No changeset found'
-            echo "run_job=true" >> $GITHUB_OUTPUT
-          else
-            echo 'changes found, push to latest skipped'
-            echo "run_job=false" >> $GITHUB_OUTPUT
-          fi
-
   sync:
-    needs: check_for_update
-    if: needs.check_for_update.outputs.run_job == 'true'
     name: Sync branches
     runs-on: ubuntu-latest
     steps:
@@ -73,8 +33,15 @@ jobs:
         with:
           fetch-depth: 2 # fetch 2 to compare with previous commit for changes
 
+      - name: Detect changesets
+        uses: bluwy/detect-changesets-action@v1
+        id: detect
+
+      # We only do sync if there are no changesets, so we don't accidentally allow users
+      # to clone examples that may rely on unreleased code
+
       - name: Sync from main branch to latest branch
-        if: github.ref == 'refs/heads/main'
+        if: steps.detect.outputs.has-changesets == 'false' && github.ref == 'refs/heads/main'
         uses: bluwy/auto-branch-sync-action@v1
         with:
           map: / -> latest
@@ -82,7 +49,7 @@ jobs:
           dry-run: ${{ inputs.dry-run == true }}
 
       - name: Check .changeset/pre.json for matching tag
-        if: github.ref == 'refs/heads/next'
+        if: steps.detect.outputs.has-changesets == 'false' && github.ref == 'refs/heads/next'
         id: check-pre-mode
         run: |
           if [ -f ./.changeset/pre.json ]; then
@@ -94,7 +61,7 @@ jobs:
           fi
 
       - name: Sync from next branch to alpha branch
-        if: steps.check-pre-mode.outputs.alpha == 'true'
+        if: steps.detect.outputs.has-changesets == 'false' && steps.check-pre-mode.outputs.alpha == 'true'
         uses: bluwy/auto-branch-sync-action@v1
         with:
           map: / -> alpha
@@ -102,7 +69,7 @@ jobs:
           dry-run: ${{ inputs.dry-run == true }}
 
       - name: Sync from next branch to beta branch
-        if: steps.check-pre-mode.outputs.beta == 'true'
+        if: steps.detect.outputs.has-changesets == 'false' && steps.check-pre-mode.outputs.beta == 'true'
         uses: bluwy/auto-branch-sync-action@v1
         with:
           map: / -> beta
