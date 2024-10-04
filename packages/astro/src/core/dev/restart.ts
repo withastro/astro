@@ -136,7 +136,7 @@ export async function createContainerWithAutomaticRestart({
 		},
 	};
 
-	async function handleServerRestart(logMsg = '') {
+	async function handleServerRestart(logMsg = '', server?: vite.ViteDevServer) {
 		logger.info(null, (logMsg + ' Restarting...').trim());
 		const container = restart.container;
 		const result = await restartContainer(container);
@@ -147,6 +147,11 @@ export async function createContainerWithAutomaticRestart({
 			// Restart success. Add new watches because this is a new container with a new Vite server
 			restart.container = result;
 			setupContainer();
+			if (server) {
+				// Vite expects the resolved URLs to be available
+				server.resolvedUrls = result.viteServer.resolvedUrls;
+			}
+
 			resolveRestart(null);
 		}
 		restartComplete = new Promise<Error | null>((resolve) => {
@@ -171,7 +176,8 @@ export async function createContainerWithAutomaticRestart({
 
 		// Restart the Astro dev server instead of Vite's when the API is called by plugins.
 		// Ignore the `forceOptimize` parameter for now.
-		restart.container.viteServer.restart = () => handleServerRestart();
+		restart.container.viteServer.restart = () =>
+			handleServerRestart('', restart.container.viteServer);
 
 		// Set up shortcuts
 
