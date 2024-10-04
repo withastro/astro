@@ -286,5 +286,62 @@ describe('astro:assets - SVG Components', () => {
 				assert.equal($use.length, 1);
 			});
 		});
+
+		describe('markdown', () => {
+			it('Adds the <svg> tag with the definition', async () => {
+				let res = await fixture.fetch('/blog/basic');
+				let html = await res.text();
+				const $ = cheerio.load(html, { xml: true });
+
+				const $svg = $('svg');
+				assert.equal($svg.length, 1);
+				assert.equal($svg.attr('role'), 'img');
+
+				const $symbol = $svg.find('symbol');
+				assert.equal($symbol.length, 1);
+				assert.equal($symbol.attr('id').startsWith('a:'), true);
+				
+				const $use = $svg.find('symbol + use');
+				assert.equal($use.length, 1);
+				assert.equal($use.attr('xlink:href').startsWith('#a:'), true);
+				assert.equal($use.attr('xlink:href').slice(1), $symbol.attr('id'));
+			});
+			it('Adds the <svg> tag that uses the definition', async () => {
+				let res = await fixture.fetch('/blog/sprite');
+				let html = await res.text();
+				const $ = cheerio.load(html, { xml: true });
+
+				const $svg = $('svg');
+				assert.equal($svg.length, 2);
+				$svg.each(function() { assert.equal($(this).attr('role'), 'img') });
+
+				const definitionId =  $($svg[0]).find('symbol').attr('id')
+
+				const $reuse = $($svg[1]);
+				const $symbol = $reuse.find('symbol');
+				assert.equal($symbol.length, 0);
+
+				const $use = $reuse.find('use');
+				assert.equal($use.length, 1);
+				assert.equal($use.attr('xlink:href').startsWith('#a:'), true);
+				assert.equal($use.attr('xlink:href').slice(1), definitionId);
+			});
+			it('Adds the <svg> tag that applies props', async () => {
+				let res = await fixture.fetch('/blog/props');
+				let html = await res.text();
+				const $ = cheerio.load(html, { xml: true });
+
+				const $svg = $('svg');
+				assert.equal($svg.length, 1);
+				assert.equal($svg.attr('role'), 'img');
+				assert.equal($svg.attr('height'), '48');
+				assert.equal($svg.attr('width'), '48');
+				assert.equal(!!$svg.attr('size'), false);
+				assert.equal($svg.attr('class'), 'icon');
+				assert.equal($svg.attr('data-icon'), 'github');
+				assert.equal($svg.attr('aria-description'), 'Some description');
+				assert.equal($svg.find('title').text(), 'Find out more on GitHub!');
+			});
+		});
 	});
 });
