@@ -199,6 +199,19 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			const parsedId = parseAstroRequest(id);
 			// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
 			if (!parsedId.filename.endsWith('.astro') || parsedId.query.astro) {
+				// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here take affect
+				// TODO: Remove this when Vite fixes it (https://github.com/vitejs/vite/pull/18103)
+				if (this.environment.name === 'client') {
+					const astroFilename = normalizePath(normalizeFilename(parsedId.filename, config.root));
+					const compileMetadata = astroFileToCompileMetadata.get(astroFilename);
+					if (compileMetadata && parsedId.query.type === 'style' && parsedId.query.index != null) {
+						const result = compileMetadata.css[parsedId.query.index];
+
+						// Register dependencies from preprocessing this style
+						result.dependencies?.forEach((dep) => this.addWatchFile(dep));
+					}
+				}
+
 				return;
 			}
 
