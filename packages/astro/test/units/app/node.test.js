@@ -146,6 +146,30 @@ describe('NodeApp', () => {
 				});
 				assert.equal(result.url, 'https://example.com:8443/');
 			});
+
+			it('prefers port from host', () => {
+				const result = NodeApp.createRequest({
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com:3000',
+						'x-forwarded-port': '443',
+					},
+				});
+				assert.equal(result.url, 'https://example.com:3000/');
+			});
+
+
+			it('prefers port from x-forwarded-host', () => {
+				const result = NodeApp.createRequest({
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com:443',
+						'x-forwarded-host': 'example.com:3000',
+						'x-forwarded-port': '443',
+					},
+				});
+				assert.equal(result.url, 'https://example.com:3000/');
+			});
 		});
 	});
 });
