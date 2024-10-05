@@ -83,7 +83,7 @@ export class NodeApp extends App {
 
 		// @example "443,8080,80" => "443"
 		const forwardedPort = getFirstForwardedValue(req.headers['x-forwarded-port']);
-		const port = forwardedPort ?? (isEncrypted ? '443' : '80');
+		const port = forwardedPort ?? req.socket?.remotePort ?? (isEncrypted ? '443' : '80');
 
 		const portInHostname =
 			typeof hostname === 'string' && typeof port === 'string' && hostname.endsWith(port);
