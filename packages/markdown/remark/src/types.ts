@@ -2,12 +2,10 @@ import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type {
-	BuiltinLanguage,
 	BuiltinTheme,
 	HighlighterCoreOptions,
 	LanguageRegistration,
 	ShikiTransformer,
-	SpecialLanguage,
 	ThemeRegistration,
 	ThemeRegistrationRaw,
 } from 'shiki';
@@ -39,7 +37,7 @@ export type RemarkRehype = RemarkRehypeOptions;
 export type ThemePresets = BuiltinTheme | 'css-variables';
 
 export interface ShikiConfig {
-	langs?: (LanguageRegistration | BuiltinLanguage | SpecialLanguage)[];
+	langs?: LanguageRegistration[];
 	langAlias?: HighlighterCoreOptions['langAlias'];
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
