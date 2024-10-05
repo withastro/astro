@@ -4,7 +4,7 @@ import type { SvgComponentProps } from '../runtime.js';
 type SvgAttributes = Record<string, any>;
 
 /**
- * Some attributes required for `image/svg+xml` are irrelevant when inlined ina `text/html` document. We can save a few bytes by dropping them.
+ * Some attributes required for `image/svg+xml` are irrelevant when inlined in a `text/html` document. We can save a few bytes by dropping them.
  */
 const ATTRS_TO_DROP = ['xmlns', 'xmlns:xlink', 'version'];
 const DEFAULT_ATTRS: SvgAttributes = { role: 'img' };
@@ -40,12 +40,14 @@ function parseSvg(contents: string) {
 	return { attributes, body };
 }
 
-export function makeSvgComponent(meta: ImageMetadata, contents: Buffer | string) {
+export type SvgRenderMode = 'inline' | 'sprite';
+
+export function makeSvgComponent(meta: ImageMetadata, contents: Buffer | string, options?: { mode?: SvgRenderMode }) {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
 	const { attributes, body: children } = parseSvg(file);
 	const props: SvgComponentProps = {
 		meta,
-		attributes: dropAttributes(attributes),
+		attributes: dropAttributes({ mode: options?.mode, ...attributes }),
 		children,
 	};
 

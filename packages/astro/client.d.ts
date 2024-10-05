@@ -118,9 +118,9 @@ declare module '*.svg' {
 		 */
 		size?: number | string;
 		/**
-		 * Bypasses automatic sprite optimization by directly inlinining the SVG
+		 * Override the default rendering mode for SVGs
 		 */
-		inline?: boolean
+		mode?: import('./dist/assets/utils/svg.js').SvgRenderMode
 	} & astroHTML.JSX.SVGAttributes
 	
 	const Component: ((_props: Props) => any) & ImageMetadata;
