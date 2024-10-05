@@ -2,4 +2,4 @@
 '@astrojs/svelte': patch
 ---
 
-- fix: 'component is not defined' error when unmount svelte 5 component
+Fixes an Reference Error that occurred during client transitions
