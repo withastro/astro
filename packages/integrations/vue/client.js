@@ -21,14 +21,13 @@ export default (element) =>
 
 		// keep a reference to the app, props and slots so we can update a running instance later
 		let appInstance = appMap.get(element);
-		let app = appInstance;
 
 		if (!appInstance) {
 			appInstance = {
 				props,
 				slots,
 			};
-			app = bootstrap({
+			const app = bootstrap({
 				name,
 				render() {
 					let content = h(Component, appInstance.props, appInstance.slots);
@@ -45,12 +44,12 @@ export default (element) =>
 			await setup(app);
 			app.mount(element, isHydrate);
 			appMap.set(element, appInstance);
+			element.addEventListener('astro:unmount', () => app.unmount(), { once: true });
 		} else {
 			appInstance.props = props;
 			appInstance.slots = slots;
 			appInstance.component.$forceUpdate();
 		}
-		element.addEventListener('astro:unmount', () => app.unmount(), { once: true });
 	};
 
 function isAsync(fn) {
