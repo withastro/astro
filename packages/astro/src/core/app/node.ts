@@ -60,12 +60,30 @@ export class NodeApp extends App {
 	 * ```
 	 */
 	static createRequest(req: NodeRequest, { skipBody = false } = {}): Request {
-		const protocol =
-			req.headers['x-forwarded-proto'] ??
-			('encrypted' in req.socket && req.socket.encrypted ? 'https' : 'http');
-		const hostname =
-			req.headers['x-forwarded-host'] ?? req.headers.host ?? req.headers[':authority'];
-		const port = req.headers['x-forwarded-port'];
+		const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
+
+		// Parses multiple header and returns first value if available.
+		const getFirstForwardedValue = (multiValueHeader?: string | string[]) => {
+			return multiValueHeader
+				?.toString()
+				?.split(',')
+				.map((e) => e.trim())?.[0];
+		};
+
+		// Get the used protocol between the end client and first proxy.
+		// NOTE: Some proxies append values with spaces and some do not.
+		// We need to handle it here and parse the header correctly.
+		// @example "https, http,http" => "http"
+		const forwardedProtocol = getFirstForwardedValue(req.headers['x-forwarded-proto']);
+		const protocol = forwardedProtocol ?? (isEncrypted ? 'https' : 'http');
+
+		// @example "example.com,www2.example.com" => "example.com"
+		const forwardedHostname = getFirstForwardedValue(req.headers['x-forwarded-host']);
+		const hostname = forwardedHostname ?? req.headers.host ?? req.headers[':authority'];
+
+		// @example "443,8080,80" => "443"
+		const forwardedPort = getFirstForwardedValue(req.headers['x-forwarded-port']);
+		const port = forwardedPort ?? (isEncrypted ? '443' : '80');
 
 		const portInHostname =
 			typeof hostname === 'string' && typeof port === 'string' && hostname.endsWith(port);
@@ -77,17 +95,16 @@ export class NodeApp extends App {
 			headers: makeRequestHeaders(req),
 		};
 		const bodyAllowed = options.method !== 'HEAD' && options.method !== 'GET' && skipBody === false;
-		if (bodyAllowed) {
-			Object.assign(options, makeRequestBody(req));
-		}
+		if (bodyAllowed) Object.assign(options, makeRequestBody(req));
+
 		const request = new Request(url, options);
 
-		const clientIp = req.headers['x-forwarded-for'];
-		if (clientIp) {
-			Reflect.set(request, clientAddressSymbol, clientIp);
-		} else if (req.socket?.remoteAddress) {
-			Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
-		}
+		// Get the IP of end client behind the proxy.
+		// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
+		const forwardedClientIp = getFirstForwardedValue(req.headers['x-forwarded-for']);
+		const clientIp = forwardedClientIp || req.socket?.remoteAddress;
+		if (clientIp) Reflect.set(request, clientAddressSymbol, clientIp);
+
 		return request;
 	}
 
