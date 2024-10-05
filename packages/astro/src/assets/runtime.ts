@@ -21,24 +21,23 @@ export function createSvgComponent({ meta, attributes, children }: SvgComponentP
 	const id = `a:${ids++}`;
 	const rendered = new WeakSet<Response>();
 	const Component = createComponent((result, props) => {
-		const { title: titleProp, viewBox, ...normalizedProps } = normalizeProps(attributes, props);
+		const { title: titleProp, viewBox, mode, ...normalizedProps } = normalizeProps(attributes, props);
 		const title = titleProp ? unescapeHTML(`<title>${titleProp}</title>`) : '';
 
-		// Bypasses automatic sprite optimization and directly inline the SVG
-		if (normalizedProps['inline']) {
-			delete normalizedProps.inline;
-			return render`<svg${spreadAttributes({viewBox, ...normalizedProps})}>${title}${unescapeHTML(children)}</svg>`
+		if (mode === 'sprite') {
+			// On the first render, include the symbol definition
+			let symbol: any = '';
+			if (!rendered.has(result.response)) {
+				// We only need the viewBox on the symbol definition, we can drop it everywhere else
+				symbol = unescapeHTML(`<symbol${spreadAttributes({ viewBox, id })}>${children}</symbol>`);
+				rendered.add(result.response);
+			}
+
+			return render`<svg${spreadAttributes(normalizedProps)}>${title}${symbol}<use xlink:href="#${id}" /></svg>`;
 		}
 
-		// On the first render, include the symbol definition
-		let symbol: any = '';
-		if (!rendered.has(result.response)) {
-			// We only need the viewBox on the symbol definition, we can drop it everywhere else
-			symbol = unescapeHTML(`<symbol${spreadAttributes({ viewBox, id })}>${children}</symbol>`);
-			rendered.add(result.response);
-		}
-
-		return render`<svg${spreadAttributes(normalizedProps)}>${title}${symbol}<use xlink:href="#${id}" /></svg>`;
+		// Default to inline mode
+		return render`<svg${spreadAttributes({viewBox, ...normalizedProps})}>${title}${unescapeHTML(children)}</svg>`
 	});
 
 	makeNonEnumerable(Component);

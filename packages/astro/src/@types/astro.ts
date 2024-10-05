@@ -57,6 +57,7 @@ import type {
 	REDIRECT_STATUS_CODES,
 	SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
 } from './../core/constants.js';
+import type { SvgRenderMode } from '../assets/utils/svg.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
@@ -2348,6 +2349,22 @@ export interface AstroUserConfig {
 		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0050-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
 		 */
 		contentLayer?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.svg
+		 * @type {object}
+		 * @default `undefined`
+		 */
+		svg?: {
+			/**
+			 * @docs
+			 * @name experimental.svg.mode
+			 * @type {string}
+			 * @default 'inline'
+			 */
+			mode?: SvgRenderMode;
+		};
 	};
 }
 

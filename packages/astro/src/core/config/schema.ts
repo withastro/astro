@@ -93,6 +93,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 			validateSecrets: false,
 		},
 		contentLayer: false,
+		svg: {
+			mode: 'inline',
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -544,6 +547,14 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
 			contentLayer: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.contentLayer),
+			svg: z
+				.object({
+					mode: z
+						.union([z.literal('inline'), z.literal('sprite')])
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.experimental.svg.mode),
+				})
+				.optional(),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,
