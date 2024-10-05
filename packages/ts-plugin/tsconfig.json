@@ -6,8 +6,7 @@
     "target": "ES2020",
     "module": "CommonJS",
     "emitDeclarationOnly": false,
-    "ignoreDeprecations": "5.0",
-    "importsNotUsedAsValues": "error"
+    "ignoreDeprecations": "5.0"
   },
   "include": ["src"],
   "exclude": ["node_modules"]

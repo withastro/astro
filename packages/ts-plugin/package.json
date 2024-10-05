@@ -40,10 +40,11 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.17.8",
     "@types/semver": "^7.3.13",
+    "@vscode/test-electron": "^2.3.2",
     "chai": "^4.3.7",
     "glob": "^8.0.3",
     "mocha": "^10.2.0",
-    "vscode-uri": "^3.0.8",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vscode-uri": "^3.0.8"
   }
 }
