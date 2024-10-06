@@ -4,12 +4,15 @@ export const title = 'My RSS feed';
 export const description = 'This sure is a nice RSS feed';
 export const site = 'https://example.com';
 
-export const phpFeedItem = {
+export const phpFeedItemWithoutDate = {
 	link: '/php',
 	title: 'Remember PHP?',
-	pubDate: '1994-05-03',
 	description:
 		'PHP is a general-purpose scripting language geared toward web development. It was originally created by Danish-Canadian programmer Rasmus Lerdorf in 1994.',
+};
+export const phpFeedItem = {
+	...phpFeedItemWithoutDate,
+	pubDate: '1994-05-03',
 };
 export const phpFeedItemWithContent = {
 	...phpFeedItem,
