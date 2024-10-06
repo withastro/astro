@@ -128,22 +128,29 @@ async function renderFrameworkComponent(
 		}
 
 		if (!renderer) {
-			let error;
-			for (const r of renderers) {
-				try {
-					if (await r.ssr.check.call({ result }, Component, props, children)) {
-						renderer = r;
-						break;
-					}
-				} catch (e) {
-					error ??= e;
-				}
-			}
+			// If there's only one renderer in the project
+			// we can skip the `check` calls and use that renderer
+			if (renderers.length === 1) {
+				renderer = renderers[0];
+			} else {
+				let error;
 
-			// If no renderer is found and there is an error, throw that error because
-			// it is likely a problem with the component code.
-			if (!renderer && error) {
-				throw error;
+				for (const r of renderers) {
+					try {
+						if (await r.ssr.check.call({ result }, Component, props, children)) {
+							renderer = r;
+							break;
+						}
+					} catch (e) {
+						error ??= e;
+					}
+				}
+
+				// If no renderer is found and there is an error, throw that error because
+				// it is likely a problem with the component code.
+				if (!renderer && error) {
+					throw error;
+				}
 			}
 		}
 
