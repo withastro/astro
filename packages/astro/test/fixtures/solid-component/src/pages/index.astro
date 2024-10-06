@@ -4,6 +4,7 @@ import { Counter as DepCounter } from '@test/solid-jsx-component';
 import Hello from '../components/Hello.jsx';
 import ProxyComponent from '../components/ProxyComponent.jsx';
 import WithNewlines from '../components/WithNewlines.jsx';
+import RenderCount from '../components/RenderCount.jsx';
 ---
 <html>
 <head><title>Solid</title></head>
@@ -14,6 +15,7 @@ import WithNewlines from '../components/WithNewlines.jsx';
     <Router />
     <ProxyComponent client:load />
     <DepCounter client:load />
+    <RenderCount client:load />
   </div>
 </body>
 </html>
