@@ -130,8 +130,8 @@ async function renderFrameworkComponent(
 		if (!renderer) {
 			// If there's only one renderer in the project
 			// we can skip the `check` calls and use that renderer
-			if (renderers.length === 1) {
-				renderer = renderers[0];
+			if (validRenderers.length === 1) {
+				renderer = validRenderers[0];
 			} else {
 				let error;
 
