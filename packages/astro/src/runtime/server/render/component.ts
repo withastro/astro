@@ -128,11 +128,11 @@ async function renderFrameworkComponent(
 		}
 
 		if (!renderer) {
-			// If there's only one renderer in the project
+/* 			// If there's only one renderer in the project
 			// we can skip the `check` calls and use that renderer
 			if (validRenderers.length === 1) {
 				renderer = validRenderers[0];
-			} else {
+			} else { */
 				let error;
 
 				for (const r of renderers) {
@@ -151,7 +151,7 @@ async function renderFrameworkComponent(
 				if (!renderer && error) {
 					throw error;
 				}
-			}
+			
 		}
 
 		if (!renderer && typeof HTMLElement === 'function' && componentIsHTMLElement(Component)) {
