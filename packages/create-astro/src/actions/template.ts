@@ -3,7 +3,7 @@ import type { Context } from './context.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { color } from '@astrojs/cli-kit';
-import { downloadTemplate } from 'giget';
+import { downloadTemplate } from '@bluwy/giget-core';
 import { error, info, title } from '../messages.js';
 
 export async function template(
@@ -123,14 +123,6 @@ export default async function copyTemplate(tmpl: string, ctx: Context) {
 				}
 			} catch {}
 			throw new Error(`Unable to download template ${color.reset(tmpl)}`);
-		}
-
-		// It's possible the repo exists (ex. `withastro/astro`),
-		// But the template route is invalid (ex. `withastro/astro/examples/DNE`).
-		// `giget` doesn't throw for this case,
-		// so check if the directory is still empty as a heuristic.
-		if (fs.readdirSync(ctx.cwd).length === 0) {
-			throw new Error(`Template ${color.reset(tmpl)} ${color.dim('is empty!')}`);
 		}
 
 		// Post-process in parallel
