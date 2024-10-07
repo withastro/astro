@@ -133,7 +133,6 @@ async function redirectWithResult({
 		if (!referer) {
 			throw new Error('Internal: Referer unexpectedly missing from Action POST request.');
 		}
-
 		return context.redirect(referer);
 	}
 
