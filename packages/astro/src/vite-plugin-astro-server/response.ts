@@ -69,7 +69,7 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 		_headers['set-cookie'] = headers.getSetCookie();
 	}
 	// HTTP/2 doesn't support statusMessage
-	if(!(res instanceof Http2ServerResponse)) {
+	if (!(res instanceof Http2ServerResponse)) {
 		res.statusMessage = statusText;
 	}
 	res.writeHead(status, _headers);

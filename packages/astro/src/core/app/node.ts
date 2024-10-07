@@ -1,12 +1,12 @@
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { Http2ServerResponse } from 'node:http2';
 import type { RouteData } from '../../@types/astro.js';
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import { App } from './index.js';
 import type { RenderOptions } from './index.js';
 import type { SSRManifest, SerializedSSRManifest } from './types.js';
-import { Http2ServerResponse } from 'node:http2';
 
 export { apply as applyPolyfills } from '../polyfill.js';
 
