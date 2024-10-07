@@ -1,4 +1,5 @@
 import { stripVTControlCharacters } from 'node:util';
+import { LibsqlError } from '@libsql/client';
 import deepDiff from 'deep-diff';
 import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
@@ -36,7 +37,6 @@ import type {
 	TextColumn,
 } from '../types.js';
 import type { RemoteDatabaseInfo, Result } from '../utils.js';
-import { LibsqlError } from '@libsql/client';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -453,16 +453,19 @@ async function getDbCurrentSnapshot(
 		return JSON.parse(res.snapshot);
 	} catch (error) {
 		// Don't handle errors that are not from libSQL
-		if (error instanceof LibsqlError &&
+		if (
+			error instanceof LibsqlError &&
 			// If the schema was never pushed to the database yet the table won't exist.
 			// Treat a missing snapshot table as an empty table.
-			(
-				// When connecting to a remote database in that condition
-				// the query will fail with the following error code and message.
-				(error.code === 'SQLITE_UNKNOWN' && error.message === 'SQLITE_UNKNOWN: SQLite error: no such table: _astro_db_snapshot') ||
+
+			// When connecting to a remote database in that condition
+			// the query will fail with the following error code and message.
+			((error.code === 'SQLITE_UNKNOWN' &&
+				error.message === 'SQLITE_UNKNOWN: SQLite error: no such table: _astro_db_snapshot') ||
 				// When connecting to a local or in-memory database that does not have a snapshot table yet
 				// the query will fail with the following error code and message.
-				(error.code === 'SQLITE_ERROR' && error.message === 'SQLITE_ERROR: no such table: _astro_db_snapshot'))
+				(error.code === 'SQLITE_ERROR' &&
+					error.message === 'SQLITE_ERROR: no such table: _astro_db_snapshot'))
 		) {
 			return;
 		}
