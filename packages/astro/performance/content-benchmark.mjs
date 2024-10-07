@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { bold, cyan, dim } from 'kleur/colors';

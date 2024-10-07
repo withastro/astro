@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import { generatePosts } from './generate-posts.mjs';
 
 (async () => {
