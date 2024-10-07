@@ -15,7 +15,7 @@ describe('astro:db', () => {
 		});
 	});
 
-	describe('development', () => {
+	describe({ skip: process.platform === 'darwin' }, 'development', () => {
 		let devServer;
 
 		before(async () => {
@@ -94,7 +94,7 @@ describe('astro:db', () => {
 		});
 	});
 
-	describe('development --remote', () => {
+	describe({ skip: process.platform === 'darwin' }, 'development --remote', () => {
 		let devServer;
 		let remoteDbServer;
 

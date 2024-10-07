@@ -4408,6 +4408,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../astro
 
+  packages/db/test/fixtures/libsql-remote:
+    dependencies:
+      '@astrojs/db':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../astro
+
   packages/db/test/fixtures/local-prod:
     dependencies:
       '@astrojs/db':

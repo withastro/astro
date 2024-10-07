@@ -168,10 +168,14 @@ export function getStudioVirtualModContents({
 	function dbUrlArg() {
 		const dbStr = JSON.stringify(dbInfo.url);
 
-		// Allow overriding, mostly for testing
-		return dbInfo.type === 'studio'
-			? `import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${dbStr}`
-			: `import.meta.env.ASTRO_DB_REMOTE_URL ?? ${dbStr}`;
+		if (isBuild) {
+			// Allow overriding, mostly for testing
+			return dbInfo.type === 'studio'
+				? `import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${dbStr}`
+				: `import.meta.env.ASTRO_DB_REMOTE_URL ?? ${dbStr}`;
+		} else {
+			return dbStr;
+		}
 	}
 
 	return `
