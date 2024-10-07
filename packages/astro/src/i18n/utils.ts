@@ -164,10 +164,7 @@ export function computeCurrentLocale(
 				}
 			} else {
 				if (locale.path === segment) {
-					const result = locale.codes.at(0);
-					if (result) {
-						return result;
-					}
+					return locale.codes.at(0);
 				} else {
 					for (const code of locale.codes) {
 						if (normalizeTheLocale(code) === normalizeTheLocale(segment)) {

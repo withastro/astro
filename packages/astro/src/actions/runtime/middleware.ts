@@ -133,11 +133,9 @@ async function redirectWithResult({
 		if (!referer) {
 			throw new Error('Internal: Referer unexpectedly missing from Action POST request.');
 		}
-		console.log('redirect referer', referer);
 		return context.redirect(referer);
 	}
 
-	console.log('normal redirect', context.url.pathname);
 	return context.redirect(context.url.pathname);
 }
 
