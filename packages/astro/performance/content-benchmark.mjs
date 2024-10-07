@@ -25,15 +25,15 @@ async function benchmark({ fixtures, templates, numPosts }) {
 			ext: extByFixture[fixture],
 			template: templates[fixture],
 		});
-		console.log(`[${fixture}] Generated posts`);
+		console.info(`[${fixture}] Generated posts`);
 
 		const { build } = await loadFixture({
 			root,
 		});
 		const now = performance.now();
-		console.log(`[${fixture}] Building...`);
+		console.info(`[${fixture}] Building...`);
 		await build();
-		console.log(cyan(`[${fixture}] Built in ${bold(getTimeStat(now, performance.now()))}.`));
+		console.info(cyan(`[${fixture}] Built in ${bold(getTimeStat(now, performance.now()))}.`));
 	}
 }
 
@@ -57,7 +57,9 @@ async function benchmark({ fixtures, templates, numPosts }) {
 
 		if (test.includes('simple')) {
 			const fixtures = formats;
-			console.log(`\n${bold('Simple')} ${dim(`${numPosts} posts (${formatsToString(fixtures)})`)}`);
+			console.info(
+				`\n${bold('Simple')} ${dim(`${numPosts} posts (${formatsToString(fixtures)})`)}`,
+			);
 			process.env.ASTRO_PERFORMANCE_TEST_NAME = 'simple';
 			await benchmark({
 				fixtures,
@@ -72,7 +74,7 @@ async function benchmark({ fixtures, templates, numPosts }) {
 
 		if (test.includes('with-astro-components')) {
 			const fixtures = formats.filter((format) => format !== 'md');
-			console.log(
+			console.info(
 				`\n${bold('With Astro components')} ${dim(
 					`${numPosts} posts (${formatsToString(fixtures)})`,
 				)}`,
@@ -90,7 +92,7 @@ async function benchmark({ fixtures, templates, numPosts }) {
 
 		if (test.includes('with-react-components')) {
 			const fixtures = formats.filter((format) => format !== 'md');
-			console.log(
+			console.info(
 				`\n${bold('With React components')} ${dim(
 					`${numPosts} posts (${formatsToString(fixtures)})`,
 				)}`,

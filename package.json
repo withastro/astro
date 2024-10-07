@@ -36,6 +36,7 @@
     "test:e2e:hosts": "turbo run test:hosted",
     "benchmark": "astro-benchmark",
     "lint": "biome lint && eslint . --report-unused-disable-directives",
+    "lint:fix": "biome lint --write --unsafe",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
     "preinstall": "npx only-allow pnpm"
   },
@@ -53,7 +54,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@biomejs/biome": "1.8.3",
+    "@biomejs/biome": "1.9.3",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.9",
     "@types/node": "^18.17.8",

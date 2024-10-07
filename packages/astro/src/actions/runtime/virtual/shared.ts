@@ -58,7 +58,7 @@ const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToSt
 // T is used for error inference with SafeInput -> isInputError.
 // See: https://github.com/withastro/astro/pull/11173/files#r1622767246
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> extends Error {
+export class ActionError<_T extends ErrorInferenceObject = ErrorInferenceObject> extends Error {
 	type = 'AstroActionError';
 	code: ActionErrorCode = 'INTERNAL_SERVER_ERROR';
 	status = 500;

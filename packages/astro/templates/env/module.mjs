@@ -27,6 +27,6 @@ const _internalGetSecret = (key) => {
 
 // used while generating the virtual module
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-setOnSetGetEnv((reset) => {
+setOnSetGetEnv((_reset) => {
 	// @@ON_SET_GET_ENV@@
 });

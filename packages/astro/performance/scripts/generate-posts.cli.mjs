@@ -14,5 +14,5 @@ import { generatePosts } from './generate-posts.mjs';
 
 	await generatePosts({ postsDir, numPosts, ext, template });
 
-	console.log(`${numPosts} ${ext} posts written to ${JSON.stringify(postsDir)} 🚀`);
+	console.info(`${numPosts} ${ext} posts written to ${JSON.stringify(postsDir)} 🚀`);
 })();

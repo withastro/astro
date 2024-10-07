@@ -335,7 +335,7 @@ function formatTable(object: Record<string, AnnotatedValue>, columnLabels: [stri
 	const colALength = [colA, ...Object.keys(object)].reduce(longest, 0) + 3;
 	const colBLength = [colB, ...Object.values(object).map(annotatedFormat)].reduce(longest, 0) + 3;
 	function formatRow(
-		i: number,
+		_i: number,
 		a: string,
 		b: AnnotatedValue,
 		style: (value: string | number | boolean) => string = (v) => v.toString(),

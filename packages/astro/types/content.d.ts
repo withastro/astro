@@ -98,7 +98,7 @@ declare module 'astro:content' {
 	/** Run `astro sync` to generate high fidelity types */
 	export type CollectionKey = any;
 	/** Run `astro sync` to generate high fidelity types */
-	export type CollectionEntry<C> = any;
+	export type CollectionEntry<_C> = any;
 	/** Run `astro sync` to generate high fidelity types */
 	export type ContentCollectionKey = any;
 	/** Run `astro sync` to generate high fidelity types */

@@ -10,7 +10,6 @@ export const POST: APIRoute = async (context) => {
 		baseAction = await getAction(url.pathname);
 	} catch (e) {
 		if (import.meta.env.DEV) throw e;
-		// eslint-disable-next-line no-console
 		console.error(e);
 		return new Response(e instanceof Error ? e.message : null, { status: 404 });
 	}

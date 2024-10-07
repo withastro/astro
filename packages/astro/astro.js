@@ -65,13 +65,17 @@ Please upgrade Node.js to a supported version: "${engines}"\n`);
 				break;
 			}
 		}
+		// biome-ignore lint/suspicious/noConsoleLog: allowed
 		console.log(
 			`${ci.name} CI Environment Detected!\nAdditional steps may be needed to set your Node.js version:`,
 		);
+		// biome-ignore lint/suspicious/noConsoleLog: allowed
 		console.log(`Documentation: https://docs.astro.build/en/guides/deploy/`);
 		if (CI_INSTRUCTIONS[platform]) {
+			// biome-ignore lint/suspicious/noConsoleLog: allowed
 			console.log(`${ci.name} Documentation: ${CI_INSTRUCTIONS[platform]}`);
 		}
+		// biome-ignore lint/suspicious/noConsoleLog: allowed
 		console.log(``);
 	}
 

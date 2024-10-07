@@ -18,7 +18,7 @@ process.on('SIGTERM', exit);
 
 export async function main() {
 	// Add some extra spacing from the noisy npm/pnpm init output
-	// eslint-disable-next-line no-console
+	// biome-ignore lint/suspicious/noConsoleLog: allowed
 	console.log('');
 	// NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 	// to no longer require `--` to pass args and instead pass `--` directly to us. This
@@ -47,7 +47,7 @@ export async function main() {
 		await step(ctx);
 	}
 
-	// eslint-disable-next-line no-console
+	// biome-ignore lint/suspicious/noConsoleLog: allowed
 	console.log('');
 
 	const labels = {
