@@ -13,6 +13,12 @@
 - Updated dependencies [[`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0), [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f), [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e), [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9), [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6), [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6)]:
   - astro@5.0.0-alpha.0
 
+## 5.7.2
+
+### Patch Changes
+
+- [#12129](https://github.com/withastro/astro/pull/12129) [`5bc6223`](https://github.com/withastro/astro/commit/5bc6223b1200baba9679a4dafea79c73486c275d) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an Reference Error that occurred during client transitions
+
 ## 5.7.1
 
 ### Patch Changes

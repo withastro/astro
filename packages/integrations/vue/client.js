@@ -44,12 +44,12 @@ export default (element) =>
 			await setup(app);
 			app.mount(element, isHydrate);
 			appMap.set(element, appInstance);
+			element.addEventListener('astro:unmount', () => app.unmount(), { once: true });
 		} else {
 			appInstance.props = props;
 			appInstance.slots = slots;
 			appInstance.component.$forceUpdate();
 		}
-		element.addEventListener('astro:unmount', () => app.unmount(), { once: true });
 	};
 
 function isAsync(fn) {
