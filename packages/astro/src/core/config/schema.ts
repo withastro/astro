@@ -526,10 +526,7 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	legacy: z
 		.object({
-			collections: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.legacy.collections),
+			collections: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.legacy.collections),
 		})
 		.default({}),
 });
