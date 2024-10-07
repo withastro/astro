@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 6.0.0-beta.1
+
+### Patch Changes
+
+- [#12102](https://github.com/withastro/astro/pull/12102) [`dcc1e89`](https://github.com/withastro/astro/commit/dcc1e895abbad1311719803363c933541c0ad984) Thanks [@hermit99](https://github.com/hermit99)! - Fixes an Reference Error that occurred during client transitions
+
 ## 6.0.0-beta.0
 
 ### Major Changes

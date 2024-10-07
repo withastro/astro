@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
+import { green } from 'kleur/colors';
 import type { PluginContext } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -25,7 +26,6 @@ import {
 } from './consts.js';
 import { glob } from './loaders/glob.js';
 import { createImage } from './runtime-assets.js';
-import { green } from 'kleur/colors';
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
