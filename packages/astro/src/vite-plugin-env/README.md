@@ -1,6 +1,6 @@
 # vite-plugin-env
 
-Improves Vite's [Env Variables](https://vitejs.dev/guide/env-and-mode.html#env-files) support to include **private** env variables during Server-Side Rendering (SSR) but never in client-side rendering (CSR).
+Improves Vite's [Env Variables](https://vite.dev/guide/env-and-mode.html#env-files) support to include **private** env variables during Server-Side Rendering (SSR) but never in client-side rendering (CSR).
 
 Private env variables can be accessed through `import.meta.env.SECRET` like Vite. Where the env variable is declared changes how it is replaced when transforming it:
 

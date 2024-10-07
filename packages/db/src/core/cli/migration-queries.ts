@@ -1,9 +1,9 @@
+import { stripVTControlCharacters } from 'node:util';
 import deepDiff from 'deep-diff';
 import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
-import stripAnsi from 'strip-ansi';
 import { hasPrimaryKey } from '../../runtime/index.js';
 import { createRemoteDatabaseClient } from '../../runtime/index.js';
 import { isSerializedSQL } from '../../runtime/types.js';
@@ -531,7 +531,7 @@ export function formatDataLossMessage(confirmations: string[], isColor = true): 
 	);
 	let finalMessage = messages.join('\n');
 	if (!isColor) {
-		finalMessage = stripAnsi(finalMessage);
+		finalMessage = stripVTControlCharacters(finalMessage);
 	}
 	return finalMessage;
 }

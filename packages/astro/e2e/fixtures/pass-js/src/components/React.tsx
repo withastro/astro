@@ -11,12 +11,14 @@ interface Props {
 	array: any[];
 	map: Map<string, string>;
 	set: Set<string>;
+	infinity: number;
+	negativeInfinity: number;
 }
 
 const isNode = typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]';
 
 /** a counter written in React */
-export default function Component({ undefined: undefinedProp, null: nullProp, boolean, number, string, bigint, object, array, map, set }: Props) {
+export default function Component({ undefined: undefinedProp, null: nullProp, boolean, number, string, bigint, object, array, map, set, infinity, negativeInfinity }: Props) {
 	// We are testing hydration, so don't return anything in the server.
 	if(isNode) {
 		return <div></div>
@@ -30,6 +32,10 @@ export default function Component({ undefined: undefinedProp, null: nullProp, bo
 			<span id="boolean-value">{boolean.toString()}</span>
 			<span id="number-type">{Object.prototype.toString.call(number)}</span>
 			<span id="number-value">{number.toString()}</span>
+			<span id="infinity-type">{Object.prototype.toString.call(infinity)}</span>
+			<span id="infinity-value">{infinity.toString()}</span>
+			<span id="negative-infinity-type">{Object.prototype.toString.call(negativeInfinity)}</span>
+			<span id="negative-infinity-value">{negativeInfinity.toString()}</span>
 			<span id="string-type">{Object.prototype.toString.call(string)}</span>
 			<span id="string-value">{string}</span>
 			<span id="bigint-type">{Object.prototype.toString.call(bigint)}</span>
