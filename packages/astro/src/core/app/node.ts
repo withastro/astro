@@ -6,6 +6,7 @@ import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import { App } from './index.js';
 import type { RenderOptions } from './index.js';
 import type { SSRManifest, SerializedSSRManifest } from './types.js';
+import { Http2ServerResponse } from 'node:http2';
 
 export { apply as applyPolyfills } from '../polyfill.js';
 
@@ -108,7 +109,10 @@ export class NodeApp extends App {
 	 */
 	static async writeResponse(source: Response, destination: ServerResponse) {
 		const { status, headers, body, statusText } = source;
-		destination.statusMessage = statusText;
+		// HTTP/2 doesn't support statusMessage
+		if (!(destination instanceof Http2ServerResponse)) {
+			destination.statusMessage = statusText;
+		}
 		destination.writeHead(status, createOutgoingHttpHeaders(headers));
 		if (!body) return destination.end();
 		try {
