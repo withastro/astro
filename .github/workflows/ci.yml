@@ -48,8 +48,12 @@ jobs:
         run: pnpm build
 
       - name: Test (Linux)
-        run: xvfb-run -a pnpm test
         if: runner.os == 'Linux'
+        run: |
+          cd packages/vscode
+          xvfb-run -a pnpm test
+          cd ../ts-plugin
+          xvfb-run -a pnpm test
 
       - name: Test
         run: pnpm test
