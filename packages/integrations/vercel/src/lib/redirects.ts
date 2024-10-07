@@ -45,25 +45,31 @@ function getParts(part: string, file: string) {
 // 2022-04-26
 function getMatchPattern(segments: RoutePart[][]) {
 	return segments
-		.map((segment) => {
-			return segment[0].spread
+		.map((segment, segmentIndex) => {
+			return segment.length === 1 && segment[0].spread
 				? '(?:\\/(.*?))?'
-				: segment
-						.map((part) => {
-							if (part)
-								return part.dynamic
-									? '([^/]+?)'
-									: part.content
-											.normalize()
-											.replace(/\?/g, '%3F')
-											.replace(/#/g, '%23')
-											.replace(/%5B/g, '[')
-											.replace(/%5D/g, ']')
-											.replace(/[*+?^${}()|[\]\\]/g, '\\$&');
-						})
-						.join('');
+				: // Omit leading slash if segment is a spread.
+					// This is handled using a regex in Astro core.
+					// To avoid complex data massaging, we handle in-place here.
+					(segmentIndex === 0 ? '' : '/') +
+						segment
+							.map((part) => {
+								if (part)
+									return part.spread
+										? '(.*?)'
+										: part.dynamic
+											? '([^/]+?)'
+											: part.content
+													.normalize()
+													.replace(/\?/g, '%3F')
+													.replace(/#/g, '%23')
+													.replace(/%5B/g, '[')
+													.replace(/%5D/g, ']')
+													.replace(/[*+?^${}()|[\]\\]/g, '\\$&');
+							})
+							.join('');
 		})
-		.join('/');
+		.join('');
 }
 
 function getReplacePattern(segments: RoutePart[][]) {
