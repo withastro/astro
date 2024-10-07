@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 5.7.2
+
+### Patch Changes
+
+- [#12129](https://github.com/withastro/astro/pull/12129) [`5bc6223`](https://github.com/withastro/astro/commit/5bc6223b1200baba9679a4dafea79c73486c275d) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an Reference Error that occurred during client transitions
+
 ## 5.7.1
 
 ### Patch Changes
