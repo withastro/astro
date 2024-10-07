@@ -1684,9 +1684,12 @@ export interface AstroInlineOnlyConfig {
 	 */
 	configFile?: string | false;
 	/**
-	 * The mode used when building your site to generate either "development" or "production" code.
+	 * The mode used when building your site. It's passed to Vite that affects how `.env` files are loaded and the value
+	 * of `import.meta.env.MODE`. See the [Vite docs](https://vitejs.dev/guide/env-and-mode.html) for more information.
+	 *
+	 * @default "development" for `astro dev`, "production" for `astro build`
 	 */
-	mode?: RuntimeMode;
+	mode?: string;
 	/**
 	 * The logging level to filter messages logged by Astro.
 	 * - "debug": Log everything, including noisy debugging diagnostics.
