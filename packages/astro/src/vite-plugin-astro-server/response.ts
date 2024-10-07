@@ -1,4 +1,5 @@
 import type http from 'node:http';
+import { Http2ServerResponse } from 'node:http2';
 import type { ErrorWithMetadata } from '../core/errors/index.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 
@@ -67,7 +68,10 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 	if (headers.has('set-cookie')) {
 		_headers['set-cookie'] = headers.getSetCookie();
 	}
-	res.statusMessage = statusText;
+	// HTTP/2 doesn't support statusMessage
+	if(!(res instanceof Http2ServerResponse)) {
+		res.statusMessage = statusText;
+	}
 	res.writeHead(status, _headers);
 	if (body) {
 		if (Symbol.for('astro.responseBody') in webResponse) {
