@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.15.2
+
+### Patch Changes
+
+- 43f66cd: Fixes publishing on OpenVSX. For full changelogs between 2.11.0 and this version, please see [CHANGELOG.md](https://github.com/withastro/language-tools/blob/main/packages/vscode/CHANGELOG.md) in the repository.
+
 ## 2.15.1
 
 ### Patch Changes
