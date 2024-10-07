@@ -123,7 +123,8 @@
       "include": [
         "packages/db/**/cli/**/*.ts",
         "benchmark/**/*.js",
-        "packages/astro/src/cli/**/*.ts"
+        "packages/astro/src/cli/**/*.ts",
+        "packages/astro/astro.js"
       ],
       "linter": {
         "rules": {
