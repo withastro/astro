@@ -136,7 +136,7 @@ async function renderFrameworkComponent(
 				let error;
 
 				// we'll process solid in the end
-				renderers.sort((a) => a.name === '@astrojs/solid' ? 1 : -1);
+				renderers.sort((renderer) => renderer.name === '@astrojs/solid' ? 1 : -1);
 				for (const r of renderers) {
 					// As solid is the last renderer in the list
 					// if we still don't have a renderer, we'll use solid
