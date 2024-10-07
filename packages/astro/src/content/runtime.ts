@@ -451,7 +451,6 @@ export async function renderEntry(
 				renderEntryImport,
 			});
 		} catch (e) {
-			// eslint-disable-next-line
 			console.error(e);
 		}
 	}

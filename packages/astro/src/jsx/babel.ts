@@ -284,7 +284,6 @@ export default function astroJSX(): PluginObj {
 							if (t.isJSXAttribute(attr)) {
 								const name = jsxAttributeToString(attr);
 								if (name.startsWith('client:')) {
-									// eslint-disable-next-line
 									console.warn(
 										`You are attempting to render <${displayName} ${name} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
 									);
