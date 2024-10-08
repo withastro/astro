@@ -1111,7 +1111,7 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 *   build: {
-		 *     concurrency: 1
+		 *     concurrency: 2
 		 *   }
 		 * }
 		 * ```
