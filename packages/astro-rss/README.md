@@ -190,9 +190,6 @@ Will inject the following XML:
 <rss xmlns:h="http://www.w3.org/TR/html4/"...
 ```
 
-### content
-
-
 ### `trailingSlash`
 
 Type: `boolean (optional)`
