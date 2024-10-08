@@ -22,7 +22,6 @@ export type Locals = {
 export const onRequest = defineMiddleware(async (context, next) => {
 	if ((context as any)._isPrerendered) {
 		if (context.request.method === 'POST') {
-			// eslint-disable-next-line no-console
 			console.warn(
 				yellow('[astro:actions]'),
 				'POST requests should not be sent to prerendered pages. If you\'re using Actions, disable prerendering with `export const prerender = "false".',
@@ -133,7 +132,6 @@ async function redirectWithResult({
 		if (!referer) {
 			throw new Error('Internal: Referer unexpectedly missing from Action POST request.');
 		}
-
 		return context.redirect(referer);
 	}
 

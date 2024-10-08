@@ -89,7 +89,7 @@ function viaLocal(dir, isEtag, uri, extns) {
 	}
 }
 
-function is404(req, res) {
+function is404(_req, res) {
 	return (res.statusCode = 404), res.end();
 }
 

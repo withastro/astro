@@ -67,7 +67,7 @@ export class RenderContext {
 	 */
 	counter = 0;
 
-	static create({
+	static async create({
 		locals = {},
 		middleware,
 		pathname,
@@ -77,11 +77,14 @@ export class RenderContext {
 		status = 200,
 		props,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
-		Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>>): RenderContext {
+		Partial<
+			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>
+		>): Promise<RenderContext> {
+		const pipelineMiddleware = await pipeline.getMiddleware();
 		return new RenderContext(
 			pipeline,
 			locals,
-			sequence(...pipeline.internalMiddleware, middleware ?? pipeline.middleware),
+			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
 			pathname,
 			request,
 			routeData,
@@ -532,8 +535,8 @@ export class RenderContext {
 		// and url.pathname to pass Astro.currentLocale tests.
 		// A single call with `routeData.pathname ?? routeData.route` as the pathname still fails.
 		return (this.#currentLocale ??=
-			computeCurrentLocale(routeData.route, locales) ??
-			computeCurrentLocale(url.pathname, locales) ??
+			computeCurrentLocale(routeData.route, locales, defaultLocale) ??
+			computeCurrentLocale(url.pathname, locales, defaultLocale) ??
 			fallbackTo);
 	}
 

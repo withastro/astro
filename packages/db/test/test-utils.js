@@ -64,6 +64,23 @@ export async function setupRemoteDbServer(astroConfig) {
 	};
 }
 
+export async function initializeRemoteDb(astroConfig) {
+	await cli({
+		config: astroConfig,
+		flags: {
+			_: [undefined, 'astro', 'db', 'push'],
+			remote: true,
+		},
+	});
+	await cli({
+		config: astroConfig,
+		flags: {
+			_: [undefined, 'astro', 'db', 'execute', 'db/seed.ts'],
+			remote: true,
+		},
+	});
+}
+
 /**
  * Clears the environment variables related to Astro DB and Astro Studio.
  */

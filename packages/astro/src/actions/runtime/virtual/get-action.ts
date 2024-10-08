@@ -11,7 +11,10 @@ import type { ActionAccept, ActionClient } from './server.js';
 export async function getAction(
 	path: string,
 ): Promise<ActionClient<unknown, ActionAccept, ZodType>> {
-	const pathKeys = path.replace('/_actions/', '').split('.');
+	const pathKeys = path
+		.replace('/_actions/', '')
+		.split('.')
+		.map((key) => decodeURIComponent(key));
 	// @ts-expect-error virtual module
 	let { server: actionLookup } = await import('astro:internal-actions');
 

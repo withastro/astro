@@ -10,9 +10,12 @@ import type {
 } from '../@types/astro.js';
 import { setGetEnv } from '../env/runtime.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
+import { createOriginCheckMiddleware } from './app/middlewares.js';
 import { AstroError } from './errors/errors.js';
 import { AstroErrorData } from './errors/index.js';
 import type { Logger } from './logger/core.js';
+import { sequence } from './middleware/index.js';
+import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
 
@@ -24,6 +27,7 @@ import { createDefaultRoutes } from './routing/default.js';
  */
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
+	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -97,6 +101,31 @@ export abstract class Pipeline {
 	 * @param routeData
 	 */
 	abstract getComponentByRoute(routeData: RouteData): Promise<ComponentInstance>;
+
+	/**
+	 * Resolves the middleware from the manifest, and returns the `onRequest` function. If `onRequest` isn't there,
+	 * it returns a no-op function
+	 */
+	async getMiddleware(): Promise<MiddlewareHandler> {
+		if (this.resolvedMiddleware) {
+			return this.resolvedMiddleware;
+		}
+		// The middleware can be undefined when using edge middleware.
+		// This is set to undefined by the plugin-ssr.ts
+		else if (this.middleware) {
+			const middlewareInstance = await this.middleware();
+			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
+			if (this.manifest.checkOrigin) {
+				this.resolvedMiddleware = sequence(createOriginCheckMiddleware(), onRequest);
+			} else {
+				this.resolvedMiddleware = onRequest;
+			}
+			return this.resolvedMiddleware;
+		} else {
+			this.resolvedMiddleware = NOOP_MIDDLEWARE_FN;
+			return this.resolvedMiddleware;
+		}
+	}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
