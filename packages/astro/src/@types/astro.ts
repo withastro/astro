@@ -1101,9 +1101,9 @@ export interface AstroUserConfig {
 		 * @default `1`
 		 * @description
 		 * The number of pages to build in parallel.
-		 * 
+		 *
 		 * **In most cases, you should not change the default value of `1`.**
-		 * 
+		 *
 		 * Use this option only when other attempts to reduce the overall rendering time (e.g. batch or cache long running tasks like fetch calls or data access) are not possible or are insufficient.
 		 * If the number is set too high, page rendering may slow down due to insufficient memory resources and because JS is single-threaded.
 		 *
