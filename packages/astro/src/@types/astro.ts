@@ -1099,6 +1099,7 @@ export interface AstroUserConfig {
 		 * @name build.concurrency
 		 * @type { number }
 		 * @default `1`
+		 * @version 4.16.0
 		 * @description
 		 * The number of pages to build in parallel.
 		 *
