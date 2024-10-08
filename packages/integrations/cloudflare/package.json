@@ -30,26 +30,26 @@
   "dependencies": {
     "@astrojs/internal-helpers": "0.4.1",
     "@astrojs/underscore-redirects": "^0.3.4",
-    "@cloudflare/workers-types": "^4.20240925.0",
+    "@cloudflare/workers-types": "^4.20241004.0",
     "esbuild": "^0.21.5",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.11",
-    "miniflare": "^3.20240925.0",
+    "miniflare": "^3.20240925.1",
     "tiny-glob": "^0.2.9",
-    "wrangler": "^3.78.12",
-    "@inox-tools/astro-when": "^0.2.3"
+    "wrangler": "^3.80.1",
+    "@inox-tools/astro-when": "^0.2.4"
   },
   "peerDependencies": {
     "astro": "^4.10.3"
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
-    "astro": "^4.15.9",
+    "astro": "^4.15.12",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
-    "rollup": "^4.22.5",
+    "rollup": "^4.24.0",
     "strip-ansi": "^7.1.0",
     "vite": "^5.4.8"
   },

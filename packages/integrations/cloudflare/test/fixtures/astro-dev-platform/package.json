@@ -4,9 +4,9 @@
   "private": true,
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
-    "astro": "^4.15.9"
+    "astro": "^4.15.12"
   },
   "devDependencies": {
-    "wrangler": "^3.78.12"
+    "wrangler": "^3.80.1"
   }
 }
