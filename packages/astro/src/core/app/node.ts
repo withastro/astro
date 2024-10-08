@@ -95,7 +95,9 @@ export class NodeApp extends App {
 			headers: makeRequestHeaders(req),
 		};
 		const bodyAllowed = options.method !== 'HEAD' && options.method !== 'GET' && skipBody === false;
-		if (bodyAllowed) Object.assign(options, makeRequestBody(req));
+		if (bodyAllowed) {
+			Object.assign(options, makeRequestBody(req));
+		}
 
 		const request = new Request(url, options);
 
