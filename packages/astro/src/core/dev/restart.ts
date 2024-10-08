@@ -30,7 +30,7 @@ async function createRestartedContainer(
 	return newContainer;
 }
 
-const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
+const configRE = /.*astro.config.(?:mjs|mts|cjs|js|ts)$/;
 
 function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
