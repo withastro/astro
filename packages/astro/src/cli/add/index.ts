@@ -694,7 +694,6 @@ async function tryToInstallIntegrations({
 				spinner.fail();
 				logger.debug('add', 'Error installing dependencies', err);
 				// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
-				// eslint-disable-next-line no-console
 				console.error('\n', err.stdout || err.message, '\n');
 				return UpdateResult.failure;
 			}

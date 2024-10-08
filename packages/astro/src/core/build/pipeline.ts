@@ -328,7 +328,7 @@ export class BuildPipeline extends Pipeline {
 
 	async #getEntryForFallbackRoute(
 		route: RouteData,
-		internals: BuildInternals,
+		_internals: BuildInternals,
 		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
 		if (route.type !== 'fallback') {
@@ -348,7 +348,7 @@ export class BuildPipeline extends Pipeline {
 
 	async #getEntryForRedirectRoute(
 		route: RouteData,
-		internals: BuildInternals,
+		_internals: BuildInternals,
 		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
 		if (route.type !== 'redirect') {

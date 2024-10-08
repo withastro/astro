@@ -15,7 +15,6 @@ describe('Astro.callAction', () => {
 				return { name };
 			},
 		});
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const result = await context.callAction(action, { name: 'Ben' });
 		expectTypeOf<typeof result>().toEqualTypeOf<ActionReturnType<typeof action>>();
 	});
@@ -31,7 +30,6 @@ describe('Astro.callAction', () => {
 				return { name };
 			},
 		});
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const result = await context.callAction(action, new FormData());
 		expectTypeOf<typeof result>().toEqualTypeOf<ActionReturnType<typeof action>>();
 	});
@@ -47,7 +45,6 @@ describe('Astro.callAction', () => {
 				return { name };
 			},
 		});
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const result = await context.callAction(action.orThrow, new FormData());
 		expectTypeOf<typeof result>().toEqualTypeOf<ActionReturnType<(typeof action)['orThrow']>>();
 	});

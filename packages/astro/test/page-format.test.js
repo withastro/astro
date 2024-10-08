@@ -73,7 +73,6 @@ describe('build.format', () => {
 			it('Astro.url points to right file', async () => {
 				let html = await fixture.readFile('/nested/index.html');
 				let $ = cheerio.load(html);
-				console.log(html);
 				assert.equal($('h2').text(), '/test/nested/');
 			});
 		});

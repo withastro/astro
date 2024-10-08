@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { Http2ServerResponse } from 'node:http2';
 import type { RouteData } from '../../@types/astro.js';
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
@@ -124,7 +125,10 @@ export class NodeApp extends App {
 	 */
 	static async writeResponse(source: Response, destination: ServerResponse) {
 		const { status, headers, body, statusText } = source;
-		destination.statusMessage = statusText;
+		// HTTP/2 doesn't support statusMessage
+		if (!(destination instanceof Http2ServerResponse)) {
+			destination.statusMessage = statusText;
+		}
 		destination.writeHead(status, createOutgoingHttpHeaders(headers));
 		if (!body) return destination.end();
 		try {
@@ -134,7 +138,6 @@ export class NodeApp extends App {
 				// an error in the ReadableStream's cancel callback, but
 				// also because of an error anywhere in the stream.
 				reader.cancel().catch((err) => {
-					// eslint-disable-next-line no-console
 					console.error(
 						`There was an uncaught error in the middle of the stream while rendering ${destination.req.url}.`,
 						err,

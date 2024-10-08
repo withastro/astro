@@ -333,14 +333,6 @@ function getInvalidRouteSegmentError(
 	});
 }
 
-interface GeneratePathOptions {
-	pageData: PageBuildData;
-	linkIds: string[];
-	scripts: { type: 'inline' | 'external'; value: string } | null;
-	styles: StylesheetAsset[];
-	mod: ComponentInstance;
-}
-
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	const trailingSlash = opts.settings.config.trailingSlash;
 	const buildFormat = opts.settings.config.build.format;

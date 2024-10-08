@@ -1,12 +1,9 @@
-/* eslint-disable no-console */
-import type { AstroSettings } from '../../@types/astro.js';
-
 import { fileURLToPath } from 'node:url';
-import { bgGreen, black, bold, dim, yellow } from 'kleur/colors';
-
 import { formatWithOptions } from 'node:util';
 import dlv from 'dlv';
 import { flattie } from 'flattie';
+import { bgGreen, black, bold, dim, yellow } from 'kleur/colors';
+import type { AstroSettings } from '../../@types/astro.js';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
@@ -335,7 +332,7 @@ function formatTable(object: Record<string, AnnotatedValue>, columnLabels: [stri
 	const colALength = [colA, ...Object.keys(object)].reduce(longest, 0) + 3;
 	const colBLength = [colB, ...Object.values(object).map(annotatedFormat)].reduce(longest, 0) + 3;
 	function formatRow(
-		i: number,
+		_i: number,
 		a: string,
 		b: AnnotatedValue,
 		style: (value: string | number | boolean) => string = (v) => v.toString(),

@@ -198,19 +198,19 @@ const item = {
 
 ### `title`
 
-Type: `string (required)`
+Type: `string (optional)`
 
-The title of the item in the feed.
+The title of the item in the feed. Optional only if a description is set. Otherwise, required.
 
 ### `link`
 
-Type: `string (required)`
+Type: `string (optional)`
 
 The URL of the item on the web.
 
 ### `pubDate`
 
-Type: `Date (required)`
+Type: `Date (optional)`
 
 Indicates when the item was published.
 
@@ -218,7 +218,7 @@ Indicates when the item was published.
 
 Type: `string (optional)`
 
-A synopsis of your item when you are publishing the full content of the item in the `content` field. The `description` may alternatively be the full content of the item in the feed if you are not using the `content` field (entity-coded HTML is permitted).
+A synopsis of your item when you are publishing the full content of the item in the `content` field. The `description` may alternatively be the full content of the item in the feed if you are not using the `content` field (entity-coded HTML is permitted). Optional only if a title is set. Otherwise, required.
 
 ### `content`
 
