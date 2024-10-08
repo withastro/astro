@@ -103,7 +103,9 @@ export class NodeApp extends App {
 		// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
 		const forwardedClientIp = getFirstForwardedValue(req.headers['x-forwarded-for']);
 		const clientIp = forwardedClientIp || req.socket?.remoteAddress;
-		if (clientIp) Reflect.set(request, clientAddressSymbol, clientIp);
+		if (clientIp) { 
+			Reflect.set(request, clientAddressSymbol, clientIp);
+		}
 
 		return request;
 	}
