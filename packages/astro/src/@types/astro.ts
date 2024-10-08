@@ -1107,8 +1107,6 @@ export interface AstroUserConfig {
 		 * Use this option only when other attempts to reduce the overall rendering time (e.g. batch or cache long running tasks like fetch calls or data access) are not possible or are insufficient.
 		 * If the number is set too high, page rendering may slow down due to insufficient memory resources and because JS is single-threaded.
 		 *
-		 * In the future, Astro may reuse this option to render pages concurrently with multiple threads.
-		 *
 		 * ```js
 		 * {
 		 *   build: {
