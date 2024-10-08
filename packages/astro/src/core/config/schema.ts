@@ -621,7 +621,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.enum(['always', 'auto', 'never'])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-				concurrency: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
+				concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 			})
 			.optional()
 			.default({}),
