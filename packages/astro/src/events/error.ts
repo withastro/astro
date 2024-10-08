@@ -101,7 +101,7 @@ function getSafeErrorMessage(message: string | Function): string {
 			.slice(1, -1)
 			.replace(
 				/\$\{([^}]+)\}/g,
-				(str, match1) =>
+				(_str, match1) =>
 					`${match1
 						.split(/\.?(?=[A-Z])/)
 						.join('_')

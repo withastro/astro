@@ -122,7 +122,6 @@ export class NodeApp extends App {
 				// an error in the ReadableStream's cancel callback, but
 				// also because of an error anywhere in the stream.
 				reader.cancel().catch((err) => {
-					// eslint-disable-next-line no-console
 					console.error(
 						`There was an uncaught error in the middle of the stream while rendering ${destination.req.url}.`,
 						err,
