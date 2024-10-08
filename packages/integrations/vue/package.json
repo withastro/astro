@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/vue",
-  "version": "4.5.1",
+  "version": "4.5.2",
   "description": "Use Vue components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -33,6 +33,7 @@
   "files": [
     "dist",
     "client.js",
+    "context.js",
     "server.js",
     "server.d.ts",
     "static-html.js"
@@ -46,7 +47,7 @@
   "dependencies": {
     "@vitejs/plugin-vue": "^5.1.4",
     "@vitejs/plugin-vue-jsx": "^4.0.1",
-    "@vue/compiler-sfc": "^3.5.10",
+    "@vue/compiler-sfc": "^3.5.11",
     "vite-plugin-vue-devtools": "^7.4.6"
   },
   "devDependencies": {
@@ -55,7 +56,7 @@
     "cheerio": "1.0.0",
     "linkedom": "^0.18.5",
     "vite": "^5.4.8",
-    "vue": "^3.5.10"
+    "vue": "^3.5.11"
   },
   "peerDependencies": {
     "astro": "^4.0.0",

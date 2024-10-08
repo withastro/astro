@@ -130,7 +130,6 @@ export async function createMarkdownProcessor(
 				// Ensure that the error message contains the input filename
 				// to make it easier for the user to fix the issue
 				err = prefixError(err, `Failed to parse Markdown file "${vfile.path}"`);
-				// eslint-disable-next-line no-console
 				console.error(err);
 				throw err;
 			});

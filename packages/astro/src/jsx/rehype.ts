@@ -50,7 +50,6 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 					(attr) => attr.type === 'mdxJsxAttribute' && attr.name.startsWith('client:'),
 				) as MdxJsxAttribute | undefined;
 				if (clientAttribute) {
-					// eslint-disable-next-line
 					console.warn(
 						`You are attempting to render <${node.name!} ${
 							clientAttribute.name

@@ -888,14 +888,14 @@ export const LocalImageUsedWrongly = {
  * @see
  * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
  * @description
- * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to achieve the same result.
+ * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vite.dev/guide/features.html#glob-import) instead to achieve the same result.
  */
 export const AstroGlobUsedOutside = {
 	name: 'AstroGlobUsedOutside',
 	title: 'Astro.glob() used outside of an Astro file.',
 	message: (globStr: string) =>
 		`\`Astro.glob(${globStr})\` can only be used in \`.astro\` files. \`import.meta.glob(${globStr})\` can be used instead to achieve a similar result.`,
-	hint: "See Vite's documentation on `import.meta.glob` for more information: https://vitejs.dev/guide/features.html#glob-import",
+	hint: "See Vite's documentation on `import.meta.glob` for more information: https://vite.dev/guide/features.html#glob-import",
 } satisfies ErrorData;
 
 /**
@@ -967,7 +967,7 @@ export const MissingSharp = {
 /**
  * @docs
  * @see
- * - [Vite troubleshooting guide](https://vitejs.dev/guide/troubleshooting.html)
+ * - [Vite troubleshooting guide](https://vite.dev/guide/troubleshooting.html)
  * @description
  * Vite encountered an unknown error while rendering your project. We unfortunately do not know what happened (or we would tell you!)
  *
@@ -1408,6 +1408,17 @@ export const GenerateContentTypesError = {
 export const UnknownContentCollectionError = {
 	name: 'UnknownContentCollectionError',
 	title: 'Unknown Content Collection Error.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Astro tried to render a content collection entry that was undefined. This can happen if you try to render an entry that does not exist.
+ */
+export const RenderUndefinedEntryError = {
+	name: 'RenderUndefinedEntryError',
+	title: 'Attempted to render an undefined content collection entry.',
+	hint: 'Check if the entry is undefined before passing it to `render()`',
 } satisfies ErrorData;
 
 /**

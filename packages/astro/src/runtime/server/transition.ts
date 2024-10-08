@@ -77,7 +77,7 @@ function reEncode(s: string) {
 				codepoint < 0x80
 					? codepoint === 95
 						? '__'
-						: reEncodeValidChars[codepoint] ?? '_' + codepoint.toString(16).padStart(2, '0')
+						: (reEncodeValidChars[codepoint] ?? '_' + codepoint.toString(16).padStart(2, '0'))
 					: String.fromCodePoint(codepoint);
 		}
 	}

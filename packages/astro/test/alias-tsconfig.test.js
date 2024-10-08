@@ -13,7 +13,7 @@ describe('Aliases with tsconfig.json', () => {
 	function getLinks(html) {
 		let $ = cheerio.load(html);
 		let out = [];
-		$('link[rel=stylesheet]').each((i, el) => {
+		$('link[rel=stylesheet]').each((_i, el) => {
 			out.push($(el).attr('href'));
 		});
 		return out;

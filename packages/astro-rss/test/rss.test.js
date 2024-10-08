@@ -10,6 +10,7 @@ import {
 	phpFeedItem,
 	phpFeedItemWithContent,
 	phpFeedItemWithCustomData,
+	phpFeedItemWithoutDate,
 	site,
 	title,
 	web1FeedItem,
@@ -24,6 +25,8 @@ import {
 const validXmlResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItem.title}]]></title><link>${site}${phpFeedItem.link}/</link><guid isPermaLink="true">${site}${phpFeedItem.link}/</guid><description><![CDATA[${phpFeedItem.description}]]></description><pubDate>${new Date(phpFeedItem.pubDate).toUTCString()}</pubDate></item><item><title><![CDATA[${web1FeedItem.title}]]></title><link>${site}${web1FeedItem.link}/</link><guid isPermaLink="true">${site}${web1FeedItem.link}/</guid><description><![CDATA[${web1FeedItem.description}]]></description><pubDate>${new Date(web1FeedItem.pubDate).toUTCString()}</pubDate></item></channel></rss>`;
 // biome-ignore format: keep in one line
 const validXmlWithContentResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItemWithContent.title}]]></title><link>${site}${phpFeedItemWithContent.link}/</link><guid isPermaLink="true">${site}${phpFeedItemWithContent.link}/</guid><description><![CDATA[${phpFeedItemWithContent.description}]]></description><pubDate>${new Date(phpFeedItemWithContent.pubDate).toUTCString()}</pubDate><content:encoded><![CDATA[${phpFeedItemWithContent.content}]]></content:encoded></item><item><title><![CDATA[${web1FeedItemWithContent.title}]]></title><link>${site}${web1FeedItemWithContent.link}/</link><guid isPermaLink="true">${site}${web1FeedItemWithContent.link}/</guid><description><![CDATA[${web1FeedItemWithContent.description}]]></description><pubDate>${new Date(web1FeedItemWithContent.pubDate).toUTCString()}</pubDate><content:encoded><![CDATA[${web1FeedItemWithContent.content}]]></content:encoded></item></channel></rss>`;
+// biome-ignore format: keep in one line
+const validXmlResultWithMissingDate = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItemWithoutDate.title}]]></title><link>${site}${phpFeedItemWithoutDate.link}/</link><guid isPermaLink="true">${site}${phpFeedItemWithoutDate.link}/</guid><description><![CDATA[${phpFeedItemWithoutDate.description}]]></description></item><item><title><![CDATA[${phpFeedItem.title}]]></title><link>${site}${phpFeedItem.link}/</link><guid isPermaLink="true">${site}${phpFeedItem.link}/</guid><description><![CDATA[${phpFeedItem.description}]]></description><pubDate>${new Date(phpFeedItem.pubDate).toUTCString()}</pubDate></item></channel></rss>`;
 // biome-ignore format: keep in one line
 const validXmlResultWithAllData = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItem.title}]]></title><link>${site}${phpFeedItem.link}/</link><guid isPermaLink="true">${site}${phpFeedItem.link}/</guid><description><![CDATA[${phpFeedItem.description}]]></description><pubDate>${new Date(phpFeedItem.pubDate).toUTCString()}</pubDate></item><item><title><![CDATA[${web1FeedItemWithAllData.title}]]></title><link>${site}${web1FeedItemWithAllData.link}/</link><guid isPermaLink="true">${site}${web1FeedItemWithAllData.link}/</guid><description><![CDATA[${web1FeedItemWithAllData.description}]]></description><pubDate>${new Date(web1FeedItemWithAllData.pubDate).toUTCString()}</pubDate><category>${web1FeedItemWithAllData.categories[0]}</category><category>${web1FeedItemWithAllData.categories[1]}</category><author>${web1FeedItemWithAllData.author}</author><comments>${web1FeedItemWithAllData.commentsUrl}</comments><source url="${web1FeedItemWithAllData.source.url}">${web1FeedItemWithAllData.source.title}</source><enclosure url="${site}${web1FeedItemWithAllData.enclosure.url}" length="${web1FeedItemWithAllData.enclosure.length}" type="${web1FeedItemWithAllData.enclosure.type}"/></item></channel></rss>`;
 // biome-ignore format: keep in one line
@@ -99,6 +102,17 @@ describe('getRssString', () => {
 		});
 
 		assertXmlDeepEqual(str, validXmlWithContentResult);
+	});
+
+	it('should generate on valid RSSFeedItem array with missing date', async () => {
+		const str = await getRssString({
+			title,
+			description,
+			items: [phpFeedItemWithoutDate, phpFeedItem],
+			site,
+		});
+
+		assertXmlDeepEqual(str, validXmlResultWithMissingDate);
 	});
 
 	it('should generate on valid RSSFeedItem array with all RSS content included', async () => {

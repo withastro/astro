@@ -1,5 +1,4 @@
 /// <reference lib="dom" />
-/* eslint @typescript-eslint/no-unused-vars: off */
 /**
  * Adapted from babel-plugin-react-html-attrs's TypeScript definition from DefinitelyTyped.
  * @see https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/babel-plugin-react-html-attrs/index.d.ts
