@@ -13,7 +13,9 @@
   },
   "keywords": [
     "astro-integration",
-    "astro-component"
+    "withastro",
+    "css",
+    "tailwindcss"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/tailwind/",
