@@ -498,8 +498,14 @@ export async function createRouteManifest(
 
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
 
+	// we remove the file based routes that were deemed redirects
+	const filteredFiledBasedRoutes = fileBasedRoutes.filter((fileBasedRoute) => {
+		const isRedirect = redirectRoutes.findIndex((rd) => rd.route === fileBasedRoute.route);
+		return isRedirect < 0;
+	});
+
 	const routes: RouteData[] = [
-		...[...fileBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
+		...[...filteredFiledBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
 	];
 
 	settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
