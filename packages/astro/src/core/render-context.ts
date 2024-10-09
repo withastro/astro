@@ -155,6 +155,7 @@ export class RenderContext {
 			}
 			let response: Response;
 
+			console.log('route type', this.routeData.type);
 			switch (this.routeData.type) {
 				case 'endpoint': {
 					response = await renderEndpoint(
