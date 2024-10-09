@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixed .mts astro config files not reloading automatically
+Fixes a bug where `astro.config.mts` and `astro.config.cts` weren't reloading the dev server upon modifications.
