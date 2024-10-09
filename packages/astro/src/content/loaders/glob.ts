@@ -1,9 +1,9 @@
 import { promises as fs } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import fastGlob from 'fast-glob';
 import { bold, green } from 'kleur/colors';
 import micromatch from 'micromatch';
 import pLimit from 'p-limit';
+import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
 import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
@@ -215,7 +215,8 @@ export function glob(globOptions: GlobOptions): Loader {
 				baseDir.pathname = `${baseDir.pathname}/`;
 			}
 
-			const files = await fastGlob(globOptions.pattern, {
+			const files = await tinyglobby(globOptions.pattern, {
+				expandDirectories: false,
 				cwd: fileURLToPath(baseDir),
 			});
 
