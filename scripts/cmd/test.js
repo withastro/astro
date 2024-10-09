@@ -62,7 +62,7 @@ export default async function test() {
 	}
 
 	const teardownModule = args.values.teardown
-		? await import(path.resolve(args.values.teardown))
+		? await import(pathToFileURL(path.resolve(args.values.teardown)).toString())
 		: undefined;
 
 	// https://nodejs.org/api/test.html#runoptions

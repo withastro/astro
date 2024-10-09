@@ -12,7 +12,8 @@ function isStarted(container) {
 	return !!container.viteServer.httpServer?.listening;
 }
 
-describe('dev container restarts', () => {
+// Checking for restarts may hang if no restarts happen, so set a 20s timeout for each test
+describe('dev container restarts', { timeout: 20000 }, () => {
 	it('Surfaces config errors on restarts', async () => {
 		const fixture = await createFixture({
 			'/src/pages/index.astro': `
@@ -49,7 +50,7 @@ describe('dev container restarts', () => {
 
 			// Wait for the restart to finish
 			let hmrError = await restartComplete;
-			assert.notEqual(typeof hmrError, 'undefined');
+			assert.ok(hmrError instanceof Error);
 
 			// Do it a second time to make sure we are still watching
 
@@ -57,7 +58,7 @@ describe('dev container restarts', () => {
 			await fixture.writeFile('/astro.config.mjs', 'const foo = bar2');
 
 			hmrError = await restartComplete;
-			assert.notEqual(typeof hmrError, 'undefined');
+			assert.ok(hmrError instanceof Error);
 		} finally {
 			await restart.container.close();
 		}
