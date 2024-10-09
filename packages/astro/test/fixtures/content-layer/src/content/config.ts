@@ -198,16 +198,22 @@ const images = defineCollection({
 const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
-		load: async ({ store, refreshContextData }) => {
+		load: async ({ store, refreshContextData, parseData }) => {
 			const entry = store.get<{ lastValue: number }>('value');
 			const lastValue = entry?.data.lastValue ?? 0;
-			store.set({
+			const raw = {
 				id: 'value',
 				data: {
 					lastValue: lastValue + 1,
 					lastUpdated: new Date(),
 					refreshContextData,
+					slug: 'slimy'
 				},
+			}
+			const parsed = await parseData(raw)
+			store.set({
+				id: raw.id,
+				data: parsed,
 			});
 		},
 		// Example of a loader that returns an async schema function
@@ -215,7 +221,8 @@ const increment = defineCollection({
 			z.object({
 				lastValue: z.number(),
 				lastUpdated: z.date(),
-				refreshContextData: z.record(z.unknown()),
+				refreshContextData: z.record(z.unknown()).optional(),
+				slug: z.string().optional(),
 			}),
 	},
 });

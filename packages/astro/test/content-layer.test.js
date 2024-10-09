@@ -260,6 +260,10 @@ describe('Content Layer', () => {
 			});
 		});
 
+		it('allows "slug" as a field', async () => {
+			assert.equal(json.increment.data.slug, 'slimy');
+		});
+
 		it('updates the store on new builds', async () => {
 			assert.equal(json.increment.data.lastValue, 1);
 			assert.equal(json.entryWithReference.data.something?.content, 'transform me');
