@@ -158,7 +158,6 @@ describe('NodeApp', () => {
 				assert.equal(result.url, 'https://example.com:3000/');
 			});
 
-
 			it('prefers port from x-forwarded-host', () => {
 				const result = NodeApp.createRequest({
 					...mockNodeRequest,
