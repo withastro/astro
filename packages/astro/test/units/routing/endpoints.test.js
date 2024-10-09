@@ -1,16 +1,14 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import testAdapter from '../../test-adapter.js';
 import {
 	createBasicSettings,
-	createFs,
+	createFixture,
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
 
-const root = new URL('../../fixtures/api-routes/', import.meta.url);
 const fileSystem = {
 	'/src/pages/response-redirect.ts': `export const GET = ({ url }) => Response.redirect("https://example.com/destination", 307)`,
 	'/src/pages/response.ts': `export const GET = ({ url }) => new Response(null, { headers: { Location: "https://example.com/destination" }, status: 307 })`,
@@ -23,9 +21,9 @@ describe('endpoints', () => {
 	let settings;
 
 	before(async () => {
-		const fs = createFs(fileSystem, root);
+		const fixture = await createFixture(fileSystem);
 		settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			output: 'server',
 			adapter: testAdapter(),
 		});

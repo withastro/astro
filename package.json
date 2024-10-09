@@ -87,6 +87,9 @@
       "allowAny": [
         "astro"
       ]
+    },
+    "patchedDependencies": {
+      "fs-fixture@2.4.0": "patches/fs-fixture@2.4.0.patch"
     }
   }
 }
