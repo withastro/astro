@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, green } from 'kleur/colors';
-import micromatch from 'micromatch';
+import picomatch from 'picomatch';
 import pLimit from 'p-limit';
 import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
@@ -292,7 +292,7 @@ export function glob(globOptions: GlobOptions): Loader {
 			}
 
 			const matchesGlob = (entry: string) =>
-				!entry.startsWith('../') && micromatch.isMatch(entry, globOptions.pattern);
+				!entry.startsWith('../') && picomatch.isMatch(entry, globOptions.pattern);
 
 			const basePath = fileURLToPath(baseDir);
 

@@ -646,9 +646,6 @@ importers:
       magicast:
         specifier: ^0.3.5
         version: 0.3.5
-      micromatch:
-        specifier: ^4.0.8
-        version: 4.0.8
       mrmime:
         specifier: ^2.0.0
         version: 2.0.0
@@ -661,6 +658,9 @@ importers:
       p-queue:
         specifier: ^8.0.1
         version: 8.0.1
+      picomatch:
+        specifier: ^4.0.2
+        version: 4.0.2
       preferred-pm:
         specifier: ^4.0.0
         version: 4.0.0
@@ -762,9 +762,9 @@ importers:
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
-      '@types/micromatch':
-        specifier: ^4.0.9
-        version: 4.0.9
+      '@types/picomatch':
+        specifier: ^3.0.1
+        version: 3.0.1
       '@types/prompts':
         specifier: ^2.4.9
         version: 2.4.9
@@ -7075,9 +7075,6 @@ packages:
   '@types/babel__traverse@7.20.6':
     resolution: {integrity: sha512-r1bzfrm0tomOI8g1SzvCaQHo6Lcv6zu0EA+W2kHrt8dyrHQxGzBBL4kdkzIS+jBMV+EYcMAEAqXqYaLJq5rOZg==}
 
-  '@types/braces@3.0.4':
-    resolution: {integrity: sha512-0WR3b8eaISjEW7RpZnclONaLFDf7buaowRHdqLp4vLj54AsSAYWfh3DRbfiYJY9XDxMgx1B4sE1Afw2PGpuHOA==}
-
   '@types/canvas-confetti@1.6.4':
     resolution: {integrity: sha512-fNyZ/Fdw/Y92X0vv7B+BD6ysHL4xVU5dJcgzgxLdGbn8O3PezZNIJpml44lKM0nsGur+o/6+NZbZeNTt00U1uA==}
 
@@ -7156,9 +7153,6 @@ packages:
   '@types/mdx@2.0.13':
     resolution: {integrity: sha512-+OWZQfAYyio6YkJb3HLxDrvnx6SWWDbC0zVPfBRzUk0/nqoDyf6dNxQi3eArPe8rJ473nobTMQ/8Zk+LxJ+Yuw==}
 
-  '@types/micromatch@4.0.9':
-    resolution: {integrity: sha512-7V+8ncr22h4UoYRLnLXSpTxjQrNUXtWHGeMPRJt1nULXI57G9bIcpyrHlmrQ7QK24EyyuXvYcSSWAM8GA9nqCg==}
-
   '@types/ms@0.7.34':
     resolution: {integrity: sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==}
 
@@ -7173,6 +7167,9 @@ packages:
 
   '@types/node@18.19.31':
     resolution: {integrity: sha512-ArgCD39YpyyrtFKIqMDvjz79jto5fcI/SVUs2HwB+f0dAzq68yqOdyaSivLiLugSziTpNXLQrVb7RZFmdZzbhA==}
+
+  '@types/picomatch@3.0.1':
+    resolution: {integrity: sha512-1MRgzpzY0hOp9pW/kLRxeQhUWwil6gnrUYd3oEpeYBqp/FexhaCPv3F8LsYr47gtUU45fO2cm1dbwkSrHEo8Uw==}
 
   '@types/prismjs@1.26.4':
     resolution: {integrity: sha512-rlAnzkW2sZOjbqZ743IHUhFcvzaGbqijwOu8QZnZCjfQzBqFE3s4lOTJEsxikImav9uzz/42I+O7YUs1mWgMlg==}
@@ -8873,6 +8870,7 @@ packages:
 
   libsql@0.4.5:
     resolution: {integrity: sha512-sorTJV6PNt94Wap27Sai5gtVLIea4Otb2LUiAUyr3p6BPOScGMKGt5F1b5X/XgkNtcsDKeX5qfeBDj+PdShclQ==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -12648,8 +12646,6 @@ snapshots:
     dependencies:
       '@babel/types': 7.25.7
 
-  '@types/braces@3.0.4': {}
-
   '@types/canvas-confetti@1.6.4': {}
 
   '@types/clean-css@4.2.11':
@@ -12724,10 +12720,6 @@ snapshots:
 
   '@types/mdx@2.0.13': {}
 
-  '@types/micromatch@4.0.9':
-    dependencies:
-      '@types/braces': 3.0.4
-
   '@types/ms@0.7.34': {}
 
   '@types/nlcst@2.0.3':
@@ -12741,6 +12733,8 @@ snapshots:
   '@types/node@18.19.31':
     dependencies:
       undici-types: 5.26.5
+
+  '@types/picomatch@3.0.1': {}
 
   '@types/prismjs@1.26.4': {}
 

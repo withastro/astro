@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Refactors to use `tinyglobby` for internal globbing operations
+Refactors to use `tinyglobby` and `picomatch` for internal globbing operations
