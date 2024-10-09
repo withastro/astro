@@ -132,6 +132,9 @@ async function renderFrameworkComponent(
 			// we can skip the `check` calls and use that renderer
 			if (renderers.length === 1) {
 				renderer = renderers[0];
+
+				// Still call `check` because some renderers store state during the check phase that they expect when `renderToStaticMarkup` is called.
+				await renderer.ssr.check.call({ result }, Component, props, children)
 			} else {
 				let error;
 
@@ -152,7 +155,6 @@ async function renderFrameworkComponent(
 					throw error;
 				}
 			}
-			
 		}
 
 		if (!renderer && typeof HTMLElement === 'function' && componentIsHTMLElement(Component)) {
