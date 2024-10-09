@@ -446,10 +446,7 @@ async function generatePath(
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		// A short delay causes Google to interpret the redirect as temporary.
-		// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
-		const delay = response.status === 302 ? 2 : 0;
-		body = redirectTemplate({ delay, location, from: fromPath });
+		body = redirectTemplate({ status: response.status, location, from: fromPath });
 		if (config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}

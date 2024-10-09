@@ -299,7 +299,7 @@ export async function handleRoute({
 			// We try to replicate the same behaviour that we provide during a static build
 			response = new Response(
 				redirectTemplate({
-					delay: response.status === 302 ? 2 : 0,
+					status: response.status,
 					location: response.headers.get('location')!,
 					from: pathname,
 				}),
