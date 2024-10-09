@@ -23,7 +23,6 @@ describe('Astro HTTP/2 support', () => {
 			const result = await fixture.fetch('/');
 			assert.equal(result.status, 200);
 			const html = await result.text();
-			console.log(result.headers);
 			const $ = cheerio.load(html);
 			const urlString = $('main').text();
 			assert.equal(Boolean(urlString), true);

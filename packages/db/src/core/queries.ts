@@ -1,4 +1,4 @@
-import { type SQL } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { bold } from 'kleur/colors';
 import {
@@ -191,7 +191,7 @@ function getDefaultValueSql(columnName: string, column: DBColumnWithDefault): st
 			try {
 				stringified = JSON.stringify(column.schema.default);
 			} catch {
-				// eslint-disable-next-line no-console
+				// biome-ignore lint/suspicious/noConsoleLog: allowed
 				console.log(
 					`Invalid default value for column ${bold(
 						columnName,

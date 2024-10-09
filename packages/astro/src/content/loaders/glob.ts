@@ -6,7 +6,7 @@ import micromatch from 'micromatch';
 import pLimit from 'p-limit';
 import type { ContentEntryRenderFuction, ContentEntryType } from '../../@types/astro.js';
 import type { RenderedContent } from '../data-store.js';
-import { getContentEntryIdAndSlug, getEntryConfigByExtMap, posixRelative } from '../utils.js';
+import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
 
 export interface GenerateIdOptions {
@@ -66,7 +66,7 @@ export function glob(globOptions: GlobOptions): Loader {
 
 	return {
 		name: 'glob-loader',
-		load: async ({ settings, logger, watcher, parseData, store, generateDigest }) => {
+		load: async ({ config, logger, watcher, parseData, store, generateDigest, entryTypes }) => {
 			const renderFunctionByContentType = new WeakMap<
 				ContentEntryType,
 				ContentEntryRenderFuction
@@ -107,21 +107,17 @@ export function glob(globOptions: GlobOptions): Loader {
 						store.addModuleImport(existingEntry.filePath);
 					}
 
-					if (existingEntry.rendered?.metadata?.imagePaths?.length) {
+					if (existingEntry.assetImports?.length) {
 						// Add asset imports for existing entries
-						store.addAssetImports(
-							existingEntry.rendered.metadata.imagePaths,
-							existingEntry.filePath,
-						);
+						store.addAssetImports(existingEntry.assetImports, existingEntry.filePath);
 					}
-					// Re-parsing to resolve images and other effects
-					await parseData(existingEntry);
+
 					return;
 				}
 
 				const filePath = fileURLToPath(fileUrl);
 
-				const relativePath = posixRelative(fileURLToPath(settings.config.root), filePath);
+				const relativePath = posixRelative(fileURLToPath(config.root), filePath);
 
 				const parsedData = await parseData({
 					id,
@@ -131,7 +127,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				if (entryType.getRenderFunction) {
 					let render = renderFunctionByContentType.get(entryType);
 					if (!render) {
-						render = await entryType.getRenderFunction(settings);
+						render = await entryType.getRenderFunction(config);
 						// Cache the render function for this content type, so it can re-use parsers and other expensive setup
 						renderFunctionByContentType.set(entryType, render);
 					}
@@ -156,10 +152,9 @@ export function glob(globOptions: GlobOptions): Loader {
 						filePath: relativePath,
 						digest,
 						rendered,
+						assetImports: rendered?.metadata?.imagePaths,
 					});
-					if (rendered?.metadata?.imagePaths?.length) {
-						store.addAssetImports(rendered.metadata.imagePaths, relativePath);
-					}
+
 					// todo: add an explicit way to opt in to deferred rendering
 				} else if ('contentModuleTypes' in entryType) {
 					store.set({
@@ -177,14 +172,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				fileToIdMap.set(filePath, id);
 			}
 
-			const entryConfigByExt = getEntryConfigByExtMap([
-				...settings.contentEntryTypes,
-				...settings.dataEntryTypes,
-			] as Array<ContentEntryType>);
-
-			const baseDir = globOptions.base
-				? new URL(globOptions.base, settings.config.root)
-				: settings.config.root;
+			const baseDir = globOptions.base ? new URL(globOptions.base, config.root) : config.root;
 
 			if (!baseDir.pathname.endsWith('/')) {
 				baseDir.pathname = `${baseDir.pathname}/`;
@@ -200,13 +188,13 @@ export function glob(globOptions: GlobOptions): Loader {
 					logger.warn(`No extension found for ${file}`);
 					return;
 				}
-				return entryConfigByExt.get(`.${ext}`);
+				return entryTypes.get(`.${ext}`);
 			}
 
 			const limit = pLimit(10);
 			const skippedFiles: Array<string> = [];
 
-			const contentDir = new URL('content/', settings.config.srcDir);
+			const contentDir = new URL('content/', config.srcDir);
 
 			function isInContentDir(file: string) {
 				const fileUrl = new URL(file, baseDir);

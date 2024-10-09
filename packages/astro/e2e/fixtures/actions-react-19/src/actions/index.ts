@@ -1,5 +1,6 @@
 import { db, Likes, eq, sql } from 'astro:db';
-import { defineAction, z, type SafeResult } from 'astro:actions';
+import { defineAction, type SafeResult } from 'astro:actions';
+import { z } from 'astro:schema';
 import { experimental_getActionState } from '@astrojs/react/actions';
 
 export const server = {

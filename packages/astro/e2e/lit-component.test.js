@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory, waitForHydrate } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/lit-component/',
 });
 

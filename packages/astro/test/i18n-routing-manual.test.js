@@ -53,9 +53,9 @@ describe('Dev server manual routing', () => {
 		assert.equal(text.includes('Hola.'), true);
 	});
 
-	it('should not redirect prerendered 404 routes in dev', async () => {
+	it('should call the middleware for 404.astro pages', async () => {
 		const response = await fixture.fetch('/redirect-me');
-		assert.equal(response.status, 404);
+		assert.equal(response.status, 200);
 	});
 });
 

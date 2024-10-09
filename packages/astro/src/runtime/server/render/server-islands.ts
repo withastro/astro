@@ -47,7 +47,7 @@ export function renderServerIsland(
 				}
 			}
 
-			destination.write('<!--server-island-start-->');
+			destination.write('<!--[if astro]>server-island-start<![endif]-->');
 
 			// Render the slots
 			const renderedSlots: Record<string, string> = {};
@@ -88,7 +88,7 @@ if(response.status === 200 && response.headers.get('content-type') === 'text/htm
 	// Swap!
 	while(script.previousSibling &&
 		script.previousSibling.nodeType !== 8 &&
-		script.previousSibling.data !== 'server-island-start') {
+		script.previousSibling.data !== '[if astro]>server-island-start<![endif]') {
 		script.previousSibling.remove();
 	}
 	script.previousSibling?.remove();

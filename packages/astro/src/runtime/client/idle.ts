@@ -1,14 +1,22 @@
 import type { ClientDirective } from '../../@types/astro.js';
 
-const idleDirective: ClientDirective = (load) => {
+const idleDirective: ClientDirective = (load, options) => {
 	const cb = async () => {
 		const hydrate = await load();
 		await hydrate();
 	};
+
+	const rawOptions =
+		typeof options.value === 'object' ? (options.value as IdleRequestOptions) : undefined;
+
+	const idleOptions: IdleRequestOptions = {
+		timeout: rawOptions?.timeout,
+	};
+
 	if ('requestIdleCallback' in window) {
-		(window as any).requestIdleCallback(cb);
+		(window as any).requestIdleCallback(cb, idleOptions);
 	} else {
-		setTimeout(cb, 200);
+		setTimeout(cb, idleOptions.timeout || 200);
 	}
 };
 

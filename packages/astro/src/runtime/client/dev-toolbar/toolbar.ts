@@ -1,9 +1,8 @@
-/* eslint-disable no-console */
 import type { ResolvedDevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
 import { type ToolbarAppEventTarget, serverHelpers } from './helpers.js';
 import { settings } from './settings.js';
 import { type Icon, getIconElement, isDefinedIcon } from './ui-library/icons.js';
-import { type Placement } from './ui-library/window.js';
+import type { Placement } from './ui-library/window.js';
 
 export type DevToolbarApp = DevToolbarAppDefinition & {
 	builtIn: boolean;

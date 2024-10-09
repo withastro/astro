@@ -1,5 +1,17 @@
 # @astrojs/preact
 
+## 3.5.3
+
+### Patch Changes
+
+- [#11930](https://github.com/withastro/astro/pull/11930) [`4a44e82`](https://github.com/withastro/astro/commit/4a44e82bbdf0572190618d8c5882c63a6525a198) Thanks [@lukasbachlechner](https://github.com/lukasbachlechner)! - Preact components no longer throw an error if a property is null.
+
+## 3.5.2
+
+### Patch Changes
+
+- [#11834](https://github.com/withastro/astro/pull/11834) [`5f2536b`](https://github.com/withastro/astro/commit/5f2536b51df93bfd51098c48220d647e7ad3954c) Thanks [@ph1p](https://github.com/ph1p)! - Preact signals are now serialized correctly in arrays when they are given to components.
+
 ## 3.5.1
 
 ### Patch Changes

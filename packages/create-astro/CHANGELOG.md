@@ -1,5 +1,17 @@
 # create-astro
 
+## 4.9.1
+
+### Patch Changes
+
+- [#12118](https://github.com/withastro/astro/pull/12118) [`f47b347`](https://github.com/withastro/astro/commit/f47b347da899c6e1dcd0b2e7887f7fce6ec8e270) Thanks [@Namchee](https://github.com/Namchee)! - Removes the `strip-ansi` dependency in favor of the native Node API
+
+## 4.9.0
+
+### Minor Changes
+
+- [#11924](https://github.com/withastro/astro/pull/11924) [`7d70ba3`](https://github.com/withastro/astro/commit/7d70ba317889b9281c7891038779a68fcb8f0778) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the default Astro config with `// @ts-check` if the Typescript preset is `strict` or `strictest`
+
 ## 4.8.4
 
 ### Patch Changes

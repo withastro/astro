@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/node": "workspace:*",
+    "@astrojs/node": "^8.3.4",
     "@test/static-build-pkg": "workspace:*",
     "astro": "workspace:*"
   }

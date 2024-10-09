@@ -6,8 +6,7 @@ import { green } from 'kleur/colors';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
-import { DATA_STORE_FILE } from '../../content/consts.js';
-import { globalContentLayer } from '../../content/content-layer.js';
+import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
@@ -108,7 +107,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	let store: MutableDataStore | undefined;
 	try {
-		const dataStoreFile = new URL(DATA_STORE_FILE, restart.container.settings.config.cacheDir);
+		const dataStoreFile = getDataStoreFile(restart.container.settings);
 		if (existsSync(dataStoreFile)) {
 			store = await MutableDataStore.fromFile(dataStoreFile);
 		}

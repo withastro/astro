@@ -25,4 +25,12 @@ describe('getStaticPaths with trailingSlash: ignore', () => {
 		let $ = cheerio.load(html);
 		assert.equal($('h1').text(), 'Page 2');
 	});
+
+	// for regression: https://github.com/withastro/astro/issues/11990
+	it('nested static paths generate', async () => {
+		let html = await fixture.readFile('/archive/news/july-2024/2/index.html');
+		let $ = cheerio.load(html);
+		assert.equal($('#slug').text(), 'news');
+		assert.equal($('#page').text(), 'july-2024/2');
+	});
 });

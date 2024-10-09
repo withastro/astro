@@ -23,7 +23,7 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { createKey } from '../encryption.js';
+import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
@@ -61,6 +61,9 @@ export default async function build(
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
+
+	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+
 	if (inlineConfig.force) {
 		if (astroConfig.experimental.contentCollectionCache) {
 			const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
@@ -70,10 +73,8 @@ export default async function build(
 				logger.warn('content', 'content cache cleared (force)');
 			}
 		}
-		await clearContentLayerCache({ astroConfig, logger, fs });
+		await clearContentLayerCache({ settings, logger, fs });
 	}
-
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	const builder = new AstroBuilder(settings, {
 		...options,
@@ -187,6 +188,9 @@ class AstroBuilder {
 			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`),
 		);
 
+		const hasKey = hasEnvironmentKey();
+		const keyPromise = hasKey ? getEnvironmentKey() : createKey();
+
 		const opts: StaticBuildOptions = {
 			allPages,
 			settings: this.settings,
@@ -197,7 +201,7 @@ class AstroBuilder {
 			pageNames,
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
-			key: createKey(),
+			key: keyPromise,
 		};
 
 		const { internals, ssrOutputChunkNames, contentFileNames } = await viteBuild(opts);

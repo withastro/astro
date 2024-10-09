@@ -1,5 +1,23 @@
 # @astrojs/mdx
 
+## 3.1.7
+
+### Patch Changes
+
+- [#12026](https://github.com/withastro/astro/pull/12026) [`40e7a1b`](https://github.com/withastro/astro/commit/40e7a1b05d9e5ea3fcda176c9663bbcff86edb63) Thanks [@bluwy](https://github.com/bluwy)! - Initializes the MDX processor only when there's `.mdx` files
+
+## 3.1.6
+
+### Patch Changes
+
+- [#11975](https://github.com/withastro/astro/pull/11975) [`c9ae7b1`](https://github.com/withastro/astro/commit/c9ae7b1b89e050900bbc111f29e8c5d95c26bf36) Thanks [@bluwy](https://github.com/bluwy)! - Handles nested root hast node when optimizing MDX
+
+## 3.1.5
+
+### Patch Changes
+
+- [#11818](https://github.com/withastro/astro/pull/11818) [`88ef1d0`](https://github.com/withastro/astro/commit/88ef1d0e774e8ab8798b9912da1b069f97736623) Thanks [@bluwy](https://github.com/bluwy)! - Fixes CSS in the layout component to be ordered first before any other components in the MDX file
+
 ## 3.1.4
 
 ### Patch Changes
