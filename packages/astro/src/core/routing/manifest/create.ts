@@ -500,18 +500,8 @@ export async function createRouteManifest(
 
 	// we remove the file based routes that were deemed redirects
 	const filteredFiledBasedRoutes = fileBasedRoutes.filter((fileBasedRoute) => {
-		let isRedirect = redirectRoutes['normal'].findIndex((rd) => rd.route === fileBasedRoute.route);
-
-		if (isRedirect >= 0) {
-			return false;
-		}
-		isRedirect = redirectRoutes['legacy'].findIndex((rd) => rd.route === fileBasedRoute.route);
-
-		if (isRedirect >= 0) {
-			return false;
-		}
-
-		return true;
+		const isRedirect = redirectRoutes.findIndex((rd) => rd.route === fileBasedRoute.route);
+		return isRedirect < 0;
 	});
 
 	const routes: RouteData[] = [
