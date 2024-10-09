@@ -1,6 +1,6 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import glob from 'fast-glob';
+import { convertPathToPattern } from 'tinyglobby';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import { vitePluginActions, vitePluginUserActions } from '../actions/plugins.js';
@@ -120,7 +120,7 @@ export async function createVite(
 		},
 	});
 
-	const srcDirPattern = glob.convertPathToPattern(fileURLToPath(settings.config.srcDir));
+	const srcDirPattern = convertPathToPattern(fileURLToPath(settings.config.srcDir));
 
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {

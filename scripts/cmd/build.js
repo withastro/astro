@@ -1,7 +1,6 @@
 import fs from 'node:fs/promises';
 import esbuild from 'esbuild';
-import { copy } from 'esbuild-plugin-copy';
-import glob from 'fast-glob';
+import { glob } from 'tinyglobby';
 import { dim, green, red, yellow } from 'kleur/colors';
 import prebuild from './prebuild.js';
 
@@ -42,14 +41,15 @@ export default async function build(...args) {
 		.map((f) => f.replace(/^'/, '').replace(/'$/, '')); // Needed for Windows: glob strings contain surrounding string chars??? remove these
 	let entryPoints = [].concat(
 		...(await Promise.all(
-			patterns.map((pattern) => glob(pattern, { filesOnly: true, absolute: true })),
+			patterns.map((pattern) =>
+				glob(pattern, { filesOnly: true, expandDirectories: false, absolute: true }),
+			),
 		)),
 	);
 
 	const noClean = args.includes('--no-clean-dist');
 	const bundle = args.includes('--bundle');
 	const forceCJS = args.includes('--force-cjs');
-	const copyWASM = args.includes('--copy-wasm');
 
 	const { type = 'module', dependencies = {} } = await readPackageJSON('./package.json');
 
@@ -73,7 +73,7 @@ export default async function build(...args) {
 			entryPoints,
 			outdir,
 			outExtension: forceCJS ? { '.js': '.cjs' } : {},
-			format
+			format,
 		});
 		return;
 	}
@@ -91,7 +91,8 @@ export default async function build(...args) {
 				} else {
 					if (result.warnings.length) {
 						console.log(
-							dim(`[${date}] `) + yellow('⚠ updated with warnings:\n' + result.warnings.join('\n')),
+							dim(`[${date}] `) +
+								yellow('⚠ updated with warnings:\n' + result.warnings.join('\n')),
 						);
 					}
 					console.log(dim(`[${date}] `) + green('✔ updated'));

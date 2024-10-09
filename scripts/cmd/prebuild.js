@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import esbuild from 'esbuild';
-import glob from 'fast-glob';
+import { glob } from 'tinyglobby';
 import { red } from 'kleur/colors';
 
 function escapeTemplateLiterals(str) {

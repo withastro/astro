@@ -4,7 +4,7 @@ import { run } from 'node:test';
 import { spec } from 'node:test/reporters';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
-import glob from 'fast-glob';
+import { glob } from 'tinyglobby';
 
 const isCI = !!process.env.CI;
 const defaultTimeout = isCI ? 1400000 : 600000;

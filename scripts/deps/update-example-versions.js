@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { globby as glob } from 'globby';
+import { glob } from 'tinyglobby';
 
 /*
   This file updates the dependencies' versions in `examples/*` to match the workspace packages' versions.
@@ -26,7 +26,7 @@ for (const workspaceDir of workspaceDirs) {
 	const packageJson = await readAndParsePackageJson(packageJsonPath);
 	if (!packageJson) continue;
 
-	if (packageJson.private === true) continue
+	if (packageJson.private === true) continue;
 
 	if (!packageJson.name) {
 		throw new Error(`${packageJsonPath} does not contain a "name" field.`);

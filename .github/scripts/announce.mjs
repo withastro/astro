@@ -1,4 +1,4 @@
-import { globby as glob } from 'globby';
+import { glob } from 'tinyglobby';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { setOutput } from './utils.mjs';
