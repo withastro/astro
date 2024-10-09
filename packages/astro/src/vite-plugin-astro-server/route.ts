@@ -1,7 +1,6 @@
 import type http from 'node:http';
 import {
 	DEFAULT_404_COMPONENT,
-	REDIRECT_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	clientLocalsSymbol,
