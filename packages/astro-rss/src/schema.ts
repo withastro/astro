@@ -5,9 +5,9 @@ export const rssSchema = z.object({
 	description: z.string().optional(),
 	pubDate: z
 		.union([z.string(), z.number(), z.date()])
-		.optional()
-		.transform((value) => (value === undefined ? value : new Date(value)))
-		.refine((value) => (value === undefined ? value : !isNaN(value.getTime()))),
+		.transform((value) => new Date(value))
+		.refine((value) => !isNaN(value.getTime()))
+		.optional(),
 	customData: z.string().optional(),
 	categories: z.array(z.string()).optional(),
 	author: z.string().optional(),

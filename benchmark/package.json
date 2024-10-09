@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
-    "@astrojs/node": "^8.3.3",
+    "@astrojs/node": "^8.3.4",
     "@benchmark/timer": "workspace:*",
     "astro": "workspace:*",
     "autocannon": "^7.15.0",

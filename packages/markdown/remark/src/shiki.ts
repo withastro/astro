@@ -61,7 +61,6 @@ export async function createShikiHighlighter({
 				try {
 					await highlighter.loadLanguage(lang as BundledLanguage);
 				} catch (_err) {
-					// eslint-disable-next-line no-console
 					console.warn(
 						`[Shiki] The language "${lang}" doesn't exist, falling back to "plaintext".`,
 					);

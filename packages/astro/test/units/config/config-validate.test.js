@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import stripAnsi from 'strip-ansi';
+import { stripVTControlCharacters } from 'node:util';
 import { z } from 'zod';
 import { validateConfig } from '../../../dist/core/config/validate.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
@@ -19,7 +19,7 @@ describe('Config Validation', () => {
 	it('A validation error can be formatted correctly', async () => {
 		const configError = await validateConfig({ site: 42 }, process.cwd()).catch((err) => err);
 		assert.equal(configError instanceof z.ZodError, true);
-		const formattedError = stripAnsi(formatConfigErrorMessage(configError));
+		const formattedError = stripVTControlCharacters(formatConfigErrorMessage(configError));
 		assert.equal(
 			formattedError,
 			`[config] Astro found issue(s) with your configuration:
@@ -34,7 +34,7 @@ describe('Config Validation', () => {
 		};
 		const configError = await validateConfig(veryBadConfig, process.cwd()).catch((err) => err);
 		assert.equal(configError instanceof z.ZodError, true);
-		const formattedError = stripAnsi(formatConfigErrorMessage(configError));
+		const formattedError = stripVTControlCharacters(formatConfigErrorMessage(configError));
 		assert.equal(
 			formattedError,
 			`[config] Astro found issue(s) with your configuration:
