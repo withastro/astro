@@ -2,7 +2,7 @@
 
 This package brings fast RSS feed generation to blogs and other content sites built with [Astro](https://astro.build/). For more information about RSS feeds in general, see [aboutfeeds.com](https://aboutfeeds.com/).
 
-## Usage guide
+## Installation and use
 
 Read the [`@astrojs/rss` docs][docs] for usage examples.
 
