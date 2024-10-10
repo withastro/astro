@@ -100,7 +100,7 @@ jobs:
   test:
     name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 10
     needs: build
     strategy:
       matrix:

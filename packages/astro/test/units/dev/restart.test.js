@@ -49,17 +49,22 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 			await fixture.writeFile('/astro.config.mjs', 'const foo = bar');
 
 			// Wait for the restart to finish
+			console.log('waiting...')
 			let hmrError = await restartComplete;
 			assert.ok(hmrError instanceof Error);
+			console.log('done!')
 
 			// Do it a second time to make sure we are still watching
 
 			restartComplete = restart.restarted();
 			await fixture.writeFile('/astro.config.mjs', 'const foo = bar2');
-
+			
+			console.log('second waiting...')
 			hmrError = await restartComplete;
 			assert.ok(hmrError instanceof Error);
+			console.log('second done!')
 		} finally {
+			console.log('cleannnn')
 			await restart.container.close();
 		}
 	});
