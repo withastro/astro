@@ -35,6 +35,8 @@ export type SitemapOptions =
 
 			// called for each sitemap item just before to save them on disk, sync or async
 			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
+
+			xslURL?: string;
 	  }
 	| undefined;
 
