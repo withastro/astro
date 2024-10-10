@@ -134,7 +134,7 @@ export function getFallback(): Fallback {
 
 function runScripts() {
 	let wait = Promise.resolve();
-	for (const script of Array.from(document.scripts)) {
+	for (const script of document.scripts) {
 		if (script.dataset.astroExec === '') continue;
 		const type = script.getAttribute('type');
 		if (type && type !== 'module' && type !== 'text/javascript') continue;
