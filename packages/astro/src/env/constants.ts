@@ -9,3 +9,5 @@ export const ENV_TYPES_FILE = 'env.d.ts';
 
 const PKG_BASE = new URL('../../', import.meta.url);
 export const MODULE_TEMPLATE_URL = new URL('templates/env.mjs', PKG_BASE);
+
+export const ENV_SYMBOL = Symbol.for('astro:env/dev');

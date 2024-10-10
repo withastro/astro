@@ -4,6 +4,7 @@ import { type Plugin, loadEnv } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
+	ENV_SYMBOL,
 	MODULE_TEMPLATE_URL,
 	VIRTUAL_MODULES_IDS,
 	VIRTUAL_MODULES_IDS_VALUES,
@@ -32,11 +33,8 @@ export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin
 				fileURLToPath(settings.config.root),
 				'',
 			);
-			for (const [key, value] of Object.entries(loadedEnv)) {
-				if (value !== undefined) {
-					process.env[key] = value;
-				}
-			}
+			(globalThis as any)[ENV_SYMBOL] ??= {};
+			Object.assign((globalThis as any)[ENV_SYMBOL], loadedEnv);
 
 			const validatedVariables = validatePublicVariables({
 				schema,
