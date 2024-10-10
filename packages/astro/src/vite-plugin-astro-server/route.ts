@@ -13,6 +13,7 @@ import { RenderContext } from '../core/render-context.js';
 import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
+import { isRoute404, isRoute500 } from '../core/util.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { DevPipeline } from './pipeline.js';
 import { writeSSRResult, writeWebResponse } from './response.js';
@@ -36,13 +37,11 @@ function isLoggedRequest(url: string) {
 }
 
 function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
-	const route404 = /^\/404\/?$/;
-	return manifestData.routes.find((r) => route404.test(r.route));
+	return manifestData.routes.find((r) => isRoute404(r.route));
 }
 
 function getCustom500Route(manifestData: ManifestData): RouteData | undefined {
-	const route500 = /^\/500\/?$/;
-	return manifestData.routes.find((r) => route500.test(r.route));
+	return manifestData.routes.find((r) => isRoute500(r.route));
 }
 
 export async function matchRoute(
