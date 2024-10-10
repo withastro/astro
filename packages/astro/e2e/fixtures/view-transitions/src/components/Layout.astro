@@ -40,8 +40,5 @@ const { link } = Astro.props as Props;
 		<main transition:animate="slide">
 			<slot />
 		</main>
-
-		<!-- This ensures we're correctly grabbing just scripts for execution -->
-		<div name="scripts"></div>
 	</body>
 </html>
