@@ -45,11 +45,10 @@ export class DevPipeline extends Pipeline {
 		readonly config = settings.config,
 		readonly defaultRoutes = createDefaultRoutes(manifest),
 	) {
-		const mode = 'development';
 		const resolve = createResolve(loader, config.root);
 		const serverLike = settings.buildOutput === 'server';
 		const streaming = true;
-		super(logger, manifest, mode, [], resolve, serverLike, streaming);
+		super(logger, manifest, 'development', [], resolve, serverLike, streaming);
 		manifest.serverIslandMap = settings.serverIslandMap;
 		manifest.serverIslandNameMap = settings.serverIslandNameMap;
 	}
@@ -72,14 +71,14 @@ export class DevPipeline extends Pipeline {
 		const {
 			config: { root },
 			loader,
-			mode,
+			runtimeMode,
 			settings,
 		} = this;
 		const filePath = new URL(`${routeData.component}`, root);
 		const scripts = new Set<SSRElement>();
 
 		// Inject HMR scripts
-		if (isPage(filePath, settings) && mode === 'development') {
+		if (isPage(filePath, settings) && runtimeMode === 'development') {
 			scripts.add({
 				props: { type: 'module', src: '/@vite/client' },
 				children: '',

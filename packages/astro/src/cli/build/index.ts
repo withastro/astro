@@ -18,6 +18,7 @@ export async function build({ flags }: BuildOptions) {
 						'--force',
 						'Clear the content layer and content collection cache, forcing a full rebuild.',
 					],
+					['--dev', 'Create a development build, similar to code transformed in `astro dev`.'],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},
@@ -28,5 +29,5 @@ export async function build({ flags }: BuildOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	await _build(inlineConfig);
+	await _build(inlineConfig, { dev: !!flags.dev });
 }

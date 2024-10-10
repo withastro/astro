@@ -15,7 +15,7 @@ export class AppPipeline extends Pipeline {
 		{
 			logger,
 			manifest,
-			mode,
+			runtimeMode,
 			renderers,
 			resolve,
 			serverLike,
@@ -25,7 +25,7 @@ export class AppPipeline extends Pipeline {
 			AppPipeline,
 			| 'logger'
 			| 'manifest'
-			| 'mode'
+			| 'runtimeMode'
 			| 'renderers'
 			| 'resolve'
 			| 'serverLike'
@@ -36,7 +36,7 @@ export class AppPipeline extends Pipeline {
 		const pipeline = new AppPipeline(
 			logger,
 			manifest,
-			mode,
+			runtimeMode,
 			renderers,
 			resolve,
 			serverLike,

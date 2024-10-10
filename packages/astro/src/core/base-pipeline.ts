@@ -32,9 +32,9 @@ export abstract class Pipeline {
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
 		/**
-		 * "development" or "production"
+		 * "development" or "production" only
 		 */
-		readonly mode: RuntimeMode,
+		readonly runtimeMode: RuntimeMode,
 		readonly renderers: SSRLoadedRenderer[],
 		readonly resolve: (s: string) => Promise<string>,
 		/**
@@ -51,7 +51,7 @@ export abstract class Pipeline {
 		readonly compressHTML = manifest.compressHTML,
 		readonly i18n = manifest.i18n,
 		readonly middleware = manifest.middleware,
-		readonly routeCache = new RouteCache(logger, mode),
+		readonly routeCache = new RouteCache(logger, runtimeMode),
 		/**
 		 * Used for `Astro.site`.
 		 */

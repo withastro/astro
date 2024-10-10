@@ -92,9 +92,9 @@ export async function createContainer({
 
 	warnMissingAdapter(logger, settings);
 
+	const mode = inlineConfig?.mode ?? 'development';
 	const viteConfig = await createVite(
 		{
-			mode: 'development',
 			server: { host, headers, open },
 			optimizeDeps: {
 				include: rendererClientEntries,
@@ -103,7 +103,7 @@ export async function createContainer({
 		{
 			settings,
 			logger,
-			mode: 'dev',
+			mode,
 			command: 'dev',
 			fs,
 			sync: false,
@@ -114,6 +114,7 @@ export async function createContainer({
 
 	await syncInternal({
 		settings,
+		mode,
 		logger,
 		skip: {
 			content: true,

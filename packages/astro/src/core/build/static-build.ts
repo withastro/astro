@@ -156,7 +156,6 @@ async function ssrBuild(
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
-		mode: viteConfig.mode || 'production',
 		logLevel: viteConfig.logLevel ?? 'error',
 		build: {
 			target: 'esnext',
@@ -269,7 +268,6 @@ async function clientBuild(
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
-		mode: viteConfig.mode || 'production',
 		build: {
 			target: 'esnext',
 			...viteConfig.build,

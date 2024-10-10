@@ -162,7 +162,8 @@ export async function loadFixture(inlineConfig) {
 		build: async (extraInlineConfig = {}, options = {}) => {
 			globalContentLayer.dispose();
 			globalContentConfigObserver.set({ status: 'init' });
-			process.env.NODE_ENV = 'production';
+			// Reset NODE_ENV so it can be re-set by `build()`
+			delete process.env.NODE_ENV;
 			return build(mergeConfig(inlineConfig, extraInlineConfig), {
 				teardownCompiler: false,
 				...options,
@@ -175,7 +176,8 @@ export async function loadFixture(inlineConfig) {
 		startDevServer: async (extraInlineConfig = {}) => {
 			globalContentLayer.dispose();
 			globalContentConfigObserver.set({ status: 'init' });
-			process.env.NODE_ENV = 'development';
+			// Reset NODE_ENV so it can be re-set by `dev()`
+			delete process.env.NODE_ENV;
 			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
@@ -233,7 +235,8 @@ export async function loadFixture(inlineConfig) {
 			}
 		},
 		preview: async (extraInlineConfig = {}) => {
-			process.env.NODE_ENV = 'production';
+			// Reset NODE_ENV so it can be re-set by `preview()`
+			delete process.env.NODE_ENV;
 			const previewServer = await preview(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port

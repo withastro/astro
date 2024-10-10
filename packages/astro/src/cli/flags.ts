@@ -10,7 +10,7 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 	return {
 		// Inline-only configs
 		configFile: typeof flags.config === 'string' ? flags.config : undefined,
-		mode: typeof flags.mode === 'string' ? (flags.mode as AstroInlineConfig['mode']) : undefined,
+		mode: typeof flags.mode === 'string' ? flags.mode : undefined,
 		logLevel: flags.verbose ? 'debug' : flags.silent ? 'silent' : undefined,
 		force: flags.force ? true : undefined,
 

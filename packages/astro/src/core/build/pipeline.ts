@@ -78,7 +78,7 @@ export class BuildPipeline extends Pipeline {
 		super(
 			options.logger,
 			manifest,
-			options.mode,
+			options.runtimeMode,
 			manifest.renderers,
 			resolve,
 			serverLike,
