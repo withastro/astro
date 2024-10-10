@@ -4,7 +4,7 @@ This package brings fast RSS feed generation to blogs and other content sites bu
 
 ## Installation and use
 
-Read the [`@astrojs/rss` docs][docs] for usage examples.
+See the [`@astrojs/rss` guide in the Astro docs][docs] for installation and usage examples.
 
 ## `rss()` configuration options
 
