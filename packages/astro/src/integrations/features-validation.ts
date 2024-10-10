@@ -128,7 +128,6 @@ function featureIsUnsupported(adapterName: string, logger: Logger, featureName: 
 		'config',
 		`The adapter ${adapterName} doesn't currently support the feature "${featureName}".`,
 	);
-	console.trace(adapterName, featureName);
 }
 
 function featureIsExperimental(adapterName: string, logger: Logger, featureName: string) {
