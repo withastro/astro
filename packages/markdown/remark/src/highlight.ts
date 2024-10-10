@@ -1,10 +1,9 @@
 import type { Element, Parent, Root } from 'hast';
-import { fromHtml } from 'hast-util-from-html';
 import { toText } from 'hast-util-to-text';
 import { removePosition } from 'unist-util-remove-position';
 import { visitParents } from 'unist-util-visit-parents';
 
-type Highlighter = (code: string, language: string, options?: { meta?: string }) => Promise<string>;
+type Highlighter = (code: string, language: string, options?: { meta?: string }) => Promise<Root>;
 
 const languagePattern = /\blanguage-(\S+)\b/;
 
@@ -73,15 +72,13 @@ export async function highlightCodeBlocks(tree: Root, highlighter: Highlighter) 
 	for (const { node, language, grandParent, parent } of nodes) {
 		const meta = (node.data as any)?.meta ?? node.properties.metastring ?? undefined;
 		const code = toText(node, { whitespace: 'pre' });
-		// TODO: In Astro 5, have `highlighter()` return hast directly to skip expensive HTML parsing and serialization.
-		const html = await highlighter(code, language, { meta });
+		const replacement = await highlighter(code, language, { meta });
 		// The replacement returns a root node with 1 child, the `<pr>` element replacement.
-		const replacement = fromHtml(html, { fragment: true }).children[0] as Element;
 		// We just generated this node, so any positional information is invalid.
 		removePosition(replacement);
 
 		// We replace the parent in its parent with the new `<pre>` element.
 		const index = grandParent.children.indexOf(parent);
-		grandParent.children[index] = replacement;
+		grandParent.children.splice(index, 1, ...replacement.children);
 	}
 }

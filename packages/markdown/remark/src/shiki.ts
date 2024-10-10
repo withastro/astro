@@ -1,8 +1,8 @@
-import type { Properties } from 'hast';
+import type { Properties, Root } from 'hast';
 import {
 	type BundledLanguage,
 	createCssVariablesTheme,
-	getHighlighter,
+	getSingletonHighlighter,
 	isSpecialLang,
 } from 'shiki';
 import { visit } from 'unist-util-visit';
@@ -20,7 +20,7 @@ export interface ShikiHighlighter {
 			 */
 			meta?: string;
 		},
-	): Promise<string>;
+	): Promise<Root>;
 }
 
 // TODO: Remove this special replacement in Astro 5
@@ -36,7 +36,7 @@ const COLOR_REPLACEMENT_REGEX = new RegExp(
 let _cssVariablesTheme: ReturnType<typeof createCssVariablesTheme>;
 const cssVariablesTheme = () =>
 	_cssVariablesTheme ??
-	(_cssVariablesTheme = createCssVariablesTheme({ variablePrefix: '--astro-code-' }));
+	(_cssVariablesTheme = createCssVariablesTheme({ variablePrefix: '--astro-code-',  }));
 
 export async function createShikiHighlighter({
 	langs = [],
@@ -49,7 +49,7 @@ export async function createShikiHighlighter({
 }: ShikiConfig = {}): Promise<ShikiHighlighter> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
-	const highlighter = await getHighlighter({
+	const highlighter = await getSingletonHighlighter({
 		langs: ['plaintext', ...langs],
 		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
@@ -76,7 +76,7 @@ export async function createShikiHighlighter({
 			const themeOptions = Object.values(themes).length ? { themes } : { theme };
 			const inline = options?.inline ?? false;
 
-			return highlighter.codeToHtml(code, {
+			return highlighter.codeToHast(code, {
 				...themeOptions,
 				defaultColor,
 				lang,
