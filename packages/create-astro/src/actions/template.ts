@@ -72,13 +72,25 @@ const FILES_TO_UPDATE = {
 };
 
 export function getTemplateTarget(tmpl: string, ref = 'latest') {
+	// Handle Starlight templates
 	if (tmpl.startsWith('starlight')) {
 		const [, starter = 'basics'] = tmpl.split('/');
-		return `withastro/starlight/examples/${starter}`;
+		return `github:withastro/starlight/examples/${starter}`;
 	}
+
+	// Handle third-party templates
 	const isThirdParty = tmpl.includes('/');
 	if (isThirdParty) return tmpl;
-	return `github:withastro/astro/examples/${tmpl}#${ref}`;
+
+	// Handle Astro templates
+	if (ref === 'latest') {
+		// `latest` ref is specially handled to route to a branch specifically
+		// to allow faster downloads. Otherwise giget has to download the entire
+		// repo and only copy a sub directory
+		return `github:withastro/astro#examples/${tmpl}`;
+	} else {
+		return `github:withastro/astro/examples/${tmpl}#${ref}`;
+	}
 }
 
 export default async function copyTemplate(tmpl: string, ctx: Context) {
@@ -88,7 +100,6 @@ export default async function copyTemplate(tmpl: string, ctx: Context) {
 		try {
 			await downloadTemplate(templateTarget, {
 				force: true,
-				provider: 'github',
 				cwd: ctx.cwd,
 				dir: '.',
 			});
