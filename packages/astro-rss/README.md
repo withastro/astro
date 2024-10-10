@@ -158,7 +158,9 @@ An absolute path to an XSL stylesheet in your project. If you don’t have an RS
 
 Type: `string (optional)`
 
-A string of valid XML to be injected between your feed's `<description>` and `<item>` tags. This is commonly used to set a language for your feed:
+A string of valid XML to be injected between your feed's `<description>` and `<item>` tags. 
+
+This can be used to pass additional data outside of the standard RSS spec, and is commonly used to set a language for your feed:
 
 ```js
 import rss from '@astrojs/rss';
