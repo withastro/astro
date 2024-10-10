@@ -562,7 +562,7 @@ describe('astro:image', () => {
 			it('has proper sources for array of images', () => {
 				let $img = $('#array-of-images img');
 				const imgsSrcs = [];
-				$img.each((i, img) => imgsSrcs.push(img.attribs['src']));
+				$img.each((_i, img) => imgsSrcs.push(img.attribs['src']));
 				assert.equal($img.length, 2);
 				assert.equal(
 					imgsSrcs.every((img) => img.startsWith('/')),

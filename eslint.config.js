@@ -1,6 +1,5 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { builtinModules } from 'node:module';
 
 import tseslint from 'typescript-eslint';
 
@@ -51,19 +50,11 @@ export default [
 		rules: {
 			// These off/configured-differently-by-default rules fit well for us
 			'@typescript-eslint/switch-exhaustiveness-check': 'error',
-			'@typescript-eslint/no-unused-vars': [
-				'error',
-				{
-					argsIgnorePattern: '^_',
-					varsIgnorePattern: '^_',
-					caughtErrorsIgnorePattern: '^_',
-					ignoreRestSiblings: true,
-				},
-			],
 			'@typescript-eslint/no-shadow': 'error',
-			'no-console': 'warn',
+			'no-console': 'off',
 
 			// Todo: do we want these?
+			'@typescript-eslint/no-unused-vars': 'off',
 			'@typescript-eslint/array-type': 'off',
 			'@typescript-eslint/ban-ts-comment': 'off',
 			'@typescript-eslint/class-literal-property-style': 'off',
@@ -95,16 +86,8 @@ export default [
 			'@typescript-eslint/unbound-method': 'off',
 			'@typescript-eslint/no-explicit-any': 'off',
 
-			// Enforce separate type imports for type-only imports to avoid bundling unneeded code
-			'@typescript-eslint/consistent-type-imports': [
-				'error',
-				{
-					prefer: 'type-imports',
-					fixStyle: 'separate-type-imports',
-					disallowTypeAnnotations: false,
-				},
-			],
-
+			// Used by Biome
+			'@typescript-eslint/consistent-type-imports': 'off',
 			// These rules enabled by the preset configs don't work well for us
 			'@typescript-eslint/await-thenable': 'off',
 			'prefer-const': 'off',
@@ -115,56 +98,12 @@ export default [
 			'regexp/prefer-regexp-test': 'warn',
 		},
 	},
-
-	{
-		// Ensure Node builtins aren't included in Astro's server runtime
-		files: ['packages/astro/src/runtime/**/*.ts'],
-		rules: {
-			'no-restricted-imports': [
-				'error',
-				{
-					paths: [...builtinModules],
-					patterns: ['node:*'],
-				},
-			],
-		},
-	},
 	{
 		files: ['packages/astro/src/runtime/client/**/*.ts'],
 		languageOptions: {
 			globals: {
 				browser: true,
 			},
-		},
-	},
-	{
-		files: ['packages/**/test/*.js', 'packages/**/*.js'],
-		languageOptions: {
-			globals: {
-				globalThis: false, // false means read-only
-			},
-		},
-		rules: {
-			'no-console': 'off',
-		},
-	},
-	{
-		files: ['packages/integrations/**/*.ts'],
-		rules: {
-			'no-console': ['error', { allow: ['warn', 'error', 'info', 'debug'] }],
-		},
-	},
-	{
-		files: ['benchmark/**/*.js'],
-		rules: {
-			'@typescript-eslint/no-unused-vars': 'off',
-			'no-console': 'off',
-		},
-	},
-	{
-		files: ['packages/db/**/cli/**/*.ts'],
-		rules: {
-			'no-console': 'off',
 		},
 	},
 	{

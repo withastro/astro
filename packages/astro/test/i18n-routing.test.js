@@ -1106,7 +1106,7 @@ describe('[SSG] i18n routing', () => {
 
 			it('should return the default locale', async () => {
 				const html = await fixture.readFile('/current-locale/index.html');
-				assert.equal(html.includes('Current Locale: en'), true);
+				assert.equal(html.includes('Current Locale: es'), true);
 			});
 
 			it('should return the default locale when rendering a route with spread operator', async () => {
@@ -1121,7 +1121,7 @@ describe('[SSG] i18n routing', () => {
 
 			it('should return the default locale when a route is dynamic', async () => {
 				const html = await fixture.readFile('/dynamic/lorem/index.html');
-				assert.equal(html.includes('Current Locale: en'), true);
+				assert.equal(html.includes('Current Locale: es'), true);
 			});
 
 			it('should returns the correct locale when requesting a locale via path', async () => {
@@ -1693,7 +1693,7 @@ describe('[SSR] i18n routing', () => {
 				let request = new Request('http://example.com/current-locale', {});
 				let response = await app.render(request);
 				assert.equal(response.status, 200);
-				assert.equal((await response.text()).includes('Current Locale: en'), true);
+				assert.equal((await response.text()).includes('Current Locale: es'), true);
 			});
 
 			it('should return the default locale when rendering a route with spread operator', async () => {
@@ -1714,7 +1714,7 @@ describe('[SSR] i18n routing', () => {
 				let request = new Request('http://example.com/dynamic/lorem', {});
 				let response = await app.render(request);
 				assert.equal(response.status, 200);
-				assert.equal((await response.text()).includes('Current Locale: en'), true);
+				assert.equal((await response.text()).includes('Current Locale: es'), true);
 			});
 		});
 

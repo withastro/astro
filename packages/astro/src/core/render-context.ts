@@ -520,8 +520,8 @@ export class RenderContext {
 		// and url.pathname to pass Astro.currentLocale tests.
 		// A single call with `routeData.pathname ?? routeData.route` as the pathname still fails.
 		return (this.#currentLocale ??=
-			computeCurrentLocale(routeData.route, locales) ??
-			computeCurrentLocale(url.pathname, locales) ??
+			computeCurrentLocale(routeData.route, locales, defaultLocale) ??
+			computeCurrentLocale(url.pathname, locales, defaultLocale) ??
 			fallbackTo);
 	}
 

@@ -239,7 +239,7 @@ export async function handleRoute({
 			req({
 				url: pathname,
 				method: incomingRequest.method,
-				statusCode: isRewrite ? response.status : status ?? response.status,
+				statusCode: isRewrite ? response.status : (status ?? response.status),
 				isRewrite,
 				reqTime: timeEnd - timeStart,
 			}),
