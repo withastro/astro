@@ -28,6 +28,11 @@ export const REROUTE_DIRECTIVE_HEADER = 'X-Astro-Reroute';
  * This metadata is used to determine the origin of a Response. If a rewrite has occurred, it should be prioritised over other logic.
  */
 export const REWRITE_DIRECTIVE_HEADER_KEY = 'X-Astro-Rewrite';
+
+/**
+ * Header used to track the original URL requested by the user. This information is useful rewrites are involved.
+ */
+export const ASTRO_ORIGIN_HEADER = 'X-Astro-Origin';
 export const REWRITE_DIRECTIVE_HEADER_VALUE = 'yes';
 
 /**
