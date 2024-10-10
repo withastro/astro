@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.10.0
+
+### Minor Changes
+
+- [#12154](https://github.com/withastro/astro/pull/12154) [`9988dd6`](https://github.com/withastro/astro/commit/9988dd67e2e4647c974979470d2e63d80433b611) Thanks [@bluwy](https://github.com/bluwy)! - Improves default template download speed by downloading from a branch containing the template only
+
 ## 4.9.2
 
 ### Patch Changes
