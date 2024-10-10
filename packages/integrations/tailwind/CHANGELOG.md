@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 5.1.2
+
+### Patch Changes
+
+- [#12161](https://github.com/withastro/astro/pull/12161) [`8e500f2`](https://github.com/withastro/astro/commit/8e500f2f9656a98e4a14ef567f9bf072459f62c4) Thanks [@delucis](https://github.com/delucis)! - Adds keywords to `package.json` to improve categorization in the Astro integrations catalog
+
 ## 5.1.1
 
 ### Patch Changes
