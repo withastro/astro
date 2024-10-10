@@ -195,7 +195,7 @@ Will inject the following XML:
 Type: `boolean (optional)`
 Default: `true`
 
-By default, the library will add trailing slashes to the emitted URLs. To prevent this behavior, add `trailingSlash: false` to the `rss` function.
+By default, trailing slashes will be added to the URLs of your feed entries. To prevent this behavior, add `trailingSlash: false` to the `rss` function.
 
 ```js
 import rss from '@astrojs/rss';
