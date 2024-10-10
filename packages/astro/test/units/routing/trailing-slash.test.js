@@ -1,16 +1,14 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import testAdapter from '../../test-adapter.js';
 import {
 	createBasicSettings,
-	createFs,
+	createFixture,
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
 
-const root = new URL('../../fixtures/api-routes/', import.meta.url);
 const fileSystem = {
 	'/src/pages/api.ts': `export const GET = () => Response.json({ success: true })`,
 };
@@ -20,15 +18,14 @@ describe('trailingSlash', () => {
 	let settings;
 
 	before(async () => {
-		const fs = createFs(fileSystem, root);
+		const fixture = await createFixture(fileSystem);
 		settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			trailingSlash: 'always',
 			output: 'server',
 			adapter: testAdapter(),
 		});
 		container = await createContainer({
-			fs,
 			settings,
 			logger: defaultLogger,
 		});

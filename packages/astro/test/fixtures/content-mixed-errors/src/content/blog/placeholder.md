@@ -1,3 +1,0 @@
----
-title: Placeholder post
----

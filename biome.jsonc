@@ -6,6 +6,7 @@
 			"**/dist/**",
 			"**/smoke/**",
 			"**/fixtures/**",
+			"**/_temp-fixtures/**",
 			"**/vendor/**",
 			"**/.vercel/**",
 		],
