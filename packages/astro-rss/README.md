@@ -42,7 +42,7 @@ export const GET = (context) =>
 
 Type: `RSSFeedItem[] (required)`
 
-A list of formatted RSS feed items. See [Astro's RSS items documentation][docs] for configuration options and usage examples.
+A list of formatted RSS feed items.
 
 An `RSSFeedItem` is a single item in the list of items in your feed. An example feed item might look like:
 
