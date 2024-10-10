@@ -8,7 +8,6 @@ import { intro } from './actions/intro.js';
 import { next } from './actions/next-steps.js';
 import { projectName } from './actions/project-name.js';
 import { template } from './actions/template.js';
-import { setupTypeScript, typescript } from './actions/typescript.js';
 import { verify } from './actions/verify.js';
 import { setStdout } from './messages.js';
 
@@ -36,7 +35,6 @@ export async function main() {
 		intro,
 		projectName,
 		template,
-		typescript,
 		dependencies,
 
 		// Steps which write to files need to go above git
@@ -61,16 +59,4 @@ export async function main() {
 	process.exit(0);
 }
 
-export {
-	dependencies,
-	getContext,
-	git,
-	intro,
-	next,
-	projectName,
-	setStdout,
-	setupTypeScript,
-	template,
-	typescript,
-	verify,
-};
+export { dependencies, getContext, git, intro, next, projectName, setStdout, template, verify };
