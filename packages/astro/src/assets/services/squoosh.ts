@@ -10,7 +10,6 @@ import {
 import { processBuffer } from './vendor/squoosh/image-pool.js';
 import type { Operation } from './vendor/squoosh/image.js';
 
-// eslint-disable-next-line no-console
 console.warn(
 	yellow(
 		'The Squoosh image service is deprecated and will be removed in Astro 5.x. We suggest migrating to the default Sharp image service instead, as it is faster, more powerful and better maintained.',

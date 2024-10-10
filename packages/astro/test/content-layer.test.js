@@ -149,7 +149,6 @@ describe('Content Layer', () => {
 		});
 
 		it('handles remote images in custom loaders', async () => {
-			console.log(json.images[1].data.image);
 			assert.ok(json.images[1].data.image.startsWith('https://'));
 		});
 

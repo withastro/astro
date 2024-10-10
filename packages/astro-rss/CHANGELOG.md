@@ -1,5 +1,13 @@
 # @astrojs/rss
 
+## 4.0.8
+
+### Patch Changes
+
+- [#12137](https://github.com/withastro/astro/pull/12137) [`50dd88b`](https://github.com/withastro/astro/commit/50dd88bc6611243e3f1b2df643af6d0b551fe140) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes an error that occurred when the optional `pubDate` property was missing in an item.
+
+- [#12137](https://github.com/withastro/astro/pull/12137) [`50dd88b`](https://github.com/withastro/astro/commit/50dd88bc6611243e3f1b2df643af6d0b551fe140) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes an error where docs incorrectly stated the `title`, `link` and `pubDate` properties of RSS items was required.
+
 ## 4.0.7
 
 ### Patch Changes

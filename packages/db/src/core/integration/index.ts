@@ -134,7 +134,7 @@ function astroDBIntegration(): AstroIntegration {
 					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirectoryUrl(root))),
 					...configFileDependencies.map((c) => new URL(c, root)),
 				];
-				server.watcher.on('all', (event, relativeEntry) => {
+				server.watcher.on('all', (_event, relativeEntry) => {
 					const entry = new URL(relativeEntry, root);
 					if (filesToWatch.some((f) => entry.href === f.href)) {
 						server.restart();

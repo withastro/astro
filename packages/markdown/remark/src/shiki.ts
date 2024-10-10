@@ -45,25 +45,29 @@ export async function createShikiHighlighter({
 	defaultColor,
 	wrap = false,
 	transformers = [],
+	langAlias = {},
 }: ShikiConfig = {}): Promise<ShikiHighlighter> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
 	const highlighter = await getHighlighter({
 		langs: ['plaintext', ...langs],
+		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
 	});
 
 	return {
 		async highlight(code, lang = 'plaintext', options) {
+			const resolvedLang = langAlias[lang] ?? lang;
 			const loadedLanguages = highlighter.getLoadedLanguages();
 
-			if (!isSpecialLang(lang) && !loadedLanguages.includes(lang)) {
+			if (!isSpecialLang(lang) && !loadedLanguages.includes(resolvedLang)) {
 				try {
-					await highlighter.loadLanguage(lang as BundledLanguage);
+					await highlighter.loadLanguage(resolvedLang as BundledLanguage);
 				} catch (_err) {
-					// eslint-disable-next-line no-console
+					const langStr =
+						lang === resolvedLang ? `"${lang}"` : `"${lang}" (aliased to "${resolvedLang}")`;
 					console.warn(
-						`[Shiki] The language "${lang}" doesn't exist, falling back to "plaintext".`,
+						`[Shiki] The language ${langStr} doesn't exist, falling back to "plaintext".`,
 					);
 					lang = 'plaintext';
 				}
@@ -121,7 +125,7 @@ export async function createShikiHighlighter({
 							// Add "user-select: none;" for "+"/"-" diff symbols.
 							// Transform `<span class="line"><span style="...">+ something</span></span>
 							// into      `<span class="line"><span style="..."><span style="user-select: none;">+</span> something</span></span>`
-							if (lang === 'diff') {
+							if (resolvedLang === 'diff') {
 								const innerSpanNode = node.children[0];
 								const innerSpanTextNode =
 									innerSpanNode?.type === 'element' && innerSpanNode.children?.[0];
