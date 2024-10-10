@@ -130,6 +130,26 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return urls;
 					}, []);
 
+					if (
+						opts.i18n &&
+						config.i18n &&
+						config.i18n.routing !== 'manual' &&
+						config.i18n.routing.fallbackType === 'rewrite'
+					) {
+						const { locales, defaultLocale } = opts.i18n;
+						const alternateLocales = Object.keys(locales).filter((locale) => {
+							return locale !== defaultLocale;
+						});
+
+						pageUrls.forEach((url) => {
+							alternateLocales.forEach((locale) => {
+								const newUrl = new URL(url);
+								newUrl.pathname = `/${locale}${newUrl.pathname}`;
+								pageUrls.push(newUrl.href);
+							});
+						});
+					}
+
 					pageUrls = Array.from(new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])]));
 
 					try {
