@@ -30,7 +30,7 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { root: fixture.path, logLevel: 'silent' },
+			inlineConfig: { root: fixture.path, },
 		});
 
 		try {
@@ -78,7 +78,7 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { root: fixture.path, logLevel: 'silent' },
+			inlineConfig: { root: fixture.path, },
 		});
 		await startContainer(restart.container);
 		assert.equal(isStarted(restart.container), true);
@@ -102,7 +102,7 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { root: fixture.path, logLevel: 'silent' },
+			inlineConfig: { root: fixture.path, },
 		});
 		await startContainer(restart.container);
 		assert.equal(isStarted(restart.container), true);
@@ -125,7 +125,7 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { root: fixture.path, logLevel: 'silent' },
+			inlineConfig: { root: fixture.path, },
 		});
 		await startContainer(restart.container);
 		assert.equal(isStarted(restart.container), true);
@@ -145,7 +145,7 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { root: fixture.path, logLevel: 'silent' },
+			inlineConfig: { root: fixture.path, },
 		});
 		await startContainer(restart.container);
 		assert.equal(isStarted(restart.container), true);
@@ -166,7 +166,7 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { root: fixture.path, logLevel: 'silent' },
+			inlineConfig: { root: fixture.path, },
 		});
 		await startContainer(restart.container);
 		assert.equal(isStarted(restart.container), true);
