@@ -30,7 +30,7 @@ async function createRestartedContainer(
 	return newContainer;
 }
 
-const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
+const configRE = /.*astro.config.(?:mjs|mts|cjs|cts|js|ts)$/;
 
 function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
@@ -185,9 +185,7 @@ export async function createContainerWithAutomaticRestart({
 				key: 's',
 				description: 'sync content layer',
 				action: () => {
-					if (globalContentLayer.initialized()) {
-						globalContentLayer.get().sync();
-					}
+					globalContentLayer.get()?.sync();
 				},
 			});
 		}

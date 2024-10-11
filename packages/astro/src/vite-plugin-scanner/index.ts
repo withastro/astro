@@ -3,7 +3,7 @@ import { bold } from 'kleur/colors';
 import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings, RouteOptions } from '../@types/astro.js';
-import { type Logger } from '../core/logger/core.js';
+import type { Logger } from '../core/logger/core.js';
 import { isEndpoint, isPage, isServerLikeOutput } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import { runHookRouteSetup } from '../integrations/hooks.js';
@@ -82,8 +82,16 @@ async function getPageOptions(
 	settings: AstroSettings,
 	logger: Logger,
 ): Promise<PageOptions> {
+	const fileUrlStr = fileURL.toString();
+	const injectedRoute = settings.resolvedInjectedRoutes.find(
+		(route) => route.resolvedEntryPoint && fileUrlStr === route.resolvedEntryPoint.toString(),
+	);
+
 	// Run initial scan
-	const pageOptions = await scan(code, id, settings);
+	const pageOptions =
+		injectedRoute?.prerender != null
+			? { prerender: injectedRoute.prerender }
+			: await scan(code, id, settings);
 
 	// Run integration hooks to alter page options
 	const route: RouteOptions = {

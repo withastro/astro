@@ -29,6 +29,7 @@ declare const Astro: {
 		8: (value) => new Uint8Array(value),
 		9: (value) => new Uint16Array(value),
 		10: (value) => new Uint32Array(value),
+		11: (value) => Infinity * value,
 	};
 
 	// Not using JSON.parse reviver because it's bottom-up but we want top-down
@@ -44,7 +45,7 @@ declare const Astro: {
 		return Object.fromEntries(Object.entries(raw).map(([key, value]) => [key, reviveTuple(value)]));
 	};
 
-	// 🌊🏝️🌴
+	// 🌊🏝🌴
 	class AstroIsland extends HTMLElement {
 		public Component: any;
 		public hydrator: any;
@@ -126,7 +127,6 @@ declare const Astro: {
 					this,
 				);
 			} catch (e) {
-				// eslint-disable-next-line no-console
 				console.error(`[astro-island] Error hydrating ${this.getAttribute('component-url')}`, e);
 			}
 		}
@@ -178,7 +178,6 @@ declare const Astro: {
 					componentName += ` (export ${componentExport})`;
 				}
 
-				// eslint-disable-next-line no-console
 				console.error(
 					`[hydrate] Error parsing props for component ${componentName}`,
 					this.getAttribute('props'),

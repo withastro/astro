@@ -5,13 +5,17 @@ import {
 	getActionQueryString,
 } from 'astro:actions';
 
+const ENCODED_DOT = '%2E';
+
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	return new Proxy(actionCallback, {
 		get(target, objKey) {
 			if (objKey in target || typeof objKey === 'symbol') {
 				return target[objKey];
 			}
-			const path = aggregatedPath + objKey.toString();
+			// Add the key, encoding dots so they're not interpreted as nested properties.
+			const path =
+				aggregatedPath + encodeURIComponent(objKey.toString()).replaceAll('.', ENCODED_DOT);
 			function action(param) {
 				return handleAction(param, path, this);
 			}
@@ -93,7 +97,9 @@ async function handleAction(param, path, context) {
 		body,
 		headers,
 	});
-	if (rawResult.status === 204) return;
+	if (rawResult.status === 204) {
+		return deserializeActionResult({ type: 'empty', status: 204 });
+	}
 
 	return deserializeActionResult({
 		type: rawResult.ok ? 'data' : 'error',

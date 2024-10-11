@@ -219,6 +219,16 @@ describe('astro sync', () => {
 				assert.fail();
 			}
 		});
+		it('Does not throw if a virtual module is imported in content/config.ts', async () => {
+			try {
+				await fixture.load('./fixtures/astro-env-content-collections/');
+				fixture.clean();
+				await fixture.whenSyncing();
+				assert.ok(true);
+			} catch {
+				assert.fail();
+			}
+		});
 	});
 
 	describe('astro:actions', () => {

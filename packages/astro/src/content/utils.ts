@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
 import type { PluginContext } from 'rollup';
-import { type ViteDevServer, normalizePath } from 'vite';
+import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
 import { z } from 'zod';
 import type {
@@ -16,6 +16,7 @@ import type {
 import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
+import { normalizePath } from '../core/viteUtils.js';
 import {
 	CONTENT_FLAGS,
 	CONTENT_LAYER_TYPE,
@@ -77,7 +78,8 @@ const collectionConfigParser = z.union([
 								store: z.any(),
 								meta: z.any(),
 								logger: z.any(),
-								settings: z.any(),
+								config: z.any(),
+								entryTypes: z.any(),
 								parseData: z.any(),
 								generateDigest: z.function(z.tuple([z.any()], z.string())),
 								watcher: z.any().optional(),

@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 
 import { loadFixture } from './test-utils.js';
@@ -16,13 +17,16 @@ describe('Content Layer', () => {
 
 	describe('Build', () => {
 		let json;
+		let $;
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-layer/' });
 			await fs
 				.unlink(new URL('./node_modules/.astro/data-store.json', fixture.config.root))
 				.catch(() => {});
-			await fixture.build();
+			await fixture.build({ force: true });
 			const rawJson = await fixture.readFile('/collections.json');
+			const html = await fixture.readFile('/spacecraft/lunar-module/index.html');
+			$ = cheerio.load(html);
 			json = devalue.parse(rawJson);
 		});
 
@@ -129,6 +133,37 @@ describe('Content Layer', () => {
 			assert.ok(json.entryWithReference.data.publishedDate instanceof Date);
 		});
 
+		it('loads images in frontmatter', async () => {
+			assert.ok(json.entryWithReference.data.heroImage.src.startsWith('/_astro'));
+			assert.equal(json.entryWithReference.data.heroImage.format, 'jpg');
+		});
+
+		it('loads images from custom loaders', async () => {
+			assert.ok(json.images[0].data.image.src.startsWith('/_astro'));
+			assert.equal(json.images[0].data.image.format, 'jpg');
+		});
+
+		it('loads images with absolute paths', async () => {
+			assert.ok(json.entryWithImagePath.data.heroImage.src.startsWith('/_astro'));
+			assert.equal(json.entryWithImagePath.data.heroImage.format, 'jpg');
+		});
+
+		it('handles remote images in custom loaders', async () => {
+			assert.ok(json.images[1].data.image.startsWith('https://'));
+		});
+
+		it('renders images from frontmatter', async () => {
+			assert.ok($('img[alt="Lunar Module"]').attr('src').startsWith('/_astro'));
+		});
+
+		it('displays public images unchanged', async () => {
+			assert.equal($('img[alt="buzz"]').attr('src'), '/buzz.jpg');
+		});
+
+		it('renders local images', async () => {
+			assert.ok($('img[alt="shuttle"]').attr('src').startsWith('/_astro'));
+		});
+
 		it('returns a referenced entry', async () => {
 			assert.ok(json.hasOwnProperty('referencedEntry'));
 			assert.deepEqual(json.referencedEntry, {
@@ -147,17 +182,21 @@ describe('Content Layer', () => {
 
 		it('updates the store on new builds', async () => {
 			assert.equal(json.increment.data.lastValue, 1);
+			assert.equal(json.entryWithReference.data.something?.content, 'transform me');
 			await fixture.build();
 			const newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 2);
+			assert.equal(newJson.entryWithReference.data.something?.content, 'transform me');
 		});
 
 		it('clears the store on new build with force flag', async () => {
 			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 2);
+			assert.equal(newJson.entryWithReference.data.something?.content, 'transform me');
 			await fixture.build({ force: true }, {});
 			newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 1);
+			assert.equal(newJson.entryWithReference.data.something?.content, 'transform me');
 		});
 
 		it('clears the store on new build if the config has changed', async () => {
@@ -177,7 +216,11 @@ describe('Content Layer', () => {
 		let devServer;
 		let json;
 		before(async () => {
-			devServer = await fixture.startDevServer();
+			devServer = await fixture.startDevServer({ force: true });
+			// Vite may not have noticed the saved data store yet. Wait a little just in case.
+			await fixture.onNextDataStoreChange(1000).catch(() => {
+				// Ignore timeout, because it may have saved before we get here.
+			});
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const rawJson = await rawJsonResponse.text();
 			json = devalue.parse(rawJson);
@@ -267,13 +310,18 @@ describe('Content Layer', () => {
 				return JSON.stringify(data, null, 2);
 			});
 
-			// Writes are debounced to 500ms
-			await new Promise((r) => setTimeout(r, 700));
-
+			await fixture.onNextDataStoreChange();
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
 			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
 			await fixture.resetAllFiles();
+		});
+
+		it('returns an error if we render an undefined entry', async () => {
+			const res = await fixture.fetch('/missing');
+			const text = await res.text();
+			assert.equal(res.status, 500);
+			assert.ok(text.includes('RenderUndefinedEntryError'));
 		});
 	});
 });

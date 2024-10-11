@@ -1,10 +1,10 @@
-import { run } from 'node:test';
-import { spec } from 'node:test/reporters';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { run } from 'node:test';
+import { spec } from 'node:test/reporters';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
-import glob from 'tiny-glob';
+import glob from 'fast-glob';
 
 const isCI = !!process.env.CI;
 const defaultTimeout = isCI ? 1400000 : 600000;
@@ -31,7 +31,11 @@ export default async function test() {
 	const pattern = args.positionals[1];
 	if (!pattern) throw new Error('Missing test glob pattern');
 
-	const files = await glob(pattern, { filesOnly: true, absolute: true });
+	const files = await glob(pattern, {
+		filesOnly: true,
+		absolute: true,
+		ignore: ['**/node_modules/**'],
+	});
 
 	// For some reason, the `only` option does not work and we need to explicitly set the CLI flag instead.
 	// Node.js requires opt-in to run .only tests :(
@@ -48,7 +52,7 @@ export default async function test() {
 		await fs.mkdir(path.dirname(tempTestFile), { recursive: true });
 		await fs.writeFile(
 			tempTestFile,
-			files.map((f) => `import ${JSON.stringify(pathToFileURL(f).toString())};`).join('\n')
+			files.map((f) => `import ${JSON.stringify(pathToFileURL(f).toString())};`).join('\n'),
 		);
 
 		files.length = 0;

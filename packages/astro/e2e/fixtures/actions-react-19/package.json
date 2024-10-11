@@ -10,16 +10,16 @@
 		"astro": "astro"
 	},
 	"dependencies": {
-		"@astrojs/check": "^0.9.2",
+		"@astrojs/check": "^0.9.4",
 		"@astrojs/db": "workspace:*",
-		"@astrojs/node": "workspace:*",
+		"@astrojs/node": "^8.3.4",
 		"@astrojs/react": "workspace:*",
 		"@types/react": "npm:types-react",
 		"@types/react-dom": "npm:types-react-dom",
 		"astro": "workspace:*",
 		"react": "19.0.0-rc-fb9a90fa48-20240614",
 		"react-dom": "19.0.0-rc-fb9a90fa48-20240614",
-		"typescript": "^5.5.4"
+		"typescript": "^5.6.2"
 	},
   "overrides": {
     "@types/react": "npm:types-react",

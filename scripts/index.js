@@ -8,11 +8,6 @@ export default async function run() {
 			await build(...args, cmd === 'dev' ? 'IS_DEV' : undefined);
 			break;
 		}
-		case 'copy': {
-			const { default: copy } = await import('./cmd/copy.js');
-			await copy(...args);
-			break;
-		}
 		case 'prebuild': {
 			const { default: prebuild } = await import('./cmd/prebuild.js');
 			await prebuild(...args);

@@ -8,15 +8,15 @@
   },
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
-    "@astrojs/node": "workspace:*",
+    "@astrojs/node": "^8.3.4",
     "@benchmark/timer": "workspace:*",
     "astro": "workspace:*",
     "autocannon": "^7.15.0",
-    "execa": "^8.0.1",
     "markdown-table": "^3.0.3",
     "mri": "^1.2.0",
     "port-authority": "^2.0.1",
     "pretty-bytes": "^6.1.1",
-    "sharp": "^0.33.3"
+    "sharp": "^0.33.3",
+    "tinyexec": "^0.3.0"
   }
 }

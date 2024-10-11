@@ -104,7 +104,7 @@ describe('Dev rewrite, trailing slash -> never, with base', () => {
 	});
 
 	it('should rewrite to the homepage', async () => {
-		const html = await fixture.fetch('/foo').then((res) => res.text());
+		const html = await fixture.fetch('/base/foo').then((res) => res.text());
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
@@ -331,8 +331,6 @@ describe('SSR rewrite, hybrid/server', () => {
 		const html = await response.text();
 		const $ = cheerioLoad(html);
 
-		console.log(html);
-
 		assert.match($('h1').text(), /Title/);
 		assert.match($('p').text(), /some-slug/);
 	});
@@ -387,6 +385,15 @@ describe('Middleware', () => {
 		const $ = cheerioLoad(html);
 
 		assert.match($('h1').text(), /Index/);
+	});
+
+	it('should render correctly compute the new params next("/auth/1234")', async () => {
+		const html = await fixture.fetch('/auth/astro-params').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.match($('h1').text(), /Index with params/);
+		assert.match($('#params').text(), /Param: 1234/);
+		assert.match($('#locals').text(), /Locals: Params changed/);
 	});
 });
 

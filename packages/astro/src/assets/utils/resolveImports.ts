@@ -10,13 +10,13 @@ import { VALID_INPUT_FORMATS } from '../consts.js';
  * @param filePath The path to the file that contains the imagem relative to the site root
  * @returns A module id of the image that can be rsolved by Vite, or undefined if it is not a local image
  */
-export function imageSrcToImportId(imageSrc: string, filePath: string): string | undefined {
+export function imageSrcToImportId(imageSrc: string, filePath?: string): string | undefined {
 	// If the import is coming from the data store it will have a special prefix to identify it
 	// as an image import. We remove this prefix so that we can resolve the image correctly.
 	imageSrc = removeBase(imageSrc, IMAGE_IMPORT_PREFIX);
 
 	// We only care about local imports
-	if (isRemotePath(imageSrc) || imageSrc.startsWith('/')) {
+	if (isRemotePath(imageSrc)) {
 		return;
 	}
 	// We only care about images
@@ -32,7 +32,9 @@ export function imageSrcToImportId(imageSrc: string, filePath: string): string |
 	// importer and get the correct full path for the imported image.
 
 	const params = new URLSearchParams(CONTENT_IMAGE_FLAG);
-	params.set('importer', filePath);
+	if (filePath) {
+		params.set('importer', filePath);
+	}
 	return `${imageSrc}?${params.toString()}`;
 }
 

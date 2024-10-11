@@ -2,7 +2,7 @@ import { defineConfig} from "astro/config";
 
 export default defineConfig({
 		i18n: {
-			defaultLocale: 'en',
+			defaultLocale: 'spanish',
 			locales: [
 				'en', 
 				'pt', 

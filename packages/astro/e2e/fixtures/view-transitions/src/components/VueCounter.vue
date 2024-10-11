@@ -1,8 +1,8 @@
 <template>
 	<div class="counter">
-		<button @click="subtract()">-</button>
-		<pre>{{ count }}</pre>
-		<button @click="add()">+</button>
+		<button @click="subtract()" class="decrement">-</button>
+		<pre>{{prefix}}{{ count }}</pre>
+		<button @click="add()" class="increment">+</button>
 	</div>
 	<div class="counter-message">
 		<slot />
@@ -12,6 +12,12 @@
 <script lang="ts">
 import { ref } from 'vue';
 export default {
+	props: {
+		prefix: {
+			type: String,
+			default: '',
+		},
+	},
 	setup() {
 		const count = ref(0);
 		const add = () => (count.value = count.value + 1);
