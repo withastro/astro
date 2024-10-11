@@ -287,7 +287,7 @@ async function getPathsForRoute(
 		if (isRoute(route, matchedRoute)) {
 			paths.push(path);
 		} else {
-			console.log('Skipping mismatched route', path, route, matchedRoute);
+			logger.warn('build', `Skipping conflicting route for "${path}" (${route.component})`);
 		}
 	} else {
 		const staticPaths = await callGetStaticPaths({
@@ -332,26 +332,25 @@ async function getPathsForRoute(
 				for (const matchedRoute of matchedRoutes) {
 					// This is the highest priority matching route
 					if (isRoute(route, matchedRoute)) {
-						console.log('matchedRoute', staticPath, matchedRoute.pattern);
 						return true;
 					}
 
 					// There is an on-demand route matching this path with a higher priority
 					// skip rendering this path
 					if (!matchedRoute.prerender) {
-						console.log('Skipped due to on-demand route', staticPath, matchedRoute.pattern);
+						logger.warn('build', `Skipped building path "${staticPath}" due to on-demand route "${matchedRoute.route}"`);
 						return false;
 					}
 
 					// Path was already pre-rendered by a higher priority route
 					if (matchedRoute === renderingRoute) {
-						console.log('Skipped due to higher priority pre-rendered route', staticPath, matchedRoute.pattern);
+						logger.warn('build', `Skipped building path "${staticPath}" due to higher priority pre-rendered route "${matchedRoute.route}"`);
 						return false;
 					}
 				}
 
 				// Route not matched, skip it
-				console.log('Skipped due to no matching route', staticPath, route.pathname, route.pattern);
+				logger.error('build', `Route (${route.component}) generated path (${staticPath}) that doesn't match its own pattern (${route.route})`);
 				return false;
 			});
 	}
@@ -388,10 +387,10 @@ function getInvalidRouteSegmentError(
 		...AstroErrorData.InvalidDynamicRoute,
 		message: invalidParam
 			? AstroErrorData.InvalidDynamicRoute.message(
-					route.route,
-					JSON.stringify(invalidParam),
-					JSON.stringify(received),
-				)
+				route.route,
+				JSON.stringify(invalidParam),
+				JSON.stringify(received),
+			)
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});
