@@ -642,9 +642,6 @@ importers:
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
-      fastq:
-        specifier: ^1.17.1
-        version: 1.17.1
       flattie:
         specifier: ^1.1.1
         version: 1.1.1
@@ -705,9 +702,6 @@ importers:
       shiki:
         specifier: ^1.22.0
         version: 1.22.0
-      string-width:
-        specifier: ^7.2.0
-        version: 7.2.0
       tinyexec:
         specifier: ^0.3.0
         version: 0.3.0
