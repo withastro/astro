@@ -10,6 +10,7 @@ import {
 	type SerializedActionResult,
 	serializeActionResult,
 } from './virtual/shared.js';
+import {getOriginHeader} from "../../core/routing/rewrite.js";
 
 export type ActionPayload = {
 	actionResult: SerializedActionResult;
@@ -136,7 +137,7 @@ async function redirectWithResult({
 		return context.redirect(referer);
 	}
 
-	const referer = context.request.headers.get(ASTRO_ORIGIN_HEADER);
+	const referer = getOriginHeader(context.request);
 	if (referer) {
 		return context.redirect(referer);
 	}
