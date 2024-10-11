@@ -1,4 +1,4 @@
-import type { PropagationHint, SSRResult } from '../../../../@types/astro.js';
+import type { PropagationHint, SSRResult } from '../../../../types/public/internal.js';
 import type { HeadAndContent } from './head-and-content.js';
 import type { RenderTemplateResult } from './render-template.js';
 

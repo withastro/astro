@@ -6,7 +6,6 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	integrations: [mdx(), markdoc()],
 	experimental: {
-		contentLayer: true,
 		contentIntellisense: true
 	}
 });

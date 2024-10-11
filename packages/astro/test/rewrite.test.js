@@ -331,8 +331,6 @@ describe('SSR rewrite, hybrid/server', () => {
 		const html = await response.text();
 		const $ = cheerioLoad(html);
 
-		console.log(html);
-
 		assert.match($('h1').text(), /Title/);
 		assert.match($('p').text(), /some-slug/);
 	});

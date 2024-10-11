@@ -1,10 +1,11 @@
-import type { APIContext, MiddlewareHandler, Params, RewritePayload } from '../../@types/astro.js';
 import { createCallAction, createGetActionResult } from '../../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
+import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
+import type { APIContext } from '../../types/public/context.js';
 import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -31,6 +32,11 @@ export type CreateContext = {
 	 * A list of locales that are supported by the user
 	 */
 	userDefinedLocales?: string[];
+
+	/**
+	 * User defined default locale
+	 */
+	defaultLocale: string;
 };
 
 /**
@@ -40,6 +46,7 @@ function createContext({
 	request,
 	params = {},
 	userDefinedLocales = [],
+	defaultLocale = '',
 }: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
@@ -60,6 +67,7 @@ function createContext({
 		generator: `Astro v${ASTRO_VERSION}`,
 		props: {},
 		rewrite,
+		routePattern: '',
 		redirect(path, status) {
 			return new Response(null, {
 				status: status || 302,
@@ -68,6 +76,7 @@ function createContext({
 				},
 			});
 		},
+		isPrerendered: false,
 		get preferredLocale(): string | undefined {
 			return (preferredLocale ??= computePreferredLocale(request, userDefinedLocales));
 		},
@@ -75,7 +84,7 @@ function createContext({
 			return (preferredLocaleList ??= computePreferredLocaleList(request, userDefinedLocales));
 		},
 		get currentLocale(): string | undefined {
-			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales));
+			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales, defaultLocale));
 		},
 		url,
 		get clientAddress() {
@@ -95,13 +104,8 @@ function createContext({
 			}
 			return locals;
 		},
-		// We define a custom property, so we can check the value passed to locals
-		set locals(val) {
-			if (typeof val !== 'object') {
-				throw new AstroError(AstroErrorData.LocalsNotAnObject);
-			} else {
-				Reflect.set(request, clientLocalsSymbol, val);
-			}
+		set locals(_) {
+			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
 	};
 	return Object.assign(context, {

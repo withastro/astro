@@ -11,7 +11,7 @@ describe('Content Collections', () => {
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-collections/' });
-			await fixture.build();
+			await fixture.build({ force: true });
 		});
 
 		describe('Collection', () => {
@@ -26,13 +26,16 @@ describe('Content Collections', () => {
 				assert.equal(Array.isArray(json.withoutConfig), true);
 
 				const ids = json.withoutConfig.map((item) => item.id);
-				assert.deepEqual(ids, [
-					'columbia.md',
-					'endeavour.md',
-					'enterprise.md',
-					// Spaces allowed in IDs
-					'promo/launch week.mdx',
-				]);
+				assert.deepEqual(
+					ids.sort(),
+					[
+						'columbia.md',
+						'endeavour.md',
+						'enterprise.md',
+						// Spaces allowed in IDs
+						'promo/launch week.mdx',
+					].sort(),
+				);
 			});
 
 			it('Handles spaces in `without config` slugs', async () => {
@@ -40,13 +43,16 @@ describe('Content Collections', () => {
 				assert.equal(Array.isArray(json.withoutConfig), true);
 
 				const slugs = json.withoutConfig.map((item) => item.slug);
-				assert.deepEqual(slugs, [
-					'columbia',
-					'endeavour',
-					'enterprise',
-					// "launch week.mdx" is converted to "launch-week.mdx"
-					'promo/launch-week',
-				]);
+				assert.deepEqual(
+					slugs.sort(),
+					[
+						'columbia',
+						'endeavour',
+						'enterprise',
+						// "launch week.mdx" is converted to "launch-week.mdx"
+						'promo/launch-week',
+					].sort(),
+				);
 			});
 
 			it('Returns `with schema` collection', async () => {
@@ -55,20 +61,20 @@ describe('Content Collections', () => {
 
 				const ids = json.withSchemaConfig.map((item) => item.id);
 				const publishedDates = json.withSchemaConfig.map((item) => item.data.publishedAt);
-				assert.deepEqual(ids, ['four%.md', 'one.md', 'three.md', 'two.md']);
+				assert.deepEqual(ids.sort(), ['four%.md', 'one.md', 'three.md', 'two.md'].sort());
 				assert.equal(
 					publishedDates.every((date) => date instanceof Date),
 					true,
 					'Not all publishedAt dates are Date objects',
 				);
 				assert.deepEqual(
-					publishedDates.map((date) => date.toISOString()),
+					publishedDates.map((date) => date.toISOString()).sort(),
 					[
 						'2021-01-01T00:00:00.000Z',
 						'2021-01-01T00:00:00.000Z',
 						'2021-01-03T00:00:00.000Z',
 						'2021-01-02T00:00:00.000Z',
-					],
+					].sort(),
 				);
 			});
 
@@ -77,7 +83,7 @@ describe('Content Collections', () => {
 				assert.equal(Array.isArray(json.withSlugConfig), true);
 
 				const slugs = json.withSlugConfig.map((item) => item.slug);
-				assert.deepEqual(slugs, ['fancy-one', 'excellent-three', 'interesting-two']);
+				assert.deepEqual(slugs.sort(), ['fancy-one', 'excellent-three', 'interesting-two'].sort());
 			});
 
 			it('Returns `with union schema` collection', async () => {
@@ -102,10 +108,12 @@ describe('Content Collections', () => {
 			it('Handles symlinked content', async () => {
 				assert.ok(json.hasOwnProperty('withSymlinkedContent'));
 				assert.equal(Array.isArray(json.withSymlinkedContent), true);
-
 				const ids = json.withSymlinkedContent.map((item) => item.id);
-				assert.deepEqual(ids, ['first.md', 'second.md', 'third.md']);
-				assert.equal(json.withSymlinkedContent[0].data.title, 'First Blog');
+				assert.deepEqual(ids.sort(), ['first.md', 'second.md', 'third.md'].sort());
+				assert.equal(
+					json.withSymlinkedContent.find(({ id }) => id === 'first.md').data.title,
+					'First Blog',
+				);
 			});
 
 			it('Handles symlinked data', async () => {
@@ -137,11 +145,6 @@ describe('Content Collections', () => {
 				json = devalue.parse(rawJson);
 			});
 
-			it('Returns `without config` collection entry', async () => {
-				assert.ok(json.hasOwnProperty('columbiaWithoutConfig'));
-				assert.equal(json.columbiaWithoutConfig.id, 'columbia.md');
-			});
-
 			it('Returns `with schema` collection entry', async () => {
 				assert.ok(json.hasOwnProperty('oneWithSchemaConfig'));
 				assert.equal(json.oneWithSchemaConfig.id, 'one.md');
@@ -168,20 +171,16 @@ describe('Content Collections', () => {
 			});
 		});
 
-		describe('Hoisted scripts', () => {
+		describe('Scripts', () => {
 			it('Contains all the scripts imported by components', async () => {
 				const html = await fixture.readFile('/with-scripts/one/index.html');
 				const $ = cheerio.load(html);
-				// NOTE: Hoisted scripts have two tags currently but could be optimized as one. However, we're moving towards
-				// `experimental.directRenderScript` so this optimization isn't a priority at the moment.
 				assert.equal($('script').length, 2);
 				// Read the scripts' content
-				const scripts = $('script')
-					.map((_, el) => $(el).attr('src'))
-					.toArray();
-				const scriptsCode = (
-					await Promise.all(scripts.map(async (src) => await fixture.readFile(src)))
-				).join('\n');
+				const scriptsCode = $('script')
+					.map((_, el) => $(el).text())
+					.toArray()
+					.join('\n');
 				assert.match(scriptsCode, /ScriptCompA/);
 				assert.match(scriptsCode, /ScriptCompB/);
 			});
@@ -216,7 +215,7 @@ describe('Content Collections', () => {
 
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-static-paths-integration/' });
-			await fixture.build();
+			await fixture.build({ force: true });
 		});
 
 		it('Generates expected pages', async () => {
@@ -250,7 +249,7 @@ describe('Content Collections', () => {
 			const fixture = await loadFixture({ root: './fixtures/content with spaces in folder name/' });
 			let error = null;
 			try {
-				await fixture.build();
+				await fixture.build({ force: true });
 			} catch (e) {
 				error = e.message;
 			}
@@ -264,7 +263,7 @@ describe('Content Collections', () => {
 			});
 			let error;
 			try {
-				await fixture.build();
+				await fixture.build({ force: true });
 			} catch (e) {
 				error = e.message;
 			}
@@ -278,7 +277,7 @@ describe('Content Collections', () => {
 			});
 			let error;
 			try {
-				await fixture.build();
+				await fixture.build({ force: true });
 			} catch (e) {
 				error = e.message;
 			}
@@ -293,7 +292,7 @@ describe('Content Collections', () => {
 			});
 			let error;
 			try {
-				await fixture.build();
+				await fixture.build({ force: true });
 			} catch (e) {
 				error = e.message;
 			}
@@ -308,7 +307,7 @@ describe('Content Collections', () => {
 			});
 			let error;
 			try {
-				await fixture.build();
+				await fixture.build({ force: true });
 			} catch (e) {
 				error = e.message;
 			}
@@ -334,7 +333,7 @@ describe('Content Collections', () => {
 					plugins: [preventNodeBuiltinDependencyPlugin()],
 				},
 			});
-			await fixture.build();
+			await fixture.build({ force: true });
 			app = await fixture.loadTestAdapterApp();
 		});
 
@@ -377,7 +376,7 @@ describe('Content Collections', () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-base/',
 			});
-			await fixture.build();
+			await fixture.build({ force: true });
 		});
 
 		it('Includes base in links', async () => {
@@ -386,7 +385,7 @@ describe('Content Collections', () => {
 			assert.equal($('link').attr('href').startsWith('/docs'), true);
 		});
 
-		it('Includes base in hoisted scripts', async () => {
+		it('Includes base in scripts', async () => {
 			const html = await fixture.readFile('/docs/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('script').attr('src').startsWith('/docs'), true);
@@ -400,7 +399,7 @@ describe('Content Collections', () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-mutation/',
 			});
-			await fixture.build();
+			await fixture.build({ force: true });
 		});
 
 		it('Does not mutate cached collection', async () => {

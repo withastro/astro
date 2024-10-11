@@ -1,8 +1,8 @@
-import type fsMod from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { type Plugin, loadEnv } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import type { AstroSettings } from '../types/astro.js';
 import {
 	MODULE_TEMPLATE_URL,
 	VIRTUAL_MODULES_IDS,
@@ -12,29 +12,14 @@ import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
-// TODO: reminders for when astro:env comes out of experimental
-// Types should always be generated (like in types/content.d.ts). That means the client module will be empty
-// and server will only contain getSecret for unknown variables. Then, specifying a schema should only add
-// variables as needed. For secret variables, it will only require specifying SecretValues and it should get
-// merged with the static types/content.d.ts
-
-interface AstroEnvVirtualModPluginParams {
+interface AstroEnvPluginParams {
 	settings: AstroSettings;
 	mode: 'dev' | 'build' | string;
-	fs: typeof fsMod;
 	sync: boolean;
 }
 
-export function astroEnv({
-	settings,
-	mode,
-	fs,
-	sync,
-}: AstroEnvVirtualModPluginParams): Plugin | undefined {
-	if (!settings.config.experimental.env) {
-		return;
-	}
-	const schema = settings.config.experimental.env.schema ?? {};
+export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin {
+	const { schema, validateSecrets } = settings.config.env;
 
 	let templates: { client: string; server: string; internal: string } | null = null;
 
@@ -56,12 +41,12 @@ export function astroEnv({
 			const validatedVariables = validatePublicVariables({
 				schema,
 				loadedEnv,
-				validateSecrets: settings.config.experimental.env?.validateSecrets ?? false,
+				validateSecrets,
 				sync,
 			});
 
 			templates = {
-				...getTemplates(schema, fs, validatedVariables),
+				...getTemplates(schema, validatedVariables),
 				internal: `export const schema = ${JSON.stringify(schema)};`,
 			};
 		},
@@ -140,11 +125,10 @@ function validatePublicVariables({
 
 function getTemplates(
 	schema: EnvSchema,
-	fs: typeof fsMod,
 	validatedVariables: ReturnType<typeof validatePublicVariables>,
 ) {
 	let client = '';
-	let server = fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
+	let server = readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
 	let onSetGetEnv = '';
 
 	for (const { key, value, context } of validatedVariables) {

@@ -114,7 +114,7 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
-	test('Moving to a page without ViewTransitions triggers a full page navigation', async ({
+	test('Moving to a page without ClientRouter triggers a full page navigation', async ({
 		page,
 		astro,
 	}) => {
@@ -125,7 +125,7 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
-		// Go to page 3 which does *not* have ViewTransitions enabled
+		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
@@ -136,7 +136,7 @@ test.describe('View Transitions', () => {
 		).toEqual(2);
 	});
 
-	test('Moving within a page without ViewTransitions does not trigger a full page navigation', async ({
+	test('Moving within a page without ClientRouter does not trigger a full page navigation', async ({
 		page,
 		astro,
 	}) => {
@@ -146,7 +146,7 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
-		// Go to page 3 which does *not* have ViewTransitions enabled
+		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
@@ -167,14 +167,14 @@ test.describe('View Transitions', () => {
 		).toEqual(2);
 	});
 
-	test('Moving from a page without ViewTransitions w/ back button', async ({ page, astro }) => {
+	test('Moving from a page without ClientRouter w/ back button', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
-		// Go to page 3 which does *not* have ViewTransitions enabled
+		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
@@ -667,7 +667,7 @@ test.describe('View Transitions', () => {
 		await expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
-	test('Importing ViewTransitions w/o using the component must not mess with history', async ({
+	test('Importing ClientRouter w/o using the component must not mess with history', async ({
 		page,
 		astro,
 	}) => {
@@ -767,7 +767,7 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should be 2 page load').toEqual(2);
 	});
 
-	test('Scroll position is restored on back navigation from page w/o ViewTransitions', async ({
+	test('Scroll position is restored on back navigation from page w/o ClientRouter', async ({
 		page,
 		astro,
 	}) => {
@@ -777,7 +777,7 @@ test.describe('View Transitions', () => {
 		let locator = page.locator('#click-external');
 		await expect(locator).toBeInViewport();
 
-		// Go to a page that has not enabled ViewTransitions
+		// Go to a page that has not enabled ClientRouter
 		await page.click('#click-external');
 		locator = page.locator('#three');
 		await expect(locator).toHaveText('Page 3');

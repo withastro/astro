@@ -2,11 +2,11 @@ import { createRequire } from 'node:module';
 import boxen from 'boxen';
 import ci from 'ci-info';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
-import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import { exec } from 'tinyexec';
 import whichPm from 'which-pm';
+import yoctoSpinner from 'yocto-spinner';
 import type { Logger } from '../core/logger/core.js';
 
 const require = createRequire(import.meta.url);
@@ -139,19 +139,19 @@ async function installPackage(
 	}
 
 	if (Boolean(response)) {
-		const spinner = ora('Installing dependencies...').start();
+		const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
 		try {
 			await exec(
 				installCommand.pm,
 				[installCommand.command, ...installCommand.flags, ...installCommand.dependencies],
 				{ nodeOptions: { cwd: cwd } },
 			);
-			spinner.succeed();
+			spinner.success();
 
 			return true;
 		} catch (err) {
 			logger.debug('add', 'Error installing dependencies', err);
-			spinner.fail();
+			spinner.error();
 
 			return false;
 		}

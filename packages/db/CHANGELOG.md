@@ -1,5 +1,39 @@
 # @astrojs/db
 
+## 0.14.0-beta.2
+
+### Patch Changes
+
+- [#12073](https://github.com/withastro/astro/pull/12073) [`acf264d`](https://github.com/withastro/astro/commit/acf264d8c003718cda5a0b9ce5fb7ac1cd6641b6) Thanks [@bluwy](https://github.com/bluwy)! - Replaces `ora` with `yocto-spinner`
+
+- Updated dependencies [[`acf264d`](https://github.com/withastro/astro/commit/acf264d8c003718cda5a0b9ce5fb7ac1cd6641b6)]:
+  - @astrojs/studio@0.1.2-beta.0
+
+## 0.14.0-beta.1
+
+### Minor Changes
+
+- [#12008](https://github.com/withastro/astro/pull/12008) [`5608338`](https://github.com/withastro/astro/commit/560833843c6d3ce2b6c6c473ec4ae70e744bf255) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
+
+  Starting from this release, no breaking changes will be introduced unless absolutely necessary.
+
+  To learn how to upgrade, check out the [Astro v5.0 upgrade guide in our beta docs site](https://5-0-0-beta.docs.astro.build/en/guides/upgrade-to/v5/).
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.14.2
+
+### Patch Changes
+
+- [#12118](https://github.com/withastro/astro/pull/12118) [`f47b347`](https://github.com/withastro/astro/commit/f47b347da899c6e1dcd0b2e7887f7fce6ec8e270) Thanks [@Namchee](https://github.com/Namchee)! - Removes the `strip-ansi` dependency in favor of the native Node API
+
+- [#12089](https://github.com/withastro/astro/pull/12089) [`6e06e6e`](https://github.com/withastro/astro/commit/6e06e6ed4f1c983f842527d7e3561a45a4407777) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes initial schema push for local file and in-memory libSQL DB
+
+- [#12089](https://github.com/withastro/astro/pull/12089) [`6e06e6e`](https://github.com/withastro/astro/commit/6e06e6ed4f1c983f842527d7e3561a45a4407777) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes relative local libSQL db URL
+
 ## 0.14.1
 
 ### Patch Changes

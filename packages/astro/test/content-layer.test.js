@@ -53,11 +53,11 @@ describe('Content Layer', () => {
 			assert.equal(json.customLoader.length, 5);
 		});
 
-		it('Returns `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('fileLoader'));
-			assert.ok(Array.isArray(json.fileLoader));
+		it('Returns json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('jsonLoader'));
+			assert.ok(Array.isArray(json.jsonLoader));
 
-			const ids = json.fileLoader.map((item) => item.data.id);
+			const ids = json.jsonLoader.map((item) => item.data.id);
 			assert.deepEqual(ids, [
 				'labrador-retriever',
 				'german-shepherd',
@@ -85,6 +85,68 @@ describe('Content Layer', () => {
 				'english-springer-spaniel',
 				'shetland-sheepdog',
 			]);
+		});
+
+		it('handles negative matches in glob() loader', async () => {
+			assert.ok(json.hasOwnProperty('probes'));
+			assert.ok(Array.isArray(json.probes));
+			assert.equal(json.probes.length, 5);
+			assert.ok(
+				json.probes.every(({ id }) => !id.startsWith('voyager')),
+				'Voyager probes should not be included',
+			);
+		});
+
+		it('Returns nested json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('nestedJsonLoader'));
+			assert.ok(Array.isArray(json.nestedJsonLoader));
+
+			const ids = json.nestedJsonLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
+		});
+
+		it('Returns yaml `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('yamlLoader'));
+			assert.ok(Array.isArray(json.yamlLoader));
+
+			const ids = json.yamlLoader.map((item) => item.id);
+			assert.deepEqual(ids, [
+				'bubbles',
+				'finn',
+				'shadow',
+				'spark',
+				'splash',
+				'nemo',
+				'angel-fish',
+				'gold-stripe',
+				'blue-tail',
+				'bubble-buddy',
+			]);
+		});
+
+		it('Returns toml `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('tomlLoader'));
+			assert.ok(Array.isArray(json.tomlLoader));
+
+			const ids = json.tomlLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, [
+				'crown',
+				'nikes-on-my-feet',
+				'stars',
+				'never-let-me-down',
+				'no-church-in-the-wild',
+				'family-ties',
+				'somebody',
+				'honest',
+			]);
+		});
+
+		it('Returns nested json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('nestedJsonLoader'));
+			assert.ok(Array.isArray(json.nestedJsonLoader));
+
+			const ids = json.nestedJsonLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
 		});
 
 		it('Returns data entry by id', async () => {
@@ -124,6 +186,23 @@ describe('Content Layer', () => {
 			});
 		});
 
+		it('returns a collection from a simple loader that uses an object', async () => {
+			assert.ok(json.hasOwnProperty('simpleLoaderObject'));
+			assert.ok(Array.isArray(json.simpleLoaderObject));
+			assert.deepEqual(json.simpleLoaderObject[0], {
+				id: 'capybara',
+				collection: 'rodents',
+				data: {
+					name: 'Capybara',
+					scientificName: 'Hydrochoerus hydrochaeris',
+					lifespan: 10,
+					weight: 50000,
+					diet: ['grass', 'aquatic plants', 'bark', 'fruits'],
+					nocturnal: false,
+				},
+			});
+		});
+
 		it('transforms a reference id to a reference object', async () => {
 			assert.ok(json.hasOwnProperty('entryWithReference'));
 			assert.deepEqual(json.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
@@ -149,7 +228,6 @@ describe('Content Layer', () => {
 		});
 
 		it('handles remote images in custom loaders', async () => {
-			console.log(json.images[1].data.image);
 			assert.ok(json.images[1].data.image.startsWith('https://'));
 		});
 
@@ -179,6 +257,10 @@ describe('Content Layer', () => {
 				},
 				id: 'tabby',
 			});
+		});
+
+		it('allows "slug" as a field', async () => {
+			assert.equal(json.increment.data.slug, 'slimy');
 		});
 
 		it('updates the store on new builds', async () => {
@@ -249,10 +331,10 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('fileLoader'));
-			assert.ok(Array.isArray(json.fileLoader));
+			assert.ok(json.hasOwnProperty('jsonLoader'));
+			assert.ok(Array.isArray(json.jsonLoader));
 
-			const ids = json.fileLoader.map((item) => item.data.id);
+			const ids = json.jsonLoader.map((item) => item.data.id);
 			assert.deepEqual(ids, [
 				'labrador-retriever',
 				'german-shepherd',
@@ -300,10 +382,28 @@ describe('Content Layer', () => {
 			});
 		});
 
+		it('reloads data when an integration triggers a content refresh', async () => {
+			const rawJsonResponse = await fixture.fetch('/collections.json');
+			const initialJson = devalue.parse(await rawJsonResponse.text());
+			assert.equal(initialJson.increment.data.lastValue, 1);
+			const now = new Date().toISOString();
+
+			const refreshResponse = await fixture.fetch('/_refresh', {
+				method: 'POST',
+				body: JSON.stringify({ now }),
+			});
+			const refreshData = await refreshResponse.json();
+			assert.equal(refreshData.message, 'Content refreshed successfully');
+			const updatedJsonResponse = await fixture.fetch('/collections.json');
+			const updated = devalue.parse(await updatedJsonResponse.text());
+			assert.equal(updated.increment.data.lastValue, 2);
+			assert.deepEqual(updated.increment.data.refreshContextData, { webhookBody: { now } });
+		});
+
 		it('updates collection when data file is changed', async () => {
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const initialJson = devalue.parse(await rawJsonResponse.text());
-			assert.equal(initialJson.fileLoader[0].data.temperament.includes('Bouncy'), false);
+			assert.equal(initialJson.jsonLoader[0].data.temperament.includes('Bouncy'), false);
 
 			await fixture.editFile('/src/data/dogs.json', (prev) => {
 				const data = JSON.parse(prev);
@@ -314,7 +414,7 @@ describe('Content Layer', () => {
 			await fixture.onNextDataStoreChange();
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
-			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
+			assert.ok(updated.jsonLoader[0].data.temperament.includes('Bouncy'));
 			await fixture.resetAllFiles();
 		});
 

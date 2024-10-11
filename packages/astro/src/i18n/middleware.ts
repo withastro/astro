@@ -1,6 +1,7 @@
-import type { APIContext, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
-import type { SSRManifestI18n } from '../core/app/types.js';
+import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
 import { ROUTE_TYPE_HEADER } from '../core/constants.js';
+import type { MiddlewareHandler } from '../types/public/common.js';
+import type { APIContext } from '../types/public/context.js';
 import {
 	type MiddlewarePayload,
 	normalizeTheLocale,

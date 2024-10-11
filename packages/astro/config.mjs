@@ -8,13 +8,6 @@ export function sharpImageService(config = {}) {
 	};
 }
 
-export function squooshImageService() {
-	return {
-		entrypoint: 'astro/assets/services/squoosh',
-		config: {},
-	};
-}
-
 export function passthroughImageService() {
 	return {
 		entrypoint: 'astro/assets/services/noop',

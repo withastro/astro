@@ -2,6 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { validateSupportedFeatures } from '../../../dist/integrations/features-validation.js';
 import {
+	normalizeCodegenDir,
 	normalizeInjectedTypeFilename,
 	runHookBuildSetup,
 	runHookConfigSetup,
@@ -12,6 +13,7 @@ const defaultConfig = {
 	root: new URL('./', import.meta.url),
 	srcDir: new URL('src/', import.meta.url),
 };
+const dotAstroDir = new URL('./.astro/', defaultConfig.root);
 
 describe('Integration API', () => {
 	it('runHookBuildSetup should work', async () => {
@@ -87,6 +89,7 @@ describe('Integration API', () => {
 						},
 					],
 				},
+				dotAstroDir,
 			},
 		});
 		assert.equal(updatedSettings.config.site, site);
@@ -122,6 +125,7 @@ describe('Integration API', () => {
 						},
 					],
 				},
+				dotAstroDir,
 			},
 		});
 		assert.equal(updatedSettings.config.site, site);
@@ -137,7 +141,7 @@ describe('Astro feature map', function () {
 				hybridOutput: 'stable',
 			},
 			{
-				output: 'hybrid',
+				config: { output: 'static' },
 			},
 			{},
 			defaultLogger,
@@ -150,9 +154,9 @@ describe('Astro feature map', function () {
 			'test',
 			{},
 			{
-				output: 'hybrid',
+				buildOutput: 'server',
+				config: { output: 'static' },
 			},
-			{},
 			defaultLogger,
 		);
 		assert.equal(result['hybridOutput'], false);
@@ -163,9 +167,9 @@ describe('Astro feature map', function () {
 			'test',
 			{},
 			{
-				output: 'hybrid',
+				buildOutput: 'server',
+				config: { output: 'static' },
 			},
-			{},
 			defaultLogger,
 		);
 		assert.equal(result['hybridOutput'], false);
@@ -177,9 +181,8 @@ describe('Astro feature map', function () {
 				'test',
 				{ staticOutput: 'stable' },
 				{
-					output: 'static',
+					config: { output: 'static' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['staticOutput'], true);
@@ -190,9 +193,9 @@ describe('Astro feature map', function () {
 				'test',
 				{ staticOutput: 'unsupported' },
 				{
-					output: 'static',
+					buildOutput: 'static',
+					config: { output: 'static' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['staticOutput'], false);
@@ -204,9 +207,8 @@ describe('Astro feature map', function () {
 				'test',
 				{ hybridOutput: 'stable' },
 				{
-					output: 'hybrid',
+					config: { output: 'static' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['hybridOutput'], true);
@@ -219,9 +221,9 @@ describe('Astro feature map', function () {
 					hybridOutput: 'unsupported',
 				},
 				{
-					output: 'hybrid',
+					buildOutput: 'server',
+					config: { output: 'static' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['hybridOutput'], false);
@@ -233,9 +235,8 @@ describe('Astro feature map', function () {
 				'test',
 				{ serverOutput: 'stable' },
 				{
-					output: 'server',
+					config: { output: 'server' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['serverOutput'], true);
@@ -248,79 +249,11 @@ describe('Astro feature map', function () {
 					serverOutput: 'unsupported',
 				},
 				{
-					output: 'server',
+					config: { output: 'server' },
 				},
-				{},
 				defaultLogger,
 			);
 			assert.equal(result['serverOutput'], false);
-		});
-	});
-
-	describe('assets', function () {
-		it('should be supported when it is sharp compatible', () => {
-			let result = validateSupportedFeatures(
-				'test',
-				{
-					assets: {
-						supportKind: 'stable',
-						isSharpCompatible: true,
-					},
-				},
-				{
-					image: {
-						service: {
-							entrypoint: 'astro/assets/services/sharp',
-						},
-					},
-				},
-				{},
-				defaultLogger,
-			);
-			assert.equal(result['assets'], true);
-		});
-		it('should be supported when it is squoosh compatible', () => {
-			let result = validateSupportedFeatures(
-				'test',
-				{
-					assets: {
-						supportKind: 'stable',
-						isSquooshCompatible: true,
-					},
-				},
-				{
-					image: {
-						service: {
-							entrypoint: 'astro/assets/services/squoosh',
-						},
-					},
-				},
-				{},
-				defaultLogger,
-			);
-			assert.equal(result['assets'], true);
-		});
-
-		it("should not be valid if the config is correct, but the it's unsupported", () => {
-			let result = validateSupportedFeatures(
-				'test',
-				{
-					assets: {
-						supportKind: 'unsupported',
-						isNodeCompatible: false,
-					},
-				},
-				{
-					image: {
-						service: {
-							entrypoint: 'astro/assets/services/sharp',
-						},
-					},
-				},
-				{},
-				defaultLogger,
-			);
-			assert.equal(result['assets'], false);
 		});
 	});
 });
@@ -340,4 +273,8 @@ describe('normalizeInjectedTypeFilename', () => {
 		normalizeInjectedTypeFilename('types.d.ts', 'aA1-*/_"~.'),
 		'./integrations/aA1-_____./types.d.ts',
 	);
+});
+
+describe('normalizeCodegenDir', () => {
+	assert.equal(normalizeCodegenDir('aA1-*/_"~.'), './integrations/aA1-_____./');
 });

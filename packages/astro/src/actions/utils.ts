@@ -1,6 +1,6 @@
 import type fsMod from 'node:fs';
 import * as eslexer from 'es-module-lexer';
-import type { APIContext } from '../@types/astro.js';
+import type { APIContext } from '../types/public/context.js';
 import type { Locals } from './runtime/middleware.js';
 import type { ActionAPIContext } from './runtime/utils.js';
 import { deserializeActionResult, getActionQueryString } from './runtime/virtual/shared.js';

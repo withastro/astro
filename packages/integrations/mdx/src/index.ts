@@ -8,11 +8,10 @@ import type {
 	ContentEntryType,
 	HookParameters,
 } from 'astro';
-import astroJSXRenderer from 'astro/jsx/renderer.js';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
-import { ignoreStringPlugins, parseFrontmatter } from './utils.js';
+import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
 import { vitePluginMdx } from './vite-plugin-mdx.js';
 
@@ -37,7 +36,7 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 export function getContainerRenderer(): ContainerRenderer {
 	return {
 		name: 'astro:jsx',
-		serverEntrypoint: 'astro/jsx/server.js',
+		serverEntrypoint: '@astrojs/mdx/server.js',
 	};
 }
 
@@ -53,17 +52,20 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				const { updateConfig, config, addPageExtension, addContentEntryType, addRenderer } =
 					params as SetupHookParams;
 
-				addRenderer(astroJSXRenderer);
+				addRenderer({
+					name: 'astro:jsx',
+					serverEntrypoint: '@astrojs/mdx/server.js',
+				});
 				addPageExtension('.mdx');
 				addContentEntryType({
 					extensions: ['.mdx'],
 					async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
-						const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
+						const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
 						return {
-							data: parsed.data,
-							body: parsed.content,
-							slug: parsed.data.slug,
-							rawData: parsed.matter,
+							data: parsed.frontmatter,
+							body: parsed.content.trim(),
+							slug: parsed.frontmatter.slug,
+							rawData: parsed.rawFrontmatter,
 						};
 					},
 					contentModuleTypes: await fs.readFile(

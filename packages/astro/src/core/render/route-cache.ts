@@ -1,13 +1,13 @@
+import type { ComponentInstance } from '../../types/astro.js';
 import type {
-	ComponentInstance,
 	GetStaticPathsItem,
 	GetStaticPathsResult,
 	GetStaticPathsResultKeyed,
 	PaginateFunction,
 	Params,
-	RouteData,
-	RuntimeMode,
-} from '../../@types/astro.js';
+} from '../../types/public/common.js';
+import type { AstroConfig, RuntimeMode } from '../../types/public/config.js';
+import type { RouteData } from '../../types/public/internal.js';
 import type { Logger } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
@@ -20,6 +20,7 @@ interface CallGetStaticPathsOptions {
 	routeCache: RouteCache;
 	logger: Logger;
 	ssr: boolean;
+	base: AstroConfig['base'];
 }
 
 export async function callGetStaticPaths({
@@ -28,6 +29,7 @@ export async function callGetStaticPaths({
 	routeCache,
 	logger,
 	ssr,
+	base,
 }: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> {
 	const cached = routeCache.get(route);
 	if (!mod) {
@@ -57,7 +59,7 @@ export async function callGetStaticPaths({
 	staticPaths = await mod.getStaticPaths({
 		// Q: Why the cast?
 		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
-		paginate: generatePaginateFunction(route) as PaginateFunction,
+		paginate: generatePaginateFunction(route, base) as PaginateFunction,
 	});
 
 	validateGetStaticPathsResult(staticPaths, logger, route);

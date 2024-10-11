@@ -428,7 +428,7 @@ async function transition(
 		// see https://developer.mozilla.org/en-US/docs/Web/API/DOMParser/parseFromString
 		preparationEvent.newDocument.querySelectorAll('noscript').forEach((el) => el.remove());
 
-		// If ViewTransitions is not enabled on the incoming page, do a full page load to it.
+		// If ClientRouter is not enabled on the incoming page, do a full page load to it.
 		// Unless this was a form submission, in which case we do not want to trigger another mutation.
 		if (
 			!preparationEvent.newDocument.querySelector('[name="astro-view-transitions-enabled"]') &&
@@ -543,7 +543,7 @@ async function transition(
 		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be caught when the trigger was a click or history traversal.
 		// Needs more investigation on root causes if errors still occur sporadically
 		const err = e as Error;
-		// eslint-disable-next-line no-console
+		// biome-ignore lint/suspicious/noConsoleLog: allowed
 		console.log('[astro]', err.name, err.message, err.stack);
 	}
 }
@@ -558,7 +558,6 @@ export async function navigate(href: string, options?: Options) {
 				'The view transitions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.',
 			);
 			warning.name = 'Warning';
-			// eslint-disable-next-line no-console
 			console.warn(warning);
 			navigateOnServerWarned = true;
 		}

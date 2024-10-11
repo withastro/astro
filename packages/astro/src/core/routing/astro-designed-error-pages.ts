@@ -1,5 +1,6 @@
-import type { ComponentInstance, ManifestData, RouteData } from '../../@types/astro.js';
 import notFoundTemplate from '../../template/4xx.js';
+import type { ComponentInstance, ManifestData } from '../../types/astro.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { DEFAULT_404_COMPONENT, DEFAULT_500_COMPONENT } from '../constants.js';
 
 export const DEFAULT_404_ROUTE: RouteData = {

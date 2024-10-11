@@ -1,4 +1,6 @@
-import type { AstroConfig, RewritePayload, RouteData } from '../../@types/astro.js';
+import type { RewritePayload } from '../../types/public/common.js';
+import type { AstroConfig } from '../../types/public/config.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import { appendForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';

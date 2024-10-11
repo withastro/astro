@@ -1,4 +1,4 @@
-import type { MiddlewareHandler } from '../../@types/astro.js';
+import type { MiddlewareHandler } from '../../types/public/common.js';
 import { defineMiddleware } from '../middleware/index.js';
 
 /**

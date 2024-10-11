@@ -5,7 +5,7 @@ export async function GET() {
 	const customLoader = await getCollection('blog', (entry) => {
 		return entry.data.id < 6;
 	});
-	const fileLoader = await getCollection('dogs');
+	const jsonLoader = await getCollection('dogs');
 
 	const dataEntry = await getEntry('dogs', 'beagle');
 
@@ -19,17 +19,33 @@ export async function GET() {
 	const increment = await getEntry('increment', 'value');
 
 	const images = await getCollection('images');
+
+	const simpleLoaderObject = await getCollection('rodents')
+
+	const probes = await getCollection('probes');
+
+	const yamlLoader = await getCollection('fish');
+
+	const tomlLoader = await getCollection('songs');
+
+	const nestedJsonLoader = await getCollection('birds');
+
 	return new Response(
 		devalue.stringify({
 			customLoader,
-			fileLoader,
+			jsonLoader,
 			dataEntry,
 			simpleLoader,
+			simpleLoaderObject,
 			entryWithReference,
 			entryWithImagePath,
 			referencedEntry,
 			increment,
-			images
-		})
+			images, 
+			probes,
+			yamlLoader,
+			tomlLoader,
+			nestedJsonLoader,
+		}),
 	);
 }

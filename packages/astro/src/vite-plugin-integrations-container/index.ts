@@ -1,10 +1,11 @@
 import type { PluginContext } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroSettings, InjectedRoute, ResolvedInjectedRoute } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
+import type { AstroSettings } from '../types/astro.js';
 
 import { normalizePath } from 'vite';
 import { runHookServerSetup } from '../integrations/hooks.js';
+import type { InjectedRoute, ResolvedInjectedRoute } from '../types/public/integrations.js';
 
 /** Connect Astro integrations into Vite, as needed. */
 export default function astroIntegrationsContainerPlugin({

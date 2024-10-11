@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
-import { after, before, describe, it } from 'node:test';
+import { after, afterEach, before, describe, it } from 'node:test';
 import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
@@ -562,7 +562,7 @@ describe('astro:image', () => {
 			it('has proper sources for array of images', () => {
 				let $img = $('#array-of-images img');
 				const imgsSrcs = [];
-				$img.each((i, img) => imgsSrcs.push(img.attribs['src']));
+				$img.each((_i, img) => imgsSrcs.push(img.attribs['src']));
 				assert.equal($img.length, 2);
 				assert.equal(
 					imgsSrcs.every((img) => img.startsWith('/')),
@@ -646,7 +646,7 @@ describe('astro:image', () => {
 				customEndpointFixture = await loadFixture({
 					root: './fixtures/core-image/',
 					image: {
-						endpoint: './src/custom-endpoint.ts',
+						endpoint: { entrypoint: './src/custom-endpoint.ts' },
 						service: testImageService({ foo: 'bar' }),
 						domains: ['avatars.githubusercontent.com'],
 					},
@@ -814,10 +814,6 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
 				outDir: './dist/server-base-path',
-				build: {
-					client: './dist/server-base-path/client',
-					server: './dist/server-base-path/server',
-				},
 				adapter: testAdapter(),
 				image: {
 					service: testImageService(),
@@ -1100,10 +1096,6 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
 				outDir: './dist/server-dev',
-				build: {
-					client: './dist/server-dev/client',
-					server: './dist/server-dev/server',
-				},
 				adapter: testAdapter(),
 				base: 'some-base',
 				image: {
@@ -1139,13 +1131,9 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
 				outDir: './dist/server-prod',
-				build: {
-					client: './dist/server-prod/client',
-					server: './dist/server-prod/server',
-				},
 				adapter: testAdapter(),
 				image: {
-					endpoint: 'astro/assets/endpoint/node',
+					endpoint: { entrypoint: 'astro/assets/endpoint/node' },
 					service: testImageService(),
 				},
 			});
@@ -1264,6 +1252,52 @@ describe('astro:image', () => {
 		});
 	});
 
+	describe('trailing slash on the endpoint', () => {
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		it('includes a trailing slash if trailing slash is set to always', async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image/',
+				image: {
+					service: testImageService(),
+				},
+				trailingSlash: 'always',
+			});
+			devServer = await fixture.startDevServer();
+
+			let res = await fixture.fetch('/');
+			let html = await res.text();
+
+			const $ = cheerio.load(html);
+			const src = $('#local img').attr('src');
+
+			assert.equal(src.startsWith('/_image/?'), true);
+		});
+
+		it('does not includes a trailing slash if trailing slash is set to never', async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image/',
+				image: {
+					service: testImageService(),
+				},
+				trailingSlash: 'never',
+			});
+			devServer = await fixture.startDevServer();
+
+			let res = await fixture.fetch('/');
+			let html = await res.text();
+
+			const $ = cheerio.load(html);
+			const src = $('#local img').attr('src');
+
+			assert.equal(src.startsWith('/_image?'), true);
+		});
+
+		afterEach(async () => {
+			await devServer.stop();
+		});
+	});
 	describe('build data url', () => {
 		before(async () => {
 			fixture = await loadFixture({

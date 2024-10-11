@@ -1,5 +1,5 @@
-import type { AstroConfig } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import type { AstroConfig } from '../types/public/config.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
 import { type ImageService, isLocalService } from './services/service.js';
 import {
@@ -80,7 +80,7 @@ export async function getImage(
 	// Causing our generate step to think the image is used outside of the image optimization pipeline
 	const clonedSrc = isESMImportedImage(resolvedOptions.src)
 		? // @ts-expect-error - clone is a private, hidden prop
-			resolvedOptions.src.clone ?? resolvedOptions.src
+			(resolvedOptions.src.clone ?? resolvedOptions.src)
 		: resolvedOptions.src;
 
 	resolvedOptions.src = clonedSrc;

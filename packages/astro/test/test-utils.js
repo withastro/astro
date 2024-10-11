@@ -10,9 +10,6 @@ import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/content-layer.js';
 import { globalContentConfigObserver } from '../dist/content/utils.js';
 import build from '../dist/core/build/index.js';
-import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
-import { getVirtualModulePageName } from '../dist/core/build/plugins/util.js';
-import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
@@ -23,8 +20,8 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
 
 /**
  * @typedef {import('../src/core/dev/dev').DevServer} DevServer
- * @typedef {import('../src/@types/astro').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
- * @typedef {import('../src/@types/astro').AstroConfig} AstroConfig
+ * @typedef {import('../src/types/public/config.js').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
+ * @typedef {import('../src/types/public/config.js').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App
  * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
@@ -279,15 +276,6 @@ export async function loadFixture(inlineConfig) {
 		},
 		loadTestAdapterApp: async (streaming) => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
-			const { createApp, manifest } = await import(url);
-			const app = createApp(streaming);
-			app.manifest = manifest;
-			return app;
-		},
-		loadEntryPoint: async (pagePath, routes, streaming) => {
-			const virtualModule = getVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, pagePath);
-			const filePath = makeSplitEntryPointFileName(virtualModule, routes);
-			const url = new URL(`./server/${filePath}?id=${fixtureId}`, config.outDir);
 			const { createApp, manifest } = await import(url);
 			const app = createApp(streaming);
 			app.manifest = manifest;

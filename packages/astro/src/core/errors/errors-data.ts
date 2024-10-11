@@ -1,5 +1,5 @@
 // BEFORE ADDING AN ERROR: Please look at the README.md in this folder for general guidelines on writing error messages
-// Additionally, this code, much like `@types/astro.ts`, is used to generate documentation, so make sure to pass
+// Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
 import type { ZodError } from 'zod';
@@ -73,9 +73,8 @@ export const PrerenderClientAddressNotAvailable = {
  */
 export const StaticClientAddressNotAvailable = {
 	name: 'StaticClientAddressNotAvailable',
-	title: '`Astro.clientAddress` is not available in static mode.',
-	message:
-		"`Astro.clientAddress` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
+	title: '`Astro.clientAddress` is not available in prerendered pages.',
+	message: '`Astro.clientAddress` is only available on pages that are server-rendered.',
 	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information on how to enable SSR.',
 } satisfies ErrorData;
 /**
@@ -367,8 +366,7 @@ export const GetStaticPathsRequired = {
 		'`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths` function from your dynamic route.',
 	hint: `See https://docs.astro.build/en/guides/routing/#dynamic-routes for more information on dynamic routes.
 
-Alternatively, set \`output: "server"\` or \`output: "hybrid"\` in your Astro config file to switch to a non-static server build. This error can also occur if using \`export const prerender = true;\`.
-See https://docs.astro.build/en/guides/server-side-rendering/ for more information on non-static rendering.`,
+	If you meant for this route to be server-rendered, set \`export const prerender = false;\` in the page.`,
 } satisfies ErrorData;
 /**
  * @docs
@@ -393,8 +391,39 @@ export const ReservedSlotName = {
 export const NoAdapterInstalled = {
 	name: 'NoAdapterInstalled',
 	title: 'Cannot use Server-side Rendering without an adapter.',
-	message: `Cannot use \`output: 'server'\` or \`output: 'hybrid'\` without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
+	message: `Cannot use server-rendered pages without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
 	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
+ * @description
+ * The currently configured adapter does not support server-side rendering, which is required for the current project setup.
+ *
+ * Depending on your adapter, there may be a different entrypoint to use for server-side rendering. For example, the `@astrojs/vercel` adapter has a `@astrojs/vercel/static` entrypoint for static rendering, and a `@astrojs/vercel/serverless` entrypoint for server-side rendering.
+ *
+ */
+export const AdapterSupportOutputMismatch = {
+	name: 'AdapterSupportOutputMismatch',
+	title: 'Adapter does not support server output.',
+	message: (adapterName: string) =>
+		`The \`${adapterName}\` adapter is configured to output a static website, but the project contains server-rendered pages. Please install and configure the appropriate server adapter for your final deployment.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [On-demand Rendering](https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/)
+ * @description
+ * To use server islands, the same constraints exist as for sever-side rendering, so an adapter is needed.
+ */
+export const NoAdapterInstalledServerIslands = {
+	name: 'NoAdapterInstalledServerIslands',
+	title: 'Cannot use Server Islands without an adapter.',
+	message: `Cannot use server islands without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
+	hint: 'See https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/ for more information.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -817,6 +846,18 @@ export const LocalsNotAnObject = {
 /**
  * @docs
  * @description
+ * Thrown when a value is being set as the `locals` field on the Astro global or context.
+ */
+export const LocalsReassigned = {
+	name: 'LocalsReassigned',
+	title: '`locals` must not be reassigned.',
+	message: '`locals` can not be assigned directly.',
+	hint: 'Set a `locals` property instead.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Thrown when a value is being set as the `headers` field on the `ResponseInit` object available as `Astro.response`.
  */
 export const AstroResponseHeadersReassigned = {
@@ -1164,15 +1205,15 @@ export const RouteNotFound = {
 /**
  * @docs
  * @description
- * Some environment variables do not match the data type and/or properties defined in `experimental.env.schema`.
+ * Some environment variables do not match the data type and/or properties defined in `env.schema`.
  * @message
- * The following environment variables defined in `experimental.env.schema` are invalid.
+ * The following environment variables defined in `env.schema` are invalid.
  */
 export const EnvInvalidVariables = {
 	name: 'EnvInvalidVariables',
 	title: 'Invalid Environment Variables',
 	message: (errors: Array<string>) =>
-		`The following environment variables defined in \`experimental.env.schema\` are invalid:\n\n${errors.map((err) => `- ${err}`).join('\n')}\n`,
+		`The following environment variables defined in \`env.schema\` are invalid:\n\n${errors.map((err) => `- ${err}`).join('\n')}\n`,
 } satisfies ErrorData;
 
 /**
@@ -1442,7 +1483,7 @@ export const GetEntryDeprecationError = {
  * "title" is required.<br/>
  * "date" must be a valid date.
  * @description
- * A Markdown or MDX entry in `src/content/` does not match its collection schema.
+ * A Markdown or MDX entry does not match its collection schema.
  * Make sure that all required fields are present, and that all fields are of the correct type.
  * You can check against the collection schema in your `src/content/config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
@@ -1460,13 +1501,83 @@ export const InvalidContentEntryFrontmatterError = {
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * **blog** → **post** frontmatter does not match collection schema.<br/>
+ * "title" is required.<br/>
+ * "date" must be a valid date.
+ * @description
+ * A content entry does not match its collection schema.
+ * Make sure that all required fields are present, and that all fields are of the correct type.
+ * You can check against the collection schema in your `src/content/config.*` file.
+ * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ */
+export const InvalidContentEntryDataError = {
+	name: 'InvalidContentEntryDataError',
+	title: 'Content entry data does not match schema.',
+	message(collection: string, entryId: string, error: ZodError) {
+		return [
+			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.`,
+			...error.errors.map((zodError) => zodError.message),
+		].join('\n');
+	},
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * **blog** → **post** data does not match collection schema.<br/>
+ * "title" is required.<br/>
+ * "date" must be a valid date.
+ * @description
+ * A content entry does not match its collection schema.
+ * Make sure that all required fields are present, and that all fields are of the correct type.
+ * You can check against the collection schema in your `src/content/config.*` file.
+ * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ */
+export const ContentEntryDataError = {
+	name: 'ContentEntryDataError',
+	title: 'Content entry data does not match schema.',
+	message(collection: string, entryId: string, error: ZodError) {
+		return [
+			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.`,
+			...error.errors.map((zodError) => zodError.message),
+		].join('\n');
+	},
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * The loader for **blog** returned invalid data.<br/>
+ * Object is missing required property "id".
+ * @description
+ * The loader for a content collection returned invalid data.
+ * Inline loaders must return an array of objects with unique ID fields or a plain object with IDs as keys and entries as values.
+ */
+export const ContentLoaderInvalidDataError = {
+	name: 'ContentLoaderInvalidDataError',
+	title: 'Content entry is missing an ID',
+	message(collection: string, extra: string) {
+		return `**${String(collection)}** entry is missing an ID.\n${extra}`;
+	},
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @message `COLLECTION_NAME` → `ENTRY_ID` has an invalid slug. `slug` must be a string.
  * @see
  * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
  * @description
- * An entry in `src/content/` has an invalid `slug`. This field is reserved for generating entry slugs, and must be a string when present.
+ * A collection entry has an invalid `slug`. This field is reserved for generating entry slugs, and must be a string when present.
  */
 export const InvalidContentEntrySlugError = {
 	name: 'InvalidContentEntrySlugError',
@@ -1481,9 +1592,9 @@ export const InvalidContentEntrySlugError = {
 /**
  * @docs
  * @see
- * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/#defining-custom-slugs)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
- * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
+ * A legacy content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
  */
 export const ContentSchemaContainsSlugError = {
 	name: 'ContentSchemaContainsSlugError',
@@ -1496,9 +1607,9 @@ export const ContentSchemaContainsSlugError = {
 /**
  * @docs
  * @see
- * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
- * A content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
+ * A legacy content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
  */
 export const MixedContentDataCollectionError = {
 	name: 'MixedContentDataCollectionError',
@@ -1510,9 +1621,9 @@ export const MixedContentDataCollectionError = {
 /**
  * @docs
  * @see
- * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+ * - [Legacy content collections](https://docs.astro.build/en/guides/upgrade-to/v5/#updating-existing-collections)
  * @description
- * Content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
+ * Legacy content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
  */
 export const ContentCollectionTypeMismatchError = {
 	name: 'ContentCollectionTypeMismatchError',
@@ -1578,7 +1689,7 @@ export const UnsupportedConfigTransformError = {
 /**
  * @docs
  * @see
- * - [On-demand rendering](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered)
+ * - [On-demand rendering](https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * Your project must have a server output to create backend functions with Actions.
  */
@@ -1586,8 +1697,8 @@ export const ActionsWithoutServerOutputError = {
 	name: 'ActionsWithoutServerOutputError',
 	title: 'Actions must be used with server output.',
 	message:
-		'Actions enabled without setting a server build output. A server is required to create callable backend functions. To deploy routes to a server, add a server adapter to your astro config.',
-	hint: 'Learn about on-demand rendering: https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered',
+		'A server is required to create callable backend functions. To deploy routes to a server, add an adapter to your Astro config and configure your route for on-demand rendering',
+	hint: 'Add an adapter and enable on-demand rendering: https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/',
 } satisfies ErrorData;
 
 /**

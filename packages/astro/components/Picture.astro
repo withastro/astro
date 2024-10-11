@@ -1,9 +1,9 @@
 ---
 import { type LocalImageProps, type RemoteImageProps, getImage } from 'astro:assets';
 import * as mime from 'mrmime';
-import type { GetImageResult, ImageOutputFormat } from '../dist/@types/astro';
 import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import type { GetImageResult, ImageOutputFormat } from '../dist/types/public/index.js';
 import type { HTMLAttributes } from '../types';
 
 type Props = (LocalImageProps | RemoteImageProps) & {

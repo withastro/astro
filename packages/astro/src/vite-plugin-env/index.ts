@@ -1,15 +1,13 @@
 import { fileURLToPath } from 'node:url';
 import { transform } from 'esbuild';
-import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { loadEnv } from 'vite';
-import type { AstroConfig, AstroSettings } from '../@types/astro.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroConfig } from '../types/public/config.js';
 
 interface EnvPluginOptions {
 	settings: AstroSettings;
-	logger: Logger;
 }
 
 // Match `import.meta.env` directly without trailing property access
@@ -17,9 +15,6 @@ const importMetaEnvOnlyRe = /\bimport\.meta\.env\b(?!\.)/;
 // Match valid JS variable names (identifiers), which accepts most alphanumeric characters,
 // except that the first character cannot be a number.
 const isValidIdentifierRe = /^[_$a-zA-Z][\w$]*$/;
-// Match `export const prerender = import.meta.env.*` since `vite=plugin-scanner` requires
-// the `import.meta.env.*` to always be replaced.
-const exportConstPrerenderRe = /\bexport\s+const\s+prerender\s*=\s*import\.meta\.env\.(.+?)\b/;
 
 function getPrivateEnv(
 	viteConfig: vite.ResolvedConfig,
@@ -119,7 +114,7 @@ async function replaceDefine(
 	};
 }
 
-export default function envVitePlugin({ settings, logger }: EnvPluginOptions): vite.Plugin {
+export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plugin {
 	let privateEnv: Record<string, string>;
 	let defaultDefines: Record<string, string>;
 	let isDev: boolean;
@@ -171,27 +166,6 @@ export default function envVitePlugin({ settings, logger }: EnvPluginOptions): v
 					devImportMetaEnvPrepend += '});';
 				}
 				s.prepend(devImportMetaEnvPrepend);
-
-				// EDGE CASE: We need to do a static replacement for `export const prerender` for `vite-plugin-scanner`
-				// TODO: Remove in Astro 5
-				let exportConstPrerenderStr: string | undefined;
-				s.replace(exportConstPrerenderRe, (m, key) => {
-					if (privateEnv[key] != null) {
-						exportConstPrerenderStr = m;
-						return `export const prerender = ${privateEnv[key]}`;
-					} else {
-						return m;
-					}
-				});
-				if (exportConstPrerenderStr) {
-					logger.warn(
-						'router',
-						`Exporting dynamic values from prerender is deprecated. Please use an integration with the "astro:route:setup" hook ` +
-							`to update the route's \`prerender\` option instead. This allows for better treeshaking and bundling configuration ` +
-							`in the future. See https://docs.astro.build/en/reference/integrations-reference/#astroroutesetup for a migration example.` +
-							`\nFound \`${bold(exportConstPrerenderStr)}\` in ${bold(id)}.`,
-					);
-				}
 
 				return {
 					code: s.toString(),

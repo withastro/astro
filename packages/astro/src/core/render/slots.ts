@@ -1,8 +1,8 @@
-import type { SSRResult } from '../../@types/astro.js';
 import { type ComponentSlots, renderSlotToString } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { chunkToString } from '../../runtime/server/render/index.js';
 import { isRenderInstruction } from '../../runtime/server/render/instruction.js';
+import type { SSRResult } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 

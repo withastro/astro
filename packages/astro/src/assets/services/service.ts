@@ -1,6 +1,6 @@
-import type { AstroConfig } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type { ImageOutputFormat, ImageTransform, UnresolvedSrcSetValue } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
@@ -33,7 +33,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	/**
 	 * Return the URL to the endpoint or URL your images are generated from.
 	 *
-	 * For a local service, your service should expose an endpoint handling the image requests, or use Astro's at `/_image`.
+	 * For a local service, your service should expose an endpoint handling the image requests, or use Astro's which by default, is located at `/_image`.
 	 *
 	 * For external services, this should point to the URL your images are coming from, for instance, `/_vercel/image`
 	 *
@@ -343,7 +343,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			options[key] && searchParams.append(param, options[key].toString());
 		});
 
-		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, '/_image');
+		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, imageConfig.endpoint.route);
 		return `${imageEndpoint}?${searchParams}`;
 	},
 	parseURL(url) {

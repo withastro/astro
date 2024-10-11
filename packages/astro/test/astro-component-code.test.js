@@ -85,15 +85,15 @@ describe('<Code>', () => {
 		assert.equal($('pre').attr('class'), 'astro-code css-variables');
 		assert.deepEqual(
 			$('pre, pre span')
-				.map((i, f) => (f.attribs ? f.attribs.style : 'no style found'))
+				.map((_i, f) => (f.attribs ? f.attribs.style : 'no style found'))
 				.toArray(),
 			[
-				'background-color:var(--astro-code-color-background);color:var(--astro-code-color-text); overflow-x: auto;',
+				'background-color:var(--astro-code-background);color:var(--astro-code-foreground); overflow-x: auto;',
 				'color:var(--astro-code-token-constant)',
 				'color:var(--astro-code-token-function)',
-				'color:var(--astro-code-color-text)',
+				'color:var(--astro-code-foreground)',
 				'color:var(--astro-code-token-string-expression)',
-				'color:var(--astro-code-color-text)',
+				'color:var(--astro-code-foreground)',
 			],
 		);
 	});

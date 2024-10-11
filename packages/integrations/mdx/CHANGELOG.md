@@ -1,5 +1,35 @@
 # @astrojs/mdx
 
+## 4.0.0-alpha.2
+
+### Patch Changes
+
+- [#11861](https://github.com/withastro/astro/pull/11861) [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59) Thanks [@bluwy](https://github.com/bluwy)! - Updates `@astrojs/markdown-remark` and handle its breaking changes
+
+- Updated dependencies [[`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59), [`560ef15`](https://github.com/withastro/astro/commit/560ef15ad23bd137b56ef1048eb2df548b99fdce), [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59)]:
+  - @astrojs/markdown-remark@6.0.0-alpha.1
+
+## 4.0.0-alpha.1
+
+### Minor Changes
+
+- [#11741](https://github.com/withastro/astro/pull/11741) [`6617491`](https://github.com/withastro/astro/commit/6617491c3bc2bde87f7867d7dec2580781852cfc) Thanks [@bluwy](https://github.com/bluwy)! - Updates adapter server entrypoint to use `@astrojs/mdx/server.js`
+
+  This is an internal change. Handling JSX in your `.mdx` files has been moved from Astro internals and is now the responsibility of this integration. You should not notice a change in your project, and no update to your code is required.
+
+## 4.0.0-alpha.0
+
+- Updated dependencies [[`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0), [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f), [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e), [`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e), [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9), [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6), [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6)]:
+  - astro@5.0.0-alpha.0
+  - @astrojs/markdown-remark@6.0.0-alpha.0
+
+## 3.1.8
+
+### Patch Changes
+
+- Updated dependencies [[`710a1a1`](https://github.com/withastro/astro/commit/710a1a11f488ff6ed3da6d3e0723b2322ccfe27b)]:
+  - @astrojs/markdown-remark@5.3.0
+
 ## 3.1.7
 
 ### Patch Changes

@@ -4,7 +4,7 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { ManagedAppToken } from '@astrojs/studio';
 import { LibsqlError } from '@libsql/client';
-import type { AstroConfig, AstroIntegration } from 'astro';
+import type { AstroIntegration } from 'astro';
 import { blue, yellow } from 'kleur/colors';
 import {
 	type HMRPayload,
@@ -59,14 +59,13 @@ function astroDBIntegration(): AstroIntegration {
 	};
 
 	let command: 'dev' | 'build' | 'preview' | 'sync';
-	let output: AstroConfig['output'] = 'server';
+	let finalBuildOutput: string;
 	return {
 		name: 'astro:db',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, command: _command, logger }) => {
 				command = _command;
 				root = config.root;
-				output = config.output;
 
 				if (command === 'preview') return;
 
@@ -105,8 +104,10 @@ function astroDBIntegration(): AstroIntegration {
 					},
 				});
 			},
-			'astro:config:done': async ({ config, injectTypes }) => {
+			'astro:config:done': async ({ config, injectTypes, buildOutput }) => {
 				if (command === 'preview') return;
+
+				finalBuildOutput = buildOutput;
 
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
@@ -134,7 +135,7 @@ function astroDBIntegration(): AstroIntegration {
 					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirectoryUrl(root))),
 					...configFileDependencies.map((c) => new URL(c, root)),
 				];
-				server.watcher.on('all', (event, relativeEntry) => {
+				server.watcher.on('all', (_event, relativeEntry) => {
 					const entry = new URL(relativeEntry, root);
 					if (filesToWatch.some((f) => entry.href === f.href)) {
 						server.restart();
@@ -159,11 +160,7 @@ function astroDBIntegration(): AstroIntegration {
 				}, 100);
 			},
 			'astro:build:start': async ({ logger }) => {
-				if (
-					!connectToRemote &&
-					!databaseFileEnvDefined() &&
-					(output === 'server' || output === 'hybrid')
-				) {
+				if (!connectToRemote && !databaseFileEnvDefined() && finalBuildOutput === 'server') {
 					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
 					const hint =
 						'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';

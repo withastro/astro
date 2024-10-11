@@ -1,12 +1,12 @@
 import cssesc from 'cssesc';
+import { fade, slide } from '../../transitions/index.js';
+import type { SSRResult } from '../../types/public/internal.js';
 import type {
-	SSRResult,
 	TransitionAnimation,
 	TransitionAnimationPair,
 	TransitionAnimationValue,
 	TransitionDirectionalAnimations,
-} from '../../@types/astro.js';
-import { fade, slide } from '../../transitions/index.js';
+} from '../../types/public/view-transitions.js';
 import { markHTMLString } from './escape.js';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
@@ -77,7 +77,7 @@ function reEncode(s: string) {
 				codepoint < 0x80
 					? codepoint === 95
 						? '__'
-						: reEncodeValidChars[codepoint] ?? '_' + codepoint.toString(16).padStart(2, '0')
+						: (reEncodeValidChars[codepoint] ?? '_' + codepoint.toString(16).padStart(2, '0'))
 					: String.fromCodePoint(codepoint);
 		}
 	}

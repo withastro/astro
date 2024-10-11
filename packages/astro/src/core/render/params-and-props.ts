@@ -1,4 +1,6 @@
-import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro.js';
+import type { ComponentInstance } from '../../types/astro.js';
+import type { Params, Props } from '../../types/public/common.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
@@ -14,10 +16,11 @@ interface GetParamsAndPropsOptions {
 	pathname: string;
 	logger: Logger;
 	serverLike: boolean;
+	base: string;
 }
 
 export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
-	const { logger, mod, routeData: route, routeCache, pathname, serverLike } = opts;
+	const { logger, mod, routeData: route, routeCache, pathname, serverLike, base } = opts;
 
 	// If there's no route, or if there's a pathname (e.g. a static `src/pages/normal.astro` file),
 	// then we know for sure they don't have params and props, return a fallback value.
@@ -41,6 +44,7 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		routeCache,
 		logger,
 		ssr: serverLike,
+		base,
 	});
 
 	const params = getParams(route, pathname);
@@ -70,7 +74,7 @@ export function getParams(route: RouteData, pathname: string): Params {
 	if (!route.params.length) return {};
 	// The RegExp pattern expects a decoded string, but the pathname is encoded
 	// when the URL contains non-English characters.
-	const paramsMatch = route.pattern.exec(decodeURIComponent(pathname));
+	const paramsMatch = route.pattern.exec(pathname);
 	if (!paramsMatch) return {};
 	const params: Params = {};
 	route.params.forEach((key, i) => {

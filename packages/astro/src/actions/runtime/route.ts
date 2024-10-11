@@ -1,4 +1,4 @@
-import type { APIRoute } from '../../@types/astro.js';
+import type { APIRoute } from '../../types/public/common.js';
 import { formContentTypes, hasContentType } from './utils.js';
 import { getAction } from './virtual/get-action.js';
 import { serializeActionResult } from './virtual/shared.js';
@@ -10,7 +10,6 @@ export const POST: APIRoute = async (context) => {
 		baseAction = await getAction(url.pathname);
 	} catch (e) {
 		if (import.meta.env.DEV) throw e;
-		// eslint-disable-next-line no-console
 		console.error(e);
 		return new Response(e instanceof Error ? e.message : null, { status: 404 });
 	}

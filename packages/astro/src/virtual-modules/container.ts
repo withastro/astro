@@ -1,4 +1,5 @@
-import type { AstroRenderer, SSRLoadedRenderer } from '../@types/astro.js';
+import type { AstroRenderer } from '../types/public/integrations.js';
+import type { SSRLoadedRenderer } from '../types/public/internal.js';
 
 /**
  * Use this function to provide renderers to the `AstroContainer`:

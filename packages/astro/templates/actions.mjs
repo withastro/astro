@@ -59,7 +59,7 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 /**
  * @param {*} param argument passed to the action when called server or client-side.
  * @param {string} path Built path to call action by path name.
- * @param {import('../dist/@types/astro.d.ts').APIContext | undefined} context Injected API context when calling actions from the server.
+ * @param {import('../dist/types/public/context.js').APIContext | undefined} context Injected API context when calling actions from the server.
  * Usage: `actions.[name](param)`.
  * @returns {Promise<import('../dist/actions/runtime/virtual/shared.js').SafeResult<any, any>>}
  */

@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type { Connect, Plugin } from 'vite';
-import type { AstroSettings } from '../../@types/astro.js';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../../template/4xx.js';
+import type { AstroSettings } from '../../types/astro.js';
 import { cleanUrl } from '../../vite-plugin-utils/index.js';
 import { stripBase } from './util.js';
 
@@ -74,7 +74,7 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 			return () => {
 				// NOTE: the `base` is stripped from `req.url` for post middlewares
 
-				server.middlewares.use((req, res, next) => {
+				server.middlewares.use((req, _res, next) => {
 					const pathname = cleanUrl(req.url!);
 
 					// Vite doesn't handle /foo/ if /foo.html exists, we handle it anyways

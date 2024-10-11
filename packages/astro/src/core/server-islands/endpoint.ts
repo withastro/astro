@@ -1,9 +1,3 @@
-import type {
-	ComponentInstance,
-	ManifestData,
-	RouteData,
-	SSRManifest,
-} from '../../@types/astro.js';
 import {
 	type AstroComponentFactory,
 	type ComponentSlots,
@@ -11,6 +5,8 @@ import {
 	renderTemplate,
 } from '../../runtime/server/index.js';
 import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
+import type { ComponentInstance, ManifestData } from '../../types/astro.js';
+import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { decryptString } from '../encryption.js';
 import { getPattern } from '../routing/manifest/pattern.js';
 
@@ -53,12 +49,53 @@ type RenderOptions = {
 	slots: Record<string, string>;
 };
 
+function badRequest(reason: string) {
+	return new Response(null, {
+		status: 400,
+		statusText: 'Bad request: ' + reason,
+	});
+}
+
+async function getRequestData(request: Request): Promise<Response | RenderOptions> {
+	switch (request.method) {
+		case 'GET': {
+			const url = new URL(request.url);
+			const params = url.searchParams;
+
+			if (!params.has('s') || !params.has('e') || !params.has('p')) {
+				return badRequest('Missing required query parameters.');
+			}
+
+			const rawSlots = params.get('s')!;
+			try {
+				return {
+					componentExport: params.get('e')!,
+					encryptedProps: params.get('p')!,
+					slots: JSON.parse(rawSlots),
+				};
+			} catch {
+				return badRequest('Invalid slots format.');
+			}
+		}
+		case 'POST': {
+			try {
+				const raw = await request.text();
+				const data = JSON.parse(raw) as RenderOptions;
+				return data;
+			} catch {
+				return badRequest('Request format is invalid.');
+			}
+		}
+		default: {
+			// Method not allowed: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405
+			return new Response(null, { status: 405 });
+		}
+	}
+}
+
 export function createEndpoint(manifest: SSRManifest) {
 	const page: AstroComponentFactory = async (result) => {
 		const params = result.params;
-		const request = result.request;
-		const raw = await request.text();
-		const data = JSON.parse(raw) as RenderOptions;
 		if (!params.name) {
 			return new Response(null, {
 				status: 400,
@@ -66,6 +103,12 @@ export function createEndpoint(manifest: SSRManifest) {
 			});
 		}
 		const componentId = params.name;
+
+		// Get the request data from the body or search params
+		const data = await getRequestData(result.request);
+		if (data instanceof Response) {
+			return data;
+		}
 
 		const imp = manifest.serverIslandMap?.get(componentId);
 		if (!imp) {
