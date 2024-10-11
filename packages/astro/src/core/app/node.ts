@@ -88,7 +88,7 @@ export class NodeApp extends App {
 			forwardedPort ??  (isEncrypted ? '443' : '80');
 
 		const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
-		const hostnamePort = portInHostname ? hostname : `${hostname}${port ? `:${port}` : ''}`;
+		const hostnamePort = portInHostname ? hostname : `${hostname}:${port}`;
 		
 		const url = `${protocol}://${hostnamePort}${req.url}`;
 		const options: RequestInit = {
