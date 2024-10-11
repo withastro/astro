@@ -85,11 +85,11 @@ export class NodeApp extends App {
 		// @example "443,8080,80" => "443"
 		const forwardedPort = getFirstForwardedValue(req.headers['x-forwarded-port']);
 		const port =
-			forwardedPort ?? req.socket?.remotePort?.toString() ?? (isEncrypted ? '443' : '80');
+			forwardedPort ??  (isEncrypted ? '443' : '80');
 
 		const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
-		const hostnamePort = portInHostname ? hostname : `${hostname}:${port}`;
-
+		const hostnamePort = portInHostname ? hostname : `${hostname}${port ? `:${port}` : ''}`;
+		
 		const url = `${protocol}://${hostnamePort}${req.url}`;
 		const options: RequestInit = {
 			method: req.method || 'GET',
@@ -105,9 +105,8 @@ export class NodeApp extends App {
 		// Get the IP of end client behind the proxy.
 		// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
 		const forwardedClientIp = getFirstForwardedValue(req.headers['x-forwarded-for']);
-		const clientIp = forwardedClientIp || req.socket?.remoteAddress;
-		if (clientIp) {
-			Reflect.set(request, clientAddressSymbol, clientIp);
+		if (forwardedClientIp) {
+			Reflect.set(request, clientAddressSymbol, forwardedClientIp);
 		}
 
 		return request;
