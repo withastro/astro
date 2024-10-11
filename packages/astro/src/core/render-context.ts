@@ -37,7 +37,7 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
-import {copyRequest, setOriginHeader} from './routing/rewrite.js';
+import { copyRequest, setOriginHeader } from './routing/rewrite.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -83,7 +83,7 @@ export class RenderContext {
 			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
-		setOriginHeader(request, pathname)
+		setOriginHeader(request, pathname);
 		return new RenderContext(
 			pipeline,
 			locals,

@@ -2,6 +2,7 @@ import { yellow } from 'kleur/colors';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 import { ASTRO_ORIGIN_HEADER } from '../../core/constants.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
+import { getOriginHeader } from '../../core/routing/rewrite.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
 import { formContentTypes, hasContentType } from './utils.js';
 import { getAction } from './virtual/get-action.js';
@@ -10,7 +11,6 @@ import {
 	type SerializedActionResult,
 	serializeActionResult,
 } from './virtual/shared.js';
-import {getOriginHeader} from "../../core/routing/rewrite.js";
 
 export type ActionPayload = {
 	actionResult: SerializedActionResult;
