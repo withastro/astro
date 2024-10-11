@@ -134,7 +134,7 @@ export function getFallback(): Fallback {
 
 function runScripts() {
 	let wait = Promise.resolve();
-	for (const script of document.scripts) {
+	for (const script of document.getElementsByTagName('script')) {
 		if (script.dataset.astroExec === '') continue;
 		const type = script.getAttribute('type');
 		if (type && type !== 'module' && type !== 'text/javascript') continue;
@@ -643,7 +643,7 @@ if (inBrowser) {
 			);
 		}
 	}
-	for (const script of document.scripts) {
+	for (const script of document.getElementsByTagName('script')) {
 		script.dataset.astroExec = '';
 	}
 }
