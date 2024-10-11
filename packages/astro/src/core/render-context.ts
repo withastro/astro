@@ -534,10 +534,10 @@ export class RenderContext {
 		// TODO: look into why computeCurrentLocale() needs routeData.route to pass ctx.currentLocale tests,
 		// and url.pathname to pass Astro.currentLocale tests.
 		// A single call with `routeData.pathname ?? routeData.route` as the pathname still fails.
-		return (this.#currentLocale ??=
-			computeCurrentLocale(routeData.route, locales, defaultLocale) ??
-			computeCurrentLocale(url.pathname, locales, defaultLocale) ??
-			fallbackTo);
+
+		return (this.#currentLocale ??= routeData.pathname
+			? computeCurrentLocale(routeData.pathname, locales, defaultLocale)
+			: (computeCurrentLocale(url.pathname, locales, defaultLocale) ?? fallbackTo));
 	}
 
 	#preferredLocale: APIContext['preferredLocale'];

@@ -1,0 +1,12 @@
+---
+export async function getStaticPaths() {
+	return [{ params: { language: "ru" } }, { params: { language: "en" } }];
+}
+
+const { currentLocale } = Astro;
+console.log(currentLocale);
+---
+
+<div>
+	{currentLocale}
+</div>
