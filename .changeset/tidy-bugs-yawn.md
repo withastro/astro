@@ -2,4 +2,4 @@
 'create-astro': minor
 ---
 
-The generated package.json and tsconfig.json will have a newline at the end of the file.
+Ensures new line at the end of the generated `package.json` and `tsconfig.json` files
