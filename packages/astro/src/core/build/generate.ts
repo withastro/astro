@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
+import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import {
 	generateImagesForPath,
@@ -33,6 +34,7 @@ import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.
 import { RenderContext } from '../render-context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
+import { redirectTemplate } from '../routing/3xx.js';
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename } from '../util.js';
@@ -172,6 +174,40 @@ async function generatePage(
 		styles,
 		mod: pageModule,
 	};
+
+	async function generatePathWithLogs(
+		path: string,
+		route: RouteData,
+		index: number,
+		paths: string[],
+		isConcurrent: boolean,
+	) {
+		const timeStart = performance.now();
+		pipeline.logger.debug('build', `Generating: ${path}`);
+
+		const filePath = getOutputFilename(config, path, pageData.route.type);
+		const lineIcon =
+			(index === paths.length - 1 && !isConcurrent) || paths.length === 1 ? '└─' : '├─';
+
+		// Log the rendering path first if not concurrent. We'll later append the time taken to render.
+		// We skip if it's concurrent as the logs may overlap
+		if (!isConcurrent) {
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
+		}
+
+		await generatePath(path, pipeline, generationOptions, route);
+
+		const timeEnd = performance.now();
+		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
+		const timeIncrease = (isSlow ? red : dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
+
+		if (isConcurrent) {
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncrease}`);
+		} else {
+			logger.info('SKIP_FORMAT', ` ${timeIncrease}`);
+		}
+	}
+
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
 	for (const route of eachRouteInRouteData(pageData)) {
 		const icon =
@@ -179,28 +215,24 @@ async function generatePage(
 				? green('▶')
 				: magenta('λ');
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
+
 		// Get paths for the route, calling getStaticPaths if needed.
 		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
-		let timeStart = performance.now();
-		let prevTimeEnd = timeStart;
-		for (let i = 0; i < paths.length; i++) {
-			const path = paths[i];
-			pipeline.logger.debug('build', `Generating: ${path}`);
-			const filePath = getOutputFilename(config, path, pageData.route.type);
-			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
-			await generatePath(path, pipeline, generationOptions, route);
-			const timeEnd = performance.now();
-			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
-			const timeIncrease = `(+${timeChange})`;
-			let timeIncreaseLabel;
-			if (timeEnd - prevTimeEnd > THRESHOLD_SLOW_RENDER_TIME_MS) {
-				timeIncreaseLabel = red(timeIncrease);
-			} else {
-				timeIncreaseLabel = dim(timeIncrease);
+
+		// Generate each paths
+		if (config.build.concurrency > 1) {
+			const limit = PLimit(config.build.concurrency);
+			const promises: Promise<void>[] = [];
+			for (let i = 0; i < paths.length; i++) {
+				const path = paths[i];
+				promises.push(limit(() => generatePathWithLogs(path, route, i, paths, true)));
 			}
-			logger.info('SKIP_FORMAT', ` ${timeIncreaseLabel}`);
-			prevTimeEnd = timeEnd;
+			await Promise.allSettled(promises);
+		} else {
+			for (let i = 0; i < paths.length; i++) {
+				const path = paths[i];
+				await generatePathWithLogs(path, route, i, paths, false);
+			}
 		}
 	}
 }
@@ -306,14 +338,6 @@ function getInvalidRouteSegmentError(
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});
-}
-
-interface GeneratePathOptions {
-	pageData: PageBuildData;
-	linkIds: string[];
-	scripts: { type: 'inline' | 'external'; value: string } | null;
-	styles: StylesheetAsset[];
-	mod: ComponentInstance;
 }
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
@@ -445,17 +469,7 @@ async function generatePath(
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		// A short delay causes Google to interpret the redirect as temporary.
-		// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
-		const delay = response.status === 302 ? 2 : 0;
-		body = `<!doctype html>
-<title>Redirecting to: ${location}</title>
-<meta http-equiv="refresh" content="${delay};url=${location}">
-<meta name="robots" content="noindex">
-<link rel="canonical" href="${location}">
-<body>
-	<a href="${location}">Redirecting from <code>${fromPath}</code> to <code>${location}</code></a>
-</body>`;
+		body = redirectTemplate({ status: response.status, location, from: fromPath });
 		if (config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}

@@ -36,6 +36,8 @@
     "test:e2e:hosts": "turbo run test:hosted",
     "benchmark": "astro-benchmark",
     "lint": "biome lint && eslint . --report-unused-disable-directives",
+    "lint:ci": "biome ci --formatter-enabled=false --organize-imports-enabled=false --reporter=github && eslint . --report-unused-disable-directives",
+    "lint:fix": "biome lint --write --unsafe",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
     "preinstall": "npx only-allow pnpm"
   },
@@ -52,21 +54,21 @@
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.3",
-    "@biomejs/biome": "1.8.3",
+    "@astrojs/check": "^0.9.4",
+    "@biomejs/biome": "1.9.3",
     "@changesets/changelog-github": "^0.5.0",
-    "@changesets/cli": "^2.27.8",
+    "@changesets/cli": "^2.27.9",
     "@types/node": "^18.17.8",
     "esbuild": "^0.21.5",
-    "eslint": "^9.11.1",
+    "eslint": "^9.12.0",
     "eslint-plugin-regexp": "^2.6.0",
     "globby": "^14.0.2",
     "only-allow": "^1.2.1",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",
-    "turbo": "^2.1.2",
+    "turbo": "^2.1.3",
     "typescript": "~5.6.2",
-    "typescript-eslint": "^8.7.0"
+    "typescript-eslint": "^8.8.0"
   },
   "pnpm": {
     "overrides": {

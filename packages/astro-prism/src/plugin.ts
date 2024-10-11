@@ -8,7 +8,6 @@ export function addAstro(Prism: typeof import('prismjs')) {
 		scriptLang = 'typescript';
 	} else {
 		scriptLang = 'javascript';
-		// eslint-disable-next-line no-console
 		console.warn(
 			'Prism TypeScript language not loaded, Astro scripts will be treated as JavaScript.',
 		);

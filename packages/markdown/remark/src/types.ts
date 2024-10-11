@@ -36,7 +36,7 @@ export type RemarkRehype = RemarkRehypeOptions;
 export type ThemePresets = BuiltinTheme | 'css-variables';
 
 export interface ShikiConfig
-	extends Pick<CreateShikiHighlighterOptions, 'langs' | 'theme' | 'themes'>,
+	extends Pick<CreateShikiHighlighterOptions, 'langs' | 'theme' | 'themes' | 'langAlias'>,
 		Pick<ShikiHighlighterHighlightOptions, 'defaultColor' | 'wrap' | 'transformers'> {}
 
 export interface AstroMarkdownOptions {

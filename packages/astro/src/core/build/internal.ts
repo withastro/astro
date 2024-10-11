@@ -123,7 +123,7 @@ export function createBuildInternals(): BuildInternals {
 
 export function trackPageData(
 	internals: BuildInternals,
-	component: string,
+	_component: string,
 	pageData: PageBuildData,
 	componentModuleId: string,
 	componentURL: URL,

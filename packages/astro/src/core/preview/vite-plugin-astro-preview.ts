@@ -74,7 +74,7 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 			return () => {
 				// NOTE: the `base` is stripped from `req.url` for post middlewares
 
-				server.middlewares.use((req, res, next) => {
+				server.middlewares.use((req, _res, next) => {
 					const pathname = cleanUrl(req.url!);
 
 					// Vite doesn't handle /foo/ if /foo.html exists, we handle it anyways

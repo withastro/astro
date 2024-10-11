@@ -97,7 +97,6 @@ async function loadConfig(
 	} catch (e) {
 		const configPathText = configFile ? colors.bold(configFile) : 'your Astro config';
 		// Config errors should bypass log level as it breaks startup
-		// eslint-disable-next-line no-console
 		console.error(`${colors.bold(colors.red('[astro]'))} Unable to load ${configPathText}\n`);
 		throw e;
 	}
@@ -158,7 +157,6 @@ export async function resolveConfig(
 			// Mark this error so the callee can decide to suppress Zod's error if needed.
 			// We still want to throw the error to signal an error in validation.
 			trackAstroConfigZodError(e);
-			// eslint-disable-next-line no-console
 			console.error(formatConfigErrorMessage(e) + '\n');
 			telemetry.record(eventConfigError({ cmd: command, err: e, isFatal: true }));
 		}

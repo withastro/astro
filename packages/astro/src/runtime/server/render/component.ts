@@ -264,7 +264,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				: metadata.hydrateArgs;
 			if (!clientOnlyValues.has(rendererName)) {
 				// warning if provide incorrect client:only directive but find the renderer by guess
-				// eslint-disable-next-line no-console
 				console.warn(
 					`The client:only directive for ${metadata.displayName} is not recognized. The renderer ${renderer.name} will be used. If you intended to use a different renderer, please provide a valid client:only directive.`,
 				);

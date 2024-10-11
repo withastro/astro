@@ -38,7 +38,7 @@ export default function markdocIntegration(options?: MarkdocIntegrationOptions):
 				});
 			},
 			'astro:server:setup': async ({ server }) => {
-				server.watcher.on('all', (event, entry) => {
+				server.watcher.on('all', (_event, entry) => {
 					if (SUPPORTED_MARKDOC_CONFIG_FILES.some((f) => entry.endsWith(f))) {
 						server.restart();
 					}

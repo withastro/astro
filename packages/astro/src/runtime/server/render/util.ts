@@ -66,7 +66,6 @@ export function addAttribute(value: any, key: string, shouldEscape = true) {
 
 	// compiler directives cannot be applied dynamically, log a warning and ignore.
 	if (STATIC_DIRECTIVES.has(key)) {
-		// eslint-disable-next-line no-console
 		console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
 
 Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the dynamic spread syntax (\`{...{ "${key}": value }}\`).`);

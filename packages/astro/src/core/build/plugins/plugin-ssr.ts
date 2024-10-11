@@ -100,7 +100,7 @@ function vitePluginSSR(
 				contents.push(`const pageMap = new Map([\n    ${pageMap.join(',\n    ')}\n]);`);
 				exports.push(`export { pageMap }`);
 				const middleware = await this.resolve(MIDDLEWARE_MODULE_ID);
-				const ssrCode = generateSSRCode(options.settings, adapter, middleware!.id);
+				const ssrCode = generateSSRCode(adapter, middleware!.id);
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
 				return [...imports, ...contents, ...exports].join('\n');
@@ -163,7 +163,7 @@ export function pluginSSR(
 	};
 }
 
-function generateSSRCode(settings: AstroSettings, adapter: AstroAdapter, middlewareId: string) {
+function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 	const edgeMiddleware = adapter?.adapterFeatures?.edgeMiddleware ?? false;
 
 	const imports = [

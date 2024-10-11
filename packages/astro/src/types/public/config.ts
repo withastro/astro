@@ -727,6 +727,33 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
+		/**
+		 * @docs
+		 * @name build.concurrency
+		 * @type { number }
+		 * @default `1`
+		 * @version 4.16.0
+		 * @description
+		 * The number of pages to build in parallel.
+		 *
+		 * **In most cases, you should not change the default value of `1`.**
+		 *
+		 * Use this option only when other attempts to reduce the overall rendering time (e.g. batch or cache long running tasks like fetch calls or data access) are not possible or are insufficient.
+		 * If the number is set too high, page rendering may slow down due to insufficient memory resources and because JS is single-threaded.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     concurrency: 2
+		 *   }
+		 * }
+		 * ```
+		 *
+		 *  :::caution[Breaking changes possible]
+		 *  This feature is stable and is not considered experimental. However, this feature is only intended to address difficult performance issues, and breaking changes may occur in a [minor release](https://docs.astro.build/en/upgrade-astro/#semantic-versioning) to keep this option as performant as possible. Please check the [Astro CHANGELOG](https://github.com/withastro/astro/blob/refs/heads/next/packages/astro/CHANGELOG.md) for every minor release if you are using this feature.
+		 *  :::
+		 */
+		concurrency?: number;
 	};
 
 	/**

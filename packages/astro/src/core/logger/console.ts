@@ -2,10 +2,8 @@ import { type LogMessage, type LogWritable, getEventPrefix, levels } from './cor
 
 export const consoleLogDestination: LogWritable<LogMessage> = {
 	write(event: LogMessage) {
-		// eslint-disable-next-line no-console
 		let dest = console.error;
 		if (levels[event.level] < levels['error']) {
-			// eslint-disable-next-line no-console
 			dest = console.log;
 		}
 		if (event.label === 'SKIP_FORMAT') {

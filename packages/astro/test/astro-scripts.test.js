@@ -138,7 +138,7 @@ describe('Scripts', () => {
 
 			let found = 0;
 			let moduleScripts = $('[type=module]');
-			moduleScripts.each((i, el) => {
+			moduleScripts.each((_i, el) => {
 				if (
 					$(el).attr('src').includes('Glob/GlobComponent.astro?astro&type=script&index=0&lang.ts')
 				) {
@@ -154,7 +154,7 @@ describe('Scripts', () => {
 			let $ = cheerio.load(html);
 			let found = 0;
 			let moduleScripts = $('[type=module]');
-			moduleScripts.each((i, el) => {
+			moduleScripts.each((_i, el) => {
 				if ($(el).attr('src').includes('?astro&type=script&index=0&lang.ts')) {
 					found++;
 				}
@@ -168,7 +168,7 @@ describe('Scripts', () => {
 			let $ = cheerio.load(html);
 			let found = 0;
 			let moduleScripts = $('[type=module]');
-			moduleScripts.each((i, el) => {
+			moduleScripts.each((_i, el) => {
 				if ($(el).attr('src').includes('@id/astro:scripts/page.js')) {
 					found++;
 				}

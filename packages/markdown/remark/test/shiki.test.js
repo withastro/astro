@@ -109,4 +109,32 @@ describe('shiki syntax highlighting', () => {
 		// Doesn't have `color` or `background-color` properties.
 		assert.doesNotMatch(code, /color:/);
 	});
+
+	it('the highlighter supports lang alias', async () => {
+		const highlighter = await createShikiHighlighter({
+			langAlias: {
+				cjs: 'javascript',
+			},
+		});
+
+		const html = await highlighter.codeToHtml(`let test = "some string"`, 'cjs', {
+			attributes: { 'data-foo': 'bar', autofocus: true },
+		});
+
+		assert.match(html, /data-language="cjs"/);
+	});
+
+	it('the markdown processsor support lang alias', async () => {
+		const processor = await createMarkdownProcessor({
+			shikiConfig: {
+				langAlias: {
+					cjs: 'javascript',
+				},
+			},
+		});
+
+		const { code } = await processor.render('```cjs\nlet foo = "bar"\n```');
+
+		assert.match(code, /data-language="cjs"/);
+	});
 });

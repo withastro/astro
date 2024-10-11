@@ -32,6 +32,11 @@ export type CreateContext = {
 	 * A list of locales that are supported by the user
 	 */
 	userDefinedLocales?: string[];
+
+	/**
+	 * User defined default locale
+	 */
+	defaultLocale: string;
 };
 
 /**
@@ -41,6 +46,7 @@ function createContext({
 	request,
 	params = {},
 	userDefinedLocales = [],
+	defaultLocale = '',
 }: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
@@ -78,7 +84,7 @@ function createContext({
 			return (preferredLocaleList ??= computePreferredLocaleList(request, userDefinedLocales));
 		},
 		get currentLocale(): string | undefined {
-			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales));
+			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales, defaultLocale));
 		},
 		url,
 		get clientAddress() {
