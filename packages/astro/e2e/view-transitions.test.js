@@ -504,7 +504,10 @@ test.describe('View Transitions', () => {
 		await expect(img).toBeVisible('The image tag should have the transition scope attribute.');
 	});
 
-	test('<video> can persist using transition:persist', async ({ page, astro }) => {
+	test('<video> can persist using transition:persist', async ({ page, astro, browserName }) => {
+		// NOTE: works locally but fails on CI
+		test.skip(browserName === 'firefox', 'Firefox has issues playing the video. Errors on play()');
+
 		const getTime = () => document.querySelector('video').currentTime;
 
 		// Go to page 1
@@ -516,11 +519,7 @@ test.describe('View Transitions', () => {
 		// Browser blocks autoplay, so we manually play it here. For some reason,
 		// you need to click and play it manually for it to actually work.
 		await vid.click();
-		await vid.evaluate((el) => {
-			try {
-				el.play();
-			} catch {}
-		});
+		await vid.evaluate((el) => el.play());
 		const firstTime = await page.evaluate(getTime);
 
 		// Navigate to page 2
