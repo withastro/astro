@@ -34,11 +34,11 @@ import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
 	/**
-	 * Create a development build, similar to code transformed in `astro dev`.
+	 * Output a development-based build, similar to code transformed in `astro dev`.
 	 *
 	 * @default false
 	 */
-	dev?: boolean;
+	devOutput?: boolean;
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.

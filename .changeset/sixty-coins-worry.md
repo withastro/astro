@@ -8,7 +8,7 @@ Note that changing the `mode` does not change the kind of code transform handled
 
 - In `astro dev`, Astro will transform code with debug information.
 - In `astro build`, Astro will transform code with the most optimized output and removes debug information.
-- In `astro build --dev` (new flag), Astro will transform code with debug information like in `astro dev`. 
+- In `astro build --devOutput` (new flag), Astro will transform code with debug information like in `astro dev`. 
 
 This enables various usecases like:
 
@@ -20,7 +20,7 @@ astro dev --mode staging
 astro build --mode staging
 
 # Build a site that connects to a "production" API with additional debug information
-astro build --dev
+astro build --devOutput
 
 # Build a site that connects to a "testing" API
 astro build --mode testing

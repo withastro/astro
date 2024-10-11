@@ -39,9 +39,9 @@ describe('--mode', () => {
 		});
 	});
 
-	describe('build --mode testing --dev', () => {
+	describe('build --mode testing --devOutput', () => {
 		before(async () => {
-			await fixture.build({ mode: 'testing' }, { dev: true });
+			await fixture.build({ mode: 'testing' }, { devOutput: true });
 		});
 
 		it('works', async () => {
