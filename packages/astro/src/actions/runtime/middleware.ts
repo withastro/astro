@@ -1,6 +1,8 @@
 import { yellow } from 'kleur/colors';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
+import { ASTRO_ORIGIN_HEADER } from '../../core/constants.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
+import { getOriginHeader } from '../../core/routing/rewrite.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
 import { formContentTypes, hasContentType } from './utils.js';
 import { getAction } from './virtual/get-action.js';
@@ -32,7 +34,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	const locals = context.locals as Locals;
 	// Actions middleware may have run already after a path rewrite.
-	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
+	// See https://github.com/withastro/roadmap/blob/main/proposals/0048-rerouting.md#ctxrewrite
 	// `_actionPayload` is the same for every page,
 	// so short circuit if already defined.
 	if (locals._actionPayload) return next();
@@ -132,6 +134,11 @@ async function redirectWithResult({
 		if (!referer) {
 			throw new Error('Internal: Referer unexpectedly missing from Action POST request.');
 		}
+		return context.redirect(referer);
+	}
+
+	const referer = getOriginHeader(context.request);
+	if (referer) {
 		return context.redirect(referer);
 	}
 
