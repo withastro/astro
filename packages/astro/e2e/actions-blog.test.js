@@ -141,11 +141,11 @@ test.describe('Astro Actions - Blog', () => {
 		astro,
 	}) => {
 		await page.goto(astro.resolveUrl('/sum'));
-
+		//
 		const submitButton = page.getByTestId('submit');
-		await waitForHydrate(page, submitButton);
 		await submitButton.click();
-		await expect(page).toHaveURL(astro.resolveUrl('/sum/'));
-		await expect(page).toContainText('Form result: { "data": 3 }');
+		await expect(page).toHaveURL(astro.resolveUrl('/sum'));
+		const p = page.locator('p').nth(0);
+		await expect(p).toContainText('Form result: {"data":3}');
 	});
 });
