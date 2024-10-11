@@ -105,8 +105,9 @@ export class NodeApp extends App {
 		// Get the IP of end client behind the proxy.
 		// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
 		const forwardedClientIp = getFirstForwardedValue(req.headers['x-forwarded-for']);
-		if (forwardedClientIp) {
-			Reflect.set(request, clientAddressSymbol, forwardedClientIp);
+		const clientIp = forwardedClientIp || req.socket?.remoteAddress;
+		if (clientIp) {
+			Reflect.set(request, clientAddressSymbol, clientIp);
 		}
 
 		return request;
