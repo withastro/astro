@@ -34,7 +34,8 @@ import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
 	/**
-	 * Output a development-based build, similar to code transformed in `astro dev`.
+	 * Output a development-based build similar to code transformed in `astro dev`. This
+	 * can be useful to test build-only issues with additional debugging information included.
 	 *
 	 * @default false
 	 */
@@ -59,7 +60,7 @@ export default async function build(
 	inlineConfig: AstroInlineConfig,
 	options: BuildOptions = {},
 ): Promise<void> {
-	ensureProcessNodeEnv(options.dev ? 'development' : 'production');
+	ensureProcessNodeEnv(options.devOutput ? 'development' : 'production');
 	applyPolyfill();
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
@@ -75,7 +76,7 @@ export default async function build(
 		...options,
 		logger,
 		mode: inlineConfig.mode ?? 'production',
-		runtimeMode: options.dev ? 'development' : 'production',
+		runtimeMode: options.devOutput ? 'development' : 'production',
 	});
 	await builder.run();
 }
