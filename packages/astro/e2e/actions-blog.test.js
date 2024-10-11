@@ -141,7 +141,6 @@ test.describe('Astro Actions - Blog', () => {
 		astro,
 	}) => {
 		await page.goto(astro.resolveUrl('/sum'));
-		//
 		const submitButton = page.getByTestId('submit');
 		await submitButton.click();
 		await expect(page).toHaveURL(astro.resolveUrl('/sum'));
