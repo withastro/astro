@@ -5,7 +5,6 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "echo 'Warning: The `start` script is no longer included in Astro templates. Please use `dev` to start the development server.'",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"

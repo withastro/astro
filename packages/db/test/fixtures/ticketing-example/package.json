@@ -4,7 +4,6 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "pnpm astro dev",
-    "start": "echo 'Warning: The `start` script is no longer included in Astro templates. Please use `dev` to start the development server.'",
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro"
