@@ -512,11 +512,15 @@ test.describe('View Transitions', () => {
 		const vid = page.locator('video');
 		await expect(vid).toBeVisible();
 		// Mute the video before playing, otherwise there's actually sounds when testing
-		await page.evaluate(() => (document.querySelector('video').muted = true));
+		await vid.evaluate((el) => (el.muted = true));
 		// Browser blocks autoplay, so we manually play it here. For some reason,
 		// you need to click and play it manually for it to actually work.
 		await vid.click();
-		await page.evaluate(() => document.querySelector('video').play());
+		await vid.evaluate((el) => {
+			try {
+				el.play();
+			} catch {}
+		});
 		const firstTime = await page.evaluate(getTime);
 
 		// Navigate to page 2
