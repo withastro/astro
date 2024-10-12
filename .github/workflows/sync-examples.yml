@@ -1,0 +1,89 @@
+name: Sync examples
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip-unchanged-check:
+        type: boolean
+        default: false
+      dry-run:
+        type: boolean
+        default: false
+  push:
+    branches:
+      - main
+      - next
+
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  # Allow auto-branch-sync-action to git push
+  contents: write
+
+jobs:
+  sync:
+    name: Sync branches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # fetch 2 to compare with previous commit for changes
+
+      - name: Detect changesets
+        uses: bluwy/detect-changesets-action@v1
+        id: detect
+
+      # We only do sync if there are no changesets, so we don't accidentally allow users
+      # to clone examples that may rely on unreleased code
+
+      - name: Sync from main branch to latest and examples/* branches
+        if: steps.detect.outputs.has-changesets == 'false' && github.ref == 'refs/heads/main'
+        uses: bluwy/auto-branch-sync-action@v1
+        with:
+          map: |
+            / -> latest
+            /examples/* -> examples/*
+          skip-unchanged-check: ${{ inputs.skip-unchanged-check == true }}
+          dry-run: ${{ inputs.dry-run == true }}
+
+      - name: Check .changeset/pre.json for matching tag
+        if: steps.detect.outputs.has-changesets == 'false' && github.ref == 'refs/heads/next'
+        id: check-pre-mode
+        run: |
+          if [ -f ./.changeset/pre.json ]; then
+            if grep -q '"tag": "alpha"' ./.changeset/pre.json; then
+              echo "alpha=true" >> $GITHUB_OUTPUT
+            elif grep -q '"tag": "beta"' ./.changeset/pre.json; then
+              echo "beta=true" >> $GITHUB_OUTPUT
+            elif grep -q '"tag": "rc"' ./.changeset/pre.json; then
+              echo "rc=true" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Sync from next branch to alpha branch
+        if: steps.detect.outputs.has-changesets == 'false' && steps.check-pre-mode.outputs.alpha == 'true'
+        uses: bluwy/auto-branch-sync-action@v1
+        with:
+          map: / -> alpha
+          skip-unchanged-check: ${{ inputs.skip-unchanged-check == true }}
+          dry-run: ${{ inputs.dry-run == true }}
+
+      - name: Sync from next branch to beta branch
+        if: steps.detect.outputs.has-changesets == 'false' && steps.check-pre-mode.outputs.beta == 'true'
+        uses: bluwy/auto-branch-sync-action@v1
+        with:
+          map: / -> beta
+          skip-unchanged-check: ${{ inputs.skip-unchanged-check == true }}
+          dry-run: ${{ inputs.dry-run == true }}
+
+      - name: Sync from next branch to rc branch
+        if: steps.detect.outputs.has-changesets == 'false' && steps.check-pre-mode.outputs.rc == 'true'
+        uses: bluwy/auto-branch-sync-action@v1
+        with:
+          map: / -> rc
+          skip-unchanged-check: ${{ inputs.skip-unchanged-check == true }}
+          dry-run: ${{ inputs.dry-run == true }}

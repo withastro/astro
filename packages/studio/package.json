@@ -36,12 +36,12 @@
   "dependencies": {
     "ci-info": "^4.0.0",
     "kleur": "^4.1.5",
-    "ora": "^8.0.1"
+    "ora": "^8.1.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.1"
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
   }
 }

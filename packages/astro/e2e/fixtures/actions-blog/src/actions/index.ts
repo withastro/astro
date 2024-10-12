@@ -1,5 +1,6 @@
 import { db, Comment, Likes, eq, sql } from 'astro:db';
-import { ActionError, defineAction, z } from 'astro:actions';
+import { ActionError, defineAction } from 'astro:actions';
+import { z } from 'astro:schema';
 import { getCollection } from 'astro:content';
 
 export const server = {
@@ -55,4 +56,14 @@ export const server = {
 			},
 		}),
 	},
+	sum: defineAction({
+		accept: "form",
+		input: z.object({
+			a: z.number(),
+			b: z.number(),
+		}),
+		async handler({ a, b }) {
+			return a + b
+		},
+	})
 };

@@ -198,19 +198,19 @@ const item = {
 
 ### `title`
 
-Type: `string (required)`
+Type: `string (optional)`
 
-The title of the item in the feed.
+The title of the item in the feed. Optional only if a description is set. Otherwise, required.
 
 ### `link`
 
-Type: `string (required)`
+Type: `string (optional)`
 
 The URL of the item on the web.
 
 ### `pubDate`
 
-Type: `Date (required)`
+Type: `Date (optional)`
 
 Indicates when the item was published.
 
@@ -218,7 +218,7 @@ Indicates when the item was published.
 
 Type: `string (optional)`
 
-A synopsis of your item when you are publishing the full content of the item in the `content` field. The `description` may alternatively be the full content of the item in the feed if you are not using the `content` field (entity-coded HTML is permitted).
+A synopsis of your item when you are publishing the full content of the item in the `content` field. The `description` may alternatively be the full content of the item in the feed if you are not using the `content` field (entity-coded HTML is permitted). Optional only if a title is set. Otherwise, required.
 
 ### `content`
 
@@ -345,7 +345,7 @@ const blog = defineCollection({
 
 ## `pagesGlobToRssItems()`
 
-To create an RSS feed from documents in `src/pages/`, use the `pagesGlobToRssItems()` helper. This accepts an `import.meta.glob` result ([see Vite documentation](https://vitejs.dev/guide/features.html#glob-import)) and outputs an array of valid [`RSSFeedItem`s](#items).
+To create an RSS feed from documents in `src/pages/`, use the `pagesGlobToRssItems()` helper. This accepts an `import.meta.glob` result ([see Vite documentation](https://vite.dev/guide/features.html#glob-import)) and outputs an array of valid [`RSSFeedItem`s](#items).
 
 This function assumes, but does not verify, you are globbing for items inside `src/pages/`, and all necessary feed properties are present in each document's frontmatter. If you encounter errors, verify each page frontmatter manually.
 

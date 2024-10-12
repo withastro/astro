@@ -10,5 +10,5 @@ export function isRemoteImage(src: ImageMetadata | string): src is string {
 }
 
 export async function resolveSrc(src: UnresolvedImageTransform['src']) {
-	return typeof src === 'object' && 'then' in src ? (await src).default ?? (await src) : src;
+	return typeof src === 'object' && 'then' in src ? ((await src).default ?? (await src)) : src;
 }

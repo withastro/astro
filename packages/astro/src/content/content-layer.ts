@@ -1,9 +1,8 @@
 import { promises as fs, existsSync } from 'node:fs';
-import { isAbsolute } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings, ContentEntryType, RefreshContentOptions } from '../@types/astro.js';
 import { AstroUserError } from '../core/errors/errors.js';
 import type { Logger } from '../core/logger/core.js';
 import {
@@ -14,7 +13,11 @@ import {
 } from './consts.js';
 import type { LoaderContext } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
-import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
+import {
+	getEntryConfigByExtMap,
+	getEntryDataAndImages,
+	globalContentConfigObserver,
+} from './utils.js';
 
 export interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -33,7 +36,8 @@ export class ContentLayer {
 
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 
-	#loading = false;
+	#queue: PQueue;
+
 	constructor({ settings, logger, store, watcher }: ContentLayerOptions) {
 		// The default max listeners is 10, which can be exceeded when using a lot of loaders
 		watcher?.setMaxListeners(50);
@@ -42,13 +46,14 @@ export class ContentLayer {
 		this.#store = store;
 		this.#settings = settings;
 		this.#watcher = watcher;
+		this.#queue = new PQueue({ concurrency: 1 });
 	}
 
 	/**
 	 * Whether the content layer is currently loading content
 	 */
 	get loading() {
-		return this.#loading;
+		return this.#queue.size > 0 || this.#queue.pending > 0;
 	}
 
 	/**
@@ -57,11 +62,7 @@ export class ContentLayer {
 	watchContentConfig() {
 		this.#unsubscribe?.();
 		this.#unsubscribe = globalContentConfigObserver.subscribe(async (ctx) => {
-			if (
-				!this.#loading &&
-				ctx.status === 'loaded' &&
-				ctx.config.digest !== this.#lastConfigDigest
-			) {
+			if (ctx.status === 'loaded' && ctx.config.digest !== this.#lastConfigDigest) {
 				this.sync();
 			}
 		});
@@ -69,23 +70,6 @@ export class ContentLayer {
 
 	unwatchContentConfig() {
 		this.#unsubscribe?.();
-	}
-
-	/**
-	 * Run the `load()` method of each collection's loader, which will load the data and save it in the data store.
-	 * The loader itself is responsible for deciding whether this will clear and reload the full collection, or
-	 * perform an incremental update. After the data is loaded, the data store is written to disk.
-	 */
-	async sync() {
-		if (this.#loading) {
-			return;
-		}
-		this.#loading = true;
-		try {
-			await this.#doSync();
-		} finally {
-			this.#loading = false;
-		}
 	}
 
 	async #getGenerateDigest() {
@@ -108,24 +92,42 @@ export class ContentLayer {
 		collectionName,
 		loaderName = 'content',
 		parseData,
+		refreshContextData,
 	}: {
 		collectionName: string;
 		loaderName: string;
 		parseData: LoaderContext['parseData'];
+		refreshContextData?: Record<string, unknown>;
 	}): Promise<LoaderContext> {
 		return {
 			collection: collectionName,
 			store: this.#store.scopedStore(collectionName),
 			meta: this.#store.metaStore(collectionName),
 			logger: this.#logger.forkIntegrationLogger(loaderName),
-			settings: this.#settings,
+			config: this.#settings.config,
 			parseData,
 			generateDigest: await this.#getGenerateDigest(),
 			watcher: this.#watcher,
+			refreshContextData,
+			entryTypes: getEntryConfigByExtMap([
+				...this.#settings.contentEntryTypes,
+				...this.#settings.dataEntryTypes,
+			] as Array<ContentEntryType>),
 		};
 	}
 
-	async #doSync() {
+	/**
+	 * Enqueues a sync job that runs the `load()` method of each collection's loader, which will load the data and save it in the data store.
+	 * The loader itself is responsible for deciding whether this will clear and reload the full collection, or
+	 * perform an incremental update. After the data is loaded, the data store is written to disk. Jobs are queued,
+	 * so that only one sync can run at a time. The function returns a promise that resolves when this sync job is complete.
+	 */
+
+	sync(options: RefreshContentOptions = {}): Promise<void> {
+		return this.#queue.add(() => this.#doSync(options));
+	}
+
+	async #doSync(options: RefreshContentOptions) {
 		const contentConfig = globalContentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 		if (contentConfig?.status !== 'loaded') {
@@ -149,13 +151,27 @@ export class ContentLayer {
 		const { digest: currentConfigDigest } = contentConfig.config;
 		this.#lastConfigDigest = currentConfigDigest;
 
+		let shouldClear = false;
 		const previousConfigDigest = await this.#store.metaStore().get('config-digest');
+		const previousAstroVersion = await this.#store.metaStore().get('astro-version');
 		if (currentConfigDigest && previousConfigDigest !== currentConfigDigest) {
-			logger.info('Content config changed, clearing cache');
+			logger.info('Content config changed');
+			shouldClear = true;
+		}
+		if (process.env.ASTRO_VERSION && previousAstroVersion !== process.env.ASTRO_VERSION) {
+			logger.info('Astro version changed');
+			shouldClear = true;
+		}
+		if (shouldClear) {
+			logger.info('Clearing content store');
 			this.#store.clearAll();
+		}
+		if (process.env.ASTRO_VERSION) {
+			await this.#store.metaStore().set('astro-version', process.env.ASTRO_VERSION);
+		}
+		if (currentConfigDigest) {
 			await this.#store.metaStore().set('config-digest', currentConfigDigest);
 		}
-
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
 				if (collection.type !== CONTENT_LAYER_TYPE) {
@@ -171,10 +187,19 @@ export class ContentLayer {
 					}
 				}
 
+				// If loaders are specified, only sync the specified loaders
+				if (
+					options?.loaders &&
+					(typeof collection.loader !== 'object' ||
+						!options.loaders.includes(collection.loader.name))
+				) {
+					return;
+				}
+
 				const collectionWithResolvedSchema = { ...collection, schema };
 
 				const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
-					const { imageImports, data: parsedData } = await getEntryDataAndImages(
+					const { data: parsedData } = await getEntryDataAndImages(
 						{
 							id,
 							collection: name,
@@ -187,15 +212,6 @@ export class ContentLayer {
 						collectionWithResolvedSchema,
 						false,
 					);
-					if (imageImports?.length) {
-						this.#store.addAssetImports(
-							imageImports,
-							// This path may already be relative, if we're re-parsing an existing entry
-							isAbsolute(filePath)
-								? posixRelative(fileURLToPath(this.#settings.config.root), filePath)
-								: filePath,
-						);
-					}
 
 					return parsedData;
 				};
@@ -204,6 +220,7 @@ export class ContentLayer {
 					collectionName: name,
 					parseData,
 					loaderName: collection.loader.name,
+					refreshContextData: options?.context,
 				});
 
 				if (typeof collection.loader === 'function') {
@@ -220,7 +237,7 @@ export class ContentLayer {
 		if (!existsSync(this.#settings.config.cacheDir)) {
 			await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		}
-		const cacheFile = new URL(DATA_STORE_FILE, this.#settings.config.cacheDir);
+		const cacheFile = getDataStoreFile(this.#settings);
 		await this.#store.writeToDisk(cacheFile);
 		if (!existsSync(this.#settings.dotAstroDir)) {
 			await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
@@ -280,22 +297,25 @@ export async function simpleLoader<TData extends { id: string }>(
 		context.store.set({ id: raw.id, data: item });
 	}
 }
+/**
+ * Get the path to the data store file.
+ * During development, this is in the `.astro` directory so that the Vite watcher can see it.
+ * In production, it's in the cache directory so that it's preserved between builds.
+ */
+export function getDataStoreFile(settings: AstroSettings, isDev?: boolean) {
+	isDev ??= process?.env.NODE_ENV === 'development';
+	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
+}
 
 function contentLayerSingleton() {
 	let instance: ContentLayer | null = null;
 	return {
-		initialized: () => Boolean(instance),
 		init: (options: ContentLayerOptions) => {
 			instance?.unwatchContentConfig();
 			instance = new ContentLayer(options);
 			return instance;
 		},
-		get: () => {
-			if (!instance) {
-				throw new Error('Content layer not initialized');
-			}
-			return instance;
-		},
+		get: () => instance,
 		dispose: () => {
 			instance?.unwatchContentConfig();
 			instance = null;

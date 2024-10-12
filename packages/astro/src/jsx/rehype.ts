@@ -50,7 +50,6 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 					(attr) => attr.type === 'mdxJsxAttribute' && attr.name.startsWith('client:'),
 				) as MdxJsxAttribute | undefined;
 				if (clientAttribute) {
-					// eslint-disable-next-line
 					console.warn(
 						`You are attempting to render <${node.name!} ${
 							clientAttribute.name
@@ -132,8 +131,15 @@ function parseImports(children: RootContent[]) {
 						return { local: spec.local.name, imported: 'default' };
 					case 'ImportNamespaceSpecifier':
 						return { local: spec.local.name, imported: '*' };
-					case 'ImportSpecifier':
-						return { local: spec.local.name, imported: spec.imported.name };
+					case 'ImportSpecifier': {
+						return {
+							local: spec.local.name,
+							imported:
+								spec.imported.type === 'Identifier'
+									? spec.imported.name
+									: String(spec.imported.value),
+						};
+					}
 					default:
 						throw new Error('Unknown import declaration specifier: ' + spec);
 				}

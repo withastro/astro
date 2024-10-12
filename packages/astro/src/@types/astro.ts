@@ -91,7 +91,7 @@ export type {
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
-	'client:idle'?: boolean;
+	'client:idle'?: IdleRequestOptions | boolean;
 	'client:media'?: string;
 	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
@@ -813,7 +813,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name security
-	 * @type {boolean}
+	 * @type {object}
 	 * @default `{}`
 	 * @version 4.9.0
 	 * @description
@@ -838,7 +838,7 @@ export interface AstroUserConfig {
 		 * @name security.checkOrigin
 		 * @kind h4
 		 * @type {boolean}
-		 * @default 'false'
+		 * @default `false`
 		 * @version 4.9.0
 		 * @description
 		 *
@@ -861,7 +861,7 @@ export interface AstroUserConfig {
 	 *
 	 * Pass additional configuration options to Vite. Useful when Astro doesn't support some advanced configuration that you may need.
 	 *
-	 * View the full `vite` configuration object documentation on [vitejs.dev](https://vitejs.dev/config/).
+	 * View the full `vite` configuration object documentation on [vite.dev](https://vite.dev/config/).
 	 *
 	 * #### Examples
 	 *
@@ -1088,12 +1088,39 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 * 	build: {
-		 *		inlineStylesheets: `never`,
+		 *		inlineStylesheets: 'never',
 		 * 	},
 		 * }
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
+		/**
+		 * @docs
+		 * @name build.concurrency
+		 * @type { number }
+		 * @default `1`
+		 * @version 4.16.0
+		 * @description
+		 * The number of pages to build in parallel.
+		 *
+		 * **In most cases, you should not change the default value of `1`.**
+		 *
+		 * Use this option only when other attempts to reduce the overall rendering time (e.g. batch or cache long running tasks like fetch calls or data access) are not possible or are insufficient.
+		 * If the number is set too high, page rendering may slow down due to insufficient memory resources and because JS is single-threaded.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     concurrency: 2
+		 *   }
+		 * }
+		 * ```
+		 *
+		 *  :::caution[Breaking changes possible]
+		 *  This feature is stable and is not considered experimental. However, this feature is only intended to address difficult performance issues, and breaking changes may occur in a [minor release](https://docs.astro.build/en/upgrade-astro/#semantic-versioning) to keep this option as performant as possible. Please check the [Astro CHANGELOG](https://github.com/withastro/astro/blob/refs/heads/next/packages/astro/CHANGELOG.md) for every minor release if you are using this feature.
+		 *  :::
+		 */
+		concurrency?: number;
 	};
 
 	/**
@@ -1106,7 +1133,7 @@ export interface AstroUserConfig {
 	 *
 	 * ```js
 	 * {
-	 *   server: { port: 1234, host: true}
+	 *   server: { port: 1234, host: true }
 	 * }
 	 * ```
 	 *
@@ -1340,7 +1367,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name image.domains
 		 * @type {string[]}
-		 * @default `{domains: []}`
+		 * @default `[]`
 		 * @version 2.10.10
 		 * @description
 		 * Defines a list of permitted image source domains for remote image optimization. No other remote images will be optimized by Astro.
@@ -1387,6 +1414,7 @@ export interface AstroUserConfig {
 		 * ```
 		 *
 		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
+	   *
 		 * `hostname`:
 		 *   - Start with '**.' to allow all subdomains ('endsWith').
 		 *   - Start with '*.' to allow only one level of subdomain.
@@ -1447,7 +1475,7 @@ export interface AstroUserConfig {
 		 * import remarkToc from 'remark-toc';
 		 * {
 		 *   markdown: {
-		 *     remarkPlugins: [ [remarkToc, { heading: "contents"} ] ]
+		 *     remarkPlugins: [ [remarkToc, { heading: "contents" }] ]
 		 *   }
 		 * }
 		 * ```
@@ -1517,7 +1545,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: Translate the footnotes text to another language, here are the default English values
-		 *     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to reference 1"},
+		 *     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to reference 1" },
 		 *   },
 		 * };
 		 * ```
@@ -1669,6 +1697,43 @@ export interface AstroUserConfig {
 					redirectToDefaultLocale?: boolean;
 
 					/**
+					 * @docs
+					 * @name i18n.routing.fallbackType
+					 * @kind h4
+					 * @type {"redirect" | "rewrite"}
+					 * @default `"redirect"`
+					 * @version 4.15.0
+					 * @description
+					 *
+					 * When [`i18n.fallback`](#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
+					 *
+					 * By default, Astro's i18n routing creates pages that redirect your visitors to a new destination based on your fallback configuration. The browser will refresh and show the destination address in the URL bar.
+					 *
+					 * When `i18n.routing.fallback: "rewrite"` is configured, Astro will create pages that render the contents of the fallback page on the original, requested URL.
+					 *
+					 * With the following configuration, if you have the file `src/pages/en/about.astro` but not `src/pages/fr/about.astro`, the `astro build` command will generate `dist/fr/about.html` with the same content as the `dist/en/about.html` page.
+					 * Your site visitor will see the English version of the page at `https://example.com/fr/about/` and will not be redirected.
+					 *
+					 * ```js
+					 * //astro.config.mjs
+					 * export default defineConfig({
+					 * 	 i18n: {
+					 *     defaultLocale: "en",
+					 *     locales: ["en", "fr"],
+					 *     routing: {
+					 *     	prefixDefaultLocale: false,
+					 *     	fallbackType: "rewrite",
+					 *     },
+					 *     fallback: {
+					 *     	fr: "en",
+					 *     }
+					 *   },
+					 * })
+					 * ```
+					 */
+					fallbackType?: 'redirect' | 'rewrite';
+
+					/**
 					 * @name i18n.routing.strategy
 					 * @type {"pathname"}
 					 * @default `"pathname"`
@@ -1795,107 +1860,6 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		directRenderScript?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.actions
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.8.0
-		 * @description
-		 *
-		 * Actions help you write type-safe backend functions you can call from anywhere. Enable server rendering [using the `output` property](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) and add the `actions` flag to the `experimental` object:
-		 *
-		 * ```js
-		 * {
-		 *   output: 'hybrid', // or 'server'
-		 *   experimental: {
-		 *     actions: true,
-		 *   },
-		 * }
-		 * ```
-		 *
-		 * Declare all your actions in `src/actions/index.ts`. This file is the global actions handler.
-		 *
-		 * Define an action using the `defineAction()` utility from the `astro:actions` module. An action accepts the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
-		 *
-		 * This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings. Each `handler` updates your database and return a type-safe response.
-		 *
-		 * ```ts
-		 * // src/actions/index.ts
-		 * import { defineAction, z } from "astro:actions";
-		 *
-		 * export const server = {
-		 *   like: defineAction({
-		 *     input: z.object({ postId: z.string() }),
-		 *     handler: async ({ postId }) => {
-		 *       // update likes in db
-		 *
-		 *       return likes;
-		 *     },
-		 *   }),
-		 *   comment: defineAction({
-		 *     accept: 'form',
-		 *     input: z.object({
-		 *       postId: z.string(),
-		 *       author: z.string(),
-		 *       body: z.string(),
-		 *     }),
-		 *     handler: async ({ postId }) => {
-		 *       // insert comments in db
-		 *
-		 *       return comment;
-		 *     },
-		 *   }),
-		 * };
-		 * ```
-		 *
-		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition.
-		 *
-		 * This example calls the `like` and `comment` actions from a React component:
-		 *
-		 * ```tsx "actions"
-		 * // src/components/blog.tsx
-		 * import { actions } from "astro:actions";
-		 * import { useState } from "react";
-		 *
-		 * export function Like({ postId }: { postId: string }) {
-		 *   const [likes, setLikes] = useState(0);
-		 *   return (
-		 *     <button
-		 *       onClick={async () => {
-		 *         const newLikes = await actions.like({ postId });
-		 *         setLikes(newLikes);
-		 *       }}
-		 *     >
-		 *       {likes} likes
-		 *     </button>
-		 *   );
-		 * }
-		 *
-		 * export function Comment({ postId }: { postId: string }) {
-		 *   return (
-		 *     <form
-		 *       onSubmit={async (e) => {
-		 *         e.preventDefault();
-		 *         const formData = new FormData(e.target as HTMLFormElement);
-		 *         const result = await actions.blog.comment(formData);
-		 *         // handle result
-		 *       }}
-		 *     >
-		 *       <input type="hidden" name="postId" value={postId} />
-		 *       <label htmlFor="author">Author</label>
-		 *       <input id="author" type="text" name="author" />
-		 *       <textarea rows={10} name="body"></textarea>
-		 *       <button type="submit">Post</button>
-		 *     </form>
-		 *   );
-		 * }
-		 * ```
-		 *
-		 * For a complete overview, and to give feedback on this experimental API, see the [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md).
-		 */
-		actions?: boolean;
 
 		/**
 		 * @docs
@@ -2158,7 +2122,7 @@ export interface AstroUserConfig {
 		 *
 		 * The outer page will be rendered, either at build time (`hybrid`) or at runtime (`server`) with the island content omitted and a `<script>` tag included in its place.
 		 *
-		 * After the page loads in the browser, the script tag will replace itself with the the contents of the island by making a request.
+		 * After the page loads in the browser, the script tag will replace itself with the contents of the island by making a request.
 		 *
 		 * Any Astro component can be given the `server: defer` attribute to delay its rendering. There is no special API and you can write `.astro` code as normal:
 		 *
@@ -2209,7 +2173,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 *
-		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
+		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature. See the [content Intellisense implementation PR](https://github.com/withastro/language-tools/pull/915) for more details about this early feature.
 		 */
 		contentIntellisense?: boolean;
 
@@ -2343,7 +2307,7 @@ export interface AstroUserConfig {
 		 * export const collections = { countries };
 		 * ```
 		 *
-		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading while also giving full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders).
+		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading while also giving full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0050-content-layer.md#loaders).
 		 *
 		 * #### Migrating an existing content collection to use the Content Layer API
 		 *
@@ -2408,7 +2372,7 @@ export interface AstroUserConfig {
 		 *
 		 * #### Learn more
 		 *
-		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
+		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0050-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
 		 */
 		contentLayer?: boolean;
 	};
@@ -2468,6 +2432,7 @@ export interface RouteOptions {
 
 /**
  * Resolved Astro Config
+ *
  * Config with user settings along with all defaults filled in.
  */
 export interface AstroConfig extends AstroConfigType {
@@ -2556,7 +2521,7 @@ export interface ContentEntryType {
 		},
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
-	getRenderFunction?(settings: AstroSettings): Promise<ContentEntryRenderFuction>;
+	getRenderFunction?(config: AstroConfig): Promise<ContentEntryRenderFuction>;
 
 	/**
 	 * Handle asset propagation for rendered content to avoid bleed.
@@ -3305,6 +3270,11 @@ export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientE
 	ssr: SSRLoadedRendererValue;
 }
 
+export interface RefreshContentOptions {
+	loaders?: Array<string>;
+	context?: Record<string, any>;
+}
+
 export type HookParameters<
 	Hook extends keyof AstroIntegration['hooks'],
 	Fn = AstroIntegration['hooks'][Hook],
@@ -3316,7 +3286,7 @@ declare global {
 		export interface IntegrationHooks {
 			'astro:config:setup': (options: {
 				config: AstroConfig;
-				command: 'dev' | 'build' | 'preview';
+				command: 'dev' | 'build' | 'preview' | 'sync';
 				isRestart: boolean;
 				updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 				addRenderer: (renderer: AstroRenderer) => void;

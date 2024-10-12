@@ -26,6 +26,8 @@ for (const workspaceDir of workspaceDirs) {
 	const packageJson = await readAndParsePackageJson(packageJsonPath);
 	if (!packageJson) continue;
 
+	if (packageJson.private === true) continue
+
 	if (!packageJson.name) {
 		throw new Error(`${packageJsonPath} does not contain a "name" field.`);
 	}
