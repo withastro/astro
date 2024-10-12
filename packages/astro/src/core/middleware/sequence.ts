@@ -2,7 +2,6 @@ import type { APIContext, MiddlewareHandler, RewritePayload } from '../../@types
 import { AstroCookies } from '../cookies/cookies.js';
 import { apiContextRoutesSymbol } from '../render-context.js';
 import { type Pipeline, getParams } from '../render/index.js';
-import { copyRequest } from '../routing/rewrite.js';
 import { defineMiddleware } from './index.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
@@ -37,9 +36,9 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						if (payload instanceof Request) {
 							newRequest = payload;
 						} else if (payload instanceof URL) {
-							newRequest = copyRequest(payload, handleContext.request);
+							newRequest = new Request(payload, handleContext.request);
 						} else {
-							newRequest = copyRequest(
+							newRequest = new Request(
 								new URL(payload, handleContext.url.origin),
 								handleContext.request,
 							);
