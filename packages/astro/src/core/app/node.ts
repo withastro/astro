@@ -50,6 +50,13 @@ export class NodeApp extends App {
 	/**
 	 * Converts a NodeJS IncomingMessage into a web standard Request.
 	 * 
+	 * @param req - The NodeJS IncomingMessage to convert.
+	 * @param {Object} [options={}] - Configuration options for creating the Request.
+	 * @param {boolean} [options.skipBody=false] - If true, the request body will not be included in the Request object.
+	 * @param {boolean} [options.trustDownstreamProxy=true] - Determines whether to consider X-Forwarded headers from upstream proxies. 
+	 *        If true, these headers will be processed; if false, they will be ignored.
+	 * @returns {Request} The web standard Request created from the NodeJS IncomingMessage.
+	 *
 	 * @example
 	 * import { NodeApp } from 'astro/app/node';
 	 * import { createServer } from 'node:http';
@@ -60,7 +67,7 @@ export class NodeApp extends App {
 	 *     await NodeApp.writeResponse(response, res);
 	 * })
 	 */
-	static createRequest(req: NodeRequest, { skipBody = false } = {}): Request {
+	static createRequest(req: NodeRequest, { skipBody = false, trustDownstreamProxy = true } = {}): Request {
 		const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
 
 		/**
@@ -72,16 +79,21 @@ export class NodeApp extends App {
 
 		/** @example "https, http,http" => "http" */
 		const forwardedProtocol = getFirstForwardedValue(req.headers['x-forwarded-proto']);
-		const protocol = forwardedProtocol ?? (isEncrypted ? 'https' : 'http');
+		const protocol = trustDownstreamProxy && forwardedProtocol
+			? forwardedProtocol
+			: (isEncrypted ? 'https' : 'http');
 
 		/** @example "example.com,www2.example.com" => "example.com" */
 		const forwardedHostname = getFirstForwardedValue(req.headers['x-forwarded-host']);
-		const hostname = forwardedHostname ?? req.headers.host ?? req.headers[':authority'];
+		const hostname = trustDownstreamProxy && forwardedHostname
+			? forwardedHostname
+			: req.headers.host ?? req.headers[':authority'];
 
 		/** @example "443,8080,80" => "443" */
 		const forwardedPort = getFirstForwardedValue(req.headers['x-forwarded-port']);
-		const port =
-			forwardedPort ?? req.socket?.remotePort?.toString() ?? (isEncrypted ? '443' : '80');
+		const port = trustDownstreamProxy && forwardedPort
+			? forwardedPort
+			: req.socket?.remotePort?.toString() ?? (isEncrypted ? '443' : '80');
 
 		const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
 		const hostnamePort = portInHostname ? hostname : `${hostname}:${port}`;
@@ -100,7 +112,9 @@ export class NodeApp extends App {
 
 		/** @example "1.1.1.1,8.8.8.8" => "1.1.1.1" */
 		const forwardedClientIp = getFirstForwardedValue(req.headers['x-forwarded-for']);
-		const clientIp = forwardedClientIp || req.socket?.remoteAddress;
+		const clientIp = trustDownstreamProxy && forwardedClientIp
+			? forwardedClientIp
+			: req.socket?.remoteAddress;
 		if (clientIp) {
 			Reflect.set(request, clientAddressSymbol, clientIp);
 		}
