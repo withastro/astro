@@ -49,7 +49,8 @@ export class NodeApp extends App {
 
 	/**
 	 * Converts a NodeJS IncomingMessage into a web standard Request.
-	 * ```js
+	 * 
+	 * @example
 	 * import { NodeApp } from 'astro/app/node';
 	 * import { createServer } from 'node:http';
 	 *
@@ -58,7 +59,6 @@ export class NodeApp extends App {
 	 *     const response = await app.render(request);
 	 *     await NodeApp.writeResponse(response, res);
 	 * })
-	 * ```
 	 */
 	static createRequest(req: NodeRequest, { skipBody = false } = {}): Request {
 		const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
@@ -70,17 +70,15 @@ export class NodeApp extends App {
 		 * @see getFirstForwardedValue
 		 */
 
-
-		// Get the used protocol between the end client and first proxy.
-		// @example "https, http,http" => "http"
+		/** @example "https, http,http" => "http" */
 		const forwardedProtocol = getFirstForwardedValue(req.headers['x-forwarded-proto']);
 		const protocol = forwardedProtocol ?? (isEncrypted ? 'https' : 'http');
 
-		// @example "example.com,www2.example.com" => "example.com"
+		/** @example "example.com,www2.example.com" => "example.com" */
 		const forwardedHostname = getFirstForwardedValue(req.headers['x-forwarded-host']);
 		const hostname = forwardedHostname ?? req.headers.host ?? req.headers[':authority'];
 
-		// @example "443,8080,80" => "443"
+		/** @example "443,8080,80" => "443" */
 		const forwardedPort = getFirstForwardedValue(req.headers['x-forwarded-port']);
 		const port =
 			forwardedPort ?? req.socket?.remotePort?.toString() ?? (isEncrypted ? '443' : '80');
@@ -100,8 +98,7 @@ export class NodeApp extends App {
 
 		const request = new Request(url, options);
 
-		// Get the IP of end client behind the proxy.
-		// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
+		/** @example "1.1.1.1,8.8.8.8" => "1.1.1.1" */
 		const forwardedClientIp = getFirstForwardedValue(req.headers['x-forwarded-for']);
 		const clientIp = forwardedClientIp || req.socket?.remoteAddress;
 		if (clientIp) {
@@ -113,7 +110,11 @@ export class NodeApp extends App {
 
 	/**
 	 * Streams a web-standard Response into a NodeJS Server Response.
-	 * ```js
+	 *
+	 * @param source WhatWG Response
+	 * @param destination NodeJS ServerResponse
+	 * 
+	 * @example
 	 * import { NodeApp } from 'astro/app/node';
 	 * import { createServer } from 'node:http';
 	 *
@@ -122,9 +123,6 @@ export class NodeApp extends App {
 	 *     const response = await app.render(request);
 	 *     await NodeApp.writeResponse(response, res);
 	 * })
-	 * ```
-	 * @param source WhatWG Response
-	 * @param destination NodeJS ServerResponse
 	 */
 	static async writeResponse(source: Response, destination: ServerResponse) {
 		const { status, headers, body, statusText } = source;
