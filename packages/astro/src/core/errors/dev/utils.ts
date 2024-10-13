@@ -227,7 +227,7 @@ function cleanErrorStack(stack: string) {
 
 export function getDocsForError(err: ErrorWithMetadata): string | undefined {
 	if (err.name !== 'UnknownError' && err.name in AstroErrorData) {
-		return `https://docs.astro.build/en/reference/errors/${getKebabErrorName(err.name)}/`;
+		return `https://docs.astro.build/en/reference/error-reference/${getKebabErrorName(err.name)}/`;
 	}
 
 	return undefined;
