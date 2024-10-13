@@ -63,17 +63,15 @@ export class NodeApp extends App {
 	static createRequest(req: NodeRequest, { skipBody = false } = {}): Request {
 		const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
 
-		// Parses multiple header and returns first value if available.
-		const getFirstForwardedValue = (multiValueHeader?: string | string[]) => {
-			return multiValueHeader
-				?.toString()
-				?.split(',')
-				.map((e) => e.trim())?.[0];
-		};
+		/**
+		 * Some proxies append values with spaces and some do not.
+		 * We need to handle it here and parse the header correctly.
+		 * 
+		 * @see getFirstForwardedValue
+		 */
+
 
 		// Get the used protocol between the end client and first proxy.
-		// NOTE: Some proxies append values with spaces and some do not.
-		// We need to handle it here and parse the header correctly.
 		// @example "https, http,http" => "http"
 		const forwardedProtocol = getFirstForwardedValue(req.headers['x-forwarded-proto']);
 		const protocol = forwardedProtocol ?? (isEncrypted ? 'https' : 'http');
@@ -160,6 +158,37 @@ export class NodeApp extends App {
 			destination.end('Internal server error');
 		}
 	}
+}
+
+/**
+ * Retrieves the first value from a header that may contain multiple comma-separated values.
+ * 
+ * This function is intended to handle HTTP headers that might include multiple values, such as the `X-Forwarded-For` header. 
+ * If the header contains multiple values separated by commas, it returns the first value. It also trims any extra whitespace from the result.
+ * 
+ * @param {string | string[]} [multiValueHeader] - The header that contains one or more values. It can be a string with comma-separated values or an array of strings.
+ * @returns {string | undefined} The first value from the header, trimmed of any surrounding whitespace, or `undefined` if no value is provided.
+ * 
+ * @example
+ * // Example with a string
+ * const header = '192.168.1.1, 192.168.1.2';
+ * const firstValue = getFirstForwardedValue(header); // '192.168.1.1'
+ * 
+ * @example
+ * // Example with an array
+ * const headerArray = ['192.168.1.1', '192.168.1.2'];
+ * const firstValue = getFirstForwardedValue(headerArray); // '192.168.1.1'
+ * 
+ * @remarks
+ * Some proxies append values without spaces, while others add spaces between values. 
+ * This function ensures consistent parsing by handling both cases and returning the first value correctly formatted.
+ */
+function getFirstForwardedValue(multiValueHeader?: string | string[]) {
+	return multiValueHeader
+		?.toString()
+		?.split(',')
+		?.at(0)
+		?.trim();
 }
 
 function makeRequestHeaders(req: NodeRequest): Headers {
