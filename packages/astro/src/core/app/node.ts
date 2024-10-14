@@ -90,13 +90,10 @@ export class NodeApp extends App {
 			: req.headers.host ?? req.headers[':authority'];
 
 		/** @example "443,8080,80" => "443" */
-		const forwardedPort = getFirstForwardedValue(req.headers['x-forwarded-port']);
-		const port = trustDownstreamProxy && forwardedPort
-			? forwardedPort
-			: req.socket?.remotePort?.toString() ?? (isEncrypted ? '443' : '80');
+		const port = getFirstForwardedValue(req.headers['x-forwarded-port']);
 
 		const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
-		const hostnamePort = portInHostname ? hostname : `${hostname}:${port}`;
+		const hostnamePort = portInHostname ? hostname : `${hostname}${port ? `:${port}` : ''}`;
 
 		const url = `${protocol}://${hostnamePort}${req.url}`;
 		const options: RequestInit = {
