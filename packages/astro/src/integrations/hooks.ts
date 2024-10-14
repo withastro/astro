@@ -236,7 +236,7 @@ export async function runHookConfigSetup({
 							order === 'pre' ? 'before' : 'after'
 						} any application middleware you define.`,
 					);
-					updatedSettings.middlewares[order].push(entrypoint);
+					updatedSettings.middlewares[order].push(entrypoint.toString());
 				},
 				createCodegenDir: () => {
 					const codegenDir = new URL(normalizeCodegenDir(integration.name), settings.dotAstroDir);
