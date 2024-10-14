@@ -40,11 +40,13 @@ jobs:
       # We only do sync if there are no changesets, so we don't accidentally allow users
       # to clone examples that may rely on unreleased code
 
-      - name: Sync from main branch to latest branch
+      - name: Sync from main branch to latest and examples/* branches
         if: steps.detect.outputs.has-changesets == 'false' && github.ref == 'refs/heads/main'
         uses: bluwy/auto-branch-sync-action@v1
         with:
-          map: / -> latest
+          map: |
+            / -> latest
+            /examples/* -> examples/*
           skip-unchanged-check: ${{ inputs.skip-unchanged-check == true }}
           dry-run: ${{ inputs.dry-run == true }}
 

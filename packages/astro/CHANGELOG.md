@@ -1,5 +1,102 @@
 # astro
 
+## 4.16.3
+
+### Patch Changes
+
+- [#12220](https://github.com/withastro/astro/pull/12220) [`b049359`](https://github.com/withastro/astro/commit/b0493596dc338377198d0a39efc813dad515b624) Thanks [@bluwy](https://github.com/bluwy)! - Fixes accidental internal `setOnSetGetEnv` parameter rename that caused runtime errors
+
+- [#12197](https://github.com/withastro/astro/pull/12197) [`2aa2dfd`](https://github.com/withastro/astro/commit/2aa2dfd05dc7b7e6ad13451e6cc2afa9b1c92a32) Thanks [@ematipico](https://github.com/ematipico)! - Fix a regression where a port was incorrectly added to the `Astro.url`
+
+## 4.16.2
+
+### Patch Changes
+
+- [#12206](https://github.com/withastro/astro/pull/12206) [`12b0022`](https://github.com/withastro/astro/commit/12b00225067445629e5ae451d763d03f70065f88) Thanks [@bluwy](https://github.com/bluwy)! - Reverts https://github.com/withastro/astro/pull/12173 which caused `Can't modify immutable headers` warnings and 500 errors on Cloudflare Pages
+
+## 4.16.1
+
+### Patch Changes
+
+- [#12177](https://github.com/withastro/astro/pull/12177) [`a4ffbfa`](https://github.com/withastro/astro/commit/a4ffbfaa5cb460c12bd486fd75e36147f51d3e5e) Thanks [@matthewp](https://github.com/matthewp)! - Ensure we target scripts for execution in the router
+
+  Using `document.scripts` is unsafe because if the application has a `name="scripts"` this will shadow the built-in `document.scripts`. Fix is to use `getElementsByTagName` to ensure we're only grabbing real scripts.
+
+- [#12173](https://github.com/withastro/astro/pull/12173) [`2d10de5`](https://github.com/withastro/astro/commit/2d10de5f212323e6e19c7ea379826dcc18fe739c) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Astro Actions couldn't redirect to the correct pathname when there was a rewrite involved.
+
+## 4.16.0
+
+### Minor Changes
+
+- [#12039](https://github.com/withastro/astro/pull/12039) [`710a1a1`](https://github.com/withastro/astro/commit/710a1a11f488ff6ed3da6d3e0723b2322ccfe27b) Thanks [@ematipico](https://github.com/ematipico)! - Adds a `markdown.shikiConfig.langAlias` option that allows [aliasing a non-supported code language to a known language](https://shiki.style/guide/load-lang#custom-language-aliases). This is useful when the language of your code samples is not [a built-in Shiki language](https://shiki.style/languages), but you want your Markdown source to contain an accurate language while also displaying syntax highlighting.
+
+  The following example configures Shiki to highlight `cjs` code blocks using the `javascript` syntax highlighter:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    markdown: {
+      shikiConfig: {
+        langAlias: {
+          cjs: 'javascript',
+        },
+      },
+    },
+  });
+  ```
+
+  Then in your Markdown, you can use the alias as the language for a code block for syntax highlighting:
+
+  ````md
+  ```cjs
+  'use strict';
+
+  function commonJs() {
+    return 'I am a commonjs file';
+  }
+  ```
+  ````
+
+- [#11984](https://github.com/withastro/astro/pull/11984) [`3ac2263`](https://github.com/withastro/astro/commit/3ac2263ff6070136bec9cffb863c38bcc31ccdfe) Thanks [@chaegumi](https://github.com/chaegumi)! - Adds a new `build.concurreny` configuration option to specify the number of pages to build in parallel
+
+  **In most cases, you should not change the default value of `1`.**
+
+  Use this option only when other attempts to reduce the overall rendering time (e.g. batch or cache long running tasks like fetch calls or data access) are not possible or are insufficient.
+
+  Use this option only if the refactors are not possible. If the number is set too high, the page rendering may slow down due to insufficient memory resources and because JS is single-threaded.
+
+  > [!WARNING]
+  > This feature is stable and is not considered experimental. However, this feature is only intended to address difficult performance issues, and breaking changes may occur in a [minor release](https://docs.astro.build/en/upgrade-astro/#semantic-versioning) to keep this option as performant as possible.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro';
+
+  export default defineConfig({
+    build: {
+      concurrency: 2,
+    },
+  });
+  ```
+
+### Patch Changes
+
+- [#12160](https://github.com/withastro/astro/pull/12160) [`c6fd1df`](https://github.com/withastro/astro/commit/c6fd1df695d0f2a24bb49e6954064f92664ccf67) Thanks [@louisescher](https://github.com/louisescher)! - Fixes a bug where `astro.config.mts` and `astro.config.cts` weren't reloading the dev server upon modifications.
+
+- [#12130](https://github.com/withastro/astro/pull/12130) [`e96bcae`](https://github.com/withastro/astro/commit/e96bcae535ef2f0661f539c1d49690c531df2d4e) Thanks [@thehansys](https://github.com/thehansys)! - Fixes a bug in the parsing of `x-forwarded-\*` `Request` headers, where multiple values assigned to those headers were not correctly parsed.
+
+  Now, headers like `x-forwarded-proto: https,http` are correctly parsed.
+
+- [#12147](https://github.com/withastro/astro/pull/12147) [`9db755a`](https://github.com/withastro/astro/commit/9db755ab7cfe658ec426387e297bdcd32c4bc8de) Thanks [@ascorbic](https://github.com/ascorbic)! - Skips setting statusMessage header for HTTP/2 response
+
+  HTTP/2 doesn't support status message, so setting this was logging a warning.
+
+- [#12151](https://github.com/withastro/astro/pull/12151) [`bb6d37f`](https://github.com/withastro/astro/commit/bb6d37f94a283433994f9243189cb4386df0e11a) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `Astro.currentLocale` wasn't incorrectly computed when the `defaultLocale` belonged to a custom locale path.
+
+- Updated dependencies [[`710a1a1`](https://github.com/withastro/astro/commit/710a1a11f488ff6ed3da6d3e0723b2322ccfe27b)]:
+  - @astrojs/markdown-remark@5.3.0
+
 ## 4.15.12
 
 ### Patch Changes
