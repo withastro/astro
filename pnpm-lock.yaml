@@ -118,7 +118,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
 
   examples/blog:
@@ -133,13 +133,13 @@ importers:
         specifier: ^3.2.0
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -148,7 +148,7 @@ importers:
         specifier: ^3.6.2
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -179,7 +179,7 @@ importers:
         specifier: ^3.14.1
         version: 3.14.1
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
 
   examples/framework-lit:
@@ -191,7 +191,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       lit:
         specifier: ^3.2.0
@@ -221,7 +221,7 @@ importers:
         specifier: ^18.3.0
         version: 18.3.0
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       preact:
         specifier: ^10.24.2
@@ -251,7 +251,7 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0(preact@10.24.2)
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       preact:
         specifier: ^10.24.2
@@ -269,7 +269,7 @@ importers:
         specifier: ^18.3.0
         version: 18.3.0
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -284,7 +284,7 @@ importers:
         specifier: ^4.4.2
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.1
@@ -296,7 +296,7 @@ importers:
         specifier: ^5.7.2
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.19
@@ -308,7 +308,7 @@ importers:
         specifier: ^4.5.2
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.11
@@ -320,87 +320,26 @@ importers:
         specifier: ^8.3.4
         version: 8.3.4(astro@packages+astro)
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
-
-  examples/middleware:
-    dependencies:
-      '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
-      astro:
-        specifier: ^4.16.0
-        version: link:../../packages/astro
-      html-minifier:
-        specifier: ^4.0.0
-        version: 4.0.0
-    devDependencies:
-      '@types/html-minifier':
-        specifier: ^4.0.5
-        version: 4.0.5
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^4.16.0
-        version: link:../../packages/astro
-
-  examples/non-html-pages:
-    dependencies:
-      astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
-
-  examples/server-islands:
-    devDependencies:
-      '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
-      '@astrojs/react':
-        specifier: ^3.6.2
-        version: link:../../packages/integrations/react
-      '@astrojs/tailwind':
-        specifier: ^5.1.2
-        version: link:../../packages/integrations/tailwind
-      '@fortawesome/fontawesome-free':
-        specifier: ^6.6.0
-        version: 6.6.0
-      '@tailwindcss/forms':
-        specifier: ^0.5.9
-        version: 0.5.9(tailwindcss@3.4.13)
-      '@types/react':
-        specifier: ^18.3.11
-        version: 18.3.11
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.0
-      astro:
-        specifier: ^4.16.0
-        version: link:../../packages/astro
-      postcss:
-        specifier: ^8.4.47
-        version: 8.4.47
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-      tailwindcss:
-        specifier: ^3.4.13
-        version: 3.4.13
 
   examples/ssr:
     dependencies:
@@ -411,7 +350,7 @@ importers:
         specifier: ^5.7.2
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.19
@@ -420,7 +359,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       sass:
         specifier: ^1.79.4
@@ -432,19 +371,7 @@ importers:
   examples/toolbar-app:
     devDependencies:
       astro:
-        specifier: ^4.16.0
-        version: link:../../packages/astro
-
-  examples/view-transitions:
-    devDependencies:
-      '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
-      '@astrojs/tailwind':
-        specifier: ^5.1.2
-        version: link:../../packages/integrations/tailwind
-      astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -453,37 +380,7 @@ importers:
         specifier: ^0.11.5
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^4.16.0
-        version: link:../../packages/astro
-
-  examples/with-markdown-plugins:
-    dependencies:
-      '@astrojs/markdown-remark':
-        specifier: ^5.3.0
-        version: link:../../packages/markdown/remark
-      astro:
-        specifier: ^4.16.0
-        version: link:../../packages/astro
-      hast-util-select:
-        specifier: ^6.0.2
-        version: 6.0.2
-      rehype-autolink-headings:
-        specifier: ^7.1.0
-        version: 7.1.0
-      rehype-slug:
-        specifier: ^6.0.0
-        version: 6.0.0
-      rehype-toc:
-        specifier: ^3.0.2
-        version: 3.0.2
-      remark-code-titles:
-        specifier: ^0.1.2
-        version: 0.1.2
-
-  examples/with-markdown-shiki:
-    dependencies:
-      astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -495,7 +392,7 @@ importers:
         specifier: ^3.5.3
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       preact:
         specifier: ^10.24.2
@@ -510,7 +407,7 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(nanostores@0.11.3)(preact@10.24.2)
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.11.3
@@ -531,7 +428,7 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.20
@@ -549,7 +446,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^4.16.0
+        specifier: ^4.16.2
         version: link:../../packages/astro
       vitest:
         specifier: ^2.1.2
@@ -647,9 +544,6 @@ importers:
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
-      fastq:
-        specifier: ^1.17.1
-        version: 1.17.1
       flattie:
         specifier: ^1.1.1
         version: 1.1.1
@@ -710,9 +604,6 @@ importers:
       shiki:
         specifier: ^1.22.0
         version: 1.22.0
-      string-width:
-        specifier: ^7.2.0
-        version: 7.2.0
       tinyexec:
         specifier: ^0.3.0
         version: 0.3.0
@@ -6539,10 +6430,6 @@ packages:
   '@fontsource/montserrat@5.1.0':
     resolution: {integrity: sha512-HB4+rWP9Y8g6T9RGRVJk2SvAJtx2eBAXuivvPOqQdD806/9WESUfucfH9LqFj3bGgdhNCfh0Rv0NGuwEmBLRiw==}
 
-  '@fortawesome/fontawesome-free@6.6.0':
-    resolution: {integrity: sha512-60G28ke/sXdtS9KZCpZSHHkCbdsOGEhIUGlwq6yhY74UpTiToIh8np7A8yphhM4BWsvNFtIvLpi4co+h9Mr9Ow==}
-    engines: {node: '>=6'}
-
   '@humanfs/core@0.19.0':
     resolution: {integrity: sha512-2cbWIHbZVEweE853g8jymffCA+NCMiuqeECeBBLm8dg2oFdjuGJhgN4UAbI+6v0CKbbhvtXA4qV8YR5Ji86nmw==}
     engines: {node: '>=18.18.0'}
@@ -6978,11 +6865,6 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       vite: ^5.0.0
 
-  '@tailwindcss/forms@0.5.9':
-    resolution: {integrity: sha512-tM4XVr2+UVTxXJzey9Twx48c1gcxFStqn1pQz0tRsX8o3DvxhN5oY5pvyAbUx7VTaZxpej4Zzvc6h+1RJBzpIg==}
-    peerDependencies:
-      tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1 || >= 4.0.0-alpha.20'
-
   '@trysound/sax@0.2.0':
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
@@ -7013,9 +6895,6 @@ packages:
 
   '@types/canvas-confetti@1.6.4':
     resolution: {integrity: sha512-fNyZ/Fdw/Y92X0vv7B+BD6ysHL4xVU5dJcgzgxLdGbn8O3PezZNIJpml44lKM0nsGur+o/6+NZbZeNTt00U1uA==}
-
-  '@types/clean-css@4.2.11':
-    resolution: {integrity: sha512-Y8n81lQVTAfP2TOdtJJEsCoYl1AnOkqDqMvXb9/7pfgZZ7r8YrEyurrAvAoAjHOGXKRybay+5CsExqIH6liccw==}
 
   '@types/common-ancestor-path@1.0.2':
     resolution: {integrity: sha512-8llyULydTb7nM9yfiW78n6id3cet+qnATPV3R44yIywxgBaa8QXFSM9QTMf4OH64QOB45BlgZ3/oL4mmFLztQw==}
@@ -7049,9 +6928,6 @@ packages:
 
   '@types/html-escaper@3.0.2':
     resolution: {integrity: sha512-A8vk09eyYzk8J/lFO4OUMKCmRN0rRzfZf4n3Olwapgox/PtTiU8zPYlL1UEkJ/WeHvV6v9Xnj3o/705PKz9r4Q==}
-
-  '@types/html-minifier@4.0.5':
-    resolution: {integrity: sha512-LfE7f7MFd+YUfZnlBz8W43P4NgSObWiqyKapANsWCj63Aqeqli8/9gVsGP4CwC8jPpTTYlTopKCk9rJSuht/ew==}
 
   '@types/http-cache-semantics@4.0.4':
     resolution: {integrity: sha512-1m0bIFVc7eJWyve9S0RnuRgcQqF/Xd5QsUZAZeQFr1Q3/p9JWoQQEqmVy+DPTNpGXwhgIetAoYF8JSc33q29QA==}
@@ -7122,9 +6998,6 @@ packages:
   '@types/react@18.3.11':
     resolution: {integrity: sha512-r6QZ069rFTjrEYgFdOck1gK7FLVsgJE7tTz0pQBczlBNUhBNk0MQH4UbnFSwjpQLMkLzgqvBBa+qGpLje16eTQ==}
 
-  '@types/relateurl@0.2.33':
-    resolution: {integrity: sha512-bTQCKsVbIdzLqZhLkF5fcJQreE4y1ro4DIyVrlDNSCJRRwHhB8Z+4zXXa8jN6eDvc2HbRsEYgbvrnGvi54EpSw==}
-
   '@types/sax@1.2.7':
     resolution: {integrity: sha512-rO73L89PJxeYM3s3pPPjiPgVVcymqU490g0YO5n5By0k2Erzj6tay/4lr1CHAAU4JyOWd1rpQ8bCf6cZfHU96A==}
 
@@ -7136,9 +7009,6 @@ packages:
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
-
-  '@types/uglify-js@3.17.5':
-    resolution: {integrity: sha512-TU+fZFBTBcXj/GpDpDaBmgWk/gn96kMZ+uocaFUlV2f8a6WdMzzI44QBCmGcCiYR0Y6ZlNRiyUyKKt5nl/lbzQ==}
 
   '@types/ungap__structured-clone@1.2.0':
     resolution: {integrity: sha512-ZoaihZNLeZSxESbk9PUAPZOlSpcKx81I1+4emtULDVmBLkYutTcMlCj2K9VNlf9EWODxdO6gkAqEaLorXwZQVA==}
@@ -7595,9 +7465,6 @@ packages:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
 
-  camel-case@3.0.0:
-    resolution: {integrity: sha512-+MbKztAYHXPr1jNTSKQF52VpcFjwY5RkR7fxksV8Doo4KAYc5Fl4UJRgthBbTmEx8C54DqahhbLJkDwjI3PI/w==}
-
   camelcase-css@2.0.1:
     resolution: {integrity: sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA==}
     engines: {node: '>= 6'}
@@ -7679,10 +7546,6 @@ packages:
     resolution: {integrity: sha512-TdHqgGf9odd8SXNuxtUBVx8Nv+qZOejE6qyqiy5NtbYYQOeFa6zmHkxlPzmaLxWWHsU6nJmB7AETdVPi+2NBUg==}
     engines: {node: '>=8'}
 
-  clean-css@4.2.4:
-    resolution: {integrity: sha512-EJUDT7nDVFDvaQgAo2G/PJvxmp1o/c6iXLbswsBbUFXi1Nr+AjA2cKmfbKDMjMvzEe75g3P6JkaDDAKk96A85A==}
-    engines: {node: '>= 4.0'}
-
   cli-boxes@3.0.0:
     resolution: {integrity: sha512-/lzGpEWL/8PfI0BmBOPRwp0c/wFNX1RdUML3jK/RcSBA9T8mZDdQpqYBKtCFTOfQbwPqWEOpjqW+Fnayc0969g==}
     engines: {node: '>=10'}
@@ -7747,9 +7610,6 @@ packages:
 
   comma-separated-tokens@2.0.3:
     resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
-
-  commander@2.20.3:
-    resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
@@ -8551,11 +8411,6 @@ packages:
   html-escaper@3.0.3:
     resolution: {integrity: sha512-RuMffC89BOWQoY0WKGpIhn5gX3iI54O6nRA0yC124NYVtzjmFWBIiFd8M0x+ZdX0P9R4lADg1mgP8C7PxGOWuQ==}
 
-  html-minifier@4.0.0:
-    resolution: {integrity: sha512-aoGxanpFPLg7MkIl/DDFYtb0iWz7jMFGqFhvEDZga6/4QTjneiD8I/NXL1x5aaoCp7FSIT6h/OhykDdPsbtMig==}
-    engines: {node: '>=6'}
-    hasBin: true
-
   html-tags@3.3.1:
     resolution: {integrity: sha512-ztqyC3kLto0e9WbNp0aeP+M3kTt+nbaIveGmUxAtZa+8iFgKLUOD4YKM5j+f3QD89bra7UeumolZHKuOXnTmeQ==}
     engines: {node: '>=8'}
@@ -8923,9 +8778,6 @@ packages:
   loupe@3.1.1:
     resolution: {integrity: sha512-edNu/8D5MKVfGVFRhFf8aAxiTM6Wumfz5XsaatSxlD3w4R1d/WEKUTydCdPGbl9K7QG/Ca3GnDV2sIKIpXRQcw==}
 
-  lower-case@1.1.4:
-    resolution: {integrity: sha512-2Fgx1Ycm599x+WGpIYwJOvsjmXFzTSc34IwDWALRA/8AopUKAVPwfJ+h5+f85BCp0PWmmJcWzEpxOpoXycMpdA==}
-
   lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
 
@@ -9205,10 +9057,6 @@ packages:
     resolution: {integrity: sha512-VP79XUPxV2CigYP3jWwAUFSku2aKqBH7uTAapFWCBqutsbmDo96KY5o8uh6U+/YSIn5OxJnXp73beVkpqMIGhA==}
     engines: {node: '>=18'}
 
-  mini-svg-data-uri@1.4.4:
-    resolution: {integrity: sha512-r9deDe9p5FJUPZAk3A59wGH7Ii9YrjjWw0jmw/liSbHl2CHiyXj6FcDXDu2K3TjVAXqiJdaw3xxwlZZr9E6nHg==}
-    hasBin: true
-
   minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
 
@@ -9279,9 +9127,6 @@ packages:
 
   nlcst-to-string@4.0.0:
     resolution: {integrity: sha512-YKLBCcUYKAg0FNlOBT6aI91qFmSiFKiluk655WzPF+DDMA02qIyy8uiRqI8QXtcFpEvll12LpL5MXqEmAZ+dcA==}
-
-  no-case@2.3.2:
-    resolution: {integrity: sha512-rmTZ9kz+f3rCvK2TD1Ue/oZlns7OGoIWP4fc3llxxRXlOkHKoWPPWJOfFYpITabSow43QJbRIoHQXtt10VldyQ==}
 
   no-case@3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
@@ -9444,9 +9289,6 @@ packages:
 
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
-
-  param-case@2.1.1:
-    resolution: {integrity: sha512-eQE845L6ot89sk2N8liD8HAuH4ca6Vvr7VWAWwt7+kvvG5aBcPmmphQ68JsEG2qa9n1TykS2DLeMt363AAH8/w==}
 
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -9925,10 +9767,6 @@ packages:
   reinterval@1.1.0:
     resolution: {integrity: sha512-QIRet3SYrGp0HUHO88jVskiG6seqUGC5iAG7AwI/BV4ypGcuqk9Du6YQBUOUqm9c8pw1eyLoIaONifRua1lsEQ==}
 
-  relateurl@0.2.7:
-    resolution: {integrity: sha512-G08Dxvm4iDN3MLM0EsP62EDV9IuhXPR6blNz6Utcp7zyV3tr4HVNINt6MpaRWbxoOHT3Q7YN2P+jaHX8vUbgog==}
-    engines: {node: '>= 0.10'}
-
   remark-code-titles@0.1.2:
     resolution: {integrity: sha512-KsHQbaI4FX8Ozxqk7YErxwmBiveUqloKuVqyPG2YPLHojpgomodWgRfG4B+bOtmn/5bfJ8khw4rR0lvgVFl2Uw==}
 
@@ -10195,10 +10033,6 @@ packages:
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
-    engines: {node: '>=0.10.0'}
-
-  source-map@0.6.1:
-    resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
 
   source-map@0.7.4:
@@ -10540,11 +10374,6 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  uglify-js@3.19.3:
-    resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}
-    engines: {node: '>=0.8.0'}
-    hasBin: true
-
   uhyphen@0.2.0:
     resolution: {integrity: sha512-qz3o9CHXmJJPGBdqzab7qAYuW8kQGKNEuoHFYrBwV6hWIMcpAmxDLXojcHfFr9US1Pe6zUswEIJIbLI610fuqA==}
 
@@ -10633,9 +10462,6 @@ packages:
     hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
-
-  upper-case@1.1.3:
-    resolution: {integrity: sha512-WRbjgmYzgXkCV7zNVpy5YgrHgbBv126rMALQQMrmzOVC4GM2waQ9x7xtm8VU+1yF2kWyPzI9zbZ48n4vSxwfSA==}
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
@@ -12077,8 +11903,6 @@ snapshots:
 
   '@fontsource/montserrat@5.1.0': {}
 
-  '@fortawesome/fontawesome-free@6.6.0': {}
-
   '@humanfs/core@0.19.0': {}
 
   '@humanfs/node@0.16.5':
@@ -12523,11 +12347,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tailwindcss/forms@0.5.9(tailwindcss@3.4.13)':
-    dependencies:
-      mini-svg-data-uri: 1.4.4
-      tailwindcss: 3.4.13
-
   '@trysound/sax@0.2.0': {}
 
   '@types/acorn@4.0.6':
@@ -12563,11 +12382,6 @@ snapshots:
 
   '@types/canvas-confetti@1.6.4': {}
 
-  '@types/clean-css@4.2.11':
-    dependencies:
-      '@types/node': 18.19.50
-      source-map: 0.6.1
-
   '@types/common-ancestor-path@1.0.2': {}
 
   '@types/cookie@0.6.0': {}
@@ -12595,12 +12409,6 @@ snapshots:
       '@types/unist': 3.0.3
 
   '@types/html-escaper@3.0.2': {}
-
-  '@types/html-minifier@4.0.5':
-    dependencies:
-      '@types/clean-css': 4.2.11
-      '@types/relateurl': 0.2.33
-      '@types/uglify-js': 3.17.5
 
   '@types/http-cache-semantics@4.0.4': {}
 
@@ -12671,8 +12479,6 @@ snapshots:
       '@types/prop-types': 15.7.12
       csstype: 3.1.3
 
-  '@types/relateurl@0.2.33': {}
-
   '@types/sax@1.2.7':
     dependencies:
       '@types/node': 18.19.50
@@ -12684,10 +12490,6 @@ snapshots:
       '@types/node': 18.19.50
 
   '@types/trusted-types@2.0.7': {}
-
-  '@types/uglify-js@3.17.5':
-    dependencies:
-      source-map: 0.6.1
 
   '@types/ungap__structured-clone@1.2.0': {}
 
@@ -13301,11 +13103,6 @@ snapshots:
 
   callsites@3.1.0: {}
 
-  camel-case@3.0.0:
-    dependencies:
-      no-case: 2.3.2
-      upper-case: 1.1.3
-
   camelcase-css@2.0.1: {}
 
   camelcase@8.0.0: {}
@@ -13396,10 +13193,6 @@ snapshots:
 
   ci-info@4.0.0: {}
 
-  clean-css@4.2.4:
-    dependencies:
-      source-map: 0.6.1
-
   cli-boxes@3.0.0: {}
 
   cli-cursor@4.0.0:
@@ -13465,8 +13258,6 @@ snapshots:
       delayed-stream: 1.0.0
 
   comma-separated-tokens@2.0.3: {}
-
-  commander@2.20.3: {}
 
   commander@4.1.1: {}
 
@@ -14281,16 +14072,6 @@ snapshots:
 
   html-escaper@3.0.3: {}
 
-  html-minifier@4.0.0:
-    dependencies:
-      camel-case: 3.0.0
-      clean-css: 4.2.4
-      commander: 2.20.3
-      he: 1.2.0
-      param-case: 2.1.1
-      relateurl: 0.2.7
-      uglify-js: 3.19.3
-
   html-tags@3.3.1: {}
 
   html-void-elements@3.0.0: {}
@@ -14651,8 +14432,6 @@ snapshots:
   loupe@3.1.1:
     dependencies:
       get-func-name: 2.0.2
-
-  lower-case@1.1.4: {}
 
   lower-case@2.0.2:
     dependencies:
@@ -15214,8 +14993,6 @@ snapshots:
 
   mimic-function@5.0.1: {}
 
-  mini-svg-data-uri@1.4.4: {}
-
   minimatch@3.1.2:
     dependencies:
       brace-expansion: 1.1.11
@@ -15265,10 +15042,6 @@ snapshots:
   nlcst-to-string@4.0.0:
     dependencies:
       '@types/nlcst': 2.0.3
-
-  no-case@2.3.2:
-    dependencies:
-      lower-case: 1.1.4
 
   no-case@3.0.4:
     dependencies:
@@ -15427,10 +15200,6 @@ snapshots:
   package-manager-detector@0.2.0: {}
 
   pako@1.0.11: {}
-
-  param-case@2.1.1:
-    dependencies:
-      no-case: 2.3.2
 
   parent-module@1.0.1:
     dependencies:
@@ -15965,8 +15734,6 @@ snapshots:
 
   reinterval@1.1.0: {}
 
-  relateurl@0.2.7: {}
-
   remark-code-titles@0.1.2:
     dependencies:
       unist-util-visit: 1.4.1
@@ -16337,8 +16104,6 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
-  source-map@0.6.1: {}
-
   source-map@0.7.4: {}
 
   space-separated-tokens@2.0.2: {}
@@ -16670,8 +16435,6 @@ snapshots:
 
   typescript@5.6.2: {}
 
-  uglify-js@3.19.3: {}
-
   uhyphen@0.2.0: {}
 
   ultrahtml@1.5.3: {}
@@ -16785,8 +16548,6 @@ snapshots:
       browserslist: 4.24.0
       escalade: 3.2.0
       picocolors: 1.1.0
-
-  upper-case@1.1.3: {}
 
   uri-js@4.4.1:
     dependencies:
