@@ -1,5 +1,19 @@
 # create-astro
 
+## 4.10.0
+
+### Minor Changes
+
+- [#12154](https://github.com/withastro/astro/pull/12154) [`9988dd6`](https://github.com/withastro/astro/commit/9988dd67e2e4647c974979470d2e63d80433b611) Thanks [@bluwy](https://github.com/bluwy)! - Improves default template download speed by downloading from a branch containing the template only
+
+- [#12186](https://github.com/withastro/astro/pull/12186) [`49c4f64`](https://github.com/withastro/astro/commit/49c4f64673390f7035258d662755988f0fb71a94) Thanks [@Terfno](https://github.com/Terfno)! - Ensures new line at the end of the generated `package.json` and `tsconfig.json` files
+
+## 4.9.2
+
+### Patch Changes
+
+- [#12143](https://github.com/withastro/astro/pull/12143) [`2385d58`](https://github.com/withastro/astro/commit/2385d58389ee975a53f4089f2a7220d97cf3cdff) Thanks [@bluwy](https://github.com/bluwy)! - Uses `@bluwy/giget-core` instead of `giget` for smaller installation size when downloading the CLI
+
 ## 4.9.1
 
 ### Patch Changes

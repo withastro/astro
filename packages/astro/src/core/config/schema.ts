@@ -63,6 +63,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
+		concurrency: 1,
 	},
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
@@ -186,6 +187,7 @@ export const AstroConfigSchema = z.object({
 				.enum(['always', 'auto', 'never'])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
+			concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 		})
 		.default({}),
 	server: z.preprocess(
@@ -311,6 +313,10 @@ export const AstroConfigSchema = z.object({
 							return langs;
 						})
 						.default([]),
+					langAlias: z
+						.record(z.string(), z.string())
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.langAlias!),
 					theme: z
 						.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 						.or(z.custom<ShikiTheme>())
@@ -619,6 +625,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.enum(['always', 'auto', 'never'])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
+				concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 			})
 			.optional()
 			.default({}),
