@@ -8,6 +8,7 @@ import {
 import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { getClientIpAddress } from '../routing/request.js';
 import { sequence } from './sequence.js';
 
 function defineMiddleware(fn: MiddlewareHandler) {
@@ -50,6 +51,7 @@ function createContext({
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
 	let currentLocale: string | undefined = undefined;
+	let clientIpAddress: string | undefined;
 	const url = new URL(request.url);
 	const route = url.pathname;
 
@@ -85,10 +87,14 @@ function createContext({
 		},
 		url,
 		get clientAddress() {
-			if (clientAddressSymbol in request) {
-				return Reflect.get(request, clientAddressSymbol) as string;
+			if (clientIpAddress) {
+				return clientIpAddress;
 			}
-			throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+			clientIpAddress = getClientIpAddress(request);
+			if (!clientIpAddress) {
+				throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+			}
+			return clientIpAddress;
 		},
 		get locals() {
 			let locals = Reflect.get(request, clientLocalsSymbol);
