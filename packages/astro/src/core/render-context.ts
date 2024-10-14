@@ -532,18 +532,18 @@ export class RenderContext {
 				: undefined;
 
 		if (this.#currentLocale) {
-			return this.#currentLocale
+			return this.#currentLocale;
 		}
-		
+
 		let computedLocale;
 		if (routeData.pathname) {
-			computedLocale =  computeCurrentLocale(routeData.pathname, locales, defaultLocale)
+			computedLocale = computeCurrentLocale(routeData.pathname, locales, defaultLocale);
 		} else {
-			computedLocale = computeCurrentLocale(url.pathname, locales, defaultLocale) 
+			computedLocale = computeCurrentLocale(url.pathname, locales, defaultLocale);
 		}
 		this.#currentLocale = computedLocale ?? fallbackTo;
-		
-		return this.#currentLocale
+
+		return this.#currentLocale;
 	}
 
 	#preferredLocale: APIContext['preferredLocale'];
