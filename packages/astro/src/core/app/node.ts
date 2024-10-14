@@ -87,8 +87,7 @@ export class NodeApp extends App {
 
 		const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
 		const hostnamePort = portInHostname ? hostname : `${hostname}${port ? `:${port}` : ''}`;
-		
-		
+
 		const url = `${protocol}://${hostnamePort}${req.url}`;
 		const options: RequestInit = {
 			method: req.method || 'GET',
