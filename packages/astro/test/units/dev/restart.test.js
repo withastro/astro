@@ -8,6 +8,19 @@ import {
 } from '../../../dist/core/dev/index.js';
 import { createFixture, createRequestAndResponse } from '../test-utils.js';
 
+/** @type {import('astro').AstroInlineConfig} */
+const defaultInlineConfig = {
+	logLevel: 'silent',
+	vite: {
+		server: {
+			watch: {
+				useFsEvents: true,
+				usePolling: true,
+			},
+		},
+	},
+};
+
 function isStarted(container) {
 	return !!container.viteServer.httpServer?.listening;
 }
@@ -24,22 +37,13 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 					</body>
 				</html>
 			`,
-			'/astro.config.mjs': `
-
-				`,
+			'/astro.config.mjs': ``,
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
 			inlineConfig: {
+				...defaultInlineConfig,
 				root: fixture.path,
-				vite: {
-					server: {
-						watch: {
-							// Because we're making very quick updates, polling it more reliable here
-							usePolling: true,
-						},
-					},
-				},
 			},
 		});
 
@@ -59,22 +63,17 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 			await fixture.writeFile('/astro.config.mjs', 'const foo = bar');
 
 			// Wait for the restart to finish
-			console.log('waiting...');
 			let hmrError = await restartComplete;
 			assert.ok(hmrError instanceof Error);
-			console.log('done!');
 
 			// Do it a second time to make sure we are still watching
 
 			restartComplete = restart.restarted();
 			await fixture.writeFile('/astro.config.mjs', 'const foo = bar2');
 
-			console.log('second waiting...');
 			hmrError = await restartComplete;
 			assert.ok(hmrError instanceof Error);
-			console.log('second done!');
 		} finally {
-			console.log('cleannnn');
 			await restart.container.close();
 		}
 	});
@@ -93,7 +92,10 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { root: fixture.path },
+			inlineConfig: {
+				...defaultInlineConfig,
+				root: fixture.path,
+			},
 		});
 		await startContainer(restart.container);
 		assert.equal(isStarted(restart.container), true);
@@ -117,7 +119,10 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { root: fixture.path },
+			inlineConfig: {
+				...defaultInlineConfig,
+				root: fixture.path,
+			},
 		});
 		await startContainer(restart.container);
 		assert.equal(isStarted(restart.container), true);
@@ -140,7 +145,10 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { root: fixture.path },
+			inlineConfig: {
+				...defaultInlineConfig,
+				root: fixture.path,
+			},
 		});
 		await startContainer(restart.container);
 		assert.equal(isStarted(restart.container), true);
@@ -160,7 +168,10 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { root: fixture.path },
+			inlineConfig: {
+				...defaultInlineConfig,
+				root: fixture.path,
+			},
 		});
 		await startContainer(restart.container);
 		assert.equal(isStarted(restart.container), true);
@@ -181,7 +192,10 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		});
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { root: fixture.path },
+			inlineConfig: {
+				...defaultInlineConfig,
+				root: fixture.path,
+			},
 		});
 		await startContainer(restart.container);
 		assert.equal(isStarted(restart.container), true);

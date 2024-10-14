@@ -139,17 +139,14 @@ export async function createContainerWithAutomaticRestart({
 		const container = restart.container;
 		const result = await restartContainer(container);
 		if (result instanceof Error) {
-			console.log('aaa', 'error');
 			// Failed to restart, use existing container
 			resolveRestart(result);
 		} else {
-			console.log('aaa', 'success');
 			// Restart success. Add new watches because this is a new container with a new Vite server
 			restart.container = result;
 			setupContainer();
 			resolveRestart(null);
 		}
-		console.log('aaa', 'completed assign');
 		restartComplete = new Promise<Error | null>((resolve) => {
 			resolveRestart = resolve;
 		});
