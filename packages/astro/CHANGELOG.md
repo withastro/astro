@@ -1,5 +1,11 @@
 # astro
 
+## 4.16.5
+
+### Patch Changes
+
+- [#12232](https://github.com/withastro/astro/pull/12232) [`ff68ba5`](https://github.com/withastro/astro/commit/ff68ba5e1ca00f06d1afd5fbf89acea3092bb660) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue with cssesc in dev mode when setting `vite.ssr.noExternal: true`
+
 ## 4.16.4
 
 ### Patch Changes
