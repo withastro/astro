@@ -85,7 +85,7 @@ A synopsis of your item when you are publishing the full content of the item in 
 
 Type: `string (optional)`
 
-The full text content of the item suitable for presentation as HTML. If used, you should also provide a short article summary in the `description` field. See the [recommendations from the RSS spec for how to use and differentiate between `description` and `content`](https://www.rssboard.org/rss-profile#namespace-elements-content-encoded).
+The full text content of the item suitable for presentation as HTML. If used, you should also provide a short article summary in the `description` field.
 
 To render Markdown content from a glob result or from a content collection, see the [content rendering guide](https://docs.astro.build/en/guides/rss/#including-full-post-content).
 
