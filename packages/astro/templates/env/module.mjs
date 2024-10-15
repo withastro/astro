@@ -26,6 +26,8 @@ const _internalGetSecret = (key) => {
 };
 
 // used while generating the virtual module
-setOnSetGetEnv((_reset) => {
+// biome-ignore lint/correctness/noUnusedFunctionParameters: `reset` is used by the generated code
+// biome-ignore lint/correctness/noUnusedVariables: `reset` is used by the generated code
+setOnSetGetEnv((reset) => {
 	// @@ON_SET_GET_ENV@@
 });

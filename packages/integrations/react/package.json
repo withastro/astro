@@ -60,13 +60,13 @@
   },
   "devDependencies": {
     "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.0",
+    "@types/react-dom": "^18.3.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "vite": "^5.4.8"
+    "vite": "^5.4.9"
   },
   "peerDependencies": {
     "@types/react": "^17.0.50 || ^18.0.21",
