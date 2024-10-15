@@ -190,11 +190,12 @@ rss({
   customData: '<itunes:author>MF Doom</itunes:author>',
   items: episodes.map((episode) => ({
     // ...
-    customData: `<itunes:episodeType>${episode.frontmatter.type}</itunes:episodeType>` +
+    customData:
+      `<itunes:episodeType>${episode.frontmatter.type}</itunes:episodeType>` +
       `<itunes:duration>${episode.frontmatter.duration}</itunes:duration>` +
       `<itunes:explicit>${episode.frontmatter.explicit || false}</itunes:explicit>`,
   })),
-})
+});
 ```
 
 ### `trailingSlash`
