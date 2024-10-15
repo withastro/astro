@@ -75,4 +75,14 @@ export const server = {
 			}
 		})
 	},
+	sum: defineAction({
+		accept: "form",
+		input: z.object({
+			a: z.number(),
+			b: z.number(),
+		}),
+		async handler({ a, b }) {
+			return a + b
+		},
+	})
 };

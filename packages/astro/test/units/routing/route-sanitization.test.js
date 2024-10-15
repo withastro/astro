@@ -1,17 +1,15 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import testAdapter from '../../test-adapter.js';
 import {
 	createBasicSettings,
-	createFs,
+	createFixture,
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
 
-const root = new URL('../../fixtures/alias/', import.meta.url);
 const fileSystem = {
 	'/src/pages/[...testSlashTrim].astro': `
 	---
@@ -34,15 +32,14 @@ describe('Route sanitization', () => {
 	let settings;
 
 	before(async () => {
-		const fs = createFs(fileSystem, root);
+		const fixture = await createFixture(fileSystem);
 		settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			trailingSlash: 'never',
 			output: 'static',
 			adapter: testAdapter(),
 		});
 		container = await createContainer({
-			fs,
 			settings,
 			logger: defaultLogger,
 		});

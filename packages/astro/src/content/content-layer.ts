@@ -1,5 +1,5 @@
 import { promises as fs, existsSync } from 'node:fs';
-import * as fastq from 'fastq';
+import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -38,7 +38,7 @@ export class ContentLayer {
 
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 
-	#queue: fastq.queueAsPromised<RefreshContentOptions, void>;
+	#queue: PQueue;
 
 	constructor({ settings, logger, store, watcher }: ContentLayerOptions) {
 		// The default max listeners is 10, which can be exceeded when using a lot of loaders
@@ -48,14 +48,14 @@ export class ContentLayer {
 		this.#store = store;
 		this.#settings = settings;
 		this.#watcher = watcher;
-		this.#queue = fastq.promise(this.#doSync.bind(this), 1);
+		this.#queue = new PQueue({ concurrency: 1 });
 	}
 
 	/**
 	 * Whether the content layer is currently loading content
 	 */
 	get loading() {
-		return !this.#queue.idle();
+		return this.#queue.size > 0 || this.#queue.pending > 0;
 	}
 
 	/**
@@ -75,7 +75,7 @@ export class ContentLayer {
 	}
 
 	dispose() {
-		this.#queue.kill();
+		this.#queue.clear();
 		this.#unsubscribe?.();
 	}
 
@@ -131,7 +131,7 @@ export class ContentLayer {
 	 */
 
 	sync(options: RefreshContentOptions = {}): Promise<void> {
-		return this.#queue.push(options);
+		return this.#queue.add(() => this.#doSync(options));
 	}
 
 	async #doSync(options: RefreshContentOptions) {

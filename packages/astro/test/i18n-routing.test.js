@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -1105,7 +1105,7 @@ describe('[SSG] i18n routing', () => {
 			});
 
 			it('should return the default locale', async () => {
-				const html = await fixture.readFile('/current-locale/index.html');
+				let html = await fixture.readFile('/current-locale/index.html');
 				assert.equal(html.includes('Current Locale: es'), true);
 			});
 
@@ -1149,6 +1149,30 @@ describe('[SSG] i18n routing', () => {
 			it('should return the locale of the current URL (pt)', async () => {
 				const html = await fixture.readFile('/pt/start/index.html');
 				assert.equal(html.includes('Current Locale: pt'), true);
+			});
+		});
+
+		describe('with dynamic paths', async () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+			let devServer;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing/',
+				});
+				devServer = await fixture.startDevServer();
+			});
+
+			afterEach(async () => {
+				devServer.stop();
+			});
+
+			it('should return the correct current locale', async () => {
+				let html = await fixture.fetch('/en').then((r) => r.text());
+				assert.match(html, /en/);
+				html = await fixture.fetch('/ru').then((r) => r.text());
+				assert.match(html, /ru/);
 			});
 		});
 	});

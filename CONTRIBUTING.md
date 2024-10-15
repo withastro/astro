@@ -12,7 +12,7 @@ We welcome contributions of any size and skill level. As an open source project,
 
 ```shell
 node: "^>=18.17.1"
-pnpm: "^9.3.0"
+pnpm: "^9.12.1"
 # otherwise, your build will fail
 ```
 

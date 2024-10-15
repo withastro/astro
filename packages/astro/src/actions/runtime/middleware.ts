@@ -37,7 +37,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	const locals = context.locals as Locals;
 	// Actions middleware may have run already after a path rewrite.
-	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
+	// See https://github.com/withastro/roadmap/blob/main/proposals/0048-rerouting.md#ctxrewrite
 	// `_actionPayload` is the same for every page,
 	// so short circuit if already defined.
 	if (locals._actionPayload) return next();
