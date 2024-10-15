@@ -131,7 +131,7 @@ importers:
         specifier: ^4.0.0-beta.2
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
-        specifier: ^4.0.8
+        specifier: ^4.0.9
         version: link:../../packages/astro-rss
       '@astrojs/sitemap':
         specifier: ^3.2.1
