@@ -11,7 +11,22 @@ type EnvField = typeof import('./dist/env/config.js').envField;
  * See the full Astro Configuration API Documentation
  * https://astro.build/config
  */
-export function defineConfig(config: AstroUserConfig): AstroUserConfig;
+// TODO: jsdoc for overridden properties
+export function defineConfig<
+	TDefaultLocale extends string,
+	const TLocales extends [TDefaultLocale, ...Array<string>],
+>(
+	config: Omit<AstroUserConfig, 'i18n'> & {
+		i18n?: {
+			defaultLocale: TDefaultLocale;
+			locales: TLocales;
+			fallback?: {
+				[Locale in TLocales[number]]?: Exclude<TLocales[number], Locale>;
+			};
+			domains?: Partial<Record<TLocales[number], string>>;
+		} & Pick<NonNullable<AstroUserConfig['i18n']>, 'routing'>;
+	},
+): AstroUserConfig;
 
 /**
  * Use Astro to generate a fully resolved Vite config
