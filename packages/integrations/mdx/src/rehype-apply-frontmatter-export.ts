@@ -85,7 +85,8 @@ function shouldAddCharset(tree: Root, vfile: VFile) {
 	if (hasConstPartialTrue) return false;
 
 	// NOTE: the pages directory is a non-configurable Astro behaviour
-	const pagesDir = path.join(fileURLToPath(srcDirUrl), 'pages');
+	const pagesDir = path.join(fileURLToPath(srcDirUrl), 'pages').replace(/\\/g, '/');
+	// `vfile.path` comes from Vite, which is a normalized path (no backslashes)
 	const filePath = vfile.path;
 	if (!filePath.startsWith(pagesDir)) return false;
 
