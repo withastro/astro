@@ -64,6 +64,9 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 					});
 				}
 
+				console.log('middleware', settings.middlewares.pre);
+				console.log('middleware', settings.middlewares.post);
+
 				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
 				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
 
