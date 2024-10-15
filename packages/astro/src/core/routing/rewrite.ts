@@ -1,9 +1,9 @@
 import type { AstroConfig, RewritePayload, RouteData } from '../../@types/astro.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
+import { originPathnameSymbol } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { appendForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';
-import {ASTRO_ORIGIN_HEADER} from "../constants.js";
 
 export type FindRouteToRewrite = {
 	payload: RewritePayload;
@@ -102,14 +102,14 @@ export function copyRequest(newUrl: URL, oldRequest: Request): Request {
 	});
 }
 
-export function setOriginHeader(request: Request, pathname: string): void {
-	request.headers.set(ASTRO_ORIGIN_HEADER, encodeURIComponent(pathname));
+export function setOriginPathname(request: Request, pathname: string): void {
+	Reflect.set(request, originPathnameSymbol, encodeURIComponent(pathname));
 }
 
-export function getOriginHeader(request: Request): string | undefined {
-	const origin = request.headers.get(ASTRO_ORIGIN_HEADER);
+export function getOriginPathname(request: Request): string | undefined {
+	const origin = Reflect.get(request, originPathnameSymbol);
 	if (origin) {
-		return decodeURIComponent(origin)
+		return decodeURIComponent(origin);
 	}
-	return undefined
+	return undefined;
 }

@@ -29,10 +29,6 @@ export const REROUTE_DIRECTIVE_HEADER = 'X-Astro-Reroute';
  */
 export const REWRITE_DIRECTIVE_HEADER_KEY = 'X-Astro-Rewrite';
 
-/**
- * Header used to track the original URL requested by the user. This information is useful rewrites are involved.
- */
-export const ASTRO_ORIGIN_HEADER = 'X-Astro-Origin';
 export const REWRITE_DIRECTIVE_HEADER_VALUE = 'yes';
 
 /**
@@ -72,6 +68,11 @@ export const clientAddressSymbol = Symbol.for('astro.clientAddress');
  * Use judiciously, as locals are now stored within `RenderContext` by default. Tacking it onto request is no longer necessary.
  */
 export const clientLocalsSymbol = Symbol.for('astro.locals');
+
+/**
+ * Use this symbol to set and retrieve the original pathname of a request. This is useful when working with redirects and rewrites
+ */
+export const originPathnameSymbol = Symbol.for('astro.originPathname');
 
 /**
  * The symbol used as a field on the response object to keep track of streaming.
