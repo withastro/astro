@@ -102,7 +102,7 @@ describe('Middleware in DEV mode', () => {
 	});
 });
 
-describe.only('Integration hooks with no user middleware', () => {
+describe('Integration hooks with no user middleware', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
@@ -129,7 +129,7 @@ describe.only('Integration hooks with no user middleware', () => {
 		assert.equal(json.post, 'works');
 	});
 
-	it.only('Integration middleware marked as "url" runs', async () => {
+	it('Integration middleware marked as "url" runs', async () => {
 		const res = await fixture.fetch('/url');
 		const json = await res.json();
 		assert.equal(json.post, 'works');
