@@ -48,8 +48,7 @@ export function astroEnv({
 				fileURLToPath(settings.config.root),
 				'',
 			);
-			(globalThis as any)[ENV_SYMBOL] ??= {};
-			Object.assign((globalThis as any)[ENV_SYMBOL], loadedEnv);
+			(globalThis as any)[ENV_SYMBOL] ??= loadedEnv;
 
 			const validatedVariables = validatePublicVariables({
 				schema,
