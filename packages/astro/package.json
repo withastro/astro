@@ -140,7 +140,7 @@
     "ci-info": "^4.0.0",
     "clsx": "^2.1.1",
     "common-ancestor-path": "^1.0.1",
-    "cookie": "^0.7.2",
+    "cookie": "^1.0.1",
     "cssesc": "^3.0.0",
     "debug": "^4.3.7",
     "deterministic-object-hash": "^2.0.2",
