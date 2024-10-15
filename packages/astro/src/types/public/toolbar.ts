@@ -45,7 +45,7 @@ type DevToolbarAppMeta = {
 
 // The param passed to `addDevToolbarApp` in the integration
 export type DevToolbarAppEntry = DevToolbarAppMeta & {
-	entrypoint: string;
+	entrypoint: string | URL;
 };
 
 // Public API for the dev toolbar

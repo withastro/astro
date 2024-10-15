@@ -35,7 +35,7 @@ async function resolveEntryPoint(
 	this: PluginContext,
 	route: InjectedRoute,
 ): Promise<ResolvedInjectedRoute> {
-	const resolvedId = await this.resolve(route.entrypoint)
+	const resolvedId = await this.resolve(route.entrypoint.toString())
 		.then((res) => res?.id)
 		.catch(() => undefined);
 	if (!resolvedId) return route;
