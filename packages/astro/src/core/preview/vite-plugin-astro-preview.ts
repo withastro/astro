@@ -16,7 +16,7 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 		const errorPagePath = fileURLToPath(outDir + '/404.html');
 		if (fs.existsSync(errorPagePath)) {
 			res.statusCode = 404;
-			res.setHeader('Content-Type', 'text/html;charset=utf-8');
+			res.setHeader('Content-Type', 'text/html');
 			res.end(fs.readFileSync(errorPagePath));
 		} else {
 			res.statusCode = 404;

@@ -209,7 +209,7 @@ describe('Astro basic development', () => {
 		assert.equal($('h1').text(), '我的第一篇博客文章');
 		const isUtf8 =
 			res.headers.get('content-type').includes('charset=utf-8') ||
-			html.includes('<meta charset="utf-8">');
+			html.includes('<meta charset="utf-8"');
 		assert.ok(isUtf8);
 	});
 
@@ -221,7 +221,7 @@ describe('Astro basic development', () => {
 		assert.equal($('h1').text(), '我的第一篇博客文章');
 		const isUtf8 =
 			res.headers.get('content-type').includes('charset=utf-8') ||
-			html.includes('<meta charset="utf-8">');
+			html.includes('<meta charset="utf-8"');
 		assert.ok(isUtf8);
 	});
 
