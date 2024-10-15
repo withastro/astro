@@ -158,7 +158,7 @@ An absolute path to an XSL stylesheet in your project. If you don’t have an RS
 
 Type: `string (optional)`
 
-A string of valid XML to be injected between your feed's `<description>` and `<item>` tags. 
+A string of valid XML to be injected between your feed's `<description>` and `<item>` tags.
 
 This can be used to pass additional data outside of the standard RSS spec, and is commonly used to set a language for your feed:
 
@@ -175,21 +175,26 @@ export const GET = () => rss({
 
 Type: `Record<string, string> (optional)`
 
-An object mapping a set of `xmlns` suffixes to strings of metadata on the opening `<rss>` tag.
+An object mapping a set of `xmlns` suffixes to strings values on the opening `<rss>` tag.
 
-For example, this object:
+Suffixes expand the available XML tags in your RSS feed, so your content may be read by third-party sources like podcast services or blogging platforms. You'll likely combine `xmlns` with the [`customData`](#customData) attribute to insert custom tags for a given platform.
+
+This example applies the `itunes` suffix to an RSS feed of podcasts, and uses `customData` to define tags for the author and episode details:
 
 ```js
 rss({
-  ...
-  xmlns: { h: 'http://www.w3.org/TR/html4/' },
+  // ...
+  xmlns: {
+    itunes: 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+  },
+  customData: '<itunes:author>MF Doom</itunes:author>',
+  items: episodes.map((episode) => ({
+    // ...
+    customData: `<itunes:episodeType>${episode.frontmatter.type}</itunes:episodeType>` +
+      `<itunes:duration>${episode.frontmatter.duration}</itunes:duration>` +
+      `<itunes:explicit>${episode.frontmatter.explicit || false}</itunes:explicit>`,
+  })),
 })
-```
-
-Will inject the following XML:
-
-```xml
-<rss xmlns:h="http://www.w3.org/TR/html4/"...
 ```
 
 ### `trailingSlash`
