@@ -9,9 +9,9 @@ import {
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
+import { ENV_SYMBOL } from './runtime-constants.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
-import { ENV_SYMBOL } from './runtime-constants.js';
 
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
