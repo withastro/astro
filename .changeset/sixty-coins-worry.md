@@ -2,7 +2,9 @@
 'astro': minor
 ---
 
-Adds support for passing values other than `"production"` or `"development"` to the `--mode` flag, e.g. `"staging"`, `"testing"`, or any value. This allows to change the value of `import.meta.env.MODE` or the loaded `.env` file, and take advantage of Vite's [mode](https://vite.dev/guide/env-and-mode#modes) feature.
+Adds support for passing values other than `"production"` or `"development"` to the `--mode` flag (e.g. `"staging"`, `"testing"`, or any custom value) to change the value of `import.meta.env.MODE` or the loaded `.env` file. This allows you take advantage of Vite's [mode](https://vite.dev/guide/env-and-mode#modes) feature.
+
+Also adds a new `--devOutput` flag for `astro build` that will output a development-based build.
 
 Note that changing the `mode` does not change the kind of code transform handled by Vite and Astro:
 
@@ -26,4 +28,4 @@ astro build --devOutput
 astro build --mode testing
 ```
 
-The different modes can be used to load different `.env` files, e.g. `.env.staging` or `.env.production`, which can have different `API_URL` environment variable values (for example).
+The different modes can be used to load different `.env` files, e.g. `.env.staging` or `.env.production`, which can be customized for each environment, for example with different `API_URL` environment variable values.
