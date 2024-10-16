@@ -4,7 +4,6 @@ import { type Plugin, loadEnv } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import {
-	ENV_SYMBOL,
 	MODULE_TEMPLATE_URL,
 	VIRTUAL_MODULES_IDS,
 	VIRTUAL_MODULES_IDS_VALUES,
@@ -12,12 +11,7 @@ import {
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
-
-// TODO: reminders for when astro:env comes out of experimental
-// Types should always be generated (like in types/content.d.ts). That means the client module will be empty
-// and server will only contain getSecret for unknown variables. Then, specifying a schema should only add
-// variables as needed. For secret variables, it will only require specifying SecretValues and it should get
-// merged with the static types/content.d.ts
+import { ENV_SYMBOL } from './runtime-constants.js';
 
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
