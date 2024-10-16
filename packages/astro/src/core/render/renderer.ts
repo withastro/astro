@@ -6,7 +6,7 @@ export async function loadRenderer(
 	renderer: AstroRenderer,
 	moduleLoader: ModuleLoader,
 ): Promise<SSRLoadedRenderer | undefined> {
-	const mod = await moduleLoader.import(renderer.serverEntrypoint);
+	const mod = await moduleLoader.import(renderer.serverEntrypoint.toString());
 	if (typeof mod.default !== 'undefined') {
 		return {
 			...renderer,

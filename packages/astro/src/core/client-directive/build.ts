@@ -4,7 +4,11 @@ import { build } from 'esbuild';
 /**
  * Build a client directive entrypoint into code that can directly run in a `<script>` tag.
  */
-export async function buildClientDirectiveEntrypoint(name: string, entrypoint: string, root: URL) {
+export async function buildClientDirectiveEntrypoint(
+	name: string,
+	entrypoint: string | URL,
+	root: URL,
+) {
 	const stringifiedName = JSON.stringify(name);
 	const stringifiedEntrypoint = JSON.stringify(entrypoint);
 

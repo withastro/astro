@@ -21,7 +21,8 @@ package-lock.json
 
 packages/astro/src/**/*.prebuilt.ts
 packages/astro/src/**/*.prebuilt-dev.ts
-!packages/astro/vendor/vite/dist
+packages/astro/test/units/_temp-fixtures/*
+!packages/astro/test/units/_temp-fixtures/package.json
 packages/integrations/**/.netlify/
 
 # exclude IntelliJ/WebStorm stuff

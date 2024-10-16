@@ -89,6 +89,9 @@ export default function createVitePluginAstroServer({
 			}
 
 			process.on('unhandledRejection', handleUnhandledRejection);
+			viteServer.httpServer?.on('close', () => {
+				process.off('unhandledRejection', handleUnhandledRejection);
+			});
 
 			return () => {
 				// Push this middleware to the front of the stack so that it can intercept responses.

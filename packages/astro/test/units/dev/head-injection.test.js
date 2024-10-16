@@ -1,14 +1,13 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
-import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
+import { createFixture, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
 describe('head injection', () => {
 	it('Dynamic injection from component created in the page frontmatter', async () => {
-		const fs = createFs(
+		const fixture = await createFixture(
 			{
 				'/src/components/Other.astro': `
 					<style>
@@ -64,9 +63,8 @@ describe('head injection', () => {
 
 		await runInContainer(
 			{
-				fs,
 				inlineConfig: {
-					root: fileURLToPath(root),
+					root: fixture.path,
 					vite: { server: { middlewareMode: true } },
 				},
 			},
@@ -87,7 +85,7 @@ describe('head injection', () => {
 	});
 
 	it('Dynamic injection from a layout component', async () => {
-		const fs = createFs(
+		const fixture = await createFixture(
 			{
 				'/src/components/Other.astro': `
 					<style>
@@ -164,9 +162,8 @@ describe('head injection', () => {
 
 		await runInContainer(
 			{
-				fs,
 				inlineConfig: {
-					root: fileURLToPath(root),
+					root: fixture.path,
 					vite: { server: { middlewareMode: true } },
 				},
 			},

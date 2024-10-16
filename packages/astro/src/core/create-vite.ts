@@ -81,6 +81,8 @@ const ONLY_DEV_EXTERNAL = [
 	'prismjs/components/index.js',
 	// Imported by `astro/assets` -> `packages/astro/src/core/logger/core.ts`
 	'string-width',
+	// Imported by `astro:transitions` -> packages/astro/src/runtime/server/transition.ts
+	'cssesc',
 ];
 
 /** Return a base vite config as a common starting point for all Vite commands. */

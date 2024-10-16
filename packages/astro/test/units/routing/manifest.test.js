@@ -1,11 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import { Logger } from '../../../dist/core/logger/core.js';
 import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
-import { createBasicSettings, createFs } from '../test-utils.js';
-
-const root = new URL('../../fixtures/alias/', import.meta.url);
+import { createBasicSettings, createFixture } from '../test-utils.js';
 
 function getManifestRoutes(manifest) {
 	return manifest.routes.map((route) => ({
@@ -41,21 +38,17 @@ function assertRouteRelations(routes, relations) {
 
 describe('routing - createRouteManifest', () => {
 	it('using trailingSlash: "never" does not match the index route when it contains a trailing slash', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/index.astro': `<h1>test</h1>`,
-			},
-			root,
-		);
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `<h1>test</h1>`,
+		});
 		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			base: '/search',
 			trailingSlash: 'never',
 		});
 		const manifest = await createRouteManifest({
-			cwd: fileURLToPath(root),
+			cwd: fixture.path,
 			settings,
-			fsMod: fs,
 		});
 		const [{ pattern }] = manifest.routes;
 		assert.equal(pattern.test(''), true);
@@ -63,17 +56,14 @@ describe('routing - createRouteManifest', () => {
 	});
 
 	it('endpoint routes are sorted before page routes', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/[contact].astro': `<h1>test</h1>`,
-				'/src/pages/[contact].ts': `<h1>test</h1>`,
-				'/src/entrypoint.astro': `<h1>test</h1>`,
-				'/src/entrypoint.ts': `<h1>test</h1>`,
-			},
-			root,
-		);
+		const fixture = await createFixture({
+			'/src/pages/[contact].astro': `<h1>test</h1>`,
+			'/src/pages/[contact].ts': `<h1>test</h1>`,
+			'/src/entrypoint.astro': `<h1>test</h1>`,
+			'/src/entrypoint.ts': `<h1>test</h1>`,
+		});
 		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			base: '/search',
 			trailingSlash: 'never',
 		});
@@ -90,9 +80,8 @@ describe('routing - createRouteManifest', () => {
 		];
 
 		const manifest = await createRouteManifest({
-			cwd: fileURLToPath(root),
+			cwd: fixture.path,
 			settings,
-			fsMod: fs,
 		});
 
 		assert.deepEqual(getManifestRoutes(manifest), [
@@ -116,26 +105,22 @@ describe('routing - createRouteManifest', () => {
 	});
 
 	it('static routes are sorted before dynamic and rest routes', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/[dynamic].astro': `<h1>test</h1>`,
-				'/src/pages/[...rest].astro': `<h1>test</h1>`,
-				'/src/pages/static.astro': `<h1>test</h1>`,
-				'/src/pages/static-[dynamic].astro': `<h1>test</h1>`,
-				'/src/pages/index.astro': `<h1>test</h1>`,
-			},
-			root,
-		);
+		const fixture = await createFixture({
+			'/src/pages/[dynamic].astro': `<h1>test</h1>`,
+			'/src/pages/[...rest].astro': `<h1>test</h1>`,
+			'/src/pages/static.astro': `<h1>test</h1>`,
+			'/src/pages/static-[dynamic].astro': `<h1>test</h1>`,
+			'/src/pages/index.astro': `<h1>test</h1>`,
+		});
 		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			base: '/search',
 			trailingSlash: 'never',
 		});
 
 		const manifest = await createRouteManifest({
-			cwd: fileURLToPath(root),
+			cwd: fixture.path,
 			settings,
-			fsMod: fs,
 		});
 
 		assertRouteRelations(getManifestRoutes(manifest), [
@@ -150,29 +135,25 @@ describe('routing - createRouteManifest', () => {
 
 	it('route sorting with multi-layer index page conflict', async () => {
 		// Reproducing regression from https://github.com/withastro/astro/issues/10071
-		const fs = createFs(
-			{
-				'/src/pages/a/1.astro': `<h1>test</h1>`,
-				'/src/pages/a/2.astro': `<h1>test</h1>`,
-				'/src/pages/a/3.astro': `<h1>test</h1>`,
-				'/src/pages/modules/[...slug].astro': `<h1>test</h1>`,
-				'/src/pages/modules/index.astro': `<h1>test</h1>`,
-				'/src/pages/test/[...slug].astro': `<h1>test</h1>`,
-				'/src/pages/test/index.astro': `<h1>test</h1>`,
-				'/src/pages/index.astro': `<h1>test</h1>`,
-			},
-			root,
-		);
+		const fixture = await createFixture({
+			'/src/pages/a/1.astro': `<h1>test</h1>`,
+			'/src/pages/a/2.astro': `<h1>test</h1>`,
+			'/src/pages/a/3.astro': `<h1>test</h1>`,
+			'/src/pages/modules/[...slug].astro': `<h1>test</h1>`,
+			'/src/pages/modules/index.astro': `<h1>test</h1>`,
+			'/src/pages/test/[...slug].astro': `<h1>test</h1>`,
+			'/src/pages/test/index.astro': `<h1>test</h1>`,
+			'/src/pages/index.astro': `<h1>test</h1>`,
+		});
 		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			base: '/search',
 			trailingSlash: 'never',
 		});
 
 		const manifest = await createRouteManifest({
-			cwd: fileURLToPath(root),
+			cwd: fixture.path,
 			settings,
-			fsMod: fs,
 		});
 
 		assertRouteRelations(getManifestRoutes(manifest), [
@@ -193,32 +174,28 @@ describe('routing - createRouteManifest', () => {
 	});
 
 	it('route sorting respects the file tree', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/[dynamic_folder]/static.astro': `<h1>test</h1>`,
-				'/src/pages/[dynamic_folder]/index.astro': `<h1>test</h1>`,
-				'/src/pages/[dynamic_folder]/[...rest].astro': `<h1>test</h1>`,
-				'/src/pages/[...rest]/static.astro': `<h1>test</h1>`,
-				'/src/pages/[...rest]/index.astro': `<h1>test</h1>`,
-				'/src/pages/blog/index.astro': `<h1>test</h1>`,
-				'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
-				'/src/pages/[dynamic_file].astro': `<h1>test</h1>`,
-				'/src/pages/[...other].astro': `<h1>test</h1>`,
-				'/src/pages/static.astro': `<h1>test</h1>`,
-				'/src/pages/index.astro': `<h1>test</h1>`,
-			},
-			root,
-		);
+		const fixture = await createFixture({
+			'/src/pages/[dynamic_folder]/static.astro': `<h1>test</h1>`,
+			'/src/pages/[dynamic_folder]/index.astro': `<h1>test</h1>`,
+			'/src/pages/[dynamic_folder]/[...rest].astro': `<h1>test</h1>`,
+			'/src/pages/[...rest]/static.astro': `<h1>test</h1>`,
+			'/src/pages/[...rest]/index.astro': `<h1>test</h1>`,
+			'/src/pages/blog/index.astro': `<h1>test</h1>`,
+			'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
+			'/src/pages/[dynamic_file].astro': `<h1>test</h1>`,
+			'/src/pages/[...other].astro': `<h1>test</h1>`,
+			'/src/pages/static.astro': `<h1>test</h1>`,
+			'/src/pages/index.astro': `<h1>test</h1>`,
+		});
 		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			base: '/search',
 			trailingSlash: 'never',
 		});
 
 		const manifest = await createRouteManifest({
-			cwd: fileURLToPath(root),
+			cwd: fixture.path,
 			settings,
-			fsMod: fs,
 		});
 
 		assertRouteRelations(getManifestRoutes(manifest), [
@@ -253,16 +230,13 @@ describe('routing - createRouteManifest', () => {
 	});
 
 	it('injected routes are sorted alongside filesystem routes', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/index.astro': `<h1>test</h1>`,
-				'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
-				'/src/entrypoint.astro': `<h1>test</h1>`,
-			},
-			root,
-		);
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `<h1>test</h1>`,
+			'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
+			'/src/entrypoint.astro': `<h1>test</h1>`,
+		});
 		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
@@ -281,9 +255,8 @@ describe('routing - createRouteManifest', () => {
 		];
 
 		const manifest = await createRouteManifest({
-			cwd: fileURLToPath(root),
+			cwd: fixture.path,
 			settings,
-			fsMod: fs,
 		});
 
 		assert.deepEqual(getManifestRoutes(manifest), [
@@ -307,15 +280,12 @@ describe('routing - createRouteManifest', () => {
 	});
 
 	it('redirects are sorted alongside the filesystem routes', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/index.astro': `<h1>test</h1>`,
-				'/src/pages/blog/contributing.astro': `<h1>test</h1>`,
-			},
-			root,
-		);
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `<h1>test</h1>`,
+			'/src/pages/blog/contributing.astro': `<h1>test</h1>`,
+		});
 		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
@@ -331,9 +301,8 @@ describe('routing - createRouteManifest', () => {
 			},
 		});
 		const manifest = await createRouteManifest({
-			cwd: fileURLToPath(root),
+			cwd: fixture.path,
 			settings,
-			fsMod: fs,
 		});
 
 		assert.deepEqual(getManifestRoutes(manifest), [
@@ -357,15 +326,12 @@ describe('routing - createRouteManifest', () => {
 	});
 
 	it('report colliding static routes', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/contributing.astro': `<h1>test</h1>`,
-				'/src/entrypoint.astro': `<h1>test</h1>`,
-			},
-			root,
-		);
+		const fixture = await createFixture({
+			'/src/pages/contributing.astro': `<h1>test</h1>`,
+			'/src/entrypoint.astro': `<h1>test</h1>`,
+		});
 		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
@@ -380,9 +346,8 @@ describe('routing - createRouteManifest', () => {
 		];
 
 		const manifestOptions = {
-			cwd: fileURLToPath(root),
+			cwd: fixture.path,
 			settings,
-			fsMod: fs,
 		};
 
 		const { logger, logs } = getLogger();
@@ -407,15 +372,12 @@ describe('routing - createRouteManifest', () => {
 	});
 
 	it('report colliding SSR dynamic routes', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/[foo].astro': `<h1>test</h1>`,
-				'/src/pages/[bar].astro': `<h1>test</h1>`,
-			},
-			root,
-		);
+		const fixture = await createFixture({
+			'/src/pages/[foo].astro': `<h1>test</h1>`,
+			'/src/pages/[bar].astro': `<h1>test</h1>`,
+		});
 		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
@@ -423,9 +385,8 @@ describe('routing - createRouteManifest', () => {
 		});
 
 		const manifestOptions = {
-			cwd: fileURLToPath(root),
+			cwd: fixture.path,
 			settings,
-			fsMod: fs,
 		};
 
 		const { logger, logs } = getLogger();
@@ -450,17 +411,14 @@ describe('routing - createRouteManifest', () => {
 	});
 
 	it('should concatenate each part of the segment. issues#10122', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/a-[b].astro': `<h1>test</h1>`,
-				'/src/pages/blog/a-[b].233.ts': ``,
-				'/src/entrypoint.astro': `<h1>test</h1>`,
-			},
-			root,
-		);
+		const fixture = await createFixture({
+			'/src/pages/a-[b].astro': `<h1>test</h1>`,
+			'/src/pages/blog/a-[b].233.ts': ``,
+			'/src/entrypoint.astro': `<h1>test</h1>`,
+		});
 
 		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
@@ -478,9 +436,8 @@ describe('routing - createRouteManifest', () => {
 		];
 
 		const manifest = await createRouteManifest({
-			cwd: fileURLToPath(root),
+			cwd: fixture.path,
 			settings,
-			fsMod: fs,
 		});
 
 		assert.deepEqual(getManifestRoutes(manifest), [
