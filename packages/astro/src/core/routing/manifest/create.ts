@@ -281,7 +281,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 
 	for (const injectedRoute of settings.injectedRoutes) {
 		const { pattern: name, entrypoint, prerender: prerenderInjected } = injectedRoute;
-		const { resolved, component } = resolveInjectedRoute(entrypoint, config.root, cwd);
+		const { resolved, component } = resolveInjectedRoute(entrypoint.toString(), config.root, cwd);
 
 		const segments = removeLeadingForwardSlash(name)
 			.split(path.posix.sep)

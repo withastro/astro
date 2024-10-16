@@ -66,9 +66,9 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 									`safeLoadPlugin(${JSON.stringify(
 										plugin,
 									)}, async () => (await import(${JSON.stringify(
-										typeof plugin === 'string' ? plugin : plugin.entrypoint,
+										typeof plugin === 'string' ? plugin : plugin.entrypoint.toString(),
 									)})).default, ${JSON.stringify(
-										typeof plugin === 'string' ? plugin : plugin.entrypoint,
+										typeof plugin === 'string' ? plugin : plugin.entrypoint.toString(),
 									)})`,
 							)
 							.join(',')}]));

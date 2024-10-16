@@ -158,7 +158,9 @@ export async function generateHydrateScript(
 	// Add renderer url
 	if (renderer.clientEntrypoint) {
 		island.props['component-export'] = componentExport.value;
-		island.props['renderer-url'] = await result.resolve(decodeURI(renderer.clientEntrypoint));
+		island.props['renderer-url'] = await result.resolve(
+			decodeURI(renderer.clientEntrypoint.toString()),
+		);
 		island.props['props'] = escapeHTML(serializeProps(props, metadata));
 	}
 

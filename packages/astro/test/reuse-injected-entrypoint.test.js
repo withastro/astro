@@ -43,6 +43,12 @@ const routes = [
 		h1: '[id].astro',
 		p: 'id-2',
 	},
+	{
+		description: 'matches /dynamic-c/id-2 to [id].astro when the route is injected with a URL',
+		url: '/dynamic-c/id-2',
+		h1: '[id].astro',
+		p: 'id-2',
+	},
 ];
 
 function appendForwardSlash(path) {
