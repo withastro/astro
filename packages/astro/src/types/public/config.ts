@@ -16,6 +16,14 @@ import type { AstroIntegration } from './integrations.js';
 
 export type Locales = (string | { codes: string[]; path: string })[];
 
+type NormalizeLocales<T extends Locales> = {
+	[K in keyof T]: T[K] extends string
+		? T[K]
+		: T[K] extends { codes: Array<string> }
+			? T[K]['codes'][number]
+			: never;
+}[number];
+
 export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
 	entrypoint: 'astro/assets/services/sharp' | (string & {});
 	config?: T;
@@ -104,7 +112,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */
 export interface AstroUserConfig<
 	TDefaultLocale extends string = never,
-	TLocales extends [TDefaultLocale, ...Array<string>] = never,
+	TLocales extends [
+		TDefaultLocale | { codes: [TDefaultLocale, ...Array<string>]; path: string },
+		...Locales,
+	] = never,
 > {
 	/**
 	 * @docs
@@ -1265,7 +1276,7 @@ export interface AstroUserConfig<
 		fallback?: [TLocales] extends [never]
 			? Record<string, string>
 			: {
-					[Locale in TLocales[number]]?: Exclude<TLocales[number], Locale>;
+					[Locale in NormalizeLocales<TLocales>]?: Exclude<NormalizeLocales<TLocales>, Locale>;
 				};
 
 		/**
@@ -1454,7 +1465,7 @@ export interface AstroUserConfig<
 		 */
 		domains?: [TLocales] extends [never]
 			? Record<string, string>
-			: Partial<Record<TLocales[number], string>>;
+			: Partial<Record<NormalizeLocales<TLocales>, string>>;
 	};
 
 	/** ! WARNING: SUBJECT TO CHANGE */

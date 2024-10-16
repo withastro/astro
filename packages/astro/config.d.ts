@@ -2,6 +2,7 @@
 type ViteUserConfig = import('vite').UserConfig;
 type ViteUserConfigFn = import('vite').UserConfigFn;
 type AstroUserConfig = import('./dist/types/public/config.js').AstroUserConfig;
+type Locales = import('./dist/types/public/config.js').Locales;
 type AstroInlineConfig = import('./dist/types/public/config.js').AstroInlineConfig;
 type ImageServiceConfig = import('./dist/types/public/config.js').ImageServiceConfig;
 type SharpImageServiceConfig = import('./dist/assets/services/sharp.js').SharpImageServiceConfig;
@@ -13,7 +14,10 @@ type EnvField = typeof import('./dist/env/config.js').envField;
  */
 export function defineConfig<
 		TDefaultLocale extends string,
-		const TLocales extends [TDefaultLocale, ...Array<string>],
+		const TLocales extends [
+			TDefaultLocale | { codes: [TDefaultLocale, ...Array<string>]; path: string },
+			...Locales,
+		],
 	>(config: AstroUserConfig<TDefaultLocale, TLocales>): AstroUserConfig<TDefaultLocale, TLocales>;
 
 /**
