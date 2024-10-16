@@ -39,8 +39,7 @@ export default (element) => {
 				},
 			});
 			existingApplications.set(element, component);
+			element.addEventListener('astro:unmount', () => unmount(component), { once: true });
 		}
-
-		element.addEventListener('astro:unmount', () => unmount(component), { once: true });
 	};
 };

@@ -12,6 +12,7 @@ export const rehypeShiki: Plugin<[ShikiConfig?], Root> = (config) => {
 			langs: config?.langs,
 			theme: config?.theme,
 			themes: config?.themes,
+			langAlias: config?.langAlias,
 		});
 		const highlighter = await highlighterAsync;
 

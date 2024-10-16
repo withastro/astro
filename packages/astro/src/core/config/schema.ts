@@ -65,6 +65,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
+		concurrency: 1,
 	},
 	image: {
 		endpoint: { entrypoint: undefined, route: '/_image' },
@@ -82,7 +83,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	integrations: [],
 	markdown: markdownConfigDefaults,
 	vite: {},
-	legacy: {},
+	legacy: {
+		collections: false,
+	},
 	redirects: {},
 	security: {
 		checkOrigin: true,
@@ -92,7 +95,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	experimental: {
-		contentCollectionCache: false,
 		clientPrerender: false,
 		contentIntellisense: false,
 	},
@@ -196,6 +198,7 @@ export const AstroConfigSchema = z.object({
 				.enum(['always', 'auto', 'never'])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
+			concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 		})
 		.default({}),
 	server: z.preprocess(
@@ -325,6 +328,10 @@ export const AstroConfigSchema = z.object({
 							return langs;
 						})
 						.default([]),
+					langAlias: z
+						.record(z.string(), z.string())
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.langAlias!),
 					theme: z
 						.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 						.or(z.custom<ShikiTheme>())
@@ -520,10 +527,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.env),
 	experimental: z
 		.object({
-			contentCollectionCache: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
 			clientPrerender: z
 				.boolean()
 				.optional()
@@ -537,7 +540,11 @@ export const AstroConfigSchema = z.object({
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,
 		)
 		.default({}),
-	legacy: z.object({}).default({}),
+	legacy: z
+		.object({
+			collections: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.legacy.collections),
+		})
+		.default({}),
 });
 
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
@@ -620,6 +627,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.enum(['always', 'auto', 'never'])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
+				concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 			})
 			.optional()
 			.default({}),

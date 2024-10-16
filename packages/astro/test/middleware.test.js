@@ -128,6 +128,12 @@ describe('Integration hooks with no user middleware', () => {
 		const json = await res.json();
 		assert.equal(json.post, 'works');
 	});
+
+	it('Integration middleware marked as "url" runs', async () => {
+		const res = await fixture.fetch('/url');
+		const json = await res.json();
+		assert.equal(json.post, 'works');
+	});
 });
 
 describe('Middleware in PROD mode, SSG', () => {

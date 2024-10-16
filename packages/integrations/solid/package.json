@@ -40,8 +40,8 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^1.8.22",
-    "vite": "^5.4.3"
+    "solid-js": "^1.9.2",
+    "vite": "6.0.0-beta.2"
   },
   "peerDependencies": {
     "solid-devtools": "^0.30.1",

@@ -20,7 +20,13 @@ export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export { rehypePrism } from './rehype-prism.js';
 export { rehypeShiki } from './rehype-shiki.js';
-export { isFrontmatterValid } from './frontmatter.js';
+export {
+	isFrontmatterValid,
+	extractFrontmatter,
+	parseFrontmatter,
+	type ParseFrontmatterOptions,
+	type ParseFrontmatterResult,
+} from './frontmatter.js';
 export {
 	createShikiHighlighter,
 	type ShikiHighlighter,
@@ -37,6 +43,7 @@ export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
 		themes: {},
 		wrap: false,
 		transformers: [],
+		langAlias: {},
 	},
 	remarkPlugins: [],
 	rehypePlugins: [],
@@ -137,7 +144,6 @@ export async function createMarkdownProcessor(
 				// Ensure that the error message contains the input filename
 				// to make it easier for the user to fix the issue
 				err = prefixError(err, `Failed to parse Markdown file "${vfile.path}"`);
-				// eslint-disable-next-line no-console
 				console.error(err);
 				throw err;
 			});

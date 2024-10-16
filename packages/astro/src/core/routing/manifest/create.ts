@@ -281,7 +281,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 
 	for (const injectedRoute of settings.injectedRoutes) {
 		const { pattern: name, entrypoint, prerender: prerenderInjected } = injectedRoute;
-		const { resolved, component } = resolveInjectedRoute(entrypoint, config.root, cwd);
+		const { resolved, component } = resolveInjectedRoute(entrypoint.toString(), config.root, cwd);
 
 		const segments = removeLeadingForwardSlash(name)
 			.split(path.posix.sep)
@@ -497,8 +497,14 @@ export async function createRouteManifest(
 
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
 
+	// we remove the file based routes that were deemed redirects
+	const filteredFiledBasedRoutes = fileBasedRoutes.filter((fileBasedRoute) => {
+		const isRedirect = redirectRoutes.findIndex((rd) => rd.route === fileBasedRoute.route);
+		return isRedirect < 0;
+	});
+
 	const routes: RouteData[] = [
-		...[...fileBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
+		...[...filteredFiledBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
 	];
 
 	settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';

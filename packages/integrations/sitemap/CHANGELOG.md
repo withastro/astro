@@ -1,5 +1,17 @@
 # @astrojs/sitemap
 
+## 3.2.1
+
+### Patch Changes
+
+- [#12156](https://github.com/withastro/astro/pull/12156) [`07754f5`](https://github.com/withastro/astro/commit/07754f5873b05ab4dae31ded7264fe4056c2dfc8) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Adds missing `xslURL` property to `SitemapOptions` type.
+
+## 3.2.0
+
+### Minor Changes
+
+- [#11485](https://github.com/withastro/astro/pull/11485) [`fbe1bc5`](https://github.com/withastro/astro/commit/fbe1bc51d89994c4919c12768908658604513bd3) Thanks [@sondr3](https://github.com/sondr3)! - Adds new `xslURL` option to enable styling of sitemaps
+
 ## 3.1.6
 
 ### Patch Changes

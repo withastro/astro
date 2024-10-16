@@ -95,7 +95,7 @@ jobs:
         run: pnpm run build
 
       - name: Lint
-        run: pnpm run lint
+        run: pnpm run lint:ci
 
   test:
     name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"

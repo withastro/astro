@@ -60,6 +60,8 @@ export default function createVitePluginAstroServer({
 						await createRouteManifest({ settings, fsMod }, logger), // TODO: Handle partial updates to the manifest
 					);
 					warnMissingAdapter(logger, settings);
+					pipeline.manifest.checkOrigin =
+						settings.config.security.checkOrigin && settings.buildOutput === 'server';
 					pipeline.setManifestData(routeManifest);
 				}
 			}
@@ -87,6 +89,9 @@ export default function createVitePluginAstroServer({
 			}
 
 			process.on('unhandledRejection', handleUnhandledRejection);
+			viteServer.httpServer?.on('close', () => {
+				process.off('unhandledRejection', handleUnhandledRejection);
+			});
 
 			return () => {
 				// Push this middleware to the front of the stack so that it can intercept responses.
@@ -159,7 +164,8 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		componentMetadata: new Map(),
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
-		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		checkOrigin:
+			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		envGetSecretEnabled: false,
 		key: createKey(),
 		middleware() {

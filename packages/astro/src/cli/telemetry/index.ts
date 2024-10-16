@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import * as msg from '../../core/messages.js';
 import { telemetry } from '../../events/index.js';
 import { type Flags, createLoggerFromFlags } from '../flags.js';

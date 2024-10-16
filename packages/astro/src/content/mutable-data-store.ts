@@ -4,7 +4,7 @@ import { Traverse } from 'neotraverse/modern';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { IMAGE_IMPORT_PREFIX } from './consts.js';
-import { type DataEntry, ImmutableDataStore, type RenderedContent } from './data-store.js';
+import { type DataEntry, ImmutableDataStore } from './data-store.js';
 import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
@@ -197,7 +197,17 @@ export default new Map([\n${lines.join(',\n')}]);
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({ id: key, data, body, filePath, deferredRender, digest, rendered, assetImports }) => {
+			set: ({
+				id: key,
+				data,
+				body,
+				filePath,
+				deferredRender,
+				digest,
+				rendered,
+				assetImports,
+				legacyId,
+			}) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
 				}
@@ -243,6 +253,9 @@ export default new Map([\n${lines.join(',\n')}]);
 				}
 				if (rendered) {
 					entry.rendered = rendered;
+				}
+				if (legacyId) {
+					entry.legacyId = legacyId;
 				}
 				if (deferredRender) {
 					entry.deferredRender = deferredRender;
@@ -335,30 +348,7 @@ export interface DataStore {
 		key: string,
 	) => DataEntry<TData> | undefined;
 	entries: () => Array<[id: string, DataEntry]>;
-	set: <TData extends Record<string, unknown>>(opts: {
-		/** The ID of the entry. Must be unique per collection. */
-		id: string;
-		/** The data to store. */
-		data: TData;
-		/** The raw body of the content, if applicable. */
-		body?: string;
-		/** The file path of the content, if applicable. Relative to the site root. */
-		filePath?: string;
-		/** A content digest, to check if the content has changed. */
-		digest?: number | string;
-		/** The rendered content, if applicable. */
-		rendered?: RenderedContent;
-		/**
-		 * If an entry is a deferred, its rendering phase is delegated to a virtual module during the runtime phase.
-		 */
-		deferredRender?: boolean;
-		/**
-		 * Assets such as images to process during the build. These should be files on disk, with a path relative to filePath.
-		 * Any values that use image() in the schema will already be added automatically.
-		 * @internal
-		 */
-		assetImports?: Array<string>;
-	}) => boolean;
+	set: <TData extends Record<string, unknown>>(opts: DataEntry<TData>) => boolean;
 	values: () => Array<DataEntry>;
 	keys: () => Array<string>;
 	delete: (key: string) => void;

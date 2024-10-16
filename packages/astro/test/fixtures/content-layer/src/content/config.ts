@@ -1,6 +1,7 @@
 import { defineCollection, z, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { loader } from '../loaders/post-loader.js';
+import { parse as parseToml } from 'toml';
 
 const blog = defineCollection({
 	loader: loader({ url: 'https://jsonplaceholder.typicode.com/posts' }),
@@ -118,6 +119,27 @@ const cats = defineCollection({
 	}),
 });
 
+const fish = defineCollection({
+	loader: file('src/data/fish.yaml'),
+	schema: z.object({
+		name: z.string(),
+		breed: z.string(),
+		age: z.number(),
+	}),
+});
+
+const birds = defineCollection({
+	loader: file('src/data/birds.json', {
+		parser: (text) => JSON.parse(text).birds,
+	}),
+	schema: z.object({
+		id: z.string(),
+		name: z.string(),
+		breed: z.string(),
+		age: z.number(),
+	}),
+});
+
 // Absolute paths should also work
 const absoluteRoot = new URL('../../content/space', import.meta.url);
 
@@ -176,16 +198,22 @@ const images = defineCollection({
 const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
-		load: async ({ store, refreshContextData }) => {
+		load: async ({ store, refreshContextData, parseData }) => {
 			const entry = store.get<{ lastValue: number }>('value');
 			const lastValue = entry?.data.lastValue ?? 0;
-			store.set({
+			const raw = {
 				id: 'value',
 				data: {
 					lastValue: lastValue + 1,
 					lastUpdated: new Date(),
 					refreshContextData,
+					slug: 'slimy'
 				},
+			}
+			const parsed = await parseData(raw)
+			store.set({
+				id: raw.id,
+				data: parsed,
 			});
 		},
 		// Example of a loader that returns an async schema function
@@ -193,19 +221,42 @@ const increment = defineCollection({
 			z.object({
 				lastValue: z.number(),
 				lastUpdated: z.date(),
-				refreshContextData: z.record(z.unknown()),
+				refreshContextData: z.record(z.unknown()).optional(),
+				slug: z.string().optional(),
 			}),
 	},
+});
+
+const artists = defineCollection({
+        loader: file('src/data/music.toml', { parser: (text) => parseToml(text).artists }),
+        schema: z.object({
+                id: z.string(),
+                name: z.string(),
+                genre: z.string().array(),
+        }),
+});
+
+const songs = defineCollection({
+        loader: file('src/data/music.toml', { parser: (text) => parseToml(text).songs }),
+        schema: z.object({
+                id: z.string(),
+                name: z.string(),
+                artists: z.array(reference('artists')),
+        }),
 });
 
 export const collections = {
 	blog,
 	dogs,
 	cats,
+	fish,
+	birds,
 	numbers,
 	spacecraft,
 	increment,
 	images,
+	artists,
+	songs,
 	probes,
 	rodents,
 };

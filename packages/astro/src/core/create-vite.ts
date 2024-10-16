@@ -25,6 +25,7 @@ import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
+import astroHmrReloadPlugin from '../vite-plugin-hmr-reload/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
@@ -80,6 +81,8 @@ const ONLY_DEV_EXTERNAL = [
 	'prismjs/components/index.js',
 	// Imported by `astro/assets` -> `packages/astro/src/core/logger/core.ts`
 	'string-width',
+	// Imported by `astro:transitions` -> packages/astro/src/runtime/server/transition.ts
+	'cssesc',
 ];
 
 /** Return a base vite config as a common starting point for all Vite commands. */
@@ -166,6 +169,7 @@ export async function createVite(
 			vitePluginUserActions({ settings }),
 			vitePluginServerIslands({ settings }),
 			astroContainer(),
+			astroHmrReloadPlugin(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

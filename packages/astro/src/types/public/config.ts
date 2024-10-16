@@ -498,7 +498,7 @@ export interface AstroUserConfig {
 	 *
 	 * Pass additional configuration options to Vite. Useful when Astro doesn't support some advanced configuration that you may need.
 	 *
-	 * View the full `vite` configuration object documentation on [vitejs.dev](https://vitejs.dev/config/).
+	 * View the full `vite` configuration object documentation on [vite.dev](https://vite.dev/config/).
 	 *
 	 * #### Examples
 	 *
@@ -697,6 +697,33 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
+		/**
+		 * @docs
+		 * @name build.concurrency
+		 * @type { number }
+		 * @default `1`
+		 * @version 4.16.0
+		 * @description
+		 * The number of pages to build in parallel.
+		 *
+		 * **In most cases, you should not change the default value of `1`.**
+		 *
+		 * Use this option only when other attempts to reduce the overall rendering time (e.g. batch or cache long running tasks like fetch calls or data access) are not possible or are insufficient.
+		 * If the number is set too high, page rendering may slow down due to insufficient memory resources and because JS is single-threaded.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     concurrency: 2
+		 *   }
+		 * }
+		 * ```
+		 *
+		 *  :::caution[Breaking changes possible]
+		 *  This feature is stable and is not considered experimental. However, this feature is only intended to address difficult performance issues, and breaking changes may occur in a [minor release](https://docs.astro.build/en/upgrade-astro/#semantic-versioning) to keep this option as performant as possible. Please check the [Astro CHANGELOG](https://github.com/withastro/astro/blob/refs/heads/next/packages/astro/CHANGELOG.md) for every minor release if you are using this feature.
+		 *  :::
+		 */
+		concurrency?: number;
 	};
 
 	/**
@@ -1511,7 +1538,49 @@ export interface AstroUserConfig {
 	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
-	legacy?: object;
+	legacy?: {
+		/**
+		 * @docs
+		 * @name legacy.collections
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.0.0
+		 * @description
+		 * Enable legacy behavior for content collections.
+		 * 
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * export default defineConfig({
+		 *   legacy: {
+		 *     collections: true
+		 *   }
+		 * });
+		 * ```
+		 *
+		 * If enabled, `data` and `content` collections (only) are handled using the legacy content collections implementation. Collections with a `loader` (only) will continue to use the Content Layer API instead. Both kinds of collections may exist in the same project, each using their respective implementations.
+		 *  
+		 *  The following limitations continue to exist:
+		 *
+		 * - Any legacy (`type: 'content'` or `type: 'data'`) collections must continue to be located in the `src/content/` directory.
+		 * - These legacy collections will not be transformed to implicitly use the `glob()` loader, and will instead be handled by legacy code.
+		 * - Collections using the Content Layer API (with a `loader` defined) are forbidden in `src/content/`, but may exist anywhere else in your project. 
+		 *
+		 * When you are ready to remove this flag and migrate to the new Content Layer API for your legacy collections, you must define a collection for any directories in `src/content/` that you want to continue to use as a collection. It is sufficient to declare an empty collection, and Astro will implicitly generate an appropriate definition for your legacy collections:
+		 *  
+		 * ```js
+		 * // src/content/config.ts
+		 * import { defineCollection, z } from 'astro:content';
+		 * 
+		 * const blog = defineCollection({ })
+		 *  
+		 * export const collections = { blog };
+		 * ```
+		 *
+
+		 */
+		collections?: boolean;
+	};
 
 	/**
 	 * @docs
@@ -1522,25 +1591,6 @@ export interface AstroUserConfig {
 	 * These flags are not guaranteed to be stable.
 	 */
 	experimental?: {
-		/**
-		 * @docs
-		 * @name experimental.contentCollectionCache
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 3.5.0
-		 * @description
-		 * Enables a persistent cache for content collections when building in static mode.
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 * 		contentCollectionCache: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		contentCollectionCache?: boolean;
-
 		/**
 		 * @docs
 		 * @name experimental.clientPrerender

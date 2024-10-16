@@ -61,14 +61,6 @@ export default async function build(
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	if (inlineConfig.force) {
-		if (astroConfig.experimental.contentCollectionCache) {
-			const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
-			if (fs.existsSync(contentCacheDir)) {
-				logger.debug('content', 'clearing content cache');
-				await fs.promises.rm(contentCacheDir, { force: true, recursive: true });
-				logger.warn('content', 'content cache cleared (force)');
-			}
-		}
 		await clearContentLayerCache({ settings, logger, fs });
 	}
 
@@ -239,7 +231,6 @@ class AstroBuilder {
 				.map((pageData) => pageData.route)
 				.concat(hasServerIslands ? getServerIslandRouteData() : []),
 			logging: this.logger,
-			cacheManifest: internals.cacheManifestUsed,
 		});
 
 		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {

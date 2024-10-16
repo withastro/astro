@@ -53,11 +53,11 @@ describe('Content Layer', () => {
 			assert.equal(json.customLoader.length, 5);
 		});
 
-		it('Returns `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('fileLoader'));
-			assert.ok(Array.isArray(json.fileLoader));
+		it('Returns json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('jsonLoader'));
+			assert.ok(Array.isArray(json.jsonLoader));
 
-			const ids = json.fileLoader.map((item) => item.data.id);
+			const ids = json.jsonLoader.map((item) => item.data.id);
 			assert.deepEqual(ids, [
 				'labrador-retriever',
 				'german-shepherd',
@@ -95,6 +95,58 @@ describe('Content Layer', () => {
 				json.probes.every(({ id }) => !id.startsWith('voyager')),
 				'Voyager probes should not be included',
 			);
+		});
+
+		it('Returns nested json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('nestedJsonLoader'));
+			assert.ok(Array.isArray(json.nestedJsonLoader));
+
+			const ids = json.nestedJsonLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
+		});
+
+		it('Returns yaml `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('yamlLoader'));
+			assert.ok(Array.isArray(json.yamlLoader));
+
+			const ids = json.yamlLoader.map((item) => item.id);
+			assert.deepEqual(ids, [
+				'bubbles',
+				'finn',
+				'shadow',
+				'spark',
+				'splash',
+				'nemo',
+				'angel-fish',
+				'gold-stripe',
+				'blue-tail',
+				'bubble-buddy',
+			]);
+		});
+
+		it('Returns toml `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('tomlLoader'));
+			assert.ok(Array.isArray(json.tomlLoader));
+
+			const ids = json.tomlLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, [
+				'crown',
+				'nikes-on-my-feet',
+				'stars',
+				'never-let-me-down',
+				'no-church-in-the-wild',
+				'family-ties',
+				'somebody',
+				'honest',
+			]);
+		});
+
+		it('Returns nested json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('nestedJsonLoader'));
+			assert.ok(Array.isArray(json.nestedJsonLoader));
+
+			const ids = json.nestedJsonLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
 		});
 
 		it('Returns data entry by id', async () => {
@@ -176,7 +228,6 @@ describe('Content Layer', () => {
 		});
 
 		it('handles remote images in custom loaders', async () => {
-			console.log(json.images[1].data.image);
 			assert.ok(json.images[1].data.image.startsWith('https://'));
 		});
 
@@ -206,6 +257,10 @@ describe('Content Layer', () => {
 				},
 				id: 'tabby',
 			});
+		});
+
+		it('allows "slug" as a field', async () => {
+			assert.equal(json.increment.data.slug, 'slimy');
 		});
 
 		it('updates the store on new builds', async () => {
@@ -276,10 +331,10 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('fileLoader'));
-			assert.ok(Array.isArray(json.fileLoader));
+			assert.ok(json.hasOwnProperty('jsonLoader'));
+			assert.ok(Array.isArray(json.jsonLoader));
 
-			const ids = json.fileLoader.map((item) => item.data.id);
+			const ids = json.jsonLoader.map((item) => item.data.id);
 			assert.deepEqual(ids, [
 				'labrador-retriever',
 				'german-shepherd',
@@ -348,7 +403,7 @@ describe('Content Layer', () => {
 		it('updates collection when data file is changed', async () => {
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const initialJson = devalue.parse(await rawJsonResponse.text());
-			assert.equal(initialJson.fileLoader[0].data.temperament.includes('Bouncy'), false);
+			assert.equal(initialJson.jsonLoader[0].data.temperament.includes('Bouncy'), false);
 
 			await fixture.editFile('/src/data/dogs.json', (prev) => {
 				const data = JSON.parse(prev);
@@ -359,8 +414,15 @@ describe('Content Layer', () => {
 			await fixture.onNextDataStoreChange();
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
-			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
+			assert.ok(updated.jsonLoader[0].data.temperament.includes('Bouncy'));
 			await fixture.resetAllFiles();
+		});
+
+		it('returns an error if we render an undefined entry', async () => {
+			const res = await fixture.fetch('/missing');
+			const text = await res.text();
+			assert.equal(res.status, 500);
+			assert.ok(text.includes('RenderUndefinedEntryError'));
 		});
 	});
 });

@@ -10,9 +10,11 @@ import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
+import { routeIsRedirect } from '../core/redirects/index.js';
 import { RenderContext } from '../core/render-context.js';
 import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
+import { redirectTemplate } from '../core/routing/3xx.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { validateRouteTrailingSlash } from '../core/routing/trailing-slash.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
@@ -260,7 +262,7 @@ export async function handleRoute({
 			req({
 				url: pathname,
 				method: incomingRequest.method,
-				statusCode: isRewrite ? response.status : status ?? response.status,
+				statusCode: isRewrite ? response.status : (status ?? response.status),
 				isRewrite,
 				reqTime: timeEnd - timeStart,
 			}),
@@ -309,6 +311,30 @@ export async function handleRoute({
 	// By default, we should give priority to the status code passed, although it's possible that
 	// the `Response` emitted by the user is a redirect. If so, then return the returned response.
 	if (response.status < 400 && response.status >= 300) {
+		if (
+			response.status >= 300 &&
+			response.status < 400 &&
+			routeIsRedirect(route) &&
+			!config.build.redirects &&
+			pipeline.settings.buildOutput === 'static'
+		) {
+			// If we're here, it means that the calling static redirect that was configured by the user
+			// We try to replicate the same behaviour that we provide during a static build
+			response = new Response(
+				redirectTemplate({
+					status: response.status,
+					location: response.headers.get('location')!,
+					from: pathname,
+				}),
+				{
+					status: 200,
+					headers: {
+						...response.headers,
+						'content-type': 'text/html',
+					},
+				},
+			);
+		}
 		await writeSSRResult(request, response, incomingResponse);
 		return;
 	}

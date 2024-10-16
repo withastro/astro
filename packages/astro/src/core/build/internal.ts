@@ -72,9 +72,6 @@ export interface BuildInternals {
 	 */
 	discoveredScripts: Set<string>;
 
-	cachedClientEntries: string[];
-	cacheManifestUsed: boolean;
-
 	/**
 	 * Map of propagated module ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`)
 	 * to a set of stylesheets that it uses.
@@ -104,7 +101,6 @@ export interface BuildInternals {
  */
 export function createBuildInternals(): BuildInternals {
 	return {
-		cachedClientEntries: [],
 		cssModuleToChunkIdMap: new Map(),
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
@@ -121,14 +117,13 @@ export function createBuildInternals(): BuildInternals {
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
 		entryPoints: new Map(),
-		cacheManifestUsed: false,
 		prerenderOnlyChunks: [],
 	};
 }
 
 export function trackPageData(
 	internals: BuildInternals,
-	component: string,
+	_component: string,
 	pageData: PageBuildData,
 	componentModuleId: string,
 	componentURL: URL,
