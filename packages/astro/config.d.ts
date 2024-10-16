@@ -13,7 +13,7 @@ type EnvField = typeof import('./dist/env/config.js').envField;
  * See the full Astro Configuration API Documentation
  * https://astro.build/config
  */
-export function defineConfig<const TLocales extends Locales>(
+export function defineConfig<const TLocales extends Locales = never>(
 	config: AstroUserDefineConfig<TLocales>,
 ): AstroUserDefineConfig<TLocales>;
 

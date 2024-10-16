@@ -4,7 +4,7 @@ import { createRouteManifest } from '../core/routing/index.js';
 import type { AstroInlineConfig, AstroUserDefineConfig, Locales } from '../types/public/config.js';
 import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js';
 
-export function defineConfig<const TLocales extends Locales>(
+export function defineConfig<const TLocales extends Locales = never>(
 	config: AstroUserDefineConfig<TLocales>,
 ) {
 	return config;
