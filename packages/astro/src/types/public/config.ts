@@ -102,7 +102,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
  */
-export interface AstroUserConfig {
+export interface AstroUserConfig<
+	TDefaultLocale extends string = never,
+	TLocales extends [TDefaultLocale, ...Array<string>] = never,
+> {
 	/**
 	 * @docs
 	 * @kind heading
@@ -1214,7 +1217,7 @@ export interface AstroUserConfig {
 		 *
 		 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
 		 */
-		defaultLocale: string;
+		defaultLocale: [TDefaultLocale] extends [never] ? string : TDefaultLocale;
 		/**
 		 * @docs
 		 * @name i18n.locales
@@ -1228,7 +1231,8 @@ export interface AstroUserConfig {
 		 *
 		 * No particular language code format or syntax is enforced, but your project folders containing your content files must match exactly the `locales` items in the list. In the case of multiple `codes` pointing to a custom URL path prefix, store your content files in a folder with the same name as the `path` configured.
 		 */
-		locales: Locales;
+		// TODO: handle Locales shape
+		locales: [TLocales] extends [never] ? Locales : TLocales;
 
 		/**
 		 * @docs
@@ -1258,7 +1262,11 @@ export interface AstroUserConfig {
 		 * })
 		 * ```
 		 */
-		fallback?: Record<string, string>;
+		fallback?: [TLocales] extends [never]
+			? Record<string, string>
+			: {
+					[Locale in TLocales[number]]?: Exclude<TLocales[number], Locale>;
+				};
 
 		/**
 		 * @docs
@@ -1444,7 +1452,9 @@ export interface AstroUserConfig {
 		 *
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
 		 */
-		domains?: Record<string, string>;
+		domains?: [TLocales] extends [never]
+			? Record<string, string>
+			: Partial<Record<TLocales[number], string>>;
 	};
 
 	/** ! WARNING: SUBJECT TO CHANGE */

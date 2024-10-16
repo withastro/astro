@@ -4,9 +4,19 @@ import { createRouteManifest } from '../core/routing/index.js';
 import type { AstroInlineConfig, AstroUserConfig } from '../types/public/config.js';
 import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js';
 
-export function defineConfig(config: AstroUserConfig) {
+export function defineConfig<
+	TDefaultLocale extends string,
+	const TLocales extends [TDefaultLocale, ...Array<string>],
+>(config: AstroUserConfig<TDefaultLocale, TLocales>) {
 	return config;
 }
+
+defineConfig({
+	i18n: {
+		defaultLocale: 'en',
+		locales: ['en', 'fr'],
+	},
+});
 
 export function getViteConfig(
 	userViteConfig: ViteUserConfig,
