@@ -3,8 +3,7 @@ import { expect } from 'chai';
 import type { RenameFilesParams } from 'vscode-languageserver-protocol';
 import { WillRenameFilesRequest } from 'vscode-languageserver-protocol';
 import { type LanguageServer, getLanguageServer } from '../server.js';
-
-const fixtureDir = path.join(__dirname, '../fixture');
+import { fixtureDir } from '../utils.js';
 
 describe('TypeScript - Renaming', async () => {
 	let languageServer: LanguageServer;

@@ -1,4 +1,7 @@
+import path from 'node:path';
 import type { Point, Position } from '@astrojs/compiler';
+
+export const fixtureDir = path.join(__dirname, './fixture');
 
 export function createCompilerPosition(start: Point, end: Point): Position {
 	return {

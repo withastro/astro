@@ -15,18 +15,23 @@ const SUPPORTED_FRONTMATTER_EXTENSIONS_VALUES = Object.values(SUPPORTED_FRONTMAT
 export const frontmatterRE = /^---(.*?)^---/ms;
 
 export type CollectionConfig = {
-	folder: URI;
-	config: {
-		collections: {
-			hasSchema: boolean;
-			name: string;
-		}[];
-		entries: Record<string, string>;
-	};
+	reload: (folders: { uri: string }[]) => void;
+	configs: {
+		folder: URI;
+		config: CollectionConfigInstance;
+	}[];
 };
 
-function getCollectionName(collectionConfigs: CollectionConfig[], fileURI: string) {
-	for (const collection of collectionConfigs) {
+export type CollectionConfigInstance = {
+	collections: {
+		hasSchema: boolean;
+		name: string;
+	}[];
+	entries: Record<string, string>;
+};
+
+function getCollectionName(collectionConfig: CollectionConfig, fileURI: string) {
+	for (const collection of collectionConfig.configs) {
 		if (collection.config.entries[fileURI]) {
 			return collection.config.entries[fileURI];
 		}
@@ -34,7 +39,7 @@ function getCollectionName(collectionConfigs: CollectionConfig[], fileURI: strin
 }
 
 export function getFrontmatterLanguagePlugin(
-	collectionConfigs: CollectionConfig[],
+	collectionConfig: CollectionConfig,
 ): LanguagePlugin<URI, FrontmatterHolder> {
 	return {
 		getLanguageId(scriptId) {
@@ -55,7 +60,7 @@ export function getFrontmatterLanguagePlugin(
 					languageId,
 					snapshot,
 					getCollectionName(
-						collectionConfigs,
+						collectionConfig,
 						// The scriptId here is encoded and somewhat normalized, as such we can't use it directly to compare with
 						// the file URLs in the collection config entries that Astro generates.
 						decodeURIComponent(scriptId.toString()).toLowerCase(),

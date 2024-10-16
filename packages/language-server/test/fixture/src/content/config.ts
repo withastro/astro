@@ -10,4 +10,11 @@ const blog = defineCollection({
 	}),
 });
 
-export const collections = { blog };
+const caching = defineCollection({
+	type: 'content',
+	schema: z.object({
+		title: z.string().describe("I will be changed"),
+	}),
+});
+
+export const collections = { blog, caching };

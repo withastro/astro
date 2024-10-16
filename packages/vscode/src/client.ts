@@ -39,7 +39,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 		: vscode.Uri.joinPath(context.extensionUri, 'dist/node/server.js').fsPath;
 
 	const runOptions = { execArgv: [] };
-	const debugOptions = { execArgv: ['--nolazy', '--inspect=' + 6009] };
+	const debugOptions = {
+		execArgv: ['--nolazy', '--inspect=' + Math.floor(Math.random() * 20000 + 10000)],
+	};
 
 	const serverOptions: lsp.ServerOptions = {
 		run: {

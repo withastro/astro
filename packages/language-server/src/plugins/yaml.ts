@@ -9,37 +9,41 @@ import {
 	SUPPORTED_FRONTMATTER_EXTENSIONS_KEYS,
 } from '../core/frontmatterHolders.js';
 
-export const create = (collectionConfigs: CollectionConfig[]): LanguageServicePlugin => {
-	const yamlPlugin = createYAMLService({
-		getLanguageSettings() {
-			const schemas = collectionConfigs.flatMap((workspaceCollectionConfig) => {
-				return workspaceCollectionConfig.config.collections.flatMap((collection) => {
-					return {
-						fileMatch: SUPPORTED_FRONTMATTER_EXTENSIONS_KEYS.map(
-							(ext) => `volar-embedded-content://yaml_frontmatter_${collection.name}/**/*${ext}`,
-						),
-						uri: Utils.joinPath(
-							workspaceCollectionConfig.folder,
-							'.astro/collections',
-							`${collection.name}.schema.json`,
-						).toString(),
-					};
-				});
-			});
+type LanguageSettings = Parameters<ReturnType<Provide['yaml/languageService']>['configure']>['0'];
 
+export function getSettings(collectionConfig: CollectionConfig): LanguageSettings {
+	const schemas = collectionConfig.configs.flatMap((workspaceCollectionConfig) => {
+		return workspaceCollectionConfig.config.collections.flatMap((collection) => {
 			return {
-				completion: true,
-				format: false,
-				hover: true,
-				validate: true,
-				customTags: [],
-				yamlVersion: '1.2',
-				isKubernetes: false,
-				parentSkeletonSelectedFirst: false,
-				disableDefaultProperties: false,
-				schemas: schemas,
+				fileMatch: SUPPORTED_FRONTMATTER_EXTENSIONS_KEYS.map(
+					(ext) => `volar-embedded-content://yaml_frontmatter_${collection.name}/**/*${ext}`,
+				),
+				uri: Utils.joinPath(
+					workspaceCollectionConfig.folder,
+					'.astro/collections',
+					`${collection.name}.schema.json`,
+				).toString(),
 			};
-		},
+		});
+	});
+
+	return {
+		completion: true,
+		format: false,
+		hover: true,
+		validate: true,
+		customTags: [],
+		yamlVersion: '1.2',
+		isKubernetes: false,
+		parentSkeletonSelectedFirst: false,
+		disableDefaultProperties: false,
+		schemas: schemas,
+	};
+}
+
+export const create = (collectionConfig: CollectionConfig): LanguageServicePlugin => {
+	const yamlPlugin = createYAMLService({
+		getLanguageSettings: () => getSettings(collectionConfig),
 	}) as LanguageServicePlugin<Provide>;
 
 	return {
@@ -54,18 +58,23 @@ export const create = (collectionConfigs: CollectionConfig[]): LanguageServicePl
 			const languageService = yamlPluginInstance.provide?.['yaml/languageService']();
 			if (languageService && context.env.onDidChangeWatchedFiles) {
 				context.env.onDidChangeWatchedFiles(async (events) => {
-					let hasChanges = false;
+					const changedSchemas = events.changes.filter((change) =>
+						change.uri.endsWith('.schema.json'),
+					);
+					const changedConfig = events.changes.some((change) =>
+						change.uri.endsWith('collections.json'),
+					);
 
-					for (const change of events.changes) {
-						if (!change.uri.endsWith('.schema.json')) return;
-
-						if (languageService.resetSchema(change.uri)) {
-							hasChanges = true;
-						}
+					if (changedConfig) {
+						collectionConfig.reload(
+							// For some reason, context.env.workspaceFolders is not an array of WorkspaceFolders nor the older format, strange
+							context.env.workspaceFolders.map((folder) => ({ uri: folder.toString() })),
+						);
+						languageService.configure(getSettings(collectionConfig));
 					}
 
-					if (hasChanges) {
-						// TODO: Figure out how to refresh the diagnostics
+					for (const change of changedSchemas) {
+						languageService.resetSchema(change.uri);
 					}
 				});
 			}

@@ -25,8 +25,8 @@ export type CollectionConfig = {
 	};
 };
 
-function getCollectionName(collectionConfigs: CollectionConfig[], fsPath: string) {
-	for (const collection of collectionConfigs) {
+function getCollectionName(collectionConfig: CollectionConfig[], fsPath: string) {
+	for (const collection of collectionConfig) {
 		if (collection.config.entries[fsPath]) {
 			return collection.config.entries[fsPath];
 		}
@@ -34,7 +34,7 @@ function getCollectionName(collectionConfigs: CollectionConfig[], fsPath: string
 }
 
 export function getFrontmatterLanguagePlugin(
-	collectionConfigs: CollectionConfig[],
+	collectionConfig: CollectionConfig[],
 ): LanguagePlugin<string, FrontmatterHolder> {
 	return {
 		getLanguageId(scriptId) {
@@ -57,7 +57,7 @@ export function getFrontmatterLanguagePlugin(
 					snapshot,
 					// In TypeScript plugins, unlike in the language server, the scriptId is just a string file path
 					// so we'll have to convert it to a URL to match the collection config entries
-					getCollectionName(collectionConfigs, pathToFileURL(fileName).toString().toLowerCase()),
+					getCollectionName(collectionConfig, pathToFileURL(fileName).toString().toLowerCase()),
 				);
 			}
 		},

@@ -23,16 +23,13 @@ import { create as createTypescriptAddonsService } from './plugins/typescript-ad
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
 import { create as createYAMLService } from './plugins/yaml.js';
 
-export function getLanguagePlugins(collectionConfigs: CollectionConfig[]) {
+export function getLanguagePlugins(collectionConfig: CollectionConfig) {
 	const languagePlugins: LanguagePlugin<URI>[] = [
 		getAstroLanguagePlugin(),
 		getVueLanguagePlugin(),
 		getSvelteLanguagePlugin(),
+		getFrontmatterLanguagePlugin(collectionConfig),
 	];
-
-	if (collectionConfigs.length) {
-		languagePlugins.push(getFrontmatterLanguagePlugin(collectionConfigs));
-	}
 
 	return languagePlugins;
 }
@@ -40,7 +37,7 @@ export function getLanguagePlugins(collectionConfigs: CollectionConfig[]) {
 export function getLanguageServicePlugins(
 	connection: Connection,
 	ts: typeof import('typescript'),
-	collectionConfigs: CollectionConfig[],
+	collectionConfig: CollectionConfig,
 ) {
 	const LanguageServicePlugins = [
 		createHtmlService(),
@@ -51,11 +48,8 @@ export function getLanguageServicePlugins(
 		createTypescriptAddonsService(),
 		createAstroService(ts),
 		getPrettierService(),
+		createYAMLService(collectionConfig),
 	];
-
-	if (collectionConfigs.length) {
-		LanguageServicePlugins.push(createYAMLService(collectionConfigs));
-	}
 
 	return LanguageServicePlugins;
 

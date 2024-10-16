@@ -9,8 +9,7 @@ import { expect } from 'chai';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { URI } from 'vscode-uri';
 import { type LanguageServer, getLanguageServer } from '../server.js';
-
-const fixtureDir = path.join(__dirname, '../fixture');
+import { fixtureDir } from '../utils.js';
 
 describe('TypeScript - Cache invalidation', async () => {
 	let languageServer: LanguageServer;
