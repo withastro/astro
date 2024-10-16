@@ -4,14 +4,14 @@
 
 **BREAKING CHANGE to the experimental Container API only**
 
-Until now, the Container API was rendering the components as they were full-fledged Astro pages.
+Changes the default page rendering behavior of Astro components in containers, and adds a new option `partial: false` to render full Astro pages as before.
 
-Full-fledged Astro pages contain `<!DOCTYPE html>` but default. This was not intended, and this patch fixes the behavior. 
+Previously, the Container API was rendering all Astro components as if they were full Astro pages containing `<!DOCTYPE html>` by default. This was not intended, and now by default, all components will render as [page partials](https://docs.astro.build/en/basics/astro-pages/#page-partials): only the contents of the components without a page shell.
 
-It's still possible to render the component as a full-fledged Astro page by passing a **new option** called `partial: false` to `renderToString` and `renderToResponse`:
+To render the component as a full-fledged Astro page, pass a new option called `partial: false` to `renderToString()` and `renderToResponse()`:
 
 ```js
-import { experimental_AstroContainer as AstroContainer } from 'astro/containerl';
+import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import Card from "../src/components/Card.astro";
 
 const container = AstroContainer.create();
