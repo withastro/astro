@@ -1,8 +1,9 @@
 /// <reference path='./client.d.ts' />
 type ViteUserConfig = import('vite').UserConfig;
 type ViteUserConfigFn = import('vite').UserConfigFn;
-type AstroUserConfig = import('./dist/types/public/config.js').AstroUserConfig;
 type Locales = import('./dist/types/public/config.js').Locales;
+type AstroUserDefineConfig<TLocales extends Locales> =
+	import('./dist/types/public/config.js').AstroUserDefineConfig<TLocales>;
 type AstroInlineConfig = import('./dist/types/public/config.js').AstroInlineConfig;
 type ImageServiceConfig = import('./dist/types/public/config.js').ImageServiceConfig;
 type SharpImageServiceConfig = import('./dist/assets/services/sharp.js').SharpImageServiceConfig;
@@ -12,13 +13,9 @@ type EnvField = typeof import('./dist/env/config.js').envField;
  * See the full Astro Configuration API Documentation
  * https://astro.build/config
  */
-export function defineConfig<
-		TDefaultLocale extends string,
-		const TLocales extends [
-			TDefaultLocale | { codes: [TDefaultLocale, ...Array<string>]; path: string },
-			...Locales,
-		],
-	>(config: AstroUserConfig<TDefaultLocale, TLocales>): AstroUserConfig<TDefaultLocale, TLocales>;
+export function defineConfig<const TLocales extends Locales>(
+	config: AstroUserDefineConfig<TLocales>,
+): AstroUserDefineConfig<TLocales>;
 
 /**
  * Use Astro to generate a fully resolved Vite config

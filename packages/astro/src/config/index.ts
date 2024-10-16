@@ -1,16 +1,12 @@
 import type { UserConfig as ViteUserConfig } from 'vite';
 import { Logger } from '../core/logger/core.js';
 import { createRouteManifest } from '../core/routing/index.js';
-import type { AstroInlineConfig, AstroUserConfig, Locales } from '../types/public/config.js';
+import type { AstroInlineConfig, AstroUserDefineConfig, Locales } from '../types/public/config.js';
 import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js';
 
-export function defineConfig<
-	TDefaultLocale extends string,
-	const TLocales extends [
-		TDefaultLocale | { codes: [TDefaultLocale, ...Array<string>]; path: string },
-		...Locales,
-	],
->(config: AstroUserConfig<TDefaultLocale, TLocales>) {
+export function defineConfig<const TLocales extends Locales>(
+	config: AstroUserDefineConfig<TLocales>,
+) {
 	return config;
 }
 

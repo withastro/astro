@@ -110,13 +110,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
  */
-export interface AstroUserConfig<
-	TDefaultLocale extends string = never,
-	TLocales extends [
-		TDefaultLocale | { codes: [TDefaultLocale, ...Array<string>]; path: string },
-		...Locales,
-	] = never,
-> {
+export type AstroUserConfig = AstroUserDefineConfig<never>;
+
+export interface AstroUserDefineConfig<TLocales extends Locales = never> {
 	/**
 	 * @docs
 	 * @kind heading
@@ -1228,7 +1224,9 @@ export interface AstroUserConfig<
 		 *
 		 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
 		 */
-		defaultLocale: [TDefaultLocale] extends [never] ? string : TDefaultLocale;
+		defaultLocale: [TLocales] extends [never]
+			? string
+			: NormalizeLocales<NoInfer<TLocales>>;
 		/**
 		 * @docs
 		 * @name i18n.locales
@@ -1275,7 +1273,10 @@ export interface AstroUserConfig<
 		fallback?: [TLocales] extends [never]
 			? Record<string, string>
 			: {
-					[Locale in NormalizeLocales<TLocales>]?: Exclude<NormalizeLocales<TLocales>, Locale>;
+					[Locale in NormalizeLocales<NoInfer<TLocales>>]?: Exclude<
+						NormalizeLocales<NoInfer<TLocales>>,
+						Locale
+					>;
 				};
 
 		/**
@@ -1464,7 +1465,7 @@ export interface AstroUserConfig<
 		 */
 		domains?: [TLocales] extends [never]
 			? Record<string, string>
-			: Partial<Record<NormalizeLocales<TLocales>, string>>;
+			: Partial<Record<NormalizeLocales<NoInfer<TLocales>>, string>>;
 	};
 
 	/** ! WARNING: SUBJECT TO CHANGE */
