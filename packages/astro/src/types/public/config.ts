@@ -1242,7 +1242,6 @@ export interface AstroUserConfig<
 		 *
 		 * No particular language code format or syntax is enforced, but your project folders containing your content files must match exactly the `locales` items in the list. In the case of multiple `codes` pointing to a custom URL path prefix, store your content files in a folder with the same name as the `path` configured.
 		 */
-		// TODO: handle Locales shape
 		locales: [TLocales] extends [never] ? Locales : TLocales;
 
 		/**
