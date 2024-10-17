@@ -46,7 +46,7 @@ export async function handle500Response(
 
 export function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: string) {
 	res.writeHead(statusCode, {
-		'Content-Type': 'text/html; charset=utf-8',
+		'Content-Type': 'text/html',
 		'Content-Length': Buffer.byteLength(html, 'utf-8'),
 	});
 	res.write(html);
