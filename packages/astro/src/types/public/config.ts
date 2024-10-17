@@ -1215,32 +1215,31 @@ export interface AstroUserDefineConfig<TLocales extends Locales = never> {
 	i18n?: {
 		/**
 		 * @docs
-		 * @name i18n.defaultLocale
-		 * @type {string}
-		 * @version 3.5.0
-		 * @description
-		 *
-		 * The default locale of your website/application. This is a required field.
-		 *
-		 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
-		 */
-		defaultLocale: [TLocales] extends [never]
-			? string
-			: NormalizeLocales<NoInfer<TLocales>>;
-		/**
-		 * @docs
 		 * @name i18n.locales
 		 * @type {Locales}
 		 * @version 3.5.0
 		 * @description
 		 *
-		 * A list of all locales supported by the website, including the `defaultLocale`. This is a required field.
+		 * A list of all locales supported by the website. This is a required field.
 		 *
 		 * Languages can be listed either as individual codes (e.g. `['en', 'es', 'pt-br']`) or mapped to a shared `path` of codes (e.g.  `{ path: "english", codes: ["en", "en-US"]}`). These codes will be used to determine the URL structure of your deployed site.
 		 *
 		 * No particular language code format or syntax is enforced, but your project folders containing your content files must match exactly the `locales` items in the list. In the case of multiple `codes` pointing to a custom URL path prefix, store your content files in a folder with the same name as the `path` configured.
 		 */
 		locales: [TLocales] extends [never] ? Locales : TLocales;
+
+		/**
+		 * @docs
+		 * @name i18n.defaultLocale
+		 * @type {string}
+		 * @version 3.5.0
+		 * @description
+		 *
+		 * The default locale of your website/application, that is one of the specified `locales`. This is a required field.
+		 *
+		 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
+		 */
+		defaultLocale: [TLocales] extends [never] ? string : NormalizeLocales<NoInfer<TLocales>>;
 
 		/**
 		 * @docs
