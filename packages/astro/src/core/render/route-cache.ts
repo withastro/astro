@@ -88,11 +88,11 @@ interface RouteCacheEntry {
 export class RouteCache {
 	private logger: Logger;
 	private cache: Record<string, RouteCacheEntry> = {};
-	private mode: RuntimeMode;
+	private runtimeMode: RuntimeMode;
 
-	constructor(logger: Logger, mode: RuntimeMode = 'production') {
+	constructor(logger: Logger, runtimeMode: RuntimeMode = 'production') {
 		this.logger = logger;
-		this.mode = mode;
+		this.runtimeMode = runtimeMode;
 	}
 
 	/** Clear the cache. */
@@ -105,7 +105,7 @@ export class RouteCache {
 		// NOTE: This shouldn't be called on an already-cached component.
 		// Warn here so that an unexpected double-call of getStaticPaths()
 		// isn't invisible and developer can track down the issue.
-		if (this.mode === 'production' && this.cache[key]?.staticPaths) {
+		if (this.runtimeMode === 'production' && this.cache[key]?.staticPaths) {
 			this.logger.warn(null, `Internal Warning: route cache overwritten. (${key})`);
 		}
 		this.cache[key] = entry;

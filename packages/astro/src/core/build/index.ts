@@ -31,7 +31,15 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+
 export interface BuildOptions {
+	/**
+	 * Output a development-based build similar to code transformed in `astro dev`. This
+	 * can be useful to test build-only issues with additional debugging information included.
+	 *
+	 * @default false
+	 */
+	devOutput?: boolean;
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.
@@ -52,7 +60,7 @@ export default async function build(
 	inlineConfig: AstroInlineConfig,
 	options: BuildOptions = {},
 ): Promise<void> {
-	ensureProcessNodeEnv('production');
+	ensureProcessNodeEnv(options.devOutput ? 'development' : 'production');
 	applyPolyfill();
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
@@ -67,29 +75,31 @@ export default async function build(
 	const builder = new AstroBuilder(settings, {
 		...options,
 		logger,
-		mode: inlineConfig.mode,
+		mode: inlineConfig.mode ?? 'production',
+		runtimeMode: options.devOutput ? 'development' : 'production',
 	});
 	await builder.run();
 }
 
 interface AstroBuilderOptions extends BuildOptions {
 	logger: Logger;
-	mode?: RuntimeMode;
+	mode: string;
+	runtimeMode: RuntimeMode;
 }
 
 class AstroBuilder {
 	private settings: AstroSettings;
 	private logger: Logger;
-	private mode: RuntimeMode = 'production';
+	private mode: string;
+	private runtimeMode: RuntimeMode;
 	private origin: string;
 	private manifest: ManifestData;
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
-		if (options.mode) {
-			this.mode = options.mode;
-		}
+		this.mode = options.mode;
+		this.runtimeMode = options.runtimeMode;
 		this.settings = settings;
 		this.logger = options.logger;
 		this.teardownCompiler = options.teardownCompiler ?? true;
@@ -127,7 +137,6 @@ class AstroBuilder {
 
 		const viteConfig = await createVite(
 			{
-				mode: this.mode,
 				server: {
 					hmr: false,
 					middlewareMode: true,
@@ -136,7 +145,7 @@ class AstroBuilder {
 			{
 				settings: this.settings,
 				logger: this.logger,
-				mode: 'build',
+				mode: this.mode,
 				command: 'build',
 				sync: false,
 				manifest: this.manifest,
@@ -145,6 +154,7 @@ class AstroBuilder {
 
 		const { syncInternal } = await import('../sync/index.js');
 		await syncInternal({
+			mode: this.mode,
 			settings: this.settings,
 			logger,
 			fs,
@@ -193,7 +203,7 @@ class AstroBuilder {
 			settings: this.settings,
 			logger: this.logger,
 			manifest: this.manifest,
-			mode: this.mode,
+			runtimeMode: this.runtimeMode,
 			origin: this.origin,
 			pageNames,
 			teardownCompiler: this.teardownCompiler,

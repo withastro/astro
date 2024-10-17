@@ -35,6 +35,7 @@ import { createRouteManifest } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 
 export type SyncOptions = {
+	mode: string;
 	/**
 	 * @internal only used for testing
 	 */
@@ -79,7 +80,14 @@ export default async function sync(
 		throw err;
 	}
 
-	return await syncInternal({ settings, logger, fs, force: inlineConfig.force, manifest });
+	return await syncInternal({
+		settings,
+		logger,
+		mode: 'production',
+		fs,
+		force: inlineConfig.force,
+		manifest,
+	});
 }
 
 /**
@@ -105,6 +113,7 @@ export async function clearContentLayerCache({
  * @experimental The JavaScript API is experimental
  */
 export async function syncInternal({
+	mode,
 	logger,
 	fs = fsMod,
 	settings,
@@ -120,7 +129,7 @@ export async function syncInternal({
 
 	try {
 		if (!skip?.content) {
-			await syncContentCollections(settings, { fs, logger, manifest });
+			await syncContentCollections(settings, { mode, fs, logger, manifest });
 			settings.timer.start('Sync content layer');
 			let store: MutableDataStore | undefined;
 			try {
@@ -208,7 +217,12 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs, manifest }: Required<Pick<SyncOptions, 'logger' | 'fs' | 'manifest'>>,
+	{
+		mode,
+		logger,
+		fs,
+		manifest,
+	}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs' | 'manifest'>>,
 ): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
@@ -219,7 +233,7 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command: 'build', fs, sync: true, manifest },
+			{ settings, logger, mode, command: 'build', fs, sync: true, manifest },
 		),
 	);
 

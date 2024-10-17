@@ -21,10 +21,8 @@ import {
 import { hasContentFlag } from './utils.js';
 
 export function astroContentAssetPropagationPlugin({
-	mode,
 	settings,
 }: {
-	mode: string;
 	settings: AstroSettings;
 }): Plugin {
 	let devModuleLoader: ModuleLoader;
@@ -67,9 +65,7 @@ export function astroContentAssetPropagationPlugin({
 			}
 		},
 		configureServer(server) {
-			if (mode === 'dev') {
-				devModuleLoader = createViteLoader(server);
-			}
+			devModuleLoader = createViteLoader(server);
 		},
 		async transform(_, id, options) {
 			if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {

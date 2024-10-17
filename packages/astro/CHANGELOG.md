@@ -1,6 +1,5 @@
 # astro
 
-
 ## 5.0.0-beta.5
 
 ### Minor Changes
@@ -988,7 +987,6 @@
 
   If you are using this service, and cannot migrate to the base Sharp image service, a third-party extraction of the previous service is available here: https://github.com/Princesseuh/astro-image-service-squoosh
 
-
 ## 5.0.0-alpha.0
 
 ### Major Changes
@@ -1063,7 +1061,6 @@
 
 - Updated dependencies [[`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e)]:
   - @astrojs/markdown-remark@6.0.0-alpha.0
-
 
 ## 4.16.6
 
