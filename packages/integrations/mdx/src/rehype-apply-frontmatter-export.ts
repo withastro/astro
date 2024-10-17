@@ -72,7 +72,8 @@ export default function ({ children }) {
 }
 
 /**
- * If this is a page (e.g. in src/pages), has no layout, and `partial` isn't set to true, we default to
+ * If this is a page (e.g. in src/pages), has no layout frontmatter (handled before calling this function),
+ * has no leading component that looks like a wrapping layout, and `partial` isn't set to true, we default to
  * adding charset=utf-8 like markdown so that users don't have to worry about it for MDX pages without layouts.
  */
 function shouldAddCharset(tree: Root, vfile: VFile) {
@@ -96,6 +97,17 @@ function shouldAddCharset(tree: Root, vfile: VFile) {
 		.split('/')
 		.some((part) => part.startsWith('_'));
 	if (hasLeadingUnderscoreInPath) return false;
+
+	// Bail if the first content found is a wrapping layout component
+	for (const child of tree.children) {
+		if (child.type === 'element') break;
+		if (child.type === 'mdxJsxFlowElement') {
+			// If is fragment or lowercase tag name (html tags), skip and assume there's no layout
+			if (child.name == null) break;
+			if (child.name[0] === child.name[0].toLowerCase()) break;
+			return false;
+		}
+	}
 
 	return true;
 }

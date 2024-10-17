@@ -115,12 +115,7 @@ describe('Astro basic build', () => {
 		const html = await fixture.readFile('/chinese-encoding-md/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('h1').text(), '我的第一篇博客文章');
-	});
-
-	it('renders MDX in utf-8 by default', async () => {
-		const html = await fixture.readFile('/chinese-encoding-mdx/index.html');
-		const $ = cheerio.load(html);
-		assert.equal($('h1').text(), '我的第一篇博客文章');
+		assert.match(html, /<meta charset="utf-8"/);
 	});
 
 	it('Supports void elements whose name is a string (#2062)', async () => {
@@ -207,22 +202,8 @@ describe('Astro basic development', () => {
 		const html = await res.text();
 		const $ = cheerio.load(html);
 		assert.equal($('h1').text(), '我的第一篇博客文章');
-		const isUtf8 =
-			res.headers.get('content-type').includes('charset=utf-8') ||
-			html.includes('<meta charset="utf-8"');
-		assert.ok(isUtf8);
-	});
-
-	it('Renders MDX in utf-8 by default', async () => {
-		const res = await fixture.fetch('/chinese-encoding-mdx');
-		assert.equal(res.status, 200);
-		const html = await res.text();
-		const $ = cheerio.load(html);
-		assert.equal($('h1').text(), '我的第一篇博客文章');
-		const isUtf8 =
-			res.headers.get('content-type').includes('charset=utf-8') ||
-			html.includes('<meta charset="utf-8"');
-		assert.ok(isUtf8);
+		assert.doesNotMatch(res.headers.get('content-type'), /charset=utf-8/);
+		assert.match(html, /<meta charset="utf-8"/);
 	});
 
 	it('Handles importing .astro?raw correctly', async () => {
