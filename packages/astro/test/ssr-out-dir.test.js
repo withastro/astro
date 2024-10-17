@@ -6,8 +6,6 @@ import { loadFixture } from './test-utils.js';
 describe('The build', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils.js').App} */
-	let app;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -17,7 +15,6 @@ describe('The build', () => {
 			outDir: 'custom-dir',
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
 	});
 
 	it('should output the files in `custom-dir`', async () => {
