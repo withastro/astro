@@ -25,12 +25,11 @@
     "test:match": "cd packages/astro && pnpm run test:match",
     "test:unit": "cd packages/astro && pnpm run test:unit",
     "test:types": "cd packages/astro && pnpm run test:types",
-    "test:unit:match": "cd packages/astro && pnpm run test:unit:match",
     "test:smoke": "pnpm test:smoke:example && pnpm test:smoke:docs",
     "test:smoke:example": "turbo run build --concurrency=100% --filter=\"@example/*\"",
     "test:smoke:docs": "turbo run build --filter=docs",
     "test:check-examples": "node ./scripts/smoke/check.js",
-    "test:vite-ci": "cd packages/astro && pnpm run test:node",
+    "test:vite-ci": "cd packages/astro && pnpm run test:unit && pnpm run test:integration",
     "test:e2e": "cd packages/astro && pnpm playwright install chromium firefox && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install chromium firefox && pnpm run test:e2e:match",
     "test:e2e:hosts": "turbo run test:hosted",
@@ -87,9 +86,6 @@
       "allowAny": [
         "astro"
       ]
-    },
-    "patchedDependencies": {
-      "fs-fixture@2.4.0": "patches/fs-fixture@2.4.0.patch"
     }
   }
 }
