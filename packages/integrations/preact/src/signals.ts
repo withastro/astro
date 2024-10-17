@@ -1,13 +1,6 @@
 import type { Context } from './context.js';
 import { incrementId } from './context.js';
-import type {
-	ArrayObjectMapping,
-	AstroPreactAttrs,
-	PropNameToSignalMap,
-	SignalLike,
-	SignalToKeyOrIndexMap,
-	Signals,
-} from './types.js';
+import type { AstroPreactAttrs, PropNameToSignalMap, SignalLike, Signals } from './types.js';
 
 function isSignal(x: any): x is SignalLike {
 	return x != null && typeof x === 'object' && typeof x.peek === 'function' && 'value' in x;
@@ -34,45 +27,57 @@ export function serializeSignals(
 	attrs: AstroPreactAttrs,
 	map: PropNameToSignalMap,
 ) {
-	// Check for signals
 	const signals: Signals = {};
-	for (const [key, value] of Object.entries(props)) {
-		const isPropArray = Array.isArray(value);
-		// `typeof null` is 'object' in JS, so we need to check for `null` specifically
-		const isPropObject =
-			!isSignal(value) && typeof props[key] === 'object' && props[key] !== null && !isPropArray;
 
-		if (isPropObject || isPropArray) {
-			const values = isPropObject ? Object.keys(props[key]) : value;
-			values.forEach((valueKey: number | string, valueIndex: number) => {
-				const signal = isPropObject ? props[key][valueKey] : valueKey;
-				if (isSignal(signal)) {
-					const keyOrIndex = isPropObject ? valueKey.toString() : valueIndex;
+	function processProp(propValue: any, path: string[]): any {
+		const [topLevelKey, ...restPath] = path;
 
-					props[key] = isPropObject
-						? Object.assign({}, props[key], { [keyOrIndex]: signal.peek() })
-						: props[key].map((v: SignalLike, i: number) =>
-								i === valueIndex ? [signal.peek(), i] : v,
-							);
+		if (Array.isArray(propValue)) {
+			const newArr = propValue.map((value, index) =>
+				processProp(value, [topLevelKey, ...restPath, index.toString()]),
+			);
+			if (!signals[topLevelKey]) {
+				signals[topLevelKey] = {};
+			}
+			return newArr;
+		} else if (typeof propValue === 'object' && propValue !== null && !isSignal(propValue)) {
+			const newObj: Record<string, any> = {};
+			for (const [key, value] of Object.entries(propValue)) {
+				newObj[key] = processProp(value, [topLevelKey, ...restPath, key]);
+			}
+			if (!signals[topLevelKey]) {
+				signals[topLevelKey] = {};
+			}
+			return newObj;
+		} else if (isSignal(propValue)) {
+			const signalId = getSignalId(ctx, propValue);
+			const nestedPath = restPath.join('.');
 
-					const currentMap = (map.get(key) || []) as SignalToKeyOrIndexMap;
-					map.set(key, [...currentMap, [signal, keyOrIndex]]);
-
-					const currentSignals = (signals[key] || []) as ArrayObjectMapping;
-					signals[key] = [...currentSignals, [getSignalId(ctx, signal), keyOrIndex]];
+			if (restPath.length > 0) {
+				if (!signals[topLevelKey]) {
+					signals[topLevelKey] = {};
 				}
-			});
-		} else if (isSignal(value)) {
-			// Set the value to the current signal value
-			// This mutates the props on purpose, so that it will be serialized correct.
-			props[key] = value.peek();
-			map.set(key, value);
+				if (typeof signals[topLevelKey] !== 'string') {
+					signals[topLevelKey][nestedPath] = signalId;
+				}
+			} else {
+				signals[topLevelKey] = signalId;
+			}
 
-			signals[key] = getSignalId(ctx, value);
+			map.set(path.join('.'), propValue);
+
+			return propValue.peek();
 		}
+		return propValue;
 	}
 
-	if (Object.keys(signals).length) {
+	for (const [key, value] of Object.entries(props)) {
+		// Set the value to the current signal value
+		// This mutates the props on purpose, so that it will be serialized correct.
+		props[key] = processProp(value, [key]);
+	}
+
+	if (Object.keys(signals).length > 0) {
 		attrs['data-preact-signals'] = JSON.stringify(signals);
 	}
 }
