@@ -1,6 +1,7 @@
 import { yellow } from 'kleur/colors';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
+import { getOriginPathname } from '../../core/routing/rewrite.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
 import { formContentTypes, hasContentType } from './utils.js';
 import { getAction } from './virtual/get-action.js';
@@ -132,6 +133,11 @@ async function redirectWithResult({
 		if (!referer) {
 			throw new Error('Internal: Referer unexpectedly missing from Action POST request.');
 		}
+		return context.redirect(referer);
+	}
+
+	const referer = getOriginPathname(context.request);
+	if (referer) {
 		return context.redirect(referer);
 	}
 
