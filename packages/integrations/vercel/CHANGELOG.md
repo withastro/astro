@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.8.2
+
+### Patch Changes
+
+- [#373](https://github.com/withastro/adapters/pull/373) [`5b802a4`](https://github.com/withastro/adapters/commit/5b802a4099743c86418747872171bbe224caaa6d) Thanks [@hrabiel](https://github.com/hrabiel)! - Fix excluding routes with rest parameters from ISR
+
 ## 7.8.1
 
 ### Patch Changes
