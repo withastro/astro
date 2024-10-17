@@ -1,5 +1,31 @@
 # astro
 
+## 4.16.6
+
+### Patch Changes
+
+- [#11823](https://github.com/withastro/astro/pull/11823) [`a3d30a6`](https://github.com/withastro/astro/commit/a3d30a602aaa1755197c73f0b51cace61f9088b3) Thanks [@DerTimonius](https://github.com/DerTimonius)! - fix: improve error message when inferSize is used in local images with the Image component
+
+- [#12227](https://github.com/withastro/astro/pull/12227) [`8b1a641`](https://github.com/withastro/astro/commit/8b1a641be9de4baa9ae48dd0d045915fbbeffa8c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where environment variables would not be refreshed when using `astro:env`
+
+- [#12239](https://github.com/withastro/astro/pull/12239) [`2b6daa5`](https://github.com/withastro/astro/commit/2b6daa5840c18729c41f6cd8b4571b88d0cba119) Thanks [@ematipico](https://github.com/ematipico)! - **BREAKING CHANGE to the experimental Container API only**
+
+  Changes the default page rendering behavior of Astro components in containers, and adds a new option `partial: false` to render full Astro pages as before.
+
+  Previously, the Container API was rendering all Astro components as if they were full Astro pages containing `<!DOCTYPE html>` by default. This was not intended, and now by default, all components will render as [page partials](https://docs.astro.build/en/basics/astro-pages/#page-partials): only the contents of the components without a page shell.
+
+  To render the component as a full-fledged Astro page, pass a new option called `partial: false` to `renderToString()` and `renderToResponse()`:
+
+  ```js
+  import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+  import Card from '../src/components/Card.astro';
+
+  const container = AstroContainer.create();
+
+  await container.renderToString(Card); // the string will not contain `<!DOCTYPE html>`
+  await container.renderToString(Card, { partial: false }); // the string will contain `<!DOCTYPE html>`
+  ```
+
 ## 4.16.5
 
 ### Patch Changes
