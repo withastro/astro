@@ -1,3 +1,4 @@
+import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroConfig } from '../types/public/config.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
@@ -65,7 +66,11 @@ export async function getImage(
 	};
 
 	// Infer size for remote images if inferSize is true
-	if (options.inferSize && isRemoteImage(resolvedOptions.src)) {
+	if (
+		options.inferSize &&
+		isRemoteImage(resolvedOptions.src) &&
+		isRemotePath(resolvedOptions.src)
+	) {
 		const result = await inferRemoteSize(resolvedOptions.src); // Directly probe the image URL
 		resolvedOptions.width ??= result.width;
 		resolvedOptions.height ??= result.height;
