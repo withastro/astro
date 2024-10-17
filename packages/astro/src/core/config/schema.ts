@@ -664,13 +664,13 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				!config.build.server.toString().startsWith(config.outDir.toString()) &&
 				config.build.server.toString().endsWith('dist/server/')
 			) {
-				config.build.server = new URL('./dist/server/', config.outDir);
+				config.build.server = new URL('./server/', config.outDir);
 			}
 			if (
 				!config.build.client.toString().startsWith(config.outDir.toString()) &&
 				config.build.client.toString().endsWith('dist/client/')
 			) {
-				config.build.client = new URL('./dist/client/', config.outDir);
+				config.build.client = new URL('./client/', config.outDir);
 			}
 
 			// Handle `base` trailing slash based on `trailingSlash` config
