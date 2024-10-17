@@ -8,11 +8,6 @@ overrides:
   vitest>vite: 6.0.0-beta.2
   vite-node>vite: 6.0.0-beta.2
 
-patchedDependencies:
-  fs-fixture@2.4.0:
-    hash: hvkuaks2ic76pdflr3iifgi4ku
-    path: patches/fs-fixture@2.4.0.patch
-
 importers:
 
   .:
@@ -684,7 +679,7 @@ importers:
         version: 1.1.0
       fs-fixture:
         specifier: ^2.4.0
-        version: 2.4.0(patch_hash=hvkuaks2ic76pdflr3iifgi4ku)
+        version: 2.4.0
       mdast-util-mdx:
         specifier: ^3.0.0
         version: 3.0.0
@@ -13917,7 +13912,7 @@ snapshots:
       jsonfile: 4.0.0
       universalify: 0.1.2
 
-  fs-fixture@2.4.0(patch_hash=hvkuaks2ic76pdflr3iifgi4ku): {}
+  fs-fixture@2.4.0: {}
 
   fsevents@2.3.2:
     optional: true

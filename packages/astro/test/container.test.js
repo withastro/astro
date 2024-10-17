@@ -252,6 +252,16 @@ describe('Container with renderers', () => {
 		const html = await response.text();
 
 		assert.match(html, /I am a react button/);
+		assert.doesNotMatch(html, /<!DOCTYPE html>/);
+	});
+
+	it('the endpoint should return the HTML of the React component, with DOCTYPE when rendered when partial is off', async () => {
+		const request = new Request('https://example.com/react-as-page');
+		const response = await app.render(request);
+		const html = await response.text();
+
+		assert.match(html, /I am a react button/);
+		assert.match(html, /<!DOCTYPE html>/);
 	});
 
 	it('the endpoint should return the HTML of the Vue component', async () => {
@@ -260,6 +270,7 @@ describe('Container with renderers', () => {
 		const html = await response.text();
 
 		assert.match(html, /I am a vue button/);
+		assert.doesNotMatch(html, /<!DOCTYPE html>/);
 	});
 
 	it('Should render a component with directives', async () => {
@@ -269,5 +280,6 @@ describe('Container with renderers', () => {
 
 		assert.match(html, /Button not rendered/);
 		assert.match(html, /I am a react button/);
+		assert.doesNotMatch(html, /<!DOCTYPE html>/);
 	});
 });
