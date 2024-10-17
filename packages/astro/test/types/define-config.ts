@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
-import { defineConfig } from '../../dist/config';
-import type { AstroUserDefineConfig } from '../../dist/types/public/config';
+import { defineConfig } from '../../dist/config/index.js';
+import type { AstroUserDefineConfig } from '../../dist/types/public/config.js';
 import { expectTypeOf } from 'expect-type';
 
 describe('defineConfig()', () => {
