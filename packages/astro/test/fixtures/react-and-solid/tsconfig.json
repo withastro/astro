@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "jsxImportSource": "solid-js",
+    "types": ["astro/client"]
+  }
+}

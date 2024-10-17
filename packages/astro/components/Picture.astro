@@ -1,0 +1,110 @@
+---
+import { type LocalImageProps, type RemoteImageProps, getImage } from 'astro:assets';
+import * as mime from 'mrmime';
+import type { GetImageResult, ImageOutputFormat } from '../dist/@types/astro';
+import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind';
+import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import type { HTMLAttributes } from '../types';
+
+type Props = (LocalImageProps | RemoteImageProps) & {
+	formats?: ImageOutputFormat[];
+	fallbackFormat?: ImageOutputFormat;
+	pictureAttributes?: HTMLAttributes<'picture'>;
+};
+
+const defaultFormats = ['webp'] as const;
+const defaultFallbackFormat = 'png' as const;
+
+// Certain formats don't want PNG fallbacks:
+// - GIF will typically want to stay as a gif, either for animation or for the lower amount of colors
+// - SVGs can't be converted to raster formats in most cases
+// - JPEGs compress photographs and high-noise images better than PNG in most cases
+// For those, we'll use the original format as the fallback instead.
+const specialFormatsFallback = ['gif', 'svg', 'jpg', 'jpeg'] as const;
+
+const { formats = defaultFormats, pictureAttributes = {}, fallbackFormat, ...props } = Astro.props;
+
+if (props.alt === undefined || props.alt === null) {
+	throw new AstroError(AstroErrorData.ImageMissingAlt);
+}
+
+// Picture attribute inherit scoped styles from class and attributes
+const scopedStyleClass = props.class?.match(/\bastro-\w{8}\b/)?.[0];
+if (scopedStyleClass) {
+	if (pictureAttributes.class) {
+		pictureAttributes.class = `${pictureAttributes.class} ${scopedStyleClass}`;
+	} else {
+		pictureAttributes.class = scopedStyleClass;
+	}
+}
+for (const key in props) {
+	if (key.startsWith('data-astro-cid')) {
+		pictureAttributes[key] = props[key];
+	}
+}
+
+const originalSrc = await resolveSrc(props.src);
+const optimizedImages: GetImageResult[] = await Promise.all(
+	formats.map(
+		async (format) =>
+			await getImage({
+				...props,
+				src: originalSrc,
+				format: format,
+				widths: props.widths,
+				densities: props.densities,
+			}),
+	),
+);
+
+let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
+if (
+	!fallbackFormat &&
+	isESMImportedImage(originalSrc) &&
+	(specialFormatsFallback as ReadonlyArray<string>).includes(originalSrc.format)
+) {
+	resultFallbackFormat = originalSrc.format;
+}
+
+const fallbackImage = await getImage({
+	...props,
+	format: resultFallbackFormat,
+	widths: props.widths,
+	densities: props.densities,
+});
+
+const imgAdditionalAttributes: HTMLAttributes<'img'> = {};
+const sourceAdditionalAttributes: HTMLAttributes<'source'> = {};
+
+// Propagate the `sizes` attribute to the `source` elements
+if (props.sizes) {
+	sourceAdditionalAttributes.sizes = props.sizes;
+}
+
+if (fallbackImage.srcSet.values.length > 0) {
+	imgAdditionalAttributes.srcset = fallbackImage.srcSet.attribute;
+}
+
+if (import.meta.env.DEV) {
+	imgAdditionalAttributes['data-image-component'] = 'true';
+}
+---
+
+<picture {...pictureAttributes}>
+	{
+		Object.entries(optimizedImages).map(([_, image]) => {
+			const srcsetAttribute =
+				props.densities || (!props.densities && !props.widths)
+					? `${image.src}${image.srcSet.values.length > 0 ? ', ' + image.srcSet.attribute : ''}`
+					: image.srcSet.attribute;
+			return (
+				<source
+					srcset={srcsetAttribute}
+					type={mime.lookup(image.options.format ?? image.src) ?? `image/${image.options.format}`}
+					{...sourceAdditionalAttributes}
+				/>
+			);
+		})
+	}
+	<img src={fallbackImage.src} {...imgAdditionalAttributes} {...fallbackImage.attributes} />
+</picture>

@@ -1,0 +1,23 @@
+<span id="false-str" attr="false" />
+<span id="true-str" attr="true" />
+<span id="true" attr={true} />
+<span id="false" attr={false} />
+<span id="empty" attr="" />
+<span id="null" attr={null} />
+<span id="undefined" attr={undefined} />
+<span id="url" attr={"https://example.com/api/og?title=hello&description=somedescription"}/>
+<span id="code" attr={"cmd: echo \"foo\" && echo \"bar\" > /tmp/hello.txt"} />
+<!--
+    Per HTML spec, some attributes should be treated as booleans
+    These should always render <span async /> or <span /> (without a string value)
+-->
+<span id='html-boolean' async />
+<span id='html-boolean-true' async={true} />
+<span id='html-boolean-false' async={false} />
+<!--
+    Other attributes should be treated as string enums
+    These should always render <span draggable="true" /> or <span draggable="false" />
+-->
+<span id='html-enum' draggable='true' />
+<span id='html-enum-true' draggable={true} />
+<span id='html-enum-false' draggable={false} />

@@ -1,0 +1,24 @@
+---
+import { ViewTransitions } from 'astro:transitions';
+
+// For the test fixture, we import the script but we don't use the <ViewTransitions /> component
+// While this seems to be some strange mistake,
+// it might be realistic, e.g. in a configurable CommonHead component
+
+interface Props {
+	transitions?: string;
+}
+const { transitions } = Astro.props;
+---
+<html>
+	<head>
+		<title>Half-Baked</title>
+		{transitions && <ViewTransitions />}
+	</head>
+	<body>
+		<main>
+			<p id="half-baked">Half Baked</p>
+			<a id="click-hash" href="#click-hash">hash target</a>
+		</main>
+	</body>
+</html>

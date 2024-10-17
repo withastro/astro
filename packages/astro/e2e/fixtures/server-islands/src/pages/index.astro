@@ -1,0 +1,28 @@
+---
+import Island from '../components/Island.astro';
+import Self from '../components/Self.astro';
+import HTMLError from '../components/HTMLError.astro';
+---
+
+<html>
+	<head>
+		<!-- Head Stuff -->
+	</head>
+	<body>
+		<Island server:defer secret="test">
+			<h3 id="children">children</h3>
+		</Island>
+		<Self server:defer />
+
+		<div id="error-test">
+			<HTMLError server:defer>
+				<script is:inline slot="fallback">
+					// Delete the previous element, the island comment
+					document.currentScript.previousSibling.remove();
+
+					// This simulates a host which has minified the HTML, destroying the comment
+				</script>
+			</HTMLError>
+		</div>
+	</body>
+</html>

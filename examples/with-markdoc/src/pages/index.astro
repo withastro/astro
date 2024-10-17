@@ -1,0 +1,25 @@
+---
+import { getEntry } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+const intro = await getEntry('docs', 'intro');
+const { Content } = await intro.render();
+---
+
+<Layout title={intro.data.title}>
+	<main>
+		<h1>{intro.data.title}</h1>
+		<Content />
+	</main>
+</Layout>
+
+<style is:global>
+	table {
+		margin-block: 2rem;
+		margin-inline: auto;
+	}
+	table td {
+		padding-block: 0.3rem;
+		padding-inline: 0.5rem;
+	}
+</style>

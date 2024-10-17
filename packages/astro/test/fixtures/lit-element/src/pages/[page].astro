@@ -1,0 +1,30 @@
+---
+import {MyElement} from '../components/my-element.js';
+export async function getStaticPaths() {
+	return [
+		{
+			params: { page: 1 },
+		},
+		{
+			params: { page: 2 },
+		},
+		{
+			params: { page: 3 }
+		}
+	]
+};
+
+const { page } = Astro.params
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Posts Page {page}</title>
+	</head>
+	<body>
+		<h1>Welcome to page {page}</h1>
+		<MyElement />
+	</body>
+</html>
