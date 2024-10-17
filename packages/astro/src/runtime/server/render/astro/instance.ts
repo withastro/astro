@@ -101,5 +101,5 @@ export function createAstroComponentInstance(
 }
 
 export function isAstroComponentInstance(obj: unknown): obj is AstroComponentInstance {
-	return typeof obj === 'object' && !!(obj as any)[astroComponentInstanceSym];
+	return typeof obj === 'object' && obj !== null && !!(obj as any)[astroComponentInstanceSym];
 }
