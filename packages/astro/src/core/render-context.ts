@@ -48,6 +48,7 @@ export class RenderContext {
 		public params = getParams(routeData, pathname),
 		protected url = new URL(request.url),
 		public props: Props = {},
+		public partial: undefined | boolean = undefined,
 	) {}
 
 	/**
@@ -68,9 +69,10 @@ export class RenderContext {
 		routeData,
 		status = 200,
 		props,
+		partial = undefined,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
 		Partial<
-			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>
+			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial'>
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		return new RenderContext(
@@ -85,6 +87,7 @@ export class RenderContext {
 			undefined,
 			undefined,
 			props,
+			partial,
 		);
 	}
 
@@ -304,7 +307,7 @@ export class RenderContext {
 		const componentMetadata =
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
 		const headers = new Headers({ 'Content-Type': 'text/html' });
-		const partial = Boolean(mod.partial);
+		const partial = typeof this.partial === 'boolean' ? this.partial : Boolean(mod.partial);
 		const response = {
 			status,
 			statusText: 'OK',

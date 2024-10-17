@@ -14,6 +14,11 @@ export async function build({ flags }: BuildOptions) {
 			tables: {
 				Flags: [
 					['--outDir <directory>', `Specify the output directory for the build.`],
+					['--mode', `Specify the mode of the project. Defaults to "production".`],
+					[
+						'--devOutput',
+						'Output a development-based build similar to code transformed in `astro dev`.',
+					],
 					[
 						'--force',
 						'Clear the content layer and content collection cache, forcing a full rebuild.',
@@ -28,5 +33,5 @@ export async function build({ flags }: BuildOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	await _build(inlineConfig);
+	await _build(inlineConfig, { devOutput: !!flags.devOutput });
 }

@@ -114,7 +114,7 @@ export class App {
 		return AppPipeline.create(manifestData, {
 			logger: this.#logger,
 			manifest: this.#manifest,
-			mode: 'production',
+			runtimeMode: 'production',
 			renderers: this.#manifest.renderers,
 			defaultRoutes: createDefaultRoutes(this.#manifest),
 			resolve: async (specifier: string) => {
