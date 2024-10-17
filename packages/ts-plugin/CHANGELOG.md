@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.10.3
+
+### Patch Changes
+
+- 8673fa5: Fixes certain cases where content schemas would not be reloaded properly when they were updated
+
 ## 1.10.2
 
 ### Patch Changes

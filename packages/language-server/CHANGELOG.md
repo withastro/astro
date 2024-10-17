@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.15.3
+
+### Patch Changes
+
+- 8673fa5: Fixes certain cases where content schemas would not be reloaded properly when they were updated
+
 ## 2.15.0
 
 ### Minor Changes
