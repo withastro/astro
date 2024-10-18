@@ -115,6 +115,23 @@ describe('Astro Actions', () => {
 			assert.equal(data.success, true);
 			assert.equal(data.isFormData, true, 'Should receive plain FormData');
 		});
+
+		it('Handles special characters in action names', async () => {
+			for (const name of ['with%2Fslash', 'with%20space', 'with%2Edot']) {
+				const res = await fixture.fetch(`/_actions/${name}`, {
+					method: 'POST',
+					body: JSON.stringify({ name: 'ben' }),
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+				assert.equal(res.ok, true);
+				const text = await res.text();
+				assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+				const data = devalue.parse(text);
+				assert.equal(data, 'Hello, ben!');
+			}
+		});
 	});
 
 	describe('build', () => {
@@ -394,6 +411,57 @@ describe('Astro Actions', () => {
 			});
 			assert.ok(value.date instanceof Date);
 			assert.ok(value.set instanceof Set);
+		});
+
+		it('Supports discriminated union for different form fields', async () => {
+			const formData = new FormData();
+			formData.set('type', 'first-chunk');
+			formData.set('alt', 'Cool image');
+			formData.set('image', new File([''], 'chunk-1.png'));
+			const reqFirst = new Request('http://example.com/_actions/imageUploadInChunks', {
+				method: 'POST',
+				body: formData,
+			});
+
+			const resFirst = await app.render(reqFirst);
+			assert.equal(resFirst.status, 200);
+			assert.equal(resFirst.headers.get('Content-Type'), 'application/json+devalue');
+			const data = devalue.parse(await resFirst.text());
+			const uploadId = data?.uploadId;
+			assert.ok(uploadId);
+
+			const formDataRest = new FormData();
+			formDataRest.set('type', 'rest-chunk');
+			formDataRest.set('uploadId', 'fake');
+			formDataRest.set('image', new File([''], 'chunk-2.png'));
+			const reqRest = new Request('http://example.com/_actions/imageUploadInChunks', {
+				method: 'POST',
+				body: formDataRest,
+			});
+
+			const resRest = await app.render(reqRest);
+			assert.equal(resRest.status, 200);
+			assert.equal(resRest.headers.get('Content-Type'), 'application/json+devalue');
+			const dataRest = devalue.parse(await resRest.text());
+			assert.equal('fake', dataRest?.uploadId);
+		});
+
+		it('Handles special characters in action names', async () => {
+			for (const name of ['with%2Fslash', 'with%20space', 'with%2Edot']) {
+				const req = new Request(`http://example.com/_actions/${name}`, {
+					method: 'POST',
+					body: JSON.stringify({ name: 'ben' }),
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+				const res = await app.render(req);
+				assert.equal(res.ok, true);
+				const text = await res.text();
+				assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+				const data = devalue.parse(text);
+				assert.equal(data, 'Hello, ben!');
+			}
 		});
 	});
 });

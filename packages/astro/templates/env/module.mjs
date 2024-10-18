@@ -26,7 +26,8 @@ const _internalGetSecret = (key) => {
 };
 
 // used while generating the virtual module
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// biome-ignore lint/correctness/noUnusedFunctionParameters: `reset` is used by the generated code
+// biome-ignore lint/correctness/noUnusedVariables: `reset` is used by the generated code
 setOnSetGetEnv((reset) => {
 	// @@ON_SET_GET_ENV@@
 });

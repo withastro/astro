@@ -48,7 +48,7 @@ async function renderToStaticMarkup(
 	Component: any,
 	props: Record<string, any>,
 	{ default: children, ...slotted }: any,
-	metadata?: undefined | Record<string, any>,
+	metadata?: Record<string, any>,
 ) {
 	const ctx = getContext(this.result);
 	const renderId = metadata?.hydrate ? incrementId(ctx) : '';

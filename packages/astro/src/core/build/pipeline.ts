@@ -92,6 +92,10 @@ export class BuildPipeline extends Pipeline {
 		);
 	}
 
+	getRoutes(): RouteData[] {
+		return this.options.manifest.routes;
+	}
+
 	static create({
 		internals,
 		manifest,
@@ -134,7 +138,11 @@ export class BuildPipeline extends Pipeline {
 		const renderers = await import(renderersEntryUrl.toString());
 
 		const middleware = await import(new URL('middleware.mjs', baseDirectory).toString())
-			.then((mod) => mod.onRequest)
+			.then((mod) => {
+				return function () {
+					return { onRequest: mod.onRequest };
+				};
+			})
 			// middleware.mjs is not emitted if there is no user middleware
 			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
 			.catch(() => manifest.middleware);
@@ -286,11 +294,7 @@ export class BuildPipeline extends Pipeline {
 		return module.page();
 	}
 
-	async tryRewrite(
-		payload: RewritePayload,
-		request: Request,
-		_sourceRoute: RouteData,
-	): Promise<TryRewriteResult> {
+	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
 		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
@@ -324,7 +328,7 @@ export class BuildPipeline extends Pipeline {
 
 	async #getEntryForFallbackRoute(
 		route: RouteData,
-		internals: BuildInternals,
+		_internals: BuildInternals,
 		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
 		if (route.type !== 'fallback') {
@@ -344,7 +348,7 @@ export class BuildPipeline extends Pipeline {
 
 	async #getEntryForRedirectRoute(
 		route: RouteData,
-		internals: BuildInternals,
+		_internals: BuildInternals,
 		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
 		if (route.type !== 'redirect') {

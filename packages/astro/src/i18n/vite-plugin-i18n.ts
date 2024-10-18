@@ -29,7 +29,7 @@ export default function astroInternationalization({
 	return {
 		name: 'astro:i18n',
 		enforce: 'pre',
-		config(config, { command }) {
+		config(_config, { command }) {
 			const i18nConfig: I18nInternalConfig = {
 				base,
 				format,

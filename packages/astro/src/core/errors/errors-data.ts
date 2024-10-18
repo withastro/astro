@@ -33,25 +33,7 @@ export const UnknownCompilerError = {
 	title: 'Unknown compiler error.',
 	hint: 'This is almost always a problem with the Astro compiler, not your code. Please open an issue at https://astro.build/issues/compiler.',
 } satisfies ErrorData;
-// 1xxx and 2xxx codes are reserved for compiler errors and warnings respectively
-/**
- * @docs
- * @see
- * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/)
- * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#astroredirect)
- * @description
- * The `Astro.redirect` function is only available when [Server-side rendering](/en/guides/server-side-rendering/) is enabled.
- *
- * To redirect on a static website, the [meta refresh attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) can be used. Certain hosts also provide config-based redirects (ex: [Netlify redirects](https://docs.netlify.com/routing/redirects/)).
- * @deprecated Deprecated since version 2.6.
- */
-export const StaticRedirectNotAvailable = {
-	name: 'StaticRedirectNotAvailable',
-	title: '`Astro.redirect` is not available in static mode.',
-	message:
-		"Redirects are only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
-	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information on how to enable SSR.',
-} satisfies ErrorData;
+
 /**
  * @docs
  * @see
@@ -302,21 +284,6 @@ export const InvalidGetStaticPathsReturn = {
 	hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
 } satisfies ErrorData;
 
-/**
- * @docs
- * @deprecated Deprecated since Astro 4.0. The RSS helper no longer exists with an error fallback.
- * @see
- * - [RSS Guide](https://docs.astro.build/en/guides/rss/)
- * @description
- * `getStaticPaths` no longer expose an helper for generating a RSS feed. We recommend migrating to the [@astrojs/rss](https://docs.astro.build/en/guides/rss/#setting-up-astrojsrss)integration instead.
- */
-export const GetStaticPathsRemovedRSSHelper = {
-	name: 'GetStaticPathsRemovedRSSHelper',
-	title: 'getStaticPaths RSS helper is not available anymore.',
-	message:
-		'The RSS helper has been removed from `getStaticPaths`. Try the new @astrojs/rss package instead.',
-	hint: 'See https://docs.astro.build/en/guides/rss/ for more information.',
-} satisfies ErrorData;
 /**
  * @docs
  * @see
@@ -734,28 +701,6 @@ export const NoImageMetadata = {
 
 /**
  * @docs
- * @deprecated This error is no longer Markdown specific and as such, as been replaced by `ImageNotFound`
- * @message
- * Could not find requested image `IMAGE_PATH` at `FULL_IMAGE_PATH`.
- * @see
- * - [Images](https://docs.astro.build/en/guides/images/)
- * @description
- * Astro could not find an image you included in your Markdown content. Usually, this is simply caused by a typo in the path.
- *
- * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `./`
- */
-export const MarkdownImageNotFound = {
-	name: 'MarkdownImageNotFound',
-	title: 'Image not found.',
-	message: (imagePath: string, fullImagePath: string | undefined) =>
-		`Could not find requested image \`${imagePath}\`${
-			fullImagePath ? ` at \`${fullImagePath}\`.` : '.'
-		}`,
-	hint: 'This is often caused by a typo in the image path. Please make sure the file exists, and is spelled correctly.',
-} satisfies ErrorData;
-
-/**
- * @docs
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
@@ -943,14 +888,14 @@ export const LocalImageUsedWrongly = {
  * @see
  * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
  * @description
- * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to achieve the same result.
+ * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vite.dev/guide/features.html#glob-import) instead to achieve the same result.
  */
 export const AstroGlobUsedOutside = {
 	name: 'AstroGlobUsedOutside',
 	title: 'Astro.glob() used outside of an Astro file.',
 	message: (globStr: string) =>
 		`\`Astro.glob(${globStr})\` can only be used in \`.astro\` files. \`import.meta.glob(${globStr})\` can be used instead to achieve a similar result.`,
-	hint: "See Vite's documentation on `import.meta.glob` for more information: https://vitejs.dev/guide/features.html#glob-import",
+	hint: "See Vite's documentation on `import.meta.glob` for more information: https://vite.dev/guide/features.html#glob-import",
 } satisfies ErrorData;
 
 /**
@@ -1022,7 +967,7 @@ export const MissingSharp = {
 /**
  * @docs
  * @see
- * - [Vite troubleshooting guide](https://vitejs.dev/guide/troubleshooting.html)
+ * - [Vite troubleshooting guide](https://vite.dev/guide/troubleshooting.html)
  * @description
  * Vite encountered an unknown error while rendering your project. We unfortunately do not know what happened (or we would tell you!)
  *
@@ -1138,22 +1083,6 @@ export const MissingMiddlewareForInternationalization = {
 	title: 'Enabled manual internationalization routing without having a middleware.',
 	message:
 		"Your configuration setting `i18n.routing: 'manual'` requires you to provide your own i18n `middleware` file.",
-} satisfies ErrorData;
-
-/**
- * @deprecated
- * @docs
- * @description
- * The user tried to rewrite using a route that doesn't exist, or it emitted a runtime error during its rendering phase.
- */
-export const RewriteEncounteredAnError = {
-	name: 'RewriteEncounteredAnError',
-	title:
-		"Astro couldn't find the route to rewrite, or if was found but it emitted an error during the rendering phase.",
-	message: (route: string, stack?: string) =>
-		`The route ${route} that you tried to render doesn't exist, or it emitted an error during the rendering phase. ${
-			stack ? stack : ''
-		}.`,
 } satisfies ErrorData;
 
 /**
@@ -1484,6 +1413,17 @@ export const UnknownContentCollectionError = {
 /**
  * @docs
  * @description
+ * Astro tried to render a content collection entry that was undefined. This can happen if you try to render an entry that does not exist.
+ */
+export const RenderUndefinedEntryError = {
+	name: 'RenderUndefinedEntryError',
+	title: 'Attempted to render an undefined content collection entry.',
+	hint: 'Check if the entry is undefined before passing it to `render()`',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * The `getDataEntryById` and `getEntryBySlug` functions are deprecated and cannot be used with content layer collections. Use the `getEntry` function instead.
  */
 export const GetEntryDeprecationError = {
@@ -1553,20 +1493,6 @@ export const ContentSchemaContainsSlugError = {
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
 } satisfies ErrorData;
 
-/**
- * @docs
- * @message A collection queried via `getCollection()` does not exist.
- * @deprecated Collections that do not exist no longer result in an error. A warning is given instead.
- * @description
- * When querying a collection, ensure a collection directory with the requested name exists under `src/content/`.
- */
-export const CollectionDoesNotExistError = {
-	name: 'CollectionDoesNotExistError',
-	title: 'Collection does not exist',
-	message: (collectionName: string) =>
-		`The collection **${collectionName}** does not exist. Ensure a collection directory with this name exists.`,
-	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on creating collections.',
-} satisfies ErrorData;
 /**
  * @docs
  * @see

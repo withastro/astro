@@ -140,4 +140,11 @@ describe('Preact component', () => {
 		assert.equal(element.find('h1').text(), 'I am a title');
 		assert.equal(element.find('p').text(), '1');
 	});
+
+	it('Can use null props', async () => {
+		const html = await fixture.readFile('/signals/index.html');
+		const $ = cheerio.load(html);
+
+		assert.equal($('#preact-component-with-null-prop').length, 1);
+	});
 });

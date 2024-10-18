@@ -813,7 +813,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name security
-	 * @type {boolean}
+	 * @type {object}
 	 * @default `{}`
 	 * @version 4.9.0
 	 * @description
@@ -838,7 +838,7 @@ export interface AstroUserConfig {
 		 * @name security.checkOrigin
 		 * @kind h4
 		 * @type {boolean}
-		 * @default 'false'
+		 * @default `false`
 		 * @version 4.9.0
 		 * @description
 		 *
@@ -861,7 +861,7 @@ export interface AstroUserConfig {
 	 *
 	 * Pass additional configuration options to Vite. Useful when Astro doesn't support some advanced configuration that you may need.
 	 *
-	 * View the full `vite` configuration object documentation on [vitejs.dev](https://vitejs.dev/config/).
+	 * View the full `vite` configuration object documentation on [vite.dev](https://vite.dev/config/).
 	 *
 	 * #### Examples
 	 *
@@ -1088,12 +1088,39 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 * 	build: {
-		 *		inlineStylesheets: `never`,
+		 *		inlineStylesheets: 'never',
 		 * 	},
 		 * }
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
+		/**
+		 * @docs
+		 * @name build.concurrency
+		 * @type { number }
+		 * @default `1`
+		 * @version 4.16.0
+		 * @description
+		 * The number of pages to build in parallel.
+		 *
+		 * **In most cases, you should not change the default value of `1`.**
+		 *
+		 * Use this option only when other attempts to reduce the overall rendering time (e.g. batch or cache long running tasks like fetch calls or data access) are not possible or are insufficient.
+		 * If the number is set too high, page rendering may slow down due to insufficient memory resources and because JS is single-threaded.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     concurrency: 2
+		 *   }
+		 * }
+		 * ```
+		 *
+		 *  :::caution[Breaking changes possible]
+		 *  This feature is stable and is not considered experimental. However, this feature is only intended to address difficult performance issues, and breaking changes may occur in a [minor release](https://docs.astro.build/en/upgrade-astro/#semantic-versioning) to keep this option as performant as possible. Please check the [Astro CHANGELOG](https://github.com/withastro/astro/blob/refs/heads/next/packages/astro/CHANGELOG.md) for every minor release if you are using this feature.
+		 *  :::
+		 */
+		concurrency?: number;
 	};
 
 	/**
@@ -1106,7 +1133,7 @@ export interface AstroUserConfig {
 	 *
 	 * ```js
 	 * {
-	 *   server: { port: 1234, host: true}
+	 *   server: { port: 1234, host: true }
 	 * }
 	 * ```
 	 *
@@ -1340,7 +1367,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name image.domains
 		 * @type {string[]}
-		 * @default `{domains: []}`
+		 * @default `[]`
 		 * @version 2.10.10
 		 * @description
 		 * Defines a list of permitted image source domains for remote image optimization. No other remote images will be optimized by Astro.
@@ -1387,6 +1414,7 @@ export interface AstroUserConfig {
 		 * ```
 		 *
 		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
+	   *
 		 * `hostname`:
 		 *   - Start with '**.' to allow all subdomains ('endsWith').
 		 *   - Start with '*.' to allow only one level of subdomain.
@@ -1447,7 +1475,7 @@ export interface AstroUserConfig {
 		 * import remarkToc from 'remark-toc';
 		 * {
 		 *   markdown: {
-		 *     remarkPlugins: [ [remarkToc, { heading: "contents"} ] ]
+		 *     remarkPlugins: [ [remarkToc, { heading: "contents" }] ]
 		 *   }
 		 * }
 		 * ```
@@ -1517,7 +1545,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: Translate the footnotes text to another language, here are the default English values
-		 *     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to reference 1"},
+		 *     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to reference 1" },
 		 *   },
 		 * };
 		 * ```
@@ -1703,7 +1731,7 @@ export interface AstroUserConfig {
 					 * })
 					 * ```
 					 */
-					fallbackType: 'redirect' | 'rewrite';
+					fallbackType?: 'redirect' | 'rewrite';
 
 					/**
 					 * @name i18n.routing.strategy
@@ -2094,7 +2122,7 @@ export interface AstroUserConfig {
 		 *
 		 * The outer page will be rendered, either at build time (`hybrid`) or at runtime (`server`) with the island content omitted and a `<script>` tag included in its place.
 		 *
-		 * After the page loads in the browser, the script tag will replace itself with the the contents of the island by making a request.
+		 * After the page loads in the browser, the script tag will replace itself with the contents of the island by making a request.
 		 *
 		 * Any Astro component can be given the `server: defer` attribute to delay its rendering. There is no special API and you can write `.astro` code as normal:
 		 *
@@ -2145,7 +2173,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 *
-		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
+		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature. See the [content Intellisense implementation PR](https://github.com/withastro/language-tools/pull/915) for more details about this early feature.
 		 */
 		contentIntellisense?: boolean;
 
@@ -2279,7 +2307,7 @@ export interface AstroUserConfig {
 		 * export const collections = { countries };
 		 * ```
 		 *
-		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading while also giving full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders).
+		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading while also giving full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0050-content-layer.md#loaders).
 		 *
 		 * #### Migrating an existing content collection to use the Content Layer API
 		 *
@@ -2344,7 +2372,7 @@ export interface AstroUserConfig {
 		 *
 		 * #### Learn more
 		 *
-		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
+		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0050-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
 		 */
 		contentLayer?: boolean;
 	};

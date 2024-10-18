@@ -108,7 +108,7 @@ const FILES_TO_UPDATE = {
 			parsedPackageJson.dependencies['@astrojs/check'] = `^${astroCheckVersion}`;
 			parsedPackageJson.dependencies.typescript = `^${typescriptVersion}`;
 
-			await writeFile(file, JSON.stringify(parsedPackageJson, null, indent), 'utf-8');
+			await writeFile(file, JSON.stringify(parsedPackageJson, null, indent) + '\n', 'utf-8');
 		} catch (err) {
 			// if there's no package.json (which is very unlikely), then do nothing
 			if (err && (err as any).code === 'ENOENT') return;
@@ -124,7 +124,7 @@ const FILES_TO_UPDATE = {
 					extends: `astro/tsconfigs/${options.value}`,
 				});
 
-				await writeFile(file, JSON.stringify(result, null, 2));
+				await writeFile(file, JSON.stringify(result, null, 2) + '\n');
 			} else {
 				throw new Error(
 					"There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed",
@@ -135,9 +135,24 @@ const FILES_TO_UPDATE = {
 				// If the template doesn't have a tsconfig.json, let's add one instead
 				await writeFile(
 					file,
-					JSON.stringify({ extends: `astro/tsconfigs/${options.value}` }, null, 2),
+					JSON.stringify({ extends: `astro/tsconfigs/${options.value}` }, null, 2) + '\n',
 				);
 			}
+		}
+	},
+	'astro.config.mjs': async (file: string, options: { value: string }) => {
+		if (!(options.value === 'strict' || options.value === 'strictest')) {
+			return;
+		}
+
+		try {
+			let data = await readFile(file, { encoding: 'utf-8' });
+			data = `// @ts-check\n${data}`;
+			await writeFile(file, data, { encoding: 'utf-8' });
+		} catch (err) {
+			// if there's no astro.config.mjs (which is very unlikely), then do nothing
+			if (err && (err as any).code === 'ENOENT') return;
+			if (err instanceof Error) throw new Error(err.message);
 		}
 	},
 };

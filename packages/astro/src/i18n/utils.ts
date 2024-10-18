@@ -148,12 +148,15 @@ export function computePreferredLocaleList(request: Request, locales: Locales): 
 	return result;
 }
 
-export function computeCurrentLocale(pathname: string, locales: Locales): undefined | string {
+export function computeCurrentLocale(
+	pathname: string,
+	locales: Locales,
+	defaultLocale: string,
+): string | undefined {
 	for (const segment of pathname.split('/')) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
 				// we skip ta locale that isn't present in the current segment
-
 				if (!segment.includes(locale)) continue;
 				if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
 					return locale;
@@ -168,6 +171,19 @@ export function computeCurrentLocale(pathname: string, locales: Locales): undefi
 						}
 					}
 				}
+			}
+		}
+	}
+	// If we didn't exit, it's probably because we don't have any code/locale in the URL.
+	// We use the default locale.
+	for (const locale of locales) {
+		if (typeof locale === 'string') {
+			if (locale === defaultLocale) {
+				return locale;
+			}
+		} else {
+			if (locale.path === defaultLocale) {
+				return locale.codes.at(0);
 			}
 		}
 	}

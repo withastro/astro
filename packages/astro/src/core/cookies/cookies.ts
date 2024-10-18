@@ -156,7 +156,6 @@ class AstroCookies implements AstroCookiesInterface {
 					'Please make sure that Astro.cookies.set() is only called in the frontmatter of the main page.',
 			);
 			warning.name = 'Warning';
-			// eslint-disable-next-line no-console
 			console.warn(warning);
 		}
 		let serializedValue: string;

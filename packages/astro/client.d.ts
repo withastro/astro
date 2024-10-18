@@ -24,7 +24,7 @@ interface ImportMeta {
 	 * Astro and Vite expose environment variables through `import.meta.env`. For a complete list of the environment variables available, see the two references below.
 	 *
 	 * - [Astro reference](https://docs.astro.build/en/guides/environment-variables/#default-environment-variables)
-	 * - [Vite reference](https://vitejs.dev/guide/env-and-mode.html#env-variables)
+	 * - [Vite reference](https://vite.dev/guide/env-and-mode.html#env-variables)
 	 */
 	readonly env: ImportMetaEnv;
 }

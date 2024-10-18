@@ -20,7 +20,6 @@ import {
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
-	DATA_STORE_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
@@ -29,6 +28,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
+import { getDataStoreFile } from './content-layer.js';
 import {
 	type ContentLookupMap,
 	getContentEntryIdAndSlug,
@@ -54,12 +54,13 @@ export function astroContentVirtualModPlugin({
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
 	const IS_SERVER = isServerLikeOutput(settings.config);
-	const dataStoreFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
+	let dataStoreFile: URL;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		configResolved(config) {
 			IS_DEV = config.mode === 'development';
+			dataStoreFile = getDataStoreFile(settings, IS_DEV);
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
@@ -81,12 +82,12 @@ export function astroContentVirtualModPlugin({
 				const [, query] = id.split('?');
 				const params = new URLSearchParams(query);
 				const fileName = params.get('fileName');
-				let importerPath = undefined;
+				let importPath = undefined;
 				if (fileName && URL.canParse(fileName, settings.config.root.toString())) {
-					importerPath = fileURLToPath(new URL(fileName, settings.config.root));
+					importPath = fileURLToPath(new URL(fileName, settings.config.root));
 				}
-				if (importerPath) {
-					return await this.resolve(importerPath);
+				if (importPath) {
+					return await this.resolve(`${importPath}?${CONTENT_RENDER_FLAG}`);
 				}
 			}
 
@@ -180,25 +181,31 @@ export function astroContentVirtualModPlugin({
 
 		configureServer(server) {
 			const dataStorePath = fileURLToPath(dataStoreFile);
-			// Watch for changes to the data store file
-			if (Array.isArray(server.watcher.options.ignored)) {
-				// The data store file is in node_modules, so is ignored by default,
-				// so we need to un-ignore it.
-				server.watcher.options.ignored.push(`!${dataStorePath}`);
-			}
+
 			server.watcher.add(dataStorePath);
 
+			function invalidateDataStore() {
+				const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+				if (module) {
+					server.moduleGraph.invalidateModule(module);
+				}
+				server.ws.send({
+					type: 'full-reload',
+					path: '*',
+				});
+			}
+
+			// If the datastore file changes, invalidate the virtual module
+
+			server.watcher.on('add', (addedPath) => {
+				if (addedPath === dataStorePath) {
+					invalidateDataStore();
+				}
+			});
+
 			server.watcher.on('change', (changedPath) => {
-				// If the datastore file changes, invalidate the virtual module
 				if (changedPath === dataStorePath) {
-					const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
-					if (module) {
-						server.moduleGraph.invalidateModule(module);
-					}
-					server.ws.send({
-						type: 'full-reload',
-						path: '*',
-					});
+					invalidateDataStore();
 				}
 			});
 		},

@@ -291,12 +291,11 @@ function generateSSRCode(settings: AstroSettings, adapter: AstroAdapter, middlew
 
 	const contents = [
 		settings.config.experimental.serverIslands ? '' : `const serverIslandMap = new Map()`,
-		edgeMiddleware ? `const middleware = (_, next) => next()` : '',
 		`const _manifest = Object.assign(defaultManifest, {`,
 		`    ${pageMap},`,
 		`    serverIslandMap,`,
 		`    renderers,`,
-		`    middleware`,
+		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${middlewareId}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,
 		adapter.exports

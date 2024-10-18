@@ -77,7 +77,6 @@ function validateComponentProps(props: any, displayName: string) {
 	if (props != null) {
 		for (const prop of Object.keys(props)) {
 			if (prop.startsWith('client:')) {
-				// eslint-disable-next-line
 				console.warn(
 					`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
 				);

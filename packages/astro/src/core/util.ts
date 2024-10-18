@@ -151,7 +151,7 @@ export function isPage(file: URL, settings: AstroSettings): boolean {
 }
 
 export function isEndpoint(file: URL, settings: AstroSettings): boolean {
-	if (!isInPagesDir(file, settings.config)) return false;
+	if (!isInPagesDir(file, settings.config) && !isInjectedRoute(file, settings)) return false;
 	if (!isPublicRoute(file, settings.config)) return false;
 	return !endsWithPageExt(file, settings) && !file.toString().includes('?astro');
 }
