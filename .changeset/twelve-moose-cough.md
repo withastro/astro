@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-fix: Cannot read properties of null (reading 'Symbol(astro.headAndContent)')
+Fixes error when returning a top-level `null` from an Astro file frontmatter

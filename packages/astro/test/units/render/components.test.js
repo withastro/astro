@@ -110,30 +110,25 @@ describe('core/render components', () => {
 	});
 
 	it('should render component with `null` response', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/index.astro': `
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `
 				---
 				import NullComponent from '../components/NullComponent.astro';
 				---
 				<NullComponent />
 			`,
-				'/src/components/NullComponent.astro': `
+			'/src/components/NullComponent.astro': `
 				---
 				return null;
 				---
 			`,
-			},
-			root,
-		);
+		});
 
 		await runInContainer(
 			{
-				fs,
 				inlineConfig: {
-					root: fileURLToPath(root),
+					root: fixture.path,
 					logLevel: 'silent',
-					integrations: [],
 				},
 			},
 			async (container) => {
