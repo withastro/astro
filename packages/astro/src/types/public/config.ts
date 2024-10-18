@@ -112,6 +112,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */
 export type AstroUserConfig = AstroUserDefineConfig<never>;
 
+/** @internal */
 export interface AstroUserDefineConfig<TLocales extends Locales = never> {
 	/**
 	 * @docs
