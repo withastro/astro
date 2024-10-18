@@ -1,5 +1,11 @@
 # astro
 
+## 4.16.7
+
+### Patch Changes
+
+- [#12235](https://github.com/withastro/astro/pull/12235) [`a75bc5e`](https://github.com/withastro/astro/commit/a75bc5e3068ed80366a03efbec78b3b0f8837516) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Astro Actions couldn't redirect to the correct pathname when there was a rewrite involved.
+
 ## 4.16.6
 
 ### Patch Changes
