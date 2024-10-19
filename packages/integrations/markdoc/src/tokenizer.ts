@@ -24,6 +24,10 @@ export function getMarkdocTokenizer(options: MarkdocIntegrationOptions | undefin
 			// allow indentation so nested Markdoc tags can be formatted for better readability
 			tokenizerOptions.allowIndentation = true;
 		}
+		if (options?.typographer) {
+			// enable typographer to convert straight quotes to curly quotes, etc.
+			tokenizerOptions.typographer = options.typographer;
+		}
 
 		_cachedMarkdocTokenizers[key] = new Markdoc.Tokenizer(tokenizerOptions);
 	}

@@ -1,30 +1,23 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
-import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
-
-const root = new URL('../../fixtures/alias/', import.meta.url);
+import { createFixture, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
 describe('core/render chunk', () => {
 	it('does not throw on user object with type', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/index.astro': `
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `\
 				---
 				const value = { type: 'foobar' }
 				---
 				<div id="chunk">{value}</div>
 			`,
-			},
-			root
-		);
+		});
 
 		await runInContainer(
 			{
-				fs,
 				inlineConfig: {
-					root: fileURLToPath(root),
+					root: fixture.path,
 					logLevel: 'silent',
 					integrations: [],
 				},
@@ -44,10 +37,10 @@ describe('core/render chunk', () => {
 
 					assert.ok(target);
 					assert.equal(target.text(), '[object Object]');
-				} catch (e) {
+				} catch {
 					assert.fail();
 				}
-			}
+			},
 		);
 	});
 });

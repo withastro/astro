@@ -8,14 +8,10 @@ import {
 	VIRTUAL_MODULES_IDS,
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
+import { type InvalidVariable, invalidVariablesToError } from './errors.js';
+import { ENV_SYMBOL } from './runtime-constants.js';
 import type { EnvSchema } from './schema.js';
-import { validateEnvVariable } from './validators.js';
-
-// TODO: reminders for when astro:env comes out of experimental
-// Types should always be generated (like in types/content.d.ts). That means the client module will be empty
-// and server will only contain getSecret for unknown variables. Then, specifying a schema should only add
-// variables as needed. For secret variables, it will only require specifying SecretValues and it should get
-// merged with the static types/content.d.ts
+import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
@@ -30,7 +26,7 @@ export function astroEnv({
 	fs,
 	sync,
 }: AstroEnvVirtualModPluginParams): Plugin | undefined {
-	if (!settings.config.experimental.env || sync) {
+	if (!settings.config.experimental.env) {
 		return;
 	}
 	const schema = settings.config.experimental.env.schema ?? {};
@@ -44,15 +40,16 @@ export function astroEnv({
 			const loadedEnv = loadEnv(
 				mode === 'dev' ? 'development' : 'production',
 				fileURLToPath(settings.config.root),
-				''
+				'',
 			);
-			for (const [key, value] of Object.entries(loadedEnv)) {
-				if (value !== undefined) {
-					process.env[key] = value;
-				}
-			}
+			(globalThis as any)[ENV_SYMBOL] = loadedEnv;
 
-			const validatedVariables = validatePublicVariables({ schema, loadedEnv });
+			const validatedVariables = validatePublicVariables({
+				schema,
+				loadedEnv,
+				validateSecrets: settings.config.experimental.env?.validateSecrets ?? false,
+				sync,
+			});
 
 			templates = {
 				...getTemplates(schema, fs, validatedVariables),
@@ -94,32 +91,38 @@ function resolveVirtualModuleId<T extends string>(id: T): `\0${T}` {
 function validatePublicVariables({
 	schema,
 	loadedEnv,
+	validateSecrets,
+	sync,
 }: {
 	schema: EnvSchema;
 	loadedEnv: Record<string, string>;
+	validateSecrets: boolean;
+	sync: boolean;
 }) {
 	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
-	const invalid: Array<{ key: string; type: string }> = [];
+	const invalid: Array<InvalidVariable> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
-		if (options.access !== 'public') {
+		const variable = loadedEnv[key] === '' ? undefined : loadedEnv[key];
+
+		if (options.access === 'secret' && !validateSecrets) {
 			continue;
 		}
-		const variable = loadedEnv[key];
-		const result = validateEnvVariable(variable === '' ? undefined : variable, options);
-		if (result.ok) {
-			valid.push({ key, value: result.value, type: result.type, context: options.context });
-		} else {
-			invalid.push({ key, type: result.type });
+
+		const result = validateEnvVariable(variable, options);
+		const type = getEnvFieldType(options);
+		if (!result.ok) {
+			invalid.push({ key, type, errors: result.errors });
+			// We don't do anything with validated secrets so we don't store them
+		} else if (options.access === 'public') {
+			valid.push({ key, value: result.value, type, context: options.context });
 		}
 	}
 
-	if (invalid.length > 0) {
+	if (invalid.length > 0 && !sync) {
 		throw new AstroError({
 			...AstroErrorData.EnvInvalidVariables,
-			message: AstroErrorData.EnvInvalidVariables.message(
-				invalid.map(({ key, type }) => `Variable ${key} is not of type: ${type}.`).join('\n')
-			),
+			message: AstroErrorData.EnvInvalidVariables.message(invalidVariablesToError(invalid)),
 		});
 	}
 
@@ -129,7 +132,7 @@ function validatePublicVariables({
 function getTemplates(
 	schema: EnvSchema,
 	fs: typeof fsMod,
-	validatedVariables: ReturnType<typeof validatePublicVariables>
+	validatedVariables: ReturnType<typeof validatePublicVariables>,
 ) {
 	let client = '';
 	let server = fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8');

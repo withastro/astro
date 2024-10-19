@@ -9,6 +9,7 @@ export const SitemapOptionsSchema = z
 		filter: z.function().args(z.string()).returns(z.boolean()).optional(),
 		customPages: z.string().url().array().optional(),
 		canonicalURL: z.string().url().optional(),
+		xslURL: z.string().optional(),
 
 		i18n: z
 			.object({
@@ -20,7 +21,7 @@ export const SitemapOptionsSchema = z
 						.min(2)
 						.regex(/^[a-zA-Z\-]+$/gm, {
 							message: 'Only English alphabet symbols and hyphen allowed',
-						})
+						}),
 				),
 			})
 			.refine((val) => !val || val.locales[val.defaultLocale], {

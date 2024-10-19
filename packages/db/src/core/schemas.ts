@@ -15,7 +15,7 @@ const sqlSchema = z.instanceof(SQL<any>).transform(
 	(sqlObj): SerializedSQL => ({
 		[SERIALIZED_SQL_KEY]: true,
 		sql: sqlite.sqlToQuery(sqlObj).sql,
-	})
+	}),
 );
 
 const baseColumnSchema = z.object({
@@ -52,7 +52,7 @@ const numberColumnBaseSchema = baseColumnSchema.omit({ optional: true }).and(
 			optional: z.literal(false).optional(),
 			default: z.literal(undefined).optional(),
 		}),
-	])
+	]),
 );
 
 export const numberColumnOptsSchema: z.ZodType<
@@ -71,7 +71,7 @@ export const numberColumnOptsSchema: z.ZodType<
 			.returns(z.lazy(() => numberColumnSchema))
 			.optional()
 			.transform((fn) => fn?.()),
-	})
+	}),
 );
 
 export const numberColumnSchema = z.object({
@@ -99,7 +99,7 @@ const textColumnBaseSchema = baseColumnSchema
 				primaryKey: z.literal(true),
 				optional: z.literal(false).optional(),
 			}),
-		])
+		]),
 	);
 
 export const textColumnOptsSchema: z.ZodType<
@@ -118,7 +118,7 @@ export const textColumnOptsSchema: z.ZodType<
 			.returns(z.lazy(() => textColumnSchema))
 			.optional()
 			.transform((fn) => fn?.()),
-	})
+	}),
 );
 
 export const textColumnSchema = z.object({

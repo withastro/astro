@@ -1,9 +1,9 @@
 import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { stripVTControlCharacters } from 'node:util';
 import { escape } from 'html-escaper';
 import { bold, underline } from 'kleur/colors';
-import stripAnsi from 'strip-ansi';
 import type { ESBuildTransformResult } from 'vite';
 import { normalizePath } from 'vite';
 import type { SSRError } from '../../../@types/astro.js';
@@ -19,14 +19,16 @@ type EsbuildMessage = ESBuildTransformResult['warnings'][number];
  * Takes any error-like object and returns a standardized Error + metadata object.
  * Useful for consistent reporting regardless of where the error surfaced from.
  */
-export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): ErrorWithMetadata {
+export function collectErrorMetadata(e: any, rootFolder?: URL): ErrorWithMetadata {
 	const err =
 		AggregateError.is(e) || Array.isArray(e.errors) ? (e.errors as SSRError[]) : [e as SSRError];
 
 	err.forEach((error) => {
 		if (e.stack) {
 			const stackInfo = collectInfoFromStacktrace(e);
-			error.stack = stripAnsi(stackInfo.stack);
+			try {
+				error.stack = stripVTControlCharacters(stackInfo.stack);
+			} catch {}
 			error.loc = stackInfo.loc;
 			error.plugin = stackInfo.plugin;
 			error.pluginCode = stackInfo.pluginCode;
@@ -57,7 +59,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 				if (!error.frame) {
 					const frame = codeFrame(fileContents, error.loc);
-					error.frame = stripAnsi(frame);
+					error.frame = stripVTControlCharacters(frame);
 				}
 
 				if (!error.fullCode) {
@@ -72,7 +74,11 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 		// Strip ANSI for `message` property. Note that ESBuild errors may not have the property,
 		// but it will be handled and added below, which is already ANSI-free
 		if (error.message) {
-			error.message = stripAnsi(error.message);
+			try {
+				error.message = stripVTControlCharacters(error.message);
+			} catch {
+				// Setting `error.message` can fail here if the message is read-only, which for the vast majority of cases will never happen, however some somewhat obscure cases can cause this to happen.
+			}
 		}
 	});
 
@@ -84,7 +90,9 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 			// ESBuild can give us a slightly better error message than the one in the error, so let's use it
 			if (text) {
-				err[i].message = text;
+				try {
+					err[i].message = text;
+				} catch {}
 			}
 
 			if (location) {
@@ -162,7 +170,7 @@ function collectInfoFromStacktrace(error: SSRError & { stack: string }): StackIn
 
 	// normalize error stack line-endings to \n
 	stackInfo.stack = normalizeLF(error.stack);
-	const stackText = stripAnsi(error.stack);
+	const stackText = stripVTControlCharacters(error.stack);
 
 	// Try to find possible location from stack if we don't have one
 	if (!stackInfo.loc || (!stackInfo.loc.column && !stackInfo.loc.line)) {

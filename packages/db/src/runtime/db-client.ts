@@ -1,5 +1,5 @@
 import type { InStatement } from '@libsql/client';
-import { createClient } from '@libsql/client';
+import { type Config as LibSQLConfig, createClient } from '@libsql/client';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { type SqliteRemoteDatabase, drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
@@ -12,18 +12,25 @@ function applyTransactionNotSupported(db: SqliteRemoteDatabase) {
 	Object.assign(db, {
 		transaction() {
 			throw new Error(
-				'`db.transaction()` is not currently supported. We recommend `db.batch()` for automatic error rollbacks across multiple queries.'
+				'`db.transaction()` is not currently supported. We recommend `db.batch()` for automatic error rollbacks across multiple queries.',
 			);
 		},
 	});
 }
 
-export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLDatabase {
-	const url = isWebContainer ? 'file:content.db' : dbUrl;
+type LocalDbClientOptions = {
+	dbUrl: string;
+	enableTransations: boolean;
+};
+
+export function createLocalDatabaseClient(options: LocalDbClientOptions): LibSQLDatabase {
+	const url = isWebContainer ? 'file:content.db' : options.dbUrl;
 	const client = createClient({ url });
 	const db = drizzleLibsql(client);
 
-	applyTransactionNotSupported(db);
+	if (!options.enableTransations) {
+		applyTransactionNotSupported(db);
+	}
 	return db;
 }
 
@@ -35,7 +42,54 @@ const remoteResultSchema = z.object({
 	lastInsertRowid: z.unknown().optional(),
 });
 
-export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string) {
+type RemoteDbClientOptions = {
+	dbType: 'studio' | 'libsql';
+	appToken: string;
+	remoteUrl: string | URL;
+};
+
+export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
+	const remoteUrl = new URL(options.remoteUrl);
+
+	return options.dbType === 'studio'
+		? createStudioDatabaseClient(options.appToken, remoteUrl)
+		: createRemoteLibSQLClient(options.appToken, remoteUrl, options.remoteUrl.toString());
+}
+
+function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: string) {
+	const options: Partial<LibSQLConfig> = Object.fromEntries(remoteDbURL.searchParams.entries());
+	remoteDbURL.search = '';
+
+	let url = remoteDbURL.toString();
+	if (remoteDbURL.protocol === 'memory:') {
+		// libSQL expects a special string in place of a URL
+		// for in-memory DBs.
+		url = ':memory:';
+	} else if (
+		remoteDbURL.protocol === 'file:' &&
+		remoteDbURL.pathname.startsWith('/') &&
+		!rawUrl.startsWith('file:/')
+	) {
+		// libSQL accepts relative and absolute file URLs
+		// for local DBs. This doesn't match the URL specification.
+		// Parsing `file:some.db` and `file:/some.db` should yield
+		// the same result, but libSQL interprets the former as
+		// a relative path, and the latter as an absolute path.
+		// This detects when such a conversion happened during parsing
+		// and undoes it so that the URL given to libSQL is the
+		// same as given by the user.
+		url = 'file:' + remoteDbURL.pathname.substring(1);
+	}
+
+	const client = createClient({
+		...options,
+		authToken: appToken,
+		url,
+	});
+	return drizzleLibsql(client);
+}
+
+function createStudioDatabaseClient(appToken: string, remoteDbURL: URL) {
 	if (appToken == null) {
 		throw new Error(`Cannot create a remote client: missing app token.`);
 	}
@@ -57,14 +111,14 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				},
 				async (response) => {
 					throw await parseRemoteError(response);
-				}
+				},
 			);
 
 			let remoteResult: z.infer<typeof remoteResultSchema>;
 			try {
 				const json = await res.json();
 				remoteResult = remoteResultSchema.parse(json);
-			} catch (e) {
+			} catch {
 				throw new DetailedLibsqlError({
 					message: await getUnexpectedResponseMessage(res),
 					code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
@@ -118,14 +172,14 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				},
 				async (response) => {
 					throw await parseRemoteError(response);
-				}
+				},
 			);
 
 			let remoteResults: z.infer<typeof remoteResultSchema>[];
 			try {
 				const json = await res.json();
 				remoteResults = z.array(remoteResultSchema).parse(json);
-			} catch (e) {
+			} catch {
 				throw new DetailedLibsqlError({
 					message: await getUnexpectedResponseMessage(res),
 					code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
@@ -154,7 +208,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				results.push({ rows: rowValues });
 			}
 			return results;
-		}
+		},
 	);
 	applyTransactionNotSupported(db);
 	return db;
@@ -181,7 +235,7 @@ async function parseRemoteError(response: Response): Promise<DetailedLibsqlError
 	let error;
 	try {
 		error = errorSchema.parse(await response.clone().json()).error;
-	} catch (e) {
+	} catch {
 		return new DetailedLibsqlError({
 			message: await getUnexpectedResponseMessage(response),
 			code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,

@@ -22,5 +22,5 @@ export const build = (inlineConfig: AstroInlineConfig) => _build(inlineConfig);
  *
  * @experimental The JavaScript API is experimental
  */
-// Wrap `_sync` to prevent exposing the second internal options parameter
+// Wrap `_sync` to prevent exposing internal options
 export const sync = (inlineConfig: AstroInlineConfig) => _sync(inlineConfig);

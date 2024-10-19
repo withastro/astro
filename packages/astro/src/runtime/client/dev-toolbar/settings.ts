@@ -35,11 +35,10 @@ function getSettings() {
 	}
 
 	function log(message: string, level: 'log' | 'warn' | 'error' = 'log') {
-		// eslint-disable-next-line no-console
 		console[level](
 			`%cAstro`,
 			'background: linear-gradient(66.77deg, #D83333 0%, #F041FF 100%); color: white; padding-inline: 4px; border-radius: 2px; font-family: monospace;',
-			message
+			message,
 		);
 	}
 

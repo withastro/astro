@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory, waitForHydrate } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/lit-component/',
 });
 
@@ -118,13 +118,13 @@ test.describe('Lit components', () => {
 
 			// Light DOM reconstructed correctly (slots are rendered alphabetically) and shadow dom content rendered
 			await expect(label, 'slotted text is in DOM').toHaveText(
-				'Framework client:only component Should not be visible Shadow dom default content should not be visible'
+				'Framework client:only component Should not be visible Shadow dom default content should not be visible',
 			);
 
 			// Projected content should be visible
 			await expect(
 				page.locator('#client-only .default'),
-				'slotted element is visible'
+				'slotted element is visible',
 			).toBeVisible();
 			await expect(page.locator('#client-only .foo1'), 'slotted element is visible').toBeVisible();
 			await expect(page.locator('#client-only .foo2'), 'slotted element is visible').toBeVisible();
@@ -132,13 +132,13 @@ test.describe('Lit components', () => {
 			// Non-projected content should not be visible
 			await expect(
 				page.locator('#client-only [slot="quux"]'),
-				'element without slot is not visible'
+				'element without slot is not visible',
 			).toBeHidden();
 
 			// Default slot content should not be visible
 			await expect(
 				page.locator('#client-only .defaultContent'),
-				'element without slot is not visible'
+				'element without slot is not visible',
 			).toBeHidden();
 		});
 
@@ -149,7 +149,7 @@ test.describe('Lit components', () => {
 			const label = counter.locator('h1');
 
 			await astro.editFile('./src/pages/index.astro', (original) =>
-				original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
+				original.replace('Hello, client:idle!', 'Hello, updated client:idle!'),
 			);
 
 			await expect(label, 'slot text updated').toHaveText('Hello, updated client:idle!');

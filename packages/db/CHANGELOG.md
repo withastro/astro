@@ -1,5 +1,120 @@
 # @astrojs/db
 
+## 0.14.2
+
+### Patch Changes
+
+- [#12118](https://github.com/withastro/astro/pull/12118) [`f47b347`](https://github.com/withastro/astro/commit/f47b347da899c6e1dcd0b2e7887f7fce6ec8e270) Thanks [@Namchee](https://github.com/Namchee)! - Removes the `strip-ansi` dependency in favor of the native Node API
+
+- [#12089](https://github.com/withastro/astro/pull/12089) [`6e06e6e`](https://github.com/withastro/astro/commit/6e06e6ed4f1c983f842527d7e3561a45a4407777) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes initial schema push for local file and in-memory libSQL DB
+
+- [#12089](https://github.com/withastro/astro/pull/12089) [`6e06e6e`](https://github.com/withastro/astro/commit/6e06e6ed4f1c983f842527d7e3561a45a4407777) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes relative local libSQL db URL
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.14.1
+
+### Patch Changes
+
+- [#11894](https://github.com/withastro/astro/pull/11894) [`cc820c5`](https://github.com/withastro/astro/commit/cc820c5d5e176a8d71594d612af75e1c94b9bf02) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes mixed environment variable for app token when using DB commands with libSQL remote.
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.14.0
+
+### Minor Changes
+
+- [#11385](https://github.com/withastro/astro/pull/11385) [`d6611e8`](https://github.com/withastro/astro/commit/d6611e8bb05e7d913aeb5e59e90906b8b919d48e) Thanks [@Fryuni](https://github.com/Fryuni)! - Adds support for connecting Astro DB to any remote LibSQL server. This allows Astro DB to be used with self-hosting and air-gapped deployments.
+
+  To connect Astro DB to a remote LibSQL server instead of Studio, set the following environment variables:
+
+  - `ASTRO_DB_REMOTE_URL`: the connection URL to your LibSQL server
+  - `ASTRO_DB_APP_TOKEN`: the auth token to your LibSQL server
+
+  Details of the LibSQL connection can be configured using the connection URL. For example, `memory:?syncUrl=libsql%3A%2F%2Fdb-server.example.com` would create an in-memory embedded replica for the LibSQL DB on `libsql://db-server.example.com`.
+
+  For more details, please visit [the Astro DB documentation](https://docs.astro.build/en/guides/astro-db/#libsql)
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.13.2
+
+### Patch Changes
+
+- [#11744](https://github.com/withastro/astro/pull/11744) [`b677429`](https://github.com/withastro/astro/commit/b67742961a384c10e5cd04cf5b02d0f014ea7362) Thanks [@bluwy](https://github.com/bluwy)! - Disables the WebSocket server when creating a Vite server for loading config files
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.13.1
+
+### Patch Changes
+
+- [#11733](https://github.com/withastro/astro/pull/11733) [`391324d`](https://github.com/withastro/astro/commit/391324df969db71d1c7ca25c2ed14c9eb6eea5ee) Thanks [@bluwy](https://github.com/bluwy)! - Reverts back to `yargs-parser` package for CLI argument parsing
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.13.0
+
+### Minor Changes
+
+- [#11360](https://github.com/withastro/astro/pull/11360) [`a79a8b0`](https://github.com/withastro/astro/commit/a79a8b0230b06ed32ce1802f2a5f84a6cf92dbe7) Thanks [@ascorbic](https://github.com/ascorbic)! - Changes how type generation works
+
+  The generated `.d.ts` file is now at a new location:
+
+  ```diff
+  - .astro/db-types.d.ts
+  + .astro/integrations/astro_db/db.d.ts
+  ```
+
+  The following line can now be removed from `src/env.d.ts`:
+
+  ```diff
+  - /// <reference path="../.astro/db-types.d.ts" />
+  ```
+
+### Patch Changes
+
+- [#11645](https://github.com/withastro/astro/pull/11645) [`849e4c6`](https://github.com/withastro/astro/commit/849e4c6c23e61f7fa59f583419048b998bef2475) Thanks [@bluwy](https://github.com/bluwy)! - Refactors internally to use `node:util` `parseArgs` instead of `yargs-parser`
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.12.0
+
+### Minor Changes
+
+- [#11304](https://github.com/withastro/astro/pull/11304) [`2e70741`](https://github.com/withastro/astro/commit/2e70741362afc1e7d03c8b2a9d8edb8466dfe9c3) Thanks [@Fryuni](https://github.com/Fryuni)! - Removes the `AstroDbIntegration` type
+
+  Astro integration hooks can now be extended and as such `@astrojs/db` no longer needs to declare it's own integration type. Using `AstroIntegration` will have the same type.
+
+  If you were using the `AstroDbIntegration` type, apply this change to your integration code:
+
+  ```diff
+  - import { defineDbIntegration, type AstroDbIntegration } from '@astrojs/db/utils';
+  + import { defineDbIntegration } from '@astrojs/db/utils';
+  import type { AstroIntegration } from 'astro';
+
+  - export default (): AstroDbIntegration => {
+  + export default (): AstroIntegration => {
+    return defineDbIntegration({
+      name: 'your-integration',
+      hooks: {},
+    });
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
 ## 0.11.7
 
 ### Patch Changes

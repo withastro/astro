@@ -1,5 +1,5 @@
 import type { APIContext, MiddlewareHandler, Params, RewritePayload } from '../../@types/astro.js';
-import { createGetActionResult } from '../../actions/utils.js';
+import { createCallAction, createGetActionResult } from '../../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -8,6 +8,7 @@ import {
 import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { getClientIpAddress } from '../routing/request.js';
 import { sequence } from './sequence.js';
 
 function defineMiddleware(fn: MiddlewareHandler) {
@@ -31,6 +32,11 @@ export type CreateContext = {
 	 * A list of locales that are supported by the user
 	 */
 	userDefinedLocales?: string[];
+
+	/**
+	 * User defined default locale
+	 */
+	defaultLocale: string;
 };
 
 /**
@@ -40,10 +46,12 @@ function createContext({
 	request,
 	params = {},
 	userDefinedLocales = [],
+	defaultLocale = '',
 }: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
 	let currentLocale: string | undefined = undefined;
+	let clientIpAddress: string | undefined;
 	const url = new URL(request.url);
 	const route = url.pathname;
 
@@ -52,7 +60,7 @@ function createContext({
 		// return dummy response
 		return Promise.resolve(new Response(null));
 	};
-	const context: Omit<APIContext, 'getActionResult'> = {
+	const context: Omit<APIContext, 'getActionResult' | 'callAction'> = {
 		cookies: new AstroCookies(request),
 		request,
 		params,
@@ -75,14 +83,18 @@ function createContext({
 			return (preferredLocaleList ??= computePreferredLocaleList(request, userDefinedLocales));
 		},
 		get currentLocale(): string | undefined {
-			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales));
+			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales, defaultLocale));
 		},
 		url,
 		get clientAddress() {
-			if (clientAddressSymbol in request) {
-				return Reflect.get(request, clientAddressSymbol) as string;
+			if (clientIpAddress) {
+				return clientIpAddress;
 			}
-			throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+			clientIpAddress = getClientIpAddress(request);
+			if (!clientIpAddress) {
+				throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+			}
+			return clientIpAddress;
 		},
 		get locals() {
 			let locals = Reflect.get(request, clientLocalsSymbol);
@@ -106,6 +118,7 @@ function createContext({
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),
+		callAction: createCallAction(context),
 	});
 }
 

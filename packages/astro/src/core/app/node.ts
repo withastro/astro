@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { Http2ServerResponse } from 'node:http2';
 import type { RouteData } from '../../@types/astro.js';
+import { clientAddressSymbol } from '../constants.js';
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import { App } from './index.js';
@@ -8,8 +10,6 @@ import type { RenderOptions } from './index.js';
 import type { SSRManifest, SerializedSSRManifest } from './types.js';
 
 export { apply as applyPolyfills } from '../polyfill.js';
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
 /**
  * Allow the request body to be explicitly overridden. For example, this
@@ -37,7 +37,7 @@ export class NodeApp extends App {
 	render(
 		req: NodeRequest | Request,
 		routeDataOrOptions?: RouteData | RenderOptions,
-		maybeLocals?: object
+		maybeLocals?: object,
 	) {
 		if (!(req instanceof Request)) {
 			req = NodeApp.createRequest(req);
@@ -60,16 +60,32 @@ export class NodeApp extends App {
 	 * ```
 	 */
 	static createRequest(req: NodeRequest, { skipBody = false } = {}): Request {
-		const protocol =
-			req.headers['x-forwarded-proto'] ??
-			('encrypted' in req.socket && req.socket.encrypted ? 'https' : 'http');
-		const hostname =
-			req.headers['x-forwarded-host'] ?? req.headers.host ?? req.headers[':authority'];
-		const port = req.headers['x-forwarded-port'];
+		const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
 
-		const portInHostname =
-			typeof hostname === 'string' && typeof port === 'string' && hostname.endsWith(port);
-		const hostnamePort = portInHostname ? hostname : hostname + (port ? `:${port}` : '');
+		// Parses multiple header and returns first value if available.
+		const getFirstForwardedValue = (multiValueHeader?: string | string[]) => {
+			return multiValueHeader
+				?.toString()
+				?.split(',')
+				.map((e) => e.trim())?.[0];
+		};
+
+		// Get the used protocol between the end client and first proxy.
+		// NOTE: Some proxies append values with spaces and some do not.
+		// We need to handle it here and parse the header correctly.
+		// @example "https, http,http" => "http"
+		const forwardedProtocol = getFirstForwardedValue(req.headers['x-forwarded-proto']);
+		const protocol = forwardedProtocol ?? (isEncrypted ? 'https' : 'http');
+
+		// @example "example.com,www2.example.com" => "example.com"
+		const forwardedHostname = getFirstForwardedValue(req.headers['x-forwarded-host']);
+		const hostname = forwardedHostname ?? req.headers.host ?? req.headers[':authority'];
+
+		// @example "443,8080,80" => "443"
+		const port = getFirstForwardedValue(req.headers['x-forwarded-port']);
+
+		const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
+		const hostnamePort = portInHostname ? hostname : `${hostname}${port ? `:${port}` : ''}`;
 
 		const url = `${protocol}://${hostnamePort}${req.url}`;
 		const options: RequestInit = {
@@ -80,14 +96,17 @@ export class NodeApp extends App {
 		if (bodyAllowed) {
 			Object.assign(options, makeRequestBody(req));
 		}
+
 		const request = new Request(url, options);
 
-		const clientIp = req.headers['x-forwarded-for'];
+		// Get the IP of end client behind the proxy.
+		// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
+		const forwardedClientIp = getFirstForwardedValue(req.headers['x-forwarded-for']);
+		const clientIp = forwardedClientIp || req.socket?.remoteAddress;
 		if (clientIp) {
 			Reflect.set(request, clientAddressSymbol, clientIp);
-		} else if (req.socket?.remoteAddress) {
-			Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
 		}
+
 		return request;
 	}
 
@@ -107,7 +126,11 @@ export class NodeApp extends App {
 	 * @param destination NodeJS ServerResponse
 	 */
 	static async writeResponse(source: Response, destination: ServerResponse) {
-		const { status, headers, body } = source;
+		const { status, headers, body, statusText } = source;
+		// HTTP/2 doesn't support statusMessage
+		if (!(destination instanceof Http2ServerResponse)) {
+			destination.statusMessage = statusText;
+		}
 		destination.writeHead(status, createOutgoingHttpHeaders(headers));
 		if (!body) return destination.end();
 		try {
@@ -117,10 +140,9 @@ export class NodeApp extends App {
 				// an error in the ReadableStream's cancel callback, but
 				// also because of an error anywhere in the stream.
 				reader.cancel().catch((err) => {
-					// eslint-disable-next-line no-console
 					console.error(
 						`There was an uncaught error in the middle of the stream while rendering ${destination.req.url}.`,
-						err
+						err,
 					);
 				});
 			});

@@ -9,7 +9,7 @@ import type {
 } from './types.js';
 
 import { normalizePath } from 'vite';
-import { normalizeFilename } from '../vite-plugin-utils/index.js';
+import { hasSpecialQueries, normalizeFilename } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
@@ -112,7 +112,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			if (!compileMetadata) {
 				throw new Error(
 					`No cached compile metadata found for "${id}". The main Astro module "${filename}" should have ` +
-						`compiled and filled the metadata first, before its virtual modules can be requested.`
+						`compiled and filled the metadata first, before its virtual modules can be requested.`,
 				);
 			}
 
@@ -166,7 +166,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						if (src.startsWith('/') && !isBrowserPath(src)) {
 							const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
 							throw new Error(
-								`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${id}`
+								`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${id}`,
 							);
 						}
 					}
@@ -200,6 +200,8 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			}
 		},
 		async transform(source, id) {
+			if (hasSpecialQueries(id)) return;
+
 			const parsedId = parseAstroRequest(id);
 			// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
 			if (!parsedId.filename.endsWith('.astro') || parsedId.query.astro) {
@@ -212,6 +214,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			const astroMetadata: AstroPluginMetadata['astro'] = {
 				clientOnlyComponents: transformResult.clientOnlyComponents,
 				hydratedComponents: transformResult.hydratedComponents,
+				serverComponents: transformResult.serverComponents,
 				scripts: transformResult.scripts,
 				containsHead: transformResult.containsHead,
 				propagation: transformResult.propagation ? 'self' : 'none',
@@ -253,6 +256,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 function appendSourceMap(content: string, map?: string) {
 	if (!map) return content;
 	return `${content}\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
-		map
+		map,
 	).toString('base64')}`;
 }

@@ -14,20 +14,14 @@ import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 // This import includes ambient types for hast to include mdx nodes
 import type {} from 'mdast-util-mdx';
+import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
 export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 	return (tree, file) => {
 		// Initial metadata for this MDX file, it will be mutated as we traverse the tree
-		const metadata: PluginMetadata['astro'] = {
-			clientOnlyComponents: [],
-			hydratedComponents: [],
-			scripts: [],
-			containsHead: false,
-			propagation: 'none',
-			pageOptions: {},
-		};
+		const metadata = createDefaultAstroMetadata();
 
 		// Parse imports in this file. This is used to match components with their import source
 		const imports = parseImports(tree.children);
@@ -53,14 +47,13 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 			// work on Astro components as it's server-side only. Warn the user about this.
 			if (matchedImport.path.endsWith('.astro')) {
 				const clientAttribute = node.attributes.find(
-					(attr) => attr.type === 'mdxJsxAttribute' && attr.name.startsWith('client:')
+					(attr) => attr.type === 'mdxJsxAttribute' && attr.name.startsWith('client:'),
 				) as MdxJsxAttribute | undefined;
 				if (clientAttribute) {
-					// eslint-disable-next-line
 					console.warn(
 						`You are attempting to render <${node.name!} ${
 							clientAttribute.name
-						} />, but ${node.name!} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`
+						} />, but ${node.name!} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
 					);
 				}
 			}
@@ -71,6 +64,7 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 				// Add this component to the metadata
 				metadata.clientOnlyComponents.push({
 					exportName: matchedImport.name,
+					localName: '',
 					specifier: tagName,
 					resolvedPath,
 				});
@@ -80,6 +74,7 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 				// Add this component to the metadata
 				metadata.hydratedComponents.push({
 					exportName: '*',
+					localName: '',
 					specifier: tagName,
 					resolvedPath,
 				});
@@ -136,8 +131,15 @@ function parseImports(children: RootContent[]) {
 						return { local: spec.local.name, imported: 'default' };
 					case 'ImportNamespaceSpecifier':
 						return { local: spec.local.name, imported: '*' };
-					case 'ImportSpecifier':
-						return { local: spec.local.name, imported: spec.imported.name };
+					case 'ImportSpecifier': {
+						return {
+							local: spec.local.name,
+							imported:
+								spec.imported.type === 'Identifier'
+									? spec.imported.name
+									: String(spec.imported.value),
+						};
+					}
 					default:
 						throw new Error('Unknown import declaration specifier: ' + spec);
 				}
@@ -169,13 +171,13 @@ function isComponent(tagName: string) {
 
 function hasClientDirective(node: MdxJsxFlowElementHast | MdxJsxTextElementHast) {
 	return node.attributes.some(
-		(attr) => attr.type === 'mdxJsxAttribute' && attr.name.startsWith('client:')
+		(attr) => attr.type === 'mdxJsxAttribute' && attr.name.startsWith('client:'),
 	);
 }
 
 function hasClientOnlyDirective(node: MdxJsxFlowElementHast | MdxJsxTextElementHast) {
 	return node.attributes.some(
-		(attr) => attr.type === 'mdxJsxAttribute' && attr.name === 'client:only'
+		(attr) => attr.type === 'mdxJsxAttribute' && attr.name === 'client:only',
 	);
 }
 
@@ -206,7 +208,7 @@ type MatchedImport = { name: string; path: string };
  */
 function findMatchingImport(
 	tagName: string,
-	imports: Map<string, Set<ImportSpecifier>>
+	imports: Map<string, Set<ImportSpecifier>>,
 ): MatchedImport | undefined {
 	const tagSpecifier = tagName.split('.')[0];
 	for (const [source, specs] of imports) {
@@ -243,7 +245,7 @@ function findMatchingImport(
 function addClientMetadata(
 	node: MdxJsxFlowElementHast | MdxJsxTextElementHast,
 	meta: MatchedImport,
-	resolvedPath: string
+	resolvedPath: string,
 ) {
 	const attributeNames = node.attributes
 		.map((attr) => (attr.type === 'mdxJsxAttribute' ? attr.name : null))
@@ -278,7 +280,7 @@ function addClientMetadata(
 function addClientOnlyMetadata(
 	node: MdxJsxFlowElementHast | MdxJsxTextElementHast,
 	meta: { path: string; name: string },
-	resolvedPath: string
+	resolvedPath: string,
 ) {
 	const attributeNames = node.attributes
 		.map((attr) => (attr.type === 'mdxJsxAttribute' ? attr.name : null))

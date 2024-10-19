@@ -64,8 +64,14 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 		 * A non-static node causes all its parents to be non-optimizable
 		 */
 		const isNodeNonStatic = (node: Node) => {
-			// @ts-expect-error Access `.tagName` naively for perf
-			return node.type.startsWith('mdx') || ignoreElementNames.has(node.tagName);
+			return (
+				node.type.startsWith('mdx') ||
+				// @ts-expect-error `node` should never have `type: 'root'`, but in some cases plugins may inject it as children,
+				// which MDX will render as a fragment instead (an MDX fragment is a `mdxJsxFlowElement` type).
+				node.type === 'root' ||
+				// @ts-expect-error Access `.tagName` naively for perf
+				ignoreElementNames.has(node.tagName)
+			);
 		};
 
 		visit(tree as any, {
@@ -183,7 +189,7 @@ interface ElementGroup {
 function findElementGroups(
 	allPossibleElements: Set<OptimizableNode>,
 	elementMetadatas: WeakMap<OptimizableNode, ElementMetadata>,
-	isNodeNonStatic: (node: Node) => boolean
+	isNodeNonStatic: (node: Node) => boolean,
 ): ElementGroup[] {
 	const elementGroups: ElementGroup[] = [];
 
@@ -195,7 +201,7 @@ function findElementGroups(
 		const metadata = elementMetadatas.get(el);
 		if (!metadata) {
 			throw new Error(
-				'Internal MDX error: rehype-optimize-static should have metadata for element node'
+				'Internal MDX error: rehype-optimize-static should have metadata for element node',
 			);
 		}
 

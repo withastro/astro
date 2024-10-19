@@ -1,4 +1,3 @@
-/* tslint-disable ban-types */
 import { parentPort, Worker } from 'worker_threads';
 
 function uuid() {

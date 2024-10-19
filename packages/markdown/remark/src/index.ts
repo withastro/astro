@@ -37,6 +37,7 @@ export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
 		themes: {},
 		wrap: false,
 		transformers: [],
+		langAlias: {},
 	},
 	remarkPlugins: [],
 	rehypePlugins: [],
@@ -52,7 +53,7 @@ const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
  * Create a markdown preprocessor to render multiple markdown files
  */
 export async function createMarkdownProcessor(
-	opts?: AstroMarkdownOptions
+	opts?: AstroMarkdownOptions,
 ): Promise<MarkdownProcessor> {
 	const {
 		syntaxHighlight = markdownConfigDefaults.syntaxHighlight,
@@ -130,7 +131,6 @@ export async function createMarkdownProcessor(
 				// Ensure that the error message contains the input filename
 				// to make it easier for the user to fix the issue
 				err = prefixError(err, `Failed to parse Markdown file "${vfile.path}"`);
-				// eslint-disable-next-line no-console
 				console.error(err);
 				throw err;
 			});
@@ -158,7 +158,7 @@ function prefixError(err: any, prefix: string) {
 		try {
 			err.message = `${prefix}:\n${err.message}`;
 			return err;
-		} catch (error) {
+		} catch {
 			// Any errors here are ok, there's fallback code below
 		}
 	}

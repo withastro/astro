@@ -10,7 +10,7 @@ function fromEntries<V>(entries: [string, V][]) {
 
 export function addRollupInput(
 	inputOptions: Rollup.InputOptions,
-	newInputs: string[]
+	newInputs: string[],
 ): Rollup.InputOptions {
 	// Add input module ids to existing input option, whether it's a string, array or object
 	// this way you can use multiple html plugins all adding their own inputs

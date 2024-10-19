@@ -4,6 +4,7 @@ import glob from 'fast-glob';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import type { AstroSettings } from '../@types/astro.js';
+import { vitePluginActions, vitePluginUserActions } from '../actions/plugins.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import astroContainer from '../container/vite-plugin-container.js';
@@ -25,7 +26,6 @@ import envVitePlugin from '../vite-plugin-env/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
-import { astroInjectEnvTsPlugin } from '../vite-plugin-inject-env-ts/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
@@ -38,6 +38,7 @@ import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
+import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { isObject } from './util.js';
 
 interface CreateViteOptions {
@@ -70,12 +71,14 @@ const ONLY_DEV_EXTERNAL = [
 	'prismjs/components/index.js',
 	// Imported by `astro/assets` -> `packages/astro/src/core/logger/core.ts`
 	'string-width',
+	// Imported by `astro:transitions` -> packages/astro/src/runtime/server/transition.ts
+	'cssesc',
 ];
 
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logger, mode, command, fs = nodeFs, sync }: CreateViteOptions
+	{ settings, logger, mode, command, fs = nodeFs, sync }: CreateViteOptions,
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -120,13 +123,8 @@ export async function createVite(
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
 		optimizeDeps: {
-			// Scan all files within `srcDir` except for known server-code (e.g endpoints)
-			entries: [
-				`${srcDirPattern}!(pages)/**/*`, // All files except for pages
-				`${srcDirPattern}pages/**/!(*.js|*.mjs|*.ts|*.mts)`, // All pages except for endpoints
-				`${srcDirPattern}pages/**/_*.{js,mjs,ts,mts}`, // Remaining JS/TS files prefixed with `_` (not endpoints)
-				`${srcDirPattern}pages/**/_*/**/*.{js,mjs,ts,mts}`, // Remaining JS/TS files within directories prefixed with `_` (not endpoints)
-			],
+			// Scan for component code within `srcDir`
+			entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
@@ -137,7 +135,7 @@ export async function createVite(
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs }),
-			envVitePlugin({ settings }),
+			envVitePlugin({ settings, logger }),
 			astroEnv({ settings, mode, fs, sync }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
@@ -147,7 +145,6 @@ export async function createVite(
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
 			astroScannerPlugin({ settings, logger }),
-			astroInjectEnvTsPlugin({ settings, logger, fs }),
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
 			astroContentAssetPropagationPlugin({ mode, settings }),
@@ -157,8 +154,11 @@ export async function createVite(
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
 			astroDevToolbar({ settings, logger }),
-			vitePluginFileURL({}),
+			vitePluginFileURL(),
 			astroInternationalization({ settings }),
+			vitePluginActions({ fs, settings }),
+			vitePluginUserActions({ settings }),
+			settings.config.experimental.serverIslands && vitePluginServerIslands({ settings }),
 			astroContainer(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
@@ -195,6 +195,10 @@ export async function createVite(
 				{
 					find: 'astro:middleware',
 					replacement: 'astro/virtual-modules/middleware.js',
+				},
+				{
+					find: 'astro:schema',
+					replacement: 'astro/zod',
 				},
 				{
 					find: 'astro:components',
@@ -317,7 +321,7 @@ function isCommonNotAstro(dep: string): boolean {
 			(prefix) =>
 				prefix.startsWith('@')
 					? dep.startsWith(prefix)
-					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix) // check prefix omitting @scope/
+					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix), // check prefix omitting @scope/
 		)
 	);
 }

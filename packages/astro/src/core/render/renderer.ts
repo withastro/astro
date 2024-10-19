@@ -3,7 +3,7 @@ import type { ModuleLoader } from '../module-loader/index.js';
 
 export async function loadRenderer(
 	renderer: AstroRenderer,
-	moduleLoader: ModuleLoader
+	moduleLoader: ModuleLoader,
 ): Promise<SSRLoadedRenderer | undefined> {
 	const mod = await moduleLoader.import(renderer.serverEntrypoint);
 	if (typeof mod.default !== 'undefined') {

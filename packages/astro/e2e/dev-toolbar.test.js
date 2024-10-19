@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/dev-toolbar/',
 });
 
@@ -42,7 +42,7 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const astroAppCanvas = toolbar.locator(
-			'astro-dev-toolbar-app-canvas[data-app-id="astro:home"]'
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:home"]',
 		);
 		const astroWindow = astroAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(astroWindow).toHaveCount(1);
@@ -152,7 +152,7 @@ test.describe('Dev Toolbar', () => {
 
 		const code = xrayHighlightTooltip.locator('pre > code');
 		await expect(code).toHaveText(
-			JSON.stringify({ name: `<img src='' onerror='alert(1)'>` }, undefined, 2)
+			JSON.stringify({ name: `<img src='' onerror='alert(1)'>` }, undefined, 2),
 		);
 		expect(isAlertCalled).toBe(false);
 	});
@@ -264,7 +264,7 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const settingsAppCanvas = toolbar.locator(
-			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]'
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]',
 		);
 		const settingsWindow = settingsAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(settingsWindow).toHaveCount(1);
@@ -283,7 +283,7 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const settingsAppCanvas = toolbar.locator(
-			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]'
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]',
 		);
 		const settingsWindow = settingsAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(settingsWindow).toHaveCount(1);
@@ -294,7 +294,7 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const astroAppCanvas = toolbar.locator(
-			'astro-dev-toolbar-app-canvas[data-app-id="astro:home"]'
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:home"]',
 		);
 		const astroWindow = astroAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(astroWindow).toHaveCount(1);
@@ -311,7 +311,7 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const settingsAppCanvas = toolbar.locator(
-			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]'
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]',
 		);
 		const settingsWindow = settingsAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(settingsWindow).toHaveCount(1);
@@ -389,7 +389,7 @@ test.describe('Dev Toolbar', () => {
 		await settingsAppButton.click();
 
 		const settingsAppCanvas = toolbar.locator(
-			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]'
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]',
 		);
 		const settingsWindow = settingsAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(settingsWindow).toBeVisible();
@@ -412,5 +412,29 @@ test.describe('Dev Toolbar', () => {
 				await expect(appWindow).toHaveJSProperty('placement', placement);
 			}
 		}
+	});
+
+	test('hidden on print media', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+
+		const settingsAppButton = toolbar.locator('button[data-app-id="astro:settings"]');
+		await settingsAppButton.click();
+
+		const settingsAppCanvas = toolbar.locator(
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]',
+		);
+		const settingsWindow = settingsAppCanvas.locator('astro-dev-toolbar-window');
+		await expect(settingsWindow).toBeVisible();
+
+		await page.emulateMedia({ media: 'print' });
+		await expect(settingsWindow).not.toBeVisible();
+
+		await page.emulateMedia({ media: 'screen' });
+		await expect(settingsWindow).toBeVisible();
+
+		await settingsAppButton.click();
+		await expect(settingsWindow).not.toBeVisible();
 	});
 });

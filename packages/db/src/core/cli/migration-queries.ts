@@ -1,9 +1,12 @@
+import { stripVTControlCharacters } from 'node:util';
+import { LibsqlError } from '@libsql/client';
 import deepDiff from 'deep-diff';
+import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
-import stripAnsi from 'strip-ansi';
 import { hasPrimaryKey } from '../../runtime/index.js';
+import { createRemoteDatabaseClient } from '../../runtime/index.js';
 import { isSerializedSQL } from '../../runtime/types.js';
 import { safeFetch } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
@@ -18,22 +21,22 @@ import {
 	schemaTypeToSqlType,
 } from '../queries.js';
 import { columnSchema } from '../schemas.js';
-import {
-	type BooleanColumn,
-	type ColumnType,
-	type DBColumn,
-	type DBColumns,
-	type DBConfig,
-	type DBSnapshot,
-	type DateColumn,
-	type JsonColumn,
-	type NumberColumn,
-	type ResolvedDBTable,
-	type ResolvedDBTables,
-	type ResolvedIndexes,
-	type TextColumn,
+import type {
+	BooleanColumn,
+	ColumnType,
+	DBColumn,
+	DBColumns,
+	DBConfig,
+	DBSnapshot,
+	DateColumn,
+	JsonColumn,
+	NumberColumn,
+	ResolvedDBTable,
+	ResolvedDBTables,
+	ResolvedIndexes,
+	TextColumn,
 } from '../types.js';
-import { type Result, getRemoteDatabaseUrl } from '../utils.js';
+import type { RemoteDatabaseInfo, Result } from '../utils.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -61,7 +64,7 @@ export async function getMigrationQueries({
 	const addedTables = getAddedTables(oldSnapshot, newSnapshot);
 	const droppedTables = getDroppedTables(oldSnapshot, newSnapshot);
 	const notDeprecatedDroppedTables = Object.fromEntries(
-		Object.entries(droppedTables).filter(([, table]) => !table.deprecated)
+		Object.entries(droppedTables).filter(([, table]) => !table.deprecated),
 	);
 	if (!isEmpty(addedTables) && !isEmpty(notDeprecatedDroppedTables)) {
 		const oldTable = Object.keys(notDeprecatedDroppedTables)[0];
@@ -85,14 +88,14 @@ export async function getMigrationQueries({
 		const addedColumns = getAdded(oldTable.columns, newTable.columns);
 		const droppedColumns = getDropped(oldTable.columns, newTable.columns);
 		const notDeprecatedDroppedColumns = Object.fromEntries(
-			Object.entries(droppedColumns).filter(([, col]) => !col.schema.deprecated)
+			Object.entries(droppedColumns).filter(([, col]) => !col.schema.deprecated),
 		);
 		if (!isEmpty(addedColumns) && !isEmpty(notDeprecatedDroppedColumns)) {
 			throw new Error(
 				RENAME_COLUMN_ERROR(
 					`${tableName}.${Object.keys(addedColumns)[0]}`,
-					`${tableName}.${Object.keys(notDeprecatedDroppedColumns)[0]}`
-				)
+					`${tableName}.${Object.keys(notDeprecatedDroppedColumns)[0]}`,
+				),
 			);
 		}
 		const result = await getTableChangeQueries({
@@ -146,7 +149,7 @@ export async function getTableChangeQueries({
 				tableName,
 				oldIndexes: oldTable.indexes,
 				newIndexes: newTable.indexes,
-			})
+			}),
 		);
 		return { queries, confirmations };
 	}
@@ -156,17 +159,17 @@ export async function getTableChangeQueries({
 		const { reason, columnName } = dataLossCheck;
 		const reasonMsgs: Record<DataLossReason, string> = {
 			'added-required': `You added new required column '${color.bold(
-				tableName + '.' + columnName
+				tableName + '.' + columnName,
 			)}' with no default value.\n      This cannot be executed on an existing table.`,
 			'updated-type': `Updating existing column ${color.bold(
-				tableName + '.' + columnName
+				tableName + '.' + columnName,
 			)} to a new type that cannot be handled automatically.`,
 		};
 		confirmations.push(reasonMsgs[reason]);
 	}
 
 	const primaryKeyExists = Object.entries(newTable.columns).find(([, column]) =>
-		hasPrimaryKey(column)
+		hasPrimaryKey(column),
 	);
 	const droppedPrimaryKey = Object.entries(dropped).find(([, column]) => hasPrimaryKey(column));
 
@@ -229,7 +232,7 @@ function getDroppedTables(oldTables: DBSnapshot, newTables: DBSnapshot): Resolve
 function getAlterTableQueries(
 	unescTableName: string,
 	added: DBColumns,
-	dropped: DBColumns
+	dropped: DBColumns,
 ): string[] {
 	const queries: string[] = [];
 	const tableName = sqlite.escapeName(unescTableName);
@@ -239,7 +242,7 @@ function getAlterTableQueries(
 		const type = schemaTypeToSqlType(column.type);
 		const q = `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${type}${getModifiers(
 			columnName,
-			column
+			column,
 		)}`;
 		queries.push(q);
 	}
@@ -322,7 +325,7 @@ type DataLossResponse =
 
 function canRecreateTableWithoutDataLoss(
 	added: DBColumns,
-	updated: UpdatedColumns
+	updated: UpdatedColumns,
 ): DataLossResponse {
 	for (const [columnName, a] of Object.entries(added)) {
 		if (hasPrimaryKey(a) && a.type !== 'number' && !hasDefault(a)) {
@@ -404,7 +407,7 @@ const typeChangesWithoutQuery: Array<{ from: ColumnType; to: ColumnType }> = [
 
 function canChangeTypeWithoutQuery(oldColumn: DBColumn, newColumn: DBColumn) {
 	return typeChangesWithoutQuery.some(
-		({ from, to }) => oldColumn.type === from && newColumn.type === to
+		({ from, to }) => oldColumn.type === from && newColumn.type === to,
 	);
 }
 
@@ -422,12 +425,60 @@ function hasRuntimeDefault(column: DBColumn): column is DBColumnWithDefault {
 	return !!(column.schema.default && isSerializedSQL(column.schema.default));
 }
 
-export async function getProductionCurrentSnapshot({
-	appToken,
-}: {
+export function getProductionCurrentSnapshot(options: {
+	dbInfo: RemoteDatabaseInfo;
 	appToken: string;
 }): Promise<DBSnapshot | undefined> {
-	const url = new URL('/db/schema', getRemoteDatabaseUrl());
+	return options.dbInfo.type === 'studio'
+		? getStudioCurrentSnapshot(options.appToken, options.dbInfo.url)
+		: getDbCurrentSnapshot(options.appToken, options.dbInfo.url);
+}
+
+async function getDbCurrentSnapshot(
+	appToken: string,
+	remoteUrl: string,
+): Promise<DBSnapshot | undefined> {
+	const client = createRemoteDatabaseClient({
+		dbType: 'libsql',
+		appToken,
+		remoteUrl,
+	});
+
+	try {
+		const res = await client.get<{ snapshot: string }>(
+			// Latest snapshot
+			sql`select snapshot from _astro_db_snapshot order by id desc limit 1;`,
+		);
+
+		return JSON.parse(res.snapshot);
+	} catch (error) {
+		// Don't handle errors that are not from libSQL
+		if (
+			error instanceof LibsqlError &&
+			// If the schema was never pushed to the database yet the table won't exist.
+			// Treat a missing snapshot table as an empty table.
+
+			// When connecting to a remote database in that condition
+			// the query will fail with the following error code and message.
+			((error.code === 'SQLITE_UNKNOWN' &&
+				error.message === 'SQLITE_UNKNOWN: SQLite error: no such table: _astro_db_snapshot') ||
+				// When connecting to a local or in-memory database that does not have a snapshot table yet
+				// the query will fail with the following error code and message.
+				(error.code === 'SQLITE_ERROR' &&
+					error.message === 'SQLITE_ERROR: no such table: _astro_db_snapshot'))
+		) {
+			return;
+		}
+
+		throw error;
+	}
+}
+
+async function getStudioCurrentSnapshot(
+	appToken: string,
+	remoteUrl: string,
+): Promise<DBSnapshot | undefined> {
+	const url = new URL('/db/schema', remoteUrl);
 
 	const response = await safeFetch(
 		url,
@@ -441,7 +492,7 @@ export async function getProductionCurrentSnapshot({
 			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
 			console.error(await res.text());
 			throw new Error(`/db/schema fetch failed: ${res.status} ${res.statusText}`);
-		}
+		},
 	);
 
 	const result = (await response.json()) as Result<DBSnapshot>;
@@ -479,11 +530,11 @@ export function formatDataLossMessage(confirmations: string[], isColor = true): 
 	messages.push(``);
 	messages.push(`To resolve, revert these changes or update your schema, and re-run the command.`);
 	messages.push(
-		`You may also run 'astro db push --force-reset' to ignore all warnings and force-push your local database schema to production instead. All data will be lost and the database will be reset.`
+		`You may also run 'astro db push --force-reset' to ignore all warnings and force-push your local database schema to production instead. All data will be lost and the database will be reset.`,
 	);
 	let finalMessage = messages.join('\n');
 	if (!isColor) {
-		finalMessage = stripAnsi(finalMessage);
+		finalMessage = stripVTControlCharacters(finalMessage);
 	}
 	return finalMessage;
 }

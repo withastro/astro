@@ -74,7 +74,7 @@ if (!isWindows) {
 				assert.notEqual(
 					[...allScripts].find((script) => $(script).attr('src')?.includes('/_astro/WithScripts')),
 					undefined,
-					'hoisted script missing from head.'
+					'hoisted script missing from head.',
 				);
 
 				// Includes inline script
@@ -90,10 +90,10 @@ if (!isWindows) {
 				// Excludes hoisted script
 				assert.notEqual(
 					[...allScripts].find((script) =>
-						$(script).text().includes('document.querySelector("#update-me")')
+						$(script).text().includes('document.querySelector("#update-me")'),
 					),
 					'`WithScripts.astro` hoisted script included unexpectedly.',
-					undefined
+					undefined,
 				);
 			});
 
@@ -147,10 +147,10 @@ if (!isWindows) {
 					// Includes hoisted script
 					assert.notEqual(
 						[...allScripts].find((script) =>
-							$(script).attr('src')?.includes('/_astro/WithScripts')
+							$(script).attr('src')?.includes('/_astro/WithScripts'),
 						),
 						undefined,
-						'hoisted script missing from head.'
+						'hoisted script missing from head.',
 					);
 				});
 			});

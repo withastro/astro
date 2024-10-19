@@ -28,7 +28,7 @@ describe('Pagination root', () => {
 				const html = await fixture.readFile(curr + 'index.html');
 				const $ = cheerio.load(html);
 				assert.equal($('#prev').attr('href'), prev);
-			})
+			}),
 		);
 	});
 });

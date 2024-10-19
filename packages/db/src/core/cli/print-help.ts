@@ -41,8 +41,8 @@ export function printHelp({
 		message.push(
 			linebreak(),
 			`  ${bgGreen(black(` ${commandName} `))} ${green(
-				`v${process.env.PACKAGE_VERSION ?? ''}`
-			)} ${headline}`
+				`v${process.env.PACKAGE_VERSION ?? ''}`,
+			)} ${headline}`,
 		);
 	}
 

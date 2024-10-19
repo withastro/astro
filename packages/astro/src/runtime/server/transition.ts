@@ -34,7 +34,7 @@ const getAnimations = (name: TransitionAnimationValue) => {
 
 const addPairs = (
 	animations: TransitionDirectionalAnimations | Record<string, TransitionAnimationPair>,
-	stylesheet: ViewTransitionStyleSheet
+	stylesheet: ViewTransitionStyleSheet,
 ) => {
 	for (const [direction, images] of Object.entries(animations) as Entries<typeof animations>) {
 		for (const [image, rules] of Object.entries(images) as Entries<
@@ -77,7 +77,7 @@ function reEncode(s: string) {
 				codepoint < 0x80
 					? codepoint === 95
 						? '__'
-						: reEncodeValidChars[codepoint] ?? '_' + codepoint.toString(16).padStart(2, '0')
+						: (reEncodeValidChars[codepoint] ?? '_' + codepoint.toString(16).padStart(2, '0'))
 					: String.fromCodePoint(codepoint);
 		}
 	}
@@ -89,7 +89,7 @@ export function renderTransition(
 	result: SSRResult,
 	hash: string,
 	animationName: TransitionAnimationValue | undefined,
-	transitionName: string
+	transitionName: string,
 ) {
 	if (typeof (transitionName ?? '') !== 'string') {
 		throw new Error(`Invalid transition name {${transitionName}}`);
@@ -116,7 +116,7 @@ export function renderTransition(
 
 export function createAnimationScope(
 	transitionName: string,
-	animations: Record<string, TransitionAnimationPair>
+	animations: Record<string, TransitionAnimationPair>,
 ) {
 	const hash = Math.random().toString(36).slice(2, 8);
 	const scope = `astro-${hash}`;
@@ -133,7 +133,7 @@ class ViewTransitionStyleSheet {
 
 	constructor(
 		private scope: string,
-		private name: string
+		private name: string,
 	) {}
 
 	toString() {
@@ -170,14 +170,14 @@ class ViewTransitionStyleSheet {
 			'fallback',
 			// Two selectors here, the second in case there is an animation on the root.
 			`[data-astro-transition-fallback="${image}"] [data-astro-transition-scope="${scope}"],
-			[data-astro-transition-fallback="${image}"][data-astro-transition-scope="${scope}"] { ${animation} }`
+			[data-astro-transition-fallback="${image}"][data-astro-transition-scope="${scope}"] { ${animation} }`,
 		);
 	}
 
 	addAnimationPair(
 		direction: 'forwards' | 'backwards' | string,
 		image: 'old' | 'new',
-		rules: TransitionAnimation | TransitionAnimation[]
+		rules: TransitionAnimation | TransitionAnimation[],
 	) {
 		const { scope, name } = this;
 		const animation = stringifyAnimation(rules);
@@ -191,7 +191,7 @@ class ViewTransitionStyleSheet {
 		this.addRule(
 			'fallback',
 			`${prefix}[data-astro-transition-fallback="${image}"] [data-astro-transition-scope="${scope}"],
-			${prefix}[data-astro-transition-fallback="${image}"][data-astro-transition-scope="${scope}"] { ${animation} }`
+			${prefix}[data-astro-transition-fallback="${image}"][data-astro-transition-scope="${scope}"] { ${animation} }`,
 		);
 	}
 }

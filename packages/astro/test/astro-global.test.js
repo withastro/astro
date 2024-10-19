@@ -43,7 +43,7 @@ describe('Astro Global', () => {
 			const $ = cheerio.load(html);
 			assert.equal(
 				$('[data-any-url-contains-extension]').data('any-url-contains-extension'),
-				false
+				false,
 			);
 		});
 	});

@@ -26,11 +26,11 @@ export const tagExportsPlugin: PluginObj = {
 						[
 							t.importSpecifier(
 								t.identifier('__astro_tag_component__'),
-								t.identifier('__astro_tag_component__')
+								t.identifier('__astro_tag_component__'),
 							),
 						],
-						t.stringLiteral('astro/runtime/server/index.js')
-					)
+						t.stringLiteral('astro/runtime/server/index.js'),
+					),
 				);
 			},
 			// For each export we found, inject `__astro_tag_component__(exportName, rendererName)`
@@ -43,8 +43,8 @@ export const tagExportsPlugin: PluginObj = {
 								t.callExpression(t.identifier('__astro_tag_component__'), [
 									t.identifier(id),
 									t.stringLiteral(rendererName),
-								])
-							)
+								]),
+							),
 						);
 					}
 				}
@@ -66,7 +66,7 @@ export const tagExportsPlugin: PluginObj = {
 						: '_hoc_function';
 					const uidIdentifier = path.scope.generateUidIdentifier(varName);
 					path.insertBefore(
-						t.variableDeclaration('const', [t.variableDeclarator(uidIdentifier, node.declaration)])
+						t.variableDeclaration('const', [t.variableDeclarator(uidIdentifier, node.declaration)]),
 					);
 					node.declaration = uidIdentifier;
 				} else if (t.isFunctionDeclaration(node.declaration) && !node.declaration.id?.name) {

@@ -7,7 +7,7 @@ import Markdoc, {
 } from '@markdoc/markdoc';
 import type { AstroInstance } from 'astro';
 import { createComponent, renderComponent } from 'astro/runtime/server/index.js';
-import { type AstroMarkdocConfig } from './config.js';
+import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
 import { htmlTag } from './html/tagdefs/html.tag.js';
 import type { MarkdocIntegrationOptions } from './options.js';
@@ -18,7 +18,7 @@ import type { MarkdocIntegrationOptions } from './options.js';
  */
 export async function setupConfig(
 	userConfig: AstroMarkdocConfig = {},
-	options: MarkdocIntegrationOptions | undefined
+	options: MarkdocIntegrationOptions | undefined,
 ): Promise<MergedConfig> {
 	let defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
@@ -44,7 +44,7 @@ export async function setupConfig(
 /** Used for synchronous `getHeadings()` function */
 export function setupConfigSync(
 	userConfig: AstroMarkdocConfig = {},
-	options: MarkdocIntegrationOptions | undefined
+	options: MarkdocIntegrationOptions | undefined,
 ): MergedConfig {
 	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
@@ -62,7 +62,7 @@ type MergedConfig = Required<Omit<AstroMarkdocConfig, 'extends'>>;
 /** Merge function from `@markdoc/markdoc` internals */
 export function mergeConfig(
 	configA: AstroMarkdocConfig,
-	configB: AstroMarkdocConfig
+	configB: AstroMarkdocConfig,
 ): MergedConfig {
 	return {
 		...configA,
@@ -101,7 +101,7 @@ export function mergeConfig(
 export function resolveComponentImports(
 	markdocConfig: Required<Pick<AstroMarkdocConfig, 'tags' | 'nodes'>>,
 	tagComponentMap: Record<string, AstroInstance['default']>,
-	nodeComponentMap: Record<NodeType, AstroInstance['default']>
+	nodeComponentMap: Record<NodeType, AstroInstance['default']>,
 ) {
 	for (const [tag, render] of Object.entries(tagComponentMap)) {
 		const config = markdocConfig.tags[tag];
@@ -137,7 +137,7 @@ const headingLevels = [1, 2, 3, 4, 5, 6] as const;
  */
 export function collectHeadings(
 	children: RenderableTreeNode[],
-	collectedHeadings: MarkdownHeading[]
+	collectedHeadings: MarkdownHeading[],
 ) {
 	for (const node of children) {
 		if (typeof node !== 'object' || !Markdoc.Tag.isTag(node)) continue;
@@ -167,7 +167,7 @@ export function collectHeadings(
 export function createGetHeadings(
 	stringifiedAst: string,
 	userConfig: AstroMarkdocConfig,
-	options: MarkdocIntegrationOptions | undefined
+	options: MarkdocIntegrationOptions | undefined,
 ) {
 	return function getHeadings() {
 		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
@@ -188,7 +188,7 @@ export function createContentComponent(
 	userConfig: AstroMarkdocConfig,
 	options: MarkdocIntegrationOptions | undefined,
 	tagComponentMap: Record<string, AstroInstance['default']>,
-	nodeComponentMap: Record<NodeType, AstroInstance['default']>
+	nodeComponentMap: Record<NodeType, AstroInstance['default']>,
 ) {
 	return createComponent({
 		async factory(result: any, props: Record<string, any>) {
@@ -196,7 +196,7 @@ export function createContentComponent(
 			const config = resolveComponentImports(
 				await setupConfig(withVariables, options),
 				tagComponentMap,
-				nodeComponentMap
+				nodeComponentMap,
 			);
 
 			return renderComponent(result, Renderer.name, Renderer, { stringifiedAst, config }, {});

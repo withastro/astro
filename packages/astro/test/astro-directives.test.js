@@ -71,7 +71,7 @@ describe('Directives', async () => {
 				.attr('style')
 				.toString()
 				.includes('color:var(--fg);--fg: black;--bg: white;'),
-			true
+			true,
 		);
 	});
 

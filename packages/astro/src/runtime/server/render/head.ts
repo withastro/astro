@@ -21,7 +21,7 @@ export function renderAllHeadContent(result: SSRResult) {
 		.map((style) =>
 			style.props.rel === 'stylesheet'
 				? renderElement('link', style)
-				: renderElement('style', style)
+				: renderElement('style', style),
 		);
 	// Clear result.styles so that any new styles added will be inlined.
 	result.styles.clear();

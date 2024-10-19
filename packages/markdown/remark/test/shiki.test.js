@@ -46,7 +46,7 @@ describe('shiki syntax highlighting', () => {
 			`\
 - const foo = "bar";
 + const foo = "world";`,
-			'diff'
+			'diff',
 		);
 
 		assert.match(html, /user-select: none/);
@@ -84,5 +84,49 @@ describe('shiki syntax highlighting', () => {
 		});
 
 		assert.match(html, /data-test="\{1,3-4\}"/);
+	});
+
+	it('supports the defaultColor setting', async () => {
+		const processor = await createMarkdownProcessor({
+			shikiConfig: {
+				themes: {
+					light: 'github-light',
+					dark: 'github-dark',
+				},
+				defaultColor: false,
+			},
+		});
+		const { code } = await processor.render('```\ntest\n```');
+
+		// Doesn't have `color` or `background-color` properties.
+		assert.doesNotMatch(code, /color:/);
+	});
+
+	it('the highlighter supports lang alias', async () => {
+		const highlighter = await createShikiHighlighter({
+			langAlias: {
+				cjs: 'javascript',
+			},
+		});
+
+		const html = await highlighter.highlight(`let test = "some string"`, 'cjs', {
+			attributes: { 'data-foo': 'bar', autofocus: true },
+		});
+
+		assert.match(html, /data-language="cjs"/);
+	});
+
+	it('the markdown processsor support lang alias', async () => {
+		const processor = await createMarkdownProcessor({
+			shikiConfig: {
+				langAlias: {
+					cjs: 'javascript',
+				},
+			},
+		});
+
+		const { code } = await processor.render('```cjs\nlet foo = "bar"\n```');
+
+		assert.match(code, /data-language="cjs"/);
 	});
 });

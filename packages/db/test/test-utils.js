@@ -64,6 +64,35 @@ export async function setupRemoteDbServer(astroConfig) {
 	};
 }
 
+export async function initializeRemoteDb(astroConfig) {
+	await cli({
+		config: astroConfig,
+		flags: {
+			_: [undefined, 'astro', 'db', 'push'],
+			remote: true,
+		},
+	});
+	await cli({
+		config: astroConfig,
+		flags: {
+			_: [undefined, 'astro', 'db', 'execute', 'db/seed.ts'],
+			remote: true,
+		},
+	});
+}
+
+/**
+ * Clears the environment variables related to Astro DB and Astro Studio.
+ */
+export function clearEnvironment() {
+	const keys = Array.from(Object.keys(process.env));
+	for (const key of keys) {
+		if (key.startsWith('ASTRO_DB_') || key.startsWith('ASTRO_STUDIO_')) {
+			delete process.env[key];
+		}
+	}
+}
+
 function createRemoteDbServer() {
 	const dbClient = createClient({
 		url: ':memory:',
@@ -78,7 +107,7 @@ function createRemoteDbServer() {
 			res.end(
 				JSON.stringify({
 					success: false,
-				})
+				}),
 			);
 			return;
 		}
@@ -90,7 +119,7 @@ function createRemoteDbServer() {
 			let json;
 			try {
 				json = JSON.parse(Buffer.concat(rawBody).toString());
-			} catch (e) {
+			} catch {
 				applyParseError(res);
 				return;
 			}
@@ -116,7 +145,7 @@ function createRemoteDbServer() {
 							code: e instanceof LibsqlError ? e.code : 'SQLITE_QUERY_FAILED',
 							details: e.message,
 						},
-					})
+					}),
 				);
 			}
 		});
@@ -137,6 +166,6 @@ function applyParseError(res) {
 			// Use JSON response with `success: boolean` property
 			// to match remote error responses.
 			success: false,
-		})
+		}),
 	);
 }

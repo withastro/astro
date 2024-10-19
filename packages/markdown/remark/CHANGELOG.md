@@ -1,5 +1,72 @@
 # @astrojs/markdown-remark
 
+## 5.3.0
+
+### Minor Changes
+
+- [#12039](https://github.com/withastro/astro/pull/12039) [`710a1a1`](https://github.com/withastro/astro/commit/710a1a11f488ff6ed3da6d3e0723b2322ccfe27b) Thanks [@ematipico](https://github.com/ematipico)! - Adds a `markdown.shikiConfig.langAlias` option that allows [aliasing a non-supported code language to a known language](https://shiki.style/guide/load-lang#custom-language-aliases). This is useful when the language of your code samples is not [a built-in Shiki language](https://shiki.style/languages), but you want your Markdown source to contain an accurate language while also displaying syntax highlighting.
+
+  The following example configures Shiki to highlight `cjs` code blocks using the `javascript` syntax highlighter:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    markdown: {
+      shikiConfig: {
+        langAlias: {
+          cjs: 'javascript',
+        },
+      },
+    },
+  });
+  ```
+
+  Then in your Markdown, you can use the alias as the language for a code block for syntax highlighting:
+
+  ````md
+  ```cjs
+  'use strict';
+
+  function commonJs() {
+    return 'I am a commonjs file';
+  }
+  ```
+  ````
+
+## 5.2.0
+
+### Minor Changes
+
+- [#11341](https://github.com/withastro/astro/pull/11341) [`49b5145`](https://github.com/withastro/astro/commit/49b5145158a603b9bb951bf914a6a9780c218704) Thanks [@madcampos](https://github.com/madcampos)! - Adds support for [Shiki's `defaultColor` option](https://shiki.style/guide/dual-themes#without-default-color).
+
+  This option allows you to override the values of a theme's inline style, adding only CSS variables to give you more flexibility in applying multiple color themes.
+
+  Configure `defaultColor: false` in your Shiki config to apply throughout your site, or pass to Astro's built-in `<Code>` component to style an individual code block.
+
+  ```js title="astro.config.mjs"
+  import { defineConfig } from 'astro/config';
+  export default defineConfig({
+    markdown: {
+      shikiConfig: {
+        themes: {
+          light: 'github-light',
+          dark: 'github-dark',
+        },
+        defaultColor: false,
+      },
+    },
+  });
+  ```
+
+  ```astro
+  ---
+  import { Code } from 'astro:components';
+  ---
+
+  <Code code={`const useMyColors = true`} lang="js" defaultColor={false} />
+  ```
+
 ## 5.1.1
 
 ### Patch Changes

@@ -37,7 +37,7 @@ const EnumSchema = z.object({
 			.string()
 			.refine((v) => !v.includes("'"), {
 				message: `The "'" character can't be used as an enum value`,
-			})
+			}),
 	),
 	optional: z.boolean().optional(),
 	default: z.string().optional(),
@@ -81,19 +81,21 @@ const EnvFieldMetadata = z.union([
 	SecretServerEnvFieldMetadata,
 ]);
 
-const KEY_REGEX = /^[A-Z_]+$/;
+const EnvSchemaKey = z
+	.string()
+	.min(1)
+	.refine(([firstChar]) => isNaN(Number.parseInt(firstChar)), {
+		message: 'A valid variable name cannot start with a number.',
+	})
+	.refine((str) => /^[A-Z0-9_]+$/.test(str), {
+		message: 'A valid variable name can only contain uppercase letters, numbers and underscores.',
+	});
 
-export const EnvSchema = z.record(
-	z.string().regex(KEY_REGEX, {
-		message: 'A valid variable name can only contain uppercase letters and underscores.',
-	}),
-	z.intersection(EnvFieldMetadata, EnvFieldType)
-);
+export const EnvSchema = z.record(EnvSchemaKey, z.intersection(EnvFieldMetadata, EnvFieldType));
 
 // https://www.totaltypescript.com/concepts/the-prettify-helper
 type Prettify<T> = {
 	[K in keyof T]: T[K];
-	// eslint-disable-next-line @typescript-eslint/ban-types
 } & {};
 
 export type EnvSchema = z.infer<typeof EnvSchema>;

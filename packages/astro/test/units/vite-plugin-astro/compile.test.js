@@ -37,7 +37,7 @@ const name: string = 'world'
 ---
 
 <h1>Hello {name}</h1>`,
-			'/src/components/index.astro'
+			'/src/components/index.astro',
 		);
 		assert.ok(result.code);
 	});
@@ -52,7 +52,7 @@ const name = 'world
 ---
 
 <h1>Hello {name}</h1>`,
-				'/src/components/index.astro'
+				'/src/components/index.astro',
 			);
 		} catch (e) {
 			assert.equal(e.message.includes('Unterminated string literal'), true);

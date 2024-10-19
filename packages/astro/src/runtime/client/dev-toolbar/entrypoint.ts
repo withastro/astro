@@ -92,8 +92,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 			if (!(evt instanceof CustomEvent)) return;
 
 			const target = overlay.shadowRoot?.querySelector(`[data-app-id="${app.id}"]`);
-			const notificationElement = target?.querySelector('.notification');
-			if (!target || !notificationElement) return;
+			if (!target) return;
+			const notificationElement = target.querySelector('.notification');
+			if (!notificationElement) return;
 
 			let newState = evt.detail.state ?? true;
 			let level = notificationLevels.includes(evt?.detail?.level)
@@ -269,11 +270,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 											hiddenApps.some(
 												(p) =>
 													p.notification.state === true &&
-													p.notification.level === notificationLevel
-											)
+													p.notification.level === notificationLevel,
+											),
 										) ?? 'error',
 								},
-							})
+							}),
 						);
 					});
 				}
@@ -285,7 +286,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	const apps: DevToolbarApp[] = [
 		...[astroDevToolApp, astroXrayApp, astroAuditApp, astroSettingsApp, astroMoreApp].map(
-			(appDef) => prepareApp(appDef, true)
+			(appDef) => prepareApp(appDef, true),
 		),
 		...customAppsDefinitions.map((appDef) => prepareApp(appDef, false)),
 	];

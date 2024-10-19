@@ -1,17 +1,15 @@
 import { execSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
-/* eslint-disable no-console */
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
-import type yargs from 'yargs-parser';
 import type { AstroConfig, AstroUserConfig } from '../../@types/astro.js';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
-import { flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface InfoOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 export async function getInfoOutput({
@@ -56,6 +54,7 @@ export async function printInfo({ flags }: InfoOptions) {
 }
 
 async function copyToClipboard(text: string) {
+	text = text.trim();
 	const system = platform();
 	let command = '';
 	if (system === 'darwin') {
@@ -63,18 +62,26 @@ async function copyToClipboard(text: string) {
 	} else if (system === 'win32') {
 		command = 'clip';
 	} else {
-		try {
-			// Unix: check if `xclip` is installed
-			const output = execSync('which xclip', { encoding: 'utf8' });
-			if (output[0] !== '/') {
-				// Did not find a path for xclip, bail out!
-				return;
+		// Unix: check if a supported command is installed
+		const unixCommands = [
+			['xclip', '-sel clipboard -l 1'],
+			['wl-copy', '"$0"'],
+		];
+		for (const [unixCommand, args] of unixCommands) {
+			try {
+				const output = execSync(`which ${unixCommand}`, { encoding: 'utf8', stdio: 'pipe' });
+				if (output[0] !== '/') {
+					// Did not find a path. Skip!
+					continue;
+				}
+				command = `${unixCommand} ${args}`;
+			} catch {
+				// Failed to execute which. Skip!
+				continue;
 			}
-			command = 'xclip -sel clipboard -l 1';
-		} catch (e) {
-			// Did not find xclip, bail out!
-			return;
 		}
+		// Did not find supported command. Bail out!
+		if (!command) return;
 	}
 
 	console.log();
@@ -87,13 +94,14 @@ async function copyToClipboard(text: string) {
 	if (!shouldCopy) return;
 
 	try {
-		execSync(command, {
-			input: text.trim(),
+		execSync(command.replaceAll('$0', text), {
+			stdio: 'ignore',
+			input: text,
 			encoding: 'utf8',
 		});
-	} catch (e) {
+	} catch {
 		console.error(
-			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`
+			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`,
 		);
 	}
 }

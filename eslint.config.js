@@ -1,12 +1,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { builtinModules } from 'node:module';
 
-import { FlatCompat } from '@eslint/eslintrc';
 import tseslint from 'typescript-eslint';
 
 // plugins
-import noOnlyTestsEslint from 'eslint-plugin-no-only-tests';
 import regexpEslint from 'eslint-plugin-regexp';
 const typescriptEslint = tseslint.plugin;
 
@@ -15,12 +12,6 @@ const typescriptParser = tseslint.parser;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// ref: https://eslint.org/docs/latest/use/configure/migration-guide#using-eslintrc-configs-in-flat-config
-// mimic CommonJS variables -- not needed if using CommonJS
-const compat = new FlatCompat({
-	baseDirectory: __dirname,
-});
 
 export default [
 	// If ignores is used without any other keys in the configuration object, then the patterns act as global ignores.
@@ -43,8 +34,7 @@ export default [
 
 	...tseslint.configs.recommendedTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,
-	// mimic ESLintRC-style extends
-	...compat.extends('plugin:regexp/recommended'),
+	regexpEslint.configs['flat/recommended'],
 	{
 		languageOptions: {
 			parser: typescriptParser,
@@ -55,26 +45,16 @@ export default [
 		},
 		plugins: {
 			'@typescript-eslint': typescriptEslint,
-			'no-only-tests': noOnlyTestsEslint,
 			regexp: regexpEslint,
 		},
 		rules: {
 			// These off/configured-differently-by-default rules fit well for us
 			'@typescript-eslint/switch-exhaustiveness-check': 'error',
-			'@typescript-eslint/no-unused-vars': [
-				'warn',
-				{
-					argsIgnorePattern: '^_',
-					varsIgnorePattern: '^_',
-					caughtErrorsIgnorePattern: '^_',
-					ignoreRestSiblings: true,
-				},
-			],
-			'no-only-tests/no-only-tests': 'error',
 			'@typescript-eslint/no-shadow': 'error',
-			'no-console': 'warn',
+			'no-console': 'off',
 
 			// Todo: do we want these?
+			'@typescript-eslint/no-unused-vars': 'off',
 			'@typescript-eslint/array-type': 'off',
 			'@typescript-eslint/ban-ts-comment': 'off',
 			'@typescript-eslint/class-literal-property-style': 'off',
@@ -91,10 +71,13 @@ export default [
 			'@typescript-eslint/no-unsafe-assignment': 'off',
 			'@typescript-eslint/no-unsafe-call': 'off',
 			'@typescript-eslint/no-unsafe-member-access': 'off',
+			'@typescript-eslint/no-unused-expressions': 'off',
+			'@typescript-eslint/only-throw-error': 'off',
 			'@typescript-eslint/no-unsafe-return': 'off',
 			'@typescript-eslint/no-unnecessary-type-assertion': 'off',
 			'@typescript-eslint/prefer-nullish-coalescing': 'off',
 			'@typescript-eslint/prefer-optional-chain': 'off',
+			'@typescript-eslint/prefer-promise-reject-errors': 'off',
 			'@typescript-eslint/prefer-string-starts-ends-with': 'off',
 			'@typescript-eslint/require-await': 'off',
 			'@typescript-eslint/restrict-plus-operands': 'off',
@@ -103,36 +86,16 @@ export default [
 			'@typescript-eslint/unbound-method': 'off',
 			'@typescript-eslint/no-explicit-any': 'off',
 
-			// Enforce separate type imports for type-only imports to avoid bundling unneeded code
-			'@typescript-eslint/consistent-type-imports': [
-				'error',
-				{
-					prefer: 'type-imports',
-					fixStyle: 'separate-type-imports',
-					disallowTypeAnnotations: false,
-				},
-			],
-
+			// Used by Biome
+			'@typescript-eslint/consistent-type-imports': 'off',
 			// These rules enabled by the preset configs don't work well for us
 			'@typescript-eslint/await-thenable': 'off',
 			'prefer-const': 'off',
 
 			// In some cases, using explicit letter-casing is more performant than the `i` flag
 			'regexp/use-ignore-case': 'off',
-		},
-	},
-
-	{
-		// Ensure Node builtins aren't included in Astro's server runtime
-		files: ['packages/astro/src/runtime/**/*.ts'],
-		rules: {
-			'no-restricted-imports': [
-				'error',
-				{
-					paths: [...builtinModules],
-					patterns: ['node:*'],
-				},
-			],
+			'regexp/prefer-regexp-exec': 'warn',
+			'regexp/prefer-regexp-test': 'warn',
 		},
 	},
 	{
@@ -141,37 +104,6 @@ export default [
 			globals: {
 				browser: true,
 			},
-		},
-	},
-	{
-		files: ['packages/**/test/*.js', 'packages/**/*.js'],
-		languageOptions: {
-			globals: {
-				mocha: true,
-				globalThis: false, // false means read-only
-			},
-		},
-		rules: {
-			'no-console': 'off',
-		},
-	},
-	{
-		files: ['packages/integrations/**/*.ts'],
-		rules: {
-			'no-console': ['error', { allow: ['warn', 'error', 'info', 'debug'] }],
-		},
-	},
-	{
-		files: ['benchmark/**/*.js'],
-		rules: {
-			'@typescript-eslint/no-unused-vars': 'off',
-			'no-console': 'off',
-		},
-	},
-	{
-		files: ['packages/db/**/cli/**/*.ts'],
-		rules: {
-			'no-console': 'off',
 		},
 	},
 	{

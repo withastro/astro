@@ -8,7 +8,7 @@ import type { OutgoingHttpHeaders } from 'node:http';
  * @returns {OutgoingHttpHeaders} NodeJS OutgoingHttpHeaders object with multiple set-cookie handled as an array of values
  */
 export const createOutgoingHttpHeaders = (
-	headers: Headers | undefined | null
+	headers: Headers | undefined | null,
 ): OutgoingHttpHeaders | undefined => {
 	if (!headers) {
 		return undefined;

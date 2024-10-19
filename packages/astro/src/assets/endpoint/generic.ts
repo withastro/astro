@@ -19,7 +19,7 @@ async function loadRemoteImage(src: URL, headers: Headers) {
 		}
 
 		return await res.arrayBuffer();
-	} catch (err: unknown) {
+	} catch {
 		return undefined;
 	}
 }
@@ -60,7 +60,7 @@ export const GET: APIRoute = async ({ request }) => {
 		const { data, format } = await imageService.transform(
 			new Uint8Array(inputBuffer),
 			transform,
-			imageConfig
+			imageConfig,
 		);
 
 		return new Response(data, {
@@ -73,7 +73,6 @@ export const GET: APIRoute = async ({ request }) => {
 			},
 		});
 	} catch (err: unknown) {
-		// eslint-disable-next-line no-console
 		console.error('Could not process image request:', err);
 		return new Response(`Server Error: ${err}`, { status: 500 });
 	}

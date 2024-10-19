@@ -14,6 +14,7 @@ import {
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
+import { syncInternal } from '../sync/index.js';
 
 export interface Container {
 	fs: typeof nodeFs;
@@ -56,9 +57,22 @@ export async function createContainer({
 		base,
 		server: { host, headers, open: serverOpen },
 	} = settings.config;
+
+	// serverOpen = true, isRestart = false
+	// when astro dev --open command is run the first time
+	// expected behavior: spawn a new tab
+	// ------------------------------------------------------
+	// serverOpen = true, isRestart = true
+	// when config file is saved
+	// expected behavior: do not spawn a new tab
+	// ------------------------------------------------------
+	// Non-config files don't reach this point
+	const isServerOpenURL = typeof serverOpen == 'string' && !isRestart;
+	const isServerOpenBoolean = serverOpen && !isRestart;
+
 	// Open server to the correct path. We pass the `base` here as we didn't pass the
 	// base to the initial Vite config
-	const open = typeof serverOpen == 'string' ? serverOpen : serverOpen ? base : false;
+	const open = isServerOpenURL ? serverOpen : isServerOpenBoolean ? base : false;
 
 	// The client entrypoint for renderers. Since these are imported dynamically
 	// we need to tell Vite to preoptimize them.
@@ -74,9 +88,18 @@ export async function createContainer({
 				include: rendererClientEntries,
 			},
 		},
-		{ settings, logger, mode: 'dev', command: 'dev', fs, sync: false }
+		{ settings, logger, mode: 'dev', command: 'dev', fs, sync: false },
 	);
 	await runHookConfigDone({ settings, logger });
+	await syncInternal({
+		settings,
+		logger,
+		skip: {
+			content: true,
+		},
+		force: inlineConfig?.force,
+	});
+
 	const viteServer = await vite.createServer(viteConfig);
 
 	const container: Container = {

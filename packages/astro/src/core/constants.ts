@@ -23,6 +23,15 @@ export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
 export const REROUTE_DIRECTIVE_HEADER = 'X-Astro-Reroute';
 
 /**
+ * Header and value that are attached to a Response object when a **user rewrite** occurs.
+ *
+ * This metadata is used to determine the origin of a Response. If a rewrite has occurred, it should be prioritised over other logic.
+ */
+export const REWRITE_DIRECTIVE_HEADER_KEY = 'X-Astro-Rewrite';
+
+export const REWRITE_DIRECTIVE_HEADER_VALUE = 'yes';
+
+/**
  * The name for the header used to help i18n middleware, which only needs to act on "page" and "fallback" route types.
  */
 export const ROUTE_TYPE_HEADER = 'X-Astro-Route-Type';
@@ -36,6 +45,11 @@ export const DEFAULT_404_COMPONENT = 'astro-default-404.astro';
  * The value of the `component` field of the default 500 page, which is used when there is no user-provided 404.astro page.
  */
 export const DEFAULT_500_COMPONENT = 'astro-default-500.astro';
+
+/**
+ * A response with one of these status codes will create a redirect response.
+ */
+export const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308, 300, 304] as const;
 
 /**
  * A response with one of these status codes will be rewritten
@@ -54,6 +68,11 @@ export const clientAddressSymbol = Symbol.for('astro.clientAddress');
  * Use judiciously, as locals are now stored within `RenderContext` by default. Tacking it onto request is no longer necessary.
  */
 export const clientLocalsSymbol = Symbol.for('astro.locals');
+
+/**
+ * Use this symbol to set and retrieve the original pathname of a request. This is useful when working with redirects and rewrites
+ */
+export const originPathnameSymbol = Symbol.for('astro.originPathname');
 
 /**
  * The symbol used as a field on the response object to keep track of streaming.

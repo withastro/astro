@@ -6,7 +6,7 @@ import type { CSSOptions, UserConfig } from 'vite';
 
 async function getPostCssConfig(
 	root: UserConfig['root'],
-	postcssInlineOptions: CSSOptions['postcss']
+	postcssInlineOptions: CSSOptions['postcss'],
 ) {
 	let postcssConfigResult;
 	// Check if postcss config is not inlined
@@ -15,7 +15,7 @@ async function getPostCssConfig(
 		const searchPath = typeof postcssInlineOptions === 'string' ? postcssInlineOptions : root!;
 		try {
 			postcssConfigResult = await postcssrc({}, searchPath);
-		} catch (e) {
+		} catch {
 			postcssConfigResult = null;
 		}
 	}
@@ -26,7 +26,7 @@ async function getViteConfiguration(
 	tailwindConfigPath: string | undefined,
 	nesting: boolean,
 	root: string,
-	postcssInlineOptions: CSSOptions['postcss']
+	postcssInlineOptions: CSSOptions['postcss'],
 ): Promise<Partial<UserConfig>> {
 	// We need to manually load postcss config files because when inlining the tailwind and autoprefixer plugins,
 	// that causes vite to ignore postcss config files
@@ -89,7 +89,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 						customConfigPath,
 						nesting,
 						fileURLToPath(config.root),
-						config.vite.css?.postcss
+						config.vite.css?.postcss,
 					),
 				});
 

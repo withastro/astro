@@ -68,7 +68,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					},
 					contentModuleTypes: await fs.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
-						'utf-8'
+						'utf-8',
 					),
 					// MDX can import scripts and styles,
 					// so wrap all MDX files with script / style propagation checks
@@ -91,7 +91,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					options: partialMdxOptions,
 					defaults: markdownConfigToMdxOptions(
 						extendMarkdownConfig ? config.markdown : markdownConfigDefaults,
-						logger
+						logger,
 					),
 				});
 
@@ -113,7 +113,7 @@ const defaultMdxOptions = {
 
 function markdownConfigToMdxOptions(
 	markdownConfig: typeof markdownConfigDefaults,
-	logger: AstroIntegrationLogger
+	logger: AstroIntegrationLogger,
 ): MdxOptions {
 	return {
 		...defaultMdxOptions,

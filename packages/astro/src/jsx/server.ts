@@ -10,7 +10,7 @@ const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w
 export async function check(
 	Component: any,
 	props: any,
-	{ default: children = null, ...slotted } = {}
+	{ default: children = null, ...slotted } = {},
 ) {
 	if (typeof Component !== 'function') return false;
 	const slots: Record<string, any> = {};
@@ -31,7 +31,7 @@ export async function renderToStaticMarkup(
 	this: any,
 	Component: any,
 	props = {},
-	{ default: children = null, ...slotted } = {}
+	{ default: children = null, ...slotted } = {},
 ) {
 	const slots: Record<string, any> = {};
 	for (const [key, value] of Object.entries(slotted)) {

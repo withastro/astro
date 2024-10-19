@@ -10,6 +10,7 @@ export interface PluginMetadata {
 	astro: {
 		hydratedComponents: TransformResult['hydratedComponents'];
 		clientOnlyComponents: TransformResult['clientOnlyComponents'];
+		serverComponents: TransformResult['serverComponents'];
 		scripts: TransformResult['scripts'];
 		containsHead: TransformResult['containsHead'];
 		propagation: PropagationHint;

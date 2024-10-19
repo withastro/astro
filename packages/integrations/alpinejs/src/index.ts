@@ -72,7 +72,7 @@ export const setup = (Alpine) => {
 		${
 			!isBuild
 				? `console.warn("[@astrojs/alpinejs] entrypoint \`" + ${JSON.stringify(
-						entrypoint
+						entrypoint,
 					)} + "\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/alpinejs/#entrypoint.");`
 				: ''
 		}
@@ -98,7 +98,7 @@ export default function createPlugin(options?: Options): AstroIntegration {
 import { setup } from 'virtual:@astrojs/alpinejs/entrypoint';
 setup(Alpine);
 window.Alpine = Alpine;
-Alpine.start();`
+Alpine.start();`,
 				);
 				updateConfig({
 					vite: {

@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/prefetch/',
 });
 
@@ -40,7 +40,7 @@ async function expectUrlPrefetched(url, page, count) {
 			const fetchCount = reqUrls.filter((u) => u.includes(url)).length;
 			expect(
 				fetchCount,
-				`${url} should be prefetched ${count} time(s), but is prefetch with link ${linkCount} time(s) and with fetch ${fetchCount} time(s)`
+				`${url} should be prefetched ${count} time(s), but is prefetch with link ${linkCount} time(s) and with fetch ${fetchCount} time(s)`,
 			).toEqual(count);
 		}
 	}
@@ -344,7 +344,7 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 		expect(await scriptIsInHead(page, '?search-param=true')).toBeFalsy();
 		await page.locator('#prefetch-search-param').hover();
 		await page.waitForFunction(
-			() => document.querySelectorAll('script[type=speculationrules]').length === 2
+			() => document.querySelectorAll('script[type=speculationrules]').length === 2,
 		);
 		expect(await scriptIsInHead(page, '?search-param=true')).toBeTruthy();
 	});
@@ -361,7 +361,7 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 		expect(await scriptIsInHead(page, '/prefetch-hover')).toBeFalsy();
 		await page.locator('#prefetch-hover').hover();
 		await page.waitForFunction(
-			() => document.querySelectorAll('script[type=speculationrules]').length === 2
+			() => document.querySelectorAll('script[type=speculationrules]').length === 2,
 		);
 		expect(await scriptIsInHead(page, '/prefetch-hover')).toBeTruthy();
 	});
@@ -372,7 +372,7 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 		// Scroll down to show the element
 		await page.locator('#prefetch-viewport').scrollIntoViewIfNeeded();
 		await page.waitForFunction(
-			() => document.querySelectorAll('script[type=speculationrules]').length === 2
+			() => document.querySelectorAll('script[type=speculationrules]').length === 2,
 		);
 		expect(await scriptIsInHead(page, '/prefetch-viewport')).toBeTruthy();
 	});

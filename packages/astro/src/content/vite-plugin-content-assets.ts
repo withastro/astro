@@ -1,17 +1,19 @@
 import { extname } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import type { Plugin, Rollup } from 'vite';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { Plugin } from 'vite';
 import type { AstroSettings, SSRElement } from '../@types/astro.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
 import { getStylesForURL } from '../vite-plugin-astro-server/css.js';
 import { getScriptsForURL } from '../vite-plugin-astro-server/scripts.js';
 import {
+	CONTENT_IMAGE_FLAG,
 	CONTENT_RENDER_FLAG,
 	LINKS_PLACEHOLDER,
 	PROPAGATED_ASSET_FLAG,
@@ -32,6 +34,24 @@ export function astroContentAssetPropagationPlugin({
 		name: 'astro:content-asset-propagation',
 		enforce: 'pre',
 		async resolveId(id, importer, opts) {
+			if (hasContentFlag(id, CONTENT_IMAGE_FLAG)) {
+				const [base, query] = id.split('?');
+				const params = new URLSearchParams(query);
+				const importerParam = params.get('importer');
+
+				const importerPath = importerParam
+					? fileURLToPath(new URL(importerParam, settings.config.root))
+					: importer;
+
+				const resolved = this.resolve(base, importerPath, { skipSelf: true, ...opts });
+				if (!resolved) {
+					throw new AstroError({
+						...AstroErrorData.ImageNotFound,
+						message: AstroErrorData.ImageNotFound.message(base),
+					});
+				}
+				return resolved;
+			}
 			if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
 				const base = id.split('?')[0];
 
@@ -77,7 +97,7 @@ export function astroContentAssetPropagationPlugin({
 						: await getScriptsForURL(
 								pathToFileURL(basePath),
 								settings.config.root,
-								devModuleLoader
+								devModuleLoader,
 							);
 
 					// Register files we crawled to be able to retrieve the rendered styles and scripts,
@@ -127,24 +147,11 @@ export function astroContentAssetPropagationPlugin({
 
 export function astroConfigBuildPlugin(
 	options: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
-	let ssrPluginContext: Rollup.PluginContext | undefined = undefined;
 	return {
 		targets: ['server'],
 		hooks: {
-			'build:before': ({ target }) => {
-				return {
-					vitePlugin: {
-						name: 'astro:content-build-plugin',
-						generateBundle() {
-							if (target === 'server') {
-								ssrPluginContext = this;
-							}
-						},
-					},
-				};
-			},
 			'build:post': ({ ssrOutputs, clientOutputs, mutate }) => {
 				const outputs = ssrOutputs.flatMap((o) => o.output);
 				const prependBase = (src: string) => {
@@ -189,7 +196,7 @@ export function astroConfigBuildPlugin(
 						if (entryStyles.size) {
 							newCode = newCode.replace(
 								JSON.stringify(STYLES_PLACEHOLDER),
-								JSON.stringify(Array.from(entryStyles))
+								JSON.stringify(Array.from(entryStyles)),
 							);
 						} else {
 							newCode = newCode.replace(JSON.stringify(STYLES_PLACEHOLDER), '[]');
@@ -197,7 +204,7 @@ export function astroConfigBuildPlugin(
 						if (entryLinks.size) {
 							newCode = newCode.replace(
 								JSON.stringify(LINKS_PLACEHOLDER),
-								JSON.stringify(Array.from(entryLinks).map(prependBase))
+								JSON.stringify(Array.from(entryLinks).map(prependBase)),
 							);
 						} else {
 							newCode = newCode.replace(JSON.stringify(LINKS_PLACEHOLDER), '[]');
@@ -223,8 +230,8 @@ export function astroConfigBuildPlugin(
 											type: 'module',
 										},
 										children: '',
-									}))
-								)
+									})),
+								),
 							);
 						} else {
 							newCode = newCode.replace(JSON.stringify(SCRIPTS_PLACEHOLDER), '[]');
@@ -232,8 +239,6 @@ export function astroConfigBuildPlugin(
 						mutate(chunk, ['server'], newCode);
 					}
 				}
-
-				ssrPluginContext = undefined;
 			},
 		},
 	};

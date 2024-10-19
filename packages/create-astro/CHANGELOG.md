@@ -1,5 +1,55 @@
 # create-astro
 
+## 4.10.0
+
+### Minor Changes
+
+- [#12154](https://github.com/withastro/astro/pull/12154) [`9988dd6`](https://github.com/withastro/astro/commit/9988dd67e2e4647c974979470d2e63d80433b611) Thanks [@bluwy](https://github.com/bluwy)! - Improves default template download speed by downloading from a branch containing the template only
+
+- [#12186](https://github.com/withastro/astro/pull/12186) [`49c4f64`](https://github.com/withastro/astro/commit/49c4f64673390f7035258d662755988f0fb71a94) Thanks [@Terfno](https://github.com/Terfno)! - Ensures new line at the end of the generated `package.json` and `tsconfig.json` files
+
+## 4.9.2
+
+### Patch Changes
+
+- [#12143](https://github.com/withastro/astro/pull/12143) [`2385d58`](https://github.com/withastro/astro/commit/2385d58389ee975a53f4089f2a7220d97cf3cdff) Thanks [@bluwy](https://github.com/bluwy)! - Uses `@bluwy/giget-core` instead of `giget` for smaller installation size when downloading the CLI
+
+## 4.9.1
+
+### Patch Changes
+
+- [#12118](https://github.com/withastro/astro/pull/12118) [`f47b347`](https://github.com/withastro/astro/commit/f47b347da899c6e1dcd0b2e7887f7fce6ec8e270) Thanks [@Namchee](https://github.com/Namchee)! - Removes the `strip-ansi` dependency in favor of the native Node API
+
+## 4.9.0
+
+### Minor Changes
+
+- [#11924](https://github.com/withastro/astro/pull/11924) [`7d70ba3`](https://github.com/withastro/astro/commit/7d70ba317889b9281c7891038779a68fcb8f0778) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the default Astro config with `// @ts-check` if the Typescript preset is `strict` or `strictest`
+
+## 4.8.4
+
+### Patch Changes
+
+- [#11766](https://github.com/withastro/astro/pull/11766) [`d12dcbf`](https://github.com/withastro/astro/commit/d12dcbff606dd8330075ba77d73ed3cbc79d7421) Thanks [@bluwy](https://github.com/bluwy)! - Fixes initial git commit when initializing git
+
+## 4.8.3
+
+### Patch Changes
+
+- [#11733](https://github.com/withastro/astro/pull/11733) [`391324d`](https://github.com/withastro/astro/commit/391324df969db71d1c7ca25c2ed14c9eb6eea5ee) Thanks [@bluwy](https://github.com/bluwy)! - Reverts back to `arg` package for CLI argument parsing
+
+## 4.8.2
+
+### Patch Changes
+
+- [#11645](https://github.com/withastro/astro/pull/11645) [`849e4c6`](https://github.com/withastro/astro/commit/849e4c6c23e61f7fa59f583419048b998bef2475) Thanks [@bluwy](https://github.com/bluwy)! - Refactors internally to use `node:util` `parseArgs` instead of `arg`
+
+## 4.8.1
+
+### Patch Changes
+
+- [#11567](https://github.com/withastro/astro/pull/11567) [`d27cf6d`](https://github.com/withastro/astro/commit/d27cf6df7bd612642a1e8da5948333b00b70e8bd) Thanks [@ascorbic](https://github.com/ascorbic)! - Logs underlying error when a template cannot be downloaded
+
 ## 4.8.0
 
 ### Minor Changes

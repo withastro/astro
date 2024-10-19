@@ -148,12 +148,15 @@ export function computePreferredLocaleList(request: Request, locales: Locales): 
 	return result;
 }
 
-export function computeCurrentLocale(pathname: string, locales: Locales): undefined | string {
+export function computeCurrentLocale(
+	pathname: string,
+	locales: Locales,
+	defaultLocale: string,
+): string | undefined {
 	for (const segment of pathname.split('/')) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
 				// we skip ta locale that isn't present in the current segment
-
 				if (!segment.includes(locale)) continue;
 				if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
 					return locale;
@@ -171,6 +174,19 @@ export function computeCurrentLocale(pathname: string, locales: Locales): undefi
 			}
 		}
 	}
+	// If we didn't exit, it's probably because we don't have any code/locale in the URL.
+	// We use the default locale.
+	for (const locale of locales) {
+		if (typeof locale === 'string') {
+			if (locale === defaultLocale) {
+				return locale;
+			}
+		} else {
+			if (locale.path === defaultLocale) {
+				return locale.codes.at(0);
+			}
+		}
+	}
 }
 
 export type RoutingStrategies =
@@ -183,7 +199,7 @@ export type RoutingStrategies =
 	| 'domains-prefix-always-no-redirect';
 export function toRoutingStrategy(
 	routing: NonNullable<AstroConfig['i18n']>['routing'],
-	domains: NonNullable<AstroConfig['i18n']>['domains']
+	domains: NonNullable<AstroConfig['i18n']>['domains'],
 ) {
 	let strategy: RoutingStrategies;
 	const hasDomains = domains ? Object.keys(domains).length > 0 : false;
@@ -214,4 +230,13 @@ export function toRoutingStrategy(
 	}
 
 	return strategy;
+}
+
+export function toFallbackType(
+	routing: NonNullable<AstroConfig['i18n']>['routing'],
+): 'redirect' | 'rewrite' {
+	if (routing === 'manual') {
+		return 'rewrite';
+	}
+	return routing.fallbackType;
 }

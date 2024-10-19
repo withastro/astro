@@ -7,7 +7,7 @@ import { error, info, title } from '../messages.js';
 import { shell } from '../shell.js';
 
 export async function git(
-	ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 'dryRun' | 'tasks'>
+	ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 'dryRun' | 'tasks'>,
 ) {
 	if (fs.existsSync(path.join(ctx.cwd, '.git'))) {
 		await info('Nice!', `Git has already been initialized`);
@@ -41,7 +41,7 @@ export async function git(
 	} else {
 		await info(
 			ctx.yes === false ? 'git [skip]' : 'Sounds good!',
-			`You can always run ${color.reset('git init')}${color.dim(' manually.')}`
+			`You can always run ${color.reset('git init')}${color.dim(' manually.')}`,
 		);
 	}
 }
@@ -55,10 +55,10 @@ async function init({ cwd }: { cwd: string }) {
 			[
 				'commit',
 				'-m',
-				'Initial commit from Astro',
+				'"Initial commit from Astro"',
 				'--author="houston[bot] <astrobot-houston@users.noreply.github.com>"',
 			],
-			{ cwd, stdio: 'ignore' }
+			{ cwd, stdio: 'ignore' },
 		);
-	} catch (e) {}
+	} catch {}
 }

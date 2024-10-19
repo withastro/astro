@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
+import { relative } from 'node:path';
 import { after, before, describe, it } from 'node:test';
-import { relative } from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
 

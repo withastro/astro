@@ -9,11 +9,11 @@ import type {
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export function generatePaginateFunction(
-	routeMatch: RouteData
+	routeMatch: RouteData,
 ): (...args: Parameters<PaginateFunction>) => ReturnType<PaginateFunction> {
 	return function paginateUtility(
 		data: any[],
-		args: PaginateOptions<Props, Params> = {}
+		args: PaginateOptions<Props, Params> = {},
 	): ReturnType<PaginateFunction> {
 		let { pageSize: _pageSize, params: _params, props: _props } = args;
 		const pageSize = _pageSize || 10;
@@ -54,8 +54,21 @@ export function generatePaginateFunction(
 								...params,
 								page:
 									!includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1),
-							})
+							}),
 						);
+			const first =
+				pageNum === 1
+					? undefined
+					: correctIndexRoute(
+							routeMatch.generate({
+								...params,
+								page: includesFirstPageNumber ? '1' : undefined,
+							}),
+						);
+			const last =
+				pageNum === lastPage
+					? undefined
+					: correctIndexRoute(routeMatch.generate({ ...params, page: String(lastPage) }));
 			return {
 				params,
 				props: {
@@ -68,7 +81,7 @@ export function generatePaginateFunction(
 						total: data.length,
 						currentPage: pageNum,
 						lastPage: lastPage,
-						url: { current, next, prev },
+						url: { current, next, prev, first, last },
 					} as Page,
 				},
 			};

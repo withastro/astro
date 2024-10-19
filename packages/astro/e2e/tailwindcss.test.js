@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/tailwindcss/' });
+const test = testFactory(import.meta.url, { root: './fixtures/tailwindcss/' });
 
 let devServer;
 
@@ -23,7 +23,7 @@ test.describe('Tailwind CSS', () => {
 		await expect(body, 'should have classes').toHaveClass('bg-dawn text-midnight');
 		await expect(body, 'should have background color').toHaveCSS(
 			'background-color',
-			'rgb(243, 233, 250)'
+			'rgb(243, 233, 250)',
 		);
 		await expect(body, 'should have color').toHaveCSS('color', 'rgb(49, 39, 74)');
 	});
@@ -37,13 +37,13 @@ test.describe('Tailwind CSS', () => {
 		await expect(button, 'should have appearance: none').toHaveCSS('appearance', 'none');
 		await expect(button, 'should have appearance-none with webkit prefix').toHaveCSS(
 			'-webkit-appearance',
-			'none'
+			'none',
 		);
 
 		await expect(button, 'should have bg-purple-600').toHaveClass(/bg-purple-600/);
 		await expect(button, 'should have background color').toHaveCSS(
 			'background-color',
-			'rgb(147, 51, 234)'
+			'rgb(147, 51, 234)',
 		);
 
 		await expect(button, 'should have lg:py-3').toHaveClass(/lg:py-3/);
@@ -58,7 +58,7 @@ test.describe('Tailwind CSS', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		await astro.editFile('./src/components/Button.astro', (original) =>
-			original.replace('bg-purple-600', 'bg-purple-400')
+			original.replace('bg-purple-600', 'bg-purple-400'),
 		);
 
 		const button = page.locator('button');
@@ -66,7 +66,7 @@ test.describe('Tailwind CSS', () => {
 		await expect(button, 'should have bg-purple-400').toHaveClass(/bg-purple-400/);
 		await expect(button, 'should have background color').toHaveCSS(
 			'background-color',
-			'rgb(192, 132, 252)'
+			'rgb(192, 132, 252)',
 		);
 	});
 });

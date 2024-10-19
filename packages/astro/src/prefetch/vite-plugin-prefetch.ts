@@ -52,7 +52,7 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 					.replace('__PREFETCH_DEFAULT_STRATEGY__', JSON.stringify(prefetch?.defaultStrategy))
 					.replace(
 						'__EXPERIMENTAL_CLIENT_PRERENDER__',
-						JSON.stringify(settings.config.experimental.clientPrerender)
+						JSON.stringify(settings.config.experimental.clientPrerender),
 					);
 			}
 		},

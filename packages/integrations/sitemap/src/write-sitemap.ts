@@ -1,8 +1,8 @@
-import { type WriteStream, createWriteStream } from 'fs';
-import { normalize, resolve } from 'path';
-import { Readable, pipeline } from 'stream';
-import { promisify } from 'util';
-import { mkdir } from 'fs/promises';
+import { type WriteStream, createWriteStream } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
+import { normalize, resolve } from 'node:path';
+import { Readable, pipeline } from 'node:stream';
+import { promisify } from 'node:util';
 import replace from 'stream-replace-string';
 
 import { SitemapAndIndexStream, SitemapStream } from 'sitemap';
@@ -17,6 +17,7 @@ type WriteSitemapConfig = {
 	destinationDir: string;
 	publicBasePath?: string;
 	limit?: number;
+	xslURL?: string;
 };
 
 // adapted from sitemap.js/sitemap-simple
@@ -28,8 +29,9 @@ export async function writeSitemap(
 		destinationDir,
 		limit = 50000,
 		publicBasePath = './',
+		xslURL: xslUrl,
 	}: WriteSitemapConfig,
-	astroConfig: AstroConfig
+	astroConfig: AstroConfig,
 ) {
 	await mkdir(destinationDir, { recursive: true });
 
@@ -38,6 +40,7 @@ export async function writeSitemap(
 		getSitemapStream: (i) => {
 			const sitemapStream = new SitemapStream({
 				hostname,
+				xslUrl,
 			});
 			const path = `./sitemap-${i}.xml`;
 			const writePath = resolve(destinationDir, path);
@@ -63,7 +66,7 @@ export async function writeSitemap(
 		},
 	});
 
-	let src = Readable.from(sourceData);
+	const src = Readable.from(sourceData);
 	const indexPath = resolve(destinationDir, `./sitemap-index.xml`);
 	return promisify(pipeline)(src, sitemapAndIndexStream, createWriteStream(indexPath));
 }

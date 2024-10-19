@@ -91,6 +91,10 @@ describe('typescript: setup tsconfig', async () => {
 		assert.deepEqual(JSON.parse(fs.readFileSync(tsconfig, { encoding: 'utf-8' })), {
 			extends: 'astro/tsconfigs/strict',
 		});
+		assert(
+			fs.readFileSync(tsconfig, { encoding: 'utf-8' }).endsWith('\n'),
+			'The file does not end with a newline',
+		);
 	});
 
 	it('exists', async () => {
@@ -100,6 +104,10 @@ describe('typescript: setup tsconfig', async () => {
 		assert.deepEqual(JSON.parse(fs.readFileSync(tsconfig, { encoding: 'utf-8' })), {
 			extends: 'astro/tsconfigs/strict',
 		});
+		assert(
+			fs.readFileSync(tsconfig, { encoding: 'utf-8' }).endsWith('\n'),
+			'The file does not end with a newline',
+		);
 	});
 });
 
@@ -120,18 +128,22 @@ describe('typescript: setup package', async () => {
 		const packageJson = new URL('./package.json', root);
 		assert.equal(
 			JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' })).scripts.build,
-			'astro build'
+			'astro build',
 		);
 
 		await setupTypeScript('strictest', { cwd: fileURLToPath(root), install: false });
+		assert(
+			fs.readFileSync(packageJson, { encoding: 'utf-8' }).endsWith('\n'),
+			'The file does not end with a newline',
+		);
 		const { scripts, dependencies } = JSON.parse(
-			fs.readFileSync(packageJson, { encoding: 'utf-8' })
+			fs.readFileSync(packageJson, { encoding: 'utf-8' }),
 		);
 
 		assert.deepEqual(
 			Object.keys(scripts),
 			['dev', 'build', 'preview'],
-			'does not override existing scripts'
+			'does not override existing scripts',
 		);
 
 		for (const value of Object.values(dependencies)) {

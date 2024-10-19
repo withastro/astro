@@ -72,7 +72,7 @@ export function __astro_tag_component__(Component: unknown, rendererName: string
 export function spreadAttributes(
 	values: Record<any, any> = {},
 	_name?: string,
-	{ class: scopedClassName }: { class?: string } = {}
+	{ class: scopedClassName }: { class?: string } = {},
 ) {
 	let output = '';
 	// If the compiler passes along a scoped class, merge with existing props or inject it

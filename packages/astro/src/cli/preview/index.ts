@@ -1,11 +1,10 @@
 import { cyan } from 'kleur/colors';
-import type yargs from 'yargs-parser';
 import { printHelp } from '../../core/messages.js';
 import previewServer from '../../core/preview/index.js';
-import { flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface PreviewOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 export async function preview({ flags }: PreviewOptions) {
@@ -23,7 +22,7 @@ export async function preview({ flags }: PreviewOptions) {
 				],
 			},
 			description: `Starts a local server to serve your static dist/ directory. Check ${cyan(
-				'https://docs.astro.build/en/reference/cli-reference/#astro-preview'
+				'https://docs.astro.build/en/reference/cli-reference/#astro-preview',
 			)} for more information.`,
 		});
 		return;

@@ -8,9 +8,8 @@ export function addAstro(Prism: typeof import('prismjs')) {
 		scriptLang = 'typescript';
 	} else {
 		scriptLang = 'javascript';
-		// eslint-disable-next-line no-console
 		console.warn(
-			'Prism TypeScript language not loaded, Astro scripts will be treated as JavaScript.'
+			'Prism TypeScript language not loaded, Astro scripts will be treated as JavaScript.',
 		);
 	}
 
@@ -41,7 +40,7 @@ export function addAstro(Prism: typeof import('prismjs')) {
 
 	(Prism.languages.astro as any).tag.pattern = re(
 		/<\/?(?:[\w.:-]+(?:<S>+(?:[\w.:$-]+(?:=(?:"(?:\\[\s\S]|[^\\"])*"|'(?:\\[\s\S]|[^\\'])*'|[^\s{'"/>=]+|<BRACES>))?|<SPREAD>))*<S>*\/?)?>/
-			.source
+			.source,
 	);
 
 	(Prism.languages.astro as any).tag.inside['tag'].pattern = /^<\/?[^\s>/]*/;
@@ -60,7 +59,7 @@ export function addAstro(Prism: typeof import('prismjs')) {
 				inside: Prism.languages.astro,
 			},
 		},
-		(Prism.languages.astro as any).tag
+		(Prism.languages.astro as any).tag,
 	);
 
 	Prism.languages.insertBefore(
@@ -80,7 +79,7 @@ export function addAstro(Prism: typeof import('prismjs')) {
 				alias: `language-${scriptLang}`,
 			},
 		},
-		(Prism.languages.astro as any).tag
+		(Prism.languages.astro as any).tag,
 	);
 
 	// The following will handle plain text inside tags

@@ -1,16 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
-import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
-
-const root = new URL('../../fixtures/alias/', import.meta.url);
+import { createFixture, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
 describe('core/render components', () => {
 	it('should sanitize dynamic tags', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/index.astro': `
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `
 				---
 				const TagA = 'p style=color:red;'
 				const TagB = 'p><script id="pwnd">console.log("pwnd")</script>'
@@ -23,15 +19,12 @@ describe('core/render components', () => {
 					</body>
 				</html>
 			`,
-			},
-			root
-		);
+		});
 
 		await runInContainer(
 			{
-				fs,
 				inlineConfig: {
-					root: fileURLToPath(root),
+					root: fixture.path,
 					logLevel: 'silent',
 					integrations: [],
 				},
@@ -53,14 +46,13 @@ describe('core/render components', () => {
 				assert.equal(typeof target.attr('style'), 'undefined');
 
 				assert.equal($('#pwnd').length, 0);
-			}
+			},
 		);
 	});
 
 	it('should merge `class` and `class:list`', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/index.astro': `
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `
 				---
 				import Class from '../components/Class.astro';
 				import ClassList from '../components/ClassList.astro';
@@ -74,20 +66,17 @@ describe('core/render components', () => {
 				<BothFlipped class:list={{ blue: true }} class="red" />
 				<BothSpread class:list={{ blue: true }} { ...{ class: "red" }} />
 			`,
-				'/src/components/Class.astro': `<pre id="class" set:html={JSON.stringify(Astro.props)} />`,
-				'/src/components/ClassList.astro': `<pre id="class-list" set:html={JSON.stringify(Astro.props)} />`,
-				'/src/components/BothLiteral.astro': `<pre id="both-literal" set:html={JSON.stringify(Astro.props)} />`,
-				'/src/components/BothFlipped.astro': `<pre id="both-flipped" set:html={JSON.stringify(Astro.props)} />`,
-				'/src/components/BothSpread.astro': `<pre id="both-spread" set:html={JSON.stringify(Astro.props)} />`,
-			},
-			root
-		);
+			'/src/components/Class.astro': `<pre id="class" set:html={JSON.stringify(Astro.props)} />`,
+			'/src/components/ClassList.astro': `<pre id="class-list" set:html={JSON.stringify(Astro.props)} />`,
+			'/src/components/BothLiteral.astro': `<pre id="both-literal" set:html={JSON.stringify(Astro.props)} />`,
+			'/src/components/BothFlipped.astro': `<pre id="both-flipped" set:html={JSON.stringify(Astro.props)} />`,
+			'/src/components/BothSpread.astro': `<pre id="both-spread" set:html={JSON.stringify(Astro.props)} />`,
+		});
 
 		await runInContainer(
 			{
-				fs,
 				inlineConfig: {
-					root: fileURLToPath(root),
+					root: fixture.path,
 					logLevel: 'silent',
 					integrations: [],
 				},
@@ -116,7 +105,46 @@ describe('core/render components', () => {
 				assert.deepEqual(BothLiteral, { class: 'red blue' }, '#both-literal');
 				assert.deepEqual(BothFlipped, { class: 'red blue' }, '#both-flipped');
 				assert.deepEqual(BothSpread, { class: 'red blue' }, '#both-spread');
-			}
+			},
+		);
+	});
+
+	it('should render component with `null` response', async () => {
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `
+				---
+				import NullComponent from '../components/NullComponent.astro';
+				---
+				<NullComponent />
+			`,
+			'/src/components/NullComponent.astro': `
+				---
+				return null;
+				---
+			`,
+		});
+
+		await runInContainer(
+			{
+				inlineConfig: {
+					root: fixture.path,
+					logLevel: 'silent',
+				},
+			},
+			async (container) => {
+				const { req, res, done, text } = createRequestAndResponse({
+					method: 'GET',
+					url: '/',
+				});
+				container.handle(req, res);
+
+				await done;
+				const html = await text();
+				const $ = cheerio.load(html);
+
+				assert.equal($('body').text(), '');
+				assert.equal(res.statusCode, 200);
+			},
 		);
 	});
 });

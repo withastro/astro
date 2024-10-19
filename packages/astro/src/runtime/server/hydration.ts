@@ -34,7 +34,7 @@ const transitionDirectivesToCopyOnIsland = Object.freeze([
 // Finds these special props and removes them from what gets passed into the component.
 export function extractDirectives(
 	inputProps: Props,
-	clientDirectives: SSRResult['clientDirectives']
+	clientDirectives: SSRResult['clientDirectives'],
 ): ExtractedProps {
 	let extracted: ExtractedProps = {
 		isPage: false,
@@ -84,7 +84,7 @@ export function extractDirectives(
 							.map((d) => `client:${d}`)
 							.join(', ');
 						throw new Error(
-							`Error: invalid hydration directive "${key}". Supported hydration methods: ${hydrationMethods}`
+							`Error: invalid hydration directive "${key}". Supported hydration methods: ${hydrationMethods}`,
 						);
 					}
 
@@ -125,7 +125,7 @@ interface HydrateScriptOptions {
 /** For hydrated components, generate a <script type="module"> to load the component */
 export async function generateHydrateScript(
 	scriptOptions: HydrateScriptOptions,
-	metadata: Required<AstroComponentMetadata>
+	metadata: Required<AstroComponentMetadata>,
 ): Promise<SSRElement> {
 	const { renderer, result, astroId, props, attrs } = scriptOptions;
 	const { hydrate, componentUrl, componentExport } = metadata;
@@ -172,7 +172,7 @@ export async function generateHydrateScript(
 		JSON.stringify({
 			name: metadata.displayName,
 			value: metadata.hydrateArgs || '',
-		})
+		}),
 	);
 
 	transitionDirectivesToCopyOnIsland.forEach((name) => {

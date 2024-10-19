@@ -2,6 +2,8 @@ import type { GetModuleInfo, ModuleInfo } from 'rollup';
 
 import crypto from 'node:crypto';
 import npath from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { normalizePath } from 'vite';
 import type { AstroSettings } from '../../@types/astro.js';
 import { viteID } from '../util.js';
 import { getTopLevelPageModuleInfos } from './graph.js';
@@ -13,19 +15,32 @@ const confusingBaseNames = ['404', '500'];
 // The short name for when the hash can be included
 // We could get rid of this and only use the createSlugger implementation, but this creates
 // slightly prettier names.
-export function shortHashedName(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
-	const parents = getTopLevelPageModuleInfos(id, ctx);
-	return createNameHash(
-		getFirstParentId(parents),
-		parents.map((page) => page.id)
-	);
+export function shortHashedName(settings: AstroSettings) {
+	return function (id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
+		const parents = getTopLevelPageModuleInfos(id, ctx);
+		return createNameHash(
+			getFirstParentId(parents),
+			parents.map((page) => page.id),
+			settings,
+		);
+	};
 }
 
-export function createNameHash(baseId: string | undefined, hashIds: string[]): string {
+export function createNameHash(
+	baseId: string | undefined,
+	hashIds: string[],
+	settings: AstroSettings,
+): string {
 	const baseName = baseId ? prettifyBaseName(npath.parse(baseId).name) : 'index';
 	const hash = crypto.createHash('sha256');
+	const root = fileURLToPath(settings.config.root);
+
 	for (const id of hashIds) {
-		hash.update(id, 'utf-8');
+		// Strip the project directory from the paths before they are hashed, so that assets
+		// that import these css files have consistent hashes when built in different environments.
+		const relativePath = npath.relative(root, id);
+		// Normalize the path to fix differences between windows and other environments
+		hash.update(normalizePath(relativePath), 'utf-8');
 	}
 	const h = hash.digest('hex').slice(0, 8);
 	const proposedName = baseName + '.' + h;

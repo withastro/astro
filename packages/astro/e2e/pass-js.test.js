@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/pass-js/',
 });
 
@@ -46,6 +46,22 @@ test.describe('Passing JS into client components', () => {
 		const numberValue = page.locator('#number-value');
 		await expect(numberValue, 'is visible').toBeVisible();
 		await expect(numberValue).toHaveText('16');
+
+		const infinityType = page.locator('#infinity-type');
+		await expect(infinityType, 'is visible').toBeVisible();
+		await expect(infinityType).toHaveText('[object Number]');
+
+		const negativeInfinityType = page.locator('#negative-infinity-type');
+		await expect(negativeInfinityType, 'is visible').toBeVisible();
+		await expect(negativeInfinityType).toHaveText('[object Number]');
+
+		const infinityValue = page.locator('#infinity-value');
+		await expect(infinityValue, 'is visible').toBeVisible();
+		await expect(infinityValue).toHaveText('Infinity');
+
+		const negativeInfinityValue = page.locator('#negative-infinity-value');
+		await expect(negativeInfinityValue, 'is visible').toBeVisible();
+		await expect(negativeInfinityValue).toHaveText('-Infinity');
 
 		// string
 		const stringType = page.locator('#string-type');

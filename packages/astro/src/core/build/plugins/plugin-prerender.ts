@@ -40,13 +40,13 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 	const prerenderOnlyEntryChunks = new Set<Rollup.OutputChunk>();
 	const nonPrerenderOnlyEntryChunks = new Set<Rollup.OutputChunk>();
 	for (const chunk of chunks) {
-		if (chunk.type === 'chunk' && (chunk.isEntry || chunk.isDynamicEntry)) {
+		if (chunk.type === 'chunk' && chunk.isEntry) {
 			// See if this entry chunk is prerendered, if so, skip it
 			if (chunk.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 				const pageDatas = getPagesFromVirtualModulePageName(
 					internals,
 					ASTRO_PAGE_RESOLVED_MODULE_ID,
-					chunk.facadeModuleId
+					chunk.facadeModuleId,
 				);
 				const prerender = pageDatas.every((pageData) => pageData.route.prerender);
 				if (prerender) {
@@ -102,7 +102,7 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 
 export function pluginPrerender(
 	opts: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	// Static output can skip prerender completely because we're already rendering all pages
 	if (opts.settings.config.output === 'static') {

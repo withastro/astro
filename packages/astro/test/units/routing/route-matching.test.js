@@ -11,12 +11,11 @@ import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-serve
 import testAdapter from '../../test-adapter.js';
 import {
 	createBasicSettings,
-	createFs,
+	createFixture,
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
 
-const root = new URL('../../fixtures/alias/', import.meta.url);
 const fileSystem = {
 	'/src/pages/[serverDynamic].astro': `
 		---
@@ -131,15 +130,14 @@ describe('Route matching', () => {
 	let settings;
 
 	before(async () => {
-		const fs = createFs(fileSystem, root);
+		const fixture = await createFixture(fileSystem);
 		settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			trailingSlash: 'never',
 			output: 'hybrid',
 			adapter: testAdapter(),
 		});
 		container = await createContainer({
-			fs,
 			settings,
 			logger: defaultLogger,
 		});
@@ -149,11 +147,10 @@ describe('Route matching', () => {
 		pipeline = DevPipeline.create(undefined, { loader, logger: defaultLogger, manifest, settings });
 		manifestData = createRouteManifest(
 			{
-				cwd: fileURLToPath(root),
+				cwd: fixture.path,
 				settings,
-				fsMod: fs,
 			},
-			defaultLogger
+			defaultLogger,
 		);
 	});
 

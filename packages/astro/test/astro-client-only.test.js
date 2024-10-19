@@ -34,7 +34,7 @@ describe('Client only components', () => {
 		const stylesheets = await Promise.all(
 			$('link[rel=stylesheet]').map((_, el) => {
 				return fixture.readFile(el.attribs.href);
-			})
+			}),
 		);
 		const css = stylesheets.join('');
 
@@ -100,7 +100,7 @@ describe('Client only components subpath', () => {
 		const stylesheets = await Promise.all(
 			$('link[rel=stylesheet]').map((_, el) => {
 				return fixture.readFile(el.attribs.href.replace(/\/blog/, ''));
-			})
+			}),
 		);
 		const css = stylesheets.join('');
 

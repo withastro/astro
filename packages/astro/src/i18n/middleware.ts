@@ -15,7 +15,7 @@ export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
-	format: SSRManifest['buildFormat']
+	format: SSRManifest['buildFormat'],
 ): MiddlewareHandler {
 	if (!i18n) return (_, next) => next();
 	const payload: MiddlewarePayload = {

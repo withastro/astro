@@ -18,7 +18,7 @@ describe('<Code>', () => {
 		assert.equal(
 			$('pre').attr('style'),
 			'background-color:#24292e;color:#e1e4e8; overflow-x: auto;',
-			'applies default and overflow'
+			'applies default and overflow',
 		);
 		assert.equal($('pre > code').length, 1);
 
@@ -44,7 +44,7 @@ describe('<Code>', () => {
 		assert.equal(
 			$('pre').attr('style'),
 			'background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;',
-			'applies custom theme'
+			'applies custom theme',
 		);
 	});
 
@@ -56,7 +56,7 @@ describe('<Code>', () => {
 			// test: applies wrap overflow
 			assert.equal(
 				$('pre').attr('style'),
-				'background-color:#24292e;color:#e1e4e8; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;'
+				'background-color:#24292e;color:#e1e4e8; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;',
 			);
 		}
 		{
@@ -66,7 +66,7 @@ describe('<Code>', () => {
 			// test: applies wrap overflow
 			assert.equal(
 				$('pre').attr('style'),
-				'background-color:#24292e;color:#e1e4e8; overflow-x: auto;'
+				'background-color:#24292e;color:#e1e4e8; overflow-x: auto;',
 			);
 		}
 		{
@@ -85,7 +85,7 @@ describe('<Code>', () => {
 		assert.equal($('pre').attr('class'), 'astro-code css-variables');
 		assert.deepEqual(
 			$('pre, pre span')
-				.map((i, f) => (f.attribs ? f.attribs.style : 'no style found'))
+				.map((_i, f) => (f.attribs ? f.attribs.style : 'no style found'))
 				.toArray(),
 			[
 				'background-color:var(--astro-code-color-background);color:var(--astro-code-color-text); overflow-x: auto;',
@@ -94,7 +94,7 @@ describe('<Code>', () => {
 				'color:var(--astro-code-color-text)',
 				'color:var(--astro-code-token-string-expression)',
 				'color:var(--astro-code-color-text)',
-			]
+			],
 		);
 	});
 
@@ -105,7 +105,7 @@ describe('<Code>', () => {
 		assert.equal($('#theme > pre').length, 1);
 		assert.equal(
 			$('#theme > pre').attr('style'),
-			'background-color:#FDFDFE;color:#4E5377; overflow-x: auto;'
+			'background-color:#FDFDFE;color:#4E5377; overflow-x: auto;',
 		);
 
 		assert.equal($('#lang > pre').length, 1);

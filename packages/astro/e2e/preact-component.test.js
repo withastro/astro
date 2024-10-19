@@ -1,6 +1,8 @@
 import { prepareTestFactory } from './shared-component-tests.js';
 
-const { test, createTests } = prepareTestFactory({ root: './fixtures/preact-component/' });
+const { test, createTests } = prepareTestFactory(import.meta.url, {
+	root: './fixtures/preact-component/',
+});
 
 const config = {
 	counterComponentFilePath: './src/components/Counter.jsx',

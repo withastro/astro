@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
+import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { removeDir } from '../dist/core/fs/index.js';
 import { Logger } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.js';
 import { testImageService } from './test-image-service.js';
@@ -146,7 +146,7 @@ describe('astro:image', () => {
 							img.attribs['src'].startsWith('/_image?href=%2F%40fs%2F')
 						);
 					}),
-					true
+					true,
 				);
 			});
 
@@ -216,11 +216,11 @@ describe('astro:image', () => {
 				const srcset = parseSrcset($source.attr('srcset'));
 				assert.equal(
 					srcset.every((src) => src.url.startsWith('/_image')),
-					true
+					true,
 				);
 				assert.deepEqual(
 					srcset.map((src) => src.d),
-					[undefined, 2]
+					[undefined, 2],
 				);
 
 				// Widths
@@ -232,17 +232,17 @@ describe('astro:image', () => {
 				assert.equal($source.length, 1);
 				assert.equal(
 					$source.attr('sizes'),
-					'(max-width: 448px) 400px, (max-width: 810px) 750px, 1050px'
+					'(max-width: 448px) 400px, (max-width: 810px) 750px, 1050px',
 				);
 
 				const srcset2 = parseSrcset($source.attr('srcset'));
 				assert.equal(
 					srcset2.every((src) => src.url.startsWith('/_image')),
-					true
+					true,
 				);
 				assert.deepEqual(
 					srcset2.map((src) => src.w),
-					[207]
+					[207],
 				);
 
 				// MIME Types
@@ -261,7 +261,7 @@ describe('astro:image', () => {
 					assert.equal(
 						validMimeTypes.includes(type),
 						true,
-						`Expected type attribute value to be a valid MIME type: ${type}`
+						`Expected type attribute value to be a valid MIME type: ${type}`,
 					);
 				}
 			});
@@ -290,7 +290,7 @@ describe('astro:image', () => {
 						...parseSrcset(localImage.attr('srcset')).map((src) => src.url),
 						localImage.attr('src'),
 					]).size,
-					3
+					3,
 				);
 
 				let remoteImage = $('#remote-3-images img');
@@ -299,7 +299,7 @@ describe('astro:image', () => {
 						...parseSrcset(remoteImage.attr('srcset')).map((src) => src.url),
 						remoteImage.attr('src'),
 					]).size,
-					3
+					3,
 				);
 
 				let local1x = $('#local-1x img');
@@ -308,7 +308,7 @@ describe('astro:image', () => {
 						...parseSrcset(local1x.attr('srcset')).map((src) => src.url),
 						local1x.attr('src'),
 					]).size,
-					1
+					1,
 				);
 
 				let remote1x = $('#remote-1x img');
@@ -317,7 +317,7 @@ describe('astro:image', () => {
 						...parseSrcset(remote1x.attr('srcset')).map((src) => src.url),
 						remote1x.attr('src'),
 					]).size,
-					1
+					1,
 				);
 
 				let local2Widths = $('#local-2-widths img');
@@ -326,7 +326,7 @@ describe('astro:image', () => {
 						...parseSrcset(local2Widths.attr('srcset')).map((src) => src.url),
 						local2Widths.attr('src'),
 					]).size,
-					2
+					2,
 				);
 
 				let remote2Widths = $('#remote-2-widths img');
@@ -335,7 +335,7 @@ describe('astro:image', () => {
 						...parseSrcset(remote2Widths.attr('srcset')).map((src) => src.url),
 						remote2Widths.attr('src'),
 					]).size,
-					2
+					2,
 				);
 			});
 		});
@@ -406,7 +406,7 @@ describe('astro:image', () => {
 					let $img = $('#data-uri img');
 					assert.equal(
 						$img.attr('src'),
-						'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAAXNSR0IArs4c6QAAAIRlWElmTU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAA2gAwAEAAAAAQAAAA0AAAAAWvB1rQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KGV7hBwAAAWJJREFUKBVtUDEsQ1EUve+1/SItKYMIkYpF06GJdGAwNFFGkxBEYupssRm6EpvJbpVoYhRd6FBikDSxYECsBpG25D/nvP/+p+Ik551z73v33feuyA/izq5CL8ET8ALcBolYIP+vd0ibX/yAT7uj2qkVzwWzUBa0nbacbkKJHi5dlYhXmARYeAS+MwCWA5FPqKIP/9IH/wiygMru5y5mcRYkPHYKP7gAPw4SDbCjRXMgRBJctM4t4ROriM2QSpmkeOtub6YfMYrZvelykbD1sxJVg+6AfKqURRKQLfA4JvoVWgIjDMNlGLVKZxNRFsZsoHGAgREZHKPlJEi2t7if3r2KKS9nVOo0rtNZ3yR7M/VGTqTy5Y4o/scWHBbKfIq0/eZ+x3850OZpaTTxlu/4D3ssuA72uxrYS2rFYjh+aRbmb24LpTVu1IqVKG8P/lmUEaNMxeh6fmquOhkMBE8JJ2yPfwPjdVhiDbiX6AAAAABJRU5ErkJggg=='
+						'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAAXNSR0IArs4c6QAAAIRlWElmTU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAA2gAwAEAAAAAQAAAA0AAAAAWvB1rQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KGV7hBwAAAWJJREFUKBVtUDEsQ1EUve+1/SItKYMIkYpF06GJdGAwNFFGkxBEYupssRm6EpvJbpVoYhRd6FBikDSxYECsBpG25D/nvP/+p+Ik551z73v33feuyA/izq5CL8ET8ALcBolYIP+vd0ibX/yAT7uj2qkVzwWzUBa0nbacbkKJHi5dlYhXmARYeAS+MwCWA5FPqKIP/9IH/wiygMru5y5mcRYkPHYKP7gAPw4SDbCjRXMgRBJctM4t4ROriM2QSpmkeOtub6YfMYrZvelykbD1sxJVg+6AfKqURRKQLfA4JvoVWgIjDMNlGLVKZxNRFsZsoHGAgREZHKPlJEi2t7if3r2KKS9nVOo0rtNZ3yR7M/VGTqTy5Y4o/scWHBbKfIq0/eZ+x3850OZpaTTxlu/4D3ssuA72uxrYS2rFYjh+aRbmb24LpTVu1IqVKG8P/lmUEaNMxeh6fmquOhkMBE8JJ2yPfwPjdVhiDbiX6AAAAABJRU5ErkJggg==',
 					);
 					assert.equal(!!$img.attr('width'), true);
 					assert.equal(!!$img.attr('height'), true);
@@ -464,7 +464,7 @@ describe('astro:image', () => {
 				// Verbose test for the full URL to make sure the image went through the full pipeline
 				assert.equal(
 					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp'),
-					true
+					true,
 				);
 			});
 
@@ -562,11 +562,11 @@ describe('astro:image', () => {
 			it('has proper sources for array of images', () => {
 				let $img = $('#array-of-images img');
 				const imgsSrcs = [];
-				$img.each((i, img) => imgsSrcs.push(img.attribs['src']));
+				$img.each((_i, img) => imgsSrcs.push(img.attribs['src']));
 				assert.equal($img.length, 2);
 				assert.equal(
 					imgsSrcs.every((img) => img.startsWith('/')),
-					true
+					true,
 				);
 			});
 
@@ -668,7 +668,7 @@ describe('astro:image', () => {
 				assert.equal(res.status, 200);
 				assert.equal(
 					await res.text(),
-					"You fool! I'm not a image endpoint at all, I just return this!"
+					"You fool! I'm not a image endpoint at all, I just return this!",
 				);
 			});
 
@@ -735,7 +735,7 @@ describe('astro:image', () => {
 			assert.equal(logs.length >= 1, true);
 			assert.equal(
 				logs[0].message.includes('An ESM-imported image cannot be passed directly'),
-				true
+				true,
 			);
 		});
 
@@ -905,12 +905,12 @@ describe('astro:image', () => {
 				srcset.map(async (src) => {
 					const data = await fixture.readFile(src.url, null);
 					return data instanceof Buffer;
-				})
+				}),
 			);
 
 			assert.deepEqual(
 				hasExistingSrc.every((src) => src === true),
-				true
+				true,
 			);
 		});
 
@@ -1021,11 +1021,11 @@ describe('astro:image', () => {
 
 			await fixture.build({ logging });
 			const generatingImageIndex = logs.findIndex((logLine) =>
-				logLine.message.includes('generating optimized images')
+				logLine.message.includes('generating optimized images'),
 			);
 			const relevantLogs = logs.slice(generatingImageIndex + 1, -1);
 			const isReusingCache = relevantLogs.every((logLine) =>
-				logLine.message.includes('(reused cache entry)')
+				logLine.message.includes('(reused cache entry)'),
 			);
 
 			assert.equal(isReusingCache, true);
@@ -1076,7 +1076,7 @@ describe('astro:image', () => {
 
 				assert.equal(
 					allTheSamePath.every((path) => path === allTheSamePath[0]),
-					true
+					true,
 				);
 
 				const useCustomHashProperty = $('#use-data img')
@@ -1084,7 +1084,7 @@ describe('astro:image', () => {
 					.get();
 				assert.equal(
 					useCustomHashProperty.every((path) => path === useCustomHashProperty[0]),
-					false
+					false,
 				);
 
 				assert.notEqual(useCustomHashProperty[1], useCustomHashProperty[0]);
@@ -1156,7 +1156,6 @@ describe('astro:image', () => {
 			const app = await fixture.loadTestAdapterApp();
 			let request = new Request('http://example.com/');
 			let response = await app.render(request);
-			console.log;
 			assert.equal(response.status, 200);
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -1262,6 +1261,59 @@ describe('astro:image', () => {
 			const src = $('img').attr('src');
 			const imgData = await fixture.readFile('/client' + src, null);
 			assert.equal(imgData instanceof Buffer, true);
+		});
+	});
+
+	describe('build data url', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-data-url/',
+				image: {
+					remotePatterns: [
+						{
+							protocol: 'data',
+						},
+					],
+				},
+			});
+
+			await fixture.build();
+		});
+
+		it('uses short hash for data url filename', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src1 = $('#data-url img').attr('src');
+			assert.equal(basename(src1).length < 32, true);
+			const src2 = $('#data-url-no-size img').attr('src');
+			assert.equal(basename(src2).length < 32, true);
+			assert.equal(src1.split('_')[0], src2.split('_')[0]);
+		});
+
+		it('adds file extension for data url images', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#data-url img').attr('src');
+			assert.equal(src.endsWith('.webp'), true);
+		});
+
+		it('writes data url images to dist', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#data-url img').attr('src');
+			assert.equal(src.length > 0, true);
+			const data = await fixture.readFile(src, null);
+			assert.equal(data instanceof Buffer, true);
+		});
+
+		it('infers size of data url images', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const img = $('#data-url-no-size img');
+			const width = img.attr('width');
+			const height = img.attr('height');
+			assert.equal(width, '256');
+			assert.equal(height, '144');
 		});
 	});
 });

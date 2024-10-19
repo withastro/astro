@@ -8,7 +8,7 @@ describe('CSS production ordering', () => {
 	function getLinks(html) {
 		let $ = cheerio.load(html);
 		let out = [];
-		$('link[rel=stylesheet]').each((i, el) => {
+		$('link[rel=stylesheet]').each((_i, el) => {
 			out.push($(el).attr('href'));
 		});
 		return out;
@@ -38,7 +38,7 @@ describe('CSS production ordering', () => {
 			await fixture.build();
 			staticHTML = await fixture.readFile('/one/index.html');
 			staticCSS = await Promise.all(
-				getLinks(staticHTML).map((href) => getLinkContent(fixture, href))
+				getLinks(staticHTML).map((href) => getLinkContent(fixture, href)),
 			);
 		});
 
@@ -58,7 +58,7 @@ describe('CSS production ordering', () => {
 				getLinks(serverHTML).map(async (href) => {
 					const css = await fixture.readFile(`/client${href}`);
 					return { href, css };
-				})
+				}),
 			);
 		});
 
@@ -86,14 +86,14 @@ describe('CSS production ordering', () => {
 			let html = await fixture.readFile('/two/index.html');
 
 			const content = await Promise.all(
-				getLinks(html).map((href) => getLinkContent(fixture, href))
+				getLinks(html).map((href) => getLinkContent(fixture, href)),
 			);
 
 			assert.ok(content.length, 3, 'there are 3 stylesheets');
 			const [, sharedStyles, pageStyles] = content;
 
-			assert.ok(sharedStyles.css.match(/red/));
-			assert.ok(pageStyles.css.match(/#00f/));
+			assert.ok(/red/.exec(sharedStyles.css));
+			assert.ok(/#00f/.exec(pageStyles.css));
 		});
 
 		it('CSS injected by injectScript comes first because of import order', async () => {
@@ -103,7 +103,7 @@ describe('CSS production ordering', () => {
 
 			for (const html of [oneHtml, twoHtml, threeHtml]) {
 				const content = await Promise.all(
-					getLinks(html).map((href) => getLinkContent(fixture, href))
+					getLinks(html).map((href) => getLinkContent(fixture, href)),
 				);
 
 				const [first] = content;

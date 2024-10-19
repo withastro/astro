@@ -13,12 +13,13 @@ const PROP_TYPE = {
 	Uint8Array: 8,
 	Uint16Array: 9,
 	Uint32Array: 10,
+	Infinity: 11,
 };
 
 function serializeArray(
 	value: any[],
 	metadata: AstroComponentMetadata | Record<string, any> = {},
-	parents = new WeakSet<any>()
+	parents = new WeakSet<any>(),
 ): any[] {
 	if (parents.has(value)) {
 		throw new Error(`Cyclic reference detected while serializing props for <${metadata.displayName} client:${metadata.hydrate}>!
@@ -36,7 +37,7 @@ Cyclic references cannot be safely serialized for client-side usage. Please remo
 function serializeObject(
 	value: Record<any, any>,
 	metadata: AstroComponentMetadata | Record<string, any> = {},
-	parents = new WeakSet<any>()
+	parents = new WeakSet<any>(),
 ): Record<any, any> {
 	if (parents.has(value)) {
 		throw new Error(`Cyclic reference detected while serializing props for <${metadata.displayName} client:${metadata.hydrate}>!
@@ -47,7 +48,7 @@ Cyclic references cannot be safely serialized for client-side usage. Please remo
 	const serialized = Object.fromEntries(
 		Object.entries(value).map(([k, v]) => {
 			return [k, convertToSerializedForm(v, metadata, parents)];
-		})
+		}),
 	);
 	parents.delete(value);
 	return serialized;
@@ -56,7 +57,7 @@ Cyclic references cannot be safely serialized for client-side usage. Please remo
 function convertToSerializedForm(
 	value: any,
 	metadata: AstroComponentMetadata | Record<string, any> = {},
-	parents = new WeakSet<any>()
+	parents = new WeakSet<any>(),
 ): [ValueOf<typeof PROP_TYPE>, any] | [ValueOf<typeof PROP_TYPE>] {
 	const tag = Object.prototype.toString.call(value);
 	switch (tag) {
@@ -93,11 +94,17 @@ function convertToSerializedForm(
 		default: {
 			if (value !== null && typeof value === 'object') {
 				return [PROP_TYPE.Value, serializeObject(value, metadata, parents)];
-			} else if (value === undefined) {
-				return [PROP_TYPE.Value];
-			} else {
-				return [PROP_TYPE.Value, value];
 			}
+			if (value === Infinity) {
+				return [PROP_TYPE.Infinity, 1];
+			}
+			if (value === -Infinity) {
+				return [PROP_TYPE.Infinity, -1];
+			}
+			if (value === undefined) {
+				return [PROP_TYPE.Value];
+			}
+			return [PROP_TYPE.Value, value];
 		}
 	}
 }

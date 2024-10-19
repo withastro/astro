@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import stripAnsi from 'strip-ansi';
+import { stripVTControlCharacters } from 'node:util';
 import { cli, cliServerLogSetup, loadFixture, parseCliDevStart } from './test-utils.js';
 
 describe('astro cli', () => {
@@ -45,7 +45,7 @@ describe('astro cli', () => {
 					dest: new Writable({
 						objectMode: true,
 						write(event, _, callback) {
-							logs.push({ ...event, message: stripAnsi(event.message) });
+							logs.push({ ...event, message: stripVTControlCharacters(event.message) });
 							if (event.message.includes('1 error')) {
 								messageResolve(logs);
 							}
@@ -62,11 +62,11 @@ describe('astro cli', () => {
 			await fs.writeFile(pagePath, pageContent);
 			await checkServer.stop();
 			const diagnostics = messages.filter(
-				(m) => m.type === 'diagnostics' && m.message.includes('Result')
+				(m) => m.type === 'diagnostics' && m.message.includes('Result'),
 			);
 			assert.equal(diagnostics[0].message.includes('0 errors'), true);
 			assert.equal(diagnostics[1].message.includes('1 error'), true);
-		}
+		},
 	);
 
 	it('astro --version', async () => {
@@ -88,10 +88,10 @@ describe('astro cli', () => {
 			const projectRootURL = new URL('./fixtures/astro-check-no-errors/', import.meta.url);
 			try {
 				proc = await cli('check', '--root', fileURLToPath(projectRootURL));
-			} catch (err) {}
+			} catch {}
 
 			assert.equal(proc?.stdout.includes('0 errors'), true);
-		}
+		},
 	);
 
 	it(
@@ -112,7 +112,7 @@ describe('astro cli', () => {
 			}
 
 			assert.equal(stdout.includes('1 error'), true);
-		}
+		},
 	);
 
 	it('astro dev welcome', async () => {
@@ -136,7 +136,7 @@ describe('astro cli', () => {
 			it(`astro ${cmd} ${flag} ${flagValue ?? ''} - network log`, async () => {
 				const { local, network } = await cliServerLogSetupWithFixture(
 					flagValue ? [flag, flagValue] : [flag],
-					cmd
+					cmd,
 				);
 
 				assert.notEqual(local, undefined);
@@ -153,12 +153,12 @@ describe('astro cli', () => {
 				assert.equal(
 					networkURL.port,
 					localURL.port,
-					`Expected local and network ports to be equal`
+					`Expected local and network ports to be equal`,
 				);
 				assert.equal(
 					isIPv4(networkURL.hostname),
 					true,
-					`Expected network URL to respect --host flag`
+					`Expected network URL to respect --host flag`,
 				);
 			});
 		});
@@ -175,7 +175,7 @@ describe('astro cli', () => {
 				assert.equal(
 					['localhost', '127.0.0.1'].includes(localURL.hostname),
 					true,
-					`Expected local URL to be on localhost`
+					`Expected local URL to be on localhost`,
 				);
 
 				assert.throws(() => new URL(networkURL));
@@ -197,7 +197,7 @@ describe('astro cli', () => {
 				assert.equal(
 					['localhost', '127.0.0.1'].includes(localURL.hostname),
 					true,
-					`Expected local URL to be on localhost`
+					`Expected local URL to be on localhost`,
 				);
 			});
 		});

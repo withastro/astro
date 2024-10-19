@@ -1,6 +1,7 @@
 import type {
+	AstroMiddlewareInstance,
+	ComponentInstance,
 	Locales,
-	MiddlewareHandler,
 	RouteData,
 	SSRComponentMetadata,
 	SSRLoadedRenderer,
@@ -43,6 +44,7 @@ export type AssetsPrefix =
 	| undefined;
 
 export type SSRManifest = {
+	hrefRoot: string;
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
@@ -62,17 +64,19 @@ export type SSRManifest = {
 	componentMetadata: SSRResult['componentMetadata'];
 	pageModule?: SinglePageBuiltModule;
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
+	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
+	serverIslandNameMap?: Map<string, string>;
+	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
-	middleware: MiddlewareHandler;
+	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	checkOrigin: boolean;
-	// TODO: remove once the experimental flag is removed
-	rewritingEnabled: boolean;
 	// TODO: remove experimental prefix
 	experimentalEnvGetSecretEnabled: boolean;
 };
 
 export type SSRManifestI18n = {
 	fallback: Record<string, string> | undefined;
+	fallbackType: 'redirect' | 'rewrite';
 	strategy: RoutingStrategies;
 	locales: Locales;
 	defaultLocale: string;
@@ -81,11 +85,20 @@ export type SSRManifestI18n = {
 
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
-	'middleware' | 'routes' | 'assets' | 'componentMetadata' | 'inlinedScripts' | 'clientDirectives'
+	| 'middleware'
+	| 'routes'
+	| 'assets'
+	| 'componentMetadata'
+	| 'inlinedScripts'
+	| 'clientDirectives'
+	| 'serverIslandNameMap'
+	| 'key'
 > & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];
 	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
+	serverIslandNameMap: [string, string][];
+	key: string;
 };

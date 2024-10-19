@@ -23,7 +23,7 @@ describe('Astro Markdown Shiki', () => {
 			assert.ok($('pre').hasClass('astro-code'));
 			assert.equal(
 				$('pre').attr().style,
-				'background-color:#24292e;color:#e1e4e8; overflow-x: auto;'
+				'background-color:#24292e;color:#e1e4e8; overflow-x: auto;',
 			);
 		});
 
@@ -53,7 +53,7 @@ describe('Astro Markdown Shiki', () => {
 				assert.ok($('pre').hasClass('astro-code'));
 				assert.equal(
 					$('pre').attr().style,
-					'background-color:#fff;color:#24292e; overflow-x: auto;'
+					'background-color:#fff;color:#24292e; overflow-x: auto;',
 				);
 			});
 		});
@@ -74,8 +74,24 @@ describe('Astro Markdown Shiki', () => {
 				assert.ok($('pre').hasClass('astro-code'));
 				assert.equal(
 					$('pre').attr().style,
-					'background-color:#FDFDFE;color:#4E5377; overflow-x: auto;'
+					'background-color:#FDFDFE;color:#4E5377; overflow-x: auto;',
 				);
+			});
+		});
+
+		describe('Default color', async () => {
+			let fixture;
+
+			before(async () => {
+				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/default-color/' });
+				await fixture.build();
+			});
+
+			it('Renders default color without themes', async () => {
+				const html = await fixture.readFile('/index.html');
+				const $ = cheerio.load(html);
+
+				assert.doesNotMatch($('pre').attr().style, /background-color/);
 			});
 		});
 	});
