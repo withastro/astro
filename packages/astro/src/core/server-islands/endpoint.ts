@@ -44,7 +44,7 @@ export function ensureServerIslandRoute(config: ConfigFields, routeManifest: Man
 		return;
 	}
 
-	routeManifest.routes.push(getServerIslandRouteData(config));
+	routeManifest.routes.unshift(getServerIslandRouteData(config));
 }
 
 type RenderOptions = {
