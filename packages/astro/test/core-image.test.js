@@ -820,6 +820,7 @@ describe('astro:image', () => {
 				},
 				adapter: testAdapter(),
 				image: {
+					endpoint: 'astro/assets/endpoint/node',
 					service: testImageService(),
 				},
 				base: '/blog',
@@ -833,6 +834,8 @@ describe('astro:image', () => {
 			const $ = cheerio.load(html);
 			const src = $('#local img').attr('src');
 			assert.equal(src.startsWith('/blog'), true);
+			const img = await app.render(new Request(`https://example.com${src}`));
+			assert.equal(img.status, 200);
 		});
 	});
 
