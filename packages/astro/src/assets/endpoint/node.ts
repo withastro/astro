@@ -24,6 +24,12 @@ async function loadLocalImage(src: string, url: URL) {
 		fileUrl = pathToFileURL(removeQueryString(replaceFileSystemReferences(src)));
 	} else {
 		try {
+			// If the _image segment isn't at the start of the path, we have a base
+			const idx = url.pathname.indexOf('/_image');
+			if (idx > 0) {
+				// Remove the base path
+				src = src.slice(idx);
+			}
 			fileUrl = new URL('.' + src, outDir);
 			const filePath = fileURLToPath(fileUrl);
 
