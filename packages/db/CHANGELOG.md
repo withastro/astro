@@ -1,5 +1,14 @@
 # @astrojs/db
 
+## 0.14.3
+
+### Patch Changes
+
+- [#11435](https://github.com/withastro/astro/pull/11435) [`f32a7a8`](https://github.com/withastro/astro/commit/f32a7a83889dd6180b2e4cde9b30286ab6874e49) Thanks [@haivuw](https://github.com/haivuw)! - Fixes a bug where `astro:db:seed` couldn't access to the environment variable `ASTRO_DATABASE_FILE`
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
 ## 0.14.2
 
 ### Patch Changes
