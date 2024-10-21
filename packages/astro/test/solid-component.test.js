@@ -23,6 +23,13 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 		assert.equal($('#proxy-component').text(), 'Hello world');
 	});
 
+	it('Renders the component only once on the server', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+
+		assert.equal($('#render-count').text(), '1');
+	});
+
 	// ssr-client-none.astro
 	it('Supports server only components', async () => {
 		const html = await fixture.readFile('ssr-client-none/index.html');
