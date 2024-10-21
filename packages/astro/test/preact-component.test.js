@@ -112,11 +112,16 @@ describe('Preact component', () => {
 		const sigs1 = JSON.parse(sigs1Raw);
 
 		assert.deepEqual(sigs1, {
-			signalsArray: [
-				['p0', 1],
-				['p0', 2],
-				['p1', 4],
-			],
+			signalsArray: {
+				1: 'p0',
+				2: 'p0',
+				4: 'p1',
+				5: 'p2',
+				'6.counter': 'p0',
+				'6.deep.signal': 'p0',
+				'6.deep.evenDeeper.signal': 'p3',
+				'7.0': 'p0',
+			},
 		});
 
 		assert.equal(element.find('h1').text(), "I'm not a signal 12345");
@@ -134,7 +139,7 @@ describe('Preact component', () => {
 		const sigs1 = JSON.parse(sigs1Raw);
 
 		assert.deepEqual(sigs1, {
-			signalsObject: [['p0', 'counter']],
+			signalsObject: { counter: 'p0', 'deep.signal': 'p0', 'deep.evenDeeper.signal': 'p3' },
 		});
 
 		assert.equal(element.find('h1').text(), 'I am a title');
