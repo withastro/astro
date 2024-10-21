@@ -307,11 +307,10 @@ export async function createRoutesFile(
 	const EXTENDED_EXCLUDE_RULES_COUNT = excludeExtends?.length ?? 0;
 	const EXCLUDE_RULES_COUNT = AUTOMATIC_EXCLUDE_RULES_COUNT + EXTENDED_EXCLUDE_RULES_COUNT;
 
-	if (
-		!hasPrerendered404 ||
-		INCLUDE_RULES_COUNT > CLOUDFLARE_COMBINED_LIMIT ||
-		EXCLUDE_RULES_COUNT > CLOUDFLARE_COMBINED_LIMIT
-	) {
+	const OPTION2_TOTAL_COUNT =
+		INCLUDE_RULES_COUNT + (includedPathsHaveWildcard ? EXCLUDE_RULES_COUNT : 0);
+
+	if (!hasPrerendered404 || OPTION2_TOTAL_COUNT > CLOUDFLARE_COMBINED_LIMIT) {
 		await writeRoutesFileToOutDir(
 			_config,
 			logger,
