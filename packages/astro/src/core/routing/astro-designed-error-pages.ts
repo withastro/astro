@@ -46,7 +46,7 @@ async function default404Page({ pathname }: { pathname: string }) {
 			tabTitle: '404: Not Found',
 			pathname,
 		}),
-		{ status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } },
+		{ status: 404, headers: { 'Content-Type': 'text/html' } },
 	);
 }
 // mark the function as an AstroComponentFactory for the rendering internals
