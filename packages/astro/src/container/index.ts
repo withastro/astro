@@ -89,6 +89,14 @@ export type ContainerRenderOptions = {
 	 * ```
 	 */
 	props?: Props;
+
+	/**
+	 * When `false`, it forces to render the component as it was a full-fledged page.
+	 *
+	 * By default, the container API render components as [partials](https://docs.astro.build/en/basics/astro-pages/#page-partials).
+	 *
+	 */
+	partial?: boolean;
 };
 
 export type AddServerRenderer =
@@ -487,6 +495,7 @@ export class experimental_AstroContainer {
 			request,
 			pathname: url.pathname,
 			locals: options?.locals ?? {},
+			partial: options?.partial ?? true,
 		});
 		if (options.params) {
 			renderContext.params = options.params;

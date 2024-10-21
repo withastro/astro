@@ -1,5 +1,49 @@
 # astro
 
+## 4.16.6
+
+### Patch Changes
+
+- [#11823](https://github.com/withastro/astro/pull/11823) [`a3d30a6`](https://github.com/withastro/astro/commit/a3d30a602aaa1755197c73f0b51cace61f9088b3) Thanks [@DerTimonius](https://github.com/DerTimonius)! - fix: improve error message when inferSize is used in local images with the Image component
+
+- [#12227](https://github.com/withastro/astro/pull/12227) [`8b1a641`](https://github.com/withastro/astro/commit/8b1a641be9de4baa9ae48dd0d045915fbbeffa8c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where environment variables would not be refreshed when using `astro:env`
+
+- [#12239](https://github.com/withastro/astro/pull/12239) [`2b6daa5`](https://github.com/withastro/astro/commit/2b6daa5840c18729c41f6cd8b4571b88d0cba119) Thanks [@ematipico](https://github.com/ematipico)! - **BREAKING CHANGE to the experimental Container API only**
+
+  Changes the default page rendering behavior of Astro components in containers, and adds a new option `partial: false` to render full Astro pages as before.
+
+  Previously, the Container API was rendering all Astro components as if they were full Astro pages containing `<!DOCTYPE html>` by default. This was not intended, and now by default, all components will render as [page partials](https://docs.astro.build/en/basics/astro-pages/#page-partials): only the contents of the components without a page shell.
+
+  To render the component as a full-fledged Astro page, pass a new option called `partial: false` to `renderToString()` and `renderToResponse()`:
+
+  ```js
+  import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+  import Card from '../src/components/Card.astro';
+
+  const container = AstroContainer.create();
+
+  await container.renderToString(Card); // the string will not contain `<!DOCTYPE html>`
+  await container.renderToString(Card, { partial: false }); // the string will contain `<!DOCTYPE html>`
+  ```
+
+## 4.16.5
+
+### Patch Changes
+
+- [#12232](https://github.com/withastro/astro/pull/12232) [`ff68ba5`](https://github.com/withastro/astro/commit/ff68ba5e1ca00f06d1afd5fbf89acea3092bb660) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue with cssesc in dev mode when setting `vite.ssr.noExternal: true`
+
+## 4.16.4
+
+### Patch Changes
+
+- [#12223](https://github.com/withastro/astro/pull/12223) [`79ffa5d`](https://github.com/withastro/astro/commit/79ffa5d9f75c16465134aa4ed4a3d1d59908ba8b) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a false positive reported by the dev toolbar Audit app where a label was considered missing when associated with a button
+
+  The `button` element can be [used with a label](https://www.w3.org/TR/2011/WD-html5-author-20110809/forms.html#category-label) (e.g. to create a switch) and should not be reported as an accessibility issue when used as a child of a `label`.
+
+- [#12199](https://github.com/withastro/astro/pull/12199) [`c351352`](https://github.com/withastro/astro/commit/c3513523608f319b43c050e391be08e68b801329) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression in the computation of `Astro.currentLocale`
+
+- [#12222](https://github.com/withastro/astro/pull/12222) [`fb55695`](https://github.com/withastro/astro/commit/fb5569583b11ef585cd0a79e97e7e9dc653f6afa) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the edge middleware couldn't correctly compute the client IP address when calling `ctx.clientAddress()`
+
 ## 4.16.3
 
 ### Patch Changes

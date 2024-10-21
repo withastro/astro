@@ -36,6 +36,7 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
+import { copyRequest, setOriginPathname } from './routing/rewrite.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -56,6 +57,7 @@ export class RenderContext {
 		public params = getParams(routeData, pathname),
 		protected url = new URL(request.url),
 		public props: Props = {},
+		public partial: undefined | boolean = undefined,
 	) {}
 
 	/**
@@ -76,11 +78,13 @@ export class RenderContext {
 		routeData,
 		status = 200,
 		props,
+		partial = undefined,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
 		Partial<
-			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>
+			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial'>
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
+		setOriginPathname(request, pathname);
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -93,6 +97,7 @@ export class RenderContext {
 			undefined,
 			undefined,
 			props,
+			partial,
 		);
 	}
 
@@ -153,7 +158,7 @@ export class RenderContext {
 				if (payload instanceof Request) {
 					this.request = payload;
 				} else {
-					this.request = this.#copyRequest(newUrl, this.request);
+					this.request = copyRequest(newUrl, this.request);
 				}
 				this.isRewriting = true;
 				this.url = new URL(this.request.url);
@@ -253,7 +258,7 @@ export class RenderContext {
 		if (reroutePayload instanceof Request) {
 			this.request = reroutePayload;
 		} else {
-			this.request = this.#copyRequest(newUrl, this.request);
+			this.request = copyRequest(newUrl, this.request);
 		}
 		this.url = new URL(this.request.url);
 		this.cookies = new AstroCookies(this.request);
@@ -319,7 +324,7 @@ export class RenderContext {
 		const componentMetadata =
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
 		const headers = new Headers({ 'Content-Type': 'text/html' });
-		const partial = Boolean(mod.partial);
+		const partial = typeof this.partial === 'boolean' ? this.partial : Boolean(mod.partial);
 		const response = {
 			status,
 			statusText: 'OK',
@@ -531,13 +536,19 @@ export class RenderContext {
 				? defaultLocale
 				: undefined;
 
-		// TODO: look into why computeCurrentLocale() needs routeData.route to pass ctx.currentLocale tests,
-		// and url.pathname to pass Astro.currentLocale tests.
-		// A single call with `routeData.pathname ?? routeData.route` as the pathname still fails.
-		return (this.#currentLocale ??=
-			computeCurrentLocale(routeData.route, locales, defaultLocale) ??
-			computeCurrentLocale(url.pathname, locales, defaultLocale) ??
-			fallbackTo);
+		if (this.#currentLocale) {
+			return this.#currentLocale;
+		}
+
+		let computedLocale;
+		if (routeData.pathname) {
+			computedLocale = computeCurrentLocale(routeData.pathname, locales, defaultLocale);
+		} else {
+			computedLocale = computeCurrentLocale(url.pathname, locales, defaultLocale);
+		}
+		this.#currentLocale = computedLocale ?? fallbackTo;
+
+		return this.#currentLocale;
 	}
 
 	#preferredLocale: APIContext['preferredLocale'];
@@ -560,34 +571,5 @@ export class RenderContext {
 		} = this;
 		if (!i18n) return;
 		return (this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales));
-	}
-
-	/**
-	 * Utility function that creates a new `Request` with a new URL from an old `Request`.
-	 *
-	 * @param newUrl The new `URL`
-	 * @param oldRequest The old `Request`
-	 */
-	#copyRequest(newUrl: URL, oldRequest: Request): Request {
-		if (oldRequest.bodyUsed) {
-			throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
-		}
-		return new Request(newUrl, {
-			method: oldRequest.method,
-			headers: oldRequest.headers,
-			body: oldRequest.body,
-			referrer: oldRequest.referrer,
-			referrerPolicy: oldRequest.referrerPolicy,
-			mode: oldRequest.mode,
-			credentials: oldRequest.credentials,
-			cache: oldRequest.cache,
-			redirect: oldRequest.redirect,
-			integrity: oldRequest.integrity,
-			signal: oldRequest.signal,
-			keepalive: oldRequest.keepalive,
-			// https://fetch.spec.whatwg.org/#dom-request-duplex
-			// @ts-expect-error It isn't part of the types, but undici accepts it and it allows to carry over the body to a new request
-			duplex: 'half',
-		});
 	}
 }
