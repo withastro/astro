@@ -16,6 +16,14 @@ import type { AstroIntegration } from './integrations.js';
 
 export type Locales = (string | { codes: string[]; path: string })[];
 
+type NormalizeLocales<T extends Locales> = {
+	[K in keyof T]: T[K] extends string
+		? T[K]
+		: T[K] extends { codes: Array<string> }
+			? T[K]['codes'][number]
+			: never;
+}[number];
+
 export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
 	entrypoint: 'astro/assets/services/sharp' | (string & {});
 	config?: T;
@@ -101,8 +109,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 /**
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
- */
-export interface AstroUserConfig {
+ * 
+ * Generics do not follow semver and may change at any time.
+ */ export interface AstroUserConfig<TLocales extends Locales = never> {
 	/**
 	 * @docs
 	 * @kind heading
@@ -1205,30 +1214,31 @@ export interface AstroUserConfig {
 	i18n?: {
 		/**
 		 * @docs
-		 * @name i18n.defaultLocale
-		 * @type {string}
-		 * @version 3.5.0
-		 * @description
-		 *
-		 * The default locale of your website/application. This is a required field.
-		 *
-		 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
-		 */
-		defaultLocale: string;
-		/**
-		 * @docs
 		 * @name i18n.locales
 		 * @type {Locales}
 		 * @version 3.5.0
 		 * @description
 		 *
-		 * A list of all locales supported by the website, including the `defaultLocale`. This is a required field.
+		 * A list of all locales supported by the website. This is a required field.
 		 *
 		 * Languages can be listed either as individual codes (e.g. `['en', 'es', 'pt-br']`) or mapped to a shared `path` of codes (e.g.  `{ path: "english", codes: ["en", "en-US"]}`). These codes will be used to determine the URL structure of your deployed site.
 		 *
 		 * No particular language code format or syntax is enforced, but your project folders containing your content files must match exactly the `locales` items in the list. In the case of multiple `codes` pointing to a custom URL path prefix, store your content files in a folder with the same name as the `path` configured.
 		 */
-		locales: Locales;
+		locales: [TLocales] extends [never] ? Locales : TLocales;
+
+		/**
+		 * @docs
+		 * @name i18n.defaultLocale
+		 * @type {string}
+		 * @version 3.5.0
+		 * @description
+		 *
+		 * The default locale of your website/application, that is one of the specified `locales`. This is a required field.
+		 *
+		 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
+		 */
+		defaultLocale: [TLocales] extends [never] ? string : NormalizeLocales<NoInfer<TLocales>>;
 
 		/**
 		 * @docs
@@ -1258,7 +1268,14 @@ export interface AstroUserConfig {
 		 * })
 		 * ```
 		 */
-		fallback?: Record<string, string>;
+		fallback?: [TLocales] extends [never]
+			? Record<string, string>
+			: {
+					[Locale in NormalizeLocales<NoInfer<TLocales>>]?: Exclude<
+						NormalizeLocales<NoInfer<TLocales>>,
+						Locale
+					>;
+				};
 
 		/**
 		 * @docs
@@ -1444,7 +1461,9 @@ export interface AstroUserConfig {
 		 *
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
 		 */
-		domains?: Record<string, string>;
+		domains?: [TLocales] extends [never]
+			? Record<string, string>
+			: Partial<Record<NormalizeLocales<NoInfer<TLocales>>, string>>;
 	};
 
 	/** ! WARNING: SUBJECT TO CHANGE */

@@ -1160,8 +1160,8 @@ export const UnhandledRejection = {
  * import { defineConfig } from 'astro'
  * export default defineConfig({
  *  i18n: {
- * 	 defaultLocale: 'en',
  * 	 locales: ['en', 'fr'],
+ * 	 defaultLocale: 'en',
  * 	},
  * })
  * ```
