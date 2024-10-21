@@ -109,11 +109,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 /**
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
- */
-export type AstroUserConfig = AstroUserDefineConfig<never>;
-
-/** @internal */
-export interface AstroUserDefineConfig<TLocales extends Locales = never> {
+ * 
+ * Generics do not follow semver and may change at any time.
+ */ export interface AstroUserConfig<TLocales extends Locales = never> {
 	/**
 	 * @docs
 	 * @kind heading
