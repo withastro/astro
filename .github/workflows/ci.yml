@@ -208,7 +208,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: withastro/docs
-          ref: 5.0.0-beta
           path: smoke/docs
           # For a commit event on the `next` branch (`ref_name`), use the `5.0.0-beta` branch.
           # For a pull_request event merging into the `next` branch (`base_ref`), use the `5.0.0-beta` branch.

@@ -678,8 +678,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0
       fs-fixture:
-        specifier: ^2.4.0
-        version: 2.4.0
+        specifier: ^2.5.0
+        version: 2.5.0
       mdast-util-mdx:
         specifier: ^3.0.0
         version: 3.0.0
@@ -8349,8 +8349,8 @@ packages:
     resolution: {integrity: sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==}
     engines: {node: '>=6 <7 || >=8'}
 
-  fs-fixture@2.4.0:
-    resolution: {integrity: sha512-aFoTWGj288IEOdXBeesdcbdMvRtExbqpOp1SCjE3nRdlT7vBBCD6bf76C9FCq8/6pIPSo56P7+HeT9zT/n8rMA==}
+  fs-fixture@2.5.0:
+    resolution: {integrity: sha512-AzCSCaChZORdNcSa9w9IBnGWhDP2Bv/lOso0P9mAl5nJw2s7pjSEoDaHtzZ9VGIHQlSXR2fuTPO7ln1dM4HTNQ==}
     engines: {node: '>=18.0.0'}
 
   fsevents@2.3.2:
@@ -13912,7 +13912,7 @@ snapshots:
       jsonfile: 4.0.0
       universalify: 0.1.2
 
-  fs-fixture@2.4.0: {}
+  fs-fixture@2.5.0: {}
 
   fsevents@2.3.2:
     optional: true
