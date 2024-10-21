@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
+import { expectTypeOf } from 'expect-type';
 import { defineConfig } from '../../dist/config/index.js';
 import type { AstroUserConfig } from '../../dist/types/public/index.js';
-import { expectTypeOf } from 'expect-type';
 
 describe('defineConfig()', () => {
 	it('Infers generics correctly', () => {
