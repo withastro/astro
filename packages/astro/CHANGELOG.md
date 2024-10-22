@@ -1062,6 +1062,22 @@
 - Updated dependencies [[`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e)]:
   - @astrojs/markdown-remark@6.0.0-alpha.0
 
+## 4.16.7
+
+### Patch Changes
+
+- [#12263](https://github.com/withastro/astro/pull/12263) [`e9e8080`](https://github.com/withastro/astro/commit/e9e8080a8139f898dcfa3c030f5ddaa98413c160) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes conflict between server islands and on-demand dynamic routes in the form of `/[...rest]` or `/[paramA]/[paramB]`.
+
+- [#12279](https://github.com/withastro/astro/pull/12279) [`b781f88`](https://github.com/withastro/astro/commit/b781f8860c7d11e51fb60a0d6528bc88913ffc35) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Update wrong error message
+
+- [#12273](https://github.com/withastro/astro/pull/12273) [`c2ee963`](https://github.com/withastro/astro/commit/c2ee963cb6c0a65481be505848a7272d800f2f7b) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue with some package managers where sites would not build if TypeScript was not installed.
+
+- [#12235](https://github.com/withastro/astro/pull/12235) [`a75bc5e`](https://github.com/withastro/astro/commit/a75bc5e3068ed80366a03efbec78b3b0f8837516) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Astro Actions couldn't redirect to the correct pathname when there was a rewrite involved.
+
+- [#11839](https://github.com/withastro/astro/pull/11839) [`ff522b9`](https://github.com/withastro/astro/commit/ff522b96a01391a29b44f820dfcc2a2176d871e7) Thanks [@icaliman](https://github.com/icaliman)! - Fixes error when returning a top-level `null` from an Astro file frontmatter
+
+- [#12272](https://github.com/withastro/astro/pull/12272) [`388d237`](https://github.com/withastro/astro/commit/388d2375b6900e6401e1c711087ee0b2176418dd) Thanks [@ascorbic](https://github.com/ascorbic)! - Correctly handles local images when using a base path in SSR
+
 ## 4.16.6
 
 ### Patch Changes

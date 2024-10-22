@@ -108,4 +108,43 @@ describe('core/render components', () => {
 			},
 		);
 	});
+
+	it('should render component with `null` response', async () => {
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `
+				---
+				import NullComponent from '../components/NullComponent.astro';
+				---
+				<NullComponent />
+			`,
+			'/src/components/NullComponent.astro': `
+				---
+				return null;
+				---
+			`,
+		});
+
+		await runInContainer(
+			{
+				inlineConfig: {
+					root: fixture.path,
+					logLevel: 'silent',
+				},
+			},
+			async (container) => {
+				const { req, res, done, text } = createRequestAndResponse({
+					method: 'GET',
+					url: '/',
+				});
+				container.handle(req, res);
+
+				await done;
+				const html = await text();
+				const $ = cheerio.load(html);
+
+				assert.equal($('body').text(), '');
+				assert.equal(res.statusCode, 200);
+			},
+		);
+	});
 });

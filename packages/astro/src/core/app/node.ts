@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
 import type { RouteData } from '../../types/public/internal.js';
+import { clientAddressSymbol } from '../constants.js';
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import { App } from './index.js';
@@ -9,8 +10,6 @@ import type { RenderOptions } from './index.js';
 import type { SSRManifest, SerializedSSRManifest } from './types.js';
 
 export { apply as applyPolyfills } from '../polyfill.js';
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
 /**
  * Allow the request body to be explicitly overridden. For example, this
