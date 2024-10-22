@@ -1,6 +1,7 @@
 import { decodeBase64, encodeBase64 } from '@oslojs/encoding';
 import { yellow } from 'kleur/colors';
 import { defineMiddleware } from '../../core/middleware/index.js';
+import { getOriginPathname } from '../../core/routing/rewrite.js';
 import type { MiddlewareNext } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
@@ -29,7 +30,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		if (context.request.method === 'POST') {
 			console.warn(
 				yellow('[astro:actions]'),
-				'POST requests should not be sent to prerendered pages. If you\'re using Actions, disable prerendering with `export const prerender = "false".',
+				"POST requests should not be sent to prerendered pages. If you're using Actions, disable prerendering with `export const prerender = false`.",
 			);
 		}
 		return next();
@@ -144,6 +145,11 @@ async function redirectWithResult({
 		if (!referer) {
 			throw new Error('Internal: Referer unexpectedly missing from Action POST request.');
 		}
+		return context.redirect(referer);
+	}
+
+	const referer = getOriginPathname(context.request);
+	if (referer) {
 		return context.redirect(referer);
 	}
 

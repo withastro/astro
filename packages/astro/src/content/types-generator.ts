@@ -6,7 +6,6 @@ import { bold, cyan } from 'kleur/colors';
 import { type ViteDevServer, normalizePath } from 'vite';
 import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { printNode, zodToTs } from 'zod-to-ts';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -402,8 +401,17 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (collection?.type === CONTENT_LAYER_TYPE) {
 		const schema = await getContentLayerSchema(collection, collectionKey);
 		if (schema) {
-			const ast = zodToTs(schema);
-			return printNode(ast.node);
+			try {
+				const zodToTs = await import('zod-to-ts');
+				const ast = zodToTs.zodToTs(schema);
+				return zodToTs.printNode(ast.node);
+			} catch (err: any) {
+				// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
+				if (err.message.includes("Cannot find package 'typescript'")) {
+					return 'any';
+				}
+				throw err;
+			}
 		}
 	}
 	return 'any';
