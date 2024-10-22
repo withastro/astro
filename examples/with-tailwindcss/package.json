@@ -14,10 +14,10 @@
     "@astrojs/mdx": "^3.1.8",
     "@astrojs/tailwind": "^5.1.2",
     "@types/canvas-confetti": "^1.6.4",
-    "astro": "^4.16.6",
+    "astro": "^4.16.7",
     "autoprefixer": "^10.4.20",
     "canvas-confetti": "^1.9.3",
     "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.13"
+    "tailwindcss": "^3.4.14"
   }
 }
