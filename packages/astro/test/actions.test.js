@@ -13,6 +13,7 @@ describe('Astro Actions', () => {
 		fixture = await loadFixture({
 			root: './fixtures/actions/',
 			adapter: testAdapter(),
+			base: "/base"
 		});
 	});
 
@@ -39,7 +40,7 @@ describe('Astro Actions', () => {
 					}),
 				}),
 			);
-			const res = await fixture.fetch('/subscribe-prerendered', {
+			const res = await fixture.fetch('/base/subscribe-prerendered', {
 				headers: {
 					Cookie: cookie.toString(),
 				},
@@ -50,7 +51,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Exposes subscribe action', async () => {
-			const res = await fixture.fetch('/_actions/subscribe', {
+			const res = await fixture.fetch('/base/_actions/subscribe', {
 				method: 'POST',
 				body: JSON.stringify({ channel: 'bholmesdev' }),
 				headers: {
@@ -70,7 +71,7 @@ describe('Astro Actions', () => {
 			const formData = new FormData();
 			formData.append('channel', 'bholmesdev');
 			formData.append('comment', 'Hello, World!');
-			const res = await fixture.fetch('/_actions/comment', {
+			const res = await fixture.fetch('/base/_actions/comment', {
 				method: 'POST',
 				body: formData,
 			});
@@ -86,7 +87,7 @@ describe('Astro Actions', () => {
 		it('Raises validation error on bad form data', async () => {
 			const formData = new FormData();
 			formData.append('channel', 'bholmesdev');
-			const res = await fixture.fetch('/_actions/comment', {
+			const res = await fixture.fetch('/base/_actions/comment', {
 				method: 'POST',
 				body: formData,
 			});
@@ -103,7 +104,7 @@ describe('Astro Actions', () => {
 			const formData = new FormData();
 			formData.append('channel', 'bholmesdev');
 			formData.append('comment', 'Hello, World!');
-			const res = await fixture.fetch('/_actions/commentPlainFormData', {
+			const res = await fixture.fetch('/base/_actions/commentPlainFormData', {
 				method: 'POST',
 				body: formData,
 			});
@@ -118,7 +119,7 @@ describe('Astro Actions', () => {
 
 		it('Handles special characters in action names', async () => {
 			for (const name of ['with%2Fslash', 'with%20space', 'with%2Edot']) {
-				const res = await fixture.fetch(`/_actions/${name}`, {
+				const res = await fixture.fetch(`/base/_actions/${name}`, {
 					method: 'POST',
 					body: JSON.stringify({ name: 'ben' }),
 					headers: {
@@ -143,7 +144,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Exposes subscribe action', async () => {
-			const req = new Request('http://example.com/_actions/subscribe', {
+			const req = new Request('http://example.com/base/_actions/subscribe', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -164,7 +165,7 @@ describe('Astro Actions', () => {
 			const formData = new FormData();
 			formData.append('channel', 'bholmesdev');
 			formData.append('comment', 'Hello, World!');
-			const req = new Request('http://example.com/_actions/comment', {
+			const req = new Request('http://example.com/base/_actions/comment', {
 				method: 'POST',
 				body: formData,
 			});
@@ -181,7 +182,7 @@ describe('Astro Actions', () => {
 		it('Raises validation error on bad form data', async () => {
 			const formData = new FormData();
 			formData.append('channel', 'bholmesdev');
-			const req = new Request('http://example.com/_actions/comment', {
+			const req = new Request('http://example.com/base/_actions/comment', {
 				method: 'POST',
 				body: formData,
 			});
@@ -199,7 +200,7 @@ describe('Astro Actions', () => {
 			const formData = new FormData();
 			formData.append('channel', 'bholmesdev');
 			formData.append('comment', 'Hello, World!');
-			const req = new Request('http://example.com/_actions/commentPlainFormData', {
+			const req = new Request('http://example.com/base/_actions/commentPlainFormData', {
 				method: 'POST',
 				body: formData,
 			});
@@ -214,7 +215,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Response middleware fallback', async () => {
-			const req = new Request('http://example.com/user?_astroAction=getUser', {
+			const req = new Request('http://example.com/base/user?_astroAction=getUser', {
 				method: 'POST',
 				body: new FormData(),
 				headers: {
@@ -230,7 +231,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Respects custom errors', async () => {
-			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
+			const req = new Request('http://example.com/base/user-or-throw?_astroAction=getUserOrThrow', {
 				method: 'POST',
 				body: new FormData(),
 				headers: {
@@ -247,7 +248,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Ignores `_astroAction` name for GET requests', async () => {
-			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
+			const req = new Request('http://example.com/base/user-or-throw?_astroAction=getUserOrThrow', {
 				method: 'GET',
 			});
 			const res = await app.render(req);
@@ -263,7 +264,7 @@ describe('Astro Actions', () => {
 			formData.set('password', 'benisawesome');
 			formData.set('confirmPassword', 'benisveryawesome');
 
-			const req = new Request('http://example.com/_actions/validatePassword', {
+			const req = new Request('http://example.com/base/_actions/validatePassword', {
 				method: 'POST',
 				body: formData,
 			});
@@ -285,7 +286,7 @@ describe('Astro Actions', () => {
 			formData.set('newPassword', 'benisawesome');
 			formData.set('confirmNewPassword', 'benisawesome');
 
-			const req = new Request('http://example.com/_actions/validatePasswordComplex', {
+			const req = new Request('http://example.com/base/_actions/validatePasswordComplex', {
 				method: 'POST',
 				body: formData,
 			});
@@ -308,7 +309,7 @@ describe('Astro Actions', () => {
 			formData.set('name', 'ben');
 			formData.set('age', '42');
 
-			const req = new Request('http://example.com/_actions/transformFormInput', {
+			const req = new Request('http://example.com/base/_actions/transformFormInput', {
 				method: 'POST',
 				body: formData,
 			});
@@ -324,7 +325,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Sets status to 204 when content-length is 0', async () => {
-			const req = new Request('http://example.com/_actions/fireAndForget', {
+			const req = new Request('http://example.com/base/_actions/fireAndForget', {
 				method: 'POST',
 				headers: {
 					'Content-Length': '0',
@@ -335,7 +336,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Sets status to 204 when content-type is omitted', async () => {
-			const req = new Request('http://example.com/_actions/fireAndForget', {
+			const req = new Request('http://example.com/base/_actions/fireAndForget', {
 				method: 'POST',
 			});
 			const res = await app.render(req);
@@ -343,7 +344,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Sets status to 415 when content-type is unexpected', async () => {
-			const req = new Request('http://example.com/_actions/fireAndForget', {
+			const req = new Request('http://example.com/base/_actions/fireAndForget', {
 				method: 'POST',
 				body: 'hey',
 				headers: {
@@ -355,7 +356,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Is callable from the server with rewrite', async () => {
-			const req = new Request('http://example.com/rewrite');
+			const req = new Request('http://example.com/base/rewrite');
 			const res = await app.render(req);
 			assert.equal(res.ok, true);
 
@@ -366,7 +367,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Returns content when the value is 0', async () => {
-			const req = new Request('http://example.com/_actions/zero', {
+			const req = new Request('http://example.com/base/_actions/zero', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -380,7 +381,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Returns content when the value is false', async () => {
-			const req = new Request('http://example.com/_actions/false', {
+			const req = new Request('http://example.com/base/_actions/false', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -395,7 +396,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Supports complex values: Date, Set, URL', async () => {
-			const req = new Request('http://example.com/_actions/complexValues', {
+			const req = new Request('http://example.com/base/_actions/complexValues', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -418,7 +419,7 @@ describe('Astro Actions', () => {
 			formData.set('type', 'first-chunk');
 			formData.set('alt', 'Cool image');
 			formData.set('image', new File([''], 'chunk-1.png'));
-			const reqFirst = new Request('http://example.com/_actions/imageUploadInChunks', {
+			const reqFirst = new Request('http://example.com/base/_actions/imageUploadInChunks', {
 				method: 'POST',
 				body: formData,
 			});
@@ -434,7 +435,7 @@ describe('Astro Actions', () => {
 			formDataRest.set('type', 'rest-chunk');
 			formDataRest.set('uploadId', 'fake');
 			formDataRest.set('image', new File([''], 'chunk-2.png'));
-			const reqRest = new Request('http://example.com/_actions/imageUploadInChunks', {
+			const reqRest = new Request('http://example.com/base/_actions/imageUploadInChunks', {
 				method: 'POST',
 				body: formDataRest,
 			});
@@ -448,7 +449,7 @@ describe('Astro Actions', () => {
 
 		it('Handles special characters in action names', async () => {
 			for (const name of ['with%2Fslash', 'with%20space', 'with%2Edot']) {
-				const req = new Request(`http://example.com/_actions/${name}`, {
+				const req = new Request(`http://example.com/base/_actions/${name}`, {
 					method: 'POST',
 					body: JSON.stringify({ name: 'ben' }),
 					headers: {
