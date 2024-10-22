@@ -45,34 +45,44 @@ describe('astro:assets - SVG Components', () => {
 				let html = await res.text();
 				$ = cheerio.load(html, { xml: true });
 			});
+			it('Inlines the SVG by default', () => {
+				const $svgs = $('.inline svg');
+				assert.equal($svgs.length, 2);
+				$svgs.each(function () {
+					assert.equal($(this).attr('role'), 'img');
+					assert.equal(!!$(this).attr('mode'), false);
+					const $use = $(this).children('use');
+					assert.equal($use.length, 0);
+				})
+			});
 
 			it('Adds the <svg> tag with the definition', () => {
-				const $svg = $('#definition svg');
+				const $svg = $('.sprite #definition svg');
 				assert.equal($svg.length, 1);
 				assert.equal($svg.attr('role'), 'img');
 
-				const $symbol = $svg.find('symbol');
+				const $symbol = $svg.children('symbol');
 				assert.equal($symbol.length, 1);
 				assert.equal($symbol.attr('id').startsWith('a:'), true);
 				
-				const $use = $svg.find('symbol + use');
+				const $use = $svg.children('use');
 				assert.equal($use.length, 1);
-				assert.equal($use.attr('xlink:href').startsWith('#a:'), true);
-				assert.equal($use.attr('xlink:href').slice(1), $symbol.attr('id'));
+				assert.equal($use.attr('href').startsWith('#a:'), true);
+				assert.equal($use.attr('href').slice(1), $symbol.attr('id'));
 			});
 			it('Adds the <svg> tag that uses the definition', () => {
-				let $svg = $('#reused svg');
+				let $svg = $('.sprite #reused svg');
 				assert.equal($svg.length, 1);
 				assert.equal($svg.attr('role'), 'img');
 
-				const $symbol = $svg.find('symbol');
+				const $symbol = $svg.children('symbol');
 				assert.equal($symbol.length, 0);
 
 				const definitionId = $('#definition svg symbol').attr('id')
-				const $use = $svg.find('use');
+				const $use = $svg.children('use');
 				assert.equal($use.length, 1);
-				assert.equal($use.attr('xlink:href').startsWith('#a:'), true);
-				assert.equal($use.attr('xlink:href').slice(1), definitionId);
+				assert.equal($use.attr('href').startsWith('#a:'), true);
+				assert.equal($use.attr('href').slice(1), definitionId);
 			});
 		});
 
@@ -140,7 +150,7 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal(!!$svg.attr('size'), false);
 				});
 			});
-			describe('inline', () => {
+			describe('mode', () => {
 				let $;
 				before(async () => {
 					let res = await fixture.fetch('/inline');
@@ -148,6 +158,22 @@ describe('astro:assets - SVG Components', () => {
 					$ = cheerio.load(html, { xml: true });
 				});
 
+				it('adds the svg into the document directly by default', () => {
+					let $svg = $('#default svg');
+					assert.equal($svg.length, 1);
+					assert.equal(!!$svg.attr('viewBox'), true);
+					assert.equal($svg.attr('height'), '1em');
+					assert.equal($svg.attr('width'), '1em');
+					assert.equal($svg.attr('role'), 'img');
+					assert.equal(!!$svg.attr('mode'), false);
+
+					const $symbol = $svg.children('symbol')
+					assert.equal($symbol.length, 0);
+					const $use = $svg.children('use')
+					assert.equal($use.length, 0);
+					const $path = $svg.children('path');
+					assert.equal($path.length, 1);
+				})
 				it('adds the svg into the document directly', () => {
 					let $svg = $('#inline svg');
 					assert.equal($svg.length, 1);
@@ -155,13 +181,13 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal($svg.attr('height'), '1em');
 					assert.equal($svg.attr('width'), '1em');
 					assert.equal($svg.attr('role'), 'img');
-					assert.equal(!!$svg.attr('inline'), false);
+					assert.equal(!!$svg.attr('mode'), false);
 
-					const $symbol = $svg.find('symbol')
+					const $symbol = $svg.children('symbol')
 					assert.equal($symbol.length, 0);
-					const $use = $svg.find('use')
+					const $use = $svg.children('use')
 					assert.equal($use.length, 0);
-					const $path = $svg.find('path');
+					const $path = $svg.children('path');
 					assert.equal($path.length, 1);
 				});
 				it('adds the svg into the document and overrides the dimensions', () => {
@@ -171,14 +197,47 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal($svg.attr('height'), '24');
 					assert.equal($svg.attr('width'), '24');
 					assert.equal($svg.attr('role'), 'img');
-					assert.equal(!!$svg.attr('inline'), false);
+					assert.equal(!!$svg.attr('mode'), false);
 
-					const $symbol = $svg.find('symbol')
+					const $symbol = $svg.children('symbol')
 					assert.equal($symbol.length, 0);
-					const $use = $svg.find('use')
+					const $use = $svg.children('use')
 					assert.equal($use.length, 0);
-					const $path = $svg.find('path');
+					const $path = $svg.children('path');
 					assert.equal($path.length, 1);
+				})
+				it('adds the svg into the document as a sprite, overridding the default', () => {
+					let $svg = $('#definition svg');
+					assert.equal($svg.length, 1);
+					assert.equal(!!$svg.attr('viewBox'), false);
+					assert.equal($svg.attr('height'), '1em');
+					assert.equal($svg.attr('width'), '1em');
+					assert.equal($svg.attr('role'), 'img');
+					assert.equal(!!$svg.attr('mode'), false);
+
+					let $symbol = $svg.children('symbol')
+					assert.equal($symbol.length, 1);
+					assert.equal(!!$symbol.attr('viewBox'), true);
+					let $use = $svg.children('use')
+					assert.equal($use.length, 1);
+					let $path = $svg.children('path');
+					assert.equal($path.length, 0);
+
+					$svg = $('#reused svg');
+					assert.equal($svg.length, 1);
+					assert.equal(!!$svg.attr('viewBox'), false);
+					assert.equal($svg.attr('height'), '1em');
+					assert.equal($svg.attr('width'), '1em');
+					assert.equal($svg.attr('role'), 'img');
+					assert.equal(!!$svg.attr('mode'), false);
+
+					$symbol = $svg.children('symbol')
+					assert.equal($symbol.length, 0);
+					assert.equal(!!$symbol.attr('viewBox'), false);
+					$use = $svg.children('use')
+					assert.equal($use.length, 1);
+					$path = $svg.children('path');
+					assert.equal($path.length, 0);
 				})
 			});
 			describe('title', () => {
@@ -223,7 +282,7 @@ describe('astro:assets - SVG Components', () => {
 					$ = cheerio.load(html, { xml: true });
 				});
 
-				it('adds the svg into the document directly', () => {
+				it('adds the props to the svg', () => {
 					let $svg = $('#base svg');
 					assert.equal($svg.length, 1);
 					assert.equal($svg.attr('aria-hidden'), 'true');
@@ -232,10 +291,12 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal($svg.attr('class'), 'foobar');
 					assert.equal($svg.attr('data-state'), 'open');
 
-					const $symbol = $svg.find('symbol')
-					assert.equal($symbol.length, 1);
-					const $use = $svg.find('use')
-					assert.equal($use.length, 1);
+					const $symbol = $svg.children('symbol')
+					assert.equal($symbol.length, 0);
+					const $use = $svg.children('use')
+					assert.equal($use.length, 0);
+					const $path = $svg.children('path')
+					assert.equal($path.length, 1);
 				});
 				it('allows overriding the role attribute', () => {
 					let $svg = $('#role svg');
@@ -297,14 +358,12 @@ describe('astro:assets - SVG Components', () => {
 				assert.equal($svg.length, 1);
 				assert.equal($svg.attr('role'), 'img');
 
-				const $symbol = $svg.find('symbol');
-				assert.equal($symbol.length, 1);
-				assert.equal($symbol.attr('id').startsWith('a:'), true);
-				
-				const $use = $svg.find('symbol + use');
-				assert.equal($use.length, 1);
-				assert.equal($use.attr('xlink:href').startsWith('#a:'), true);
-				assert.equal($use.attr('xlink:href').slice(1), $symbol.attr('id'));
+				const $symbol = $svg.children('symbol');
+				assert.equal($symbol.length, 0);
+				const $use = $svg.children('use');
+				assert.equal($use.length, 0);
+				const $path = $svg.children('path');
+				assert.equal($path.length > 0, true);
 			});
 			it('Adds the <svg> tag that uses the definition', async () => {
 				let res = await fixture.fetch('/blog/sprite');
@@ -315,16 +374,16 @@ describe('astro:assets - SVG Components', () => {
 				assert.equal($svg.length, 2);
 				$svg.each(function() { assert.equal($(this).attr('role'), 'img') });
 
-				const definitionId =  $($svg[0]).find('symbol').attr('id')
+				const definitionId =  $($svg[0]).children('symbol').attr('id')
 
 				const $reuse = $($svg[1]);
-				const $symbol = $reuse.find('symbol');
+				const $symbol = $reuse.children('symbol');
 				assert.equal($symbol.length, 0);
 
-				const $use = $reuse.find('use');
+				const $use = $reuse.children('use');
 				assert.equal($use.length, 1);
-				assert.equal($use.attr('xlink:href').startsWith('#a:'), true);
-				assert.equal($use.attr('xlink:href').slice(1), definitionId);
+				assert.equal($use.attr('href').startsWith('#a:'), true);
+				assert.equal($use.attr('href').slice(1), definitionId);
 			});
 			it('Adds the <svg> tag that applies props', async () => {
 				let res = await fixture.fetch('/blog/props');
@@ -340,7 +399,7 @@ describe('astro:assets - SVG Components', () => {
 				assert.equal($svg.attr('class'), 'icon');
 				assert.equal($svg.attr('data-icon'), 'github');
 				assert.equal($svg.attr('aria-description'), 'Some description');
-				assert.equal($svg.find('title').text(), 'Find out more on GitHub!');
+				assert.equal($svg.children('title').text(), 'Find out more on GitHub!');
 			});
 		});
 	});

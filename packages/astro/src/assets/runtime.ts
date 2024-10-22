@@ -33,7 +33,7 @@ export function createSvgComponent({ meta, attributes, children }: SvgComponentP
 				rendered.add(result.response);
 			}
 
-			return render`<svg${spreadAttributes(normalizedProps)}>${title}${symbol}<use xlink:href="#${id}" /></svg>`;
+			return render`<svg${spreadAttributes(normalizedProps)}>${title}${symbol}<use href="#${id}" /></svg>`;
 		}
 
 		// Default to inline mode

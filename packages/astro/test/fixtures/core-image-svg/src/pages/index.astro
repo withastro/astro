@@ -7,11 +7,21 @@ import AstroLogo from "~/assets/astro.svg";
 
 </head>
 <body>
-	<div id="definition">
-		<AstroLogo />
+	<div class="inline">
+		<div id="initial">
+			<AstroLogo />
+		</div>
+		<div id="reused">
+			<AstroLogo />
+		</div>
 	</div>
-	<div id="reused">
-		<AstroLogo />
+	<div class="sprite">
+		<div id="definition">
+			<AstroLogo mode="sprite"/>
+		</div>
+		<div id="reused">
+			<AstroLogo mode="sprite" />
+		</div>
 	</div>
 </body>
 </html>
