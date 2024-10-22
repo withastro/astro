@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-update wrong error message
+Update wrong error message
