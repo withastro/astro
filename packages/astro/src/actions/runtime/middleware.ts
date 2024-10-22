@@ -25,7 +25,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		if (context.request.method === 'POST') {
 			console.warn(
 				yellow('[astro:actions]'),
-				'POST requests should not be sent to prerendered pages. If you\'re using Actions, disable prerendering with `export const prerender = "false".',
+				'POST requests should not be sent to prerendered pages. If you\'re using Actions, disable prerendering with `export const prerender = false`.',
 			);
 		}
 		return next();
