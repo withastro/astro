@@ -816,7 +816,9 @@ describe('astro:image', () => {
 				outDir: './dist/server-base-path',
 				adapter: testAdapter(),
 				image: {
-					endpoint: 'astro/assets/endpoint/node',
+					endpoint: {
+						entrypoint: 'astro/assets/endpoint/node',
+					},
 					service: testImageService(),
 				},
 				base: '/blog',
