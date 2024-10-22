@@ -89,7 +89,7 @@ export function validateSupportedFeatures(
 		}
 	}
 
-	if (config.experimental.env) {
+	if (config.experimental?.env) {
 		validationResult.envGetSecret = validateSupportKind(
 			envGetSecret,
 			adapterName,
