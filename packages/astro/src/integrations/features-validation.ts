@@ -89,13 +89,15 @@ export function validateSupportedFeatures(
 		}
 	}
 
-	validationResult.envGetSecret = validateSupportKind(
-		envGetSecret,
-		adapterName,
-		logger,
-		'astro:env getSecret',
-		() => config?.experimental?.env !== undefined,
-	);
+	if (config.experimental?.env) {
+		validationResult.envGetSecret = validateSupportKind(
+			envGetSecret,
+			adapterName,
+			logger,
+			'astro:env getSecret',
+			() => true,
+		);
+	}
 
 	return validationResult;
 }
