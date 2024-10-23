@@ -46,10 +46,7 @@
     },
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
     "./runtime/*": "./dist/runtime/*",
-    "./config": {
-      "types": "./config.d.ts",
-      "default": "./config.mjs"
-    },
+    "./config": "./dist/config/entrypoint.js",
     "./container": {
       "types": "./dist/container/index.d.ts",
       "default": "./dist/container/index.js"
@@ -93,8 +90,6 @@
     "types",
     "astro.js",
     "index.d.ts",
-    "config.d.ts",
-    "config.mjs",
     "zod.d.ts",
     "zod.mjs",
     "env.d.ts",
@@ -129,7 +124,7 @@
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.1.2",
     "@types/cookie": "^0.6.0",
-    "acorn": "^8.12.1",
+    "acorn": "^8.13.0",
     "aria-query": "^5.3.2",
     "axobject-query": "^4.1.0",
     "boxen": "8.0.1",
@@ -166,7 +161,7 @@
     "rehype": "^13.0.2",
     "semver": "^7.6.3",
     "shiki": "^1.22.0",
-    "tinyexec": "^0.3.0",
+    "tinyexec": "^0.3.1",
     "tsconfck": "^3.1.4",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.3",
@@ -185,7 +180,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@playwright/test": "^1.48.0",
+    "@playwright/test": "^1.48.1",
     "@types/aria-query": "^5.0.4",
     "@types/common-ancestor-path": "^1.0.2",
     "@types/cssesc": "^3.0.2",
@@ -215,7 +210,7 @@
     "rehype-toc": "^3.0.2",
     "remark-code-titles": "^0.1.2",
     "rollup": "^4.24.0",
-    "sass": "^1.79.5",
+    "sass": "^1.80.3",
     "undici": "^6.20.1",
     "unified": "^11.0.5",
     "vitest": "^2.1.1"

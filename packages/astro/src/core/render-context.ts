@@ -28,6 +28,7 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
+import { copyRequest, setOriginPathname } from './routing/rewrite.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -75,6 +76,7 @@ export class RenderContext {
 			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial'>
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
+		setOriginPathname(request, pathname);
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -147,7 +149,7 @@ export class RenderContext {
 				if (payload instanceof Request) {
 					this.request = payload;
 				} else {
-					this.request = this.#copyRequest(newUrl, this.request);
+					this.request = copyRequest(newUrl, this.request);
 				}
 				this.isRewriting = true;
 				this.url = new URL(this.request.url);
@@ -247,7 +249,7 @@ export class RenderContext {
 		if (reroutePayload instanceof Request) {
 			this.request = reroutePayload;
 		} else {
-			this.request = this.#copyRequest(newUrl, this.request);
+			this.request = copyRequest(newUrl, this.request);
 		}
 		this.url = new URL(this.request.url);
 		this.cookies = new AstroCookies(this.request);
@@ -554,34 +556,5 @@ export class RenderContext {
 		} = this;
 		if (!i18n) return;
 		return (this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales));
-	}
-
-	/**
-	 * Utility function that creates a new `Request` with a new URL from an old `Request`.
-	 *
-	 * @param newUrl The new `URL`
-	 * @param oldRequest The old `Request`
-	 */
-	#copyRequest(newUrl: URL, oldRequest: Request): Request {
-		if (oldRequest.bodyUsed) {
-			throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
-		}
-		return new Request(newUrl, {
-			method: oldRequest.method,
-			headers: oldRequest.headers,
-			body: oldRequest.body,
-			referrer: oldRequest.referrer,
-			referrerPolicy: oldRequest.referrerPolicy,
-			mode: oldRequest.mode,
-			credentials: oldRequest.credentials,
-			cache: oldRequest.cache,
-			redirect: oldRequest.redirect,
-			integrity: oldRequest.integrity,
-			signal: oldRequest.signal,
-			keepalive: oldRequest.keepalive,
-			// https://fetch.spec.whatwg.org/#dom-request-duplex
-			// @ts-expect-error It isn't part of the types, but undici accepts it and it allows to carry over the body to a new request
-			duplex: 'half',
-		});
 	}
 }

@@ -1,13 +1,22 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
 import { Logger } from '../core/logger/core.js';
 import { createRouteManifest } from '../core/routing/index.js';
-import type { AstroInlineConfig, AstroUserConfig } from '../types/public/config.js';
+import type { AstroInlineConfig, AstroUserConfig, Locales } from '../types/public/config.js';
 import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js';
 
-export function defineConfig(config: AstroUserConfig) {
+/**
+ * See the full Astro Configuration API Documentation
+ * https://astro.build/config
+ */
+export function defineConfig<const TLocales extends Locales = never>(
+	config: AstroUserConfig<TLocales>,
+) {
 	return config;
 }
 
+/**
+ * Use Astro to generate a fully resolved Vite config
+ */
 export function getViteConfig(
 	userViteConfig: ViteUserConfig,
 	inlineAstroConfig: AstroInlineConfig = {},
