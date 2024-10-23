@@ -12,7 +12,7 @@ export async function getAction(
 	path: string,
 ): Promise<ActionClient<unknown, ActionAccept, ZodType>> {
 	const pathKeys = path
-		.replace('/_actions/', '')
+		.replace(/^.*\/_actions\//, '')
 		.split('.')
 		.map((key) => decodeURIComponent(key));
 	// @ts-expect-error virtual module
