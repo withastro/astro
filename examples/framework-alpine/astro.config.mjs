@@ -1,3 +1,4 @@
+// @ts-check
 import { defineConfig } from 'astro/config';
 import alpine from '@astrojs/alpinejs';
 
