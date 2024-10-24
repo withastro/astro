@@ -630,7 +630,7 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
       zod-to-json-schema:
-        specifier: ^3.23.3
+        specifier: 3.23.3
         version: 3.23.3(zod@3.23.8)
       zod-to-ts:
         specifier: ^1.2.0
