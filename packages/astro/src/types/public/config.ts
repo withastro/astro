@@ -7,6 +7,7 @@ import type {
 } from '@astrojs/markdown-remark';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
+import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
@@ -1699,6 +1700,22 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
 		 */
 		contentIntellisense?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.svg
+		 * @type {object}
+		 * @default `undefined`
+		 */
+		svg?: {
+			/**
+			 * @docs
+			 * @name experimental.svg.mode
+			 * @type {string}
+			 * @default 'inline'
+			 */
+			mode?: SvgRenderMode;
+		};
 	};
 }
 
