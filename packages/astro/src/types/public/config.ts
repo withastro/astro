@@ -16,6 +16,14 @@ import type { AstroIntegration } from './integrations.js';
 
 export type Locales = (string | { codes: string[]; path: string })[];
 
+type NormalizeLocales<T extends Locales> = {
+	[K in keyof T]: T[K] extends string
+		? T[K]
+		: T[K] extends { codes: Array<string> }
+			? T[K]['codes'][number]
+			: never;
+}[number];
+
 export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
 	entrypoint: 'astro/assets/services/sharp' | (string & {});
 	config?: T;
@@ -101,8 +109,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 /**
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
- */
-export interface AstroUserConfig {
+ * 
+ * Generics do not follow semver and may change at any time.
+ */ export interface AstroUserConfig<TLocales extends Locales = never> {
 	/**
 	 * @docs
 	 * @kind heading
@@ -494,7 +503,7 @@ export interface AstroUserConfig {
 	 *
 	 * Pass additional configuration options to Vite. Useful when Astro doesn't support some advanced configuration that you may need.
 	 *
-	 * View the full `vite` configuration object documentation on [vitejs.dev](https://vitejs.dev/config/).
+	 * View the full `vite` configuration object documentation on [vite.dev](https://vite.dev/config/).
 	 *
 	 * #### Examples
 	 *
@@ -727,6 +736,33 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
+		/**
+		 * @docs
+		 * @name build.concurrency
+		 * @type { number }
+		 * @default `1`
+		 * @version 4.16.0
+		 * @description
+		 * The number of pages to build in parallel.
+		 *
+		 * **In most cases, you should not change the default value of `1`.**
+		 *
+		 * Use this option only when other attempts to reduce the overall rendering time (e.g. batch or cache long running tasks like fetch calls or data access) are not possible or are insufficient.
+		 * If the number is set too high, page rendering may slow down due to insufficient memory resources and because JS is single-threaded.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     concurrency: 2
+		 *   }
+		 * }
+		 * ```
+		 *
+		 *  :::caution[Breaking changes possible]
+		 *  This feature is stable and is not considered experimental. However, this feature is only intended to address difficult performance issues, and breaking changes may occur in a [minor release](https://docs.astro.build/en/upgrade-astro/#semantic-versioning) to keep this option as performant as possible. Please check the [Astro CHANGELOG](https://github.com/withastro/astro/blob/refs/heads/next/packages/astro/CHANGELOG.md) for every minor release if you are using this feature.
+		 *  :::
+		 */
+		concurrency?: number;
 	};
 
 	/**
@@ -1178,30 +1214,31 @@ export interface AstroUserConfig {
 	i18n?: {
 		/**
 		 * @docs
-		 * @name i18n.defaultLocale
-		 * @type {string}
-		 * @version 3.5.0
-		 * @description
-		 *
-		 * The default locale of your website/application. This is a required field.
-		 *
-		 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
-		 */
-		defaultLocale: string;
-		/**
-		 * @docs
 		 * @name i18n.locales
 		 * @type {Locales}
 		 * @version 3.5.0
 		 * @description
 		 *
-		 * A list of all locales supported by the website, including the `defaultLocale`. This is a required field.
+		 * A list of all locales supported by the website. This is a required field.
 		 *
 		 * Languages can be listed either as individual codes (e.g. `['en', 'es', 'pt-br']`) or mapped to a shared `path` of codes (e.g.  `{ path: "english", codes: ["en", "en-US"]}`). These codes will be used to determine the URL structure of your deployed site.
 		 *
 		 * No particular language code format or syntax is enforced, but your project folders containing your content files must match exactly the `locales` items in the list. In the case of multiple `codes` pointing to a custom URL path prefix, store your content files in a folder with the same name as the `path` configured.
 		 */
-		locales: Locales;
+		locales: [TLocales] extends [never] ? Locales : TLocales;
+
+		/**
+		 * @docs
+		 * @name i18n.defaultLocale
+		 * @type {string}
+		 * @version 3.5.0
+		 * @description
+		 *
+		 * The default locale of your website/application, that is one of the specified `locales`. This is a required field.
+		 *
+		 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
+		 */
+		defaultLocale: [TLocales] extends [never] ? string : NormalizeLocales<NoInfer<TLocales>>;
 
 		/**
 		 * @docs
@@ -1231,7 +1268,14 @@ export interface AstroUserConfig {
 		 * })
 		 * ```
 		 */
-		fallback?: Record<string, string>;
+		fallback?: [TLocales] extends [never]
+			? Record<string, string>
+			: {
+					[Locale in NormalizeLocales<NoInfer<TLocales>>]?: Exclude<
+						NormalizeLocales<NoInfer<TLocales>>,
+						Locale
+					>;
+				};
 
 		/**
 		 * @docs
@@ -1417,7 +1461,9 @@ export interface AstroUserConfig {
 		 *
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
 		 */
-		domains?: Record<string, string>;
+		domains?: [TLocales] extends [never]
+			? Record<string, string>
+			: Partial<Record<NormalizeLocales<NoInfer<TLocales>>, string>>;
 	};
 
 	/** ! WARNING: SUBJECT TO CHANGE */
@@ -1541,7 +1587,49 @@ export interface AstroUserConfig {
 	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
-	legacy?: object;
+	legacy?: {
+		/**
+		 * @docs
+		 * @name legacy.collections
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.0.0
+		 * @description
+		 * Enable legacy behavior for content collections.
+		 * 
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * export default defineConfig({
+		 *   legacy: {
+		 *     collections: true
+		 *   }
+		 * });
+		 * ```
+		 *
+		 * If enabled, `data` and `content` collections (only) are handled using the legacy content collections implementation. Collections with a `loader` (only) will continue to use the Content Layer API instead. Both kinds of collections may exist in the same project, each using their respective implementations.
+		 *  
+		 *  The following limitations continue to exist:
+		 *
+		 * - Any legacy (`type: 'content'` or `type: 'data'`) collections must continue to be located in the `src/content/` directory.
+		 * - These legacy collections will not be transformed to implicitly use the `glob()` loader, and will instead be handled by legacy code.
+		 * - Collections using the Content Layer API (with a `loader` defined) are forbidden in `src/content/`, but may exist anywhere else in your project. 
+		 *
+		 * When you are ready to remove this flag and migrate to the new Content Layer API for your legacy collections, you must define a collection for any directories in `src/content/` that you want to continue to use as a collection. It is sufficient to declare an empty collection, and Astro will implicitly generate an appropriate definition for your legacy collections:
+		 *  
+		 * ```js
+		 * // src/content/config.ts
+		 * import { defineCollection, z } from 'astro:content';
+		 * 
+		 * const blog = defineCollection({ })
+		 *  
+		 * export const collections = { blog };
+		 * ```
+		 *
+
+		 */
+		collections?: boolean;
+	};
 
 	/**
 	 * @docs
@@ -1642,9 +1730,15 @@ export interface AstroInlineOnlyConfig {
 	 */
 	configFile?: string | false;
 	/**
-	 * The mode used when building your site to generate either "development" or "production" code.
+	 * The mode used when developing or building your site. It's passed to Vite that affects the value of `import.meta.env.MODE`
+	 * and how `.env` files are loaded, which also affects the values of `astro:env`. See the
+	 * [environment variables documentation](https://docs.astro.build/en/guides/environment-variables/) for more details.
+	 *
+	 * To output a development-based build, you can run `astro build` with the `--devOutput` flag.
+	 *
+	 * @default "development" for `astro dev`, "production" for `astro build`
 	 */
-	mode?: RuntimeMode;
+	mode?: string;
 	/**
 	 * The logging level to filter messages logged by Astro.
 	 * - "debug": Log everything, including noisy debugging diagnostics.

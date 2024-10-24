@@ -18,7 +18,7 @@ import type { SSRLoadedRenderer } from '../types/public/internal.js';
 export async function loadRenderers(renderers: AstroRenderer[]) {
 	const loadedRenderers = await Promise.all(
 		renderers.map(async (renderer) => {
-			const mod = await import(renderer.serverEntrypoint);
+			const mod = await import(renderer.serverEntrypoint.toString());
 			if (typeof mod.default !== 'undefined') {
 				return {
 					...renderer,

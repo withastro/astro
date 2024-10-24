@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { stripVTControlCharacters } from 'node:util';
 import { execa } from 'execa';
 import fastGlob from 'fast-glob';
-import stripAnsi from 'strip-ansi';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/content-layer.js';
@@ -162,7 +162,8 @@ export async function loadFixture(inlineConfig) {
 		build: async (extraInlineConfig = {}, options = {}) => {
 			globalContentLayer.dispose();
 			globalContentConfigObserver.set({ status: 'init' });
-			process.env.NODE_ENV = 'production';
+			// Reset NODE_ENV so it can be re-set by `build()`
+			delete process.env.NODE_ENV;
 			return build(mergeConfig(inlineConfig, extraInlineConfig), {
 				teardownCompiler: false,
 				...options,
@@ -175,7 +176,8 @@ export async function loadFixture(inlineConfig) {
 		startDevServer: async (extraInlineConfig = {}) => {
 			globalContentLayer.dispose();
 			globalContentConfigObserver.set({ status: 'init' });
-			process.env.NODE_ENV = 'development';
+			// Reset NODE_ENV so it can be re-set by `dev()`
+			delete process.env.NODE_ENV;
 			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
@@ -233,7 +235,8 @@ export async function loadFixture(inlineConfig) {
 			}
 		},
 		preview: async (extraInlineConfig = {}) => {
-			process.env.NODE_ENV = 'production';
+			// Reset NODE_ENV so it can be re-set by `preview()`
+			delete process.env.NODE_ENV;
 			const previewServer = await preview(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port
@@ -344,8 +347,8 @@ export async function parseCliDevStart(proc) {
 	}
 
 	proc.kill();
-	stdout = stripAnsi(stdout);
-	stderr = stripAnsi(stderr);
+	stdout = stripVTControlCharacters(stdout);
+	stderr = stripVTControlCharacters(stderr);
 
 	if (stderr) {
 		throw new Error(stderr);

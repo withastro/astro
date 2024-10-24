@@ -1,3 +1,4 @@
+import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroConfig } from '../types/public/config.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
@@ -65,7 +66,11 @@ export async function getImage(
 	};
 
 	// Infer size for remote images if inferSize is true
-	if (options.inferSize && isRemoteImage(resolvedOptions.src)) {
+	if (
+		options.inferSize &&
+		isRemoteImage(resolvedOptions.src) &&
+		isRemotePath(resolvedOptions.src)
+	) {
 		const result = await inferRemoteSize(resolvedOptions.src); // Directly probe the image URL
 		resolvedOptions.width ??= result.width;
 		resolvedOptions.height ??= result.height;
@@ -80,7 +85,7 @@ export async function getImage(
 	// Causing our generate step to think the image is used outside of the image optimization pipeline
 	const clonedSrc = isESMImportedImage(resolvedOptions.src)
 		? // @ts-expect-error - clone is a private, hidden prop
-			resolvedOptions.src.clone ?? resolvedOptions.src
+			(resolvedOptions.src.clone ?? resolvedOptions.src)
 		: resolvedOptions.src;
 
 	resolvedOptions.src = clonedSrc;

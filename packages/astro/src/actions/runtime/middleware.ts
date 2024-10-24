@@ -1,6 +1,7 @@
 import { decodeBase64, encodeBase64 } from '@oslojs/encoding';
 import { yellow } from 'kleur/colors';
 import { defineMiddleware } from '../../core/middleware/index.js';
+import { getOriginPathname } from '../../core/routing/rewrite.js';
 import type { MiddlewareNext } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
@@ -27,10 +28,9 @@ const encoder = new TextEncoder();
 export const onRequest = defineMiddleware(async (context, next) => {
 	if (context.isPrerendered) {
 		if (context.request.method === 'POST') {
-			// eslint-disable-next-line no-console
 			console.warn(
 				yellow('[astro:actions]'),
-				'POST requests should not be sent to prerendered pages. If you\'re using Actions, disable prerendering with `export const prerender = "false".',
+				"POST requests should not be sent to prerendered pages. If you're using Actions, disable prerendering with `export const prerender = false`.",
 			);
 		}
 		return next();
@@ -38,7 +38,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	const locals = context.locals as Locals;
 	// Actions middleware may have run already after a path rewrite.
-	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
+	// See https://github.com/withastro/roadmap/blob/main/proposals/0048-rerouting.md#ctxrewrite
 	// `_actionPayload` is the same for every page,
 	// so short circuit if already defined.
 	if (locals._actionPayload) return next();
@@ -145,7 +145,11 @@ async function redirectWithResult({
 		if (!referer) {
 			throw new Error('Internal: Referer unexpectedly missing from Action POST request.');
 		}
+		return context.redirect(referer);
+	}
 
+	const referer = getOriginPathname(context.request);
+	if (referer) {
 		return context.redirect(referer);
 	}
 

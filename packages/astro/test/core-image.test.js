@@ -562,7 +562,7 @@ describe('astro:image', () => {
 			it('has proper sources for array of images', () => {
 				let $img = $('#array-of-images img');
 				const imgsSrcs = [];
-				$img.each((i, img) => imgsSrcs.push(img.attribs['src']));
+				$img.each((_i, img) => imgsSrcs.push(img.attribs['src']));
 				assert.equal($img.length, 2);
 				assert.equal(
 					imgsSrcs.every((img) => img.startsWith('/')),
@@ -816,6 +816,9 @@ describe('astro:image', () => {
 				outDir: './dist/server-base-path',
 				adapter: testAdapter(),
 				image: {
+					endpoint: {
+						entrypoint: 'astro/assets/endpoint/node',
+					},
 					service: testImageService(),
 				},
 				base: '/blog',
@@ -829,6 +832,8 @@ describe('astro:image', () => {
 			const $ = cheerio.load(html);
 			const src = $('#local img').attr('src');
 			assert.equal(src.startsWith('/blog'), true);
+			const img = await app.render(new Request(`https://example.com${src}`));
+			assert.equal(img.status, 200);
 		});
 	});
 
@@ -1296,6 +1301,58 @@ describe('astro:image', () => {
 
 		afterEach(async () => {
 			await devServer.stop();
+		});
+	});
+	describe('build data url', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-data-url/',
+				image: {
+					remotePatterns: [
+						{
+							protocol: 'data',
+						},
+					],
+				},
+			});
+
+			await fixture.build();
+		});
+
+		it('uses short hash for data url filename', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src1 = $('#data-url img').attr('src');
+			assert.equal(basename(src1).length < 32, true);
+			const src2 = $('#data-url-no-size img').attr('src');
+			assert.equal(basename(src2).length < 32, true);
+			assert.equal(src1.split('_')[0], src2.split('_')[0]);
+		});
+
+		it('adds file extension for data url images', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#data-url img').attr('src');
+			assert.equal(src.endsWith('.webp'), true);
+		});
+
+		it('writes data url images to dist', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#data-url img').attr('src');
+			assert.equal(src.length > 0, true);
+			const data = await fixture.readFile(src, null);
+			assert.equal(data instanceof Buffer, true);
+		});
+
+		it('infers size of data url images', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const img = $('#data-url-no-size img');
+			const width = img.attr('width');
+			const height = img.attr('height');
+			assert.equal(width, '256');
+			assert.equal(height, '144');
 		});
 	});
 });

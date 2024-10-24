@@ -67,7 +67,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	// preview entrypoint of the integration package, relative to the user's project root.
 	const require = createRequire(settings.config.root);
 	const previewEntrypointUrl = pathToFileURL(
-		require.resolve(settings.adapter.previewEntrypoint),
+		require.resolve(settings.adapter.previewEntrypoint.toString()),
 	).href;
 
 	const previewModule = (await import(previewEntrypointUrl)) as Partial<PreviewModule>;

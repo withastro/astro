@@ -38,4 +38,6 @@ const image = defineCollection({
 	}),
 });
 
-export const collections = { docs, func, image, i18n };
+const authors = defineCollection({});
+
+export const collections = { docs, func, image, i18n, authors };

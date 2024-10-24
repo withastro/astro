@@ -25,6 +25,7 @@ import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
+import astroHmrReloadPlugin from '../vite-plugin-hmr-reload/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
@@ -44,18 +45,18 @@ import { isObject } from './util.js';
 type CreateViteOptions = {
 	settings: AstroSettings;
 	logger: Logger;
-	// will be undefined when using `getViteConfig`
-	command?: 'dev' | 'build';
+	mode: string;
 	fs?: typeof nodeFs;
 	sync: boolean;
 	manifest: ManifestData;
+	ssrManifest?: SSRManifest;
 } & (
 	| {
-			mode: 'dev';
+			command: 'dev';
 			ssrManifest: SSRManifest;
 	  }
 	| {
-			mode: 'build';
+			command: 'build';
 			ssrManifest?: SSRManifest;
 	  }
 );
@@ -80,6 +81,8 @@ const ONLY_DEV_EXTERNAL = [
 	'prismjs/components/index.js',
 	// Imported by `astro/assets` -> `packages/astro/src/core/logger/core.ts`
 	'string-width',
+	// Imported by `astro:transitions` -> packages/astro/src/runtime/server/transition.ts
+	'cssesc',
 ];
 
 /** Return a base vite config as a common starting point for all Vite commands. */
@@ -89,7 +92,7 @@ export async function createVite(
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
-		isBuild: mode === 'build',
+		isBuild: command === 'build',
 		viteUserConfig: settings.config.vite,
 		isFrameworkPkgByJson(pkgJson) {
 			// Certain packages will trigger the checks below, but need to be external. A common example are SSR adapters
@@ -125,6 +128,7 @@ export async function createVite(
 	const commonConfig: vite.InlineConfig = {
 		// Tell Vite not to combine config from vite.config.js with our provided inline config
 		configFile: false,
+		mode,
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
@@ -141,7 +145,7 @@ export async function createVite(
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode === 'dev' && vitePluginAstroServer({ settings, logger, fs, manifest, ssrManifest }), // ssrManifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
+			command === 'dev' && vitePluginAstroServer({ settings, logger, fs, manifest, ssrManifest }), // ssrManifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
 			envVitePlugin({ settings }),
 			astroEnv({ settings, mode, sync }),
 			markdownVitePlugin({ settings, logger }),
@@ -153,10 +157,10 @@ export async function createVite(
 			astroScannerPlugin({ settings, logger, manifest }),
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
-			astroContentAssetPropagationPlugin({ mode, settings }),
+			astroContentAssetPropagationPlugin({ settings }),
 			vitePluginMiddleware({ settings }),
 			vitePluginSSRManifest(),
-			astroAssetsPlugin({ settings, logger, mode }),
+			astroAssetsPlugin({ settings }),
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
 			astroDevToolbar({ settings, logger }),
@@ -166,6 +170,7 @@ export async function createVite(
 			vitePluginUserActions({ settings }),
 			vitePluginServerIslands({ settings }),
 			astroContainer(),
+			astroHmrReloadPlugin(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
@@ -182,7 +187,7 @@ export async function createVite(
 					: undefined, // disable HMR for test
 			watch: {
 				// Prevent watching during the build to speed it up
-				ignored: mode === 'build' ? ['**'] : undefined,
+				ignored: command === 'build' ? ['**'] : undefined,
 			},
 		},
 		resolve: {
@@ -217,7 +222,7 @@ export async function createVite(
 		},
 		ssr: {
 			noExternal: [...ALWAYS_NOEXTERNAL, ...astroPkgsConfig.ssr.noExternal],
-			external: [...(mode === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
+			external: [...(command === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 		build: { assetsDir: settings.config.build.assets },
 	};

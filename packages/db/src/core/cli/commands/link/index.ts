@@ -9,8 +9,8 @@ import {
 } from '@astrojs/studio';
 import { slug } from 'github-slugger';
 import { bgRed, cyan } from 'kleur/colors';
-import yoctoSpinner from 'yocto-spinner';
 import prompts from 'prompts';
+import yoctoSpinner from 'yocto-spinner';
 import { safeFetch } from '../../../../runtime/utils.js';
 import type { Result } from '../../../utils.js';
 
@@ -33,7 +33,7 @@ export async function cmd() {
 		const workspaceId = await promptWorkspace(sessionToken);
 		const newProjectName = await promptNewProjectName();
 		const newProjectRegion = await promptNewProjectRegion();
-		const spinner = yoctoSpinner({text:'Creating new project...'}).start();
+		const spinner = yoctoSpinner({ text: 'Creating new project...' }).start();
 		const newProjectData = await createNewProject({
 			workspaceId,
 			name: newProjectName,

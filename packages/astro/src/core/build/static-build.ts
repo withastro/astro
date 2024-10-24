@@ -1,9 +1,9 @@
-import { teardown } from '@astrojs/compiler';
-import glob from 'fast-glob';
-import { bgGreen, black, green } from 'kleur/colors';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { teardown } from '@astrojs/compiler';
+import glob from 'fast-glob';
+import { bgGreen, black, green } from 'kleur/colors';
 import * as vite from 'vite';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
@@ -156,7 +156,6 @@ async function ssrBuild(
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
-		mode: viteConfig.mode || 'production',
 		logLevel: viteConfig.logLevel ?? 'error',
 		build: {
 			target: 'esnext',
@@ -269,7 +268,6 @@ async function clientBuild(
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
-		mode: viteConfig.mode || 'production',
 		build: {
 			target: 'esnext',
 			...viteConfig.build,
@@ -383,7 +381,7 @@ async function cleanServerOutput(
 			}),
 		);
 
-		removeEmptyDirs(out);
+		removeEmptyDirs(fileURLToPath(out));
 	}
 
 	// Clean out directly if the outDir is outside of root
@@ -447,7 +445,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 				return fs.promises.rename(currentUrl, clientUrl);
 			}),
 		);
-		removeEmptyDirs(serverAssets);
+		removeEmptyDirs(fileURLToPath(serverAssets));
 	}
 }
 

@@ -1,9 +1,10 @@
+import { stripVTControlCharacters } from 'node:util';
+import { LibsqlError } from '@libsql/client';
 import deepDiff from 'deep-diff';
 import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
-import stripAnsi from 'strip-ansi';
 import { hasPrimaryKey } from '../../runtime/index.js';
 import { createRemoteDatabaseClient } from '../../runtime/index.js';
 import { isSerializedSQL } from '../../runtime/types.js';
@@ -450,10 +451,22 @@ async function getDbCurrentSnapshot(
 		);
 
 		return JSON.parse(res.snapshot);
-	} catch (error: any) {
-		if (error.code === 'SQLITE_UNKNOWN') {
+	} catch (error) {
+		// Don't handle errors that are not from libSQL
+		if (
+			error instanceof LibsqlError &&
 			// If the schema was never pushed to the database yet the table won't exist.
 			// Treat a missing snapshot table as an empty table.
+
+			// When connecting to a remote database in that condition
+			// the query will fail with the following error code and message.
+			((error.code === 'SQLITE_UNKNOWN' &&
+				error.message === 'SQLITE_UNKNOWN: SQLite error: no such table: _astro_db_snapshot') ||
+				// When connecting to a local or in-memory database that does not have a snapshot table yet
+				// the query will fail with the following error code and message.
+				(error.code === 'SQLITE_ERROR' &&
+					error.message === 'SQLITE_ERROR: no such table: _astro_db_snapshot'))
+		) {
 			return;
 		}
 
@@ -521,7 +534,7 @@ export function formatDataLossMessage(confirmations: string[], isColor = true): 
 	);
 	let finalMessage = messages.join('\n');
 	if (!isColor) {
-		finalMessage = stripAnsi(finalMessage);
+		finalMessage = stripVTControlCharacters(finalMessage);
 	}
 	return finalMessage;
 }

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { ResolvedDevToolbarApp as DevToolbarAppDefinition } from '../../../types/public/toolbar.js';
 import { type ToolbarAppEventTarget, serverHelpers } from './helpers.js';
 import { settings } from './settings.js';

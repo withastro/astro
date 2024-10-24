@@ -35,7 +35,7 @@ function generateIdDefault({ entry, base, data }: GenerateIdOptions): string {
 	if (data.slug) {
 		return data.slug as string;
 	}
-	const entryURL = new URL(entry, base);
+	const entryURL = new URL(encodeURI(entry), base);
 	const { slug } = getContentEntryIdAndSlug({
 		entry: entryURL,
 		contentDir: base,
@@ -55,6 +55,15 @@ function checkPrefix(pattern: string | Array<string>, prefix: string) {
  * Loads multiple entries, using a glob pattern to match files.
  * @param pattern A glob pattern to match files, relative to the content directory.
  */
+export function glob(globOptions: GlobOptions): Loader;
+/** @private */
+export function glob(
+	globOptions: GlobOptions & {
+		/** @deprecated */
+		_legacy?: true;
+	},
+): Loader;
+
 export function glob(globOptions: GlobOptions): Loader {
 	if (checkPrefix(globOptions.pattern, '../')) {
 		throw new Error(
@@ -80,19 +89,21 @@ export function glob(globOptions: GlobOptions): Loader {
 			>();
 
 			const untouchedEntries = new Set(store.keys());
-
+			const isLegacy = (globOptions as any)._legacy;
+			// If global legacy collection handling flag is *not* enabled then this loader is used to emulate them instead
+			const emulateLegacyCollections = !config.legacy.collections;
 			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
 				if (!entryType) {
 					logger.warn(`No entry type found for ${entry}`);
 					return;
 				}
-				const fileUrl = new URL(entry, base);
+				const fileUrl = new URL(encodeURI(entry), base);
 				const contents = await fs.readFile(fileUrl, 'utf-8').catch((err) => {
 					logger.error(`Error reading ${entry}: ${err.message}`);
 					return;
 				});
 
-				if (!contents) {
+				if (!contents && contents !== '') {
 					logger.warn(`No contents found for ${entry}`);
 					return;
 				}
@@ -103,6 +114,17 @@ export function glob(globOptions: GlobOptions): Loader {
 				});
 
 				const id = generateId({ entry, base, data });
+				let legacyId: string | undefined;
+
+				if (isLegacy) {
+					const entryURL = new URL(encodeURI(entry), base);
+					const legacyOptions = getContentEntryIdAndSlug({
+						entry: entryURL,
+						contentDir: base,
+						collection: '',
+					});
+					legacyId = legacyOptions.id;
+				}
 				untouchedEntries.delete(id);
 
 				const existingEntry = store.get(id);
@@ -132,6 +154,12 @@ export function glob(globOptions: GlobOptions): Loader {
 					filePath,
 				});
 				if (entryType.getRenderFunction) {
+					if (isLegacy && data.layout) {
+						logger.error(
+							`The Markdown "layout" field is not supported in content collections in Astro 5. Ignoring layout for ${JSON.stringify(entry)}. Enable "legacy.collections" if you need to use the layout field.`,
+						);
+					}
+
 					let render = renderFunctionByContentType.get(entryType);
 					if (!render) {
 						render = await entryType.getRenderFunction(config);
@@ -160,6 +188,7 @@ export function glob(globOptions: GlobOptions): Loader {
 						digest,
 						rendered,
 						assetImports: rendered?.metadata?.imagePaths,
+						legacyId,
 					});
 
 					// todo: add an explicit way to opt in to deferred rendering
@@ -171,9 +200,10 @@ export function glob(globOptions: GlobOptions): Loader {
 						filePath: relativePath,
 						digest,
 						deferredRender: true,
+						legacyId,
 					});
 				} else {
-					store.set({ id, data: parsedData, body, filePath: relativePath, digest });
+					store.set({ id, data: parsedData, body, filePath: relativePath, digest, legacyId });
 				}
 
 				fileToIdMap.set(filePath, id);
@@ -222,7 +252,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					if (isConfigFile(entry)) {
 						return;
 					}
-					if (isInContentDir(entry)) {
+					if (!emulateLegacyCollections && isInContentDir(entry)) {
 						skippedFiles.push(entry);
 						return;
 					}
@@ -240,7 +270,9 @@ export function glob(globOptions: GlobOptions): Loader {
 					? globOptions.pattern.join(', ')
 					: globOptions.pattern;
 
-				logger.warn(`The glob() loader cannot be used for files in ${bold('src/content')}.`);
+				logger.warn(
+					`The glob() loader cannot be used for files in ${bold('src/content')} when legacy mode is enabled.`,
+				);
 				if (skipCount > 10) {
 					logger.warn(
 						`Skipped ${green(skippedFiles.length)} files that matched ${green(patternList)}.`,
