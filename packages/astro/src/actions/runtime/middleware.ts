@@ -99,7 +99,6 @@ async function handlePost({
 	if (contentType && hasContentType(contentType, formContentTypes)) {
 		formData = await request.clone().formData();
 	}
-
 	const { getActionResult, callAction, props, redirect, ...actionAPIContext } = context;
 	const action = baseAction.bind(actionAPIContext);
 	const actionResult = await action(formData);
