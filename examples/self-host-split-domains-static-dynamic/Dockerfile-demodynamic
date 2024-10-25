@@ -1,0 +1,16 @@
+# This is just used so you can test out the final changes before this gets merged and published
+# You need to comment the ".dockerignore" line for node_modules
+
+FROM oven/bun:1 AS base
+
+# copy production dependencies and source code into final image
+FROM base AS runtime
+COPY ./node_modules node_modules
+COPY ./dist ./dist
+
+# run the app
+USER bun
+ENV HOST=0.0.0.0
+ENV PORT=4321
+EXPOSE 4321/tcp
+ENTRYPOINT [ "bun", "run", "./dist/server/entry.mjs" ]

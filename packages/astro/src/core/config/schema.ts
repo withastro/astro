@@ -127,6 +127,7 @@ export const AstroConfigSchema = z.object({
 	site: z.string().url().optional(),
 	compressHTML: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.compressHTML),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
+	serverIslandDynamicBase: z.string().optional(),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()

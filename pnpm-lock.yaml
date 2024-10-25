@@ -325,6 +325,21 @@ importers:
         specifier: ^5.0.0-beta.5
         version: link:../../packages/astro
 
+  examples/self-host-split-domains-static-dynamic:
+    dependencies:
+      '@astrojs/check':
+        specifier: ^0.9.4
+        version: 0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.6.3)
+      '@astrojs/node':
+        specifier: ^9.0.0-alpha.1
+        version: 9.0.0-alpha.1(astro@packages+astro)
+      astro:
+        specifier: ^5.0.0-beta.5
+        version: link:../../packages/astro
+      typescript:
+        specifier: ^5.6.2
+        version: 5.6.3
+
   examples/ssr:
     dependencies:
       '@astrojs/node':

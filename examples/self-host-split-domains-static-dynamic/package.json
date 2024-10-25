@@ -1,0 +1,18 @@
+{
+  "name": "@example/self-host-split-domains-static-dynamic",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/node": "^9.0.0-alpha.1",
+    "astro": "^5.0.0-beta.5",
+    "typescript": "^5.6.2"
+  }
+}
