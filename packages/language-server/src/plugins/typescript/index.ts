@@ -7,8 +7,7 @@ import { enhancedProvideCompletionItems, enhancedResolveCompletionItem } from '.
 import { enhancedProvideSemanticDiagnostics } from './diagnostics.js';
 
 export const create = (ts: typeof import('typescript')): LanguageServicePlugin[] => {
-	const tsServicePlugins = createTypeScriptServices(ts as typeof import('typescript'), {
-	});
+	const tsServicePlugins = createTypeScriptServices(ts as typeof import('typescript'), {});
 	return tsServicePlugins.map<LanguageServicePlugin>((plugin) => {
 		if (plugin.name === 'typescript-semantic') {
 			return {
