@@ -1,6 +1,5 @@
 // Keep at the top
 import './polyfill.js';
-
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { SSRManifest } from 'astro';
 import { NodeApp } from 'astro/app/node';
@@ -10,7 +9,7 @@ import {
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_PATH_HEADER,
 	ASTRO_PATH_PARAM,
-} from './adapter.js';
+} from '../index.js';
 
 setGetEnv((key) => process.env[key]);
 

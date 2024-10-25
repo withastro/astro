@@ -18,7 +18,7 @@ export type DevImageService = 'sharp' | (string & {});
 // https://vercel.com/docs/build-output-api/v3/configuration#images
 type ImageFormat = 'image/avif' | 'image/webp';
 
-type RemotePattern = {
+export type RemotePattern = {
 	protocol?: 'http' | 'https';
 	hostname: string;
 	port?: string;

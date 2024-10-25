@@ -14,9 +14,8 @@
   "bugs": "https://github.com/withastro/adapters/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/vercel/",
   "exports": {
-    ".": {
-      "types": "./types.d.ts"
-    },
+    ".": "./dist/index.js",
+    "./entrypoint": "./dist/serverless/entrypoint.js",
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./static": "./dist/static/adapter.js",

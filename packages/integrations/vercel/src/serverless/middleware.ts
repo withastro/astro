@@ -7,7 +7,7 @@ import {
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_PATH_HEADER,
 	NODE_PATH,
-} from './adapter.js';
+} from '../index.js';
 
 /**
  * It generates the Vercel Edge Middleware file.
