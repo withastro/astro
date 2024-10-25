@@ -608,7 +608,10 @@ class ErrorOverlay extends HTMLElement {
 
 		this.text('#name', err.name);
 		this.text('#title', err.title);
-		this.text('#message-content', err.message, true);
+    // Only set as html if escaped. We're only sure it's escaped if name is part
+    // of the error, ie. we transformed it as we wanted.
+    // TODO: capture error at the source and transform it there
+		this.text('#message-content', err.message, 'name' in err);
 
 		const cause = this.root.querySelector<HTMLElement>('#cause');
 		if (cause && err.cause) {
