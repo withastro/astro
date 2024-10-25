@@ -50,6 +50,7 @@ jobs:
       - name: Test (Linux)
         if: runner.os == 'Linux'
         run: |
+          pnpm run test:skip-vs
           cd packages/vscode
           xvfb-run -a pnpm test
           cd ../ts-plugin
