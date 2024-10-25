@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes an issue with action handler context by passing correct ActionAPIContext
+Fixes an issue with action handler context by passing the correct context (`ActionAPIContext`).
