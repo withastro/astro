@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/ts-plugin",
-  "version": "1.10.3",
+  "version": "1.10.4",
   "description": "A TypeScript Plugin providing Astro intellisense",
   "main": "dist/index.js",
   "type": "commonjs",
@@ -28,7 +28,7 @@
   "license": "MIT",
   "dependencies": {
     "@astrojs/compiler": "^2.10.3",
-    "@astrojs/yaml2ts": "^0.2.1",
+    "@astrojs/yaml2ts": "^0.2.2",
     "@jridgewell/sourcemap-codec": "^1.4.15",
     "@volar/language-core": "~2.4.7",
     "@volar/typescript": "~2.4.7",

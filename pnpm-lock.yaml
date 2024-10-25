@@ -76,7 +76,7 @@ importers:
         specifier: ^2.10.3
         version: 2.10.3
       '@astrojs/yaml2ts':
-        specifier: ^0.2.1
+        specifier: ^0.2.2
         version: link:../yaml2ts
       '@jridgewell/sourcemap-codec':
         specifier: ^1.4.15
@@ -185,7 +185,7 @@ importers:
         specifier: ^2.10.3
         version: 2.10.3
       '@astrojs/yaml2ts':
-        specifier: ^0.2.1
+        specifier: ^0.2.2
         version: link:../yaml2ts
       '@jridgewell/sourcemap-codec':
         specifier: ^1.4.15
@@ -247,10 +247,10 @@ importers:
         version: 0.14.1
     devDependencies:
       '@astrojs/language-server':
-        specifier: ^2.15.3
+        specifier: ^2.15.4
         version: link:../language-server
       '@astrojs/ts-plugin':
-        specifier: ^1.10.3
+        specifier: ^1.10.4
         version: link:../ts-plugin
       '@types/glob':
         specifier: ^8.1.0

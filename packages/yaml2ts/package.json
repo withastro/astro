@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/yaml2ts",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Package to convert a YAML string to a Volar VirtualCode, to be used by the Astro language server to provide intellisense",
   "scripts": {
     "build": "tsc",
