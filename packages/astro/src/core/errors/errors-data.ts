@@ -1593,7 +1593,7 @@ export const ActionsWithoutServerOutputError = {
 /**
  * @docs
  * @see
- * - [Actions handler reference](https://docs.astro.build/en/reference/api-reference/#handler-property)
+ * - [Actions handler reference](https://docs.astro.build/en/reference/modules/astro-actions/#handler-property)
  * @description
  * Action handler returned invalid data. Handlers should return serializable data types, and cannot return a Response object.
  */
