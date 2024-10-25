@@ -27,7 +27,8 @@ export const POST: APIRoute = async (context) => {
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/415
 		return new Response(null, { status: 415 });
 	}
-	const action = baseAction.bind(context);
+	const { getActionResult, callAction, props, redirect, ...actionAPIContext } = context;
+	const action = baseAction.bind(actionAPIContext);
 	const result = await action(args);
 	const serialized = serializeActionResult(result);
 
