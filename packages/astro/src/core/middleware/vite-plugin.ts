@@ -21,9 +21,9 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 
 	return {
 		name: '@astro/plugin-middleware',
-		config(opts, { command }) {
+		config(_, { command }) {
 			isCommandBuild = command === 'build';
-			return opts;
+			return {};
 		},
 		async resolveId(id) {
 			if (id === MIDDLEWARE_MODULE_ID) {
