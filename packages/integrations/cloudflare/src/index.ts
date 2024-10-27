@@ -129,6 +129,16 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							// https://developers.cloudflare.com/pages/functions/module-support/
 							// Allows imports of '.wasm', '.bin', and '.txt' file types
 							cloudflareModulePlugin,
+							{
+								name: 'vite:cf-imports',
+								enforce: 'pre',
+								resolveId(source) {
+									if (source.startsWith('cloudflare:')) {
+										return { id: source, external: true };
+									}
+									return null;
+								},
+							},
 						],
 					},
 					integrations: [astroWhen()],
