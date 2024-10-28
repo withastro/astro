@@ -50,7 +50,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^3.1.2",
+    "@sveltejs/vite-plugin-svelte": "^4.0.0",
     "svelte2tsx": "^0.7.22"
   },
   "devDependencies": {
