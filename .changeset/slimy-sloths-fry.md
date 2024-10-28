@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes an issue where using `getViteConfig()` has incorrect and duplicate configuration
+Fixes an issue where using `getViteConfig()` returns incorrect and duplicate configuration
