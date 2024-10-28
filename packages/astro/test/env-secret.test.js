@@ -17,7 +17,7 @@ describe('astro:env secret variables', () => {
 		}
 	});
 
-	it.skip('works in dev', async () => {
+	it('works in dev', async () => {
 		process.env.KNOWN_SECRET = '5';
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
@@ -27,7 +27,7 @@ describe('astro:env secret variables', () => {
 		assert.equal(response.status, 200);
 	});
 
-	it.skip('builds without throwing', async () => {
+	it('builds without throwing', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
 			output: 'server',
@@ -68,7 +68,7 @@ describe('astro:env secret variables', () => {
 		assert.equal(data.UNKNOWN_SECRET, 'abc');
 	});
 
-	it.skip('fails if validateSecrets is enabled and secret is not set', async () => {
+	it('fails if validateSecrets is enabled and secret is not set', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
 			experimental: {
