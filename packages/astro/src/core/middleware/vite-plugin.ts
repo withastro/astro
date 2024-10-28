@@ -54,15 +54,6 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
 					throw new AstroError(MissingMiddlewareForInternationalization);
 				}
-				// In the build, tell Vite to emit this file
-				if (isCommandBuild) {
-					this.emitFile({
-						type: 'chunk',
-						preserveSignature: 'strict',
-						fileName: 'middleware.mjs',
-						id,
-					});
-				}
 
 				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
 				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
