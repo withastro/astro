@@ -1,0 +1,14 @@
+---
+import { KNOWN_LANGUAGE_CODES } from "../../i18n/locales";
+
+export const getStaticPaths = () => {
+  return KNOWN_LANGUAGE_CODES.flatMap((langKey) => ({
+    params: { lang: langKey },
+  }));
+};
+---
+
+<div>
+  <h1>404</h1>
+  <p>You're in the wrong part of this localized town.</p>
+</div>
