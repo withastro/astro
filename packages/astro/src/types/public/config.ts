@@ -1976,6 +1976,10 @@ export interface AstroConfig extends AstroConfigType {
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
+
+	// Private:
+	// This is not configurable directly by the user. But may be configured by an integration.
+	serverIslandDynamicBase?: string;
 }
 /**
  * An inline Astro config that takes highest priority when merging with the user config,
