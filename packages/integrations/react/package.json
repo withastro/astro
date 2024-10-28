@@ -59,14 +59,14 @@
     "ultrahtml": "^1.5.3"
   },
   "devDependencies": {
-    "@types/react": "^18.3.11",
+    "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "vite": "^5.4.9"
+    "vite": "^5.4.10"
   },
   "peerDependencies": {
     "@types/react": "^17.0.50 || ^18.0.21",
