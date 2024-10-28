@@ -99,7 +99,8 @@ async function handlePost({
 	if (contentType && hasContentType(contentType, formContentTypes)) {
 		formData = await request.clone().formData();
 	}
-	const action = baseAction.bind(context);
+	const { getActionResult, callAction, props, redirect, ...actionAPIContext } = context;
+	const action = baseAction.bind(actionAPIContext);
 	const actionResult = await action(formData);
 
 	if (context.url.searchParams.get(ACTION_QUERY_PARAMS.actionRedirect) === 'false') {
