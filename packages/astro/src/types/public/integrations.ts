@@ -232,6 +232,10 @@ export interface BaseIntegrationHooks {
 		route: RouteOptions;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
+	'astro:routes:resolved': (options: {
+		routes: Array<IntegrationResolvedRoute>;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
 }
 
 export interface AstroIntegration {
@@ -255,3 +259,11 @@ export type IntegrationRouteData = Omit<
 	 */
 	redirectRoute?: IntegrationRouteData;
 };
+
+// TODO: document
+export interface IntegrationResolvedRoute {
+	pattern: string;
+	entrypoint: string;
+	prerendered: boolean;
+	params: Array<string>;
+}

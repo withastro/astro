@@ -24,7 +24,9 @@ import type {
 import type {
 	AstroIntegration,
 	AstroRenderer,
+	BaseIntegrationHooks,
 	HookParameters,
+	IntegrationResolvedRoute,
 	IntegrationRouteData,
 	RouteOptions,
 } from '../types/public/integrations.js';
@@ -39,7 +41,7 @@ async function withTakingALongTimeMsg<T>({
 	logger,
 }: {
 	name: string;
-	hookName: string;
+	hookName: keyof BaseIntegrationHooks;
 	hookResult: T | Promise<T>;
 	timeoutMs?: number;
 	logger: Logger;
@@ -579,6 +581,7 @@ export async function runHookBuildGenerated({
 type RunHookBuildDone = {
 	settings: AstroSettings;
 	pages: string[];
+	// TODO: deprecate
 	routes: RouteData[];
 	logging: Logger;
 };
@@ -646,6 +649,37 @@ export async function runHookRouteSetup({
 				prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
 		);
 	}
+}
+
+export async function runHookRoutesResolved({
+	routes,
+	settings,
+	logger,
+}: { routes: Array<RouteData>; settings: AstroSettings; logger: Logger }) {
+	for (const integration of settings.config.integrations) {
+		if (integration?.hooks?.['astro:routes:resolved']) {
+			const integrationLogger = getLogger(integration, logger);
+
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookName: 'astro:routes:resolved',
+				hookResult: integration.hooks['astro:routes:resolved']({
+					routes: routes.map((route) => toIntegrationResolvedRoute(route)),
+					logger: integrationLogger,
+				}),
+				logger,
+			});
+		}
+	}
+}
+
+function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute {
+	return {
+		prerendered: route.prerender,
+		entrypoint: route.component,
+		pattern: route.route,
+		params: route.params,
+	};
 }
 
 function toIntegrationRouteData(route: RouteData): IntegrationRouteData {

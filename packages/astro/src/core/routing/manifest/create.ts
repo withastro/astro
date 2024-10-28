@@ -20,6 +20,7 @@ import { routeComparator } from '../priority.js';
 import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
+import { runHookRoutesResolved } from '../../../integrations/hooks.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -726,6 +727,8 @@ export async function createRouteManifest(
 			}
 		}
 	}
+
+	await runHookRoutesResolved({ routes, settings, logger });
 
 	return {
 		routes,
