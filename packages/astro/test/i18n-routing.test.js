@@ -1176,6 +1176,29 @@ describe('[SSG] i18n routing', () => {
 			});
 		});
 	});
+
+	describe('404s', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-404/',
+			});
+			await fixture.build();
+		});
+
+		it('should output both root and localized 404s', async () => {
+			let html = await fixture.readFile('/en/404/index.html');
+			assert.equal(html.includes("You're in the wrong part of this localized town."), true);
+
+			html = await fixture.readFile('/ja/404/index.html');
+			assert.equal(html.includes("You're in the wrong part of this localized town."), true);
+
+			html = await fixture.readFile('/404.html');
+			assert.equal(html.includes("You're in the wrong part of town."), true);
+		});
+	});
 });
 describe('[SSR] i18n routing', () => {
 	let app;

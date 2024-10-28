@@ -21,6 +21,10 @@ export function requestHasLocale(locales: Locales) {
 
 export function requestIs404Or500(request: Request, base = '') {
 	const url = new URL(request.url);
+	// needed otherwise the check becomes //404, which is always wrong
+	if (base === '/') {
+		base = '';
+	}
 
 	return url.pathname.startsWith(`${base}/404`) || url.pathname.startsWith(`${base}/500`);
 }
