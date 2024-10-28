@@ -89,7 +89,7 @@ export default async function seed() {
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	netlify: '@astrojs/netlify',
-	vercel: '@astrojs/vercel/serverless',
+	vercel: '@astrojs/vercel',
 	cloudflare: '@astrojs/cloudflare',
 	node: '@astrojs/node',
 };
