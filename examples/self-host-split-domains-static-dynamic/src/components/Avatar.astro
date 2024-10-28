@@ -1,6 +1,7 @@
 ---
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 await wait(5000);
 ---
+
 <div>Slow avatar finally loaded</div>

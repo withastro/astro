@@ -160,7 +160,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		clientDirectives: settings.clientDirectives,
 		renderers: [],
 		base: settings.config.base,
-		serverIslandDynamicBase: settings.config.serverIslandDynamicBase,
 		assetsPrefix: settings.config.build.assetsPrefix,
 		site: settings.config.site,
 		componentMetadata: new Map(),

@@ -1,0 +1,47 @@
+{
+  "name": "astro-dynamic-static-split-domain",
+  "description": "Split the dynamic domain from the static domain.",
+  "version": "0.0.1",
+  "type": "module",
+  "author": "Jake Roberts <jroberts.g1ql8@simplelogin.com> (https://x.com/jacobroberts_us)",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "astro-adapter"
+  ],
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsc",
+    "ci": "npm run build && npm run check-format && npm run check-exports",
+    "test": "astro-scripts test \"test/**/*.test.js\"",
+    "check-format": "biome check --linter-enabled=false ./",
+    "format": "biome check --linter-enabled=false --write ./",
+    "lint": "biome lint ./",
+    "lint:fix": "biome lint --write ./",
+    "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
+    "local-release": "changeset version && changeset publish",
+    "prepublishOnly": "npm run ci"
+  },
+  "dependencies": {
+    "@astrojs/node": "^8.3.4"
+  },
+  "peerDependencies": {
+    "astro": "^5.0.0-beta.5"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.16.4",
+    "@biomejs/biome": "1.9.3",
+    "@changesets/cli": "^2.27.9",
+    "@types/node": "^18.19.59",
+    "@types/send": "^0.17.4",
+    "@types/server-destroy": "^1.0.4",
+    "astro": "^5.0.0-beta.5",
+    "typescript": "^5.6.3"
+  }
+}

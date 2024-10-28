@@ -547,7 +547,6 @@ function createBuildManifest(
 		compressHTML: settings.config.compressHTML,
 		renderers,
 		base: settings.config.base,
-		serverIslandDynamicBase: settings.config.serverIslandDynamicBase,
 		assetsPrefix: settings.config.build.assetsPrefix,
 		site: settings.config.site,
 		componentMetadata: internals.componentMetadata,

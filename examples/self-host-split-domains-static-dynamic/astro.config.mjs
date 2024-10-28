@@ -1,4 +1,5 @@
 import node from "@astrojs/node";
+import astroDynamicStaticSplitDomain from "astro-dynamic-static-split-domain"
 // @ts-check
 import { defineConfig } from "astro/config";
 
@@ -7,5 +8,9 @@ export default defineConfig({
 	adapter: node({
 		mode: "standalone",
 	}),
-	serverIslandDynamicBase: "https://api.mysite.com",
+	integrations: [astroDynamicStaticSplitDomain(
+		{
+			serverIslandDynamicBase: "https://api.mysite.com",
+		}
+	)],
 });
