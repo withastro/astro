@@ -125,8 +125,12 @@ export function vitePluginMiddlewareBuild(
 
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
-				if (chunk.type !== 'asset' && chunk.facadeModuleId === MIDDLEWARE_MODULE_ID) {
-					internals.middlewareInternalFileName = chunk.preliminaryFileName;
+				if (
+					chunk.type !== 'asset' &&
+					chunk.facadeModuleId === MIDDLEWARE_MODULE_ID &&
+					chunkName.includes('internal')
+				) {
+					internals.middlewareInternalFileName = chunkName;
 				}
 				if (chunk.type !== 'asset' && chunk.fileName === 'middleware.mjs') {
 					const outputDirectory = getOutputDirectory(opts.settings.config);
