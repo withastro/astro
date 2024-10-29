@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
+import { getViteConfig } from '../dist/config/index.js'
+import { resolveConfig } from 'vite';
 
 describe('Vite Config', async () => {
 	let fixture;
@@ -20,4 +22,15 @@ describe('Vite Config', async () => {
 		const $ = cheerio.load(html);
 		assert.match($('link').attr('href'), /\/assets\/testing-[a-z\d]+\.css/);
 	});
+});
+
+describe("getViteConfig", () => {
+	it("Does not change the default config.", async () => {
+		const command = "serve";
+		const mode = "test";
+		const configFn = getViteConfig({});
+		const config = await configFn({ command, mode });
+		const resolvedConfig = await resolveConfig(config, command, mode);
+		assert.deepStrictEqual(resolvedConfig.resolve.conditions, ["astro"]);
+	})
 });
