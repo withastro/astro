@@ -461,8 +461,8 @@ export const PageNumberParamNotFound = {
  * @docs
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
- * - [Image component](/en/reference/modules/astro-assets/#image-)
- * - [Image component#alt](/en/reference/modules/astro-assets/#alt-required)
+ * - [Image component](https://docs.astro.build/en/reference/modules/astro-assets/#image-)
+ * - [Image component#alt](https://docs.astro.build/en/reference/modules/astro-assets/#alt-required)
  * @description
  * The `alt` property allows you to provide descriptive alt text to users of screen readers and other assistive technologies. In order to ensure your images are accessible, the `Image` component requires that an `alt` be specified.
  *
@@ -496,9 +496,9 @@ export const InvalidImageService = {
  * Missing width and height attributes for `IMAGE_URL`. When using remote images, both dimensions are required in order to avoid cumulative layout shift (CLS).
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
- * - [Image component#width-and-height-required](/en/reference/modules/astro-assets/#width-and-height-required-for-images-in-public)
+ * - [Image component#width-and-height-required](https://docs.astro.build/en/reference/modules/astro-assets/#width-and-height-required-for-images-in-public)
  * @description
- * For remote images, `width` and `height` cannot automatically be inferred from the original file. To avoid cumulative layout shift (CLS), either specify these two properties, or set [`inferSize`](/en/reference/modules/astro-assets/#infersize) to `true` to fetch a remote image's original dimensions.
+ * For remote images, `width` and `height` cannot automatically be inferred from the original file. To avoid cumulative layout shift (CLS), either specify these two properties, or set [`inferSize`](https://docs.astro.build/en/reference/modules/astro-assets/#infersize) to `true` to fetch a remote image's original dimensions.
  *
  * If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets).
  */
