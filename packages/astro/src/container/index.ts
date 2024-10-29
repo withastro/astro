@@ -544,7 +544,6 @@ export class experimental_AstroContainer {
 			type,
 			fallbackRoutes: [],
 			isIndex: false,
-			// TODO: check what we should use there
 			origin: 'user',
 		};
 	}
