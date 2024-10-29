@@ -7,7 +7,7 @@ import {
 	runHookBuildSetup,
 	runHookConfigSetup,
 } from '../../../dist/integrations/hooks.js';
-import { defaultLogger } from '../test-utils.js';
+import { createFixture, defaultLogger, runInContainer } from '../test-utils.js';
 
 const defaultConfig = {
 	root: new URL('./', import.meta.url),
@@ -130,6 +130,151 @@ describe('Integration API', () => {
 		});
 		assert.equal(updatedSettings.config.site, site);
 		assert.equal(updatedSettings.config.integrations.length, 2);
+	});
+
+	describe('Routes resolved hooks', () => {
+		it('should work in dev', async () => {
+			let routes = [];
+			const fixture = await createFixture({
+				'/src/pages/about.astro': '',
+				'/src/actions.ts': 'export const server = {}',
+				'/src/foo.astro': '',
+			});
+
+			await runInContainer(
+				{
+					inlineConfig: {
+						root: fixture.path,
+						integrations: [
+							{
+								name: 'test',
+								hooks: {
+									'astro:config:setup': (params) => {
+										params.injectRoute({
+											entrypoint: './src/foo.astro',
+											pattern: '/foo',
+										});
+									},
+									'astro:routes:resolved': (params) => {
+										routes = params.routes;
+									},
+								},
+							},
+						],
+					},
+				},
+				async (container) => {
+					assert.deepEqual(
+						routes.sort(),
+						[
+							{
+								prerendered: false,
+								entrypoint: '../../../../dist/actions/runtime/route.js',
+								pattern: '/_actions/[...path]',
+								params: ['...path'],
+								origin: 'core',
+							},
+							{
+								prerendered: true,
+								entrypoint: 'src/pages/about.astro',
+								pattern: '/about',
+								params: [],
+								origin: 'user',
+							},
+							{
+								prerendered: true,
+								entrypoint: 'src/foo.astro',
+								pattern: '/foo',
+								params: [],
+								origin: 'integration',
+							},
+						].sort(),
+					);
+
+					await fixture.writeFile('/src/pages/bar.astro', '');
+					container.viteServer.watcher.emit(
+						'add',
+						fixture.getPath('/src/pages/bar.astro').replace(/\\/g, '/'),
+					);
+					await new Promise((r) => setTimeout(r, 100));
+
+					assert.deepEqual(
+						routes.sort(),
+						[
+							{
+								prerendered: false,
+								entrypoint: '../../../../dist/actions/runtime/route.js',
+								pattern: '/_actions/[...path]',
+								params: ['...path'],
+								origin: 'core',
+							},
+							{
+								prerendered: true,
+								entrypoint: 'src/pages/about.astro',
+								pattern: '/about',
+								params: [],
+								origin: 'user',
+							},
+							{
+								prerendered: true,
+								entrypoint: 'src/pages/bar.astro',
+								pattern: '/bar',
+								params: [],
+								origin: 'user',
+							},
+							{
+								prerendered: true,
+								entrypoint: 'src/foo.astro',
+								pattern: '/foo',
+								params: [],
+								origin: 'integration',
+							},
+						].sort(),
+					);
+
+					await fixture.writeFile('/src/pages/about.astro', '---\nexport const prerender=false\n');
+					container.viteServer.watcher.emit(
+						'change',
+						fixture.getPath('/src/pages/about.astro').replace(/\\/g, '/'),
+					);
+					await new Promise((r) => setTimeout(r, 100));
+
+					assert.deepEqual(
+						routes.sort(),
+						[
+							{
+								prerendered: false,
+								entrypoint: '../../../../dist/actions/runtime/route.js',
+								pattern: '/_actions/[...path]',
+								params: ['...path'],
+								origin: 'core',
+							},
+							{
+								prerendered: false,
+								entrypoint: 'src/pages/about.astro',
+								pattern: '/about',
+								params: [],
+								origin: 'user',
+							},
+							{
+								prerendered: true,
+								entrypoint: 'src/pages/bar.astro',
+								pattern: '/bar',
+								params: [],
+								origin: 'user',
+							},
+							{
+								prerendered: true,
+								entrypoint: 'src/foo.astro',
+								pattern: '/foo',
+								params: [],
+								origin: 'integration',
+							},
+						].sort(),
+					);
+				},
+			);
+		});
 	});
 });
 

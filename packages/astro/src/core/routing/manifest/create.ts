@@ -282,7 +282,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 	const routes: RouteData[] = [];
 
 	for (const injectedRoute of settings.injectedRoutes) {
-		const { pattern: name, entrypoint, prerender: prerenderInjected } = injectedRoute;
+		const { pattern: name, entrypoint, prerender: prerenderInjected, origin } = injectedRoute;
 		const { resolved, component } = resolveInjectedRoute(entrypoint.toString(), config.root, cwd);
 
 		const segments = removeLeadingForwardSlash(name)
@@ -322,7 +322,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			prerender: prerenderInjected ?? prerender,
 			fallbackRoutes: [],
 			distURL: [],
-			origin: 'integration',
+			origin,
 		});
 	}
 

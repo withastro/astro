@@ -50,26 +50,24 @@ export default function createVitePluginAstroServer({
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
 
-			/** rebuild the route cache + manifest, as needed. */
-			async function rebuildManifest(needsManifestRebuild: boolean) {
+			/** rebuild the route cache + manifest */
+			async function rebuildManifest() {
 				pipeline.clearRouteCache();
-				if (needsManifestRebuild) {
-					routeManifest = injectDefaultDevRoutes(
-						settings,
-						devSSRManifest,
-						await createRouteManifest({ settings, fsMod }, logger), // TODO: Handle partial updates to the manifest
-					);
-					warnMissingAdapter(logger, settings);
-					pipeline.manifest.checkOrigin =
-						settings.config.security.checkOrigin && settings.buildOutput === 'server';
-					pipeline.setManifestData(routeManifest);
-				}
+				routeManifest = injectDefaultDevRoutes(
+					settings,
+					devSSRManifest,
+					await createRouteManifest({ settings, fsMod }, logger), // TODO: Handle partial updates to the manifest
+				);
+				warnMissingAdapter(logger, settings);
+				pipeline.manifest.checkOrigin =
+					settings.config.security.checkOrigin && settings.buildOutput === 'server';
+				pipeline.setManifestData(routeManifest);
 			}
 
-			// Rebuild route manifest on file change, if needed.
-			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
-			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
-			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
+			// Rebuild route manifest on file change
+			viteServer.watcher.on('add', rebuildManifest.bind(null));
+			viteServer.watcher.on('unlink', rebuildManifest.bind(null));
+			viteServer.watcher.on('change', rebuildManifest.bind(null));
 
 			function handleUnhandledRejection(rejection: any) {
 				const error = new AstroError({
