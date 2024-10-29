@@ -256,6 +256,7 @@ function createFileBasedRoutes(
 					prerender,
 					fallbackRoutes: [],
 					distURL: [],
+					origin: 'user',
 				});
 			}
 		}
@@ -321,6 +322,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			prerender: prerenderInjected ?? prerender,
 			fallbackRoutes: [],
 			distURL: [],
+			origin: 'integration',
 		});
 	}
 
@@ -390,6 +392,7 @@ function createRedirectRoutes(
 			redirectRoute: routeMap.get(destination),
 			fallbackRoutes: [],
 			distURL: [],
+			origin: 'user',
 		});
 	}
 

@@ -10,12 +10,10 @@ import type { ContentEntryType, DataEntryType } from './public/content.js';
 import type {
 	AstroAdapter,
 	AstroRenderer,
-	InjectedRoute,
 	InjectedScriptStage,
 	InjectedType,
-	ResolvedInjectedRoute,
 } from './public/integrations.js';
-import type { RouteData } from './public/internal.js';
+import type { InternalInjectedRoute, RouteData, ResolvedInjectedRoute } from './public/internal.js';
 import type { DevToolbarAppEntry } from './public/toolbar.js';
 
 export type SerializedRouteData = Omit<
@@ -35,7 +33,7 @@ export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
 	preferences: AstroPreferences;
-	injectedRoutes: InjectedRoute[];
+	injectedRoutes: InternalInjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];
 	pageExtensions: string[];
 	contentEntryTypes: ContentEntryType[];

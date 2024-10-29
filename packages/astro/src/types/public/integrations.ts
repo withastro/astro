@@ -8,7 +8,7 @@ import type { getToolbarServerCommunicationHelpers } from '../../integrations/ho
 import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig } from './config.js';
 import type { RefreshContentOptions } from './content.js';
-import type { RouteData } from './internal.js';
+import type { InternalInjectedRoute, RouteData } from './internal.js';
 import type { DevToolbarAppEntry } from './toolbar.js';
 
 export interface RouteOptions {
@@ -138,15 +138,7 @@ export type AstroAdapterFeatureMap = {
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
 
-export interface InjectedRoute {
-	pattern: string;
-	entrypoint: string | URL;
-	prerender?: boolean;
-}
-
-export interface ResolvedInjectedRoute extends InjectedRoute {
-	resolvedEntryPoint?: URL;
-}
+export type InjectedRoute = Omit<InternalInjectedRoute, 'origin'>;
 
 export interface InjectedType {
 	filename: string;
@@ -253,7 +245,7 @@ export interface AstroIntegration {
  */
 export type IntegrationRouteData = Omit<
 	RouteData,
-	'isIndex' | 'fallbackRoutes' | 'redirectRoute'
+	'isIndex' | 'fallbackRoutes' | 'redirectRoute' | 'origin'
 > & {
 	/**
 	 * {@link RouteData.redirectRoute}
@@ -268,22 +260,26 @@ export interface IntegrationResolvedRoute {
 	 * - `src/pages/blog/[...slug].astro` has a pattern of `/blog/[...slug]`
 	 * - `src/pages/site/[blog]/[...slug].astro` has a pattern of `/site/[blog]/[...slug]`
 	 */
-	pattern: string;
+	pattern: RouteData['route'];
+
 	/**
 	 *  Source component URL
 	 */
-	entrypoint: string;
+	entrypoint: RouteData['component'];
+
 	/**
 	 * Whether the route is prerendered or not
 	 */
-	prerendered: boolean;
+	prerendered: RouteData['prerender'];
+
 	/**
 	 * Dynamic and spread route params
 	 * ex. "/pages/[lang]/[...slug].astro" will output the params ['lang', '...slug']
 	 */
-	params: Array<string>;
+	params: RouteData['params'];
+
 	/**
 	 * Whether the route comes from Astro core, an integration or the user's project
 	 */
-	origin: 'core' | 'integration' | 'user';
+	origin: RouteData['origin'];
 }

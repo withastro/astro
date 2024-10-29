@@ -15,6 +15,7 @@ export const DEFAULT_404_ROUTE: RouteData = {
 	route: '/404',
 	fallbackRoutes: [],
 	isIndex: false,
+	origin: 'core',
 };
 
 export const DEFAULT_500_ROUTE: RouteData = {
@@ -29,6 +30,7 @@ export const DEFAULT_500_ROUTE: RouteData = {
 	route: '/500',
 	fallbackRoutes: [],
 	isIndex: false,
+	origin: 'core',
 };
 
 export function ensure404Route(manifest: ManifestData) {

@@ -18,10 +18,11 @@ export default function astroIntegrationActionsRouteHandler({
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
-				params.injectRoute({
+				settings.injectedRoutes.push({
 					pattern: '/_actions/[...path]',
 					entrypoint: 'astro/actions/runtime/route.js',
 					prerender: false,
+					origin: 'core',
 				});
 
 				params.addMiddleware({

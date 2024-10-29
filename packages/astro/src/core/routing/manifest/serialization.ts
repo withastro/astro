@@ -41,5 +41,6 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 			return deserializeRouteData(fallback);
 		}),
 		isIndex: rawRouteData.isIndex,
+		origin: rawRouteData.origin,
 	};
 }
