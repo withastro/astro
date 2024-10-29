@@ -9,6 +9,7 @@ import { getOutputDirectory } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { TryRewriteResult } from '../base-pipeline.js';
+import { MIDDLEWARE_MODULE_ID } from '../middleware/vite-plugin.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
@@ -137,7 +138,7 @@ export class BuildPipeline extends Pipeline {
 		const renderersEntryUrl = new URL(`renderers.mjs?time=${Date.now()}`, baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
 
-		const middleware = await import(new URL('middleware.mjs', baseDirectory).toString())
+		const middleware = await import(new URL(MIDDLEWARE_MODULE_ID, baseDirectory).toString())
 			.then((mod) => {
 				return function () {
 					return { onRequest: mod.onRequest };
