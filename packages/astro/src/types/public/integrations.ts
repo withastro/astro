@@ -225,6 +225,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
 		dir: URL;
+		/** @deprecated Use `routes` from `astro:routes:resolved` instead */
 		routes: IntegrationRouteData[];
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
@@ -260,10 +261,29 @@ export type IntegrationRouteData = Omit<
 	redirectRoute?: IntegrationRouteData;
 };
 
-// TODO: document
 export interface IntegrationResolvedRoute {
+	/**
+	 * The current **pattern** of the route. For example:
+	 * - `src/pages/index.astro` has a pattern of `/`
+	 * - `src/pages/blog/[...slug].astro` has a pattern of `/blog/[...slug]`
+	 * - `src/pages/site/[blog]/[...slug].astro` has a pattern of `/site/[blog]/[...slug]`
+	 */
 	pattern: string;
+	/**
+	 *  Source component URL
+	 */
 	entrypoint: string;
+	/**
+	 * Whether the route is prerendered or not
+	 */
 	prerendered: boolean;
+	/**
+	 * Dynamic and spread route params
+	 * ex. "/pages/[lang]/[...slug].astro" will output the params ['lang', '...slug']
+	 */
 	params: Array<string>;
+	/**
+	 * Whether the route comes from Astro core, an integration or the user's project
+	 */
+	origin: 'core' | 'integration' | 'user';
 }

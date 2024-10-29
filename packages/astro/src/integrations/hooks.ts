@@ -581,7 +581,6 @@ export async function runHookBuildGenerated({
 type RunHookBuildDone = {
 	settings: AstroSettings;
 	pages: string[];
-	// TODO: deprecate
 	routes: RouteData[];
 	logging: Logger;
 };
@@ -679,6 +678,8 @@ function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute 
 		entrypoint: route.component,
 		pattern: route.route,
 		params: route.params,
+		// TODO: supports other origins
+		origin: 'user',
 	};
 }
 
