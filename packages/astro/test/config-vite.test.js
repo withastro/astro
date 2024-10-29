@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
-import { getViteConfig } from '../dist/config/index.js'
 import { resolveConfig } from 'vite';
+import { getViteConfig } from '../dist/config/index.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Vite Config', async () => {
 	let fixture;
@@ -24,13 +24,13 @@ describe('Vite Config', async () => {
 	});
 });
 
-describe("getViteConfig", () => {
-	it("Does not change the default config.", async () => {
-		const command = "serve";
-		const mode = "test";
+describe('getViteConfig', () => {
+	it('Does not change the default config.', async () => {
+		const command = 'serve';
+		const mode = 'test';
 		const configFn = getViteConfig({});
 		const config = await configFn({ command, mode });
 		const resolvedConfig = await resolveConfig(config, command, mode);
-		assert.deepStrictEqual(resolvedConfig.resolve.conditions, ["astro"]);
-	})
+		assert.deepStrictEqual(resolvedConfig.resolve.conditions, ['astro']);
+	});
 });
