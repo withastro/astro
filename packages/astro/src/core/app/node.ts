@@ -153,8 +153,10 @@ export class NodeApp extends App {
 			}
 			destination.end();
 			// the error will be logged by the "on end" callback above
-		} catch {
-			destination.end('Internal server error');
+		} catch (err) {
+			destination.end('Internal server error', () => {
+				err instanceof Error ? destination.destroy(err) : destination.destroy();
+			});
 		}
 	}
 }
