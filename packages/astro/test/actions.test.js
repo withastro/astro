@@ -470,7 +470,7 @@ it('Base path should be used', async () => {
 	const fixture = await loadFixture({
 		root: './fixtures/actions/',
 		adapter: testAdapter(),
-		base: "/base"
+		base: '/base',
 	});
 	const devServer = await fixture.startDevServer();
 	const formData = new FormData();
@@ -487,7 +487,7 @@ it('Base path should be used', async () => {
 	const data = devalue.parse(await res.text());
 	assert.equal(data.channel, 'bholmesdev');
 	assert.equal(data.comment, 'Hello, World!');
-	await devServer.stop()
+	await devServer.stop();
 });
 
 /**
