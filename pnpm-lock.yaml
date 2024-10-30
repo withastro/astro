@@ -1038,6 +1038,9 @@ importers:
 
   packages/astro/e2e/fixtures/i18n:
     dependencies:
+      '@astrojs/node':
+        specifier: ^8.3.4
+        version: 8.3.4(astro@packages+astro)
       astro:
         specifier: workspace:*
         version: link:../../..
