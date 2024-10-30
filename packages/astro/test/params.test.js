@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -87,6 +87,31 @@ describe('Astro.params in SSR', () => {
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		assert.equal($('.category').text(), '%3Fsomething');
+	});
+});
+
+describe('Astro.params in  dev mode', () => {
+	/** @type {import('./test-utils.js').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/ssr-params/',
+			adapter: testAdapter(),
+			output: 'server',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should handle non-english URLs', async () => {
+		const html = await fixture.fetch('/你好').then((res) => res.text());
+		const $ = cheerio.load(html);
+		assert.equal($('.category').text(), '你好');
 	});
 });
 
