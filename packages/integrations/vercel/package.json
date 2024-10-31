@@ -40,7 +40,7 @@
     "@vercel/analytics": "^1.3.2",
     "@vercel/edge": "^1.1.2",
     "@vercel/nft": "^0.27.5",
-    "esbuild": "^0.21.5",
+    "esbuild": "^0.24.0",
     "fast-glob": "^3.3.2"
   },
   "peerDependencies": {
