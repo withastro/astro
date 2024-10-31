@@ -52,6 +52,12 @@
 
 - [#385](https://github.com/withastro/adapters/pull/385) [`bb725b7`](https://github.com/withastro/adapters/commit/bb725b7a430a01a3cd197e3e84381be4fa0c945c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Cleans up `astro:env` support
 
+## 5.5.4
+
+### Patch Changes
+
+- [#413](https://github.com/withastro/adapters/pull/413) [`1b18e67`](https://github.com/withastro/adapters/commit/1b18e671a689b67bde20fdc7fb8cf1d6283e4ec9) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes `context.rewrite` in edge middleware
+
 ## 5.5.3
 
 ### Patch Changes
