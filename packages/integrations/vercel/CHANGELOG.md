@@ -20,6 +20,12 @@
 
 - [#385](https://github.com/withastro/adapters/pull/385) [`bb725b7`](https://github.com/withastro/adapters/commit/bb725b7a430a01a3cd197e3e84381be4fa0c945c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Cleans up `astro:env` support
 
+## 7.8.2
+
+### Patch Changes
+
+- [#373](https://github.com/withastro/adapters/pull/373) [`5b802a4`](https://github.com/withastro/adapters/commit/5b802a4099743c86418747872171bbe224caaa6d) Thanks [@hrabiel](https://github.com/hrabiel)! - Fix excluding routes with rest parameters from ISR
+
 ## 7.8.1
 
 ### Patch Changes

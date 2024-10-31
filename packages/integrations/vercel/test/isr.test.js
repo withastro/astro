@@ -38,7 +38,15 @@ describe('ISR', () => {
 				dest: '_render',
 			},
 			{
+				src: '^/excluded(?:\\/(.*?))?$',
+				dest: '_render',
+			},
+			{
 				src: '^\\/excluded\\/([^/]+?)\\/?$',
+				dest: '/_isr?x_astro_path=$0',
+			},
+			{
+				src: '^\\/excluded(?:\\/(.*?))?\\/?$',
 				dest: '/_isr?x_astro_path=$0',
 			},
 			{

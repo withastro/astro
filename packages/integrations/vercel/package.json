@@ -37,9 +37,9 @@
   },
   "dependencies": {
     "@astrojs/internal-helpers": "^0.4.1",
-    "@vercel/analytics": "^1.3.1",
+    "@vercel/analytics": "^1.3.2",
     "@vercel/edge": "^1.1.2",
-    "@vercel/nft": "^0.27.4",
+    "@vercel/nft": "^0.27.5",
     "esbuild": "^0.21.5",
     "fast-glob": "^3.3.2"
   },
