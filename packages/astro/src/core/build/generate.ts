@@ -50,6 +50,7 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -65,14 +66,9 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		const baseDirectory = getOutputDirectory(options.settings.config);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
-		let middleware: MiddlewareHandler = (_, next) => next();
-		try {
-			// middleware.mjs is not emitted if there is no user middleware
-			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
-			middleware = await import(internals.middlewareEntryPoint!.toString()).then(
-				(mod) => mod.onRequest,
-			);
-		} catch {}
+		const middleware: MiddlewareHandler = internals.middlewareEntryPoint
+			? await import(internals.middlewareEntryPoint.toString()).then((mod) => mod.onRequest)
+			: NOOP_MIDDLEWARE_FN;
 		manifest = createBuildManifest(
 			options.settings,
 			internals,
