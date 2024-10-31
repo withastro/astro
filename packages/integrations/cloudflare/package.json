@@ -31,13 +31,13 @@
     "@astrojs/internal-helpers": "0.4.1",
     "@astrojs/underscore-redirects": "^0.4.0-alpha.0",
     "@cloudflare/workers-types": "^4.20241022.0",
-    "esbuild": "^0.23.1",
+    "@inox-tools/astro-when": "^0.2.4",
+    "esbuild": "^0.24.0",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.12",
     "miniflare": "^3.20241022.0",
     "tiny-glob": "^0.2.9",
-    "wrangler": "^3.84.0",
-    "@inox-tools/astro-when": "^0.2.4"
+    "wrangler": "^3.84.0"
   },
   "peerDependencies": {
     "astro": "^5.0.0-alpha.8"
