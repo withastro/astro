@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "astro": "^4.16.7",
+    "astro": "^4.16.8",
     "@astrojs/node": "workspace:*"
   },
   "scripts": {
