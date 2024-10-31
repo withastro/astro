@@ -283,6 +283,7 @@ declare module '*.mdx' {
 	export const url: MDX['url'];
 	export const getHeadings: MDX['getHeadings'];
 	export const Content: MDX['Content'];
+	export const components: MDX['components'];
 
 	const load: MDX['default'];
 	export default load;

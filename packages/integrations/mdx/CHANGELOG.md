@@ -23,6 +23,12 @@
   - astro@5.0.0-alpha.0
   - @astrojs/markdown-remark@6.0.0-alpha.0
 
+## 3.1.9
+
+### Patch Changes
+
+- [#12245](https://github.com/withastro/astro/pull/12245) [`1d4f6a4`](https://github.com/withastro/astro/commit/1d4f6a4989bc1cfd7109b1bff41503f115660e02) Thanks [@bmenant](https://github.com/bmenant)! - Add `components` property to MDXInstance type definition (RenderResult and module import)
+
 ## 3.1.8
 
 ### Patch Changes
