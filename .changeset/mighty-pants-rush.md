@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-fix cli command name typo
+Fixes a typo in the command name of the CLI 
