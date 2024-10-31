@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 9.0.0-beta.3
+
+### Major Changes
+
+- [`167b369`](https://github.com/withastro/adapters/commit/167b369a0a1612c792af8846f6ea167e999e1abb) Thanks [@bluwy](https://github.com/bluwy)! - Updates `send` dependency to v1.1.0
+
 ## 9.0.0-beta.2
 
 ### Major Changes
