@@ -84,7 +84,7 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 		'db',
 		'info',
 		'login',
-		'loutout',
+		'logout',
 		'link',
 		'init',
 	]);
