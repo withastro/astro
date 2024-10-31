@@ -15,6 +15,9 @@ describe('astro:env secret variables', () => {
 		if (process.env.KNOWN_SECRET) {
 			delete process.env.KNOWN_SECRET;
 		}
+		if (process.env.UNKNOWN_SECRET) {
+			delete process.env.UNKNOWN_SECRET;
+		}
 	});
 
 	it('works in dev', async () => {
@@ -68,9 +71,6 @@ describe('astro:env secret variables', () => {
 
 		assert.equal(data.KNOWN_SECRET, 123456);
 		assert.equal(data.UNKNOWN_SECRET, 'abc');
-
-		delete process.env.KNOWN_SECRET;
-		delete process.env.UNKNOWN_SECRET;
 	});
 
 	it('fails if validateSecrets is enabled and secret is not set', async () => {
