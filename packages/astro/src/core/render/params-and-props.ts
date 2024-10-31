@@ -47,7 +47,7 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		base,
 	});
 
-	// The pathname used here comes from the server, which already encored. 
+	// The pathname used here comes from the server, which already encored.
 	// Since we decided to not mess up with encoding anymore, we need to decode them back so the parameters can match
 	// the ones expected from the users
 	const params = getParams(route, decodeURI(pathname));

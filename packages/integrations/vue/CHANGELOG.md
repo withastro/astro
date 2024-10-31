@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 5.0.0-beta.1
+
+### Patch Changes
+
+- [`81b0bf5`](https://github.com/withastro/astro/commit/81b0bf5734735a0633bfc1089151e174ba9fbc83) Thanks [@bluwy](https://github.com/bluwy)! - New release to include changes from 4.5.2
+
 ## 5.0.0-beta.0
 
 ### Major Changes
