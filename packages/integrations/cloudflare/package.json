@@ -34,9 +34,9 @@
     "esbuild": "^0.21.5",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.12",
-    "miniflare": "^3.20241018.0",
+    "miniflare": "^3.20241022.0",
     "tiny-glob": "^0.2.9",
-    "wrangler": "^3.82.0",
+    "wrangler": "^3.84.0",
     "@inox-tools/astro-when": "^0.2.4"
   },
   "peerDependencies": {
@@ -44,12 +44,12 @@
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
-    "astro": "^4.16.7",
+    "astro": "^4.16.8",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
-    "rollup": "^4.24.0",
+    "rollup": "^4.24.3",
     "strip-ansi": "^7.1.0",
     "vite": "^5.4.10"
   },

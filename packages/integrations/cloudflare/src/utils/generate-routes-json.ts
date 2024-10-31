@@ -225,6 +225,7 @@ export async function createRoutesFile(
 		const convertedPath = segmentsToCfSyntax(route.segments, _config);
 		if (route.pathname === '/404' && route.prerender === true) hasPrerendered404 = true;
 
+		// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 		switch (route.type) {
 			case 'page':
 				if (route.prerender === false) includePaths.push(convertedPath);
