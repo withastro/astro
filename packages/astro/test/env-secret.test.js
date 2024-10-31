@@ -43,6 +43,8 @@ describe('astro:env secret variables', () => {
 	});
 
 	it('adapter can set how env is retrieved', async () => {
+		process.env.KNOWN_SECRET = '123456';
+		process.env.UNKNOWN_SECRET = 'abc';
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
 			output: 'server',
@@ -66,6 +68,9 @@ describe('astro:env secret variables', () => {
 
 		assert.equal(data.KNOWN_SECRET, 123456);
 		assert.equal(data.UNKNOWN_SECRET, 'abc');
+
+		delete process.env.KNOWN_SECRET;
+		delete process.env.UNKNOWN_SECRET;
 	});
 
 	it('fails if validateSecrets is enabled and secret is not set', async () => {
