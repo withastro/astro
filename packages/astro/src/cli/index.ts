@@ -40,11 +40,6 @@ async function printAstroHelp() {
 				['preferences', 'Configure user preferences.'],
 				['telemetry', 'Configure telemetry settings.'],
 			],
-			'Studio Commands': [
-				['login', 'Authenticate your machine with Astro Studio.'],
-				['logout', 'End your authenticated session with Astro Studio.'],
-				['link', 'Link this project directory to an Astro Studio project.'],
-			],
 			'Global Flags': [
 				['--config <path>', 'Specify your config file.'],
 				['--root <path>', 'Specify your project root folder.'],
