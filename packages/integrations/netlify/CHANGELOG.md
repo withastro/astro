@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 6.0.0-beta.1
+
+### Major Changes
+
+- [`f248546`](https://github.com/withastro/adapters/commit/f24854669a2a3da79d8bf1e89b0b54063df0668c) Thanks [@bluwy](https://github.com/bluwy)! - Updates esbuild dependency to v0.24.0
+
 ## 6.0.0-beta.0
 
 ### Major Changes
