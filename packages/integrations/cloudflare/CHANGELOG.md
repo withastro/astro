@@ -48,6 +48,16 @@
 
 - [#392](https://github.com/withastro/adapters/pull/392) [`3a49eb7`](https://github.com/withastro/adapters/commit/3a49eb7802c44212ccfab06034b7dc5f2b060e94) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates internal code for Astro 5 changes. No changes is required to your project, apart from using Astro 5
 
+## 11.2.0
+
+### Minor Changes
+
+- [#423](https://github.com/withastro/adapters/pull/423) [`169ac24`](https://github.com/withastro/adapters/commit/169ac24451d8ac0e47dda27f7148d2ddad66e3dc) Thanks [@schummar](https://github.com/schummar)! - Changes the logic which generates the `_routes.json` file to improve generation for projects with many static pages, while still making sure all routes work as expected.
+
+### Patch Changes
+
+- [#409](https://github.com/withastro/adapters/pull/409) [`d63bed8`](https://github.com/withastro/adapters/commit/d63bed81afe549f98d705573d365de5204cab134) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue where `cloudflare:` scoped imports made the build fail. We externalize all imports with the `cloudflare:` scope by default now.
+
 ## 11.1.0
 
 ### Minor Changes

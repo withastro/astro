@@ -185,4 +185,58 @@ describe('_routes.json generation', () => {
 			});
 		});
 	});
+
+	describe('with many static files', () => {
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
+				srcDir: './src/manyStatic',
+				adapter: cloudflare({}),
+			});
+			await fixture.build();
+		});
+
+		it('creates a wildcard `include` and `exclude` for as many static assets and redirects as possible, truncating after 100 rules', async () => {
+			const _routesJson = await fixture.readFile('/_routes.json');
+			const routes = JSON.parse(_routesJson);
+
+			assert.deepEqual(routes, {
+				version: 1,
+				include: ['/*'],
+				exclude: [
+					'/_astro/*',
+					'/redirectme',
+					'/public.txt',
+					'/a/*',
+					...Array.from({ length: 95 }, (_, i) => `/${i}`),
+				],
+			});
+		});
+	});
+
+	describe('with many static files when a static 404 is present', () => {
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
+				srcDir: './src/manyStaticWith404',
+				adapter: cloudflare({}),
+			});
+			await fixture.build();
+		});
+
+		it('creates `include` for on-demand and `exclude` that are supposed to match nothin', async () => {
+			const _routesJson = await fixture.readFile('/_routes.json');
+			const routes = JSON.parse(_routesJson);
+
+			assert.deepEqual(routes, {
+				version: 1,
+				include: ['/_image', '/dynamic'],
+				exclude: [],
+			});
+		});
+	});
 });
