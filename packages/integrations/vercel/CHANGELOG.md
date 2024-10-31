@@ -1,5 +1,27 @@
 # @astrojs/vercel
 
+## 8.0.0-beta.3
+
+### Major Changes
+
+- [`f248546`](https://github.com/withastro/adapters/commit/f24854669a2a3da79d8bf1e89b0b54063df0668c) Thanks [@bluwy](https://github.com/bluwy)! - Updates esbuild dependency to v0.24.0
+
+- [#384](https://github.com/withastro/adapters/pull/384) [`7d83f60`](https://github.com/withastro/adapters/commit/7d83f601b8fbe5b4787ec640c0d6e46199f0ff95) Thanks [@bluwy](https://github.com/bluwy)! - Removes deprecated `speedInsights` option in favor of Vercel's direct support: https://vercel.com/docs/speed-insights/quickstart
+
+### Minor Changes
+
+- [#424](https://github.com/withastro/adapters/pull/424) [`3351348`](https://github.com/withastro/adapters/commit/33513484d21f79b6e01cf9cdb790df7f63a53aec) Thanks [@ematipico](https://github.com/ematipico)! - Deprecates the entrypoints `@astrojs/vercel/serverless` and `@astrojs/vercel/static`. These will continue to work but are no longer documented and will be removed in a future version. We recommend updating to the `@astrojs/vercel` entrypoint as soon as you are able:
+
+  ```diff
+  -import vercel from "@astrojs/vercel/static"
+  +import vercel from "@astrojs/vercel"
+  ```
+
+  ```diff
+  -import vercel from "@astrojs/vercel/serverless"
+  +import vercel from "@astrojs/vercel"
+  ```
+
 ## 8.0.0-beta.2
 
 ### Major Changes
