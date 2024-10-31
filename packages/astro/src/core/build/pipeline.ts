@@ -137,9 +137,7 @@ export class BuildPipeline extends Pipeline {
 		const renderersEntryUrl = new URL(`renderers.mjs?time=${Date.now()}`, baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
 
-		const middleware = await import(
-			new URL(internals.middlewareInternalFileName!, baseDirectory).toString()
-		)
+		const middleware = await import(internals.middlewareEntryPoint!.toString())
 			.then((mod) => {
 				return function () {
 					return { onRequest: mod.onRequest };

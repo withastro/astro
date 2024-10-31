@@ -101,7 +101,6 @@ export interface BuildInternals {
 	entryPoints: Map<RouteData, URL>;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint?: URL;
-	middlewareInternalFileName?: string;
 
 	/**
 	 * Chunks in the bundle that are only used in prerendering that we can delete later

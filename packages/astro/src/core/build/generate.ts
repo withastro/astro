@@ -69,9 +69,9 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		try {
 			// middleware.mjs is not emitted if there is no user middleware
 			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
-			middleware = await import(
-				new URL(internals.middlewareInternalFileName!, baseDirectory).toString()
-			).then((mod) => mod.onRequest);
+			middleware = await import(internals.middlewareEntryPoint!.toString()).then(
+				(mod) => mod.onRequest,
+			);
 		} catch {}
 		manifest = createBuildManifest(
 			options.settings,
