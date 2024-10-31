@@ -27,10 +27,10 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	default: AstroComponentFactory;
 }
 
-export type MDXInstance<T extends Record<string, any>> = Omit<
-	MarkdownInstance<T>,
-	'rawContent' | 'compiledContent'
->;
+export interface MDXInstance<T extends Record<string, any>>
+	extends Omit<MarkdownInstance<T>, 'rawContent' | 'compiledContent'> {
+	components: Record<string, AstroComponentFactory> | undefined;
+}
 
 export interface MarkdownLayoutProps<T extends Record<string, any>> {
 	frontmatter: {
@@ -44,10 +44,10 @@ export interface MarkdownLayoutProps<T extends Record<string, any>> {
 	compiledContent: MarkdownInstance<T>['compiledContent'];
 }
 
-export type MDXLayoutProps<T extends Record<string, any>> = Omit<
-	MarkdownLayoutProps<T>,
-	'rawContent' | 'compiledContent'
->;
+export interface MDXLayoutProps<T extends Record<string, any>>
+	extends Omit<MarkdownLayoutProps<T>, 'rawContent' | 'compiledContent'> {
+	components: MDXInstance<T>['components'];
+}
 
 export type ContentEntryModule = {
 	id: string;

@@ -1,5 +1,61 @@
 # astro
 
+## 5.0.0-beta.6
+
+### Major Changes
+
+- [#12268](https://github.com/withastro/astro/pull/12268) [`4e9a3ac`](https://github.com/withastro/astro/commit/4e9a3ac0bd30b4013ac0b2caf068552258dfe6d9) Thanks [@ematipico](https://github.com/ematipico)! - The command `astro add vercel` now updates the configuration file differently, and adds `@astrojs/vercel` as module to import.
+
+  This is a breaking change because it requires the version `8.*` of `@astrojs/vercel`.
+
+- [#12231](https://github.com/withastro/astro/pull/12231) [`90ae100`](https://github.com/withastro/astro/commit/90ae100cf482529828febed591172433309bc12e) Thanks [@bluwy](https://github.com/bluwy)! - Updates the automatic `charset=utf-8` behavior for Markdown pages, where instead of responding with `charset=utf-8` in the `Content-Type` header, Astro will now automatically add the `<meta charset="utf-8">` tag instead.
+
+  This behaviour only applies to Markdown pages (`.md` or similar Markdown files located within `src/pages/`) that do not use Astro's special `layout` frontmatter property. It matches the rendering behaviour of other non-content pages, and retains the minimal boilerplate needed to write with non-ASCII characters when adding individual Markdown pages to your site.
+
+  If your Markdown pages use the `layout` frontmatter property, then HTML encoding will be handled by the designated layout component instead, and the `<meta charset="utf-8">` tag will not be added to your page by default.
+
+  If you require `charset=utf-8` to render your page correctly, make sure that your layout components contain the `<meta charset="utf-8">` tag. You may need to add this if you have not already done so.
+
+### Minor Changes
+
+- [#12243](https://github.com/withastro/astro/pull/12243) [`eb41d13`](https://github.com/withastro/astro/commit/eb41d13162c84e9495489403611bc875eb190fed) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves `defineConfig` type safety. TypeScript will now error if a group of related configuration options do not have consistent types. For example, you will now see an error if your language set for `i18n.defaultLocale` is not one of the supported locales specified in `i18n.locales`.
+
+- [#12150](https://github.com/withastro/astro/pull/12150) [`93351bc`](https://github.com/withastro/astro/commit/93351bc78aed8f4ecff003268bad21c3b93c2f56) Thanks [@bluwy](https://github.com/bluwy)! - Adds support for passing values other than `"production"` or `"development"` to the `--mode` flag (e.g. `"staging"`, `"testing"`, or any custom value) to change the value of `import.meta.env.MODE` or the loaded `.env` file. This allows you take advantage of Vite's [mode](https://vite.dev/guide/env-and-mode#modes) feature.
+
+  Also adds a new `--devOutput` flag for `astro build` that will output a development-based build.
+
+  Note that changing the `mode` does not change the kind of code transform handled by Vite and Astro:
+
+  - In `astro dev`, Astro will transform code with debug information.
+  - In `astro build`, Astro will transform code with the most optimized output and removes debug information.
+  - In `astro build --devOutput` (new flag), Astro will transform code with debug information like in `astro dev`.
+
+  This enables various usecases like:
+
+  ```bash
+  # Run the dev server connected to a "staging" API
+  astro dev --mode staging
+
+  # Build a site that connects to a "staging" API
+  astro build --mode staging
+
+  # Build a site that connects to a "production" API with additional debug information
+  astro build --devOutput
+
+  # Build a site that connects to a "testing" API
+  astro build --mode testing
+  ```
+
+  The different modes can be used to load different `.env` files, e.g. `.env.staging` or `.env.production`, which can be customized for each environment, for example with different `API_URL` environment variable values.
+
+### Patch Changes
+
+- [#12302](https://github.com/withastro/astro/pull/12302) [`7196c24`](https://github.com/withastro/astro/commit/7196c244ea75d2f2aafbec332d91cb681f0a4cb7) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the origin check middleware run for prendered pages
+
+- [#12341](https://github.com/withastro/astro/pull/12341) [`c1786d6`](https://github.com/withastro/astro/commit/c1786d64c4d8b25ed28f5e178531952466158e04) Thanks [@ematipico](https://github.com/ematipico)! - Fixes and issue where `Astro.currentLocale` always returned the default locale when consumed inside a server island.
+
+- [#12270](https://github.com/withastro/astro/pull/12270) [`25192a0`](https://github.com/withastro/astro/commit/25192a059975f5a31a9c43e5d605541f4e9618bc) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the params weren't correctly computed when rendering URLs with non-English characters
+
 ## 5.0.0-beta.5
 
 ### Minor Changes
@@ -1061,6 +1117,24 @@
 
 - Updated dependencies [[`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e)]:
   - @astrojs/markdown-remark@6.0.0-alpha.0
+
+## 4.16.8
+
+### Patch Changes
+
+- [#12338](https://github.com/withastro/astro/pull/12338) [`9ca89b3`](https://github.com/withastro/astro/commit/9ca89b3e13d47e146989cfabb916d6599d140f03) Thanks [@situ2001](https://github.com/situ2001)! - Resets `NODE_ENV` to ensure install command run in dev mode
+
+- [#12286](https://github.com/withastro/astro/pull/12286) [`9d6bcdb`](https://github.com/withastro/astro/commit/9d6bcdb88fcb9df0c5c70e2b591bcf962ce55f63) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where a warning for experimental `astro:env` support would be shown when using an adapter but not actually using `astro:env`
+
+- [#12342](https://github.com/withastro/astro/pull/12342) [`ffc836b`](https://github.com/withastro/astro/commit/ffc836bac0cdea684ea91f958ac8298d4ee4b07d) Thanks [@liruifengv](https://github.com/liruifengv)! - Fixes a typo in the command name of the CLI
+
+- [#12301](https://github.com/withastro/astro/pull/12301) [`0cfc69d`](https://github.com/withastro/astro/commit/0cfc69d499815d4e1f1dc37cf32653195586087a) Thanks [@apatel369](https://github.com/apatel369)! - Fixes an issue with action handler context by passing the correct context (`ActionAPIContext`).
+
+- [#12312](https://github.com/withastro/astro/pull/12312) [`5642ef9`](https://github.com/withastro/astro/commit/5642ef9029890fc29793c160321f78f62cdaafcb) Thanks [@koyopro](https://github.com/koyopro)! - Fixes an issue where using `getViteConfig()` returns incorrect and duplicate configuration
+
+- [#12245](https://github.com/withastro/astro/pull/12245) [`1d4f6a4`](https://github.com/withastro/astro/commit/1d4f6a4989bc1cfd7109b1bff41503f115660e02) Thanks [@bmenant](https://github.com/bmenant)! - Add `components` property to MDXInstance type definition (RenderResult and module import)
+
+- [#12340](https://github.com/withastro/astro/pull/12340) [`94eaeea`](https://github.com/withastro/astro/commit/94eaeea1c437402ffc44103126b355adab4b8a01) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where Astro actions didn't work when `base` was different from `/`
 
 ## 4.16.7
 
