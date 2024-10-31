@@ -27,9 +27,11 @@ export async function run(projectDir, outputFile) {
 	});
 
 	console.log('Previewing...');
-	const previewProcess = execaCommand(`${astroBin} preview --port ${port}`, {
-		cwd: root,
-		stdio: 'inherit',
+	const previewProcess = exec([`${astroBin} preview --port ${port}`], {
+		nodeOptions: {
+			cwd: root,
+			stdio: 'inherit',
+		},
 	});
 
 	console.log('Waiting for server ready...');
@@ -75,7 +77,7 @@ export async function benchmarkCannon() {
 					instance.stop();
 					resolve(result);
 				}
-			}
+			},
 		);
 		autocannon.track(instance, { renderResultsTable: false });
 	});
@@ -94,7 +96,7 @@ function printResult(output) {
 		],
 		{
 			align: ['l', 'r', 'r', 'r'],
-		}
+		},
 	);
 
 	const reqAndBytesTable = markdownTable(
@@ -105,7 +107,7 @@ function printResult(output) {
 		],
 		{
 			align: ['l', 'r', 'r', 'r', 'r'],
-		}
+		},
 	);
 
 	return `${latencyTable}\n\n${reqAndBytesTable}`;

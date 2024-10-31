@@ -1,7 +1,7 @@
 import mri from 'mri';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import {fileURLToPath, pathToFileURL} from 'node:url';
 
 const args = mri(process.argv.slice(2));
 
@@ -14,6 +14,7 @@ Command
   memory          Run build memory and speed test
   render          Run rendering speed test
   server-stress   Run server stress test
+  codspeed        Run codspeed test
   cli-startup     Run CLI startup speed test
 
 Options
@@ -29,6 +30,7 @@ const benchmarks = {
 	render: () => import('./bench/render.js'),
 	'server-stress': () => import('./bench/server-stress.js'),
 	'cli-startup': () => import('./bench/cli-startup.js'),
+	codspeed: () => import('./bench/codspeed.js')
 };
 
 if (commandName && !(commandName in benchmarks)) {
@@ -37,12 +39,38 @@ if (commandName && !(commandName in benchmarks)) {
 }
 
 if (commandName) {
-	// Run single benchmark
-	const bench = benchmarks[commandName];
-	const benchMod = await bench();
-	const projectDir = await makeProject(args.project || benchMod.defaultProject);
-	const outputFile = await getOutputFile(commandName);
-	await benchMod.run(projectDir, outputFile);
+		if (commandName === 'codspeed') {
+			const memory = await makeProject('memory-default');
+			const render = await makeProject('render-default');
+			const stress = await makeProject('server-stress-default');
+			const rootMemory = fileURLToPath(memory);
+			const rootRender = fileURLToPath(render);
+			const rootStress = fileURLToPath(stress);
+			const bench = benchmarks[commandName];
+			const benchMod = await bench();
+			const payload = {
+				memory: {
+					root: rootMemory,
+					output: await getOutputFile('memory')
+				},
+				render: {
+					root: rootRender,
+					output: await getOutputFile('render')
+				},
+				stress: {
+					root: rootStress,
+					output: await getOutputFile('stress')
+				}
+			};
+			await benchMod.run(payload);
+		} else {
+			// Run single benchmark
+			const bench = benchmarks[commandName];
+			const benchMod = await bench();
+			const projectDir = await makeProject(args.project || benchMod.defaultProject);
+			const outputFile = await getOutputFile(commandName);
+			await benchMod.run(projectDir, outputFile);
+		}
 } else {
 	// Run all benchmarks
 	for (const name in benchmarks) {
@@ -77,7 +105,7 @@ async function getOutputFile(benchmarkName) {
 	}
 
 	// Prepare output file directory
-	await fs.mkdir(new URL('./', file), { recursive: true });
-
+	const  result = await fs.mkdir(new URL('./', file), { recursive: true });
+	await fs.writeFile(file, "", { encoding: "utf-8" });
 	return file;
 }

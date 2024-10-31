@@ -14,7 +14,7 @@ export const astroBin = path.resolve(astroPkgPath, '../astro.js');
 export function calculateStat(numbers) {
 	const avg = numbers.reduce((a, b) => a + b, 0) / numbers.length;
 	const stdev = Math.sqrt(
-		numbers.map((x) => Math.pow(x - avg, 2)).reduce((a, b) => a + b, 0) / numbers.length
+		numbers.map((x) => Math.pow(x - avg, 2)).reduce((a, b) => a + b, 0) / numbers.length,
 	);
 	const max = Math.max(...numbers);
 	return { avg, stdev, max };

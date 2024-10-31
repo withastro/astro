@@ -1,76 +1,83 @@
 import { Bench } from 'tinybench';
 import { withCodSpeed } from '@codspeed/tinybench-plugin';
-import { execaCommand } from 'execa';
+import { exec } from 'tinyexec';
 import { astroBin } from './_util.js';
-import { fileURLToPath } from 'node:url';
 import { waitUntilBusy } from 'port-authority';
 import { benchmarkRenderTime } from './render.js';
 import { benchmarkCannon } from './server-stress.js';
-import { makeProject } from '../index.js';
 
-const bench = withCodSpeed(new Bench());
-const memory = await makeProject('memory-default');
-const render = await makeProject('render-default');
-const stress = await makeProject('server-stress-default');
-const rootMemory = fileURLToPath(memory);
-const rootRender = fileURLToPath(render);
-const rootStress = fileURLToPath(stress);
+export async function run({ memory, render, stress }) {
+	const bench = process.env.CODE_SPEED ? withCodSpeed(new Bench()) : new Bench();
+	bench
+		.add('Memory', async () => {
+			await exec('node', ['--expose-gc', '--max_old_space_size=10000', astroBin, 'build'], {
+				nodeOptions: {
+					cwd: memory.root,
 
-const port = 4322;
-bench
-	.add('Memory', async () => {
-		await execaCommand(`node --expose-gc --max_old_space_size=256 ${astroBin} build`, {
-			cwd: rootMemory,
-			stdio: 'inherit',
+					stdio: 'inherit',
+				},
+			});
+		})
+		.add('Render', async () => {
+			const port = 4322;
+
+			await exec(astroBin, ['build'], {
+				nodeOptions: {
+					cwd: render.root,
+					stdio: 'inherit',
+				},
+			});
+
+			console.info('Previewing...');
+			const previewProcess = await exec(astroBin, ['build'], {
+				nodeOptions: {
+					cwd: render.root,
+					stdio: 'inherit',
+				},
+			});
+
+			console.info('Waiting for server ready...');
+			await waitUntilBusy(port, { timeout: 5000 });
+
+			console.info('Running benchmark...');
+			await benchmarkRenderTime();
+
+			console.info('Killing server...');
+			if (!previewProcess.kill('SIGTERM')) {
+				console.warn('Failed to kill server process id:', previewProcess.pid);
+			}
+		})
+		.add('Server stress', async () => {
+			const port = 4323;
+
+			console.info('Building...');
+			await exec(astroBin, ['build'], {
+				nodeOptions: {
+					cwd: stress.root,
+					stdio: 'inherit',
+				},
+			});
+
+			console.info('Previewing...');
+			const previewProcess = await exec(astroBin, ['build'], {
+				nodeOptions: {
+					cwd: stress.root,
+					stdio: 'inherit',
+				},
+			});
+
+			console.info('Waiting for server ready...');
+			await waitUntilBusy(port, { timeout: 5000 });
+
+			console.info('Running benchmark...');
+			await benchmarkCannon();
+
+			console.info('Killing server...');
+			if (!previewProcess.kill('SIGTERM')) {
+				console.warn('Failed to kill server process id:', previewProcess.pid);
+			}
 		});
-	})
-	.add('Render', async () => {
-		await execaCommand(`${astroBin} build`, {
-			cwd: rootRender,
-			stdio: 'inherit',
-		});
 
-		console.log('Previewing...');
-		const previewProcess = execaCommand(`${astroBin} preview --port ${port}`, {
-			cwd: rootRender,
-			stdio: 'inherit',
-		});
-
-		console.log('Waiting for server ready...');
-		await waitUntilBusy(port, { timeout: 5000 });
-
-		console.log('Running benchmark...');
-		const _result = await benchmarkRenderTime();
-
-		console.log('Killing server...');
-		if (!previewProcess.kill('SIGTERM')) {
-			console.warn('Failed to kill server process id:', previewProcess.pid);
-		}
-	})
-	.add('Server stress', async () => {
-		console.log('Building...');
-		await execaCommand(`${astroBin} build`, {
-			cwd: rootStress,
-			stdio: 'inherit',
-		});
-
-		console.log('Previewing...');
-		const previewProcess = execaCommand(`${astroBin} preview --port ${port}`, {
-			cwd: rootStress,
-			stdio: 'inherit',
-		});
-
-		console.log('Waiting for server ready...');
-		await waitUntilBusy(port, { timeout: 5000 });
-
-		console.log('Running benchmark...');
-		const result = await benchmarkCannon();
-
-		console.log('Killing server...');
-		if (!previewProcess.kill('SIGTERM')) {
-			console.warn('Failed to kill server process id:', previewProcess.pid);
-		}
-	});
-
-await bench.run();
-console.table(bench.table());
+	await bench.run();
+	console.table(bench.table());
+}

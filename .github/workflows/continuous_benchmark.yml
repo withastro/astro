@@ -1,0 +1,43 @@
+name: Continuous benchmark
+
+on:
+  workflow_dispatch:
+  pull_request: 
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+  FORCE_COLOR: true
+  CODSPEED_TOKEN: ${{ secrets.CODSPEED_TOKEN }}
+
+jobs:
+  codspeed:
+    if: ${{ github.repository_owner == 'withastro' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
+        
+      - name: Run the benchmarks
+        uses: CodSpeedHQ/action@b587655f756aab640e742fec141261bc6f0a569d # v3.0.1
+        timeout-minutes: 30
+        with:
+          run: pnpm benchmark codspeed
+          token: ${{ secrets.CODSPEED_TOKEN }}      

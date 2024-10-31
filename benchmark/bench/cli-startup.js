@@ -28,7 +28,7 @@ export async function run(projectDir, outputFile) {
 		printResult({
 			'astro --help': helpStat,
 			'astro info': infoStat,
-		})
+		}),
 	);
 	console.log('='.repeat(10));
 }
@@ -69,6 +69,6 @@ function printResult(result) {
 		],
 		{
 			align: ['l', 'r', 'r', 'r'],
-		}
+		},
 	);
 }
