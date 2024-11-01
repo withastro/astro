@@ -231,8 +231,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -294,8 +294,8 @@ importers:
         specifier: ^4.16.8
         version: link:../../packages/astro
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   examples/framework-vue:
     dependencies:
@@ -348,8 +348,8 @@ importers:
         specifier: ^4.16.8
         version: link:../../packages/astro
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   examples/starlog:
     dependencies:
@@ -908,8 +908,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1032,8 +1032,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1101,8 +1101,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1160,8 +1160,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1200,8 +1200,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1240,8 +1240,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1280,8 +1280,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1320,8 +1320,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1360,8 +1360,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1556,8 +1556,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/e2e/fixtures/tailwindcss:
     dependencies:
@@ -1622,8 +1622,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1760,8 +1760,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1781,8 +1781,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/test/fixtures/alias-tsconfig:
     dependencies:
@@ -1796,8 +1796,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/test/fixtures/alias-tsconfig-baseurl-only:
     dependencies:
@@ -1808,8 +1808,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/test/fixtures/alias-tsconfig/deps/namespace-package: {}
 
@@ -1933,8 +1933,8 @@ importers:
         specifier: ^10.24.3
         version: 10.24.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1966,8 +1966,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/test/fixtures/astro-client-only/pkg: {}
 
@@ -2058,8 +2058,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/test/fixtures/astro-env:
     dependencies:
@@ -2165,9 +2165,6 @@ importers:
 
   packages/astro/test/fixtures/astro-markdown:
     dependencies:
-      '@astrojs/svelte':
-        specifier: workspace:*
-        version: link:../../../../integrations/svelte
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2388,8 +2385,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -2472,8 +2469,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/test/fixtures/component-library-shared:
     dependencies:
@@ -2775,8 +2772,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/test/fixtures/css-import-as-inline:
     dependencies:
@@ -3027,8 +3024,8 @@ importers:
         specifier: ^10.24.3
         version: 10.24.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -3231,8 +3228,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -3419,8 +3416,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -3613,8 +3610,8 @@ importers:
         specifier: workspace:*
         version: link:../../../..
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/test/fixtures/server-islands/ssr:
     dependencies:
@@ -3625,8 +3622,8 @@ importers:
         specifier: workspace:*
         version: link:../../../..
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/test/fixtures/set-html:
     dependencies:
@@ -3694,8 +3691,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/test/fixtures/slots-vue:
     dependencies:
@@ -4019,8 +4016,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
 
   packages/astro/test/fixtures/tailwindcss:
     dependencies:
@@ -4142,8 +4139,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.19
-        version: 4.2.19
+        specifier: ^5.1.9
+        version: 5.1.9
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -5162,18 +5159,6 @@ importers:
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@18.19.50)(sass@1.80.4)
-
-  packages/integrations/svelte/test/fixtures/svelte-component:
-    dependencies:
-      '@astrojs/svelte':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-      svelte:
-        specifier: ^5.1.9
-        version: 5.1.9
 
   packages/integrations/tailwind:
     dependencies:
@@ -7610,9 +7595,6 @@ packages:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
 
-  code-red@1.0.4:
-    resolution: {integrity: sha512-7qJWqItLA8/VPVlKJlFXU+NBlo/qyfs39aJcuMT/2ere32ZqvF5OSxgdM5xOfJJ7O429gg2HM47y8v9P+9wrNw==}
-
   collapse-white-space@2.1.0:
     resolution: {integrity: sha512-loKTxY1zCOuG4j9f6EPnuyyYkf58RnhhWTvRoZEokgB+WbdXehfjFviyOVYkqzEWz1Q5kRiZdBYS5SwxbQYwzw==}
 
@@ -9411,9 +9393,6 @@ packages:
   perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
 
-  periscopic@3.1.0:
-    resolution: {integrity: sha512-vKiQ8RRtkl9P+r/+oefh25C3fhybptkHKCZSPlcXiJux2tJF55GnEj3BVn4A5gKfq9NWWXXrxkHBwVPUfH0opw==}
-
   picocolors@1.1.0:
     resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
 
@@ -10237,10 +10216,6 @@ packages:
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
-
-  svelte@4.2.19:
-    resolution: {integrity: sha512-IY1rnGr6izd10B0A8LqsBfmlT5OILVuZ7XsI0vdGPEvuonFV7NYEUK4dAkm9Zg2q0Um92kYjTpS1CAP3Nh/KWw==}
-    engines: {node: '>=16'}
 
   svelte@5.1.9:
     resolution: {integrity: sha512-nzq+PPKGS2PoEWDjAcXSrKSbXmmmOAxd6dAz1IhRusUpVkFS6DMELWPyBPGwu6TpO/gsgtFXwX0M4+pAR5gzKw==}
@@ -13261,14 +13236,6 @@ snapshots:
 
   clsx@2.1.1: {}
 
-  code-red@1.0.4:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
-      '@types/estree': 1.0.6
-      acorn: 8.14.0
-      estree-walker: 3.0.3
-      periscopic: 3.1.0
-
   collapse-white-space@2.1.0: {}
 
   color-convert@2.0.1:
@@ -15340,12 +15307,6 @@ snapshots:
 
   perfect-debounce@1.0.0: {}
 
-  periscopic@3.1.0:
-    dependencies:
-      '@types/estree': 1.0.6
-      estree-walker: 3.0.3
-      is-reference: 3.0.2
-
   picocolors@1.1.0: {}
 
   picomatch@2.3.1: {}
@@ -16345,23 +16306,6 @@ snapshots:
       pascal-case: 3.1.2
       svelte: 5.1.9
       typescript: 5.6.3
-
-  svelte@4.2.19:
-    dependencies:
-      '@ampproject/remapping': 2.3.0
-      '@jridgewell/sourcemap-codec': 1.5.0
-      '@jridgewell/trace-mapping': 0.3.25
-      '@types/estree': 1.0.6
-      acorn: 8.14.0
-      aria-query: 5.3.2
-      axobject-query: 4.1.0
-      code-red: 1.0.4
-      css-tree: 2.3.1
-      estree-walker: 3.0.3
-      is-reference: 3.0.2
-      locate-character: 3.0.0
-      magic-string: 0.30.12
-      periscopic: 3.1.0
 
   svelte@5.1.9:
     dependencies:

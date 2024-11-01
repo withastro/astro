@@ -1,7 +1,6 @@
 <script>
 	import { addToUserCart } from '../api';
-	export let id = 0;
-	export let name = '';
+	let { id, name } = $props()
 
 	function notifyCartItem(id) {
 		window.dispatchEvent(new CustomEvent('add-to-cart', {

@@ -1,7 +1,7 @@
 
 <script>
-	export let id;
-  let count = 0;
+	let { id } = $props();
+  let count = $state();
 
   function add() {
 		count += 1;
@@ -13,9 +13,9 @@
 </script>
 
 <div {id} class="counter">
-  <button class="decrement" on:click={subtract}>-</button>
+  <button class="decrement" onclick={subtract}>-</button>
   <pre>{ count }</pre>
-  <button class="increment" on:click={add}>+</button>
+  <button class="increment" onclick={add}>+</button>
 </div>
 <div class="counter-message">
   <slot />

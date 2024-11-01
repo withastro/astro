@@ -1,1 +1,1 @@
-<span id="svelte">{ typeof fetch }</span>
+<span id="svelte"></span>

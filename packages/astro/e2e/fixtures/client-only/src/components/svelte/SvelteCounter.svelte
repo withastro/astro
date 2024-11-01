@@ -1,8 +1,7 @@
 
 <script>
-	export let id;
-  let children;
-  let count = 0;
+	let { id } = $props();
+  let count = $state(0);
 
   function add() {
 		count += 1;

@@ -1,4 +1,4 @@
 <script>
-	export let id;
+	let { id } = $props();
 </script>
 <div {id}>Slot goes here:<slot /></div>

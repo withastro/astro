@@ -1,5 +1,5 @@
 <script>
-	export let count = 0;
+	let { count } = $props()
 	let items = new Set();
 
 	function onAddToCart(ev) {

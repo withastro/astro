@@ -1,6 +1,5 @@
 <script lang="ts">
-	export let id: string;
-	export let count: number = 0;
+	let { id, count } = $props<{ id: number, count: number }>();
 
   function add() {
     count += 1;
@@ -12,9 +11,9 @@
 </script>
 
 <div {id} class="counter">
-  <button class="decrement" on:click={subtract}>-</button>
+  <button class="decrement" onclick={subtract}>-</button>
   <pre>{ count }</pre>
-  <button class="increment" on:click={add}>+</button>
+  <button class="increment" onclick={add}>+</button>
 </div>
 <div id={`${id}-message`} class="message">
   <slot />
