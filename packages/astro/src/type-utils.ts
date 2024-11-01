@@ -16,6 +16,11 @@ export type OmitIndexSignature<ObjectType> = {
 		: KeyType]: ObjectType[KeyType];
 };
 
+// This is an alternative `Omit<T, K>` implementation that _doesn't_ remove the index signature of an object.
+export type OmitPreservingIndexSignature<T, K extends PropertyKey> = {
+	[P in keyof T as Exclude<P, K>]: T[P]
+};
+
 // Transform a string into its kebab case equivalent (camelCase -> kebab-case). Useful for CSS-in-JS to CSS.
 export type Kebab<T extends string, A extends string = ''> = T extends `${infer F}${infer R}`
 	? Kebab<R, `${A}${F extends Lowercase<F> ? '' : '-'}${Lowercase<F>}`>
