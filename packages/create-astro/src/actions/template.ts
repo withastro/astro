@@ -21,7 +21,7 @@ export async function template(
 			message: 'How would you like to start your new project?',
 			initial: 'basics',
 			choices: [
-				{ value: 'basics', label: 'Include sample files', hint: '(recommended)' },
+				{ value: 'basics', label: 'A basic, minimal starter', hint: '(recommended)' },
 				{ value: 'blog', label: 'Use blog template' },
 				{ value: 'starlight', label: 'Use docs (Starlight) template' },
 			],
