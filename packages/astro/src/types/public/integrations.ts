@@ -226,7 +226,7 @@ export interface BaseIntegrationHooks {
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 	'astro:routes:resolved': (options: {
-		routes: Array<IntegrationResolvedRoute>;
+		routes: IntegrationResolvedRoute[];
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 }
