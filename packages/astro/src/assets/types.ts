@@ -66,10 +66,12 @@ export type SrcSetValue = UnresolvedSrcSetValue & {
 /**
  * A yet to be resolved image transform. Used by `getImage`
  */
-export type UnresolvedImageTransform = Simplify<OmitPreservingIndexSignature<ImageTransform, 'src'> & {
-	src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
-	inferSize?: boolean;
-}> & {
+export type UnresolvedImageTransform = Simplify<
+	OmitPreservingIndexSignature<ImageTransform, 'src'> & {
+		src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
+		inferSize?: boolean;
+	}
+> & {
 	[isESMImport]?: never;
 };
 
