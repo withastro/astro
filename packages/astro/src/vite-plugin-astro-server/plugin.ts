@@ -21,6 +21,9 @@ import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
+import { fileURLToPath } from 'node:url';
+import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
+import { runHookRoutesResolved } from '../integrations/hooks.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -51,13 +54,36 @@ export default function createVitePluginAstroServer({
 			const localStorage = new AsyncLocalStorage();
 
 			/** rebuild the route cache + manifest */
-			async function rebuildManifest() {
+			async function rebuildManifest(path: string | null = null) {
 				pipeline.clearRouteCache();
-				routeManifest = injectDefaultDevRoutes(
-					settings,
-					devSSRManifest,
-					await createRouteManifest({ settings, fsMod }, logger), // TODO: Handle partial updates to the manifest
-				);
+
+				// If a route changes, we check if it's part of the manifest and check for its prerender value 
+				if (path !== null) {
+					const route = routeManifest.routes.find(
+						(r) => path === new URL(r.component, settings.config.root).pathname,
+					);
+					if (!route) {
+						return;
+					}
+					if (route.type !== 'page' && route.type !== 'endpoint') return;
+
+					const routePath = fileURLToPath(new URL(route.component, settings.config.root));
+					if (!fsMod.existsSync(routePath)) {
+						// Route was renamed so it does not exist anymore
+						return;
+					}
+					const content = await fsMod.promises.readFile(routePath, 'utf-8');
+					await getRoutePrerenderOption(content, route, settings, logger);
+
+					await runHookRoutesResolved({ routes: routeManifest.routes, settings, logger });
+				} else {
+					routeManifest = injectDefaultDevRoutes(
+						settings,
+						devSSRManifest,
+						await createRouteManifest({ settings, fsMod }, logger),
+					);
+				}
+
 				warnMissingAdapter(logger, settings);
 				pipeline.manifest.checkOrigin =
 					settings.config.security.checkOrigin && settings.buildOutput === 'server';
@@ -65,9 +91,9 @@ export default function createVitePluginAstroServer({
 			}
 
 			// Rebuild route manifest on file change
-			viteServer.watcher.on('add', rebuildManifest.bind(null));
-			viteServer.watcher.on('unlink', rebuildManifest.bind(null));
-			viteServer.watcher.on('change', rebuildManifest.bind(null));
+			viteServer.watcher.on('add', () => rebuildManifest());
+			viteServer.watcher.on('unlink', () => rebuildManifest());
+			viteServer.watcher.on('change', (path) => rebuildManifest(path));
 
 			function handleUnhandledRejection(rejection: any) {
 				const error = new AstroError({
