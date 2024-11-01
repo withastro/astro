@@ -105,7 +105,6 @@ async function getOutputFile(benchmarkName) {
 	}
 
 	// Prepare output file directory
-	const  result = await fs.mkdir(new URL('./', file), { recursive: true });
-	await fs.writeFile(file, "", { encoding: "utf-8" });
+	await fs.mkdir(new URL('./', file), { recursive: true });
 	return file;
 }
