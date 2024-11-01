@@ -674,7 +674,7 @@ export async function runHookRoutesResolved({
 
 function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute {
 	return {
-		prerendered: route.prerender,
+		isPrerendered: route.prerender,
 		entrypoint: route.component,
 		pattern: route.route,
 		params: route.params,

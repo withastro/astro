@@ -270,7 +270,7 @@ export interface IntegrationResolvedRoute {
 	/**
 	 * Whether the route is prerendered or not
 	 */
-	prerendered: RouteData['prerender'];
+	isPrerendered: RouteData['prerender'];
 
 	/**
 	 * Dynamic and spread route params
