@@ -51,7 +51,7 @@ export async function dependencies(
 				name: 'adapter',
 				type: 'select',
 				label: title('adapter'),
-				message: 'Add an adapter',
+				message: 'Add an official adapter',
 				choices: [
 					{ value: undefined, label: 'None' },
 					{ value: 'node', label: 'Node' },
