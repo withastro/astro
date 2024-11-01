@@ -1,5 +1,10 @@
+import { createRawSnippet } from 'svelte';
+import { render } from 'svelte/server';
+
 function check(Component) {
-	return Component['render'] && Component['$$render'];
+	// Svelte 5 generated components always accept these two props
+	const str = Component.toString();
+	return str.includes('$$payload') && str.includes('$$props');
 }
 
 function needsHydration(metadata) {
@@ -9,13 +14,31 @@ function needsHydration(metadata) {
 
 async function renderToStaticMarkup(Component, props, slotted, metadata) {
 	const tagName = needsHydration(metadata) ? 'astro-slot' : 'astro-static-slot';
-	const slots = {};
+
+	let children = undefined;
+	let $$slots = undefined;
 	for (const [key, value] of Object.entries(slotted)) {
-		slots[key] = () =>
-			`<${tagName}${key === 'default' ? '' : ` name="${key}"`}>${value}</${tagName}>`;
+		$$slots ??= {};
+		if (key === 'default') {
+			$$slots.default = true;
+			children = createRawSnippet(() => ({
+				render: () => `<${tagName}>${value}</${tagName}>`,
+			}));
+		} else {
+			$$slots[key] = createRawSnippet(() => ({
+				render: () => `<${tagName} name="${key}">${value}</${tagName}>`,
+			}));
+		}
 	}
-	const { html } = Component.render(props, { $$slots: slots });
-	return { html };
+
+	const result = render(Component, {
+		props: {
+			...props,
+			children,
+			$$slots,
+		},
+	});
+	return { html: result.body };
 }
 
 export default {

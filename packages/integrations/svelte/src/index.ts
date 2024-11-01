@@ -1,29 +1,30 @@
-import { fileURLToPath } from 'node:url';
-import type { Options } from '@sveltejs/vite-plugin-svelte';
-import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import type { AstroIntegration, AstroRenderer, ContainerRenderer } from 'astro';
-import { VERSION } from 'svelte/compiler';
-import type { UserConfig } from 'vite';
-
-const isSvelte5 = Number.parseInt(VERSION.split('.').at(0)!) >= 5;
+import { fileURLToPath } from "node:url";
+import type { Options } from "@sveltejs/vite-plugin-svelte";
+import { svelte, vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+import type { AstroIntegration, AstroRenderer, ContainerRenderer } from "astro";
+import type { UserConfig } from "vite";
 
 function getRenderer(): AstroRenderer {
 	return {
-		name: '@astrojs/svelte',
-		clientEntrypoint: isSvelte5 ? '@astrojs/svelte/client-v5.js' : '@astrojs/svelte/client.js',
-		serverEntrypoint: isSvelte5 ? '@astrojs/svelte/server-v5.js' : '@astrojs/svelte/server.js',
+		name: "@astrojs/svelte",
+		clientEntrypoint: "@astrojs/svelte/client.js",
+		serverEntrypoint: "@astrojs/svelte/server.js",
 	};
 }
 
 export function getContainerRenderer(): ContainerRenderer {
 	return {
-		name: '@astrojs/svelte',
-		serverEntrypoint: isSvelte5 ? '@astrojs/svelte/server-v5.js' : '@astrojs/svelte/server.js',
+		name: "@astrojs/svelte",
+		serverEntrypoint: "@astrojs/svelte/server.js",
 	};
 }
 
 async function svelteConfigHasPreprocess(root: URL) {
-	const svelteConfigFiles = ['./svelte.config.js', './svelte.config.cjs', './svelte.config.mjs'];
+	const svelteConfigFiles = [
+		"./svelte.config.js",
+		"./svelte.config.cjs",
+		"./svelte.config.mjs",
+	];
 	for (const file of svelteConfigFiles) {
 		const filePath = fileURLToPath(new URL(file, root));
 		try {
@@ -50,12 +51,6 @@ async function getViteConfiguration({
 		compilerOptions: { dev: isDev },
 	};
 
-	// `hydratable` does not need to be set in Svelte 5 as it's always hydratable by default
-	if (!isSvelte5) {
-		// @ts-ignore ignore Partial type above
-		defaultOptions.compilerOptions.hydratable = true;
-	}
-
 	// Disable hot mode during the build
 	if (!isDev) {
 		defaultOptions.hot = false;
@@ -65,7 +60,7 @@ async function getViteConfiguration({
 
 	if (!options) {
 		resolvedOptions = defaultOptions;
-	} else if (typeof options === 'function') {
+	} else if (typeof options === "function") {
 		resolvedOptions = options(defaultOptions);
 	} else {
 		resolvedOptions = {
@@ -85,25 +80,32 @@ async function getViteConfiguration({
 
 	return {
 		optimizeDeps: {
-			include: [isSvelte5 ? '@astrojs/svelte/client-v5.js' : '@astrojs/svelte/client.js'],
-			exclude: [isSvelte5 ? '@astrojs/svelte/server-v5.js' : '@astrojs/svelte/server.js'],
+			include: ["@astrojs/svelte/client.js"],
+			exclude: ["@astrojs/svelte/server.js"],
 		},
 		plugins: [svelte(resolvedOptions)],
 	};
 }
 
 type OptionsCallback = (defaultOptions: Options) => Options;
-export default function (options?: Options | OptionsCallback): AstroIntegration {
+export default function (
+	options?: Options | OptionsCallback,
+): AstroIntegration {
 	return {
-		name: '@astrojs/svelte',
+		name: "@astrojs/svelte",
 		hooks: {
 			// Anything that gets returned here is merged into Astro Config
-			'astro:config:setup': async ({ command, updateConfig, addRenderer, config }) => {
+			"astro:config:setup": async ({
+				command,
+				updateConfig,
+				addRenderer,
+				config,
+			}) => {
 				addRenderer(getRenderer());
 				updateConfig({
 					vite: await getViteConfiguration({
 						options,
-						isDev: command === 'dev',
+						isDev: command === "dev",
 						root: config.root,
 					}),
 				});
