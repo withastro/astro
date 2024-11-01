@@ -1,10 +1,10 @@
-import autocannon from 'autocannon';
-import { exec } from 'tinyexec';
-import { markdownTable } from 'markdown-table';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import autocannon from 'autocannon';
+import { markdownTable } from 'markdown-table';
 import { waitUntilBusy } from 'port-authority';
 import pb from 'pretty-bytes';
+import { exec } from 'tinyexec';
 import { astroBin } from './_util.js';
 
 const port = 4321;
@@ -27,7 +27,7 @@ export async function run(projectDir, outputFile) {
 	});
 
 	console.log('Previewing...');
-	const previewProcess = exec([`${astroBin} preview --port ${port}`], {
+	const previewProcess = await exec(astroBin, ['preview', '--port', port], {
 		nodeOptions: {
 			cwd: root,
 			stdio: 'inherit',

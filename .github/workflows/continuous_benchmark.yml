@@ -14,7 +14,7 @@ env:
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
   FORCE_COLOR: true
   CODSPEED_TOKEN: ${{ secrets.CODSPEED_TOKEN }}
-  CODE_SPEED: true
+  CODSPEED: true
 
 jobs:
   codspeed:
