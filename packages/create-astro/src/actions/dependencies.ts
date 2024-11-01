@@ -46,24 +46,6 @@ export async function dependencies(
 		});
 
 		let add = ctx.add;
-		if (!add && !ctx.yes) {
-			let { adapter } = await ctx.prompt({
-				name: 'adapter',
-				type: 'select',
-				label: title('adapter'),
-				message: 'Add an official adapter',
-				choices: [
-					{ value: undefined, label: 'None' },
-					{ value: 'node', label: 'Node' },
-					{ value: 'cloudflare', label: 'Cloudflare' },
-					{ value: 'netlify', label: 'Netlify' },
-					{ value: 'vercel', label: 'Vercel' },
-				],
-			});
-			if (adapter) {
-				add ??= [adapter];
-			}
-		}
 
 		if (add) {
 			ctx.tasks.push({
