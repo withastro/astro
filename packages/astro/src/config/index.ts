@@ -35,7 +35,7 @@ export function getViteConfig(
 		]);
 		const logger = new Logger({
 			dest: nodeLogDestination,
-			level: 'info',
+			level: inlineAstroConfig.logLevel ?? 'info'
 		});
 		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
 		let settings = await createSettings(config, userViteConfig.root);
