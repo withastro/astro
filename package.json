@@ -58,7 +58,7 @@
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.9",
     "@types/node": "^18.17.8",
-    "esbuild": "^0.21.5",
+    "esbuild": "^0.24.0",
     "eslint": "^9.13.0",
     "eslint-plugin-regexp": "^2.6.0",
     "globby": "^14.0.2",
