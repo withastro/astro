@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Improve mdx files invalid frontmatter errors by displaying file name
+Improves error reporting for invalid frontmatter in MDX files during the ```astro build``` process. The error message now includes the file path where the frontmatter parsing failed.
