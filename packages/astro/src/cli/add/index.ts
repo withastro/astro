@@ -409,7 +409,9 @@ const toIdent = (name: string) => {
 		// convert to camel case
 		.replace(/[.\-_/]+([a-zA-Z])/g, (_, w) => w.toUpperCase())
 		// drop invalid first characters
-		.replace(/^[^a-zA-Z$_]+/, '');
+		.replace(/^[^a-zA-Z$_]+/, '')
+		// drop version or tag
+		.replace(/@.*$/, '');
 	return `${ident[0].toLowerCase()}${ident.slice(1)}`;
 };
 
