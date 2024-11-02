@@ -25,6 +25,7 @@ import {
 	AstroUserError,
 	createSafeError,
 	isAstroError,
+	type ErrorWithMetadata,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
@@ -223,7 +224,8 @@ async function syncContentCollections(
 			}
 		}
 	} catch (e) {
-		const safeError = createSafeError(e);
+		const safeError = createSafeError(e) as ErrorWithMetadata;
+		const fileId = safeError.id ?? safeError.loc?.file
 		if (isAstroError(e)) {
 			throw e;
 		}
@@ -232,7 +234,7 @@ async function syncContentCollections(
 			{
 				...AstroErrorData.GenerateContentTypesError,
 				hint,
-				message: AstroErrorData.GenerateContentTypesError.message(safeError.message),
+				message: AstroErrorData.GenerateContentTypesError.message(`${safeError.message} in ${fileId}`),
 			},
 			{ cause: e },
 		);
