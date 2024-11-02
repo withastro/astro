@@ -225,7 +225,6 @@ async function syncContentCollections(
 		}
 	} catch (e) {
 		const safeError = createSafeError(e) as ErrorWithMetadata;
-		const fileId = safeError.id ?? safeError.loc?.file
 		if (isAstroError(e)) {
 			throw e;
 		}
@@ -234,7 +233,8 @@ async function syncContentCollections(
 			{
 				...AstroErrorData.GenerateContentTypesError,
 				hint,
-				message: AstroErrorData.GenerateContentTypesError.message(`${safeError.message} in ${fileId}`),
+				message: AstroErrorData.GenerateContentTypesError.message(`${safeError.message}`),
+				location: safeError.loc,
 			},
 			{ cause: e },
 		);
