@@ -541,11 +541,8 @@ export class RenderContext {
 		}
 
 		let computedLocale;
-		if (routeData.pathname) {
-			computedLocale = computeCurrentLocale(routeData.pathname, locales, defaultLocale);
-		} else {
-			computedLocale = computeCurrentLocale(url.pathname, locales, defaultLocale);
-		}
+		const pathname = routeData.pathname && routeData.pathname !== '/404' ? routeData.pathname : url.pathname;
+		computedLocale = computeCurrentLocale(pathname, locales, defaultLocale);
 		this.#currentLocale = computedLocale ?? fallbackTo;
 
 		return this.#currentLocale;

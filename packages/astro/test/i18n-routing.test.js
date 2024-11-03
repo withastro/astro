@@ -140,6 +140,16 @@ describe('[DEV] i18n routing', () => {
 			const response = await fixture.fetch('/fr/start');
 			assert.equal(response.status, 404);
 		});
+
+    it('should return the correct locale on 404 page for default locale', async () => {
+      const html = await fixture.fetch('/nonexistent-page').then((res) => res.text());
+      assert.match(html, /Current Locale: es/);
+    });
+
+    it('should return the correct locale on 404 page for english locale', async () => {
+      const html = await fixture.fetch('/en/nonexistent-page').then((res) => res.text());
+      assert.match(html, /Current Locale: en/);
+    });
 	});
 
 	describe('i18n routing, with base', () => {
@@ -1254,6 +1264,20 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/fr/start');
 			let response = await app.render(request);
 			assert.equal(response.status, 404);
+		});
+
+		it('should return the correct locale on 404 page for default locale', async () => {
+			let request = new Request('http://example.com/non-existent');
+			let response = await app.render(request);
+			assert.equal(response.status, 404);
+			assert.equal((await response.text()).includes('Current Locale: es'), true);
+		});
+
+		it('should return the correct locale on 404 page for english locale', async () => {
+			let request = new Request('http://example.com/en/non-existent');
+			let response = await app.render(request);
+			assert.equal(response.status, 404);
+			assert.equal((await response.text()).includes('Current Locale: en'), true);
 		});
 	});
 
