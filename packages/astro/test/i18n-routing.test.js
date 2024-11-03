@@ -1267,14 +1267,14 @@ describe('[SSR] i18n routing', () => {
 		});
 
 		it('should return the correct locale on 404 page for default locale', async () => {
-			let request = new Request('http://example.com/non-existent');
+			let request = new Request('http://example.com/nonexistent-page');
 			let response = await app.render(request);
 			assert.equal(response.status, 404);
 			assert.equal((await response.text()).includes('Current Locale: es'), true);
 		});
 
 		it('should return the correct locale on 404 page for english locale', async () => {
-			let request = new Request('http://example.com/en/non-existent');
+			let request = new Request('http://example.com/en/nonexistent-page');
 			let response = await app.render(request);
 			assert.equal(response.status, 404);
 			assert.equal((await response.text()).includes('Current Locale: en'), true);
