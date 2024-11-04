@@ -196,7 +196,7 @@
     "@types/common-ancestor-path": "^1.0.2",
     "@types/cssesc": "^3.0.2",
     "@types/debug": "^4.1.12",
-    "@types/diff": "^5.2.3",
+    "@types/diff": "^6.0.0",
     "@types/dlv": "^1.1.4",
     "@types/hast": "^3.0.4",
     "@types/html-escaper": "^3.0.2",
