@@ -13,7 +13,8 @@ import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-
+import type { BuiltinDriverName, BuiltinDriverOptions } from 'unstorage';
+import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 export type Locales = (string | { codes: string[]; path: string })[];
 
 type NormalizeLocales<T extends Locales> = {
@@ -94,6 +95,33 @@ export type ServerConfig = {
 	open?: string | boolean;
 };
 
+export type SessionDriverName = BuiltinDriverName | "custom";
+
+interface CommonSessionConfig {
+	/**
+	 * The name of the session cookie
+	 * @default `astro-session`
+	 */
+	cookieName?: string;
+	/**
+	 * Additional options to pass to the session cookie
+	 */
+	cookieOptions?: AstroCookieSetOptions
+}
+
+interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions> extends CommonSessionConfig{
+	driver: TDriver;
+	options?: BuiltinDriverOptions[TDriver];
+}
+
+interface CustomSessionConfig extends CommonSessionConfig {
+	/** Entrypoint for a custom session driver */
+	driver: string;
+	options?: Record<string, unknown>;
+}
+
+export type SessionConfig<TDriver extends SessionDriverName> = TDriver extends keyof BuiltinDriverOptions ? BuiltinSessionConfig<TDriver> : CustomSessionConfig;
+
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
 }
@@ -111,13 +139,13 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  * Docs: https://docs.astro.build/reference/configuration-reference/
  *
  * Generics do not follow semver and may change at any time.
- */ export interface AstroUserConfig<TLocales extends Locales = never> {
+ */ export interface AstroUserConfig<TLocales extends Locales = never, TSession extends SessionDriverName = never> {
 	/**
 	 * @docs
 	 * @kind heading
 	 * @name Top-Level Options
 	 */
-
+	session?: SessionConfig<TSession>;
 	/**
 	 * @docs
 	 * @name site
