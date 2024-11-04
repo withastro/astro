@@ -148,14 +148,14 @@ export async function staticBuild(
 		case settings.config.output === 'static': {
 			settings.timer.start('Static generate');
 			await generatePages(opts, internals);
-			await cleanServerOutput(opts, ssrOutputChunkNames, contentFileNames, internals);
+			// await cleanServerOutput(opts, ssrOutputChunkNames, contentFileNames, internals);
 			settings.timer.end('Static generate');
 			return;
 		}
 		case isServerLikeOutput(settings.config): {
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
-			await cleanStaticOutput(opts, internals);
+			// await cleanStaticOutput(opts, internals);
 			opts.logger.info(null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
 			settings.timer.end('Server generate');

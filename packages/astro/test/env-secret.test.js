@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'node:test';
+import { afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -91,5 +91,24 @@ describe('astro:env secret variables', () => {
 			assert.equal(error.title, 'Invalid Environment Variables');
 			assert.equal(error.message.includes('KNOWN_SECRET is missing'), true);
 		}
+	});
+});
+
+describe('astro:env static pages', () => {
+	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
+	let fixture;
+
+	before(async () => {
+		process.env.KNOWN_SECRET = '123456';
+		fixture = await loadFixture({
+			root: './fixtures/astro-env-secret-static-pages/',
+		});
+		await fixture.build();
+	});
+
+	it('should render using env secrets', async () => {
+		const indexHtml = await fixture.readFile('/index.html');
+
+		assert.match(indexHtml, /123456/);
 	});
 });
