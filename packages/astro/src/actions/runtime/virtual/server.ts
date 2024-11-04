@@ -240,11 +240,17 @@ export function getMiddlewareContext(context: APIContext) {
 	const requestActionName =
 		context.url.searchParams.get(ACTION_QUERY_PARAMS.actionName) ?? undefined;
 
-	const requestInfo =
+	const action =
 		isFormRequest && requestActionName
 			? {
-					actionName: requestActionName,
 					respondWith: 'html',
+					name: requestActionName,
+					handler: async () => {
+						const baseAction = await getAction(requestActionName);
+						const formData = await context.request.clone().formData();
+						const handler = baseAction.bind(context);
+						return await handler(formData);
+					},
 				}
 			: undefined;
 
@@ -254,21 +260,9 @@ export function getMiddlewareContext(context: APIContext) {
 			actionName,
 		};
 	}
-	async function callAction(actionName: string) {
-		if (!requestInfo)
-			throw new Error(
-				`Attempted to call action ${JSON.stringify(actionName)}, but no action POST request was sent. Ensure \`requestInfo\` is defined before attempting to call an action.`,
-			);
-		const baseAction = await getAction(actionName);
-
-		const formData = await context.request.clone().formData();
-		const action = baseAction.bind(context);
-		return await action(formData);
-	}
 	return {
-		requestInfo,
+		action,
 		setActionResult,
-		callAction,
 		serializeActionResult,
 		deserializeActionResult,
 	};
