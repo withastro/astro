@@ -1,5 +1,21 @@
 # astro
 
+## 4.16.9
+
+### Patch Changes
+
+- [#12333](https://github.com/withastro/astro/pull/12333) [`836cd91`](https://github.com/withastro/astro/commit/836cd91c37cea8ae58dd04a326435fcb2c88f358) Thanks [@imattacus](https://github.com/imattacus)! - Destroy the server response stream if async error is thrown
+
+- [#12358](https://github.com/withastro/astro/pull/12358) [`7680349`](https://github.com/withastro/astro/commit/76803498738f9e86e7948ce81e01e63607e03549) Thanks [@spacedawwwg](https://github.com/spacedawwwg)! - Honors `inlineAstroConfig` parameter in `getViteConfig` when creating a logger
+
+- [#12353](https://github.com/withastro/astro/pull/12353) [`35795a1`](https://github.com/withastro/astro/commit/35795a1a54b2bfaf331c58ca91b47e5672e08c4e) Thanks [@hippotastic](https://github.com/hippotastic)! - Fixes an issue in dev server watch file handling that could cause multiple restarts for a single file change.
+
+- [#12351](https://github.com/withastro/astro/pull/12351) [`5751488`](https://github.com/withastro/astro/commit/57514881655b62a0bc39ace1e1ed4b89b96f74ca) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Reverts a change made in `4.16.6` that prevented usage of `astro:env` secrets inside middleware in SSR
+
+- [#12346](https://github.com/withastro/astro/pull/12346) [`20e5a84`](https://github.com/withastro/astro/commit/20e5a843c86e9328814615edf3e8a6fb5e4696cc) Thanks [@bluwy](https://github.com/bluwy)! - Fixes sourcemap generation when prefetch is enabled
+
+- [#12349](https://github.com/withastro/astro/pull/12349) [`1fc83d3`](https://github.com/withastro/astro/commit/1fc83d3ba8315c31b2a3aadc77b20b1615d261a0) Thanks [@norskeld](https://github.com/norskeld)! - Fixes the `getImage` options type so it properly extends `ImageTransform`
+
 ## 4.16.8
 
 ### Patch Changes
