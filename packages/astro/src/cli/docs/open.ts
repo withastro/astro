@@ -1,4 +1,5 @@
-import { type Result, exec } from 'tinyexec';
+import type { Result } from 'tinyexec';
+import { exec } from '../exec.js';
 
 /**
  *  Credit: Azhar22
