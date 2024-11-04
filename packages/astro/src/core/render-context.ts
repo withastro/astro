@@ -311,9 +311,12 @@ export class RenderContext {
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
 		const headers = new Headers({ 'Content-Type': 'text/html' });
 		const partial = typeof this.partial === 'boolean' ? this.partial : Boolean(mod.partial);
+		const actionResult = hasActionPayload(this.locals)
+			? deserializeActionResult(this.locals._actionPayload.actionResult)
+			: undefined;
 		const response = {
-			status,
-			statusText: 'OK',
+			status: actionResult?.error ? actionResult?.error.status : status,
+			statusText: actionResult?.error ? actionResult?.error.type : 'OK',
 			get headers() {
 				return headers;
 			},
@@ -322,10 +325,6 @@ export class RenderContext {
 				throw new AstroError(AstroErrorData.AstroResponseHeadersReassigned);
 			},
 		} satisfies AstroGlobal['response'];
-
-		const actionResult = hasActionPayload(this.locals)
-			? deserializeActionResult(this.locals._actionPayload.actionResult)
-			: undefined;
 
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then

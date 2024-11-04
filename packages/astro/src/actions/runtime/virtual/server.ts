@@ -249,7 +249,7 @@ export function getMiddlewareContext(context: APIContext) {
 						const baseAction = await getAction(requestActionName);
 						const formData = await context.request.clone().formData();
 						const handler = baseAction.bind(context);
-						return await handler(formData);
+						return handler(formData);
 					},
 				}
 			: undefined;
