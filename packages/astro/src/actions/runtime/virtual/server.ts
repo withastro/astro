@@ -240,8 +240,10 @@ export function getMiddlewareContext(context: APIContext) {
 	const requestActionName =
 		context.url.searchParams.get(ACTION_QUERY_PARAMS.actionName) ?? undefined;
 
+	const actionResultAlreadySet = Boolean((context.locals as Locals)._actionPayload);
+
 	const action =
-		isFormRequest && requestActionName
+		isFormRequest && requestActionName && !actionResultAlreadySet
 			? {
 					respondWith: 'html',
 					name: requestActionName,
