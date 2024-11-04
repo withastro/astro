@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-fix: honor getViteConfig inlineAstroConfig.logLevel setting
+Honors `inlineAstroConfig` parameter in `getViteConfig` when creating a logger
