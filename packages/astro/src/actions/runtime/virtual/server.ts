@@ -1,8 +1,26 @@
 import { z } from 'zod';
 import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
-import type { ActionAPIContext, ErrorInferenceObject, MaybePromise } from '../utils.js';
-import { ActionError, ActionInputError, type SafeResult, callSafely } from './shared.js';
+import {
+	formContentTypes,
+	hasContentType,
+	type ActionAPIContext,
+	type ErrorInferenceObject,
+	type MaybePromise,
+} from '../utils.js';
+import {
+	ACTION_QUERY_PARAMS,
+	ActionError,
+	ActionInputError,
+	type SafeResult,
+	type SerializedActionResult,
+	callSafely,
+	deserializeActionResult,
+	serializeActionResult,
+} from './shared.js';
+import type { APIContext } from '../../../@types/astro.js';
+import type { Locals } from '../middleware.js';
+import { getAction } from './get-action.js';
 
 export * from './shared.js';
 
@@ -211,4 +229,47 @@ function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 		return objSchema;
 	}
 	return schema;
+}
+
+// TODO: handle JSON requests.
+// Manual middleware does not cover RPCs called from the client yet.
+export function getMiddlewareContext(context: APIContext) {
+	const contentType = context.request.headers.get('content-type');
+	let isFormRequest = contentType && hasContentType(contentType, formContentTypes);
+
+	const requestActionName =
+		context.url.searchParams.get(ACTION_QUERY_PARAMS.actionName) ?? undefined;
+
+	const requestInfo =
+		isFormRequest && requestActionName
+			? {
+					actionName: requestActionName,
+					respondWith: 'html',
+				}
+			: undefined;
+
+	function setActionResult(actionName: string, actionResult: SerializedActionResult) {
+		(context.locals as Locals)._actionPayload = {
+			actionResult,
+			actionName,
+		};
+	}
+	async function callAction(actionName: string) {
+		if (!requestInfo)
+			throw new Error(
+				`Attempted to call action ${JSON.stringify(actionName)}, but no action POST request was sent. Ensure \`requestInfo\` is defined before attempting to call an action.`,
+			);
+		const baseAction = await getAction(actionName);
+
+		const formData = await context.request.clone().formData();
+		const action = baseAction.bind(context);
+		return await action(formData);
+	}
+	return {
+		requestInfo,
+		setActionResult,
+		callAction,
+		serializeActionResult,
+		deserializeActionResult,
+	};
 }

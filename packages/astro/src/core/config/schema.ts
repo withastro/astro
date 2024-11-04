@@ -69,6 +69,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		endpoint: { entrypoint: undefined, route: '/_image' },
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 	},
+	actions: {
+		middleware: 'automatic',
+	},
 	devToolbar: {
 		enabled: true,
 	},
@@ -371,6 +374,9 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
+	actions: z
+		.optional(z.object({ middleware: z.enum(['automatic', 'manual']).default('automatic') }))
+		.default(ASTRO_CONFIG_DEFAULTS.actions),
 	i18n: z.optional(
 		z
 			.object({
