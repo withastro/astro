@@ -1,4 +1,4 @@
-import { NonZeroExitError, x, type Options } from 'tinyexec';
+import { NonZeroExitError, type Options, x } from 'tinyexec';
 
 /**
  * Improve tinyexec error logging and set `throwOnError` to `true` by default
