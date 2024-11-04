@@ -233,7 +233,7 @@ async function syncContentCollections(
 			{
 				...AstroErrorData.GenerateContentTypesError,
 				hint,
-				message: AstroErrorData.GenerateContentTypesError.message(`${safeError.message}`),
+				message: AstroErrorData.GenerateContentTypesError.message(safeError.message),
 				location: safeError.loc,
 			},
 			{ cause: e },
