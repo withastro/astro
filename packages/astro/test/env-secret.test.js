@@ -31,6 +31,8 @@ describe('astro:env secret variables', () => {
 	});
 
 	it('builds without throwing', async () => {
+		process.env.KNOWN_SECRET = '123456'
+		process.env.UNKNOWN_SECRET = 'abc';
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
 			output: 'server',
