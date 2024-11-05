@@ -5,9 +5,9 @@ import { bold, cyan, dim, magenta } from 'kleur/colors';
 import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
-import { exec } from 'tinyexec';
 import whichPm from 'which-pm';
 import type { Logger } from '../core/logger/core.js';
+import { exec } from './exec.js';
 
 const require = createRequire(import.meta.url);
 

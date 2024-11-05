@@ -26,6 +26,7 @@ export async function run(projectDir, outputFile) {
 				ASTRO_TIMER_PATH: outputFilePath,
 			},
 		},
+		throwOnError: true,
 	});
 
 	console.log('Raw results written to', outputFilePath);

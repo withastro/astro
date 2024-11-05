@@ -169,7 +169,9 @@ export async function createContainerWithAutomaticRestart({
 
 		// Restart the Astro dev server instead of Vite's when the API is called by plugins.
 		// Ignore the `forceOptimize` parameter for now.
-		restart.container.viteServer.restart = () => handleServerRestart();
+		restart.container.viteServer.restart = async () => {
+			if (!restart.container.restartInFlight) await handleServerRestart();
+		};
 
 		// Set up shortcuts
 
