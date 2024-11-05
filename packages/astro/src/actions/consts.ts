@@ -8,5 +8,4 @@ export const NOOP_ACTIONS = '\0noop-actions';
 export const ACTION_QUERY_PARAMS = {
 	actionName: '_astroAction',
 	actionPayload: '_astroActionPayload',
-	actionRedirect: '_astroActionRedirect',
 };
