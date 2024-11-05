@@ -255,6 +255,7 @@ export function getMiddlewareContext(context: APIContext) {
 
 	if (callerInfo && context.request.method === 'POST' && !actionResultAlreadySet) {
 		const contentType = context.request.headers.get('content-type');
+		const contentLength = context.request.headers.get('Content-Length');
 
 		action = {
 			calledFrom: callerInfo.from,
@@ -263,10 +264,14 @@ export function getMiddlewareContext(context: APIContext) {
 				const baseAction = await getAction(callerInfo.name);
 				let input: unknown = undefined;
 
-				if (contentType && hasContentType(contentType, formContentTypes)) {
+				if (!contentType || contentLength === '0') {
+					input = undefined;
+				} else if (contentType && hasContentType(contentType, formContentTypes)) {
 					input = await context.request.clone().formData();
 				} else if (contentType && hasContentType(contentType, ['application/json'])) {
 					input = await context.request.clone().json();
+				} else {
+					return { data: undefined, error: new ActionError({ code: 'UNSUPPORTED_MEDIA_TYPE' }) };
 				}
 				const handler = baseAction.bind(context);
 				return handler(input);
@@ -293,8 +298,8 @@ export function getMiddlewareContext(context: APIContext) {
 }
 
 function getCallerInfo(ctx: APIContext) {
-	if (ctx.url.pathname.startsWith('/_actions/') && ctx.params.path) {
-		return { from: 'rpc', name: ctx.params.path } as const;
+	if (ctx.routePattern === '/_actions/[...path]') {
+		return { from: 'rpc', name: ctx.url.pathname.replace(/^.*\/_actions\//, '') } as const;
 	}
 	const queryParam = ctx.url.searchParams.get(ACTION_QUERY_PARAMS.actionName);
 	if (queryParam) {
