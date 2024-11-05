@@ -1556,30 +1556,6 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name actions
-	 * @type {object}
-	 * @version 3.5.0
-	 * @type {object}
-	 * @description
-	 *
-	 * Configures how Actions are handled.
-	 *
-	 * See our guide for more information on [Astro Actions](/en/guides/actions/)
-	 */
-	actions?: {
-		/**
-		 * Sets whether Action requests will be handled by Astro automatically,
-		 * or whether it should be handled manually by your own middleware.
-		 * Defaults to `'automatic'`.
-		 *
-		 * TODO: API doc on manual encoding middleware.
-		 */
-		middleware?: 'manual' | 'automatic';
-	};
-
-	/**
-	 * @docs
-	 * @kind heading
 	 * @name i18n
 	 * @type {object}
 	 * @version 3.5.0

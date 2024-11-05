@@ -24,12 +24,10 @@ export default function astroIntegrationActionsRouteHandler({
 					prerender: false,
 				});
 
-				if (params.config.actions.middleware === 'automatic') {
-					params.addMiddleware({
-						entrypoint: 'astro/actions/runtime/middleware.js',
-						order: 'post',
-					});
-				}
+				params.addMiddleware({
+					entrypoint: 'astro/actions/runtime/middleware.js',
+					order: 'post',
+				});
 			},
 			'astro:config:done': async (params) => {
 				if (params.buildOutput === 'static') {
