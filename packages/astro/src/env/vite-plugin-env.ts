@@ -11,6 +11,7 @@ import {
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
+import { ENV_SYMBOL } from './runtime-constants.js';
 
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
@@ -41,11 +42,7 @@ export function astroEnv({
 				fileURLToPath(settings.config.root),
 				'',
 			);
-			for (const [key, value] of Object.entries(loadedEnv)) {
-				if (value !== undefined) {
-					process.env[key] = value;
-				}
-			}
+			(globalThis as any)[ENV_SYMBOL] = loadedEnv;
 
 			const validatedVariables = validatePublicVariables({
 				schema,
