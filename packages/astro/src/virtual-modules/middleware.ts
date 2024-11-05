@@ -1,1 +1,1 @@
-export { defineMiddleware, sequence } from '../core/middleware/index.js';
+export { defineMiddleware, sequence, getOriginPathname } from '../core/middleware/index.js';

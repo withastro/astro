@@ -1,4 +1,4 @@
-import { defineMiddleware } from 'astro:middleware';
+import { defineMiddleware, getOriginPathname } from 'astro:middleware';
 import { getMiddlewareContext } from 'astro:actions';
 
 const actionCookieForwarding = defineMiddleware(async (ctx, next) => {
@@ -29,25 +29,10 @@ const actionCookieForwarding = defineMiddleware(async (ctx, next) => {
 			}
 			return ctx.redirect(referer);
 		}
-		const referer = getOriginPathname(ctx.request);
-		if (referer) {
-			return ctx.redirect(referer);
-		}
-
-		return ctx.redirect(ctx.url.pathname);
+		return ctx.redirect(getOriginPathname(ctx.request) ?? ctx.url.pathname);
 	}
 
 	return next();
 });
-
-const originPathnameSymbol = Symbol.for('astro.originPathname');
-
-function getOriginPathname(request: Request): string | undefined {
-	const origin = Reflect.get(request, originPathnameSymbol);
-	if (origin) {
-		return decodeURIComponent(origin);
-	}
-	return undefined;
-}
 
 export const onRequest = actionCookieForwarding;
