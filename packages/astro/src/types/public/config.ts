@@ -1708,8 +1708,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @version 5.0.0
 		 * @description
 		 *
-		 * Enables and configures automatic responsive image generation for images in your project. Set to `true` or an object with configuration options.
-		 * When enabled it will not transform any images unless you pass the `layout` option to the image component, or set the `layout` option in the `responsiveImages` configuration.
+		 * Enables and configures automatic responsive image options for images in your project. Set to `true` (for no default option passed to your images) or an object with default responsive image configuration options.
 		 *
 		 * ```js
 		 * {
@@ -1720,6 +1719,16 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * }
 		 * ```
 		 *
+		 * Then, you can add a `layout` option to any `<Image />` component when needed to override your default configuration: `responsive`,  `fixed`, `full-width`, or `none`. This attribute is required to transform your images if `responsiveImages.layout` is not configured.  Images with a layout value of `undefined` or `none` will not be transformed.
+		 *
+		 * ```astro
+		 * ---
+		 * import { Image } from 'astro:assets';
+		 * import myImage from '../assets/my_image.png';
+		 * ---
+		 * <Image src={myImage} alt="A description of my image." layout='fixed' />
+		 * ```
+		 * 
 		 */
 
 		responsiveImages?:
