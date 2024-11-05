@@ -285,6 +285,9 @@ export const AstroConfigSchema = z.object({
 					}),
 				)
 				.default([]),
+			experimentalLayout: z.enum(['responsive', 'fixed', 'full-width', 'none']).optional(),
+			experimentalObjectFit: z.string().optional(),
+			experimentalObjectPosition: z.string().optional(),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
 	devToolbar: z
@@ -527,14 +530,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
 			responsiveImages: z
-				.union([
-					z.boolean(),
-					z.object({
-						layout: z.enum(['responsive', 'fixed', 'full-width', 'none']).optional(),
-						objectFit: z.string().optional(),
-						objectPosition: z.string().optional(),
-					}),
-				])
+				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
 		})
@@ -693,10 +689,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				config.image.endpoint.route = prependForwardSlash(config.image.endpoint.route);
 			}
 
-			if (config.experimental.responsiveImages === true) {
-				config.experimental.responsiveImages = {};
-			}
-
 			return config;
 		})
 		.refine((obj) => !obj.outDir.toString().startsWith(obj.publicDir.toString()), {
@@ -704,7 +696,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		})
 		.superRefine((configuration, ctx) => {
-			const { site, i18n, output } = configuration;
+			const { site, i18n, output, image, experimental } = configuration;
 			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
 			if (hasDomains) {
 				if (!site) {
@@ -720,6 +712,18 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 						message: 'Domain support is only available when `output` is `"server"`.',
 					});
 				}
+			}
+			if (
+				!experimental.responsiveImages &&
+				(image.experimentalLayout ||
+					image.experimentalObjectFit ||
+					image.experimentalObjectPosition)
+			) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message:
+						'The `experimentalLayout`, `experimentalObjectFit`, and `experimentalObjectPosition` options are only available when `experimental.responsiveImages` is enabled.',
+				});
 			}
 		});
 

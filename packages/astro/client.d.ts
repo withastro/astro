@@ -47,11 +47,9 @@ declare module 'astro:assets' {
 		getImage: (
 			options: import('./dist/assets/types.js').UnresolvedImageTransform,
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
-		imageConfig: import('./dist/types/public/config.js').AstroConfig['image'] &
-			Exclude<
-				import('./dist/types/public/config.js').AstroConfig['experimental']['responsiveImages'],
-				boolean
-			> & { experimentalResponsiveImages: boolean };
+		imageConfig: import('./dist/types/public/config.js').AstroConfig['image'] & {
+			experimentalResponsiveImages: boolean;
+		};
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		inferRemoteSize: typeof import('./dist/assets/utils/index.js').inferRemoteSize;
 		Image: typeof import('./components/Image.astro').default;
