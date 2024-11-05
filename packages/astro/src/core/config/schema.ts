@@ -530,14 +530,9 @@ export const AstroConfigSchema = z.object({
 				.union([
 					z.boolean(),
 					z.object({
-						layout: z
-							.union([
-								z.literal('responsive'),
-								z.literal('fixed'),
-								z.literal('full-width'),
-								z.literal('none'),
-							])
-							.optional(),
+						layout: z.enum(['responsive', 'fixed', 'full-width', 'none']).optional(),
+						objectFit: z.string().optional(),
+						objectPosition: z.string().optional(),
 					}),
 				])
 				.optional()
@@ -696,6 +691,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			} else {
 				config.base = prependForwardSlash(config.base);
 				config.image.endpoint.route = prependForwardSlash(config.image.endpoint.route);
+			}
+
+			if (config.experimental.responsiveImages === true) {
+				config.experimental.responsiveImages = {};
 			}
 
 			return config;

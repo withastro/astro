@@ -1,4 +1,5 @@
 import type { WithRequired } from '../type-utils.js';
+import type { ImageLayout } from '../types/public/index.js';
 import type { VALID_INPUT_FORMATS, VALID_OUTPUT_FORMATS } from './consts.js';
 import type { ImageService } from './services/service.js';
 
@@ -151,6 +152,12 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	quality?: ImageQuality;
+
+	layout?: ImageLayout;
+
+	fit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down' | (string & {});
+
+	position?: string;
 } & (
 		| {
 				/**

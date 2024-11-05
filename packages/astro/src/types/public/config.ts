@@ -1728,7 +1728,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * ---
 		 * <Image src={myImage} alt="A description of my image." layout='fixed' />
 		 * ```
-		 * 
+		 *
 		 */
 
 		responsiveImages?:
@@ -1740,13 +1740,18 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * @default `undefined`
 					 * @description
 					 * The default layout type for responsive images. Can be overridden by the `layout` prop on the image component.
+					 * - `responsive` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
+					 * - `fixed` - The image will maintain its original dimensions.
+					 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
 					 */
-					layout?: ResponsiveImageLayout | undefined;
+					layout?: ImageLayout | undefined;
+					objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down' | (string & {});
+					objectPosition?: string;
 			  };
 	};
 }
 
-export type ResponsiveImageLayout = 'responsive' | 'fixed' | 'full-width' | 'none';
+export type ImageLayout = 'responsive' | 'fixed' | 'full-width' | 'none';
 
 /**
  * Resolved Astro Config
