@@ -231,34 +231,53 @@ function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 	return schema;
 }
 
-// TODO: handle JSON requests.
-// Manual middleware does not cover RPCs called from the client yet.
+/**
+ * Access information about Action requests from middleware.
+ */
 export function getMiddlewareContext(context: APIContext) {
-	const contentType = context.request.headers.get('content-type');
-	let isFormRequest = contentType && hasContentType(contentType, formContentTypes);
-
-	const requestActionName =
-		context.url.searchParams.get(ACTION_QUERY_PARAMS.actionName) ?? undefined;
+	const callerInfo = getCallerInfo(context);
 
 	// Prevents action results form being handled on a rewrite.
 	// Also prevents our *own* fallback middleware from running
 	// if the user's middleware has already handled the result.
 	const actionResultAlreadySet = Boolean((context.locals as Locals)._actionPayload);
 
-	const action =
-		isFormRequest && requestActionName && !actionResultAlreadySet
-			? {
-					respondWith: 'html',
-					name: requestActionName,
-					handler: async () => {
-						const baseAction = await getAction(requestActionName);
-						const formData = await context.request.clone().formData();
-						const handler = baseAction.bind(context);
-						return handler(formData);
-					},
-				}
-			: undefined;
+	let action:
+		| {
+				/** Whether an action was called using an RPC function or by using an HTML form action. */
+				calledFrom: 'rpc' | 'form-action';
+				/** The name of the action. Useful to track the source of an action result during a redirect. */
+				name: string;
+				/** Programatically call the action to get the result. */
+				handler: () => Promise<SafeResult<any, any>>;
+		  }
+		| undefined = undefined;
 
+	if (callerInfo && context.request.method === 'POST' && !actionResultAlreadySet) {
+		const contentType = context.request.headers.get('content-type');
+
+		action = {
+			calledFrom: callerInfo.from,
+			name: callerInfo.name,
+			handler: async () => {
+				const baseAction = await getAction(callerInfo.name);
+				let input: unknown = undefined;
+
+				if (contentType && hasContentType(contentType, formContentTypes)) {
+					input = await context.request.clone().formData();
+				} else if (contentType && hasContentType(contentType, ['application/json'])) {
+					input = await context.request.clone().json();
+				}
+				const handler = baseAction.bind(context);
+				return handler(input);
+			},
+		};
+	}
+
+	/**
+	 * Manually set the action result accessed via `getActionResult()`.
+	 * Calling this function from middleware will disable Astro's own action result handling.
+	 */
 	function setActionResult(actionName: string, actionResult: SerializedActionResult) {
 		(context.locals as Locals)._actionPayload = {
 			actionResult,
@@ -271,4 +290,15 @@ export function getMiddlewareContext(context: APIContext) {
 		serializeActionResult,
 		deserializeActionResult,
 	};
+}
+
+function getCallerInfo(ctx: APIContext) {
+	if (ctx.url.pathname.startsWith('/_actions/') && ctx.params.path) {
+		return { from: 'rpc', name: ctx.params.path } as const;
+	}
+	const queryParam = ctx.url.searchParams.get(ACTION_QUERY_PARAMS.actionName);
+	if (queryParam) {
+		return { from: 'form-action', name: queryParam } as const;
+	}
+	return undefined;
 }

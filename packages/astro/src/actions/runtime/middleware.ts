@@ -5,7 +5,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	if (context.isPrerendered) return next();
 	const { action, setActionResult, serializeActionResult } = getMiddlewareContext(context);
 
-	if (action) {
+	if (action?.calledFrom === 'form-action') {
 		const actionResult = await action.handler();
 		setActionResult(action.name, serializeActionResult(actionResult));
 	}
