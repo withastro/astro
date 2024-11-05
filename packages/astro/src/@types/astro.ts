@@ -64,7 +64,7 @@ export type {
 	MarkdownHeading,
 	RehypePlugins,
 	RemarkPlugins,
-	,
+	ShikiConfig,
 } from '@astrojs/markdown-remark';
 export type {
 	ExternalImageService,
