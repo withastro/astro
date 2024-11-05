@@ -23,9 +23,9 @@ import {
 	AstroError,
 	AstroErrorData,
 	AstroUserError,
+	type ErrorWithMetadata,
 	createSafeError,
 	isAstroError,
-	type ErrorWithMetadata,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
@@ -63,17 +63,7 @@ export default async function sync(
 		logger,
 	});
 
-	// Run `astro:config:done`
-	// Actions will throw if there is misconfiguration, so catch here.
-	try {
-		await runHookConfigDone({ settings, logger });
-	} catch (err) {
-		if (err instanceof Error) {
-			const errorMessage = err.toString();
-			logger.error('sync', errorMessage);
-		}
-		throw err;
-	}
+	await runHookConfigDone({ settings, logger });
 
 	return await syncInternal({ settings, logger, fs, force: inlineConfig.force });
 }
@@ -113,51 +103,41 @@ export async function syncInternal({
 
 	const timerStart = performance.now();
 
-	try {
-		if (!skip?.content) {
-			await syncContentCollections(settings, { fs, logger });
-			settings.timer.start('Sync content layer');
-			let store: MutableDataStore | undefined;
-			try {
-				const dataStoreFile = getDataStoreFile(settings);
-				if (existsSync(dataStoreFile)) {
-					store = await MutableDataStore.fromFile(dataStoreFile);
-				}
-			} catch (err: any) {
-				logger.error('content', err.message);
+	if (!skip?.content) {
+		await syncContentCollections(settings, { fs, logger });
+		settings.timer.start('Sync content layer');
+		let store: MutableDataStore | undefined;
+		try {
+			const dataStoreFile = getDataStoreFile(settings);
+			if (existsSync(dataStoreFile)) {
+				store = await MutableDataStore.fromFile(dataStoreFile);
 			}
-			if (!store) {
-				store = new MutableDataStore();
-			}
-			const contentLayer = globalContentLayer.init({
-				settings,
-				logger,
-				store,
-			});
-			await contentLayer.sync();
-			settings.timer.end('Sync content layer');
-		} else if (fs.existsSync(fileURLToPath(getContentPaths(settings.config, fs).contentDir))) {
-			// Content is synced after writeFiles. That means references are not created
-			// To work around it, we create a stub so the reference is created and content
-			// sync will override the empty file
-			settings.injectedTypes.push({
-				filename: CONTENT_TYPES_FILE,
-				content: '',
-			});
+		} catch (err: any) {
+			logger.error('content', err.message);
 		}
-		syncAstroEnv(settings, fs);
-
-		await writeFiles(settings, fs, logger);
-		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
-	} catch (err) {
-		const error = createSafeError(err);
-		logger.error(
-			'types',
-			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
-		);
-		// Will return exit code 1 in CLI
-		throw error;
+		if (!store) {
+			store = new MutableDataStore();
+		}
+		const contentLayer = globalContentLayer.init({
+			settings,
+			logger,
+			store,
+		});
+		await contentLayer.sync();
+		settings.timer.end('Sync content layer');
+	} else if (fs.existsSync(fileURLToPath(getContentPaths(settings.config, fs).contentDir))) {
+		// Content is synced after writeFiles. That means references are not created
+		// To work around it, we create a stub so the reference is created and content
+		// sync will override the empty file
+		settings.injectedTypes.push({
+			filename: CONTENT_TYPES_FILE,
+			content: '',
+		});
 	}
+	syncAstroEnv(settings, fs);
+
+	await writeFiles(settings, fs, logger);
+	logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 }
 
 /**
