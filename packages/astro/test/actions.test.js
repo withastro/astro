@@ -285,6 +285,35 @@ describe('Astro Actions', () => {
 			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
 		});
 
+		it('Respects RPC middleware handling - locked', async () => {
+			const req = new Request('http://example.com/_actions/locked', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: '{}',
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 401);
+		});
+
+		it('Respects RPC middleware handling - cookie present', async () => {
+			const req = new Request('http://example.com/_actions/locked', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Cookie: 'actionCookie=1234',
+				},
+				body: '{}',
+			});
+			const res = await app.render(req);
+			assert.equal(res.ok, true);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const data = devalue.parse(await res.text());
+			assert.equal('safe' in data, true);
+		});
+
 		it('Ignores `_astroAction` name for GET requests', async () => {
 			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
 				method: 'GET',

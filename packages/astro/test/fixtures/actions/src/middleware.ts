@@ -14,6 +14,14 @@ const actionCookieForwarding = defineMiddleware(async (ctx, next) => {
 		return next();
 	}
 
+	if (
+		action?.calledFrom === 'rpc' &&
+		action.name === 'locked' &&
+		!ctx.cookies.has('actionCookie')
+	) {
+		return new Response('Unauthorized', { status: 401 });
+	}
+
 	if (action?.calledFrom === 'form-action' && ctx.url.searchParams.has('actionCookieForwarding')) {
 		const actionResult = await action.handler();
 
