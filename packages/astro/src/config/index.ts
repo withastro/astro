@@ -1,6 +1,5 @@
 import type { UserConfig as ViteUserConfig } from 'vite';
 import type { AstroInlineConfig, AstroUserConfig } from '../@types/astro.js';
-import { Logger } from '../core/logger/core.js';
 
 export function defineConfig(config: AstroUserConfig) {
 	return config;
@@ -19,7 +18,7 @@ export function getViteConfig(
 		const [
 			fs,
 			{ mergeConfig },
-			{ nodeLogDestination },
+			{ createNodeLogger },
 			{ resolveConfig, createSettings },
 			{ createVite },
 			{ runHookConfigSetup, runHookConfigDone },
@@ -27,16 +26,13 @@ export function getViteConfig(
 		] = await Promise.all([
 			import('node:fs'),
 			import('vite'),
-			import('../core/logger/node.js'),
+			import('../core/config/logging.js'),
 			import('../core/config/index.js'),
 			import('../core/create-vite.js'),
 			import('../integrations/hooks.js'),
 			import('./vite-plugin-content-listen.js'),
 		]);
-		const logger = new Logger({
-			dest: nodeLogDestination,
-			level: 'info',
-		});
+		const logger = createNodeLogger(inlineAstroConfig);
 		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
 		let settings = await createSettings(config, userViteConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
