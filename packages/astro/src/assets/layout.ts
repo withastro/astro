@@ -42,17 +42,25 @@ export const getWidths = ({
 		return [];
 	}
 	const doubleWidth = width * 2;
+	const maxSize = originalWidth ? Math.min(doubleWidth, originalWidth) : doubleWidth;
 	if (layout === 'fixed') {
-		return [width, doubleWidth].filter(smallerThanOriginal);
+		// If the image is larger than the original, only include the original width
+		// Otherwise, include the image width and the double-resolution width, unless the double-resolution width is larger than the original
+		return originalWidth && width > originalWidth ? [originalWidth] : [width, maxSize];
 	}
 	if (layout === 'responsive') {
-		return [
-			// Always include the image at 1x and 2x the specified width
-			width,
-			doubleWidth,
-			// Filter out any resolutions that are larger than the double-resolution image
-			...breakpoints.filter((w) => w < doubleWidth && smallerThanOriginal(w)),
-		];
+		return (
+			[
+				// Always include the image at 1x and 2x the specified width
+				width,
+				doubleWidth,
+				...breakpoints,
+			]
+				// Sort the resolutions in ascending order
+				.sort((a, b) => a - b)
+				// Filter out any resolutions that are larger than the double-resolution image or source image
+				.filter((w) => w <= maxSize)
+		);
 	}
 
 	return [];
