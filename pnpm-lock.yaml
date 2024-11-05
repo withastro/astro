@@ -95,10 +95,10 @@ importers:
         version: 0.3.1
     devDependencies:
       '@codspeed/tinybench-plugin':
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1(tinybench@2.9.0)
       tinybench:
-        specifier: ^2.6.0
+        specifier: ^2.9.0
         version: 2.9.0
 
   benchmark/packages/timer:
