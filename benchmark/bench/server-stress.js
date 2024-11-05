@@ -24,6 +24,7 @@ export async function run(projectDir, outputFile) {
 			cwd: root,
 			stdio: 'inherit',
 		},
+		throwOnError: true,
 	});
 
 	console.log('Previewing...');

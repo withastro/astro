@@ -45,7 +45,7 @@ async function benchmarkCommand(command, args, root) {
 
 	for (let i = 0; i < 10; i++) {
 		const start = performance.now();
-		await exec(command, args, { nodeOptions: { cwd: root } });
+		await exec(command, args, { nodeOptions: { cwd: root }, throwOnError: true });
 		durations.push(performance.now() - start);
 	}
 

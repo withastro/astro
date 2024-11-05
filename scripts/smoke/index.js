@@ -33,7 +33,10 @@ async function run() {
 
 	const directories = [...(await getChildDirectories(smokeDir)), ...(await getChildDirectories(exampleDir))];
 	/** @type {Partial<import('tinyexec').Options>} */
-	const execOptions = { nodeOptions: { cwd: fileURLToPath(rootDir), stdio: 'inherit' }};
+	const execOptions = {
+		nodeOptions: { cwd: fileURLToPath(rootDir), stdio: 'inherit' },
+		throwOnError: true,
+	};
 
 	console.log('🤖', 'Preparing', 'pnpm');
 	
