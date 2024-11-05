@@ -84,21 +84,13 @@ describe('astro:env secret variables', () => {
 			assert.equal(error.message.includes('KNOWN_SECRET is missing'), true);
 		}
 	});
-});
 
-describe('astro:env static pages', () => {
-	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
-	let fixture;
-
-	before(async () => {
+	it('should render using env secrets in static pages', async () => {
 		process.env.KNOWN_SECRET = '123456';
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-secret-static-pages/',
 		});
 		await fixture.build();
-	});
-
-	it('should render using env secrets', async () => {
 		const indexHtml = await fixture.readFile('/index.html');
 
 		assert.match(indexHtml, /123456/);
