@@ -12,6 +12,7 @@ import {
 } from './types.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
+import { getSizes, getWidths } from './layout.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -32,9 +33,13 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 	return globalThis.astroAsset.imageService;
 }
 
+type ImageConfig = AstroConfig['image'] & {
+	experimentalResponsiveImages: boolean;
+};
+
 export async function getImage(
 	options: UnresolvedImageTransform,
-	imageConfig: AstroConfig['image'],
+	imageConfig: ImageConfig,
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
 		throw new AstroError({
@@ -65,6 +70,9 @@ export async function getImage(
 		src: await resolveSrc(options.src),
 	};
 
+	let originalWidth =
+		typeof resolvedOptions.src === 'object' ? resolvedOptions.src.width : undefined;
+
 	// Infer size for remote images if inferSize is true
 	if (
 		options.inferSize &&
@@ -74,6 +82,7 @@ export async function getImage(
 		const result = await inferRemoteSize(resolvedOptions.src); // Directly probe the image URL
 		resolvedOptions.width ??= result.width;
 		resolvedOptions.height ??= result.height;
+		originalWidth ??= result.width;
 		delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
 	}
 
@@ -89,6 +98,13 @@ export async function getImage(
 		: resolvedOptions.src;
 
 	resolvedOptions.src = clonedSrc;
+
+	const layout = options.layout ?? imageConfig.experimentalLayout;
+
+	if (imageConfig.experimentalResponsiveImages && layout) {
+		resolvedOptions.widths ||= getWidths({ width: resolvedOptions.width, layout, originalWidth });
+		resolvedOptions.sizes ||= getSizes({ width: resolvedOptions.width, layout });
+	}
 
 	const validatedOptions = service.validateOptions
 		? await service.validateOptions(resolvedOptions, imageConfig)

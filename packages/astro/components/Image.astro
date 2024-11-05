@@ -1,5 +1,5 @@
 ---
-import { type LocalImageProps, type RemoteImageProps, getImage } from 'astro:assets';
+import { type LocalImageProps, type RemoteImageProps, getImage, imageConfig } from 'astro:assets';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import type { HTMLAttributes } from '../types';
 
@@ -8,7 +8,7 @@ import type { HTMLAttributes } from '../types';
 // Not 100% sure how to fix this, seems to be a TypeScript issue. Unfortunate.
 type Props = LocalImageProps | RemoteImageProps;
 
-const props = Astro.props;
+const { class: className, ...props } = Astro.props;
 
 if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
@@ -33,6 +33,59 @@ if (image.srcSet.values.length > 0) {
 if (import.meta.env.DEV) {
 	additionalAttributes['data-image-component'] = 'true';
 }
+
+const { experimentalResponsiveImages, layout } = imageConfig;
+
+const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
+const objectFit = props.objectFit ?? 'cover';
 ---
 
-<img src={image.src} {...additionalAttributes} {...image.attributes} />
+<img
+	src={image.src}
+	{...additionalAttributes}
+	{...image.attributes}
+	class:list={[
+		experimentalResponsiveImages && (props.layout ?? layout),
+		experimentalResponsiveImages && cssFitValues.includes(objectFit) && `fit-${objectFit}`,
+		className,
+	]}
+/>
+
+<style
+	define:vars={{
+		w: image.attributes.width ?? props.width ?? image.options.width,
+		h: image.attributes.height ?? props.height ?? image.options.height,
+	}}
+>
+	.responsive {
+		max-width: calc(var(--w) * 1px);
+		max-height: calc(var(--h) * 1px);
+		aspect-ratio: var(--w) / var(--h);
+		width: 100%;
+		height: auto;
+	}
+
+	.full-width {
+		width: 100%;
+		height: auto;
+		aspect-ratio: var(--w) / var(--h);
+	}
+
+	.fixed {
+		width: calc(var(--w) * 1px);
+		height: calc(var(--h) * 1px);
+	}
+
+	.fit-cover {
+		object-fit: cover;
+	}
+
+	.fit-contain,
+	.fit-scale-down {
+		object-fit: scale-down;
+	}
+
+	.fit-fill {
+		object-fit: fill;
+	}
+</style>
