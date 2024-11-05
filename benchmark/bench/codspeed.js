@@ -7,7 +7,7 @@ import { astroBin } from './_util.js';
 
 export async function run({ memory: _memory, render, stress: _stress }) {
 	const options = {
-		iterations: 50,
+		iterations: 10,
 	};
 	const bench = process.env.CODSPEED ? withCodSpeed(new Bench(options)) : new Bench(options);
 	let app;
