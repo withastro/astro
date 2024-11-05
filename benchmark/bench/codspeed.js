@@ -36,7 +36,7 @@ export async function run({ memory: _memory, render, stress: _stress }) {
 					throwOnError: true,
 				});
 				console.info('Waiting for server ready...');
-				await waitUntilBusy(port, { timeout: 5000 });
+				await waitUntilBusy(port, { timeout: 10000 });
 			},
 			async afterAll() {
 				console.info('Killing preview server.');
