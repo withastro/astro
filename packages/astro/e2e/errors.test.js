@@ -25,7 +25,7 @@ test.describe('Error display', () => {
 		await page.goto(astro.resolveUrl('/astro-syntax-error'), { waitUntil: 'networkidle' });
 
 		const message = (await getErrorOverlayContent(page)).message;
-		expect(message).toMatch('Unexpected &quot;while&quot;');
+		expect(message).toMatch('Unexpected "while"');
 
 		await Promise.all([
 			// Wait for page reload
