@@ -213,7 +213,7 @@ describe('Astro Actions', () => {
 			assert.equal(data.isFormData, true, 'Should receive plain FormData');
 		});
 
-		it('Response middleware fallback', async () => {
+		it('Response middleware fallback - POST', async () => {
 			const req = new Request('http://example.com/user?_astroAction=getUser', {
 				method: 'POST',
 				body: new FormData(),
@@ -221,6 +221,25 @@ describe('Astro Actions', () => {
 					Referer: 'http://example.com/user',
 				},
 			});
+			const res = await app.render(req);
+			assert.equal(res.ok, true);
+
+			const html = await res.text();
+			let $ = cheerio.load(html);
+			assert.equal($('#user').text(), 'Houston');
+		});
+
+		it('Response middleware fallback - cookie forwarding', async () => {
+			const req = new Request(
+				'http://example.com/user?_astroAction=getUser&actionCookieForwarding=true',
+				{
+					method: 'POST',
+					body: new FormData(),
+					headers: {
+						Referer: 'http://example.com/user',
+					},
+				},
+			);
 			const res = await followExpectedRedirect(req, app);
 			assert.equal(res.ok, true);
 
@@ -229,7 +248,7 @@ describe('Astro Actions', () => {
 			assert.equal($('#user').text(), 'Houston');
 		});
 
-		it('Respects custom errors', async () => {
+		it('Respects custom errors - POST', async () => {
 			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
 				method: 'POST',
 				body: new FormData(),
@@ -237,6 +256,26 @@ describe('Astro Actions', () => {
 					Referer: 'http://example.com/user-or-throw',
 				},
 			});
+			const res = await app.render(req);
+			assert.equal(res.status, 401);
+
+			const html = await res.text();
+			let $ = cheerio.load(html);
+			assert.equal($('#error-message').text(), 'Not logged in');
+			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
+		});
+
+		it('Respects custom errors - cookie forwarding', async () => {
+			const req = new Request(
+				'http://example.com/user-or-throw?_astroAction=getUserOrThrow&actionCookieForwarding=true',
+				{
+					method: 'POST',
+					body: new FormData(),
+					headers: {
+						Referer: 'http://example.com/user-or-throw',
+					},
+				},
+			);
 			const res = await followExpectedRedirect(req, app);
 			assert.equal(res.status, 401);
 
