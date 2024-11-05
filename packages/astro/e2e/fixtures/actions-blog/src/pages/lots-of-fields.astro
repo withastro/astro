@@ -3,7 +3,6 @@ export const prerender = false;
 import { actions } from 'astro:actions';
 
 const result = Astro.getActionResult(actions.blog.lotsOfStuff);
-console.log(result?.error);
 ---
 
 <html>

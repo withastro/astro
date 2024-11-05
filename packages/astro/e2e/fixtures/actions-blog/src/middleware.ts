@@ -2,7 +2,7 @@ import { defineMiddleware } from 'astro:middleware';
 import { getMiddlewareContext } from 'astro:actions';
 
 const actionCookieForwarding = defineMiddleware(async (ctx, next) => {
-	if ((ctx as any)._isPrerendered) return next();
+	if (ctx.isPrerendered) return next();
 
 	const { action, setActionResult, serializeActionResult } = getMiddlewareContext(ctx);
 
