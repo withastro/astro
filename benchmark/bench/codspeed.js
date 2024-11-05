@@ -14,6 +14,7 @@ export async function run({ memory: _memory, render, stress: _stress }) {
 	bench.add(
 		'Rendering',
 		async () => {
+			console.info('Start task.');
 			const result = {};
 			for (const fileName of renderPages) {
 				const pathname = '/' + fileName.slice(0, -path.extname(fileName).length);
@@ -23,6 +24,7 @@ export async function run({ memory: _memory, render, stress: _stress }) {
 				if (!result[pathname]) result[pathname] = [];
 				result[pathname].push(html);
 			}
+			console.info('Finish task.');
 			return result;
 		},
 		{
