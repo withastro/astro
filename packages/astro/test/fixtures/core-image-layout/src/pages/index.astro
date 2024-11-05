@@ -1,15 +1,14 @@
 ---
 import { Image } from "astro:assets";
-import walrus from "../assets/walrus.jpg";
 import hero from "../assets/hero.jpg";
 ---
 
-<Image src={hero} alt="A heroic penguin" id="hero-img" layout="responsive" width={300} height={100}/>
-<Image src={walrus} alt="A walrus" id="walrus-img" layout="responsive" />
-<Image src={hero} alt="A heroic penguin" id="hero-img" layout="full-width" class="green"/>
-
-<style>
-	.green {
-		border: 2px solid green;
-	}
-</style>
+<div>
+	<Image src={hero} alt="A walrus" layout="fixed" width={800} height={300} />
+</div>
+<div>
+	<Image src={hero} alt="A walrus" layout="responsive" width={800} height={300} />
+</div>
+<div>
+	<Image src={hero} alt="A heroic penguin" layout="full-width"/>
+</div>
