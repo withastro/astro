@@ -138,7 +138,7 @@ export class BuildPipeline extends Pipeline {
 		const renderers = await import(renderersEntryUrl.toString());
 
 		const middleware = internals.middlewareEntryPoint
-			? await import(internals.middlewareEntryPoint!.toString()).then((mod) => {
+			? await import(internals.middlewareEntryPoint.toString()).then((mod) => {
 					return function () {
 						return { onRequest: mod.onRequest };
 					};
