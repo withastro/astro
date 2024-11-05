@@ -110,16 +110,10 @@ function fetchRenderTime(url) {
 			res.setEncoding('utf8');
 			let data = '';
 			res.on('data', (chunk) => (data += chunk));
-			res.on('error', (e) => {
-				console.log(e);
-				reject(e);
-			});
+			res.on('error', (e) => reject(e));
 			res.on('end', () => resolve(+data));
 		});
-		req.on('error', (e) => {
-			console.log(e);
-			reject(e);
-		});
+		req.on('error', (e) => reject(e));
 		req.end();
 	});
 }
