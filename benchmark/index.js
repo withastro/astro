@@ -40,7 +40,7 @@ if (commandName && !(commandName in benchmarks)) {
 
 if (commandName) {
 		if (commandName === 'codspeed') {
-			const render = await makeProject('render-default');
+			const render = await makeProject('render-bench');
 			const rootRender = fileURLToPath(render);
 			const bench = benchmarks[commandName];
 			const benchMod = await bench();

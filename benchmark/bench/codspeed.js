@@ -1,21 +1,29 @@
+import path from 'node:path';
 import { withCodSpeed } from '@codspeed/tinybench-plugin';
-import { waitUntilBusy } from 'port-authority';
 import { Bench } from 'tinybench';
 import { exec } from 'tinyexec';
+import { renderPages } from '../make-project/render-default.js';
 import { astroBin } from './_util.js';
-import { benchmarkRenderTime } from './render.js';
 
 export async function run({ memory: _memory, render, stress: _stress }) {
-	const bench = process.env.CODSPEED ? withCodSpeed(new Bench()) : new Bench();
-	const port = 4322;
-
-	let previewProcess;
-
+	const options = {
+		iterations: 50,
+	};
+	const bench = process.env.CODSPEED ? withCodSpeed(new Bench(options)) : new Bench(options);
+	let app;
 	bench.add(
 		'Rendering',
 		async () => {
-			console.info('Bench rendering.');
-			return await benchmarkRenderTime(port);
+			const result = {};
+			for (const fileName of renderPages) {
+				const pathname = '/' + fileName.slice(0, -path.extname(fileName).length);
+				const request = new Request(new URL(pathname, 'http://exmpale.com'));
+				const response = await app.render(request);
+				const html = await response.text();
+				if (!result[pathname]) result[pathname] = [];
+				result[pathname].push(html);
+			}
+			return result;
 		},
 		{
 			async beforeAll() {
@@ -27,22 +35,10 @@ export async function run({ memory: _memory, render, stress: _stress }) {
 					},
 				});
 
-				console.info('Previewing.');
-				previewProcess = exec(astroBin, ['preview', '--port', port], {
-					nodeOptions: {
-						cwd: render.root,
-						stdio: 'inherit',
-					},
-					throwOnError: true,
-				});
-				console.info('Waiting for server ready...');
-				await waitUntilBusy(port, { timeout: 10000 });
-			},
-			async afterAll() {
-				console.info('Killing preview server.');
-				if (!previewProcess.kill()) {
-					console.warn('Failed to kill server process id:', previewProcess.pid);
-				}
+				const entry = new URL('./dist/server/entry.mjs', `file://${render.root}`);
+				const { manifest, createApp } = await import(entry);
+				app = createApp(manifest);
+				app.manifest = manifest;
 			},
 		},
 	);

@@ -66,6 +66,9 @@ importers:
       '@astrojs/node':
         specifier: ^8.3.4
         version: 8.3.4(astro@packages+astro)
+      '@benchmark/adapter':
+        specifier: workspace:*
+        version: link:packages/adapter
       '@benchmark/timer':
         specifier: workspace:*
         version: link:packages/timer
@@ -100,6 +103,22 @@ importers:
       tinybench:
         specifier: ^2.9.0
         version: 2.9.0
+
+  benchmark/packages/adapter:
+    dependencies:
+      server-destroy:
+        specifier: ^1.0.1
+        version: 1.0.1
+    devDependencies:
+      '@types/server-destroy':
+        specifier: ^1.0.4
+        version: 1.0.4
+      astro:
+        specifier: workspace:*
+        version: link:../../../packages/astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
 
   benchmark/packages/timer:
     dependencies:

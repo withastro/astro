@@ -10,6 +10,7 @@
     "@astrojs/mdx": "workspace:*",
     "@astrojs/node": "^8.3.4",
     "@benchmark/timer": "workspace:*",
+    "@benchmark/adapter": "workspace:*",
     "astro": "workspace:*",
     "autocannon": "^7.15.0",
     "markdown-table": "^3.0.4",
