@@ -392,7 +392,7 @@ function isAdapter(
 //  - @astrojs/markdown-component => markdownComponent
 //  - @astrojs/image@beta => image
 //  - astro-cast => cast
-//  - astro-cast@next => astro-cast
+//  - astro-cast@next => cast
 //  - markdown-astro => markdown
 //  - some-package => somePackage
 //  - example.com => exampleCom
