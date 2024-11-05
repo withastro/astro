@@ -240,6 +240,9 @@ export function getMiddlewareContext(context: APIContext) {
 	const requestActionName =
 		context.url.searchParams.get(ACTION_QUERY_PARAMS.actionName) ?? undefined;
 
+	// Prevents action results form being handled on a rewrite.
+	// Also prevents our *own* fallback middleware from running
+	// if the user's middleware has already handled the result.
 	const actionResultAlreadySet = Boolean((context.locals as Locals)._actionPayload);
 
 	const action =
