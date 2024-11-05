@@ -16,7 +16,6 @@ import { viteID } from '../dist/core/util.js';
  * 	setEntryPoints?: (entryPoints: EntryPoints) => void;
  * 	setMiddlewareEntryPoint?: (middlewareEntryPoint: MiddlewareEntryPoint) => void;
  * 	setRoutes?: (routes: Routes) => void;
- * 	env: Record<string, string | undefined>;
  * }} param0
  * @returns {AstroIntegration}
  */
@@ -26,7 +25,6 @@ export default function ({
 	setEntryPoints,
 	setMiddlewareEntryPoint,
 	setRoutes,
-	env,
 } = {}) {
 	return {
 		name: 'my-ssr-adapter',
@@ -49,18 +47,9 @@ export default function ({
 										return `
 											import { App } from 'astro/app';
 											import fs from 'fs';
+											import { setGetEnv } from 'astro/env/setup';
 
-											${
-												env
-													? `
-											await import('astro/env/setup')
-												.then(mod => mod.setGetEnv((key) => {
-													const data = ${JSON.stringify(env)};
-													return data[key];
-												}))
-												.catch(() => {});`
-													: ''
-											}
+											setGetEnv((key) => process.env[key]);
 
 											class MyApp extends App {
 												#manifest = null;

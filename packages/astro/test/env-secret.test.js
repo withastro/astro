@@ -31,17 +31,12 @@ describe('astro:env secret variables', () => {
 	});
 
 	it('builds without throwing', async () => {
-		process.env.KNOWN_SECRET = '123456'
+		process.env.KNOWN_SECRET = '123456';
 		process.env.UNKNOWN_SECRET = 'abc';
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
 			output: 'server',
-			adapter: testAdapter({
-				env: {
-					KNOWN_SECRET: '123456',
-					UNKNOWN_SECRET: 'abc',
-				},
-			}),
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 		assert.equal(true, true);
@@ -53,12 +48,7 @@ describe('astro:env secret variables', () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
 			output: 'server',
-			adapter: testAdapter({
-				env: {
-					KNOWN_SECRET: '123456',
-					UNKNOWN_SECRET: 'abc',
-				},
-			}),
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 		const app = await fixture.loadTestAdapterApp();
