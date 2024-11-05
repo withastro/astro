@@ -40,27 +40,15 @@ if (commandName && !(commandName in benchmarks)) {
 
 if (commandName) {
 		if (commandName === 'codspeed') {
-			const memory = await makeProject('memory-default');
 			const render = await makeProject('render-default');
-			const stress = await makeProject('server-stress-default');
-			const rootMemory = fileURLToPath(memory);
 			const rootRender = fileURLToPath(render);
-			const rootStress = fileURLToPath(stress);
 			const bench = benchmarks[commandName];
 			const benchMod = await bench();
 			const payload = {
-				memory: {
-					root: rootMemory,
-					output: await getOutputFile('memory')
-				},
 				render: {
 					root: rootRender,
 					output: await getOutputFile('render')
 				},
-				stress: {
-					root: rootStress,
-					output: await getOutputFile('stress')
-				}
 			};
 			await benchMod.run(payload);
 		} else {
