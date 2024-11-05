@@ -18,9 +18,9 @@ import {
 	deserializeActionResult,
 	serializeActionResult,
 } from './shared.js';
-import type { APIContext } from '../../../@types/astro.js';
 import type { Locals } from '../utils.js';
 import { getAction } from './get-action.js';
+import type { APIContext } from '../../../types/public/index.js';
 
 export * from './shared.js';
 
