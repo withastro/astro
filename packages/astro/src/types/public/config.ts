@@ -1070,6 +1070,37 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		 */
 		remotePatterns?: Partial<RemotePattern>[];
+
+		/**
+		 * @docs
+		 * @name image.experimentalLayout
+		 * @default `undefined`
+		 * @description
+		 * The default layout type for responsive images. Can be overridden by the `layout` prop on the image component.
+		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 * - `responsive` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
+		 * - `fixed` - The image will maintain its original dimensions.
+		 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
+		 */
+		experimentalLayout?: ImageLayout | undefined;
+		/**
+		 * @docs
+		 * @name image.experimentalObjectFit
+		 * @default `"cover"`
+		 * @description
+		 * The default object-fit value for responsive images. Can be overridden by the `fit` prop on the image component.
+		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 */
+		experimentalObjectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down' | (string & {});
+		/**
+		 * @docs
+		 * @name image.experimentalObjectPosition
+		 * @default `"center"`
+		 * @description
+		 * The default object-position value for responsive images. Can be overridden by the `position` prop on the image component.
+		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 */
+		experimentalObjectPosition?: string;
 	};
 
 	/**
@@ -1731,23 +1762,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 */
 
-		responsiveImages?:
-			| boolean
-			| {
-					/**
-					 * @docs
-					 * @name responsiveImages.layout
-					 * @default `undefined`
-					 * @description
-					 * The default layout type for responsive images. Can be overridden by the `layout` prop on the image component.
-					 * - `responsive` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
-					 * - `fixed` - The image will maintain its original dimensions.
-					 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
-					 */
-					layout?: ImageLayout | undefined;
-					objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down' | (string & {});
-					objectPosition?: string;
-			  };
+		responsiveImages?: boolean;
 	};
 }
 
