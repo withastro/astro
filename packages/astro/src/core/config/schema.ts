@@ -95,6 +95,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
+		responsiveImages: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -525,6 +526,22 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
+			responsiveImages: z
+				.union([
+					z.boolean(),
+					z.object({
+						layout: z
+							.union([
+								z.literal('responsive'),
+								z.literal('fixed'),
+								z.literal('full-width'),
+								z.literal('none'),
+							])
+							.optional(),
+					}),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,

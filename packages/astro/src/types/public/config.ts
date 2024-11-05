@@ -1699,8 +1699,45 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
 		 */
 		contentIntellisense?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.responsiveImages
+		 * @type {boolean}
+		 * @default `undefined`
+		 * @version 5.0.0
+		 * @description
+		 *
+		 * Enables and configures automatic responsive image generation for images in your project. Set to `true` or an object with configuration options.
+		 * When enabled it will not transform any images unless you pass the `layout` option to the image component, or set the `layout` option in the `responsiveImages` configuration.
+		 *
+		 * ```js
+		 * {
+		 *  experimental: {
+		 * 		responsiveImages: {
+		 * 			layout: 'responsive',
+		 * 		},
+		 * }
+		 * ```
+		 *
+		 */
+
+		responsiveImages?:
+			| boolean
+			| {
+					/**
+					 * @docs
+					 * @name responsiveImages.layout
+					 * @default `undefined`
+					 * @description
+					 * The default layout type for responsive images. Can be overridden by the `layout` prop on the image component.
+					 */
+					layout?: ResponsiveImageLayout | undefined;
+			  };
 	};
 }
+
+export type ResponsiveImageLayout = 'responsive' | 'fixed' | 'full-width' | 'none';
 
 /**
  * Resolved Astro Config
