@@ -390,13 +390,16 @@ function isAdapter(
 // Some examples:
 //  - @astrojs/image => image
 //  - @astrojs/markdown-component => markdownComponent
+//  - @astrojs/image@beta => image
 //  - astro-cast => cast
+//  - astro-cast@next => cast
 //  - markdown-astro => markdown
 //  - some-package => somePackage
 //  - example.com => exampleCom
 //  - under_score => underScore
 //  - 123numeric => numeric
 //  - @npm/thingy => npmThingy
+//  - @npm/thingy@1.2.3 => npmThingy
 //  - @jane/foo.js => janeFoo
 //  - @tokencss/astro => tokencss
 const toIdent = (name: string) => {
@@ -409,7 +412,9 @@ const toIdent = (name: string) => {
 		// convert to camel case
 		.replace(/[.\-_/]+([a-zA-Z])/g, (_, w) => w.toUpperCase())
 		// drop invalid first characters
-		.replace(/^[^a-zA-Z$_]+/, '');
+		.replace(/^[^a-zA-Z$_]+/, '')
+		// drop version or tag
+		.replace(/@.*$/, '');
 	return `${ident[0].toLowerCase()}${ident.slice(1)}`;
 };
 
