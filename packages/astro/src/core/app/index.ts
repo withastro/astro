@@ -121,14 +121,10 @@ export class App {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
 				const bundlePath = this.#manifest.entryModules[specifier];
-				switch (true) {
-					case bundlePath.startsWith('data:'):
-					case bundlePath.length === 0: {
-						return bundlePath;
-					}
-					default: {
-						return createAssetLink(bundlePath, this.#manifest.base, this.#manifest.assetsPrefix);
-					}
+				if (bundlePath.startsWith('data:') || bundlePath.length === 0) {
+					return bundlePath;
+				} else {
+					return createAssetLink(bundlePath, this.#manifest.base, this.#manifest.assetsPrefix);
 				}
 			},
 			serverLike: true,

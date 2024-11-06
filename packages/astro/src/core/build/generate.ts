@@ -394,6 +394,7 @@ function getUrlForPath(
 			ending = trailingSlash === 'never' ? '' : '/';
 			break;
 		}
+		case 'file':
 		default: {
 			ending = '.html';
 			break;
