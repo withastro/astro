@@ -232,10 +232,36 @@ function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 	return schema;
 }
 
+type ActionMiddlewareContext = {
+	/** Information about an incoming action request. */
+	action?: {
+		/** Whether an action was called using an RPC function or by using an HTML form action. */
+		calledFrom: 'rpc' | 'form';
+		/** The name of the action. Useful to track the source of an action result during a redirect. */
+		name: string;
+		/** Programatically call the action to get the result. */
+		handler: () => Promise<SafeResult<any, any>>;
+	};
+	/**
+	 * Manually set the action result accessed via `getActionResult()`.
+	 * Calling this function from middleware will disable Astro's own action result handling.
+	 */
+	setActionResult(actionName: string, actionResult: SerializedActionResult): void;
+	/**
+	 * Serialize an action result to stored in a cookie or session.
+	 * Also used to pass a result to Astro templates via `setActionResult()`.
+	 */
+	serializeActionResult: typeof serializeActionResult;
+	/**
+	 * Deserialize an action result to access data and error objects.
+	 */
+	deserializeActionResult: typeof deserializeActionResult;
+};
+
 /**
  * Access information about Action requests from middleware.
  */
-export function getActionContext(context: APIContext) {
+export function getActionContext(context: APIContext): ActionMiddlewareContext {
 	const callerInfo = getCallerInfo(context);
 
 	// Prevents action results from being handled on a rewrite.
@@ -243,16 +269,7 @@ export function getActionContext(context: APIContext) {
 	// if the user's middleware has already handled the result.
 	const actionResultAlreadySet = Boolean((context.locals as Locals)._actionPayload);
 
-	let action:
-		| {
-				/** Whether an action was called using an RPC function or by using an HTML form action. */
-				calledFrom: 'rpc' | 'form';
-				/** The name of the action. Useful to track the source of an action result during a redirect. */
-				name: string;
-				/** Programatically call the action to get the result. */
-				handler: () => Promise<SafeResult<any, any>>;
-		  }
-		| undefined = undefined;
+	let action: ActionMiddlewareContext['action'] = undefined;
 
 	if (callerInfo && context.request.method === 'POST' && !actionResultAlreadySet) {
 		const contentType = context.request.headers.get('content-type');
@@ -280,10 +297,6 @@ export function getActionContext(context: APIContext) {
 		};
 	}
 
-	/**
-	 * Manually set the action result accessed via `getActionResult()`.
-	 * Calling this function from middleware will disable Astro's own action result handling.
-	 */
 	function setActionResult(actionName: string, actionResult: SerializedActionResult) {
 		(context.locals as Locals)._actionPayload = {
 			actionResult,
