@@ -29,6 +29,7 @@ import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 import { copyRequest, setOriginPathname } from './routing/rewrite.js';
+import { SERVER_ISLAND_COMPONENT } from './server-islands/endpoint.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -526,11 +527,22 @@ export class RenderContext {
 		}
 
 		let computedLocale;
-		if (routeData.pathname) {
-			computedLocale = computeCurrentLocale(routeData.pathname, locales, defaultLocale);
+		if (routeData.component === SERVER_ISLAND_COMPONENT) {
+			let referer = this.request.headers.get('referer');
+			if (referer) {
+				if (URL.canParse(referer)) {
+					referer = new URL(referer).pathname;
+				}
+				computedLocale = computeCurrentLocale(referer, locales, defaultLocale);
+			}
 		} else {
-			computedLocale = computeCurrentLocale(url.pathname, locales, defaultLocale);
+			if (routeData.pathname) {
+				computedLocale = computeCurrentLocale(routeData.pathname, locales, defaultLocale);
+			} else {
+				computedLocale = computeCurrentLocale(url.pathname, locales, defaultLocale);
+			}
 		}
+
 		this.#currentLocale = computedLocale ?? fallbackTo;
 
 		return this.#currentLocale;
