@@ -1682,7 +1682,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name experimental.contentIntellisense
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 4.14.0
+     * @version 5.x
 		 * @description
 		 *
 		 * Enables Intellisense features (e.g. code completion, quick hints) for your content collection entries in compatible editors.
@@ -1704,8 +1704,35 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 * @docs
 		 * @name experimental.svg
-		 * @type {object}
+		 * @type {boolean|object}
 		 * @default `undefined`
+     * @version 5.x
+		 * @description
+		 * 
+		 * This feature allows you to import SVG files directly into your Astro project. By default, Astro will inline the SVG content into your HTML output.
+		 * 
+		 * To enable this feature, set `experimental.svg` to `true` in your Astro config:
+		 * 
+		 * ```js
+		 * {
+		 *   experimental: {
+		 * 	   svg: true,
+		 * 	 },
+		 * }
+		 * ```
+		 * 
+		 * To use this feature, import an SVG file in your Astro project:
+		 * 
+		 * ```astro
+		 * ---
+		 * import Logo from './path/to/svg/file.svg';
+		 * ---
+		 * 
+		 * <Logo size={24} />
+		 * ```
+		 * 
+		 * For a complete overview, and to give feedback on this experimental API,
+     * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
 		 */
 		svg?: {
 			/**
@@ -1713,6 +1740,23 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * @name experimental.svg.mode
 			 * @type {string}
 			 * @default 'inline'
+			 * 
+			 * This mode will determine how Astro handles the imported SVG file by default. Astro will inline the SVG content into your HTML output if not specified.
+			 * 
+			 * - `inline`: Astro will inline the SVG content into your HTML output.
+			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
+			 * 
+			 * When using 'sprite' mode, it is important to note that the symbol definition will be included with the first instance of the SVG that is rendered. This means that if the first instance is hidden or removed from the DOM, all other references will break.
+			 * 
+			 * This mode can be overridden by passing a `mode` prop to the imported SVG component.
+			 * 
+			 * ```astro
+			 * ---
+			 * import Logo from './path/to/svg/file.svg';
+			 * ---
+			 * 
+			 * <Logo size={24} mode="inline" />
+			 * ```
 			 */
 			mode?: SvgRenderMode;
 		};
