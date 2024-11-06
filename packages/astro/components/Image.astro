@@ -36,6 +36,11 @@ if (import.meta.env.DEV) {
 
 const { experimentalResponsiveImages } = imageConfig;
 
+const layoutClassMap = {
+	fixed: 'aim-fi',
+	responsive: 'aim-re',
+};
+
 const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 const objectFit = props.fit ?? imageConfig.experimentalObjectFit ?? 'cover';
 const objectPosition = props.position ?? imageConfig.experimentalObjectPosition ?? 'center';
@@ -50,7 +55,8 @@ const { style, class: className, ...attrs } = { ...additionalAttributes, ...imag
 	{...attrs}
 	{style}
 	class:list={[
-		experimentalResponsiveImages && (props.layout ?? imageConfig.experimentalLayout),
+		experimentalResponsiveImages && layoutClassMap[props.layout ?? imageConfig.experimentalLayout],
+		experimentalResponsiveImages && 'aim',
 		className,
 	]}
 />
@@ -63,28 +69,19 @@ const { style, class: className, ...attrs } = { ...additionalAttributes, ...imag
 		pos: objectPosition,
 	}}
 >
-	.responsive {
+	.aim {
+		width: 100%;
+		height: auto;
+		object-fit: var(--fit);
+		object-position: var(--pos);
+		aspect-ratio: var(--w) / var(--h);
+	}
+	.aim-re {
 		max-width: calc(var(--w) * 1px);
 		max-height: calc(var(--h) * 1px);
-		aspect-ratio: var(--w) / var(--h);
-		width: 100%;
-		height: auto;
-		object-fit: var(--fit);
-		object-position: var(--pos);
 	}
-
-	.full-width {
-		width: 100%;
-		height: auto;
-		aspect-ratio: var(--w) / var(--h);
-		object-fit: var(--fit);
-		object-position: var(--pos);
-	}
-
-	.fixed {
+	.aim-fi {
 		width: calc(var(--w) * 1px);
 		height: calc(var(--h) * 1px);
-		object-fit: var(--fit);
-		object-position: var(--pos);
 	}
 </style>
