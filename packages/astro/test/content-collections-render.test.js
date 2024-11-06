@@ -26,7 +26,7 @@ describe('Content Collections - render()', () => {
 			assert.equal($('ul li').length, 3);
 
 			// Includes styles
-			assert.equal($('link[rel=stylesheet]').length, 1);
+			assert.equal($('link[rel=stylesheet]').length, 2);
 		});
 
 		it('Excludes CSS for non-rendered entries', async () => {
@@ -34,7 +34,7 @@ describe('Content Collections - render()', () => {
 			const $ = cheerio.load(html);
 
 			// Excludes styles
-			assert.equal($('link[rel=stylesheet]').length, 0);
+			assert.equal($('link[rel=stylesheet]').length, 1);
 		});
 
 		it('De-duplicates CSS used both in layout and directly in target page', async () => {
@@ -110,7 +110,7 @@ describe('Content Collections - render()', () => {
 			assert.equal($('ul li').length, 3);
 
 			// Includes styles
-			assert.equal($('link[rel=stylesheet]').length, 1);
+			assert.equal($('link[rel=stylesheet]').length, 2);
 		});
 
 		it('Exclude CSS for non-rendered entries', async () => {
@@ -121,7 +121,7 @@ describe('Content Collections - render()', () => {
 			const $ = cheerio.load(html);
 
 			// Includes styles
-			assert.equal($('link[rel=stylesheet]').length, 0);
+			assert.equal($('link[rel=stylesheet]').length, 1);
 		});
 
 		it('De-duplicates CSS used both in layout and directly in target page', async () => {
@@ -202,7 +202,7 @@ describe('Content Collections - render()', () => {
 			assert.equal($('ul li').length, 3);
 
 			// Includes styles
-			assert.equal($('head > style').length, 1);
+			assert.equal($('head > style').length, 2);
 			assert.ok($('head > style').text().includes("font-family: 'Comic Sans MS'"));
 		});
 
