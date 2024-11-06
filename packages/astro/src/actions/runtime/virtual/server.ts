@@ -237,7 +237,7 @@ function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 export function getMiddlewareContext(context: APIContext) {
 	const callerInfo = getCallerInfo(context);
 
-	// Prevents action results form being handled on a rewrite.
+	// Prevents action results from being handled on a rewrite.
 	// Also prevents our *own* fallback middleware from running
 	// if the user's middleware has already handled the result.
 	const actionResultAlreadySet = Boolean((context.locals as Locals)._actionPayload);
