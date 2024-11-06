@@ -33,7 +33,7 @@ export const onRequest = defineMiddleware((ctx, next) => {
  
 	// If an action was called from an HTML form action,
 	// call the action handler and redirect with the result as a cookie.
-	if (action?.calledFrom === 'form-action') {
+	if (action?.calledFrom === 'form') {
 		const actionResult = await action.handler();
  
 		ctx.cookies.set('ACTION_PAYLOAD', {

@@ -14,7 +14,7 @@ const actionCookieForwarding = defineMiddleware(async (ctx, next) => {
 		return next();
 	}
 
-	if (action?.calledFrom === 'form-action' && ctx.url.searchParams.has('actionCookieForwarding')) {
+	if (action?.calledFrom === 'form' && ctx.url.searchParams.has('actionCookieForwarding')) {
 		const actionResult = await action.handler();
 
 		ctx.cookies.set('ACTION_PAYLOAD', {
@@ -35,4 +35,4 @@ const actionCookieForwarding = defineMiddleware(async (ctx, next) => {
 	return next();
 });
 
-export const onRequest =  actionCookieForwarding;
+export const onRequest = actionCookieForwarding;

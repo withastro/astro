@@ -245,7 +245,7 @@ export function getActionContext(context: APIContext) {
 	let action:
 		| {
 				/** Whether an action was called using an RPC function or by using an HTML form action. */
-				calledFrom: 'rpc' | 'form-action';
+				calledFrom: 'rpc' | 'form';
 				/** The name of the action. Useful to track the source of an action result during a redirect. */
 				name: string;
 				/** Programatically call the action to get the result. */
@@ -303,7 +303,7 @@ function getCallerInfo(ctx: APIContext) {
 	}
 	const queryParam = ctx.url.searchParams.get(ACTION_QUERY_PARAMS.actionName);
 	if (queryParam) {
-		return { from: 'form-action', name: queryParam } as const;
+		return { from: 'form', name: queryParam } as const;
 	}
 	return undefined;
 }
