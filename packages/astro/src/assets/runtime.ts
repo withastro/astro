@@ -5,7 +5,6 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import type { ImageMetadata } from './types.js';
-import { makeNonEnumerable, normalizeProps } from './utils/svg.js';
 
 export interface SvgComponentProps {
 	meta: ImageMetadata;
@@ -51,4 +50,36 @@ export function createSvgComponent({ meta, attributes, children }: SvgComponentP
 
 	// Attaching the metadata to the component to maintain current functionality
 	return Object.assign(Component, meta);
+}
+
+
+type SvgAttributes = Record<string, any>;
+
+/**
+ * Some attributes required for `image/svg+xml` are irrelevant when inlined in a `text/html` document. We can save a few bytes by dropping them.
+ */
+const ATTRS_TO_DROP = ['xmlns', 'xmlns:xlink', 'version'];
+const DEFAULT_ATTRS: SvgAttributes = { role: 'img' };
+
+export function dropAttributes(attributes: SvgAttributes) {
+	for (const attr of ATTRS_TO_DROP) {
+		delete attributes[attr];
+	}
+
+	return attributes;
+}
+
+function normalizeProps(attributes: SvgAttributes, { size, ...props }: SvgAttributes) {
+	if (size !== undefined && props.width === undefined && props.height === undefined) {
+		props.height = size;
+		props.width = size;
+	}
+
+	return dropAttributes({ ...DEFAULT_ATTRS, ...attributes, ...props });
+}
+
+function makeNonEnumerable(object: Record<string, any>) {
+	for (const property in object) {
+		Object.defineProperty(object, property, { enumerable: false });
+	}
 }
