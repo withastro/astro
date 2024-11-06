@@ -232,7 +232,7 @@ function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 	return schema;
 }
 
-type ActionMiddlewareContext = {
+export type ActionMiddlewareContext = {
 	/** Information about an incoming action request. */
 	action?: {
 		/** Whether an action was called using an RPC function or by using an HTML form action. */
