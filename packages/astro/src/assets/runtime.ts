@@ -39,9 +39,10 @@ export function createSvgComponent({ meta, attributes, children }: SvgComponentP
 		return render`<svg${spreadAttributes({viewBox, ...normalizedProps})}>${title}${unescapeHTML(children)}</svg>`
 	});
 
-	makeNonEnumerable(Component);
-
 	if (import.meta.env.DEV) {
+		// Prevent revealing that this is a component
+		makeNonEnumerable(Component);
+
 		// Maintaining the current `console.log` output for SVG imports
 		Object.defineProperty(Component, Symbol.for('nodejs.util.inspect.custom'), {
 			value: (_: any, opts: any, inspect: any) => inspect(meta, opts),
