@@ -144,7 +144,13 @@ async function installPackage(
 			await exec(
 				installCommand.pm,
 				[installCommand.command, ...installCommand.flags, ...installCommand.dependencies],
-				{ nodeOptions: { cwd: cwd } },
+				{
+					nodeOptions: {
+						cwd,
+						// reset NODE_ENV to ensure install command run in dev mode
+						env: { NODE_ENV: undefined },
+					},
+				},
 			);
 			spinner.success();
 
