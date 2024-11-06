@@ -1070,6 +1070,37 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		 */
 		remotePatterns?: Partial<RemotePattern>[];
+
+		/**
+		 * @docs
+		 * @name image.experimentalLayout
+		 * @default `undefined`
+		 * @description
+		 * The default layout type for responsive images. Can be overridden by the `layout` prop on the image component.
+		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 * - `responsive` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
+		 * - `fixed` - The image will maintain its original dimensions.
+		 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
+		 */
+		experimentalLayout?: ImageLayout | undefined;
+		/**
+		 * @docs
+		 * @name image.experimentalObjectFit
+		 * @default `"cover"`
+		 * @description
+		 * The default object-fit value for responsive images. Can be overridden by the `fit` prop on the image component.
+		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 */
+		experimentalObjectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down' | (string & {});
+		/**
+		 * @docs
+		 * @name image.experimentalObjectPosition
+		 * @default `"center"`
+		 * @description
+		 * The default object-position value for responsive images. Can be overridden by the `position` prop on the image component.
+		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 */
+		experimentalObjectPosition?: string;
 	};
 
 	/**
@@ -1699,8 +1730,43 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
 		 */
 		contentIntellisense?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.responsiveImages
+		 * @type {boolean}
+		 * @default `undefined`
+		 * @version 5.0.0
+		 * @description
+		 *
+		 * Enables and configures automatic responsive image options for images in your project. Set to `true` (for no default option passed to your images) or an object with default responsive image configuration options.
+		 *
+		 * ```js
+		 * {
+		 *  experimental: {
+		 * 		responsiveImages: {
+		 * 			layout: 'responsive',
+		 * 		},
+		 * }
+		 * ```
+		 *
+		 * Then, you can add a `layout` option to any `<Image />` component when needed to override your default configuration: `responsive`,  `fixed`, `full-width`, or `none`. This attribute is required to transform your images if `responsiveImages.layout` is not configured.  Images with a layout value of `undefined` or `none` will not be transformed.
+		 *
+		 * ```astro
+		 * ---
+		 * import { Image } from 'astro:assets';
+		 * import myImage from '../assets/my_image.png';
+		 * ---
+		 * <Image src={myImage} alt="A description of my image." layout='fixed' />
+		 * ```
+		 *
+		 */
+
+		responsiveImages?: boolean;
 	};
 }
+
+export type ImageLayout = 'responsive' | 'fixed' | 'full-width' | 'none';
 
 /**
  * Resolved Astro Config

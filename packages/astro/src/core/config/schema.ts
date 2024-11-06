@@ -95,6 +95,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
+		responsiveImages: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -284,6 +285,9 @@ export const AstroConfigSchema = z.object({
 					}),
 				)
 				.default([]),
+			experimentalLayout: z.enum(['responsive', 'fixed', 'full-width', 'none']).optional(),
+			experimentalObjectFit: z.string().optional(),
+			experimentalObjectPosition: z.string().optional(),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
 	devToolbar: z
@@ -525,6 +529,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
+			responsiveImages: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,
@@ -688,7 +696,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		})
 		.superRefine((configuration, ctx) => {
-			const { site, i18n, output } = configuration;
+			const { site, i18n, output, image, experimental } = configuration;
 			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
 			if (hasDomains) {
 				if (!site) {
@@ -704,6 +712,18 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 						message: 'Domain support is only available when `output` is `"server"`.',
 					});
 				}
+			}
+			if (
+				!experimental.responsiveImages &&
+				(image.experimentalLayout ||
+					image.experimentalObjectFit ||
+					image.experimentalObjectPosition)
+			) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message:
+						'The `experimentalLayout`, `experimentalObjectFit`, and `experimentalObjectPosition` options are only available when `experimental.responsiveImages` is enabled.',
+				});
 			}
 		});
 
