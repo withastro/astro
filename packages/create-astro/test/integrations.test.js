@@ -30,7 +30,9 @@ describe('integrations', () => {
 
 		await dependencies(context);
 
-		assert.ok(fixture.hasMessage('--dry-run Skipping dependency installation and adding node, react'));
+		assert.ok(
+			fixture.hasMessage('--dry-run Skipping dependency installation and adding node, react'),
+		);
 	});
 
 	it('--add node,react', async () => {
@@ -39,12 +41,14 @@ describe('integrations', () => {
 			yes: true,
 			packageManager: 'npm',
 			dryRun: true,
-			add: ['node,react']
+			add: ['node,react'],
 		};
 
 		await dependencies(context);
 
-		assert.ok(fixture.hasMessage('--dry-run Skipping dependency installation and adding node, react'));
+		assert.ok(
+			fixture.hasMessage('--dry-run Skipping dependency installation and adding node, react'),
+		);
 	});
 
 	it('-y', async () => {

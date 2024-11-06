@@ -27,7 +27,10 @@ export async function dependencies(
 	ctx.add = ctx.add?.reduce<string[]>((acc, item) => acc.concat(item.split(',')), []);
 
 	if (ctx.dryRun) {
-		await info('--dry-run', `Skipping dependency installation${ ctx.add ? ` and adding ${ctx.add.join(', ')}` : '' }`);
+		await info(
+			'--dry-run',
+			`Skipping dependency installation${ctx.add ? ` and adding ${ctx.add.join(', ')}` : ''}`,
+		);
 	} else if (deps) {
 		ctx.tasks.push({
 			pending: 'Dependencies',

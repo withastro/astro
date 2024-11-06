@@ -118,41 +118,41 @@ export async function syncInternal({
 
 	const timerStart = performance.now();
 
-		if (!skip?.content) {
-			await syncContentCollections(settings, { mode, fs, logger, manifest });
-			settings.timer.start('Sync content layer');
-			let store: MutableDataStore | undefined;
-			try {
-				const dataStoreFile = getDataStoreFile(settings);
-				if (existsSync(dataStoreFile)) {
-					store = await MutableDataStore.fromFile(dataStoreFile);
-				}
-			} catch (err: any) {
-				logger.error('content', err.message);
+	if (!skip?.content) {
+		await syncContentCollections(settings, { mode, fs, logger, manifest });
+		settings.timer.start('Sync content layer');
+		let store: MutableDataStore | undefined;
+		try {
+			const dataStoreFile = getDataStoreFile(settings);
+			if (existsSync(dataStoreFile)) {
+				store = await MutableDataStore.fromFile(dataStoreFile);
 			}
-			if (!store) {
-				store = new MutableDataStore();
-			}
-			const contentLayer = globalContentLayer.init({
-				settings,
-				logger,
-				store,
-			});
-			await contentLayer.sync();
-			settings.timer.end('Sync content layer');
-		} else if (fs.existsSync(fileURLToPath(getContentPaths(settings.config, fs).contentDir))) {
-			// Content is synced after writeFiles. That means references are not created
-			// To work around it, we create a stub so the reference is created and content
-			// sync will override the empty file
-			settings.injectedTypes.push({
-				filename: CONTENT_TYPES_FILE,
-				content: '',
-			});
+		} catch (err: any) {
+			logger.error('content', err.message);
 		}
-		syncAstroEnv(settings);
+		if (!store) {
+			store = new MutableDataStore();
+		}
+		const contentLayer = globalContentLayer.init({
+			settings,
+			logger,
+			store,
+		});
+		await contentLayer.sync();
+		settings.timer.end('Sync content layer');
+	} else if (fs.existsSync(fileURLToPath(getContentPaths(settings.config, fs).contentDir))) {
+		// Content is synced after writeFiles. That means references are not created
+		// To work around it, we create a stub so the reference is created and content
+		// sync will override the empty file
+		settings.injectedTypes.push({
+			filename: CONTENT_TYPES_FILE,
+			content: '',
+		});
+	}
+	syncAstroEnv(settings);
 
-		writeInjectedTypes(settings, fs);
-		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
+	writeInjectedTypes(settings, fs);
+	logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 }
 
 function getTsReference(type: 'path' | 'types', value: string) {
