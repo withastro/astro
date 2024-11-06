@@ -282,12 +282,12 @@ export function getActionContext(context: APIContext): ActionMiddlewareContext {
 				const baseAction = await getAction(callerInfo.name);
 				let input: unknown = undefined;
 
-				if (!contentType || contentLength === '0') {
-					input = undefined;
-				} else if (contentType && hasContentType(contentType, formContentTypes)) {
+				if (contentType && hasContentType(contentType, formContentTypes)) {
 					input = await context.request.clone().formData();
 				} else if (contentType && hasContentType(contentType, ['application/json'])) {
 					input = await context.request.clone().json();
+				} else if (!contentType || contentLength === '0') {
+					input = undefined;
 				} else {
 					return { data: undefined, error: new ActionError({ code: 'UNSUPPORTED_MEDIA_TYPE' }) };
 				}
