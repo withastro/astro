@@ -10,7 +10,6 @@ export default (element) => {
 		let $$slots = undefined;
 		let renderFns = {};
 
-		
 		for (const [key, value] of Object.entries(slotted)) {
 			// Legacy slot support
 			$$slots ??= {};
@@ -25,15 +24,15 @@ export default (element) => {
 				}));
 			}
 			// @render support for Svelte ^5.0
-      if (key === 'default') {
-        renderFns.children = createRawSnippet(() => ({
-          render: () => `<astro-slot>${value}</astro-slot>`
-        }));
-      } else {
-        renderFns[key] = createRawSnippet(() => ({
-          render: () => `<astro-slot name="${key}">${value}</astro-slot>`
-        }));
-      }
+			if (key === 'default') {
+				renderFns.children = createRawSnippet(() => ({
+					render: () => `<astro-slot>${value}</astro-slot>`,
+				}));
+			} else {
+				renderFns[key] = createRawSnippet(() => ({
+					render: () => `<astro-slot name="${key}">${value}</astro-slot>`,
+				}));
+			}
 		}
 
 		const bootstrap = client !== 'only' ? hydrate : mount;
@@ -42,7 +41,7 @@ export default (element) => {
 				...props,
 				children,
 				$$slots,
-				...renderFns
+				...renderFns,
 			});
 		} else {
 			const component = bootstrap(Component, {
@@ -51,7 +50,7 @@ export default (element) => {
 					...props,
 					children,
 					$$slots,
-					...renderFns
+					...renderFns,
 				},
 			});
 			existingApplications.set(element, component);
