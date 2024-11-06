@@ -108,15 +108,10 @@ export function setOriginPathname(request: Request, pathname: string): void {
 	Reflect.set(request, originPathnameSymbol, encodeURIComponent(pathname));
 }
 
-/**
- * Get pathname from a request before any rewrites were applied.
- * Useful for redirecting back to the original page from middleware
- *  after an action was handled.
- */
-export function getOriginPathname(request: Request): string | undefined {
+export function getOriginPathname(request: Request): string {
 	const origin = Reflect.get(request, originPathnameSymbol);
 	if (origin) {
 		return decodeURIComponent(origin);
 	}
-	return undefined;
+	return new URL(request.url).pathname;
 }

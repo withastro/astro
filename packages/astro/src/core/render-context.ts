@@ -28,7 +28,7 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
-import { copyRequest, setOriginPathname } from './routing/rewrite.js';
+import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { SERVER_ISLAND_COMPONENT } from './server-islands/endpoint.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
@@ -299,6 +299,9 @@ export class RenderContext {
 			request: this.request,
 			site: pipeline.site,
 			url,
+			get originPathname() {
+				return getOriginPathname(renderContext.request);
+			},
 		};
 	}
 
@@ -477,6 +480,9 @@ export class RenderContext {
 				return createCallAction(this);
 			},
 			url,
+			get originPathname() {
+				return getOriginPathname(renderContext.request);
+			},
 		};
 	}
 

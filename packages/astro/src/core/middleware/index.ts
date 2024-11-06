@@ -90,6 +90,9 @@ function createContext({
 			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales, defaultLocale));
 		},
 		url,
+		get originPathname() {
+			return getOriginPathname(request);
+		},
 		get clientAddress() {
 			if (clientIpAddress) {
 				return clientIpAddress;
@@ -193,4 +196,4 @@ function trySerializeLocals(value: unknown) {
 }
 
 // NOTE: this export must export only the functions that will be exposed to user-land as officials APIs
-export { createContext, defineMiddleware, sequence, trySerializeLocals, getOriginPathname };
+export { createContext, defineMiddleware, sequence, trySerializeLocals };

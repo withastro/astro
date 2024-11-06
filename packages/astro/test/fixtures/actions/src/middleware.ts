@@ -1,4 +1,4 @@
-import { defineMiddleware, sequence, getOriginPathname } from 'astro:middleware';
+import { defineMiddleware, sequence } from 'astro:middleware';
 import { getActionContext } from 'astro:actions';
 
 const actionCookieForwarding = defineMiddleware(async (ctx, next) => {
@@ -37,7 +37,7 @@ const actionCookieForwarding = defineMiddleware(async (ctx, next) => {
 			}
 			return ctx.redirect(referer);
 		}
-		return ctx.redirect(getOriginPathname(ctx.request) ?? ctx.url.pathname);
+		return ctx.redirect(ctx.originPathname);
 	}
 
 	return next();

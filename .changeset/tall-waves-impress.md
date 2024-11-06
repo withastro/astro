@@ -13,7 +13,7 @@ So, we've introduced a new `getActionContext()` utility to let you decide how ac
 Cookie redirects are no longer handled by default. You can implement the behavior from Astro v4 as a middleware using `getActionContext()` like so:
 
 ```ts
-import { defineMiddleware, getOriginPathname } from 'astro:middleware';
+import { defineMiddleware } from 'astro:middleware';
 import { getActionContext } from 'astro:actions';
 
 export const onRequest = defineMiddleware((ctx, next) => {
@@ -50,7 +50,7 @@ export const onRequest = defineMiddleware((ctx, next) => {
 			return ctx.redirect(referer);
 		}
 		// Redirect to the destination page on success
-		return ctx.redirect(getOriginPathname(ctx.request) ?? ctx.url.pathname);
+		return ctx.redirect(ctx.originPathname);
 	}
  
 	return next();
