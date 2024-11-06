@@ -291,7 +291,14 @@ export function getActionContext(context: APIContext): ActionMiddlewareContext {
 				} else {
 					return { data: undefined, error: new ActionError({ code: 'UNSUPPORTED_MEDIA_TYPE' }) };
 				}
-				const handler = baseAction.bind(context);
+				const {
+					props: _props,
+					getActionResult: _getActionResult,
+					callAction: _callAction,
+					redirect: _redirect,
+					...actionAPIContext
+				} = context;
+				const handler = baseAction.bind(actionAPIContext);
 				return handler(input);
 			},
 		};
