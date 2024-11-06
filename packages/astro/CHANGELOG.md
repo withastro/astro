@@ -1,5 +1,13 @@
 # astro
 
+## 5.0.0-beta.7
+
+### Minor Changes
+
+- [#12323](https://github.com/withastro/astro/pull/12323) [`c280655`](https://github.com/withastro/astro/commit/c280655655cc6c22121f32c5f7c76836adf17230) Thanks [@bluwy](https://github.com/bluwy)! - Updates to Vite 6.0.0-beta.6
+
+- [#12379](https://github.com/withastro/astro/pull/12379) [`94f4fe8`](https://github.com/withastro/astro/commit/94f4fe8180f02cf19fb617dde7d67d4f7bee8dac) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new components exported from `astro/components`: Welcome, to be used by the new Basics template
+
 ## 5.0.0-beta.6
 
 ### Major Changes
