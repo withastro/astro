@@ -26,6 +26,7 @@ import {
 	AstroError,
 	AstroErrorData,
 	AstroUserError,
+	type ErrorWithMetadata,
 	createSafeError,
 	isAstroError,
 } from '../errors/index.js';
@@ -68,17 +69,7 @@ export default async function sync(
 	});
 	const manifest = await createRouteManifest({ settings, fsMod: fs }, logger);
 
-	// Run `astro:config:done`
-	// Actions will throw if there is misconfiguration, so catch here.
-	try {
-		await runHookConfigDone({ settings, logger });
-	} catch (err) {
-		if (err instanceof Error) {
-			const errorMessage = err.toString();
-			logger.error('sync', errorMessage);
-		}
-		throw err;
-	}
+	await runHookConfigDone({ settings, logger });
 
 	return await syncInternal({
 		settings,
@@ -127,7 +118,6 @@ export async function syncInternal({
 
 	const timerStart = performance.now();
 
-	try {
 		if (!skip?.content) {
 			await syncContentCollections(settings, { mode, fs, logger, manifest });
 			settings.timer.start('Sync content layer');
@@ -163,15 +153,6 @@ export async function syncInternal({
 
 		writeInjectedTypes(settings, fs);
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
-	} catch (err) {
-		const error = createSafeError(err);
-		logger.error(
-			'types',
-			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
-		);
-		// Will return exit code 1 in CLI
-		throw error;
-	}
 }
 
 function getTsReference(type: 'path' | 'types', value: string) {
@@ -270,7 +251,7 @@ async function syncContentCollections(
 			}
 		}
 	} catch (e) {
-		const safeError = createSafeError(e);
+		const safeError = createSafeError(e) as ErrorWithMetadata;
 		if (isAstroError(e)) {
 			throw e;
 		}
@@ -280,6 +261,7 @@ async function syncContentCollections(
 				...AstroErrorData.GenerateContentTypesError,
 				hint,
 				message: AstroErrorData.GenerateContentTypesError.message(safeError.message),
+				location: safeError.loc,
 			},
 			{ cause: e },
 		);
