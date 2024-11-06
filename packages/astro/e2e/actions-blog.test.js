@@ -155,7 +155,7 @@ test.describe('Astro Actions - Blog', () => {
 		await expect(page).toHaveURL(astro.resolveUrl('/blog/'));
 	});
 
-	test('Should redirect to the origin pathname when there is a rewrite', async ({
+	test('Should redirect to the origin pathname when there is a rewrite from an Astro page', async ({
 		page,
 		astro,
 	}) => {
