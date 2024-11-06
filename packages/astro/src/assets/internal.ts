@@ -70,8 +70,7 @@ export async function getImage(
 		src: await resolveSrc(options.src),
 	};
 
-	let originalWidth =
-		typeof resolvedOptions.src === 'object' ? resolvedOptions.src.width : undefined;
+	let originalWidth: number | undefined;
 
 	// Infer size for remote images if inferSize is true
 	if (
@@ -82,7 +81,7 @@ export async function getImage(
 		const result = await inferRemoteSize(resolvedOptions.src); // Directly probe the image URL
 		resolvedOptions.width ??= result.width;
 		resolvedOptions.height ??= result.height;
-		originalWidth ??= result.width;
+		originalWidth = result.width;
 		delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
 	}
 
@@ -97,12 +96,18 @@ export async function getImage(
 			(resolvedOptions.src.clone ?? resolvedOptions.src)
 		: resolvedOptions.src;
 
+	originalWidth ||= isESMImportedImage(clonedSrc) ? clonedSrc.width : undefined;
+
 	resolvedOptions.src = clonedSrc;
 
 	const layout = options.layout ?? imageConfig.experimentalLayout;
 
 	if (imageConfig.experimentalResponsiveImages && layout) {
-		resolvedOptions.widths ||= getWidths({ width: resolvedOptions.width, layout, originalWidth });
+		resolvedOptions.widths ||= getWidths({
+			width: resolvedOptions.width,
+			layout,
+			originalWidth,
+		});
 		resolvedOptions.sizes ||= getSizes({ width: resolvedOptions.width, layout });
 	}
 
