@@ -1489,7 +1489,7 @@ export interface AstroUserConfig {
 		 * @type {'shiki' | 'prism' | false}
 		 * @default `shiki`
 		 * @description
-		 * Which syntax highlighter to use for Markdown code blocks (/`/`/`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
+		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
 		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
 		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
