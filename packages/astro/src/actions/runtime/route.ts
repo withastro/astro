@@ -1,8 +1,8 @@
 import type { APIRoute } from '../../types/public/common.js';
-import { getMiddlewareContext } from './virtual/server.js';
+import { getActionContext } from './virtual/server.js';
 
 export const POST: APIRoute = async (context) => {
-	const { action, serializeActionResult } = getMiddlewareContext(context);
+	const { action, serializeActionResult } = getActionContext(context);
 
 	if (action?.calledFrom !== 'rpc') {
 		return new Response('Not found', { status: 404 });

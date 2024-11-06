@@ -234,7 +234,7 @@ function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 /**
  * Access information about Action requests from middleware.
  */
-export function getMiddlewareContext(context: APIContext) {
+export function getActionContext(context: APIContext) {
 	const callerInfo = getCallerInfo(context);
 
 	// Prevents action results from being handled on a rewrite.

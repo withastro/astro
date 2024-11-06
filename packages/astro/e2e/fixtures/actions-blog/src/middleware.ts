@@ -1,10 +1,10 @@
 import { defineMiddleware, getOriginPathname, sequence } from 'astro:middleware';
-import { getMiddlewareContext } from 'astro:actions';
+import { getActionContext } from 'astro:actions';
 
 const actionCookieForwarding = defineMiddleware(async (ctx, next) => {
 	if (ctx.isPrerendered) return next();
 
-	const { action, setActionResult, serializeActionResult } = getMiddlewareContext(ctx);
+	const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
 
 	const payload = ctx.cookies.get('ACTION_PAYLOAD');
 	if (payload) {

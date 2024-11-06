@@ -6,20 +6,20 @@ Change Action cookie redirects to an opt-in feature users can implement using mi
 
 This is meant to address the 4 KB size limit users have encountered when calling actions from an HTML form action. It can be difficult to predict the size of an action result for large validation errors or longer return values, like AI chatbot results.
 
-So, we've introduced a new `getMiddlewareContext()` utility to let you decide how action results are handled from middleware. You may choose to implement the existing cookie redirect from Astro v4, or implement forwarding with your own session storage.
+So, we've introduced a new `getActionContext()` utility to let you decide how action results are handled from middleware. You may choose to implement the existing cookie redirect from Astro v4, or implement forwarding with your own session storage.
 
 ## Migration
 
-Cookie redirects are no longer handled by default. You can implement the behavior from Astro v4 as a middleware using `getMiddlewareContext()` like so:
+Cookie redirects are no longer handled by default. You can implement the behavior from Astro v4 as a middleware using `getActionContext()` like so:
 
 ```ts
 import { defineMiddleware, getOriginPathname } from 'astro:middleware';
-import { getMiddlewareContext } from 'astro:actions';
+import { getActionContext } from 'astro:actions';
 
 export const onRequest = defineMiddleware((ctx, next) => {
   if (ctx.isPrerendered) return next();
  
-	const { action, setActionResult, serializeActionResult } = getMiddlewareContext(ctx);
+	const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
  
 	// If an action result was forwarded as a cookie, set the result
 	// to be accessible from `Astro.getActionResult()`

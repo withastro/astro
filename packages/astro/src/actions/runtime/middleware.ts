@@ -1,9 +1,9 @@
 import { defineMiddleware } from '../../virtual-modules/middleware.js';
-import { getMiddlewareContext } from './virtual/server.js';
+import { getActionContext } from './virtual/server.js';
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	if (context.isPrerendered) return next();
-	const { action, setActionResult, serializeActionResult } = getMiddlewareContext(context);
+	const { action, setActionResult, serializeActionResult } = getActionContext(context);
 
 	if (action?.calledFrom === 'form-action') {
 		const actionResult = await action.handler();
