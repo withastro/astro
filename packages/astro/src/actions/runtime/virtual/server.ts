@@ -298,7 +298,7 @@ export function getActionContext(context: APIContext): ActionMiddlewareContext {
 					redirect: _redirect,
 					...actionAPIContext
 				} = context;
-				const handler = baseAction.bind(actionAPIContext);
+				const handler = baseAction.bind(actionAPIContext satisfies ActionAPIContext);
 				return handler(input);
 			},
 		};
