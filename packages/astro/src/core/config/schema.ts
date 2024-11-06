@@ -528,13 +528,13 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
-			svg: z
+			svg: z.boolean().or(z
 				.object({
 					mode: z
 						.union([z.literal('inline'), z.literal('sprite')])
 						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.experimental.svg.mode),
-				})
+				}))
 				.optional(),
 		})
 		.strict(
