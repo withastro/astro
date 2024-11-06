@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 6.0.0-beta.2
+
+### Patch Changes
+
+- [`b21a075`](https://github.com/withastro/astro/commit/b21a07500284a3621be4d509f5aa67c0a8fcbf07) Thanks [@bluwy](https://github.com/bluwy)! - New release to include changes from 5.7.3
+
 ## 6.0.0-beta.1
 
 ### Patch Changes
