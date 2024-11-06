@@ -2696,6 +2696,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/core-image-layout:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/core-image-remark-imgattr:
     dependencies:
       astro:
