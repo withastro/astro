@@ -13,6 +13,6 @@ export function createExports(manifest: SSRManifest) {
 			const end = performance.now();
 			res.write(end - start + '');
 			res.end();
-		},
+		}
 	};
 }
