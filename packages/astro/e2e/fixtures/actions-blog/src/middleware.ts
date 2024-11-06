@@ -35,13 +35,4 @@ const actionCookieForwarding = defineMiddleware(async (ctx, next) => {
 	return next();
 });
 
-export const onRequest = sequence((ctx, next) => {
-	if (ctx.url.pathname === '/sum') {
-		// @Ema I verified ctx.url.search contains the expected action name
-		// I also verified that calling `Astro.rewrite` from pages/sum.astro
-		// works as expected.
-		return next('/rewritten' + ctx.url.search);
-	}
-
-	return next();
-}, actionCookieForwarding);
+export const onRequest =  actionCookieForwarding;
