@@ -4,6 +4,7 @@ import {
 	spreadAttributes,
 	unescapeHTML,
 } from '../runtime/server/index.js';
+import type { SSRResult } from '../types/public/index.js';
 import type { ImageMetadata } from './types.js';
 
 export interface SvgComponentProps {
@@ -15,12 +16,28 @@ export interface SvgComponentProps {
 /**
  * Make sure these IDs are kept on the module-level so they're incremented on a per-page basis
  */
-let ids = 0;
+// let ids = 0;
+
+const ids = new WeakMap<SSRResult, number>();
+let counter = 0;
+
 export function createSvgComponent({ meta, attributes, children }: SvgComponentProps) {
-	const id = `a:${ids++}`;
 	const rendered = new WeakSet<Response>();
 	const Component = createComponent((result, props) => {
-		const { title: titleProp, viewBox, mode, ...normalizedProps } = normalizeProps(attributes, props);
+		let id;
+		if (ids.has(result)) {
+			id = ids.get(result)!;
+		} else {
+			counter += 1;
+			ids.set(result, counter);
+			id = counter;
+		}
+		const {
+			title: titleProp,
+			viewBox,
+			mode,
+			...normalizedProps
+		} = normalizeProps(attributes, props);
 		const title = titleProp ? unescapeHTML(`<title>${titleProp}</title>`) : '';
 
 		if (mode === 'sprite') {
@@ -36,7 +53,7 @@ export function createSvgComponent({ meta, attributes, children }: SvgComponentP
 		}
 
 		// Default to inline mode
-		return render`<svg${spreadAttributes({viewBox, ...normalizedProps})}>${title}${unescapeHTML(children)}</svg>`
+		return render`<svg${spreadAttributes({ viewBox, ...normalizedProps })}>${title}${unescapeHTML(children)}</svg>`;
 	});
 
 	if (import.meta.env.DEV) {
@@ -52,7 +69,6 @@ export function createSvgComponent({ meta, attributes, children }: SvgComponentP
 	// Attaching the metadata to the component to maintain current functionality
 	return Object.assign(Component, meta);
 }
-
 
 type SvgAttributes = Record<string, any>;
 
