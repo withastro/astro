@@ -8,7 +8,7 @@ import type { HTMLAttributes } from '../types';
 // Not 100% sure how to fix this, seems to be a TypeScript issue. Unfortunate.
 type Props = LocalImageProps | RemoteImageProps;
 
-const { class: className, ...props } = Astro.props;
+const props = Astro.props;
 
 if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
@@ -39,12 +39,16 @@ const { experimentalResponsiveImages } = imageConfig;
 const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 const objectFit = props.fit ?? imageConfig.experimentalObjectFit ?? 'cover';
 const objectPosition = props.position ?? imageConfig.experimentalObjectPosition ?? 'center';
+
+// The style prop can't be spread when using define:vars, so we need to extract it here
+// @see https://github.com/withastro/compiler/issues/1050
+const { style, class: className, ...attrs } = { ...additionalAttributes, ...image.attributes };
 ---
 
 <img
 	src={image.src}
-	{...additionalAttributes}
-	{...image.attributes}
+	{...attrs}
+	{style}
 	class:list={[
 		experimentalResponsiveImages && (props.layout ?? imageConfig.experimentalLayout),
 		className,

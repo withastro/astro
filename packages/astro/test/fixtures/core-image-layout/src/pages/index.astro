@@ -4,11 +4,16 @@ import hero from "../assets/hero.jpg";
 ---
 
 <div>
-	<Image src={hero} alt="A walrus" layout="fixed" width={800} height={300} />
+	<Image src={hero} alt="A penguin" layout="fixed" width={800} height={300} class="green" />
 </div>
 <div>
-	<Image src={hero} alt="A walrus" layout="responsive" width={800} height={300} />
+	<Image src={hero} alt="A penguin" layout="responsive" width={800} height={300} style="border: 2px red solid"/>
 </div>
 <div>
 	<Image src={hero} alt="A heroic penguin" layout="full-width"/>
 </div>
+<style>
+	.green {
+		border: 2px green solid;
+	}
+</style>
