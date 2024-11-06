@@ -28,7 +28,7 @@ export const toAttributeString = (value: any, shouldEscape = true) =>
 
 const kebab = (k: string) =>
 	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
-export const toStyleString = (obj: Record<string, any>) =>
+const toStyleString = (obj: Record<string, any>) =>
 	Object.entries(obj)
 		.filter(([_, v]) => (typeof v === 'string' && v.trim()) || typeof v === 'number')
 		.map(([k, v]) => {
