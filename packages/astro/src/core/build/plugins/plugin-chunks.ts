@@ -16,6 +16,10 @@ export function vitePluginChunks(): VitePlugin {
 					if (id.includes('astro/dist/runtime')) {
 						return 'astro';
 					}
+					console.log(id)
+					if (id === 'virtual:astro:env/get') {
+						return 'thisiscustom'
+					}
 				},
 			});
 		},

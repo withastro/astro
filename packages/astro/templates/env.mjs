@@ -2,11 +2,10 @@
 import { schema } from 'virtual:astro:env/internal';
 import {
 	createInvalidVariablesError,
-	getEnv,
 	getEnvFieldType,
-	setOnSetGetEnv,
 	validateEnvVariable,
 } from 'astro/env/runtime';
+import { getEnv } from 'virtual:astro:env/get'
 
 export const getSecret = (key) => {
 	return getEnv(key);
@@ -25,9 +24,3 @@ const _internalGetSecret = (key) => {
 	throw createInvalidVariablesError(key, type, result);
 };
 
-// used while generating the virtual module
-// biome-ignore lint/correctness/noUnusedFunctionParameters: `reset` is used by the generated code
-// biome-ignore lint/correctness/noUnusedVariables: `reset` is used by the generated code
-setOnSetGetEnv((reset) => {
-	// @@ON_SET_GET_ENV@@
-});

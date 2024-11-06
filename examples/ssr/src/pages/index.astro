@@ -4,6 +4,9 @@ import Container from '../components/Container.astro';
 import ProductListing from '../components/ProductListing.astro';
 import { getProducts } from '../api';
 import '../styles/common.css';
+import { getSecret } from 'astro:env/server'
+
+console.log(getSecret('NODE_ENV'))
 
 const products = await getProducts(Astro.request);
 ---

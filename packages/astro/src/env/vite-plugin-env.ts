@@ -4,12 +4,12 @@ import { type Plugin, loadEnv } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
+	INTERNAL_ENV_KEY,
 	MODULE_TEMPLATE_URL,
 	VIRTUAL_MODULES_IDS,
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
-import { ENV_SYMBOL } from './runtime-constants.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
@@ -22,14 +22,14 @@ interface AstroEnvPluginParams {
 export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin {
 	const { schema, validateSecrets } = settings.config.env;
 
-	let templates: { client: string; server: string; internal: string } | null = null;
+	let templates: { client: string; server: string; internal: string; getEnv: string } | null = null;
 
 	return {
 		name: 'astro-env-plugin',
 		enforce: 'pre',
 		buildStart() {
 			const loadedEnv = loadEnv(mode, fileURLToPath(settings.config.root), '');
-			(globalThis as any)[ENV_SYMBOL] = loadedEnv;
+			(globalThis as any)[INTERNAL_ENV_KEY] = loadedEnv;
 
 			const validatedVariables = validatePublicVariables({
 				schema,
@@ -41,6 +41,7 @@ export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin
 			templates = {
 				...getTemplates(schema, validatedVariables),
 				internal: `export const schema = ${JSON.stringify(schema)};`,
+				getEnv: `export const getEnv = (key) => (globalThis[${JSON.stringify(INTERNAL_ENV_KEY)}] ?? {})[key];`,
 			};
 		},
 		buildEnd() {
@@ -66,6 +67,24 @@ export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin
 			}
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.internal)) {
 				return templates!.internal;
+			}
+			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.getEnv)) {
+				return templates!.getEnv;
+			}
+		},
+		writeBundle(_, bundle) {
+			for (const [chunkName, chunk] of Object.entries(bundle)) {
+				// if (chunk.type !== 'asset' && chunk.facadeModuleId === VIRTUAL_MODULES_IDS.server) {
+				// 	console.log(chunk);
+				// }
+				if (chunk.type !== 'asset') {
+					// console.log({
+					// 	chunkName,
+					// 	name: chunk.name,
+					// 	facadeModuleId: chunk.facadeModuleId,
+					// 	fileName: chunk.fileName,
+					// });
+				}
 			}
 		},
 	};
@@ -122,7 +141,7 @@ function getTemplates(
 ) {
 	let client = '';
 	let server = readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
-	let onSetGetEnv = '';
+	// let onSetGetEnv = '';
 
 	for (const { key, value, context } of validatedVariables) {
 		const str = `export const ${key} = ${JSON.stringify(value)};`;
@@ -139,10 +158,10 @@ function getTemplates(
 		}
 
 		server += `export let ${key} = _internalGetSecret(${JSON.stringify(key)});\n`;
-		onSetGetEnv += `${key} = reset ? undefined : _internalGetSecret(${JSON.stringify(key)});\n`;
+		// onSetGetEnv += `${key} = reset ? undefined : _internalGetSecret(${JSON.stringify(key)});\n`;
 	}
 
-	server = server.replace('// @@ON_SET_GET_ENV@@', onSetGetEnv);
+	// server = server.replace('// @@ON_SET_GET_ENV@@', onSetGetEnv);
 
 	return {
 		client,

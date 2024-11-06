@@ -139,6 +139,11 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
 
+	console.log('build done')
+	// TODO: replace env virtual module
+	// throw new AstroError(AstroErrorData.EnvUnsupportedGetSecret);
+	// check vue code
+
 	await runHookBuildGenerated({ settings: options.settings, logger });
 }
 
