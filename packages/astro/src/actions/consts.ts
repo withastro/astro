@@ -9,3 +9,5 @@ export const ACTION_QUERY_PARAMS = {
 	actionName: '_astroAction',
 	actionPayload: '_astroActionPayload',
 };
+
+export const ACTION_RPC_ROUTE_PATTERN = '/_actions/[...path]';

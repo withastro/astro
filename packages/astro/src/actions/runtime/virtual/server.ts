@@ -21,6 +21,7 @@ import {
 import type { Locals } from '../utils.js';
 import { getAction } from './get-action.js';
 import type { APIContext } from '../../../types/public/index.js';
+import { ACTION_RPC_ROUTE_PATTERN } from '../../consts.js';
 
 export * from './shared.js';
 
@@ -298,7 +299,7 @@ export function getActionContext(context: APIContext) {
 }
 
 function getCallerInfo(ctx: APIContext) {
-	if (ctx.routePattern === '/_actions/[...path]') {
+	if (ctx.routePattern === ACTION_RPC_ROUTE_PATTERN) {
 		return { from: 'rpc', name: ctx.url.pathname.replace(/^.*\/_actions\//, '') } as const;
 	}
 	const queryParam = ctx.url.searchParams.get(ACTION_QUERY_PARAMS.actionName);
