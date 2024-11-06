@@ -34,10 +34,11 @@ if (import.meta.env.DEV) {
 	additionalAttributes['data-image-component'] = 'true';
 }
 
-const { experimentalResponsiveImages, layout } = imageConfig;
+const { experimentalResponsiveImages } = imageConfig;
 
 const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
-const objectFit = props.objectFit ?? 'cover';
+const objectFit = props.fit ?? imageConfig.experimentalObjectFit ?? 'cover';
+const objectPosition = props.position ?? imageConfig.experimentalObjectPosition ?? 'center';
 ---
 
 <img
@@ -45,16 +46,17 @@ const objectFit = props.objectFit ?? 'cover';
 	{...additionalAttributes}
 	{...image.attributes}
 	class:list={[
-		experimentalResponsiveImages && (props.layout ?? layout),
-		experimentalResponsiveImages && cssFitValues.includes(objectFit) && `fit-${objectFit}`,
+		experimentalResponsiveImages && (props.layout ?? imageConfig.experimentalLayout),
 		className,
 	]}
 />
 
 <style
-	define:vars={{
+	define:vars={experimentalResponsiveImages && {
 		w: image.attributes.width ?? props.width ?? image.options.width,
 		h: image.attributes.height ?? props.height ?? image.options.height,
+		fit: cssFitValues.includes(objectFit) && objectFit,
+		pos: objectPosition,
 	}}
 >
 	.responsive {
@@ -63,29 +65,22 @@ const objectFit = props.objectFit ?? 'cover';
 		aspect-ratio: var(--w) / var(--h);
 		width: 100%;
 		height: auto;
+		object-fit: var(--fit);
+		object-position: var(--pos);
 	}
 
 	.full-width {
 		width: 100%;
 		height: auto;
 		aspect-ratio: var(--w) / var(--h);
+		object-fit: var(--fit);
+		object-position: var(--pos);
 	}
 
 	.fixed {
 		width: calc(var(--w) * 1px);
 		height: calc(var(--h) * 1px);
-	}
-
-	.fit-cover {
-		object-fit: cover;
-	}
-
-	.fit-contain,
-	.fit-scale-down {
-		object-fit: scale-down;
-	}
-
-	.fit-fill {
-		object-fit: fill;
+		object-fit: var(--fit);
+		object-position: var(--pos);
 	}
 </style>
