@@ -195,6 +195,9 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 					return result;
 				}
+				case 'custom':
+				case 'template':
+				case undefined:
 				default:
 					return null;
 			}

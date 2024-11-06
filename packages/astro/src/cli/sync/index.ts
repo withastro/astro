@@ -22,10 +22,5 @@ export async function sync({ flags }: SyncOptions) {
 		return 0;
 	}
 
-	try {
-		await _sync(flagsToAstroInlineConfig(flags), { telemetry: true });
-		return 0;
-	} catch (_) {
-		return 1;
-	}
+	await _sync(flagsToAstroInlineConfig(flags), { telemetry: true });
 }

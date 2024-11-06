@@ -11,6 +11,7 @@
 			"**/.vercel/**",
 			"benchmark/projects/",
 			"benchmark/results/",
+			"benchmark/bench/_template.js",
 		],
 		"include": ["test/**", "e2e/**", "packages/**", "/scripts/**", "benchmark/bench"],
 	},
