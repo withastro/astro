@@ -224,9 +224,19 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 	},
 	getHTMLAttributes(options) {
 		const { targetWidth, targetHeight } = getTargetDimensions(options);
-		const { src, width, height, format, quality, densities, widths, formats, ...attributes } =
-			options;
-
+		const {
+			src,
+			width,
+			height,
+			format,
+			quality,
+			densities,
+			widths,
+			formats,
+			layout,
+			priority,
+			...attributes
+		} = options;
 		return {
 			...attributes,
 			width: targetWidth,

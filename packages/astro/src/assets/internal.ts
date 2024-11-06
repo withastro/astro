@@ -109,6 +109,17 @@ export async function getImage(
 			originalWidth,
 		});
 		resolvedOptions.sizes ||= getSizes({ width: resolvedOptions.width, layout });
+
+		if (resolvedOptions.priority) {
+			resolvedOptions.loading ??= 'eager';
+			resolvedOptions.decoding ??= 'sync';
+			resolvedOptions.fetchpriority ??= 'high';
+		} else {
+			resolvedOptions.loading ??= 'lazy';
+			resolvedOptions.decoding ??= 'async';
+			resolvedOptions.fetchpriority ??= 'auto';
+		}
+		delete resolvedOptions.priority;
 	}
 
 	const validatedOptions = service.validateOptions
