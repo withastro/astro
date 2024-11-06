@@ -344,7 +344,11 @@ export async function add(names: string[], { flags }: AddOptions) {
 			logger.info('SKIP_FORMAT', msg.success(`Configuration up-to-date.`));
 			break;
 		}
-		default: {
+		// NOTE: failure shouldn't happen in practice because `updateAstroConfig` doesn't return that.
+		// Pipe this to the same handling as `UpdateResult.updated` for now.
+		case UpdateResult.failure:
+		case UpdateResult.updated:
+		case undefined: {
 			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
 			logger.info(
 				'SKIP_FORMAT',
@@ -375,7 +379,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 				`Unknown error parsing tsconfig.json or jsconfig.json. Could not update TypeScript settings.`,
 			);
 		}
-		default:
+		case UpdateResult.updated:
 			logger.info('SKIP_FORMAT', msg.success(`Successfully updated TypeScript settings`));
 	}
 }
