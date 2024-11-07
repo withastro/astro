@@ -272,22 +272,19 @@ export function getActionContext(context: APIContext): ActionMiddlewareContext {
 	let action: ActionMiddlewareContext['action'] = undefined;
 
 	if (callerInfo && context.request.method === 'POST' && !actionResultAlreadySet) {
-		const contentType = context.request.headers.get('content-type');
-		const contentLength = context.request.headers.get('Content-Length');
-
 		action = {
 			calledFrom: callerInfo.from,
 			name: callerInfo.name,
 			handler: async () => {
 				const baseAction = await getAction(callerInfo.name);
-				let input: unknown = undefined;
-
-				if (contentType && hasContentType(contentType, formContentTypes)) {
-					input = await context.request.clone().formData();
-				} else if (contentType && hasContentType(contentType, ['application/json'])) {
-					input = contentLength === '0' ? undefined : await context.request.clone().json();
-				} else if (contentType) {
-					return { data: undefined, error: new ActionError({ code: 'UNSUPPORTED_MEDIA_TYPE' }) };
+				let input;
+				try {
+					input = await parseRequestBody(context.request);
+				} catch (e) {
+					if (e instanceof TypeError) {
+						return { data: undefined, error: new ActionError({ code: 'UNSUPPORTED_MEDIA_TYPE' }) };
+					}
+					throw e;
 				}
 				const {
 					props: _props,
@@ -325,4 +322,18 @@ function getCallerInfo(ctx: APIContext) {
 		return { from: 'form', name: queryParam } as const;
 	}
 	return undefined;
+}
+
+async function parseRequestBody(request: Request) {
+	const contentType = request.headers.get('content-type');
+	const contentLength = request.headers.get('Content-Length');
+
+	if (!contentType) return undefined;
+	if (hasContentType(contentType, formContentTypes)) {
+		return await request.clone().formData();
+	}
+	if (hasContentType(contentType, ['application/json'])) {
+		return contentLength === '0' ? undefined : await request.clone().json();
+	}
+	throw new TypeError('Unsupported content type');
 }
