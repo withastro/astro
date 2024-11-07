@@ -16,7 +16,7 @@ Cookie redirects are no longer handled by default. You can implement the behavio
 import { defineMiddleware } from 'astro:middleware';
 import { getActionContext } from 'astro:actions';
 
-export const onRequest = defineMiddleware((ctx, next) => {
+export const onRequest = defineMiddleware(async (ctx, next) => {
   if (ctx.isPrerendered) return next();
  
 	const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
