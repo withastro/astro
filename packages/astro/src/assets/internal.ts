@@ -71,6 +71,16 @@ export async function getImage(
 	};
 
 	let originalWidth: number | undefined;
+	let originalHeight: number | undefined;
+	let originalFormat: string | undefined;
+	let originalFilePath: string | undefined;
+
+	if (isESMImportedImage(resolvedOptions.src)) {
+		originalFilePath = resolvedOptions.src.fsPath;
+		originalWidth = resolvedOptions.src.width;
+		originalHeight = resolvedOptions.src.height;
+		originalFormat = resolvedOptions.src.format;
+	}
 
 	// Infer size for remote images if inferSize is true
 	if (
@@ -82,12 +92,10 @@ export async function getImage(
 		resolvedOptions.width ??= result.width;
 		resolvedOptions.height ??= result.height;
 		originalWidth = result.width;
+		originalHeight = result.height;
+		originalFormat = result.format;
 		delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
 	}
-
-	const originalFilePath = isESMImportedImage(resolvedOptions.src)
-		? resolvedOptions.src.fsPath
-		: undefined; // Only set for ESM imports, where we do have a file path
 
 	// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
 	// Causing our generate step to think the image is used outside of the image optimization pipeline
@@ -132,13 +140,23 @@ export async function getImage(
 		: [];
 
 	let imageURL = await service.getURL(validatedOptions, imageConfig);
+
+	const matchesOriginal = (transform: ImageTransform) =>
+		transform.width === originalWidth &&
+		transform.height === originalHeight &&
+		transform.format === originalFormat;
+
 	let srcSets: SrcSetValue[] = await Promise.all(
-		srcSetTransforms.map(async (srcSet) => ({
-			transform: srcSet.transform,
-			url: await service.getURL(srcSet.transform, imageConfig),
-			descriptor: srcSet.descriptor,
-			attributes: srcSet.attributes,
-		})),
+		srcSetTransforms.map(async (srcSet) => {
+			return {
+				transform: srcSet.transform,
+				url: matchesOriginal(srcSet.transform)
+					? imageURL
+					: await service.getURL(srcSet.transform, imageConfig),
+				descriptor: srcSet.descriptor,
+				attributes: srcSet.attributes,
+			};
+		}),
 	);
 
 	if (
@@ -152,12 +170,16 @@ export async function getImage(
 			propsToHash,
 			originalFilePath,
 		);
-		srcSets = srcSetTransforms.map((srcSet) => ({
-			transform: srcSet.transform,
-			url: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash, originalFilePath),
-			descriptor: srcSet.descriptor,
-			attributes: srcSet.attributes,
-		}));
+		srcSets = srcSetTransforms.map((srcSet) => {
+			return {
+				transform: srcSet.transform,
+				url: matchesOriginal(srcSet.transform)
+					? imageURL
+					: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash, originalFilePath),
+				descriptor: srcSet.descriptor,
+				attributes: srcSet.attributes,
+			};
+		});
 	}
 
 	return {
