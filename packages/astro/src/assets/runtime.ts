@@ -16,8 +16,6 @@ export interface SvgComponentProps {
 /**
  * Make sure these IDs are kept on the module-level so they're incremented on a per-page basis
  */
-// let ids = 0;
-
 const ids = new WeakMap<SSRResult, number>();
 let counter = 0;
 
@@ -32,6 +30,8 @@ export function createSvgComponent({ meta, attributes, children }: SvgComponentP
 			ids.set(result, counter);
 			id = counter;
 		}
+		id = `a:${id}`;
+
 		const {
 			title: titleProp,
 			viewBox,
