@@ -16,18 +16,18 @@ Cookie redirects are no longer handled by default. You can implement the behavio
 import { defineMiddleware } from 'astro:middleware';
 import { getActionContext } from 'astro:actions';
 
-export const onRequest = defineMiddleware(async (ctx, next) => {
-  if (ctx.isPrerendered) return next();
+export const onRequest = defineMiddleware(async (context, next) => {
+  if (context.isPrerendered) return next();
  
-	const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
+  const { action, setActionResult, serializeActionResult } = getActionContext(context);
  
 	// If an action result was forwarded as a cookie, set the result
 	// to be accessible from `Astro.getActionResult()`
-	const payload = ctx.cookies.get('ACTION_PAYLOAD');
+	const payload = context.cookies.get('ACTION_PAYLOAD');
 	if (payload) {
 		const { actionName, actionResult } = payload.json();
 		setActionResult(actionName, actionResult);
-		ctx.cookies.delete('ACTION_PAYLOAD');
+		context.cookies.delete('ACTION_PAYLOAD');
 		return next();
 	}
  
@@ -36,21 +36,21 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
 	if (action?.calledFrom === 'form') {
 		const actionResult = await action.handler();
  
-		ctx.cookies.set('ACTION_PAYLOAD', {
+		context.cookies.set('ACTION_PAYLOAD', {
 			actionName: action.name,
 			actionResult: serializeActionResult(actionResult),
 		});
  
 		if (actionResult.error) {
 		// Redirect back to the previous page on error
-			const referer = ctx.request.headers.get('Referer');
+			const referer = context.request.headers.get('Referer');
 			if (!referer) {
 				throw new Error('Internal: Referer unexpectedly missing from Action POST request.');
 			}
-			return ctx.redirect(referer);
+			return context.redirect(referer);
 		}
 		// Redirect to the destination page on success
-		return ctx.redirect(ctx.originPathname);
+		return context.redirect(context.originPathname);
 	}
  
 	return next();
