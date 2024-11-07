@@ -75,13 +75,6 @@ export async function getImage(
 	let originalFormat: string | undefined;
 	let originalFilePath: string | undefined;
 
-	if (isESMImportedImage(resolvedOptions.src)) {
-		originalFilePath = resolvedOptions.src.fsPath;
-		originalWidth = resolvedOptions.src.width;
-		originalHeight = resolvedOptions.src.height;
-		originalFormat = resolvedOptions.src.format;
-	}
-
 	// Infer size for remote images if inferSize is true
 	if (
 		options.inferSize &&
@@ -104,8 +97,22 @@ export async function getImage(
 			(resolvedOptions.src.clone ?? resolvedOptions.src)
 		: resolvedOptions.src;
 
-	originalWidth ||= isESMImportedImage(clonedSrc) ? clonedSrc.width : undefined;
+	if (isESMImportedImage(clonedSrc)) {
+		originalFilePath = clonedSrc.fsPath;
+		originalWidth = clonedSrc.width;
+		originalHeight = clonedSrc.height;
+		originalFormat = clonedSrc.format;
+	}
 
+	if (originalWidth && originalHeight) {
+		// Calculate any missing dimensions from the aspect ratio, if available
+		const aspectRatio = originalWidth / originalHeight;
+		if (resolvedOptions.height && !resolvedOptions.width) {
+			resolvedOptions.width = Math.round(resolvedOptions.height * aspectRatio);
+		} else if (resolvedOptions.width && !resolvedOptions.height) {
+			resolvedOptions.height = Math.round(resolvedOptions.width / aspectRatio);
+		}
+	}
 	resolvedOptions.src = clonedSrc;
 
 	const layout = options.layout ?? imageConfig.experimentalLayout;
