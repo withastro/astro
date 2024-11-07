@@ -69,6 +69,7 @@ const { style, class: className, ...attrs } = { ...additionalAttributes, ...imag
 		pos: objectPosition,
 	}}
 >
+	/* Shared by all Astro images */
 	.aim {
 		width: 100%;
 		height: auto;
@@ -76,10 +77,12 @@ const { style, class: className, ...attrs } = { ...additionalAttributes, ...imag
 		object-position: var(--pos);
 		aspect-ratio: var(--w) / var(--h);
 	}
+	/* Styles for responsive layout */
 	.aim-re {
 		max-width: calc(var(--w) * 1px);
 		max-height: calc(var(--h) * 1px);
 	}
+	/* Styles for fixed layout */
 	.aim-fi {
 		width: calc(var(--w) * 1px);
 		height: calc(var(--h) * 1px);
