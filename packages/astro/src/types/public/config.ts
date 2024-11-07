@@ -1721,7 +1721,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * }
 		 * ```
 		 * 
-		 * To use this feature, import an SVG file in your Astro project:
+		 * To use this feature, import an SVG file in your Astro project, passing any common SVG attributes to the imported component.
+		 * Astro also provides a `size` attribute to set equal `height` and `width` properties:
 		 * 
 		 * ```astro
 		 * ---
@@ -1741,7 +1742,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * @type {string}
 			 * @default 'inline'
 			 * 
-			 * This mode will determine how Astro handles the imported SVG file by default. Astro will inline the SVG content into your HTML output if not specified.
+			 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
 			 * 
 			 * - `inline`: Astro will inline the SVG content into your HTML output.
 			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
@@ -1755,7 +1756,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * import Logo from './path/to/svg/file.svg';
 			 * ---
 			 * 
-			 * <Logo size={24} mode="inline" />
+			 * <Logo size={24} mode="sprite" />
 			 * ```
 			 */
 			mode?: SvgRenderMode;
