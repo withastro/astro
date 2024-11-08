@@ -73,7 +73,6 @@ export async function getImage(
 	let originalWidth: number | undefined;
 	let originalHeight: number | undefined;
 	let originalFormat: string | undefined;
-	let originalFilePath: string | undefined;
 
 	// Infer size for remote images if inferSize is true
 	if (
@@ -90,6 +89,10 @@ export async function getImage(
 		delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
 	}
 
+	const originalFilePath = isESMImportedImage(resolvedOptions.src)
+		? resolvedOptions.src.fsPath
+		: undefined; // Only set for ESM imports, where we do have a file path
+
 	// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
 	// Causing our generate step to think the image is used outside of the image optimization pipeline
 	const clonedSrc = isESMImportedImage(resolvedOptions.src)
@@ -98,7 +101,6 @@ export async function getImage(
 		: resolvedOptions.src;
 
 	if (isESMImportedImage(clonedSrc)) {
-		originalFilePath = clonedSrc.fsPath;
 		originalWidth = clonedSrc.width;
 		originalHeight = clonedSrc.height;
 		originalFormat = clonedSrc.format;
