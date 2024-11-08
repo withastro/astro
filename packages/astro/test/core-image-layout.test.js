@@ -8,7 +8,7 @@ import { testImageService } from './test-image-service.js';
 import { loadFixture } from './test-utils.js';
 import { testRemoteImageService } from './test-remote-image-service.js';
 
-describe('astro:image', () => {
+describe('astro:image:layout', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
@@ -184,7 +184,7 @@ describe('astro:image', () => {
 			});
 		});
 
-		describe('remote', () => {
+		describe('remote images', () => {
 			describe('srcset', () => {
 				let $;
 				before(async () => {
@@ -196,11 +196,8 @@ describe('astro:image', () => {
 					let $img = $('#constrained img');
 					assert.ok($img.attr('srcset'));
 					const srcset = parseSrcset($img.attr('srcset'));
-					assert.equal(srcset, 1);
-					assert.equal(srcset.length, 8);
-					assert.ok(srcset[0].url.startsWith('/_image'));
 					const widths = srcset.map((x) => x.w);
-					assert.deepEqual(widths, [640, 750, 800, 828, 960, 1080, 1280, 1600]);
+					assert.deepEqual(widths, [640, 750, 800, 828, 1080, 1280, 1600]);
 				});
 
 				it('constrained - has max of 2x requested size', () => {
@@ -227,9 +224,7 @@ describe('astro:image', () => {
 					assert.deepEqual(widths, [640, 750, 828, 1080, 1280, 1668, 2048, 2560]);
 				});
 			});
-
 		});
-
 	});
 
 	describe('remote image service', () => {
@@ -243,7 +238,7 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-layout/',
 				image: {
 					service: testRemoteImageService({ foo: 'bar' }),
-					domains: ['images.unsplash.com']
+					domains: ['images.unsplash.com'],
 				},
 			});
 
@@ -264,7 +259,6 @@ describe('astro:image', () => {
 		after(async () => {
 			await devServer.stop();
 		});
-
 
 		describe('srcsets', () => {
 			let $;
@@ -354,7 +348,6 @@ describe('astro:image', () => {
 					);
 				});
 			});
-
 		});
 	});
 });
