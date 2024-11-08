@@ -19,6 +19,18 @@ export const DEFAULT_RESOLUTIONS = [
 	640, // older and lower-end phones
 ];
 
+// A more limited set of screen widths, for statically generated images
+export const LIMITED_RESOLUTIONS = [
+	2560, // WQXGA
+	2048, // QXGA
+	1668, // Various iPads
+	1280, // 720p
+	1080, // iPhone 6-8 Plus
+	828, // iPhone XR/11
+	750, // iPhone 6-8
+	640, // older and lower-end phones
+];
+
 /**
  * Gets the breakpoints for an image, based on the layout and width
  */
@@ -34,7 +46,6 @@ export const getWidths = ({
 	originalWidth?: number;
 }): Array<number> => {
 	const smallerThanOriginal = (w: number) => !originalWidth || w <= originalWidth;
-
 	if (layout === 'full-width') {
 		return breakpoints.filter(smallerThanOriginal);
 	}

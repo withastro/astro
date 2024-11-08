@@ -47,7 +47,7 @@ const objectPosition = props.position ?? imageConfig.experimentalObjectPosition 
 
 // The style prop can't be spread when using define:vars, so we need to extract it here
 // @see https://github.com/withastro/compiler/issues/1050
-const { style, class: className, ...attrs } = { ...additionalAttributes, ...image.attributes };
+const { style = '', class: className, ...attrs } = { ...additionalAttributes, ...image.attributes };
 ---
 
 <img

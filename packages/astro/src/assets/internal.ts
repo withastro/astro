@@ -12,7 +12,7 @@ import {
 } from './types.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
-import { getSizes, getWidths } from './layout.js';
+import { DEFAULT_RESOLUTIONS, getSizes, getWidths, LIMITED_RESOLUTIONS } from './layout.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -111,6 +111,9 @@ export async function getImage(
 			resolvedOptions.width = Math.round(resolvedOptions.height * aspectRatio);
 		} else if (resolvedOptions.width && !resolvedOptions.height) {
 			resolvedOptions.height = Math.round(resolvedOptions.width / aspectRatio);
+		} else if (!resolvedOptions.width && !resolvedOptions.height) {
+			resolvedOptions.width = originalWidth;
+			resolvedOptions.height = originalHeight;
 		}
 	}
 	resolvedOptions.src = clonedSrc;
@@ -122,6 +125,7 @@ export async function getImage(
 			width: resolvedOptions.width,
 			layout,
 			originalWidth,
+			breakpoints: isLocalService(service) ? LIMITED_RESOLUTIONS : DEFAULT_RESOLUTIONS,
 		});
 		resolvedOptions.sizes ||= getSizes({ width: resolvedOptions.width, layout });
 
