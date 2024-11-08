@@ -60,7 +60,8 @@ export function defineAction<
 			: getJsonServerHandler(handler, inputSchema);
 
 	async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
-		if (typeof this === 'function') {
+		// The ActionAPIContext should always contain the `params` property
+		if (typeof this === 'function' || !('params' in this)) {
 			throw new AstroError(ActionCalledFromServerError);
 		}
 		return callSafely(() => serverHandler(unparsedInput, this));

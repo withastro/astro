@@ -132,6 +132,12 @@ describe('Astro Actions', () => {
 				assert.equal(data, 'Hello, ben!');
 			}
 		});
+
+		it('Should fail when calling an action without using Astro.callAction', async () => {
+			const res = await fixture.fetch('/invalid/');
+			const text = await res.text();
+			assert.match(text, /ActionCalledFromServerError/);
+		});
 	});
 
 	describe('build', () => {
