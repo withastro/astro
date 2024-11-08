@@ -269,6 +269,11 @@ interface AstroSharedContext<
 	 */
 	url: URL;
 	/**
+	 * The origin pathname of the request URL.
+	 * Useful to track the original URL before rewrites were applied.
+	 */
+	originPathname: string;
+	/**
 	 * Get action result on the server when using a form POST.
 	 */
 	getActionResult: <

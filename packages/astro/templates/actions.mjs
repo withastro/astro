@@ -1,9 +1,4 @@
-import {
-	ACTION_QUERY_PARAMS,
-	ActionError,
-	deserializeActionResult,
-	getActionQueryString,
-} from 'astro:actions';
+import { ActionError, deserializeActionResult, getActionQueryString } from 'astro:actions';
 
 const ENCODED_DOT = '%2E';
 
@@ -26,10 +21,6 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 				// Progressive enhancement info for React.
 				$$FORM_ACTION: function () {
 					const searchParams = new URLSearchParams(action.toString());
-					// Astro will redirect with a GET request by default.
-					// Disable this behavior to preserve form state
-					// for React's progressive enhancement.
-					searchParams.set(ACTION_QUERY_PARAMS.actionRedirect, 'false');
 					return {
 						method: 'POST',
 						// `name` creates a hidden input.
