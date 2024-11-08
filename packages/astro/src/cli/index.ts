@@ -133,8 +133,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 		case 'sync': {
 			const { sync } = await import('./sync/index.js');
-			const exitCode = await sync({ flags });
-			return process.exit(exitCode);
+			await sync({ flags });
+			return;
 		}
 		case 'preferences': {
 			const { preferences } = await import('./preferences/index.js');

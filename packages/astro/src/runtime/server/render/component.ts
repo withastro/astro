@@ -44,6 +44,7 @@ function guessRenderers(componentUrl?: string): string[] {
 		case 'jsx':
 		case 'tsx':
 			return ['@astrojs/react', '@astrojs/preact', '@astrojs/solid-js', '@astrojs/vue (jsx)'];
+		case undefined:
 		default:
 			return [
 				'@astrojs/react',
