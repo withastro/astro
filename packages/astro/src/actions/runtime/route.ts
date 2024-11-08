@@ -1,5 +1,5 @@
 import type { APIRoute } from '../../@types/astro.js';
-import { formContentTypes, hasContentType } from './utils.js';
+import { ACTION_API_CONTEXT_SYMBOL, formContentTypes, hasContentType } from './utils.js';
 import { getAction } from './virtual/get-action.js';
 import { serializeActionResult } from './virtual/shared.js';
 
@@ -28,6 +28,7 @@ export const POST: APIRoute = async (context) => {
 		return new Response(null, { status: 415 });
 	}
 	const { getActionResult, callAction, props, redirect, ...actionAPIContext } = context;
+	Reflect.set(actionAPIContext, ACTION_API_CONTEXT_SYMBOL, true);
 	const action = baseAction.bind(actionAPIContext);
 	const result = await action(args);
 	const serialized = serializeActionResult(result);

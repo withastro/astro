@@ -3,7 +3,7 @@ import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { getOriginPathname } from '../../core/routing/rewrite.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
-import { formContentTypes, hasContentType } from './utils.js';
+import { ACTION_API_CONTEXT_SYMBOL, formContentTypes, hasContentType } from './utils.js';
 import { getAction } from './virtual/get-action.js';
 import {
 	type SafeResult,
@@ -100,6 +100,7 @@ async function handlePost({
 		formData = await request.clone().formData();
 	}
 	const { getActionResult, callAction, props, redirect, ...actionAPIContext } = context;
+	Reflect.set(actionAPIContext, ACTION_API_CONTEXT_SYMBOL, true);
 	const action = baseAction.bind(actionAPIContext);
 	const actionResult = await action(formData);
 

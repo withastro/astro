@@ -1,7 +1,12 @@
 import { z } from 'zod';
 import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
-import type { ActionAPIContext, ErrorInferenceObject, MaybePromise } from '../utils.js';
+import {
+	type ActionAPIContext,
+	type ErrorInferenceObject,
+	type MaybePromise,
+	isActionAPIContext,
+} from '../utils.js';
 import { ActionError, ActionInputError, type SafeResult, callSafely } from './shared.js';
 
 export * from './shared.js';
@@ -60,7 +65,8 @@ export function defineAction<
 			: getJsonServerHandler(handler, inputSchema);
 
 	async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
-		if (typeof this === 'function') {
+		// The ActionAPIContext should always contain the `params` property
+		if (typeof this === 'function' || !isActionAPIContext(this)) {
 			throw new AstroError(ActionCalledFromServerError);
 		}
 		return callSafely(() => serverHandler(unparsedInput, this));
