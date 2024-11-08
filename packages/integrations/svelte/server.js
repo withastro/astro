@@ -4,7 +4,7 @@ import { render } from 'svelte/server';
 function check(Component) {
 	// Svelte 5 generated components always accept these two props
 	const str = Component.toString();
-	return str.includes('$$payload') && str.includes('$$props');
+	return str.includes('$$payload');
 }
 
 function needsHydration(metadata) {
