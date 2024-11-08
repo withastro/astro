@@ -130,7 +130,6 @@ type HandleRoute = {
 	manifestData: ManifestData;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
-	status?: 404 | 500 | 200;
 	pipeline: DevPipeline;
 };
 
@@ -138,7 +137,6 @@ export async function handleRoute({
 	matchedRoute,
 	url,
 	pathname,
-	status = getStatus(matchedRoute),
 	body,
 	origin,
 	pipeline,
@@ -208,12 +206,17 @@ export async function handleRoute({
 	});
 
 	let response;
+	let statusCode = 200;
 	let isReroute = false;
 	let isRewrite = false;
 	try {
 		response = await renderContext.render(mod);
 		isReroute = response.headers.has(REROUTE_DIRECTIVE_HEADER);
 		isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
+		statusCode = isRewrite
+			? // Ignore `matchedRoute` status for rewrites
+				response.status
+			: (getStatusByMatchedRoute(matchedRoute) ?? response.status);
 	} catch (err: any) {
 		const custom500 = getCustom500Route(manifestData);
 		if (!custom500) {
@@ -225,7 +228,7 @@ export async function handleRoute({
 		const preloaded500Component = await pipeline.preload(custom500, filePath500);
 		renderContext.props.error = err;
 		response = await renderContext.render(preloaded500Component);
-		status = 500;
+		statusCode = 500;
 	}
 
 	if (isLoggedRequest(pathname)) {
@@ -235,20 +238,20 @@ export async function handleRoute({
 			req({
 				url: pathname,
 				method: incomingRequest.method,
-				statusCode: isRewrite ? response.status : (status ?? response.status),
+				statusCode,
 				isRewrite,
 				reqTime: timeEnd - timeStart,
 			}),
 		);
 	}
-	if (response.status === 404 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {
+
+	if (statusCode === 404 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (options && options.route !== fourOhFourRoute?.route)
 			return handleRoute({
 				...options,
 				matchedRoute: fourOhFourRoute,
 				url: new URL(pathname, url),
-				status: 404,
 				body,
 				origin,
 				pipeline,
@@ -290,18 +293,18 @@ export async function handleRoute({
 
 	// Apply the `status` override to the response object before responding.
 	// Response.status is read-only, so a clone is required to override.
-	if (status && response.status !== status && (status === 404 || status === 500)) {
+	if (response.status !== statusCode) {
 		response = new Response(response.body, {
-			status: status,
+			status: statusCode,
 			headers: response.headers,
 		});
 	}
 	await writeSSRResult(request, response, incomingResponse);
 }
 
-function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | 200 {
-	if (!matchedRoute) return 404;
-	if (matchedRoute.route.route === '/404') return 404;
-	if (matchedRoute.route.route === '/500') return 500;
-	return 200;
+/** Check for /404 and /500 custom routes to compute status code */
+function getStatusByMatchedRoute(matchedRoute?: MatchedRoute) {
+	if (matchedRoute?.route.route === '/404') return 404;
+	if (matchedRoute?.route.route === '/500') return 500;
+	return undefined;
 }
