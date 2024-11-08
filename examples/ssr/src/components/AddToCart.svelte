@@ -48,6 +48,6 @@ button:hover {
 	text-transform: uppercase;
 }
 </style>
-<button on:click={addToCart}>
+<button click={addToCart}>
 	<span class="pretext">Add to cart</span>
 </button>

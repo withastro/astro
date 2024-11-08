@@ -1,4 +1,11 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
+	interface Props {
+		children: Snippet
+	}
+
+	let { children }: Props = $props();
 	let count = $state(0);
 
 	function add() {
@@ -16,7 +23,7 @@
 	<button onclick={add}>+</button>
 </div>
 <div class="message">
-	<slot />
+	{@render children()}
 </div>
 
 <style>

@@ -1,3 +1,7 @@
+<script>
+    let { children } = $props();
+</script>
+
 <div id="svelte">
-    <slot />
+    {@render children()}
 </div>

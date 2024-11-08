@@ -1,5 +1,13 @@
 <script lang="ts">
-	let { id, count } = $props<{ id: number, count: number }>();
+	import type { Snippet } from 'svelte';
+
+  interface Props {
+    id: number;
+    count: number;
+		children: Snippet
+  }
+
+	let { id, count, children }: Props = $props();
 
   function add() {
     count += 1;
@@ -16,7 +24,7 @@
   <button class="increment" onclick={add}>+</button>
 </div>
 <div id={`${id}-message`} class="message">
-  <slot />
+	{@render children()}
 </div>
 
 <style>

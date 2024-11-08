@@ -1,6 +1,6 @@
 
 <script>
-	let { id } = $props();
+	let { id, children } = $props();
   let count = $state();
 
   function add() {
@@ -18,7 +18,7 @@
   <button class="increment" onclick={add}>+</button>
 </div>
 <div class="counter-message">
-  <slot />
+	{@render children()}
 </div>
 
 <style>
