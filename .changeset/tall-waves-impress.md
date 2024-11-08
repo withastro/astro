@@ -8,7 +8,7 @@ This is meant to address the 4 KB size limit users have encountered when calling
 
 So, we've introduced a new `getActionContext()` utility to let you decide how action results are handled from middleware. You may choose to implement the existing cookie redirect from Astro v4, or implement forwarding with your own session storage.
 
-## Migration
+## Updating your HTML form actions
 
 Cookie redirects are no longer handled by default. You can implement the behavior from Astro v4 as a middleware using `getActionContext()` like so:
 
