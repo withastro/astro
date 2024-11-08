@@ -101,6 +101,7 @@ export const getSizes = ({
 		case `full-width`:
 			return `100vw`;
 
+		case 'none':
 		default:
 			return undefined;
 	}
