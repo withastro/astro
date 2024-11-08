@@ -204,6 +204,8 @@ export default {
 						label.append(astroSelect);
 						break;
 					}
+					case 'number':
+					case 'text':
 					default:
 						break;
 				}

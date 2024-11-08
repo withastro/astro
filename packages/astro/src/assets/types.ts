@@ -1,5 +1,5 @@
-import type { WithRequired } from '../type-utils.js';
 import type { ImageLayout } from '../types/public/index.js';
+import type { OmitPreservingIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { VALID_INPUT_FORMATS, VALID_OUTPUT_FORMATS } from './consts.js';
 import type { ImageService } from './services/service.js';
 
@@ -67,10 +67,12 @@ export type SrcSetValue = UnresolvedSrcSetValue & {
 /**
  * A yet to be resolved image transform. Used by `getImage`
  */
-export type UnresolvedImageTransform = Omit<ImageTransform, 'src'> & {
-	src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
-	inferSize?: boolean;
-} & {
+export type UnresolvedImageTransform = Simplify<
+	OmitPreservingIndexSignature<ImageTransform, 'src'> & {
+		src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
+		inferSize?: boolean;
+	}
+> & {
 	[isESMImport]?: never;
 };
 
