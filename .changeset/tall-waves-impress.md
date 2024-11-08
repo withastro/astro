@@ -2,25 +2,29 @@
 'astro': minor
 ---
 
-Change Action cookie redirects to an opt-in feature users can implement using middleware. This means Actions submitted from an HTML form action will no longer redirect to the destination as a GET request. Instead, the page will be rendered as a POST result.
+Changes the default behavior for Astro Action form requests to a standard POST submission.
 
-This is meant to address the 4 KB size limit users have encountered when calling actions from an HTML form action. It can be difficult to predict the size of an action result for large validation errors or longer return values, like AI chatbot results.
+In Astro 4.x, actions called from an HTML form would trigger a redirect with the result forwarded using cookies. This caused issues for large form errors and return values that exceeded the 4 KB limit of cookie-based storage.
 
-So, we've introduced a new `getActionContext()` utility to let you decide how action results are handled from middleware. You may choose to implement the existing cookie redirect from Astro v4, or implement forwarding with your own session storage.
+Astro 5.0 now renders the result of an action as a POST result without any forwarding. This will introduce a "confirm form resubmission?" dialog when a user attempts to refresh the page, though it no longer imposes a 4 KB limit on action return value.
 
-## Updating your HTML form actions
+## Customize form submission behavior
 
-Cookie redirects are no longer handled by default. You can implement the behavior from Astro v4 as a middleware using `getActionContext()` like so:
+If you prefer to address the "confirm form resubmission?" dialog on refresh, or to preserve action results across sessions, you can now [customize action result handling from middleware](/en/guides/actions/#advanced-persist-action-results-with-a-session).
 
-```ts
+We recommend using a session storage provider [as described in our Netlify Blob example](/en/guides/actions/#advanced-persist-action-results-with-a-session). However, if you prefer the cookie forwarding behavior from 4.X and accept the 4 KB size limit, you can implement the pattern as shown in this sample snippet:
+
+```ts 
+// src/middleware.ts
 import { defineMiddleware } from 'astro:middleware';
 import { getActionContext } from 'astro:actions';
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  // Skip requests for prerendered pages
   if (context.isPrerendered) return next();
- 
-  const { action, setActionResult, serializeActionResult } = getActionContext(context);
- 
+
+	const { action, setActionResult, serializeActionResult } = getActionContext(context);
+
 	// If an action result was forwarded as a cookie, set the result
 	// to be accessible from `Astro.getActionResult()`
 	const payload = context.cookies.get('ACTION_PAYLOAD');
@@ -30,17 +34,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		context.cookies.delete('ACTION_PAYLOAD');
 		return next();
 	}
- 
+
 	// If an action was called from an HTML form action,
 	// call the action handler and redirect with the result as a cookie.
 	if (action?.calledFrom === 'form') {
 		const actionResult = await action.handler();
- 
+
 		context.cookies.set('ACTION_PAYLOAD', {
 			actionName: action.name,
 			actionResult: serializeActionResult(actionResult),
 		});
- 
+
 		if (actionResult.error) {
 		// Redirect back to the previous page on error
 			const referer = context.request.headers.get('Referer');
@@ -52,7 +56,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		// Redirect to the destination page on success
 		return context.redirect(context.originPathname);
 	}
- 
+
 	return next();
 })
 ```
