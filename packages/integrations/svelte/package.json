@@ -48,12 +48,12 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^5.1.9",
+    "svelte": "^5.1.12",
     "vite": "^5.4.10"
   },
   "peerDependencies": {
     "astro": "^4.0.0",
-    "svelte": "^5.1.9",
+    "svelte": "^5.1.12",
     "typescript": "^5.3.3"
   },
   "engines": {
