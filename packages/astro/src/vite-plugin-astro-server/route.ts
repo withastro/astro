@@ -138,7 +138,7 @@ export async function handleRoute({
 	matchedRoute,
 	url,
 	pathname,
-	status = getStatus(matchedRoute),
+	status,
 	body,
 	origin,
 	pipeline,
@@ -297,11 +297,4 @@ export async function handleRoute({
 		});
 	}
 	await writeSSRResult(request, response, incomingResponse);
-}
-
-function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | 200 {
-	if (!matchedRoute) return 404;
-	if (matchedRoute.route.route === '/404') return 404;
-	if (matchedRoute.route.route === '/500') return 500;
-	return 200;
 }
