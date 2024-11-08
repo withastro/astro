@@ -6,7 +6,9 @@ export function getAdapter(): AstroAdapter {
 		serverEntrypoint: '@benchmark/timer/server.js',
 		previewEntrypoint: '@benchmark/timer/preview.js',
 		exports: ['handler'],
-		supportedAstroFeatures: {},
+		supportedAstroFeatures: {
+			serverOutput: 'stable',
+		},
 	};
 }
 

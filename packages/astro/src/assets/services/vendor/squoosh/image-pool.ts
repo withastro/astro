@@ -140,6 +140,7 @@ export async function processBuffer(
 				imageData,
 				quality,
 			})) as Uint8Array;
+		case 'svg':
 		default:
 			throw Error(`Unsupported encoding format`);
 	}
