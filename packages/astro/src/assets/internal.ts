@@ -12,7 +12,12 @@ import {
 } from './types.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
-import { DEFAULT_RESOLUTIONS, getSizesAttribute, getWidths, LIMITED_RESOLUTIONS } from './layout.js';
+import {
+	DEFAULT_RESOLUTIONS,
+	getSizesAttribute,
+	getWidths,
+	LIMITED_RESOLUTIONS,
+} from './layout.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
