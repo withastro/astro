@@ -163,6 +163,18 @@ type ImageSharedProps<T> = T & {
 } & (
 		| {
 				/**
+				 * The layout type for responsive images. Overrides any default set in the Astro config.
+				 * Requires the `experimental.responsiveImages` flag to be enabled.
+				 *
+				 * - `responsive` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
+				 * - `fixed` - The image will maintain its original dimensions.
+				 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
+				 */
+				layout?: ImageLayout;
+				fit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down' | (string & {});
+				position?: string;
+				priority?: boolean;
+				/**
 				 * A list of widths to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
 				 *
 				 * This attribute is incompatible with `densities`.
@@ -178,6 +190,9 @@ type ImageSharedProps<T> = T & {
 				 */
 				densities?: (number | `${number}x`)[];
 				widths?: never;
+				layout?: never;
+				fit?: never;
+				position?: never;
 		  }
 	);
 

@@ -118,6 +118,8 @@ export type BaseServiceTransform = {
 	quality?: string | null;
 };
 
+const sortNumeric = (a: number, b: number) => a - b;
+
 /**
  * Basic local service using the included `_image` endpoint.
  * This service intentionally does not implement `transform`.
@@ -224,9 +226,19 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 	},
 	getHTMLAttributes(options) {
 		const { targetWidth, targetHeight } = getTargetDimensions(options);
-		const { src, width, height, format, quality, densities, widths, formats, ...attributes } =
-			options;
-
+		const {
+			src,
+			width,
+			height,
+			format,
+			quality,
+			densities,
+			widths,
+			formats,
+			layout,
+			priority,
+			...attributes
+		} = options;
 		return {
 			...attributes,
 			width: targetWidth,
@@ -235,11 +247,13 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			decoding: attributes.decoding ?? 'async',
 		};
 	},
-	getSrcSet(options) {
-		const srcSet: UnresolvedSrcSetValue[] = [];
-		const { targetWidth } = getTargetDimensions(options);
+	getSrcSet(options): Array<UnresolvedSrcSetValue> {
+		const { targetWidth, targetHeight } = getTargetDimensions(options);
+		const aspectRatio = targetWidth / targetHeight;
 		const { widths, densities } = options;
 		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;
+
+		let transformedWidths = (widths ?? []).sort(sortNumeric);
 
 		// For remote images, we don't know the original image's dimensions, so we cannot know the maximum width
 		// It is ultimately the user's responsibility to make sure they don't request images larger than the original
@@ -250,7 +264,17 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		if (isESMImportedImage(options.src)) {
 			imageWidth = options.src.width;
 			maxWidth = imageWidth;
+
+			// We've already sorted the widths, so we'll remove any that are larger than the original image's width
+			if (transformedWidths.length > 0 && transformedWidths.at(-1)! > maxWidth) {
+				transformedWidths = transformedWidths.filter((width) => width <= maxWidth);
+				// If we've had to remove some widths, we'll add the maximum width back in
+				transformedWidths.push(maxWidth);
+			}
 		}
+
+		// Dedupe the widths
+		transformedWidths = Array.from(new Set(transformedWidths));
 
 		// Since `widths` and `densities` ultimately control the width and height of the image,
 		// we don't want the dimensions the user specified, we'll create those ourselves.
@@ -261,7 +285,10 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		} = options;
 
 		// Collect widths to generate from specified densities or widths
-		const allWidths: { maxTargetWidth: number; descriptor: `${number}x` | `${number}w` }[] = [];
+		let allWidths: Array<{
+			width: number;
+			descriptor: `${number}x` | `${number}w`;
+		}> = [];
 		if (densities) {
 			// Densities can either be specified as numbers, or descriptors (ex: '1x'), we'll convert them all to numbers
 			const densityValues = densities.map((density) => {
@@ -274,51 +301,31 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 			// Calculate the widths for each density, rounding to avoid floats.
 			const densityWidths = densityValues
-				.sort()
+				.sort(sortNumeric)
 				.map((density) => Math.round(targetWidth * density));
 
-			allWidths.push(
-				...densityWidths.map((width, index) => ({
-					maxTargetWidth: Math.min(width, maxWidth),
-					descriptor: `${densityValues[index]}x` as const,
-				})),
-			);
-		} else if (widths) {
-			allWidths.push(
-				...widths.map((width) => ({
-					maxTargetWidth: Math.min(width, maxWidth),
-					descriptor: `${width}w` as const,
-				})),
-			);
+			allWidths = densityWidths.map((width, index) => ({
+				width,
+				descriptor: `${densityValues[index]}x`,
+			}));
+		} else if (transformedWidths.length > 0) {
+			allWidths = transformedWidths.map((width) => ({
+				width,
+				descriptor: `${width}w`,
+			}));
 		}
 
-		// Caution: The logic below is a bit tricky, as we need to make sure we don't generate the same image multiple times
-		// When making changes, make sure to test with different combinations of local/remote images widths, densities, and dimensions etc.
-		for (const { maxTargetWidth, descriptor } of allWidths) {
-			const srcSetTransform: ImageTransform = { ...transformWithoutDimensions };
-
-			// Only set the width if it's different from the original image's width, to avoid generating the same image multiple times
-			if (maxTargetWidth !== imageWidth) {
-				srcSetTransform.width = maxTargetWidth;
-			} else {
-				// If the width is the same as the original image's width, and we have both dimensions, it probably means
-				// it's a remote image, so we'll use the user's specified dimensions to avoid recreating the original image unnecessarily
-				if (options.width && options.height) {
-					srcSetTransform.width = options.width;
-					srcSetTransform.height = options.height;
-				}
-			}
-
-			srcSet.push({
-				transform: srcSetTransform,
+		return allWidths.map(({ width, descriptor }) => {
+			const height = Math.round(width / aspectRatio);
+			const transform = { ...transformWithoutDimensions, width, height };
+			return {
+				transform,
 				descriptor,
 				attributes: {
 					type: `image/${targetFormat}`,
 				},
-			});
-		}
-
-		return srcSet;
+			};
+		});
 	},
 	getURL(options, imageConfig) {
 		const searchParams = new URLSearchParams();
