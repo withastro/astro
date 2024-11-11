@@ -1,4 +1,4 @@
-import { LibsqlError } from '@libsql/client';
+import type { LibsqlError } from '@libsql/client';
 import { sql as _sql } from 'drizzle-orm';
 import type {
 	BooleanColumnInput,
@@ -27,12 +27,12 @@ export function isDbError(err: unknown): err is LibsqlError {
 	const value = err as LibsqlError;
 	return (
 		// Error
-		typeof value.name === "string" &&
-		typeof value.message === "string" &&
-		(value.stack === undefined || typeof value.stack === "string") &&
+		typeof value.name === 'string' &&
+		typeof value.message === 'string' &&
+		(value.stack === undefined || typeof value.stack === 'string') &&
 		// LibsqlError
-		typeof value.code === "string" &&
-		(value.rawCode === undefined || typeof value.rawCode === "number")
+		typeof value.code === 'string' &&
+		(value.rawCode === undefined || typeof value.rawCode === 'number')
 	);
 }
 
