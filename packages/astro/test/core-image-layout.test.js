@@ -128,6 +128,13 @@ describe('astro:image:layout', () => {
 				let $img = $('#local-style img');
 				assert.match($img.attr('style'), /^border: 2px red solid/);
 			});
+
+			it('injects a style tag', () => {
+				const style = $('style').text();
+				assert.match(style, /\.aim\[/);
+				assert.match(style, /\.aim-re\[/);
+				assert.match(style, /\.aim-fi\[/);
+			})
 		});
 
 		describe('srcsets', () => {
