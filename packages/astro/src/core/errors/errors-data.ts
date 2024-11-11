@@ -1268,7 +1268,7 @@ export const RewriteWithBodyUsed = {
  */
 export const ForbiddenRewrite = {
 	name: 'ForbiddenRewrite',
-	title: "Can't use `Astro.rewrite()` from an on-demand route to static route with 'server' output.",
+	title: 'Forbidden rewrite to a static route.',
 	message: (from: string, to: string, component: string) =>
 		`You tried to rewrite the on-demand route '${from}' with the static route '${to}', when using the 'server' output. \n\nThe static route '${to}' is rendered by the component
 '${component}', which is marked as prerendered. This is a forbidden operation because during the build the component '${component}' is compiled to an
