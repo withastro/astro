@@ -1,12 +1,17 @@
 import CachePolicy from 'http-cache-semantics';
 
-export type RemoteCacheEntry = { data: string; expires: number };
+export type RemoteCacheEntry = { data: string; expires: number; etag?: string };
 
-export async function loadRemoteImage(src: string) {
-	const req = new Request(src);
+export async function loadRemoteImage(src: string, etag?: string) {
+	const opt = etag
+		? {
+				headers: { 'If-None-Match': etag },
+			}
+		: undefined;
+	const req = new Request(src, opt);
 	const res = await fetch(req);
 
-	if (!res.ok) {
+	if (!res.ok && res.status != 304) {
 		throw new Error(
 			`Failed to load remote image ${src}. The request did not return a 200 OK response. (received ${res.status}))`,
 		);
@@ -19,6 +24,7 @@ export async function loadRemoteImage(src: string) {
 	return {
 		data: Buffer.from(await res.arrayBuffer()),
 		expires: Date.now() + expires,
+		etag: res.headers.get('Etag'),
 	};
 }
 

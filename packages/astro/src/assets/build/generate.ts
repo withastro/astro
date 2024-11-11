@@ -19,7 +19,7 @@ import { isESMImportedImage } from '../utils/imageKind.js';
 import { type RemoteCacheEntry, loadRemoteImage } from './remote.js';
 
 interface GenerationDataUncached {
-	cached: false;
+	cached: CacheStatus.Miss;
 	weight: {
 		before: number;
 		after: number;
@@ -27,7 +27,7 @@ interface GenerationDataUncached {
 }
 
 interface GenerationDataCached {
-	cached: true;
+	cached: CacheStatus.Revalidated | CacheStatus.Hit;
 }
 
 type GenerationData = GenerationDataUncached | GenerationDataCached;
@@ -44,7 +44,17 @@ type AssetEnv = {
 	assetsFolder: AstroConfig['build']['assets'];
 };
 
-type ImageData = { data: Uint8Array; expires: number };
+type ImageData = {
+	data: Uint8Array;
+	expires: number;
+	etag?: string | null;
+};
+
+enum CacheStatus {
+	Miss = 0,
+	Revalidated,
+	Hit,
+}
 
 export async function prepareAssetsGenerationEnv(
 	pipeline: BuildPipeline,
@@ -136,7 +146,9 @@ export async function generateImagesForPath(
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
 		const statsText = generationData.cached
-			? `(reused cache entry)`
+			? generationData.cached === CacheStatus.Hit
+				? `(reused cache entry)`
+				: `(revalidated cache entry)`
 			: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
 		const count = `(${env.count.current}/${env.count.total})`;
 		env.logger.info(
@@ -153,7 +165,7 @@ export async function generateImagesForPath(
 		const isLocalImage = isESMImportedImage(options.src);
 		const finalFileURL = new URL('.' + filepath, env.clientRoot);
 
-		// For remote images, instead of saving the image directly, we save a JSON file with the image data and expiration date from the server
+		// For remote images, instead of saving the image directly, we save a JSON file with the image data, expiration date and etag from the server
 		const cacheFile = basename(filepath) + (isLocalImage ? '' : '.json');
 		const cachedFileURL = new URL(cacheFile, env.assetsCacheDir);
 
@@ -163,7 +175,7 @@ export async function generateImagesForPath(
 				await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
 
 				return {
-					cached: true,
+					cached: CacheStatus.Hit,
 				};
 			} else {
 				const JSONData = JSON.parse(readFileSync(cachedFileURL, 'utf-8')) as RemoteCacheEntry;
@@ -181,11 +193,25 @@ export async function generateImagesForPath(
 					await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
 
 					return {
-						cached: true,
+						cached: CacheStatus.Hit,
 					};
-				} else {
-					await fs.promises.unlink(cachedFileURL);
 				}
+
+				// Try to freshen the cache
+				if (JSONData.etag) {
+					const fresh = await loadImage(options.src as string, env, JSONData.etag);
+
+					if (fresh.data.length) {
+						originalImage = fresh;
+					} else {
+						fresh.data = Buffer.from(JSONData.data, 'base64'); // Reuse cache data as it is still good
+						await writeRemoteCacheFile(cachedFileURL, fresh);
+						await fs.promises.writeFile(finalFileURL, fresh.data);
+						return { cached: CacheStatus.Revalidated };
+					}
+				}
+
+				await fs.promises.unlink(cachedFileURL);
 			}
 		} catch (e: any) {
 			if (e.code !== 'ENOENT') {
@@ -209,6 +235,7 @@ export async function generateImagesForPath(
 		let resultData: Partial<ImageData> = {
 			data: undefined,
 			expires: originalImage.expires,
+			etag: originalImage.etag,
 		};
 
 		const imageService = (await getConfiguredImageService()) as LocalImageService;
@@ -239,13 +266,7 @@ export async function generateImagesForPath(
 				if (isLocalImage) {
 					await fs.promises.writeFile(cachedFileURL, resultData.data);
 				} else {
-					await fs.promises.writeFile(
-						cachedFileURL,
-						JSON.stringify({
-							data: Buffer.from(resultData.data).toString('base64'),
-							expires: resultData.expires,
-						}),
-					);
+					await writeRemoteCacheFile(cachedFileURL, resultData as ImageData);
 				}
 			}
 		} catch (e) {
@@ -259,7 +280,7 @@ export async function generateImagesForPath(
 		}
 
 		return {
-			cached: false,
+			cached: CacheStatus.Miss,
 			weight: {
 				// Divide by 1024 to get size in kilobytes
 				before: Math.trunc(originalImage.data.byteLength / 1024),
@@ -267,6 +288,17 @@ export async function generateImagesForPath(
 			},
 		};
 	}
+}
+
+async function writeRemoteCacheFile(cachedFileURL: URL, resultData: ImageData) {
+	return await fs.promises.writeFile(
+		cachedFileURL,
+		JSON.stringify({
+			data: Buffer.from(resultData.data).toString('base64'),
+			expires: resultData.expires,
+			etag: resultData.etag,
+		}),
+	);
 }
 
 export function getStaticImageList(): AssetsGlobalStaticImagesList {
@@ -277,12 +309,13 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 	return globalThis.astroAsset.staticImages;
 }
 
-async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
+async function loadImage(path: string, env: AssetEnv, etag?: string): Promise<ImageData> {
 	if (isRemotePath(path)) {
-		const remoteImage = await loadRemoteImage(path);
+		const remoteImage = await loadRemoteImage(path, etag);
 		return {
 			data: remoteImage.data,
 			expires: remoteImage.expires,
+			etag: remoteImage.etag,
 		};
 	}
 
