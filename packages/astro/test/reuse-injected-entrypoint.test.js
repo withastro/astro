@@ -13,13 +13,13 @@ const routes = [
 		description: 'matches /injected-a to to-inject.astro',
 		url: '/injected-a',
 		h1: 'to-inject.astro',
-		scipt: true,
+		hasScript: true,
 	},
 	{
 		description: 'matches /injected-b to to-inject.astro',
 		url: '/injected-b',
 		h1: 'to-inject.astro',
-		scipt: true,
+		hasScript: true,
 	},
 	{
 		description: 'matches /dynamic-a/id-1 to [id].astro',
@@ -62,7 +62,7 @@ describe('Reuse injected entrypoint', () => {
 			await fixture.build();
 		});
 
-		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch, script }) => {
+		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch, hasScript }) => {
 			const isEndpoint = htmlMatch && !h1 && !p;
 
 			it(description, async () => {
@@ -88,7 +88,7 @@ describe('Reuse injected entrypoint', () => {
 					assert.equal(html, htmlMatch);
 				}
 
-				if (script) {
+				if (hasScript) {
 					assert.equal($('script[type="module"]').length, 1, 'should have client-side script');
 				}
 			});
