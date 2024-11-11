@@ -33,6 +33,12 @@ export const LIMITED_RESOLUTIONS = [
 
 /**
  * Gets the breakpoints for an image, based on the layout and width
+ * 
+ * The rules are as follows:
+ * 
+ * - For full-width layout we return all breakpoints smaller than the original image width
+ * - For fixed layout we return 1x and 2x the requested width, unless the original image is smaller than that.
+ * - For responsive layout we return all breakpoints smaller than 2x the requested width, unless the original image is smaller than that.
  */
 export const getWidths = ({
 	width,
@@ -46,19 +52,23 @@ export const getWidths = ({
 	originalWidth?: number;
 }): Array<number> => {
 	const smallerThanOriginal = (w: number) => !originalWidth || w <= originalWidth;
+
+	// For full-width layout we return all breakpoints smaller than the original image width
 	if (layout === 'full-width') {
 		return breakpoints.filter(smallerThanOriginal);
 	}
+	// For other layouts we need a width to generate breakpoints. If no width is provided, we return an empty array
 	if (!width) {
 		return [];
 	}
 	const doubleWidth = width * 2;
+	// For fixed layout we want to return the 1x and 2x widths. We only do this if the original image is large enough to do this though.
 	const maxSize = originalWidth ? Math.min(doubleWidth, originalWidth) : doubleWidth;
 	if (layout === 'fixed') {
-		// If the image is larger than the original, only include the original width
-		// Otherwise, include the image width and the double-resolution width, unless the double-resolution width is larger than the original
 		return originalWidth && width > originalWidth ? [originalWidth] : [width, maxSize];
 	}
+
+	// For responsive layout we want to return all breakpoints smaller than 2x requested width.
 	if (layout === 'responsive') {
 		return (
 			[
@@ -67,10 +77,10 @@ export const getWidths = ({
 				doubleWidth,
 				...breakpoints,
 			]
-				// Sort the resolutions in ascending order
-				.sort((a, b) => a - b)
 				// Filter out any resolutions that are larger than the double-resolution image or source image
 				.filter((w) => w <= maxSize)
+				// Sort the resolutions in ascending order
+				.sort((a, b) => a - b)
 		);
 	}
 
