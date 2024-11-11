@@ -50,16 +50,18 @@ const objectPosition = props.position ?? imageConfig.experimentalObjectPosition 
 const { style = '', class: className, ...attrs } = { ...additionalAttributes, ...image.attributes };
 ---
 
-<img
-	src={image.src}
-	{...attrs}
-	{style}
-	class:list={[
-		experimentalResponsiveImages && layoutClassMap[props.layout ?? imageConfig.experimentalLayout],
-		experimentalResponsiveImages && 'aim',
-		className,
-	]}
-/>
+{
+	experimentalResponsiveImages ? (
+		<img
+			src={image.src}
+			{...attrs}
+			{style}
+			class={`aim ${layoutClassMap[props.layout ?? imageConfig.experimentalLayout] ?? ''} ${className}`}
+		/>
+	) : (
+		<img src={image.src} {...additionalAttributes} {...image.attributes} class={className} />
+	)
+}
 
 <style
 	define:vars={experimentalResponsiveImages && {
