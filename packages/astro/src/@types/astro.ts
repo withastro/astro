@@ -1438,7 +1438,48 @@ export interface AstroUserConfig {
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
-		 * Shiki configuration options. See [the Markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
+		 * Shiki is our default syntax highlighter. You can configure all options via the `markdown.shikiConfig` object:
+	   * 
+		 * ```js title="astro.config.mjs"
+	   * import { defineConfig } from 'astro/config';
+		 * 
+	   * export default defineConfig({
+		 *   markdown: {
+	   *     shikiConfig: {
+		 *       // Choose from Shiki's built-in themes (or add your own)
+     *       // https://shiki.style/themes
+     *       theme: 'dracula',
+     *       // Alternatively, provide multiple themes
+     *       // See note below for using dual light/dark themes
+     *       themes: {
+     *         light: 'github-light',
+     *         dark: 'github-dark',
+     *       },
+     *       // Disable the default colors
+     *       // https://shiki.style/guide/dual-themes#without-default-color
+     *       // (Added in v4.12.0)
+     *       defaultColor: false,
+     *       // Add custom languages
+     *       // Note: Shiki has countless langs built-in, including .astro!
+     *       // https://shiki.style/languages
+     *       langs: [],
+     *       // Add custom aliases for languages
+     *       // Map an alias to a Shiki language ID: https://shiki.style/languages#bundled-languages
+     *       // https://shiki.style/guide/load-lang#custom-language-aliases
+     *       langAlias: {
+     *         cjs: "javascript"
+     *       },
+     *       // Enable word wrap to prevent horizontal scrolling
+     *       wrap: true,
+     *       // Add custom transformers: https://shiki.style/guide/transformers
+     *       // Find common transformers: https://shiki.style/packages/transformers
+     *       transformers: [],
+     *     },
+     *   },
+     * });
+     * ```
+     *
+	   * See the [code syntax highlighting guide](/en/guides/syntax-highlighting/) for usage and examples.
 		 */
 		shikiConfig?: Partial<ShikiConfig>;
 
@@ -1448,9 +1489,9 @@ export interface AstroUserConfig {
 		 * @type {'shiki' | 'prism' | false}
 		 * @default `shiki`
 		 * @description
-		 * Which syntax highlighter to use, if any.
-		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter
-		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter
+		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
+		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
+		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
 		 *
 		 * ```js
