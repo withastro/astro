@@ -1263,16 +1263,16 @@ export const RewriteWithBodyUsed = {
 /**
  * @docs
  * @description
- * `Astro.rewrite()` can't be used to rewrite an on-demand route with a static route, when using the `"server"` output.
+ * `Astro.rewrite()` can't be used to rewrite an on-demand route with a static route when using the `"server"` output.
  *
  */
 export const ForbiddenRewrite = {
 	name: 'ForbiddenRewrite',
-	title: "Can't use `Astro.rewrite()` from a on-demand route to static route with 'server' output.",
+	title: "Can't use `Astro.rewrite()` from an on-demand route to static route with 'server' output.",
 	message: (from: string, to: string, component: string) =>
 		`You tried to rewrite the on-demand route '${from}' with the static route '${to}', when using the 'server' output. \n\nThe static route '${to}' is rendered by the component
 '${component}', which is marked as prerendered. This is a forbidden operation because during the build the component '${component}' is compiled to an
-HTML file, which is can't be retrieved at runtime by Astro.`,
+HTML file, which can't be retrieved at runtime by Astro.`,
 	hint: (component: string) =>
 		`Add \`export const prerender = false\` to the component '${component}', or use a Astro.redirect().`,
 } satisfies ErrorData;
