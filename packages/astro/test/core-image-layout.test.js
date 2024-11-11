@@ -27,18 +27,7 @@ describe('astro:image:layout', () => {
 				},
 			});
 
-			devServer = await fixture.startDevServer({
-				logger: new Logger({
-					level: 'error',
-					dest: new Writable({
-						objectMode: true,
-						write(event, _, callback) {
-							logs.push(event);
-							callback();
-						},
-					}),
-				}),
-			});
+			devServer = await fixture.startDevServer({});
 		});
 
 		after(async () => {
