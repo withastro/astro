@@ -56,7 +56,7 @@ const { style = '', class: className, ...attrs } = { ...additionalAttributes, ..
 			src={image.src}
 			{...attrs}
 			{style}
-			class={`aim ${layoutClassMap[props.layout ?? imageConfig.experimentalLayout] ?? ''} ${className}`}
+			class={`${layoutClassMap[props.layout ?? imageConfig.experimentalLayout] ?? ''} aim ${className ?? ''}`.trim()}
 		/>
 	) : (
 		<img src={image.src} {...additionalAttributes} {...image.attributes} class={className} />
