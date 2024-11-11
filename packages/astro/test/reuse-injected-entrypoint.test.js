@@ -62,7 +62,7 @@ describe('Reuse injected entrypoint', () => {
 			await fixture.build();
 		});
 
-		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch }) => {
+		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch, script }) => {
 			const isEndpoint = htmlMatch && !h1 && !p;
 
 			it(description, async () => {
