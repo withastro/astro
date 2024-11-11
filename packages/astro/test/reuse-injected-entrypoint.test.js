@@ -134,7 +134,7 @@ describe('Reuse injected entrypoint', () => {
 					assert.equal(html, htmlMatch);
 				}
 
-				if (script) {
+				if (hasScript) {
 					assert.equal($('script[type="module"]').length, 1, 'should have client-side script');
 				}
 			});
