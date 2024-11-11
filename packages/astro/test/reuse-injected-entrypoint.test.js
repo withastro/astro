@@ -13,11 +13,13 @@ const routes = [
 		description: 'matches /injected-a to to-inject.astro',
 		url: '/injected-a',
 		h1: 'to-inject.astro',
+		scipt: true,
 	},
 	{
 		description: 'matches /injected-b to to-inject.astro',
 		url: '/injected-b',
 		h1: 'to-inject.astro',
+		scipt: true,
 	},
 	{
 		description: 'matches /dynamic-a/id-1 to [id].astro',
@@ -85,6 +87,10 @@ describe('Reuse injected entrypoint', () => {
 				if (htmlMatch) {
 					assert.equal(html, htmlMatch);
 				}
+
+				if (script) {
+					assert.equal($('script[type="module"]').length, 1, 'should have client-side script');
+				}
 			});
 		});
 	});
@@ -126,6 +132,10 @@ describe('Reuse injected entrypoint', () => {
 
 				if (htmlMatch) {
 					assert.equal(html, htmlMatch);
+				}
+
+				if (script) {
+					assert.equal($('script[type="module"]').length, 1, 'should have client-side script');
 				}
 			});
 		});
