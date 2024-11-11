@@ -80,7 +80,7 @@ export const getWidths = ({
 /**
  * Gets the `sizes` attribute for an image, based on the layout and width
  */
-export const getSizes = ({
+export const getSizesAttribute = ({
 	width,
 	layout,
 }: { width?: number; layout?: ImageLayout }): string | undefined => {
