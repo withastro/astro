@@ -29,7 +29,7 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
-import { copyRequest, setOriginPathname } from './routing/rewrite.js';
+import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { SERVER_ISLAND_COMPONENT } from './server-islands/endpoint.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
@@ -331,6 +331,9 @@ export class RenderContext {
 			request: this.request,
 			site: pipeline.site,
 			url,
+			get originPathname() {
+				return getOriginPathname(renderContext.request);
+			},
 		};
 	}
 
@@ -343,9 +346,12 @@ export class RenderContext {
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
 		const headers = new Headers({ 'Content-Type': 'text/html' });
 		const partial = typeof this.partial === 'boolean' ? this.partial : Boolean(mod.partial);
+		const actionResult = hasActionPayload(this.locals)
+			? deserializeActionResult(this.locals._actionPayload.actionResult)
+			: undefined;
 		const response = {
-			status,
-			statusText: 'OK',
+			status: actionResult?.error ? actionResult?.error.status : status,
+			statusText: actionResult?.error ? actionResult?.error.type : 'OK',
 			get headers() {
 				return headers;
 			},
@@ -354,10 +360,6 @@ export class RenderContext {
 				throw new AstroError(AstroErrorData.AstroResponseHeadersReassigned);
 			},
 		} satisfies AstroGlobal['response'];
-
-		const actionResult = hasActionPayload(this.locals)
-			? deserializeActionResult(this.locals._actionPayload.actionResult)
-			: undefined;
 
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
@@ -510,6 +512,9 @@ export class RenderContext {
 				return createCallAction(this);
 			},
 			url,
+			get originPathname() {
+				return getOriginPathname(renderContext.request);
+			},
 		};
 	}
 

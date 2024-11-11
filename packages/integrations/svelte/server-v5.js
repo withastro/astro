@@ -17,7 +17,10 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 
 	let children = undefined;
 	let $$slots = undefined;
+	const renderProps = {};
+
 	for (const [key, value] of Object.entries(slotted)) {
+		// Legacy slot support
 		$$slots ??= {};
 		if (key === 'default') {
 			$$slots.default = true;
@@ -29,6 +32,11 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 				render: () => `<${tagName} name="${key}">${value}</${tagName}>`,
 			}));
 		}
+		// @render support for Svelte ^5.0
+		const slotName = key === 'default' ? 'children' : key;
+		renderProps[slotName] = createRawSnippet(() => ({
+			render: () => `<${tagName}${key !== 'default' ? ` name="${key}"` : ''}>${value}</${tagName}>`,
+		}));
 	}
 
 	const result = render(Component, {
@@ -36,6 +44,7 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 			...props,
 			children,
 			$$slots,
+			...renderProps,
 		},
 	});
 	return { html: result.body };

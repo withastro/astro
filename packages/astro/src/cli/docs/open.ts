@@ -1,4 +1,5 @@
-import { type Result, exec } from 'tinyexec';
+import type { Result } from 'tinyexec';
+import { exec } from '../exec.js';
 
 /**
  *  Credit: Azhar22
@@ -8,6 +9,7 @@ const getPlatformSpecificCommand = (): [string] | [string, string[]] => {
 	const isGitPod = Boolean(process.env.GITPOD_REPO_ROOT);
 	const platform = isGitPod ? 'gitpod' : process.platform;
 
+	// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 	switch (platform) {
 		case 'android':
 		case 'linux':
