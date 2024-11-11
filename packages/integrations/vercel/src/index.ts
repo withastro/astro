@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
@@ -7,6 +7,7 @@ import type {
 	AstroConfig,
 	AstroIntegration,
 	AstroIntegrationLogger,
+	HookParameters,
 	IntegrationRouteData,
 } from 'astro';
 import glob from 'fast-glob';
@@ -188,13 +189,14 @@ export default function vercelAdapter({
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
 	const middlewareSecret = crypto.randomUUID();
 
-	let buildOutput: 'server' | 'static';
+	let _buildOutput: 'server' | 'static';
+
+	let staticDir: URL | undefined;
 
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': async ({ command, config, updateConfig, injectScript, logger }) => {
-				buildOutput = config.output;
 				if (webAnalytics?.enabled) {
 					injectScript(
 						'head-inline',
@@ -204,7 +206,30 @@ export default function vercelAdapter({
 					);
 				}
 
-				if (buildOutput === 'server') {
+				staticDir = new URL('./.vercel/output/static', config.root);
+				updateConfig({
+					build: {
+						format: 'directory',
+						redirects: false,
+					},
+					vite: {
+						ssr: {
+							external: ['@vercel/nft'],
+						},
+					},
+					...getAstroImageConfig(
+						imageService,
+						imagesConfig,
+						command,
+						devImageService,
+						config.image
+					),
+				});
+			},
+			'astro:config:done': ({ setAdapter, config, logger, buildOutput }) => {
+				_buildOutput = buildOutput;
+
+				if (_buildOutput === 'server') {
 					if (maxDuration && maxDuration > 900) {
 						logger.warn(
 							`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`
@@ -214,7 +239,6 @@ export default function vercelAdapter({
 							`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`
 						);
 					}
-
 					const vercelConfigPath = new URL('vercel.json', config.root);
 					if (existsSync(vercelConfigPath)) {
 						try {
@@ -225,65 +249,21 @@ export default function vercelAdapter({
 										`\tYour "vercel.json" \`trailingSlash\` configuration (set to \`true\`) will conflict with your Astro \`trailinglSlash\` configuration (set to \`"always"\`).\n` +
 										// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 										`\tThis would cause infinite redirects under certain conditions and throw an \`ERR_TOO_MANY_REDIRECTS\` error.\n` +
-										`\tTo prevent this, your Astro configuration is updated to \`"ignore"\` during builds.\n`
+										`\tTo prevent this, change your Astro configuration and update \`"trailingSlash"\` to \`"ignore"\`.\n`
 								);
-								updateConfig({
-									trailingSlash: 'ignore',
-								});
 							}
 						} catch (_err) {
 							logger.warn(`Your "vercel.json" config is not a valid json file.`);
 						}
 					}
-
-					updateConfig({
-						outDir: new URL('./.vercel/output/', config.root),
-						build: {
-							client: new URL('./.vercel/output/static/', config.root),
-							server: new URL('./.vercel/output/_functions/', config.root),
-							redirects: false,
-						},
-						vite: {
-							ssr: {
-								external: ['@vercel/nft'],
-							},
-						},
-						...getAstroImageConfig(
-							imageService,
-							imagesConfig,
-							command,
-							devImageService,
-							config.image
-						),
-					});
-				} else {
-					const outDir = new URL('./.vercel/output/static/', config.root);
-					updateConfig({
-						outDir,
-						build: {
-							format: 'directory',
-							redirects: false,
-						},
-						...getAstroImageConfig(
-							imageService,
-							imagesConfig,
-							command,
-							devImageService,
-							config.image
-						),
-					});
-				}
-			},
-			'astro:config:done': ({ setAdapter, config }) => {
-				if (buildOutput === 'server') {
-					setAdapter(getAdapter({ buildOutput, edgeMiddleware, middlewareSecret, skewProtection }));
+					setAdapter(getAdapter({ buildOutput: _buildOutput, edgeMiddleware, middlewareSecret, skewProtection }));
 				} else {
 					setAdapter(
 						getAdapter({
 							edgeMiddleware: false,
 							middlewareSecret: '',
 							skewProtection,
-							buildOutput,
+							buildOutput: _buildOutput,
 						})
 					);
 				}
@@ -292,12 +272,8 @@ export default function vercelAdapter({
 				_serverEntry = config.build.serverEntry;
 			},
 			'astro:build:start': async () => {
-				if (buildOutput !== 'static') {
-					// Ensure to have `.vercel/output` empty.
-					// This is because, when building to static, outDir = .vercel/output/static/,
-					// so .vercel/output itself won't get cleaned.
-					await emptyDir(new URL('./.vercel/output/', _config.root));
-				}
+				// Ensure to have `.vercel/output` empty.
+				await emptyDir(new URL('./.vercel/output/', _config.root));
 			},
 			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
 				_entryPoints = new Map(
@@ -305,14 +281,35 @@ export default function vercelAdapter({
 				);
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
-			'astro:build:done': async ({ routes, logger }) => {
+			'astro:build:done': async ({ routes, logger }: HookParameters<'astro:build:done'>) => {
+				const outDir = new URL('./.vercel/output/', _config.root);
+				if (staticDir) {
+					if (existsSync(staticDir)) {
+						emptyDir(staticDir);
+					}
+					mkdirSync(new URL('./.vercel/output/static/', _config.root), { recursive: true });
+
+					if (_buildOutput === 'static' && staticDir) {
+						cpSync(_config.outDir, new URL('./.vercel/output/static/', _config.root), {
+							recursive: true,
+						});
+					} else {
+						cpSync(_config.build.client, new URL('./.vercel/output/static/', _config.root), {
+							recursive: true,
+						});
+						cpSync(_config.build.server, new URL('./.vercel/output/_functions/', _config.root), {
+							recursive: true,
+						});
+					}
+				}
+
 				const routeDefinitions: Array<{
 					src: string;
 					dest: string;
 					middlewarePath?: string;
 				}> = [];
 
-				if (buildOutput === 'server') {
+				if (_buildOutput === 'server') {
 					// Merge any includes from `vite.assetsInclude
 					if (_config.vite.assetsInclude) {
 						const mergeGlobbedIncludes = (globPattern: unknown) => {
@@ -339,6 +336,7 @@ export default function vercelAdapter({
 						excludeFiles,
 						includeFiles,
 						logger,
+						outDir,
 						maxDuration
 					);
 
@@ -399,10 +397,7 @@ export default function vercelAdapter({
 					}
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
-				const destination =
-					buildOutput === 'server'
-						? new URL('./config.json', _config.outDir)
-						: new URL('./.vercel/output/config.json', _config.root);
+				const destination = new URL('./.vercel/output/config.json', _config.root);
 				const finalRoutes = [
 					...getRedirects(routes, _config),
 					{
@@ -412,12 +407,12 @@ export default function vercelAdapter({
 					},
 					{ handle: 'filesystem' },
 				];
-				if (buildOutput === 'server') {
+				if (_buildOutput === 'server') {
 					finalRoutes.push(...routeDefinitions);
 				}
 
 				if (fourOhFourRoute) {
-					if (buildOutput === 'server') {
+					if (_buildOutput === 'server') {
 						finalRoutes.push({
 							src: '/.*',
 							dest: fourOhFourRoute.prerender
@@ -464,7 +459,7 @@ export default function vercelAdapter({
 				});
 
 				// Remove temporary folder
-				if (buildOutput === 'server') {
+				if (_buildOutput === 'server') {
 					await removeDir(_buildTempFolder);
 				}
 			},
@@ -495,6 +490,7 @@ class VercelBuilder {
 		readonly excludeFiles: URL[],
 		readonly includeFiles: URL[],
 		readonly logger: AstroIntegrationLogger,
+		readonly outDir: URL,
 		readonly maxDuration?: number,
 		readonly runtime = getRuntime(process, logger)
 	) {}
@@ -502,9 +498,9 @@ class VercelBuilder {
 	async buildServerlessFolder(entry: URL, functionName: string, root: URL) {
 		const { config, includeFiles, excludeFiles, logger, NTF_CACHE, runtime, maxDuration } = this;
 		// .vercel/output/functions/<name>.func/
-		const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
-		const packageJson = new URL(`./functions/${functionName}.func/package.json`, config.outDir);
-		const vcConfig = new URL(`./functions/${functionName}.func/.vc-config.json`, config.outDir);
+		const functionFolder = new URL(`./functions/${functionName}.func/`, this.outDir);
+		const packageJson = new URL(`./functions/${functionName}.func/package.json`, this.outDir);
+		const vcConfig = new URL(`./functions/${functionName}.func/.vc-config.json`, this.outDir);
 
 		// Copy necessary files (e.g. node_modules/)
 		const { handler } = await copyDependenciesToFunction(
@@ -538,7 +534,7 @@ class VercelBuilder {
 		await this.buildServerlessFolder(entry, functionName, root);
 		const prerenderConfig = new URL(
 			`./functions/${functionName}.prerender-config.json`,
-			this.config.outDir
+			this.outDir
 		);
 		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
 		await writeJson(prerenderConfig, {
@@ -550,7 +546,7 @@ class VercelBuilder {
 	}
 
 	async buildMiddlewareFolder(entry: URL, functionName: string, middlewareSecret: string) {
-		const functionFolder = new URL(`./functions/${functionName}.func/`, this.config.outDir);
+		const functionFolder = new URL(`./functions/${functionName}.func/`, this.outDir);
 
 		await generateEdgeMiddleware(
 			entry,
