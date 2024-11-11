@@ -8,6 +8,7 @@ const routes = [
 		description: 'matches / to index.astro',
 		url: '/',
 		h1: 'index.astro',
+		hasScript: false,
 	},
 	{
 		description: 'matches /injected-a to to-inject.astro',
@@ -26,24 +27,28 @@ const routes = [
 		url: '/dynamic-a/id-1',
 		h1: '[id].astro',
 		p: 'id-1',
+		hasScript: false,
 	},
 	{
 		description: 'matches /dynamic-a/id-2 to [id].astro',
 		url: '/dynamic-a/id-2',
 		h1: '[id].astro',
 		p: 'id-2',
+		hasScript: false,
 	},
 	{
 		description: 'matches /dynamic-b/id-1 to [id].astro',
 		url: '/dynamic-b/id-1',
 		h1: '[id].astro',
 		p: 'id-1',
+		hasScript: false,
 	},
 	{
 		description: 'matches /dynamic-b/id-2 to [id].astro',
 		url: '/dynamic-b/id-2',
 		h1: '[id].astro',
 		p: 'id-2',
+		hasScript: false,
 	},
 ];
 
@@ -62,7 +67,7 @@ describe('Reuse injected entrypoint', () => {
 			await fixture.build();
 		});
 
-		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch, hasScript = false }) => {
+		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch, hasScript  }) => {
 			const isEndpoint = htmlMatch && !h1 && !p;
 
 			it(description, async () => {
