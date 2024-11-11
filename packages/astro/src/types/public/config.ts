@@ -13,6 +13,7 @@ import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { ImageFit, ImageLayout } from '../../assets/types.js';
 
 export type Locales = (string | { codes: string[]; path: string })[];
 
@@ -1091,7 +1092,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * The default object-fit value for responsive images. Can be overridden by the `fit` prop on the image component.
 		 * Requires the `experimental.responsiveImages` flag to be enabled.
 		 */
-		experimentalObjectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down' | (string & {});
+		experimentalObjectFit?: ImageFit;
 		/**
 		 * @docs
 		 * @name image.experimentalObjectPosition
@@ -1765,8 +1766,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		responsiveImages?: boolean;
 	};
 }
-
-export type ImageLayout = 'responsive' | 'fixed' | 'full-width' | 'none';
 
 /**
  * Resolved Astro Config

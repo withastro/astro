@@ -2,7 +2,12 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
-import type { ImageOutputFormat, ImageTransform, UnresolvedSrcSetValue } from '../types.js';
+import type {
+	ImageFit,
+	ImageOutputFormat,
+	ImageTransform,
+	UnresolvedSrcSetValue,
+} from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
 
@@ -116,6 +121,8 @@ export type BaseServiceTransform = {
 	height?: number;
 	format: string;
 	quality?: string | null;
+	fit?: ImageFit;
+	position?: string;
 };
 
 const sortNumeric = (a: number, b: number) => a - b;
@@ -221,7 +228,10 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		// Sometimes users will pass number generated from division, which can result in floating point numbers
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
-
+		if (options.layout && options.width && options.height) {
+			options.fit ??= 'cover';
+			delete options.layout;
+		}
 		return options;
 	},
 	getHTMLAttributes(options) {
@@ -344,6 +354,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			h: 'height',
 			q: 'quality',
 			f: 'format',
+			fit: 'fit',
+			position: 'position',
 		};
 
 		Object.entries(params).forEach(([param, key]) => {
@@ -366,6 +378,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			height: params.has('h') ? parseInt(params.get('h')!) : undefined,
 			format: params.get('f') as ImageOutputFormat,
 			quality: params.get('q'),
+			fit: params.get('fit') as ImageFit,
+			position: params.get('position') ?? undefined,
 		};
 
 		return transform;

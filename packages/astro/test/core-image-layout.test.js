@@ -134,7 +134,7 @@ describe('astro:image:layout', () => {
 				assert.match(style, /\.aim\[/);
 				assert.match(style, /\.aim-re\[/);
 				assert.match(style, /\.aim-fi\[/);
-			})
+			});
 		});
 
 		describe('srcsets', () => {

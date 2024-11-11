@@ -1,4 +1,4 @@
-import type { ImageLayout } from '../types/public/index.js';
+import type { ImageLayout } from './types.js';
 
 // Common screen widths. These will be filtered according to the image size and layout
 export const DEFAULT_RESOLUTIONS = [
@@ -33,9 +33,9 @@ export const LIMITED_RESOLUTIONS = [
 
 /**
  * Gets the breakpoints for an image, based on the layout and width
- * 
+ *
  * The rules are as follows:
- * 
+ *
  * - For full-width layout we return all breakpoints smaller than the original image width
  * - For fixed layout we return 1x and 2x the requested width, unless the original image is smaller than that.
  * - For responsive layout we return all breakpoints smaller than 2x the requested width, unless the original image is smaller than that.

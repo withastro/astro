@@ -1,4 +1,3 @@
-import type { ImageLayout } from '../types/public/index.js';
 import type { OmitPreservingIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { VALID_INPUT_FORMATS, VALID_OUTPUT_FORMATS } from './consts.js';
 import type { ImageService } from './services/service.js';
@@ -7,6 +6,8 @@ export type ImageQualityPreset = 'low' | 'mid' | 'high' | 'max' | (string & {});
 export type ImageQuality = ImageQualityPreset | number;
 export type ImageInputFormat = (typeof VALID_INPUT_FORMATS)[number];
 export type ImageOutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string & {});
+export type ImageLayout = 'responsive' | 'fixed' | 'full-width' | 'none';
+export type ImageFit = 'fill' | 'contain' | 'cover' | 'none' | 'scale-down' | (string & {});
 
 export type AssetsGlobalStaticImagesList = Map<
 	string,
@@ -87,6 +88,8 @@ export type ImageTransform = {
 	height?: number | undefined;
 	quality?: ImageQuality | undefined;
 	format?: ImageOutputFormat | undefined;
+	fit?: ImageFit | undefined;
+	position?: string | undefined;
 	[key: string]: any;
 };
 
@@ -157,7 +160,7 @@ type ImageSharedProps<T> = T & {
 
 	layout?: ImageLayout;
 
-	fit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down' | (string & {});
+	fit?: ImageFit;
 
 	position?: string;
 } & (

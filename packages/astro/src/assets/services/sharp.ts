@@ -1,6 +1,6 @@
-import type { FormatEnum, SharpOptions } from 'sharp';
+import type { FitEnum, FormatEnum, SharpOptions } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
+import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
 	type BaseServiceTransform,
 	type LocalImageService,
@@ -38,6 +38,15 @@ async function loadSharp() {
 	return sharpImport;
 }
 
+const fitMap: Record<ImageFit, keyof FitEnum> = {
+	fill: 'fill',
+	contain: 'contain',
+	cover: 'cover',
+	none: 'outside',
+	'scale-down': 'inside',
+	'': 'outside',
+};
+
 const sharpService: LocalImageService<SharpImageServiceConfig> = {
 	validateOptions: baseService.validateOptions,
 	getURL: baseService.getURL,
@@ -62,8 +71,16 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
 
-		// Never resize using both width and height at the same time, prioritizing width.
-		if (transform.height && !transform.width) {
+		// If `fit` isn't set then don't use both width and height (old behavior)
+		if (transform.width && transform.height && transform.fit) {
+			const fit: keyof FitEnum = fitMap[transform.fit] ?? transform.fit ?? 'outside';
+			result.resize({
+				width: Math.round(transform.width),
+				height: Math.round(transform.height),
+				fit,
+				position: transform.position,
+			});
+		} else if (transform.height && !transform.width) {
 			result.resize({ height: Math.round(transform.height) });
 		} else if (transform.width) {
 			result.resize({ width: Math.round(transform.width) });
