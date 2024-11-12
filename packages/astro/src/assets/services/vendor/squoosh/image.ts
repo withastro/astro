@@ -37,6 +37,7 @@ export async function processBuffer(
 			return await impl.encodePng(imageData);
 		case 'webp':
 			return await impl.encodeWebp(imageData, { quality });
+		case 'svg':
 		default:
 			throw Error(`Unsupported encoding format`)
 	}

@@ -105,6 +105,7 @@ export function enhanceViteSSRError({
 }
 
 export interface AstroErrorPayload {
+	__isEnhancedAstroErrorPayload: true;
 	type: ErrorPayload['type'];
 	err: Omit<ErrorPayload['err'], 'loc'> & {
 		name?: string;
@@ -164,6 +165,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 		: undefined;
 
 	return {
+		__isEnhancedAstroErrorPayload: true,
 		type: 'error',
 		err: {
 			...err,

@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 5.7.3
+
+### Patch Changes
+
+- [#12390](https://github.com/withastro/astro/pull/12390) [`6fd3d59`](https://github.com/withastro/astro/commit/6fd3d5960f5ab16591bfdb94d1f9b9a9b72006cf) Thanks [@bluwy](https://github.com/bluwy)! - Adds support for Svelte 5's new `@render` syntax while maintaining backward compatibility with traditional slots.
+
 ## 5.7.2
 
 ### Patch Changes
