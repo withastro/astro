@@ -2,7 +2,6 @@ import type { BuildOptions, Rollup, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import { getPageDatasByHoistedScriptId } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
-import type { StaticBuildOptions } from '../types.js';
 import { shouldInlineAsset } from './util.js';
 
 function virtualHoistedEntry(id: string) {
@@ -95,7 +94,6 @@ export function vitePluginHoistedScripts(
 }
 
 export function pluginHoistedScripts(
-	options: StaticBuildOptions,
 	internals: BuildInternals,
 ): AstroBuildPlugin {
 	return {
@@ -103,7 +101,7 @@ export function pluginHoistedScripts(
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginHoistedScripts(options.settings, internals),
+					vitePlugin: vitePluginHoistedScripts(internals),
 				};
 			},
 		},
