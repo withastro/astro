@@ -180,6 +180,53 @@ describe('astro:image:layout', () => {
 			});
 		});
 
+		describe('generated URLs', () => {
+			let $;
+			before(async () => {
+				let res = await fixture.fetch('/fit');
+				let html = await res.text();
+				$ = cheerio.load(html);
+			});
+			it('generates width and height in image URLs when both are provided', () => {
+				let $img = $('#local-both img');
+				const aspectRatio = 300 / 400;
+				const srcset = parseSrcset($img.attr('srcset'))
+				for (const { url } of srcset) {
+					const params = new URL(url, 'https://example.com').searchParams;
+					const width = parseInt(params.get('w'));
+					const height = parseInt(params.get('h'));
+					assert.equal(width / height, aspectRatio);
+				}
+			});
+
+			it('sets a default fit of "cover" when no fit is provided', () => {
+				let $img = $('#fit-default img');
+				const srcset = parseSrcset($img.attr('srcset'))
+				for (const { url } of srcset) {
+					const params = new URL(url, 'https://example.com').searchParams;
+					assert.equal(params.get('fit'), 'cover');
+				}
+			})
+
+			it('sets a fit of "contain" when fit="contain" is provided', () => {
+				let $img = $('#fit-contain img');
+				const srcset = parseSrcset($img.attr('srcset'))
+				for (const { url } of srcset) {
+					const params = new URL(url, 'https://example.com').searchParams;
+					assert.equal(params.get('fit'), 'contain');
+				}
+			})
+
+			it('sets no fit when fit="none" is provided', () => {
+				let $img = $('#fit-none img');
+				const srcset = parseSrcset($img.attr('srcset'))
+				for (const { url } of srcset) {
+					const params = new URL(url, 'https://example.com').searchParams;
+					assert.ok(!params.has('fit'));
+				}
+			})
+		});
+
 		describe('remote images', () => {
 			describe('srcset', () => {
 				let $;

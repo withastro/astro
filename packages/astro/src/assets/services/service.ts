@@ -232,6 +232,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			options.fit ??= 'cover';
 			delete options.layout;
 		}
+		if(options.fit === 'none') {
+			delete options.fit;
+		}
 		return options;
 	},
 	getHTMLAttributes(options) {
