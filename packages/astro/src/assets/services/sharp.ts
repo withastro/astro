@@ -40,11 +40,12 @@ async function loadSharp() {
 
 const fitMap: Record<ImageFit, keyof FitEnum> = {
 	fill: 'fill',
-	contain: 'contain',
+	contain: 'inside',
 	cover: 'cover',
 	none: 'outside',
 	'scale-down': 'inside',
-	'': 'outside',
+	'outside': 'outside',
+	'inside': 'inside',
 };
 
 const sharpService: LocalImageService<SharpImageServiceConfig> = {
@@ -55,7 +56,6 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 	getSrcSet: baseService.getSrcSet,
 	async transform(inputBuffer, transformOptions, config) {
 		if (!sharp) sharp = await loadSharp();
-
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
 		// Return SVGs as-is
@@ -75,10 +75,9 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// - Do not use both width and height for resizing, and prioritize width over height
 		// - Allow enlarging images
 
-		const withoutEnlargement = Boolean(transform.fit) && transform.fit !== 'none';
-
+		const withoutEnlargement = Boolean(transform.fit);
 		if (transform.width && transform.height && transform.fit) {
-			const fit: keyof FitEnum = fitMap[transform.fit] ?? transform.fit ?? 'outside';
+			const fit: keyof FitEnum = fitMap[transform.fit] ?? 'inside';
 			result.resize({
 				width: Math.round(transform.width),
 				height: Math.round(transform.height),

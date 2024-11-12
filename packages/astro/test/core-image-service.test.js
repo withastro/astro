@@ -3,11 +3,18 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import { lookup as probe } from '../dist/assets/utils/vendor/image-size/lookup.js';
+import { removeDir } from '@astrojs/internal-helpers/fs';
 
 async function getImageDimensionsFromFixture(fixture, path) {
 	/** @type { Response } */
 	const res = await fixture.fetch(path instanceof URL ? path.pathname + path.search : path);
 	const buffer = await res.arrayBuffer();
+	const { width, height } = await probe(new Uint8Array(buffer));
+	return { width, height };
+}
+
+async function getImageDimensionsFromLocalFile(fixture, path) {
+	const buffer = await fixture.readFile(path, null);
 	const { width, height } = await probe(new Uint8Array(buffer));
 	return { width, height };
 }
@@ -48,14 +55,14 @@ describe('astro image service', () => {
 				src = new URL($img.attr('src'), 'http://localhost').href;
 			});
 
-			it('generates width and height in image URLs when both are provided', async () => {
+			it('generates correct width and height when both are provided', async () => {
 				const url = new URL(src);
 				const { width, height } = await getImageDimensionsFromFixture(fixture, url);
 				assert.equal(width, 300);
 				assert.equal(height, 400);
 			});
 
-			it('generates height in image URLs when only width is provided', async () => {
+			it('generates correct height when only width is provided', async () => {
 				const url = new URL(src);
 				url.searchParams.delete('h');
 				const { width, height } = await getImageDimensionsFromFixture(fixture, url);
@@ -63,7 +70,7 @@ describe('astro image service', () => {
 				assert.equal(height, 200);
 			});
 
-			it('generates width in image URLs when only height is provided', async () => {
+			it('generates correct width when only height is provided', async () => {
 				const url = new URL(src);
 				url.searchParams.delete('w');
 				url.searchParams.set('h', '400');
@@ -80,9 +87,9 @@ describe('astro image service', () => {
 				assert.equal(height, 200);
 			});
 
-			it('preserves aspect ratio when fit=scale-down', async () => {
+			it('preserves aspect ratio when fit=contain', async () => {
 				const url = new URL(src);
-				url.searchParams.set('fit', 'scale-down');
+				url.searchParams.set('fit', 'contain');
 				const { width, height } = await getImageDimensionsFromFixture(fixture, url);
 				assert.equal(width, 300);
 				assert.equal(height, 200);
@@ -127,6 +134,77 @@ describe('astro image service', () => {
 				assert.equal(width, originalWidth);
 				assert.equal(height, originalHeight);
 			});
+		});
+	});
+
+	describe('build image service', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-layout/',
+			});
+			removeDir(new URL('./fixtures/core-image-ssg/node_modules/.astro', import.meta.url));
+
+			await fixture.build();
+		});
+
+		describe('generated images', () => {
+			let $;
+			let src;
+			before(async () => {
+				const html = await fixture.readFile('/build/index.html');
+				$ = cheerio.load(html);
+			});
+
+			it('generates correct width and height when both are provided', async () => {
+				const path = $('.both img').attr('src');
+				const { width, height } = await getImageDimensionsFromLocalFile(fixture, path);
+				assert.equal(width, 300);
+				assert.equal(height, 400);
+			});
+
+			it('generates correct height when only width is provided', async () => {
+				const path = $('.width-only img').attr('src');
+				const { width, height } = await getImageDimensionsFromLocalFile(fixture, path);
+				assert.equal(width, 300);
+				assert.equal(height, 200);
+			});
+
+			it('generates correct width when only height is provided', async () => {
+				const path = $('.height-only img').attr('src');
+				const { width, height } = await getImageDimensionsFromLocalFile(fixture, path);
+				assert.equal(width, 600);
+				assert.equal(height, 400);
+			});
+
+			it('preserves aspect ratio when fit=inside', async () => {
+				const path = $('.fit-inside img').attr('src');
+				const { width, height } = await getImageDimensionsFromLocalFile(fixture, path);
+				assert.equal(width, 300);
+				assert.equal(height, 200);
+			});
+
+			it('preserves aspect ratio when fit=contain', async () => {
+				const path = $('.fit-contain img').attr('src');
+				const { width, height } = await getImageDimensionsFromLocalFile(fixture, path);
+				assert.equal(width, 300);
+				assert.equal(height, 200);
+			});
+
+			it('preserves aspect ratio when fit=outside', async () => {
+				const path = $('.fit-outside img').attr('src');
+				const { width, height } = await getImageDimensionsFromLocalFile(fixture, path);
+				assert.equal(width, 600);
+				assert.equal(height, 400);
+			});
+			const originalWidth = 2316;
+			const originalHeight = 1544;
+			it('does not upscale image if requested size is larger than original', async () => {
+				const path = $('.too-large img').attr('src');
+				const { width, height } = await getImageDimensionsFromLocalFile(fixture, path);
+				assert.equal(width, originalWidth);
+				assert.equal(height, originalHeight);
+			});
+
 		});
 	});
 });
