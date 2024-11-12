@@ -79,11 +79,12 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 				height: Math.round(transform.height),
 				fit,
 				position: transform.position,
+				withoutEnlargement: true
 			});
 		} else if (transform.height && !transform.width) {
-			result.resize({ height: Math.round(transform.height) });
+			result.resize({ height: Math.round(transform.height), withoutEnlargement: Boolean(transform.fit) });
 		} else if (transform.width) {
-			result.resize({ width: Math.round(transform.width) });
+			result.resize({ width: Math.round(transform.width), withoutEnlargement: Boolean(transform.fit) });
 		}
 
 		if (transform.format) {
