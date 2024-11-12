@@ -1,7 +1,7 @@
 
 <script>
 	let { id, children } = $props();
-  let count = $state();
+  let count = $state(0);
 
   function add() {
 		count += 1;
@@ -18,7 +18,7 @@
   <button class="increment" onclick={add}>+</button>
 </div>
 <div class="counter-message">
-	{@render children()}
+	{@render children?.()}
 </div>
 
 <style>

@@ -5,7 +5,7 @@ A counter written with Svelte
 	import type { Snippet } from 'svelte';
 
 	interface Props {
-		children: Snippet
+		children?: Snippet
 	}
 
 	let { children }: Props = $props();
@@ -26,5 +26,5 @@ A counter written with Svelte
 	<button onclick={add}>+</button>
 </div>
 <div class="counter-message">
-	{@render children()}
+	{@render children?.()}
 </div>

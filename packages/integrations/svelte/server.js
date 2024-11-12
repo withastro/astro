@@ -2,9 +2,12 @@ import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 
 function check(Component) {
-	// Svelte 5 generated components always accept these two props
-	const str = Component.toString();
-	return str.includes('$$payload');
+	if (typeof Component !== 'function') return false;
+	// Svelte 5 generated components always accept a `$$payload` prop.
+	// This assumes that the SSR build does not minify it (which Astro enforces by default).
+	// This isn't the best check, but the only other option otherwise is to try to render the
+	// component, which is taxing. We'll leave it as a last resort for the future for now.
+	return Component.toString().includes('$$payload');
 }
 
 function needsHydration(metadata) {

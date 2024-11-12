@@ -3,5 +3,5 @@
 </script>
 
 <div id="svelte">
-    {@render children()}
+    {@render children?.()}
 </div>

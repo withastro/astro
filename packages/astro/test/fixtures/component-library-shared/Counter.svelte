@@ -17,7 +17,7 @@
   <button onclick={add}>+</button>
 </div>
 <div class="message">
-	{@render children()}
+	{@render children?.()}
 </div>
 
 <style>

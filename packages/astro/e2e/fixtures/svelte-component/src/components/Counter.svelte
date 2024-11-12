@@ -4,7 +4,7 @@
   interface Props {
     id: number;
     count: number;
-		children: Snippet
+		children?: Snippet
   }
 
 	let { id, count, children }: Props = $props();
@@ -24,7 +24,7 @@
   <button class="increment" onclick={add}>+</button>
 </div>
 <div id={`${id}-message`} class="message">
-	{@render children()}
+	{@render children?.()}
 </div>
 
 <style>

@@ -17,7 +17,7 @@
 	<button onclick={add} class="increment">+</button>
 </div>
 <div class="message">
-	{@render children()}
+	{@render children?.()}
 </div>
 
 <style>

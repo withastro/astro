@@ -1,5 +1,7 @@
-import { createRawSnippet, hydrate, mount, unmount } from 'svelte';
+import { createRawSnippet } from 'svelte';
+import { createClassComponent } from 'svelte/legacy';
 
+/** @type {WeakMap<HTMLElement, ReturnType<typeof createClassComponent>} */
 const existingApplications = new WeakMap();
 
 export default (element) => {
@@ -35,7 +37,6 @@ export default (element) => {
 			}
 		}
 
-		const bootstrap = client !== 'only' ? hydrate : mount;
 		if (existingApplications.has(element)) {
 			existingApplications.get(element).$set({
 				...props,
@@ -44,17 +45,22 @@ export default (element) => {
 				...renderFns,
 			});
 		} else {
-			const component = bootstrap(Component, {
+			// Svelte 5 makes it very hard to update props for some reason, simply use
+			// `createClassComponent` so that it does the heavylifting around props itself.
+			// https://github.com/sveltejs/svelte/blob/53af138d588f77bb8f4f10f9ad15fd4f798b50ef/packages/svelte/src/legacy/legacy-client.js#L91-L109
+			const component = createClassComponent({
 				target: element,
+				component: Component,
 				props: {
 					...props,
 					children,
 					$$slots,
 					...renderFns,
 				},
+				hydrate: client !== 'only',
 			});
 			existingApplications.set(element, component);
-			element.addEventListener('astro:unmount', () => unmount(component), { once: true });
+			element.addEventListener('astro:unmount', () => component.$destroy(), { once: true });
 		}
 	};
 };

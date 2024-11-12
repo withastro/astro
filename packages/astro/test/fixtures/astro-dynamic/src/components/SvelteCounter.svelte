@@ -18,5 +18,5 @@
     <button onclick={add}>+</button>
 </div>
 <div class="children">
-    {@render children()}
+    {@render children?.()}
 </div>
