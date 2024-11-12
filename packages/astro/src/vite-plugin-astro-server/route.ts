@@ -2,6 +2,7 @@ import type http from 'node:http';
 import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro.js';
 import {
 	DEFAULT_404_COMPONENT,
+	NOOP_MIDDLEWARE_HEADER,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	clientLocalsSymbol,
@@ -216,7 +217,11 @@ export async function handleRoute({
 		statusCode = isRewrite
 			? // Ignore `matchedRoute` status for rewrites
 				response.status
-			: (getStatusByMatchedRoute(matchedRoute) ?? response.status);
+			: // Our internal noop middleware sets a particular header. If the header isn't present, it means that the user have
+				// their own middleware, so we need to return what the user returns
+				!response.headers.has(NOOP_MIDDLEWARE_HEADER)
+				? response.status
+				: (getStatusByMatchedRoute(matchedRoute) ?? response.status);
 	} catch (err: any) {
 		const custom500 = getCustom500Route(manifestData);
 		if (!custom500) {
