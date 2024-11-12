@@ -219,7 +219,9 @@ export async function handleRoute({
 				response.status
 			: // Our internal noop middleware sets a particular header. If the header isn't present, it means that the user have
 				// their own middleware, so we need to return what the user returns
-				!response.headers.has(NOOP_MIDDLEWARE_HEADER)
+				!response.headers.has(NOOP_MIDDLEWARE_HEADER) &&
+					matchedRoute.route.route !== '/404' &&
+					matchedRoute.route.route !== '/500'
 				? response.status
 				: (getStatusByMatchedRoute(matchedRoute) ?? response.status);
 	} catch (err: any) {
