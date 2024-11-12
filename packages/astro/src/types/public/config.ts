@@ -6,6 +6,7 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
+import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
@@ -1091,7 +1092,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * The default object-fit value for responsive images. Can be overridden by the `fit` prop on the image component.
 		 * Requires the `experimental.responsiveImages` flag to be enabled.
 		 */
-		experimentalObjectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down' | (string & {});
+		experimentalObjectFit?: ImageFit;
 		/**
 		 * @docs
 		 * @name image.experimentalObjectPosition
@@ -1765,8 +1766,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		responsiveImages?: boolean;
 	};
 }
-
-export type ImageLayout = 'responsive' | 'fixed' | 'full-width' | 'none';
 
 /**
  * Resolved Astro Config

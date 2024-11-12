@@ -23,6 +23,20 @@ if (typeof props.height === 'string') {
 	props.height = parseInt(props.height);
 }
 
+const { experimentalResponsiveImages } = imageConfig;
+
+const layoutClassMap = {
+	fixed: 'aim-fi',
+	responsive: 'aim-re',
+};
+
+if (experimentalResponsiveImages) {
+	// Apply defaults from imageConfig if not provided
+	props.layout ??= imageConfig.experimentalLayout;
+	props.fit ??= imageConfig.experimentalObjectFit ?? 'cover';
+	props.position ??= imageConfig.experimentalObjectPosition ?? 'center';
+}
+
 const image = await getImage(props);
 
 const additionalAttributes: HTMLAttributes<'img'> = {};
@@ -34,16 +48,7 @@ if (import.meta.env.DEV) {
 	additionalAttributes['data-image-component'] = 'true';
 }
 
-const { experimentalResponsiveImages } = imageConfig;
-
-const layoutClassMap = {
-	fixed: 'aim-fi',
-	responsive: 'aim-re',
-};
-
 const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
-const objectFit = props.fit ?? imageConfig.experimentalObjectFit ?? 'cover';
-const objectPosition = props.position ?? imageConfig.experimentalObjectPosition ?? 'center';
 
 // The style prop can't be spread when using define:vars, so we need to extract it here
 // @see https://github.com/withastro/compiler/issues/1050
@@ -51,7 +56,7 @@ const { style = '', class: className, ...attrs } = { ...additionalAttributes, ..
 ---
 
 {
-	experimentalResponsiveImages ? (
+	experimentalResponsiveImages && props.layout ? (
 		<img
 			src={image.src}
 			{...attrs}
@@ -64,12 +69,13 @@ const { style = '', class: className, ...attrs } = { ...additionalAttributes, ..
 }
 
 <style
-	define:vars={experimentalResponsiveImages && {
-		w: image.attributes.width ?? props.width ?? image.options.width,
-		h: image.attributes.height ?? props.height ?? image.options.height,
-		fit: cssFitValues.includes(objectFit) && objectFit,
-		pos: objectPosition,
-	}}
+	define:vars={experimentalResponsiveImages &&
+		props.layout && {
+			w: image.attributes.width ?? props.width ?? image.options.width,
+			h: image.attributes.height ?? props.height ?? image.options.height,
+			fit: cssFitValues.includes(props.fit) && props.fit,
+			pos: props.position,
+		}}
 >
 	/* Shared by all Astro images */
 	.aim {

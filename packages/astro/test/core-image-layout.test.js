@@ -5,8 +5,8 @@ import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
 import { Logger } from '../dist/core/logger/core.js';
 import { testImageService } from './test-image-service.js';
-import { loadFixture } from './test-utils.js';
 import { testRemoteImageService } from './test-remote-image-service.js';
+import { loadFixture } from './test-utils.js';
 
 describe('astro:image:layout', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -15,8 +15,6 @@ describe('astro:image:layout', () => {
 	describe('local image service', () => {
 		/** @type {import('./test-utils').DevServer} */
 		let devServer;
-		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
-		let logs = [];
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -134,7 +132,7 @@ describe('astro:image:layout', () => {
 				assert.match(style, /\.aim\[/);
 				assert.match(style, /\.aim-re\[/);
 				assert.match(style, /\.aim-fi\[/);
-			})
+			});
 		});
 
 		describe('srcsets', () => {
@@ -177,6 +175,60 @@ describe('astro:image:layout', () => {
 				let $img = $('#local-full-width img');
 				const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
 				assert.deepEqual(widths, [640, 750, 828, 1080, 1280, 1668, 2048]);
+			});
+		});
+
+		describe('generated URLs', () => {
+			let $;
+			before(async () => {
+				let res = await fixture.fetch('/fit');
+				let html = await res.text();
+				$ = cheerio.load(html);
+			});
+			it('generates width and height in image URLs when both are provided', () => {
+				let $img = $('#local-both img');
+				const aspectRatio = 300 / 400;
+				const srcset = parseSrcset($img.attr('srcset'));
+				for (const { url } of srcset) {
+					const params = new URL(url, 'https://example.com').searchParams;
+					const width = parseInt(params.get('w'));
+					const height = parseInt(params.get('h'));
+					assert.equal(width / height, aspectRatio);
+				}
+			});
+
+			it('does not pass through fit and position', async () => {
+				const fit = $('#fit-cover img');
+				assert.ok(!fit.attr('fit'));
+				const position = $('#position img');
+				assert.ok(!position.attr('position'));
+			});
+
+			it('sets a default fit of "cover" when no fit is provided', () => {
+				let $img = $('#fit-default img');
+				const srcset = parseSrcset($img.attr('srcset'));
+				for (const { url } of srcset) {
+					const params = new URL(url, 'https://example.com').searchParams;
+					assert.equal(params.get('fit'), 'cover');
+				}
+			});
+
+			it('sets a fit of "contain" when fit="contain" is provided', () => {
+				let $img = $('#fit-contain img');
+				const srcset = parseSrcset($img.attr('srcset'));
+				for (const { url } of srcset) {
+					const params = new URL(url, 'https://example.com').searchParams;
+					assert.equal(params.get('fit'), 'contain');
+				}
+			});
+
+			it('sets no fit when fit="none" is provided', () => {
+				let $img = $('#fit-none img');
+				const srcset = parseSrcset($img.attr('srcset'));
+				for (const { url } of srcset) {
+					const params = new URL(url, 'https://example.com').searchParams;
+					assert.ok(!params.has('fit'));
+				}
 			});
 		});
 
