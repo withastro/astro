@@ -22,7 +22,7 @@ describe('astro image service', () => {
 		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
 		let logs = [];
 
-		before(async () => { 
+		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-layout/',
 				image: {
@@ -39,13 +39,13 @@ describe('astro image service', () => {
 
 		describe('generated images', () => {
 			let $;
-			let src 
+			let src;
 			before(async () => {
 				const res = await fixture.fetch('/fit');
 				const html = await res.text();
 				$ = cheerio.load(html);
 				let $img = $('#local-both img');
-				src = new URL($img.attr('src'), 'http://localhost').href
+				src = new URL($img.attr('src'), 'http://localhost').href;
 			});
 
 			it('generates width and height in image URLs when both are provided', async () => {
@@ -115,7 +115,7 @@ describe('astro image service', () => {
 				const { width, height } = await getImageDimensionsFromFixture(fixture, url);
 				assert.equal(width, 3000);
 				assert.equal(height, 2000);
-			})
+			});
 
 			// To match old behavior, we should upscale if the requested size is larger than the original
 			it('does not upscale is only one dimension is provided and fit is set', async () => {
@@ -126,9 +126,7 @@ describe('astro image service', () => {
 				const { width, height } = await getImageDimensionsFromFixture(fixture, url);
 				assert.equal(width, originalWidth);
 				assert.equal(height, originalHeight);
-			})
+			});
 		});
-
 	});
-
 });

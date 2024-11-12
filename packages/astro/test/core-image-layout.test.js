@@ -190,7 +190,7 @@ describe('astro:image:layout', () => {
 			it('generates width and height in image URLs when both are provided', () => {
 				let $img = $('#local-both img');
 				const aspectRatio = 300 / 400;
-				const srcset = parseSrcset($img.attr('srcset'))
+				const srcset = parseSrcset($img.attr('srcset'));
 				for (const { url } of srcset) {
 					const params = new URL(url, 'https://example.com').searchParams;
 					const width = parseInt(params.get('w'));
@@ -204,34 +204,34 @@ describe('astro:image:layout', () => {
 				assert.ok(!fit.attr('fit'));
 				const position = $('#position img');
 				assert.ok(!position.attr('position'));
-			})
+			});
 
 			it('sets a default fit of "cover" when no fit is provided', () => {
 				let $img = $('#fit-default img');
-				const srcset = parseSrcset($img.attr('srcset'))
+				const srcset = parseSrcset($img.attr('srcset'));
 				for (const { url } of srcset) {
 					const params = new URL(url, 'https://example.com').searchParams;
 					assert.equal(params.get('fit'), 'cover');
 				}
-			})
+			});
 
 			it('sets a fit of "contain" when fit="contain" is provided', () => {
 				let $img = $('#fit-contain img');
-				const srcset = parseSrcset($img.attr('srcset'))
+				const srcset = parseSrcset($img.attr('srcset'));
 				for (const { url } of srcset) {
 					const params = new URL(url, 'https://example.com').searchParams;
 					assert.equal(params.get('fit'), 'contain');
 				}
-			})
+			});
 
 			it('sets no fit when fit="none" is provided', () => {
 				let $img = $('#fit-none img');
-				const srcset = parseSrcset($img.attr('srcset'))
+				const srcset = parseSrcset($img.attr('srcset'));
 				for (const { url } of srcset) {
 					const params = new URL(url, 'https://example.com').searchParams;
 					assert.ok(!params.has('fit'));
 				}
-			})
+			});
 		});
 
 		describe('remote images', () => {

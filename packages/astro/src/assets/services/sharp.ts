@@ -71,7 +71,12 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
 
-		// If `fit` isn't set then don't use both width and height (old behavior)
+		// If `fit` isn't set then use old behavior:
+		// - Do not use both width and height for resizing, and prioritize width over height
+		// - Allow enlarging images
+
+		const withoutEnlargement = Boolean(transform.fit) && transform.fit !== 'none';
+
 		if (transform.width && transform.height && transform.fit) {
 			const fit: keyof FitEnum = fitMap[transform.fit] ?? transform.fit ?? 'outside';
 			result.resize({
@@ -79,12 +84,18 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 				height: Math.round(transform.height),
 				fit,
 				position: transform.position,
-				withoutEnlargement: true
+				withoutEnlargement,
 			});
 		} else if (transform.height && !transform.width) {
-			result.resize({ height: Math.round(transform.height), withoutEnlargement: Boolean(transform.fit) });
+			result.resize({
+				height: Math.round(transform.height),
+				withoutEnlargement,
+			});
 		} else if (transform.width) {
-			result.resize({ width: Math.round(transform.width), withoutEnlargement: Boolean(transform.fit) });
+			result.resize({
+				width: Math.round(transform.width),
+				withoutEnlargement,
+			});
 		}
 
 		if (transform.format) {
