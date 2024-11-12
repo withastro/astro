@@ -23,6 +23,7 @@ import {
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
+import { ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
@@ -145,6 +146,22 @@ export class RenderContext {
 					pathname,
 					newUrl,
 				} = await pipeline.tryRewrite(payload, this.request);
+
+				// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
+				// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
+				// so Astro can't retrieve it from the emitted manifest.
+				if (
+					this.pipeline.serverLike === true &&
+					this.routeData.prerender === false &&
+					routeData.prerender === true
+				) {
+					throw new AstroError({
+						...ForbiddenRewrite,
+						message: ForbiddenRewrite.message(this.pathname, pathname, routeData.component),
+						hint: ForbiddenRewrite.hint(routeData.component),
+					});
+				}
+
 				this.routeData = routeData;
 				componentInstance = newComponent;
 				if (payload instanceof Request) {
@@ -246,6 +263,21 @@ export class RenderContext {
 			reroutePayload,
 			this.request,
 		);
+		// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
+		// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
+		// so Astro can't retrieve it from the emitted manifest.
+		if (
+			this.pipeline.serverLike === true &&
+			this.routeData.prerender === false &&
+			routeData.prerender === true
+		) {
+			throw new AstroError({
+				...ForbiddenRewrite,
+				message: ForbiddenRewrite.message(this.pathname, pathname, routeData.component),
+				hint: ForbiddenRewrite.hint(routeData.component),
+			});
+		}
+
 		this.routeData = routeData;
 		if (reroutePayload instanceof Request) {
 			this.request = reroutePayload;
