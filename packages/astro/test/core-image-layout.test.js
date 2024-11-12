@@ -199,6 +199,13 @@ describe('astro:image:layout', () => {
 				}
 			});
 
+			it('does not pass through fit and position', async () => {
+				const fit = $('#fit-cover img');
+				assert.ok(!fit.attr('fit'));
+				const position = $('#position img');
+				assert.ok(!position.attr('position'));
+			})
+
 			it('sets a default fit of "cover" when no fit is provided', () => {
 				let $img = $('#fit-default img');
 				const srcset = parseSrcset($img.attr('srcset'))

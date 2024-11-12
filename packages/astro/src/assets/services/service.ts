@@ -250,6 +250,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			formats,
 			layout,
 			priority,
+			fit,
+			position,
 			...attributes
 		} = options;
 		return {
