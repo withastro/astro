@@ -6,6 +6,7 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
+import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
@@ -13,7 +14,6 @@ import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-import type { ImageFit, ImageLayout } from '../../assets/types.js';
 
 export type Locales = (string | { codes: string[]; path: string })[];
 

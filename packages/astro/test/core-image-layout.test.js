@@ -5,8 +5,8 @@ import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
 import { Logger } from '../dist/core/logger/core.js';
 import { testImageService } from './test-image-service.js';
-import { loadFixture } from './test-utils.js';
 import { testRemoteImageService } from './test-remote-image-service.js';
+import { loadFixture } from './test-utils.js';
 
 describe('astro:image:layout', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -15,8 +15,6 @@ describe('astro:image:layout', () => {
 	describe('local image service', () => {
 		/** @type {import('./test-utils').DevServer} */
 		let devServer;
-		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
-		let logs = [];
 
 		before(async () => {
 			fixture = await loadFixture({

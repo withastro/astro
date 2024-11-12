@@ -44,8 +44,8 @@ const fitMap: Record<ImageFit, keyof FitEnum> = {
 	cover: 'cover',
 	none: 'outside',
 	'scale-down': 'inside',
-	'outside': 'outside',
-	'inside': 'inside',
+	outside: 'outside',
+	inside: 'inside',
 };
 
 const sharpService: LocalImageService<SharpImageServiceConfig> = {

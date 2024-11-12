@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
-import { lookup as probe } from '../dist/assets/utils/vendor/image-size/lookup.js';
 import { removeDir } from '@astrojs/internal-helpers/fs';
+import * as cheerio from 'cheerio';
+import { lookup as probe } from '../dist/assets/utils/vendor/image-size/lookup.js';
+import { loadFixture } from './test-utils.js';
 
 async function getImageDimensionsFromFixture(fixture, path) {
 	/** @type { Response } */
@@ -26,8 +26,6 @@ describe('astro image service', () => {
 	describe('dev image service', () => {
 		/** @type {import('./test-utils').DevServer} */
 		let devServer;
-		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
-		let logs = [];
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -149,7 +147,6 @@ describe('astro image service', () => {
 
 		describe('generated images', () => {
 			let $;
-			let src;
 			before(async () => {
 				const html = await fixture.readFile('/build/index.html');
 				$ = cheerio.load(html);
@@ -204,7 +201,6 @@ describe('astro image service', () => {
 				assert.equal(width, originalWidth);
 				assert.equal(height, originalHeight);
 			});
-
 		});
 	});
 });
