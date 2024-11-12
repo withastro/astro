@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix issue where shared entrypoints in injectRoute() remove client-side scripts in SSR builds.
+Fixes an issue where scripts were not correctly injected during the build. The issue was triggered when there were injected routes with the same `entrypoint` and different `pattern`
