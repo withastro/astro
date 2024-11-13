@@ -10,6 +10,8 @@ export type Locals = {
 	_actionPayload: ActionPayload;
 };
 
+export const ACTION_API_CONTEXT_SYMBOL = Symbol.for('astro.actionAPIContext');
+
 export const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
 
 export function hasContentType(contentType: string, expected: string[]) {
@@ -36,3 +38,8 @@ export type MaybePromise<T> = T | Promise<T>;
  * `result.error.fields` will be typed with the `name` field.
  */
 export type ErrorInferenceObject = Record<string, any>;
+
+export function isActionAPIContext(ctx: ActionAPIContext): boolean {
+	const symbol = Reflect.get(ctx, ACTION_API_CONTEXT_SYMBOL);
+	return symbol === true;
+}
