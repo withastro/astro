@@ -290,6 +290,8 @@ export interface SSRMetadata {
 
 export type SSRError = Error & ViteErrorPayload['err'];
 
+// `origin` is set within the hook, but the user doesn't have access to this property. That's why
+// we need an intermediary interface
 export interface InternalInjectedRoute {
 	pattern: string;
 	entrypoint: string | URL;
