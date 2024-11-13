@@ -163,7 +163,7 @@ describe('Integration API', () => {
 											params: r.params,
 											origin: r.origin,
 										}));
-										routes.sort();
+										routes.sort((a, b) => a.pattern.localeCompare(b.pattern));
 									},
 								},
 							},
@@ -172,7 +172,7 @@ describe('Integration API', () => {
 				},
 				async (container) => {
 					assert.deepEqual(
-						routes.sort(),
+						routes,
 						[
 							{
 								isPrerendered: false,
@@ -195,7 +195,7 @@ describe('Integration API', () => {
 								params: [],
 								origin: 'external',
 							},
-						].sort(),
+						].sort((a, b) => a.pattern.localeCompare(b.pattern)),
 					);
 
 					await fixture.writeFile('/src/pages/bar.astro', '');
@@ -206,7 +206,7 @@ describe('Integration API', () => {
 					await new Promise((r) => setTimeout(r, 100));
 
 					assert.deepEqual(
-						routes.sort(),
+						routes,
 						[
 							{
 								isPrerendered: false,
@@ -236,7 +236,7 @@ describe('Integration API', () => {
 								params: [],
 								origin: 'external',
 							},
-						].sort(),
+						].sort((a, b) => a.pattern.localeCompare(b.pattern)),
 					);
 
 					await fixture.writeFile('/src/pages/about.astro', '---\nexport const prerender=false\n');
@@ -247,7 +247,7 @@ describe('Integration API', () => {
 					await new Promise((r) => setTimeout(r, 100));
 
 					assert.deepEqual(
-						routes.sort(),
+						routes,
 						[
 							{
 								isPrerendered: false,
@@ -277,7 +277,7 @@ describe('Integration API', () => {
 								params: [],
 								origin: 'external',
 							},
-						].sort(),
+						].sort((a, b) => a.pattern.localeCompare(b.pattern)),
 					);
 				},
 			);
