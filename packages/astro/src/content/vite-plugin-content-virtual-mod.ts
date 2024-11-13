@@ -273,6 +273,7 @@ export async function generateLookupMap({
 		`${relContentDir}**/*${getExtGlob([...dataEntryExts, ...contentEntryExts])}`,
 		{
 			absolute: true,
+			expandDirectories: false,
 			cwd: fileURLToPath(root),
 		},
 	);
