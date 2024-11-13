@@ -1263,6 +1263,23 @@ export const RewriteWithBodyUsed = {
 /**
  * @docs
  * @description
+ * `Astro.rewrite()` can't be used to rewrite an on-demand route with a static route when using the `"server"` output.
+ *
+ */
+export const ForbiddenRewrite = {
+	name: 'ForbiddenRewrite',
+	title: 'Forbidden rewrite to a static route.',
+	message: (from: string, to: string, component: string) =>
+		`You tried to rewrite the on-demand route '${from}' with the static route '${to}', when using the 'server' output. \n\nThe static route '${to}' is rendered by the component
+'${component}', which is marked as prerendered. This is a forbidden operation because during the build the component '${component}' is compiled to an
+HTML file, which can't be retrieved at runtime by Astro.`,
+	hint: (component: string) =>
+		`Add \`export const prerender = false\` to the component '${component}', or use a Astro.redirect().`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * An unknown error occurred while reading or writing files to disk. It can be caused by many things, eg. missing permissions or a file not existing we attempt to read.
  */
 export const UnknownFilesystemError = {
@@ -1429,7 +1446,7 @@ export const GenerateContentTypesError = {
 	title: 'Failed to generate content types.',
 	message: (errorMessage: string) =>
 		`\`astro sync\` command failed to generate content collection types: ${errorMessage}`,
-	hint: 'Check your `src/content/config.*` file for typos.',
+	hint: 'This error is often caused by a syntax error inside your content, or your content configuration file. Check your `src/content/config.*` file for typos.',
 } satisfies ErrorData;
 /**
  * @docs

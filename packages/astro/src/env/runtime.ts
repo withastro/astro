@@ -1,16 +1,12 @@
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { invalidVariablesToError } from './errors.js';
-import { ENV_SYMBOL } from './runtime-constants.js';
 import type { ValidationResultInvalid } from './validators.js';
 export { validateEnvVariable, getEnvFieldType } from './validators.js';
 
 export type GetEnv = (key: string) => string | undefined;
 type OnSetGetEnv = (reset: boolean) => void;
 
-let _getEnv: GetEnv = (key) => {
-	const env = (globalThis as any)[ENV_SYMBOL] ?? {};
-	return env[key];
-};
+let _getEnv: GetEnv = (key) => process.env[key];
 
 export function setGetEnv(fn: GetEnv, reset = false) {
 	_getEnv = fn;
