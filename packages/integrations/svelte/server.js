@@ -54,6 +54,7 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 }
 
 export default {
+	name: '@astrojs/svelte',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
