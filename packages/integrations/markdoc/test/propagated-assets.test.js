@@ -45,8 +45,8 @@ describe('Markdoc - propagated assets', () => {
 				let styleContents;
 				if (mode === 'dev') {
 					const styles = stylesDocument.querySelectorAll('style');
-					assert.equal(styles.length, 2);
-					styleContents = styles[1].textContent;
+					assert.equal(styles.length, 3);
+					styleContents = styles[2].textContent;
 				} else {
 					const links = stylesDocument.querySelectorAll('link[rel="stylesheet"]');
 					assert.equal(links.length, 2);
@@ -58,7 +58,7 @@ describe('Markdoc - propagated assets', () => {
 			it('[fails] Does not bleed styles to other page', async () => {
 				if (mode === 'dev') {
 					const styles = scriptsDocument.querySelectorAll('style');
-					assert.equal(styles.length, 1);
+					assert.equal(styles.length, 2);
 				} else {
 					const links = scriptsDocument.querySelectorAll('link[rel="stylesheet"]');
 					assert.equal(links.length, 1);

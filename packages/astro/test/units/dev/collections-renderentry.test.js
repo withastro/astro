@@ -101,7 +101,7 @@ describe('Content Collections - render()', () => {
 				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				assert.equal($('style').length, 2);
+				assert.equal($('style').length, 3);
 			},
 		);
 	});
@@ -158,7 +158,7 @@ describe('Content Collections - render()', () => {
 				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				assert.equal($('style').length, 2);
+				assert.equal($('style').length, 3);
 			},
 		);
 	});
@@ -225,7 +225,7 @@ describe('Content Collections - render()', () => {
 				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				assert.equal($('style').length, 2);
+				assert.equal($('style').length, 3);
 			},
 		);
 	});
@@ -291,7 +291,7 @@ describe('Content Collections - render()', () => {
 				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				assert.equal($('style').length, 2);
+				assert.equal($('style').length, 3);
 			},
 		);
 	});
