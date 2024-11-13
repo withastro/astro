@@ -16,7 +16,7 @@ import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
-import { type RemoteCacheEntry, loadRemoteImage } from './remote.js';
+import { type RemoteCacheEntry, loadRemoteImage, revalidateRemoteImage } from './remote.js';
 
 interface GenerationDataUncached {
 	cached: CacheStatus.Miss;
@@ -197,16 +197,20 @@ export async function generateImagesForPath(
 					};
 				}
 
-				// Try to freshen the cache
+				// Try to revalidate the cache
 				if (JSONData.etag) {
-					const fresh = await loadImage(options.src as string, env, JSONData.etag);
+					const revalidatedData = await revalidateRemoteImage(options.src as string, JSONData.etag);
 
-					if (fresh.data.length) {
-						originalImage = fresh;
+					if (revalidatedData.data.length) {
+						// Image cache was stale, update original image to avoid redownload
+						originalImage = revalidatedData;
 					} else {
-						fresh.data = Buffer.from(JSONData.data, 'base64'); // Reuse cache data as it is still good
-						await writeRemoteCacheFile(cachedFileURL, fresh);
-						await fs.promises.writeFile(finalFileURL, fresh.data);
+						revalidatedData.data = Buffer.from(JSONData.data, 'base64');
+
+						// Freshen cache on disk
+						await writeRemoteCacheFile(cachedFileURL, revalidatedData);
+
+						await fs.promises.writeFile(finalFileURL, revalidatedData.data);
 						return { cached: CacheStatus.Revalidated };
 					}
 				}
@@ -309,14 +313,9 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 	return globalThis.astroAsset.staticImages;
 }
 
-async function loadImage(path: string, env: AssetEnv, etag?: string): Promise<ImageData> {
+async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	if (isRemotePath(path)) {
-		const remoteImage = await loadRemoteImage(path, etag);
-		return {
-			data: remoteImage.data,
-			expires: remoteImage.expires,
-			etag: remoteImage.etag,
-		};
+		return await loadRemoteImage(path);
 	}
 
 	return {
