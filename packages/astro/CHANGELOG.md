@@ -1,5 +1,24 @@
 # astro
 
+## 4.16.11
+
+### Patch Changes
+
+- [#12305](https://github.com/withastro/astro/pull/12305) [`f5f7109`](https://github.com/withastro/astro/commit/f5f71094ec74961b4cca2ee451798abd830c617a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the error overlay would not escape the message
+
+- [#12402](https://github.com/withastro/astro/pull/12402) [`823e73b`](https://github.com/withastro/astro/commit/823e73b164eab4115af31b1de8e978f2b4e0a95d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where Astro allowed to call an action without using `Astro.callAction`. This is now invalid, and Astro will show a proper error.
+
+  ```diff
+  ---
+  import { actions } from "astro:actions";
+
+  -const result = actions.getUser({ userId: 123 });
+  +const result = Astro.callAction(actions.getUser, { userId: 123 });
+  ---
+  ```
+
+- [#12401](https://github.com/withastro/astro/pull/12401) [`9cca108`](https://github.com/withastro/astro/commit/9cca10843912698e13d35f1bc3c493e2c96a06ee) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fixes unexpected 200 status in dev server logs for action errors and redirects.
+
 ## 4.16.10
 
 ### Patch Changes
