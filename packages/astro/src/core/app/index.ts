@@ -114,7 +114,7 @@ export class App {
 		return AppPipeline.create(manifestData, {
 			logger: this.#logger,
 			manifest: this.#manifest,
-			mode: 'production',
+			runtimeMode: 'production',
 			renderers: this.#manifest.renderers,
 			defaultRoutes: createDefaultRoutes(this.#manifest),
 			resolve: async (specifier: string) => {
@@ -122,14 +122,10 @@ export class App {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
 				const bundlePath = this.#manifest.entryModules[specifier];
-				switch (true) {
-					case bundlePath.startsWith('data:'):
-					case bundlePath.length === 0: {
-						return bundlePath;
-					}
-					default: {
-						return createAssetLink(bundlePath, this.#manifest.base, this.#manifest.assetsPrefix);
-					}
+				if (bundlePath.startsWith('data:') || bundlePath.length === 0) {
+					return bundlePath;
+				} else {
+					return createAssetLink(bundlePath, this.#manifest.base, this.#manifest.assetsPrefix);
 				}
 			},
 			serverLike: true,

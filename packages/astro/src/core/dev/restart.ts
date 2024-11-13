@@ -32,7 +32,7 @@ async function createRestartedContainer(
 	return newContainer;
 }
 
-const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
+const configRE = /.*astro.config.(?:mjs|mts|cjs|cts|js|ts)$/;
 
 function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
@@ -176,8 +176,11 @@ export async function createContainerWithAutomaticRestart({
 
 		// Restart the Astro dev server instead of Vite's when the API is called by plugins.
 		// Ignore the `forceOptimize` parameter for now.
-		restart.container.viteServer.restart = () =>
-			handleServerRestart('', restart.container.viteServer);
+		restart.container.viteServer.restart = async () => {
+			if (!restart.container.restartInFlight) {
+				await handleServerRestart('', restart.container.viteServer);
+			}
+		};
 
 		// Set up shortcuts
 

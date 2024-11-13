@@ -228,7 +228,6 @@ describe('Content Layer', () => {
 		});
 
 		it('handles remote images in custom loaders', async () => {
-			console.log(json.images[1].data.image);
 			assert.ok(json.images[1].data.image.startsWith('https://'));
 		});
 
@@ -258,6 +257,10 @@ describe('Content Layer', () => {
 				},
 				id: 'tabby',
 			});
+		});
+
+		it('allows "slug" as a field', async () => {
+			assert.equal(json.increment.data.slug, 'slimy');
 		});
 
 		it('updates the store on new builds', async () => {

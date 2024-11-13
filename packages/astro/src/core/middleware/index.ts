@@ -6,9 +6,11 @@ import {
 } from '../../i18n/utils.js';
 import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
-import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
+import { ASTRO_VERSION, clientLocalsSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { getClientIpAddress } from '../routing/request.js';
+import { getOriginPathname } from '../routing/rewrite.js';
 import { sequence } from './sequence.js';
 
 function defineMiddleware(fn: MiddlewareHandler) {
@@ -32,6 +34,11 @@ export type CreateContext = {
 	 * A list of locales that are supported by the user
 	 */
 	userDefinedLocales?: string[];
+
+	/**
+	 * User defined default locale
+	 */
+	defaultLocale: string;
 };
 
 /**
@@ -41,10 +48,12 @@ function createContext({
 	request,
 	params = {},
 	userDefinedLocales = [],
+	defaultLocale = '',
 }: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
 	let currentLocale: string | undefined = undefined;
+	let clientIpAddress: string | undefined;
 	const url = new URL(request.url);
 	const route = url.pathname;
 
@@ -78,14 +87,21 @@ function createContext({
 			return (preferredLocaleList ??= computePreferredLocaleList(request, userDefinedLocales));
 		},
 		get currentLocale(): string | undefined {
-			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales));
+			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales, defaultLocale));
 		},
 		url,
+		get originPathname() {
+			return getOriginPathname(request);
+		},
 		get clientAddress() {
-			if (clientAddressSymbol in request) {
-				return Reflect.get(request, clientAddressSymbol) as string;
+			if (clientIpAddress) {
+				return clientIpAddress;
 			}
-			throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+			clientIpAddress = getClientIpAddress(request);
+			if (!clientIpAddress) {
+				throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+			}
+			return clientIpAddress;
 		},
 		get locals() {
 			let locals = Reflect.get(request, clientLocalsSymbol);

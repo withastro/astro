@@ -98,7 +98,6 @@ export function createGetCollection({
 			}
 			return result;
 		} else {
-			// eslint-disable-next-line no-console
 			console.warn(
 				`The collection ${JSON.stringify(
 					collection,
@@ -183,7 +182,6 @@ export function createGetEntryBySlug({
 					message: AstroErrorData.GetEntryDeprecationError.message(collection, 'getEntryBySlug'),
 				});
 			}
-			// eslint-disable-next-line no-console
 			console.warn(
 				`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`,
 			);
@@ -228,7 +226,6 @@ export function createGetDataEntryById({
 			if (store.hasCollection(collection)) {
 				return getEntry(collection, id);
 			}
-			// eslint-disable-next-line no-console
 			console.warn(
 				`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`,
 			);
@@ -319,7 +316,6 @@ export function createGetEntry({
 		if (store.hasCollection(collection)) {
 			const entry = store.get<DataEntry>(collection, lookupId);
 			if (!entry) {
-				// eslint-disable-next-line no-console
 				console.warn(`Entry ${collection} → ${lookupId} was not found.`);
 				return;
 			}
@@ -337,7 +333,6 @@ export function createGetEntry({
 		}
 
 		if (!collectionNames.has(collection)) {
-			// eslint-disable-next-line no-console
 			console.warn(
 				`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`,
 			);
@@ -487,7 +482,6 @@ export async function renderEntry(
 				renderEntryImport,
 			});
 		} catch (e) {
-			// eslint-disable-next-line
 			console.error(e);
 		}
 	}

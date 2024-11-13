@@ -562,7 +562,7 @@ describe('astro:image', () => {
 			it('has proper sources for array of images', () => {
 				let $img = $('#array-of-images img');
 				const imgsSrcs = [];
-				$img.each((i, img) => imgsSrcs.push(img.attribs['src']));
+				$img.each((_i, img) => imgsSrcs.push(img.attribs['src']));
 				assert.equal($img.length, 2);
 				assert.equal(
 					imgsSrcs.every((img) => img.startsWith('/')),
@@ -816,6 +816,9 @@ describe('astro:image', () => {
 				outDir: './dist/server-base-path',
 				adapter: testAdapter(),
 				image: {
+					endpoint: {
+						entrypoint: 'astro/assets/endpoint/node',
+					},
 					service: testImageService(),
 				},
 				base: '/blog',
@@ -829,6 +832,8 @@ describe('astro:image', () => {
 			const $ = cheerio.load(html);
 			const src = $('#local img').attr('src');
 			assert.equal(src.startsWith('/blog'), true);
+			const img = await app.render(new Request(`https://example.com${src}`));
+			assert.equal(img.status, 200);
 		});
 	});
 

@@ -26,7 +26,6 @@ export function runHighlighterWithAstro(lang: string | undefined, code: string) 
 	}
 
 	if (lang && !Prism.languages[lang]) {
-		// eslint-disable-next-line no-console
 		console.warn(`Unable to load the language: ${lang}`);
 	}
 

@@ -13,7 +13,7 @@ import type { PluggableList } from 'unified';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
-import { vitePluginMdx } from './vite-plugin-mdx.js';
+import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;
@@ -43,7 +43,7 @@ export function getContainerRenderer(): ContainerRenderer {
 export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
 	// @ts-expect-error Temporarily assign an empty object here, which will be re-assigned by the
 	// `astro:config:done` hook later. This is so that `vitePluginMdx` can get hold of a reference earlier.
-	let mdxOptions: MdxOptions = {};
+	let vitePluginMdxOptions: VitePluginMdxOptions = {};
 
 	return {
 		name: '@astrojs/mdx',
@@ -79,7 +79,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 
 				updateConfig({
 					vite: {
-						plugins: [vitePluginMdx(mdxOptions), vitePluginMdxPostprocess(config)],
+						plugins: [vitePluginMdx(vitePluginMdxOptions), vitePluginMdxPostprocess(config)],
 					},
 				});
 			},
@@ -98,10 +98,13 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				});
 
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
-				Object.assign(mdxOptions, resolvedMdxOptions);
+				Object.assign(vitePluginMdxOptions, {
+					mdxOptions: resolvedMdxOptions,
+					srcDir: config.srcDir,
+				});
 				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
 				// Re-assign it so that the garbage can be collected later.
-				mdxOptions = {};
+				vitePluginMdxOptions = {};
 			},
 		},
 	};

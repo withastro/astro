@@ -6,7 +6,9 @@ export function getAdapter(): AstroAdapter {
 		serverEntrypoint: '@benchmark/timer/server.js',
 		previewEntrypoint: '@benchmark/timer/preview.js',
 		exports: ['handler'],
-		supportedAstroFeatures: {},
+		supportedAstroFeatures: {
+			serverOutput: 'stable',
+		},
 	};
 }
 
@@ -27,7 +29,6 @@ export default function createIntegration(): AstroIntegration {
 				setAdapter(getAdapter());
 
 				if (config.output === 'static') {
-					// eslint-disable-next-line no-console
 					console.warn(`[@benchmark/timer] \`output: "server"\` is required to use this adapter.`);
 				}
 			},

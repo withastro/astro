@@ -122,24 +122,17 @@ export async function staticBuild(
 	contentFileNames?: string[],
 ) {
 	const { settings } = opts;
-	switch (settings.buildOutput) {
-		case 'static': {
-			settings.timer.start('Static generate');
-			await generatePages(opts, internals);
-			await cleanServerOutput(opts, ssrOutputChunkNames, contentFileNames, internals);
-			settings.timer.end('Static generate');
-			return;
-		}
-		case 'server': {
-			settings.timer.start('Server generate');
-			await generatePages(opts, internals);
-			await cleanStaticOutput(opts, internals);
-			await ssrMoveAssets(opts);
-			settings.timer.end('Server generate');
-			return;
-		}
-		default: // `settings.buildOutput` will always be one of the above at this point, but TS doesn't know that
-			return;
+	if (settings.buildOutput === 'static') {
+		settings.timer.start('Static generate');
+		await generatePages(opts, internals);
+		await cleanServerOutput(opts, ssrOutputChunkNames, contentFileNames, internals);
+		settings.timer.end('Static generate');
+	} else if (settings.buildOutput === 'server') {
+		settings.timer.start('Server generate');
+		await generatePages(opts, internals);
+		await cleanStaticOutput(opts, internals);
+		await ssrMoveAssets(opts);
+		settings.timer.end('Server generate');
 	}
 }
 
@@ -156,7 +149,6 @@ async function ssrBuild(
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
-		mode: viteConfig.mode || 'production',
 		logLevel: viteConfig.logLevel ?? 'error',
 		build: {
 			target: 'esnext',
@@ -269,7 +261,6 @@ async function clientBuild(
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
-		mode: viteConfig.mode || 'production',
 		build: {
 			target: 'esnext',
 			...viteConfig.build,

@@ -504,22 +504,33 @@ test.describe('View Transitions', () => {
 		await expect(img).toBeVisible('The image tag should have the transition scope attribute.');
 	});
 
-	test('<video> can persist using transition:persist', async ({ page, astro }) => {
+	test('<video> can persist using transition:persist', async ({ page, astro, browserName }) => {
+		// NOTE: works locally but fails on CI
+		test.skip(browserName === 'firefox', 'Firefox has issues playing the video. Errors on play()');
+
 		const getTime = () => document.querySelector('video').currentTime;
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/video-one'));
 		const vid = page.locator('video');
 		await expect(vid).toBeVisible();
+		// Mute the video before playing, otherwise there's actually sounds when testing
+		await vid.evaluate((el) => (el.muted = true));
+		// Browser blocks autoplay, so we manually play it here. For some reason,
+		// you need to click and play it manually for it to actually work.
+		await vid.click();
+		await vid.evaluate((el) => el.play());
 		const firstTime = await page.evaluate(getTime);
 
 		// Navigate to page 2
 		await page.click('#click-two');
-		const p = page.locator('#video-two');
-		await expect(p).toBeVisible();
+		const vid2 = page.locator('#video-two');
+		await expect(vid2).toBeVisible();
+		// Use a very short timeout so we can ensure there's always a video playtime gap
+		await page.waitForTimeout(50);
 		const secondTime = await page.evaluate(getTime);
 
-		expect(secondTime).toBeGreaterThanOrEqual(firstTime);
+		expect(secondTime).toBeGreaterThan(firstTime);
 	});
 
 	test('React Islands can persist using transition:persist', async ({ page, astro }) => {

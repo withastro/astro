@@ -68,11 +68,21 @@ export const server = {
 				seven: z.string().min(3),
 				eight: z.string().min(3),
 				nine: z.string().min(3),
-				ten: z.string().min(3)
+				ten: z.string().min(3),
 			}),
 			handler(form) {
 				return form;
-			}
-		})
+			},
+		}),
 	},
+	sum: defineAction({
+		accept: 'form',
+		input: z.object({
+			a: z.number(),
+			b: z.number(),
+		}),
+		async handler({ a, b }) {
+			return a + b;
+		},
+	}),
 };

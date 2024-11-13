@@ -490,8 +490,8 @@ export const PageNumberParamNotFound = {
  * @docs
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
- * - [Image component](https://docs.astro.build/en/guides/images/#image--astroassets)
- * - [Image component#alt](https://docs.astro.build/en/guides/images/#alt-required)
+ * - [Image component](https://docs.astro.build/en/reference/modules/astro-assets/#image-)
+ * - [Image component#alt](https://docs.astro.build/en/reference/modules/astro-assets/#alt-required)
  * @description
  * The `alt` property allows you to provide descriptive alt text to users of screen readers and other assistive technologies. In order to ensure your images are accessible, the `Image` component requires that an `alt` be specified.
  *
@@ -525,9 +525,9 @@ export const InvalidImageService = {
  * Missing width and height attributes for `IMAGE_URL`. When using remote images, both dimensions are required in order to avoid cumulative layout shift (CLS).
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
- * - [Image component#width-and-height-required](https://docs.astro.build/en/guides/images/#width-and-height-required-for-images-in-public)
+ * - [Image component#width-and-height-required](https://docs.astro.build/en/reference/modules/astro-assets/#width-and-height-required-for-images-in-public)
  * @description
- * For remote images, `width` and `height` cannot automatically be inferred from the original file. To avoid cumulative layout shift (CLS), either specify these two properties, or set [`inferSize`](https://docs.astro.build/en/guides/images/#infersize) to `true` to fetch a remote image's original dimensions.
+ * For remote images, `width` and `height` cannot automatically be inferred from the original file. To avoid cumulative layout shift (CLS), either specify these two properties, or set [`inferSize`](https://docs.astro.build/en/reference/modules/astro-assets/#infersize) to `true` to fetch a remote image's original dimensions.
  *
  * If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets).
  */
@@ -980,7 +980,6 @@ export const InvalidDynamicRoute = {
  * @docs
  * @see
  * - [Default Image Service](https://docs.astro.build/en/guides/images/#default-image-service)
- * - [Image Component](https://docs.astro.build/en/guides/images/#image--astroassets)
  * - [Image Services API](https://docs.astro.build/en/reference/image-service-reference/)
  * @description
  * Sharp is the default image service used for `astro:assets`. When using a [strict package manager](https://pnpm.io/pnpm-vs-npm#npms-flat-tree) like pnpm, Sharp must be installed manually into your project in order to use image processing.
@@ -1160,8 +1159,8 @@ export const UnhandledRejection = {
  * import { defineConfig } from 'astro'
  * export default defineConfig({
  *  i18n: {
- * 	 defaultLocale: 'en',
  * 	 locales: ['en', 'fr'],
+ * 	 defaultLocale: 'en',
  * 	},
  * })
  * ```
@@ -1259,6 +1258,23 @@ export const RewriteWithBodyUsed = {
 	title: 'Cannot use Astro.rewrite after the request body has been read',
 	message:
 		'Astro.rewrite() cannot be used if the request body has already been read. If you need to read the body, first clone the request.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * `Astro.rewrite()` can't be used to rewrite an on-demand route with a static route when using the `"server"` output.
+ *
+ */
+export const ForbiddenRewrite = {
+	name: 'ForbiddenRewrite',
+	title: 'Forbidden rewrite to a static route.',
+	message: (from: string, to: string, component: string) =>
+		`You tried to rewrite the on-demand route '${from}' with the static route '${to}', when using the 'server' output. \n\nThe static route '${to}' is rendered by the component
+'${component}', which is marked as prerendered. This is a forbidden operation because during the build the component '${component}' is compiled to an
+HTML file, which can't be retrieved at runtime by Astro.`,
+	hint: (component: string) =>
+		`Add \`export const prerender = false\` to the component '${component}', or use a Astro.redirect().`,
 } satisfies ErrorData;
 
 /**
@@ -1430,7 +1446,7 @@ export const GenerateContentTypesError = {
 	title: 'Failed to generate content types.',
 	message: (errorMessage: string) =>
 		`\`astro sync\` command failed to generate content collection types: ${errorMessage}`,
-	hint: 'Check your `src/content/config.*` file for typos.',
+	hint: 'This error is often caused by a syntax error inside your content, or your content configuration file. Check your `src/content/config.*` file for typos.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -1704,7 +1720,7 @@ export const ActionsWithoutServerOutputError = {
 /**
  * @docs
  * @see
- * - [Actions handler reference](https://docs.astro.build/en/reference/api-reference/#handler-property)
+ * - [Actions handler reference](https://docs.astro.build/en/reference/modules/astro-actions/#handler-property)
  * @description
  * Action handler returned invalid data. Handlers should return serializable data types, and cannot return a Response object.
  */

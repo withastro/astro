@@ -25,6 +25,8 @@ export default async function test() {
 			timeout: { type: 'string', alias: 't' },
 			// Test setup file
 			setup: { type: 'string', alias: 's' },
+			// Test teardown file
+			teardown: { type: 'string' },
 		},
 	});
 
@@ -59,6 +61,10 @@ export default async function test() {
 		files.push(tempTestFile);
 	}
 
+	const teardownModule = args.values.teardown
+		? await import(pathToFileURL(path.resolve(args.values.teardown)).toString())
+		: undefined;
+
 	// https://nodejs.org/api/test.html#runoptions
 	run({
 		files,
@@ -73,6 +79,10 @@ export default async function test() {
 			// For some reason, a test fail using the JS API does not set an exit code of 1,
 			// so we set it here manually
 			process.exitCode = 1;
+		})
+		.on('end', () => {
+			const testPassed = process.exitCode === 0 || process.exitCode === undefined;
+			teardownModule?.default(testPassed);
 		})
 		.pipe(new spec())
 		.pipe(process.stdout);

@@ -298,6 +298,11 @@ export function formatErrorMessage(err: ErrorWithMetadata, showFullStacktrace: b
 		output.push(`    ${cyan(underline(docsLink))}`);
 	}
 
+	if (showFullStacktrace && err.loc) {
+		output.push(`  ${bold('Location:')}`);
+		output.push(`    ${underline(`${err.loc.file}:${err.loc.line ?? 0}:${err.loc.column ?? 0}`)}`);
+	}
+
 	if (err.stack) {
 		output.push(`  ${bold('Stack trace:')}`);
 		output.push(dim(formatErrorStackTrace(err, showFullStacktrace)));
@@ -380,6 +385,6 @@ export function printHelp({
 		message.push(linebreak(), `${description}`);
 	}
 
-	// eslint-disable-next-line no-console
+	// biome-ignore lint/suspicious/noConsoleLog: allowed
 	console.log(message.join('\n') + '\n');
 }

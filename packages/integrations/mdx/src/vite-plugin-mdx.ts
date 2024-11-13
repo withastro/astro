@@ -6,7 +6,13 @@ import type { MdxOptions } from './index.js';
 import { createMdxProcessor } from './plugins.js';
 import { safeParseFrontmatter } from './utils.js';
 
-export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
+export interface VitePluginMdxOptions {
+	mdxOptions: MdxOptions;
+	srcDir: URL;
+}
+
+// NOTE: Do not destructure `opts` as we're assigning a reference that will be mutated later
+export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 	let processor: ReturnType<typeof createMdxProcessor> | undefined;
 	let sourcemapEnabled: boolean;
 
@@ -47,12 +53,15 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 					astro: {
 						frontmatter,
 					},
+					applyFrontmatterExport: {
+						srcDir: opts.srcDir,
+					},
 				},
 			});
 
 			// Lazily initialize the MDX processor
 			if (!processor) {
-				processor = createMdxProcessor(mdxOptions, { sourcemap: sourcemapEnabled });
+				processor = createMdxProcessor(opts.mdxOptions, { sourcemap: sourcemapEnabled });
 			}
 
 			try {

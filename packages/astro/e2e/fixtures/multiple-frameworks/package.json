@@ -12,12 +12,12 @@
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.2.1",
-    "lit": "^3.2.0",
-    "preact": "^10.24.2",
+    "lit": "^3.2.1",
+    "preact": "^10.24.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "solid-js": "^1.9.1",
+    "solid-js": "^1.9.3",
     "svelte": "^4.2.19",
-    "vue": "^3.5.11"
+    "vue": "^3.5.12"
   }
 }

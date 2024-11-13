@@ -167,11 +167,12 @@ export async function getEntryDataAndImages<
 	pluginContext?: PluginContext,
 ): Promise<{ data: TOutputData; imageImports: Array<string> }> {
 	let data: TOutputData;
-	if (collectionConfig.type === 'data') {
-		data = entry.unvalidatedData as TOutputData;
-	} else {
+	// Legacy content collections have 'slug' removed
+	if (collectionConfig.type === 'content' || (collectionConfig as any)._legacy) {
 		const { slug, ...unvalidatedData } = entry.unvalidatedData;
 		data = unvalidatedData as TOutputData;
+	} else {
+		data = entry.unvalidatedData as TOutputData;
 	}
 
 	let schema = collectionConfig.schema;

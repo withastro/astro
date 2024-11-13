@@ -56,7 +56,7 @@ export function astroContentVirtualModPlugin({
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		configResolved(config) {
-			IS_DEV = config.mode === 'development';
+			IS_DEV = !config.isProduction;
 			dataStoreFile = getDataStoreFile(settings, IS_DEV);
 		},
 		async resolveId(id) {

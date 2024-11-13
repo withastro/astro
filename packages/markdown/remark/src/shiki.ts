@@ -1,6 +1,7 @@
 import type { Properties, Root } from 'hast';
 import {
 	type BundledLanguage,
+	type HighlighterCoreOptions,
 	type LanguageRegistration,
 	type ShikiTransformer,
 	type ThemeRegistration,
@@ -28,6 +29,7 @@ export interface CreateShikiHighlighterOptions {
 	langs?: LanguageRegistration[];
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
+	langAlias?: HighlighterCoreOptions['langAlias'];
 }
 
 export interface ShikiHighlighterHighlightOptions {
@@ -63,17 +65,21 @@ export interface ShikiHighlighterHighlightOptions {
 let _cssVariablesTheme: ReturnType<typeof createCssVariablesTheme>;
 const cssVariablesTheme = () =>
 	_cssVariablesTheme ??
-	(_cssVariablesTheme = createCssVariablesTheme({ variablePrefix: '--astro-code-' }));
+	(_cssVariablesTheme = createCssVariablesTheme({
+		variablePrefix: '--astro-code-',
+	}));
 
 export async function createShikiHighlighter({
 	langs = [],
 	theme = 'github-dark',
 	themes = {},
+	langAlias = {},
 }: CreateShikiHighlighterOptions = {}): Promise<ShikiHighlighter> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
 	const highlighter = await createHighlighter({
 		langs: ['plaintext', ...langs],
+		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
 	});
 
@@ -83,14 +89,16 @@ export async function createShikiHighlighter({
 		options: ShikiHighlighterHighlightOptions,
 		to: 'hast' | 'html',
 	) {
+		const resolvedLang = langAlias[lang] ?? lang;
 		const loadedLanguages = highlighter.getLoadedLanguages();
 
-		if (!isSpecialLang(lang) && !loadedLanguages.includes(lang)) {
+		if (!isSpecialLang(lang) && !loadedLanguages.includes(resolvedLang)) {
 			try {
-				await highlighter.loadLanguage(lang as BundledLanguage);
+				await highlighter.loadLanguage(resolvedLang as BundledLanguage);
 			} catch (_err) {
-				// eslint-disable-next-line no-console
-				console.warn(`[Shiki] The language "${lang}" doesn't exist, falling back to "plaintext".`);
+				const langStr =
+					lang === resolvedLang ? `"${lang}"` : `"${lang}" (aliased to "${resolvedLang}")`;
+				console.warn(`[Shiki] The language ${langStr} doesn't exist, falling back to "plaintext".`);
 				lang = 'plaintext';
 			}
 		}
@@ -147,7 +155,7 @@ export async function createShikiHighlighter({
 						// Add "user-select: none;" for "+"/"-" diff symbols.
 						// Transform `<span class="line"><span style="...">+ something</span></span>
 						// into      `<span class="line"><span style="..."><span style="user-select: none;">+</span> something</span></span>`
-						if (lang === 'diff') {
+						if (resolvedLang === 'diff') {
 							const innerSpanNode = node.children[0];
 							const innerSpanTextNode =
 								innerSpanNode?.type === 'element' && innerSpanNode.children?.[0];

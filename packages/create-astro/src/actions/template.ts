@@ -3,7 +3,7 @@ import type { Context } from './context.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { color } from '@astrojs/cli-kit';
-import { downloadTemplate } from 'giget';
+import { downloadTemplate } from '@bluwy/giget-core';
 import { error, info, title } from '../messages.js';
 
 export async function template(
@@ -21,9 +21,9 @@ export async function template(
 			message: 'How would you like to start your new project?',
 			initial: 'basics',
 			choices: [
-				{ value: 'basics', label: 'Include sample files', hint: '(recommended)' },
+				{ value: 'basics', label: 'A basic, minimal starter', hint: '(recommended)' },
 				{ value: 'blog', label: 'Use blog template' },
-				{ value: 'minimal', label: 'Empty' },
+				{ value: 'starlight', label: 'Use docs (Starlight) template' },
 			],
 		});
 		ctx.template = tmpl;
@@ -72,13 +72,25 @@ const FILES_TO_UPDATE = {
 };
 
 export function getTemplateTarget(tmpl: string, ref = 'latest') {
+	// Handle Starlight templates
 	if (tmpl.startsWith('starlight')) {
 		const [, starter = 'basics'] = tmpl.split('/');
-		return `withastro/starlight/examples/${starter}`;
+		return `github:withastro/starlight/examples/${starter}`;
 	}
+
+	// Handle third-party templates
 	const isThirdParty = tmpl.includes('/');
 	if (isThirdParty) return tmpl;
-	return `github:withastro/astro/examples/${tmpl}#${ref}`;
+
+	// Handle Astro templates
+	if (ref === 'latest') {
+		// `latest` ref is specially handled to route to a branch specifically
+		// to allow faster downloads. Otherwise giget has to download the entire
+		// repo and only copy a sub directory
+		return `github:withastro/astro#examples/${tmpl}`;
+	} else {
+		return `github:withastro/astro/examples/${tmpl}#${ref}`;
+	}
 }
 
 export default async function copyTemplate(tmpl: string, ctx: Context) {
@@ -88,7 +100,6 @@ export default async function copyTemplate(tmpl: string, ctx: Context) {
 		try {
 			await downloadTemplate(templateTarget, {
 				force: true,
-				provider: 'github',
 				cwd: ctx.cwd,
 				dir: '.',
 			});
@@ -123,14 +134,6 @@ export default async function copyTemplate(tmpl: string, ctx: Context) {
 				}
 			} catch {}
 			throw new Error(`Unable to download template ${color.reset(tmpl)}`);
-		}
-
-		// It's possible the repo exists (ex. `withastro/astro`),
-		// But the template route is invalid (ex. `withastro/astro/examples/DNE`).
-		// `giget` doesn't throw for this case,
-		// so check if the directory is still empty as a heuristic.
-		if (fs.readdirSync(ctx.cwd).length === 0) {
-			throw new Error(`Template ${color.reset(tmpl)} ${color.dim('is empty!')}`);
 		}
 
 		// Post-process in parallel

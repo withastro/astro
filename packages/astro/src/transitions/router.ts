@@ -134,7 +134,7 @@ export function getFallback(): Fallback {
 
 function runScripts() {
 	let wait = Promise.resolve();
-	for (const script of Array.from(document.scripts)) {
+	for (const script of document.getElementsByTagName('script')) {
 		if (script.dataset.astroExec === '') continue;
 		const type = script.getAttribute('type');
 		if (type && type !== 'module' && type !== 'text/javascript') continue;
@@ -543,7 +543,7 @@ async function transition(
 		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be caught when the trigger was a click or history traversal.
 		// Needs more investigation on root causes if errors still occur sporadically
 		const err = e as Error;
-		// eslint-disable-next-line no-console
+		// biome-ignore lint/suspicious/noConsoleLog: allowed
 		console.log('[astro]', err.name, err.message, err.stack);
 	}
 }
@@ -558,7 +558,6 @@ export async function navigate(href: string, options?: Options) {
 				'The view transitions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.',
 			);
 			warning.name = 'Warning';
-			// eslint-disable-next-line no-console
 			console.warn(warning);
 			navigateOnServerWarned = true;
 		}
@@ -644,7 +643,7 @@ if (inBrowser) {
 			);
 		}
 	}
-	for (const script of document.scripts) {
+	for (const script of document.getElementsByTagName('script')) {
 		script.dataset.astroExec = '';
 	}
 }

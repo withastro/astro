@@ -8,7 +8,6 @@ import { intro } from './actions/intro.js';
 import { next } from './actions/next-steps.js';
 import { projectName } from './actions/project-name.js';
 import { template } from './actions/template.js';
-import { setupTypeScript, typescript } from './actions/typescript.js';
 import { verify } from './actions/verify.js';
 import { setStdout } from './messages.js';
 
@@ -18,7 +17,7 @@ process.on('SIGTERM', exit);
 
 export async function main() {
 	// Add some extra spacing from the noisy npm/pnpm init output
-	// eslint-disable-next-line no-console
+	// biome-ignore lint/suspicious/noConsoleLog: allowed
 	console.log('');
 	// NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 	// to no longer require `--` to pass args and instead pass `--` directly to us. This
@@ -36,7 +35,6 @@ export async function main() {
 		intro,
 		projectName,
 		template,
-		typescript,
 		dependencies,
 
 		// Steps which write to files need to go above git
@@ -47,7 +45,7 @@ export async function main() {
 		await step(ctx);
 	}
 
-	// eslint-disable-next-line no-console
+	// biome-ignore lint/suspicious/noConsoleLog: allowed
 	console.log('');
 
 	const labels = {
@@ -61,16 +59,4 @@ export async function main() {
 	process.exit(0);
 }
 
-export {
-	dependencies,
-	getContext,
-	git,
-	intro,
-	next,
-	projectName,
-	setStdout,
-	setupTypeScript,
-	template,
-	typescript,
-	verify,
-};
+export { dependencies, getContext, git, intro, next, projectName, setStdout, template, verify };

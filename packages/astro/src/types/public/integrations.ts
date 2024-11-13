@@ -49,16 +49,16 @@ export type ClientDirective = (
 
 export interface ClientDirectiveConfig {
 	name: string;
-	entrypoint: string;
+	entrypoint: string | URL;
 }
 
 export interface AstroRenderer {
 	/** Name of the renderer. */
 	name: string;
 	/** Import entrypoint for the client/browser renderer. */
-	clientEntrypoint?: string;
+	clientEntrypoint?: string | URL;
 	/** Import entrypoint for the server/build/ssr renderer. */
-	serverEntrypoint: string;
+	serverEntrypoint: string | URL;
 }
 
 export type AdapterSupportsKind =
@@ -84,8 +84,8 @@ export interface AstroAdapterFeatures {
 
 export interface AstroAdapter {
 	name: string;
-	serverEntrypoint?: string;
-	previewEntrypoint?: string;
+	serverEntrypoint?: string | URL;
+	previewEntrypoint?: string | URL;
 	exports?: string[];
 	args?: any;
 	adapterFeatures?: AstroAdapterFeatures;
@@ -140,7 +140,7 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
 
 export interface InjectedRoute {
 	pattern: string;
-	entrypoint: string;
+	entrypoint: string | URL;
 	prerender?: boolean;
 }
 
@@ -155,7 +155,7 @@ export interface InjectedType {
 
 export type AstroIntegrationMiddleware = {
 	order: 'pre' | 'post';
-	entrypoint: string;
+	entrypoint: string | URL;
 };
 
 export type HookParameters<

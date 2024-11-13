@@ -30,7 +30,7 @@ export interface StaticBuildOptions {
 	settings: AstroSettings;
 	logger: Logger;
 	manifest: ManifestData;
-	mode: RuntimeMode;
+	runtimeMode: RuntimeMode;
 	origin: string;
 	pageNames: string[];
 	viteConfig: InlineConfig;

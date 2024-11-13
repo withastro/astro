@@ -1,0 +1,137 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
+	"files": {
+		"ignore": [
+			"vendor",
+			"**/dist/**",
+			"**/smoke/**",
+			"**/fixtures/**",
+			"**/_temp-fixtures/**",
+			"**/vendor/**",
+			"**/.vercel/**",
+			"benchmark/projects/",
+			"benchmark/results/",
+			"benchmark/bench/_template.js",
+		],
+		"include": ["test/**", "e2e/**", "packages/**", "/scripts/**", "benchmark/bench"],
+	},
+	"formatter": {
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineWidth": 100,
+		"ignore": [".changeset", "pnpm-lock.yaml", "*.astro"],
+	},
+	"organizeImports": {
+		"enabled": true,
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": false,
+			"style": {
+				"useNodejsImportProtocol": "error",
+				// Enforce separate type imports for type-only imports to avoid bundling unneeded code
+				"useImportType": "error",
+			},
+			"suspicious": {
+				// This one is specific to catch `console.log`. The rest of logs are permitted
+				"noConsoleLog": "warn",
+			},
+			"correctness": {
+				"noUnusedVariables": "info",
+				"noUnusedFunctionParameters": "info",
+			},
+		},
+	},
+	"javascript": {
+		"formatter": {
+			"trailingCommas": "all",
+			"quoteStyle": "single",
+			"semicolons": "always",
+		},
+	},
+	"json": {
+		"parser": {
+			"allowComments": true,
+			"allowTrailingCommas": true,
+		},
+		"formatter": {
+			"indentStyle": "space",
+			"trailingCommas": "none",
+		},
+	},
+	"overrides": [
+		{
+			// Workaround to format files like npm does
+			"include": ["package.json"],
+			"json": {
+				"formatter": {
+					"lineWidth": 1,
+				},
+			},
+		},
+		{
+			// We don"t want to have node modules in code that should be runtime agnostic
+			"include": ["packages/astro/src/runtime/**/*.ts"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noNodejsModules": "error",
+					},
+				},
+			},
+		},
+		{
+			"include": ["*.test.js"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noFocusedTests": "error",
+						"noConsole": "off",
+					},
+				},
+			},
+		},
+		{
+			"include": ["*.astro", "client.d.ts"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noUnusedVariables": "off",
+					},
+				},
+			},
+		},
+		{
+			"include": ["packages/integrations/**/*.ts"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noConsole": {
+							"level": "error",
+							"options": {
+								"allow": ["warn", "error", "info", "debug"],
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			"include": [
+				"packages/db/**/cli/**/*.ts",
+				"benchmark/**/*.js",
+				"packages/astro/src/cli/**/*.ts",
+				"packages/astro/astro.js",
+			],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noConsole": "off",
+						"noConsoleLog": "off",
+					},
+				},
+			},
+		},
+	],
+}

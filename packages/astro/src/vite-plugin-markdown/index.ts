@@ -10,7 +10,7 @@ import { normalizePath } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
-import { isMarkdownFile } from '../core/util.js';
+import { isMarkdownFile, isPage } from '../core/util.js';
 import { shorthash } from '../runtime/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
@@ -77,6 +77,10 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				let html = renderResult.code;
 				const { headings, imagePaths: rawImagePaths, frontmatter } = renderResult.metadata;
 
+				// Add default charset for markdown pages
+				const isMarkdownPage = isPage(fileURL, settings);
+				const charset = isMarkdownPage ? '<meta charset="utf-8">' : '';
+
 				// Resolve all the extracted images from the content
 				const imagePaths: MarkdownImagePath[] = [];
 				for (const imagePath of rawImagePaths) {
@@ -141,7 +145,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 							}, {
 								'default': () => render\`\${unescapeHTML(html())}\`
 							})}\`;`
-							: `render\`\${maybeRenderHead(result)}\${unescapeHTML(html())}\`;`
+							: `render\`${charset}\${maybeRenderHead(result)}\${unescapeHTML(html())}\`;`
 					}
 				});
 				export default Content;

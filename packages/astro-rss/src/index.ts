@@ -70,7 +70,6 @@ const rssOptionsValidator = z.object({
 		.or(globResultValidator)
 		.transform((items) => {
 			if (!Array.isArray(items)) {
-				// eslint-disable-next-line
 				console.warn(
 					yellow(
 						'[RSS] Passing a glob result directly has been deprecated. Please migrate to the `pagesGlobToRssItems()` helper: https://docs.astro.build/en/guides/rss/',
