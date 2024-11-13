@@ -256,7 +256,14 @@ export default function vercelAdapter({
 							logger.warn(`Your "vercel.json" config is not a valid json file.`);
 						}
 					}
-					setAdapter(getAdapter({ buildOutput: _buildOutput, edgeMiddleware, middlewareSecret, skewProtection }));
+					setAdapter(
+						getAdapter({
+							buildOutput: _buildOutput,
+							edgeMiddleware,
+							middlewareSecret,
+							skewProtection,
+						})
+					);
 				} else {
 					setAdapter(
 						getAdapter({

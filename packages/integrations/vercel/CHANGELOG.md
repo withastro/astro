@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 8.0.0-beta.4
+
+### Patch Changes
+
+- [#437](https://github.com/withastro/adapters/pull/437) [`b725b49`](https://github.com/withastro/adapters/commit/b725b4962e2ca10c8c7e3b7f59581cef64a1dfa0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where the `@astrojs/vercel` single entry point for the adapter was causing some regressions in users projects.
+
 ## 8.0.0-beta.3
 
 ### Major Changes
