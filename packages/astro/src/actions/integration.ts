@@ -22,7 +22,7 @@ export default function astroIntegrationActionsRouteHandler({
 					pattern: ACTION_RPC_ROUTE_PATTERN,
 					entrypoint: 'astro/actions/runtime/route.js',
 					prerender: false,
-					origin: 'core',
+					origin: 'internal',
 				});
 
 				params.addMiddleware({

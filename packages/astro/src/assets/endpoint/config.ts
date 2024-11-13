@@ -63,6 +63,6 @@ function getImageEndpointData(
 		pathname: settings.config.image.endpoint.route,
 		prerender: false,
 		fallbackRoutes: [],
-		origin: 'core',
+		origin: 'internal',
 	};
 }

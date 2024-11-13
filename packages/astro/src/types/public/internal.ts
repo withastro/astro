@@ -140,7 +140,7 @@ export interface RouteData {
 	/**
 	 * Whether the route comes from Astro core, an integration or the user's project
 	 */
-	origin: 'core' | 'integration' | 'user';
+	origin: 'internal' | 'external' | 'project';
 }
 
 /**

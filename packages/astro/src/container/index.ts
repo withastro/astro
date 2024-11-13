@@ -544,7 +544,7 @@ export class experimental_AstroContainer {
 			type,
 			fallbackRoutes: [],
 			isIndex: false,
-			origin: 'user',
+			origin: 'project',
 		};
 	}
 

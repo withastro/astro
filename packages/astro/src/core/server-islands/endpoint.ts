@@ -31,7 +31,7 @@ export function getServerIslandRouteData(config: ConfigFields) {
 		isIndex: false,
 		fallbackRoutes: [],
 		route: SERVER_ISLAND_ROUTE,
-		origin: 'core',
+		origin: 'internal',
 	};
 	return route;
 }

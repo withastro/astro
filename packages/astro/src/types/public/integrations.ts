@@ -253,33 +253,40 @@ export type IntegrationRouteData = Omit<
 	redirectRoute?: IntegrationRouteData;
 };
 
-export interface IntegrationResolvedRoute {
+export interface IntegrationResolvedRoute
+	extends Omit<
+		RouteData,
+		| 'isIndex'
+		| 'fallbackRoutes'
+		| 'redirectRoute'
+		| 'route'
+		| 'pattern'
+		| 'component'
+		| 'prerender'
+		| 'distURL'
+	> {
 	/**
-	 * The current **pattern** of the route. For example:
-	 * - `src/pages/index.astro` has a pattern of `/`
-	 * - `src/pages/blog/[...slug].astro` has a pattern of `/blog/[...slug]`
-	 * - `src/pages/site/[blog]/[...slug].astro` has a pattern of `/site/[blog]/[...slug]`
+	 * {@link RouteData.route}
 	 */
 	pattern: RouteData['route'];
 
 	/**
-	 *  Source component URL
+	 * {@link RouteData.pattern}
+	 */
+	patternRegex: RouteData['pattern'];
+
+	/**
+	 * {@link RouteData.component}
 	 */
 	entrypoint: RouteData['component'];
 
 	/**
-	 * Whether the route is prerendered or not
+	 * {@link RouteData.prerender}
 	 */
 	isPrerendered: RouteData['prerender'];
 
 	/**
-	 * Dynamic and spread route params
-	 * ex. "/pages/[lang]/[...slug].astro" will output the params ['lang', '...slug']
+	 * {@link RouteData.redirectRoute}
 	 */
-	params: RouteData['params'];
-
-	/**
-	 * Whether the route comes from Astro core, an integration or the user's project
-	 */
-	origin: RouteData['origin'];
+	redirectRoute?: IntegrationResolvedRoute;
 }

@@ -256,7 +256,7 @@ function createFileBasedRoutes(
 					prerender,
 					fallbackRoutes: [],
 					distURL: [],
-					origin: 'user',
+					origin: 'project',
 				});
 			}
 		}
@@ -392,7 +392,7 @@ function createRedirectRoutes(
 			redirectRoute: routeMap.get(destination),
 			fallbackRoutes: [],
 			distURL: [],
-			origin: 'user',
+			origin: 'project',
 		});
 	}
 

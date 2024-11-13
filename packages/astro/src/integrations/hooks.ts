@@ -206,7 +206,7 @@ export async function runHookConfigSetup({
 						);
 						injectRoute.entrypoint = injectRoute.entryPoint as string;
 					}
-					updatedSettings.injectedRoutes.push({ ...injectRoute, origin: 'integration' });
+					updatedSettings.injectedRoutes.push({ ...injectRoute, origin: 'external' });
 				},
 				addWatchFile: (path) => {
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
@@ -679,6 +679,15 @@ function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute 
 		pattern: route.route,
 		params: route.params,
 		origin: route.origin,
+		generate: route.generate,
+		patternRegex: route.pattern,
+		segments: route.segments,
+		type: route.type,
+		pathname: route.pathname,
+		redirect: route.redirect,
+		redirectRoute: route.redirectRoute
+			? toIntegrationResolvedRoute(route.redirectRoute)
+			: undefined,
 	};
 }
 
