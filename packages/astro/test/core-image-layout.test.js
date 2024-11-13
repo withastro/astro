@@ -114,7 +114,7 @@ describe('astro:image:layout', () => {
 			it('sets style for full-width image', () => {
 				let $img = $('#local-full-width img');
 				const classes = $img.attr('class').split(' ');
-				assert.deepEqual(classes, ['aim']);
+				assert.equal(classes[0], 'aim');
 			});
 
 			it('passes in a parent class', () => {

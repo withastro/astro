@@ -1,7 +1,7 @@
 ---
 import { type LocalImageProps, type RemoteImageProps, getImage, imageConfig } from 'astro:assets';
 import type { UnresolvedImageTransform } from '../dist/assets/types';
-import { addCSSVarsToStyle } from '../dist/assets/utils/imageAttributes.js';
+import { applyResponsiveAttributes } from '../dist/assets/utils/imageAttributes.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import type { HTMLAttributes } from '../types';
 
@@ -25,12 +25,6 @@ if (typeof props.height === 'string') {
 	props.height = parseInt(props.height);
 }
 
-const layoutClassMap = {
-	fixed: 'aim-fi',
-	responsive: 'aim-re',
-	'full-width': '',
-};
-
 const layout = props.layout ?? imageConfig.experimentalLayout ?? 'none';
 const useResponsive = imageConfig.experimentalResponsiveImages && layout !== 'none';
 
@@ -52,37 +46,17 @@ if (import.meta.env.DEV) {
 	additionalAttributes['data-image-component'] = 'true';
 }
 
-const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
-
-const {
-	style: parentStyle,
-	class: className,
-	...attrs
-} = { ...additionalAttributes, ...image.attributes } as Record<string, string>;
-
-// We don't use define:vars because it doesn't play nicely when the existing style prop may be undefined
-attrs.style = addCSSVarsToStyle(
-	{
-		w: image.attributes.width ?? props.width ?? image.options.width,
-		h: image.attributes.height ?? props.height ?? image.options.height,
-		fit: cssFitValues.includes(props.fit ?? '') && props.fit,
-		pos: props.position,
-	},
-	parentStyle,
-);
+const attributes = useResponsive
+	? applyResponsiveAttributes({
+			layout,
+			image,
+			props,
+			additionalAttributes,
+		})
+	: { ...additionalAttributes, ...image.attributes };
 ---
 
-{
-	useResponsive ? (
-		<img
-			src={image.src}
-			{...attrs}
-			class={`${layoutClassMap[layout] ?? ''} aim ${className ?? ''}`.trim()}
-		/>
-	) : (
-		<img src={image.src} {...additionalAttributes} {...image.attributes} class={className} />
-	)
-}
+<img src={image.src} {...attributes} />
 
 <style>
 	/* Shared by all Astro images */
