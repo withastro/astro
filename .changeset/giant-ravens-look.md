@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds a new `astro:routes:resolved` hook to the Integration API, and deprecates `routes` passed to `astro:build:done`
+Adds a new `astro:routes:resolved` hook to the Integration API, and deprecates most `routes` properties passed to `astro:build:done`
 
 When building an integration, you can now get access to routes inside the `astro:routes:resolved` hook:
 
@@ -21,7 +21,7 @@ const integration = () => {
 
 This hook runs before `astro:config:done`, and whenever a route changes in development.
 
-`routes` from `astro:build:done` is now deprecated. We recommend you use the new hook instead:
+Most `routes` properties from `astro:build:done` are now deprecated. We recommend you use the new hook instead:
 
 ```diff
 const integration = () => {
@@ -32,9 +32,13 @@ const integration = () => {
 +            'astro:routes:resolved': (params) => {
 +                routes = params.routes
 +            },
-            'astro:build:done': ({
--                routes
-            }) => {
+            'astro:build:done': (params) => {
++                for (const _route of params.routes) {
++                    const route = routes.find(r => r.pattern === _route.route)
++                    if (route) {
++                        route.distURL = _route.distURL
++                    }
++                }
                 console.log(routes)
             }
         }
