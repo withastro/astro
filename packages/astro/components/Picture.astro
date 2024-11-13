@@ -1,9 +1,13 @@
 ---
-import { type LocalImageProps, type RemoteImageProps, getImage } from 'astro:assets';
+import { type LocalImageProps, type RemoteImageProps, getImage, imageConfig } from 'astro:assets';
 import * as mime from 'mrmime';
 import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
-import type { GetImageResult, ImageOutputFormat } from '../dist/types/public/index.js';
+import type {
+	GetImageResult,
+	ImageOutputFormat,
+	UnresolvedImageTransform,
+} from '../dist/types/public/index.js';
 import type { HTMLAttributes } from '../types';
 
 type Props = (LocalImageProps | RemoteImageProps) & {
@@ -37,6 +41,23 @@ if (scopedStyleClass) {
 		pictureAttributes.class = scopedStyleClass;
 	}
 }
+
+const layoutClassMap = {
+	fixed: 'aim-fi',
+	responsive: 'aim-re',
+	'full-width': '',
+};
+
+const layout = props.layout ?? imageConfig.experimentalLayout ?? 'none';
+const useResponsive = imageConfig.experimentalResponsiveImages && layout !== 'none';
+
+if (useResponsive) {
+	// Apply defaults from imageConfig if not provided
+	props.layout ??= imageConfig.experimentalLayout;
+	props.fit ??= imageConfig.experimentalObjectFit ?? 'cover';
+	props.position ??= imageConfig.experimentalObjectPosition ?? 'center';
+}
+
 for (const key in props) {
 	if (key.startsWith('data-astro-cid')) {
 		pictureAttributes[key] = props[key];
@@ -53,7 +74,7 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 				format: format,
 				widths: props.widths,
 				densities: props.densities,
-			}),
+			} as UnresolvedImageTransform),
 	),
 );
 
@@ -71,7 +92,7 @@ const fallbackImage = await getImage({
 	format: resultFallbackFormat,
 	widths: props.widths,
 	densities: props.densities,
-});
+} as UnresolvedImageTransform);
 
 const imgAdditionalAttributes: HTMLAttributes<'img'> = {};
 const sourceAdditionalAttributes: HTMLAttributes<'source'> = {};
@@ -84,6 +105,16 @@ if (props.sizes) {
 if (fallbackImage.srcSet.values.length > 0) {
 	imgAdditionalAttributes.srcset = fallbackImage.srcSet.attribute;
 }
+const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
+
+const {
+	class: className,
+	style,
+	...attrs
+} = {
+	...imgAdditionalAttributes,
+	...fallbackImage.attributes,
+};
 
 if (import.meta.env.DEV) {
 	imgAdditionalAttributes['data-image-component'] = 'true';
@@ -106,5 +137,43 @@ if (import.meta.env.DEV) {
 			);
 		})
 	}
-	<img src={fallbackImage.src} {...imgAdditionalAttributes} {...fallbackImage.attributes} />
+	{
+		useResponsive ? (
+			<img
+				src={fallbackImage.src}
+				{style}
+				{...attrs}
+				class={`${layoutClassMap[layout] ?? ''} aim ${className ?? ''}`.trim()}
+			/>
+		) : (
+			<img src={fallbackImage.src} {...attrs} {style} class={className} />
+		)
+	}
 </picture>
+<style
+	define:vars={useResponsive && {
+		w: fallbackImage.attributes.width ?? props.width ?? fallbackImage.options.width,
+		h: fallbackImage.attributes.height ?? props.height ?? fallbackImage.options.height,
+		fit: cssFitValues.includes(props.fit ?? '') && props.fit,
+		pos: props.position,
+	}}
+>
+	/* Shared by all Astro images */
+	.aim {
+		width: 100%;
+		height: auto;
+		object-fit: var(--fit);
+		object-position: var(--pos);
+		aspect-ratio: var(--w) / var(--h);
+	}
+	/* Styles for responsive layout */
+	.aim-re {
+		max-width: calc(var(--w) * 1px);
+		max-height: calc(var(--h) * 1px);
+	}
+	/* Styles for fixed layout */
+	.aim-fi {
+		width: calc(var(--w) * 1px);
+		height: calc(var(--h) * 1px);
+	}
+</style>

@@ -23,14 +23,16 @@ if (typeof props.height === 'string') {
 	props.height = parseInt(props.height);
 }
 
-const { experimentalResponsiveImages } = imageConfig;
-
 const layoutClassMap = {
 	fixed: 'aim-fi',
 	responsive: 'aim-re',
+	'full-width': '',
 };
 
-if (experimentalResponsiveImages) {
+const layout = props.layout ?? imageConfig.experimentalLayout ?? 'none';
+const useResponsive = imageConfig.experimentalResponsiveImages && layout !== 'none';
+
+if (useResponsive) {
 	// Apply defaults from imageConfig if not provided
 	props.layout ??= imageConfig.experimentalLayout;
 	props.fit ??= imageConfig.experimentalObjectFit ?? 'cover';
@@ -56,12 +58,12 @@ const { style = '', class: className, ...attrs } = { ...additionalAttributes, ..
 ---
 
 {
-	experimentalResponsiveImages && props.layout ? (
+	useResponsive ? (
 		<img
 			src={image.src}
 			{...attrs}
 			{style}
-			class={`${layoutClassMap[props.layout ?? imageConfig.experimentalLayout] ?? ''} aim ${className ?? ''}`.trim()}
+			class={`${layoutClassMap[layout] ?? ''} aim ${className ?? ''}`.trim()}
 		/>
 	) : (
 		<img src={image.src} {...additionalAttributes} {...image.attributes} class={className} />
@@ -69,13 +71,12 @@ const { style = '', class: className, ...attrs } = { ...additionalAttributes, ..
 }
 
 <style
-	define:vars={experimentalResponsiveImages &&
-		props.layout && {
-			w: image.attributes.width ?? props.width ?? image.options.width,
-			h: image.attributes.height ?? props.height ?? image.options.height,
-			fit: cssFitValues.includes(props.fit) && props.fit,
-			pos: props.position,
-		}}
+	define:vars={useResponsive && {
+		w: image.attributes.width ?? props.width ?? image.options.width,
+		h: image.attributes.height ?? props.height ?? image.options.height,
+		fit: cssFitValues.includes(props.fit ?? '') && props.fit,
+		pos: props.position,
+	}}
 >
 	/* Shared by all Astro images */
 	.aim {
