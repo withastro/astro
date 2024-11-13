@@ -56,7 +56,8 @@ const attributes = useResponsive
 	: { ...additionalAttributes, ...image.attributes };
 ---
 
-<img src={image.src} {...attributes} />
+{/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}
+<img src={image.src} {...attributes} class={attributes.class} />
 
 <style>
 	/* Shared by all Astro images */

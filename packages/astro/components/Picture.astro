@@ -131,7 +131,8 @@ if (import.meta.env.DEV) {
 			);
 		})
 	}
-	<img src={fallbackImage.src} {...attributes} />
+	{/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}
+	<img src={fallbackImage.src} {...attributes} class={attributes.class} />
 </picture>
 <style>
 	/* Shared by all Astro images */
