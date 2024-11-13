@@ -156,7 +156,14 @@ describe('Integration API', () => {
 										});
 									},
 									'astro:routes:resolved': (params) => {
-										routes = params.routes;
+										routes = params.routes.map((r) => ({
+											isPrerendered: r.isPrerendered,
+											entrypoint: r.entrypoint,
+											pattern: r.pattern,
+											params: r.params,
+											origin: r.origin,
+										}));
+										routes.sort();
 									},
 								},
 							},
@@ -168,25 +175,25 @@ describe('Integration API', () => {
 						routes.sort(),
 						[
 							{
-								prerendered: false,
+								isPrerendered: false,
 								entrypoint: '../../../../dist/actions/runtime/route.js',
 								pattern: '/_actions/[...path]',
 								params: ['...path'],
-								origin: 'core',
+								origin: 'internal',
 							},
 							{
-								prerendered: true,
+								isPrerendered: true,
 								entrypoint: 'src/pages/about.astro',
 								pattern: '/about',
 								params: [],
-								origin: 'user',
+								origin: 'project',
 							},
 							{
-								prerendered: true,
+								isPrerendered: true,
 								entrypoint: 'src/foo.astro',
 								pattern: '/foo',
 								params: [],
-								origin: 'integration',
+								origin: 'external',
 							},
 						].sort(),
 					);
@@ -202,32 +209,32 @@ describe('Integration API', () => {
 						routes.sort(),
 						[
 							{
-								prerendered: false,
+								isPrerendered: false,
 								entrypoint: '../../../../dist/actions/runtime/route.js',
 								pattern: '/_actions/[...path]',
 								params: ['...path'],
-								origin: 'core',
+								origin: 'internal',
 							},
 							{
-								prerendered: true,
+								isPrerendered: true,
 								entrypoint: 'src/pages/about.astro',
 								pattern: '/about',
 								params: [],
-								origin: 'user',
+								origin: 'project',
 							},
 							{
-								prerendered: true,
+								isPrerendered: true,
 								entrypoint: 'src/pages/bar.astro',
 								pattern: '/bar',
 								params: [],
-								origin: 'user',
+								origin: 'project',
 							},
 							{
-								prerendered: true,
+								isPrerendered: true,
 								entrypoint: 'src/foo.astro',
 								pattern: '/foo',
 								params: [],
-								origin: 'integration',
+								origin: 'external',
 							},
 						].sort(),
 					);
@@ -243,32 +250,32 @@ describe('Integration API', () => {
 						routes.sort(),
 						[
 							{
-								prerendered: false,
+								isPrerendered: false,
 								entrypoint: '../../../../dist/actions/runtime/route.js',
 								pattern: '/_actions/[...path]',
 								params: ['...path'],
-								origin: 'core',
+								origin: 'internal',
 							},
 							{
-								prerendered: false,
+								isPrerendered: false,
 								entrypoint: 'src/pages/about.astro',
 								pattern: '/about',
 								params: [],
-								origin: 'user',
+								origin: 'project',
 							},
 							{
-								prerendered: true,
+								isPrerendered: true,
 								entrypoint: 'src/pages/bar.astro',
 								pattern: '/bar',
 								params: [],
-								origin: 'user',
+								origin: 'project',
 							},
 							{
-								prerendered: true,
+								isPrerendered: true,
 								entrypoint: 'src/foo.astro',
 								pattern: '/foo',
 								params: [],
-								origin: 'integration',
+								origin: 'external',
 							},
 						].sort(),
 					);
