@@ -74,4 +74,13 @@ const third = defineMiddleware(async (context, next) => {
 	return next();
 });
 
-export const onRequest = sequence(first, second, third);
+const fourth = defineMiddleware((context, next) => {
+	if (context.request.url.includes('/no-route-but-200')) {
+		return new Response("It's OK!", {
+			status: 200
+		});
+	}
+	return next()
+})
+
+export const onRequest = sequence(first, second, third, fourth);
