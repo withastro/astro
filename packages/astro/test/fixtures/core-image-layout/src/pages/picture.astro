@@ -40,6 +40,17 @@ import myImage from "../assets/penguin.jpg";
   <Picture src={myImage} layout="full-width" alt="A penguin" />
 </div>
 
+<div id="picture-style">
+	<Picture src={myImage} alt="a penguin" width={300} height={400} style="border: 2px red solid"/>
+</div>
+
+<div id="picture-style-object">
+	<Picture src={myImage} alt="a penguin" width={300} height={400} style={{
+		border: '2px red solid',
+	}}/>
+</div>
+
+
 <style>
   .img-comp {
     border: 5px solid blue;

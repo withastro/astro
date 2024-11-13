@@ -1,6 +1,7 @@
 ---
 import { type LocalImageProps, type RemoteImageProps, getImage, imageConfig } from 'astro:assets';
 import * as mime from 'mrmime';
+import { addCSSVarsToStyle } from '../dist/assets/utils/imageAttributes';
 import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import type {
@@ -109,12 +110,23 @@ const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 
 const {
 	class: className,
-	style,
+	style: parentStyle,
 	...attrs
 } = {
 	...imgAdditionalAttributes,
 	...fallbackImage.attributes,
-};
+} as Record<string, string>;
+
+// We don't use define:vars because it doesn't play nicely when the existing style prop may be undefined
+attrs.style = addCSSVarsToStyle(
+	{
+		w: fallbackImage.attributes.width ?? props.width ?? fallbackImage.options.width,
+		h: fallbackImage.attributes.height ?? props.height ?? fallbackImage.options.height,
+		fit: cssFitValues.includes(props.fit ?? '') && props.fit,
+		pos: props.position,
+	},
+	parentStyle,
+);
 
 if (import.meta.env.DEV) {
 	imgAdditionalAttributes['data-image-component'] = 'true';
@@ -141,23 +153,15 @@ if (import.meta.env.DEV) {
 		useResponsive ? (
 			<img
 				src={fallbackImage.src}
-				{style}
 				{...attrs}
 				class={`${layoutClassMap[layout] ?? ''} aim ${className ?? ''}`.trim()}
 			/>
 		) : (
-			<img src={fallbackImage.src} {...attrs} {style} class={className} />
+			<img src={fallbackImage.src} {...attrs} class={className} />
 		)
 	}
 </picture>
-<style
-	define:vars={useResponsive && {
-		w: fallbackImage.attributes.width ?? props.width ?? fallbackImage.options.width,
-		h: fallbackImage.attributes.height ?? props.height ?? fallbackImage.options.height,
-		fit: cssFitValues.includes(props.fit ?? '') && props.fit,
-		pos: props.position,
-	}}
->
+<style>
 	/* Shared by all Astro images */
 	.aim {
 		width: 100%;
