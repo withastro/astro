@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@astrojs/svelte": "^6.0.0-beta.2",
-    "astro": "^5.0.0-beta.7",
+    "astro": "^5.0.0-beta.8",
     "svelte": "^4.2.19"
   }
 }
