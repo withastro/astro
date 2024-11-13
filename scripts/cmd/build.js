@@ -38,6 +38,7 @@ export default async function build(...args) {
 	const prebuilds = getPrebuilds(isDev, args);
 	const patterns = args
 		.filter((f) => !!f) // remove empty args
+		.filter((f) => !f.startsWith('--')) // remove flags
 		.map((f) => f.replace(/^'/, '').replace(/'$/, '')); // Needed for Windows: glob strings contain surrounding string chars??? remove these
 	let entryPoints = [].concat(
 		...(await Promise.all(
@@ -118,7 +119,12 @@ export default async function build(...args) {
 }
 
 async function clean(outdir) {
-	const files = await glob([`${outdir}/**`, `!${outdir}/**/*.d.ts`], { filesOnly: true });
+	const files = await glob('**', {
+		cwd: outdir,
+		filesOnly: true,
+		ignore: ['**/*.d.ts'],
+		absolute: true,
+	});
 	await Promise.all(files.map((file) => fs.rm(file, { force: true })));
 }
 
