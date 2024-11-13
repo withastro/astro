@@ -1,5 +1,11 @@
 # astro
 
+## 4.16.12
+
+### Patch Changes
+
+- [#12420](https://github.com/withastro/astro/pull/12420) [`acac0af`](https://github.com/withastro/astro/commit/acac0af53466f8a381ccdac29ed2ad735d7b4e79) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the dev server returns a 404 status code when a user middleware returns a valid `Response`.
+
 ## 4.16.11
 
 ### Patch Changes
