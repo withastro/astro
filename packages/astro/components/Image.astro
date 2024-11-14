@@ -1,7 +1,10 @@
 ---
 import { type LocalImageProps, type RemoteImageProps, getImage, imageConfig } from 'astro:assets';
+import type { UnresolvedImageTransform } from '../dist/assets/types';
+import { applyResponsiveAttributes } from '../dist/assets/utils/imageAttributes.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import type { HTMLAttributes } from '../types';
+import './image.css';
 
 // The TypeScript diagnostic for JSX props uses the last member of the union to suggest props, so it would be better for
 // LocalImageProps to be last. Unfortunately, when we do this the error messages that remote images get are complete nonsense
@@ -23,21 +26,17 @@ if (typeof props.height === 'string') {
 	props.height = parseInt(props.height);
 }
 
-const { experimentalResponsiveImages } = imageConfig;
+const layout = props.layout ?? imageConfig.experimentalLayout ?? 'none';
+const useResponsive = imageConfig.experimentalResponsiveImages && layout !== 'none';
 
-const layoutClassMap = {
-	fixed: 'aim-fi',
-	responsive: 'aim-re',
-};
-
-if (experimentalResponsiveImages) {
+if (useResponsive) {
 	// Apply defaults from imageConfig if not provided
 	props.layout ??= imageConfig.experimentalLayout;
 	props.fit ??= imageConfig.experimentalObjectFit ?? 'cover';
 	props.position ??= imageConfig.experimentalObjectPosition ?? 'center';
 }
 
-const image = await getImage(props);
+const image = await getImage(props as UnresolvedImageTransform);
 
 const additionalAttributes: HTMLAttributes<'img'> = {};
 if (image.srcSet.values.length > 0) {
@@ -48,51 +47,15 @@ if (import.meta.env.DEV) {
 	additionalAttributes['data-image-component'] = 'true';
 }
 
-const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
-
-// The style prop can't be spread when using define:vars, so we need to extract it here
-// @see https://github.com/withastro/compiler/issues/1050
-const { style = '', class: className, ...attrs } = { ...additionalAttributes, ...image.attributes };
+const attributes = useResponsive
+	? applyResponsiveAttributes({
+			layout,
+			image,
+			props,
+			additionalAttributes,
+		})
+	: { ...additionalAttributes, ...image.attributes };
 ---
 
-{
-	experimentalResponsiveImages && props.layout ? (
-		<img
-			src={image.src}
-			{...attrs}
-			{style}
-			class={`${layoutClassMap[props.layout ?? imageConfig.experimentalLayout] ?? ''} aim ${className ?? ''}`.trim()}
-		/>
-	) : (
-		<img src={image.src} {...additionalAttributes} {...image.attributes} class={className} />
-	)
-}
-
-<style
-	define:vars={experimentalResponsiveImages &&
-		props.layout && {
-			w: image.attributes.width ?? props.width ?? image.options.width,
-			h: image.attributes.height ?? props.height ?? image.options.height,
-			fit: cssFitValues.includes(props.fit) && props.fit,
-			pos: props.position,
-		}}
->
-	/* Shared by all Astro images */
-	.aim {
-		width: 100%;
-		height: auto;
-		object-fit: var(--fit);
-		object-position: var(--pos);
-		aspect-ratio: var(--w) / var(--h);
-	}
-	/* Styles for responsive layout */
-	.aim-re {
-		max-width: calc(var(--w) * 1px);
-		max-height: calc(var(--h) * 1px);
-	}
-	/* Styles for fixed layout */
-	.aim-fi {
-		width: calc(var(--w) * 1px);
-		height: calc(var(--h) * 1px);
-	}
-</style>
+{/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}
+<img src={image.src} {...attributes} class={attributes.class} />
