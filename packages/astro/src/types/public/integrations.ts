@@ -217,7 +217,9 @@ export interface BaseIntegrationHooks {
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
 		dir: URL;
+		/** @deprecated Use the `assets` map and the new `astro:routes:resolved` hook */
 		routes: IntegrationRouteData[];
+		assets: Map<string, URL[]>;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 	'astro:route:setup': (options: {
@@ -241,68 +243,14 @@ export interface AstroIntegration {
 
 /**
  * A smaller version of the {@link RouteData} that is used in the integrations.
+ * @deprecated Use {@link IntegrationResolvedRoute}
  */
-export type IntegrationRouteData = Pick<
+export type IntegrationRouteData = Omit<
 	RouteData,
-	'route' | 'distURL'
+	'isIndex' | 'fallbackRoutes' | 'redirectRoute' | 'origin'
 > & {
 	/**
-	 * {@link RouteData.component}
-	 * @deprecated Use `routes` from the `astro:routes:resolved` hook
-	 */
-	component: RouteData['component'];
-
-	/**
-	 * {@link RouteData.generate}
-	 * @deprecated Use `routes` from the `astro:routes:resolved` hook
-	 */
-	generate: RouteData['generate'];
-
-	/**
-	 * {@link RouteData.params}
-	 * @deprecated Use `routes` from the `astro:routes:resolved` hook
-	 */
-	params: RouteData['params'];
-
-	/**
-	 * {@link RouteData.pathname}
-	 * @deprecated Use `routes` from the `astro:routes:resolved` hook
-	 */
-	pathname?: RouteData['pathname'];
-
-	/**
-	 * {@link RouteData.pattern}
-	 * @deprecated Use `routes` from the `astro:routes:resolved` hook
-	 */
-	pattern: RouteData['pattern'];
-
-	/**
-	 * {@link RouteData.segments}
-	 * @deprecated Use `routes` from the `astro:routes:resolved` hook
-	 */
-	segments: RouteData['segments'];
-
-	/**
-	 * {@link RouteData.type}
-	 * @deprecated Use `routes` from the `astro:routes:resolved` hook
-	 */
-	type: RouteData['type'];
-
-	/**
-	 * {@link RouteData.prerender}
-	 * @deprecated Use `routes` from the `astro:routes:resolved` hook
-	 */
-	prerender: RouteData['prerender'];
-
-	/**
-	 * {@link RouteData.redirect}
-	 * @deprecated Use `routes` from the `astro:routes:resolved` hook
-	 */
-	redirect?: RouteData['redirect'];
-
-	/**
 	 * {@link RouteData.redirectRoute}
-	 * @deprecated Use `routes` from the `astro:routes:resolved` hook
 	 */
 	redirectRoute?: IntegrationRouteData;
 };

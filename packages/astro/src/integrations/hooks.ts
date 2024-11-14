@@ -601,6 +601,9 @@ export async function runHookBuildDone({ settings, pages, routes, logging }: Run
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,
 					routes: integrationRoutes,
+					assets: new Map(
+						routes.filter((r) => r.distURL !== undefined).map((r) => [r.route, r.distURL!]),
+					),
 					logger,
 				}),
 				logger: logging,
