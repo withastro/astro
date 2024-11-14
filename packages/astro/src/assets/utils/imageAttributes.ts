@@ -21,12 +21,6 @@ export function addCSSVarsToStyle(
 
 const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 
-const layoutClassMap = {
-	fixed: 'aim-fi',
-	responsive: 'aim-re',
-	'full-width': '',
-};
-
 export function applyResponsiveAttributes<
 	T extends LocalImageProps<unknown> | RemoteImageProps<unknown>,
 >({
