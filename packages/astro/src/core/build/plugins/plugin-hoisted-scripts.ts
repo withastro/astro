@@ -1,10 +1,7 @@
 import type { BuildOptions, Rollup, Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../../../@types/astro.js';
-import { viteID } from '../../util.js';
 import type { BuildInternals } from '../internal.js';
-import { getPageDataByViteID } from '../internal.js';
+import { getPageDatasByHoistedScriptId } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
-import type { StaticBuildOptions } from '../types.js';
 import { shouldInlineAsset } from './util.js';
 
 function virtualHoistedEntry(id: string) {
@@ -12,7 +9,6 @@ function virtualHoistedEntry(id: string) {
 }
 
 export function vitePluginHoistedScripts(
-	settings: AstroSettings,
 	internals: BuildInternals,
 ): VitePlugin {
 	let assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>;
@@ -73,23 +69,18 @@ export function vitePluginHoistedScripts(
 					shouldInlineAsset(output.code, output.fileName, assetsInlineLimit);
 				let removeFromBundle = false;
 				const facadeId = output.facadeModuleId!;
-				const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
-				for (const pathname of pages) {
-					const vid = viteID(new URL('.' + pathname, settings.config.root));
-					const pageInfo = getPageDataByViteID(internals, vid);
-					if (pageInfo) {
-						if (canBeInlined) {
-							pageInfo.hoistedScript = {
-								type: 'inline',
-								value: output.code,
-							};
-							removeFromBundle = true;
-						} else {
-							pageInfo.hoistedScript = {
-								type: 'external',
-								value: id,
-							};
-						}
+				for (const pageData of getPageDatasByHoistedScriptId(internals, facadeId)) {
+					if (canBeInlined) {
+						pageData.hoistedScript = {
+							type: 'inline',
+							value: output.code,
+						};
+						removeFromBundle = true;
+					} else {
+						pageData.hoistedScript = {
+							type: 'external',
+							value: id,
+						};
 					}
 				}
 
@@ -103,7 +94,6 @@ export function vitePluginHoistedScripts(
 }
 
 export function pluginHoistedScripts(
-	options: StaticBuildOptions,
 	internals: BuildInternals,
 ): AstroBuildPlugin {
 	return {
@@ -111,7 +101,7 @@ export function pluginHoistedScripts(
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginHoistedScripts(options.settings, internals),
+					vitePlugin: vitePluginHoistedScripts(internals),
 				};
 			},
 		},
