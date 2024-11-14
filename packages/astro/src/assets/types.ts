@@ -157,26 +157,60 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	quality?: ImageQuality;
-
-	layout?: ImageLayout;
-
-	fit?: ImageFit;
-
-	position?: string;
 } & (
 		| {
 				/**
-				 * The layout type for responsive images. Overrides any default set in the Astro config.
-				 * Requires the `experimental.responsiveImages` flag to be enabled.
+				 * The layout type for responsive images. Requires the `experimental.responsiveImages` flag to be enabled in the Astro config.
+				 *
+				 * Allowed values are `responsive`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
 				 *
 				 * - `responsive` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
 				 * - `fixed` - The image will maintain its original dimensions.
-				 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
+				 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio, even if that means the image will exceed its original dimensions.
+				 *
+				 * **Example**:
+				 * ```astro
+				 * <Image src={...} layout="responsive" alt="..." />
+				 * ```
 				 */
+
 				layout?: ImageLayout;
-				fit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down' | (string & {});
+
+				/**
+				 * Defines how the image should be cropped if the aspect ratio is changed. Requires the `experimental.responsiveImages` flag to be enabled in the Astro config.
+				 *
+				 * Default is `cover`. Allowed values are `fill`, `contain`, `cover`, `none` or `scale-down`. These behave like the equivalent CSS `object-fit` values. Other values may be passed if supported by the image service.
+				 *
+				 * **Example**:
+				 * ```astro
+				 * <Image src={...} fit="contain" alt="..." />
+				 * ```
+				 */
+
+				fit?: ImageFit;
+
+				/**
+				 * Defines the position of the image when cropping. Requires the `experimental.responsiveImages` flag to be enabled in the Astro config.
+				 *
+				 * The value is a string that specifies the position of the image, which matches the CSS `object-position` property. Other values may be passed if supported by the image service.
+				 *
+				 * **Example**:
+				 * ```astro
+				 * <Image src={...} position="center top" alt="..." />
+				 * ```
+				 */
+
 				position?: string;
+				/**
+				 * If true, the image will be loaded with a higher priority. This can be useful for images that are visible above the fold. There should usually be only one image with `priority` set to `true` per page.
+				 * All other images will be lazy-loaded according to when they are in the viewport.
+				 * **Example**:
+				 * ```astro
+				 * <Image src={...} priority alt="..." />
+				 * ```
+				 */
 				priority?: boolean;
+
 				/**
 				 * A list of widths to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
 				 *
