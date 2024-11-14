@@ -8,9 +8,7 @@ function virtualHoistedEntry(id: string) {
 	return id.startsWith('/astro/hoisted.js?q=');
 }
 
-export function vitePluginHoistedScripts(
-	internals: BuildInternals,
-): VitePlugin {
+export function vitePluginHoistedScripts(internals: BuildInternals): VitePlugin {
 	let assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>;
 
 	return {
@@ -93,9 +91,7 @@ export function vitePluginHoistedScripts(
 	};
 }
 
-export function pluginHoistedScripts(
-	internals: BuildInternals,
-): AstroBuildPlugin {
+export function pluginHoistedScripts(internals: BuildInternals): AstroBuildPlugin {
 	return {
 		targets: ['client'],
 		hooks: {
