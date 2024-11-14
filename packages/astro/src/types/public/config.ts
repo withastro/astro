@@ -1075,6 +1075,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 * @docs
 		 * @name image.experimentalLayout
+		 * @type {ImageLayout}
 		 * @default `undefined`
 		 * @description
 		 * The default layout type for responsive images. Can be overridden by the `layout` prop on the image component.
@@ -1087,6 +1088,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 * @docs
 		 * @name image.experimentalObjectFit
+		 * @type {ImageFit}
 		 * @default `"cover"`
 		 * @description
 		 * The default object-fit value for responsive images. Can be overridden by the `fit` prop on the image component.
@@ -1096,6 +1098,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 * @docs
 		 * @name image.experimentalObjectPosition
+		 * @type {string}
 		 * @default `"center"`
 		 * @description
 		 * The default object-position value for responsive images. Can be overridden by the `position` prop on the image component.
