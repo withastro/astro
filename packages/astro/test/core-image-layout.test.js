@@ -88,33 +88,26 @@ describe('astro:image:layout', () => {
 				let $img = $('#local-both img');
 				assert.match($img.attr('style'), /--w: 300/);
 				assert.match($img.attr('style'), /--h: 400/);
-				const classes = $img.attr('class').split(' ');
-				assert.ok(classes.includes('aim'));
-				assert.ok(classes.includes('aim-re'));
+				assert.equal($img.data('astro-image'), 'responsive');
 			});
 
 			it('sets the style when no dimensions set', () => {
 				let $img = $('#local img');
 				assert.match($img.attr('style'), /--w: 2316/);
 				assert.match($img.attr('style'), /--h: 1544/);
-				const classes = $img.attr('class').split(' ');
-				assert.ok(classes.includes('aim'));
-				assert.ok(classes.includes('aim-re'));
+				assert.equal($img.data('astro-image'), 'responsive');
 			});
 
 			it('sets style for fixed image', () => {
 				let $img = $('#local-fixed img');
 				assert.match($img.attr('style'), /--w: 800/);
 				assert.match($img.attr('style'), /--h: 600/);
-				const classes = $img.attr('class').split(' ');
-				assert.ok(classes.includes('aim'));
-				assert.ok(classes.includes('aim-fi'));
+				assert.equal($img.data('astro-image'), 'fixed');
 			});
 
 			it('sets style for full-width image', () => {
 				let $img = $('#local-full-width img');
-				const classes = $img.attr('class').split(' ');
-				assert.equal(classes[0], 'aim');
+				assert.equal($img.data('astro-image'), 'full-width');
 			});
 
 			it('passes in a parent class', () => {
@@ -134,9 +127,7 @@ describe('astro:image:layout', () => {
 
 			it('injects a style tag', () => {
 				const style = $('style').text();
-				assert.match(style, /\.aim\[/);
-				assert.match(style, /\.aim-re\[/);
-				assert.match(style, /\.aim-fi\[/);
+				assert.match(style, /\[data-astro-image\]/);
 			});
 		});
 

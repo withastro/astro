@@ -50,6 +50,6 @@ export function applyResponsiveAttributes<
 		},
 		attributes.style,
 	);
-	attributes.class = `${layoutClassMap[layout] ?? ''} aim ${attributes.class ?? ''}`.trim();
+	attributes['data-astro-image'] = layout;
 	return attributes;
 }

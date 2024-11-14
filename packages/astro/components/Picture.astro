@@ -10,6 +10,7 @@ import type {
 	UnresolvedImageTransform,
 } from '../dist/types/public/index.js';
 import type { HTMLAttributes } from '../types';
+import './image.css';
 
 type Props = (LocalImageProps | RemoteImageProps) & {
 	formats?: ImageOutputFormat[];
@@ -134,23 +135,3 @@ if (import.meta.env.DEV) {
 	{/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}
 	<img src={fallbackImage.src} {...attributes} class={attributes.class} />
 </picture>
-<style>
-	/* Shared by all Astro images */
-	.aim {
-		width: 100%;
-		height: auto;
-		object-fit: var(--fit);
-		object-position: var(--pos);
-		aspect-ratio: var(--w) / var(--h);
-	}
-	/* Styles for responsive layout */
-	.aim-re {
-		max-width: calc(var(--w) * 1px);
-		max-height: calc(var(--h) * 1px);
-	}
-	/* Styles for fixed layout */
-	.aim-fi {
-		width: calc(var(--w) * 1px);
-		height: calc(var(--h) * 1px);
-	}
-</style>

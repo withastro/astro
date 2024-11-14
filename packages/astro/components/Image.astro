@@ -4,6 +4,7 @@ import type { UnresolvedImageTransform } from '../dist/assets/types';
 import { applyResponsiveAttributes } from '../dist/assets/utils/imageAttributes.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import type { HTMLAttributes } from '../types';
+import './image.css';
 
 // The TypeScript diagnostic for JSX props uses the last member of the union to suggest props, so it would be better for
 // LocalImageProps to be last. Unfortunately, when we do this the error messages that remote images get are complete nonsense
@@ -58,24 +59,3 @@ const attributes = useResponsive
 
 {/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}
 <img src={image.src} {...attributes} class={attributes.class} />
-
-<style>
-	/* Shared by all Astro images */
-	.aim {
-		width: 100%;
-		height: auto;
-		object-fit: var(--fit);
-		object-position: var(--pos);
-		aspect-ratio: var(--w) / var(--h);
-	}
-	/* Styles for responsive layout */
-	.aim-re {
-		max-width: calc(var(--w) * 1px);
-		max-height: calc(var(--h) * 1px);
-	}
-	/* Styles for fixed layout */
-	.aim-fi {
-		width: calc(var(--w) * 1px);
-		height: calc(var(--h) * 1px);
-	}
-</style>
