@@ -1,5 +1,4 @@
 import { existsSync } from 'node:fs';
-import { LibsqlError } from '@libsql/client';
 import type { AstroConfig } from 'astro';
 import { green } from 'kleur/colors';
 import type { Arguments } from 'yargs-parser';

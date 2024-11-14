@@ -1,5 +1,4 @@
 import { stripVTControlCharacters } from 'node:util';
-import { LibsqlError } from '@libsql/client';
 import deepDiff from 'deep-diff';
 import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';

@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { LibsqlError, createClient } from '@libsql/client';
+import { createClient } from '@libsql/client';
 import { z } from 'zod';
 import { cli } from '../dist/core/cli/index.js';
 import { resolveDbConfig } from '../dist/core/load-file.js';
