@@ -484,6 +484,7 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 export async function createRouteManifest(
 	params: CreateRouteManifestParams,
 	logger: Logger,
+	{ dev = false }: { dev?: boolean } = {},
 ): Promise<ManifestData> {
 	const { settings } = params;
 	const { config } = settings;
@@ -731,7 +732,9 @@ export async function createRouteManifest(
 		}
 	}
 
-	await runHookRoutesResolved({ routes, settings, logger });
+	if (!dev) {
+		await runHookRoutesResolved({ routes, settings, logger });
+	}
 
 	return {
 		routes,

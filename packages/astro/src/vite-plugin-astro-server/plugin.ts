@@ -57,7 +57,7 @@ export default function createVitePluginAstroServer({
 			async function rebuildManifest(path: string | null = null) {
 				pipeline.clearRouteCache();
 
-				// If a route changes, we check if it's part of the manifest and check for its prerender value 
+				// If a route changes, we check if it's part of the manifest and check for its prerender value
 				if (path !== null) {
 					const route = routeManifest.routes.find(
 						(r) => path === new URL(r.component, settings.config.root).pathname,
@@ -74,15 +74,14 @@ export default function createVitePluginAstroServer({
 					}
 					const content = await fsMod.promises.readFile(routePath, 'utf-8');
 					await getRoutePrerenderOption(content, route, settings, logger);
-
-					await runHookRoutesResolved({ routes: routeManifest.routes, settings, logger });
 				} else {
 					routeManifest = injectDefaultDevRoutes(
 						settings,
 						devSSRManifest,
-						await createRouteManifest({ settings, fsMod }, logger),
+						await createRouteManifest({ settings, fsMod }, logger, { dev: true }),
 					);
 				}
+				await runHookRoutesResolved({ routes: routeManifest.routes, settings, logger });
 
 				warnMissingAdapter(logger, settings);
 				pipeline.manifest.checkOrigin =
