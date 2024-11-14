@@ -1743,27 +1743,38 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @version 5.0.0
 		 * @description
 		 *
-		 * Enables and configures automatic responsive image options for images in your project. Set to `true` (for no default option passed to your images) or an object with default responsive image configuration options.
+		 * Enables automatic responsive images in your project. 
 		 *
 		 * ```js
 		 * {
-		 *  experimental: {
-		 * 		responsiveImages: {
-		 * 			layout: 'responsive',
+		 *  	experimental: {
+		 * 			responsiveImages: true,
 		 * 		},
 		 * }
 		 * ```
 		 *
-		 * Then, you can add a `layout` option to any `<Image />` component when needed to override your default configuration: `responsive`,  `fixed`, `full-width`, or `none`. This attribute is required to transform your images if `responsiveImages.layout` is not configured.  Images with a layout value of `undefined` or `none` will not be transformed.
+		 * When enabled, you can pass a `layout` props to any `<Image /> or `<Picture />` to enable automatic responsive images. You can also set a default value using `image.experimentalLayout`. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `responsive` and `full-width` layouts will have styles applied to ensure they resize according to their container.
 		 *
 		 * ```astro
 		 * ---
-		 * import { Image } from 'astro:assets';
+		 * import { Image, Picture } from 'astro:assets';
 		 * import myImage from '../assets/my_image.png';
 		 * ---
-		 * <Image src={myImage} alt="A description of my image." layout='fixed' />
+		 * <Image src={myImage} alt="A description of my image." layout='responsive' width={800} height={600} />
+		 * <Picture src={myImage} alt="A description of my image." layout='full-width' formats={['avif', 'webp', 'jpeg']} />
 		 * ```
-		 *
+		 * 
+		 * ### Responsive image properties
+		 * 
+		 * These are additional Image properties available when responsive images are enabled:
+		 * 
+		 * - `layout`: The layout type for the image. Can be `responsive`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
+		 * - `fit`: Defines how the image should be cropped if the aspect ratio is changed. Values match those of CSS `object-fit`. Defaults to `cover`, or the value of `image.experimentalObjectFit` if set.
+		 * - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
+		 * - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
+		 * 
+		 * The `densities` prop is not supported when using responsive images. It is not recommended to use the `widths` or `sizes` props as these are automatically generated based on the image's dimensions and the layout type. 
+		 * 
 		 */
 
 		responsiveImages?: boolean;
