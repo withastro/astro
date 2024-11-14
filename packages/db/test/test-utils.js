@@ -142,7 +142,7 @@ function createRemoteDbServer() {
 					JSON.stringify({
 						success: false,
 						error: {
-							code: e instanceof LibsqlError ? e.code : 'SQLITE_QUERY_FAILED',
+							code: isDbError(e) ? e.code : 'SQLITE_QUERY_FAILED',
 							details: e.message,
 						},
 					}),

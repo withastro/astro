@@ -3,7 +3,6 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { ManagedAppToken } from '@astrojs/studio';
-import { LibsqlError } from '@libsql/client';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { blue, yellow } from 'kleur/colors';
 import {
@@ -15,7 +14,8 @@ import {
 	mergeConfig,
 } from 'vite';
 import parseArgs from 'yargs-parser';
-import { AstroDbError } from '../../runtime/utils.js';
+import { AstroDbError,  } from '../../runtime/utils.js';
+import { isDbError  } from '../../runtime/virtual.js';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
@@ -209,7 +209,7 @@ async function executeSeedFile({
 	try {
 		await mod.default();
 	} catch (e) {
-		if (e instanceof LibsqlError) {
+		if (isDbError(e)) {
 			throw new AstroDbError(EXEC_ERROR(e.message));
 		}
 		throw e;

@@ -37,6 +37,7 @@ import type {
 	TextColumn,
 } from '../types.js';
 import type { RemoteDatabaseInfo, Result } from '../utils.js';
+import { isDbError } from '../../runtime/virtual.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -454,7 +455,7 @@ async function getDbCurrentSnapshot(
 	} catch (error) {
 		// Don't handle errors that are not from libSQL
 		if (
-			error instanceof LibsqlError &&
+			isDbError(error) &&
 			// If the schema was never pushed to the database yet the table won't exist.
 			// Treat a missing snapshot table as an empty table.
 

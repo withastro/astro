@@ -16,6 +16,7 @@ import {
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import type { DBConfig } from '../../../types.js';
 import { getManagedRemoteToken } from '../../../utils.js';
+import { isDbError } from '../../../../runtime/virtual.js';
 
 export async function cmd({
 	astroConfig,
@@ -64,7 +65,7 @@ export async function cmd({
 		await mod.default();
 		console.info(`${green('✔')} File run successfully.`);
 	} catch (e) {
-		if (e instanceof LibsqlError) {
+		if (isDbError(e)) {
 			throw new Error(EXEC_ERROR(e.message));
 		}
 		throw e;
