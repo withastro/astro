@@ -76,6 +76,14 @@ const createFixture = () => {
 		},
 		/**
 		 * @param {string} path
+		 * @param {string} content
+		 * @param {string | undefined} error
+		 */
+		thenFileContentShouldNotInclude(path, content, error = undefined) {
+			assert.equal(writtenFiles[getExpectedPath(path)].includes(content), false, error);
+		},
+		/**
+		 * @param {string} path
 		 */
 		thenFileShouldBeValidTypescript(path) {
 			try {
@@ -164,6 +172,18 @@ describe('astro sync', () => {
 				'Types file does not include empty collection type',
 			);
 		});
+
+
+		it('does not write individual types for entries when emulating legacy collections', async () => {
+			await fixture.load('./fixtures/content-collections/');
+			fixture.clean();
+			await fixture.whenSyncing();
+			fixture.thenFileContentShouldNotInclude(
+				'.astro/content.d.ts',
+				'id: "one.md"'
+			);
+		})
+
 	});
 
 	describe('astro:env', () => {

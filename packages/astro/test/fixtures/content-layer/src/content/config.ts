@@ -141,7 +141,7 @@ const birds = defineCollection({
 });
 
 // Absolute paths should also work
-const absoluteRoot = new URL('../../content/space', import.meta.url);
+const absoluteRoot = new URL('space', import.meta.url);
 
 const spacecraft = defineCollection({
 	loader: glob({ pattern: '*.md', base: absoluteRoot }),
