@@ -4,11 +4,13 @@ import { AstroError } from '../../../core/errors/errors.js';
 import type { APIContext } from '../../../types/public/index.js';
 import { ACTION_RPC_ROUTE_PATTERN } from '../../consts.js';
 import {
+	ACTION_API_CONTEXT_SYMBOL,
 	type ActionAPIContext,
 	type ErrorInferenceObject,
 	type MaybePromise,
 	formContentTypes,
 	hasContentType,
+	isActionAPIContext,
 } from '../utils.js';
 import type { Locals } from '../utils.js';
 import { getAction } from './get-action.js';
@@ -79,7 +81,8 @@ export function defineAction<
 			: getJsonServerHandler(handler, inputSchema);
 
 	async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
-		if (typeof this === 'function') {
+		// The ActionAPIContext should always contain the `params` property
+		if (typeof this === 'function' || !isActionAPIContext(this)) {
 			throw new AstroError(ActionCalledFromServerError);
 		}
 		return callSafely(() => serverHandler(unparsedInput, this));
@@ -293,6 +296,7 @@ export function getActionContext(context: APIContext): ActionMiddlewareContext {
 					redirect: _redirect,
 					...actionAPIContext
 				} = context;
+				Reflect.set(actionAPIContext, ACTION_API_CONTEXT_SYMBOL, true);
 				const handler = baseAction.bind(actionAPIContext satisfies ActionAPIContext);
 				return handler(input);
 			},
