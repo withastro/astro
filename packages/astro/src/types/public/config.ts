@@ -564,9 +564,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @name session
 	 * @type {SessionConfig}
 	 * @version 5.0.0
+	 * @see experimental.sessions
 	 * @description
 	 * Configure session management for your Astro site. Sessions are used to store user data across requests, such as user authentication state. You must enable the `experimental.sessions` feature flag to use this feature.
-	 * An adapter may provide a default session driver, but you can also use a different driver or create a custom driver. See {@see https://unstorage.unjs.io/drivers} for available drivers.
+	 * An adapter may provide a default session driver, but you can also use a different driver or create a custom driver. See [Unstorage](https://unstorage.unjs.io/drivers) for available drivers.
 	 * 
 	 * ```js title="astro.config.mjs"
 	 * {
