@@ -132,7 +132,11 @@ export async function getImage(
 			width: resolvedOptions.width,
 			layout,
 			originalWidth,
-			breakpoints: isLocalService(service) ? LIMITED_RESOLUTIONS : DEFAULT_RESOLUTIONS,
+			breakpoints: imageConfig.experimentalBreakpoints?.length
+				? imageConfig.experimentalBreakpoints
+				: isLocalService(service)
+					? LIMITED_RESOLUTIONS
+					: DEFAULT_RESOLUTIONS,
 		});
 		resolvedOptions.sizes ||= getSizesAttribute({ width: resolvedOptions.width, layout });
 

@@ -1105,6 +1105,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * Requires the `experimental.responsiveImages` flag to be enabled.
 		 */
 		experimentalObjectPosition?: string;
+		/**
+		 * @docs
+		 * @name image.experimentalBreakpoints
+		 * @type {number[]}
+		 * @default `[640, 750, 828, 1080, 1280, 1668, 2048, 2560] | [640, 750, 828, 960, 1080, 1280, 1668, 1920, 2048, 2560, 3200, 3840, 4480, 5120, 6016]`
+		 * @description
+		 * The breakpoints used to generate responsive images. Requires the `experimental.responsiveImages` flag to be enabled. The full list is not normally used,
+		 * but is filtered according to the source and output size. The defaults used depend on whether the a local or remote image service is used. For remote services
+		 * the more comprehensive list is used, because only the required sizes are generated. For local services, the list is shorter to reduce the number of images generated.
+		 */
+		experimentalBreakpoints?: number[];
 	};
 
 	/**
@@ -1846,10 +1857,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
 		 *
 		 * The following `<Image />` component properties should not be used with responsive images as these are automatically generated:
-		 * 
+		 *
 		 * - `densities`
 		 * - `widths`
-		 * - `sizes` 		 
+		 * - `sizes`
 		 */
 
 		responsiveImages?: boolean;

@@ -288,6 +288,7 @@ export const AstroConfigSchema = z.object({
 			experimentalLayout: z.enum(['responsive', 'fixed', 'full-width', 'none']).optional(),
 			experimentalObjectFit: z.string().optional(),
 			experimentalObjectPosition: z.string().optional(),
+			experimentalBreakpoints: z.array(z.number()).optional(),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
 	devToolbar: z
@@ -717,12 +718,13 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				!experimental.responsiveImages &&
 				(image.experimentalLayout ||
 					image.experimentalObjectFit ||
-					image.experimentalObjectPosition)
+					image.experimentalObjectPosition ||
+					image.experimentalBreakpoints)
 			) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
 					message:
-						'The `experimentalLayout`, `experimentalObjectFit`, and `experimentalObjectPosition` options are only available when `experimental.responsiveImages` is enabled.',
+						'The `experimentalLayout`, `experimentalObjectFit`, `experimentalObjectPosition` and `experimentalBreakpoints` options are only available when `experimental.responsiveImages` is enabled.',
 				});
 			}
 		});
