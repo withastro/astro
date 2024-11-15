@@ -51,10 +51,12 @@ export function getViteConfig(
 		const devSSRManifest = createDevelopmentManifest(settings);
 		const viteConfig = await createVite(
 			{
-				plugins: [
-					// Initialize the content listener
-					astroContentListenPlugin({ settings, logger, fs }),
-				],
+				plugins: config.legacy.collections
+					? [
+							// Initialize the content listener
+							astroContentListenPlugin({ settings, logger, fs }),
+						]
+					: [],
 			},
 			{ settings, command: cmd, logger, mode, sync: false, manifest, ssrManifest: devSSRManifest },
 		);
