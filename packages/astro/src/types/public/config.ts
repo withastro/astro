@@ -146,7 +146,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @kind heading
 	 * @name Top-Level Options
 	 */
-	session?: SessionConfig<TSession>;
+
+
 	/**
 	 * @docs
 	 * @name site
@@ -557,6 +558,34 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```
 	 */
 	vite?: ViteUserConfig;
+
+	/**
+	 * @docs
+	 * @name session
+	 * @type {SessionConfig}
+	 * @version 5.0.0
+	 * @description
+	 * Configure session management for your Astro site. Sessions are used to store user data across requests, such as user authentication state. You must enable the `experimental.sessions` feature flag to use this feature.
+	 * An adapter may provide a default session driver, but you can also use a different driver or create a custom driver. See {@see https://unstorage.unjs.io/drivers} for available drivers.
+	 * 
+	 * ```js title="astro.config.mjs"
+	 * {
+	 *  	session: {
+	 * 			driver: 'mongodb',
+	 * 			options: {
+	 * 				connectionString: 'mongodb://localhost:27017',
+	 * 				databaseName: 'my-database',
+	 * 				collectionName: 'my-collection'
+	 * 			}
+	 * 		},
+	 * 		experimental: {
+	 * 			sessions: true
+	 * 		}
+	 * }
+	 * ```
+	 */
+
+		session?: SessionConfig<TSession>;
 
 	/**
 	 * @docs
@@ -1892,6 +1921,29 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 */
 
 		responsiveImages?: boolean;
+
+
+		/**
+		 * @docs
+		 * @name experimental.sessions
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.0.0
+		 * @description
+		 * Enables support for native sessions in Astro. When enabled you can access the `Astro.session` object to read and write data that persists across requests.
+		 * 
+		 * 
+		 * ```js title=astro.config.mjs
+		 * {
+		 * 	experimental: {
+		 * 		sessions: true,
+		 * 	},
+		 * }
+		 * ```
+		 * 
+		 * 
+		 */
+
 	};
 }
 
