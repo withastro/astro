@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let message: string;
+	let { message } = $props();
 </script>
 
 <div id="svelte-ts">{ message }</div>
