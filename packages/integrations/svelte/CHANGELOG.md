@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 6.0.1
+
+### Patch Changes
+
+- [#12442](https://github.com/withastro/astro/pull/12442) [`bde49f1`](https://github.com/withastro/astro/commit/bde49f186e4d620ce0c926353db38215e33dceef) Thanks [@bluwy](https://github.com/bluwy)! - Publishes missing file
+
 ## 6.0.0
 
 ### Major Changes

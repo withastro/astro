@@ -230,7 +230,7 @@ importers:
         specifier: ^4.4.3
         version: link:../../packages/integrations/solid
       '@astrojs/svelte':
-        specifier: ^6.0.0
+        specifier: ^6.0.1
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
         specifier: ^4.5.2
@@ -314,7 +314,7 @@ importers:
   examples/framework-svelte:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^6.0.0
+        specifier: ^6.0.1
         version: link:../../packages/integrations/svelte
       astro:
         specifier: ^4.16.13
@@ -368,7 +368,7 @@ importers:
         specifier: ^8.3.4
         version: 8.3.4(astro@packages+astro)
       '@astrojs/svelte':
-        specifier: ^6.0.0
+        specifier: ^6.0.1
         version: link:../../packages/integrations/svelte
       astro:
         specifier: ^4.16.13
