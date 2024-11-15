@@ -24,15 +24,12 @@
     "./editor": "./dist/editor.cjs",
     "./*": "./*",
     "./client.js": "./client.svelte.js",
-    "./server.js": {
-      "default": "./server.js",
-      "types": "./server.d.ts"
-    },
+    "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
-    "client.js",
+    "client.svelte.js",
     "server.js",
     "server.d.ts"
   ],
