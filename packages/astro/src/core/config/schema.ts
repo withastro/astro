@@ -525,16 +525,18 @@ export const AstroConfigSchema = z.object({
 		driver: z.string(),
 		options: z.record(z.any()).optional(),
 		cookieName: z.string().optional(),
-		cookieOptions: z.object({
-			domain: z.string().optional(),
-			path: z.string().optional(),
-			expires: z.string().optional(),
-			maxAge: z.number().optional(),
-			httpOnly: z.boolean().optional(),
-			sameSite: z.string().optional(),
-			secure: z.boolean().optional(),
-			encode: z.string().optional(),
-		}).optional(),
+		cookieOptions: z
+			.object({
+				domain: z.string().optional(),
+				path: z.string().optional(),
+				expires: z.string().optional(),
+				maxAge: z.number().optional(),
+				httpOnly: z.boolean().optional(),
+				sameSite: z.string().optional(),
+				secure: z.boolean().optional(),
+				encode: z.string().optional(),
+			})
+			.optional(),
 	}),
 	experimental: z
 		.object({
@@ -731,10 +733,11 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					});
 				}
 			}
-			if(session && !experimental.sessions) {
+			if (session && !experimental.sessions) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: 'The `session` option is only available when `experimental.sessions` is enabled.',
+					message:
+						'The `session` option is only available when `experimental.sessions` is enabled.',
 				});
 			}
 			if (

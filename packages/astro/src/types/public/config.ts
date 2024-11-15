@@ -5,17 +5,17 @@ import type {
 	RemarkRehype,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
+import type { BuiltinDriverName, BuiltinDriverOptions } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-import type { BuiltinDriverName, BuiltinDriverOptions } from 'unstorage';
-import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 export type Locales = (string | { codes: string[]; path: string })[];
 
 type NormalizeLocales<T extends Locales> = {
@@ -96,7 +96,7 @@ export type ServerConfig = {
 	open?: string | boolean;
 };
 
-export type SessionDriverName = BuiltinDriverName | "custom";
+export type SessionDriverName = BuiltinDriverName | 'custom';
 
 interface CommonSessionConfig {
 	/**
@@ -107,10 +107,11 @@ interface CommonSessionConfig {
 	/**
 	 * Additional options to pass to the session cookie
 	 */
-	cookieOptions?: AstroCookieSetOptions
+	cookieOptions?: AstroCookieSetOptions;
 }
 
-interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions> extends CommonSessionConfig{
+interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
+	extends CommonSessionConfig {
 	driver: TDriver;
 	options?: BuiltinDriverOptions[TDriver];
 }
@@ -121,7 +122,8 @@ interface CustomSessionConfig extends CommonSessionConfig {
 	options?: Record<string, unknown>;
 }
 
-export type SessionConfig<TDriver extends SessionDriverName> = TDriver extends keyof BuiltinDriverOptions ? BuiltinSessionConfig<TDriver> : CustomSessionConfig;
+export type SessionConfig<TDriver extends SessionDriverName> =
+	TDriver extends keyof BuiltinDriverOptions ? BuiltinSessionConfig<TDriver> : CustomSessionConfig;
 
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
@@ -140,13 +142,15 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  * Docs: https://docs.astro.build/reference/configuration-reference/
  *
  * Generics do not follow semver and may change at any time.
- */ export interface AstroUserConfig<TLocales extends Locales = never, TSession extends SessionDriverName = never> {
+ */ export interface AstroUserConfig<
+	TLocales extends Locales = never,
+	TSession extends SessionDriverName = never,
+> {
 	/**
 	 * @docs
 	 * @kind heading
 	 * @name Top-Level Options
 	 */
-
 
 	/**
 	 * @docs
@@ -567,9 +571,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @see experimental.sessions
 	 * @description
 	 * Configure session management for your Astro site. Sessions are used to store user data across requests, such as user authentication state. You must enable the `experimental.sessions` feature flag to use this feature.
-	 * Adapters may provide a default session driver, and you can also specify a different driver or custom config. The Node.js adapter uses a filesystem driver, which is also used in `astro dev`. 
+	 * Adapters may provide a default session driver, and you can also specify a different driver or custom config. The Node.js adapter uses a filesystem driver, which is also used in `astro dev`.
 	 * See [Unstorage](https://unstorage.unjs.io/drivers) for available drivers.
-	 * 
+	 *
 	 * ```js title="astro.config.mjs"
 	 * {
 	 *  	session: {
@@ -587,7 +591,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```
 	 */
 
-		session?: SessionConfig<TSession>;
+	session?: SessionConfig<TSession>;
 
 	/**
 	 * @docs
@@ -1924,7 +1928,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		responsiveImages?: boolean;
 
-
 		/**
 		 * @docs
 		 * @name experimental.sessions
@@ -1934,7 +1937,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @see session
 		 * @description
 		 * Enables support for sessions in Astro. When enabled you can access the `Astro.session` object to read and write data that persists across requests. You can configure the session driver using the `session` option, or use the default provided by the adapter.
-		 * 
+		 *
 		 * ```js title=astro.config.mjs
 		 * {
 		 * 	experimental: {
@@ -1942,19 +1945,18 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * 	},
 		 * }
 		 * ```
-		 * 
+		 *
 		 * ```astro title=src/components/CartButton.astro
 		 * ---
 		 * const cart = await Astro.session.get('cart');
 		 * ---
-		 * 
+		 *
 		 * <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
-		 * 
+		 *
 		 * ```
-		 * 
+		 *
 		 */
 		sessions?: boolean;
-
 	};
 }
 
