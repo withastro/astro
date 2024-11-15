@@ -27,7 +27,7 @@ export function applyResponsiveAttributes<
 	layout,
 	image,
 	props,
-	additionalAttributes
+	additionalAttributes,
 }: {
 	layout: Exclude<ImageLayout, 'none'>;
 	image: GetImageResult;
