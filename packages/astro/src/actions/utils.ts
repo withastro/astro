@@ -1,8 +1,7 @@
 import type fsMod from 'node:fs';
 import * as eslexer from 'es-module-lexer';
 import type { APIContext } from '../types/public/context.js';
-import type { Locals } from './runtime/middleware.js';
-import type { ActionAPIContext } from './runtime/utils.js';
+import { ACTION_API_CONTEXT_SYMBOL, type ActionAPIContext, type Locals } from './runtime/utils.js';
 import { deserializeActionResult, getActionQueryString } from './runtime/virtual/shared.js';
 
 export function hasActionPayload(locals: APIContext['locals']): locals is Locals {
@@ -23,6 +22,7 @@ export function createGetActionResult(locals: APIContext['locals']): APIContext[
 
 export function createCallAction(context: ActionAPIContext): APIContext['callAction'] {
 	return (baseAction, input) => {
+		Reflect.set(context, ACTION_API_CONTEXT_SYMBOL, true);
 		const action = baseAction.bind(context);
 		return action(input) as any;
 	};

@@ -26,4 +26,12 @@ export const VALID_SUPPORTED_FORMATS = [
 ] as const;
 export const DEFAULT_OUTPUT_FORMAT = 'webp' as const;
 export const VALID_OUTPUT_FORMATS = ['avif', 'png', 'webp', 'jpeg', 'jpg', 'svg'] as const;
-export const DEFAULT_HASH_PROPS = ['src', 'width', 'height', 'format', 'quality'];
+export const DEFAULT_HASH_PROPS = [
+	'src',
+	'width',
+	'height',
+	'format',
+	'quality',
+	'fit',
+	'position',
+];

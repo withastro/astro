@@ -1,6 +1,8 @@
 import type { MiddlewareHandler, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 import { AstroCookies } from '../cookies/cookies.js';
+import { ForbiddenRewrite } from '../errors/errors-data.js';
+import { AstroError } from '../errors/index.js';
 import { apiContextRoutesSymbol } from '../render-context.js';
 import { type Pipeline, getParams } from '../render/index.js';
 import { defineMiddleware } from './index.js';
@@ -49,6 +51,22 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 							payload,
 							handleContext.request,
 						);
+
+						// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
+						// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
+						// so Astro can't retrieve it from the emitted manifest.
+						if (
+							pipeline.serverLike === true &&
+							handleContext.isPrerendered === false &&
+							routeData.prerender === true
+						) {
+							throw new AstroError({
+								...ForbiddenRewrite,
+								message: ForbiddenRewrite.message(pathname, pathname, routeData.component),
+								hint: ForbiddenRewrite.hint(routeData.component),
+							});
+						}
+
 						carriedPayload = payload;
 						handleContext.request = newRequest;
 						handleContext.url = new URL(newRequest.url);
