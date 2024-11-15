@@ -526,20 +526,10 @@ async function writeContentFiles({
 					dataTypesStr += `};\n`;
 				}
 
-				if (collectionConfig?.schema) {
-					await generateJSONSchema(
-						fs,
-						collectionConfig,
-						collectionKey,
-						collectionSchemasDir,
-						logger,
-					);
-				}
 				break;
 		}
 
 		if (
-			settings.config.experimental.contentIntellisense &&
 			collectionConfig &&
 			(collectionConfig.schema || (await getContentLayerSchema(collectionConfig, collectionKey)))
 		) {

@@ -38,6 +38,8 @@ const image = defineCollection({
 	}),
 });
 
-const authors = defineCollection({});
+const authors = defineCollection({
+	type: 'data',
+});
 
 export const collections = { docs, func, image, i18n, authors };

@@ -173,17 +173,12 @@ describe('astro sync', () => {
 			);
 		});
 
-
 		it('does not write individual types for entries when emulating legacy collections', async () => {
 			await fixture.load('./fixtures/content-collections/');
 			fixture.clean();
 			await fixture.whenSyncing();
-			fixture.thenFileContentShouldNotInclude(
-				'.astro/content.d.ts',
-				'id: "one.md"'
-			);
-		})
-
+			fixture.thenFileContentShouldNotInclude('.astro/content.d.ts', 'id: "one.md"');
+		});
 	});
 
 	describe('astro:env', () => {
