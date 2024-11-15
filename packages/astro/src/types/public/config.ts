@@ -1745,7 +1745,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * Enables automatic responsive images in your project.
 		 *
-		 * ```js
+		 * ```js title=astro.config.mjs
 		 * {
 		 *  	experimental: {
 		 * 			responsiveImages: true,
@@ -1753,9 +1753,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * }
 		 * ```
 		 *
-		 * When enabled, you can pass a `layout` props to any `<Image /> or `<Picture />` to enable automatic responsive images. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `responsive` and `full-width` layouts will have styles applied to ensure they resize according to their container.
+		 * When enabled, you can pass a `layout` props to any `<Image />` or `<Picture />` to enable automatic responsive images. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `responsive` and `full-width` layouts will have styles applied to ensure they resize according to their container.
 		 *
-		 * ```astro
+		 * ```astro title=MyComponent.astro
 		 * ---
 		 * import { Image, Picture } from 'astro:assets';
 		 * import myImage from '../assets/my_image.png';
@@ -1763,9 +1763,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * <Image src={myImage} alt="A description of my image." layout='responsive' width={800} height={600} />
 		 * <Picture src={myImage} alt="A description of my image." layout='full-width' formats={['avif', 'webp', 'jpeg']} />
 		 * ```
-		 *
-		 * ```html
-		 * <!-- Output -->
+		 * This `<Image />` component will generate the following HTML output:
+		 * ```html title=Output
 		 *
 		 * 	<img
 		 *		src="/_astro/my_image.hash3.webp"
@@ -1790,8 +1789,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * The following styles are applied to ensure the images resize correctly:
 		 *
-		 * ```css
-		 * 	[data-astro-image] {
+		 * ```css title="Responsive Image Styles"
+		 * [data-astro-image] {
 		 * 		width: 100%;
 		 * 		height: auto;
 		 * 		object-fit: var(--fit);
@@ -1812,19 +1811,19 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * You can enable responsive images for all `<Image />` and `<Picture />` components by setting `image.experimentalLayout` with a default value. This can be overridden by the `layout` prop on each component.
 		 *
 		 * **Example:**
-		 * ```js
+		 * ```js title=astro.config.mjs
 		 * {
 		 * 		image: {
-		 * 		    // Used for all `<Image />` and `<Picture />` components unless overridden
-		 * 		    experimentalLayout: 'responsive',
+		 * 			// Used for all `<Image />` and `<Picture />` components unless overridden
+		 * 			experimentalLayout: 'responsive',
 		 * 		},
-		 *  	experimental: {
-		 * 		    responsiveImages: true,
+		 * 		experimental: {
+		 * 			responsiveImages: true,
 		 * 		},
 		 * }
 		 * ```
 		 *
-		 * ```astro
+		 * ```astro title=MyComponent.astro
 		 * ---
 		 * import { Image } from 'astro:assets';
 		 * import myImage from '../assets/my_image.png';
@@ -1837,7 +1836,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * <Image src={myImage} alt="This will disable responsive images" layout="none" />
 		 * ```
 		 *
-		 * ### Responsive image properties
+		 * #### Responsive image properties
 		 *
 		 * These are additional properties available to the `<Image />` and `<Picture />` components when responsive images are enabled:
 		 *
