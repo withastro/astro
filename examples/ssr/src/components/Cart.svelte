@@ -1,5 +1,5 @@
 <script>
-	export let count = 0;
+	let { count } = $props()
 	let items = new Set();
 
 	function onAddToCart(ev) {
@@ -27,7 +27,7 @@
 		font-size: 24px;
 	}
 </style>
-<svelte:window on:add-to-cart={onAddToCart}/>
+<svelte:window onadd-to-cart={onAddToCart}/>
 <a href="/cart" class="cart">
 	<span class="material-icons cart-icon">shopping_cart</span>
 	<span class="count">{count}</span>
