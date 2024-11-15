@@ -537,7 +537,7 @@ export const AstroConfigSchema = z.object({
 				encode: z.string().optional(),
 			})
 			.optional(),
-	}),
+	}).optional(),
 	experimental: z
 		.object({
 			clientPrerender: z
