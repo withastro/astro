@@ -39,8 +39,7 @@
     "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\"",
-    "publint": "publint"
+    "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^5.1.4",

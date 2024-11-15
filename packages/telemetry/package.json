@@ -23,8 +23,7 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\"",
-    "publint": "publint"
+    "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "files": [
     "dist"

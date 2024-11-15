@@ -16,8 +16,7 @@
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p ./tsconfig.json",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "publint": "publint"
+    "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "exports": {
     ".": "./dist/index.js",

@@ -32,8 +32,7 @@
     "prepublish": "pnpm build",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "publint": "publint"
+    "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "devDependencies": {
     "astro-scripts": "workspace:*"

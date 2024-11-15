@@ -37,7 +37,7 @@
     "lint": "biome lint && eslint . --report-unused-disable-directives",
     "lint:ci": "biome ci --formatter-enabled=false --organize-imports-enabled=false --reporter=github && eslint . --report-unused-disable-directives",
     "lint:fix": "biome lint --write --unsafe",
-    "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail publint",
+    "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
     "preinstall": "npx only-allow pnpm"
   },

@@ -120,8 +120,7 @@
     "test:e2e:firefox": "playwright test --config playwright.firefox.config.js",
     "test:types": "tsc --project tsconfig.tests.json",
     "test:unit": "astro-scripts test \"test/units/**/*.test.js\" --teardown ./test/units/teardown.js",
-    "test:integration": "astro-scripts test \"test/*.test.js\"",
-    "publint": "publint"
+    "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
     "@astrojs/compiler": "^2.10.3",
