@@ -90,9 +90,9 @@ export default function createVitePluginAstroServer({
 			}
 
 			// Rebuild route manifest on file change
-			viteServer.watcher.on('add', () => rebuildManifest());
-			viteServer.watcher.on('unlink', () => rebuildManifest());
-			viteServer.watcher.on('change', (path) => rebuildManifest(path));
+			viteServer.watcher.on('add', rebuildManifest);
+			viteServer.watcher.on('unlink', rebuildManifest);
+			viteServer.watcher.on('change', rebuildManifest);
 
 			function handleUnhandledRejection(rejection: any) {
 				const error = new AstroError({
