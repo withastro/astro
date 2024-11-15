@@ -1753,7 +1753,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * }
 		 * ```
 		 *
-		 * When enabled, you can pass a `layout` props to any `<Image />` or `<Picture />` to enable automatic responsive images. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `responsive` and `full-width` layouts will have styles applied to ensure they resize according to their container.
+		 * When enabled, you can pass a `layout` props to any `<Image />` or `<Picture />` component to create a responsive image. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `responsive` and `full-width` layouts will have styles applied to ensure they resize according to their container.
 		 *
 		 * ```astro title=MyComponent.astro
 		 * ---
