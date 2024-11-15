@@ -1936,7 +1936,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @version 5.0.0
 		 * @see session
 		 * @description
-		 * Enables support for sessions in Astro. When enabled you can access the `Astro.session` object to read and write data that persists across requests. You can configure the session driver using the `session` option, or use the default provided by the adapter.
+		 * Enables support for sessions in Astro. Sessions are used to store user data across requests, such as user authentication state.
+		 * 
+		 * When enabled you can access the `Astro.session` object to read and write data that persists across requests. You can configure the session driver using the [`session` option](#session), or use the default provided by your adapter.
 		 *
 		 * ```js title=astro.config.mjs
 		 * {
@@ -1948,6 +1950,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * ```astro title=src/components/CartButton.astro
 		 * ---
+		 * export const prerender = false; // Not needed in 'server' mode
 		 * const cart = await Astro.session.get('cart');
 		 * ---
 		 *
