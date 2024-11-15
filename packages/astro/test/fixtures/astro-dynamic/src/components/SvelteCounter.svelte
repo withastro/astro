@@ -1,7 +1,7 @@
 
 <script>
-  let children;
-  let count = 0;
+	let { children } = $props();
+  let count = $state(0);
 
   function add() {
 		count += 1;
@@ -13,10 +13,10 @@
 </script>
 
 <div class="counter">
-    <button on:click={subtract}>-</button>
+    <button onclick={subtract}>-</button>
     <pre>{ count }</pre>
-    <button on:click={add}>+</button>
+    <button onclick={add}>+</button>
 </div>
 <div class="children">
-    <slot />
+    {@render children?.()}
 </div>
