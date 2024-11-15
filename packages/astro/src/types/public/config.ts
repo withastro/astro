@@ -1112,7 +1112,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @default `[640, 750, 828, 1080, 1280, 1668, 2048, 2560] | [640, 750, 828, 960, 1080, 1280, 1668, 1920, 2048, 2560, 3200, 3840, 4480, 5120, 6016]`
 		 * @description
 		 * The breakpoints used to generate responsive images. Requires the `experimental.responsiveImages` flag to be enabled. The full list is not normally used,
-		 * but is filtered according to the source and output size. The defaults used depend on whether the a local or remote image service is used. For remote services
+		 * but is filtered according to the source and output size. The defaults used depend on whether a local or remote image service is used. For remote services
 		 * the more comprehensive list is used, because only the required sizes are generated. For local services, the list is shorter to reduce the number of images generated.
 		 */
 		experimentalBreakpoints?: number[];
