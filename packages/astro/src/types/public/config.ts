@@ -1953,6 +1953,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * ```
 		 * 
 		 */
+		sessions?: boolean;
 
 	};
 }

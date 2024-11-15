@@ -96,6 +96,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		responsiveImages: false,
+		sessions: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -520,6 +521,21 @@ export const AstroConfigSchema = z.object({
 		.strict()
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.env),
+	session: z.object({
+		driver: z.string(),
+		options: z.record(z.any()).optional(),
+		cookieName: z.string().optional(),
+		cookieOptions: z.object({
+			domain: z.string().optional(),
+			path: z.string().optional(),
+			expires: z.string().optional(),
+			maxAge: z.number().optional(),
+			httpOnly: z.boolean().optional(),
+			sameSite: z.string().optional(),
+			secure: z.boolean().optional(),
+			encode: z.string().optional(),
+		}).optional(),
+	}),
 	experimental: z
 		.object({
 			clientPrerender: z
@@ -534,6 +550,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
+			sessions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.sessions),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,
@@ -697,7 +714,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		})
 		.superRefine((configuration, ctx) => {
-			const { site, i18n, output, image, experimental } = configuration;
+			const { site, i18n, output, image, experimental, session } = configuration;
 			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
 			if (hasDomains) {
 				if (!site) {
@@ -713,6 +730,12 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 						message: 'Domain support is only available when `output` is `"server"`.',
 					});
 				}
+			}
+			if(session && !experimental.sessions) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: 'The `session` option is only available when `experimental.sessions` is enabled.',
+				});
 			}
 			if (
 				!experimental.responsiveImages &&
