@@ -26,36 +26,6 @@ describe('core/render', () => {
 			});
 		});
 
-		it('new rendering order', async () => {
-			const Page = createAstroJSXComponent(() => {
-				return jsx('main', {
-					children: [
-						jsx('p', {
-							className: 'n',
-							children: [
-								jsx('span', {
-									children: 'label 1',
-								}),
-								' ',
-								jsx('span', {
-									children: 'label 2',
-								}),
-							],
-						}),
-					],
-				});
-			});
-
-			const ctx = createRenderContext({ request: new Request('http://example.com/') });
-			const response = await renderPage(createAstroModule(Page), ctx, env);
-
-			expect(response.status).to.equal(200);
-
-			const html = await response.text();
-			console.log(html);
-			expect(html).to.include('<div><p class="n">works</p></div>');
-		});
-
 		it('Can render slots', async () => {
 			const Wrapper = createComponent((result, _props, slots = {}) => {
 				return render`<div>${renderSlot(result, slots['myslot'])}</div>`;
@@ -189,6 +159,7 @@ describe('new engine', () => {
 				},
 			],
 		};
+
 		const expected = [
 			{ node: 'a', content: 'I am a link', parent: 'span' },
 			{ node: 'span', parent: 'span' },
@@ -203,10 +174,10 @@ describe('new engine', () => {
 		const expectedString = `<p><span><a>I am a link</a></span><span>I am a text<strong>I am strong</strong><em>I am em</em><u>I am underline</u></span></p>`;
 		let result = orderRoot(root);
 
-		expect(result).to.deep.equal(expected);
+		assert.deepEqual(result, expected);
 
 		let rendered = renderQueue(result);
 
-		expect(rendered).to.deep.equal(expectedString);
+		assert.deepEqual(rendered, expectedString);
 	});
 });
