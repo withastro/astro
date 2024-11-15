@@ -104,21 +104,26 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// For static builds, the SSR output won't be needed anymore after page generation.
 	// We keep track of the names here so we only remove these specific files when finished.
 	const ssrOutputChunkNames: string[] = [];
+	const ssrOutputAssetNames: string[] = [];
 	for (const output of ssrOutputs) {
 		for (const chunk of output.output) {
 			if (chunk.type === 'chunk') {
 				ssrOutputChunkNames.push(chunk.fileName);
 			}
+			if (chunk.type === 'asset') {
+				ssrOutputAssetNames.push(chunk.fileName);
+			}
 		}
 	}
 
-	return { internals, ssrOutputChunkNames, contentFileNames };
+	return { internals, ssrOutputChunkNames, ssrOutputAssetNames, contentFileNames };
 }
 
 export async function staticBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	ssrOutputChunkNames: string[],
+	ssrOutputAssetNames: string[],
 	contentFileNames?: string[],
 ) {
 	const { settings } = opts;
@@ -131,7 +136,7 @@ export async function staticBuild(
 		settings.timer.start('Server generate');
 		await generatePages(opts, internals);
 		await cleanStaticOutput(opts, internals);
-		await ssrMoveAssets(opts);
+		await ssrMoveAssets(opts, ssrOutputAssetNames);
 		settings.timer.end('Server generate');
 	}
 }
@@ -412,7 +417,7 @@ export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles 
 	);
 }
 
-async function ssrMoveAssets(opts: StaticBuildOptions) {
+async function ssrMoveAssets(opts: StaticBuildOptions, ssrOutputAssetNames: string[]) {
 	opts.logger.info('build', 'Rearranging server assets...');
 	const serverRoot =
 		opts.settings.buildOutput === 'static'
@@ -420,8 +425,12 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 			: opts.settings.config.build.server;
 	const clientRoot = opts.settings.config.build.client;
 	const assets = opts.settings.config.build.assets;
-	const serverAssets = new URL(`./${assets}/`, appendForwardSlash(serverRoot.toString()));
-	const clientAssets = new URL(`./${assets}/`, appendForwardSlash(clientRoot.toString()));
+	let serverAssets = new URL(`./${assets}/`, appendForwardSlash(serverRoot.toString()));
+	let clientAssets = new URL(`./${assets}/`, appendForwardSlash(clientRoot.toString()));
+	if (opts?.settings?.config?.vite?.build?.rollupOptions?.output?.assetFileNames) {
+		serverAssets = new URL(appendForwardSlash(serverRoot.toString()));
+		clientAssets = new URL(appendForwardSlash(clientRoot.toString()));
+	}
 	const files = await glob(`**/*`, {
 		cwd: fileURLToPath(serverAssets),
 	});
@@ -429,13 +438,15 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 	if (files.length > 0) {
 		await Promise.all(
 			files.map(async function moveAsset(filename) {
-				const currentUrl = new URL(filename, appendForwardSlash(serverAssets.toString()));
-				const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
-				const dir = new URL(path.parse(clientUrl.href).dir);
-				// It can't find this file because the user defines a custom path
-				// that includes the folder paths in `assetFileNames
-				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
-				return fs.promises.rename(currentUrl, clientUrl);
+				if (ssrOutputAssetNames.includes(filename)) {
+					const currentUrl = new URL(filename, appendForwardSlash(serverAssets.toString()));
+					const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
+					const dir = new URL(path.parse(clientUrl.href).dir);
+					// It can't find this file because the user defines a custom path
+					// that includes the folder paths in `assetFileNames
+					if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
+					return fs.promises.rename(currentUrl, clientUrl);
+				}
 			}),
 		);
 		removeEmptyDirs(fileURLToPath(serverAssets));
