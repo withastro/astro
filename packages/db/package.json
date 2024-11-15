@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/db"
   },
   "bugs": "https://github.com/withastro/astro/issues",
@@ -66,7 +66,8 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc && pnpm types:virtual",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "astro-scripts test \"test/**/*.test.js\"",
+    "publint": "publint"
   },
   "dependencies": {
     "@astrojs/studio": "workspace:*",

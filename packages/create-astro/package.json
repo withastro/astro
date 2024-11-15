@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/create-astro"
   },
   "bugs": "https://github.com/withastro/astro/issues",
@@ -22,7 +22,8 @@
     "build": "astro-scripts build \"src/index.ts\" --bundle && tsc",
     "build:ci": "astro-scripts build \"src/index.ts\" --bundle",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "astro-scripts test \"test/**/*.test.js\"",
+    "publint": "publint"
   },
   "files": [
     "dist",

@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/internal-helpers"
   },
   "bugs": "https://github.com/withastro/astro/issues",
@@ -32,7 +32,8 @@
     "prepublish": "pnpm build",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "publint": "publint"
   },
   "devDependencies": {
     "astro-scripts": "workspace:*"

@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/astro"
   },
   "bugs": "https://github.com/withastro/astro/issues",
@@ -120,7 +120,8 @@
     "test:e2e:firefox": "playwright test --config playwright.firefox.config.js",
     "test:types": "tsc --project tsconfig.tests.json",
     "test:unit": "astro-scripts test \"test/units/**/*.test.js\" --teardown ./test/units/teardown.js",
-    "test:integration": "astro-scripts test \"test/*.test.js\""
+    "test:integration": "astro-scripts test \"test/*.test.js\"",
+    "publint": "publint"
   },
   "dependencies": {
     "@astrojs/compiler": "^2.10.3",
