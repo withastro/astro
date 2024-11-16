@@ -1,5 +1,13 @@
 # astro
 
+## 4.16.13
+
+### Patch Changes
+
+- [#12436](https://github.com/withastro/astro/pull/12436) [`453ec6b`](https://github.com/withastro/astro/commit/453ec6b12f8c021e0bd0fd0ea9f71c8fc280f4b1) Thanks [@martrapp](https://github.com/martrapp)! - Fixes a potential null access in the clientside router
+
+- [#12392](https://github.com/withastro/astro/pull/12392) [`0462219`](https://github.com/withastro/astro/commit/0462219612183b65867aaaef9fa538d89f201999) Thanks [@apatel369](https://github.com/apatel369)! - Fixes an issue where scripts were not correctly injected during the build. The issue was triggered when there were injected routes with the same `entrypoint` and different `pattern`
+
 ## 4.16.12
 
 ### Patch Changes
