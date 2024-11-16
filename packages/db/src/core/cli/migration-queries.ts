@@ -7,7 +7,7 @@ import { customAlphabet } from 'nanoid';
 import { hasPrimaryKey } from '../../runtime/index.js';
 import { createRemoteDatabaseClient } from '../../runtime/index.js';
 import { isSerializedSQL } from '../../runtime/types.js';
-import { safeFetch } from '../../runtime/utils.js';
+import { isDbError, safeFetch } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
 import {
@@ -36,7 +36,6 @@ import type {
 	TextColumn,
 } from '../types.js';
 import type { RemoteDatabaseInfo, Result } from '../utils.js';
-import { isDbError } from '../../runtime/virtual.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);

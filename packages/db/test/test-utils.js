@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { cli } from '../dist/core/cli/index.js';
 import { resolveDbConfig } from '../dist/core/load-file.js';
 import { getCreateIndexQueries, getCreateTableQuery } from '../dist/core/queries.js';
+import { isDbError } from '../dist/runtime/utils.js';
 
 const singleQuerySchema = z.object({
 	sql: z.string(),

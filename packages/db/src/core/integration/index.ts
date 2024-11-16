@@ -14,8 +14,7 @@ import {
 	mergeConfig,
 } from 'vite';
 import parseArgs from 'yargs-parser';
-import { AstroDbError,  } from '../../runtime/utils.js';
-import { isDbError  } from '../../runtime/virtual.js';
+import { AstroDbError, isDbError } from '../../runtime/utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
