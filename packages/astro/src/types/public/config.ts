@@ -565,38 +565,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 	/**
 	 * @docs
-	 * @name session
-	 * @type {SessionConfig}
-	 * @version 5.0.0
-	 * @see experimental.sessions
-	 * @description
-	 * Configures session management for your Astro site by specifying a `driver` as well as any `options` for your data storage. You must enable the `experimental.sessions` feature flag to use this feature.
-	 * 
-	 * Defaults to the session driver provided by your adapter, if it exists. For example, the `@astrojs/node` adapter uses a filesystem driver, which is also used in `astro dev`. Your chosen adapter might not provide a default session driver, in which case you must configure one yourself. 
-	 *
-	 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
-	 *
-	 * ```js title="astro.config.mjs"
-	 * {
-	 *  	session: {
-	 * 			driver: 'mongodb',
-	 * 			options: {
-	 * 				connectionString: 'mongodb://localhost:27017',
-	 * 				databaseName: 'my-database',
-	 * 				collectionName: 'my-collection'
-	 * 			}
-	 * 		},
-	 * 		experimental: {
-	 * 			sessions: true
-	 * 		}
-	 * }
-	 * ```
-	 */
-
-	session?: SessionConfig<TSession>;
-
-	/**
-	 * @docs
 	 * @kind heading
 	 * @name Build Options
 	 */
@@ -1932,23 +1900,14 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.sessions
-		 * @type {boolean}
-		 * @default `false`
+		 * @name experimental.session
+		 * @type {SessionConfig}
 		 * @version 5.0.0
-		 * @see session
 		 * @description
+		 * 
 		 * Enables support for sessions in Astro. Sessions are used to store user data across requests, such as user authentication state.
 		 * 
 		 * When enabled you can access the `Astro.session` object to read and write data that persists across requests. You can configure the session driver using the [`session` option](#session), or use the default provided by your adapter.
-		 *
-		 * ```js title=astro.config.mjs
-		 * {
-		 * 	experimental: {
-		 * 		sessions: true,
-		 * 	},
-		 * }
-		 * ```
 		 *
 		 * ```astro title=src/components/CartButton.astro
 		 * ---
@@ -1958,12 +1917,31 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
 		 *
+		 * ``` 
+		 * The object configures session management for your Astro site by specifying a `driver` as well as any `options` for your data storage. 
+		 *
+		 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
+		 *
+		 * ```js title="astro.config.mjs"
+		 * 	{
+		 * 		experimental: {
+		 *  		session: {
+		 *    		// Required: the name of the Unstorage driver
+		 *    		driver: "redis",
+ 		 *   			// The required options depend on the driver
+ 		 *   			options: {
+ 		 *     			url: process.env.REDIS_URL,
+		 * 				}
+		 * 			}
+ 		 *   	},
+		 * 	}
 		 * ```
 		 * 
-		 * For more details, see [the Sessions RFC](https://github.com/withastro/roadmap/blob/sessions/proposals/0054-sessions.md)
-		 *
+		 * For more details, see [the Sessions RFC](https://github.com/withastro/roadmap/blob/sessions/proposals/0054-sessions.md).
+		 * 
 		 */
-		sessions?: boolean;
+
+		session?: SessionConfig<TSession>;
 	};
 }
 
