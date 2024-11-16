@@ -1959,6 +1959,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
 		 *
 		 * ```
+		 * 
+		 * For more details, see [the Sessions RFC](https://github.com/withastro/roadmap/blob/sessions/proposals/0054-sessions.md)
 		 *
 		 */
 		sessions?: boolean;
