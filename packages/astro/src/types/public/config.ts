@@ -5,16 +5,17 @@ import type {
 	RemarkRehype,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
+import type { BuiltinDriverName, BuiltinDriverOptions } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-
 export type Locales = (string | { codes: string[]; path: string })[];
 
 type NormalizeLocales<T extends Locales> = {
@@ -95,6 +96,35 @@ export type ServerConfig = {
 	open?: string | boolean;
 };
 
+export type SessionDriverName = BuiltinDriverName | 'custom';
+
+interface CommonSessionConfig {
+	/**
+	 * The name of the session cookie
+	 * @default `astro-session`
+	 */
+	cookieName?: string;
+	/**
+	 * Additional options to pass to the session cookie
+	 */
+	cookieOptions?: AstroCookieSetOptions;
+}
+
+interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
+	extends CommonSessionConfig {
+	driver: TDriver;
+	options?: BuiltinDriverOptions[TDriver];
+}
+
+interface CustomSessionConfig extends CommonSessionConfig {
+	/** Entrypoint for a custom session driver */
+	driver: string;
+	options?: Record<string, unknown>;
+}
+
+export type SessionConfig<TDriver extends SessionDriverName> =
+	TDriver extends keyof BuiltinDriverOptions ? BuiltinSessionConfig<TDriver> : CustomSessionConfig;
+
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
 }
@@ -112,7 +142,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  * Docs: https://docs.astro.build/reference/configuration-reference/
  *
  * Generics do not follow semver and may change at any time.
- */ export interface AstroUserConfig<TLocales extends Locales = never> {
+ */ export interface AstroUserConfig<
+	TLocales extends Locales = never,
+	TSession extends SessionDriverName = never,
+> {
 	/**
 	 * @docs
 	 * @kind heading
@@ -1906,6 +1939,51 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 */
 
 		responsiveImages?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.session
+		 * @type {SessionConfig}
+		 * @version 5.0.0
+		 * @description
+		 * 
+		 * Enables support for sessions in Astro. Sessions are used to store user data across requests, such as user authentication state.
+		 * 
+		 * When enabled you can access the `Astro.session` object to read and write data that persists across requests. You can configure the session driver using the [`session` option](#session), or use the default provided by your adapter.
+		 *
+		 * ```astro title=src/components/CartButton.astro
+		 * ---
+		 * export const prerender = false; // Not needed in 'server' mode
+		 * const cart = await Astro.session.get('cart');
+		 * ---
+		 *
+		 * <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
+		 *
+		 * ``` 
+		 * The object configures session management for your Astro site by specifying a `driver` as well as any `options` for your data storage. 
+		 *
+		 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
+		 *
+		 * ```js title="astro.config.mjs"
+		 * 	{
+		 * 		experimental: {
+		 *  		session: {
+		 *    		// Required: the name of the Unstorage driver
+		 *    		driver: "redis",
+ 		 *   			// The required options depend on the driver
+ 		 *   			options: {
+ 		 *     			url: process.env.REDIS_URL,
+		 * 				}
+		 * 			}
+ 		 *   	},
+		 * 	}
+		 * ```
+		 * 
+		 * For more details, see [the Sessions RFC](https://github.com/withastro/roadmap/blob/sessions/proposals/0054-sessions.md).
+		 * 
+		 */
+
+		session?: SessionConfig<TSession>;
 	};
 }
 

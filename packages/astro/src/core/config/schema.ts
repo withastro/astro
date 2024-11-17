@@ -534,6 +534,25 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
+			session: z
+				.object({
+					driver: z.string(),
+					options: z.record(z.any()).optional(),
+					cookieName: z.string().optional(),
+					cookieOptions: z
+						.object({
+							domain: z.string().optional(),
+							path: z.string().optional(),
+							expires: z.string().optional(),
+							maxAge: z.number().optional(),
+							httpOnly: z.boolean().optional(),
+							sameSite: z.string().optional(),
+							secure: z.boolean().optional(),
+							encode: z.string().optional(),
+						})
+						.optional(),
+				})
+				.optional(),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,
