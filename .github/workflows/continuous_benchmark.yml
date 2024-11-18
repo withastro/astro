@@ -5,9 +5,15 @@ on:
   pull_request: 
     branches:
       - main
+    paths:
+      - 'packages/astro/src/**/*.ts'
+      - 'benchmark/**'
   push:
     branches:
       - main
+    paths:
+      - 'packages/astro/src/**/*.ts'
+      - 'benchmark/**'
 
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
