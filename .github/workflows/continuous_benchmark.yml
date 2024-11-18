@@ -5,15 +5,20 @@ on:
   pull_request: 
     branches:
       - main
+    paths:
+      - 'packages/astro/src/**/*.ts'
+      - 'benchmark/**'
   push:
     branches:
       - main
+    paths:
+      - 'packages/astro/src/**/*.ts'
+      - 'benchmark/**'
 
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
   FORCE_COLOR: true
-  CODSPEED_TOKEN: ${{ secrets.CODSPEED_TOKEN }}
   CODSPEED: true
 
 jobs:
@@ -46,4 +51,5 @@ jobs:
         timeout-minutes: 30
         with:
           run: pnpm benchmark codspeed
+          token: ${{ secrets.CODSPEED_TOKEN }}
                
