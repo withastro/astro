@@ -1,7 +1,7 @@
-import { exec } from 'tinyexec';
-import { markdownTable } from 'markdown-table';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { markdownTable } from 'markdown-table';
+import { exec } from 'tinyexec';
 import { astroBin } from './_util.js';
 
 /** @typedef {Record<string, import('../../packages/astro/src/core/config/timer').Stat>} AstroTimerStat */
@@ -56,6 +56,6 @@ function printResult(output) {
 		],
 		{
 			align: ['l', 'r', 'r', 'r'],
-		}
+		},
 	);
 }

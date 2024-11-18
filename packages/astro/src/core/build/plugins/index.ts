@@ -32,7 +32,7 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	if (options.settings.config.experimental.directRenderScript) {
 		register(pluginScripts(internals));
 	} else {
-		register(pluginHoistedScripts(options, internals));
+		register(pluginHoistedScripts(internals));
 	}
 	register(pluginSSR(options, internals));
 	register(pluginSSRSplit(options, internals));

@@ -8,7 +8,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/integrations/vue"
   },
   "keywords": [
@@ -24,10 +24,7 @@
     "./editor": "./dist/editor.cjs",
     "./*": "./*",
     "./client.js": "./client.js",
-    "./server.js": {
-      "default": "./server.js",
-      "types": "./server.d.ts"
-    },
+    "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -48,7 +45,7 @@
     "@vitejs/plugin-vue": "^5.1.4",
     "@vitejs/plugin-vue-jsx": "^4.0.1",
     "@vue/compiler-sfc": "^3.5.12",
-    "vite-plugin-vue-devtools": "^7.5.4"
+    "vite-plugin-vue-devtools": "^7.6.3"
   },
   "devDependencies": {
     "astro": "workspace:*",

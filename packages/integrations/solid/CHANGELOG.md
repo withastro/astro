@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 4.4.3
+
+### Patch Changes
+
+- [#12364](https://github.com/withastro/astro/pull/12364) [`9fc2ab8`](https://github.com/withastro/astro/commit/9fc2ab8cc848739a21bfa3f754e9bec4926dc034) Thanks [@jdtjenkins](https://github.com/jdtjenkins)! - Handles checking Svelte 5 component functions to avoid processing them as Solid components
+
 ## 4.4.2
 
 ### Patch Changes
