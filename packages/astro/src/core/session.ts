@@ -1,0 +1,332 @@
+import type { SessionConfig, SessionDriverName } from '../types/public/config.js';
+import type { AstroCookies } from './cookies/cookies.js';
+import { builtinDrivers, createStorage, type Driver, type Storage } from 'unstorage';
+import { parse, stringify } from 'devalue';
+import { AstroError } from './errors/index.js';
+import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
+import type { AstroCookieSetOptions } from './cookies/cookies.js';
+
+export const PERSIST_SYMBOL = Symbol();
+
+export class AstroSession<TDriver extends SessionDriverName> {
+	// The cookies object.
+	#cookies: AstroCookies;
+	// The session configuration.
+	#config: SessionConfig<TDriver>;
+	// The unstorage object for the session driver.
+	#storage: Storage | undefined;
+	#data: Map<string, any> | undefined;
+	// Cookie name from config, or default to 'astro-session'
+	#cookieName: string;
+	// The session ID. A v4 UUID.
+	#sessionID: string | undefined;
+	// Sessions to destroy. Needed because we won't have the old session ID after it's destroyed locally.
+	#toDestroy = new Set<string>();
+	// Session keys to delete. Used for sparse data sets to avoid overwriting the deleted value.
+	#toDelete = new Set<string>();
+	// Whether the session is dirty and needs to be saved.
+	#dirty = false;
+	// Whether the session cookie has been set.
+	#cookieSet = false;
+	// Whether the session data is sparse and needs to be merged with the existing data.
+	#sparse = true;
+
+	constructor(cookies: AstroCookies, config: SessionConfig<TDriver>) {
+		this.#cookies = cookies;
+		this.#config = config;
+		this.#cookieName = config.cookieName || 'astro-session';
+	}
+
+	/**
+	 * Gets a session value. Returns `undefined` if the session or value does not exist.
+	 */
+	async get<T = any>(key: string): Promise<T | undefined> {
+		return (await this.#ensureData()).get(key);
+	}
+
+	/**
+	 * Checks if a session value exists.
+	 */
+	async has(key: string): Promise<boolean> {
+		return (await this.#ensureData()).has(key);
+	}
+
+	/**
+	 * Gets all session values.
+	 */
+	async keys() {
+		return (await this.#ensureData()).keys();
+	}
+
+	/**
+	 * Gets all session values.
+	 */
+	async values() {
+		return (await this.#ensureData()).values();
+	}
+
+	/**
+	 * Gets all session entries.
+	 */
+	async entries() {
+		return (await this.#ensureData()).entries();
+	}
+
+	/**
+	 * Deletes a session value.
+	 */
+	delete(key: string) {
+		this.#data?.delete(key);
+		if (this.#sparse) {
+			this.#toDelete.add(key);
+		}
+		this.#dirty = true;
+	}
+
+	/**
+	 * Sets a session value. The session is created if it does not exist.
+	 */
+
+	set<T = any>(key: string, value: T) {
+		if (!key) {
+			throw new AstroError({
+				...SessionStorageSaveError,
+				message: 'The session key was not provided.',
+			});
+		}
+		try {
+			// Attempt to serialize the value so we can throw an error early if needed
+			stringify(value);
+		} catch (err) {
+			throw new AstroError(
+				{
+					...SessionStorageSaveError,
+					message: `The session data for ${key} could not be serialized.`,
+					hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+				},
+				{ cause: err },
+			);
+		}
+		if (!this.#cookieSet) {
+			this.#setCookie();
+			this.#cookieSet = true;
+		}
+		this.#data ??= new Map();
+		this.#data.set(key, value);
+		this.#dirty = true;
+	}
+
+	/**
+	 * Destroys the session, clearing the cookie and storage if it exists.
+	 */
+
+	destroy() {
+		this.#destroySafe();
+	}
+
+	/**
+	 * Regenerates the session, creating a new session ID. The existing session data is preserved.
+	 */
+
+	async regenerate() {
+		let data;
+		try {
+			data = await this.#ensureData();
+		} catch {
+			// Ignore
+		}
+		this.#destroySafe();
+		this.#data = data;
+		this.#ensureSessionID();
+		this.#setCookie();
+	}
+
+	// Persists the session data to storage.
+	// This is called automatically at the end of the request.
+	// Uses a symbol to prevent users from calling it directly.
+	async [PERSIST_SYMBOL]() {
+		if (this.#dirty) {
+			if (!this.#data) {
+				return;
+			}
+			const data = await this.#ensureData();
+			const key = this.#ensureSessionID();
+			let serialized;
+			try {
+				serialized = stringify(data);
+			} catch (err) {
+				throw new AstroError(
+					{
+						...SessionStorageSaveError,
+						message: SessionStorageSaveError.message(
+							'The session data could not be serialized.',
+							this.#config.driver,
+						),
+					},
+					{ cause: err },
+				);
+			}
+			await this.#storage?.setItem(key, serialized);
+			this.#dirty = false;
+		}
+	}
+
+	/**
+	 * Sets the session cookie.
+	 */
+	async #setCookie() {
+		const cookieOptions: AstroCookieSetOptions = {
+			sameSite: 'lax',
+			secure: true,
+			...this.#config.cookieOptions,
+			httpOnly: true,
+		};
+		const value = this.#ensureSessionID();
+		this.#cookies.set(this.#cookieName, value, cookieOptions);
+	}
+
+	/**
+	 * Attempts to load the session data from storage, or creates a new data object if none exists.
+	 * If there is existing sparse data, it will be merged into the new data object.
+	 */
+
+	async #ensureData() {
+		await this.#ensureStorage();
+		if (this.#data && !this.#sparse) {
+			return this.#data;
+		}
+		const raw = await this.#storage?.get<string>(this.#ensureSessionID());
+		if (!raw) {
+			// No existing data, so create a new session
+			this.#data ??= new Map();
+			return this.#data;
+		}
+		try {
+			const map = parse(raw);
+			if (!(map instanceof Map)) {
+				await this.#destroySafe();
+				throw new AstroError({
+					...SessionStorageInitError,
+					message: SessionStorageInitError.message(
+						'The session data was an invalid type.',
+						this.#config.driver,
+					),
+				});
+			}
+			// If we have a sparse data set, merge the new data into the existing data
+			if (this.#sparse && this.#data) {
+				for (const [key, value] of this.#data) {
+					if (!this.#data.has(key) && !this.#toDelete.has(key)) {
+						map.set(key, value);
+					}
+				}
+				this.#toDelete.clear();
+			} else {
+				this.#data = map;
+			}
+			this.#sparse = false;
+			return this.#data;
+		} catch (err) {
+			await this.#destroySafe();
+			throw new AstroError(
+				{
+					...SessionStorageInitError,
+					message: SessionStorageInitError.message(
+						'The session data could not be parsed.',
+						this.#config.driver,
+					),
+				},
+				{ cause: err },
+			);
+		}
+	}
+
+	/**
+	 * Safely destroys the session, clearing the cookie and storage if it exists.
+	 */
+	#destroySafe() {
+		if (this.#sessionID) {
+			this.#toDestroy.add(this.#sessionID);
+		}
+		if (this.#cookieName) {
+			this.#cookies.delete(this.#cookieName);
+		}
+		this.#sessionID = undefined;
+		this.#data = undefined;
+		this.#dirty = true;
+	}
+
+	/**
+	 * Returns the session ID, generating a new one if it does not exist.
+	 */
+	#ensureSessionID() {
+		this.#sessionID ??= crypto.randomUUID();
+		return this.#sessionID;
+	}
+
+	/**
+	 * Ensures the storage is initialized.
+	 * This is called automatically when a storage operation is needed.
+	 */
+	async #ensureStorage() {
+		if (this.#storage) {
+			return;
+		}
+		if (!this.#config?.driver) {
+			throw new AstroError({
+				...SessionStorageInitError,
+				message: SessionStorageInitError.message(
+					'No driver was defined in the session configuration and the adapter did not provide a default driver.',
+				),
+			});
+		}
+
+		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
+		try {
+			// Try to load the driver from the built-in unstorage drivers.
+			// Otherwise, assume it's a custom driver and load by name.
+			driver = await import(
+				builtinDrivers[this.#config.driver as keyof typeof builtinDrivers] || this.#config.driver
+			).then((r) => r.default || r);
+		} catch (err: any) {
+			// If the driver failed to load, throw an error.
+			if (err.code === 'ERR_MODULE_NOT_FOUND') {
+				throw new AstroError(
+					{
+						...SessionStorageInitError,
+						message: SessionStorageInitError.message(
+							'The driver module could not be found.',
+							this.#config.driver,
+						),
+					},
+					{ cause: err },
+				);
+			}
+			throw err;
+		}
+
+		if (!driver) {
+			throw new AstroError({
+				...SessionStorageInitError,
+				message: SessionStorageInitError.message(
+					'The module did not export a driver.',
+					this.#config.driver,
+				),
+			});
+		}
+
+		try {
+			this.#storage = createStorage({
+				driver: driver(this.#config.options),
+			});
+		} catch (err) {
+			throw new AstroError(
+				{
+					...SessionStorageInitError,
+					message: SessionStorageInitError.message('Unknown error', this.#config.driver),
+				},
+				{ cause: err },
+			);
+		}
+	}
+}
