@@ -54,7 +54,6 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
 
 				const source = `
-				/* patch secrets here only when we are building */
 				${
 					userMiddlewareIsPresent
 						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
