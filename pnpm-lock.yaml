@@ -206,6 +206,12 @@ importers:
         specifier: ^4.16.13
         version: link:../../packages/astro
 
+  examples/framework-custom:
+    dependencies:
+      astro:
+        specifier: ^4.16.13
+        version: link:../../packages/astro
+
   examples/framework-lit:
     dependencies:
       '@astrojs/lit':
