@@ -18,34 +18,34 @@ const descriptors = [
 	'updates',
 ];
 const verbs = [
-	"just went out!",
-	"just launched!",
-	"now available!",
-	"in the wild!",
-	"now live!",
-	"hit the registry!",
-	"to share!",
-	"for you!",
-	"for y’all! 🤠",
-	"comin’ your way!",
-	"comin’ atcha!",
-	"comin’ in hot!",
-	"freshly minted on the blockchain! (jk)",
-	"[is] out (now with 100% more reticulated splines!)",
-	"(as seen on TV!)",
-	"just dropped!",
-	"– artisanally hand-crafted just for you.",
-	"– oh happy day!",
-	"– enjoy!",
-	"now out. Be the first on your block to download!",
-	"made with love 💕",
-	"[is] out! Our best [version] yet!",
-	"[is] here. DOWNLOAD! DOWNLOAD! DOWNLOAD!",
-	"... HUZZAH!",
-	"[has] landed!",
-	"landed! The internet just got a little more fun.",
-	"– from our family to yours.",
-	"– go forth and build!"
+	'just went out!',
+	'just launched!',
+	'now available!',
+	'in the wild!',
+	'now live!',
+	'hit the registry!',
+	'to share!',
+	'for you!',
+	'for y’all! 🤠',
+	'comin’ your way!',
+	'comin’ atcha!',
+	'comin’ in hot!',
+	'freshly minted on the blockchain! (jk)',
+	'[is] out (now with 100% more reticulated splines!)',
+	'(as seen on TV!)',
+	'just dropped!',
+	'– artisanally hand-crafted just for you.',
+	'– oh happy day!',
+	'– enjoy!',
+	'now out. Be the first on your block to download!',
+	'made with love 💕',
+	'[is] out! Our best [version] yet!',
+	'[is] here. DOWNLOAD! DOWNLOAD! DOWNLOAD!',
+	'... HUZZAH!',
+	'[has] landed!',
+	'landed! The internet just got a little more fun.',
+	'– from our family to yours.',
+	'– go forth and build!',
 ];
 const extraVerbs = [
 	'new',
@@ -72,7 +72,7 @@ const plurals = new Map([
 
 function pluralize(text) {
 	return text.replace(/(\[([^\]]+)\])/gm, (_, _full, match) =>
-		plurals.has(match) ? plurals.get(match) : `${match}s`
+		plurals.has(match) ? plurals.get(match) : `${match}s`,
 	);
 }
 
@@ -91,7 +91,7 @@ async function generatePackageMap() {
 			const pkgFile = fileURLToPath(new URL(pkg, packageRoot));
 			const content = await readFile(pkgFile).then((res) => JSON.parse(res.toString()));
 			packageMap.set(content.name, `./packages/${pkg.replace('/package.json', '')}`);
-		})
+		}),
 	);
 }
 
@@ -110,7 +110,7 @@ async function generateMessage() {
 				version,
 				url: new URL(`${p}/CHANGELOG.md#${version.replace(/\./g, '')}`, baseUrl).toString(),
 			};
-		})
+		}),
 	);
 
 	const emoji = item(emojis);
@@ -122,7 +122,7 @@ async function generateMessage() {
 	if (packages.length === 1) {
 		const { name, version, url } = packages[0];
 		message += `${emoji} \`${name}@${version}\` ${singularlize(
-			verb
+			verb,
 		)}\nRead the [release notes →](<${url}>)\n`;
 	} else {
 		message += `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
