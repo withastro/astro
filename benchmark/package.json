@@ -12,7 +12,7 @@
     "@benchmark/timer": "workspace:*",
     "@benchmark/adapter": "workspace:*",
     "astro": "workspace:*",
-    "autocannon": "^7.15.0",
+    "autocannon": "^8.0.0",
     "markdown-table": "^3.0.4",
     "mri": "^1.2.0",
     "port-authority": "^2.0.1",
