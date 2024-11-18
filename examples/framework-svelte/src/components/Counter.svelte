@@ -1,5 +1,12 @@
 <script lang="ts">
-	let count = 0;
+	import type { Snippet } from 'svelte';
+
+	interface Props {
+		children?: Snippet
+	}
+
+	let { children }: Props = $props();
+	let count = $state(0);
 
 	function add() {
 		count += 1;
@@ -11,12 +18,12 @@
 </script>
 
 <div class="counter">
-	<button on:click={subtract}>-</button>
+	<button onclick={subtract}>-</button>
 	<pre>{count}</pre>
-	<button on:click={add}>+</button>
+	<button onclick={add}>+</button>
 </div>
 <div class="message">
-	<slot />
+	{@render children?.()}
 </div>
 
 <style>

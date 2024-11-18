@@ -6,6 +6,7 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
+import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
@@ -1070,6 +1071,51 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		 */
 		remotePatterns?: Partial<RemotePattern>[];
+
+		/**
+		 * @docs
+		 * @name image.experimentalLayout
+		 * @type {ImageLayout}
+		 * @default `undefined`
+		 * @description
+		 * The default layout type for responsive images. Can be overridden by the `layout` prop on the image component.
+		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 * - `responsive` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
+		 * - `fixed` - The image will maintain its original dimensions.
+		 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
+		 */
+		experimentalLayout?: ImageLayout | undefined;
+		/**
+		 * @docs
+		 * @name image.experimentalObjectFit
+		 * @type {ImageFit}
+		 * @default `"cover"`
+		 * @description
+		 * The default object-fit value for responsive images. Can be overridden by the `fit` prop on the image component.
+		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 */
+		experimentalObjectFit?: ImageFit;
+		/**
+		 * @docs
+		 * @name image.experimentalObjectPosition
+		 * @type {string}
+		 * @default `"center"`
+		 * @description
+		 * The default object-position value for responsive images. Can be overridden by the `position` prop on the image component.
+		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 */
+		experimentalObjectPosition?: string;
+		/**
+		 * @docs
+		 * @name image.experimentalBreakpoints
+		 * @type {number[]}
+		 * @default `[640, 750, 828, 1080, 1280, 1668, 2048, 2560] | [640, 750, 828, 960, 1080, 1280, 1668, 1920, 2048, 2560, 3200, 3840, 4480, 5120, 6016]`
+		 * @description
+		 * The breakpoints used to generate responsive images. Requires the `experimental.responsiveImages` flag to be enabled. The full list is not normally used,
+		 * but is filtered according to the source and output size. The defaults used depend on whether a local or remote image service is used. For remote services
+		 * the more comprehensive list is used, because only the required sizes are generated. For local services, the list is shorter to reduce the number of images generated.
+		 */
+		experimentalBreakpoints?: number[];
 	};
 
 	/**
@@ -1083,7 +1129,49 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
-		 * Shiki configuration options. See [the Markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
+		 * 
+	 	 * Shiki is our default syntax highlighter. You can configure all options via the `markdown.shikiConfig` object:
+		 * 
+	 	 * ```js title="astro.config.mjs"
+	   * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     shikiConfig: {
+		 *       // Choose from Shiki's built-in themes (or add your own)
+		 *       // https://shiki.style/themes
+		 *       theme: 'dracula',
+		 *       // Alternatively, provide multiple themes
+		 *       // See note below for using dual light/dark themes
+		 *       themes: {
+		 *         light: 'github-light',
+ 		 *         dark: 'github-dark',
+		 *       },
+		 *       // Disable the default colors
+		 *       // https://shiki.style/guide/dual-themes#without-default-color
+		 *       // (Added in v4.12.0)
+		 *       defaultColor: false,
+		 *       // Add custom languages
+		 *       // Note: Shiki has countless langs built-in, including .astro!
+		 *       // https://shiki.style/languages
+		 *       langs: [],
+		 *       // Add custom aliases for languages
+		 *       // Map an alias to a Shiki language ID: https://shiki.style/languages#bundled-languages
+		 *       // https://shiki.style/guide/load-lang#custom-language-aliases
+		 *       langAlias: {
+		 *         cjs: "javascript"
+		 *       },
+		 *       // Enable word wrap to prevent horizontal scrolling
+		 *       wrap: true,
+		 *       // Add custom transformers: https://shiki.style/guide/transformers
+		 *       // Find common transformers: https://shiki.style/packages/transformers
+		 *       transformers: [],
+		 *     },
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * See the [code syntax highlighting guide](/en/guides/syntax-highlighting/) for usage and examples.
 		 */
 		shikiConfig?: Partial<ShikiConfig>;
 
@@ -1093,9 +1181,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @type {'shiki' | 'prism' | false}
 		 * @default `shiki`
 		 * @description
-		 * Which syntax highlighter to use, if any.
-		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter
-		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter
+		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
+		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
+		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
 		 *
 		 * ```js
@@ -1699,6 +1787,125 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
 		 */
 		contentIntellisense?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.responsiveImages
+		 * @type {boolean}
+		 * @default `undefined`
+		 * @version 5.0.0
+		 * @description
+		 *
+		 * Enables automatic responsive images in your project.
+		 *
+		 * ```js title=astro.config.mjs
+		 * {
+		 *  	experimental: {
+		 * 			responsiveImages: true,
+		 * 		},
+		 * }
+		 * ```
+		 *
+		 * When enabled, you can pass a `layout` props to any `<Image />` or `<Picture />` component to create a responsive image. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `responsive` and `full-width` layouts will have styles applied to ensure they resize according to their container.
+		 *
+		 * ```astro title=MyComponent.astro
+		 * ---
+		 * import { Image, Picture } from 'astro:assets';
+		 * import myImage from '../assets/my_image.png';
+		 * ---
+		 * <Image src={myImage} alt="A description of my image." layout='responsive' width={800} height={600} />
+		 * <Picture src={myImage} alt="A description of my image." layout='full-width' formats={['avif', 'webp', 'jpeg']} />
+		 * ```
+		 * This `<Image />` component will generate the following HTML output:
+		 * ```html title=Output
+		 *
+		 * 	<img
+		 *		src="/_astro/my_image.hash3.webp"
+		 *		srcset="/_astro/my_image.hash1.webp 640w,
+		 *						/_astro/my_image.hash2.webp 750w,
+		 *						/_astro/my_image.hash3.webp 800w,
+		 *						/_astro/my_image.hash4.webp 828w,
+		 *						/_astro/my_image.hash5.webp 1080w,
+		 *						/_astro/my_image.hash6.webp 1280w,
+		 *						/_astro/my_image.hash7.webp 1600w"
+		 *		alt="A description of my image"
+		 *		sizes="(min-width: 800px) 800px, 100vw"
+		 *		loading="lazy"
+		 *		decoding="async"
+		 *		fetchpriority="auto"
+		 *		width="800"
+		 *		height="600"
+		 *		style="--w: 800; --h: 600; --fit: cover; --pos: center;"
+		 *		data-astro-image="responsive"
+		 *  >
+		 * ```
+		 *
+		 * The following styles are applied to ensure the images resize correctly:
+		 *
+		 * ```css title="Responsive Image Styles"
+		 * [data-astro-image] {
+		 * 		width: 100%;
+		 * 		height: auto;
+		 * 		object-fit: var(--fit);
+		 * 		object-position: var(--pos);
+		 * 		aspect-ratio: var(--w) / var(--h)
+		 * }
+		 *
+		 * [data-astro-image=responsive] {
+		 * 		max-width: calc(var(--w) * 1px);
+		 * 		max-height: calc(var(--h) * 1px)
+		 * }
+		 *
+		 * [data-astro-image=fixed] {
+		 * 		width: calc(var(--w) * 1px);
+		 * 		height: calc(var(--h) * 1px)
+		 * }
+		 * ```
+		 * You can enable responsive images for all `<Image />` and `<Picture />` components by setting `image.experimentalLayout` with a default value. This can be overridden by the `layout` prop on each component.
+		 *
+		 * **Example:**
+		 * ```js title=astro.config.mjs
+		 * {
+		 * 		image: {
+		 * 			// Used for all `<Image />` and `<Picture />` components unless overridden
+		 * 			experimentalLayout: 'responsive',
+		 * 		},
+		 * 		experimental: {
+		 * 			responsiveImages: true,
+		 * 		},
+		 * }
+		 * ```
+		 *
+		 * ```astro title=MyComponent.astro
+		 * ---
+		 * import { Image } from 'astro:assets';
+		 * import myImage from '../assets/my_image.png';
+		 * ---
+		 *
+		 * <Image src={myImage} alt="This will use responsive layout" width={800} height={600} />
+		 *
+		 * <Image src={myImage} alt="This will use full-width layout" layout="full-width" />
+		 *
+		 * <Image src={myImage} alt="This will disable responsive images" layout="none" />
+		 * ```
+		 *
+		 * #### Responsive image properties
+		 *
+		 * These are additional properties available to the `<Image />` and `<Picture />` components when responsive images are enabled:
+		 *
+		 * - `layout`: The layout type for the image. Can be `responsive`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
+		 * - `fit`: Defines how the image should be cropped if the aspect ratio is changed. Values match those of CSS `object-fit`. Defaults to `cover`, or the value of `image.experimentalObjectFit` if set.
+		 * - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
+		 * - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
+		 *
+		 * The following `<Image />` component properties should not be used with responsive images as these are automatically generated:
+		 *
+		 * - `densities`
+		 * - `widths`
+		 * - `sizes`
+		 */
+
+		responsiveImages?: boolean;
 	};
 }
 
