@@ -1,5 +1,5 @@
 <script>
-  export let shouldThrow = true;
+	let { shouldThrow } = $props();
 
   if (shouldThrow) {
     throw new Error('SvelteRuntimeError');

@@ -155,14 +155,14 @@ test.describe('Astro Actions - Blog', () => {
 		await expect(page).toHaveURL(astro.resolveUrl('/blog/'));
 	});
 
-	test('Should redirect to the origin pathname when there is a rewrite', async ({
+	test('Should redirect to the origin pathname when there is a rewrite from an Astro page', async ({
 		page,
 		astro,
 	}) => {
 		await page.goto(astro.resolveUrl('/sum'));
 		const submitButton = page.getByTestId('submit');
 		await submitButton.click();
-		await expect(page).toHaveURL(astro.resolveUrl('/sum'));
+		await expect(page).toHaveURL(astro.resolveUrl('/sum?_astroAction=sum'));
 		const p = page.locator('p').nth(0);
 		await expect(p).toContainText('Form result: {"data":3}');
 	});

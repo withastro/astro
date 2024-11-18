@@ -92,24 +92,26 @@ export async function createContentTypesGenerator({
 
 		events.push({ name: 'add', entry: contentPaths.config.url });
 
-		const globResult = await glob('**', {
-			cwd: fileURLToPath(contentPaths.contentDir),
-			fs: {
-				readdir: fs.readdir.bind(fs),
-				readdirSync: fs.readdirSync.bind(fs),
-			},
-			onlyFiles: false,
-			objectMode: true,
-		});
+		if (settings.config.legacy.collections) {
+			const globResult = await glob('**', {
+				cwd: fileURLToPath(contentPaths.contentDir),
+				fs: {
+					readdir: fs.readdir.bind(fs),
+					readdirSync: fs.readdirSync.bind(fs),
+				},
+				onlyFiles: false,
+				objectMode: true,
+			});
 
-		for (const entry of globResult) {
-			const fullPath = path.join(fileURLToPath(contentPaths.contentDir), entry.path);
-			const entryURL = pathToFileURL(fullPath);
-			if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
-			if (entry.dirent.isFile()) {
-				events.push({ name: 'add', entry: entryURL });
-			} else if (entry.dirent.isDirectory()) {
-				events.push({ name: 'addDir', entry: entryURL });
+			for (const entry of globResult) {
+				const fullPath = path.join(fileURLToPath(contentPaths.contentDir), entry.path);
+				const entryURL = pathToFileURL(fullPath);
+				if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
+				if (entry.dirent.isFile()) {
+					events.push({ name: 'add', entry: entryURL });
+				} else if (entry.dirent.isDirectory()) {
+					events.push({ name: 'addDir', entry: entryURL });
+				}
 			}
 		}
 		await runEvents();
@@ -487,7 +489,6 @@ async function writeContentFiles({
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
 					(collectionConfig?.type ?? 'data')
 				: collection.type;
-
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
 		const dataType = await typeForCollection(collectionConfig, collectionKey);
 		switch (resolvedType) {
@@ -525,20 +526,10 @@ async function writeContentFiles({
 					dataTypesStr += `};\n`;
 				}
 
-				if (collectionConfig?.schema) {
-					await generateJSONSchema(
-						fs,
-						collectionConfig,
-						collectionKey,
-						collectionSchemasDir,
-						logger,
-					);
-				}
 				break;
 		}
 
 		if (
-			settings.config.experimental.contentIntellisense &&
 			collectionConfig &&
 			(collectionConfig.schema || (await getContentLayerSchema(collectionConfig, collectionKey)))
 		) {

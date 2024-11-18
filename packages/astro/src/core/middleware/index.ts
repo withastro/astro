@@ -6,10 +6,11 @@ import {
 } from '../../i18n/utils.js';
 import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
-import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
+import { ASTRO_VERSION, clientLocalsSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getClientIpAddress } from '../routing/request.js';
+import { getOriginPathname } from '../routing/rewrite.js';
 import { sequence } from './sequence.js';
 
 function defineMiddleware(fn: MiddlewareHandler) {
@@ -89,6 +90,9 @@ function createContext({
 			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales, defaultLocale));
 		},
 		url,
+		get originPathname() {
+			return getOriginPathname(request);
+		},
 		get clientAddress() {
 			if (clientIpAddress) {
 				return clientIpAddress;
