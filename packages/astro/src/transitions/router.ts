@@ -636,7 +636,7 @@ if (inBrowser) {
 				'scroll',
 				() => {
 					if (intervalId !== undefined) return;
-					(lastIndex = history.state.index), (lastY = scrollY), (lastX = scrollX);
+					(lastIndex = history.state?.index), (lastY = scrollY), (lastX = scrollX);
 					intervalId = window.setInterval(scrollInterval, 50);
 				},
 				{ passive: true },

@@ -95,8 +95,11 @@ jobs:
       - name: Build Packages
         run: pnpm run build
 
-      - name: Lint
+      - name: Lint source code
         run: pnpm run lint:ci
+
+      - name: Lint publish code
+        run: pnpm run publint
 
   test:
     name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"

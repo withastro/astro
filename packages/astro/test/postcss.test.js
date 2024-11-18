@@ -37,15 +37,15 @@ describe('PostCSS', () => {
 	});
 
 	it('works in JSX', () => {
-		assert.match(bundledCSS, /\.solid(\.(w|-)*)*\.nested/);
+		assert.match(bundledCSS, /\.solid(\.[\w-]+)?\.nested/);
 	});
 
 	it('works in Vue', () => {
-		assert.match(bundledCSS, /\.vue(\.(w|-)*)*\.nested/);
+		assert.match(bundledCSS, /\.vue(\.[\w-]+)?\.nested/);
 	});
 
 	it('works in Svelte', () => {
-		assert.match(bundledCSS, /\.svelte(\.(w|-)*)*\.nested/);
+		assert.match(bundledCSS, /\.svelte(\.[\w-]+)?\.nested/);
 	});
 
 	it('ignores CSS in public/', async () => {
