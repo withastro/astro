@@ -4,5 +4,3 @@
 export { default as Code } from './Code.astro';
 // @ts-ignore
 export { default as Debug } from './Debug.astro';
-// @ts-ignore
-export { default as Welcome } from './Welcome.astro';
