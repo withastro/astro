@@ -18,7 +18,6 @@ env:
 
 jobs:
   codspeed:
-    if: ${{ github.repository_owner == 'withastro' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
