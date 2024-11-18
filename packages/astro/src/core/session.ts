@@ -129,26 +129,37 @@ export class AstroSession<TDriver extends SessionDriverName> {
 	 */
 
 	async regenerate() {
-		let data;
+		let data = new Map();
 		try {
 			data = await this.#ensureData();
-		} catch {
-			// Ignore
+		} catch (err) {
+			// Log the error but continue with empty data
+			console.error('Failed to load session data during regeneration:', err);
 		}
-		this.#destroySafe();
+
+		// Store the old session ID for cleanup
+		const oldSessionId = this.#sessionID;
+
+		// Create new session
+		this.#sessionID = undefined;
 		this.#data = data;
 		this.#ensureSessionID();
-		this.#setCookie();
+		await this.#setCookie();
+
+		// Clean up old session asynchronously
+		if (oldSessionId && this.#storage) {
+			this.#storage.removeItem(oldSessionId).catch((err) => {
+				console.error('Failed to remove old session data:', err);
+			});
+		}
 	}
 
 	// Persists the session data to storage.
 	// This is called automatically at the end of the request.
 	// Uses a symbol to prevent users from calling it directly.
 	async [PERSIST_SYMBOL]() {
-		if (this.#dirty) {
-			if (!this.#data) {
-				return;
-			}
+		// Handle session data persistence
+		if (this.#dirty && this.#data) {
 			const data = await this.#ensureData();
 			const key = this.#ensureSessionID();
 			let serialized;
@@ -169,16 +180,38 @@ export class AstroSession<TDriver extends SessionDriverName> {
 			await this.#storage?.setItem(key, serialized);
 			this.#dirty = false;
 		}
+
+		// Handle destroyed session cleanup
+		if (this.#toDestroy.size > 0) {
+			await this.#ensureStorage();
+			const cleanupPromises = [...this.#toDestroy].map((sessionId) =>
+				this.#storage?.removeItem(sessionId).catch((err) => {
+					console.error(`Failed to clean up session ${sessionId}:`, err);
+				}),
+			);
+			await Promise.all(cleanupPromises);
+			this.#toDestroy.clear();
+		}
+	}
+
+	get sessionID() {
+		return this.#sessionID;
 	}
 
 	/**
 	 * Sets the session cookie.
 	 */
 	async #setCookie() {
+		if (!/^[\w-]+$/.test(this.#cookieName)) {
+			throw new AstroError({
+				...SessionStorageSaveError,
+				message: 'Invalid cookie name. Cookie names can only contain letters, numbers, and dashes.',
+			});
+		}
 		const cookieOptions: AstroCookieSetOptions = {
 			sameSite: 'lax',
-			secure: true,
 			...this.#config.cookieOptions,
+			secure: true,
 			httpOnly: true,
 		};
 		const value = this.#ensureSessionID();
@@ -195,15 +228,16 @@ export class AstroSession<TDriver extends SessionDriverName> {
 		if (this.#data && !this.#sparse) {
 			return this.#data;
 		}
+		this.#data ??= new Map();
+
 		const raw = await this.#storage?.get<string>(this.#ensureSessionID());
 		if (!raw) {
-			// No existing data, so create a new session
-			this.#data ??= new Map();
 			return this.#data;
 		}
+
 		try {
-			const map = parse(raw);
-			if (!(map instanceof Map)) {
+			const storedMap = parse(raw);
+			if (!(storedMap instanceof Map)) {
 				await this.#destroySafe();
 				throw new AstroError({
 					...SessionStorageInitError,
@@ -213,17 +247,20 @@ export class AstroSession<TDriver extends SessionDriverName> {
 					),
 				});
 			}
-			// If we have a sparse data set, merge the new data into the existing data
-			if (this.#sparse && this.#data) {
-				for (const [key, value] of this.#data) {
+
+			if (this.#sparse) {
+				// For sparse updates, only copy values from storage that:
+				// 1. Don't exist in memory (preserving in-memory changes)
+				// 2. Haven't been marked for deletion
+				for (const [key, value] of storedMap) {
 					if (!this.#data.has(key) && !this.#toDelete.has(key)) {
-						map.set(key, value);
+						this.#data.set(key, value);
 					}
 				}
-				this.#toDelete.clear();
 			} else {
-				this.#data = map;
+				this.#data = storedMap;
 			}
+
 			this.#sparse = false;
 			return this.#data;
 		} catch (err) {
@@ -240,7 +277,6 @@ export class AstroSession<TDriver extends SessionDriverName> {
 			);
 		}
 	}
-
 	/**
 	 * Safely destroys the session, clearing the cookie and storage if it exists.
 	 */
@@ -270,6 +306,15 @@ export class AstroSession<TDriver extends SessionDriverName> {
 	 */
 	async #ensureStorage() {
 		if (this.#storage) {
+			return;
+		}
+		// Hacky way to mock storage driver for tests
+		if (
+			process.env.NODE_TEST_CONTEXT &&
+			this.#config.driver === 'custom' &&
+			this.#config.options?.mockStorage
+		) {
+			this.#storage = this.#config.options.mockStorage as Storage;
 			return;
 		}
 		if (!this.#config?.driver) {
