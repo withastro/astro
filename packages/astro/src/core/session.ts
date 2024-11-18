@@ -8,7 +8,7 @@ import type { AstroCookieSetOptions } from './cookies/cookies.js';
 
 export const PERSIST_SYMBOL = Symbol();
 
-export class AstroSession<TDriver extends SessionDriverName> {
+export class AstroSession<TDriver extends SessionDriverName = any> {
 	// The cookies object.
 	#cookies: AstroCookies;
 	// The session configuration.
@@ -164,7 +164,8 @@ export class AstroSession<TDriver extends SessionDriverName> {
 			const key = this.#ensureSessionID();
 			let serialized;
 			try {
-				serialized = stringify(data);
+				// We prepend a 0 to the serialized data so that unstorage doesn't treat it as JSON
+				serialized = `0${stringify(data)}`;
 			} catch (err) {
 				throw new AstroError(
 					{
@@ -210,8 +211,8 @@ export class AstroSession<TDriver extends SessionDriverName> {
 		}
 		const cookieOptions: AstroCookieSetOptions = {
 			sameSite: 'lax',
-			...this.#config.cookieOptions,
 			secure: true,
+			...this.#config.cookieOptions,
 			httpOnly: true,
 		};
 		const value = this.#ensureSessionID();
@@ -236,7 +237,7 @@ export class AstroSession<TDriver extends SessionDriverName> {
 		}
 
 		try {
-			const storedMap = parse(raw);
+			const storedMap = parse(raw.slice(1));
 			if (!(storedMap instanceof Map)) {
 				await this.#destroySafe();
 				throw new AstroError({
@@ -296,7 +297,7 @@ export class AstroSession<TDriver extends SessionDriverName> {
 	 * Returns the session ID, generating a new one if it does not exist.
 	 */
 	#ensureSessionID() {
-		this.#sessionID ??= crypto.randomUUID();
+		this.#sessionID ??= this.#cookies.get(this.#cookieName)?.value ?? crypto.randomUUID();
 		return this.#sessionID;
 	}
 

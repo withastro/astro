@@ -107,7 +107,7 @@ interface CommonSessionConfig {
 	/**
 	 * Additional options to pass to the session cookie
 	 */
-	cookieOptions?: AstroCookieSetOptions;
+	cookieOptions?: Omit<AstroCookieSetOptions, "httpOnly" | "expires" | "encode">;
 }
 
 interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>

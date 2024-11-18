@@ -1,12 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { AstroSession, PERSIST_SYMBOL } from '../../../dist/core/session.js';
-import { stringify } from 'devalue';
+import { stringify as devalueStringify } from 'devalue';
 // Mock dependencies
 const defaultMockCookies = {
   set: () => {},
   delete: () => {},
+	get: () => 'sessionid',
 };
+
+const stringify = (data) => "0" + devalueStringify(data)
 
 const defaultConfig = {
   driver: 'memory',
@@ -70,8 +73,8 @@ test('AstroSession - Cookie Management', async (t) => {
   await t.test('should set cookie on first value set', async () => {
     let cookieSet = false;
     const mockCookies = {
+			...defaultMockCookies,
       set: () => { cookieSet = true; },
-      delete: () => {},
     };
     
     const session = createSession(defaultConfig, mockCookies);
@@ -83,7 +86,7 @@ test('AstroSession - Cookie Management', async (t) => {
   await t.test('should delete cookie on destroy', async () => {
     let cookieDeleted = false;
     const mockCookies = {
-      set: () => {},
+			...defaultMockCookies,
       delete: () => { cookieDeleted = true; },
     };
     
@@ -185,8 +188,8 @@ test('AstroSession - Configuration', async (t) => {
   await t.test('should use custom cookie name from config', async () => {
     let cookieName;
     const mockCookies = {
+			...defaultMockCookies,
       set: (name) => { cookieName = name; },
-      delete: () => {},
     };
     
     const session = createSession({
@@ -201,8 +204,8 @@ test('AstroSession - Configuration', async (t) => {
   await t.test('should use default cookie name if not specified', async () => {
     let cookieName;
     const mockCookies = {
+			...defaultMockCookies,
       set: (name) => { cookieName = name; },
-      delete: () => {},
     };
     
     const session = createSession({
@@ -331,8 +334,8 @@ test('AstroSession - Cookie Security', async (t) => {
   await t.test('should enforce httpOnly cookie setting', async () => {
     let cookieOptions;
     const mockCookies = {
+			...defaultMockCookies,
       set: (name, value, options) => { cookieOptions = options; },
-      delete: () => {},
     };
     
     const session = createSession({
@@ -349,8 +352,8 @@ test('AstroSession - Cookie Security', async (t) => {
   await t.test('should set secure and sameSite by default', async () => {
     let cookieOptions;
     const mockCookies = {
+			...defaultMockCookies,
       set: (name, value, options) => { cookieOptions = options; },
-      delete: () => {},
     };
     
     const session = createSession(defaultConfig, mockCookies);
