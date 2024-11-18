@@ -1,4 +1,4 @@
-import type { NamedSSRLoadedRendererValue, SSRResult, AstroComponentMetadata } from 'astro';
+import type { NamedSSRLoadedRendererValue, SSRResult } from 'astro';
 
 type RendererContext = {
 	result: SSRResult;
@@ -7,8 +7,8 @@ type RendererContext = {
 async function check(
 	this: RendererContext,
 	Component: any,
-	props: Record<string, any>,
-	children: any,
+	//props: Record<string, any>,
+	//children: any,
 ) {
 
 	if (typeof Component !== 'function') return false;
@@ -22,8 +22,8 @@ async function renderToStaticMarkup(
 	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
-	{ default: children, ...slotted }: Record<string, any>,
-	metadata: AstroComponentMetadata | undefined,
+	//{ default: children, ...slotted }: Record<string, any>,
+	//metadata: AstroComponentMetadata | undefined,
 ) {		
 	// in a real-world scenario, this would be a more complex function
 	// actually rendering the components return value (which might be an AST/VDOM)

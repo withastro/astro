@@ -3,11 +3,9 @@ export default (parentElement: HTMLElement) =>
 	async (
 		Component: any,
 		props: Record<string, any>,
-		{ default: children, ...slotted }: Record<string, any>,
-		{ client }: Record<string, string>,
+		//{ default: children, ...slotted }: Record<string, any>,
+		//{ client }: Record<string, string>,
 	) => {
-
-		if (typeof Component !== 'function') return false;
 
 		// in a real-world scenario, this would be a more complex function
 		// actually rendering the components return value (which might be an AST/VDOM)
