@@ -8,7 +8,7 @@ export type GetEnv = (key: string) => string | undefined;
 type OnSetGetEnv = (reset: boolean) => void;
 
 let _getEnv: GetEnv = (key) => {
-	const env = (globalThis as any)[ENV_SYMBOL] ?? {};
+	const env = (globalThis as any)[ENV_SYMBOL] ?? process.env;
 	return env[key];
 };
 
