@@ -7,11 +7,9 @@ applyPolyfills();
 
 class MyApp extends App {
 	#manifest: SSRManifest | undefined;
-	#streaming: boolean;
 	constructor(manifest: SSRManifest, streaming = false) {
 		super(manifest, streaming);
 		this.#manifest = manifest;
-		this.#streaming = streaming;
 	}
 
 	async render(request: Request) {
