@@ -1,5 +1,5 @@
-import { build } from 'esbuild';
 import { existsSync } from 'node:fs';
+import { build } from 'esbuild';
 
 const CLIENT_RUNTIME_PATH = 'packages/astro/src/runtime/client/';
 

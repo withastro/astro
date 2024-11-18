@@ -1,6 +1,6 @@
-import { globby as glob } from 'globby';
-import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { globby as glob } from 'globby';
 import { setOutput } from './utils.mjs';
 
 const { GITHUB_REF = 'main' } = process.env;

@@ -1,6 +1,6 @@
+import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
-import * as crypto from 'node:crypto';
 
 /** Based on https://github.com/actions/toolkit/blob/4e3b068ce116d28cb840033c02f912100b4592b0/packages/core/src/file-command.ts */
 export function setOutput(key, value) {
