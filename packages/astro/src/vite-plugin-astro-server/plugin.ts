@@ -66,12 +66,10 @@ export default function createVitePluginAstroServer({
 					if (route.type !== 'page' && route.type !== 'endpoint') return;
 
 					const routePath = fileURLToPath(new URL(route.component, settings.config.root));
-					if (!fsMod.existsSync(routePath)) {
-						// Route was renamed so it does not exist anymore
-						return;
-					}
-					const content = await fsMod.promises.readFile(routePath, 'utf-8');
-					await getRoutePrerenderOption(content, route, settings, logger);
+					try {
+						const content = await fsMod.promises.readFile(routePath, 'utf-8');
+						await getRoutePrerenderOption(content, route, settings, logger);
+					} catch (_) {}
 				} else {
 					routeManifest = injectDefaultDevRoutes(
 						settings,
@@ -88,8 +86,8 @@ export default function createVitePluginAstroServer({
 			}
 
 			// Rebuild route manifest on file change
-			viteServer.watcher.on('add', rebuildManifest.bind(null));
-			viteServer.watcher.on('unlink', rebuildManifest.bind(null));
+			viteServer.watcher.on('add', rebuildManifest.bind(null, null));
+			viteServer.watcher.on('unlink', rebuildManifest.bind(null, null));
 			viteServer.watcher.on('change', rebuildManifest);
 
 			function handleUnhandledRejection(rejection: any) {
