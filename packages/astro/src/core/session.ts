@@ -8,16 +8,20 @@ import type { AstroCookieSetOptions } from './cookies/cookies.js';
 
 export const PERSIST_SYMBOL = Symbol();
 
+const DEFAULT_COOKIE_NAME = 'astro-session';
+
 export class AstroSession<TDriver extends SessionDriverName = any> {
 	// The cookies object.
 	#cookies: AstroCookies;
 	// The session configuration.
-	#config: SessionConfig<TDriver>;
+	#config: Omit<SessionConfig<TDriver>, "cookie">;
+	// The cookie config
+	#cookieConfig?: AstroCookieSetOptions;
+	// The cookie name
+	#cookieName: string;
 	// The unstorage object for the session driver.
 	#storage: Storage | undefined;
 	#data: Map<string, any> | undefined;
-	// Cookie name from config, or default to 'astro-session'
-	#cookieName: string;
 	// The session ID. A v4 UUID.
 	#sessionID: string | undefined;
 	// Sessions to destroy. Needed because we won't have the old session ID after it's destroyed locally.
@@ -31,10 +35,21 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	// Whether the session data is sparse and needs to be merged with the existing data.
 	#sparse = true;
 
-	constructor(cookies: AstroCookies, config: SessionConfig<TDriver>) {
+	constructor(
+		cookies: AstroCookies,
+		{
+			cookie: cookieConfig = DEFAULT_COOKIE_NAME,
+			...config
+		}: Exclude<SessionConfig<TDriver>, undefined>,
+	) {
 		this.#cookies = cookies;
+		if(typeof cookieConfig === 'object') {
+			this.#cookieConfig = cookieConfig
+			this.#cookieName = cookieConfig.name || DEFAULT_COOKIE_NAME;
+		} else {
+			this.#cookieName = cookieConfig || DEFAULT_COOKIE_NAME;
+		}
 		this.#config = config;
-		this.#cookieName = config.cookieName || 'astro-session';
 	}
 
 	/**
@@ -212,7 +227,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		const cookieOptions: AstroCookieSetOptions = {
 			sameSite: 'lax',
 			secure: true,
-			...this.#config.cookieOptions,
+			...this.#cookieConfig,
 			httpOnly: true,
 		};
 		const value = this.#ensureSessionID();
@@ -313,9 +328,9 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		if (
 			process.env.NODE_TEST_CONTEXT &&
 			this.#config.driver === 'custom' &&
-			this.#config.options?.mockStorage
+			(this.#config.options as Record<string, unknown>)?.mockStorage
 		) {
-			this.#storage = this.#config.options.mockStorage as Storage;
+			this.#storage = (this.#config.options as Record<string, unknown>).mockStorage as Storage;
 			return;
 		}
 		if (!this.#config?.driver) {

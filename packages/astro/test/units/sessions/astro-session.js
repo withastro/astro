@@ -13,8 +13,7 @@ const stringify = (data) => "0" + devalueStringify(data)
 
 const defaultConfig = {
   driver: 'memory',
-  cookieName: 'test-session',
-  cookieOptions: {},
+  cookie: 'test-session',
 };
 
 // Helper to create a new session instance with mocked dependencies
@@ -194,7 +193,7 @@ test('AstroSession - Configuration', async (t) => {
     
     const session = createSession({
       ...defaultConfig,
-      cookieName: 'custom-session',
+      cookie: 'custom-session',
     }, mockCookies);
     
     session.set('key', 'value');
@@ -211,7 +210,7 @@ test('AstroSession - Configuration', async (t) => {
     const session = createSession({
       ...defaultConfig,
       // @ts-ignore
-      cookieName: undefined,
+      cookie: undefined,
     }, mockCookies);
     
     session.set('key', 'value');

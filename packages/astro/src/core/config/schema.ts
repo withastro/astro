@@ -538,17 +538,23 @@ export const AstroConfigSchema = z.object({
 				.object({
 					driver: z.string(),
 					options: z.record(z.any()).optional(),
-					cookieName: z.string().optional(),
-					cookieOptions: z
-						.object({
-							domain: z.string().optional(),
-							path: z.string().optional(),
-							expires: z.string().optional(),
-							maxAge: z.number().optional(),
-							httpOnly: z.boolean().optional(),
-							sameSite: z.string().optional(),
-							secure: z.boolean().optional(),
-							encode: z.string().optional(),
+					cookie: z
+						.union([
+							z.object({
+								name: z.string().optional(),
+								domain: z.string().optional(),
+								path: z.string().optional(),
+								maxAge: z.number().optional(),
+								sameSite: z.union([z.enum(['strict', 'lax', 'none']), z.boolean()]).optional(),
+								secure: z.boolean().optional(),
+							}),
+							z.string(),
+						])
+						.transform((val) => {
+							if (typeof val === 'string') {
+								return { name: val };
+							}
+							return val;
 						})
 						.optional(),
 				})

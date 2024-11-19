@@ -100,14 +100,10 @@ export type SessionDriverName = BuiltinDriverName | 'custom';
 
 interface CommonSessionConfig {
 	/**
-	 * The name of the session cookie
-	 * @default `astro-session`
+	 * Configures the session cookie. If set to a string, it will be used as the cookie name.
+	 * Alternatively, you can pass an object with additional options.
 	 */
-	cookieName?: string;
-	/**
-	 * Additional options to pass to the session cookie
-	 */
-	cookieOptions?: Omit<AstroCookieSetOptions, "httpOnly" | "expires" | "encode">;
+	cookie?: string | Omit<AstroCookieSetOptions, "httpOnly" | "expires" | "encode"> & { name?: string }
 }
 
 interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
