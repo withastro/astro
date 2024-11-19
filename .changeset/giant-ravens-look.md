@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds a new `astro:routes:resolved` hook to the Integration API. Makes updates to the `astro:build:done` hook by deprecating `routes` and adding a new `assets` map
+Adds a new `astro:routes:resolved` hook to the Integration API. Also update the `astro:build:done` hook by deprecating `routes` and adding a new `assets` map.
 
 When building an integration, you can now get access to routes inside the `astro:routes:resolved` hook:
 
@@ -21,7 +21,7 @@ const integration = () => {
 
 This hook runs before `astro:config:done`, and whenever a route changes in development.
 
-The `routes` array from `astro:build:done` are now deprecated. Any useful property is made available on `astro:routes:resolved`, except for `distURL`. Instead, you can use the newly exposed `assets` map::
+The `routes` array from `astro:build:done` is now deprecated, and exposed properties are now available on `astro:routes:resolved`, except for `distURL`. For this, you can use the newly exposed `assets` map:
 
 ```diff
 const integration = () => {
