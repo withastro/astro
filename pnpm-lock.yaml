@@ -206,12 +206,6 @@ importers:
         specifier: ^4.16.13
         version: link:../../packages/astro
 
-  examples/framework-custom:
-    dependencies:
-      astro:
-        specifier: ^4.16.13
-        version: link:../../packages/astro
-
   examples/framework-lit:
     dependencies:
       '@astrojs/lit':
@@ -997,6 +991,12 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+
+  packages/astro/e2e/fixtures/custom-renderer:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/e2e/fixtures/dev-toolbar:
     dependencies:
@@ -2959,6 +2959,12 @@ importers:
       '@astrojs/node':
         specifier: ^8.3.4
         version: 8.3.4(astro@packages+astro)
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/custom-renderer:
+    dependencies:
       astro:
         specifier: workspace:*
         version: link:../../..
