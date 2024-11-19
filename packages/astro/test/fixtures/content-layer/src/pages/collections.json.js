@@ -19,6 +19,9 @@ export async function GET() {
 	const increment = await getEntry('increment', 'value');
 
 	const images = await getCollection('images');
+
+	const numbers = await getCollection('numbers');
+
 	return new Response(
 		devalue.stringify({
 			customLoader,
@@ -29,7 +32,8 @@ export async function GET() {
 			entryWithImagePath,
 			referencedEntry,
 			increment,
-			images
+			images,
+			numbers,
 		})
 	);
 }
