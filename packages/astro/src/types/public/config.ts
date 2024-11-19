@@ -1747,8 +1747,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * - `inline`: Astro will inline the SVG content into your HTML output.
 			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
 			 * 
-			 * This mode can be overridden by passing a `mode` prop to the imported SVG component.
-			 * 
 			 * ```astro
 			 * ---
 			 * import Logo from './path/to/svg/file.svg';
