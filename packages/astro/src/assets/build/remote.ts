@@ -23,6 +23,14 @@ export async function loadRemoteImage(src: string) {
 	};
 }
 
+/**
+ * Revalidate a cached remote asset using its entity-tag.
+ * Uses the If-None-Match header to check with the remote server if the cached version of a remote asset is still up to date.
+ * The remote server may respond that the cached asset is still up-to-date if the entity-tag matches (304 Not Modified), or respond with an updated asset (200 OK)
+ * @param src - url to remote asset
+ * @param etag - the stored Entity-Tag of the cached asset
+ * @returns An ImageData object containing the asset data, a new expiry time, and the asset's etag. The data buffer will be empty if the asset was not modified.
+ */
 export async function revalidateRemoteImage(src: string, etag: string) {
 	const req = new Request(src, { headers: { 'If-None-Match': etag } });
 	const res = await fetch(req);
