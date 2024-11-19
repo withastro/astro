@@ -15,6 +15,7 @@ import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 import { matchAllRoutes } from '../core/routing/index.js';
+import { PERSIST_SYMBOL } from '../core/session.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { ComponentInstance, ManifestData } from '../types/astro.js';
 import type { RouteData } from '../types/public/internal.js';
@@ -234,6 +235,8 @@ export async function handleRoute({
 		renderContext.props.error = err;
 		response = await renderContext.render(preloaded500Component);
 		statusCode = 500;
+	} finally {
+		renderContext.session?.[PERSIST_SYMBOL]();
 	}
 
 	if (isLoggedRequest(pathname)) {

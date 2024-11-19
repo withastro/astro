@@ -23,6 +23,7 @@ import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import { createDefaultRoutes, injectDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
+import { type AstroSession, PERSIST_SYMBOL } from '../session.js';
 import { AppPipeline } from './pipeline.js';
 
 export { deserializeManifest } from './common.js';
@@ -277,6 +278,7 @@ export class App {
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 
 		let response;
+		let session: AstroSession | undefined;
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
 			const mod = await this.#pipeline.getModuleForRoute(routeData);
@@ -289,10 +291,13 @@ export class App {
 				routeData,
 				status: defaultStatus,
 			});
+			session = renderContext.session;
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
 			return this.#renderError(request, { locals, status: 500, error: err });
+		} finally {
+			session?.[PERSIST_SYMBOL]();
 		}
 
 		if (
@@ -376,6 +381,7 @@ export class App {
 				}
 			}
 			const mod = await this.#pipeline.getModuleForRoute(errorRouteData);
+			let session: AstroSession | undefined;
 			try {
 				const renderContext = await RenderContext.create({
 					locals,
@@ -387,6 +393,7 @@ export class App {
 					status,
 					props: { error },
 				});
+				session = renderContext.session;
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
@@ -399,6 +406,8 @@ export class App {
 						skipMiddleware: true,
 					});
 				}
+			} finally {
+				session?.[PERSIST_SYMBOL]();
 			}
 		}
 

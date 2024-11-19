@@ -1,10 +1,10 @@
+import { parse, stringify } from 'devalue';
+import { type Driver, type Storage, builtinDrivers, createStorage } from 'unstorage';
 import type { SessionConfig, SessionDriverName } from '../types/public/config.js';
 import type { AstroCookies } from './cookies/cookies.js';
-import { builtinDrivers, createStorage, type Driver, type Storage } from 'unstorage';
-import { parse, stringify } from 'devalue';
-import { AstroError } from './errors/index.js';
-import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
 import type { AstroCookieSetOptions } from './cookies/cookies.js';
+import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
+import { AstroError } from './errors/index.js';
 
 export const PERSIST_SYMBOL = Symbol();
 
@@ -14,7 +14,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	// The cookies object.
 	#cookies: AstroCookies;
 	// The session configuration.
-	#config: Omit<SessionConfig<TDriver>, "cookie">;
+	#config: Omit<SessionConfig<TDriver>, 'cookie'>;
 	// The cookie config
 	#cookieConfig?: AstroCookieSetOptions;
 	// The cookie name
@@ -43,8 +43,8 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}: Exclude<SessionConfig<TDriver>, undefined>,
 	) {
 		this.#cookies = cookies;
-		if(typeof cookieConfig === 'object') {
-			this.#cookieConfig = cookieConfig
+		if (typeof cookieConfig === 'object') {
+			this.#cookieConfig = cookieConfig;
 			this.#cookieName = cookieConfig.name || DEFAULT_COOKIE_NAME;
 		} else {
 			this.#cookieName = cookieConfig || DEFAULT_COOKIE_NAME;
@@ -227,6 +227,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		const cookieOptions: AstroCookieSetOptions = {
 			sameSite: 'lax',
 			secure: true,
+			path: '/',
 			...this.#cookieConfig,
 			httpOnly: true,
 		};
@@ -343,12 +344,13 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
+		const entry =
+			builtinDrivers[this.#config.driver as keyof typeof builtinDrivers] || this.#config.driver;
 		try {
 			// Try to load the driver from the built-in unstorage drivers.
 			// Otherwise, assume it's a custom driver and load by name.
-			driver = await import(
-				builtinDrivers[this.#config.driver as keyof typeof builtinDrivers] || this.#config.driver
-			).then((r) => r.default || r);
+
+			driver = await import(entry).then((r) => r.default || r);
 		} catch (err: any) {
 			// If the driver failed to load, throw an error.
 			if (err.code === 'ERR_MODULE_NOT_FOUND') {
@@ -356,7 +358,9 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 					{
 						...SessionStorageInitError,
 						message: SessionStorageInitError.message(
-							'The driver module could not be found.',
+							err.message.includes(`Cannot find package '${entry}'`)
+								? 'The driver module could not be found.'
+								: err.message,
 							this.#config.driver,
 						),
 					},

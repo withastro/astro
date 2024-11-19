@@ -103,7 +103,9 @@ interface CommonSessionConfig {
 	 * Configures the session cookie. If set to a string, it will be used as the cookie name.
 	 * Alternatively, you can pass an object with additional options.
 	 */
-	cookie?: string | Omit<AstroCookieSetOptions, "httpOnly" | "expires" | "encode"> & { name?: string }
+	cookie?:
+		| string
+		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & { name?: string });
 }
 
 interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
@@ -1158,11 +1160,11 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
-		 * 
-	 	 * Shiki is our default syntax highlighter. You can configure all options via the `markdown.shikiConfig` object:
-		 * 
-	 	 * ```js title="astro.config.mjs"
-	   * import { defineConfig } from 'astro/config';
+		 *
+		 * Shiki is our default syntax highlighter. You can configure all options via the `markdown.shikiConfig` object:
+		 *
+		 * ```js title="astro.config.mjs"
+		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
 		 *   markdown: {
@@ -1174,7 +1176,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *       // See note below for using dual light/dark themes
 		 *       themes: {
 		 *         light: 'github-light',
- 		 *         dark: 'github-dark',
+		 *         dark: 'github-dark',
 		 *       },
 		 *       // Disable the default colors
 		 *       // https://shiki.style/guide/dual-themes#without-default-color
@@ -1942,9 +1944,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @type {SessionConfig}
 		 * @version 5.0.0
 		 * @description
-		 * 
+		 *
 		 * Enables support for sessions in Astro. Sessions are used to store user data across requests, such as user authentication state.
-		 * 
+		 *
 		 * When enabled you can access the `Astro.session` object to read and write data that persists across requests. You can configure the session driver using the [`session` option](#session), or use the default provided by your adapter.
 		 *
 		 * ```astro title=src/components/CartButton.astro
@@ -1955,8 +1957,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
 		 *
-		 * ``` 
-		 * The object configures session management for your Astro site by specifying a `driver` as well as any `options` for your data storage. 
+		 * ```
+		 * The object configures session management for your Astro site by specifying a `driver` as well as any `options` for your data storage.
 		 *
 		 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
 		 *
@@ -1966,17 +1968,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *  		session: {
 		 *    		// Required: the name of the Unstorage driver
 		 *    		driver: "redis",
- 		 *   			// The required options depend on the driver
- 		 *   			options: {
- 		 *     			url: process.env.REDIS_URL,
+		 *   			// The required options depend on the driver
+		 *   			options: {
+		 *     			url: process.env.REDIS_URL,
 		 * 				}
 		 * 			}
- 		 *   	},
+		 *   	},
 		 * 	}
 		 * ```
-		 * 
+		 *
 		 * For more details, see [the Sessions RFC](https://github.com/withastro/roadmap/blob/sessions/proposals/0054-sessions.md).
-		 * 
+		 *
 		 */
 
 		session?: SessionConfig<TSession>;

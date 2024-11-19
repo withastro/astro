@@ -3631,6 +3631,12 @@ importers:
         specifier: ^5.1.16
         version: 5.1.16
 
+  packages/astro/test/fixtures/sessions:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/set-html:
     dependencies:
       astro:
