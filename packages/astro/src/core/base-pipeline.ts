@@ -71,13 +71,6 @@ export abstract class Pipeline {
 				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
 			);
 		}
-		// In SSR, getSecret should fail by default. Setting it here will run before the
-		// adapter override.
-		if (callSetGetEnv && manifest.experimentalEnvGetSecretEnabled) {
-			setGetEnv(() => {
-				throw new AstroError(AstroErrorData.EnvUnsupportedGetSecret);
-			}, true);
-		}
 	}
 
 	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
