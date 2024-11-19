@@ -256,16 +256,9 @@ export type IntegrationRouteData = Omit<
 };
 
 export interface IntegrationResolvedRoute
-	extends Omit<
+	extends Pick<
 		RouteData,
-		| 'isIndex'
-		| 'fallbackRoutes'
-		| 'redirectRoute'
-		| 'route'
-		| 'pattern'
-		| 'component'
-		| 'prerender'
-		| 'distURL'
+		'generate' | 'params' | 'pathname' | 'segments' | 'type' | 'redirect' | 'origin'
 	> {
 	/**
 	 * {@link RouteData.route}

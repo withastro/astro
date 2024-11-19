@@ -59,7 +59,9 @@ export default function createVitePluginAstroServer({
 
 				// If a route changes, we check if it's part of the manifest and check for its prerender value
 				if (path !== null) {
-					const route = routeManifest.routes.find((r) => path.endsWith(r.component));
+					const route = routeManifest.routes.find(
+						(r) => path === new URL(r.component, settings.config.root).pathname,
+					);
 					if (!route) {
 						return;
 					}
