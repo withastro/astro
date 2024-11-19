@@ -34,6 +34,7 @@ const createFixture = () => {
 				 * @param {string} contents
 				 */
 				writeFileSync(path, contents) {
+					console.log('Writing', path);
 					writtenFiles[path.toString()] = contents;
 					return fs.writeFileSync(path, contents);
 				},

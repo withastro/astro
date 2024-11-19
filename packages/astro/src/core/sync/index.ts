@@ -21,7 +21,6 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { collectErrorMetadata } from '../errors/dev/utils.js';
 import {
 	AstroError,
 	AstroErrorData,
@@ -31,7 +30,6 @@ import {
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { formatErrorMessage } from '../messages.js';
 import { createRouteManifest } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 

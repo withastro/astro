@@ -597,7 +597,7 @@ export async function autogenerateCollections({
 			}) as any,
 		};
 	}
-	if (!usesContentLayer) {
+	if (!usesContentLayer && fs.existsSync(contentDir)) {
 		// If the user hasn't defined any collections using the content layer, we'll try and help out by checking for
 		// any orphaned folders in the content directory and creating collections for them.
 		const orphanedCollections = [];
