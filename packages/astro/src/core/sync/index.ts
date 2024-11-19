@@ -253,7 +253,20 @@ async function syncContentCollections(
 		if (isAstroError(e)) {
 			throw e;
 		}
-		const hint = AstroUserError.is(e) ? e.hint : AstroErrorData.GenerateContentTypesError.hint;
+		let configFile
+		try {
+			const contentPaths = getContentPaths(settings.config, fs);
+			if(contentPaths.config.exists) {
+				const matches = /\/(src\/.+)/.exec(contentPaths.config.url.href);
+				if (matches) {
+					configFile = matches[1]
+				}
+			}
+		} catch {
+			// ignore
+		}
+
+		const hint = AstroUserError.is(e) ? e.hint : AstroErrorData.GenerateContentTypesError.hint(configFile);
 		throw new AstroError(
 			{
 				...AstroErrorData.GenerateContentTypesError,

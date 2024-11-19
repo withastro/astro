@@ -1446,7 +1446,8 @@ export const GenerateContentTypesError = {
 	title: 'Failed to generate content types.',
 	message: (errorMessage: string) =>
 		`\`astro sync\` command failed to generate content collection types: ${errorMessage}`,
-	hint: 'This error is often caused by a syntax error inside your content, or your content configuration file. Check your `src/content.config.*` file for typos.',
+	hint: (fileName?: string) =>
+		`This error is often caused by a syntax error inside your content, or your content configuration file. Check your ${fileName ?? 'content config'} file for typos.`,
 } satisfies ErrorData;
 /**
  * @docs

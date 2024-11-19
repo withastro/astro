@@ -715,10 +715,10 @@ export type ContentPaths = {
 };
 
 export function getContentPaths(
-	{ srcDir }: Pick<AstroConfig, 'root' | 'srcDir'>,
+	{ srcDir, legacy }: Pick<AstroConfig, 'root' | 'srcDir' | 'legacy'>,
 	fs: typeof fsMod = fsMod,
 ): ContentPaths {
-	const configStats = search(fs, srcDir);
+	const configStats = search(fs, srcDir, legacy?.collections);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
 		contentDir: new URL('./content/', srcDir),
@@ -728,12 +728,11 @@ export function getContentPaths(
 		config: configStats,
 	};
 }
-function search(fs: typeof fsMod, srcDir: URL) {
+function search(fs: typeof fsMod, srcDir: URL, legacy?: boolean) {
 	const paths = [
-		'content.config.mjs',
-		'content.config.js',
-		'content.config.mts',
-		'content.config.ts',
+		...(legacy
+			? []
+			: ['content.config.mjs', 'content.config.js', 'content.config.mts', 'content.config.ts']),
 		'content/config.mjs',
 		'content/config.js',
 		'content/config.mts',
