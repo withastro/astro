@@ -19,8 +19,8 @@ export function matchAllRoutes(pathname: string, manifest: ManifestData): RouteD
 /**
  * Determines if the given route matches a 404 or 500 error page.
  *
- * @param route - The route data to check.
- * @returns `true` if the route matches a 404 or 500 error page, otherwise `false`.
+ * @param {RouteData} route - The route data to check.
+ * @returns {boolean} `true` if the route matches a 404 or 500 error page, otherwise `false`.
  */
 export function isRoute404or500(route: RouteData): boolean {
 	return route.pattern.test('/404') || route.pattern.test('/500');
