@@ -1706,7 +1706,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * When you are ready to remove this flag and migrate to the new Content Layer API for your legacy collections, you must define a collection for any directories in `src/content/` that you want to continue to use as a collection. It is sufficient to declare an empty collection, and Astro will implicitly generate an appropriate definition for your legacy collections:
 		 *  
 		 * ```js
-		 * // src/content/config.ts
+		 * // src/content.config.ts
 		 * import { defineCollection, z } from 'astro:content';
 		 * 
 		 * const blog = defineCollection({ })

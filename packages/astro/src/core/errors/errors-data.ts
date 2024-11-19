@@ -1446,7 +1446,7 @@ export const GenerateContentTypesError = {
 	title: 'Failed to generate content types.',
 	message: (errorMessage: string) =>
 		`\`astro sync\` command failed to generate content collection types: ${errorMessage}`,
-	hint: 'This error is often caused by a syntax error inside your content, or your content configuration file. Check your `src/content/config.*` file for typos.',
+	hint: 'This error is often caused by a syntax error inside your content, or your content configuration file. Check your `src/content.config.*` file for typos.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -1458,7 +1458,7 @@ export const GenerateContentTypesError = {
  * @docs
  * @description
  * Astro encountered an unknown error loading your content collections.
- * This can be caused by certain errors inside your `src/content/config.ts` file or some internal errors.
+ * This can be caused by certain errors inside your `src/content.config.ts` file or some internal errors.
  *
  * If you can reliably cause this error to happen, we'd appreciate if you could [open an issue](https://astro.build/issues/)
  */
@@ -1501,7 +1501,7 @@ export const GetEntryDeprecationError = {
  * @description
  * A Markdown or MDX entry does not match its collection schema.
  * Make sure that all required fields are present, and that all fields are of the correct type.
- * You can check against the collection schema in your `src/content/config.*` file.
+ * You can check against the collection schema in your `src/content.config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
  */
 export const InvalidContentEntryFrontmatterError = {
@@ -1528,7 +1528,7 @@ export const InvalidContentEntryFrontmatterError = {
  * @description
  * A content entry does not match its collection schema.
  * Make sure that all required fields are present, and that all fields are of the correct type.
- * You can check against the collection schema in your `src/content/config.*` file.
+ * You can check against the collection schema in your `src/content.config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
  */
 export const InvalidContentEntryDataError = {
@@ -1553,7 +1553,7 @@ export const InvalidContentEntryDataError = {
  * @description
  * A content entry does not match its collection schema.
  * Make sure that all required fields are present, and that all fields are of the correct type.
- * You can check against the collection schema in your `src/content/config.*` file.
+ * You can check against the collection schema in your `src/content.config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
  */
 export const ContentEntryDataError = {

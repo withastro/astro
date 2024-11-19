@@ -623,7 +623,7 @@ export async function autogenerateCollections({
 			console.warn(
 				`
 Auto-generating collections for folders in "src/content/" that are not defined as collections.
-This is deprecated, so you should define these collections yourself in "src/content/config.ts".
+This is deprecated, so you should define these collections yourself in "src/content.config.ts".
 The following collections have been auto-generated: ${orphanedCollections
 					.map((name) => green(name))
 					.join(', ')}\n`,
@@ -729,9 +729,16 @@ export function getContentPaths(
 	};
 }
 function search(fs: typeof fsMod, srcDir: URL) {
-	const paths = ['config.mjs', 'config.js', 'config.mts', 'config.ts'].map(
-		(p) => new URL(`./content/${p}`, srcDir),
-	);
+	const paths = [
+		'content.config.mjs',
+		'content.config.js',
+		'content.config.mts',
+		'content.config.ts',
+		'content/config.mjs',
+		'content/config.js',
+		'content/config.mts',
+		'content/config.ts',
+	].map((p) => new URL(`./${p}`, srcDir));
 	for (const file of paths) {
 		if (fs.existsSync(file)) {
 			return { exists: true, url: file };

@@ -285,7 +285,7 @@ describe('Content Layer', () => {
 		it('clears the store on new build if the config has changed', async () => {
 			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 1);
-			await fixture.editFile('src/content/config.ts', (prev) => {
+			await fixture.editFile('src/content.config.ts', (prev) => {
 				return `${prev}\nexport const foo = 'bar';`;
 			});
 			await fixture.build();

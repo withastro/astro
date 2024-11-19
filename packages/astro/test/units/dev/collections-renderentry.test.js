@@ -51,7 +51,7 @@ describe('Content Collections - render()', () => {
 	it('can be called in a page component', async () => {
 		const fixture = await createFixture({
 			...baseFileTree,
-			'/src/content/config.ts': `
+			'/src/content.config.ts': `
 					import { z, defineCollection } from 'astro:content';
 
 					const blog = defineCollection({
@@ -166,7 +166,7 @@ describe('Content Collections - render()', () => {
 	it('can be used in a slot', async () => {
 		const fixture = await createFixture({
 			...baseFileTree,
-			'/src/content/config.ts': `
+			'/src/content.config.ts': `
 					import { z, defineCollection } from 'astro:content';
 
 					const blog = defineCollection({
@@ -233,7 +233,7 @@ describe('Content Collections - render()', () => {
 	it('can be called from any js/ts file', async () => {
 		const fixture = await createFixture({
 			...baseFileTree,
-			'/src/content/config.ts': `
+			'/src/content.config.ts': `
 					import { z, defineCollection } from 'astro:content';
 
 					const blog = defineCollection({

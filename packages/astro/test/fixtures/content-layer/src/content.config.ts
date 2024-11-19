@@ -1,6 +1,6 @@
 import { defineCollection, z, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
-import { loader } from '../loaders/post-loader.js';
+import { loader } from './loaders/post-loader.js';
 import { parse as parseToml } from 'toml';
 
 const blog = defineCollection({
