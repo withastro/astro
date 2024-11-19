@@ -108,10 +108,10 @@ export function setOriginPathname(request: Request, pathname: string): void {
 	Reflect.set(request, originPathnameSymbol, encodeURIComponent(pathname));
 }
 
-export function getOriginPathname(request: Request): string | undefined {
+export function getOriginPathname(request: Request): string {
 	const origin = Reflect.get(request, originPathnameSymbol);
 	if (origin) {
 		return decodeURIComponent(origin);
 	}
-	return undefined;
+	return new URL(request.url).pathname;
 }

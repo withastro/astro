@@ -1,5 +1,32 @@
 # @astrojs/svelte
 
+## 6.0.0
+
+### Major Changes
+
+- [#12364](https://github.com/withastro/astro/pull/12364) [`9fc2ab8`](https://github.com/withastro/astro/commit/9fc2ab8cc848739a21bfa3f754e9bec4926dc034) Thanks [@jdtjenkins](https://github.com/jdtjenkins)! - Adds support for Svelte 5. Svelte 3 and 4 are no longer supported.
+
+  The integration will now also no longer add `vitePreprocess()` by default if a preprocessor is not set up in `svelte.config.js`. It is recommended to set up the Svelte config manually so that features like IDE completion and syntax highlighting work properly.
+
+  If you're using SCSS, Stylus, etc in your Svelte component style tags, make sure that the preprocessor is also set up in `svelte.config.js`. For example:
+
+  ```js
+  // svelte.config.js
+  import { vitePreprocess } from '@astrojs/svelte';
+
+  export default {
+    preprocess: vitePreprocess(),
+  };
+  ```
+
+  Refer to the [Svelte 5 migration guide](https://svelte.dev/docs/svelte/v5-migration-guide) and [`@sveltejs/vite-plugin-svelte` changelog](https://github.com/sveltejs/vite-plugin-svelte/blob/main/packages/vite-plugin-svelte/CHANGELOG.md#400) for details of their respective breaking changes.
+
+## 6.0.0-beta.2
+
+### Patch Changes
+
+- [`b21a075`](https://github.com/withastro/astro/commit/b21a07500284a3621be4d509f5aa67c0a8fcbf07) Thanks [@bluwy](https://github.com/bluwy)! - New release to include changes from 5.7.3
+
 ## 6.0.0-beta.1
 
 ### Patch Changes
@@ -18,6 +45,12 @@
 
 - Updated dependencies [[`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0), [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f), [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e), [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9), [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6), [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6)]:
   - astro@5.0.0-alpha.0
+
+## 5.7.3
+
+### Patch Changes
+
+- [#12390](https://github.com/withastro/astro/pull/12390) [`6fd3d59`](https://github.com/withastro/astro/commit/6fd3d5960f5ab16591bfdb94d1f9b9a9b72006cf) Thanks [@bluwy](https://github.com/bluwy)! - Adds support for Svelte 5's new `@render` syntax while maintaining backward compatibility with traditional slots.
 
 ## 5.7.2
 

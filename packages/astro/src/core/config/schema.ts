@@ -95,6 +95,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
+		responsiveImages: false,
 		svg: {
 			mode: 'inline',
 		},
@@ -287,6 +288,10 @@ export const AstroConfigSchema = z.object({
 					}),
 				)
 				.default([]),
+			experimentalLayout: z.enum(['responsive', 'fixed', 'full-width', 'none']).optional(),
+			experimentalObjectFit: z.string().optional(),
+			experimentalObjectPosition: z.string().optional(),
+			experimentalBreakpoints: z.array(z.number()).optional(),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
 	devToolbar: z
@@ -528,6 +533,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
+			responsiveImages: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
 			svg: z.union([
 				z.boolean(),
 				z
@@ -709,7 +718,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		})
 		.superRefine((configuration, ctx) => {
-			const { site, i18n, output } = configuration;
+			const { site, i18n, output, image, experimental } = configuration;
 			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
 			if (hasDomains) {
 				if (!site) {
@@ -725,6 +734,19 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 						message: 'Domain support is only available when `output` is `"server"`.',
 					});
 				}
+			}
+			if (
+				!experimental.responsiveImages &&
+				(image.experimentalLayout ||
+					image.experimentalObjectFit ||
+					image.experimentalObjectPosition ||
+					image.experimentalBreakpoints)
+			) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message:
+						'The `experimentalLayout`, `experimentalObjectFit`, `experimentalObjectPosition` and `experimentalBreakpoints` options are only available when `experimental.responsiveImages` is enabled.',
+				});
 			}
 		});
 

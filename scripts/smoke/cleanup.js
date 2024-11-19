@@ -38,6 +38,7 @@ async function run() {
 
 	await exec('pnpm', ['install'], {
 		nodeOptions: { cwd: fileURLToPath(rootDir), stdio: ['pipe', 'inherit', 'inherit'] },
+		throwOnError: true
 	});
 }
 

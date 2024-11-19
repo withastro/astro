@@ -1,12 +1,12 @@
-import { exec } from 'tinyexec';
-import { markdownTable } from 'markdown-table';
 import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { markdownTable } from 'markdown-table';
 import { waitUntilBusy } from 'port-authority';
-import { calculateStat, astroBin } from './_util.js';
+import { exec } from 'tinyexec';
 import { renderPages } from '../make-project/render-default.js';
+import { astroBin, calculateStat } from './_util.js';
 
 const port = 4322;
 
@@ -25,6 +25,7 @@ export async function run(projectDir, outputFile) {
 			cwd: root,
 			stdio: 'inherit',
 		},
+		throwOnError: true,
 	});
 
 	console.log('Previewing...');
@@ -33,6 +34,7 @@ export async function run(projectDir, outputFile) {
 			cwd: root,
 			stdio: 'inherit',
 		},
+		throwOnError: true,
 	});
 
 	console.log('Waiting for server ready...');
@@ -58,14 +60,14 @@ export async function run(projectDir, outputFile) {
 	console.log('Done!');
 }
 
-async function benchmarkRenderTime() {
+export async function benchmarkRenderTime(portToListen = port) {
 	/** @type {Record<string, number[]>} */
 	const result = {};
 	for (const fileName of renderPages) {
 		// Render each file 100 times and push to an array
 		for (let i = 0; i < 100; i++) {
 			const pathname = '/' + fileName.slice(0, -path.extname(fileName).length);
-			const renderTime = await fetchRenderTime(`http://localhost:${port}${pathname}`);
+			const renderTime = await fetchRenderTime(`http://localhost:${portToListen}${pathname}`);
 			if (!result[pathname]) result[pathname] = [];
 			result[pathname].push(renderTime);
 		}
@@ -95,7 +97,7 @@ function printResult(result) {
 		],
 		{
 			align: ['l', 'r', 'r', 'r'],
-		}
+		},
 	);
 }
 

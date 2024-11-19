@@ -1,5 +1,4 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
-import { Logger } from '../core/logger/core.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import type { AstroInlineConfig, AstroUserConfig, Locales } from '../types/public/config.js';
 import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js';
@@ -30,7 +29,7 @@ export function getViteConfig(
 		const [
 			fs,
 			{ mergeConfig },
-			{ nodeLogDestination },
+			{ createNodeLogger },
 			{ resolveConfig, createSettings },
 			{ createVite },
 			{ runHookConfigSetup, runHookConfigDone },
@@ -38,16 +37,13 @@ export function getViteConfig(
 		] = await Promise.all([
 			import('node:fs'),
 			import('vite'),
-			import('../core/logger/node.js'),
+			import('../core/config/logging.js'),
 			import('../core/config/index.js'),
 			import('../core/create-vite.js'),
 			import('../integrations/hooks.js'),
 			import('./vite-plugin-content-listen.js'),
 		]);
-		const logger = new Logger({
-			dest: nodeLogDestination,
-			level: 'info',
-		});
+		const logger = createNodeLogger(inlineAstroConfig);
 		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
 		let settings = await createSettings(config, userViteConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
@@ -55,10 +51,12 @@ export function getViteConfig(
 		const devSSRManifest = createDevelopmentManifest(settings);
 		const viteConfig = await createVite(
 			{
-				plugins: [
-					// Initialize the content listener
-					astroContentListenPlugin({ settings, logger, fs }),
-				],
+				plugins: config.legacy.collections
+					? [
+							// Initialize the content listener
+							astroContentListenPlugin({ settings, logger, fs }),
+						]
+					: [],
 			},
 			{ settings, command: cmd, logger, mode, sync: false, manifest, ssrManifest: devSSRManifest },
 		);

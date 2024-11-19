@@ -116,14 +116,14 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 			},
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
-					return `
+					return /* ts */ `
 					export { getConfiguredImageService, isLocalService } from "astro/assets";
 					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 					export { default as Picture } from "astro/components/Picture.astro";
 					export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
-					export const imageConfig = ${JSON.stringify(settings.config.image)};
+					export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
 					// This is used by the @astrojs/node integration to locate images.
 					// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
 					// new URL("dist/...") is interpreted by the bundler as a signal to include that directory

@@ -65,6 +65,7 @@ export function isValidKey(key: string): key is PreferenceKey {
 }
 export function coerce(key: string, value: unknown) {
 	const type = typeof dget(DEFAULT_PREFERENCES, key);
+	// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 	switch (type) {
 		case 'string':
 			return value;
@@ -142,6 +143,7 @@ function getGlobalPreferenceDir() {
 		const { XDG_CONFIG_HOME = path.join(homedir, '.config') } = process.env;
 		return path.join(XDG_CONFIG_HOME, name);
 	};
+	// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 	switch (process.platform) {
 		case 'darwin':
 			return macos();
