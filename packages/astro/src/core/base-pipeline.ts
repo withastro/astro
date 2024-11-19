@@ -57,7 +57,6 @@ export abstract class Pipeline {
 		 * Used for `Astro.site`.
 		 */
 		readonly site = manifest.site ? new URL(manifest.site) : undefined,
-		readonly callSetGetEnv = true,
 		/**
 		 * Array of built-in, internal, routes.
 		 * Used to find the route module
