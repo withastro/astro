@@ -4,7 +4,7 @@ import { glob } from 'astro/loaders';
 const reptiles = defineCollection({
 	loader: glob({
 		pattern: '*.mdx',
-		base: new URL('../../content-outside-src-mdx', import.meta.url),
+		base: new URL('../content-outside-src-mdx', import.meta.url),
 	}),
 	schema: () =>
 		z.object({

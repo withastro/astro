@@ -106,7 +106,7 @@ export const collections = { blog };
 		const fixture = await createFixture({
 			...baseFileTree,
 			'/src/content/banners/welcome.json': `{ "src": "/example", "alt": "Welcome" }`,
-			'/src/content.config.ts': `\
+			'/src/content/config.ts': `\
 import { z, defineCollection } from 'astro:content';
 
 const banners = defineCollection({
