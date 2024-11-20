@@ -5018,6 +5018,9 @@ importers:
       preact-render-to-string:
         specifier: ^6.5.11
         version: 6.5.11(preact@10.24.3)
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@18.19.50)(sass@1.80.6)
     devDependencies:
       astro:
         specifier: workspace:*
