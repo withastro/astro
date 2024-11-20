@@ -5037,6 +5037,9 @@ importers:
       ultrahtml:
         specifier: ^1.5.3
         version: 1.5.3
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@18.19.50)(sass@1.80.6)
     devDependencies:
       '@types/react':
         specifier: ^18.3.12
@@ -5059,9 +5062,6 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@18.19.50)(sass@1.80.6)
 
   packages/integrations/react/test/fixtures/react-component:
     dependencies:
