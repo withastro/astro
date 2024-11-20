@@ -4,7 +4,7 @@ import background from '../assets/background.svg';
 ---
 
 <div id="container">
-	<img id="background" src={background.src} alt="" />
+	<img id="background" src={background.src} alt="" fetchpriority="high" />
 	<main>
 		<section id="hero">
 			<a href="https://astro.build"
@@ -65,13 +65,10 @@ import background from '../assets/background.svg';
 
 	#hero {
 		display: flex;
+		align-items: start;
 		flex-direction: column;
 		justify-content: center;
 		padding: 16px;
-	}
-
-	#hero > a {
-		width: fit-content;
 	}
 
 	h1 {
