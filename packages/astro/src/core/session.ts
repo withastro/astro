@@ -1,4 +1,4 @@
-import { parse, stringify } from 'devalue';
+import { unflatten, stringify } from 'devalue';
 import { type Driver, type Storage, builtinDrivers, createStorage } from 'unstorage';
 import type { SessionConfig, SessionDriverName } from '../types/public/config.js';
 import type { AstroCookies } from './cookies/cookies.js';
@@ -179,8 +179,10 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			const key = this.#ensureSessionID();
 			let serialized;
 			try {
-				// We prepend a 0 to the serialized data so that unstorage doesn't treat it as JSON
-				serialized = `0${stringify(data)}`;
+				serialized = stringify(data, {
+					// Support URL objects
+					URL: (val) => val instanceof URL && val.href,
+				});
 			} catch (err) {
 				throw new AstroError(
 					{
@@ -247,13 +249,17 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 		this.#data ??= new Map();
 
-		const raw = await this.#storage?.get<string>(this.#ensureSessionID());
+		// We stored this as a devalue string, but unstorage will have parsed it as JSON
+		const raw = await this.#storage?.get<any[]>(this.#ensureSessionID());
 		if (!raw) {
 			return this.#data;
 		}
 
 		try {
-			const storedMap = parse(raw.slice(1));
+			const storedMap = unflatten(raw, {
+				// Revive URL objects
+				URL: (href) => new URL(href),
+			});
 			if (!(storedMap instanceof Map)) {
 				await this.#destroySafe();
 				throw new AstroError({
@@ -282,6 +288,9 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			return this.#data;
 		} catch (err) {
 			await this.#destroySafe();
+			if (err instanceof AstroError) {
+				throw err;
+			}
 			throw new AstroError(
 				{
 					...SessionStorageInitError,
