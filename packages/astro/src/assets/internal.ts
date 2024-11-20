@@ -150,6 +150,7 @@ export async function getImage(
 			resolvedOptions.fetchpriority ??= 'auto';
 		}
 		delete resolvedOptions.priority;
+		delete resolvedOptions.densities;
 	}
 
 	const validatedOptions = service.validateOptions

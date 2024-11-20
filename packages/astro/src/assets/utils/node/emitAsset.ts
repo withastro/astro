@@ -7,6 +7,7 @@ import type { ImageMetadata } from '../../types.js';
 import { imageMetadata } from '../metadata.js';
 
 type FileEmitter = vite.Rollup.EmitFile;
+type ImageMetadataWithContents = ImageMetadata & { contents?: Buffer };
 
 export async function emitESMImage(
 	id: string | undefined,
@@ -15,7 +16,7 @@ export async function emitESMImage(
 	// FIX: in Astro 6, this function should not be passed in dev mode at all.
 	// Or rethink the API so that a function that throws isn't passed through.
 	fileEmitter?: FileEmitter,
-): Promise<ImageMetadata | undefined> {
+): Promise<ImageMetadataWithContents | undefined> {
 	if (!id) {
 		return undefined;
 	}
@@ -30,7 +31,7 @@ export async function emitESMImage(
 
 	const fileMetadata = await imageMetadata(fileData, id);
 
-	const emittedImage: Omit<ImageMetadata, 'fsPath'> = {
+	const emittedImage: Omit<ImageMetadataWithContents, 'fsPath'> = {
 		src: '',
 		...fileMetadata,
 	};
@@ -41,6 +42,11 @@ export async function emitESMImage(
 		writable: false,
 		value: id,
 	});
+
+	// Attach file data for SVGs
+	if (fileMetadata.format === 'svg') {
+		emittedImage.contents = fileData;
+	}
 
 	// Build
 	let isBuild = typeof fileEmitter === 'function';
@@ -71,7 +77,7 @@ export async function emitESMImage(
 		emittedImage.src = `/@fs` + prependForwardSlash(fileURLToNormalizedPath(url));
 	}
 
-	return emittedImage as ImageMetadata;
+	return emittedImage as ImageMetadataWithContents;
 }
 
 function fileURLToNormalizedPath(filePath: URL): string {
