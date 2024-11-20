@@ -81,8 +81,8 @@ let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
 });
-
-if(response.status === 200 && response.headers.get('content-type') === 'text/html') {
+if (script) {
+	if(response.status === 200 && response.headers.get('content-type') === 'text/html') {
 	let html = await response.text();
 
 	// Swap!
@@ -97,6 +97,7 @@ if(response.status === 200 && response.headers.get('content-type') === 'text/htm
 	script.before(frag);
 }
 script.remove();
+}
 </script>`);
 		},
 	};
