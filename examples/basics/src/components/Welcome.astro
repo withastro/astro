@@ -6,12 +6,12 @@ import astroLogo from '../assets/astro.svg';
 	<main>
 		<section id="hero">
 			<a href="https://astro.build"
-				><img src={astroLogo.src} width="115" height="48" alt="Astro Logo" /></a
+				><img src={astroLogo.src} width="115" height="48" alt="Astro Homepage" /></a
 			>
 			<h1>
 				To get started, open the <button
 					onclick=`fetch("/__open-in-editor?file=${process.cwd()}/src/pages/index.astro");`
-					title="Click to open in your editor"><code><pre>src/pages</pre></code></button
+					title="Click to open in your editor"><span class="sr-only">src/pages</span><code aria-hidden="true"><pre>src/pages</pre></code></button
 				> directory in your project.
 			</h1>
 			<section id="links">
