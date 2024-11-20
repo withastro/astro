@@ -9,6 +9,7 @@ import type { BuiltinDriverName, BuiltinDriverOptions } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
+import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
@@ -1800,7 +1801,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name experimental.contentIntellisense
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 4.14.0
+     * @version 5.x
 		 * @description
 		 *
 		 * Enables Intellisense features (e.g. code completion, quick hints) for your content collection entries in compatible editors.
@@ -1982,6 +1983,61 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 */
 
 		session?: SessionConfig<TSession>;
+		/** 
+		 * @name experimental.svg
+		 * @type {boolean|object}
+		 * @default `undefined`
+     * @version 5.x
+		 * @description
+		 * 
+		 * This feature allows you to import SVG files directly into your Astro project. By default, Astro will inline the SVG content into your HTML output.
+		 * 
+		 * To enable this feature, set `experimental.svg` to `true` in your Astro config:
+		 * 
+		 * ```js
+		 * {
+		 *   experimental: {
+		 * 	   svg: true,
+		 * 	 },
+		 * }
+		 * ```
+		 * 
+		 * To use this feature, import an SVG file in your Astro project, passing any common SVG attributes to the imported component.
+		 * Astro also provides a `size` attribute to set equal `height` and `width` properties:
+		 * 
+		 * ```astro
+		 * ---
+		 * import Logo from './path/to/svg/file.svg';
+		 * ---
+		 * 
+		 * <Logo size={24} />
+		 * ```
+		 * 
+		 * For a complete overview, and to give feedback on this experimental API,
+     * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
+		 */
+		svg?: {
+			/**
+			 * @docs
+			 * @name experimental.svg.mode
+			 * @type {string}
+			 * @default 'inline'
+			 * 
+			 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
+			 * 
+			 * - `inline`: Astro will inline the SVG content into your HTML output.
+			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
+			 * 
+			 * ```astro
+			 * ---
+			 * import Logo from './path/to/svg/file.svg';
+			 * ---
+			 * 
+			 * <Logo size={24} mode="sprite" />
+			 * ```
+			 */
+			mode?: SvgRenderMode;
+		};
 	};
 }
 
