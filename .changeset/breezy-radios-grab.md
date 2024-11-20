@@ -2,4 +2,4 @@
 '@astrojs/db': patch
 ---
 
-fix isDbError()-guard for LibsqlError
+Fixes `isDbError()` guard for `LibsqlError`
