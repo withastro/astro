@@ -5147,6 +5147,9 @@ importers:
 
   packages/integrations/solid:
     dependencies:
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@18.19.50)(sass@1.80.6)
       vite-plugin-solid:
         specifier: ^2.10.2
         version: 2.10.2(solid-js@1.9.3)(vite@5.4.10(@types/node@18.19.50)(sass@1.80.6))
@@ -5160,9 +5163,6 @@ importers:
       solid-js:
         specifier: ^1.9.3
         version: 1.9.3
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@18.19.50)(sass@1.80.6)
 
   packages/integrations/svelte:
     dependencies:
