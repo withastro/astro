@@ -2,6 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import type fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
+import { normalizePath } from 'vite';
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import { createKey } from '../core/encryption.js';
@@ -60,7 +61,9 @@ export default function createVitePluginAstroServer({
 				// If a route changes, we check if it's part of the manifest and check for its prerender value
 				if (path !== null) {
 					const route = routeManifest.routes.find(
-						(r) => path === new URL(r.component, settings.config.root).pathname,
+						(r) =>
+							normalizePath(path) ===
+							normalizePath(fileURLToPath(new URL(r.component, settings.config.root))),
 					);
 					if (!route) {
 						return;
