@@ -4,6 +4,7 @@ import {
 	renderComponent,
 	renderTemplate,
 } from '../../runtime/server/index.js';
+import { isAstroComponentFactory } from '../../runtime/server/render/astro/factory.js';
 import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
 import type { ComponentInstance, ManifestData } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
@@ -120,15 +121,29 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		const key = await manifest.key;
 		const encryptedProps = data.encryptedProps;
+
 		const propString = await decryptString(key, encryptedProps);
 		const props = JSON.parse(propString);
 
 		const componentModule = await imp();
-		const Component = (componentModule as any)[data.componentExport];
+		let Component = (componentModule as any)[data.componentExport];
 
 		const slots: ComponentSlots = {};
 		for (const prop in data.slots) {
 			slots[prop] = createSlotValueFromString(data.slots[prop]);
+		}
+
+		// Wrap Astro components so we can set propagation to
+		// `self` which is needed to force the runtime to wait
+		// on the component before sending out the response headers.
+		// This allows the island to set headers (cookies).
+		if(isAstroComponentFactory(Component)) {
+			const ServerIsland = Component;
+			Component = function(this: typeof ServerIsland, ...args: Parameters<typeof ServerIsland>) {
+				return ServerIsland.apply(this, args);
+			};
+			Object.assign(Component, ServerIsland);
+			Component.propagation = 'self';
 		}
 
 		return renderTemplate`${renderComponent(result, 'Component', Component, props, slots)}`;
