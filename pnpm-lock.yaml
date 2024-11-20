@@ -5233,6 +5233,9 @@ importers:
       '@vue/compiler-sfc':
         specifier: ^3.5.12
         version: 3.5.12
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@18.19.50)(sass@1.80.6)
       vite-plugin-vue-devtools:
         specifier: ^7.6.3
         version: 7.6.3(rollup@4.24.4)(vite@5.4.10(@types/node@18.19.50)(sass@1.80.6))(vue@3.5.12(typescript@5.6.3))
@@ -5249,9 +5252,6 @@ importers:
       linkedom:
         specifier: ^0.18.5
         version: 0.18.5
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@18.19.50)(sass@1.80.6)
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
