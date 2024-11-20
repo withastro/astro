@@ -197,19 +197,33 @@ export async function generateImagesForPath(
 
 				// Try to revalidate the cache
 				if (JSONData.etag) {
-					const revalidatedData = await revalidateRemoteImage(options.src as string, JSONData.etag);
+					try {
+						const revalidatedData = await revalidateRemoteImage(
+							options.src as string,
+							JSONData.etag,
+						);
 
-					if (revalidatedData.data.length) {
-						// Image cache was stale, update original image to avoid redownload
-						originalImage = revalidatedData;
-					} else {
-						revalidatedData.data = Buffer.from(JSONData.data, 'base64');
+						if (revalidatedData.data.length) {
+							// Image cache was stale, update original image to avoid redownload
+							originalImage = revalidatedData;
+						} else {
+							revalidatedData.data = Buffer.from(JSONData.data, 'base64');
 
-						// Freshen cache on disk
-						await writeRemoteCacheFile(cachedFileURL, revalidatedData, env);
+							// Freshen cache on disk
+							await writeRemoteCacheFile(cachedFileURL, revalidatedData, env);
 
-						await fs.promises.writeFile(finalFileURL, revalidatedData.data);
-						return { cached: 'revalidated' };
+							await fs.promises.writeFile(finalFileURL, revalidatedData.data);
+							return { cached: 'revalidated' };
+						}
+					} catch (e) {
+						// Reuse stale cache if revalidation fails
+						env.logger.warn(
+							null,
+							`An error was encountered while revalidating a cached remote asset. Proceeding with stale cache. ${e}`,
+						);
+
+						await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
+						return { cached: 'hit' };
 					}
 				}
 
