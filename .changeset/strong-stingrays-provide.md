@@ -6,4 +6,4 @@
 '@astrojs/preact': patch
 ---
 
-Resolve `vite` peer dependency problem in the integration packages for strict package managers like **Yarn in PnP mode**.
+Resolve `vite` peer dependency problem for strict package managers like **Yarn in PnP mode**.
