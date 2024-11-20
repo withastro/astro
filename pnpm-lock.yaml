@@ -5172,6 +5172,9 @@ importers:
       svelte2tsx:
         specifier: ^0.7.22
         version: 0.7.22(svelte@5.1.16)(typescript@5.6.3)
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@18.19.50)(sass@1.80.6)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -5182,9 +5185,6 @@ importers:
       svelte:
         specifier: ^5.1.16
         version: 5.1.16
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@18.19.50)(sass@1.80.6)
 
   packages/integrations/tailwind:
     dependencies:
