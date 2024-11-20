@@ -13,3 +13,4 @@ export {
 } from './remotePattern.js';
 export { hashTransform, propsToFilename } from './transformToPath.js';
 export { inferRemoteSize } from './remoteProbe.js';
+export { makeSvgComponent } from './svg.js'
