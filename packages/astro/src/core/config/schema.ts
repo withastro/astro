@@ -96,6 +96,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		responsiveImages: false,
+		svg: {
+			mode: 'inline',
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -559,6 +562,24 @@ export const AstroConfigSchema = z.object({
 						.optional(),
 				})
 				.optional(),
+			svg: z.union([
+				z.boolean(),
+				z
+				.object({
+					mode: z
+						.union([z.literal('inline'), z.literal('sprite')])
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.experimental.svg.mode),
+				})
+			])
+				.optional()
+				.transform((svgConfig) => {
+					// Handle normalization of `experimental.svg` config boolean values
+					if (typeof svgConfig === 'boolean') {
+						return svgConfig ? ASTRO_CONFIG_DEFAULTS.experimental.svg : undefined;
+					}
+					return svgConfig;
+				}),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,

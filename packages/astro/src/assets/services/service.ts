@@ -8,7 +8,7 @@ import type {
 	ImageTransform,
 	UnresolvedSrcSetValue,
 } from '../types.js';
-import { isESMImportedImage } from '../utils/imageKind.js';
+import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
@@ -151,7 +151,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 	propertiesToHash: DEFAULT_HASH_PROPS,
 	validateOptions(options) {
 		// `src` is missing or is `undefined`.
-		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
+		if (!options.src || (!isRemoteImage(options.src) && !isESMImportedImage(options.src))) {
 			throw new AstroError({
 				...AstroErrorData.ExpectedImage,
 				message: AstroErrorData.ExpectedImage.message(
