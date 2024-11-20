@@ -602,6 +602,9 @@ importers:
       tsconfck:
         specifier: ^3.1.4
         version: 3.1.4(typescript@5.6.3)
+      ultrahtml:
+        specifier: ^1.5.3
+        version: 1.5.3
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0
@@ -2742,6 +2745,15 @@ importers:
 
   packages/astro/test/fixtures/core-image-ssr:
     dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/core-image-svg:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
       astro:
         specifier: workspace:*
         version: link:../../..
