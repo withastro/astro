@@ -1,20 +1,17 @@
 ---
 import astroLogo from '../assets/astro.svg';
+import background from '../assets/background.svg';
 ---
 
 <div id="container">
+	<img id="background" src={background.src} alt="" />
 	<main>
 		<section id="hero">
 			<a href="https://astro.build"
 				><img src={astroLogo.src} width="115" height="48" alt="Astro Homepage" /></a
 			>
 			<h1>
-				To get started, open the <button
-					onclick=`fetch("/__open-in-editor?file=${process.cwd()}/src/pages/index.astro");`
-					title="Click to open in your editor"
-					><span class="sr-only">src/pages</span><code aria-hidden="true"><pre>src/pages</pre></code
-					></button
-				> directory in your project.
+				To get started, open the <code><pre>src/pages</pre></code> directory in your project.
 			</h1>
 			<section id="links">
 				<a class="button" href="https://docs.astro.build">Read Our Docs</a>
@@ -45,6 +42,16 @@ import astroLogo from '../assets/astro.svg';
 </div>
 
 <style>
+	#background {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: -1;
+		filter: blur(100px);
+	}
+
 	#container {
 		font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
 		height: 100%;
@@ -52,8 +59,6 @@ import astroLogo from '../assets/astro.svg';
 
 	main {
 		height: 100%;
-		background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1024" fill="none"><g clip-path="url(%23a)"><path fill="%23FAFAFA" d="M0 0h1440v1024H0z"/><g filter="url(%23b)" opacity=".15"><path fill="url(%23c)" fill-rule="evenodd" d="M1103.43 115.43c146.42-19.45 275.33-155.84 413.5-103.59 188.09 71.13 409 212.64 407.06 413.88-1.94 201.25-259.28 278.6-414.96 405.96-130 106.35-240.24 294.39-405.6 265.3-163.7-28.8-161.93-274.12-284.34-386.66-134.95-124.06-436-101.46-445.82-284.6-9.68-180.38 247.41-246.3 413.54-316.9 101.01-42.93 207.83 21.06 316.62 6.61Z" clip-rule="evenodd"/></g><g filter="url(%23d)" opacity=".15"><path fill="url(%23e)" fill-rule="evenodd" d="M-217.58 475.75c91.82-72.02 225.52-29.38 341.2-44.74C240 415.56 372.33 315.14 466.77 384.9c102.9 76.02 44.74 246.76 90.31 366.31 29.83 78.24 90.48 136.14 129.48 210.23 57.92 109.99 169.67 208.23 155.9 331.77-13.52 121.26-103.42 264.33-224.23 281.37-141.96 20.03-232.72-220.96-374.06-196.99-151.7 25.73-172.68 330.24-325.85 315.72-128.6-12.2-110.9-230.73-128.15-358.76-12.16-90.14 65.87-176.25 44.1-264.57-26.42-107.2-167.12-163.46-176.72-273.45-10.15-116.29 33.01-248.75 124.87-320.79Z" clip-rule="evenodd"/></g></g><defs><linearGradient id="c" x1="373" x2="1995.44" y1="1100" y2="118.03" gradientUnits="userSpaceOnUse"><stop stop-color="%23D83333"/><stop offset="1" stop-color="%23F041FF"/></linearGradient><linearGradient id="e" x1="107.37" x2="1130.66" y1="1993.35" y2="1026.31" gradientUnits="userSpaceOnUse"><stop stop-color="%233245FF"/><stop offset="1" stop-color="%23BC52EE"/></linearGradient><filter id="b" width="2151" height="1700" x="73" y="-300" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_674_56" stdDeviation="150"/></filter><filter id="d" width="1787.52" height="1933.31" x="-643.9" y="60.5" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_674_56" stdDeviation="150"/></filter><clipPath id="a"><path fill="%23fff" d="M0 0h1440v1024H0z"/></clipPath></defs></svg>')
-			center/cover no-repeat;
 		display: flex;
 		justify-content: center;
 	}
@@ -111,22 +116,6 @@ import astroLogo from '../assets/astro.svg';
 		box-shadow: none;
 	}
 
-	button {
-		border-radius: 9px;
-		display: inline-block;
-		background-image: linear-gradient(var(--angle), #d83333 0%, #f041ff 15%, #f5cee7 41%);
-		padding: 1px;
-		border: none;
-		font: inherit;
-		-webkit-appearance: none;
-		animation: rotate-out 0.35s linear forwards;
-	}
-
-	button:hover {
-		cursor: pointer;
-		animation: rotate-in 1s linear forwards;
-	}
-
 	pre {
 		font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas,
 			'DejaVu Sans Mono', monospace;
@@ -155,8 +144,11 @@ import astroLogo from '../assets/astro.svg';
 
 	code {
 		display: inline-block;
-		background: linear-gradient(66.77deg, #f3cddd 0%, #f5cee7 100%);
+		background:
+			linear-gradient(66.77deg, #f3cddd 0%, #f5cee7 100%) padding-box,
+			linear-gradient(155deg, #d83333 0%, #f041ff 18%, #f5cee7 45%) border-box;
 		border-radius: 8px;
+		border: 1px solid transparent;
 		padding: 6px 8px;
 	}
 
@@ -179,42 +171,6 @@ import astroLogo from '../assets/astro.svg';
 
 	#news:hover {
 		background: rgba(255, 255, 255, 0.55);
-	}
-
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-		border-width: 0;
-	}
-
-	@keyframes rotate-in {
-		from {
-			--angle: 155deg;
-		}
-		to {
-			--angle: 220deg;
-		}
-	}
-
-	@keyframes rotate-out {
-		from {
-			--angle: 220deg;
-		}
-		to {
-			--angle: 155deg;
-		}
-	}
-
-	@property --angle {
-		syntax: '<angle>';
-		initial-value: 155deg;
-		inherits: false;
 	}
 
 	@media screen and (max-height: 368px) {
