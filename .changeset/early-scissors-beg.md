@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Remove default throw behavior in astro:env
+Removes the default throw behavior in `astro:env`
