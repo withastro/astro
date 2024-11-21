@@ -1,6 +1,6 @@
 # @astrojs/preact
 
-## 3.5.4-beta.0
+## 3.5.4
 
 ### Patch Changes
 

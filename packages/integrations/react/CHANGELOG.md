@@ -1,6 +1,6 @@
 # @astrojs/react
 
-## 3.6.3-beta.0
+## 3.6.3
 
 ### Patch Changes
 

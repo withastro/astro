@@ -1,6 +1,6 @@
 # @astrojs/solid-js
 
-## 4.4.4-beta.0
+## 4.4.4
 
 ### Patch Changes
 

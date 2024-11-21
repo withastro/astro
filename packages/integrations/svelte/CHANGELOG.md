@@ -1,6 +1,6 @@
 # @astrojs/svelte
 
-## 6.0.2-beta.0
+## 6.0.2
 
 ### Patch Changes
 
