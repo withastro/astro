@@ -41,10 +41,10 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-					        componentExport: 'default',
-					        encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
-					        slots: {},
-					})
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						slots: {},
+					}),
 				});
 				const works = res.headers.get('X-Works');
 				assert.equal(works, 'true', 'able to set header from server island');
