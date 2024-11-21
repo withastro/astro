@@ -13,7 +13,7 @@ import type {
 	InjectedScriptStage,
 	InjectedType,
 } from './public/integrations.js';
-import type { InternalInjectedRoute, RouteData, ResolvedInjectedRoute } from './public/internal.js';
+import type { InternalInjectedRoute, ResolvedInjectedRoute, RouteData } from './public/internal.js';
 import type { DevToolbarAppEntry } from './public/toolbar.js';
 
 export type SerializedRouteData = Omit<

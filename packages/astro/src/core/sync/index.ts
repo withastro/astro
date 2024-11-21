@@ -253,20 +253,22 @@ async function syncContentCollections(
 		if (isAstroError(e)) {
 			throw e;
 		}
-		let configFile
+		let configFile;
 		try {
 			const contentPaths = getContentPaths(settings.config, fs);
-			if(contentPaths.config.exists) {
+			if (contentPaths.config.exists) {
 				const matches = /\/(src\/.+)/.exec(contentPaths.config.url.href);
 				if (matches) {
-					configFile = matches[1]
+					configFile = matches[1];
 				}
 			}
 		} catch {
 			// ignore
 		}
 
-		const hint = AstroUserError.is(e) ? e.hint : AstroErrorData.GenerateContentTypesError.hint(configFile);
+		const hint = AstroUserError.is(e)
+			? e.hint
+			: AstroErrorData.GenerateContentTypesError.hint(configFile);
 		throw new AstroError(
 			{
 				...AstroErrorData.GenerateContentTypesError,

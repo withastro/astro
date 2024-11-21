@@ -53,7 +53,7 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal(!!$(this).attr('mode'), false);
 					const $use = $(this).children('use');
 					assert.equal($use.length, 0);
-				})
+				});
 			});
 
 			it('Adds the <svg> tag with the definition', () => {
@@ -64,7 +64,7 @@ describe('astro:assets - SVG Components', () => {
 				const $symbol = $svg.children('symbol');
 				assert.equal($symbol.length, 1);
 				assert.equal($symbol.attr('id').startsWith('a:'), true);
-				
+
 				const $use = $svg.children('use');
 				assert.equal($use.length, 1);
 				assert.equal($use.attr('href').startsWith('#a:'), true);
@@ -78,7 +78,7 @@ describe('astro:assets - SVG Components', () => {
 				const $symbol = $svg.children('symbol');
 				assert.equal($symbol.length, 0);
 
-				const definitionId = $('#definition svg symbol').attr('id')
+				const definitionId = $('#definition svg symbol').attr('id');
 				const $use = $svg.children('use');
 				assert.equal($use.length, 1);
 				assert.equal($use.attr('href').startsWith('#a:'), true);
@@ -167,13 +167,13 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal($svg.attr('role'), 'img');
 					assert.equal(!!$svg.attr('mode'), false);
 
-					const $symbol = $svg.children('symbol')
+					const $symbol = $svg.children('symbol');
 					assert.equal($symbol.length, 0);
-					const $use = $svg.children('use')
+					const $use = $svg.children('use');
 					assert.equal($use.length, 0);
 					const $path = $svg.children('path');
 					assert.equal($path.length, 1);
-				})
+				});
 				it('adds the svg into the document directly', () => {
 					let $svg = $('#inline svg');
 					assert.equal($svg.length, 1);
@@ -183,9 +183,9 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal($svg.attr('role'), 'img');
 					assert.equal(!!$svg.attr('mode'), false);
 
-					const $symbol = $svg.children('symbol')
+					const $symbol = $svg.children('symbol');
 					assert.equal($symbol.length, 0);
-					const $use = $svg.children('use')
+					const $use = $svg.children('use');
 					assert.equal($use.length, 0);
 					const $path = $svg.children('path');
 					assert.equal($path.length, 1);
@@ -199,13 +199,13 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal($svg.attr('role'), 'img');
 					assert.equal(!!$svg.attr('mode'), false);
 
-					const $symbol = $svg.children('symbol')
+					const $symbol = $svg.children('symbol');
 					assert.equal($symbol.length, 0);
-					const $use = $svg.children('use')
+					const $use = $svg.children('use');
 					assert.equal($use.length, 0);
 					const $path = $svg.children('path');
 					assert.equal($path.length, 1);
-				})
+				});
 				it('adds the svg into the document as a sprite, overridding the default', () => {
 					let $svg = $('#definition svg');
 					assert.equal($svg.length, 1);
@@ -215,10 +215,10 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal($svg.attr('role'), 'img');
 					assert.equal(!!$svg.attr('mode'), false);
 
-					let $symbol = $svg.children('symbol')
+					let $symbol = $svg.children('symbol');
 					assert.equal($symbol.length, 1);
 					assert.equal(!!$symbol.attr('viewBox'), true);
-					let $use = $svg.children('use')
+					let $use = $svg.children('use');
 					assert.equal($use.length, 1);
 					let $path = $svg.children('path');
 					assert.equal($path.length, 0);
@@ -231,14 +231,14 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal($svg.attr('role'), 'img');
 					assert.equal(!!$svg.attr('mode'), false);
 
-					$symbol = $svg.children('symbol')
+					$symbol = $svg.children('symbol');
 					assert.equal($symbol.length, 0);
 					assert.equal(!!$symbol.attr('viewBox'), false);
-					$use = $svg.children('use')
+					$use = $svg.children('use');
 					assert.equal($use.length, 1);
 					$path = $svg.children('path');
 					assert.equal($path.length, 0);
-				})
+				});
 			});
 			describe('title', () => {
 				let $;
@@ -255,7 +255,7 @@ describe('astro:assets - SVG Components', () => {
 
 					const $title = $('#base svg > title');
 					assert.equal($title.length, 1);
-					assert.equal($title.text(), 'GitHub Logo')
+					assert.equal($title.text(), 'GitHub Logo');
 				});
 			});
 			describe('strip', () => {
@@ -291,11 +291,11 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal($svg.attr('class'), 'foobar');
 					assert.equal($svg.attr('data-state'), 'open');
 
-					const $symbol = $svg.children('symbol')
+					const $symbol = $svg.children('symbol');
 					assert.equal($symbol.length, 0);
-					const $use = $svg.children('use')
+					const $use = $svg.children('use');
 					assert.equal($use.length, 0);
-					const $path = $svg.children('path')
+					const $path = $svg.children('path');
 					assert.equal($path.length, 1);
 				});
 				it('allows overriding the role attribute', () => {
@@ -337,7 +337,6 @@ describe('astro:assets - SVG Components', () => {
 				useId = $('.two.use svg > use').attr('id');
 				assert.equal(defId, useId);
 
-				
 				// Third SVG
 				$svg = $('.three svg');
 				assert.equal($svg.length, 1);
@@ -372,9 +371,11 @@ describe('astro:assets - SVG Components', () => {
 
 				const $svg = $('svg');
 				assert.equal($svg.length, 2);
-				$svg.each(function() { assert.equal($(this).attr('role'), 'img') });
+				$svg.each(function () {
+					assert.equal($(this).attr('role'), 'img');
+				});
 
-				const definitionId =  $($svg[0]).children('symbol').attr('id')
+				const definitionId = $($svg[0]).children('symbol').attr('id');
 
 				const $reuse = $($svg[1]);
 				const $symbol = $reuse.children('symbol');

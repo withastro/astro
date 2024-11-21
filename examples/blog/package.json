@@ -13,6 +13,6 @@
     "@astrojs/mdx": "^4.0.0-beta.3",
     "@astrojs/rss": "^4.0.9",
     "@astrojs/sitemap": "^3.2.1",
-    "astro": "^5.0.0-beta.8"
+    "astro": "^5.0.0-beta.9"
   }
 }

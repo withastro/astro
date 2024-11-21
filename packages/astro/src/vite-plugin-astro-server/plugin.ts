@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import type fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
+import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
@@ -14,7 +15,9 @@ import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { injectDefaultDevRoutes } from '../core/routing/dev-default.js';
 import { createRouteManifest } from '../core/routing/index.js';
+import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
+import { runHookRoutesResolved } from '../integrations/hooks.js';
 import type { AstroSettings, ManifestData } from '../types/astro.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
@@ -22,9 +25,6 @@ import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
-import { fileURLToPath } from 'node:url';
-import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
-import { runHookRoutesResolved } from '../integrations/hooks.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
