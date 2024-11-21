@@ -1,6 +1,6 @@
 import { defineCollection, z, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
-import { loader } from '../loaders/post-loader.js';
+import { loader } from './loaders/post-loader.js';
 import { parse as parseToml } from 'toml';
 
 const blog = defineCollection({
@@ -141,7 +141,7 @@ const birds = defineCollection({
 });
 
 // Absolute paths should also work
-const absoluteRoot = new URL('space', import.meta.url);
+const absoluteRoot = new URL('content/space', import.meta.url);
 
 const spacecraft = defineCollection({
 	loader: glob({ pattern: '*.md', base: absoluteRoot }),
