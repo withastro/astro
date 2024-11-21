@@ -9,7 +9,7 @@ const defaultMockCookies = {
 	get: () => 'sessionid',
 };
 
-const stringify = (data) => '0' + devalueStringify(data);
+const stringify = (data) => JSON.parse(devalueStringify(data));
 
 const defaultConfig = {
 	driver: 'memory',
@@ -19,7 +19,7 @@ const defaultConfig = {
 // Helper to create a new session instance with mocked dependencies
 function createSession(config = defaultConfig, cookies = defaultMockCookies, mockStorage) {
 	if (mockStorage) {
-		config.driver = 'custom';
+		config.driver = 'test';
 		config.options ??= {};
 		config.options.mockStorage = mockStorage;
 	}
@@ -406,7 +406,7 @@ test('AstroSession - Storage Errors', async (t) => {
 
 		await assert.rejects(
 			async () => await session.get('key'),
-			/The session data could not be parsed/,
+			/The session data was an invalid type/,
 		);
 	});
 });
