@@ -87,13 +87,13 @@ describe('[DEV] i18n routing', () => {
 			const response = await fixture.fetch('/es/nonexistent-page');
 			assert.equal(response.status, 404);
 			assert.equal((await response.text()).includes('Current Locale: es'), true);
-    });
+		});
 
-    it('should return the correct locale on 404 page for non existing english locale page', async () => {
+		it('should return the correct locale on 404 page for non existing english locale page', async () => {
 			const response = await fixture.fetch('/en/nonexistent-page');
 			assert.equal(response.status, 404);
 			assert.equal((await response.text()).includes('Current Locale: en'), true);
-    });
+		});
 	});
 
 	describe('i18n routing', () => {
