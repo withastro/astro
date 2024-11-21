@@ -11,11 +11,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/preact": "^3.5.3",
-    "@astrojs/react": "^3.6.2",
-    "@astrojs/solid-js": "^4.4.3",
-    "@astrojs/svelte": "^6.0.1",
-    "@astrojs/vue": "^4.5.2",
+    "@astrojs/preact": "^3.5.4",
+    "@astrojs/react": "^3.6.3",
+    "@astrojs/solid-js": "^4.4.4",
+    "@astrojs/svelte": "^6.0.2",
+    "@astrojs/vue": "^4.5.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "astro": "^4.16.14",
