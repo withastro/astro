@@ -20,6 +20,7 @@ import { routeComparator } from '../priority.js';
 import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
+import { runHookRoutesResolved } from '../../../integrations/hooks.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -255,6 +256,7 @@ function createFileBasedRoutes(
 					prerender,
 					fallbackRoutes: [],
 					distURL: [],
+					origin: 'project',
 				});
 			}
 		}
@@ -280,7 +282,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 	const routes: RouteData[] = [];
 
 	for (const injectedRoute of settings.injectedRoutes) {
-		const { pattern: name, entrypoint, prerender: prerenderInjected } = injectedRoute;
+		const { pattern: name, entrypoint, prerender: prerenderInjected, origin } = injectedRoute;
 		const { resolved, component } = resolveInjectedRoute(entrypoint.toString(), config.root, cwd);
 
 		const segments = removeLeadingForwardSlash(name)
@@ -320,6 +322,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			prerender: prerenderInjected ?? prerender,
 			fallbackRoutes: [],
 			distURL: [],
+			origin,
 		});
 	}
 
@@ -389,6 +392,7 @@ function createRedirectRoutes(
 			redirectRoute: routeMap.get(destination),
 			fallbackRoutes: [],
 			distURL: [],
+			origin: 'project',
 		});
 	}
 
@@ -480,6 +484,7 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 export async function createRouteManifest(
 	params: CreateRouteManifestParams,
 	logger: Logger,
+	{ dev = false }: { dev?: boolean } = {},
 ): Promise<ManifestData> {
 	const { settings } = params;
 	const { config } = settings;
@@ -725,6 +730,10 @@ export async function createRouteManifest(
 				}
 			}
 		}
+	}
+
+	if (!dev) {
+		await runHookRoutesResolved({ routes, settings, logger });
 	}
 
 	return {

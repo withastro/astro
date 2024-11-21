@@ -2,6 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import type fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
+import { normalizePath } from 'vite';
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import { createKey } from '../core/encryption.js';
@@ -21,6 +22,9 @@ import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
+import { fileURLToPath } from 'node:url';
+import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
+import { runHookRoutesResolved } from '../integrations/hooks.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -50,26 +54,46 @@ export default function createVitePluginAstroServer({
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
 
-			/** rebuild the route cache + manifest, as needed. */
-			async function rebuildManifest(needsManifestRebuild: boolean) {
+			/** rebuild the route cache + manifest */
+			async function rebuildManifest(path: string | null = null) {
 				pipeline.clearRouteCache();
-				if (needsManifestRebuild) {
+
+				// If a route changes, we check if it's part of the manifest and check for its prerender value
+				if (path !== null) {
+					const route = routeManifest.routes.find(
+						(r) =>
+							normalizePath(path) ===
+							normalizePath(fileURLToPath(new URL(r.component, settings.config.root))),
+					);
+					if (!route) {
+						return;
+					}
+					if (route.type !== 'page' && route.type !== 'endpoint') return;
+
+					const routePath = fileURLToPath(new URL(route.component, settings.config.root));
+					try {
+						const content = await fsMod.promises.readFile(routePath, 'utf-8');
+						await getRoutePrerenderOption(content, route, settings, logger);
+					} catch (_) {}
+				} else {
 					routeManifest = injectDefaultDevRoutes(
 						settings,
 						devSSRManifest,
-						await createRouteManifest({ settings, fsMod }, logger), // TODO: Handle partial updates to the manifest
+						await createRouteManifest({ settings, fsMod }, logger, { dev: true }),
 					);
-					warnMissingAdapter(logger, settings);
-					pipeline.manifest.checkOrigin =
-						settings.config.security.checkOrigin && settings.buildOutput === 'server';
-					pipeline.setManifestData(routeManifest);
 				}
+				await runHookRoutesResolved({ routes: routeManifest.routes, settings, logger });
+
+				warnMissingAdapter(logger, settings);
+				pipeline.manifest.checkOrigin =
+					settings.config.security.checkOrigin && settings.buildOutput === 'server';
+				pipeline.setManifestData(routeManifest);
 			}
 
-			// Rebuild route manifest on file change, if needed.
-			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
-			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
-			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
+			// Rebuild route manifest on file change
+			viteServer.watcher.on('add', rebuildManifest.bind(null, null));
+			viteServer.watcher.on('unlink', rebuildManifest.bind(null, null));
+			viteServer.watcher.on('change', rebuildManifest);
 
 			function handleUnhandledRejection(rejection: any) {
 				const error = new AstroError({

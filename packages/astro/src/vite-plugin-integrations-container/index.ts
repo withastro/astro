@@ -5,7 +5,7 @@ import type { AstroSettings } from '../types/astro.js';
 
 import { normalizePath } from 'vite';
 import { runHookServerSetup } from '../integrations/hooks.js';
-import type { InjectedRoute, ResolvedInjectedRoute } from '../types/public/integrations.js';
+import type { InternalInjectedRoute, ResolvedInjectedRoute } from '../types/public/internal.js';
 
 /** Connect Astro integrations into Vite, as needed. */
 export default function astroIntegrationsContainerPlugin({
@@ -33,7 +33,7 @@ export default function astroIntegrationsContainerPlugin({
 
 async function resolveEntryPoint(
 	this: PluginContext,
-	route: InjectedRoute,
+	route: InternalInjectedRoute,
 ): Promise<ResolvedInjectedRoute> {
 	const resolvedId = await this.resolve(route.entrypoint.toString())
 		.then((res) => res?.id)

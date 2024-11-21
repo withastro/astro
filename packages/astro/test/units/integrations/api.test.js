@@ -7,7 +7,7 @@ import {
 	runHookBuildSetup,
 	runHookConfigSetup,
 } from '../../../dist/integrations/hooks.js';
-import { defaultLogger } from '../test-utils.js';
+import { createFixture, defaultLogger, runInContainer } from '../test-utils.js';
 
 const defaultConfig = {
 	root: new URL('./', import.meta.url),
@@ -130,6 +130,221 @@ describe('Integration API', () => {
 		});
 		assert.equal(updatedSettings.config.site, site);
 		assert.equal(updatedSettings.config.integrations.length, 2);
+	});
+
+	describe('Routes resolved hooks', () => {
+		it('should work in dev', async () => {
+			let routes = [];
+			const fixture = await createFixture({
+				'/src/pages/about.astro': '',
+				'/src/actions.ts': 'export const server = {}',
+				'/src/foo.astro': '',
+			});
+
+			await runInContainer(
+				{
+					inlineConfig: {
+						root: fixture.path,
+						integrations: [
+							{
+								name: 'test',
+								hooks: {
+									'astro:config:setup': (params) => {
+										params.injectRoute({
+											entrypoint: './src/foo.astro',
+											pattern: '/foo',
+										});
+									},
+									'astro:routes:resolved': (params) => {
+										routes = params.routes.map((r) => ({
+											isPrerendered: r.isPrerendered,
+											entrypoint: r.entrypoint,
+											pattern: r.pattern,
+											params: r.params,
+											origin: r.origin,
+										}));
+										routes.sort((a, b) => a.pattern.localeCompare(b.pattern));
+									},
+								},
+							},
+						],
+					},
+				},
+				async (container) => {
+					assert.deepEqual(
+						routes,
+						[
+							{
+								isPrerendered: false,
+								entrypoint: '_server-islands.astro',
+								pattern: '/_server-islands/[name]',
+								params: ['name'],
+								origin: 'internal',
+							},
+							{
+								isPrerendered: false,
+								entrypoint: '../../../../dist/actions/runtime/route.js',
+								pattern: '/_actions/[...path]',
+								params: ['...path'],
+								origin: 'internal',
+							},
+							{
+								isPrerendered: true,
+								entrypoint: 'src/pages/about.astro',
+								pattern: '/about',
+								params: [],
+								origin: 'project',
+							},
+							{
+								isPrerendered: true,
+								entrypoint: 'src/foo.astro',
+								pattern: '/foo',
+								params: [],
+								origin: 'external',
+							},
+							{
+								isPrerendered: false,
+								entrypoint: '../../../../dist/assets/endpoint/node.js',
+								pattern: '/_image',
+								params: [],
+								origin: 'internal',
+							},
+							{
+								isPrerendered: false,
+								entrypoint: 'astro-default-404.astro',
+								pattern: '/404',
+								params: [],
+								origin: 'internal',
+							},
+						].sort((a, b) => a.pattern.localeCompare(b.pattern)),
+					);
+
+					await fixture.writeFile('/src/pages/bar.astro', '');
+					container.viteServer.watcher.emit(
+						'add',
+						fixture.getPath('/src/pages/bar.astro').replace(/\\/g, '/'),
+					);
+					await new Promise((r) => setTimeout(r, 100));
+
+					assert.deepEqual(
+						routes,
+						[
+							{
+								isPrerendered: false,
+								entrypoint: '_server-islands.astro',
+								pattern: '/_server-islands/[name]',
+								params: ['name'],
+								origin: 'internal',
+							},
+							{
+								isPrerendered: false,
+								entrypoint: '../../../../dist/actions/runtime/route.js',
+								pattern: '/_actions/[...path]',
+								params: ['...path'],
+								origin: 'internal',
+							},
+							{
+								isPrerendered: true,
+								entrypoint: 'src/pages/about.astro',
+								pattern: '/about',
+								params: [],
+								origin: 'project',
+							},
+							{
+								isPrerendered: true,
+								entrypoint: 'src/pages/bar.astro',
+								pattern: '/bar',
+								params: [],
+								origin: 'project',
+							},
+							{
+								isPrerendered: true,
+								entrypoint: 'src/foo.astro',
+								pattern: '/foo',
+								params: [],
+								origin: 'external',
+							},
+							{
+								isPrerendered: false,
+								entrypoint: '../../../../dist/assets/endpoint/node.js',
+								pattern: '/_image',
+								params: [],
+								origin: 'internal',
+							},
+							{
+								isPrerendered: false,
+								entrypoint: 'astro-default-404.astro',
+								pattern: '/404',
+								params: [],
+								origin: 'internal',
+							},
+						].sort((a, b) => a.pattern.localeCompare(b.pattern)),
+					);
+
+					await fixture.writeFile('/src/pages/about.astro', '---\nexport const prerender=false\n');
+					container.viteServer.watcher.emit(
+						'change',
+						fixture.getPath('/src/pages/about.astro').replace(/\\/g, '/'),
+					);
+					await new Promise((r) => setTimeout(r, 100));
+
+					assert.deepEqual(
+						routes,
+						[
+							{
+								isPrerendered: false,
+								entrypoint: '_server-islands.astro',
+								pattern: '/_server-islands/[name]',
+								params: ['name'],
+								origin: 'internal',
+							},
+							{
+								isPrerendered: false,
+								entrypoint: '../../../../dist/actions/runtime/route.js',
+								pattern: '/_actions/[...path]',
+								params: ['...path'],
+								origin: 'internal',
+							},
+							{
+								isPrerendered: false,
+								entrypoint: 'src/pages/about.astro',
+								pattern: '/about',
+								params: [],
+								origin: 'project',
+							},
+							{
+								isPrerendered: true,
+								entrypoint: 'src/pages/bar.astro',
+								pattern: '/bar',
+								params: [],
+								origin: 'project',
+							},
+							{
+								isPrerendered: true,
+								entrypoint: 'src/foo.astro',
+								pattern: '/foo',
+								params: [],
+								origin: 'external',
+							},
+							{
+								isPrerendered: false,
+								entrypoint: '../../../../dist/assets/endpoint/node.js',
+								pattern: '/_image',
+								params: [],
+								origin: 'internal',
+							},
+							{
+								isPrerendered: false,
+								entrypoint: 'astro-default-404.astro',
+								pattern: '/404',
+								params: [],
+								origin: 'internal',
+							},
+						].sort((a, b) => a.pattern.localeCompare(b.pattern)),
+					);
+				},
+			);
+		});
 	});
 });
 
