@@ -1,6 +1,6 @@
 # @astrojs/vue
 
-## 5.0.0-beta.2
+## 4.5.3
 
 ### Patch Changes
 
