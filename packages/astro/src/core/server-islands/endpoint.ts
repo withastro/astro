@@ -138,9 +138,9 @@ export function createEndpoint(manifest: SSRManifest) {
 		// `self` which is needed to force the runtime to wait
 		// on the component before sending out the response headers.
 		// This allows the island to set headers (cookies).
-		if(isAstroComponentFactory(Component)) {
+		if (isAstroComponentFactory(Component)) {
 			const ServerIsland = Component;
-			Component = function(this: typeof ServerIsland, ...args: Parameters<typeof ServerIsland>) {
+			Component = function (this: typeof ServerIsland, ...args: Parameters<typeof ServerIsland>) {
 				return ServerIsland.apply(this, args);
 			};
 			Object.assign(Component, ServerIsland);

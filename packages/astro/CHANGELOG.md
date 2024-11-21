@@ -1,5 +1,11 @@
 # astro
 
+## 5.0.0-beta.10
+
+### Patch Changes
+
+- [#12486](https://github.com/withastro/astro/pull/12486) [`dc3d842`](https://github.com/withastro/astro/commit/dc3d842e4c6f3b7e59da8a13447a1450013e10dc) Thanks [@matthewp](https://github.com/matthewp)! - Call server island early so it can set headers
+
 ## 5.0.0-beta.9
 
 ### Minor Changes
