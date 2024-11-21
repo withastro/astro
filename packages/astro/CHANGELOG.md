@@ -1195,6 +1195,22 @@
 - Updated dependencies [[`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e)]:
   - @astrojs/markdown-remark@6.0.0-alpha.0
 
+## 4.16.14
+
+### Patch Changes
+
+- [#12480](https://github.com/withastro/astro/pull/12480) [`c3b7e7c`](https://github.com/withastro/astro/commit/c3b7e7cfa13603c08eb923703f31a92d514e82db) Thanks [@matthewp](https://github.com/matthewp)! - Removes the default throw behavior in `astro:env`
+
+- [#12444](https://github.com/withastro/astro/pull/12444) [`28dd3ce`](https://github.com/withastro/astro/commit/28dd3ce5222a667fe113238254edf59318b3fa14) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where a server island hydration script might fail case the island ID misses from the DOM.
+
+- [#12476](https://github.com/withastro/astro/pull/12476) [`80a9a52`](https://github.com/withastro/astro/commit/80a9a5299a9d51f2b09900d3200976d687feae8f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the Content Layer `glob()` loader would not update when renaming or deleting an entry
+
+- [#12418](https://github.com/withastro/astro/pull/12418) [`25baa4e`](https://github.com/withastro/astro/commit/25baa4ed0c5f55fa85c2c7e2c15848937ed1dc9b) Thanks [@oliverlynch](https://github.com/oliverlynch)! - Fix cached image redownloading if it is the first asset
+
+- [#12477](https://github.com/withastro/astro/pull/12477) [`46f6b38`](https://github.com/withastro/astro/commit/46f6b386b3db6332f286d79958ef10261958cceb) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the SSR build was emitting the `dist/server/entry.mjs` file with an incorrect import at the top of the file/
+
+- [#12365](https://github.com/withastro/astro/pull/12365) [`a23985b`](https://github.com/withastro/astro/commit/a23985b02165c2ddce56d511b3f97b6815c452c9) Thanks [@apatel369](https://github.com/apatel369)! - Fixes an issue where `Astro.currentLocale` was not correctly returning the locale for 404 and 500 pages.
+
 ## 4.16.13
 
 ### Patch Changes

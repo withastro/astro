@@ -170,7 +170,6 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`import { renderers } from '${RENDERERS_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
-		edgeMiddleware ? `` : `import { onRequest as middleware } from '${middlewareId}';`,
 		`import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`,
 	];
 
