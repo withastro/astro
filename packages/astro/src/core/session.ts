@@ -1,4 +1,4 @@
-import { unflatten, stringify } from 'devalue';
+import { stringify, unflatten } from 'devalue';
 import { type Driver, type Storage, builtinDrivers, createStorage } from 'unstorage';
 import type { SessionConfig, SessionDriverName } from '../types/public/config.js';
 import type { AstroCookies } from './cookies/cookies.js';
@@ -9,6 +9,7 @@ import { AstroError } from './errors/index.js';
 export const PERSIST_SYMBOL = Symbol();
 
 const DEFAULT_COOKIE_NAME = 'astro-session';
+const VALID_COOKIE_REGEX = /^[\w-]+$/;
 
 export class AstroSession<TDriver extends SessionDriverName = any> {
 	// The cookies object.
@@ -174,6 +175,13 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	// Uses a symbol to prevent users from calling it directly.
 	async [PERSIST_SYMBOL]() {
 		// Handle session data persistence
+
+		if (!this.#dirty && !this.#toDestroy.size) {
+			return;
+		}
+
+		const storage = await this.#ensureStorage();
+
 		if (this.#dirty && this.#data) {
 			const data = await this.#ensureData();
 			const key = this.#ensureSessionID();
@@ -195,15 +203,14 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 					{ cause: err },
 				);
 			}
-			await this.#storage?.setItem(key, serialized);
+			await storage.setItem(key, serialized);
 			this.#dirty = false;
 		}
 
 		// Handle destroyed session cleanup
 		if (this.#toDestroy.size > 0) {
-			await this.#ensureStorage();
 			const cleanupPromises = [...this.#toDestroy].map((sessionId) =>
-				this.#storage?.removeItem(sessionId).catch((err) => {
+				storage.removeItem(sessionId).catch((err) => {
 					console.error(`Failed to clean up session ${sessionId}:`, err);
 				}),
 			);
@@ -220,7 +227,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Sets the session cookie.
 	 */
 	async #setCookie() {
-		if (!/^[\w-]+$/.test(this.#cookieName)) {
+		if (!VALID_COOKIE_REGEX.test(this.#cookieName)) {
 			throw new AstroError({
 				...SessionStorageSaveError,
 				message: 'Invalid cookie name. Cookie names can only contain letters, numbers, and dashes.',
@@ -243,15 +250,17 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 */
 
 	async #ensureData() {
-		await this.#ensureStorage();
+		const storage = await this.#ensureStorage();
 		if (this.#data && !this.#sparse) {
 			return this.#data;
 		}
 		this.#data ??= new Map();
 
 		// We stored this as a devalue string, but unstorage will have parsed it as JSON
-		const raw = await this.#storage?.get<any[]>(this.#ensureSessionID());
+		const raw = await storage.get<any[]>(this.#ensureSessionID());
 		if (!raw) {
+			// If there is no existing data in storage we don't need to merge anything
+			// and can just return the existing local data.
 			return this.#data;
 		}
 
@@ -270,6 +279,11 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 					),
 				});
 			}
+			// The local data is "sparse" if it has not been loaded from storage yet. This means
+			// it only contains values that have been set or deleted in-memory locally.
+			// We do this to avoid the need to block on loading data when it is only being set.
+			// When we load the data from storage, we need to merge it with the local sparse data,
+			// preserving in-memory changes and deletions.
 
 			if (this.#sparse) {
 				// For sparse updates, only copy values from storage that:
@@ -330,18 +344,14 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Ensures the storage is initialized.
 	 * This is called automatically when a storage operation is needed.
 	 */
-	async #ensureStorage() {
+	async #ensureStorage():Promise<Storage> {
 		if (this.#storage) {
-			return;
+			return this.#storage;
 		}
-		// Hacky way to mock storage driver for tests
-		if (
-			process.env.NODE_TEST_CONTEXT &&
-			this.#config.driver === 'custom' &&
-			(this.#config.options as Record<string, unknown>)?.mockStorage
-		) {
-			this.#storage = (this.#config.options as Record<string, unknown>).mockStorage as Storage;
-			return;
+
+		if (this.#config.driver === 'test') {
+			this.#storage = (this.#config as SessionConfig<'test'>).options.mockStorage;
+			return this.#storage;
 		}
 		if (!this.#config?.driver) {
 			throw new AstroError({
@@ -393,6 +403,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			this.#storage = createStorage({
 				driver: driver(this.#config.options),
 			});
+			return this.#storage;
 		} catch (err) {
 			throw new AstroError(
 				{

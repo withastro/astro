@@ -5,7 +5,7 @@ import type {
 	RemarkRehype,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
-import type { BuiltinDriverName, BuiltinDriverOptions } from 'unstorage';
+import type { BuiltinDriverName, BuiltinDriverOptions, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
@@ -97,7 +97,7 @@ export type ServerConfig = {
 	open?: string | boolean;
 };
 
-export type SessionDriverName = BuiltinDriverName | 'custom';
+export type SessionDriverName = BuiltinDriverName | 'custom' | 'test';
 
 interface CommonSessionConfig {
 	/**
@@ -121,8 +121,19 @@ interface CustomSessionConfig extends CommonSessionConfig {
 	options?: Record<string, unknown>;
 }
 
+interface TestSessionConfig extends CommonSessionConfig {
+	driver: 'test';
+	options: {
+		mockStorage: Storage;
+	};
+}
+
 export type SessionConfig<TDriver extends SessionDriverName> =
-	TDriver extends keyof BuiltinDriverOptions ? BuiltinSessionConfig<TDriver> : CustomSessionConfig;
+	TDriver extends keyof BuiltinDriverOptions
+		? BuiltinSessionConfig<TDriver>
+		: TDriver extends 'test'
+			? TestSessionConfig
+			: CustomSessionConfig;
 
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
@@ -1801,7 +1812,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name experimental.contentIntellisense
 		 * @type {boolean}
 		 * @default `false`
-     * @version 5.x
+		 * @version 5.x
 		 * @description
 		 *
 		 * Enables Intellisense features (e.g. code completion, quick hints) for your content collection entries in compatible editors.
@@ -1983,17 +1994,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 */
 
 		session?: SessionConfig<TSession>;
-		/** 
+		/**
 		 * @name experimental.svg
 		 * @type {boolean|object}
 		 * @default `undefined`
-     * @version 5.x
+		 * @version 5.x
 		 * @description
-		 * 
+		 *
 		 * This feature allows you to import SVG files directly into your Astro project. By default, Astro will inline the SVG content into your HTML output.
-		 * 
+		 *
 		 * To enable this feature, set `experimental.svg` to `true` in your Astro config:
-		 * 
+		 *
 		 * ```js
 		 * {
 		 *   experimental: {
@@ -2001,20 +2012,20 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * 	 },
 		 * }
 		 * ```
-		 * 
+		 *
 		 * To use this feature, import an SVG file in your Astro project, passing any common SVG attributes to the imported component.
 		 * Astro also provides a `size` attribute to set equal `height` and `width` properties:
-		 * 
+		 *
 		 * ```astro
 		 * ---
 		 * import Logo from './path/to/svg/file.svg';
 		 * ---
-		 * 
+		 *
 		 * <Logo size={24} />
 		 * ```
-		 * 
+		 *
 		 * For a complete overview, and to give feedback on this experimental API,
-     * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
+		 * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
 		 */
 		svg?: {
 			/**
@@ -2022,17 +2033,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * @name experimental.svg.mode
 			 * @type {string}
 			 * @default 'inline'
-			 * 
+			 *
 			 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
-			 * 
+			 *
 			 * - `inline`: Astro will inline the SVG content into your HTML output.
 			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
-			 * 
+			 *
 			 * ```astro
 			 * ---
 			 * import Logo from './path/to/svg/file.svg';
 			 * ---
-			 * 
+			 *
 			 * <Logo size={24} mode="sprite" />
 			 * ```
 			 */

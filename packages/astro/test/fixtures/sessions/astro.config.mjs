@@ -5,14 +5,14 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 export default defineConfig({
-  adapter: testAdapter(),
+	adapter: testAdapter(),
 	output: 'server',
-  experimental: {
-      session: {
-				driver: "fs",
-				options: {
-					base: join(tmpdir(), 'sessions'),
-				}
-			}, 
+	experimental: {
+		session: {
+			driver: 'fs',
+			options: {
+				base: join(tmpdir(), 'sessions'),
+			},
+		},
 	},
 });
