@@ -277,5 +277,6 @@ function buildManifest(
 		envGetSecretEnabled:
 			(unwrapSupportKind(settings.adapter?.supportedAstroFeatures.envGetSecret) ??
 				'unsupported') !== 'unsupported',
+		sessionConfig: settings.config.experimental.session,
 	};
 }

@@ -5,7 +5,7 @@ import type {
 	RemarkRehype,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
-import type { BuiltinDriverName, BuiltinDriverOptions } from 'unstorage';
+import type { BuiltinDriverName, BuiltinDriverOptions, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
@@ -97,18 +97,16 @@ export type ServerConfig = {
 	open?: string | boolean;
 };
 
-export type SessionDriverName = BuiltinDriverName | 'custom';
+export type SessionDriverName = BuiltinDriverName | 'custom' | 'test';
 
 interface CommonSessionConfig {
 	/**
-	 * The name of the session cookie
-	 * @default `astro-session`
+	 * Configures the session cookie. If set to a string, it will be used as the cookie name.
+	 * Alternatively, you can pass an object with additional options.
 	 */
-	cookieName?: string;
-	/**
-	 * Additional options to pass to the session cookie
-	 */
-	cookieOptions?: AstroCookieSetOptions;
+	cookie?:
+		| string
+		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & { name?: string });
 }
 
 interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
@@ -123,8 +121,19 @@ interface CustomSessionConfig extends CommonSessionConfig {
 	options?: Record<string, unknown>;
 }
 
+interface TestSessionConfig extends CommonSessionConfig {
+	driver: 'test';
+	options: {
+		mockStorage: Storage;
+	};
+}
+
 export type SessionConfig<TDriver extends SessionDriverName> =
-	TDriver extends keyof BuiltinDriverOptions ? BuiltinSessionConfig<TDriver> : CustomSessionConfig;
+	TDriver extends keyof BuiltinDriverOptions
+		? BuiltinSessionConfig<TDriver>
+		: TDriver extends 'test'
+			? TestSessionConfig
+			: CustomSessionConfig;
 
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
@@ -1163,11 +1172,11 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
-		 * 
-	 	 * Shiki is our default syntax highlighter. You can configure all options via the `markdown.shikiConfig` object:
-		 * 
-	 	 * ```js title="astro.config.mjs"
-	   * import { defineConfig } from 'astro/config';
+		 *
+		 * Shiki is our default syntax highlighter. You can configure all options via the `markdown.shikiConfig` object:
+		 *
+		 * ```js title="astro.config.mjs"
+		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
 		 *   markdown: {
@@ -1179,7 +1188,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *       // See note below for using dual light/dark themes
 		 *       themes: {
 		 *         light: 'github-light',
- 		 *         dark: 'github-dark',
+		 *         dark: 'github-dark',
 		 *       },
 		 *       // Disable the default colors
 		 *       // https://shiki.style/guide/dual-themes#without-default-color
@@ -1803,7 +1812,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name experimental.contentIntellisense
 		 * @type {boolean}
 		 * @default `false`
-     * @version 5.x
+		 * @version 5.x
 		 * @description
 		 *
 		 * Enables Intellisense features (e.g. code completion, quick hints) for your content collection entries in compatible editors.
@@ -1947,9 +1956,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @type {SessionConfig}
 		 * @version 5.0.0
 		 * @description
-		 * 
+		 *
 		 * Enables support for sessions in Astro. Sessions are used to store user data across requests, such as user authentication state.
-		 * 
+		 *
 		 * When enabled you can access the `Astro.session` object to read and write data that persists across requests. You can configure the session driver using the [`session` option](#session), or use the default provided by your adapter.
 		 *
 		 * ```astro title=src/components/CartButton.astro
@@ -1960,8 +1969,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
 		 *
-		 * ``` 
-		 * The object configures session management for your Astro site by specifying a `driver` as well as any `options` for your data storage. 
+		 * ```
+		 * The object configures session management for your Astro site by specifying a `driver` as well as any `options` for your data storage.
 		 *
 		 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
 		 *
@@ -1971,31 +1980,31 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *  		session: {
 		 *    		// Required: the name of the Unstorage driver
 		 *    		driver: "redis",
- 		 *   			// The required options depend on the driver
- 		 *   			options: {
- 		 *     			url: process.env.REDIS_URL,
+		 *   			// The required options depend on the driver
+		 *   			options: {
+		 *     			url: process.env.REDIS_URL,
 		 * 				}
 		 * 			}
- 		 *   	},
+		 *   	},
 		 * 	}
 		 * ```
-		 * 
+		 *
 		 * For more details, see [the Sessions RFC](https://github.com/withastro/roadmap/blob/sessions/proposals/0054-sessions.md).
-		 * 
+		 *
 		 */
 
 		session?: SessionConfig<TSession>;
-		/** 
+		/**
 		 * @name experimental.svg
 		 * @type {boolean|object}
 		 * @default `undefined`
-     * @version 5.x
+		 * @version 5.x
 		 * @description
-		 * 
+		 *
 		 * This feature allows you to import SVG files directly into your Astro project. By default, Astro will inline the SVG content into your HTML output.
-		 * 
+		 *
 		 * To enable this feature, set `experimental.svg` to `true` in your Astro config:
-		 * 
+		 *
 		 * ```js
 		 * {
 		 *   experimental: {
@@ -2003,20 +2012,20 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * 	 },
 		 * }
 		 * ```
-		 * 
+		 *
 		 * To use this feature, import an SVG file in your Astro project, passing any common SVG attributes to the imported component.
 		 * Astro also provides a `size` attribute to set equal `height` and `width` properties:
-		 * 
+		 *
 		 * ```astro
 		 * ---
 		 * import Logo from './path/to/svg/file.svg';
 		 * ---
-		 * 
+		 *
 		 * <Logo size={24} />
 		 * ```
-		 * 
+		 *
 		 * For a complete overview, and to give feedback on this experimental API,
-     * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
+		 * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
 		 */
 		svg?: {
 			/**
@@ -2024,17 +2033,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * @name experimental.svg.mode
 			 * @type {string}
 			 * @default 'inline'
-			 * 
+			 *
 			 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
-			 * 
+			 *
 			 * - `inline`: Astro will inline the SVG content into your HTML output.
 			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
-			 * 
+			 *
 			 * ```astro
 			 * ---
 			 * import Logo from './path/to/svg/file.svg';
 			 * ---
-			 * 
+			 *
 			 * <Logo size={24} mode="sprite" />
 			 * ```
 			 */

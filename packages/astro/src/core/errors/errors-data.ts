@@ -870,6 +870,36 @@ export const AstroResponseHeadersReassigned = {
 
 /**
  * @docs
+ * @see
+ * 	- [experimental.session](https://5-0-0-beta.docs.astro.build/en/reference/configuration-reference/#experimentalsession)
+ * @description
+ * Thrown when the session storage could not be initialized.
+ */
+export const SessionStorageInitError = {
+	name: 'SessionStorageInitError',
+	title: 'Session storage could not be initialized.',
+	message: (error: string, driver?: string) =>
+		`Error when initializing session storage${driver ? ` with driver ${driver}` : ''}. ${error ?? ''}`,
+	hint: 'For more information, see https://5-0-0-beta.docs.astro.build/en/reference/configuration-reference/#experimentalsession',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * 	- [experimental.session](https://5-0-0-beta.docs.astro.build/en/reference/configuration-reference/#experimentalsession)
+ * @description
+ * Thrown when the session data could not be saved.
+ */
+export const SessionStorageSaveError = {
+	name: 'SessionStorageSaveError',
+	title: 'Session data could not be saved.',
+	message: (error: string, driver?: string) =>
+		`Error when saving session data${driver ? ` with driver ${driver}` : ''}. ${error ?? ''}`,
+	hint: 'For more information, see https://5-0-0-beta.docs.astro.build/en/reference/configuration-reference/#experimentalsession',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @description
  * Thrown in development mode when middleware throws an error while attempting to loading it.
  *
