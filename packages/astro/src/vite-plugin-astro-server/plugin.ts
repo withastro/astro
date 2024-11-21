@@ -6,7 +6,7 @@ import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
-import { createKey } from '../core/encryption.js';
+import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
@@ -192,7 +192,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		envGetSecretEnabled: false,
-		key: createKey(),
+		key: hasEnvironmentKey() ? getEnvironmentKey() : createKey(),
 		middleware() {
 			return {
 				onRequest: NOOP_MIDDLEWARE_FN,
