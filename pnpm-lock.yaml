@@ -146,7 +146,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
 
   examples/blog:
@@ -161,22 +161,22 @@ importers:
         specifier: ^3.2.1
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
 
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^3.6.2
+        specifier: ^3.6.3-beta.0
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -207,25 +207,25 @@ importers:
         specifier: ^3.14.3
         version: 3.14.3
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
 
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^3.5.3
+        specifier: ^3.5.4-beta.0
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^3.6.2
+        specifier: ^3.6.3-beta.0
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
-        specifier: ^4.4.3
+        specifier: ^4.4.4-beta.0
         version: link:../../packages/integrations/solid
       '@astrojs/svelte':
-        specifier: ^6.0.0-beta.2
+        specifier: ^6.0.2-beta.0
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
-        specifier: ^5.0.0-beta.1
+        specifier: ^5.0.0-beta.2
         version: link:../../packages/integrations/vue
       '@types/react':
         specifier: ^18.3.12
@@ -234,7 +234,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       preact:
         specifier: ^10.24.3
@@ -258,13 +258,13 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^3.5.3
+        specifier: ^3.5.4-beta.0
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^1.3.0
         version: 1.3.0(preact@10.24.3)
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       preact:
         specifier: ^10.24.3
@@ -273,7 +273,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^3.6.2
+        specifier: ^3.6.3-beta.0
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^18.3.12
@@ -282,7 +282,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -294,10 +294,10 @@ importers:
   examples/framework-solid:
     dependencies:
       '@astrojs/solid-js':
-        specifier: ^4.4.3
+        specifier: ^4.4.4-beta.0
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.2
@@ -306,10 +306,10 @@ importers:
   examples/framework-svelte:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^6.0.0
+        specifier: ^6.0.2-beta.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       svelte:
         specifier: ^5.1.16
@@ -318,10 +318,10 @@ importers:
   examples/framework-vue:
     dependencies:
       '@astrojs/vue':
-        specifier: ^5.0.0-beta.1
+        specifier: ^5.0.0-beta.2
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.12
@@ -333,25 +333,25 @@ importers:
         specifier: ^9.0.0-alpha.1
         version: 9.0.0-alpha.1(astro@packages+astro)
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
 
   examples/ssr:
@@ -360,10 +360,10 @@ importers:
         specifier: ^9.0.0-alpha.1
         version: 9.0.0-alpha.1(astro@packages+astro)
       '@astrojs/svelte':
-        specifier: ^6.0.0
+        specifier: ^6.0.2-beta.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       svelte:
         specifier: ^5.1.16
@@ -372,7 +372,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       sass:
         specifier: ^1.80.6
@@ -384,7 +384,7 @@ importers:
   examples/toolbar-app:
     devDependencies:
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -393,7 +393,7 @@ importers:
         specifier: ^0.12.0-beta.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -402,10 +402,10 @@ importers:
         specifier: ^4.0.0-beta.3
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^3.5.3
+        specifier: ^3.5.4-beta.0
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       preact:
         specifier: ^10.24.3
@@ -414,13 +414,13 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^3.5.3
+        specifier: ^3.5.4-beta.0
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^0.5.2
         version: 0.5.2(nanostores@0.11.3)(preact@10.24.3)
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.11.3
@@ -441,7 +441,7 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.20
@@ -459,7 +459,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^5.0.0-beta.8
+        specifier: ^5.0.0-beta.9
         version: link:../../packages/astro
       vitest:
         specifier: ^2.1.4
@@ -4399,7 +4399,7 @@ importers:
         version: 8.3.4(astro@packages+astro)
       '@astrojs/react':
         specifier: ^3.6.2
-        version: link:../../../../integrations/react
+        version: 3.6.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@6.0.0-beta.6(@types/node@18.19.50)(jiti@1.21.6)(sass@1.81.0)(yaml@2.5.1))
       '@types/react':
         specifier: ^18.3.12
         version: 18.3.12
@@ -4489,37 +4489,6 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/cloudflare: {}
-
-  packages/integrations/lit:
-    dependencies:
-      '@lit-labs/ssr':
-        specifier: ^3.2.2
-        version: 3.2.2
-      '@lit-labs/ssr-client':
-        specifier: ^1.1.7
-        version: 1.1.7
-      '@lit-labs/ssr-dom-shim':
-        specifier: ^1.2.1
-        version: 1.2.1
-      parse5:
-        specifier: ^7.2.1
-        version: 7.2.1
-    devDependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../astro
-      astro-scripts:
-        specifier: workspace:*
-        version: link:../../../scripts
-      cheerio:
-        specifier: 1.0.0
-        version: 1.0.0
-      lit:
-        specifier: ^3.2.1
-        version: 3.2.1
-      sass:
-        specifier: ^1.80.6
-        version: 1.81.0
 
   packages/integrations/markdoc:
     dependencies:
@@ -5669,6 +5638,15 @@ packages:
     resolution: {integrity: sha512-5KsaJYuAnKP4tmT/skEWLs4UP6FQhtwIVa26MBU5imiS/aL33cIwmZ7Gl2W0rP/t4Wnz9ehf42lXWXLPekhETw==}
     peerDependencies:
       astro: ^5.0.0-alpha.0
+
+  '@astrojs/react@3.6.2':
+    resolution: {integrity: sha512-fK29lYI7zK/KG4ZBy956x4dmauZcZ18osFkuyGa8r3gmmCQa2NZ9XNu9WaVYEUm0j89f4Gii4tbxLoyM8nk2MA==}
+    engines: {node: ^18.17.1 || ^20.3.0 || >=21.0.0}
+    peerDependencies:
+      '@types/react': ^17.0.50 || ^18.0.21
+      '@types/react-dom': ^17.0.17 || ^18.0.6
+      react: ^17.0.2 || ^18.0.0 || ^19.0.0-beta
+      react-dom: ^17.0.2 || ^18.0.0 || ^19.0.0-beta
 
   '@astrojs/yaml2ts@0.2.1':
     resolution: {integrity: sha512-CBaNwDQJz20E5WxzQh4thLVfhB3JEEGz72wRA+oJp6fQR37QLAqXZJU0mHC+yqMOQ6oj0GfRPJrz6hjf+zm6zA==}
@@ -6855,15 +6833,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@lit-labs/ssr-client@1.1.7':
-    resolution: {integrity: sha512-VvqhY/iif3FHrlhkzEPsuX/7h/NqnfxLwVf0p8ghNIlKegRyRqgeaJevZ57s/u/LiFyKgqksRP5n+LmNvpxN+A==}
-
   '@lit-labs/ssr-dom-shim@1.2.1':
     resolution: {integrity: sha512-wx4aBmgeGvFmOKucFKY+8VFJSYZxs9poN3SDNQFF6lT6NrQUnHiPB2PWz2sc4ieEcAaYYzN+1uWahEeTq2aRIQ==}
-
-  '@lit-labs/ssr@3.2.2':
-    resolution: {integrity: sha512-He5TzeNPM9ECmVpgXRYmVlz0UA5YnzHlT43kyLi2Lu6mUidskqJVonk9W5K699+2DKhoXp8Ra4EJmHR6KrcW1Q==}
-    engines: {node: '>=13.9.0'}
 
   '@lit/reactive-element@2.0.4':
     resolution: {integrity: sha512-GFn91inaUa2oHLak8awSIigYz0cU0Payr1rcFsrkf5OJ5eSPxElyZfKh0f2p9FsTiZWXQdWGJeXZICEfXXYSXQ==}
@@ -6989,9 +6960,6 @@ packages:
   '@parcel/watcher@2.4.1':
     resolution: {integrity: sha512-HNjmfLQEVRZmHRET336f20H/8kOozUGwk7yajvsonjNxbj2wBTK1WsQuHkD5yYh9RxFGL2EyDHryOihOwUoKDA==}
     engines: {node: '>= 10.0.0'}
-
-  '@parse5/tools@0.3.0':
-    resolution: {integrity: sha512-zxRyTHkqb7WQMV8kTNBKWb1BeOFUKXBXTBWuxg9H9hfvQB3IwP6Iw2U75Ia5eyRxPNltmY7E8YAlz6zWwUnjKg==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -7289,9 +7257,6 @@ packages:
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
-
-  '@types/node@16.18.119':
-    resolution: {integrity: sha512-ia7V9a2FnhUFfetng4/sRPBMTwHZUkPFY736rb1cg9AgG7MZdR97q7/nLR9om+sq5f1la9C857E0l/nrI0RiFQ==}
 
   '@types/node@17.0.45':
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
@@ -8333,10 +8298,6 @@ packages:
 
   encoding-sniffer@0.2.0:
     resolution: {integrity: sha512-ju7Wq1kg04I3HtiYIOrUrdfdDvkyO9s5XM8QAj/bN61Yo/Vb4vgJxy5vi4Yxk01gWHbrofpPtpxM8bKger9jhg==}
-
-  enhanced-resolve@5.17.1:
-    resolution: {integrity: sha512-LMHl3dXhTcfv8gM4kEzIUeTQ+7fpdA0l2tUf34BddXPkz2A5xJ5L/Pchd5BL6rdccM9QGvu0sWZzK1Z1t4wwyg==}
-    engines: {node: '>=10.13.0'}
 
   enquirer@2.4.1:
     resolution: {integrity: sha512-rRqJg/6gd538VHvR3PSrdRBb/1Vy2YfzHqzvbhGIQpDRKIa4FgV/54b5Q1xYSxOOwKvjXweS26E0Q+nAMwp2pQ==}
@@ -10637,10 +10598,6 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  tapable@2.2.1:
-    resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
-    engines: {node: '>=6'}
-
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
@@ -11566,6 +11523,18 @@ snapshots:
       server-destroy: 1.0.1
     transitivePeerDependencies:
       - supports-color
+
+  '@astrojs/react@3.6.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@6.0.0-beta.6(@types/node@18.19.50)(jiti@1.21.6)(sass@1.81.0)(yaml@2.5.1))':
+    dependencies:
+      '@types/react': 18.3.12
+      '@types/react-dom': 18.3.1
+      '@vitejs/plugin-react': 4.3.3(vite@6.0.0-beta.6(@types/node@18.19.50)(jiti@1.21.6)(sass@1.81.0)(yaml@2.5.1))
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      ultrahtml: 1.5.3
+    transitivePeerDependencies:
+      - supports-color
+      - vite
 
   '@astrojs/yaml2ts@0.2.1':
     dependencies:
@@ -12740,27 +12709,7 @@ snapshots:
   '@libsql/win32-x64-msvc@0.4.5':
     optional: true
 
-  '@lit-labs/ssr-client@1.1.7':
-    dependencies:
-      '@lit/reactive-element': 2.0.4
-      lit: 3.2.1
-      lit-html: 3.2.0
-
   '@lit-labs/ssr-dom-shim@1.2.1': {}
-
-  '@lit-labs/ssr@3.2.2':
-    dependencies:
-      '@lit-labs/ssr-client': 1.1.7
-      '@lit-labs/ssr-dom-shim': 1.2.1
-      '@lit/reactive-element': 2.0.4
-      '@parse5/tools': 0.3.0
-      '@types/node': 16.18.119
-      enhanced-resolve: 5.17.1
-      lit: 3.2.1
-      lit-element: 4.1.0
-      lit-html: 3.2.0
-      node-fetch: 3.3.2
-      parse5: 7.2.1
 
   '@lit/reactive-element@2.0.4':
     dependencies:
@@ -12895,10 +12844,6 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.4.1
       '@parcel/watcher-win32-x64': 2.4.1
     optional: true
-
-  '@parse5/tools@0.3.0':
-    dependencies:
-      parse5: 7.2.1
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -13185,8 +13130,6 @@ snapshots:
       '@types/unist': 3.0.3
 
   '@types/node@12.20.55': {}
-
-  '@types/node@16.18.119': {}
 
   '@types/node@17.0.45': {}
 
@@ -14256,11 +14199,6 @@ snapshots:
     dependencies:
       iconv-lite: 0.6.3
       whatwg-encoding: 3.1.1
-
-  enhanced-resolve@5.17.1:
-    dependencies:
-      graceful-fs: 4.2.11
-      tapable: 2.2.1
 
   enquirer@2.4.1:
     dependencies:
@@ -17231,8 +17169,6 @@ snapshots:
       sucrase: 3.35.0
     transitivePeerDependencies:
       - ts-node
-
-  tapable@2.2.1: {}
 
   tar@6.2.1:
     dependencies:

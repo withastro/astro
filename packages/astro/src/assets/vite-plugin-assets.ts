@@ -17,8 +17,8 @@ import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/imageKind.js';
 import { emitESMImage } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
-import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 import { makeSvgComponent } from './utils/svg.js';
+import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -217,7 +217,9 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 					if (settings.config.experimental.svg && /\.svg$/.test(id)) {
 						const { contents, ...metadata } = imageMetadata;
 						// We know that the contents are present, as we only emit this property for SVG files
-						return makeSvgComponent(metadata, contents!, { mode: settings.config.experimental.svg.mode });
+						return makeSvgComponent(metadata, contents!, {
+							mode: settings.config.experimental.svg.mode,
+						});
 					}
 
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
