@@ -344,7 +344,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Ensures the storage is initialized.
 	 * This is called automatically when a storage operation is needed.
 	 */
-	async #ensureStorage():Promise<Storage> {
+	async #ensureStorage(): Promise<Storage> {
 		if (this.#storage) {
 			return this.#storage;
 		}
@@ -364,7 +364,9 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
 		const entry =
-			builtinDrivers[this.#config.driver as keyof typeof builtinDrivers] || this.#config.driver;
+			this.#config.driver in builtinDrivers
+				? `astro/internal/storage/drivers/${this.#config.driver}`
+				: this.#config.driver;
 		try {
 			// Try to load the driver from the built-in unstorage drivers.
 			// Otherwise, assume it's a custom driver and load by name.

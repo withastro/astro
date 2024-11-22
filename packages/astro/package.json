@@ -67,6 +67,7 @@
     "./assets/services/noop": "./dist/assets/services/noop.js",
     "./loaders": "./dist/content/loaders/index.js",
     "./content/runtime": "./dist/content/runtime.js",
+    "./internal/storage/drivers/*": "./dist/storage/drivers/*.js",
     "./content/runtime-assets": "./dist/content/runtime-assets.js",
     "./debug": "./components/Debug.astro",
     "./package.json": "./package.json",
