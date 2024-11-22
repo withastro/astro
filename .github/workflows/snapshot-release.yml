@@ -87,6 +87,8 @@ jobs:
           # Snapshots don't work in pre mode. See https://github.com/changesets/changesets/issues/1195
           pnpm exec changeset pre exit || true
           pnpm exec changeset status --output status.output.json 2>&1
+          # Snapshots don't work in pre mode. See https://github.com/changesets/changesets/issues/1195
+          pnpm exec changeset pre exit || true
           pnpm exec changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }}
 
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -104,8 +106,6 @@ jobs:
         id: publish
         run: |
           GITHUB_ACTIONS=0 pnpm run build > build.output.txt 2>&1
-          # Snapshots don't work in pre mode. See https://github.com/changesets/changesets/issues/1195
-          pnpm exec changeset pre exit || true
           pnpm exec changeset publish --tag experimental--${{ steps.getSnapshotName.outputs.result }} > publish.output.txt 2>&1
 
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
