@@ -85,7 +85,7 @@ jobs:
         id: changesets
         run: |
           # Snapshots don't work in pre mode. See https://github.com/changesets/changesets/issues/1195
-          pnpm changeset pre exit
+          pnpm exec changeset pre exit
           pnpm exec changeset status --output status.output.json 2>&1
           pnpm exec changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }}
 
