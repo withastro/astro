@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Adds experimental session support
+Adds experimental session support.
