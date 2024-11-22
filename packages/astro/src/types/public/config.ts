@@ -1130,11 +1130,11 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
-		 * 
-	 	 * Shiki is our default syntax highlighter. You can configure all options via the `markdown.shikiConfig` object:
-		 * 
-	 	 * ```js title="astro.config.mjs"
-	   * import { defineConfig } from 'astro/config';
+		 *
+		 * Shiki is our default syntax highlighter. You can configure all options via the `markdown.shikiConfig` object:
+		 *
+		 * ```js title="astro.config.mjs"
+		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
 		 *   markdown: {
@@ -1146,7 +1146,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *       // See note below for using dual light/dark themes
 		 *       themes: {
 		 *         light: 'github-light',
- 		 *         dark: 'github-dark',
+		 *         dark: 'github-dark',
 		 *       },
 		 *       // Disable the default colors
 		 *       // https://shiki.style/guide/dual-themes#without-default-color
@@ -1707,7 +1707,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * When you are ready to remove this flag and migrate to the new Content Layer API for your legacy collections, you must define a collection for any directories in `src/content/` that you want to continue to use as a collection. It is sufficient to declare an empty collection, and Astro will implicitly generate an appropriate definition for your legacy collections:
 		 *  
 		 * ```js
-		 * // src/content/config.ts
+		 * // src/content.config.ts
 		 * import { defineCollection, z } from 'astro:content';
 		 * 
 		 * const blog = defineCollection({ })
@@ -1770,7 +1770,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name experimental.contentIntellisense
 		 * @type {boolean}
 		 * @default `false`
-     * @version 5.x
+		 * @version 5.x
 		 * @description
 		 *
 		 * Enables Intellisense features (e.g. code completion, quick hints) for your content collection entries in compatible editors.
@@ -1901,7 +1901,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * The `widths` and `sizes` attributes are automatically generated based on the image's dimensions and the layout type, and in most cases should not be set manually. The generated `sizes` attribute for `responsive` and `full-width` images
 		 * is based on the assumption that the image is displayed at close to the full width of the screen when the viewport is smaller than the image's width. If it is significantly different (e.g. if it's in a multi-column layout on small screens) you may need to adjust the `sizes` attribute manually for best results.
-		 * 
+		 *
 		 * The `densities` attribute is not compatible with responsive images and will be ignored if set.
 		 */
 
@@ -1912,13 +1912,13 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name experimental.svg
 		 * @type {boolean|object}
 		 * @default `undefined`
-     * @version 5.x
+		 * @version 5.x
 		 * @description
-		 * 
+		 *
 		 * This feature allows you to import SVG files directly into your Astro project. By default, Astro will inline the SVG content into your HTML output.
-		 * 
+		 *
 		 * To enable this feature, set `experimental.svg` to `true` in your Astro config:
-		 * 
+		 *
 		 * ```js
 		 * {
 		 *   experimental: {
@@ -1926,20 +1926,20 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * 	 },
 		 * }
 		 * ```
-		 * 
+		 *
 		 * To use this feature, import an SVG file in your Astro project, passing any common SVG attributes to the imported component.
 		 * Astro also provides a `size` attribute to set equal `height` and `width` properties:
-		 * 
+		 *
 		 * ```astro
 		 * ---
 		 * import Logo from './path/to/svg/file.svg';
 		 * ---
-		 * 
+		 *
 		 * <Logo size={24} />
 		 * ```
-		 * 
+		 *
 		 * For a complete overview, and to give feedback on this experimental API,
-     * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
+		 * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
 		 */
 		svg?: {
 			/**
@@ -1947,17 +1947,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * @name experimental.svg.mode
 			 * @type {string}
 			 * @default 'inline'
-			 * 
+			 *
 			 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
-			 * 
+			 *
 			 * - `inline`: Astro will inline the SVG content into your HTML output.
 			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
-			 * 
+			 *
 			 * ```astro
 			 * ---
 			 * import Logo from './path/to/svg/file.svg';
 			 * ---
-			 * 
+			 *
 			 * <Logo size={24} mode="sprite" />
 			 * ```
 			 */

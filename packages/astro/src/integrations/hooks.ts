@@ -24,7 +24,9 @@ import type {
 import type {
 	AstroIntegration,
 	AstroRenderer,
+	BaseIntegrationHooks,
 	HookParameters,
+	IntegrationResolvedRoute,
 	IntegrationRouteData,
 	RouteOptions,
 } from '../types/public/integrations.js';
@@ -39,7 +41,7 @@ async function withTakingALongTimeMsg<T>({
 	logger,
 }: {
 	name: string;
-	hookName: string;
+	hookName: keyof BaseIntegrationHooks;
 	hookResult: T | Promise<T>;
 	timeoutMs?: number;
 	logger: Logger;
@@ -204,7 +206,7 @@ export async function runHookConfigSetup({
 						);
 						injectRoute.entrypoint = injectRoute.entryPoint as string;
 					}
-					updatedSettings.injectedRoutes.push(injectRoute);
+					updatedSettings.injectedRoutes.push({ ...injectRoute, origin: 'external' });
 				},
 				addWatchFile: (path) => {
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
@@ -599,6 +601,9 @@ export async function runHookBuildDone({ settings, pages, routes, logging }: Run
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,
 					routes: integrationRoutes,
+					assets: new Map(
+						routes.filter((r) => r.distURL !== undefined).map((r) => [r.route, r.distURL!]),
+					),
 					logger,
 				}),
 				logger: logging,
@@ -646,6 +651,47 @@ export async function runHookRouteSetup({
 				prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
 		);
 	}
+}
+
+export async function runHookRoutesResolved({
+	routes,
+	settings,
+	logger,
+}: { routes: Array<RouteData>; settings: AstroSettings; logger: Logger }) {
+	for (const integration of settings.config.integrations) {
+		if (integration?.hooks?.['astro:routes:resolved']) {
+			const integrationLogger = getLogger(integration, logger);
+
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookName: 'astro:routes:resolved',
+				hookResult: integration.hooks['astro:routes:resolved']({
+					routes: routes.map((route) => toIntegrationResolvedRoute(route)),
+					logger: integrationLogger,
+				}),
+				logger,
+			});
+		}
+	}
+}
+
+function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute {
+	return {
+		isPrerendered: route.prerender,
+		entrypoint: route.component,
+		pattern: route.route,
+		params: route.params,
+		origin: route.origin,
+		generate: route.generate,
+		patternRegex: route.pattern,
+		segments: route.segments,
+		type: route.type,
+		pathname: route.pathname,
+		redirect: route.redirect,
+		redirectRoute: route.redirectRoute
+			? toIntegrationResolvedRoute(route.redirectRoute)
+			: undefined,
+	};
 }
 
 function toIntegrationRouteData(route: RouteData): IntegrationRouteData {

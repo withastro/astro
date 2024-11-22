@@ -597,7 +597,7 @@ export async function autogenerateCollections({
 			}) as any,
 		};
 	}
-	if (!usesContentLayer) {
+	if (!usesContentLayer && fs.existsSync(contentDir)) {
 		// If the user hasn't defined any collections using the content layer, we'll try and help out by checking for
 		// any orphaned folders in the content directory and creating collections for them.
 		const orphanedCollections = [];
@@ -623,7 +623,7 @@ export async function autogenerateCollections({
 			console.warn(
 				`
 Auto-generating collections for folders in "src/content/" that are not defined as collections.
-This is deprecated, so you should define these collections yourself in "src/content/config.ts".
+This is deprecated, so you should define these collections yourself in "src/content.config.ts".
 The following collections have been auto-generated: ${orphanedCollections
 					.map((name) => green(name))
 					.join(', ')}\n`,
@@ -715,10 +715,10 @@ export type ContentPaths = {
 };
 
 export function getContentPaths(
-	{ srcDir }: Pick<AstroConfig, 'root' | 'srcDir'>,
+	{ srcDir, legacy }: Pick<AstroConfig, 'root' | 'srcDir' | 'legacy'>,
 	fs: typeof fsMod = fsMod,
 ): ContentPaths {
-	const configStats = search(fs, srcDir);
+	const configStats = search(fs, srcDir, legacy?.collections);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
 		contentDir: new URL('./content/', srcDir),
@@ -728,10 +728,16 @@ export function getContentPaths(
 		config: configStats,
 	};
 }
-function search(fs: typeof fsMod, srcDir: URL) {
-	const paths = ['config.mjs', 'config.js', 'config.mts', 'config.ts'].map(
-		(p) => new URL(`./content/${p}`, srcDir),
-	);
+function search(fs: typeof fsMod, srcDir: URL, legacy?: boolean) {
+	const paths = [
+		...(legacy
+			? []
+			: ['content.config.mjs', 'content.config.js', 'content.config.mts', 'content.config.ts']),
+		'content/config.mjs',
+		'content/config.js',
+		'content/config.mts',
+		'content/config.ts',
+	].map((p) => new URL(`./${p}`, srcDir));
 	for (const file of paths) {
 		if (fs.existsSync(file)) {
 			return { exists: true, url: file };

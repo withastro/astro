@@ -16,8 +16,8 @@ Anything enforced by linting and formatting is considered a **style rule.** It i
 
 These style rules are maintained in configuration files, and therefore not documented in this document. Read any of the following configuration files to learn more about the style rules that we strictly enforced across the codebase:
 
-- [ESLint](https://github.com/withastro/astro/blob/main/.eslintrc.cjs) (Linting)
-- [Prettier](https://github.com/withastro/astro/blob/main/.prettierrc.json) (Formatting)
+- [ESLint](https://github.com/withastro/astro/blob/main/eslint.config.js) (Linting)
+- [Prettier](https://github.com/withastro/astro/blob/main/prettier.config.js) (Formatting)
 
 Alternatively, don't worry too much about style rules and trust that our tools will catch these issues for you and offer inline suggestions as you work.
 

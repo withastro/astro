@@ -73,7 +73,7 @@ export default async function build(...args) {
 			entryPoints,
 			outdir,
 			outExtension: forceCJS ? { '.js': '.cjs' } : {},
-			format
+			format,
 		});
 		return;
 	}

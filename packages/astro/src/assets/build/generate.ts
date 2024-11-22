@@ -153,6 +153,9 @@ export async function generateImagesForPath(
 		const isLocalImage = isESMImportedImage(options.src);
 		const finalFileURL = new URL('.' + filepath, env.clientRoot);
 
+		const finalFolderURL = new URL('./', finalFileURL);
+		await fs.promises.mkdir(finalFolderURL, { recursive: true });
+
 		// For remote images, instead of saving the image directly, we save a JSON file with the image data and expiration date from the server
 		const cacheFile = basename(filepath) + (isLocalImage ? '' : '.json');
 		const cachedFileURL = new URL(cacheFile, env.assetsCacheDir);
@@ -193,9 +196,6 @@ export async function generateImagesForPath(
 			}
 			// If the cache file doesn't exist, just move on, and we'll generate it
 		}
-
-		const finalFolderURL = new URL('./', finalFileURL);
-		await fs.promises.mkdir(finalFolderURL, { recursive: true });
 
 		// The original filepath or URL from the image transform
 		const originalImagePath = isLocalImage

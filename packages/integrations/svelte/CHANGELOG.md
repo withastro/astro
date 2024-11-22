@@ -1,5 +1,20 @@
 # @astrojs/svelte
 
+## 6.0.2
+
+### Patch Changes
+
+- [#12481](https://github.com/withastro/astro/pull/12481) [`8a46e80`](https://github.com/withastro/astro/commit/8a46e8074d6afb4a23badbd59ed239d526294e8c) Thanks [@marbrex](https://github.com/marbrex)! - Resolve `vite` peer dependency problem for strict package managers like **Yarn in PnP mode**.
+
+- Updated dependencies [[`c48916c`](https://github.com/withastro/astro/commit/c48916cc4e6f7c31e3563d04b68a8698d8775b65), [`4364bff`](https://github.com/withastro/astro/commit/4364bff27332e52f92da72392620a36110daee42), [`c8f877c`](https://github.com/withastro/astro/commit/c8f877cad2d8f1780f70045413872d5b9d32ebed), [`8309c61`](https://github.com/withastro/astro/commit/8309c61f0dfa5991d3f6c5c5fca4403794d6fda2), [`af867f3`](https://github.com/withastro/astro/commit/af867f3910ecd8fc04a5337f591d84f03192e3fa), [`3f02d5f`](https://github.com/withastro/astro/commit/3f02d5f12b167514fff6eb9693b4e25c668e7a31)]:
+  - astro@5.0.0-beta.9
+
+## 6.0.1
+
+### Patch Changes
+
+- [#12442](https://github.com/withastro/astro/pull/12442) [`bde49f1`](https://github.com/withastro/astro/commit/bde49f186e4d620ce0c926353db38215e33dceef) Thanks [@bluwy](https://github.com/bluwy)! - Publishes missing file
+
 ## 6.0.0
 
 ### Major Changes

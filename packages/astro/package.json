@@ -1,13 +1,13 @@
 {
   "name": "astro",
-  "version": "5.0.0-beta.8",
+  "version": "5.0.0-beta.10",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/astro"
   },
   "bugs": "https://github.com/withastro/astro/issues",

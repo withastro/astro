@@ -1,19 +1,13 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
 	"files": {
-		"ignore": [
-			"vendor",
-			"**/dist/**",
-			"**/smoke/**",
-			"**/fixtures/**",
-			"**/_temp-fixtures/**",
-			"**/vendor/**",
-			"**/.vercel/**",
-			"benchmark/projects/",
-			"benchmark/results/",
-			"benchmark/bench/_template.js",
-		],
-		"include": ["test/**", "e2e/**", "packages/**", "/scripts/**", "benchmark/bench"],
+		"ignore": ["**/smoke/**", "**/fixtures/**", "**/_temp-fixtures/**", "**/vendor/**"],
+		"include": ["test/**", "e2e/**", "packages/**", "scripts/**", "benchmark/bench"],
+	},
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true,
 	},
 	"formatter": {
 		"indentStyle": "tab",

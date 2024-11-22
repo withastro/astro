@@ -21,7 +21,6 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { collectErrorMetadata } from '../errors/dev/utils.js';
 import {
 	AstroError,
 	AstroErrorData,
@@ -31,7 +30,6 @@ import {
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { formatErrorMessage } from '../messages.js';
 import { createRouteManifest } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 
@@ -255,7 +253,22 @@ async function syncContentCollections(
 		if (isAstroError(e)) {
 			throw e;
 		}
-		const hint = AstroUserError.is(e) ? e.hint : AstroErrorData.GenerateContentTypesError.hint;
+		let configFile;
+		try {
+			const contentPaths = getContentPaths(settings.config, fs);
+			if (contentPaths.config.exists) {
+				const matches = /\/(src\/.+)/.exec(contentPaths.config.url.href);
+				if (matches) {
+					configFile = matches[1];
+				}
+			}
+		} catch {
+			// ignore
+		}
+
+		const hint = AstroUserError.is(e)
+			? e.hint
+			: AstroErrorData.GenerateContentTypesError.hint(configFile);
 		throw new AstroError(
 			{
 				...AstroErrorData.GenerateContentTypesError,
