@@ -280,7 +280,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssr), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
 	 *
-	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
+	 * [See our On-demand Rendering guide](https://docs.astro.build/en/guides/on-demand-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
 	 *
 	 * ```js
 	 * import netlify from '@astrojs/netlify';
@@ -1665,6 +1665,303 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * ```
 		 */
 		validateSecrets?: boolean;
+	};
+	
+		/**
+	 * 
+	 * @kind heading
+	 * @name Legacy Flags
+	 * @description
+	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
+	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
+	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
+	 */
+	legacy?: {
+		/**
+		 * 
+		 * @name legacy.collections
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.0.0
+		 * @description
+		 * Enable legacy behavior for content collections.
+		 * 
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * export default defineConfig({
+		 *   legacy: {
+		 *     collections: true
+		 *   }
+		 * });
+		 * ```
+		 *
+		 * If enabled, `data` and `content` collections (only) are handled using the legacy content collections implementation. Collections with a `loader` (only) will continue to use the Content Layer API instead. Both kinds of collections may exist in the same project, each using their respective implementations.
+		 *  
+		 *  The following limitations continue to exist:
+		 *
+		 * - Any legacy (`type: 'content'` or `type: 'data'`) collections must continue to be located in the `src/content/` directory.
+		 * - These legacy collections will not be transformed to implicitly use the `glob()` loader, and will instead be handled by legacy code.
+		 * - Collections using the Content Layer API (with a `loader` defined) are forbidden in `src/content/`, but may exist anywhere else in your project. 
+		 *
+		 * When you are ready to remove this flag and migrate to the new Content Layer API for your legacy collections, you must define a collection for any directories in `src/content/` that you want to continue to use as a collection. It is sufficient to declare an empty collection, and Astro will implicitly generate an appropriate definition for your legacy collections:
+		 *  
+		 * ```js
+		 * // src/content.config.ts
+		 * import { defineCollection, z } from 'astro:content';
+		 * 
+		 * const blog = defineCollection({ })
+		 *  
+		 * export const collections = { blog };
+		 * ```
+		 *
+		 */
+		collections?: boolean;
+	};
+
+	/**
+	 * 
+	 * @kind heading
+	 * @name Experimental Flags
+	 * @description
+	 * Astro offers experimental flags to give users early access to new features.
+	 * These flags are not guaranteed to be stable.
+	 */
+	experimental?: {
+		/**
+		 * 
+		 * @name experimental.clientPrerender
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.2.0
+		 * @description
+		 * Enables pre-rendering your prefetched pages on the client in supported browsers.
+		 *
+		 * This feature uses the experimental [Speculation Rules Web API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API) and enhances the default `prefetch` behavior globally to prerender links on the client.
+		 * You may wish to review the [possible risks when prerendering on the client](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API#unsafe_prefetching) before enabling this feature.
+		 *
+		 * Enable client side prerendering in your `astro.config.mjs` along with any desired `prefetch` configuration options:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * {
+		 *   prefetch: {
+		 *     prefetchAll: true,
+		 *     defaultStrategy: 'viewport',
+		 *   },
+		 * 	experimental: {
+		 * 		clientPrerender: true,
+		 * 	},
+		 * }
+		 * ```
+		 *
+		 * Continue to use the `data-astro-prefetch` attribute on any `<a />` link on your site to opt in to prefetching.
+		 * Instead of appending a `<link>` tag to the head of the document or fetching the page with JavaScript, a `<script>` tag will be appended with the corresponding speculation rules.
+		 *
+		 * Client side prerendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fallback to the supported strategy.
+		 *
+		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
+		 */
+		clientPrerender?: boolean;
+
+		/**
+		 * 
+		 * @name experimental.contentIntellisense
+		 * @type {boolean}
+		 * @default `false`
+     * @version 5.x
+		 * @description
+		 *
+		 * Enables Intellisense features (e.g. code completion, quick hints) for your content collection entries in compatible editors.
+		 *
+		 * When enabled, this feature will generate and add JSON schemas to the `.astro` directory in your project. These files can be used by the Astro language server to provide Intellisense inside content files (`.md`, `.mdx`, `.mdoc`).
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     contentIntellisense: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
+		 */
+		contentIntellisense?: boolean;
+
+		/**
+		 * 
+		 * @name experimental.responsiveImages
+		 * @type {boolean}
+		 * @default `undefined`
+		 * @version 5.0.0
+		 * @description
+		 *
+		 * Enables automatic responsive images in your project.
+		 *
+		 * ```js title=astro.config.mjs
+		 * {
+		 *  	experimental: {
+		 * 			responsiveImages: true,
+		 * 		},
+		 * }
+		 * ```
+		 *
+		 * When enabled, you can pass a `layout` props to any `<Image />` or `<Picture />` component to create a responsive image. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `responsive` and `full-width` layouts will have styles applied to ensure they resize according to their container.
+		 *
+		 * ```astro title=MyComponent.astro
+		 * ---
+		 * import { Image, Picture } from 'astro:assets';
+		 * import myImage from '../assets/my_image.png';
+		 * ---
+		 * <Image src={myImage} alt="A description of my image." layout='responsive' width={800} height={600} />
+		 * <Picture src={myImage} alt="A description of my image." layout='full-width' formats={['avif', 'webp', 'jpeg']} />
+		 * ```
+		 * This `<Image />` component will generate the following HTML output:
+		 * ```html title=Output
+		 *
+		 * 	<img
+		 *		src="/_astro/my_image.hash3.webp"
+		 *		srcset="/_astro/my_image.hash1.webp 640w,
+		 *						/_astro/my_image.hash2.webp 750w,
+		 *						/_astro/my_image.hash3.webp 800w,
+		 *						/_astro/my_image.hash4.webp 828w,
+		 *						/_astro/my_image.hash5.webp 1080w,
+		 *						/_astro/my_image.hash6.webp 1280w,
+		 *						/_astro/my_image.hash7.webp 1600w"
+		 *		alt="A description of my image"
+		 *		sizes="(min-width: 800px) 800px, 100vw"
+		 *		loading="lazy"
+		 *		decoding="async"
+		 *		fetchpriority="auto"
+		 *		width="800"
+		 *		height="600"
+		 *		style="--w: 800; --h: 600; --fit: cover; --pos: center;"
+		 *		data-astro-image="responsive"
+		 *  >
+		 * ```
+		 *
+		 * The following styles are applied to ensure the images resize correctly:
+		 *
+		 * ```css title="Responsive Image Styles"
+		 * [data-astro-image] {
+		 * 		width: 100%;
+		 * 		height: auto;
+		 * 		object-fit: var(--fit);
+		 * 		object-position: var(--pos);
+		 * 		aspect-ratio: var(--w) / var(--h)
+		 * }
+		 *
+		 * [data-astro-image=responsive] {
+		 * 		max-width: calc(var(--w) * 1px);
+		 * 		max-height: calc(var(--h) * 1px)
+		 * }
+		 *
+		 * [data-astro-image=fixed] {
+		 * 		width: calc(var(--w) * 1px);
+		 * 		height: calc(var(--h) * 1px)
+		 * }
+		 * ```
+		 * You can enable responsive images for all `<Image />` and `<Picture />` components by setting `image.experimentalLayout` with a default value. This can be overridden by the `layout` prop on each component.
+		 *
+		 * **Example:**
+		 * ```js title=astro.config.mjs
+		 * {
+		 * 		image: {
+		 * 			// Used for all `<Image />` and `<Picture />` components unless overridden
+		 * 			experimentalLayout: 'responsive',
+		 * 		},
+		 * 		experimental: {
+		 * 			responsiveImages: true,
+		 * 		},
+		 * }
+		 * ```
+		 *
+		 * ```astro title=MyComponent.astro
+		 * ---
+		 * import { Image } from 'astro:assets';
+		 * import myImage from '../assets/my_image.png';
+		 * ---
+		 *
+		 * <Image src={myImage} alt="This will use responsive layout" width={800} height={600} />
+		 *
+		 * <Image src={myImage} alt="This will use full-width layout" layout="full-width" />
+		 *
+		 * <Image src={myImage} alt="This will disable responsive images" layout="none" />
+		 * ```
+		 *
+		 * #### Responsive image properties
+		 *
+		 * These are additional properties available to the `<Image />` and `<Picture />` components when responsive images are enabled:
+		 *
+		 * - `layout`: The layout type for the image. Can be `responsive`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
+		 * - `fit`: Defines how the image should be cropped if the aspect ratio is changed. Values match those of CSS `object-fit`. Defaults to `cover`, or the value of `image.experimentalObjectFit` if set.
+		 * - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
+		 * - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
+		 *
+		 * The `widths` and `sizes` attributes are automatically generated based on the image's dimensions and the layout type, and in most cases should not be set manually. The generated `sizes` attribute for `responsive` and `full-width` images
+		 * is based on the assumption that the image is displayed at close to the full width of the screen when the viewport is smaller than the image's width. If it is significantly different (e.g. if it's in a multi-column layout on small screens) you may need to adjust the `sizes` attribute manually for best results.
+		 * 
+		 * The `densities` attribute is not compatible with responsive images and will be ignored if set.
+		 */
+
+		responsiveImages?: boolean;
+
+		/**
+		 * 
+		 * @name experimental.svg
+		 * @type {boolean|object}
+		 * @default `undefined`
+     * @version 5.x
+		 * @description
+		 * 
+		 * This feature allows you to import SVG files directly into your Astro project. By default, Astro will inline the SVG content into your HTML output.
+		 * 
+		 * To enable this feature, set `experimental.svg` to `true` in your Astro config:
+		 * 
+		 * ```js
+		 * {
+		 *   experimental: {
+		 * 	   svg: true,
+		 * 	 },
+		 * }
+		 * ```
+		 * 
+		 * To use this feature, import an SVG file in your Astro project, passing any common SVG attributes to the imported component.
+		 * Astro also provides a `size` attribute to set equal `height` and `width` properties:
+		 * 
+		 * ```astro
+		 * ---
+		 * import Logo from './path/to/svg/file.svg';
+		 * ---
+		 * 
+		 * <Logo size={24} />
+		 * ```
+		 * 
+		 * For a complete overview, and to give feedback on this experimental API,
+     * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
+		 */
+		svg?: {
+			/**
+			 * 
+			 * @name experimental.svg.mode
+			 * @type {string}
+			 * @default 'inline'
+			 * 
+			 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
+			 * 
+			 * - `inline`: Astro will inline the SVG content into your HTML output.
+			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
+			 * 
+			 * ```astro
+			 * ---
+			 * import Logo from './path/to/svg/file.svg';
+			 * ---
+			 * 
+			 * <Logo size={24} mode="sprite" />
+			 * ```
+			 */
+			mode?: SvgRenderMode;
+		};
 	};
 }
 
