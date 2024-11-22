@@ -63,7 +63,13 @@ jobs:
           ref: ${{ steps.refs.outputs.head_ref }}
           fetch-depth: 0
 
-      - run: git fetch origin main:main
+      - name: Extract base branch from .changeset/config.json
+        id: getBaseBranch
+        run: |
+          baseBranch=$(jq -r '.baseBranch' .changeset/config.json)
+          echo "baseBranch=${baseBranch}" >> $GITHUB_ENV
+
+      - run: git fetch origin ${{ env.baseBranch }}:${{ env.baseBranch }}
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
@@ -84,6 +90,8 @@ jobs:
       - name: Bump Package Versions
         id: changesets
         run: |
+          # Snapshots don't work in pre mode. See https://github.com/changesets/changesets/issues/1195
+          pnpm exec changeset pre exit || true
           pnpm exec changeset status --output status.output.json 2>&1
           # Snapshots don't work in pre mode. See https://github.com/changesets/changesets/issues/1195
           pnpm exec changeset pre exit || true
