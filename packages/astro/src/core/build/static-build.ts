@@ -427,7 +427,8 @@ async function ssrMoveAssets(opts: StaticBuildOptions, ssrOutputAssetNames: stri
 	const assets = opts.settings.config.build.assets;
 	let serverAssets = new URL(`./${assets}/`, appendForwardSlash(serverRoot.toString()));
 	let clientAssets = new URL(`./${assets}/`, appendForwardSlash(clientRoot.toString()));
-	if (opts?.settings?.config?.vite?.build?.rollupOptions?.output?.assetFileNames) {
+	const outputOptions = opts.settings.config.vite.build?.rollupOptions?.output;
+	if (Array.isArray(outputOptions) ? outputOptions.some(opt => opt.assetFileNames) : outputOptions?.assetFileNames) {
 		serverAssets = new URL(appendForwardSlash(serverRoot.toString()));
 		clientAssets = new URL(appendForwardSlash(clientRoot.toString()));
 	}
