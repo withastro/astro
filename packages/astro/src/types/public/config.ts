@@ -1666,8 +1666,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 */
 		validateSecrets?: boolean;
 	};
-	
-		/**
+
+	/**
 	 * 
 	 * @kind heading
 	 * @name Legacy Flags
