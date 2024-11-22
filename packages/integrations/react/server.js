@@ -126,11 +126,7 @@ async function getFormState({ result }) {
 	 * This matches the endpoint path.
 	 * @example "/_actions/blog.like"
 	 */
-	const actionName =
-		searchParams.get('_astroAction') ??
-		/* Legacy. TODO: remove for stable */ formData
-			.get('_astroAction')
-			?.toString();
+	const actionName = searchParams.get('_action');
 
 	if (!actionKey || !actionName) return undefined;
 
