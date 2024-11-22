@@ -1749,7 +1749,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * When you are ready to remove this flag and migrate to the new Content Layer API for your legacy collections, you must define a collection for any directories in `src/content/` that you want to continue to use as a collection. It is sufficient to declare an empty collection, and Astro will implicitly generate an appropriate definition for your legacy collections:
 		 *  
 		 * ```js
-		 * // src/content/config.ts
+		 * // src/content.config.ts
 		 * import { defineCollection, z } from 'astro:content';
 		 * 
 		 * const blog = defineCollection({ })
@@ -1941,11 +1941,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
 		 * - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
 		 *
-		 * The following `<Image />` component properties should not be used with responsive images as these are automatically generated:
+		 * The `widths` and `sizes` attributes are automatically generated based on the image's dimensions and the layout type, and in most cases should not be set manually. The generated `sizes` attribute for `responsive` and `full-width` images
+		 * is based on the assumption that the image is displayed at close to the full width of the screen when the viewport is smaller than the image's width. If it is significantly different (e.g. if it's in a multi-column layout on small screens) you may need to adjust the `sizes` attribute manually for best results.
 		 *
-		 * - `densities`
-		 * - `widths`
-		 * - `sizes`
+		 * The `densities` attribute is not compatible with responsive images and will be ignored if set.
 		 */
 
 		responsiveImages?: boolean;

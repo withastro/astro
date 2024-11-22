@@ -29,6 +29,8 @@ export async function GET() {
 	const tomlLoader = await getCollection('songs');
 
 	const nestedJsonLoader = await getCollection('birds');
+	
+	const numbers = await getCollection('numbers');
 
 	return new Response(
 		devalue.stringify({
@@ -41,11 +43,12 @@ export async function GET() {
 			entryWithImagePath,
 			referencedEntry,
 			increment,
+			numbers,
 			images, 
 			probes,
 			yamlLoader,
 			tomlLoader,
 			nestedJsonLoader,
-		}),
+		})
 	);
 }

@@ -130,6 +130,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				const existingEntry = store.get(id);
 
 				const digest = generateDigest(contents);
+				const filePath = fileURLToPath(fileUrl);
 
 				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
 					if (existingEntry.deferredRender) {
@@ -141,10 +142,9 @@ export function glob(globOptions: GlobOptions): Loader {
 						store.addAssetImports(existingEntry.assetImports, existingEntry.filePath);
 					}
 
+					fileToIdMap.set(filePath, id);
 					return;
 				}
-
-				const filePath = fileURLToPath(fileUrl);
 
 				const relativePath = posixRelative(fileURLToPath(config.root), filePath);
 

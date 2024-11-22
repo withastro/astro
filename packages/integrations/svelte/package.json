@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte",
-  "version": "6.0.0",
+  "version": "6.0.2-beta.0",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -8,7 +8,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/integrations/svelte"
   },
   "keywords": [
@@ -24,15 +24,12 @@
     "./editor": "./dist/editor.cjs",
     "./*": "./*",
     "./client.js": "./client.svelte.js",
-    "./server.js": {
-      "default": "./server.js",
-      "types": "./server.d.ts"
-    },
+    "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
-    "client.js",
+    "client.svelte.js",
     "server.js",
     "server.d.ts"
   ],
@@ -43,16 +40,16 @@
   },
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
-    "svelte2tsx": "^0.7.22"
+    "svelte2tsx": "^0.7.22",
+    "vite": "6.0.0-beta.6"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^5.1.16",
-    "vite": "6.0.0-beta.6"
+    "svelte": "^5.1.16"
   },
   "peerDependencies": {
-    "astro": "^4.0.0",
+    "astro": "^5.0.0-beta.9",
     "svelte": "^5.1.16",
     "typescript": "^5.3.3"
   },

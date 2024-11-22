@@ -1,14 +1,14 @@
 {
   "name": "@astrojs/react",
   "description": "Use React components within Astro",
-  "version": "3.6.2",
+  "version": "3.6.3-beta.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/integrations/react"
   },
   "keywords": [
@@ -24,14 +24,8 @@
     "./actions": "./dist/actions.js",
     "./client.js": "./client.js",
     "./client-v17.js": "./client-v17.js",
-    "./server.js": {
-      "default": "./server.js",
-      "types": "./server.d.ts"
-    },
-    "./server-v17.js": {
-      "default": "./server-v17.js",
-      "types": "./server-v17.d.ts"
-    },
+    "./server.js": "./server.js",
+    "./server-v17.js": "./server-v17.js",
     "./package.json": "./package.json",
     "./jsx-runtime": "./jsx-runtime.js"
   },
@@ -56,7 +50,8 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.3",
-    "ultrahtml": "^1.5.3"
+    "ultrahtml": "^1.5.3",
+    "vite": "6.0.0-beta.6"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
@@ -65,8 +60,7 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "vite": "6.0.0-beta.6"
+    "react-dom": "^18.3.1"
   },
   "peerDependencies": {
     "@types/react": "^17.0.50 || ^18.0.21",

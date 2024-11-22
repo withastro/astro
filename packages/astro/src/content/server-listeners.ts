@@ -24,8 +24,16 @@ export async function attachContentServerListeners({
 	settings,
 }: ContentServerListenerParams) {
 	const contentPaths = getContentPaths(settings.config, fs);
-
-	if (fs.existsSync(contentPaths.contentDir)) {
+	if (!settings.config.legacy?.collections) {
+		const contentGenerator = await createContentTypesGenerator({
+			fs,
+			settings,
+			logger,
+			viteServer,
+			contentConfigObserver: globalContentConfigObserver,
+		});
+		await contentGenerator.init();
+	} else if (fs.existsSync(contentPaths.contentDir)) {
 		logger.debug(
 			'content',
 			`Watching ${cyan(

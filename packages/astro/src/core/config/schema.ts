@@ -562,16 +562,16 @@ export const AstroConfigSchema = z.object({
 						.optional(),
 				})
 				.optional(),
-			svg: z.union([
-				z.boolean(),
-				z
-				.object({
-					mode: z
-						.union([z.literal('inline'), z.literal('sprite')])
-						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.experimental.svg.mode),
-				})
-			])
+			svg: z
+				.union([
+					z.boolean(),
+					z.object({
+						mode: z
+							.union([z.literal('inline'), z.literal('sprite')])
+							.optional()
+							.default(ASTRO_CONFIG_DEFAULTS.experimental.svg.mode),
+					}),
+				])
 				.optional()
 				.transform((svgConfig) => {
 					// Handle normalization of `experimental.svg` config boolean values

@@ -49,7 +49,6 @@ export class AppPipeline extends Pipeline {
 			undefined,
 			undefined,
 			undefined,
-			false,
 			defaultRoutes,
 		);
 		pipeline.#manifestData = manifestData;

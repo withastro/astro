@@ -7,6 +7,7 @@ import * as vite from 'vite';
 import {
 	runHookConfigDone,
 	runHookConfigSetup,
+	runHookRoutesResolved,
 	runHookServerDone,
 	runHookServerStart,
 } from '../../integrations/hooks.js';
@@ -83,10 +84,11 @@ export async function createContainer({
 		.filter(Boolean) as string[];
 
 	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
-	let manifest = await createRouteManifest({ settings, fsMod: fs }, logger);
+	let manifest = await createRouteManifest({ settings, fsMod: fs }, logger, { dev: true });
 	const devSSRManifest = createDevelopmentManifest(settings);
 
 	manifest = injectDefaultDevRoutes(settings, devSSRManifest, manifest);
+	await runHookRoutesResolved({ settings, logger, routes: manifest.routes });
 
 	await runHookConfigDone({ settings, logger, command: 'dev' });
 

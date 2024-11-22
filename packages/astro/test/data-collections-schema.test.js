@@ -1,8 +1,8 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
 import { removeDir } from '@astrojs/internal-helpers/fs';
+import { loadFixture } from './test-utils.js';
 
 describe('Content Collections - data collections', () => {
 	let fixture;
