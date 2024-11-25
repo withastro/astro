@@ -9,7 +9,7 @@ export default defineConfig({
 	output: 'server',
 	experimental: {
 		session: {
-			driver: 'fs',
+			driver: 'fsLite',
 			options: {
 				base: join(tmpdir(), 'sessions'),
 			},

@@ -1,6 +1,7 @@
+import { fileURLToPath } from 'node:url';
 import { stringify, unflatten } from 'devalue';
 import { type Driver, type Storage, builtinDrivers, createStorage } from 'unstorage';
-import type { SessionConfig, SessionDriverName } from '../types/public/config.js';
+import type { AstroConfig, SessionConfig, SessionDriverName } from '../types/public/config.js';
 import type { AstroCookies } from './cookies/cookies.js';
 import type { AstroCookieSetOptions } from './cookies/cookies.js';
 import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
@@ -344,7 +345,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Ensures the storage is initialized.
 	 * This is called automatically when a storage operation is needed.
 	 */
-	async #ensureStorage():Promise<Storage> {
+	async #ensureStorage(): Promise<Storage> {
 		if (this.#storage) {
 			return this.#storage;
 		}
@@ -363,13 +364,21 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
-		const entry =
-			builtinDrivers[this.#config.driver as keyof typeof builtinDrivers] || this.#config.driver;
+		const entry = fileURLToPath(
+			import.meta.resolve(
+				builtinDrivers[this.#config.driver as keyof typeof builtinDrivers] || this.#config.driver,
+			),
+		);
 		try {
 			// Try to load the driver from the built-in unstorage drivers.
 			// Otherwise, assume it's a custom driver and load by name.
 
-			driver = await import(entry).then((r) => r.default || r);
+			if (process.env.NODE_ENV === 'development') {
+				driver = await import(entry).then((r) => r.default || r);
+			} else {
+				// @ts-expect-error - virtual module
+				driver = await import('@astro-session-driver').then((r) => r.default || r);
+			}
 		} catch (err: any) {
 			// If the driver failed to load, throw an error.
 			if (err.code === 'ERR_MODULE_NOT_FOUND') {
