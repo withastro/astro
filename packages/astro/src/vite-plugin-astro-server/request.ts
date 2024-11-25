@@ -63,7 +63,6 @@ export async function handleRequest({
 				url,
 				pathname: resolvedPathname,
 				body,
-				origin,
 				pipeline,
 				manifestData,
 				incomingRequest: incomingRequest,
