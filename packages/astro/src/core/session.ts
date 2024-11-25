@@ -371,7 +371,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			: this.#config.driver;
 
 		try {
-			// If driver is not a builtin, and in development and test, load the driver directly.
+			// If driver is not a builtin, or in development or test, load the driver directly.
 			if (!isBuiltin || process.env.NODE_ENV === 'development' || process.env.NODE_TEST_CONTEXT) {
 				driver = await import(/* @vite-ignore */ driverPackage).then((r) => r.default || r);
 			} else {
