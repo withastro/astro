@@ -273,6 +273,17 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal(!!$svg.attr('xmlns:xlink'), false);
 					assert.equal(!!$svg.attr('version'), false);
 				});
+				it('ignores additional root level nodes', () => {
+					let $svg = $('#additionalNodes');
+					// Ensure we only have the svg node
+					assert.equal($svg.children().length, 1);
+					assert.equal($svg.children()[0].name, 'svg');
+					$svg = $svg.children('svg');
+					assert.equal($svg.length, 1);
+					assert.equal(!!$svg.attr('xmlns'), false);
+					assert.equal(!!$svg.attr('xmlns:xlink'), false);
+					assert.equal(!!$svg.attr('version'), false);
+				});
 			});
 			describe('additional props', () => {
 				let $;
@@ -322,8 +333,9 @@ describe('astro:assets - SVG Components', () => {
 				assert.equal($symbol.length, 1);
 				let $use = $('.one svg > use');
 				assert.equal($use.length, 2);
-				let defId = $('.one.def svg > use').attr('id');
-				let useId = $('.one.use svg > use').attr('id');
+				const defId = $('.one.def svg > symbol').attr('id');
+				const useId = $('.one.use svg > use').attr('href').replace('#', '');
+				assert.ok(defId);
 				assert.equal(defId, useId);
 
 				// Second SVG
@@ -333,9 +345,10 @@ describe('astro:assets - SVG Components', () => {
 				assert.equal($symbol.length, 1);
 				$use = $('.two svg > use');
 				assert.equal($use.length, 2);
-				defId = $('.two.def svg > use').attr('id');
-				useId = $('.two.use svg > use').attr('id');
-				assert.equal(defId, useId);
+				const defId2 = $('.two.def svg > symbol').attr('id');
+				const useId2 = $('.two.use svg > use').attr('href').replace('#', '');
+				assert.ok(defId2);
+				assert.equal(defId2, useId2);
 
 				// Third SVG
 				$svg = $('.three svg');
@@ -344,6 +357,12 @@ describe('astro:assets - SVG Components', () => {
 				assert.equal($symbol.length, 1);
 				$use = $('.three svg > use');
 				assert.equal($use.length, 1);
+				const defId3 = $('.three.def svg > symbol').attr('id');
+				assert.ok(defId3);
+
+				// Assert IDs are different
+				assert.equal(new Set([defId, defId2, defId3]).size, 3);
+				assert.equal(new Set([useId, useId2]).size, 2);
 			});
 		});
 

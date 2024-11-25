@@ -16,21 +16,13 @@ export interface SvgComponentProps {
 /**
  * Make sure these IDs are kept on the module-level so they're incremented on a per-page basis
  */
-const ids = new WeakMap<SSRResult, number>();
-let counter = 0;
+const countersByPage = new WeakMap<SSRResult, number>();
 
 export function createSvgComponent({ meta, attributes, children }: SvgComponentProps) {
-	const rendered = new WeakSet<Response>();
+	const renderedIds = new WeakMap<SSRResult, string>();
+
 	const Component = createComponent((result, props) => {
-		let id;
-		if (ids.has(result)) {
-			id = ids.get(result)!;
-		} else {
-			counter += 1;
-			ids.set(result, counter);
-			id = counter;
-		}
-		id = `a:${id}`;
+		let counter = countersByPage.get(result) ?? 0;
 
 		const {
 			title: titleProp,
@@ -41,12 +33,15 @@ export function createSvgComponent({ meta, attributes, children }: SvgComponentP
 		const title = titleProp ? unescapeHTML(`<title>${titleProp}</title>`) : '';
 
 		if (mode === 'sprite') {
-			// On the first render, include the symbol definition
+			// On the first render, include the symbol definition and bump the counter
 			let symbol: any = '';
-			if (!rendered.has(result.response)) {
+			let id = renderedIds.get(result);
+			if (!id) {
+				countersByPage.set(result, ++counter);
+				id = `a:${counter}`;
 				// We only need the viewBox on the symbol definition, we can drop it everywhere else
 				symbol = unescapeHTML(`<symbol${spreadAttributes({ viewBox, id })}>${children}</symbol>`);
-				rendered.add(result.response);
+				renderedIds.set(result, id);
 			}
 
 			return render`<svg${spreadAttributes(normalizedProps)}>${title}${symbol}<use href="#${id}" /></svg>`;

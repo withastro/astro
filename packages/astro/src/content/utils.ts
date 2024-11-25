@@ -421,14 +421,14 @@ export function getEntryType(
 	const { ext } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
-	if (hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir)) {
+	if (fileUrl.href === paths.config.url.href) {
+		return 'config';
+	} else if (hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir)) {
 		return 'ignored';
 	} else if (contentFileExts.includes(ext)) {
 		return 'content';
 	} else if (dataFileExts.includes(ext)) {
 		return 'data';
-	} else if (fileUrl.href === paths.config.url.href) {
-		return 'config';
 	} else {
 		return 'ignored';
 	}

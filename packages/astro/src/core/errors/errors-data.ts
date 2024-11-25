@@ -51,7 +51,7 @@ export const ClientAddressNotAvailable = {
 /**
  * @docs
  * @see
- * - [Opting-in to pre-rendering](https://docs.astro.build/en/guides/server-side-rendering/#opting-in-to-pre-rendering-in-server-mode)
+ * - [On-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
  * @description
  * The `Astro.clientAddress` property cannot be used inside prerendered routes.
@@ -64,10 +64,10 @@ export const PrerenderClientAddressNotAvailable = {
 /**
  * @docs
  * @see
- * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/)
+ * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/on-demand-rendering/)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
  * @description
- * The `Astro.clientAddress` property is only available when [Server-side rendering](https://docs.astro.build/en/guides/server-side-rendering/) is enabled.
+ * The `Astro.clientAddress` property is only available when [Server-side rendering](https://docs.astro.build/en/guides/on-demand-rendering/) is enabled.
  *
  * To get the user's IP address in static mode, different APIs such as [Ipify](https://www.ipify.org/) can be used in a [Client-side script](https://docs.astro.build/en/guides/client-side-scripts/) or it may be possible to get the user's IP using a serverless function hosted on your hosting provider.
  */
@@ -75,7 +75,7 @@ export const StaticClientAddressNotAvailable = {
 	name: 'StaticClientAddressNotAvailable',
 	title: '`Astro.clientAddress` is not available in prerendered pages.',
 	message: '`Astro.clientAddress` is only available on pages that are server-rendered.',
-	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information on how to enable SSR.',
+	hint: 'See https://docs.astro.build/en/guides/on-demand-rendering/ for more information on how to enable SSR.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -96,7 +96,7 @@ export const NoMatchingStaticPathFound = {
  * @docs
  * @message Route returned a `RETURNED_VALUE`. Only a Response can be returned from Astro files.
  * @see
- * - [Response](https://docs.astro.build/en/guides/server-side-rendering/#response)
+ * - [Response](https://docs.astro.build/en/guides/on-demand-rendering/#response)
  * @description
  * Only instances of [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned inside Astro files.
  * ```astro title="pages/login.astro"
@@ -119,7 +119,7 @@ export const OnlyResponseCanBeReturned = {
 		`Route \`${
 			route ? route : ''
 		}\` returned a \`${returnedValue}\`. Only a [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned from Astro files.`,
-	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#response for more information.',
+	hint: 'See https://docs.astro.build/en/guides/on-demand-rendering/#response for more information.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -355,7 +355,7 @@ export const GetStaticPathsInvalidRouteParam = {
  * @see
  * - [Dynamic Routes](https://docs.astro.build/en/guides/routing/#dynamic-routes)
  * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
- * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
+ * - [Server-side Rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * In [Static Mode](https://docs.astro.build/en/guides/routing/#static-ssg-mode), all routes must be determined at build time. As such, dynamic routes must `export` a `getStaticPaths` function returning the different paths to generate.
  */
@@ -384,7 +384,7 @@ export const ReservedSlotName = {
 /**
  * @docs
  * @see
- * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
+ * - [Server-side Rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * To use server-side rendering, an adapter needs to be installed so Astro knows how to generate the proper output for your targeted deployment platform.
  */
@@ -392,13 +392,13 @@ export const NoAdapterInstalled = {
 	name: 'NoAdapterInstalled',
 	title: 'Cannot use Server-side Rendering without an adapter.',
 	message: `Cannot use server-rendered pages without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
-	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
+	hint: 'See https://docs.astro.build/en/guides/on-demand-rendering/ for more information.',
 } satisfies ErrorData;
 
 /**
  * @docs
  * @see
- * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
+ * - [Server-side Rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * The currently configured adapter does not support server-side rendering, which is required for the current project setup.
  *
