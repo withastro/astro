@@ -322,7 +322,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssr), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
 	 *
-	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
+	 * [See our On-demand Rendering guide](https://docs.astro.build/en/guides/on-demand-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
 	 *
 	 * ```js
 	 * import netlify from '@astrojs/netlify';
@@ -1710,7 +1710,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	};
 
 	/**
-	 * @docs
+	 * 
 	 * @kind heading
 	 * @name Legacy Flags
 	 * @description
@@ -1720,7 +1720,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 */
 	legacy?: {
 		/**
-		 * @docs
+		 * 
 		 * @name legacy.collections
 		 * @type {boolean}
 		 * @default `false`
@@ -1757,13 +1757,12 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * export const collections = { blog };
 		 * ```
 		 *
-
 		 */
 		collections?: boolean;
 	};
 
 	/**
-	 * @docs
+	 * 
 	 * @kind heading
 	 * @name Experimental Flags
 	 * @description
@@ -1772,7 +1771,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 */
 	experimental?: {
 		/**
-		 * @docs
+		 * 
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
 		 * @default `false`
@@ -1808,7 +1807,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		clientPrerender?: boolean;
 
 		/**
-		 * @docs
+		 * 
 		 * @name experimental.contentIntellisense
 		 * @type {boolean}
 		 * @default `false`
@@ -1832,7 +1831,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		contentIntellisense?: boolean;
 
 		/**
-		 * @docs
+		 * 
 		 * @name experimental.responsiveImages
 		 * @type {boolean}
 		 * @default `undefined`
@@ -1950,6 +1949,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		responsiveImages?: boolean;
 
 		/**
+     *
 		 * @docs
 		 * @name experimental.session
 		 * @type {SessionConfig}
@@ -1994,6 +1994,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		session?: SessionConfig<TSession>;
 		/**
+     *
 		 * @name experimental.svg
 		 * @type {boolean|object}
 		 * @default `undefined`
@@ -2028,7 +2029,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 */
 		svg?: {
 			/**
-			 * @docs
+			 * 
 			 * @name experimental.svg.mode
 			 * @type {string}
 			 * @default 'inline'

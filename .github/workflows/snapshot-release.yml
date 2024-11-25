@@ -84,8 +84,6 @@ jobs:
       - name: Bump Package Versions
         id: changesets
         run: |
-          # Snapshots don't work in pre mode. See https://github.com/changesets/changesets/issues/1195
-          pnpm exec changeset pre exit || true
           pnpm exec changeset status --output status.output.json 2>&1
           # Snapshots don't work in pre mode. See https://github.com/changesets/changesets/issues/1195
           pnpm exec changeset pre exit || true
