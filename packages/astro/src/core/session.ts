@@ -1,7 +1,7 @@
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath } from './path.js';
 import { stringify, unflatten } from 'devalue';
 import { type Driver, type Storage, builtinDrivers, createStorage } from 'unstorage';
-import type { AstroConfig, SessionConfig, SessionDriverName } from '../types/public/config.js';
+import type { SessionConfig, SessionDriverName } from '../types/public/config.js';
 import type { AstroCookies } from './cookies/cookies.js';
 import type { AstroCookieSetOptions } from './cookies/cookies.js';
 import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
