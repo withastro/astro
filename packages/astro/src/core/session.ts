@@ -1,4 +1,3 @@
-import { fileURLToPath } from './path.js';
 import { stringify, unflatten } from 'devalue';
 import { type Driver, type Storage, builtinDrivers, createStorage } from 'unstorage';
 import type { SessionConfig, SessionDriverName } from '../types/public/config.js';
@@ -367,15 +366,14 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		const isBuiltin = this.#config.driver in builtinDrivers;
 		// Try to load the driver from the built-in unstorage drivers.
 		// Otherwise, assume it's a custom driver and load by name.
-		const driverPackage = isBuiltin
+		const driverPackage: string = isBuiltin
 			? builtinDrivers[this.#config.driver as keyof typeof builtinDrivers]
 			: this.#config.driver;
 
 		try {
 			// If driver is not a builtin, and in development and test, load the driver directly.
 			if (!isBuiltin || process.env.NODE_ENV === 'development' || process.env.NODE_TEST_CONTEXT) {
-				const entry = fileURLToPath(import.meta.resolve(driverPackage), process?.platform === 'win32' ? '\\' : '/');
-				driver = await import(entry).then((r) => r.default || r);
+				driver = await import(/* @vite-ignore */ driverPackage).then((r) => r.default || r);
 			} else {
 				// In production, load via the virtual module as it will be bundled by Vite
 				// @ts-expect-error - virtual module
