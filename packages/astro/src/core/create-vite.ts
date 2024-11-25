@@ -216,7 +216,6 @@ export async function createVite(
 					replacement: 'astro/components',
 				},
 			],
-			conditions: ['astro'],
 			// Astro imports in third-party packages should use the same version as root
 			dedupe: ['astro'],
 		},
