@@ -6,7 +6,7 @@ import { setOutput } from './utils.mjs';
 const { GITHUB_REF = 'main' } = process.env;
 const baseUrl = new URL(`https://github.com/withastro/astro/blob/${GITHUB_REF}/`);
 
-const emojis = ['🎉', '🥳', '🚀', '🧑‍🚀', '🎊', '🏆', '✅', '🤩', '🤖', '🙌'];
+const emojis = ['🎉', '🥳', '🚀', '🧑', '🎊', '🏆', '✅', '🤩', '🤖', '🙌'];
 const descriptors = [
 	'new releases',
 	'hot and fresh updates',
@@ -141,7 +141,7 @@ async function generateMessage() {
 		message += `\nAlso ${item(extraVerbs)}:`;
 
 		const remainingPackages = packages.filter((p) => p.name !== name);
-		for (const { name, version, url } of remainingPackages) {
+		for (const { name, version, _url } of remainingPackages) {
 			message += `\n• \`${name}@${version}\``;
 		}
 
@@ -159,7 +159,7 @@ async function generateMessage() {
 
 async function run() {
 	const content = await generateMessage();
-	console.log(content);
+	console.info(content);
 	setOutput('DISCORD_MESSAGE', content);
 }
 

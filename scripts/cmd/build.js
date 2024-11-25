@@ -101,11 +101,11 @@ export default async function build(...args) {
 					console.error(dim(`[${date}] `) + red(error || result.errors.join('\n')));
 				} else {
 					if (result.warnings.length) {
-						console.log(
-							dim(`[${date}] `) + yellow('⚠ updated with warnings:\n' + result.warnings.join('\n')),
+						console.info(
+							dim(`[${date}] `) + yellow('! updated with warnings:\n' + result.warnings.join('\n')),
 						);
 					}
-					console.log(dim(`[${date}] `) + green('✔ updated'));
+					console.info(dim(`[${date}] `) + green('√ updated'));
 				}
 			});
 		},
