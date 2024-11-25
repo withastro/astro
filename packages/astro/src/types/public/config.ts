@@ -1949,7 +1949,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		responsiveImages?: boolean;
 
 		/**
-     *
+		 * 
 		 * @docs
 		 * @name experimental.session
 		 * @type {SessionConfig}
@@ -1994,7 +1994,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		session?: SessionConfig<TSession>;
 		/**
-     *
+		 * 
 		 * @name experimental.svg
 		 * @type {boolean|object}
 		 * @default `undefined`
