@@ -1978,6 +1978,11 @@ export interface AstroConfig extends AstroConfigType {
 
 	// Private:
 	// This is not configurable directly by the user. But may be configured by an integration.
+	//
+	// Setting this option will change the base path to deploy server islands to.
+	// This changes the path of any server islands that are emitted in the client HTML.
+	// If this is unset, this will fallback to the user supplied `base` config option, and if that is unset,
+	// then a relative URL will be used (ie: `/_server-islands/`).
 	serverIslandDynamicBase?: string;
 }
 /**
