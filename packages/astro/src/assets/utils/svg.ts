@@ -5,7 +5,13 @@ import type { ImageMetadata } from '../types.js';
 
 function parseSvg(contents: string) {
 	const root = parse(contents);
-	const [{ attributes, children }] = root.children;
+	const { attributes, children } =
+		root.children.length === 1
+			? root.children[0]
+			: root.children.find(
+					({ name, type }: { name: string; type: number }) =>
+						type === 1 /* Element */ && name === 'svg',
+				);
 	const body = renderSync({ ...root, children });
 
 	return { attributes, body };
