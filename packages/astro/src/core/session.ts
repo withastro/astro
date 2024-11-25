@@ -344,7 +344,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Ensures the storage is initialized.
 	 * This is called automatically when a storage operation is needed.
 	 */
-	async #ensureStorage():Promise<Storage> {
+	async #ensureStorage(): Promise<Storage> {
 		if (this.#storage) {
 			return this.#storage;
 		}
@@ -363,13 +363,22 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
-		const entry =
-			builtinDrivers[this.#config.driver as keyof typeof builtinDrivers] || this.#config.driver;
-		try {
-			// Try to load the driver from the built-in unstorage drivers.
-			// Otherwise, assume it's a custom driver and load by name.
+		const isBuiltin = this.#config.driver in builtinDrivers;
+		// Try to load the driver from the built-in unstorage drivers.
+		// Otherwise, assume it's a custom driver and load by name.
+		const driverPackage: string = isBuiltin
+			? builtinDrivers[this.#config.driver as keyof typeof builtinDrivers]
+			: this.#config.driver;
 
-			driver = await import(entry).then((r) => r.default || r);
+		try {
+			// If driver is not a builtin, or in development or test, load the driver directly.
+			if (!isBuiltin || process.env.NODE_ENV === 'development' || process.env.NODE_TEST_CONTEXT) {
+				driver = await import(/* @vite-ignore */ driverPackage).then((r) => r.default || r);
+			} else {
+				// In production, load via the virtual module as it will be bundled by Vite
+				// @ts-expect-error - virtual module
+				driver = await import('@astro-session-driver').then((r) => r.default || r);
+			}
 		} catch (err: any) {
 			// If the driver failed to load, throw an error.
 			if (err.code === 'ERR_MODULE_NOT_FOUND') {
@@ -377,7 +386,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 					{
 						...SessionStorageInitError,
 						message: SessionStorageInitError.message(
-							err.message.includes(`Cannot find package '${entry}'`)
+							err.message.includes(`Cannot find package '${driverPackage}'`)
 								? 'The driver module could not be found.'
 								: err.message,
 							this.#config.driver,
