@@ -4,6 +4,7 @@ import type {
 	AstroRenderer,
 	ContainerRenderer,
 } from 'astro';
+import { defaultClientConditions, defaultServerConditions } from 'vite';
 import type { PluginOption, UserConfig } from 'vite';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
 
@@ -46,42 +47,14 @@ async function getDevtoolsPlugin(logger: AstroIntegrationLogger, retrieve: boole
 }
 
 async function getViteConfiguration(
-	isDev: boolean,
 	{ include, exclude }: Options,
 	devtoolsPlugin: DevtoolsPlugin | null,
 ) {
-	// https://github.com/solidjs/vite-plugin-solid
-	// We inject the dev mode only if the user explicitly wants it or if we are in dev (serve) mode
-	const nestedDeps = ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'];
 	const config: UserConfig = {
-		resolve: {
-			conditions: ['solid', ...(isDev ? ['development'] : [])],
-			dedupe: nestedDeps,
-			alias: [{ find: /^solid-refresh$/, replacement: '/@solid-refresh' }],
-		},
 		optimizeDeps: {
-			include: [...nestedDeps],
 			exclude: ['@astrojs/solid-js/server.js'],
 		},
-		plugins: [
-			solid({ include, exclude, dev: isDev, ssr: true }),
-			{
-				name: '@astrojs/solid:config-overrides',
-				enforce: 'post',
-				config() {
-					return {
-						esbuild: {
-							// To support using alongside other JSX frameworks, still let
-							// esbuild compile stuff. Solid goes first anyways.
-							include: /\.(m?ts|[jt]sx)$/,
-						},
-					};
-				},
-			},
-		],
-		ssr: {
-			external: ['babel-preset-solid'],
-		},
+		plugins: [solidPlugin({ include, exclude })],
 	};
 
 	if (devtoolsPlugin) {
@@ -89,6 +62,40 @@ async function getViteConfiguration(
 	}
 
 	return config;
+}
+
+// Apply patch for https://github.com/solidjs/vite-plugin-solid/pull/163
+function solidPlugin({ include, exclude }: Options) {
+	const plugin = solid({ include, exclude, ssr: true });
+
+	// patch the config hook so it doesn't return `resolve.conditions`
+	const _config = plugin.config;
+	plugin.config = async function () {
+		// @ts-expect-error ignore errors due to hacky patch
+		// eslint-disable-next-line prefer-rest-params
+		const c = await _config.apply(plugin, arguments);
+		if (c?.resolve?.conditions) {
+			c.resolve.conditions = undefined;
+		}
+		return c;
+	};
+
+	plugin.configEnvironment = async function (name, config, opts) {
+		config.resolve ??= {};
+		// Emulate Vite default fallback for `resolve.conditions` if not set
+		if (config.resolve.conditions == null) {
+			// @ts-ignore These exports only exist in Vite 6
+			const {} = await import('vite');
+			if (config.consumer === 'client' || name === 'client' || opts.isSsrTargetWebworker) {
+				config.resolve.conditions = [...defaultClientConditions];
+			} else {
+				config.resolve.conditions = [...defaultServerConditions];
+			}
+		}
+		config.resolve.conditions.push('solid');
+	};
+
+	return plugin;
 }
 
 function getRenderer(): AstroRenderer {
@@ -128,7 +135,7 @@ export default function (options: Options = {}): AstroIntegration {
 
 				addRenderer(getRenderer());
 				updateConfig({
-					vite: await getViteConfiguration(command === 'dev', options, devtoolsPlugin),
+					vite: await getViteConfiguration(options, devtoolsPlugin),
 				});
 
 				if (devtoolsPlugin) {
