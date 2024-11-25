@@ -436,6 +436,15 @@ export class App {
 			// this function could throw an error...
 			originalResponse.headers.delete('Content-type');
 		} catch {}
+		// we use a map to remove duplicates
+		const mergedHeaders = new Map([
+			...Array.from(newResponse.headers),
+			...Array.from(originalResponse.headers),
+		]);
+		const newHeaders = new Headers();
+		for (const [name, value] of mergedHeaders) {
+			newHeaders.set(name, value);
+		}
 		return new Response(newResponse.body, {
 			status,
 			statusText: status === 200 ? newResponse.statusText : originalResponse.statusText,
@@ -444,10 +453,7 @@ export class App {
 			// If users see something weird, it's because they are setting some headers they should not.
 			//
 			// Although, we don't want it to replace the content-type, because the error page must return `text/html`
-			headers: new Headers([
-				...Array.from(newResponse.headers),
-				...Array.from(originalResponse.headers),
-			]),
+			headers: newHeaders,
 		});
 	}
 
