@@ -364,16 +364,18 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
+		// Try to load the driver from the built-in unstorage drivers.
+		// Otherwise, assume it's a custom driver and load by name.
 		const driverPackage =
 			builtinDrivers[this.#config.driver as keyof typeof builtinDrivers] || this.#config.driver;
 
 		try {
-			// Try to load the driver from the built-in unstorage drivers.
-			// Otherwise, assume it's a custom driver and load by name.
-			if (process.env.NODE_ENV === 'development') {
+			// In development and test, load the driver directly
+			if (process.env.NODE_ENV === 'development' || process.env.NODE_TEST_CONTEXT) {
 				const entry = fileURLToPath(import.meta.resolve(driverPackage));
 				driver = await import(entry).then((r) => r.default || r);
 			} else {
+				// In production, load via the virtual module as it will be bundled by Vite
 				// @ts-expect-error - virtual module
 				driver = await import('@astro-session-driver').then((r) => r.default || r);
 			}
