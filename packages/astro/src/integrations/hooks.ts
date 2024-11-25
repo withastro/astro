@@ -1,4 +1,4 @@
-import fsMod from 'node:fs';
+import fs from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
@@ -120,19 +120,17 @@ export async function runHookConfigSetup({
 	command,
 	logger,
 	isRestart = false,
-	fs = fsMod,
 }: {
 	settings: AstroSettings;
 	command: 'dev' | 'build' | 'preview' | 'sync';
 	logger: Logger;
 	isRestart?: boolean;
-	fs?: typeof fsMod;
 }): Promise<AstroSettings> {
 	// An adapter is an integration, so if one is provided push it.
 	if (settings.config.adapter) {
 		settings.config.integrations.push(settings.config.adapter);
 	}
-	if (await isActionsFilePresent(fs, settings.config.srcDir)) {
+	if (await isActionsFilePresent(settings.config.srcDir)) {
 		settings.config.integrations.push(astroIntegrationActionsRouteHandler({ settings }));
 	}
 
@@ -565,7 +563,7 @@ export async function runHookBuildDone({
 	cacheManifest,
 }: RunHookBuildDone) {
 	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
-	await fsMod.promises.mkdir(dir, { recursive: true });
+	await fs.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {

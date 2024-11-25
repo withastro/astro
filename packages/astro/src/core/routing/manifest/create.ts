@@ -8,7 +8,7 @@ import type {
 } from '../../../@types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
-import nodeFs from 'node:fs';
+import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -127,12 +127,10 @@ export interface CreateRouteManifestParams {
 	settings: AstroSettings;
 	/** Current working directory */
 	cwd?: string;
-	/** fs module, for testing */
-	fsMod?: typeof nodeFs;
 }
 
 function createFileBasedRoutes(
-	{ settings, cwd, fsMod }: CreateRouteManifestParams,
+	{ settings, cwd }: CreateRouteManifestParams,
 	logger: Logger,
 ): RouteData[] {
 	const components: string[] = [];
@@ -143,15 +141,9 @@ function createFileBasedRoutes(
 		...settings.pageExtensions,
 	]);
 	const validEndpointExtensions = new Set<string>(['.js', '.ts']);
-	const localFs = fsMod ?? nodeFs;
 	const prerender = getPrerenderDefault(settings.config);
 
-	function walk(
-		fs: typeof nodeFs,
-		dir: string,
-		parentSegments: RoutePart[][],
-		parentParams: string[],
-	) {
+	function walk(dir: string, parentSegments: RoutePart[][], parentParams: string[]) {
 		let items: Item[] = [];
 		const files = fs.readdirSync(dir);
 		for (const basename of files) {
@@ -234,7 +226,7 @@ function createFileBasedRoutes(
 			params.push(...item.parts.filter((p) => p.dynamic).map((p) => p.content));
 
 			if (item.isDir) {
-				walk(fsMod ?? fs, path.join(dir, item.basename), segments, params);
+				walk(path.join(dir, item.basename), segments, params);
 			} else {
 				components.push(item.file);
 				const component = item.file;
@@ -265,8 +257,8 @@ function createFileBasedRoutes(
 	const { config } = settings;
 	const pages = resolvePages(config);
 
-	if (localFs.existsSync(pages)) {
-		walk(localFs, fileURLToPath(pages), [], []);
+	if (fs.existsSync(pages)) {
+		walk(fileURLToPath(pages), [], []);
 	} else if (settings.injectedRoutes.length === 0) {
 		const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
 		logger.warn(null, `Missing pages directory: ${pagesDirRootRelative}`);

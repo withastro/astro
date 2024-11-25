@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import fsMod from 'node:fs';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
 import pLimit from 'p-limit';
@@ -92,9 +92,9 @@ function vitePluginContent(
 	let injectedEmptyFile = false;
 	let currentManifestState: ReturnType<typeof manifestState> = 'valid';
 
-	if (fsMod.existsSync(contentManifestFile)) {
+	if (fs.existsSync(contentManifestFile)) {
 		try {
-			const data = fsMod.readFileSync(contentManifestFile, { encoding: 'utf8' });
+			const data = fs.readFileSync(contentManifestFile, { encoding: 'utf8' });
 			oldManifest = JSON.parse(data);
 		} catch {}
 	}
@@ -151,12 +151,12 @@ function vitePluginContent(
 			// so don't do that in this case.
 			if (currentManifestState === 'valid') {
 				for (const { cached, dist } of cachedBuildOutput) {
-					if (fsMod.existsSync(cached)) {
+					if (fs.existsSync(cached)) {
 						await copyFiles(cached, dist, true);
 					}
 				}
 				// Copy over the content cache now so that new files override it
-				const cacheExists = fsMod.existsSync(contentCacheDir);
+				const cacheExists = fs.existsSync(contentCacheDir);
 				if (cacheExists) {
 					await copyFiles(contentCacheDir, distContentRoot, false);
 				}
@@ -227,7 +227,6 @@ function vitePluginContent(
 		async generateBundle(_options, bundle) {
 			const code = await generateContentEntryFile({
 				settings: opts.settings,
-				fs: fsMod,
 				lookupMap,
 				IS_DEV: false,
 				IS_SERVER: false,
@@ -267,14 +266,14 @@ function vitePluginContent(
 			newManifest.serverEntries = Array.from(serverComponents);
 			newManifest.clientEntries = Array.from(clientComponents);
 
-			const cacheExists = fsMod.existsSync(contentCacheDir);
+			const cacheExists = fs.existsSync(contentCacheDir);
 			// If the manifest is invalid, empty the cache so that we can create a new one.
 			if (cacheExists && currentManifestState !== 'valid') {
 				emptyDir(contentCacheDir);
 			}
 
-			await fsMod.promises.mkdir(contentCacheDir, { recursive: true });
-			await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), {
+			await fs.promises.mkdir(contentCacheDir, { recursive: true });
+			await fs.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), {
 				encoding: 'utf8',
 			});
 		},
@@ -380,7 +379,7 @@ async function generateContentManifest(
 			const fileURL = new URL(encodeURI(joinPaths(opts.settings.config.root.toString(), entry)));
 			promises.push(
 				limit(async () => {
-					const data = await fsMod.promises.readFile(fileURL, { encoding: 'utf8' });
+					const data = await fs.promises.readFile(fileURL, { encoding: 'utf8' });
 					manifest.entries.push([key, checksum(data, fileURL.toString())]);
 				}),
 			);
@@ -401,7 +400,7 @@ async function generateContentManifest(
 
 async function pushBufferInto(fileURL: URL, buffers: Uint8Array[]) {
 	try {
-		const handle = await fsMod.promises.open(fileURL, 'r');
+		const handle = await fs.promises.open(fileURL, 'r');
 		const data = await handle.readFile();
 		buffers.push(data);
 		await handle.close();
@@ -428,7 +427,7 @@ async function configHash(root: URL) {
 	for (const configPath of configFileNames) {
 		try {
 			const fileURL = new URL(`./${configPath}`, root);
-			const data = await fsMod.promises.readFile(fileURL);
+			const data = await fs.promises.readFile(fileURL);
 			const hash = checksum(data);
 			return hash;
 		} catch {
@@ -456,7 +455,7 @@ export async function copyContentToCache(opts: StaticBuildOptions) {
 	const contentCacheDir = getContentCacheDir(config);
 	const cacheTmp = getCacheTmp(contentCacheDir);
 
-	await fsMod.promises.mkdir(cacheTmp, { recursive: true });
+	await fs.promises.mkdir(cacheTmp, { recursive: true });
 	await copyFiles(distContentRoot, cacheTmp, true);
 	await copyFiles(cacheTmp, contentCacheDir);
 
@@ -473,7 +472,7 @@ export async function copyContentToCache(opts: StaticBuildOptions) {
 	]);
 
 	// Remove the tmp folder that's no longer needed.
-	await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
+	await fs.promises.rm(cacheTmp, { recursive: true, force: true });
 
 	return files;
 }
@@ -499,7 +498,7 @@ export function pluginContent(
 				if (!isContentCollectionsCacheEnabled(opts.settings.config)) {
 					return { vitePlugin: undefined };
 				}
-				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
+				const lookupMap = await generateLookupMap({ settings: opts.settings });
 				return {
 					vitePlugin: vitePluginContent(opts, lookupMap, internals, cachedBuildOutput),
 				};
@@ -512,7 +511,7 @@ export function pluginContent(
 				// Cache build output of chunks and assets
 				const promises: Promise<void[] | undefined>[] = [];
 				for (const { cached, dist } of cachedBuildOutput) {
-					if (fsMod.existsSync(dist)) {
+					if (fs.existsSync(dist)) {
 						promises.push(copyFiles(dist, cached, true));
 					}
 				}

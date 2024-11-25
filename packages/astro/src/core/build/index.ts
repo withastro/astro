@@ -73,7 +73,7 @@ export default async function build(
 				logger.warn('content', 'content cache cleared (force)');
 			}
 		}
-		await clearContentLayerCache({ settings, logger, fs });
+		await clearContentLayerCache({ settings, logger });
 	}
 
 	const builder = new AstroBuilder(settings, {
@@ -151,7 +151,6 @@ class AstroBuilder {
 		await syncInternal({
 			settings: this.settings,
 			logger,
-			fs,
 		});
 
 		return { viteConfig };

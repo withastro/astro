@@ -174,7 +174,7 @@ async function ssrBuild(
 	const isContentCache = !ssr && settings.config.experimental.contentCollectionCache;
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
 	const contentDir = new URL('./src/content', settings.config.root);
-	const symlinks = await getSymlinkedContentCollections({ contentDir, logger, fs });
+	const symlinks = await getSymlinkedContentCollections({ contentDir, logger });
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
 		mode: viteConfig.mode || 'production',

@@ -1,4 +1,4 @@
-import type fsMod from 'node:fs';
+import fs from 'node:fs';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import {
@@ -47,10 +47,8 @@ export function vitePluginUserActions({ settings }: { settings: AstroSettings })
 }
 
 export function vitePluginActions({
-	fs,
 	settings,
 }: {
-	fs: typeof fsMod;
 	settings: AstroSettings;
 }): VitePlugin {
 	return {
@@ -62,10 +60,10 @@ export function vitePluginActions({
 			}
 		},
 		async configureServer(server) {
-			const filePresentOnStartup = await isActionsFilePresent(fs, settings.config.srcDir);
+			const filePresentOnStartup = await isActionsFilePresent(settings.config.srcDir);
 			// Watch for the actions file to be created.
 			async function watcherCallback() {
-				const filePresent = await isActionsFilePresent(fs, settings.config.srcDir);
+				const filePresent = await isActionsFilePresent(settings.config.srcDir);
 				if (filePresentOnStartup !== filePresent) {
 					server.restart();
 				}

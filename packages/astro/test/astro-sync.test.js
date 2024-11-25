@@ -9,8 +9,6 @@ import { loadFixture } from './test-utils.js';
 const createFixture = () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
 	let astroFixture;
-	/** @type {Record<string, string>} */
-	const writtenFiles = {};
 
 	/**
 	 * @param {string} path
@@ -31,44 +29,14 @@ const createFixture = () => {
 			fs.rmSync(new URL('./.astro/', astroFixture.config.root), { force: true, recursive: true });
 		},
 		async whenSyncing() {
-			const fsMock = {
-				...fs,
-				/**
-				 * @param {fs.PathLike} path
-				 * @param {string} contents
-				 */
-				writeFileSync(path, contents) {
-					writtenFiles[path.toString()] = contents;
-					return fs.writeFileSync(path, contents);
-				},
-				promises: {
-					...fs.promises,
-					/**
-					 * @param {fs.PathLike} path
-					 * @param {string} contents
-					 */
-					writeFile(path, contents) {
-						writtenFiles[path.toString()] = contents;
-						return fs.promises.writeFile(path, contents);
-					},
-				},
-			};
-
-			await astroFixture.sync(
-				{ root: fileURLToPath(astroFixture.config.root) },
-				{
-					// @ts-ignore
-					fs: fsMock,
-				},
-			);
+			await astroFixture.sync({
+				root: fileURLToPath(astroFixture.config.root),
+				logLevel: 'silent',
+			});
 		},
 		/** @param {string} path */
 		thenFileShouldExist(path) {
-			assert.equal(
-				writtenFiles.hasOwnProperty(getExpectedPath(path)),
-				true,
-				`${path} does not exist`,
-			);
+			return fs.existsSync(getExpectedPath(path));
 		},
 		/**
 		 * @param {string} path
@@ -76,14 +44,15 @@ const createFixture = () => {
 		 * @param {string | undefined} error
 		 */
 		thenFileContentShouldInclude(path, content, error = undefined) {
-			assert.equal(writtenFiles[getExpectedPath(path)].includes(content), true, error);
+			const fileContent = fs.readFileSync(getExpectedPath(path), 'utf-8');
+			assert.equal(fileContent.includes(content), true, error);
 		},
 		/**
 		 * @param {string} path
 		 */
 		thenFileShouldBeValidTypescript(path) {
 			try {
-				const content = writtenFiles[getExpectedPath(path)];
+				const content = fs.readFileSync(getExpectedPath(path), 'utf-8');
 				const result = ts.transpileModule(content, {
 					compilerOptions: {
 						module: ts.ModuleKind.ESNext,

@@ -1,4 +1,4 @@
-import fsMod from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { slug as githubSlug } from 'github-slugger';
@@ -260,11 +260,9 @@ export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | Dat
 export async function getSymlinkedContentCollections({
 	contentDir,
 	logger,
-	fs,
 }: {
 	contentDir: URL;
 	logger: Logger;
-	fs: typeof fsMod;
 }): Promise<Map<string, string>> {
 	const contentPaths = new Map<string, string>();
 	const contentDirPath = fileURLToPath(contentDir);
@@ -484,15 +482,13 @@ export function isDeferredModule(viteId: string): boolean {
 }
 
 async function loadContentConfig({
-	fs,
 	settings,
 	viteServer,
 }: {
-	fs: typeof fsMod;
 	settings: AstroSettings;
 	viteServer: ViteDevServer;
 }): Promise<ContentConfig | undefined> {
-	const contentPaths = getContentPaths(settings.config, fs);
+	const contentPaths = getContentPaths(settings.config);
 	let unparsedConfig;
 	if (!contentPaths.config.exists) {
 		return undefined;
@@ -515,7 +511,6 @@ export async function reloadContentConfigObserver({
 	observer = globalContentConfigObserver,
 	...loadContentConfigOpts
 }: {
-	fs: typeof fsMod;
 	settings: AstroSettings;
 	viteServer: ViteDevServer;
 	observer?: ContentObservable;
@@ -586,11 +581,8 @@ export type ContentPaths = {
 	};
 };
 
-export function getContentPaths(
-	{ srcDir }: Pick<AstroConfig, 'root' | 'srcDir'>,
-	fs: typeof fsMod = fsMod,
-): ContentPaths {
-	const configStats = search(fs, srcDir);
+export function getContentPaths({ srcDir }: Pick<AstroConfig, 'root' | 'srcDir'>): ContentPaths {
+	const configStats = search(srcDir);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
 		contentDir: new URL('./content/', srcDir),
@@ -600,7 +592,7 @@ export function getContentPaths(
 		config: configStats,
 	};
 }
-function search(fs: typeof fsMod, srcDir: URL) {
+function search(srcDir: URL) {
 	const paths = ['config.mjs', 'config.js', 'config.mts', 'config.ts'].map(
 		(p) => new URL(`./content/${p}`, srcDir),
 	);
@@ -622,9 +614,7 @@ export async function getEntrySlug({
 	generatedSlug,
 	contentEntryType,
 	fileUrl,
-	fs,
 }: {
-	fs: typeof fsMod;
 	id: string;
 	collection: string;
 	generatedSlug: string;

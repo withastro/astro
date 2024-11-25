@@ -1,4 +1,4 @@
-import nodeFs from 'node:fs';
+import fs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
@@ -45,12 +45,10 @@ import {
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
-	fs: typeof nodeFs;
 }
 
 export function astroContentVirtualModPlugin({
 	settings,
-	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
 	const IS_SERVER = isServerLikeOutput(settings.config);
@@ -111,12 +109,10 @@ export function astroContentVirtualModPlugin({
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 				const lookupMap = await generateLookupMap({
 					settings,
-					fs,
 				});
 				const isClient = !args?.ssr;
 				const code = await generateContentEntryFile({
 					settings,
-					fs,
 					lookupMap,
 					IS_DEV,
 					IS_SERVER,
@@ -220,7 +216,6 @@ export async function generateContentEntryFile({
 	isClient,
 }: {
 	settings: AstroSettings;
-	fs: typeof nodeFs;
 	lookupMap: ContentLookupMap;
 	IS_DEV: boolean;
 	IS_SERVER: boolean;
@@ -261,7 +256,7 @@ export async function generateContentEntryFile({
 	}
 
 	let virtualModContents =
-		nodeFs
+		fs
 			.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 			.replace('@@CONTENT_DIR@@', relContentDir)
 			.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
@@ -314,10 +309,8 @@ function getStringifiedCollectionFromLookup(
  */
 export async function generateLookupMap({
 	settings,
-	fs,
 }: {
 	settings: AstroSettings;
-	fs: typeof nodeFs;
 }) {
 	const { root } = settings.config;
 	const contentPaths = getContentPaths(settings.config);
@@ -336,7 +329,6 @@ export async function generateLookupMap({
 		{
 			absolute: true,
 			cwd: fileURLToPath(root),
-			fs,
 		},
 	);
 
@@ -376,7 +368,7 @@ export async function generateLookupMap({
 						id,
 						collection,
 						generatedSlug,
-						fs,
+
 						fileUrl: pathToFileURL(filePath),
 						contentEntryType,
 					});

@@ -1,4 +1,4 @@
-import type fsMod from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, cyan, underline } from 'kleur/colors';
@@ -11,7 +11,6 @@ import { createContentTypesGenerator } from './types-generator.js';
 import { type ContentPaths, getContentPaths, globalContentConfigObserver } from './utils.js';
 
 interface ContentServerListenerParams {
-	fs: typeof fsMod;
 	logger: Logger;
 	settings: AstroSettings;
 	viteServer: ViteDevServer;
@@ -19,11 +18,10 @@ interface ContentServerListenerParams {
 
 export async function attachContentServerListeners({
 	viteServer,
-	fs,
 	logger,
 	settings,
 }: ContentServerListenerParams) {
-	const contentPaths = getContentPaths(settings.config, fs);
+	const contentPaths = getContentPaths(settings.config);
 
 	if (fs.existsSync(contentPaths.contentDir)) {
 		logger.debug(
@@ -48,7 +46,6 @@ export async function attachContentServerListeners({
 
 	async function attachListeners() {
 		const contentGenerator = await createContentTypesGenerator({
-			fs,
 			settings,
 			logger,
 			viteServer,

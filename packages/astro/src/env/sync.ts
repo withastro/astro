@@ -1,9 +1,9 @@
-import fsMod from 'node:fs';
+import fs from 'node:fs';
 import type { AstroSettings } from '../@types/astro.js';
 import { TYPES_TEMPLATE_URL } from './constants.js';
 import { getEnvFieldType } from './validators.js';
 
-export function syncAstroEnv(settings: AstroSettings, fs = fsMod): void {
+export function syncAstroEnv(settings: AstroSettings): void {
 	if (!settings.config.experimental.env) {
 		return;
 	}

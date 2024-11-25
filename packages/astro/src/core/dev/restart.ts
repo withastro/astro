@@ -1,4 +1,3 @@
-import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
@@ -16,13 +15,12 @@ async function createRestartedContainer(
 	container: Container,
 	settings: AstroSettings,
 ): Promise<Container> {
-	const { logger, fs, inlineConfig } = container;
+	const { logger, inlineConfig } = container;
 	const newContainer = await createContainer({
 		isRestart: true,
 		logger: logger,
 		settings,
 		inlineConfig,
-		fs,
 	});
 
 	await startContainer(newContainer);
@@ -73,7 +71,7 @@ async function restartContainer(container: Container): Promise<Container | Error
 	container.restartInFlight = true;
 
 	try {
-		const { astroConfig } = await resolveConfig(container.inlineConfig, 'dev', container.fs);
+		const { astroConfig } = await resolveConfig(container.inlineConfig, 'dev');
 		const settings = await createSettings(astroConfig, fileURLToPath(existingSettings.config.root));
 		await close();
 		return await createRestartedContainer(container, settings);
@@ -102,7 +100,6 @@ async function restartContainer(container: Container): Promise<Container | Error
 
 export interface CreateContainerWithAutomaticRestart {
 	inlineConfig?: AstroInlineConfig;
-	fs: typeof nodeFs;
 }
 
 interface Restart {
@@ -112,15 +109,14 @@ interface Restart {
 
 export async function createContainerWithAutomaticRestart({
 	inlineConfig,
-	fs,
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
 	const logger = createNodeLogger(inlineConfig ?? {});
-	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
+	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev');
 	telemetry.record(eventCliSession('dev', userConfig));
 
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
-	const initialContainer = await createContainer({ settings, logger: logger, inlineConfig, fs });
+	const initialContainer = await createContainer({ settings, logger: logger, inlineConfig });
 
 	let resolveRestart: (value: Error | null) => void;
 	let restartComplete = new Promise<Error | null>((resolve) => {

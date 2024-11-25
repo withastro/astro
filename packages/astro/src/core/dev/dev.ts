@@ -40,7 +40,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	await telemetry.record([]);
 
 	// Create a container which sets up the Vite server.
-	const restart = await createContainerWithAutomaticRestart({ inlineConfig, fs });
+	const restart = await createContainerWithAutomaticRestart({ inlineConfig });
 	const logger = restart.container.logger;
 
 	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';

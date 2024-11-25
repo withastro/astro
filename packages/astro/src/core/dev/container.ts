@@ -2,7 +2,6 @@ import type * as http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 
-import nodeFs from 'node:fs';
 import * as vite from 'vite';
 import { injectImageEndpoint } from '../../assets/endpoint/config.js';
 import {
@@ -17,7 +16,6 @@ import { apply as applyPolyfill } from '../polyfill.js';
 import { syncInternal } from '../sync/index.js';
 
 export interface Container {
-	fs: typeof nodeFs;
 	logger: Logger;
 	settings: AstroSettings;
 	viteServer: vite.ViteDevServer;
@@ -32,7 +30,6 @@ export interface CreateContainerParams {
 	settings: AstroSettings;
 	inlineConfig?: AstroInlineConfig;
 	isRestart?: boolean;
-	fs?: typeof nodeFs;
 }
 
 export async function createContainer({
@@ -40,7 +37,6 @@ export async function createContainer({
 	logger,
 	inlineConfig,
 	settings,
-	fs = nodeFs,
 }: CreateContainerParams): Promise<Container> {
 	// Initialize
 	applyPolyfill();
@@ -88,7 +84,7 @@ export async function createContainer({
 				include: rendererClientEntries,
 			},
 		},
-		{ settings, logger, mode: 'dev', command: 'dev', fs, sync: false },
+		{ settings, logger, mode: 'dev', command: 'dev', sync: false },
 	);
 	await runHookConfigDone({ settings, logger });
 	await syncInternal({
@@ -104,7 +100,6 @@ export async function createContainer({
 
 	const container: Container = {
 		inlineConfig: inlineConfig ?? {},
-		fs,
 		logger,
 		restartInFlight: false,
 		settings,

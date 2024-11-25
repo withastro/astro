@@ -1,4 +1,4 @@
-import type fsMod from 'node:fs';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { type Plugin, loadEnv } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
@@ -15,14 +15,12 @@ import { getEnvFieldType, validateEnvVariable } from './validators.js';
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
 	mode: 'dev' | 'build' | string;
-	fs: typeof fsMod;
 	sync: boolean;
 }
 
 export function astroEnv({
 	settings,
 	mode,
-	fs,
 	sync,
 }: AstroEnvVirtualModPluginParams): Plugin | undefined {
 	if (!settings.config.experimental.env) {
@@ -55,7 +53,7 @@ export function astroEnv({
 			});
 
 			templates = {
-				...getTemplates(schema, fs, validatedVariables),
+				...getTemplates(schema, validatedVariables),
 				internal: `export const schema = ${JSON.stringify(schema)};`,
 			};
 		},
@@ -134,7 +132,6 @@ function validatePublicVariables({
 
 function getTemplates(
 	schema: EnvSchema,
-	fs: typeof fsMod,
 	validatedVariables: ReturnType<typeof validatePublicVariables>,
 ) {
 	let client = '';

@@ -35,11 +35,11 @@ export const configPaths = Object.freeze([
 	'astro.config.cts',
 ]);
 
-async function search(fsMod: typeof fs, root: string) {
+async function search(root: string) {
 	const paths = configPaths.map((p) => path.join(root, p));
 
 	for (const file of paths) {
-		if (fsMod.existsSync(file)) {
+		if (fs.existsSync(file)) {
 			return file;
 		}
 	}
@@ -48,7 +48,6 @@ async function search(fsMod: typeof fs, root: string) {
 interface ResolveConfigPathOptions {
 	root: string;
 	configFile?: string | false;
-	fs: typeof fs;
 }
 
 /**
@@ -60,30 +59,25 @@ export async function resolveConfigPath(
 	let userConfigPath: string | undefined;
 	if (options.configFile) {
 		userConfigPath = path.join(options.root, options.configFile);
-		if (!options.fs.existsSync(userConfigPath)) {
+		if (!fs.existsSync(userConfigPath)) {
 			throw new AstroError({
 				...AstroErrorData.ConfigNotFound,
 				message: AstroErrorData.ConfigNotFound.message(options.configFile),
 			});
 		}
 	} else {
-		userConfigPath = await search(options.fs, options.root);
+		userConfigPath = await search(options.root);
 	}
 
 	return userConfigPath;
 }
 
-async function loadConfig(
-	root: string,
-	configFile?: string | false,
-	fsMod = fs,
-): Promise<Record<string, any>> {
+async function loadConfig(root: string, configFile?: string | false): Promise<Record<string, any>> {
 	if (configFile === false) return {};
 
 	const configPath = await resolveConfigPath({
 		root,
 		configFile,
-		fs: fsMod,
 	});
 	if (!configPath) return {};
 
@@ -92,7 +86,6 @@ async function loadConfig(
 		return await loadConfigWithVite({
 			root,
 			configPath,
-			fs: fsMod,
 		});
 	} catch (e) {
 		const configPathText = configFile ? colors.bold(configFile) : 'your Astro config';
@@ -135,7 +128,6 @@ interface ResolveConfigResult {
 export async function resolveConfig(
 	inlineConfig: AstroInlineConfig,
 	command: string,
-	fsMod = fs,
 ): Promise<ResolveConfigResult> {
 	const root = resolveRoot(inlineConfig.root);
 	const { inlineUserConfig, inlineOnlyConfig } = splitInlineConfig(inlineConfig);
@@ -145,7 +137,7 @@ export async function resolveConfig(
 		inlineUserConfig.root = root;
 	}
 
-	const userConfig = await loadConfig(root, inlineOnlyConfig.configFile, fsMod);
+	const userConfig = await loadConfig(root, inlineOnlyConfig.configFile);
 	const mergedConfig = mergeConfig(userConfig, inlineUserConfig);
 	// First-Pass Validation
 	let astroConfig: AstroConfig;

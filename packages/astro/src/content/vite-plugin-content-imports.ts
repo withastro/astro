@@ -1,4 +1,4 @@
-import type fsMod from 'node:fs';
+import fs from 'node:fs';
 import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
@@ -64,15 +64,13 @@ const CHOKIDAR_MODIFIED_EVENTS = ['add', 'unlink', 'change'];
 const COLLECTION_TYPES_TO_INVALIDATE_ON = ['data', 'content', 'config'];
 
 export function astroContentImportPlugin({
-	fs,
 	settings,
 	logger,
 }: {
-	fs: typeof fsMod;
 	settings: AstroSettings;
 	logger: Logger;
 }): Plugin[] {
-	const contentPaths = getContentPaths(settings.config, fs);
+	const contentPaths = getContentPaths(settings.config);
 	const contentEntryExts = getContentEntryExts(settings);
 	const dataEntryExts = getDataEntryExts(settings);
 
@@ -89,7 +87,7 @@ export function astroContentImportPlugin({
 			},
 			async buildStart() {
 				// Get symlinks once at build start
-				symlinks = await getSymlinkedContentCollections({ contentDir, logger, fs });
+				symlinks = await getSymlinkedContentCollections({ contentDir, logger });
 			},
 			async transform(_, viteId) {
 				if (hasContentFlag(viteId, DATA_FLAG)) {
@@ -107,7 +105,6 @@ export function astroContentImportPlugin({
 						entryConfigByExt: dataEntryConfigByExt,
 						contentDir,
 						config: settings.config,
-						fs,
 						pluginContext: this,
 						shouldEmitFile,
 					});
@@ -130,7 +127,6 @@ export const _internal = {
 						entryConfigByExt: contentEntryConfigByExt,
 						contentDir,
 						config: settings.config,
-						fs,
 						pluginContext: this,
 						shouldEmitFile,
 					});
@@ -160,7 +156,7 @@ export const _internal = {
 						// Reload the config in case of changes.
 						// Changes to the config file itself are handled in types-generator.ts, so we skip them here
 						if (entryType === 'content' || entryType === 'data') {
-							await reloadContentConfigObserver({ fs, settings, viteServer });
+							await reloadContentConfigObserver({ settings, viteServer });
 						}
 
 						// Invalidate all content imports and `render()` modules.
@@ -206,7 +202,6 @@ export const _internal = {
 }
 
 type GetEntryModuleParams<TEntryType extends ContentEntryType | DataEntryType> = {
-	fs: typeof fsMod;
 	fileId: string;
 	contentDir: URL;
 	pluginContext: PluginContext;
@@ -301,7 +296,6 @@ async function getEntryModuleBaseInfo<TEntryType extends ContentEntryType | Data
 	fileId,
 	entryConfigByExt,
 	contentDir,
-	fs,
 }: GetEntryModuleParams<TEntryType>) {
 	const contentConfig = await getContentConfigFromGlobal();
 	let rawContents;

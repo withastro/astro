@@ -16,7 +16,7 @@ export function getViteConfig(
 
 		// Use dynamic import to avoid pulling in deps unless used
 		const [
-			fs,
+			_fs,
 			{ mergeConfig },
 			{ createNodeLogger },
 			{ resolveConfig, createSettings },
@@ -41,7 +41,7 @@ export function getViteConfig(
 				mode,
 				plugins: [
 					// Initialize the content listener
-					astroContentListenPlugin({ settings, logger, fs }),
+					astroContentListenPlugin({ settings, logger }),
 				],
 			},
 			{ settings, logger, mode, sync: false },

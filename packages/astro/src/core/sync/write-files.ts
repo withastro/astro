@@ -1,4 +1,4 @@
-import type fsMod from 'node:fs';
+import fs from 'node:fs';
 import { dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
@@ -8,10 +8,10 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { REFERENCE_FILE } from './constants.js';
 
-export async function writeFiles(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
+export async function writeFiles(settings: AstroSettings, logger: Logger) {
 	try {
-		writeInjectedTypes(settings, fs);
-		await setUpEnvTs(settings, fs, logger);
+		writeInjectedTypes(settings);
+		await setUpEnvTs(settings, logger);
 	} catch (e) {
 		throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
 	}
@@ -23,7 +23,7 @@ function getTsReference(type: 'path' | 'types', value: string) {
 
 const CLIENT_TYPES_REFERENCE = getTsReference('types', 'astro/client');
 
-function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
+function writeInjectedTypes(settings: AstroSettings) {
 	const references: Array<string> = [];
 
 	for (const { filename, content } of settings.injectedTypes) {
@@ -44,7 +44,7 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	);
 }
 
-async function setUpEnvTs(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
+async function setUpEnvTs(settings: AstroSettings, logger: Logger) {
 	const envTsPath = fileURLToPath(new URL('env.d.ts', settings.config.srcDir));
 	const envTsPathRelativetoRoot = relative(fileURLToPath(settings.config.root), envTsPath);
 	const relativePath = normalizePath(

@@ -1,4 +1,4 @@
-import type fsMod from 'node:fs';
+import fs from 'node:fs';
 import * as eslexer from 'es-module-lexer';
 import type { APIContext } from '../@types/astro.js';
 import type { Locals } from './runtime/middleware.js';
@@ -34,10 +34,10 @@ let didInitLexer = false;
 /**
  * Check whether the Actions config file is present.
  */
-export async function isActionsFilePresent(fs: typeof fsMod, srcDir: URL) {
+export async function isActionsFilePresent(srcDir: URL) {
 	if (!didInitLexer) await eslexer.init;
 
-	const actionsFile = search(fs, srcDir);
+	const actionsFile = search(srcDir);
 	if (!actionsFile) return false;
 
 	let contents: string;
@@ -60,7 +60,7 @@ export async function isActionsFilePresent(fs: typeof fsMod, srcDir: URL) {
 	return false;
 }
 
-function search(fs: typeof fsMod, srcDir: URL) {
+function search(srcDir: URL) {
 	const paths = [
 		'actions.mjs',
 		'actions.js',

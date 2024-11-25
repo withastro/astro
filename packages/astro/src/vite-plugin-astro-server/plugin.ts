@@ -24,13 +24,11 @@ import { setRouteError } from './server-state.js';
 export interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
-	fs: typeof fs;
 }
 
 export default function createVitePluginAstroServer({
 	settings,
 	logger,
-	fs: fsMod,
 }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
@@ -39,7 +37,7 @@ export default function createVitePluginAstroServer({
 			const manifest = createDevelopmentManifest(settings);
 			let manifestData: ManifestData = injectDefaultRoutes(
 				manifest,
-				createRouteManifest({ settings, fsMod }, logger),
+				createRouteManifest({ settings }, logger),
 			);
 			const pipeline = DevPipeline.create(manifestData, { loader, logger, manifest, settings });
 			const controller = createController({ loader });

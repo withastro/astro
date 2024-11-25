@@ -1,4 +1,4 @@
-import type fsMod from 'node:fs';
+import fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'fast-glob';
@@ -56,18 +56,16 @@ type CreateContentGeneratorParams = {
 	settings: AstroSettings;
 	/** This is required for loading the content config */
 	viteServer: ViteDevServer;
-	fs: typeof fsMod;
 };
 
 export async function createContentTypesGenerator({
 	contentConfigObserver,
-	fs,
 	logger,
 	settings,
 	viteServer,
 }: CreateContentGeneratorParams) {
 	const collectionEntryMap: CollectionEntryMap = {};
-	const contentPaths = getContentPaths(settings.config, fs);
+	const contentPaths = getContentPaths(settings.config);
 	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
@@ -144,7 +142,7 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
-			await reloadContentConfigObserver({ fs, settings, viteServer });
+			await reloadContentConfigObserver({ settings, viteServer });
 			return { shouldGenerateTypes: true };
 		}
 
@@ -240,7 +238,6 @@ export async function createContentTypesGenerator({
 					collection,
 					fileUrl: event.entry,
 					contentEntryType,
-					fs,
 				});
 				if (!(entryKey in collectionEntryMap[collectionKey].entries)) {
 					collectionEntryMap[collectionKey] = {
@@ -269,7 +266,6 @@ export async function createContentTypesGenerator({
 					collection,
 					fileUrl: event.entry,
 					contentEntryType,
-					fs,
 				});
 				const entryMetadata = collectionInfo.entries[entryKey];
 				if (entryMetadata?.slug !== changedSlug) {
@@ -314,7 +310,6 @@ export async function createContentTypesGenerator({
 		const observable = contentConfigObserver.get();
 		if (eventResponses.some((r) => r.shouldGenerateTypes)) {
 			await writeContentFiles({
-				fs,
 				collectionEntryMap,
 				contentPaths,
 				typeTemplateContent,
@@ -412,7 +407,6 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 }
 
 async function writeContentFiles({
-	fs,
 	contentPaths,
 	collectionEntryMap,
 	typeTemplateContent,
@@ -422,7 +416,6 @@ async function writeContentFiles({
 	logger,
 	settings,
 }: {
-	fs: typeof fsMod;
 	contentPaths: ContentPaths;
 	collectionEntryMap: CollectionEntryMap;
 	typeTemplateContent: string;
@@ -519,13 +512,7 @@ async function writeContentFiles({
 				}
 
 				if (collectionConfig?.schema) {
-					await generateJSONSchema(
-						fs,
-						collectionConfig,
-						collectionKey,
-						collectionSchemasDir,
-						logger,
-					);
+					await generateJSONSchema(collectionConfig, collectionKey, collectionSchemasDir, logger);
 				}
 				break;
 		}
@@ -535,7 +522,7 @@ async function writeContentFiles({
 			collectionConfig &&
 			(collectionConfig.schema || (await getContentLayerSchema(collectionConfig, collectionKey)))
 		) {
-			await generateJSONSchema(fs, collectionConfig, collectionKey, collectionSchemasDir, logger);
+			await generateJSONSchema(collectionConfig, collectionKey, collectionSchemasDir, logger);
 
 			contentCollectionsMap[collectionKey] = collection;
 		}
@@ -610,7 +597,6 @@ async function writeContentFiles({
 }
 
 async function generateJSONSchema(
-	fsMod: typeof import('node:fs'),
 	collectionConfig: CollectionConfig,
 	collectionKey: string,
 	collectionSchemasDir: URL,
@@ -631,7 +617,7 @@ async function generateJSONSchema(
 		});
 	}
 	try {
-		await fsMod.promises.writeFile(
+		await fs.promises.writeFile(
 			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
 			JSON.stringify(
 				zodToJsonSchema(zodSchemaForJson, {

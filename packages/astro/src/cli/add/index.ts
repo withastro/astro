@@ -1,4 +1,4 @@
-import fsMod, { existsSync, promises as fs } from 'node:fs';
+import { promises as fs, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import boxen from 'boxen';
@@ -248,7 +248,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 	const rawConfigPath = await resolveConfigPath({
 		root: rootPath,
 		configFile: inlineConfig.configFile,
-		fs: fsMod,
 	});
 	let configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
 

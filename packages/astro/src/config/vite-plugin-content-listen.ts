@@ -1,4 +1,4 @@
-import type fsMod from 'node:fs';
+import fs from 'node:fs';
 import type { Plugin, ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { attachContentServerListeners } from '../content/server-listeners.js';
@@ -15,11 +15,9 @@ import type { Logger } from '../core/logger/core.js';
 export function astroContentListenPlugin({
 	settings,
 	logger,
-	fs,
 }: {
 	settings: AstroSettings;
 	logger: Logger;
-	fs: typeof fsMod;
 }): Plugin {
 	let server: ViteDevServer;
 
@@ -31,7 +29,6 @@ export function astroContentListenPlugin({
 		},
 		async buildStart() {
 			await attachContentServerListeners({
-				fs: fs,
 				settings,
 				logger,
 				viteServer: server,

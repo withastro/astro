@@ -1,4 +1,4 @@
-import fsMod, { existsSync } from 'node:fs';
+import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
@@ -33,10 +33,6 @@ import { ensureProcessNodeEnv } from '../util.js';
 import { writeFiles } from './write-files.js';
 
 export type SyncOptions = {
-	/**
-	 * @internal only used for testing
-	 */
-	fs?: typeof fsMod;
 	logger: Logger;
 	settings: AstroSettings;
 	force?: boolean;
@@ -48,7 +44,7 @@ export type SyncOptions = {
 
 export default async function sync(
 	inlineConfig: AstroInlineConfig,
-	{ fs, telemetry: _telemetry = false }: { fs?: typeof fsMod; telemetry?: boolean } = {},
+	{ telemetry: _telemetry = false }: { telemetry?: boolean } = {},
 ) {
 	ensureProcessNodeEnv('production');
 	const logger = createNodeLogger(inlineConfig);
@@ -65,7 +61,7 @@ export default async function sync(
 
 	await runHookConfigDone({ settings, logger });
 
-	return await syncInternal({ settings, logger, fs, force: inlineConfig.force });
+	return await syncInternal({ settings, logger, force: inlineConfig.force });
 }
 
 /**
@@ -74,8 +70,7 @@ export default async function sync(
 export async function clearContentLayerCache({
 	settings,
 	logger,
-	fs = fsMod,
-}: { settings: AstroSettings; logger: Logger; fs?: typeof fsMod }) {
+}: { settings: AstroSettings; logger: Logger }) {
 	const dataStore = getDataStoreFile(settings);
 	if (fs.existsSync(dataStore)) {
 		logger.debug('content', 'clearing data store');
@@ -90,26 +85,20 @@ export async function clearContentLayerCache({
  *
  * @experimental The JavaScript API is experimental
  */
-export async function syncInternal({
-	logger,
-	fs = fsMod,
-	settings,
-	skip,
-	force,
-}: SyncOptions): Promise<void> {
+export async function syncInternal({ logger, settings, skip, force }: SyncOptions): Promise<void> {
 	if (force) {
-		await clearContentLayerCache({ settings, logger, fs });
+		await clearContentLayerCache({ settings, logger });
 	}
 
 	const timerStart = performance.now();
 
 	if (!skip?.content) {
-		await syncContentCollections(settings, { fs, logger });
+		await syncContentCollections(settings, { logger });
 		settings.timer.start('Sync content layer');
 		let store: MutableDataStore | undefined;
 		try {
 			const dataStoreFile = getDataStoreFile(settings);
-			if (existsSync(dataStoreFile)) {
+			if (fs.existsSync(dataStoreFile)) {
 				store = await MutableDataStore.fromFile(dataStoreFile);
 			}
 		} catch (err: any) {
@@ -125,7 +114,7 @@ export async function syncInternal({
 		});
 		await contentLayer.sync();
 		settings.timer.end('Sync content layer');
-	} else if (fs.existsSync(fileURLToPath(getContentPaths(settings.config, fs).contentDir))) {
+	} else if (fs.existsSync(fileURLToPath(getContentPaths(settings.config).contentDir))) {
 		// Content is synced after writeFiles. That means references are not created
 		// To work around it, we create a stub so the reference is created and content
 		// sync will override the empty file
@@ -134,9 +123,9 @@ export async function syncInternal({
 			content: '',
 		});
 	}
-	syncAstroEnv(settings, fs);
+	syncAstroEnv(settings);
 
-	await writeFiles(settings, fs, logger);
+	await writeFiles(settings, logger);
 	logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 }
 
@@ -150,13 +139,12 @@ export async function syncInternal({
  *
  * @param {SyncOptions} options
  * @param {AstroSettings} settings Astro settings
- * @param {typeof fsMod} options.fs The file system
  * @param {LogOptions} options.logging Logging options
  * @return {Promise<ProcessExit>}
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs }: Required<Pick<SyncOptions, 'logger' | 'fs'>>,
+	{ logger }: Required<Pick<SyncOptions, 'logger'>>,
 ): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
@@ -167,7 +155,7 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command: 'build', fs, sync: true },
+			{ settings, logger, mode: 'build', command: 'build', sync: true },
 		),
 	);
 
@@ -185,7 +173,6 @@ async function syncContentCollections(
 		const contentTypesGenerator = await createContentTypesGenerator({
 			contentConfigObserver: globalContentConfigObserver,
 			logger: logger,
-			fs,
 			settings,
 			viteServer: tempViteServer,
 		});

@@ -1,5 +1,4 @@
 import { EventEmitter } from 'node:events';
-import realFS from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createFixture as _createFixture } from 'fs-fixture';
 import httpMocks from 'node-mocks-http';
@@ -145,7 +144,6 @@ export async function createBasicSettings(inlineConfig = {}) {
 
 /**
  * @typedef {{
- * 	fs?: typeof realFS,
  * 	inlineConfig?: import('../../src/@types/astro.js').AstroInlineConfig,
  *  logging?: import('../../src/core/logger/core').LogOptions,
  * }} RunInContainerOptions
@@ -158,7 +156,6 @@ export async function createBasicSettings(inlineConfig = {}) {
 export async function runInContainer(options = {}, callback) {
 	const settings = await createBasicSettings(options.inlineConfig ?? {});
 	const container = await createContainer({
-		fs: options?.fs ?? realFS,
 		settings,
 		inlineConfig: options.inlineConfig ?? {},
 		logger: defaultLogger,

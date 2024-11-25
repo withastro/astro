@@ -1,4 +1,4 @@
-import fs, { readFileSync } from 'node:fs';
+import fs from 'node:fs';
 import { basename } from 'node:path/posix';
 import { dim, green } from 'kleur/colors';
 import type PQueue from 'p-queue';
@@ -169,7 +169,7 @@ export async function generateImagesForPath(
 					cached: true,
 				};
 			} else {
-				const JSONData = JSON.parse(readFileSync(cachedFileURL, 'utf-8')) as RemoteCacheEntry;
+				const JSONData = JSON.parse(fs.readFileSync(cachedFileURL, 'utf-8')) as RemoteCacheEntry;
 
 				if (!JSONData.data || !JSONData.expires) {
 					await fs.promises.unlink(cachedFileURL);
