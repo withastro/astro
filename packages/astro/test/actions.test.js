@@ -220,7 +220,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Response middleware fallback - POST', async () => {
-			const req = new Request('http://example.com/user?_astroAction=getUser', {
+			const req = new Request('http://example.com/user?_action=getUser', {
 				method: 'POST',
 				body: new FormData(),
 				headers: {
@@ -237,7 +237,7 @@ describe('Astro Actions', () => {
 
 		it('Response middleware fallback - cookie forwarding', async () => {
 			const req = new Request(
-				'http://example.com/user?_astroAction=getUser&actionCookieForwarding=true',
+				'http://example.com/user?_action=getUser&actionCookieForwarding=true',
 				{
 					method: 'POST',
 					body: new FormData(),
@@ -255,7 +255,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Respects custom errors - POST', async () => {
-			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
+			const req = new Request('http://example.com/user-or-throw?_action=getUserOrThrow', {
 				method: 'POST',
 				body: new FormData(),
 				headers: {
@@ -273,7 +273,7 @@ describe('Astro Actions', () => {
 
 		it('Respects custom errors - cookie forwarding', async () => {
 			const req = new Request(
-				'http://example.com/user-or-throw?_astroAction=getUserOrThrow&actionCookieForwarding=true',
+				'http://example.com/user-or-throw?_action=getUserOrThrow&actionCookieForwarding=true',
 				{
 					method: 'POST',
 					body: new FormData(),
@@ -320,8 +320,8 @@ describe('Astro Actions', () => {
 			assert.equal('safe' in data, true);
 		});
 
-		it('Ignores `_astroAction` name for GET requests', async () => {
-			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
+		it('Ignores action name for GET requests', async () => {
+			const req = new Request('http://example.com/user-or-throw?_action=getUserOrThrow', {
 				method: 'GET',
 			});
 			const res = await app.render(req);

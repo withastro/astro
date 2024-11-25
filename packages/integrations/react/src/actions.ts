@@ -26,7 +26,7 @@ export function experimental_withState<T>(action: FormFn<T>) {
 	// Called by React when form state is passed from the server.
 	// If the action names match, React returns this state from `useActionState()`.
 	callback.$$IS_SIGNATURE_EQUAL = (incomingActionName: string) => {
-		const actionName = new URLSearchParams(action.toString()).get('_astroAction');
+		const actionName = new URLSearchParams(action.toString()).get('_action');
 		return actionName === incomingActionName;
 	};
 
@@ -46,7 +46,9 @@ export function experimental_withState<T>(action: FormFn<T>) {
  */
 export async function experimental_getActionState<T>({
 	request,
-}: { request: Request }): Promise<T> {
+}: {
+	request: Request;
+}): Promise<T> {
 	const contentType = request.headers.get('Content-Type');
 	if (!contentType || !isFormRequest(contentType)) {
 		throw new AstroError(
