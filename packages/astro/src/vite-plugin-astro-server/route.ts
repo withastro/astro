@@ -127,7 +127,6 @@ type HandleRoute = {
 	url: URL;
 	pathname: string;
 	body: ArrayBuffer | undefined;
-	origin: string;
 	manifestData: ManifestData;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
@@ -139,7 +138,6 @@ export async function handleRoute({
 	url,
 	pathname,
 	body,
-	origin,
 	pipeline,
 	manifestData,
 	incomingRequest,
@@ -156,7 +154,6 @@ export async function handleRoute({
 	let request: Request;
 	let renderContext: RenderContext;
 	let mod: ComponentInstance | undefined = undefined;
-	let options: SSROptions | undefined = undefined;
 	let route: RouteData;
 	const middleware = (await loadMiddleware(loader)).onRequest;
 	const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
@@ -180,15 +177,6 @@ export async function handleRoute({
 	for (const [name, value] of Object.entries(config.server.headers ?? {})) {
 		if (value) incomingResponse.setHeader(name, value);
 	}
-
-	options = {
-		pipeline,
-		filePath,
-		preload: preloadedComponent,
-		pathname,
-		request,
-		route,
-	};
 
 	mod = preloadedComponent;
 
@@ -248,18 +236,17 @@ export async function handleRoute({
 
 	if (statusCode === 404 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
-		if (options && options.route !== fourOhFourRoute?.route)
-			return handleRoute({
-				...options,
-				matchedRoute: fourOhFourRoute,
-				url: new URL(pathname, url),
-				body,
-				origin,
+		if (fourOhFourRoute) {
+			renderContext = await RenderContext.create({
+				locals,
 				pipeline,
-				manifestData,
-				incomingRequest,
-				incomingResponse,
+				pathname,
+				middleware: isDefaultPrerendered404(fourOhFourRoute.route) ? undefined : middleware,
+				request,
+				routeData: fourOhFourRoute.route,
 			});
+			response = await renderContext.render(fourOhFourRoute.preloadedComponent);
+		}
 	}
 
 	// We remove the internally-used header before we send the response to the user agent.
