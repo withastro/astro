@@ -33,6 +33,7 @@ import { getOutputDirectory } from '../../prerender/utils.js';
 import type { SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
 import { RenderContext } from '../render-context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
@@ -65,14 +66,9 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		const baseDirectory = getOutputDirectory(options.settings.config);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
-		let middleware: MiddlewareHandler = (_, next) => next();
-		try {
-			// middleware.mjs is not emitted if there is no user middleware
-			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
-			middleware = await import(new URL('middleware.mjs', baseDirectory).toString()).then(
-				(mod) => mod.onRequest,
-			);
-		} catch {}
+		const middleware: MiddlewareHandler = internals.middlewareEntryPoint
+			? await import(internals.middlewareEntryPoint.toString()).then((mod) => mod.onRequest)
+			: NOOP_MIDDLEWARE_FN;
 		manifest = createBuildManifest(
 			options.settings,
 			internals,

@@ -323,5 +323,26 @@ describe('Content Layer', () => {
 			assert.equal(res.status, 500);
 			assert.ok(text.includes('RenderUndefinedEntryError'));
 		});
+
+		it('update the store when a file is renamed', async () => {
+			const rawJsonResponse = await fixture.fetch('/collections.json');
+			const initialJson = devalue.parse(await rawJsonResponse.text());
+			assert.equal(initialJson.numbers.map((e) => e.id).includes('src/data/glob-data/three'), true);
+
+			const oldPath = new URL('./data/glob-data/three.json', fixture.config.srcDir);
+			const newPath = new URL('./data/glob-data/four.json', fixture.config.srcDir);
+
+			await fs.rename(oldPath, newPath);
+			await fixture.onNextDataStoreChange();
+
+			try {
+				const updatedJsonResponse = await fixture.fetch('/collections.json');
+				const updated = devalue.parse(await updatedJsonResponse.text());
+				assert.equal(updated.numbers.map((e) => e.id).includes('src/data/glob-data/three'), false);
+				assert.equal(updated.numbers.map((e) => e.id).includes('src/data/glob-data/four'), true);
+			} finally {
+				await fs.rename(newPath, oldPath);
+			}
+		});
 	});
 });

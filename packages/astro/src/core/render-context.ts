@@ -36,6 +36,7 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
+import { isRoute404or500 } from './routing/match.js';
 import { copyRequest, setOriginPathname } from './routing/rewrite.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
@@ -541,11 +542,9 @@ export class RenderContext {
 		}
 
 		let computedLocale;
-		if (routeData.pathname) {
-			computedLocale = computeCurrentLocale(routeData.pathname, locales, defaultLocale);
-		} else {
-			computedLocale = computeCurrentLocale(url.pathname, locales, defaultLocale);
-		}
+		const pathname =
+			routeData.pathname && !isRoute404or500(routeData) ? routeData.pathname : url.pathname;
+		computedLocale = computeCurrentLocale(pathname, locales, defaultLocale);
 		this.#currentLocale = computedLocale ?? fallbackTo;
 
 		return this.#currentLocale;
