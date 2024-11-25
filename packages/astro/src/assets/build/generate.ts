@@ -47,7 +47,8 @@ type AssetEnv = {
 type ImageData = {
 	data: Uint8Array;
 	expires: number;
-	etag?: string | null;
+	etag?: string;
+	lastModified?: string;
 };
 
 export async function prepareAssetsGenerationEnv(
@@ -163,7 +164,7 @@ export async function generateImagesForPath(
 		const finalFolderURL = new URL('./', finalFileURL);
 		await fs.promises.mkdir(finalFolderURL, { recursive: true });
 
-		// For remote images, instead of saving the image directly, we save a JSON file with the image data, expiration date and etag from the server
+		// For remote images, instead of saving the image directly, we save a JSON file with the image data, expiration date, etag and last-modified date from the server
 		const cacheFile = basename(filepath) + (isLocalImage ? '' : '.json');
 		const cachedFileURL = new URL(cacheFile, env.assetsCacheDir);
 
@@ -196,12 +197,12 @@ export async function generateImagesForPath(
 				}
 
 				// Try to revalidate the cache
-				if (JSONData.etag) {
+				if (JSONData.etag || JSONData.lastModified) {
 					try {
-						const revalidatedData = await revalidateRemoteImage(
-							options.src as string,
-							JSONData.etag,
-						);
+						const revalidatedData = await revalidateRemoteImage(options.src as string, {
+							etag: JSONData.etag,
+							lastModified: JSONData.lastModified,
+						});
 
 						if (revalidatedData.data.length) {
 							// Image cache was stale, update original image to avoid redownload
@@ -249,6 +250,7 @@ export async function generateImagesForPath(
 			data: undefined,
 			expires: originalImage.expires,
 			etag: originalImage.etag,
+			lastModified: originalImage.lastModified,
 		};
 
 		const imageService = (await getConfiguredImageService()) as LocalImageService;
@@ -311,6 +313,7 @@ async function writeRemoteCacheFile(cachedFileURL: URL, resultData: ImageData, e
 				data: Buffer.from(resultData.data).toString('base64'),
 				expires: resultData.expires,
 				etag: resultData.etag,
+				lastModified: resultData.lastModified,
 			}),
 		);
 	} catch (e) {
