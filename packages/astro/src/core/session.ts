@@ -364,16 +364,14 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
-		const entry = fileURLToPath(
-			import.meta.resolve(
-				builtinDrivers[this.#config.driver as keyof typeof builtinDrivers] || this.#config.driver,
-			),
-		);
+		const driverPackage =
+			builtinDrivers[this.#config.driver as keyof typeof builtinDrivers] || this.#config.driver;
+
 		try {
 			// Try to load the driver from the built-in unstorage drivers.
 			// Otherwise, assume it's a custom driver and load by name.
-
 			if (process.env.NODE_ENV === 'development') {
+				const entry = fileURLToPath(import.meta.resolve(driverPackage));
 				driver = await import(entry).then((r) => r.default || r);
 			} else {
 				// @ts-expect-error - virtual module
@@ -386,7 +384,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 					{
 						...SessionStorageInitError,
 						message: SessionStorageInitError.message(
-							err.message.includes(`Cannot find package '${entry}'`)
+							err.message.includes(`Cannot find package '${driverPackage}'`)
 								? 'The driver module could not be found.'
 								: err.message,
 							this.#config.driver,
