@@ -2,4 +2,4 @@
 '@astrojs/svelte': major
 ---
 
-Updates `@sveltejs/vite-plugin-svelte` to v5 beta to handle Vite 6
+Updates `@sveltejs/vite-plugin-svelte` to v5 to handle Vite 6
