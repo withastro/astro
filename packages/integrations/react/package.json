@@ -49,7 +49,7 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.3.3",
+    "@vitejs/plugin-react": "^4.3.4",
     "ultrahtml": "^1.5.3",
     "vite": "^6.0.0"
   },
