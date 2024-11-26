@@ -158,7 +158,6 @@ export async function handleRoute({
 	const middleware = (await loadMiddleware(loader)).onRequest;
 	const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 
-	const filePath: URL | undefined = matchedRoute.filePath;
 	const { preloadedComponent } = matchedRoute;
 	route = matchedRoute.route;
 	// Allows adapters to pass in locals in dev mode.
