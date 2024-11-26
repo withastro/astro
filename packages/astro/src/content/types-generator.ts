@@ -86,13 +86,12 @@ export async function createContentTypesGenerator({
 	async function init(): Promise<
 		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
 	> {
-		if (!fs.existsSync(contentPaths.contentDir)) {
-			return { typesGenerated: false, reason: 'no-content-dir' };
-		}
-
 		events.push({ name: 'add', entry: contentPaths.config.url });
 
 		if (settings.config.legacy.collections) {
+			if (!fs.existsSync(contentPaths.contentDir)) {
+				return { typesGenerated: false, reason: 'no-content-dir' };
+			}
 			const globResult = await glob('**', {
 				cwd: fileURLToPath(contentPaths.contentDir),
 				fs: {

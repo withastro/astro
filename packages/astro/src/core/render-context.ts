@@ -29,6 +29,7 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
+import { isRoute404or500 } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { SERVER_ISLAND_COMPONENT } from './server-islands/endpoint.js';
 
@@ -573,11 +574,9 @@ export class RenderContext {
 				computedLocale = computeCurrentLocale(referer, locales, defaultLocale);
 			}
 		} else {
-			if (routeData.pathname) {
-				computedLocale = computeCurrentLocale(routeData.pathname, locales, defaultLocale);
-			} else {
-				computedLocale = computeCurrentLocale(url.pathname, locales, defaultLocale);
-			}
+			const pathname =
+				routeData.pathname && !isRoute404or500(routeData) ? routeData.pathname : url.pathname;
+			computedLocale = computeCurrentLocale(pathname, locales, defaultLocale);
 		}
 
 		this.#currentLocale = computedLocale ?? fallbackTo;

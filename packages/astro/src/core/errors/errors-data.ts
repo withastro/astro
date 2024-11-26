@@ -51,7 +51,7 @@ export const ClientAddressNotAvailable = {
 /**
  * @docs
  * @see
- * - [Opting-in to pre-rendering](https://docs.astro.build/en/guides/server-side-rendering/#opting-in-to-pre-rendering-in-server-mode)
+ * - [On-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
  * @description
  * The `Astro.clientAddress` property cannot be used inside prerendered routes.
@@ -64,10 +64,10 @@ export const PrerenderClientAddressNotAvailable = {
 /**
  * @docs
  * @see
- * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/)
+ * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/on-demand-rendering/)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
  * @description
- * The `Astro.clientAddress` property is only available when [Server-side rendering](https://docs.astro.build/en/guides/server-side-rendering/) is enabled.
+ * The `Astro.clientAddress` property is only available when [Server-side rendering](https://docs.astro.build/en/guides/on-demand-rendering/) is enabled.
  *
  * To get the user's IP address in static mode, different APIs such as [Ipify](https://www.ipify.org/) can be used in a [Client-side script](https://docs.astro.build/en/guides/client-side-scripts/) or it may be possible to get the user's IP using a serverless function hosted on your hosting provider.
  */
@@ -75,7 +75,7 @@ export const StaticClientAddressNotAvailable = {
 	name: 'StaticClientAddressNotAvailable',
 	title: '`Astro.clientAddress` is not available in prerendered pages.',
 	message: '`Astro.clientAddress` is only available on pages that are server-rendered.',
-	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information on how to enable SSR.',
+	hint: 'See https://docs.astro.build/en/guides/on-demand-rendering/ for more information on how to enable SSR.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -96,7 +96,7 @@ export const NoMatchingStaticPathFound = {
  * @docs
  * @message Route returned a `RETURNED_VALUE`. Only a Response can be returned from Astro files.
  * @see
- * - [Response](https://docs.astro.build/en/guides/server-side-rendering/#response)
+ * - [Response](https://docs.astro.build/en/guides/on-demand-rendering/#response)
  * @description
  * Only instances of [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned inside Astro files.
  * ```astro title="pages/login.astro"
@@ -119,7 +119,7 @@ export const OnlyResponseCanBeReturned = {
 		`Route \`${
 			route ? route : ''
 		}\` returned a \`${returnedValue}\`. Only a [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned from Astro files.`,
-	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#response for more information.',
+	hint: 'See https://docs.astro.build/en/guides/on-demand-rendering/#response for more information.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -355,7 +355,7 @@ export const GetStaticPathsInvalidRouteParam = {
  * @see
  * - [Dynamic Routes](https://docs.astro.build/en/guides/routing/#dynamic-routes)
  * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
- * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
+ * - [Server-side Rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * In [Static Mode](https://docs.astro.build/en/guides/routing/#static-ssg-mode), all routes must be determined at build time. As such, dynamic routes must `export` a `getStaticPaths` function returning the different paths to generate.
  */
@@ -384,7 +384,7 @@ export const ReservedSlotName = {
 /**
  * @docs
  * @see
- * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
+ * - [Server-side Rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * To use server-side rendering, an adapter needs to be installed so Astro knows how to generate the proper output for your targeted deployment platform.
  */
@@ -392,13 +392,13 @@ export const NoAdapterInstalled = {
 	name: 'NoAdapterInstalled',
 	title: 'Cannot use Server-side Rendering without an adapter.',
 	message: `Cannot use server-rendered pages without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
-	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
+	hint: 'See https://docs.astro.build/en/guides/on-demand-rendering/ for more information.',
 } satisfies ErrorData;
 
 /**
  * @docs
  * @see
- * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
+ * - [Server-side Rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * The currently configured adapter does not support server-side rendering, which is required for the current project setup.
  *
@@ -1218,17 +1218,6 @@ export const EnvInvalidVariables = {
 /**
  * @docs
  * @description
- * The `astro:env/server` exported function `getSecret()` is not supported by your adapter.
- */
-export const EnvUnsupportedGetSecret = {
-	name: 'EnvUnsupportedGetSecret',
-	title: 'Unsupported astro:env getSecret',
-	message: '`astro:env/server` exported function `getSecret` is not supported by your adapter.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
  * This module is only available server-side.
  */
 export const ServerOnlyModule = {
@@ -1446,7 +1435,8 @@ export const GenerateContentTypesError = {
 	title: 'Failed to generate content types.',
 	message: (errorMessage: string) =>
 		`\`astro sync\` command failed to generate content collection types: ${errorMessage}`,
-	hint: 'This error is often caused by a syntax error inside your content, or your content configuration file. Check your `src/content/config.*` file for typos.',
+	hint: (fileName?: string) =>
+		`This error is often caused by a syntax error inside your content, or your content configuration file. Check your ${fileName ?? 'content config'} file for typos.`,
 } satisfies ErrorData;
 /**
  * @docs
@@ -1458,7 +1448,7 @@ export const GenerateContentTypesError = {
  * @docs
  * @description
  * Astro encountered an unknown error loading your content collections.
- * This can be caused by certain errors inside your `src/content/config.ts` file or some internal errors.
+ * This can be caused by certain errors inside your `src/content.config.ts` file or some internal errors.
  *
  * If you can reliably cause this error to happen, we'd appreciate if you could [open an issue](https://astro.build/issues/)
  */
@@ -1501,7 +1491,7 @@ export const GetEntryDeprecationError = {
  * @description
  * A Markdown or MDX entry does not match its collection schema.
  * Make sure that all required fields are present, and that all fields are of the correct type.
- * You can check against the collection schema in your `src/content/config.*` file.
+ * You can check against the collection schema in your `src/content.config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
  */
 export const InvalidContentEntryFrontmatterError = {
@@ -1528,7 +1518,7 @@ export const InvalidContentEntryFrontmatterError = {
  * @description
  * A content entry does not match its collection schema.
  * Make sure that all required fields are present, and that all fields are of the correct type.
- * You can check against the collection schema in your `src/content/config.*` file.
+ * You can check against the collection schema in your `src/content.config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
  */
 export const InvalidContentEntryDataError = {
@@ -1553,7 +1543,7 @@ export const InvalidContentEntryDataError = {
  * @description
  * A content entry does not match its collection schema.
  * Make sure that all required fields are present, and that all fields are of the correct type.
- * You can check against the collection schema in your `src/content/config.*` file.
+ * You can check against the collection schema in your `src/content.config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
  */
 export const ContentEntryDataError = {

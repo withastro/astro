@@ -103,13 +103,30 @@ declare module '*.webp' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
-declare module '*.svg' {
-	const metadata: ImageMetadata;
-	export default metadata;
-}
 declare module '*.avif' {
 	const metadata: ImageMetadata;
 	export default metadata;
+}
+declare module '*.svg' {
+	type Props = {
+		/**
+		 * Accesible, short-text description
+		 *
+		 *  {@link https://developer.mozilla.org/en-US/docs/Web/SVG/Element/title|MDN Reference}
+		 */
+		title?: string;
+		/**
+		 * Shorthand for setting the `height` and `width` properties
+		 */
+		size?: number | string;
+		/**
+		 * Override the default rendering mode for SVGs
+		 */
+		mode?: import('./dist/assets/utils/svg.js').SvgRenderMode;
+	} & astroHTML.JSX.SVGAttributes;
+
+	const Component: ((_props: Props) => any) & ImageMetadata;
+	export default Component;
 }
 
 declare module 'astro:transitions' {

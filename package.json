@@ -5,7 +5,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git"
+    "url": "git+https://github.com/withastro/astro.git"
   },
   "scripts": {
     "release": "pnpm run build && changeset publish",
@@ -37,6 +37,7 @@
     "lint": "biome lint && eslint . --report-unused-disable-directives",
     "lint:ci": "biome ci --formatter-enabled=false --organize-imports-enabled=false --reporter=github && eslint . --report-unused-disable-directives",
     "lint:fix": "biome lint --write --unsafe",
+    "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
     "preinstall": "npx only-allow pnpm"
   },
@@ -56,7 +57,7 @@
     "@astrojs/check": "^0.9.4",
     "@biomejs/biome": "1.9.3",
     "@changesets/changelog-github": "^0.5.0",
-    "@changesets/cli": "^2.27.9",
+    "@changesets/cli": "^2.27.10",
     "@types/node": "^18.17.8",
     "esbuild": "^0.21.5",
     "eslint": "^9.14.0",
@@ -65,6 +66,7 @@
     "only-allow": "^1.2.1",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",
+    "publint": "^0.2.12",
     "turbo": "^2.2.3",
     "typescript": "~5.6.3",
     "typescript-eslint": "^8.13.0"

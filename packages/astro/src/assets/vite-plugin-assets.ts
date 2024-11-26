@@ -17,6 +17,7 @@ import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/imageKind.js';
 import { emitESMImage } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
+import { makeSvgComponent } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -52,7 +53,7 @@ const addStaticImageFactory = (
 
 		let finalFilePath: string;
 		let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalPath);
-		let transformForHash = transformsForPath?.transforms.get(hash);
+		const transformForHash = transformsForPath?.transforms.get(hash);
 
 		// If the same image has already been transformed with the same options, we'll reuse the final path
 		if (transformsForPath && transformForHash) {
@@ -210,6 +211,14 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 						throw new AstroError({
 							...AstroErrorData.ImageNotFound,
 							message: AstroErrorData.ImageNotFound.message(id),
+						});
+					}
+
+					if (settings.config.experimental.svg && /\.svg$/.test(id)) {
+						const { contents, ...metadata } = imageMetadata;
+						// We know that the contents are present, as we only emit this property for SVG files
+						return makeSvgComponent(metadata, contents!, {
+							mode: settings.config.experimental.svg.mode,
 						});
 					}
 

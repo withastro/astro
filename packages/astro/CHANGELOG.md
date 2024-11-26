@@ -1,5 +1,217 @@
 # astro
 
+## 5.0.0-beta.11
+
+### Minor Changes
+
+- [#12510](https://github.com/withastro/astro/pull/12510) [`14feaf3`](https://github.com/withastro/astro/commit/14feaf30e1a4266b8422865722a4478d39202404) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Changes the generated URL query param from `_astroAction` to `_action` when submitting a form using Actions. This avoids leaking the framework name into the URL bar, which may be considered a security issue.
+
+### Patch Changes
+
+- [#12522](https://github.com/withastro/astro/pull/12522) [`33b0e30`](https://github.com/withastro/astro/commit/33b0e305fe4ecabc30ffa823454395c973f92454) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug where content config was ignored if it was outside of content dir and has a parent dir with an underscore
+
+- [#12516](https://github.com/withastro/astro/pull/12516) [`cb9322c`](https://github.com/withastro/astro/commit/cb9322c763b5cd8e43afe77d30e86a0b7d72f894) Thanks [@stramel](https://github.com/stramel)! - Handle multiple root nodes on SVG files
+
+- [#12511](https://github.com/withastro/astro/pull/12511) [`d023682`](https://github.com/withastro/astro/commit/d023682d6c6d8797f15f3c0f65893a4aa62e3b5b) Thanks [@stramel](https://github.com/stramel)! - Fix SVG Component sprite references
+
+- [#12498](https://github.com/withastro/astro/pull/12498) [`b140a3f`](https://github.com/withastro/astro/commit/b140a3f6d821127f927b7cb938294549e41c5168) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where Astro was trying to access `Request.headers`
+
+## 5.0.0-beta.10
+
+### Patch Changes
+
+- [#12486](https://github.com/withastro/astro/pull/12486) [`dc3d842`](https://github.com/withastro/astro/commit/dc3d842e4c6f3b7e59da8a13447a1450013e10dc) Thanks [@matthewp](https://github.com/matthewp)! - Call server island early so it can set headers
+
+## 5.0.0-beta.9
+
+### Minor Changes
+
+- [#12067](https://github.com/withastro/astro/pull/12067) [`c48916c`](https://github.com/withastro/astro/commit/c48916cc4e6f7c31e3563d04b68a8698d8775b65) Thanks [@stramel](https://github.com/stramel)! - Adds experimental support for built-in SVG components.
+
+  This feature allows you to import SVG files directly into your Astro project as components. By default, Astro will inline the SVG content into your HTML output.
+
+  To enable this feature, set `experimental.svg` to `true` in your Astro config:
+
+  ```js
+  {
+    experimental: {
+      svg: true,
+    },
+  }
+  ```
+
+  To use this feature, import an SVG file in your Astro project, passing any common SVG attributes to the imported component. Astro also provides a `size` attribute to set equal `height` and `width` properties:
+
+  ```astro
+  ---
+  import Logo from './path/to/svg/file.svg';
+  ---
+
+  <Logo size={24} />
+  ```
+
+  For a complete overview, and to give feedback on this experimental API, see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
+
+- [#12329](https://github.com/withastro/astro/pull/12329) [`8309c61`](https://github.com/withastro/astro/commit/8309c61f0dfa5991d3f6c5c5fca4403794d6fda2) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new `astro:routes:resolved` hook to the Integration API. Also update the `astro:build:done` hook by deprecating `routes` and adding a new `assets` map.
+
+  When building an integration, you can now get access to routes inside the `astro:routes:resolved` hook:
+
+  ```js
+  const integration = () => {
+    return {
+      name: 'my-integration',
+      hooks: {
+        'astro:routes:resolved': ({ routes }) => {
+          console.log(routes);
+        },
+      },
+    };
+  };
+  ```
+
+  This hook runs before `astro:config:done`, and whenever a route changes in development.
+
+  The `routes` array from `astro:build:done` is now deprecated, and exposed properties are now available on `astro:routes:resolved`, except for `distURL`. For this, you can use the newly exposed `assets` map:
+
+  ```diff
+  const integration = () => {
+  +    let routes
+      return {
+          name: 'my-integration',
+          hooks: {
+  +            'astro:routes:resolved': (params) => {
+  +                routes = params.routes
+  +            },
+              'astro:build:done': ({
+  -                routes
+  +                assets
+              }) => {
+  +                for (const route of routes) {
+  +                    const distURL = assets.get(route.pattern)
+  +                    if (distURL) {
+  +                        Object.assign(route, { distURL })
+  +                    }
+  +                }
+                  console.log(routes)
+              }
+          }
+      }
+  }
+  ```
+
+- [#12377](https://github.com/withastro/astro/pull/12377) [`af867f3`](https://github.com/withastro/astro/commit/af867f3910ecd8fc04a5337f591d84f03192e3fa) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds experimental support for automatic responsive images
+
+  This feature is experimental and may change in future versions. To enable it, set `experimental.responsiveImages` to `true` in your `astro.config.mjs` file.
+
+  ```js title=astro.config.mjs
+  {
+     experimental: {
+        responsiveImages: true,
+     },
+  }
+  ```
+
+  When this flag is enabled, you can pass a `layout` prop to any `<Image />` or `<Picture />` component to create a responsive image. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `responsive` and `full-width` layouts will have styles applied to ensure they resize according to their container.
+
+  ```astro
+  ---
+  import { Image, Picture } from 'astro:assets';
+  import myImage from '../assets/my_image.png';
+  ---
+
+  <Image
+    src={myImage}
+    alt="A description of my image."
+    layout="responsive"
+    width={800}
+    height={600}
+  />
+  <Picture
+    src={myImage}
+    alt="A description of my image."
+    layout="full-width"
+    formats={['avif', 'webp', 'jpeg']}
+  />
+  ```
+
+  This `<Image />` component will generate the following HTML output:
+
+  ```html title=Output
+  <img
+    src="/_astro/my_image.hash3.webp"
+    srcset="
+      /_astro/my_image.hash1.webp  640w,
+      /_astro/my_image.hash2.webp  750w,
+      /_astro/my_image.hash3.webp  800w,
+      /_astro/my_image.hash4.webp  828w,
+      /_astro/my_image.hash5.webp 1080w,
+      /_astro/my_image.hash6.webp 1280w,
+      /_astro/my_image.hash7.webp 1600w
+    "
+    alt="A description of my image"
+    sizes="(min-width: 800px) 800px, 100vw"
+    loading="lazy"
+    decoding="async"
+    fetchpriority="auto"
+    width="800"
+    height="600"
+    style="--w: 800; --h: 600; --fit: cover; --pos: center;"
+    data-astro-image="responsive"
+  />
+  ```
+
+  #### Responsive image properties
+
+  These are additional properties available to the `<Image />` and `<Picture />` components when responsive images are enabled:
+
+  - `layout`: The layout type for the image. Can be `responsive`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
+  - `fit`: Defines how the image should be cropped if the aspect ratio is changed. Values match those of CSS `object-fit`. Defaults to `cover`, or the value of `image.experimentalObjectFit` if set.
+  - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
+  - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
+
+  #### Default responsive image settings
+
+  You can enable responsive images for all `<Image />` and `<Picture />` components by setting `image.experimentalLayout` with a default value. This can be overridden by the `layout` prop on each component.
+
+  **Example:**
+
+  ```js title=astro.config.mjs
+  {
+      image: {
+        // Used for all `<Image />` and `<Picture />` components unless overridden
+        experimentalLayout: 'responsive',
+      },
+      experimental: {
+        responsiveImages: true,
+      },
+  }
+  ```
+
+  ```astro
+  ---
+  import { Image } from 'astro:assets';
+  import myImage from '../assets/my_image.png';
+  ---
+
+  <Image src={myImage} alt="This will use responsive layout" width={800} height={600} />
+
+  <Image src={myImage} alt="This will use full-width layout" layout="full-width" />
+
+  <Image src={myImage} alt="This will disable responsive images" layout="none" />
+  ```
+
+  For a complete overview, and to give feedback on this experimental API, see the [Responsive Images RFC](https://github.com/withastro/roadmap/blob/responsive-images/proposals/0053-responsive-images.md).
+
+- [#12475](https://github.com/withastro/astro/pull/12475) [`3f02d5f`](https://github.com/withastro/astro/commit/3f02d5f12b167514fff6eb9693b4e25c668e7a31) Thanks [@ascorbic](https://github.com/ascorbic)! - Changes the default content config location from `src/content/config.*` to `src/content.config.*`.
+
+  The previous location is still supported, and is required if the `legacy.collections` flag is enabled.
+
+### Patch Changes
+
+- [#12424](https://github.com/withastro/astro/pull/12424) [`4364bff`](https://github.com/withastro/astro/commit/4364bff27332e52f92da72392620a36110daee42) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where an incorrect usage of Astro actions was lost when porting the fix from v4 to v5
+
+- [#12438](https://github.com/withastro/astro/pull/12438) [`c8f877c`](https://github.com/withastro/astro/commit/c8f877cad2d8f1780f70045413872d5b9d32ebed) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug where legacy content types were generated for content layer collections if they were in the content directory
+
 ## 5.0.0-beta.8
 
 ### Minor Changes
@@ -1194,6 +1406,28 @@
 
 - Updated dependencies [[`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e)]:
   - @astrojs/markdown-remark@6.0.0-alpha.0
+
+## 4.16.15
+
+### Patch Changes
+
+- [#12498](https://github.com/withastro/astro/pull/12498) [`b140a3f`](https://github.com/withastro/astro/commit/b140a3f6d821127f927b7cb938294549e41c5168) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where Astro was trying to access `Request.headers`
+
+## 4.16.14
+
+### Patch Changes
+
+- [#12480](https://github.com/withastro/astro/pull/12480) [`c3b7e7c`](https://github.com/withastro/astro/commit/c3b7e7cfa13603c08eb923703f31a92d514e82db) Thanks [@matthewp](https://github.com/matthewp)! - Removes the default throw behavior in `astro:env`
+
+- [#12444](https://github.com/withastro/astro/pull/12444) [`28dd3ce`](https://github.com/withastro/astro/commit/28dd3ce5222a667fe113238254edf59318b3fa14) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where a server island hydration script might fail case the island ID misses from the DOM.
+
+- [#12476](https://github.com/withastro/astro/pull/12476) [`80a9a52`](https://github.com/withastro/astro/commit/80a9a5299a9d51f2b09900d3200976d687feae8f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the Content Layer `glob()` loader would not update when renaming or deleting an entry
+
+- [#12418](https://github.com/withastro/astro/pull/12418) [`25baa4e`](https://github.com/withastro/astro/commit/25baa4ed0c5f55fa85c2c7e2c15848937ed1dc9b) Thanks [@oliverlynch](https://github.com/oliverlynch)! - Fix cached image redownloading if it is the first asset
+
+- [#12477](https://github.com/withastro/astro/pull/12477) [`46f6b38`](https://github.com/withastro/astro/commit/46f6b386b3db6332f286d79958ef10261958cceb) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the SSR build was emitting the `dist/server/entry.mjs` file with an incorrect import at the top of the file/
+
+- [#12365](https://github.com/withastro/astro/pull/12365) [`a23985b`](https://github.com/withastro/astro/commit/a23985b02165c2ddce56d511b3f97b6815c452c9) Thanks [@apatel369](https://github.com/apatel369)! - Fixes an issue where `Astro.currentLocale` was not correctly returning the locale for 404 and 500 pages.
 
 ## 4.16.13
 

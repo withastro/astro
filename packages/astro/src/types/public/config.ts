@@ -8,6 +8,7 @@ import type {
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
+import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
@@ -279,7 +280,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssr), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
 	 *
-	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
+	 * [See our On-demand Rendering guide](https://docs.astro.build/en/guides/on-demand-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
 	 *
 	 * ```js
 	 * import netlify from '@astrojs/netlify';
@@ -1129,7 +1130,49 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
-		 * Shiki configuration options. See [the Markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
+		 *
+		 * Shiki is our default syntax highlighter. You can configure all options via the `markdown.shikiConfig` object:
+		 *
+		 * ```js title="astro.config.mjs"
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     shikiConfig: {
+		 *       // Choose from Shiki's built-in themes (or add your own)
+		 *       // https://shiki.style/themes
+		 *       theme: 'dracula',
+		 *       // Alternatively, provide multiple themes
+		 *       // See note below for using dual light/dark themes
+		 *       themes: {
+		 *         light: 'github-light',
+		 *         dark: 'github-dark',
+		 *       },
+		 *       // Disable the default colors
+		 *       // https://shiki.style/guide/dual-themes#without-default-color
+		 *       // (Added in v4.12.0)
+		 *       defaultColor: false,
+		 *       // Add custom languages
+		 *       // Note: Shiki has countless langs built-in, including .astro!
+		 *       // https://shiki.style/languages
+		 *       langs: [],
+		 *       // Add custom aliases for languages
+		 *       // Map an alias to a Shiki language ID: https://shiki.style/languages#bundled-languages
+		 *       // https://shiki.style/guide/load-lang#custom-language-aliases
+		 *       langAlias: {
+		 *         cjs: "javascript"
+		 *       },
+		 *       // Enable word wrap to prevent horizontal scrolling
+		 *       wrap: true,
+		 *       // Add custom transformers: https://shiki.style/guide/transformers
+		 *       // Find common transformers: https://shiki.style/packages/transformers
+		 *       transformers: [],
+		 *     },
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * See the [code syntax highlighting guide](/en/guides/syntax-highlighting/) for usage and examples.
 		 */
 		shikiConfig?: Partial<ShikiConfig>;
 
@@ -1139,9 +1182,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @type {'shiki' | 'prism' | false}
 		 * @default `shiki`
 		 * @description
-		 * Which syntax highlighter to use, if any.
-		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter
-		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter
+		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
+		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
+		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
 		 *
 		 * ```js
@@ -1625,7 +1668,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	};
 
 	/**
-	 * @docs
+	 *
 	 * @kind heading
 	 * @name Legacy Flags
 	 * @description
@@ -1635,14 +1678,14 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 */
 	legacy?: {
 		/**
-		 * @docs
+		 *
 		 * @name legacy.collections
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 5.0.0
 		 * @description
 		 * Enable legacy behavior for content collections.
-		 * 
+		 *
 		 * ```js
 		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
@@ -1654,31 +1697,30 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * ```
 		 *
 		 * If enabled, `data` and `content` collections (only) are handled using the legacy content collections implementation. Collections with a `loader` (only) will continue to use the Content Layer API instead. Both kinds of collections may exist in the same project, each using their respective implementations.
-		 *  
+		 *
 		 *  The following limitations continue to exist:
 		 *
 		 * - Any legacy (`type: 'content'` or `type: 'data'`) collections must continue to be located in the `src/content/` directory.
 		 * - These legacy collections will not be transformed to implicitly use the `glob()` loader, and will instead be handled by legacy code.
-		 * - Collections using the Content Layer API (with a `loader` defined) are forbidden in `src/content/`, but may exist anywhere else in your project. 
+		 * - Collections using the Content Layer API (with a `loader` defined) are forbidden in `src/content/`, but may exist anywhere else in your project.
 		 *
 		 * When you are ready to remove this flag and migrate to the new Content Layer API for your legacy collections, you must define a collection for any directories in `src/content/` that you want to continue to use as a collection. It is sufficient to declare an empty collection, and Astro will implicitly generate an appropriate definition for your legacy collections:
-		 *  
+		 *
 		 * ```js
-		 * // src/content/config.ts
+		 * // src/content.config.ts
 		 * import { defineCollection, z } from 'astro:content';
-		 * 
+		 *
 		 * const blog = defineCollection({ })
-		 *  
+		 *
 		 * export const collections = { blog };
 		 * ```
 		 *
-
 		 */
 		collections?: boolean;
 	};
 
 	/**
-	 * @docs
+	 *
 	 * @kind heading
 	 * @name Experimental Flags
 	 * @description
@@ -1687,7 +1729,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 */
 	experimental?: {
 		/**
-		 * @docs
+		 *
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
 		 * @default `false`
@@ -1723,11 +1765,11 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		clientPrerender?: boolean;
 
 		/**
-		 * @docs
+		 *
 		 * @name experimental.contentIntellisense
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 4.14.0
+		 * @version 5.x
 		 * @description
 		 *
 		 * Enables Intellisense features (e.g. code completion, quick hints) for your content collection entries in compatible editors.
@@ -1747,7 +1789,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		contentIntellisense?: boolean;
 
 		/**
-		 * @docs
+		 *
 		 * @name experimental.responsiveImages
 		 * @type {boolean}
 		 * @default `undefined`
@@ -1856,14 +1898,70 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
 		 * - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
 		 *
-		 * The following `<Image />` component properties should not be used with responsive images as these are automatically generated:
+		 * The `widths` and `sizes` attributes are automatically generated based on the image's dimensions and the layout type, and in most cases should not be set manually. The generated `sizes` attribute for `responsive` and `full-width` images
+		 * is based on the assumption that the image is displayed at close to the full width of the screen when the viewport is smaller than the image's width. If it is significantly different (e.g. if it's in a multi-column layout on small screens) you may need to adjust the `sizes` attribute manually for best results.
 		 *
-		 * - `densities`
-		 * - `widths`
-		 * - `sizes`
+		 * The `densities` attribute is not compatible with responsive images and will be ignored if set.
 		 */
 
 		responsiveImages?: boolean;
+
+		/**
+		 *
+		 * @name experimental.svg
+		 * @type {boolean|object}
+		 * @default `undefined`
+		 * @version 5.x
+		 * @description
+		 *
+		 * This feature allows you to import SVG files directly into your Astro project. By default, Astro will inline the SVG content into your HTML output.
+		 *
+		 * To enable this feature, set `experimental.svg` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 * 	   svg: true,
+		 * 	 },
+		 * }
+		 * ```
+		 *
+		 * To use this feature, import an SVG file in your Astro project, passing any common SVG attributes to the imported component.
+		 * Astro also provides a `size` attribute to set equal `height` and `width` properties:
+		 *
+		 * ```astro
+		 * ---
+		 * import Logo from './path/to/svg/file.svg';
+		 * ---
+		 *
+		 * <Logo size={24} />
+		 * ```
+		 *
+		 * For a complete overview, and to give feedback on this experimental API,
+		 * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
+		 */
+		svg?: {
+			/**
+			 *
+			 * @name experimental.svg.mode
+			 * @type {string}
+			 * @default 'inline'
+			 *
+			 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
+			 *
+			 * - `inline`: Astro will inline the SVG content into your HTML output.
+			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
+			 *
+			 * ```astro
+			 * ---
+			 * import Logo from './path/to/svg/file.svg';
+			 * ---
+			 *
+			 * <Logo size={24} mode="sprite" />
+			 * ```
+			 */
+			mode?: SvgRenderMode;
+		};
 	};
 }
 

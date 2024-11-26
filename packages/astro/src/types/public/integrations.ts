@@ -8,7 +8,7 @@ import type { getToolbarServerCommunicationHelpers } from '../../integrations/ho
 import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig } from './config.js';
 import type { RefreshContentOptions } from './content.js';
-import type { RouteData } from './internal.js';
+import type { InternalInjectedRoute, RouteData } from './internal.js';
 import type { DevToolbarAppEntry } from './toolbar.js';
 
 export interface RouteOptions {
@@ -138,15 +138,7 @@ export type AstroAdapterFeatureMap = {
  */
 export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
 
-export interface InjectedRoute {
-	pattern: string;
-	entrypoint: string | URL;
-	prerender?: boolean;
-}
-
-export interface ResolvedInjectedRoute extends InjectedRoute {
-	resolvedEntryPoint?: URL;
-}
+export type InjectedRoute = Omit<InternalInjectedRoute, 'origin'>;
 
 export interface InjectedType {
 	filename: string;
@@ -225,11 +217,17 @@ export interface BaseIntegrationHooks {
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
 		dir: URL;
+		/** @deprecated Use the `assets` map and the new `astro:routes:resolved` hook */
 		routes: IntegrationRouteData[];
+		assets: Map<string, URL[]>;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 	'astro:route:setup': (options: {
 		route: RouteOptions;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:routes:resolved': (options: {
+		routes: IntegrationResolvedRoute[];
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 }
@@ -245,13 +243,45 @@ export interface AstroIntegration {
 
 /**
  * A smaller version of the {@link RouteData} that is used in the integrations.
+ * @deprecated Use {@link IntegrationResolvedRoute}
  */
 export type IntegrationRouteData = Omit<
 	RouteData,
-	'isIndex' | 'fallbackRoutes' | 'redirectRoute'
+	'isIndex' | 'fallbackRoutes' | 'redirectRoute' | 'origin'
 > & {
 	/**
 	 * {@link RouteData.redirectRoute}
 	 */
 	redirectRoute?: IntegrationRouteData;
 };
+
+export interface IntegrationResolvedRoute
+	extends Pick<
+		RouteData,
+		'generate' | 'params' | 'pathname' | 'segments' | 'type' | 'redirect' | 'origin'
+	> {
+	/**
+	 * {@link RouteData.route}
+	 */
+	pattern: RouteData['route'];
+
+	/**
+	 * {@link RouteData.pattern}
+	 */
+	patternRegex: RouteData['pattern'];
+
+	/**
+	 * {@link RouteData.component}
+	 */
+	entrypoint: RouteData['component'];
+
+	/**
+	 * {@link RouteData.prerender}
+	 */
+	isPrerendered: RouteData['prerender'];
+
+	/**
+	 * {@link RouteData.redirectRoute}
+	 */
+	redirectRoute?: IntegrationResolvedRoute;
+}

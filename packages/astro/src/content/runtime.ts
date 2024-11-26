@@ -26,12 +26,22 @@ type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
 
+export function getImporterFilename() {
+	// The 4th line in the stack trace should be the importer filename
+	const stackLine = new Error().stack?.split('\n')?.[3];
+	if (!stackLine) {
+		return null;
+	}
+	// Extract the relative path from the stack line
+	const match = /\/(src\/.*?):\d+:\d+/.exec(stackLine);
+	return match?.[1] ?? null;
+}
+
 export function defineCollection(config: any) {
 	if ('loader' in config) {
 		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
 			throw new AstroUserError(
-				'Collections that use the Content Layer API must have a `loader` defined and no `type` set.',
-				"Check your collection definitions in `src/content/config.*`.'",
+				`Collections that use the Content Layer API must have a \`loader\` defined and no \`type\` set. Check your collection definitions in ${getImporterFilename() ?? 'your content config file'}.`,
 			);
 		}
 		config.type = CONTENT_LAYER_TYPE;
