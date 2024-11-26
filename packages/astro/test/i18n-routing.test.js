@@ -83,6 +83,12 @@ describe('[DEV] i18n routing', () => {
 			assert.equal((await response.text()).includes('Endurance'), true);
 		});
 
+		it('should render the 404.astro file', async () => {
+			const response = await fixture.fetch('/do-not-exist');
+			assert.equal(response.status, 404);
+			assert.match(await response.text(), /Custom 404/);
+		});
+
 		it('should return the correct locale on 404 page for non existing default locale page', async () => {
 			const response = await fixture.fetch('/es/nonexistent-page');
 			assert.equal(response.status, 404);
