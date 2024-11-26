@@ -273,6 +273,17 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal(!!$svg.attr('xmlns:xlink'), false);
 					assert.equal(!!$svg.attr('version'), false);
 				});
+				it('ignores additional root level nodes', () => {
+					let $svg = $('#additionalNodes');
+					// Ensure we only have the svg node
+					assert.equal($svg.children().length, 1);
+					assert.equal($svg.children()[0].name, 'svg');
+					$svg = $svg.children('svg');
+					assert.equal($svg.length, 1);
+					assert.equal(!!$svg.attr('xmlns'), false);
+					assert.equal(!!$svg.attr('xmlns:xlink'), false);
+					assert.equal(!!$svg.attr('version'), false);
+				});
 			});
 			describe('additional props', () => {
 				let $;
