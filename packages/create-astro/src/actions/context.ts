@@ -93,7 +93,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		prompt,
 		packageManager,
 		username: getName(),
-		version: getVersion(packageManager, 'astro', process.env.ASTRO_VERSION),
+		version: getVersion(packageManager, 'astro', process.env.ASTRO_VERSION, ref),
 		skipHouston,
 		fancy,
 		add,
