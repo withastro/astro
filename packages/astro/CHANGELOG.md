@@ -1,5 +1,11 @@
 # astro
 
+## 4.16.15
+
+### Patch Changes
+
+- [#12498](https://github.com/withastro/astro/pull/12498) [`b140a3f`](https://github.com/withastro/astro/commit/b140a3f6d821127f927b7cb938294549e41c5168) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where Astro was trying to access `Request.headers`
+
 ## 4.16.14
 
 ### Patch Changes
