@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 4.0.0-beta.4
+
+### Patch Changes
+
+- [#12533](https://github.com/withastro/astro/pull/12533) [`1b61fdf`](https://github.com/withastro/astro/commit/1b61fdf038d2627c6dad1a7f1426f60a4616ad93) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where the MDX renderer couldn't be loaded when used as a direct dependency of an Astro integration.
+
 ## 4.0.0-beta.3
 
 ### Major Changes
