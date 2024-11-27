@@ -1,6 +1,7 @@
 ---
 import CartFlyout from '../components/CartFlyout';
 import CartFlyoutToggle from '../components/CartFlyoutToggle';
+import { withBase } from '../utils';
 
 interface Props {
 	title: string;
@@ -15,15 +16,15 @@ const { title } = Astro.props;
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
 		<title>{title}</title>
 	</head>
 	<body>
 		<header>
 			<nav>
-				<a href="/" class="nav-header"
-					><span style="color: var(--astro-blue)">Astro</span> storefront</a
-				>
+				<a href={withBase('/')} class="nav-header">
+					<span style="color: var(--astro-blue)">Astro</span> storefront
+				</a>
 				<CartFlyoutToggle client:load />
 			</nav>
 		</header>
