@@ -72,6 +72,9 @@
     "typescript-eslint": "^8.13.0"
   },
   "pnpm": {
+    "overrides": {
+      "vite": "https://pkg.pr.new/vite@31cc61b"
+    },
     "peerDependencyRules": {
       "allowAny": [
         "astro",

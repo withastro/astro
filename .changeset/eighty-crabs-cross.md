@@ -1,5 +1,5 @@
 ---
-'@astrojs/solid-js': major
+'@astrojs/solid-js': patch
 ---
 
-Patches the solid plugin to handle Vite 6
+Updates vite-plugin-solid to handle Vite 6
