@@ -25,6 +25,7 @@ export default function vitePluginSessions({ settings }: { settings: AstroSettin
 				if (driver && driver in builtinDrivers) {
 					if (driver === 'fs') {
 						// fs tries to bundle chokidar (and therefore fsevents), which is a binary
+						// fsLite is identical except it doesn't include a filesystem watcher (which we don't need)
 						driver = 'fsLite';
 					}
 					driver = builtinDrivers[driver as keyof typeof builtinDrivers];

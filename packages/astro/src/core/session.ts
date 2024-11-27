@@ -1,5 +1,5 @@
 import { stringify, unflatten } from 'devalue';
-import { type Driver, type Storage, builtinDrivers, createStorage } from 'unstorage';
+import { type BuiltinDriverOptions, type Driver, type Storage, builtinDrivers, createStorage } from 'unstorage';
 import type { SessionConfig, SessionDriverName } from '../types/public/config.js';
 import type { AstroCookies } from './cookies/cookies.js';
 import type { AstroCookieSetOptions } from './cookies/cookies.js';
@@ -353,6 +353,13 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			this.#storage = (this.#config as SessionConfig<'test'>).options.mockStorage;
 			return this.#storage;
 		}
+		// Use fsLite rather than fs, because fs can't be bundled. Add a default base path if not provided.
+		if(this.#config.driver === 'fs' || this.#config.driver === 'fsLite') {
+			this.#config.options ??= {};
+			this.#config.driver = 'fsLite';
+			(this.#config.options as BuiltinDriverOptions['fsLite']).base ??= '.astro/session';
+		}
+
 		if (!this.#config?.driver) {
 			throw new AstroError({
 				...SessionStorageInitError,
