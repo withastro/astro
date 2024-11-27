@@ -73,7 +73,7 @@
   },
   "pnpm": {
     "overrides": {
-      "vite": "https://pkg.pr.new/vite@31cc61b"
+      "vite": "https://pkg.pr.new/vite@bbaf514"
     },
     "peerDependencyRules": {
       "allowAny": [
