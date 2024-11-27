@@ -22,7 +22,7 @@ import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
-import { builtinDrivers } from 'unstorage';
+import { resolveSessionDriver } from '../../session.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
@@ -50,17 +50,7 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 		async load(id) {
 			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 				let driver = options.settings.config.experimental?.session?.driver;
-				let resolvedDriver;
-				if (driver) {
-					if (driver === 'fs') {
-						driver = 'fsLite';
-					}
-					if (driver in builtinDrivers) {
-						driver = builtinDrivers[driver as keyof typeof builtinDrivers];
-					}
-					resolvedDriver = fileURLToPath(import.meta.resolve(driver));
-				}
-
+				const resolvedDriver = resolveSessionDriver(driver);
 				const imports = [
 					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
 					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
