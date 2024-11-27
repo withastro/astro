@@ -67,9 +67,9 @@ jobs:
         id: getBaseBranch
         run: |
           baseBranch=$(jq -r '.baseBranch' .changeset/config.json)
-          echo "baseBranch=${baseBranch}" >> $GITHUB_ENV
+          echo "baseBranch=${baseBranch}" >> $GITHUB_OUTPUT
 
-      - run: git fetch origin ${{ env.baseBranch }}:${{ env.baseBranch }}
+      - run: git fetch origin ${{ steps.getBaseBranch.outputs.baseBranch }}:${{  steps.getBaseBranch.outputs.baseBranch }}
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
