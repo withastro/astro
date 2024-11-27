@@ -75,7 +75,8 @@ export async function getContext(argv: string[]): Promise<Context> {
 		'--add': add,
 	} = flags;
 	let projectName = cwd;
-
+	const tag = ref === 'next' ? 'beta' : ref;
+	
 	if (no) {
 		yes = false;
 		if (install == undefined) install = false;
@@ -93,7 +94,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		prompt,
 		packageManager,
 		username: getName(),
-		version: getVersion(packageManager, 'astro', process.env.ASTRO_VERSION, ref),
+		version: getVersion(packageManager, 'astro', process.env.ASTRO_VERSION, tag),
 		skipHouston,
 		fancy,
 		add,
