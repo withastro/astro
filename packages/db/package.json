@@ -76,7 +76,7 @@
     "drizzle-orm": "^0.31.2",
     "github-slugger": "^2.0.0",
     "kleur": "^4.1.5",
-    "nanoid": "^5.0.8",
+    "nanoid": "^5.0.9",
     "open": "^10.1.0",
     "prompts": "^2.4.2",
     "yargs-parser": "^21.1.1",

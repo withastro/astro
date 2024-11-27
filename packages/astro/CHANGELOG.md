@@ -1407,6 +1407,14 @@
 - Updated dependencies [[`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e)]:
   - @astrojs/markdown-remark@6.0.0-alpha.0
 
+## 4.16.16
+
+### Patch Changes
+
+- [#12542](https://github.com/withastro/astro/pull/12542) [`65e50eb`](https://github.com/withastro/astro/commit/65e50eb7b6d7b10a193bba7d292804ac0e55be18) Thanks [@kadykov](https://github.com/kadykov)! - Fix JPEG image size determination
+
+- [#12525](https://github.com/withastro/astro/pull/12525) [`cf0d8b0`](https://github.com/withastro/astro/commit/cf0d8b08a0f16bba7310d1a92c82b5a276682e8c) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where with `i18n` enabled, Astro couldn't render the `404.astro` component for non-existent routes.
+
 ## 4.16.15
 
 ### Patch Changes
