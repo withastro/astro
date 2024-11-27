@@ -22,6 +22,7 @@ import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
+import { builtinDrivers } from 'unstorage';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
@@ -29,7 +30,7 @@ const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
 export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
 export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
 
-function vitePluginManifest(_options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+function vitePluginManifest(options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-build-manifest',
 		enforce: 'post',
@@ -48,15 +49,29 @@ function vitePluginManifest(_options: StaticBuildOptions, internals: BuildIntern
 		},
 		async load(id) {
 			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
+				let driver = options.settings.config.experimental?.session?.driver;
+				let resolvedDriver;
+				if (driver) {
+					if (driver === 'fs') {
+						driver = 'fsLite';
+					}
+					if (driver in builtinDrivers) {
+						driver = builtinDrivers[driver as keyof typeof builtinDrivers];
+					}
+					resolvedDriver = fileURLToPath(import.meta.resolve(driver));
+				}
+
 				const imports = [
 					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
 					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
 				];
 				const contents = [
 					`const manifest = _deserializeManifest('${manifestReplace}');`,
+					`manifest.sessionConfig.driverModule = ${resolvedDriver ? `() => import(${JSON.stringify(resolvedDriver)})` : 'null'};`,
 					`_privateSetManifestDontUseThis(manifest);`,
 				];
 				const exports = [`export { manifest }`];
+
 				return [...imports, ...contents, ...exports].join('\n');
 			}
 		},

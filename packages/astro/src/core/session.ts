@@ -1,5 +1,11 @@
 import { stringify, unflatten } from 'devalue';
-import { type BuiltinDriverOptions, type Driver, type Storage, builtinDrivers, createStorage } from 'unstorage';
+import {
+	type BuiltinDriverOptions,
+	type Driver,
+	type Storage,
+	builtinDrivers,
+	createStorage,
+} from 'unstorage';
 import type { SessionConfig, SessionDriverName } from '../types/public/config.js';
 import type { AstroCookies } from './cookies/cookies.js';
 import type { AstroCookieSetOptions } from './cookies/cookies.js';
@@ -354,7 +360,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			return this.#storage;
 		}
 		// Use fsLite rather than fs, because fs can't be bundled. Add a default base path if not provided.
-		if(this.#config.driver === 'fs' || this.#config.driver === 'fsLite') {
+		if (this.#config.driver === 'fs' || this.#config.driver === 'fsLite') {
 			this.#config.options ??= {};
 			this.#config.driver = 'fsLite';
 			(this.#config.options as BuiltinDriverOptions['fsLite']).base ??= '.astro/session';
@@ -376,15 +382,11 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		const driverPackage: string = isBuiltin
 			? builtinDrivers[this.#config.driver as keyof typeof builtinDrivers]
 			: this.#config.driver;
-
 		try {
-			// If driver is not a builtin, or in development or test, load the driver directly.
-			if (!isBuiltin || process.env.NODE_ENV === 'development' || process.env.NODE_TEST_CONTEXT) {
-				driver = await import(/* @vite-ignore */ driverPackage).then((r) => r.default || r);
+			if ((this.#config as any).driverModule) {
+				driver = await (this.#config as any).driverModule();
 			} else {
-				// In production, load via the virtual module as it will be bundled by Vite
-				// @ts-expect-error - virtual module
-				driver = await import('@astro-session-driver').then((r) => r.default || r);
+				driver = await import(/* @vite-ignore */ driverPackage).then((r) => r.default || r);
 			}
 		} catch (err: any) {
 			// If the driver failed to load, throw an error.
