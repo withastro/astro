@@ -17,7 +17,7 @@ jobs:
         with:
           filters: |
             examples:
-              - 'examples/*'
+              - 'examples/**'
       - name: Notify Netlify
         if: ${{ steps.changes.outputs.examples == 'true' }}
         run: 'curl -X POST -d {} ${{ env.BUILD_HOOK }}'
