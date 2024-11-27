@@ -34,25 +34,25 @@
     "@astrojs/internal-helpers": "0.4.1",
     "@astrojs/underscore-redirects": "^0.3.4",
     "@netlify/functions": "^2.8.0",
-    "@vercel/nft": "^0.27.5",
+    "@vercel/nft": "^0.27.6",
     "esbuild": "^0.21.5",
-    "vite": "^5.4.10"
+    "vite": "^5.4.11"
   },
   "peerDependencies": {
     "astro": "^4.2.0"
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
-    "@netlify/edge-functions": "^2.11.0",
+    "@netlify/edge-functions": "^2.11.1",
     "@netlify/edge-handler-types": "^0.34.1",
-    "@types/node": "^20.17.4",
-    "astro": "^4.16.8",
+    "@types/node": "^20.17.8",
+    "astro": "^4.16.15",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
     "strip-ansi": "^7.1.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.2"
   },
   "astro": {
     "external": true
