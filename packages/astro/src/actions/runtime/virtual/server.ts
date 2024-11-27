@@ -27,7 +27,7 @@ import {
 
 export * from './shared.js';
 
-export type ActionAccept = 'form' | 'json';
+export type ActionAccept = 'form' | 'json' | 'search';
 
 export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
 	? (input: z.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
@@ -78,7 +78,9 @@ export function defineAction<
 	const serverHandler =
 		accept === 'form'
 			? getFormServerHandler(handler, inputSchema)
-			: getJsonServerHandler(handler, inputSchema);
+			: accept === 'search'
+				? getSearchServerHandler(handler, inputSchema)
+				: getJsonServerHandler(handler, inputSchema);
 
 	async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
 		// The ActionAPIContext should always contain the `params` property
@@ -148,9 +150,36 @@ function getJsonServerHandler<TOutput, TInputSchema extends z.ZodType>(
 	};
 }
 
+function getSearchServerHandler<TOutput, TInputSchema extends z.ZodType>(
+	handler: ActionHandler<TInputSchema, TOutput>,
+	inputSchema?: TInputSchema,
+) {
+	return async (unparsedInput: unknown, context: ActionAPIContext): Promise<Awaited<TOutput>> => {
+		if (!(unparsedInput instanceof URLSearchParams)) {
+			throw new ActionError({
+				code: 'UNSUPPORTED_MEDIA_TYPE',
+				message: 'This action only accepts URLSearchParams.',
+			});
+		}
+
+		if (!inputSchema) return await handler(unparsedInput, context);
+
+		const baseSchema = unwrapBaseObjectSchema(inputSchema, unparsedInput);
+		const parsed = await inputSchema.safeParseAsync(
+			baseSchema instanceof z.ZodObject
+				? formDataToObject(unparsedInput, baseSchema)
+				: unparsedInput,
+		);
+		if (!parsed.success) {
+			throw new ActionInputError(parsed.error.issues);
+		}
+		return await handler(parsed.data, context);
+	};
+}
+
 /** Transform form data to an object based on a Zod schema. */
 export function formDataToObject<T extends z.AnyZodObject>(
-	formData: FormData,
+	formData: FormData | URLSearchParams,
 	schema: T,
 ): Record<string, unknown> {
 	const obj: Record<string, unknown> =
@@ -187,7 +216,7 @@ export function formDataToObject<T extends z.AnyZodObject>(
 
 function handleFormDataGetAll(
 	key: string,
-	formData: FormData,
+	formData: FormData | URLSearchParams,
 	validator: z.ZodArray<z.ZodUnknown>,
 ) {
 	const entries = Array.from(formData.getAll(key));
@@ -202,7 +231,7 @@ function handleFormDataGetAll(
 
 function handleFormDataGet(
 	key: string,
-	formData: FormData,
+	formData: FormData | URLSearchParams,
 	validator: unknown,
 	baseValidator: unknown,
 ) {
@@ -213,7 +242,7 @@ function handleFormDataGet(
 	return validator instanceof z.ZodNumber ? Number(value) : value;
 }
 
-function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
+function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData | URLSearchParams) {
 	while (schema instanceof z.ZodEffects || schema instanceof z.ZodPipeline) {
 		if (schema instanceof z.ZodEffects) {
 			schema = schema._def.schema;

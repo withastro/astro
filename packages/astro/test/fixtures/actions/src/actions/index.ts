@@ -75,6 +75,14 @@ export const server = {
 			return locals.user;
 		},
 	}),
+	getUserProperty: defineAction({
+		accept: 'search',
+		input: z
+			.object({ property: z.string() }),
+		handler: async (input, { locals }) => {
+			return locals.user[input.property];
+		},
+	}),
 	validatePassword: defineAction({
 		accept: 'form',
 		input: z

@@ -67,8 +67,15 @@ async function handleAction(param, path, context) {
 	// When running client-side, make a fetch request to the action path.
 	const headers = new Headers();
 	headers.set('Accept', 'application/json');
-	let body = param;
-	if (!(body instanceof FormData)) {
+	let method = 'POST'
+	let search = ''
+	let body
+	if (param instanceof URLSearchParams) {
+		method = 'GET'
+		search = `?${param.toString()}`
+	} else if (param instanceof FormData) {
+		body = param
+	} else {
 		try {
 			body = JSON.stringify(param);
 		} catch (e) {
@@ -83,8 +90,8 @@ async function handleAction(param, path, context) {
 			headers.set('Content-Length', '0');
 		}
 	}
-	const rawResult = await fetch(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${path}`, {
-		method: 'POST',
+	const rawResult = await fetch(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${path}${search}`, {
+		method,
 		body,
 		headers,
 	});

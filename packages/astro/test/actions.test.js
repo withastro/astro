@@ -254,8 +254,22 @@ describe('Astro Actions', () => {
 			assert.equal($('#user').text(), 'Houston');
 		});
 
+		it('Supports URLSearchParams', async () => {
+			const req = new Request('http://example.com/_actions/getUserProperty?property=name', {
+				method: 'GET',
+			});
+
+			const res = await app.render(req);
+
+			assert.equal(res.ok, true);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const data = devalue.parse(await res.text());
+			assert.deepEqual(data, 'Houston');
+		});
+
 		it('Respects custom errors - POST', async () => {
-			const req = new Request('http://example.com/user-or-throw?_action=getUserOrThrow', {
+			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
 				method: 'POST',
 				body: new FormData(),
 				headers: {
