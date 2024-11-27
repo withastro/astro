@@ -1710,7 +1710,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	};
 
 	/**
-	 * 
+	 *
 	 * @kind heading
 	 * @name Legacy Flags
 	 * @description
@@ -1720,14 +1720,14 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 */
 	legacy?: {
 		/**
-		 * 
+		 *
 		 * @name legacy.collections
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 5.0.0
 		 * @description
 		 * Enable legacy behavior for content collections.
-		 * 
+		 *
 		 * ```js
 		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
@@ -1739,21 +1739,21 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * ```
 		 *
 		 * If enabled, `data` and `content` collections (only) are handled using the legacy content collections implementation. Collections with a `loader` (only) will continue to use the Content Layer API instead. Both kinds of collections may exist in the same project, each using their respective implementations.
-		 *  
+		 *
 		 *  The following limitations continue to exist:
 		 *
 		 * - Any legacy (`type: 'content'` or `type: 'data'`) collections must continue to be located in the `src/content/` directory.
 		 * - These legacy collections will not be transformed to implicitly use the `glob()` loader, and will instead be handled by legacy code.
-		 * - Collections using the Content Layer API (with a `loader` defined) are forbidden in `src/content/`, but may exist anywhere else in your project. 
+		 * - Collections using the Content Layer API (with a `loader` defined) are forbidden in `src/content/`, but may exist anywhere else in your project.
 		 *
 		 * When you are ready to remove this flag and migrate to the new Content Layer API for your legacy collections, you must define a collection for any directories in `src/content/` that you want to continue to use as a collection. It is sufficient to declare an empty collection, and Astro will implicitly generate an appropriate definition for your legacy collections:
-		 *  
+		 *
 		 * ```js
 		 * // src/content.config.ts
 		 * import { defineCollection, z } from 'astro:content';
-		 * 
+		 *
 		 * const blog = defineCollection({ })
-		 *  
+		 *
 		 * export const collections = { blog };
 		 * ```
 		 *
@@ -1762,7 +1762,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	};
 
 	/**
-	 * 
+	 *
 	 * @kind heading
 	 * @name Experimental Flags
 	 * @description
@@ -1771,7 +1771,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 */
 	experimental?: {
 		/**
-		 * 
+		 *
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
 		 * @default `false`
@@ -1807,7 +1807,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		clientPrerender?: boolean;
 
 		/**
-		 * 
+		 *
 		 * @name experimental.contentIntellisense
 		 * @type {boolean}
 		 * @default `false`
@@ -1831,7 +1831,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		contentIntellisense?: boolean;
 
 		/**
-		 * 
+		 *
 		 * @name experimental.responsiveImages
 		 * @type {boolean}
 		 * @default `undefined`
@@ -1950,7 +1950,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 * 
-		 * @docs
 		 * @name experimental.session
 		 * @type {SessionConfig}
 		 * @version 5.0.0
@@ -1994,7 +1993,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		session?: SessionConfig<TSession>;
 		/**
-		 * 
+		 *
 		 * @name experimental.svg
 		 * @type {boolean|object}
 		 * @default `undefined`
@@ -2029,7 +2028,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 */
 		svg?: {
 			/**
-			 * 
+			 *
 			 * @name experimental.svg.mode
 			 * @type {string}
 			 * @default 'inline'

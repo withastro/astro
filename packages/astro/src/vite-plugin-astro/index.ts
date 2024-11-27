@@ -8,7 +8,7 @@ import type {
 	CompileMetadata,
 } from './types.js';
 
-import { normalizePath } from 'vite';
+import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import type { AstroConfig } from '../types/public/config.js';
 import { hasSpecialQueries, normalizeFilename } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
@@ -43,6 +43,18 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 	const prePlugin: vite.Plugin = {
 		name: 'astro:build',
 		enforce: 'pre', // run transforms before other plugins can
+		async configEnvironment(name, viteConfig, opts) {
+			viteConfig.resolve ??= {};
+			// Emulate Vite default fallback for `resolve.conditions` if not set
+			if (viteConfig.resolve.conditions == null) {
+				if (viteConfig.consumer === 'client' || name === 'client' || opts.isSsrTargetWebworker) {
+					viteConfig.resolve.conditions = [...defaultClientConditions];
+				} else {
+					viteConfig.resolve.conditions = [...defaultServerConditions];
+				}
+			}
+			viteConfig.resolve.conditions.push('astro');
+		},
 		configResolved(viteConfig) {
 			// Initialize `compile` function to simplify usage later
 			compile = (code, filename) => {
