@@ -39,14 +39,14 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^4.0.0",
-    "svelte2tsx": "^0.7.22",
-    "vite": "^5.4.10"
+    "@sveltejs/vite-plugin-svelte": "^4.0.2",
+    "svelte2tsx": "^0.7.28",
+    "vite": "^5.4.11"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^5.1.16"
+    "svelte": "^5.2.9"
   },
   "peerDependencies": {
     "astro": "^4.0.0",
