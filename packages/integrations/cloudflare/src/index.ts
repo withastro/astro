@@ -12,7 +12,7 @@ import {
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import astroWhen from '@inox-tools/astro-when';
 import { AstroError } from 'astro/errors';
-import { getPlatformProxy } from 'wrangler';
+import { type GetPlatformProxyOptions, getPlatformProxy } from 'wrangler';
 import {
 	type CloudflareModulePluginExtra,
 	cloudflareModuleLoader,
@@ -53,15 +53,9 @@ export type Options = {
 	/**
 	 * Proxy configuration for the platform.
 	 */
-	platformProxy?: {
+	platformProxy?: GetPlatformProxyOptions & {
 		/** Toggle the proxy. Default `undefined`, which equals to `true`. */
 		enabled?: boolean;
-		/** Path to the configuration file. Default `wrangler.toml`. */
-		configPath?: string;
-		/** Enable experimental support for JSON configuration. Default `false`. */
-		experimentalJsonConfig?: boolean;
-		/** Configuration persistence settings. Default '.wrangler/state/v3' */
-		persist?: boolean | { path: string };
 	};
 
 	/**
@@ -89,14 +83,6 @@ function setProcessEnv(config: AstroConfig, env: Record<string, unknown>) {
 			}
 		}
 	}
-}
-
-function createPlatformProxy(platformProxy: Options['platformProxy']) {
-	return getPlatformProxy({
-		configPath: platformProxy?.configPath,
-		experimentalJsonConfig: platformProxy?.experimentalJsonConfig ?? false,
-		persist: platformProxy?.persist ?? true,
-	});
 }
 
 export default function createIntegration(args?: Options): AstroIntegration {
@@ -184,7 +170,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:server:setup': async ({ server }) => {
 				if ((args?.platformProxy?.enabled ?? true) === true) {
-					const platformProxy = await createPlatformProxy(args?.platformProxy);
+					const platformProxy = await getPlatformProxy(args?.platformProxy);
 
 					setProcessEnv(_config, platformProxy.env);
 
