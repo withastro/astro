@@ -1,6 +1,5 @@
-# This workflow runs when pushing to main.
-# It checks if any of the examples have changed, and if they have, calls a build hook on Netlify
-# that will redeploy preview.astro.new with the latest changes.
+# This workflow runs when chanegs to examples are pushed to main.
+# It calls a build hook on Netlify that will redeploy preview.astro.new with the latest changes.
 
 name: Redeploy preview.astro.new
 
@@ -8,6 +7,8 @@ on:
   push:
     branches: 
       - main
+    paths: 
+      - 'examples/**'
   workflow_dispatch:
 
 jobs:
@@ -15,15 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check if examples changed
-        id: changes
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            examples:
-              - 'examples/**'
-      - name: Notify Netlify
-        if: ${{ steps.changes.outputs.examples == 'true' }}
+      - name: Send a POST request to Netlify to rebuild preview.astro.new
         run: 'curl -X POST -d {} ${{ env.BUILD_HOOK }}'
         env:
           BUILD_HOOK: ${{ secrets.NETLIFY_PREVIEWS_BUILD_HOOK }}
