@@ -1,3 +1,7 @@
+# This workflow runs when pushing to main.
+# It checks if any of the examples have changed, and if they have, calls a build hook on Netlify
+# that will redeploy preview.astro.new with the latest changes.
+
 name: Redeploy preview.astro.new
 
 on:
