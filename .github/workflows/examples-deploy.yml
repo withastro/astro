@@ -1,0 +1,25 @@
+name: Redeploy preview.astro.new
+
+on:
+  push:
+    branches: 
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check if examples changed
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            examples:
+              - 'examples/*'
+      - name: Notify Netlify
+        if: ${{ steps.changes.outputs.examples == 'true' }}
+        run: 'curl -X POST -d {} ${{ env.BUILD_HOOK }}'
+        env:
+          BUILD_HOOK: ${{ secrets.NETLIFY_PREVIEWS_BUILD_HOOK }}
