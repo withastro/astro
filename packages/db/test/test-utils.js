@@ -1,9 +1,10 @@
 import { createServer } from 'node:http';
-import { LibsqlError, createClient } from '@libsql/client';
+import { createClient } from '@libsql/client';
 import { z } from 'zod';
 import { cli } from '../dist/core/cli/index.js';
 import { resolveDbConfig } from '../dist/core/load-file.js';
 import { getCreateIndexQueries, getCreateTableQuery } from '../dist/core/queries.js';
+import { isDbError } from '../dist/runtime/utils.js';
 
 const singleQuerySchema = z.object({
 	sql: z.string(),
@@ -142,7 +143,7 @@ function createRemoteDbServer() {
 					JSON.stringify({
 						success: false,
 						error: {
-							code: e instanceof LibsqlError ? e.code : 'SQLITE_QUERY_FAILED',
+							code: isDbError(e) ? e.code : 'SQLITE_QUERY_FAILED',
 							details: e.message,
 						},
 					}),

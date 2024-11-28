@@ -21,10 +21,6 @@ function createColumn<S extends string, T extends Record<string, unknown>>(type:
 	};
 }
 
-export function isDbError(err: unknown): err is LibsqlError {
-	return err instanceof LibsqlError;
-}
-
 export const column = {
 	number: <T extends NumberColumnOpts>(opts: T = {} as T) => {
 		return createColumn('number', opts) satisfies { type: 'number' };
@@ -90,3 +86,4 @@ export {
 } from 'drizzle-orm';
 
 export { alias } from 'drizzle-orm/sqlite-core';
+export { isDbError } from './utils.js';

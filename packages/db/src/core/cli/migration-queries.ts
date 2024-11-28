@@ -1,5 +1,4 @@
 import { stripVTControlCharacters } from 'node:util';
-import { LibsqlError } from '@libsql/client';
 import deepDiff from 'deep-diff';
 import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
@@ -8,7 +7,7 @@ import { customAlphabet } from 'nanoid';
 import { hasPrimaryKey } from '../../runtime/index.js';
 import { createRemoteDatabaseClient } from '../../runtime/index.js';
 import { isSerializedSQL } from '../../runtime/types.js';
-import { safeFetch } from '../../runtime/utils.js';
+import { isDbError, safeFetch } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
 import {
@@ -454,7 +453,7 @@ async function getDbCurrentSnapshot(
 	} catch (error) {
 		// Don't handle errors that are not from libSQL
 		if (
-			error instanceof LibsqlError &&
+			isDbError(error) &&
 			// If the schema was never pushed to the database yet the table won't exist.
 			// Treat a missing snapshot table as an empty table.
 
