@@ -26,10 +26,6 @@ describe('Prerender 404', () => {
 				root: './fixtures/prerender-404-500/',
 				output: 'server',
 				outDir: './dist/server-with-base',
-				build: {
-					client: './dist/server-with-base/client',
-					server: './dist/server-with-base/server',
-				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
@@ -42,8 +38,7 @@ describe('Prerender 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			// biome-ignore lint/performance/noDelete: <explanation>
-			delete process.env.PRERENDER;
+			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {
@@ -117,10 +112,6 @@ describe('Prerender 404', () => {
 				root: './fixtures/prerender-404-500/',
 				output: 'server',
 				outDir: './dist/server-without-base',
-				build: {
-					client: './dist/server-without-base/client',
-					server: './dist/server-without-base/server',
-				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
@@ -133,8 +124,7 @@ describe('Prerender 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			// biome-ignore lint/performance/noDelete: <explanation>
-			delete process.env.PRERENDER;
+			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {
@@ -185,12 +175,8 @@ describe('Hybrid 404', () => {
 				site: 'https://test.com/',
 				base: '/some-base',
 				root: './fixtures/prerender-404-500/',
-				output: 'hybrid',
+				output: 'static',
 				outDir: './dist/hybrid-with-base',
-				build: {
-					client: './dist/hybrid-with-base/client',
-					server: './dist/hybrid-with-base/server',
-				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
@@ -203,8 +189,7 @@ describe('Hybrid 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			// biome-ignore lint/performance/noDelete: <explanation>
-			delete process.env.PRERENDER;
+			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {
@@ -248,12 +233,8 @@ describe('Hybrid 404', () => {
 				// from being reused
 				site: 'https://test.net/',
 				root: './fixtures/prerender-404-500/',
-				output: 'hybrid',
+				output: 'static',
 				outDir: './dist/hybrid-without-base',
-				build: {
-					client: './dist/hybrid-without-base/client',
-					server: './dist/hybrid-without-base/server',
-				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
@@ -266,8 +247,7 @@ describe('Hybrid 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			// biome-ignore lint/performance/noDelete: <explanation>
-			delete process.env.PRERENDER;
+			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {

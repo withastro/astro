@@ -7,7 +7,7 @@ import { createRequestAndResponse, loadFixture } from './test-utils.js';
 describe('API routes', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	/** @type {import('astro/src/@types/astro.js').PreviewServer} */
+	/** @type {import('../../../astro/src/types/public/preview.js').PreviewServer} */
 	let previewServer;
 	/** @type {URL} */
 	let baseUri;

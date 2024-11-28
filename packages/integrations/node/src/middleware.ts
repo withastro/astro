@@ -25,6 +25,7 @@ export default function createMiddleware(app: NodeApp): RequestHandler {
 				return next(error);
 				// biome-ignore lint/style/noUselessElse: <explanation>
 			} else {
+				// biome-ignore lint/complexity/useArrowFunction: <explanation>
 				throw error;
 			}
 		}
