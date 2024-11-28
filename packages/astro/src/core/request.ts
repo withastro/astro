@@ -70,9 +70,14 @@ export function createRequest({
 	});
 
 	if (isPrerendered) {
-		// Warn when accessing headers in prerendered pages
-		const _headers = request.headers;
+		// Warn when accessing headers in SSG mode
+		let _headers = request.headers;
 		const headersDesc = Object.getOwnPropertyDescriptor(request, 'headers') || {};
+
+		// We need to delete any existing descriptor's value and writable properties because we're adding getters and setters.
+		delete headersDesc.value;
+		delete headersDesc.writable;
+
 		Object.defineProperty(request, 'headers', {
 			...headersDesc,
 			get() {
@@ -81,6 +86,9 @@ export function createRequest({
 					`\`Astro.request.headers\` is not available on prerendered pages. If you need access to request headers, make sure that the page is server rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server rendered.`,
 				);
 				return _headers;
+			},
+			set(value: Headers) {
+				_headers = value;
 			},
 		});
 	} else if (clientAddress) {
