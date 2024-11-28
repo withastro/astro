@@ -36,10 +36,10 @@
     "@netlify/functions": "^2.8.0",
     "@vercel/nft": "^0.27.5",
     "esbuild": "^0.24.0",
-    "vite": "6.0.0-beta.2"
+    "vite": "6.0.0"
   },
   "peerDependencies": {
-    "astro": "^5.0.0-alpha.8"
+    "astro": "^5.0.0"
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
