@@ -228,13 +228,13 @@ describe('_routes.json generation', () => {
 			await fixture.build();
 		});
 
-		it('creates `include` for on-demand and `exclude` that are supposed to match nothin', async () => {
+		it('creates `include` for on-demand and `exclude` that are supposed to match nothing', async () => {
 			const _routesJson = await fixture.readFile('/_routes.json');
 			const routes = JSON.parse(_routesJson);
 
 			assert.deepEqual(routes, {
 				version: 1,
-				include: ['/_image', '/dynamic'],
+				include: ['/dynamic', '/_image'],
 				exclude: [],
 			});
 		});

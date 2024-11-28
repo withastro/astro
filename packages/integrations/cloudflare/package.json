@@ -40,7 +40,7 @@
     "wrangler": "^3.84.0"
   },
   "peerDependencies": {
-    "astro": "^5.0.0-alpha.8"
+    "astro": "^5.0.0"
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
