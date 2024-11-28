@@ -72,11 +72,10 @@ export function createRequest({
 	if (isPrerendered) {
 		// Warn when accessing headers in SSG mode
 		let _headers = request.headers;
-		const headersDesc = Object.getOwnPropertyDescriptor(request, 'headers') || {};
 
-		// We need to delete any existing descriptor's value and writable properties because we're adding getters and setters.
-		delete headersDesc.value;
-		delete headersDesc.writable;
+		// We need to remove descriptor's value and writable properties because we're adding getters and setters.
+		const { value, writable, ...headersDesc } =
+			Object.getOwnPropertyDescriptor(request, 'headers') || {};
 
 		Object.defineProperty(request, 'headers', {
 			...headersDesc,
@@ -87,8 +86,8 @@ export function createRequest({
 				);
 				return _headers;
 			},
-			set(value: Headers) {
-				_headers = value;
+			set(newHeaders: Headers) {
+				_headers = newHeaders;
 			},
 		});
 	} else if (clientAddress) {
