@@ -379,9 +379,9 @@ export function redirectToFallback({
 				}
 
 				if (fallbackType === 'rewrite') {
-					return await context.rewrite(newPathname);
+					return await context.rewrite(newPathname + context.url.search);
 				} else {
-					return context.redirect(newPathname);
+					return context.redirect(newPathname + context.url.search);
 				}
 			}
 		}
