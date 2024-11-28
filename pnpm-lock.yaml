@@ -368,8 +368,8 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^4.16.16
-        version: 4.16.16(@types/node@18.19.50)(rollup@4.27.4)(sass@1.81.0)(typescript@5.7.2)
+        specifier: ^5.0.0-beta.12
+        version: link:../../packages/astro
       sass:
         specifier: ^1.80.6
         version: 1.81.0
