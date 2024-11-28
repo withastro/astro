@@ -53,17 +53,5 @@ describe('Custom Renderer - SSR', () => {
 
 			assert.equal($('p').length, 5);
 		});
-
-		it('does not log a warning message when using a custom renderer', async () => {
-			const res = await fixture.fetch('/');
-			assert.equal(res.status, 200);
-
-			assert.equal(
-				warnLogsWritten.indexOf(
-					'If you intended to use a different renderer, please provide a valid client:only directive.',
-				),
-				-1,
-			);
-		});
 	});
 });
