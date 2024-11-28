@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
+import type { AstroConfig, AstroIntegration, IntegrationRouteData } from 'astro';
 import type { PluginOption } from 'vite';
 
 import { createReadStream } from 'node:fs';
@@ -75,8 +75,8 @@ function wrapWithSlashes(path: string): string {
 function setProcessEnv(config: AstroConfig, env: Record<string, unknown>) {
 	const getEnv = createGetEnv(env);
 
-	if (config.experimental.env?.schema) {
-		for (const key of Object.keys(config.experimental.env.schema)) {
+	if (config.env?.schema) {
+		for (const key of Object.keys(config.env.schema)) {
 			const value = getEnv(key);
 			if (value !== undefined) {
 				process.env[key] = value;
@@ -137,10 +137,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					order: 'pre',
 				});
 			},
-			'astro:config:done': ({ setAdapter, config }) => {
-				if (config.output === 'static') {
-					throw new AstroError(
-						'[@astrojs/cloudflare] `output: "server"` or `output: "hybrid"` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.'
+			'astro:config:done': ({ setAdapter, config, buildOutput, logger }) => {
+				if (buildOutput === 'static') {
+					logger.warn(
+						'[@astrojs/cloudflare] This adapter is intended to be used with server rendered pages, which this project does not contain any of. As such, this adapter is unnecessary.'
 					);
 				}
 
@@ -151,19 +151,15 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					serverEntrypoint: '@astrojs/cloudflare/entrypoints/server.js',
 					exports: ['default'],
 					adapterFeatures: {
-						functionPerRoute: false,
 						edgeMiddleware: false,
+						buildOutput: 'server',
 					},
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						hybridOutput: 'stable',
 						staticOutput: 'unsupported',
 						i18nDomains: 'experimental',
-						assets: {
-							supportKind: 'stable',
-							isSharpCompatible: false,
-							isSquooshCompatible: false,
-						},
+						sharpImageService: 'limited',
 						envGetSecret: 'experimental',
 					},
 				});
@@ -295,7 +291,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					redirectsExists = false;
 				}
 
-				const redirects: RouteData['segments'][] = [];
+				const redirects: IntegrationRouteData['segments'][] = [];
 				if (redirectsExists) {
 					const rl = createInterface({
 						input: createReadStream(new URL('./_redirects', _config.outDir)),
@@ -342,7 +338,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					);
 				}
 
-				const redirectRoutes: [RouteData, string][] = [];
+				const redirectRoutes: [IntegrationRouteData, string][] = [];
 				for (const route of routes) {
 					if (route.type === 'redirect') redirectRoutes.push([route, '']);
 				}

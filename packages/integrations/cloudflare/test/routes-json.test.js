@@ -23,7 +23,7 @@ describe('_routes.json generation', () => {
 
 			assert.deepEqual(routes, {
 				version: 1,
-				include: ['/_image', '/a/*'],
+				include: ['/a/*', '/_image'],
 				exclude: ['/_astro/*', '/redirectme', '/public.txt', '/a', '/a/redirect', '/404', '/b'],
 			});
 		});
@@ -71,7 +71,7 @@ describe('_routes.json generation', () => {
 
 			assert.deepEqual(routes, {
 				version: 1,
-				include: ['/_image'],
+				include: [],
 				exclude: [],
 			});
 		});
@@ -101,7 +101,7 @@ describe('_routes.json generation', () => {
 
 			assert.deepEqual(routes, {
 				version: 1,
-				include: ['/_image', '/a/*', '/another'],
+				include: ['/a/*', '/_image', '/another'],
 				exclude: ['/_astro/*', '/redirectme', '/public.txt', '/a', '/a/redirect', '/404', '/b'],
 			});
 		});
@@ -131,7 +131,7 @@ describe('_routes.json generation', () => {
 
 			assert.deepEqual(routes, {
 				version: 1,
-				include: ['/_image', '/a/*'],
+				include: ['/a/*', '/_image'],
 				exclude: [
 					'/_astro/*',
 					'/redirectme',
@@ -167,10 +167,10 @@ describe('_routes.json generation', () => {
 				version: 1,
 				include: [
 					'/',
-					'/_image',
 					'/dynamicPages/*',
 					'/mixedPages/dynamic',
 					'/mixedPages/subfolder/dynamic',
+					'/_image',
 				],
 				exclude: [
 					'/_astro/*',
@@ -228,13 +228,13 @@ describe('_routes.json generation', () => {
 			await fixture.build();
 		});
 
-		it('creates `include` for on-demand and `exclude` that are supposed to match nothin', async () => {
+		it('creates `include` for on-demand and `exclude` that are supposed to match nothing', async () => {
 			const _routesJson = await fixture.readFile('/_routes.json');
 			const routes = JSON.parse(_routesJson);
 
 			assert.deepEqual(routes, {
 				version: 1,
-				include: ['/_image', '/dynamic'],
+				include: ['/dynamic', '/_image'],
 				exclude: [],
 			});
 		});
