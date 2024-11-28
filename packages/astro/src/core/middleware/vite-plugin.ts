@@ -60,6 +60,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 						: ''
 				}
 import { sequence } from 'astro:middleware';
+export { manifest } from "@astrojs-manifest";
 ${preMiddleware.importsCode}${postMiddleware.importsCode}
 
 export const onRequest = sequence(
