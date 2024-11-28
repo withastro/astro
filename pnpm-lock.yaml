@@ -169,11 +169,11 @@ importers:
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^3.6.3
-        version: 3.6.3(@types/node@18.19.50)(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.81.0)
+        specifier: ^4.0.0-beta.2
+        version: link:../../packages/integrations/react
       astro:
-        specifier: ^4.16.16
-        version: 4.16.16(@types/node@18.19.50)(rollup@4.27.4)(sass@1.81.0)(typescript@5.7.2)
+        specifier: ^5.0.0-beta.12
+        version: link:../../packages/astro
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -455,8 +455,8 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^4.16.16
-        version: 4.16.16(@types/node@18.19.50)(rollup@4.27.4)(sass@1.81.0)(typescript@5.7.2)
+        specifier: ^5.0.0-beta.12
+        version: link:../../packages/astro
       vitest:
         specifier: ^2.1.6
         version: 2.1.6(@types/node@18.19.50)(jiti@1.21.6)(jsdom@23.2.0)(sass@1.81.0)(yaml@2.5.1)
