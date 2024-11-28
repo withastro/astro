@@ -5,7 +5,13 @@ import { fileURLToPath } from 'node:url';
 import { emptyDir } from '@astrojs/internal-helpers/fs';
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
-import type { AstroConfig, AstroIntegration, AstroIntegrationLogger, RouteData } from 'astro';
+import type {
+	AstroConfig,
+	AstroIntegration,
+	AstroIntegrationLogger,
+	HookParameters,
+	IntegrationRouteData,
+} from 'astro';
 import { build } from 'esbuild';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import type { Args } from './ssr-function.js';
@@ -20,7 +26,7 @@ export interface NetlifyLocals {
 	};
 }
 
-const isStaticRedirect = (route: RouteData) =>
+const isStaticRedirect = (route: IntegrationRouteData) =>
 	route.type === 'redirect' && (route.redirect || route.redirectRoute);
 
 type RemotePattern = AstroConfig['image']['remotePatterns'][number];
@@ -135,16 +141,6 @@ async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroInt
 	);
 }
 
-// TODO: remove once we don't use a TLA anymore
-async function shouldExternalizeAstroEnvSetup() {
-	try {
-		await import('astro/env/setup');
-		return false;
-	} catch {
-		return true;
-	}
-}
-
 export interface NetlifyIntegrationConfig {
 	/**
 	 * If enabled, On-Demand-Rendered pages are cached for up to a year.
@@ -201,6 +197,8 @@ export default function netlifyIntegration(
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
 	const middlewareSecret = randomUUID();
 
+	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
+
 	const TRACE_CACHE = {};
 
 	const ssrBuildDir = () => new URL('./.netlify/build/', rootDir);
@@ -214,8 +212,8 @@ export default function netlifyIntegration(
 			emptyDir(ssrBuildDir()),
 		]);
 
-	async function writeRedirects(routes: RouteData[], dir: URL) {
-		const fallback = _config.output === 'static' ? '/.netlify/static' : '/.netlify/functions/ssr';
+	async function writeRedirects(routes: IntegrationRouteData[], dir: URL) {
+		const fallback = finalBuildOutput === 'static' ? '/.netlify/static' : '/.netlify/functions/ssr';
 		const redirects = createRedirectsFromAstroRoutes({
 			config: _config,
 			dir,
@@ -289,7 +287,7 @@ export default function netlifyIntegration(
 			import { createContext, trySerializeLocals } from 'astro/middleware';
 
 			export default async (request, context) => {
-				const ctx = createContext({ 
+				const ctx = createContext({
 					request,
 					params: {}
 				});
@@ -319,7 +317,7 @@ export default function netlifyIntegration(
 					request.headers.set("x-astro-middleware-secret", "${middlewareSecret}");
 					return context.next();
 				};
-			
+
 				return onRequest(ctx, next);
 			}
 
@@ -377,6 +375,7 @@ export default function netlifyIntegration(
 				id: 'mock-netlify-account-id',
 			},
 			// TODO: this has type conflicts with @netlify/functions ^2.8.1
+			// @ts-expect-error: this has type conflicts with @netlify/functions ^2.8.1
 			deploy: {
 				id:
 					typeof req.headers['x-nf-deploy-id'] === 'string'
@@ -452,11 +451,6 @@ export default function netlifyIntegration(
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
 							},
 						},
-						...((await shouldExternalizeAstroEnvSetup())
-							? {
-									ssr: { external: ['astro/env/setup'] },
-								}
-							: {}),
 					},
 					image: {
 						service: {
@@ -465,9 +459,11 @@ export default function netlifyIntegration(
 					},
 				});
 			},
-			'astro:config:done': async ({ config, setAdapter, logger }) => {
+			'astro:config:done': async ({ config, setAdapter, logger, buildOutput }) => {
 				rootDir = config.root;
 				_config = config;
+
+				finalBuildOutput = buildOutput;
 
 				await writeNetlifyFrameworkConfig(config, logger);
 
@@ -478,7 +474,6 @@ export default function netlifyIntegration(
 					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
 					exports: ['default'],
 					adapterFeatures: {
-						functionPerRoute: false,
 						edgeMiddleware,
 					},
 					args: { middlewareSecret } satisfies Args,
@@ -486,13 +481,7 @@ export default function netlifyIntegration(
 						hybridOutput: 'stable',
 						staticOutput: 'stable',
 						serverOutput: 'stable',
-						assets: {
-							// keeping this as experimental at least until Netlify Image CDN is out of beta
-							supportKind: 'experimental',
-							// still using Netlify Image CDN instead
-							isSharpCompatible: true,
-							isSquooshCompatible: true,
-						},
+						sharpImageService: 'stable',
 						envGetSecret: 'experimental',
 					},
 				});
@@ -504,7 +493,7 @@ export default function netlifyIntegration(
 				await writeRedirects(routes, dir);
 				logger.info('Emitted _redirects');
 
-				if (_config.output !== 'static') {
+				if (finalBuildOutput !== 'static') {
 					let notFoundContent = undefined;
 					try {
 						notFoundContent = await readFile(new URL('./404.html', dir), 'utf8');
