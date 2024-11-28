@@ -1,21 +1,17 @@
+// Keep at the top
+import './polyfill.js';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { SSRManifest } from 'astro';
-import { NodeApp, applyPolyfills } from 'astro/app/node';
+import { NodeApp } from 'astro/app/node';
+import { setGetEnv } from 'astro/env/setup';
 import {
 	ASTRO_LOCALS_HEADER,
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_PATH_HEADER,
 	ASTRO_PATH_PARAM,
-} from './adapter.js';
+} from '../index.js';
 
-// Run polyfills immediately so any dependent code can use the globals
-applyPolyfills();
-
-// Won't throw if the virtual module is not available because it's not supported in
-// the users's astro version or if astro:env is not enabled in the project
-await import('astro/env/setup')
-	.then((mod) => mod.setGetEnv((key) => process.env[key]))
-	.catch(() => {});
+setGetEnv((key) => process.env[key]);
 
 export const createExports = (
 	manifest: SSRManifest,

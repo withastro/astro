@@ -7,7 +7,7 @@ import {
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_PATH_HEADER,
 	NODE_PATH,
-} from './adapter.js';
+} from '../index.js';
 
 /**
  * It generates the Vercel Edge Middleware file.
@@ -98,7 +98,7 @@ export default async function middleware(request, context) {
 		request,
 		params: {}
 	});
-	ctx.locals = { vercel: { edge: context }, ...${handlerTemplateCall} };
+	Object.assign(ctx.locals, { vercel: { edge: context }, ...${handlerTemplateCall} });
 	const { origin } = new URL(request.url);
 	const next = async () => {
 		const { vercel, ...locals } = ctx.locals;

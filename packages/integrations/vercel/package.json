@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "7.8.2",
+  "version": "8.0.0-beta.4",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -14,16 +14,13 @@
   "bugs": "https://github.com/withastro/adapters/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/vercel/",
   "exports": {
-    ".": {
-      "types": "./types.d.ts"
-    },
+    ".": "./dist/index.js",
+    "./entrypoint": "./dist/serverless/entrypoint.js",
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./static": "./dist/static/adapter.js",
-    "./speed-insights": "./dist/speed-insights.js",
     "./build-image-service": "./dist/image/build-service.js",
     "./dev-image-service": "./dist/image/dev-service.js",
-    "./squoosh-dev-service": "./dist/image/squoosh-dev-service.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -43,16 +40,15 @@
     "@vercel/analytics": "^1.4.1",
     "@vercel/edge": "^1.1.2",
     "@vercel/nft": "^0.27.6",
-    "esbuild": "^0.21.5",
-    "fast-glob": "^3.3.2",
-    "web-vitals": "^3.5.2"
+    "esbuild": "^0.24.0",
+    "fast-glob": "^3.3.2"
   },
   "peerDependencies": {
-    "astro": "^4.2.0"
+    "astro": "^5.0.0"
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
-    "astro": "^4.16.15",
+    "astro": "^5.0.0-alpha.15",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0"
   },

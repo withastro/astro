@@ -22,8 +22,12 @@ describe('Serverless prerender', () => {
 		const [file] = await fixture.glob(
 			'../.vercel/output/functions/_render.func/packages/vercel/test/fixtures/serverless-prerender/.vercel/output/_functions/pages/_image.astro.mjs'
 		);
-		const contents = await fixture.readFile(file);
-		assert.ok(!contents.includes('const outDir ='), "outDir is tree-shaken if it's not imported");
+		try {
+			await fixture.readFile(file);
+			assert.fail();
+		} catch {
+			assert.ok('Function do be three-shaken');
+		}
 	});
 
 	// TODO: The path here seems to be inconsistent?
@@ -44,7 +48,7 @@ describe('Serverless hybrid rendering', () => {
 		process.env.PRERENDER = true;
 		fixture = await loadFixture({
 			root: './fixtures/serverless-prerender/',
-			output: 'hybrid',
+			output: 'static',
 		});
 		await fixture.build();
 	});

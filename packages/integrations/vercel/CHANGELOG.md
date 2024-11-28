@@ -1,5 +1,53 @@
 # @astrojs/vercel
 
+## 8.0.0-beta.4
+
+### Patch Changes
+
+- [#437](https://github.com/withastro/adapters/pull/437) [`b725b49`](https://github.com/withastro/adapters/commit/b725b4962e2ca10c8c7e3b7f59581cef64a1dfa0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where the `@astrojs/vercel` single entry point for the adapter was causing some regressions in users projects.
+
+## 8.0.0-beta.3
+
+### Major Changes
+
+- [`f248546`](https://github.com/withastro/adapters/commit/f24854669a2a3da79d8bf1e89b0b54063df0668c) Thanks [@bluwy](https://github.com/bluwy)! - Updates esbuild dependency to v0.24.0
+
+- [#384](https://github.com/withastro/adapters/pull/384) [`7d83f60`](https://github.com/withastro/adapters/commit/7d83f601b8fbe5b4787ec640c0d6e46199f0ff95) Thanks [@bluwy](https://github.com/bluwy)! - Removes deprecated `speedInsights` option in favor of Vercel's direct support: https://vercel.com/docs/speed-insights/quickstart
+
+### Minor Changes
+
+- [#424](https://github.com/withastro/adapters/pull/424) [`3351348`](https://github.com/withastro/adapters/commit/33513484d21f79b6e01cf9cdb790df7f63a53aec) Thanks [@ematipico](https://github.com/ematipico)! - Deprecates the entrypoints `@astrojs/vercel/serverless` and `@astrojs/vercel/static`. These will continue to work but are no longer documented and will be removed in a future version. We recommend updating to the `@astrojs/vercel` entrypoint as soon as you are able:
+
+  ```diff
+  -import vercel from "@astrojs/vercel/static"
+  +import vercel from "@astrojs/vercel"
+  ```
+
+  ```diff
+  -import vercel from "@astrojs/vercel/serverless"
+  +import vercel from "@astrojs/vercel"
+  ```
+
+## 8.0.0-beta.2
+
+### Major Changes
+
+- [#375](https://github.com/withastro/adapters/pull/375) [`e7881f7`](https://github.com/withastro/adapters/commit/e7881f7928c6ca62d43c763033f9ed065a907f3b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates internal code to works with Astro 5 changes to hybrid rendering. No changes are necessary to your project, apart from using Astro 5
+
+- [#397](https://github.com/withastro/adapters/pull/397) [`776a266`](https://github.com/withastro/adapters/commit/776a26670cf483e37ec0e6eba27a0bde09db0146) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
+
+  Starting from this release, no breaking changes will be introduced unless absolutely necessary.
+
+  To learn how to upgrade, check out the [Astro v5.0 upgrade guide in our beta docs site](https://5-0-0-beta.docs.astro.build/en/guides/upgrade-to/v5/).
+
+- [#377](https://github.com/withastro/adapters/pull/377) [`b77f99c`](https://github.com/withastro/adapters/commit/b77f99c92dae715033ebcee2af25f0f1054572b8) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Updates the adapter to use new `IntegrationRouteData` type
+
+- [#392](https://github.com/withastro/adapters/pull/392) [`3a49eb7`](https://github.com/withastro/adapters/commit/3a49eb7802c44212ccfab06034b7dc5f2b060e94) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates internal code for Astro 5 changes. No changes is required to your project, apart from using Astro 5
+
+### Minor Changes
+
+- [#385](https://github.com/withastro/adapters/pull/385) [`bb725b7`](https://github.com/withastro/adapters/commit/bb725b7a430a01a3cd197e3e84381be4fa0c945c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Cleans up `astro:env` support
+
 ## 7.8.2
 
 ### Patch Changes
@@ -11,6 +59,54 @@
 ### Patch Changes
 
 - [#381](https://github.com/withastro/adapters/pull/381) [`46fbb26`](https://github.com/withastro/adapters/commit/46fbb26175ab09d12f95dba63cfe76bdcc25ef59) Thanks [@matthewp](https://github.com/matthewp)! - Prevent crawling for dependencies outside of the workspace root
+
+## 8.0.0-alpha.1
+
+### Major Changes
+
+- [#11679](https://github.com/withastro/astro/pull/11679) [`ea71b90`](https://github.com/withastro/astro/commit/ea71b90c9c08ddd1d3397c78e2e273fb799f7dbd) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds stable support for `astro:env`
+
+- [#11770](https://github.com/withastro/astro/pull/11770) [`cfa6a47`](https://github.com/withastro/astro/commit/cfa6a47ac7a541f99fdad46a68d0cca6e5816cd5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Removed support for the Squoosh image service. As the underlying library `libsquoosh` is no longer maintained, and the image service sees very little usage we have decided to remove it from Astro.
+
+  Our recommendation is to use the base Sharp image service, which is more powerful, faster, and more actively maintained.
+
+  ```diff
+  - import { squooshImageService } from "astro/config";
+  import { defineConfig } from "astro/config";
+
+  export default defineConfig({
+  -  image: {
+  -    service: squooshImageService()
+  -  }
+  });
+  ```
+
+  If you are using this service, and cannot migrate to the base Sharp image service, a third-party extraction of the previous service is available here: https://github.com/Princesseuh/astro-image-service-squoosh
+
+### Patch Changes
+
+- [#11783](https://github.com/withastro/astro/pull/11783) [`fc81b01`](https://github.com/withastro/astro/commit/fc81b01bcdd43646bcc615b16bf0400a646445c8) Thanks [@matthewp](https://github.com/matthewp)! - Prevent race condition with Node 18
+
+  Using Node 18 there can be a race condition where polyfill for the `crypto` global is not applied in time. This change ensures the polyfills run first.
+
+## 8.0.0-alpha.0
+
+### Major Changes
+
+- [#11714](https://github.com/withastro/astro/pull/11714) [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6) Thanks [@matthewp](https://github.com/matthewp)! - Remove support for functionPerRoute
+
+  This change removes support for the `functionPerRoute` option both in Astro and `@astrojs/vercel`.
+
+  This option made it so that each route got built as separate entrypoints so that they could be loaded as separate functions. The hope was that by doing this it would decrease the size of each function. However in practice routes use most of the same code, and increases in function size limitations made the potential upsides less important.
+
+  Additionally there are downsides to functionPerRoute, such as hitting limits on the number of functions per project. The feature also never worked with some Astro features like i18n domains and request rewriting.
+
+  Given this, the feature has been removed from Astro.
+
+### Patch Changes
+
+- Updated dependencies [[`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0), [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f), [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e), [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9), [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6), [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6)]:
+  - astro@5.0.0-alpha.0
 
 ## 7.8.0
 

@@ -10,18 +10,13 @@ describe('Serverless with dynamic routes', () => {
 		process.env.PRERENDER = true;
 		fixture = await loadFixture({
 			root: './fixtures/serverless-with-dynamic-routes/',
-			output: 'hybrid',
+			output: 'server',
 		});
 		await fixture.build();
 	});
 
 	it('build successful', async () => {
 		assert.ok(await fixture.readFile('../.vercel/output/static/index.html'));
-		assert.ok(
-			await fixture.readFile('../.vercel/output/functions/[id]/index.astro.func/.vc-config.json')
-		);
-		assert.ok(
-			await fixture.readFile('../.vercel/output/functions/api/[id].js.func/.vc-config.json')
-		);
+		assert.ok(await fixture.readFile('../.vercel/output/functions/_render.func/.vc-config.json'));
 	});
 });

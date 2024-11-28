@@ -13,12 +13,12 @@ export function isESMImportedImage(src: ImageMetadata | string): src is ImageMet
 	return typeof src === 'object';
 }
 
-export type DevImageService = 'sharp' | 'squoosh' | (string & {});
+export type DevImageService = 'sharp' | (string & {});
 
 // https://vercel.com/docs/build-output-api/v3/configuration#images
 type ImageFormat = 'image/avif' | 'image/webp';
 
-type RemotePattern = {
+export type RemotePattern = {
 	protocol?: 'http' | 'https';
 	hostname: string;
 	port?: string;
@@ -75,9 +75,6 @@ export function getAstroImageConfig(
 	switch (devImageService) {
 		case 'sharp':
 			devService = '@astrojs/vercel/dev-image-service';
-			break;
-		case 'squoosh':
-			devService = '@astrojs/vercel/squoosh-dev-image-service';
 			break;
 		default:
 			if (typeof devImageService === 'string') {
