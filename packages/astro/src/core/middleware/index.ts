@@ -12,7 +12,7 @@ import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getClientIpAddress } from '../routing/request.js';
 import { getOriginPathname } from '../routing/rewrite.js';
-import { AstroSession } from '../session.js';
+import { AstroSession, PERSIST_SYMBOL } from '../session.js';
 import { sequence } from './sequence.js';
 
 function defineMiddleware(fn: MiddlewareHandler) {
@@ -71,6 +71,9 @@ function createContext({
 		return Promise.resolve(new Response(null));
 	};
 	const cookies = new AstroCookies(request);
+	const session = manifest?.sessionConfig
+		? new AstroSession(cookies, manifest.sessionConfig)
+		: undefined;
 	const context: Omit<APIContext, 'getActionResult' | 'callAction'> = {
 		cookies,
 		request,
@@ -81,12 +84,16 @@ function createContext({
 		rewrite,
 		routePattern: '',
 		redirect(path, status) {
-			return new Response(null, {
-				status: status || 302,
-				headers: {
-					Location: path,
-				},
-			});
+			try {
+				return new Response(null, {
+					status: status || 302,
+					headers: {
+						Location: path,
+					},
+				});
+			} finally {
+				session?.[PERSIST_SYMBOL]();
+			}
 		},
 		isPrerendered: false,
 		get preferredLocale(): string | undefined {
@@ -126,9 +133,7 @@ function createContext({
 		set locals(_) {
 			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
-		session: manifest?.sessionConfig
-			? new AstroSession(cookies, manifest.sessionConfig)
-			: undefined,
+		session,
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),

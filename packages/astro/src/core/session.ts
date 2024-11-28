@@ -430,6 +430,14 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			);
 		}
 	}
+
+	/**
+	 * Returns the current raw, immutable session data without loading it from storage.
+	 * @internal
+	 */
+	get data() {
+		return new Map(this.#data);
+	}
 }
 
 export function resolveSessionDriver(driver: string | undefined): string | null{
