@@ -1,7 +1,7 @@
 import type * as vite from 'vite';
-import type { AstroPluginOptions } from '../@types/astro.js';
 import { telemetry } from '../events/index.js';
 import { eventAppToggled } from '../events/toolbar.js';
+import type { AstroPluginOptions } from '../types/astro.js';
 
 const PRIVATE_VIRTUAL_MODULE_ID = 'astro:toolbar:internal';
 const resolvedPrivateVirtualModuleId = '\0' + PRIVATE_VIRTUAL_MODULE_ID;
@@ -66,9 +66,9 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 									`safeLoadPlugin(${JSON.stringify(
 										plugin,
 									)}, async () => (await import(${JSON.stringify(
-										typeof plugin === 'string' ? plugin : plugin.entrypoint,
+										typeof plugin === 'string' ? plugin : plugin.entrypoint.toString(),
 									)})).default, ${JSON.stringify(
-										typeof plugin === 'string' ? plugin : plugin.entrypoint,
+										typeof plugin === 'string' ? plugin : plugin.entrypoint.toString(),
 									)})`,
 							)
 							.join(',')}]));

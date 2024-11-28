@@ -1,8 +1,7 @@
 import type fsMod from 'node:fs';
 import * as eslexer from 'es-module-lexer';
-import type { APIContext } from '../@types/astro.js';
-import type { Locals } from './runtime/middleware.js';
-import { ACTION_API_CONTEXT_SYMBOL, type ActionAPIContext } from './runtime/utils.js';
+import type { APIContext } from '../types/public/context.js';
+import { ACTION_API_CONTEXT_SYMBOL, type ActionAPIContext, type Locals } from './runtime/utils.js';
 import { deserializeActionResult, getActionQueryString } from './runtime/virtual/shared.js';
 
 export function hasActionPayload(locals: APIContext['locals']): locals is Locals {

@@ -3,18 +3,6 @@ import os from 'node:os';
 import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
-import type {
-	AstroConfig,
-	AstroSettings,
-	ComponentInstance,
-	GetStaticPathsItem,
-	MiddlewareHandler,
-	RouteData,
-	RouteType,
-	SSRError,
-	SSRLoadedRenderer,
-	SSRManifest,
-} from '../../@types/astro.js';
 import {
 	generateImagesForPath,
 	getStaticImageList,
@@ -30,7 +18,16 @@ import {
 import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated } from '../../integrations/hooks.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
-import type { SSRManifestI18n } from '../app/types.js';
+import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
+import type { GetStaticPathsItem, MiddlewareHandler } from '../../types/public/common.js';
+import type { AstroConfig } from '../../types/public/config.js';
+import type {
+	RouteData,
+	RouteType,
+	SSRError,
+	SSRLoadedRenderer,
+} from '../../types/public/internal.js';
+import type { SSRManifest, SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
@@ -38,10 +35,11 @@ import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.
 import { RenderContext } from '../render-context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
+import { redirectTemplate } from '../routing/3xx.js';
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
-import { getOutputFilename, isServerLikeOutput } from '../util.js';
-import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
+import { getOutputFilename } from '../util.js';
+import { getOutFile, getOutFolder } from './common.js';
 import { cssOrder, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type {
@@ -52,18 +50,14 @@ import type {
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
-function createEntryURL(filePath: string, outFolder: URL) {
-	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
-}
-
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
-	const ssr = isServerLikeOutput(options.settings.config);
+	const ssr = options.settings.buildOutput === 'server';
 	let manifest: SSRManifest;
 	if (ssr) {
 		manifest = await BuildPipeline.retrieveManifest(options, internals);
 	} else {
-		const baseDirectory = getOutputDirectory(options.settings.config);
+		const baseDirectory = getOutputDirectory(options.settings);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
 		const middleware: MiddlewareHandler = internals.middlewareEntryPoint
@@ -80,15 +74,10 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	const pipeline = BuildPipeline.create({ internals, manifest, options });
 	const { config, logger } = pipeline;
 
-	const outFolder = ssr
-		? options.settings.config.build.server
-		: getOutDirWithinCwd(options.settings.config.outDir);
-
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
 	if (ssr && !hasPrerenderedPages(internals)) {
 		delete globalThis?.astroAsset?.addStaticImage;
-		return;
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
@@ -107,22 +96,9 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 				}
 
 				const ssrEntryPage = await pipeline.retrieveSsrEntry(pageData.route, filePath);
-				if (options.settings.adapter?.adapterFeatures?.functionPerRoute) {
-					// forcing to use undefined, so we fail in an expected way if the module is not even there.
-					// @ts-expect-error When building for `functionPerRoute`, the module exports a `pageModule` function instead
-					const ssrEntry = ssrEntryPage?.pageModule;
-					if (ssrEntry) {
-						await generatePage(pageData, ssrEntry, builtPaths, pipeline);
-					} else {
-						const ssrEntryURLPage = createEntryURL(filePath, outFolder);
-						throw new Error(
-							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`,
-						);
-					}
-				} else {
-					const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-					await generatePage(pageData, ssrEntry, builtPaths, pipeline);
-				}
+
+				const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
+				await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 			}
 		}
 	} else {
@@ -159,7 +135,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
 
-	await runHookBuildGenerated({ config, logger });
+	await runHookBuildGenerated({ settings: options.settings, logger });
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
@@ -181,7 +157,6 @@ async function generatePage(
 		.reduce(mergeInlineCss, []);
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 	const linkIds: [] = [];
-	const scripts = pageData.hoistedScript ?? null;
 	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`,
@@ -191,7 +166,7 @@ async function generatePage(
 	const generationOptions: Readonly<GeneratePathOptions> = {
 		pageData,
 		linkIds,
-		scripts,
+		scripts: null,
 		styles,
 		mod: pageModule,
 	};
@@ -271,7 +246,7 @@ async function getPathsForRoute(
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
-	const { logger, options, routeCache, serverLike } = pipeline;
+	const { logger, options, routeCache, serverLike, config } = pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
@@ -283,6 +258,7 @@ async function getPathsForRoute(
 			routeCache,
 			logger,
 			ssr: serverLike,
+			base: config.base,
 		}).catch((err) => {
 			logger.error('build', `Failed to call getStaticPaths for ${route.component}`);
 			throw err;
@@ -457,15 +433,14 @@ async function generatePath(
 	);
 
 	const request = createRequest({
-		base: config.base,
 		url,
 		headers: new Headers(),
 		logger,
-		staticLike: true,
+		isPrerendered: true,
 	});
 	const renderContext = await RenderContext.create({
 		pipeline,
-		pathname,
+		pathname: pathname,
 		request,
 		routeData: route,
 	});
@@ -491,17 +466,7 @@ async function generatePath(
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		// A short delay causes Google to interpret the redirect as temporary.
-		// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
-		const delay = response.status === 302 ? 2 : 0;
-		body = `<!doctype html>
-<title>Redirecting to: ${location}</title>
-<meta http-equiv="refresh" content="${delay};url=${location}">
-<meta name="robots" content="noindex">
-<link rel="canonical" href="${location}">
-<body>
-	<a href="${location}">Redirecting from <code>${fromPath}</code> to <code>${location}</code></a>
-</body>`;
+		body = redirectTemplate({ status: response.status, location, from: fromPath });
 		if (config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}
@@ -515,9 +480,16 @@ async function generatePath(
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	const outFolder = getOutFolder(config, pathname, route);
-	const outFile = getOutFile(config, outFolder, pathname, route);
-	route.distURL = outFile;
+	// We encode the path because some paths will received encoded characters, e.g. /[page] VS /%5Bpage%5D.
+	// Node.js decodes the paths, so to avoid a clash between paths, do encode paths again, so we create the correct files and folders requested by the user.
+	const encodedPath = encodeURI(pathname);
+	const outFolder = getOutFolder(pipeline.settings, encodedPath, route);
+	const outFile = getOutFile(config, outFolder, encodedPath, route);
+	if (route.distURL) {
+		route.distURL.push(outFile);
+	} else {
+		route.distURL = [outFile];
+	}
 
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body);
@@ -526,13 +498,13 @@ async function generatePath(
 function getPrettyRouteName(route: RouteData): string {
 	if (isRelativePath(route.component)) {
 		return route.route;
-	} else if (route.component.includes('node_modules/')) {
+	}
+	if (route.component.includes('node_modules/')) {
 		// For routes from node_modules (usually injected by integrations),
 		// prettify it by only grabbing the part after the last `node_modules/`
 		return /.*node_modules\/(.+)/.exec(route.component)?.[1] ?? route.component;
-	} else {
-		return route.component;
 	}
+	return route.component;
 }
 
 /**
@@ -582,8 +554,9 @@ function createBuildManifest(
 				onRequest: middleware,
 			};
 		},
-		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		checkOrigin:
+			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,
-		experimentalEnvGetSecretEnabled: false,
+		envGetSecretEnabled: false,
 	};
 }

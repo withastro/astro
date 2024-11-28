@@ -8,7 +8,7 @@ const fixtures = [
 		title: 'Without any underscore above the content directory tree',
 		contentPaths: {
 			config: {
-				url: new URL('src/content/config.ts', import.meta.url),
+				url: new URL('src/content.config.ts', import.meta.url),
 				exists: true,
 			},
 			contentDir: new URL('src/content/', import.meta.url),

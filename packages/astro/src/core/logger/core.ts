@@ -32,6 +32,7 @@ export type LoggerLabel =
 	| 'assets'
 	| 'env'
 	| 'update'
+	| 'adapter'
 	// SKIP_FORMAT: A special label that tells the logger not to apply any formatting.
 	// Useful for messages that are already formatted, like the server start message.
 	| 'SKIP_FORMAT';

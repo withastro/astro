@@ -11,7 +11,7 @@ on:
       - "examples/**"
       - ".github/workflows/check.yml"
       - "scripts/smoke/check.js"
-      - "packages/astro/src/@types/astro.ts"
+      - "packages/astro/src/types/public/**"
       - "pnpm-lock.yaml"
       - "packages/astro/types.d.ts"
 

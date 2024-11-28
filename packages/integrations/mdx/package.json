@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "3.1.9",
+  "version": "4.0.0-beta.5",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -20,6 +20,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/mdx/",
   "exports": {
     ".": "./dist/index.js",
+    "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -38,7 +39,6 @@
     "acorn": "^8.14.0",
     "es-module-lexer": "^1.5.4",
     "estree-util-visit": "^2.0.0",
-    "gray-matter": "^4.0.3",
     "hast-util-to-html": "^9.0.3",
     "kleur": "^4.1.5",
     "rehype-raw": "^7.0.0",
@@ -49,7 +49,7 @@
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
-    "astro": "^4.8.0"
+    "astro": "^5.0.0-alpha.0"
   },
   "devDependencies": {
     "@types/estree": "^1.0.6",
@@ -70,10 +70,10 @@
     "remark-toc": "^9.0.0",
     "shiki": "^1.23.1",
     "unified": "^11.0.5",
-    "vite": "^5.4.11"
+    "vite": "^6.0.1"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
+    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true

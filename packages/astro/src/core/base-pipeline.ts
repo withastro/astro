@@ -1,21 +1,20 @@
+import { setGetEnv } from '../env/runtime.js';
+import { createI18nMiddleware } from '../i18n/middleware.js';
+import type { ComponentInstance } from '../types/astro.js';
+import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
+import type { RuntimeMode } from '../types/public/config.js';
 import type {
-	ComponentInstance,
-	MiddlewareHandler,
-	RewritePayload,
 	RouteData,
-	RuntimeMode,
 	SSRLoadedRenderer,
 	SSRManifest,
 	SSRResult,
-} from '../@types/astro.js';
-import { setGetEnv } from '../env/runtime.js';
-import { createI18nMiddleware } from '../i18n/middleware.js';
+} from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
 import { AstroError } from './errors/errors.js';
 import { AstroErrorData } from './errors/index.js';
 import type { Logger } from './logger/core.js';
-import { sequence } from './middleware/index.js';
 import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
+import { sequence } from './middleware/sequence.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
 
@@ -33,9 +32,9 @@ export abstract class Pipeline {
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
 		/**
-		 * "development" or "production"
+		 * "development" or "production" only
 		 */
-		readonly mode: RuntimeMode,
+		readonly runtimeMode: RuntimeMode,
 		readonly renderers: SSRLoadedRenderer[],
 		readonly resolve: (s: string) => Promise<string>,
 		/**
@@ -52,7 +51,7 @@ export abstract class Pipeline {
 		readonly compressHTML = manifest.compressHTML,
 		readonly i18n = manifest.i18n,
 		readonly middleware = manifest.middleware,
-		readonly routeCache = new RouteCache(logger, mode),
+		readonly routeCache = new RouteCache(logger, runtimeMode),
 		/**
 		 * Used for `Astro.site`.
 		 */

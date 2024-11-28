@@ -25,7 +25,9 @@ describe('Static build: pages routes have distURL', () => {
 	it('Pages routes have distURL', async () => {
 		assert.equal(checkRoutes.length > 0, true, 'Pages not found: build end hook not being called');
 		checkRoutes.forEach((p) => {
-			assert.equal(p.distURL instanceof URL, true, `${p.pathname} doesn't include distURL`);
+			p.distURL.forEach((distURL) => {
+				assert.equal(distURL instanceof URL, true, `${p.pathname} doesn't include distURL`);
+			});
 		});
 	});
 });
