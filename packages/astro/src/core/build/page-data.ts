@@ -1,4 +1,4 @@
-import type { AstroSettings, ManifestData } from '../../@types/astro.js';
+import type { AstroSettings, ManifestData } from '../../types/astro.js';
 import type { Logger } from '../logger/core.js';
 import type { AllPagesData } from './types.js';
 
@@ -39,10 +39,9 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 				route,
 				moduleSpecifier: '',
 				styles: [],
-				hoistedScript: undefined,
 			};
 
-			if (settings.config.output === 'static') {
+			if (settings.buildOutput === 'static') {
 				const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
 				debug(
 					'build',
@@ -60,7 +59,6 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 			route,
 			moduleSpecifier: '',
 			styles: [],
-			hoistedScript: undefined,
 		};
 	}
 

@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import npath from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
-import type { AstroSettings } from '../../@types/astro.js';
+import type { AstroSettings } from '../../types/astro.js';
 import { viteID } from '../util.js';
 import { getTopLevelPageModuleInfos } from './graph.js';
 

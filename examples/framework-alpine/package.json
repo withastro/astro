@@ -5,7 +5,6 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -14,6 +13,6 @@
     "@astrojs/alpinejs": "^0.4.0",
     "@types/alpinejs": "^3.13.10",
     "alpinejs": "^3.14.3",
-    "astro": "^4.16.14"
+    "astro": "^4.16.16"
   }
 }

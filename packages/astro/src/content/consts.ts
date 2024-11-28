@@ -22,7 +22,6 @@ export const ASSET_IMPORTS_VIRTUAL_ID = 'astro:asset-imports';
 export const ASSET_IMPORTS_RESOLVED_STUB_ID = '\0' + ASSET_IMPORTS_VIRTUAL_ID;
 export const LINKS_PLACEHOLDER = '@@ASTRO-LINKS@@';
 export const STYLES_PLACEHOLDER = '@@ASTRO-STYLES@@';
-export const SCRIPTS_PLACEHOLDER = '@@ASTRO-SCRIPTS@@';
 export const IMAGE_IMPORT_PREFIX = '__ASTRO_IMAGE_';
 
 export const CONTENT_FLAGS = [
@@ -34,10 +33,11 @@ export const CONTENT_FLAGS = [
 	CONTENT_MODULE_FLAG,
 ] as const;
 
-export const CONTENT_TYPES_FILE = 'astro/content.d.ts';
-
+export const CONTENT_TYPES_FILE = 'content.d.ts';
 export const DATA_STORE_FILE = 'data-store.json';
-export const ASSET_IMPORTS_FILE = 'assets.mjs';
-export const MODULES_IMPORTS_FILE = 'modules.mjs';
+export const ASSET_IMPORTS_FILE = 'content-assets.mjs';
+export const MODULES_IMPORTS_FILE = 'content-modules.mjs';
+export const COLLECTIONS_MANIFEST_FILE = 'collections/collections.json';
+export const COLLECTIONS_DIR = 'collections/';
 
 export const CONTENT_LAYER_TYPE = 'content_layer';

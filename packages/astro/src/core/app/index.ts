@@ -1,5 +1,6 @@
-import type { ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
+import type { ManifestData } from '../../types/astro.js';
+import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import {
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
@@ -113,7 +114,7 @@ export class App {
 		return AppPipeline.create(manifestData, {
 			logger: this.#logger,
 			manifest: this.#manifest,
-			mode: 'production',
+			runtimeMode: 'production',
 			renderers: this.#manifest.renderers,
 			defaultRoutes: createDefaultRoutes(this.#manifest),
 			resolve: async (specifier: string) => {
@@ -232,48 +233,17 @@ export class App {
 		return pathname;
 	}
 
-	async render(request: Request, options?: RenderOptions): Promise<Response>;
-	/**
-	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
-	 * See https://github.com/withastro/astro/pull/9199 for more information.
-	 */
-	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response>;
-	async render(
-		request: Request,
-		routeDataOrOptions?: RouteData | RenderOptions,
-		maybeLocals?: object,
-	): Promise<Response> {
+	async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
 		let routeData: RouteData | undefined;
 		let locals: object | undefined;
 		let clientAddress: string | undefined;
 		let addCookieHeader: boolean | undefined;
 
-		if (
-			routeDataOrOptions &&
-			('addCookieHeader' in routeDataOrOptions ||
-				'clientAddress' in routeDataOrOptions ||
-				'locals' in routeDataOrOptions ||
-				'routeData' in routeDataOrOptions)
-		) {
-			if ('addCookieHeader' in routeDataOrOptions) {
-				addCookieHeader = routeDataOrOptions.addCookieHeader;
-			}
-			if ('clientAddress' in routeDataOrOptions) {
-				clientAddress = routeDataOrOptions.clientAddress;
-			}
-			if ('routeData' in routeDataOrOptions) {
-				routeData = routeDataOrOptions.routeData;
-			}
-			if ('locals' in routeDataOrOptions) {
-				locals = routeDataOrOptions.locals;
-			}
-		} else {
-			routeData = routeDataOrOptions as RouteData | undefined;
-			locals = maybeLocals;
-			if (routeDataOrOptions || locals) {
-				this.#logRenderOptionsDeprecationWarning();
-			}
-		}
+		addCookieHeader = renderOptions?.addCookieHeader;
+		clientAddress = renderOptions?.clientAddress;
+		routeData = renderOptions?.routeData;
+		locals = renderOptions?.locals;
+
 		if (routeData) {
 			this.#logger.debug(
 				'router',
@@ -352,15 +322,6 @@ export class App {
 
 		Reflect.set(response, responseSentSymbol, true);
 		return response;
-	}
-
-	#logRenderOptionsDeprecationWarning() {
-		if (this.#renderOptionsDeprecationWarningShown) return;
-		this.#logger.warn(
-			'deprecated',
-			`The adapter ${this.#manifest.adapterName} is using a deprecated signature of the 'app.render()' method. From Astro 4.0, locals and routeData are provided as properties on an optional object to this method. Using the old signature will cause an error in Astro 5.0. See https://github.com/withastro/astro/pull/9199 for more information.`,
-		);
-		this.#renderOptionsDeprecationWarningShown = true;
 	}
 
 	setCookieHeaders(response: Response) {

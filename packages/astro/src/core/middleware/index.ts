@@ -1,14 +1,16 @@
-import type { APIContext, MiddlewareHandler, Params, RewritePayload } from '../../@types/astro.js';
 import { createCallAction, createGetActionResult } from '../../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
-import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
+import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
+import type { APIContext } from '../../types/public/context.js';
+import { ASTRO_VERSION, clientLocalsSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getClientIpAddress } from '../routing/request.js';
+import { getOriginPathname } from '../routing/rewrite.js';
 import { sequence } from './sequence.js';
 
 function defineMiddleware(fn: MiddlewareHandler) {
@@ -68,6 +70,7 @@ function createContext({
 		generator: `Astro v${ASTRO_VERSION}`,
 		props: {},
 		rewrite,
+		routePattern: '',
 		redirect(path, status) {
 			return new Response(null, {
 				status: status || 302,
@@ -76,6 +79,7 @@ function createContext({
 				},
 			});
 		},
+		isPrerendered: false,
 		get preferredLocale(): string | undefined {
 			return (preferredLocale ??= computePreferredLocale(request, userDefinedLocales));
 		},
@@ -86,6 +90,9 @@ function createContext({
 			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales, defaultLocale));
 		},
 		url,
+		get originPathname() {
+			return getOriginPathname(request);
+		},
 		get clientAddress() {
 			if (clientIpAddress) {
 				return clientIpAddress;
@@ -107,13 +114,8 @@ function createContext({
 			}
 			return locals;
 		},
-		// We define a custom property, so we can check the value passed to locals
-		set locals(val) {
-			if (typeof val !== 'object') {
-				throw new AstroError(AstroErrorData.LocalsNotAnObject);
-			} else {
-				Reflect.set(request, clientLocalsSymbol, val);
-			}
+		set locals(_) {
+			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
 	};
 	return Object.assign(context, {

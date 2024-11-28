@@ -9,7 +9,11 @@ const baseFileTree = {
 	'astro.config.mjs': `\
 import mdx from '@astrojs/mdx';
 export default {
-	integrations: [mdx()]
+	integrations: [mdx()],
+	legacy: {
+		// Enable legacy content collections as we test layout fields
+		collections: true
+	}
 };
 `,
 	'/src/content/blog/promo/_launch-week-styles.css': `\
@@ -97,7 +101,7 @@ describe('Content Collections - render()', () => {
 				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				assert.equal($('style').length, 1);
+				assert.equal($('style').length, 2);
 			},
 		);
 	});
@@ -154,7 +158,7 @@ describe('Content Collections - render()', () => {
 				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				assert.equal($('style').length, 1);
+				assert.equal($('style').length, 2);
 			},
 		);
 	});
@@ -162,7 +166,7 @@ describe('Content Collections - render()', () => {
 	it('can be used in a slot', async () => {
 		const fixture = await createFixture({
 			...baseFileTree,
-			'/src/content/config.ts': `
+			'/src/content.config.ts': `
 					import { z, defineCollection } from 'astro:content';
 
 					const blog = defineCollection({
@@ -221,7 +225,7 @@ describe('Content Collections - render()', () => {
 				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				assert.equal($('style').length, 1);
+				assert.equal($('style').length, 2);
 			},
 		);
 	});
@@ -229,7 +233,7 @@ describe('Content Collections - render()', () => {
 	it('can be called from any js/ts file', async () => {
 		const fixture = await createFixture({
 			...baseFileTree,
-			'/src/content/config.ts': `
+			'/src/content.config.ts': `
 					import { z, defineCollection } from 'astro:content';
 
 					const blog = defineCollection({
@@ -287,7 +291,7 @@ describe('Content Collections - render()', () => {
 				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				assert.equal($('style').length, 1);
+				assert.equal($('style').length, 2);
 			},
 		);
 	});

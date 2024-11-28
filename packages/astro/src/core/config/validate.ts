@@ -1,4 +1,4 @@
-import type { AstroConfig } from '../../@types/astro.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import { createRelativeSchema } from './schema.js';
 
 /** Turn raw config values into normalized values */

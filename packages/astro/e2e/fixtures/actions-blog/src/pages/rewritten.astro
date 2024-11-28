@@ -1,8 +1,7 @@
 ---
-import { actions } from "astro:actions";
+import { actions } from 'astro:actions';
 
-const result = Astro.getActionResult(actions.sum)
-
+const result = Astro.getActionResult(actions.sum);
 ---
 
 <html>
@@ -13,6 +12,5 @@ const result = Astro.getActionResult(actions.sum)
 			<button data-testid="submit" type="submit">Sum</button>
 		</form>
 		<p>Form result: {JSON.stringify(result)}</p>
-
-	<body>
+	</body>
 </html>

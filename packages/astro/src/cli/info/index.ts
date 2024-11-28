@@ -2,10 +2,10 @@ import { execSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
-import type { AstroConfig, AstroUserConfig } from '../../@types/astro.js';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
+import type { AstroConfig, AstroUserConfig } from '../../types/public/config.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface InfoOptions {

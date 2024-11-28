@@ -1,10 +1,10 @@
 import type { Image, ImageReference } from 'mdast';
 import { definitions } from 'mdast-util-definitions';
 import { visit } from 'unist-util-visit';
-import type { MarkdownVFile } from './types.js';
+import type { VFile } from 'vfile';
 
 export function remarkCollectImages() {
-	return function (tree: any, vfile: MarkdownVFile) {
+	return function (tree: any, vfile: VFile) {
 		if (typeof vfile?.path !== 'string') return;
 
 		const definition = definitions(tree);
@@ -22,7 +22,8 @@ export function remarkCollectImages() {
 			}
 		});
 
-		vfile.data.imagePaths = imagePaths;
+		vfile.data.astro ??= {};
+		vfile.data.astro.imagePaths = Array.from(imagePaths);
 	};
 }
 

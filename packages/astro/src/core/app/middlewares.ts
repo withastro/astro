@@ -1,4 +1,4 @@
-import type { MiddlewareHandler } from '../../@types/astro.js';
+import type { MiddlewareHandler } from '../../types/public/common.js';
 import { defineMiddleware } from '../middleware/index.js';
 
 /**
@@ -20,7 +20,11 @@ const FORM_CONTENT_TYPES = [
  */
 export function createOriginCheckMiddleware(): MiddlewareHandler {
 	return defineMiddleware((context, next) => {
-		const { request, url } = context;
+		const { request, url, isPrerendered } = context;
+		// Prerendered pages should be excluded
+		if (isPrerendered) {
+			return next();
+		}
 		const contentType = request.headers.get('content-type');
 		if (contentType) {
 			if (FORM_CONTENT_TYPES.includes(contentType.toLowerCase())) {

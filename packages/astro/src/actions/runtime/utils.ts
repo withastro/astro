@@ -1,4 +1,14 @@
-import type { APIContext } from '../../@types/astro.js';
+import type { APIContext } from '../../types/public/context.js';
+import type { SerializedActionResult } from './virtual/shared.js';
+
+export type ActionPayload = {
+	actionResult: SerializedActionResult;
+	actionName: string;
+};
+
+export type Locals = {
+	_actionPayload: ActionPayload;
+};
 
 export const ACTION_API_CONTEXT_SYMBOL = Symbol.for('astro.actionAPIContext');
 

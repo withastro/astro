@@ -1,13 +1,29 @@
 import { z } from 'zod';
 import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
+import type { APIContext } from '../../../types/public/index.js';
+import { ACTION_RPC_ROUTE_PATTERN } from '../../consts.js';
 import {
+	ACTION_API_CONTEXT_SYMBOL,
 	type ActionAPIContext,
 	type ErrorInferenceObject,
 	type MaybePromise,
+	formContentTypes,
+	hasContentType,
 	isActionAPIContext,
 } from '../utils.js';
-import { ActionError, ActionInputError, type SafeResult, callSafely } from './shared.js';
+import type { Locals } from '../utils.js';
+import { getAction } from './get-action.js';
+import {
+	ACTION_QUERY_PARAMS,
+	ActionError,
+	ActionInputError,
+	type SafeResult,
+	type SerializedActionResult,
+	callSafely,
+	deserializeActionResult,
+	serializeActionResult,
+} from './shared.js';
 
 export * from './shared.js';
 
@@ -217,4 +233,111 @@ function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 		return objSchema;
 	}
 	return schema;
+}
+
+export type ActionMiddlewareContext = {
+	/** Information about an incoming action request. */
+	action?: {
+		/** Whether an action was called using an RPC function or by using an HTML form action. */
+		calledFrom: 'rpc' | 'form';
+		/** The name of the action. Useful to track the source of an action result during a redirect. */
+		name: string;
+		/** Programatically call the action to get the result. */
+		handler: () => Promise<SafeResult<any, any>>;
+	};
+	/**
+	 * Manually set the action result accessed via `getActionResult()`.
+	 * Calling this function from middleware will disable Astro's own action result handling.
+	 */
+	setActionResult(actionName: string, actionResult: SerializedActionResult): void;
+	/**
+	 * Serialize an action result to stored in a cookie or session.
+	 * Also used to pass a result to Astro templates via `setActionResult()`.
+	 */
+	serializeActionResult: typeof serializeActionResult;
+	/**
+	 * Deserialize an action result to access data and error objects.
+	 */
+	deserializeActionResult: typeof deserializeActionResult;
+};
+
+/**
+ * Access information about Action requests from middleware.
+ */
+export function getActionContext(context: APIContext): ActionMiddlewareContext {
+	const callerInfo = getCallerInfo(context);
+
+	// Prevents action results from being handled on a rewrite.
+	// Also prevents our *own* fallback middleware from running
+	// if the user's middleware has already handled the result.
+	const actionResultAlreadySet = Boolean((context.locals as Locals)._actionPayload);
+
+	let action: ActionMiddlewareContext['action'] = undefined;
+
+	if (callerInfo && context.request.method === 'POST' && !actionResultAlreadySet) {
+		action = {
+			calledFrom: callerInfo.from,
+			name: callerInfo.name,
+			handler: async () => {
+				const baseAction = await getAction(callerInfo.name);
+				let input;
+				try {
+					input = await parseRequestBody(context.request);
+				} catch (e) {
+					if (e instanceof TypeError) {
+						return { data: undefined, error: new ActionError({ code: 'UNSUPPORTED_MEDIA_TYPE' }) };
+					}
+					throw e;
+				}
+				const {
+					props: _props,
+					getActionResult: _getActionResult,
+					callAction: _callAction,
+					redirect: _redirect,
+					...actionAPIContext
+				} = context;
+				Reflect.set(actionAPIContext, ACTION_API_CONTEXT_SYMBOL, true);
+				const handler = baseAction.bind(actionAPIContext satisfies ActionAPIContext);
+				return handler(input);
+			},
+		};
+	}
+
+	function setActionResult(actionName: string, actionResult: SerializedActionResult) {
+		(context.locals as Locals)._actionPayload = {
+			actionResult,
+			actionName,
+		};
+	}
+	return {
+		action,
+		setActionResult,
+		serializeActionResult,
+		deserializeActionResult,
+	};
+}
+
+function getCallerInfo(ctx: APIContext) {
+	if (ctx.routePattern === ACTION_RPC_ROUTE_PATTERN) {
+		return { from: 'rpc', name: ctx.url.pathname.replace(/^.*\/_actions\//, '') } as const;
+	}
+	const queryParam = ctx.url.searchParams.get(ACTION_QUERY_PARAMS.actionName);
+	if (queryParam) {
+		return { from: 'form', name: queryParam } as const;
+	}
+	return undefined;
+}
+
+async function parseRequestBody(request: Request) {
+	const contentType = request.headers.get('content-type');
+	const contentLength = request.headers.get('Content-Length');
+
+	if (!contentType) return undefined;
+	if (hasContentType(contentType, formContentTypes)) {
+		return await request.clone().formData();
+	}
+	if (hasContentType(contentType, ['application/json'])) {
+		return contentLength === '0' ? undefined : await request.clone().json();
+	}
+	throw new TypeError('Unsupported content type');
 }

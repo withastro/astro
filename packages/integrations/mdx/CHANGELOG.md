@@ -1,5 +1,55 @@
 # @astrojs/mdx
 
+## 4.0.0-beta.5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@6.0.0-beta.3
+
+## 4.0.0-beta.4
+
+### Patch Changes
+
+- [#12533](https://github.com/withastro/astro/pull/12533) [`1b61fdf`](https://github.com/withastro/astro/commit/1b61fdf038d2627c6dad1a7f1426f60a4616ad93) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where the MDX renderer couldn't be loaded when used as a direct dependency of an Astro integration.
+
+## 4.0.0-beta.3
+
+### Major Changes
+
+- [#12231](https://github.com/withastro/astro/pull/12231) [`90ae100`](https://github.com/withastro/astro/commit/90ae100cf482529828febed591172433309bc12e) Thanks [@bluwy](https://github.com/bluwy)! - Handles the breaking change in Astro where content pages (including `.mdx` pages located within `src/pages/`) no longer respond with `charset=utf-8` in the `Content-Type` header.
+
+  For MDX pages without layouts, `@astrojs/mdx` will automatically add the `<meta charset="utf-8">` tag to the page by default. This reduces the boilerplate needed to write with non-ASCII characters. If your MDX pages have a layout, the layout component should include the `<meta charset="utf-8">` tag.
+
+  If you require `charset=utf-8` to render your page correctly, make sure that your layout components have the `<meta charset="utf-8">` tag added.
+
+## 4.0.0-alpha.2
+
+### Patch Changes
+
+- [#11861](https://github.com/withastro/astro/pull/11861) [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59) Thanks [@bluwy](https://github.com/bluwy)! - Updates `@astrojs/markdown-remark` and handle its breaking changes
+
+- Updated dependencies [[`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59), [`560ef15`](https://github.com/withastro/astro/commit/560ef15ad23bd137b56ef1048eb2df548b99fdce), [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59)]:
+  - @astrojs/markdown-remark@6.0.0-alpha.1
+
+## 4.0.0-alpha.1
+
+### Minor Changes
+
+- [#11741](https://github.com/withastro/astro/pull/11741) [`6617491`](https://github.com/withastro/astro/commit/6617491c3bc2bde87f7867d7dec2580781852cfc) Thanks [@bluwy](https://github.com/bluwy)! - Updates adapter server entrypoint to use `@astrojs/mdx/server.js`
+
+  This is an internal change. Handling JSX in your `.mdx` files has been moved from Astro internals and is now the responsibility of this integration. You should not notice a change in your project, and no update to your code is required.
+
+## 4.0.0-alpha.0
+
+- Updated dependencies [[`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0), [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f), [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e), [`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e), [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9), [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6), [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6)]:
+  - astro@5.0.0-alpha.0
+  - @astrojs/markdown-remark@6.0.0-alpha.0
+
 ## 3.1.9
 
 ### Patch Changes

@@ -1,5 +1,5 @@
 declare module 'astro:content' {
-	interface RenderResult {
+	export interface RenderResult {
 		Content: import('astro/runtime/server/index.js').AstroComponentFactory;
 		headings: import('astro').MarkdownHeading[];
 		remarkPluginFrontmatter: Record<string, any>;
