@@ -12,7 +12,6 @@ on:
   push:
     branches:
       - main
-      - next
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:
