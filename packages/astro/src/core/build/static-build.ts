@@ -111,8 +111,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 				ssrOutputChunkNames.push(chunk.fileName);
 			}
 			if (chunk.type === 'asset') {
-				const fileName = path.basename(chunk.fileName);
-				ssrOutputAssetNames.push(fileName);
+				ssrOutputAssetNames.push(chunk.fileName);
 			}
 		}
 	}
@@ -425,33 +424,19 @@ async function ssrMoveAssets(opts: StaticBuildOptions, ssrOutputAssetNames: stri
 			? opts.settings.config.build.client
 			: opts.settings.config.build.server;
 	const clientRoot = opts.settings.config.build.client;
-	const assets = opts.settings.config.build.assets;
-	let serverAssets = new URL(`./${assets}/`, appendForwardSlash(serverRoot.toString()));
-	let clientAssets = new URL(`./${assets}/`, appendForwardSlash(clientRoot.toString()));
-	const outputOptions = opts.settings.config.vite.build?.rollupOptions?.output;
-	if (Array.isArray(outputOptions) ? outputOptions.some(opt => opt.assetFileNames) : outputOptions?.assetFileNames) {
-		serverAssets = new URL(appendForwardSlash(serverRoot.toString()));
-		clientAssets = new URL(appendForwardSlash(clientRoot.toString()));
-	}
-	const files = await glob(`**/*`, {
-		cwd: fileURLToPath(serverAssets),
-	});
-
-	if (files.length > 0) {
-		await Promise.all(
-			files.map(async function moveAsset(filename) {
-				if (ssrOutputAssetNames.includes(filename)) {
-					const currentUrl = new URL(filename, appendForwardSlash(serverAssets.toString()));
-					const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
-					const dir = new URL(path.parse(clientUrl.href).dir);
-					// It can't find this file because the user defines a custom path
-					// that includes the folder paths in `assetFileNames
-					if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
-					return fs.promises.rename(currentUrl, clientUrl);
-				}
-			}),
-		);
-		removeEmptyDirs(fileURLToPath(serverAssets));
+	if (ssrOutputAssetNames.length > 0) {
+    await Promise.all(
+        ssrOutputAssetNames.map(async function moveAsset(filename) {
+            const currentUrl = new URL(filename, appendForwardSlash(serverRoot.toString()));
+            const clientUrl = new URL(filename, appendForwardSlash(clientRoot.toString()));
+            const dir = new URL(path.parse(clientUrl.href).dir);
+            // It can't find this file because the user defines a custom path
+            // that includes the folder paths in `assetFileNames`
+            if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
+            return fs.promises.rename(currentUrl, clientUrl);
+        }),
+    );
+		removeEmptyDirs(fileURLToPath(serverRoot));
 	}
 }
 
