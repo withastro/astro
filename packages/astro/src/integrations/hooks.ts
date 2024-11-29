@@ -184,7 +184,9 @@ export async function runHookConfigSetup({
 					if (!renderer.serverEntrypoint) {
 						throw new Error(`Renderer ${bold(renderer.name)} does not provide a serverEntrypoint.`);
 					}
-
+					if(renderer.serverEntrypoint instanceof URL) {
+						renderer.serverEntrypoint = fileURLToPath(renderer.serverEntrypoint);
+					}
 					if (renderer.name === 'astro:jsx') {
 						astroJSXRenderer = renderer;
 					} else {
