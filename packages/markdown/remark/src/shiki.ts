@@ -103,6 +103,10 @@ export async function createShikiHighlighter({
 			}
 		}
 
+		if (code.endsWith('\n')) {
+			code = code.slice(0, -1);
+		}
+
 		const themeOptions = Object.values(themes).length ? { themes } : { theme };
 		const inline = options?.inline ?? false;
 
