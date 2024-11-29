@@ -5,30 +5,15 @@ import { loadFixture } from './test-utils.js';
 
 describe('Custom Renderer - SSR', () => {
 	let fixture;
-	let warnLogsWritten = '';
-
-	// store the original console.warn function
-	const originalConsoleWarnFn = console.warn;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-renderer/',
 		});
-
-		// temporarily override console.warn to capture the warning message
-		console.warn = (message) => {
-			warnLogsWritten += message;
-			originalConsoleWarnFn(message);
-		};
-	});
-
-	after(() => {
-		console.warn = originalConsoleWarnFn;
 	});
 
 	describe('dev', () => {
 		let devServer;
-		let $;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -40,7 +25,7 @@ describe('Custom Renderer - SSR', () => {
 
 		it('renders /', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
-			$ = cheerio.load(html);
+			const $ = cheerio.load(html);
 			assert.equal($('h1').text(), 'Client Directives');
 		});
 
@@ -49,7 +34,7 @@ describe('Custom Renderer - SSR', () => {
 			assert.equal(res.status, 200);
 
 			const html = await res.text();
-			$ = cheerio.load(html);
+			const $ = cheerio.load(html);
 
 			assert.equal($('p').length, 5);
 		});
