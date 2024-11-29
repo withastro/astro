@@ -313,7 +313,6 @@ describe('Content Layer', () => {
 			devServer?.stop();
 		});
 
-
 		it('Generates content types files', async () => {
 			assert.ok(existsSync(new URL('./.astro/content.d.ts', fixture.config.root)));
 			const data = await fs.readFile(new URL('./.astro/types.d.ts', fixture.config.root), 'utf-8');
