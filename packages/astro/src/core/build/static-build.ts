@@ -111,7 +111,8 @@ export async function viteBuild(opts: StaticBuildOptions) {
 				ssrOutputChunkNames.push(chunk.fileName);
 			}
 			if (chunk.type === 'asset') {
-				ssrOutputAssetNames.push(chunk.fileName);
+				const fileName = path.basename(chunk.fileName);
+				ssrOutputAssetNames.push(fileName);
 			}
 		}
 	}
