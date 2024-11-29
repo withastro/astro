@@ -54,7 +54,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 
 				addRenderer({
 					name: 'astro:jsx',
-					serverEntrypoint: new URL('../dist/server.js', import.meta.url),
+					serverEntrypoint: fileURLToPath(new URL('../dist/server.js', import.meta.url)),
 				});
 				addPageExtension('.mdx');
 				addContentEntryType({
