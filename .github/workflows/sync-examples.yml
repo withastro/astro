@@ -52,7 +52,7 @@ jobs:
       # to clone examples that may rely on unreleased code
 
       - name: Sync stable to latest and examples/* branches
-        if: steps.detect.outputs.has-changesets == 'false' && steps.pre.outputs.value == ''
+        if: steps.detect.outputs.has-changesets == 'false' && github.ref == 'refs/heads/main' && steps.pre.outputs.value == ''
         uses: bluwy/auto-branch-sync-action@v1
         with:
           map: |
