@@ -77,7 +77,6 @@ export async function getContext(argv: string[]): Promise<Context> {
 		'--add': add,
 	} = flags;
 	let projectName = cwd;
-	const tag = ref === 'next' ? 'beta' : ref;
 
 	if (no) {
 		yes = false;
