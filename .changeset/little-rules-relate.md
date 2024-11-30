@@ -2,4 +2,4 @@
 '@astrojs/upgrade': patch
 ---
 
-Fixes an issue where running upgrade in a directory without Astro installed shows a false success message
+Fixes an issue where running `upgrade` in a directory without `astro` installed shows a false success message
