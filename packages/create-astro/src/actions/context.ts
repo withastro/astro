@@ -34,6 +34,8 @@ export interface Context {
 }
 
 export async function getContext(argv: string[]): Promise<Context> {
+	const packageTag = argv.find((argItem) => /^(astro|create-astro)@/.exec(argItem))?.split('@')[1];
+
 	const flags = arg(
 		{
 			'--template': String,
@@ -76,7 +78,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 	} = flags;
 	let projectName = cwd;
 	const tag = ref === 'next' ? 'beta' : ref;
-	
+
 	if (no) {
 		yes = false;
 		if (install == undefined) install = false;
@@ -94,7 +96,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		prompt,
 		packageManager,
 		username: getName(),
-		version: getVersion(packageManager, 'astro', process.env.ASTRO_VERSION, tag),
+		version: getVersion(packageManager, 'astro', packageTag, process.env.ASTRO_VERSION),
 		skipHouston,
 		fancy,
 		add,
