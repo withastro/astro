@@ -30,7 +30,13 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 			if (node.type !== 'mdxJsxFlowElement' && node.type !== 'mdxJsxTextElement') return;
 
 			const tagName = node.name;
-			if (!tagName || !isComponent(tagName)) return;
+			if (
+				!tagName ||
+				!isComponent(tagName) ||
+				!hasClientDirective(node) ||
+				!hasServerDeferDirective(node)
+			)
+				return;
 
 			// From this point onwards, `node` is confirmed to be an island component
 
