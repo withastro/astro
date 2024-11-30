@@ -2,4 +2,4 @@
 'create-astro': patch
 ---
 
-Fixes an issue where installing Astro v5-beta using `create-astro` would display the wrong Astro version in the installation messages.
+Fixes an issue where installing Astro beta using `create-astro` displays the wrong Astro version in the installation messages.
