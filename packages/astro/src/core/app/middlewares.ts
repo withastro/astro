@@ -25,22 +25,43 @@ export function createOriginCheckMiddleware(): MiddlewareHandler {
 		if (isPrerendered) {
 			return next();
 		}
-		const contentType = request.headers.get('content-type');
-		if (contentType) {
-			if (FORM_CONTENT_TYPES.includes(contentType.toLowerCase())) {
-				const forbidden =
-					(request.method === 'POST' ||
-						request.method === 'PUT' ||
-						request.method === 'PATCH' ||
-						request.method === 'DELETE') &&
-					request.headers.get('origin') !== url.origin;
-				if (forbidden) {
-					return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
-						status: 403,
-					});
-				}
+		if (request.method === "GET") {
+			return next();
+		}
+		const sameOrigin =
+			(request.method === 'POST' ||
+				request.method === 'PUT' ||
+				request.method === 'PATCH' ||
+				request.method === 'DELETE') &&
+			request.headers.get('origin') === url.origin;
+		
+		const hasContentType = request.headers.has('content-type')
+		if (hasContentType) {
+			const formLikeHeader = hasFormLikeHeader(request.headers.get('content-type'));
+			if (formLikeHeader && !sameOrigin) {
+				return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
+					status: 403,
+				});
+			}
+		} else {
+			if (!sameOrigin) {
+				return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
+					status: 403,
+				});
 			}
 		}
-		return next();
+
+		return next()
 	});
+}
+
+function hasFormLikeHeader(contentType: string | null): boolean {
+	if (contentType) {
+		for (const FORM_CONTENT_TYPE of FORM_CONTENT_TYPES) {
+			if (contentType.toLowerCase().includes(FORM_CONTENT_TYPE)) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
