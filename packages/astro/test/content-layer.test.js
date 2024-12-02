@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { promises as fs } from 'node:fs';
+import { promises as fs, existsSync } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { after, before, describe, it } from 'node:test';
@@ -311,6 +311,12 @@ describe('Content Layer', () => {
 
 		after(async () => {
 			devServer?.stop();
+		});
+
+		it('Generates content types files', async () => {
+			assert.ok(existsSync(new URL('./.astro/content.d.ts', fixture.config.root)));
+			const data = await fs.readFile(new URL('./.astro/types.d.ts', fixture.config.root), 'utf-8');
+			assert.match(data, /<reference path="content.d.ts"/);
 		});
 
 		it('Returns custom loader collection', async () => {
