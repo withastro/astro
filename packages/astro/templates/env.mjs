@@ -2,14 +2,19 @@
 import { schema } from 'virtual:astro:env/internal';
 import {
 	createInvalidVariablesError,
-	getEnv,
+	getEnv as _getEnv,
 	getEnvFieldType,
 	setOnSetGetEnv,
 	validateEnvVariable,
 } from 'astro/env/runtime';
 
+const getEnv = (key) => {
+	// @@GET_ENV@@
+	return _getEnv(key);
+}
+
 export const getSecret = (key) => {
-	return getEnv(key);
+	return getEnv(key)
 };
 
 const _internalGetSecret = (key) => {
