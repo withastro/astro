@@ -25,9 +25,6 @@ const _internalGetSecret = (key) => {
 	throw createInvalidVariablesError(key, type, result);
 };
 
-// used while generating the virtual module
-// biome-ignore lint/correctness/noUnusedFunctionParameters: `reset` is used by the generated code
-// biome-ignore lint/correctness/noUnusedVariables: `reset` is used by the generated code
-setOnSetGetEnv((reset) => {
+setOnSetGetEnv(() => {
 	// @@ON_SET_GET_ENV@@
 });

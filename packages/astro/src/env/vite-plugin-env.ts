@@ -11,6 +11,7 @@ import {
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
+import { setGetEnv } from './runtime.js';
 
 interface AstroEnvPluginParams {
 	settings: AstroSettings;
@@ -18,19 +19,33 @@ interface AstroEnvPluginParams {
 	sync: boolean;
 }
 
+const ENV_SYMBOL = Symbol.for('astro:env/dev');
+
 export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin {
 	const { schema, validateSecrets } = settings.config.env;
+	let isDev: boolean;
 
 	let templates: { client: string; server: string; internal: string } | null = null;
 
 	return {
 		name: 'astro-env-plugin',
 		enforce: 'pre',
+		config(_, { command }) {
+			isDev = command !== 'build';
+		},
 		buildStart() {
 			const loadedEnv = loadEnv(mode, fileURLToPath(settings.config.root), '');
-			for (const [key, value] of Object.entries(loadedEnv)) {
-				if (value !== undefined) {
-					process.env[key] = value;
+
+			if (isDev) {
+				if (!(ENV_SYMBOL in globalThis)) {
+					setGetEnv((key) => (globalThis as any)[ENV_SYMBOL][key]);
+				}
+				(globalThis as any)[ENV_SYMBOL] = loadedEnv;
+			} else {
+				for (const [key, value] of Object.entries(loadedEnv)) {
+					if (value !== undefined) {
+						process.env[key] = value;
+					}
 				}
 			}
 
@@ -142,7 +157,7 @@ function getTemplates(
 		}
 
 		server += `export let ${key} = _internalGetSecret(${JSON.stringify(key)});\n`;
-		onSetGetEnv += `${key} = reset ? undefined : _internalGetSecret(${JSON.stringify(key)});\n`;
+		onSetGetEnv += `${key} = _internalGetSecret(${JSON.stringify(key)});\n`;
 	}
 
 	server = server.replace('// @@ON_SET_GET_ENV@@', onSetGetEnv);
