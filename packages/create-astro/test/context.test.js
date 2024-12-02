@@ -51,6 +51,11 @@ describe('context', () => {
 		assert.deepEqual(ctx.install, true);
 	});
 
+	it('add', async () => {
+		const ctx = await getContext(['--add', 'node']);
+		assert.deepEqual(ctx.add, ['node']);
+	});
+
 	it('no install', async () => {
 		const ctx = await getContext(['--no-install']);
 		assert.deepEqual(ctx.install, false);
@@ -64,10 +69,5 @@ describe('context', () => {
 	it('no git', async () => {
 		const ctx = await getContext(['--no-git']);
 		assert.deepEqual(ctx.git, false);
-	});
-
-	it('typescript', async () => {
-		const ctx = await getContext(['--typescript', 'strict']);
-		assert.deepEqual(ctx.typescript, 'strict');
 	});
 });

@@ -2,7 +2,6 @@ import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
 import { dim, green } from 'kleur/colors';
 import type PQueue from 'p-queue';
-import type { AstroConfig } from '../../@types/astro.js';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
 import type { BuildPipeline } from '../../core/build/pipeline.js';
 import { getTimeStat } from '../../core/build/util.js';
@@ -10,8 +9,8 @@ import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
-import { isServerLikeOutput } from '../../core/util.js';
 import type { MapValue } from '../../type-utils.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
@@ -50,7 +49,7 @@ export async function prepareAssetsGenerationEnv(
 	pipeline: BuildPipeline,
 	totalCount: number,
 ): Promise<AssetEnv> {
-	const { config, logger } = pipeline;
+	const { config, logger, settings } = pipeline;
 	let useCache = true;
 	const assetsCacheDir = new URL('assets/', config.cacheDir);
 	const count = { total: totalCount, current: 1 };
@@ -66,8 +65,9 @@ export async function prepareAssetsGenerationEnv(
 		useCache = false;
 	}
 
+	const isServerOutput = settings.buildOutput === 'server';
 	let serverRoot: URL, clientRoot: URL;
-	if (isServerLikeOutput(config)) {
+	if (isServerOutput) {
 		serverRoot = config.build.server;
 		clientRoot = config.build.client;
 	} else {
@@ -77,7 +77,7 @@ export async function prepareAssetsGenerationEnv(
 
 	return {
 		logger,
-		isSSR: isServerLikeOutput(config),
+		isSSR: isServerOutput,
 		count,
 		useCache,
 		assetsCacheDir,

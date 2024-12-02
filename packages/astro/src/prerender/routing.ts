@@ -1,6 +1,7 @@
-import type { AstroSettings, ComponentInstance, RouteData } from '../@types/astro.js';
 import { RedirectComponentInstance, routeIsRedirect } from '../core/redirects/index.js';
 import { routeComparator } from '../core/routing/priority.js';
+import type { AstroSettings, ComponentInstance } from '../types/astro.js';
+import type { RouteData } from '../types/public/internal.js';
 import type { DevPipeline } from '../vite-plugin-astro-server/pipeline.js';
 import { getPrerenderStatus } from './metadata.js';
 

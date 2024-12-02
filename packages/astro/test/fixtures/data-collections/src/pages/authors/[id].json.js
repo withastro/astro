@@ -1,15 +1,15 @@
-import { getEntry } from 'astro:content';
+import { getEntry, getCollection } from 'astro:content';
 
-const ids = ['Ben Holmes', 'Fred K Schott', 'Nate Moore'];
+export async function getStaticPaths() {
+	const collection = await getCollection('authors');
 
-export function getStaticPaths() {
-	return ids.map((id) => ({ params: { id } }));
+	return collection.map(({ id }) => ({ params: { id } }));
 }
 
 /** @param {import('astro').APIContext} params */
 export async function GET({ params }) {
 	const { id } = params;
-	const author = await getEntry('authors-without-config', id);
+	const author = await getEntry('authors', id);
 	if (!author) {
 		return Response.json({ error: `Author ${id} Not found` });
 	} else {

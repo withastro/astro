@@ -1393,10 +1393,6 @@ describe('[SSR] i18n routing', () => {
 				root: './fixtures/i18n-routing-prefix-always/',
 				output: 'server',
 				outDir: './dist/pathname-prefix-always-no-redirect',
-				build: {
-					client: './dist/pathname-prefix-always-no-redirect/client',
-					server: './dist/pathname-prefix-always-no-redirect/server',
-				},
 				adapter: testAdapter(),
 				i18n: {
 					routing: {
@@ -1700,10 +1696,6 @@ describe('[SSR] i18n routing', () => {
 					root: './fixtures/i18n-routing/',
 					output: 'server',
 					outDir: './dist/locales-underscore',
-					build: {
-						client: './dist/locales-underscore/client',
-						server: './dist/locales-underscore/server',
-					},
 					adapter: testAdapter(),
 					i18n: {
 						defaultLocale: 'en',
@@ -1835,7 +1827,7 @@ describe('[SSR] i18n routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-routing-prefix-always/',
-				output: 'hybrid',
+				output: 'static',
 				adapter: testAdapter(),
 			});
 			await fixture.build();
@@ -1974,10 +1966,6 @@ describe('SSR fallback from missing locale index to default locale index', () =>
 			root: './fixtures/i18n-routing-prefix-other-locales/',
 			output: 'server',
 			outDir: './dist/missing-locale-to-default',
-			build: {
-				client: './dist/missing-locale-to-default/client',
-				server: './dist/missing-locale-to-default/server',
-			},
 			adapter: testAdapter(),
 			i18n: {
 				defaultLocale: 'en',
@@ -2075,10 +2063,6 @@ describe('Fallback rewrite SSR', () => {
 			root: './fixtures/i18n-routing-fallback/',
 			output: 'server',
 			outDir: './dist/i18n-routing-fallback',
-			build: {
-				client: './dist/i18n-routing-fallback/client',
-				server: './dist/i18n-routing-fallback/server',
-			},
 			adapter: testAdapter(),
 			i18n: {
 				defaultLocale: 'en',

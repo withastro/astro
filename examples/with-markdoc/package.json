@@ -5,13 +5,12 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/markdoc": "^0.11.5",
-    "astro": "^4.16.15"
+    "astro": "^4.16.16"
   }
 }

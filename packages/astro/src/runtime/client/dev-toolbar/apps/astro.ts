@@ -1,4 +1,7 @@
-import type { DevToolbarApp, DevToolbarMetadata } from '../../../../@types/astro.js';
+import type {
+	DevToolbarMetadata,
+	ResolvedDevToolbarApp,
+} from '../../../../types/public/toolbar.js';
 import { type Icon, isDefinedIcon } from '../ui-library/icons.js';
 import { colorForIntegration, iconForIntegration } from './utils/icons.js';
 import {
@@ -460,4 +463,4 @@ export default {
 			integrationList.append(fragment);
 		}
 	},
-} satisfies DevToolbarApp;
+} satisfies ResolvedDevToolbarApp;

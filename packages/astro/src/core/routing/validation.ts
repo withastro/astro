@@ -1,4 +1,6 @@
-import type { ComponentInstance, GetStaticPathsResult, RouteData } from '../../@types/astro.js';
+import type { ComponentInstance } from '../../types/astro.js';
+import type { GetStaticPathsResult } from '../../types/public/common.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 

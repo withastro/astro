@@ -1,12 +1,15 @@
+// @ts-check
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { removeDir } from '@astrojs/internal-helpers/fs';
 import { loadFixture } from './test-utils.js';
 
 describe('Content Collections - data collections', () => {
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/data-collections-schema/' });
-		await fixture.build();
+		removeDir(new URL('./fixtures/data-collections-schema/.astro', import.meta.url));
+		await fixture.build({});
 	});
 
 	describe('Translations Collection', () => {

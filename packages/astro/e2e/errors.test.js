@@ -81,7 +81,8 @@ test.describe('Error display', () => {
 		expect(fileLocation).toMatch(/^vue\/VueRuntimeError.vue/);
 	});
 
-	test('shows correct line when a style preprocess has an error', async ({ page, astro }) => {
+	// TODO: unskip when upgrading to Vite 6.0.0-beta.7 or above
+	test.skip('shows correct line when a style preprocess has an error', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/astro-sass-error'), { waitUntil: 'networkidle' });
 
 		const { fileLocation, absoluteFileLocation } = await getErrorOverlayContent(page);

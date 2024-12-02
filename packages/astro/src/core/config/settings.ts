@@ -1,9 +1,10 @@
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import yaml from 'js-yaml';
-import type { AstroConfig, AstroSettings } from '../../@types/astro.js';
 import { getContentPaths } from '../../content/index.js';
 import createPreferences from '../../preferences/index.js';
+import type { AstroSettings } from '../../types/astro.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -110,6 +111,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		dotAstroDir,
 		latestAstroVersion: undefined, // Will be set later if applicable when the dev server starts
 		injectedTypes: [],
+		buildOutput: undefined,
 	};
 }
 

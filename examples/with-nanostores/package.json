@@ -5,7 +5,6 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -13,7 +12,7 @@
   "dependencies": {
     "@astrojs/preact": "^3.5.4",
     "@nanostores/preact": "^0.5.2",
-    "astro": "^4.16.15",
+    "astro": "^4.16.16",
     "nanostores": "^0.11.3",
     "preact": "^10.24.3"
   }

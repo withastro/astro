@@ -1,9 +1,4 @@
-import {
-	ACTION_QUERY_PARAMS,
-	ActionError,
-	deserializeActionResult,
-	getActionQueryString,
-} from 'astro:actions';
+import { ActionError, deserializeActionResult, getActionQueryString } from 'astro:actions';
 
 const ENCODED_DOT = '%2E';
 
@@ -26,10 +21,6 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 				// Progressive enhancement info for React.
 				$$FORM_ACTION: function () {
 					const searchParams = new URLSearchParams(action.toString());
-					// Astro will redirect with a GET request by default.
-					// Disable this behavior to preserve form state
-					// for React's progressive enhancement.
-					searchParams.set(ACTION_QUERY_PARAMS.actionRedirect, 'false');
 					return {
 						method: 'POST',
 						// `name` creates a hidden input.
@@ -59,7 +50,7 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 /**
  * @param {*} param argument passed to the action when called server or client-side.
  * @param {string} path Built path to call action by path name.
- * @param {import('../dist/@types/astro.d.ts').APIContext | undefined} context Injected API context when calling actions from the server.
+ * @param {import('../dist/types/public/context.js').APIContext | undefined} context Injected API context when calling actions from the server.
  * Usage: `actions.[name](param)`.
  * @returns {Promise<import('../dist/actions/runtime/virtual/shared.js').SafeResult<any, any>>}
  */

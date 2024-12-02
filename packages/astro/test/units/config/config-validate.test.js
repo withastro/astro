@@ -358,10 +358,8 @@ describe('Config Validation', () => {
 			assert.doesNotThrow(() =>
 				validateConfig(
 					{
-						experimental: {
-							env: {
-								schema: undefined,
-							},
+						env: {
+							schema: undefined,
 						},
 					},
 					process.cwd(),
@@ -373,11 +371,9 @@ describe('Config Validation', () => {
 			assert.doesNotThrow(() =>
 				validateConfig(
 					{
-						experimental: {
-							env: {
-								schema: {
-									ABC123: envField.string({ access: 'public', context: 'server' }),
-								},
+						env: {
+							schema: {
+								ABC123: envField.string({ access: 'public', context: 'server' }),
 							},
 						},
 					},
@@ -389,11 +385,9 @@ describe('Config Validation', () => {
 		it('Should not allow schema variables starting with a number', async () => {
 			const configError = await validateConfig(
 				{
-					experimental: {
-						env: {
-							schema: {
-								'123ABC': envField.string({ access: 'public', context: 'server' }),
-							},
+					env: {
+						schema: {
+							'123ABC': envField.string({ access: 'public', context: 'server' }),
 						},
 					},
 				},
