@@ -25,7 +25,7 @@ export function createOriginCheckMiddleware(): MiddlewareHandler {
 		if (isPrerendered) {
 			return next();
 		}
-		if (request.method === "GET") {
+		if (request.method === 'GET') {
 			return next();
 		}
 		const sameOrigin =
@@ -34,8 +34,8 @@ export function createOriginCheckMiddleware(): MiddlewareHandler {
 				request.method === 'PATCH' ||
 				request.method === 'DELETE') &&
 			request.headers.get('origin') === url.origin;
-		
-		const hasContentType = request.headers.has('content-type')
+
+		const hasContentType = request.headers.has('content-type');
 		if (hasContentType) {
 			const formLikeHeader = hasFormLikeHeader(request.headers.get('content-type'));
 			if (formLikeHeader && !sameOrigin) {
@@ -51,7 +51,7 @@ export function createOriginCheckMiddleware(): MiddlewareHandler {
 			}
 		}
 
-		return next()
+		return next();
 	});
 }
 
