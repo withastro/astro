@@ -1,5 +1,11 @@
 # astro
 
+## 5.0.2
+
+### Patch Changes
+
+- [#12601](https://github.com/withastro/astro/pull/12601) [`0724929`](https://github.com/withastro/astro/commit/072492982b338e04549ee576ca7d8480be92cc1c) Thanks [@ascorbic](https://github.com/ascorbic)! - Includes "undefined" in types for getEntry
+
 ## 5.0.1
 
 ### Patch Changes
