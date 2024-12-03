@@ -1,5 +1,47 @@
 # @astrojs/vercel
 
+## 8.0.0
+
+### Major Changes
+
+- [#375](https://github.com/withastro/adapters/pull/375) [`e7881f7`](https://github.com/withastro/adapters/commit/e7881f7928c6ca62d43c763033f9ed065a907f3b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates internal code to works with Astro 5 changes to hybrid rendering. No changes are necessary to your project, apart from using Astro 5
+
+- [#397](https://github.com/withastro/adapters/pull/397) [`776a266`](https://github.com/withastro/adapters/commit/776a26670cf483e37ec0e6eba27a0bde09db0146) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
+
+  Starting from this release, no breaking changes will be introduced unless absolutely necessary.
+
+  To learn how to upgrade, check out the [Astro v5.0 upgrade guide in our beta docs site](https://5-0-0-beta.docs.astro.build/en/guides/upgrade-to/v5/).
+
+- [#377](https://github.com/withastro/adapters/pull/377) [`b77f99c`](https://github.com/withastro/adapters/commit/b77f99c92dae715033ebcee2af25f0f1054572b8) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Updates the adapter to use new `IntegrationRouteData` type
+
+- [#451](https://github.com/withastro/adapters/pull/451) [`f248546`](https://github.com/withastro/adapters/commit/f24854669a2a3da79d8bf1e89b0b54063df0668c) Thanks [@ematipico](https://github.com/ematipico)! - Updates esbuild dependency to v0.24.0
+
+- [#384](https://github.com/withastro/adapters/pull/384) [`7d83f60`](https://github.com/withastro/adapters/commit/7d83f601b8fbe5b4787ec640c0d6e46199f0ff95) Thanks [@bluwy](https://github.com/bluwy)! - Removes deprecated `speedInsights` option in favor of Vercel's direct support: https://vercel.com/docs/speed-insights/quickstart
+
+- [#392](https://github.com/withastro/adapters/pull/392) [`3a49eb7`](https://github.com/withastro/adapters/commit/3a49eb7802c44212ccfab06034b7dc5f2b060e94) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates internal code for Astro 5 changes. No changes is required to your project, apart from using Astro 5
+
+### Minor Changes
+
+- [#424](https://github.com/withastro/adapters/pull/424) [`3351348`](https://github.com/withastro/adapters/commit/33513484d21f79b6e01cf9cdb790df7f63a53aec) Thanks [@ematipico](https://github.com/ematipico)! - Deprecates the entrypoints `@astrojs/vercel/serverless` and `@astrojs/vercel/static`. These will continue to work but are no longer documented and will be removed in a future version. We recommend updating to the `@astrojs/vercel` entrypoint as soon as you are able:
+
+  ```diff
+  -import vercel from "@astrojs/vercel/static"
+  +import vercel from "@astrojs/vercel"
+  ```
+
+  ```diff
+  -import vercel from "@astrojs/vercel/serverless"
+  +import vercel from "@astrojs/vercel"
+  ```
+
+- [#447](https://github.com/withastro/adapters/pull/447) [`7d9835f`](https://github.com/withastro/adapters/commit/7d9835fa8d460ec3fd0a1af42aad4e185a8d1636) Thanks [@laymonage](https://github.com/laymonage)! - Add support for Node 22 on Vercel serverless
+
+- [#385](https://github.com/withastro/adapters/pull/385) [`bb725b7`](https://github.com/withastro/adapters/commit/bb725b7a430a01a3cd197e3e84381be4fa0c945c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Cleans up `astro:env` support
+
+### Patch Changes
+
+- [#437](https://github.com/withastro/adapters/pull/437) [`b725b49`](https://github.com/withastro/adapters/commit/b725b4962e2ca10c8c7e3b7f59581cef64a1dfa0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where the `@astrojs/vercel` single entry point for the adapter was causing some regressions in users projects.
+
 ## 8.0.0-beta.4
 
 ### Patch Changes
