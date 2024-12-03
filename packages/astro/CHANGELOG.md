@@ -1,5 +1,11 @@
 # astro
 
+## 5.0.1
+
+### Patch Changes
+
+- [#12590](https://github.com/withastro/astro/pull/12590) [`92c269b`](https://github.com/withastro/astro/commit/92c269b0f0177cb54540ce03507de81370d67c50) Thanks [@kidonng](https://github.com/kidonng)! - fix: devtools warnings about dev toolbar form fields
+
 ## 5.0.0
 
 ### Major Changes
