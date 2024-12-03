@@ -22,7 +22,7 @@ export function ensureImageEndpointRoute(
 	mode: 'dev' | 'build',
 	cwd?: string,
 ) {
-	if (!manifest.routes.some((route) => route.route === '/_image')) {
+	if (!manifest.routes.some((route) => route.route === settings.config.image.endpoint.route)) {
 		manifest.routes.unshift(getImageEndpointData(settings, mode, cwd));
 	}
 }
