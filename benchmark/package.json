@@ -22,6 +22,6 @@
   },
   "devDependencies": {
     "@codspeed/tinybench-plugin": "^3.1.1",
-    "tinybench": "^2.9.0"
+    "tinybench": "^3.0.7"
   }
 }
