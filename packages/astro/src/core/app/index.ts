@@ -21,6 +21,7 @@ import {
 } from '../path.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
+import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { AppPipeline } from './pipeline.js';
@@ -91,6 +92,7 @@ export class App {
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
+		ensure404Route(this.#manifestData);
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = this.#createPipeline(this.#manifestData, streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(

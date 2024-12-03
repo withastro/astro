@@ -735,8 +735,8 @@ export async function createRouteManifest(
 		}
 	}
 
-	ensure404Route({ routes });
 	if (dev) {
+		ensure404Route({ routes });
 		injectImageEndpoint(settings, { routes }, 'dev');
 		injectServerIslandRoute(settings.config, { routes });
 	} else if (settings.buildOutput === 'server') {
