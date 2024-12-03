@@ -741,9 +741,6 @@ export async function createRouteManifest(
 		injectServerIslandRoute(settings.config, { routes });
 	} else if (settings.buildOutput === 'server') {
 		injectImageEndpoint(settings, { routes }, 'build');
-		if (settings.serverIslandNameMap.size > 0) {
-			injectServerIslandRoute(settings.config, { routes })
-		}
 	}
 	await runHookRoutesResolved({ routes, settings, logger });
 

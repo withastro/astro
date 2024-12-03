@@ -29,6 +29,7 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { injectServerIslandRoute } from '../server-islands/endpoint.js';
 
 export interface BuildOptions {
 	/**
@@ -208,9 +209,15 @@ class AstroBuilder {
 		const { internals, ssrOutputChunkNames, contentFileNames } = await viteBuild(opts);
 
 		const hasServerIslands = this.settings.serverIslandNameMap.size > 0;
-		// Error if there are server islands but no adapter provided.
-		if (hasServerIslands && this.settings.buildOutput !== 'server') {
-			throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
+		if (hasServerIslands) {
+			if (this.settings.buildOutput === 'server') {
+				// Can't be injected in runHookRoutesResolved because serverIslandNameMap is updated
+				// in a vite plugin transform
+				injectServerIslandRoute(this.settings.config, this.manifest);
+			} else {
+				// Error if there are server islands but no adapter provided.
+				throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
+			}
 		}
 
 		await staticBuild(opts, internals, ssrOutputChunkNames, contentFileNames);
