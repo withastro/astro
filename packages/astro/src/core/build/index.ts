@@ -3,7 +3,6 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { blue, bold, green } from 'kleur/colors';
 import type * as vite from 'vite';
-import { injectImageEndpoint } from '../../assets/endpoint/config.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import {
@@ -24,7 +23,6 @@ import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { createRouteManifest } from '../routing/index.js';
-import { getServerIslandRouteData } from '../server-islands/endpoint.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
@@ -122,10 +120,6 @@ class AstroBuilder {
 		});
 
 		this.manifest = await createRouteManifest({ settings: this.settings }, this.logger);
-
-		if (this.settings.buildOutput === 'server') {
-			injectImageEndpoint(this.settings, this.manifest, 'build');
-		}
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 
@@ -238,8 +232,7 @@ class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
-				.map((pageData) => pageData.route)
-				.concat(hasServerIslands ? getServerIslandRouteData(this.settings.config) : []),
+				.map((pageData) => pageData.route),
 			logging: this.logger,
 		});
 

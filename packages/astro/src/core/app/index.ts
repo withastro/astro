@@ -21,7 +21,7 @@ import {
 } from '../path.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
-import { createDefaultRoutes, injectDefaultRoutes } from '../routing/default.js';
+import { createDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { AppPipeline } from './pipeline.js';
 
@@ -88,9 +88,9 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = injectDefaultRoutes(manifest, {
+		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
-		});
+		};
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = this.#createPipeline(this.#manifestData, streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
