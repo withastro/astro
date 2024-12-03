@@ -23,7 +23,7 @@ ${loremIpsumMd}
 
 `;
 		promises.push(
-			fs.writeFile(new URL(`./data/blog/article-${i}.md`, projectDir), content, 'utf-8')
+			fs.writeFile(new URL(`./data/blog/article-${i}.md`, projectDir), content, 'utf-8'),
 		);
 	}
 
@@ -39,7 +39,7 @@ ${loremIpsumMd}
 		
 		export const collections = { blog }
 
-		`
+		`,
 	);
 
 	await fs.writeFile(
@@ -60,7 +60,7 @@ const { Content } = await render(entry);
 <h1>{entry.data.title}</h1>
 <Content />
 `,
-		'utf-8'
+		'utf-8',
 	);
 
 	await Promise.all(promises);
@@ -71,6 +71,6 @@ const { Content } = await render(entry);
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({});`,
-		'utf-8'
+		'utf-8',
 	);
 }

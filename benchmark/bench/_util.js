@@ -19,3 +19,14 @@ export function calculateStat(numbers) {
 	const max = Math.max(...numbers);
 	return { avg, stdev, max };
 }
+
+export async function makeProject(name) {
+	console.log('Making project:', name);
+	const projectDir = new URL(`../projects/${name}/`, import.meta.url);
+
+	const makeProjectMod = await import(`../make-project/${name}.js`);
+	await makeProjectMod.run(projectDir);
+
+	console.log('Finished making project:', name);
+	return projectDir;
+}
