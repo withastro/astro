@@ -1,7 +1,7 @@
-import mri from 'mri';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import mri from 'mri';
 import { makeProject } from './bench/_util.js';
 
 const args = mri(process.argv.slice(2));
