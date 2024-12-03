@@ -2,7 +2,7 @@
 	"$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
 	"files": {
 		"ignore": ["**/smoke/**", "**/fixtures/**", "**/_temp-fixtures/**", "**/vendor/**"],
-		"include": ["test/**", "e2e/**", "packages/**", "scripts/**", "benchmark/bench"],
+		"include": ["test/**", "e2e/**", "packages/**", "scripts/**", "benchmark"],
 	},
 	"vcs": {
 		"enabled": true,
