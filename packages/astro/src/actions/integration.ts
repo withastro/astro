@@ -38,7 +38,7 @@ export default function astroIntegrationActionsRouteHandler({
 				}
 
 				const stringifiedActionsImport = JSON.stringify(
-					viteID(new URL('./actions', params.config.srcDir)),
+					viteID(new URL('./actions/index.ts', params.config.srcDir)),
 				);
 				settings.injectedTypes.push({
 					filename: ACTIONS_TYPES_FILE,
