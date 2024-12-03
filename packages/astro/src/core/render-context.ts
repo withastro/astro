@@ -523,7 +523,11 @@ export class RenderContext {
 	}
 
 	getClientAddress() {
-		const { pipeline, request, clientAddress } = this;
+		const { pipeline, request, routeData, clientAddress } = this;
+
+		if(routeData.prerender) {
+			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
+		}
 
 		if(clientAddress) {
 			return clientAddress;
@@ -534,10 +538,6 @@ export class RenderContext {
 		// Adapters should be updated to provide it via RenderOptions instead.
 		if (clientAddressSymbol in request) {
 			return Reflect.get(request, clientAddressSymbol) as string;
-		}
-
-		if (request.body === null) {
-			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
 		}
 
 		if (pipeline.adapterName) {
