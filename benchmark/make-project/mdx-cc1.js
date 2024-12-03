@@ -8,10 +8,12 @@ export async function run(projectDir) {
 	await fs.rm(projectDir, { recursive: true, force: true });
 	await fs.mkdir(new URL('./src/pages/blog', projectDir), { recursive: true });
 	await fs.mkdir(new URL('./src/content/blog', projectDir), { recursive: true });
-	await fs.copyFile(new URL('./image.jpg', import.meta.url), new URL('./src/image.jpg', projectDir));
+	await fs.copyFile(
+		new URL('./image.jpg', import.meta.url),
+		new URL('./src/image.jpg', projectDir),
+	);
 
 	const promises = [];
-
 
 	for (let i = 0; i < 10000; i++) {
 		const content = `\
@@ -24,10 +26,9 @@ ${loremIpsumMd}
 
 `;
 		promises.push(
-			fs.writeFile(new URL(`./src/content/blog/article-${i}.mdx`, projectDir), content, 'utf-8')
+			fs.writeFile(new URL(`./src/content/blog/article-${i}.mdx`, projectDir), content, 'utf-8'),
 		);
 	}
-
 
 	await fs.writeFile(
 		new URL(`./src/pages/blog/[...slug].astro`, projectDir),
@@ -46,7 +47,7 @@ const { Content } = await entry.render();
 <h1>{entry.data.title}</h1>
 <Content />
 `,
-		'utf-8'
+		'utf-8',
 	);
 
 	await Promise.all(promises);
@@ -61,6 +62,6 @@ import mdx from '@astrojs/mdx';
 export default defineConfig({
   integrations: [mdx()],
 });`,
-		'utf-8'
+		'utf-8',
 	);
 }

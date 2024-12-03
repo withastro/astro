@@ -112,7 +112,7 @@ export async function run(projectDir) {
 	await Promise.all(
 		Object.entries(renderFiles).map(([name, content]) => {
 			return fs.writeFile(new URL(`./src/${name}`, projectDir), content, 'utf-8');
-		})
+		}),
 	);
 
 	await fs.writeFile(
@@ -127,6 +127,6 @@ export default defineConfig({
 	output: 'server',
 	adapter: adapter(),
 });`,
-		'utf-8'
+		'utf-8',
 	);
 }

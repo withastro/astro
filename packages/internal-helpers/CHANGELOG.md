@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.4.2
+
+### Patch Changes
+
+- [#12559](https://github.com/withastro/astro/pull/12559) [`1dc8f5e`](https://github.com/withastro/astro/commit/1dc8f5eb7c515c89aadc85cfa0a300d4f65e8671) Thanks [@delucis](https://github.com/delucis)! - Fixes usage of `fileURLToPath()` to anticipate the changed signature of this method in Node 22.1.0
+
 ## 0.4.1
 
 ### Patch Changes
