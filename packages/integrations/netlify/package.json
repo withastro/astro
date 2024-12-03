@@ -46,7 +46,7 @@
     "@netlify/edge-functions": "^2.11.1",
     "@netlify/edge-handler-types": "^0.34.1",
     "@types/node": "^22.10.0",
-    "astro": "^5.0.0-alpha.15",
+    "astro": "^5.0.0",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "execa": "^8.0.1",

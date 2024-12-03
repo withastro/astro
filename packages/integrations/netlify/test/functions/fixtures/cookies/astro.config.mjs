@@ -5,4 +5,7 @@ export default defineConfig({
   output: 'server',
   adapter: netlify(),
   site: `http://example.com`,
+  security: {
+    checkOrigin: false
+  }
 });
