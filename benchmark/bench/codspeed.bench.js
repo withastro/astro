@@ -17,7 +17,7 @@ beforeAll(async () => {
 	const { manifest, createApp } = await import(entry);
 	streamingApp = createApp(manifest, true);
 	nonStreamingApp = createApp(manifest, false);
-}, 60000);
+}, 900000);
 
 describe('Rendering:', () => {
 	bench('streaming [true], .astro file', async () => {
