@@ -23,7 +23,7 @@ describe('_routes.json generation', () => {
 
 			assert.deepEqual(routes, {
 				version: 1,
-				include: ['/a/*', '/_image'],
+				include: ['/_image', '/a/*'],
 				exclude: ['/_astro/*', '/redirectme', '/public.txt', '/a', '/a/redirect', '/404', '/b'],
 			});
 		});
@@ -101,7 +101,7 @@ describe('_routes.json generation', () => {
 
 			assert.deepEqual(routes, {
 				version: 1,
-				include: ['/a/*', '/_image', '/another'],
+				include: ['/_image', '/a/*', '/another'],
 				exclude: ['/_astro/*', '/redirectme', '/public.txt', '/a', '/a/redirect', '/404', '/b'],
 			});
 		});
@@ -131,7 +131,7 @@ describe('_routes.json generation', () => {
 
 			assert.deepEqual(routes, {
 				version: 1,
-				include: ['/a/*', '/_image'],
+				include: ['/_image', '/a/*'],
 				exclude: [
 					'/_astro/*',
 					'/redirectme',
@@ -167,10 +167,10 @@ describe('_routes.json generation', () => {
 				version: 1,
 				include: [
 					'/',
+					'/_image',
 					'/dynamicPages/*',
 					'/mixedPages/dynamic',
 					'/mixedPages/subfolder/dynamic',
-					'/_image',
 				],
 				exclude: [
 					'/_astro/*',
@@ -234,7 +234,7 @@ describe('_routes.json generation', () => {
 
 			assert.deepEqual(routes, {
 				version: 1,
-				include: ['/dynamic', '/_image'],
+				include: ['/_image', '/dynamic'],
 				exclude: [],
 			});
 		});
