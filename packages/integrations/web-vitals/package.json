@@ -35,7 +35,7 @@
     "web-vitals": "^4.2.4"
   },
   "peerDependencies": {
-    "@astrojs/db": "^0.14.0-beta.1"
+    "@astrojs/db": "^0.14.0"
   },
   "devDependencies": {
     "@astrojs/db": "workspace:*",

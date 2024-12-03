@@ -71,7 +71,7 @@
     "htmlparser2": "^9.1.0"
   },
   "peerDependencies": {
-    "astro": "^5.0.0-alpha.0"
+    "astro": "^5.0.0"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",
