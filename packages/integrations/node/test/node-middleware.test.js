@@ -66,7 +66,7 @@ describe('behavior from middleware, middleware', () => {
 		const { handler } = await fixture.loadAdapterEntryModule();
 		const app = express();
 		app.use(handler);
-		server = app.listen(8888);
+		server = app.listen(8889);
 	});
 
 	after(async () => {
@@ -76,10 +76,10 @@ describe('behavior from middleware, middleware', () => {
 		delete process.env.PRERENDER;
 	});
 
-	it('when mode is standalone', async () => {
-		// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
-		const res = await fetch(`http://localhost:8888/ssr`);
+	it('when mode is middleware', async () => {
+		const res = await fetch('http://localhost:8889/ssr');
 
+		console.log(res);
 		assert.equal(res.status, 200);
 
 		const html = await res.text();
