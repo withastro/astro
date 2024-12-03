@@ -19,29 +19,29 @@ beforeAll(async () => {
 	nonStreamingApp = createApp(manifest, false);
 }, 900000);
 
-describe('Rendering:', () => {
-	bench('streaming [true], .astro file', async () => {
+describe('Bench rendering', () => {
+	bench('Rendering: streaming [true], .astro file', async () => {
 		const request = new Request(new URL('http://exmpale.com/astro'));
 		await streamingApp.render(request);
 	});
-	bench('streaming [true], .md file', async () => {
+	bench('Rendering: streaming [true], .md file', async () => {
 		const request = new Request(new URL('http://exmpale.com/md'));
 		await streamingApp.render(request);
 	});
-	bench('streaming [true], .mdx file', async () => {
+	bench('Rendering: streaming [true], .mdx file', async () => {
 		const request = new Request(new URL('http://exmpale.com/mdx'));
 		await streamingApp.render(request);
 	});
 
-	bench('streaming [false], .astro file', async () => {
+	bench('Rendering: streaming [false], .astro file', async () => {
 		const request = new Request(new URL('http://exmpale.com/astro'));
 		await nonStreamingApp.render(request);
 	});
-	bench('streaming [false], .md file', async () => {
+	bench('Rendering: streaming [false], .md file', async () => {
 		const request = new Request(new URL('http://exmpale.com/md'));
 		await nonStreamingApp.render(request);
 	});
-	bench('streaming [false], .mdx file', async () => {
+	bench('Rendering: streaming [false], .mdx file', async () => {
 		const request = new Request(new URL('http://exmpale.com/mdx'));
 		await nonStreamingApp.render(request);
 	});
