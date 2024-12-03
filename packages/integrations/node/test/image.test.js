@@ -1,10 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { inferRemoteSize } from 'astro/assets/utils/inferRemoteSize.js';
+import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 
-// Temporary skip until we figure out the "Could not find Sharp" issue as `sharp` is bundled
-describe.skip('Image endpoint', () => {
+describe('Image endpoint', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devPreview;
@@ -14,6 +15,9 @@ describe.skip('Image endpoint', () => {
 			root: './fixtures/image/',
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
+			image: {
+				domains: ['images.unsplash.com'],
+			},
 		});
 		await fixture.build();
 		devPreview = await fixture.preview();
@@ -23,14 +27,28 @@ describe.skip('Image endpoint', () => {
 		await devPreview.stop();
 	});
 
-	it('it returns images', async () => {
+	it('it returns local images', async () => {
 		const res = await fixture.fetch('/');
 		assert.equal(res.status, 200);
+		const html = await res.text();
+		const $ = cheerio.load(html);
 
-		const resImage = await fixture.fetch(
-			'/_image?href=/_astro/some_penguin.97ef5f92.png&w=50&f=webp'
-		);
+		const img = $('img[alt=Penguins]').attr('src');
+		const size = await inferRemoteSize(`http://localhost:4321${img}`);
+		assert.equal(size.format, 'webp');
+		assert.equal(size.width, 50);
+		assert.equal(size.height, 33);
+	});
 
-		assert.equal(resImage.status, 200);
+	it('it returns remote images', async () => {
+		const res = await fixture.fetch('/');
+		assert.equal(res.status, 200);
+		const html = await res.text();
+		const $ = cheerio.load(html);
+		const img = $('img[alt=Cornwall]').attr('src');
+		const size = await inferRemoteSize(`http://localhost:4321${img}`);
+		assert.equal(size.format, 'webp');
+		assert.equal(size.width, 400);
+		assert.equal(size.height, 300);
 	});
 });

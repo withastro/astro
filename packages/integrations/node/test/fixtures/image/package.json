@@ -6,6 +6,9 @@
     "astro": "^5.0.0",
     "@astrojs/node": "workspace:*"
   },
+  "peerDependencies": {
+    "sharp": "^0.33.5"
+  },
   "scripts": {
     "build": "astro build",
     "preview": "astro preview"
