@@ -13,7 +13,7 @@ export function injectImageEndpoint(
 	mode: 'dev' | 'build',
 	cwd?: string,
 ) {
-	manifest.routes.push(getImageEndpointData(settings, mode, cwd));
+	manifest.routes.unshift(getImageEndpointData(settings, mode, cwd));
 }
 
 export function ensureImageEndpointRoute(
@@ -22,8 +22,8 @@ export function ensureImageEndpointRoute(
 	mode: 'dev' | 'build',
 	cwd?: string,
 ) {
-	if (!manifest.routes.some((route) => route.route === '/_image')) {
-		manifest.routes.push(getImageEndpointData(settings, mode, cwd));
+	if (!manifest.routes.some((route) => route.route === settings.config.image.endpoint.route)) {
+		manifest.routes.unshift(getImageEndpointData(settings, mode, cwd));
 	}
 }
 
