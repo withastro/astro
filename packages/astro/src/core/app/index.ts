@@ -260,9 +260,6 @@ export class App {
 			}
 			Reflect.set(request, clientLocalsSymbol, locals);
 		}
-		if (clientAddress) {
-			Reflect.set(request, clientAddressSymbol, clientAddress);
-		}
 		if (!routeData) {
 			routeData = this.match(request);
 			this.#logger.debug('router', 'Astro matched the following route for ' + request.url);
@@ -288,6 +285,7 @@ export class App {
 				request,
 				routeData,
 				status: defaultStatus,
+				clientAddress
 			});
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {

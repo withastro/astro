@@ -22,7 +22,6 @@ export interface CreateRequestOptions {
 	isPrerendered?: boolean;
 }
 
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
 /**
@@ -35,7 +34,6 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
 export function createRequest({
 	url,
 	headers,
-	clientAddress,
 	method = 'GET',
 	body = undefined,
 	logger,
@@ -90,9 +88,6 @@ export function createRequest({
 				_headers = newHeaders;
 			},
 		});
-	} else if (clientAddress) {
-		// clientAddress is stored to be read by RenderContext, only if the request is for a page that will be on-demand rendered
-		Reflect.set(request, clientAddressSymbol, clientAddress);
 	}
 
 	Reflect.set(request, clientLocalsSymbol, locals ?? {});
