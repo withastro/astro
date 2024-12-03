@@ -5057,8 +5057,8 @@ importers:
         version: 3.23.8
     devDependencies:
       '@astrojs/node':
-        specifier: ^1.0.0
-        version: link:../node
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -5624,6 +5624,11 @@ packages:
     resolution: {integrity: sha512-xzQs39goN7xh9np9rypGmbgZj3AmmjNxEMj9ZWz5aBERlqqFF3n8A/w/uaJeZ/bkHS60l1BXVS0tgsQt9MFqBA==}
     peerDependencies:
       astro: ^4.2.0
+
+  '@astrojs/node@9.0.0':
+    resolution: {integrity: sha512-3h/5kFZvpuo+chYAjj75YhtRUxfquxEJrpZRRC7TdiMGp2WhLp2us4VXm2mjezJp/zHKotW2L3qgp0P2ujQ0xw==}
+    peerDependencies:
+      astro: ^5.0.0
 
   '@astrojs/node@9.0.0-alpha.1':
     resolution: {integrity: sha512-5KsaJYuAnKP4tmT/skEWLs4UP6FQhtwIVa26MBU5imiS/aL33cIwmZ7Gl2W0rP/t4Wnz9ehf42lXWXLPekhETw==}
@@ -8190,6 +8195,10 @@ packages:
     resolution: {integrity: sha512-TPJXq8JqFaVYm2CWmPvnP2Iyo4ZSM7/QKcSmuMLDObfpH5fi7RUGmd/rTDf+rut/saiDiQEeVTNgAmJEdAOx0w==}
     engines: {node: '>= 0.8'}
 
+  encodeurl@2.0.0:
+    resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
+    engines: {node: '>= 0.8'}
+
   encoding-sniffer@0.2.0:
     resolution: {integrity: sha512-ju7Wq1kg04I3HtiYIOrUrdfdDvkyO9s5XM8QAj/bN61Yo/Vb4vgJxy5vi4Yxk01gWHbrofpPtpxM8bKger9jhg==}
 
@@ -10211,6 +10220,10 @@ packages:
     resolution: {integrity: sha512-dW41u5VfLXu8SJh5bwRmyYUbAoSB3c9uQh6L8h/KtsFREPWpbX1lrljJo186Jc4nmci/sGUZ9a0a0J2zgfq2hw==}
     engines: {node: '>= 0.8.0'}
 
+  send@1.1.0:
+    resolution: {integrity: sha512-v67WcEouB5GxbTWL/4NeToqcZiAWEq90N888fczVArY8A79J0L4FD7vj5hm3eUMua5EpoQ59wa/oovY6TLvRUA==}
+    engines: {node: '>= 18'}
+
   seroval-plugins@1.1.1:
     resolution: {integrity: sha512-qNSy1+nUj7hsCOon7AO4wdAIo9P0jrzAMp18XhiOzA6/uO5TKtP7ScozVJ8T293oRIvi5wyCHSM4TrJo/c/GJA==}
     engines: {node: '>=10'}
@@ -11301,6 +11314,14 @@ snapshots:
     dependencies:
       astro: link:packages/astro
       send: 0.19.0
+      server-destroy: 1.0.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@astrojs/node@9.0.0(astro@packages+astro)':
+    dependencies:
+      astro: link:packages/astro
+      send: 1.1.0
       server-destroy: 1.0.1
     transitivePeerDependencies:
       - supports-color
@@ -13875,6 +13896,8 @@ snapshots:
   emoji-regex@9.2.2: {}
 
   encodeurl@1.0.2: {}
+
+  encodeurl@2.0.0: {}
 
   encoding-sniffer@0.2.0:
     dependencies:
@@ -16498,6 +16521,23 @@ snapshots:
       fresh: 0.5.2
       http-errors: 2.0.0
       mime: 1.6.0
+      ms: 2.1.3
+      on-finished: 2.4.1
+      range-parser: 1.2.1
+      statuses: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
+
+  send@1.1.0:
+    dependencies:
+      debug: 4.3.7
+      destroy: 1.2.0
+      encodeurl: 2.0.0
+      escape-html: 1.0.3
+      etag: 1.8.1
+      fresh: 0.5.2
+      http-errors: 2.0.0
+      mime-types: 2.1.35
       ms: 2.1.3
       on-finished: 2.4.1
       range-parser: 1.2.1
