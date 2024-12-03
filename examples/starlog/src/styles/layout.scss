@@ -66,10 +66,10 @@ body {
 a,
 a:visited {
 	color: colors.color(orange, 600);
+	transition: 0.1s ease;
 	@media (prefers-color-scheme: dark) {
 		color: colors.color(orange, 300);
 	}
-	transition: 0.1s ease;
 
 	&:hover {
 		color: colors.color(orange, 500);
@@ -107,15 +107,15 @@ nav {
 		align-items: center;
 		gap: 10px;
 		color: colors.color(gray, 950);
-		@media (prefers-color-scheme: dark) {
-			color: colors.$white;
-		}
 		font-size: 16px;
 		font-weight: 700;
 		letter-spacing: 2px;
 		line-height: 1;
 		text-decoration: none;
 		text-transform: uppercase;
+		@media (prefers-color-scheme: dark) {
+			color: colors.$white;
+		}
 	}
 	.links a {
 		margin-left: 1em;
@@ -182,12 +182,12 @@ nav {
 
 .version_wrapper {
 	flex-basis: 260px;
-	@media (max-width: $container) {
-		flex-basis: 140px;
-	}
 	flex-grow: 0;
 	flex-shrink: 0;
 	margin: 4.5em 0 0 0;
+	@media (max-width: $container) {
+		flex-basis: 140px;
+	}
 	@media (max-width: $tablet) {
 		flex-basis: 0;
 		margin-top: 2em;
@@ -233,26 +233,26 @@ nav {
 
 .date {
 	clear: both;
+	color: colors.color(gray, 800);
+	font-family: type.$codeFont;
+	font-size: type.$fontSizeSmall;
 	@media (max-width: $tablet) {
 		display: inline;
 		margin-left: 1em;
 	}
-	color: colors.color(gray, 800);
 	@media (prefers-color-scheme: dark) {
 		color: colors.color(gray, 200);
 	}
-	font-family: type.$codeFont;
-	font-size: type.$fontSizeSmall;
 }
 
 .content {
 	margin: 0;
 	padding: 4em 0;
+	border-bottom: 1px solid colors.color(gray, 100);
 	@media (max-width: $tablet) {
 		margin: 1em 0;
 		padding: 0 0 2em 0;
 	}
-	border-bottom: 1px solid colors.color(gray, 100);
 	@media (prefers-color-scheme: dark) {
 		border-color: colors.color(gray, 900);
 	}
@@ -273,12 +273,12 @@ nav {
 footer {
 	display: flex;
 	padding: 2em 0;
-	@media (max-width: $tablet) {
-		padding: 1em 0;
-	}
 	color: colors.color(gray, 500);
 	justify-content: space-between;
 	border-top: 1px solid colors.color(gray, 100);
+	@media (max-width: $tablet) {
+		padding: 1em 0;
+	}
 	@media (prefers-color-scheme: dark) {
 		border-color: colors.color(gray, 900);
 	}

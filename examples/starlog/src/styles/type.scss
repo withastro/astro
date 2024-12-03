@@ -9,13 +9,14 @@ body {
 	font-size: 18px;
 	line-height: 1.65;
 	font-weight: 400;
-	@media (prefers-color-scheme: dark) {
-		color: colors.color(gray, 200);
-	}
 	color: colors.color(gray, 800);
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	text-rendering: optimizeLegibility;
+
+	@media (prefers-color-scheme: dark) {
+		color: colors.color(gray, 200);
+	}
 }
 
 h1,
@@ -25,11 +26,12 @@ h4,
 h5 {
 	line-height: 1.2;
 	margin: 1em 0 0.5em 0;
+	color: colors.color(gray, 950);
+	font-weight: 700;
+
 	@media (prefers-color-scheme: dark) {
 		color: colors.$white;
 	}
-	color: colors.color(gray, 950);
-	font-weight: 700;
 }
 
 h1 {
@@ -60,8 +62,9 @@ b,
 strong {
 	font-weight: 700;
 	color: #fff;
+	color: colors.color(gray, 950);
+
 	@media (prefers-color-scheme: dark) {
 		color: colors.$white;
 	}
-	color: colors.color(gray, 950);
 }
