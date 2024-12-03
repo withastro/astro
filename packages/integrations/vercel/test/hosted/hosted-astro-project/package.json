@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "@astrojs/vercel": "workspace:*",
-    "astro": "^5.0.0-alpha.8"
+    "astro": "^5.0.0"
   }
 }

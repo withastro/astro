@@ -42,6 +42,10 @@ describe('ISR', () => {
 				dest: '_render',
 			},
 			{
+				src: '^\\/_image\\/?$',
+				dest: '_render',
+			},
+			{
 				src: '^\\/excluded\\/([^/]+?)\\/?$',
 				dest: '/_isr?x_astro_path=$0',
 			},
@@ -56,10 +60,6 @@ describe('ISR', () => {
 			{
 				src: '^\\/two\\/?$',
 				dest: '/_isr?x_astro_path=$0',
-			},
-			{
-				src: '^\\/_image\\/?$',
-				dest: '_render',
 			},
 		]);
 	});
