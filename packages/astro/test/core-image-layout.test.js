@@ -591,10 +591,9 @@ describe('astro:image:layout', () => {
 			await fixture.build();
 		});
 
-
 		describe('basics', () => {
 			let $;
-			let html
+			let html;
 			before(async () => {
 				html = await fixture.readFile('/index.html');
 				$ = cheerio.load(html);
@@ -680,7 +679,7 @@ describe('astro:image:layout', () => {
 				// We can't use cheerio because it normalises the DOM, so we have to use a regex
 				const matches = html.match(/class="green"/g);
 				assert.equal(matches.length, 1);
-			})
+			});
 
 			it('passes in a parent style', () => {
 				let $img = $('#local-style img');
@@ -697,6 +696,5 @@ describe('astro:image:layout', () => {
 				assert.match(style, /\[data-astro-image\]/);
 			});
 		});
-
 	});
 });
