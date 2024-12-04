@@ -79,7 +79,6 @@ describe('behavior from middleware, middleware', () => {
 	it('when mode is middleware', async () => {
 		const res = await fetch('http://localhost:8889/ssr');
 
-		console.log(res);
 		assert.equal(res.status, 200);
 
 		const html = await res.text();

@@ -25,7 +25,6 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			const [urlPath, urlQuery] = req.url.split('?');
 			const filePath = path.join(client, app.removeBase(urlPath));
 
-			let pathname: string;
 			let isDirectory = false;
 			try {
 				isDirectory = fs.lstatSync(filePath).isDirectory();
@@ -34,38 +33,39 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			const { trailingSlash = 'ignore' } = options;
 
 			const hasSlash = urlPath.endsWith('/');
+			let pathname = urlPath;
+
 			switch (trailingSlash) {
-				case 'never':
-					// biome-ignore lint/suspicious/noDoubleEquals: <explanation>
-					if (isDirectory && urlPath != '/' && hasSlash) {
-						// biome-ignore lint/style/useTemplate: <explanation>
-						// biome-ignore lint/suspicious/noFallthroughSwitchClause: <explanation>
+				case 'never': {
+					if (isDirectory && urlPath !== '/' && hasSlash) {
+						// biome-ignore lint/style/useTemplate: more readable like this
 						pathname = urlPath.slice(0, -1) + (urlQuery ? '?' + urlQuery : '');
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
 						return res.end();
-						// biome-ignore lint/style/noUselessElse: <explanation>
-					} else pathname = urlPath;
-				// intentionally fall through
-				case 'ignore':
-					{
-						if (isDirectory && !hasSlash) {
-							// biome-ignore lint/style/useTemplate: <explanation>
-							pathname = urlPath + '/index.html';
-						} else pathname = urlPath;
+					}
+					if (isDirectory && !hasSlash) {
+						pathname = `${urlPath}/index.html`;
 					}
 					break;
-				case 'always':
+				}
+				case 'ignore': {
+					if (isDirectory && !hasSlash) {
+						pathname = `${urlPath}/index.html`;
+					}
+					break;
+				}
+				case 'always': {
 					// trailing slash is not added to "subresources"
 					if (!hasSlash && !isSubresourceRegex.test(urlPath)) {
-						// biome-ignore lint/style/useTemplate: <explanation>
+						// biome-ignore lint/style/useTemplate: more readable like this
 						pathname = urlPath + '/' + (urlQuery ? '?' + urlQuery : '');
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
 						return res.end();
-						// biome-ignore lint/style/noUselessElse: <explanation>
-					} else pathname = urlPath;
+					}
 					break;
+				}
 			}
 			// app.removeBase sometimes returns a path without a leading slash
 			pathname = prependForwardSlash(app.removeBase(pathname));
