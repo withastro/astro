@@ -232,11 +232,19 @@ function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 
 }
 
 export function formatConfigErrorMessage(err: ZodError) {
-	const errorList = err.issues.map(
-		(issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`,
+	const errorList = err.issues.map((issue) =>
+		`${red('!')} ${issue.message}`
+			// Bold text wrapped in **...** kind of like Markdown.
+			.replaceAll(/\*\*([^*]+)\*\*/g, red(bold('$1')))
+			// Make text wrapped in backticks blue.
+			.replaceAll(/`([^`]+)`/g, cyan('$1'))
+			// Dim all lines in an issue except for the first
+			.split('\n')
+			.map((line, index) => '  ' + (index > 0 ? dim(line) : line))
+			.join('\n'),
 	);
-	return `${red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join(
-		'\n',
+	return `${red('[config]')} Astro found issue(s) with your configuration:\n\n${errorList.join(
+		'\n\n',
 	)}`;
 }
 
