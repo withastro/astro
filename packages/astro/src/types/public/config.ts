@@ -322,7 +322,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @type {string}
 	 * @default `"."` (current working directory)
 	 * @summary Set the project root. The project root is the directory where your Astro project (and all `src`, `public` and `package.json` files) live.
-	 * @description  You should only provide this option if you run the `astro` CLI commands in a directory other than the project root directory. Usually, this option is provided via the CLI instead of the [Astro config file](https://docs.astro.build/en/guides/configuring-astro/#supported-config-file-types), since Astro needs to know your project root before it can locate your config file.
+	 * @description  You should only provide this option if you run the `astro` CLI commands in a directory other than the project root directory. Usually, this option is provided via the CLI instead of the Astro config file, since Astro needs to know your project root before it can locate your config file.
 	 *
 	 * If you provide a relative path (ex: `--root: './my-project'`) Astro will resolve it against your current working directory.
 	 *
@@ -1940,28 +1940,30 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * For a complete overview, and to give feedback on this experimental API,
 		 * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
 		 */
-		svg?: {
-			/**
-			 *
-			 * @name experimental.svg.mode
-			 * @type {string}
-			 * @default 'inline'
-			 *
-			 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
-			 *
-			 * - `inline`: Astro will inline the SVG content into your HTML output.
-			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
-			 *
-			 * ```astro
-			 * ---
-			 * import Logo from './path/to/svg/file.svg';
-			 * ---
-			 *
-			 * <Logo size={24} mode="sprite" />
-			 * ```
-			 */
-			mode?: SvgRenderMode;
-		};
+		svg?:
+			| boolean
+			| {
+					/**
+					 *
+					 * @name experimental.svg.mode
+					 * @type {string}
+					 * @default 'inline'
+					 *
+					 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
+					 *
+					 * - `inline`: Astro will inline the SVG content into your HTML output.
+					 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
+					 *
+					 * ```astro
+					 * ---
+					 * import Logo from './path/to/svg/file.svg';
+					 * ---
+					 *
+					 * <Logo size={24} mode="sprite" />
+					 * ```
+					 */
+					mode: SvgRenderMode;
+			  };
 	};
 }
 

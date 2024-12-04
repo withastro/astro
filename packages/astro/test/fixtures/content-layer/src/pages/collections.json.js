@@ -12,6 +12,7 @@ export async function GET() {
 	const simpleLoader = await getCollection('cats');
 
 	const entryWithReference = await getEntry('spacecraft', 'columbia-copy');
+	const atlantis = await getEntry('spacecraft', 'atlantis');
 	const referencedEntry = await getEntry(entryWithReference.data.cat);
 
 	const entryWithImagePath = await getEntry('spacecraft', 'lunar-module');
@@ -49,6 +50,7 @@ export async function GET() {
 			yamlLoader,
 			tomlLoader,
 			nestedJsonLoader,
+			atlantis
 		})
 	);
 }
