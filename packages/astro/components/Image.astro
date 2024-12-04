@@ -47,7 +47,7 @@ if (import.meta.env.DEV) {
 	additionalAttributes['data-image-component'] = 'true';
 }
 
-const attributes = useResponsive
+const { class: className, ...attributes } = useResponsive
 	? applyResponsiveAttributes({
 			layout,
 			image,
@@ -58,4 +58,4 @@ const attributes = useResponsive
 ---
 
 {/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}
-<img src={image.src} {...attributes} class={attributes.class} />
+<img src={image.src} {...attributes} class={className} />
