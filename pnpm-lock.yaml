@@ -968,12 +968,6 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
-  packages/astro/e2e/fixtures/custom-renderer:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/e2e/fixtures/dev-toolbar:
     dependencies:
       '@astrojs/preact':

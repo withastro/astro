@@ -1940,28 +1940,30 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * For a complete overview, and to give feedback on this experimental API,
 		 * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
 		 */
-		svg?: {
-			/**
-			 *
-			 * @name experimental.svg.mode
-			 * @type {string}
-			 * @default 'inline'
-			 *
-			 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
-			 *
-			 * - `inline`: Astro will inline the SVG content into your HTML output.
-			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
-			 *
-			 * ```astro
-			 * ---
-			 * import Logo from './path/to/svg/file.svg';
-			 * ---
-			 *
-			 * <Logo size={24} mode="sprite" />
-			 * ```
-			 */
-			mode?: SvgRenderMode;
-		};
+		svg?:
+			| boolean
+			| {
+					/**
+					 *
+					 * @name experimental.svg.mode
+					 * @type {string}
+					 * @default 'inline'
+					 *
+					 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
+					 *
+					 * - `inline`: Astro will inline the SVG content into your HTML output.
+					 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
+					 *
+					 * ```astro
+					 * ---
+					 * import Logo from './path/to/svg/file.svg';
+					 * ---
+					 *
+					 * <Logo size={24} mode="sprite" />
+					 * ```
+					 */
+					mode: SvgRenderMode;
+			  };
 	};
 }
 
