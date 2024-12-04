@@ -217,6 +217,12 @@ describe('Content Layer', () => {
 			assert.equal(json.entryWithReference.data.heroImage.format, 'jpg');
 		});
 
+		it('loads images with uppercase extensions', async () => {
+			assert.ok(json.atlantis.data.heroImage.src.startsWith('/_astro'));
+			assert.ok(json.atlantis.data.heroImage.src.endsWith('.JPG'));
+			assert.equal(json.atlantis.data.heroImage.format, 'jpg');
+		});
+
 		it('loads images from custom loaders', async () => {
 			assert.ok(json.images[0].data.image.src.startsWith('/_astro'));
 			assert.equal(json.images[0].data.image.format, 'jpg');
