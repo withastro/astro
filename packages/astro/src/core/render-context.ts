@@ -533,7 +533,7 @@ export class RenderContext {
 			return clientAddress;
 		}
 
-		// Legacy, should not need to get here.
+		// TODO: Legacy, should not need to get here.
 		// Some adapters set this symbol so we can't remove support yet.
 		// Adapters should be updated to provide it via RenderOptions instead.
 		if (clientAddressSymbol in request) {
