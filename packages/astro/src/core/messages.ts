@@ -238,9 +238,11 @@ export function formatConfigErrorMessage(err: ZodError) {
 			.replaceAll(/\*\*([^*]+)\*\*/g, bold('$1'))
 			// Make text wrapped in backticks blue.
 			.replaceAll(/`([^`]+)`/g, cyan('$1'))
-			// Dim all lines in an issue except for the first
 			.split('\n')
-			.map((line, index) => '  ' + (index > 0 ? dim(line) : red(line)))
+			// Dim all lines in an issue except for the first which should be red.
+			.map((line, index) => (index > 0 ? dim(line) : red(line)))
+			// Indent all lines.
+			.map((line) => '  ' + line)
 			.join('\n'),
 	);
 	return `${red('[config]')} Astro found issue(s) with your configuration:\n\n${errorList.join(
