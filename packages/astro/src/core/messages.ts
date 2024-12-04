@@ -231,11 +231,13 @@ function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 
 	}
 }
 
+const codeRegex = /`([^`]+)`/g;
+
 export function formatConfigErrorMessage(err: ZodError) {
 	const errorList = err.issues.map((issue) =>
 		`! ${renderErrorMarkdown(issue.message, 'cli')}`
 			// Make text wrapped in backticks blue.
-			.replaceAll(/`([^`]+)`/g, cyan('$1'))
+			.replaceAll(codeRegex, cyan('$1'))
 			.split('\n')
 			// Dim all lines in an issue except for the first which should be red.
 			.map((line, index) => (index > 0 ? dim(line) : red(line)))
