@@ -425,17 +425,17 @@ async function ssrMoveAssets(opts: StaticBuildOptions, ssrOutputAssetNames: stri
 			: opts.settings.config.build.server;
 	const clientRoot = opts.settings.config.build.client;
 	if (ssrOutputAssetNames.length > 0) {
-    await Promise.all(
-        ssrOutputAssetNames.map(async function moveAsset(filename) {
-            const currentUrl = new URL(filename, appendForwardSlash(serverRoot.toString()));
-            const clientUrl = new URL(filename, appendForwardSlash(clientRoot.toString()));
-            const dir = new URL(path.parse(clientUrl.href).dir);
-            // It can't find this file because the user defines a custom path
-            // that includes the folder paths in `assetFileNames`
-            if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
-            return fs.promises.rename(currentUrl, clientUrl);
-        }),
-    );
+		await Promise.all(
+			ssrOutputAssetNames.map(async function moveAsset(filename) {
+				const currentUrl = new URL(filename, appendForwardSlash(serverRoot.toString()));
+				const clientUrl = new URL(filename, appendForwardSlash(clientRoot.toString()));
+				const dir = new URL(path.parse(clientUrl.href).dir);
+				// It can't find this file because the user defines a custom path
+				// that includes the folder paths in `assetFileNames`
+				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
+				return fs.promises.rename(currentUrl, clientUrl);
+			}),
+		);
 		removeEmptyDirs(fileURLToPath(serverRoot));
 	}
 }
