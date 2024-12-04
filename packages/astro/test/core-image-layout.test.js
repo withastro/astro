@@ -112,6 +112,7 @@ describe('astro:image:layout', () => {
 
 			it('passes in a parent class', () => {
 				let $img = $('#local-class img');
+
 				assert.match($img.attr('class'), /green/);
 			});
 
@@ -575,5 +576,127 @@ describe('astro:image:layout', () => {
 				});
 			});
 		});
+	});
+
+	describe('build', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-layout/',
+				image: {
+					service: testImageService({ foo: 'bar' }),
+					domains: ['avatars.githubusercontent.com'],
+				},
+			});
+
+			await fixture.build();
+		});
+
+
+		describe('basics', () => {
+			let $;
+			let html
+			before(async () => {
+				html = await fixture.readFile('/index.html');
+				$ = cheerio.load(html);
+			});
+
+			it('Adds the <img> tag', () => {
+				let $img = $('#local img');
+				assert.equal($img.length, 1);
+				assert.ok($img.attr('src').startsWith('/_astro'));
+			});
+
+			it('includes lazy loading attributes', () => {
+				let $img = $('#local img');
+				assert.equal($img.attr('loading'), 'lazy');
+				assert.equal($img.attr('decoding'), 'async');
+				assert.equal($img.attr('fetchpriority'), 'auto');
+			});
+
+			it('includes priority loading attributes', () => {
+				let $img = $('#local-priority img');
+				assert.equal($img.attr('loading'), 'eager');
+				assert.equal($img.attr('decoding'), 'sync');
+				assert.equal($img.attr('fetchpriority'), 'high');
+			});
+
+			it('has width and height - no dimensions set', () => {
+				let $img = $('#local img');
+				assert.equal($img.attr('width'), '2316');
+				assert.equal($img.attr('height'), '1544');
+			});
+
+			it('has proper width and height - only width', () => {
+				let $img = $('#local-width img');
+				assert.equal($img.attr('width'), '350');
+				assert.equal($img.attr('height'), '233');
+			});
+
+			it('has proper width and height - only height', () => {
+				let $img = $('#local-height img');
+				assert.equal($img.attr('width'), '300');
+				assert.equal($img.attr('height'), '200');
+			});
+
+			it('has proper width and height - has both width and height', () => {
+				let $img = $('#local-both img');
+				assert.equal($img.attr('width'), '300');
+				assert.equal($img.attr('height'), '400');
+			});
+
+			it('sets the style', () => {
+				let $img = $('#local-both img');
+				assert.match($img.attr('style'), /--w: 300/);
+				assert.match($img.attr('style'), /--h: 400/);
+				assert.equal($img.data('astro-image'), 'responsive');
+			});
+
+			it('sets the style when no dimensions set', () => {
+				let $img = $('#local img');
+				assert.match($img.attr('style'), /--w: 2316/);
+				assert.match($img.attr('style'), /--h: 1544/);
+				assert.equal($img.data('astro-image'), 'responsive');
+			});
+
+			it('sets style for fixed image', () => {
+				let $img = $('#local-fixed img');
+				assert.match($img.attr('style'), /--w: 800/);
+				assert.match($img.attr('style'), /--h: 600/);
+				assert.equal($img.data('astro-image'), 'fixed');
+			});
+
+			it('sets style for full-width image', () => {
+				let $img = $('#local-full-width img');
+				assert.equal($img.data('astro-image'), 'full-width');
+			});
+
+			it('passes in a parent class', () => {
+				let $img = $('#local-class img');
+				assert.equal($img.prop('class'), 'green');
+			});
+
+			it('only passes the class in once', () => {
+				// Check that class="green" only appears once
+				// We can't use cheerio because it normalises the DOM, so we have to use a regex
+				const matches = html.match(/class="green"/g);
+				assert.equal(matches.length, 1);
+			})
+
+			it('passes in a parent style', () => {
+				let $img = $('#local-style img');
+				assert.match($img.attr('style'), /border: 2px red solid/);
+			});
+
+			it('passes in a parent style as an object', () => {
+				let $img = $('#local-style-object img');
+				assert.match($img.attr('style'), /border:2px red solid/);
+			});
+
+			it('injects a style tag', () => {
+				const style = $('style').text();
+				assert.match(style, /\[data-astro-image\]/);
+			});
+		});
+
 	});
 });

@@ -102,7 +102,7 @@ if (fallbackImage.srcSet.values.length > 0) {
 	imgAdditionalAttributes.srcset = fallbackImage.srcSet.attribute;
 }
 
-const attributes = useResponsive
+const { class: className, ...attributes } = useResponsive
 	? applyResponsiveAttributes({
 			layout,
 			image: fallbackImage,
@@ -133,5 +133,5 @@ if (import.meta.env.DEV) {
 		})
 	}
 	{/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}
-	<img src={fallbackImage.src} {...attributes} class={attributes.class} />
+	<img src={fallbackImage.src} {...attributes} class={className} />
 </picture>
