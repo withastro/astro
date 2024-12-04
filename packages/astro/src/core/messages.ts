@@ -233,9 +233,7 @@ function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 
 
 export function formatConfigErrorMessage(err: ZodError) {
 	const errorList = err.issues.map((issue) =>
-		`! ${issue.message}`
-			// Bold text wrapped in **...** kind of like Markdown.
-			.replaceAll(/\*\*([^*]+)\*\*/g, bold('$1'))
+		`! ${renderErrorMarkdown(issue.message, 'cli')}`
 			// Make text wrapped in backticks blue.
 			.replaceAll(/`([^`]+)`/g, cyan('$1'))
 			.split('\n')
