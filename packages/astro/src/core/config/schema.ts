@@ -11,6 +11,7 @@ import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { z } from 'zod';
+import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import { EnvSchema } from '../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
@@ -96,9 +97,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		responsiveImages: false,
-		svg: {
-			mode: 'inline',
-		},
+		svg: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -541,17 +540,19 @@ export const AstroConfigSchema = z.object({
 				.union([
 					z.boolean(),
 					z.object({
-						mode: z
-							.union([z.literal('inline'), z.literal('sprite')])
-							.optional()
-							.default(ASTRO_CONFIG_DEFAULTS.experimental.svg.mode),
+						mode: z.union([z.literal('inline'), z.literal('sprite')]),
 					}),
 				])
 				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.svg)
 				.transform((svgConfig) => {
 					// Handle normalization of `experimental.svg` config boolean values
 					if (typeof svgConfig === 'boolean') {
-						return svgConfig ? ASTRO_CONFIG_DEFAULTS.experimental.svg : undefined;
+						return svgConfig
+							? {
+									mode: 'inline' as SvgRenderMode,
+								}
+							: undefined;
 					}
 					return svgConfig;
 				}),

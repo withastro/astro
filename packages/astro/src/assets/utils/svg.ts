@@ -22,7 +22,7 @@ export type SvgRenderMode = 'inline' | 'sprite';
 export function makeSvgComponent(
 	meta: ImageMetadata,
 	contents: Buffer | string,
-	options?: { mode?: SvgRenderMode },
+	options?: { mode: SvgRenderMode },
 ) {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
 	const { attributes, body: children } = parseSvg(file);
