@@ -24,7 +24,7 @@ describe('Config Validation', () => {
 			formattedError,
 			`[config] Astro found issue(s) with your configuration:
 
-  ! site  Expected type "string", received "number"`,
+  ! site: Expected type "string", received "number"`,
 		);
 	});
 
