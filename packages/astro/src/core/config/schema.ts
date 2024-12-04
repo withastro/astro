@@ -539,9 +539,11 @@ export const AstroConfigSchema = z.object({
 			svg: z
 				.union([
 					z.boolean(),
-					z.object({
-						mode: z.union([z.literal('inline'), z.literal('sprite')]),
-					}),
+					z
+						.object({
+							mode: z.union([z.literal('inline'), z.literal('sprite')]).optional(),
+						})
+						.optional(),
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.svg)
@@ -553,6 +555,12 @@ export const AstroConfigSchema = z.object({
 									mode: 'inline' as SvgRenderMode,
 								}
 							: undefined;
+					} else {
+						if (!svgConfig.mode) {
+							return {
+								mode: 'inline' as SvgRenderMode,
+							};
+						}
 					}
 					return svgConfig;
 				}),
