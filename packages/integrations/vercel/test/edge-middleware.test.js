@@ -52,7 +52,6 @@ describe('Vercel edge middleware', () => {
 			// this is abysmal...
 			'../.vercel/output/functions/render.func/www/withastro/astro/packages/vercel/test/fixtures/middleware-with-edge-file/dist/middleware.mjs'
 		);
-		console.log(contents);
 		// assert.equal(contents.includes('title:')).to.be.true;
 		// chaiJestSnapshot.setTestName('Middleware with handler file');
 		// assert.equal(contents).to.matchSnapshot(true);
@@ -68,7 +67,6 @@ describe('Vercel edge middleware', () => {
 			// this is abysmal...
 			'../.vercel/output/functions/render.func/www/withastro/astro/packages/vercel/test/fixtures/middleware-without-edge-file/dist/middleware.mjs'
 		);
-		console.log(contents);
 		// assert.equal(contents.includes('title:')).to.be.false;
 		// chaiJestSnapshot.setTestName('Middleware without handler file');
 		// assert.equal(contents).to.matchSnapshot(true);
