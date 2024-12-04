@@ -24,7 +24,13 @@ export async function verify(
 		}
 	}
 
-	await verifyAstroProject(ctx);
+	const isAstroProject = await verifyAstroProject(ctx);
+	if (!isAstroProject) {
+		bannerAbort();
+		newline();
+		error('error', `Astro installation not found in the current directory.`);
+		ctx.exit(1);
+	}
 
 	const ok = await verifyVersions(ctx, registry);
 	if (!ok) {

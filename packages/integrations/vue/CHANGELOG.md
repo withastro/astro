@@ -1,5 +1,27 @@
 # @astrojs/vue
 
+## 5.0.1
+
+### Patch Changes
+
+- [#12594](https://github.com/withastro/astro/pull/12594) [`4f2fd0a`](https://github.com/withastro/astro/commit/4f2fd0a0d67a748af8b611b9afc7d4c789f7c8cc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes compatibility with Astro 5
+
+## 5.0.0
+
+### Major Changes
+
+- [#12060](https://github.com/withastro/astro/pull/12060) [`cb5d3ae`](https://github.com/withastro/astro/commit/cb5d3ae6ee6af646c9d7d46a9d8f551edac3092e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates peer dependency range to support Astro 5
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates Vite dependency to v6 to match Astro v5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+### Patch Changes
+
+- [#12551](https://github.com/withastro/astro/pull/12551) [`81b0bf5`](https://github.com/withastro/astro/commit/81b0bf5734735a0633bfc1089151e174ba9fbc83) Thanks [@ematipico](https://github.com/ematipico)! - New release to include changes from 4.5.2
+
 ## 5.0.0-beta.3
 
 ### Major Changes
