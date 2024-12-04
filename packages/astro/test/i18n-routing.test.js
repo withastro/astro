@@ -1587,8 +1587,8 @@ describe('[SSR] i18n routing', () => {
 			let response = await app.render(request);
 			assert.equal(response.status, 200);
 			const text = await response.text();
-			assert.equal(text.includes('Oi essa e start'), true);
-			assert.equal(text.includes('search=1'), true);
+			assert.match(text, /Oi essa e start/);
+			assert.match(text, /search=1/);
 		});
 
 		it('should include search on the redirect when using fallback', async () => {

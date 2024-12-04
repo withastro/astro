@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
-pass search params to i18n fallbacks
+Fixes a bug where URL search parameters weren't passed when using the i18n `fallback` feature.
