@@ -103,6 +103,8 @@ export async function createShikiHighlighter({
 			}
 		}
 
+		code = code.replace(/(?:\r\n|\r|\n)$/, '');
+
 		const themeOptions = Object.values(themes).length ? { themes } : { theme };
 		const inline = options?.inline ?? false;
 

@@ -30,7 +30,7 @@ function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
 		},
 		async load(id) {
 			if (id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
-				return `export * from '${adapter.serverEntrypoint}';`;
+				return `export * from ${JSON.stringify(adapter.serverEntrypoint)};`;
 			}
 		},
 	};

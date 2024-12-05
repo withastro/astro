@@ -7,7 +7,7 @@ on:
       - "1-legacy"
       - "2-legacy"
       - "3-legacy"
-      - next
+      - "4-legacy"
 
 defaults:
   run:
@@ -35,7 +35,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: "pnpm"
 
       - name: Install dependencies

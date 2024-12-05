@@ -45,6 +45,8 @@ export type SyncOptions = {
 	skip?: {
 		// Must be skipped in dev
 		content?: boolean;
+		// Cleanup can be skipped in dev as some state can be reused on updates
+		cleanup?: boolean;
 	};
 	manifest: ManifestData;
 };
@@ -86,7 +88,11 @@ export async function clearContentLayerCache({
 	settings,
 	logger,
 	fs = fsMod,
-}: { settings: AstroSettings; logger: Logger; fs?: typeof fsMod }) {
+}: {
+	settings: AstroSettings;
+	logger: Logger;
+	fs?: typeof fsMod;
+}) {
 	const dataStore = getDataStoreFile(settings);
 	if (fs.existsSync(dataStore)) {
 		logger.debug('content', 'clearing data store');
@@ -137,15 +143,26 @@ export async function syncInternal({
 			store,
 		});
 		await contentLayer.sync();
+		if (!skip?.cleanup) {
+			// Free up memory (usually in builds since we only need to use this once)
+			contentLayer.dispose();
+		}
 		settings.timer.end('Sync content layer');
-	} else if (fs.existsSync(fileURLToPath(getContentPaths(settings.config, fs).contentDir))) {
+	} else {
+		const paths = getContentPaths(settings.config, fs);
 		// Content is synced after writeFiles. That means references are not created
 		// To work around it, we create a stub so the reference is created and content
 		// sync will override the empty file
-		settings.injectedTypes.push({
-			filename: CONTENT_TYPES_FILE,
-			content: '',
-		});
+		if (
+			paths.config.exists ||
+			// Legacy collections don't require a config file
+			(settings.config.legacy?.collections && fs.existsSync(paths.contentDir))
+		) {
+			settings.injectedTypes.push({
+				filename: CONTENT_TYPES_FILE,
+				content: '',
+			});
+		}
 	}
 	syncAstroEnv(settings);
 
