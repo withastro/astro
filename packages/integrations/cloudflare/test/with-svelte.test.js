@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import { astroCli, wranglerCli } from './_test-utils.js';
 
-const root = new URL('./fixtures/with-solid-js/', import.meta.url);
+const root = new URL('./fixtures/with-svelte/', import.meta.url);
 
-describe('SolidJS', () => {
+describe('Svelte', () => {
 	let wrangler;
 	before(async () => {
 		await astroCli(fileURLToPath(root), 'build');
@@ -27,11 +27,11 @@ describe('SolidJS', () => {
 		wrangler.kill();
 	});
 
-	it('renders the solid component', async () => {
+	it('renders the svelte component', async () => {
 		const res = await fetch('http://127.0.0.1:8788/');
 		assert.equal(res.status, 200);
 		const html = await res.text();
 		const $ = cheerio.load(html);
-		assert.equal($('.solid').text(), 'Solid Content');
+		assert.equal($('.svelte').text(), 'Svelte Content');
 	});
 });
