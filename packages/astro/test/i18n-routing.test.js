@@ -1,6 +1,6 @@
+import * as cheerio from 'cheerio';
 import * as assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
@@ -1580,6 +1580,22 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/new-site/fr/start');
 			let response = await app.render(request);
 			assert.equal(response.status, 404);
+		});
+
+		it('should pass search to render when using requested locale', async () => {
+			let request = new Request('http://example.com/new-site/pt/start?search=1');
+			let response = await app.render(request);
+			assert.equal(response.status, 200);
+			const text = await response.text();
+			assert.match(text, /Oi essa e start/);
+			assert.match(text, /search=1/);
+		});
+
+		it('should include search on the redirect when using fallback', async () => {
+			let request = new Request('http://example.com/new-site/it/start?search=1');
+			let response = await app.render(request);
+			assert.equal(response.status, 302);
+			assert.equal(response.headers.get('location'), '/new-site/start?search=1');
 		});
 
 		describe('with routing strategy [pathname-prefix-always]', () => {
