@@ -10,7 +10,7 @@ export function isFrontmatterValid(frontmatter: Record<string, any>) {
 	return typeof frontmatter === 'object' && frontmatter !== null;
 }
 
-const frontmatterRE = /^---(.*?)^---/ms;
+const frontmatterRE = /^\s*---([\s\S]*?\n)---/
 export function extractFrontmatter(code: string): string | undefined {
 	return frontmatterRE.exec(code)?.[1];
 }
