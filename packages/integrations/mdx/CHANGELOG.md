@@ -1,5 +1,57 @@
 # @astrojs/mdx
 
+## 4.0.1
+
+### Patch Changes
+
+- [#12594](https://github.com/withastro/astro/pull/12594) [`4f2fd0a`](https://github.com/withastro/astro/commit/4f2fd0a0d67a748af8b611b9afc7d4c789f7c8cc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes compatibility with Astro 5
+
+## 4.0.0
+
+### Major Changes
+
+- [#12231](https://github.com/withastro/astro/pull/12231) [`90ae100`](https://github.com/withastro/astro/commit/90ae100cf482529828febed591172433309bc12e) Thanks [@bluwy](https://github.com/bluwy)! - Handles the breaking change in Astro where content pages (including `.mdx` pages located within `src/pages/`) no longer respond with `charset=utf-8` in the `Content-Type` header.
+
+  For MDX pages without layouts, `@astrojs/mdx` will automatically add the `<meta charset="utf-8">` tag to the page by default. This reduces the boilerplate needed to write with non-ASCII characters. If your MDX pages have a layout, the layout component should include the `<meta charset="utf-8">` tag.
+
+  If you require `charset=utf-8` to render your page correctly, make sure that your layout components have the `<meta charset="utf-8">` tag added.
+
+- [#12008](https://github.com/withastro/astro/pull/12008) [`5608338`](https://github.com/withastro/astro/commit/560833843c6d3ce2b6c6c473ec4ae70e744bf255) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
+
+  Starting from this release, no breaking changes will be introduced unless absolutely necessary.
+
+  To learn how to upgrade, check out the [Astro v5.0 upgrade guide in our beta docs site](https://5-0-0-beta.docs.astro.build/en/guides/upgrade-to/v5/).
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+- [#11741](https://github.com/withastro/astro/pull/11741) [`6617491`](https://github.com/withastro/astro/commit/6617491c3bc2bde87f7867d7dec2580781852cfc) Thanks [@bluwy](https://github.com/bluwy)! - Updates adapter server entrypoint to use `@astrojs/mdx/server.js`
+
+  This is an internal change. Handling JSX in your `.mdx` files has been moved from Astro internals and is now the responsibility of this integration. You should not notice a change in your project, and no update to your code is required.
+
+### Patch Changes
+
+- [#12075](https://github.com/withastro/astro/pull/12075) [`a19530e`](https://github.com/withastro/astro/commit/a19530e377b7d7afad58a33b23c0a5df1c376819) Thanks [@bluwy](https://github.com/bluwy)! - Parses frontmatter ourselves
+
+- [#11861](https://github.com/withastro/astro/pull/11861) [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59) Thanks [@bluwy](https://github.com/bluwy)! - Updates `@astrojs/markdown-remark` and handle its breaking changes
+
+- [#12533](https://github.com/withastro/astro/pull/12533) [`1b61fdf`](https://github.com/withastro/astro/commit/1b61fdf038d2627c6dad1a7f1426f60a4616ad93) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where the MDX renderer couldn't be loaded when used as a direct dependency of an Astro integration.
+
+- Updated dependencies [[`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59), [`5608338`](https://github.com/withastro/astro/commit/560833843c6d3ce2b6c6c473ec4ae70e744bf255), [`560ef15`](https://github.com/withastro/astro/commit/560ef15ad23bd137b56ef1048eb2df548b99fdce), [`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e), [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59), [`a19530e`](https://github.com/withastro/astro/commit/a19530e377b7d7afad58a33b23c0a5df1c376819)]:
+  - @astrojs/markdown-remark@6.0.0
+
+## 4.0.0-beta.5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@6.0.0-beta.3
+
 ## 4.0.0-beta.4
 
 ### Patch Changes

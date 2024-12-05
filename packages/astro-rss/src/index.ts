@@ -89,7 +89,7 @@ export default async function getRssResponse(rssOptions: RSSOptions): Promise<Re
 	const rssString = await getRssString(rssOptions);
 	return new Response(rssString, {
 		headers: {
-			'Content-Type': 'application/xml',
+			'Content-Type': 'application/rss+xml; charset=utf-8',
 		},
 	});
 }

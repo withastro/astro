@@ -10,7 +10,10 @@ export function isFrontmatterValid(frontmatter: Record<string, any>) {
 	return typeof frontmatter === 'object' && frontmatter !== null;
 }
 
-const frontmatterRE = /^---(.*?)^---/ms;
+// Capture frontmatter wrapped with `---`, including any characters and new lines within it.
+// Only capture if it exists near the top of the file (whitespaces between the start of file and
+// the start of `---` are allowed)
+const frontmatterRE = /^\s*---([\s\S]*?\n)---/;
 export function extractFrontmatter(code: string): string | undefined {
 	return frontmatterRE.exec(code)?.[1];
 }

@@ -78,10 +78,14 @@ export interface RenderErrorOptions {
 	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
 	 */
 	error?: unknown;
+
 	/**
 	 * Initial session data. If provided, this will be used as the initial session data for the request instead of loading from storage.
 	 */
 	initialSessionData?: Record<string, any>;
+
+	clientAddress: string | undefined;
+
 }
 
 export class App {
@@ -250,7 +254,7 @@ export class App {
 		let addCookieHeader: boolean | undefined;
 
 		addCookieHeader = renderOptions?.addCookieHeader;
-		clientAddress = renderOptions?.clientAddress;
+		clientAddress = renderOptions?.clientAddress ?? Reflect.get(request, clientAddressSymbol);
 		routeData = renderOptions?.routeData;
 		locals = renderOptions?.locals;
 
@@ -266,12 +270,9 @@ export class App {
 			if (typeof locals !== 'object') {
 				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
 				this.#logger.error(null, error.stack!);
-				return this.#renderError(request, { status: 500, error });
+				return this.#renderError(request, { status: 500, error, clientAddress });
 			}
 			Reflect.set(request, clientLocalsSymbol, locals);
-		}
-		if (clientAddress) {
-			Reflect.set(request, clientAddressSymbol, clientAddress);
 		}
 		if (!routeData) {
 			routeData = this.match(request);
@@ -281,7 +282,7 @@ export class App {
 		if (!routeData) {
 			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);
 			this.#logger.debug('router', "Here's the available routes:\n", this.#manifestData);
-			return this.#renderError(request, { locals, status: 404 });
+			return this.#renderError(request, { locals, status: 404, clientAddress });
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
@@ -299,6 +300,7 @@ export class App {
 				request,
 				routeData,
 				status: defaultStatus,
+				clientAddress,
 			});
 			session = renderContext.session;
 			if(session && renderOptions?.initialSessionData) {
@@ -309,7 +311,7 @@ export class App {
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
-			return this.#renderError(request, { locals, status: 500, error: err });
+			return this.#renderError(request, { locals, status: 500, error: err, clientAddress });
 		} finally {
 			session?.[PERSIST_SYMBOL]();
 		}
@@ -325,6 +327,7 @@ export class App {
 				// We don't have an error to report here. Passing null means we pass nothing intentionally
 				// while undefined means there's no error
 				error: response.status === 500 ? null : undefined,
+				clientAddress,
 			});
 		}
 
@@ -373,6 +376,7 @@ export class App {
 			skipMiddleware = false,
 			error,
 			initialSessionData,
+			clientAddress,
 		}: RenderErrorOptions,
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
@@ -407,6 +411,7 @@ export class App {
 					routeData: errorRouteData,
 					status,
 					props: { error },
+					clientAddress,
 				});
 				session = renderContext.session;
 				if(session && initialSessionData) {
@@ -424,6 +429,7 @@ export class App {
 						status,
 						response: originalResponse,
 						skipMiddleware: true,
+						clientAddress,
 					});
 				}
 			} finally {
@@ -465,6 +471,15 @@ export class App {
 			// this function could throw an error...
 			originalResponse.headers.delete('Content-type');
 		} catch {}
+		// we use a map to remove duplicates
+		const mergedHeaders = new Map([
+			...Array.from(newResponse.headers),
+			...Array.from(originalResponse.headers),
+		]);
+		const newHeaders = new Headers();
+		for (const [name, value] of mergedHeaders) {
+			newHeaders.set(name, value);
+		}
 		return new Response(newResponse.body, {
 			status,
 			statusText: status === 200 ? newResponse.statusText : originalResponse.statusText,
@@ -473,10 +488,7 @@ export class App {
 			// If users see something weird, it's because they are setting some headers they should not.
 			//
 			// Although, we don't want it to replace the content-type, because the error page must return `text/html`
-			headers: new Headers([
-				...Array.from(newResponse.headers),
-				...Array.from(originalResponse.headers),
-			]),
+			headers: newHeaders,
 		});
 	}
 

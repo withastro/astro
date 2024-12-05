@@ -260,15 +260,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		}
 	} else {
 		if (metadata.hydrate === 'only') {
-			const rendererName = rendererAliases.has(metadata.hydrateArgs)
-				? rendererAliases.get(metadata.hydrateArgs)
-				: metadata.hydrateArgs;
-			if (!clientOnlyValues.has(rendererName)) {
-				// warning if provide incorrect client:only directive but find the renderer by guess
-				console.warn(
-					`The client:only directive for ${metadata.displayName} is not recognized. The renderer ${renderer.name} will be used. If you intended to use a different renderer, please provide a valid client:only directive.`,
-				);
-			}
 			html = await renderSlotToString(result, slots?.fallback);
 		} else {
 			const componentRenderStartTime = performance.now();

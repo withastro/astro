@@ -83,6 +83,12 @@ describe('[DEV] i18n routing', () => {
 			assert.equal((await response.text()).includes('Endurance'), true);
 		});
 
+		it('should render the 404.astro file', async () => {
+			const response = await fixture.fetch('/do-not-exist');
+			assert.equal(response.status, 404);
+			assert.match(await response.text(), /Custom 404/);
+		});
+
 		it('should return the correct locale on 404 page for non existing default locale page', async () => {
 			const response = await fixture.fetch('/es/nonexistent-page');
 			assert.equal(response.status, 404);
@@ -1574,6 +1580,22 @@ describe('[SSR] i18n routing', () => {
 			let request = new Request('http://example.com/new-site/fr/start');
 			let response = await app.render(request);
 			assert.equal(response.status, 404);
+		});
+
+		it('should pass search to render when using requested locale', async () => {
+			let request = new Request('http://example.com/new-site/pt/start?search=1');
+			let response = await app.render(request);
+			assert.equal(response.status, 200);
+			const text = await response.text();
+			assert.match(text, /Oi essa e start/);
+			assert.match(text, /search=1/);
+		});
+
+		it('should include search on the redirect when using fallback', async () => {
+			let request = new Request('http://example.com/new-site/it/start?search=1');
+			let response = await app.render(request);
+			assert.equal(response.status, 302);
+			assert.equal(response.headers.get('location'), '/new-site/start?search=1');
 		});
 
 		describe('with routing strategy [pathname-prefix-always]', () => {

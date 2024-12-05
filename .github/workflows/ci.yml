@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - next
   merge_group:
   pull_request:
     paths-ignore:
@@ -39,7 +38,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
-        NODE_VERSION: [18]
+        NODE_VERSION: [22]
       fail-fast: true
     steps:
       # Disable crlf so all OS can share the same Turbo cache
@@ -86,7 +85,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: "pnpm"
 
       - name: Install dependencies
@@ -109,12 +108,12 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest]
-        NODE_VERSION: [18, 20]
+        NODE_VERSION: [18, 20, 22]
         include:
           - os: macos-14
-            NODE_VERSION: 18
+            NODE_VERSION: 22
           - os: windows-latest
-            NODE_VERSION: 18
+            NODE_VERSION: 22
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -151,7 +150,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
-        NODE_VERSION: [18]
+        NODE_VERSION: [22]
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -188,7 +187,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
-        NODE_VERSION: [18]
+        NODE_VERSION: [22]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:

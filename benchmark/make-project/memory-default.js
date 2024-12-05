@@ -20,7 +20,7 @@ const i = ${i};
 <span>{i}</span>
 `;
 		promises.push(
-			fs.writeFile(new URL(`./src/pages/page-${i}.astro`, projectDir), content, 'utf-8')
+			fs.writeFile(new URL(`./src/pages/page-${i}.astro`, projectDir), content, 'utf-8'),
 		);
 	}
 
@@ -31,7 +31,7 @@ const i = ${i};
 ${loremIpsum}
 `;
 		promises.push(
-			fs.writeFile(new URL(`./src/content/blog/article-${i}.md`, projectDir), content, 'utf-8')
+			fs.writeFile(new URL(`./src/content/blog/article-${i}.md`, projectDir), content, 'utf-8'),
 		);
 	}
 
@@ -42,7 +42,7 @@ ${loremIpsum}
 ${loremIpsum}
 `;
 		promises.push(
-			fs.writeFile(new URL(`./src/content/blog/post-${i}.mdx`, projectDir), content, 'utf-8')
+			fs.writeFile(new URL(`./src/content/blog/post-${i}.mdx`, projectDir), content, 'utf-8'),
 		);
 	}
 
@@ -63,7 +63,7 @@ const { Content } = await entry.render();
 <h1>{entry.data.title}</h1>
 <Content />
 `,
-		'utf-8'
+		'utf-8',
 	);
 
 	await Promise.all(promises);
@@ -77,6 +77,6 @@ import mdx from '@astrojs/mdx';
 export default defineConfig({
   integrations: [mdx()],
 });`,
-		'utf-8'
+		'utf-8',
 	);
 }
