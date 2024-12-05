@@ -380,15 +380,13 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
-		const isBuiltin = this.#config.driver in builtinDrivers;
-		// Try to load the driver from the built-in unstorage drivers.
-		// Otherwise, assume it's a custom driver and load by name.
-		const driverPackage: string = isBuiltin
-			? builtinDrivers[this.#config.driver as keyof typeof builtinDrivers]
-			: this.#config.driver;
+
+		const driverPackage = resolveSessionDriver(this.#config.driver);
 		try {
 			if (this.#config.driverModule) {
-				driver = await this.#config.driverModule().then((r) => r.default || r);
+				driver = (await this.#config.driverModule()).default;
+			} else if (driverPackage) {
+				driver = (await import(driverPackage)).default;
 			}
 		} catch (err: any) {
 			// If the driver failed to load, throw an error.

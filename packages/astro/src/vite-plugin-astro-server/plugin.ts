@@ -25,7 +25,6 @@ import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
-import { resolveSessionDriver } from '../core/session.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -173,9 +172,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		};
 	}
 
-	const sessionDriver = resolveSessionDriver(settings.config.experimental?.session?.driver);
-	const driverModule = sessionDriver ? () => import(sessionDriver) : undefined;
-	
 	return {
 		hrefRoot: settings.config.root.toString(),
 		trailingSlash: settings.config.trailingSlash,
@@ -202,6 +198,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 				onRequest: NOOP_MIDDLEWARE_FN,
 			};
 		},
-		sessionConfig: { driverModule, ...settings.config.experimental.session },
+		sessionConfig: settings.config.experimental.session,
 	};
 }
