@@ -31,7 +31,7 @@
     "@astrojs/internal-helpers": "0.4.1",
     "@astrojs/underscore-redirects": "^0.4.0-alpha.0",
     "@cloudflare/workers-types": "^4.20241112.0",
-    "@inox-tools/astro-when": "^0.2.4",
+    "@inox-tools/astro-when": "^1.0.1",
     "esbuild": "^0.24.0",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.14",
