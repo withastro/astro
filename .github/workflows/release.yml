@@ -7,6 +7,7 @@ on:
       - "1-legacy"
       - "2-legacy"
       - "3-legacy"
+      - "4-legacy"
       - next
 
 defaults:
@@ -50,7 +51,7 @@ jobs:
         with:
           # Note: pnpm install after versioning is necessary to refresh lockfile
           version: pnpm run version
-          publish: pnpm exec changeset publish
+          publish: pnpm exec changeset publish --tag legacy
           commit: "[ci] release"
           title: "[ci] release"
         env:
