@@ -85,7 +85,7 @@ export async function copyToClipboard(text: string, force?: boolean) {
 
 	if (!command) {
 		console.error(colors.red('\nClipboard command not found!'));
-		console.log('Please manually copy the text above.');
+		console.info('Please manually copy the text above.');
 		return;
 	}
 
@@ -105,8 +105,8 @@ export async function copyToClipboard(text: string, force?: boolean) {
 		if (result.error) {
 			throw result.error;
 		}
-		console.log(colors.green('Copied to clipboard!'));
-	} catch (err) {
+		console.info(colors.green('Copied to clipboard!'));
+	} catch {
 		console.error(
 			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`,
 		);
@@ -187,7 +187,7 @@ function printRow(label: string, value: string | string[], print: boolean) {
 	}
 	plaintext += '\n';
 	if (print) {
-		console.log(richtext);
+		console.info(richtext);
 	}
 	return plaintext;
 }
