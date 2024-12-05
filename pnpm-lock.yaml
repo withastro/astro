@@ -3825,6 +3825,12 @@ importers:
         specifier: ^10.25.0
         version: 10.25.0
 
+  packages/astro/test/fixtures/ssr-error:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/ssr-error-pages:
     dependencies:
       astro:
