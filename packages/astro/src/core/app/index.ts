@@ -53,11 +53,6 @@ export interface RenderOptions {
 	locals?: object;
 
 	/**
-	 * Initial session data. If provided, this will be used as the initial session data for the request instead of loading from storage.
-	 */
-	initialSessionData?: Record<string, any>;
-
-	/**
 	 * **Advanced API**: you probably do not need to use this.
 	 *
 	 * Default: `app.match(request)`
@@ -78,14 +73,7 @@ export interface RenderErrorOptions {
 	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
 	 */
 	error?: unknown;
-
-	/**
-	 * Initial session data. If provided, this will be used as the initial session data for the request instead of loading from storage.
-	 */
-	initialSessionData?: Record<string, any>;
-
 	clientAddress: string | undefined;
-
 }
 
 export class App {
@@ -303,11 +291,6 @@ export class App {
 				clientAddress,
 			});
 			session = renderContext.session;
-			if(session && renderOptions?.initialSessionData) {
-				for (const [key, value] of Object.entries(renderOptions.initialSessionData)) {
-					await session.set(key, value);
-				}
-			}
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
@@ -375,7 +358,6 @@ export class App {
 			response: originalResponse,
 			skipMiddleware = false,
 			error,
-			initialSessionData,
 			clientAddress,
 		}: RenderErrorOptions,
 	): Promise<Response> {
@@ -414,11 +396,6 @@ export class App {
 					clientAddress,
 				});
 				session = renderContext.session;
-				if(session && initialSessionData) {
-					for (const [key, value] of Object.entries(initialSessionData)) {
-						await session.set(key, value);
-					}
-				}
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
 			} catch {

@@ -6,13 +6,11 @@ import {
 } from '../../i18n/utils.js';
 import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
-import type { SSRManifest } from '../app/types.js';
 import { ASTRO_VERSION, clientLocalsSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getClientIpAddress } from '../routing/request.js';
 import { getOriginPathname } from '../routing/rewrite.js';
-import { AstroSession, PERSIST_SYMBOL } from '../session.js';
 import { sequence } from './sequence.js';
 
 function defineMiddleware(fn: MiddlewareHandler) {
@@ -41,11 +39,6 @@ export type CreateContext = {
 	 * User defined default locale
 	 */
 	defaultLocale: string;
-
-	/**
-	 * The manifest object
-	 */
-	manifest?: SSRManifest;
 };
 
 /**
@@ -56,7 +49,6 @@ function createContext({
 	params = {},
 	userDefinedLocales = [],
 	defaultLocale = '',
-	manifest,
 }: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
@@ -70,12 +62,8 @@ function createContext({
 		// return dummy response
 		return Promise.resolve(new Response(null));
 	};
-	const cookies = new AstroCookies(request);
-	const session = manifest?.sessionConfig
-		? new AstroSession(cookies, manifest.sessionConfig)
-		: undefined;
 	const context: Omit<APIContext, 'getActionResult' | 'callAction'> = {
-		cookies,
+		cookies: new AstroCookies(request),
 		request,
 		params,
 		site: undefined,
@@ -84,16 +72,12 @@ function createContext({
 		rewrite,
 		routePattern: '',
 		redirect(path, status) {
-			try {
-				return new Response(null, {
-					status: status || 302,
-					headers: {
-						Location: path,
-					},
-				});
-			} finally {
-				session?.[PERSIST_SYMBOL]();
-			}
+			return new Response(null, {
+				status: status || 302,
+				headers: {
+					Location: path,
+				},
+			});
 		},
 		isPrerendered: false,
 		get preferredLocale(): string | undefined {
@@ -133,7 +117,6 @@ function createContext({
 		set locals(_) {
 			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
-		session,
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),
