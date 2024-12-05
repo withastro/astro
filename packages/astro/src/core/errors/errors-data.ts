@@ -38,7 +38,7 @@ export const UnknownCompilerError = {
  * @docs
  * @see
  * - [Official integrations](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
- * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
+ * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#clientaddress)
  * @description
  * The adapter you're using unfortunately does not support `Astro.clientAddress`.
  */
@@ -52,7 +52,7 @@ export const ClientAddressNotAvailable = {
  * @docs
  * @see
  * - [On-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
- * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
+ * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#clientaddress)
  * @description
  * The `Astro.clientAddress` property cannot be used inside prerendered routes.
  */
@@ -65,7 +65,7 @@ export const PrerenderClientAddressNotAvailable = {
  * @docs
  * @see
  * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/on-demand-rendering/)
- * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
+ * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#clientaddress)
  * @description
  * The `Astro.clientAddress` property is only available when [Server-side rendering](https://docs.astro.build/en/guides/on-demand-rendering/) is enabled.
  *
@@ -80,7 +80,7 @@ export const StaticClientAddressNotAvailable = {
 /**
  * @docs
  * @see
- * - [getStaticPaths()](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ * - [getStaticPaths()](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
  * @description
  * A [dynamic route](https://docs.astro.build/en/guides/routing/#dynamic-routes) was matched, but no corresponding path was found for the requested parameters. This is often caused by a typo in either the generated or the requested path.
  */
@@ -212,7 +212,7 @@ export const NoClientOnlyHint = {
 /**
  * @docs
  * @see
- * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ * - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
  * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
  * @description
  * The `params` property in `getStaticPaths`'s return value (an array of objects) should also be an object.
@@ -233,12 +233,12 @@ export const InvalidGetStaticPathParam = {
 	title: 'Invalid value returned by a `getStaticPaths` path.',
 	message: (paramType) =>
 		`Invalid params given to \`getStaticPaths\` path. Expected an \`object\`, got \`${paramType}\``,
-	hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
+	hint: 'See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on getStaticPaths.',
 } satisfies ErrorData;
 /**
  * @docs
  * @see
- * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ * - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
  * @description
  * `getStaticPaths`'s return value must be an array of objects. In most cases, this error happens because an array of array was returned. Using [`.flatMap()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap) or a [`.flat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) call may be useful.
  *
@@ -256,12 +256,12 @@ export const InvalidGetStaticPathsEntry = {
 	title: "Invalid entry inside getStaticPath's return value",
 	message: (entryType) =>
 		`Invalid entry returned by getStaticPaths. Expected an object, got \`${entryType}\``,
-	hint: "If you're using a `.map` call, you might be looking for `.flatMap()` instead. See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.",
+	hint: "If you're using a `.map` call, you might be looking for `.flatMap()` instead. See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on getStaticPaths.",
 } satisfies ErrorData;
 /**
  * @docs
  * @see
- * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ * - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
  * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
  * @description
  * `getStaticPaths`'s return value must be an array of objects.
@@ -280,13 +280,13 @@ export const InvalidGetStaticPathsReturn = {
 	title: 'Invalid value returned by getStaticPaths.',
 	message: (returnType) =>
 		`Invalid type returned by \`getStaticPaths\`. Expected an \`array\`, got \`${returnType}\``,
-	hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
+	hint: 'See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on getStaticPaths.',
 } satisfies ErrorData;
 
 /**
  * @docs
  * @see
- * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ * - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
  * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
  * @description
  * Every route specified by `getStaticPaths` require a `params` property specifying the path parameters needed to match the route.
@@ -307,12 +307,12 @@ export const GetStaticPathsExpectedParams = {
 	name: 'GetStaticPathsExpectedParams',
 	title: 'Missing params property on `getStaticPaths` route.',
 	message: 'Missing or empty required `params` property on `getStaticPaths` route.',
-	hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
+	hint: 'See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on getStaticPaths.',
 } satisfies ErrorData;
 /**
  * @docs
  * @see
- * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ * - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
  * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
  * @description
  * Since `params` are encoded into the URL, only certain types are supported as values.
@@ -348,13 +348,13 @@ export const GetStaticPathsInvalidRouteParam = {
 	title: 'Invalid value for `getStaticPaths` route parameter.',
 	message: (key: string, value: any, valueType: any) =>
 		`Invalid getStaticPaths route parameter for \`${key}\`. Expected undefined, a string or a number, received \`${valueType}\` (\`${value}\`)`,
-	hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
+	hint: 'See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on getStaticPaths.',
 } satisfies ErrorData;
 /**
  * @docs
  * @see
  * - [Dynamic Routes](https://docs.astro.build/en/guides/routing/#dynamic-routes)
- * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ * - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
  * - [Server-side Rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * In [Static Mode](https://docs.astro.build/en/guides/routing/#static-ssg-mode), all routes must be determined at build time. As such, dynamic routes must `export` a `getStaticPaths` function returning the different paths to generate.
@@ -415,7 +415,7 @@ export const AdapterSupportOutputMismatch = {
 /**
  * @docs
  * @see
- * - [On-demand Rendering](https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/)
+ * - [On-demand Rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * To use server islands, the same constraints exist as for sever-side rendering, so an adapter is needed.
  */
@@ -423,7 +423,7 @@ export const NoAdapterInstalledServerIslands = {
 	name: 'NoAdapterInstalledServerIslands',
 	title: 'Cannot use Server Islands without an adapter.',
 	message: `Cannot use server islands without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
-	hint: 'See https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/ for more information.',
+	hint: 'See https://docs.astro.build/en/guides/on-demand-rendering/ for more information.',
 } satisfies ErrorData;
 /**
  * @docs
@@ -594,7 +594,7 @@ export const UnsupportedImageConversion = {
 /**
  * @docs
  * @see
- * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ * - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
  * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
  * @description
  * The endpoint is prerendered with an `undefined` param so the generated path will collide with another route.
@@ -1239,7 +1239,7 @@ export const ServerOnlyModule = {
  *
  * @see
  * - [Request.clone()](https://developer.mozilla.org/en-US/docs/Web/API/Request/clone)
- * - [Astro.rewrite](https://docs.astro.build/en/reference/api-reference/#astrorewrite)
+ * - [Astro.rewrite](https://docs.astro.build/en/reference/api-reference/#rewrite)
  */
 
 export const RewriteWithBodyUsed = {
@@ -1695,7 +1695,7 @@ export const UnsupportedConfigTransformError = {
 /**
  * @docs
  * @see
- * - [On-demand rendering](https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/)
+ * - [On-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * @description
  * Your project must have a server output to create backend functions with Actions.
  */
@@ -1704,7 +1704,7 @@ export const ActionsWithoutServerOutputError = {
 	title: 'Actions must be used with server output.',
 	message:
 		'A server is required to create callable backend functions. To deploy routes to a server, add an adapter to your Astro config and configure your route for on-demand rendering',
-	hint: 'Add an adapter and enable on-demand rendering: https://5-0-0-beta.docs.astro.build/en/guides/on-demand-rendering/',
+	hint: 'Add an adapter and enable on-demand rendering: https://docs.astro.build/en/guides/on-demand-rendering/',
 } satisfies ErrorData;
 
 /**
@@ -1738,7 +1738,7 @@ export const ActionNotFoundError = {
 /**
  * @docs
  * @see
- * - [`Astro.callAction()` reference](https://docs.astro.build/en/reference/api-reference/#astrocallaction)
+ * - [`Astro.callAction()` reference](https://docs.astro.build/en/reference/api-reference/#callaction)
  * @description
  * Action called from a server page or endpoint without using `Astro.callAction()`.
  */
@@ -1747,7 +1747,7 @@ export const ActionCalledFromServerError = {
 	title: 'Action unexpected called from the server.',
 	message:
 		'Action called from a server page or endpoint without using `Astro.callAction()`. This wrapper must be used to call actions from server code.',
-	hint: 'See the `Astro.callAction()` reference for usage examples: https://docs.astro.build/en/reference/api-reference/#astrocallaction',
+	hint: 'See the `Astro.callAction()` reference for usage examples: https://docs.astro.build/en/reference/api-reference/#callaction',
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
