@@ -103,9 +103,7 @@ export async function createShikiHighlighter({
 			}
 		}
 
-		if (code.endsWith('\n')) {
-			code = code.slice(0, -1);
-		}
+		code = code.replace(/(\r\n|\r|\n)$/, '');
 
 		const themeOptions = Object.values(themes).length ? { themes } : { theme };
 		const inline = options?.inline ?? false;
