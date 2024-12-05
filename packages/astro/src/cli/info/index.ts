@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
@@ -49,61 +49,108 @@ export async function printInfo({ flags }: InfoOptions) {
 	applyPolyfill();
 	const { userConfig } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
 	const output = await getInfoOutput({ userConfig, print: true });
-
-	await copyToClipboard(output);
+	await copyToClipboard(output, flags.copy);
 }
 
-async function copyToClipboard(text: string) {
+export async function copyToClipboard(text: string, force?: boolean) {
 	text = text.trim();
 	const system = platform();
 	let command = '';
+	let args: Array<string> = [];
+
 	if (system === 'darwin') {
 		command = 'pbcopy';
 	} else if (system === 'win32') {
 		command = 'clip';
 	} else {
 		// Unix: check if a supported command is installed
-		const unixCommands = [
-			['xclip', '-sel clipboard -l 1'],
-			['wl-copy', '"$0"'],
+
+		const unixCommands: Array<[string, Array<string>]> = [
+			['xclip', ['-sel', 'clipboard', '-l', '1']],
+			['wl-copy', []],
 		];
-		for (const [unixCommand, args] of unixCommands) {
+		for (const [unixCommand, unixArgs] of unixCommands) {
 			try {
-				const output = execSync(`which ${unixCommand}`, { encoding: 'utf8', stdio: 'pipe' });
-				if (output[0] !== '/') {
-					// Did not find a path. Skip!
-					continue;
+				const output = spawnSync('which', [unixCommand], { encoding: 'utf8' });
+				if (output.stdout.trim()) {
+					command = unixCommand;
+					args = unixArgs;
+					break;
 				}
-				command = `${unixCommand} ${args}`;
 			} catch {
-				// Failed to execute which. Skip!
 				continue;
 			}
 		}
-		// Did not find supported command. Bail out!
-		if (!command) return;
 	}
 
-	console.log();
-	const { shouldCopy } = await prompts({
-		type: 'confirm',
-		name: 'shouldCopy',
-		message: 'Copy to clipboard?',
-		initial: true,
-	});
-	if (!shouldCopy) return;
+	if (!command) {
+		console.error(colors.red('\nClipboard command not found!'));
+		console.info('Please manually copy the text above.');
+		return;
+	}
+
+	if (!force) {
+		const { shouldCopy } = await prompts({
+			type: 'confirm',
+			name: 'shouldCopy',
+			message: 'Copy to clipboard?',
+			initial: true,
+		});
+
+		if (!shouldCopy) return;
+	}
 
 	try {
-		execSync(command.replaceAll('$0', text), {
-			stdio: 'ignore',
-			input: text,
-			encoding: 'utf8',
-		});
+		const result = spawnSync(command, args, { input: text });
+		if (result.error) {
+			throw result.error;
+		}
+		console.info(colors.green('Copied to clipboard!'));
 	} catch {
 		console.error(
 			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`,
 		);
 	}
+}
+
+export function readFromClipboard() {
+	const system = platform();
+	let command = '';
+	let args: Array<string> = [];
+
+	if (system === 'darwin') {
+			command = 'pbpaste';
+	} else if (system === 'win32') {
+			command = 'powershell';
+			args = ['-command', 'Get-Clipboard'];
+	} else {
+			const unixCommands: Array<[string, Array<string>]>  = [
+					['xclip', ['-sel', 'clipboard', '-o']],
+					['wl-paste', []],
+			];
+			for (const [unixCommand, unixArgs] of unixCommands) {
+					try {
+							const output = spawnSync('which', [unixCommand], { encoding: 'utf8' });
+							if (output.stdout.trim()) {
+									command = unixCommand;
+									args = unixArgs;
+									break;
+							}
+					} catch {
+							continue;
+					}
+			}
+	}
+
+	if (!command) {
+			throw new Error('Clipboard read command not found!');
+	}
+
+	const result = spawnSync(command, args, { encoding: 'utf8' });
+	if (result.error) {
+			throw result.error;
+	}
+	return result.stdout.trim();
 }
 
 const PLATFORM_TO_OS: Partial<Record<ReturnType<typeof platform>, string>> = {
@@ -140,7 +187,7 @@ function printRow(label: string, value: string | string[], print: boolean) {
 	}
 	plaintext += '\n';
 	if (print) {
-		console.log(richtext);
+		console.info(richtext);
 	}
 	return plaintext;
 }
