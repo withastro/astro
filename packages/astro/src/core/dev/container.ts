@@ -120,6 +120,7 @@ export async function createContainer({
 		logger,
 		skip: {
 			content: true,
+			cleanup: true,
 		},
 		force: inlineConfig?.force,
 		manifest,
