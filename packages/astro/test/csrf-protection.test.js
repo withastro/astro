@@ -48,17 +48,20 @@ describe('CSRF origin check', () => {
 		assert.equal(response.status, 403);
 
 		request = new Request('http://example.com/api/', {
-			headers: { origin: 'http://loreum.com', 'content-type': 'application/x-www-form-urlencoded; some-other-value' },
+			headers: {
+				origin: 'http://loreum.com',
+				'content-type': 'application/x-www-form-urlencoded; some-other-value',
+			},
 			method: 'POST',
 		});
 		response = await app.render(request);
 		assert.equal(response.status, 403);
 
 		request = new Request('http://example.com/api/', {
-			headers: { origin: 'http://loreum.com', },
+			headers: { origin: 'http://loreum.com' },
 			method: 'POST',
 			credentials: 'include',
-			body: new Blob(["a=b"],{})
+			body: new Blob(['a=b'], {}),
 		});
 		response = await app.render(request);
 		assert.equal(response.status, 403);
