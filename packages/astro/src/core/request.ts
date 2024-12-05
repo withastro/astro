@@ -24,8 +24,6 @@ export interface CreateRequestOptions {
 	routePattern: string;
 }
 
-const clientLocalsSymbol = Symbol.for('astro.locals');
-
 /**
  * Used by astro internals to create a web standard request object.
  *
@@ -39,7 +37,6 @@ export function createRequest({
 	method = 'GET',
 	body = undefined,
 	logger,
-	locals,
 	isPrerendered = false,
 	routePattern,
 }: CreateRequestOptions): Request {
@@ -92,8 +89,6 @@ export function createRequest({
 			},
 		});
 	}
-
-	Reflect.set(request, clientLocalsSymbol, locals ?? {});
 
 	return request;
 }
