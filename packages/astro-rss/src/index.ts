@@ -28,6 +28,10 @@ export type RSSOptions = {
 	/** Specify custom data in opening of file */
 	customData?: z.infer<typeof rssOptionsValidator>['customData'];
 	trailingSlash?: z.infer<typeof rssOptionsValidator>['trailingSlash'];
+	/**
+	 * Specify the response charset. default is utf-8
+	 */
+	charset?: z.infer<typeof rssOptionsValidator>['charset'];
 };
 
 export type RSSFeedItem = {
@@ -83,13 +87,14 @@ const rssOptionsValidator = z.object({
 	stylesheet: z.union([z.string(), z.boolean()]).optional(),
 	customData: z.string().optional(),
 	trailingSlash: z.boolean().default(true),
+	charset: z.string().optional().default('utf-8')
 });
 
-export default async function getRssResponse(rssOptions: RSSOptions): Promise<Response> {
+export default async function getRssResponse({charset, ...rssOptions}: RSSOptions): Promise<Response> {
 	const rssString = await getRssString(rssOptions);
 	return new Response(rssString, {
 		headers: {
-			'Content-Type': 'application/xml',
+			'Content-Type': `application/rss+xml; charset=${charset}`,
 		},
 	});
 }
