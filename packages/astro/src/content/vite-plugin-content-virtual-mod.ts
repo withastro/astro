@@ -50,14 +50,12 @@ export function astroContentVirtualModPlugin({
 	settings,
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
-	let IS_DEV = false;
 	let dataStoreFile: URL;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
-		configResolved(config) {
-			IS_DEV = !config.isProduction;
-			dataStoreFile = getDataStoreFile(settings, IS_DEV);
+		config(_, env) {
+			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
