@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 12.0.1
+
+### Patch Changes
+
+- [#465](https://github.com/withastro/adapters/pull/465) [`70e0054`](https://github.com/withastro/adapters/commit/70e0054aade5368f1bd9b1595766826af7e9ec8d) Thanks [@bluwy](https://github.com/bluwy)! - Fixes setting custom `workerd` and `worker` conditions for the ssr environment only
+
 ## 12.0.0
 
 ### Major Changes
