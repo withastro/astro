@@ -1,5 +1,11 @@
 # astro
 
+## 4.16.17
+
+### Patch Changes
+
+- [#12632](https://github.com/withastro/astro/pull/12632) [`e7d14c3`](https://github.com/withastro/astro/commit/e7d14c374b9d45e27089994a4eb72186d05514de) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `checkOrigin` feature wasn't correctly checking the `content-type` header
+
 ## 4.16.16
 
 ### Patch Changes
