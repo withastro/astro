@@ -7,7 +7,7 @@ import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { cli, cliServerLogSetup, loadFixture, parseCliDevStart } from './test-utils.js';
-
+import { readFromClipboard } from '../dist/cli/info/index.js';
 describe('astro cli', () => {
 	const cliServerLogSetupWithFixture = (flags, cmd) => {
 		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
@@ -76,6 +76,20 @@ describe('astro cli', () => {
 		const proc = await cli('--version');
 
 		assert.equal(proc.stdout.includes(pkgVersion), true);
+	});
+
+	it('astro info', async () => {
+		const proc = await cli('info', '--copy');
+		const pkgURL = new URL('../package.json', import.meta.url);
+		const pkgVersion = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data).version);
+		assert.ok(proc.stdout.includes('Copied to clipboard!'));
+		assert.ok(proc.stdout.includes(`v${pkgVersion}`));
+		assert.equal(proc.exitCode, 0);
+
+		const clipboardContent = await readFromClipboard();
+
+		assert.ok(clipboardContent.includes(`v${pkgVersion}`));
+
 	});
 
 	it(
