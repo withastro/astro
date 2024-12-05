@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.4.1
+
+### Patch Changes
+
+- [#12576](https://github.com/withastro/astro/pull/12576) [`19b3ac0`](https://github.com/withastro/astro/commit/19b3ac0036cc6f27da887d19b16d804c6f0b8124) Thanks [@apatel369](https://github.com/apatel369)! - Fixes an issue where running `upgrade` in a directory without `astro` installed shows a false success message
+
 ## 0.4.0
 
 ### Minor Changes
