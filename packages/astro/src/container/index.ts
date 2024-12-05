@@ -508,7 +508,7 @@ export class experimental_AstroContainer {
 			pathname: url.pathname,
 			locals: options?.locals ?? {},
 			partial: options?.partial ?? true,
-			clientAddress: ''
+			clientAddress: '',
 		});
 		if (options.params) {
 			renderContext.params = options.params;

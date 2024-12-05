@@ -241,7 +241,7 @@ export class App {
 		let addCookieHeader: boolean | undefined;
 
 		addCookieHeader = renderOptions?.addCookieHeader;
-		clientAddress = renderOptions?.clientAddress ?? Reflect.get(request,clientAddressSymbol);
+		clientAddress = renderOptions?.clientAddress ?? Reflect.get(request, clientAddressSymbol);
 		routeData = renderOptions?.routeData;
 		locals = renderOptions?.locals;
 
@@ -286,7 +286,7 @@ export class App {
 				request,
 				routeData,
 				status: defaultStatus,
-				clientAddress
+				clientAddress,
 			});
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
@@ -305,7 +305,7 @@ export class App {
 				// We don't have an error to report here. Passing null means we pass nothing intentionally
 				// while undefined means there's no error
 				error: response.status === 500 ? null : undefined,
-				clientAddress
+				clientAddress,
 			});
 		}
 
@@ -387,7 +387,7 @@ export class App {
 					routeData: errorRouteData,
 					status,
 					props: { error },
-					clientAddress
+					clientAddress,
 				});
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
@@ -399,7 +399,7 @@ export class App {
 						status,
 						response: originalResponse,
 						skipMiddleware: true,
-						clientAddress
+						clientAddress,
 					});
 				}
 			}

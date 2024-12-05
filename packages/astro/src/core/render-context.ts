@@ -525,11 +525,11 @@ export class RenderContext {
 	getClientAddress() {
 		const { pipeline, request, routeData, clientAddress } = this;
 
-		if(routeData.prerender) {
+		if (routeData.prerender) {
 			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
 		}
 
-		if(clientAddress) {
+		if (clientAddress) {
 			return clientAddress;
 		}
 
