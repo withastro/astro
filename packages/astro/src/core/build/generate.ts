@@ -444,6 +444,7 @@ async function generatePath(
 		pathname: pathname,
 		request,
 		routeData: route,
+		clientAddress: undefined
 	});
 
 	let body: string | Uint8Array;

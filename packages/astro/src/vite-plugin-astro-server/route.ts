@@ -172,7 +172,6 @@ export async function handleRoute({
 		method: incomingRequest.method,
 		body,
 		logger,
-		clientAddress: incomingRequest.socket.remoteAddress,
 		isPrerendered: route.prerender,
 		routePattern: route.component,
 	});
@@ -191,6 +190,7 @@ export async function handleRoute({
 		middleware: isDefaultPrerendered404(matchedRoute.route) ? undefined : middleware,
 		request,
 		routeData: route,
+		clientAddress: incomingRequest.socket.remoteAddress
 	});
 
 	let response;
@@ -248,6 +248,7 @@ export async function handleRoute({
 				middleware: isDefaultPrerendered404(fourOhFourRoute.route) ? undefined : middleware,
 				request,
 				routeData: fourOhFourRoute.route,
+				clientAddress: incomingRequest.socket.remoteAddress
 			});
 			response = await renderContext.render(fourOhFourRoute.preloadedComponent);
 		}

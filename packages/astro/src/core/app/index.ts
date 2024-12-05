@@ -72,6 +72,7 @@ export interface RenderErrorOptions {
 	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
 	 */
 	error?: unknown;
+	clientAddress: string | undefined;
 }
 
 export class App {
@@ -240,7 +241,7 @@ export class App {
 		let addCookieHeader: boolean | undefined;
 
 		addCookieHeader = renderOptions?.addCookieHeader;
-		clientAddress = renderOptions?.clientAddress;
+		clientAddress = renderOptions?.clientAddress ?? Reflect.get(request,clientAddressSymbol);
 		routeData = renderOptions?.routeData;
 		locals = renderOptions?.locals;
 
@@ -256,12 +257,9 @@ export class App {
 			if (typeof locals !== 'object') {
 				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
 				this.#logger.error(null, error.stack!);
-				return this.#renderError(request, { status: 500, error });
+				return this.#renderError(request, { status: 500, error, clientAddress });
 			}
 			Reflect.set(request, clientLocalsSymbol, locals);
-		}
-		if (clientAddress) {
-			Reflect.set(request, clientAddressSymbol, clientAddress);
 		}
 		if (!routeData) {
 			routeData = this.match(request);
@@ -271,7 +269,7 @@ export class App {
 		if (!routeData) {
 			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);
 			this.#logger.debug('router', "Here's the available routes:\n", this.#manifestData);
-			return this.#renderError(request, { locals, status: 404 });
+			return this.#renderError(request, { locals, status: 404, clientAddress });
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
@@ -288,11 +286,12 @@ export class App {
 				request,
 				routeData,
 				status: defaultStatus,
+				clientAddress
 			});
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
-			return this.#renderError(request, { locals, status: 500, error: err });
+			return this.#renderError(request, { locals, status: 500, error: err, clientAddress });
 		}
 
 		if (
@@ -306,6 +305,7 @@ export class App {
 				// We don't have an error to report here. Passing null means we pass nothing intentionally
 				// while undefined means there's no error
 				error: response.status === 500 ? null : undefined,
+				clientAddress
 			});
 		}
 
@@ -353,6 +353,7 @@ export class App {
 			response: originalResponse,
 			skipMiddleware = false,
 			error,
+			clientAddress,
 		}: RenderErrorOptions,
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
@@ -386,6 +387,7 @@ export class App {
 					routeData: errorRouteData,
 					status,
 					props: { error },
+					clientAddress
 				});
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
@@ -397,6 +399,7 @@ export class App {
 						status,
 						response: originalResponse,
 						skipMiddleware: true,
+						clientAddress
 					});
 				}
 			}
