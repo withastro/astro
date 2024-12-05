@@ -237,12 +237,10 @@ export function formatConfigErrorMessage(err: ZodError) {
 	const errorList = err.issues.map((issue) =>
 		`! ${renderErrorMarkdown(issue.message, 'cli')}`
 			// Make text wrapped in backticks blue.
-			.replaceAll(codeRegex, cyan('$1'))
+			.replaceAll(codeRegex, blue('$1'))
+			// Make the first line red and indent the rest.
 			.split('\n')
-			// Dim all lines in an issue except for the first which should be red.
-			.map((line, index) => (index > 0 ? dim(line) : red(line)))
-			// Indent all lines.
-			.map((line) => '  ' + line)
+			.map((line, index) => (index === 0 ? red(line) : '  ' + line))
 			.join('\n'),
 	);
 	return `${red('[config]')} Astro found issue(s) with your configuration:\n\n${errorList.join(

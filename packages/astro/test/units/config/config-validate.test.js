@@ -24,7 +24,7 @@ describe('Config Validation', () => {
 			formattedError,
 			`[config] Astro found issue(s) with your configuration:
 
-  ! site: Expected type "string", received "number"`,
+! site: Expected type "string", received "number"`,
 		);
 	});
 
@@ -40,9 +40,9 @@ describe('Config Validation', () => {
 			formattedError,
 			`[config] Astro found issue(s) with your configuration:
 
-  ! integrations.0: Expected type "object", received "number"
+! integrations.0: Expected type "object", received "number"
 
-  ! build.format: Did not match union.
+! build.format: Did not match union.
   > Expected "file" | "directory" | "preserve", received "invalid"`,
 		);
 	});
