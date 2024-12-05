@@ -10,6 +10,7 @@ import {
 	runHookBuildStart,
 	runHookConfigDone,
 	runHookConfigSetup,
+	runHookRoutesResolved,
 } from '../../integrations/hooks.js';
 import type { AstroSettings, ManifestData } from '../../types/astro.js';
 import type { AstroConfig, AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
@@ -215,6 +216,11 @@ class AstroBuilder {
 				// Can't be injected in runHookRoutesResolved because serverIslandNameMap is updated
 				// in a vite plugin transform
 				injectServerIslandRoute(this.settings.config, this.manifest);
+				await runHookRoutesResolved({
+					routes: this.manifest.routes,
+					settings: this.settings,
+					logger: this.logger,
+				});
 			} else {
 				// Error if there are server islands but no adapter provided.
 				throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
