@@ -437,7 +437,7 @@ async function generatePath(
 		headers: new Headers(),
 		logger,
 		isPrerendered: true,
-		routePattern: route.component
+		routePattern: route.component,
 	});
 	const renderContext = await RenderContext.create({
 		pipeline,

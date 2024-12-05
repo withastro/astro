@@ -21,7 +21,7 @@ export interface CreateRequestOptions {
 	 */
 	isPrerendered?: boolean;
 
-	routePattern: string
+	routePattern: string;
 }
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -43,7 +43,7 @@ export function createRequest({
 	logger,
 	locals,
 	isPrerendered = false,
-	routePattern
+	routePattern,
 }: CreateRequestOptions): Request {
 	// headers are made available on the created request only if the request is for a page that will be on-demand rendered
 	const headersObj = isPrerendered
