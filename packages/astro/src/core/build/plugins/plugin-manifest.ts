@@ -58,7 +58,7 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 
 				const contents = [
 					`const manifest = _deserializeManifest('${manifestReplace}');`,
-					`manifest.sessionConfig.driverModule = ${resolvedDriver ? `() => import(${JSON.stringify(resolvedDriver)})` : 'null'};`,
+					`if (manifest.sessionConfig) manifest.sessionConfig.driverModule = ${resolvedDriver ? `() => import(${JSON.stringify(resolvedDriver)})` : 'null'};`,
 					`_privateSetManifestDontUseThis(manifest);`,
 				];
 				const exports = [`export { manifest }`];
