@@ -566,7 +566,7 @@ export const AstroConfigSchema = z.object({
 				}),
 		})
 		.strict(
-			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,
+			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
 		)
 		.default({}),
 	legacy: z

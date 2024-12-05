@@ -231,12 +231,20 @@ function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 
 	}
 }
 
+const codeRegex = /`([^`]+)`/g;
+
 export function formatConfigErrorMessage(err: ZodError) {
-	const errorList = err.issues.map(
-		(issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`,
+	const errorList = err.issues.map((issue) =>
+		`! ${renderErrorMarkdown(issue.message, 'cli')}`
+			// Make text wrapped in backticks blue.
+			.replaceAll(codeRegex, blue('$1'))
+			// Make the first line red and indent the rest.
+			.split('\n')
+			.map((line, index) => (index === 0 ? red(line) : '  ' + line))
+			.join('\n'),
 	);
-	return `${red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join(
-		'\n',
+	return `${red('[config]')} Astro found issue(s) with your configuration:\n\n${errorList.join(
+		'\n\n',
 	)}`;
 }
 
