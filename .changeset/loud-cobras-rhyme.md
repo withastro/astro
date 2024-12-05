@@ -2,4 +2,4 @@
 '@astrojs/rss': patch
 ---
 
-use standard rss content type, add charset utf-8
+Sends the standard RSS content type response header, with UTF-8 charset
