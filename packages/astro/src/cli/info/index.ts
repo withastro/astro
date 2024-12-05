@@ -85,7 +85,7 @@ export async function copyToClipboard(text: string, force?: boolean) {
 
 	if (!command) {
 		console.error(colors.red('\nClipboard command not found!'));
-		console.log('Fallback: Please manually copy the text above.');
+		console.log('Please manually copy the text above.');
 		return;
 	}
 
