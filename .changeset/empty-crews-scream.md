@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes an issue with some special routes not being passed to the `astro:routes:resolved` hook
+Fixes an issue where image and server islands routes would not be passed to the `astro:routes:resolved` hook during builds
