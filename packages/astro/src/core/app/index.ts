@@ -93,6 +93,8 @@ export class App {
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
+		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
+		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.#manifestData);
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = this.#createPipeline(this.#manifestData, streaming);

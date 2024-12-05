@@ -741,6 +741,10 @@ export async function createRouteManifest(
 		injectServerIslandRoute(settings.config, { routes });
 	} else if (settings.buildOutput === 'server') {
 		injectImageEndpoint(settings, { routes }, 'build');
+		// We can't only inject this route when server islands are used because:
+		// - To know if we use serve islands, we need to build
+		// - The build runs before we can inject the server island route
+		injectServerIslandRoute(settings.config, { routes });
 	}
 	await runHookRoutesResolved({ routes, settings, logger });
 

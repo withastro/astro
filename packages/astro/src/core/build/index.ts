@@ -10,7 +10,6 @@ import {
 	runHookBuildStart,
 	runHookConfigDone,
 	runHookConfigSetup,
-	runHookRoutesResolved,
 } from '../../integrations/hooks.js';
 import type { AstroSettings, ManifestData } from '../../types/astro.js';
 import type { AstroConfig, AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
@@ -30,7 +29,6 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { injectServerIslandRoute } from '../server-islands/endpoint.js';
 
 export interface BuildOptions {
 	/**
@@ -211,20 +209,9 @@ class AstroBuilder {
 			await viteBuild(opts);
 
 		const hasServerIslands = this.settings.serverIslandNameMap.size > 0;
-		if (hasServerIslands) {
-			if (this.settings.buildOutput === 'server') {
-				// Can't be injected in runHookRoutesResolved because serverIslandNameMap is updated
-				// in a vite plugin transform
-				injectServerIslandRoute(this.settings.config, this.manifest);
-				await runHookRoutesResolved({
-					routes: this.manifest.routes,
-					settings: this.settings,
-					logger: this.logger,
-				});
-			} else {
-				// Error if there are server islands but no adapter provided.
-				throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
-			}
+		// Error if there are server islands but no adapter provided.
+		if (hasServerIslands && this.settings.buildOutput !== 'server') {
+			throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 		}
 
 		await staticBuild(opts, internals, ssrOutputChunkNames, ssrOutputAssetNames, contentFileNames);
