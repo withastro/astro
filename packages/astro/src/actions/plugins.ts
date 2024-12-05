@@ -84,6 +84,7 @@ export function vitePluginActions({
 				code += `\nexport * from 'astro/actions/runtime/virtual/server.js';`;
 			} else {
 				code += `\nexport * from 'astro/actions/runtime/virtual/client.js';`;
+				code = code.replace('__TRAILING_SLASH__', JSON.stringify(settings.config.trailingSlash === 'always'));
 			}
 			return code;
 		},

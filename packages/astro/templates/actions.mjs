@@ -83,7 +83,7 @@ async function handleAction(param, path, context) {
 			headers.set('Content-Length', '0');
 		}
 	}
-	const rawResult = await fetch(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${path}`, {
+	const rawResult = await fetch(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${path}${__TRAILING_SLASH__ ? '/' : ''}`, {
 		method: 'POST',
 		body,
 		headers,
