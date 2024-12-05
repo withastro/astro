@@ -437,12 +437,14 @@ async function generatePath(
 		headers: new Headers(),
 		logger,
 		isPrerendered: true,
+		routePattern: route.component,
 	});
 	const renderContext = await RenderContext.create({
 		pipeline,
 		pathname: pathname,
 		request,
 		routeData: route,
+		clientAddress: undefined,
 	});
 
 	let body: string | Uint8Array;

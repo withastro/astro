@@ -45,6 +45,8 @@ export type SyncOptions = {
 	skip?: {
 		// Must be skipped in dev
 		content?: boolean;
+		// Cleanup can be skipped in dev as some state can be reused on updates
+		cleanup?: boolean;
 	};
 	manifest: ManifestData;
 };
@@ -141,6 +143,10 @@ export async function syncInternal({
 			store,
 		});
 		await contentLayer.sync();
+		if (!skip?.cleanup) {
+			// Free up memory (usually in builds since we only need to use this once)
+			contentLayer.dispose();
+		}
 		settings.timer.end('Sync content layer');
 	} else {
 		const paths = getContentPaths(settings.config, fs);

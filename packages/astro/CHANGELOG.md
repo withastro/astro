@@ -1,5 +1,47 @@
 # astro
 
+## 5.0.3
+
+### Patch Changes
+
+- [#12645](https://github.com/withastro/astro/pull/12645) [`8704c54`](https://github.com/withastro/astro/commit/8704c5439ccaa4bdcebdebb725f297cdf8d48a5d) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates some reference links in error messages for new v5 docs.
+
+- [#12641](https://github.com/withastro/astro/pull/12641) [`48ca399`](https://github.com/withastro/astro/commit/48ca3997888e960c6aaec633ab21160540656656) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug where `astro info --copy` wasn't working correctly on `macOS` systems.
+
+- [#12461](https://github.com/withastro/astro/pull/12461) [`62939ad`](https://github.com/withastro/astro/commit/62939add0b04b05b64f9b88d85fa5b0d34aae2d4) Thanks [@kyr0](https://github.com/kyr0)! - Removes the misleading log message telling that a custom renderer is not recognized while it clearly is and works.
+
+- [#12642](https://github.com/withastro/astro/pull/12642) [`ff18b9c`](https://github.com/withastro/astro/commit/ff18b9c18558dcfdae581cc1c603a9a53491c7c2) Thanks [@ematipico](https://github.com/ematipico)! - Provides more information when logging a warning for accessing `Astro.request.headers` in prerendered pages
+
+- [#12634](https://github.com/withastro/astro/pull/12634) [`03958d9`](https://github.com/withastro/astro/commit/03958d939217e6acef25c0aa1af2de663b04c956) Thanks [@delucis](https://github.com/delucis)! - Improves error message formatting for user config and content collection frontmatter
+
+- [#12547](https://github.com/withastro/astro/pull/12547) [`6b6e18d`](https://github.com/withastro/astro/commit/6b6e18d7a0f08342eced2a77ddb371810b030868) Thanks [@mtwilliams-code](https://github.com/mtwilliams-code)! - Fixes a bug where URL search parameters weren't passed when using the i18n `fallback` feature.
+
+- [#12449](https://github.com/withastro/astro/pull/12449) [`e6b8017`](https://github.com/withastro/astro/commit/e6b80172391d5f9aa5b1de26a8694ba4a28a43f3) Thanks [@apatel369](https://github.com/apatel369)! - Fixes an issue where the custom `assetFileNames` configuration caused assets to be incorrectly moved to the server directory instead of the client directory, resulting in 404 errors when accessed from the client side.
+
+- [#12518](https://github.com/withastro/astro/pull/12518) [`e216250`](https://github.com/withastro/astro/commit/e216250146fbff746efd542612ce9bae6db9601f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where SSR error pages would return duplicated custom headers.
+
+- [#12625](https://github.com/withastro/astro/pull/12625) [`74bfad0`](https://github.com/withastro/astro/commit/74bfad07afe70fec40de4db3d32a87af306406db) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `experimental.svg` had incorrect type, resulting in some errors in the editors.
+
+- [#12631](https://github.com/withastro/astro/pull/12631) [`dec0305`](https://github.com/withastro/astro/commit/dec0305b7577b431637a129e19fbbe6a28469587) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug where the class attribute was rendered twice on the image component
+
+- [#12623](https://github.com/withastro/astro/pull/12623) [`0e4fecb`](https://github.com/withastro/astro/commit/0e4fecbb135915a503b9ea2c12e57cf27cf07be8) Thanks [@ascorbic](https://github.com/ascorbic)! - Correctly handles images in content collections with uppercase file extensions
+
+- [#12633](https://github.com/withastro/astro/pull/12633) [`8a551c1`](https://github.com/withastro/astro/commit/8a551c1272a22ab7c3fb836d6685a0eb38c33071) Thanks [@bluwy](https://github.com/bluwy)! - Cleans up content layer sync during builds and programmatic `sync()` calls
+
+- [#12640](https://github.com/withastro/astro/pull/12640) [`22e405a`](https://github.com/withastro/astro/commit/22e405a04491aba47a7f172e7b0ee103fe5babe5) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused content collections to be returned empty when run in a test environment
+
+- [#12613](https://github.com/withastro/astro/pull/12613) [`306c9f9`](https://github.com/withastro/astro/commit/306c9f9a9ae08d194ca2a066ab71cde02eeb0874) Thanks [@matthewp](https://github.com/matthewp)! - Fix use of cloned requests in middleware with clientAddress
+
+  When using `context.clientAddress` or `Astro.clientAddress` Astro looks up the address in a hidden property. Cloning a request can cause this hidden property to be lost.
+
+  The fix is to pass the address as an internal property instead, decoupling it from the request.
+
+## 5.0.2
+
+### Patch Changes
+
+- [#12601](https://github.com/withastro/astro/pull/12601) [`0724929`](https://github.com/withastro/astro/commit/072492982b338e04549ee576ca7d8480be92cc1c) Thanks [@ascorbic](https://github.com/ascorbic)! - Includes "undefined" in types for getEntry
+
 ## 5.0.1
 
 ### Patch Changes

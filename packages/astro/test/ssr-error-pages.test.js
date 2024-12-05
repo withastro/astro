@@ -4,6 +4,34 @@ import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
+describe('Default 500 page', () => {
+	/** @type {import('./test-utils.js').Fixture} */
+	let fixture;
+	/** @type {import('./test-utils.js').App} */
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/ssr-error/',
+			output: 'server',
+			adapter: testAdapter(),
+			// test suite was authored when inlineStylesheets defaulted to never
+			build: { inlineStylesheets: 'never' },
+		});
+		await fixture.build({});
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly merge headers coming from the original response and the 500 response, when calling a catch-all route', async () => {
+		const request = new Request('http://example.com/any');
+		const response = await app.render(request);
+		assert.equal(response.status, 500);
+		assert.equal(response.headers.get('x-debug'), '1234');
+		const html = await response.text();
+		assert.match(html, /oops/);
+	});
+});
+
 describe('404 and 500 pages', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;

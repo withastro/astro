@@ -285,7 +285,7 @@ describe('Legacy Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			assert.equal(error.includes('**title**: Expected type `"string"`, received "number"'), true);
+			assert.match(error, /\*\*title\*\*: Expected type `"string"`, received `"number"`/);
 		});
 	});
 	describe('With config.mts', () => {
@@ -302,7 +302,7 @@ describe('Legacy Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			assert.equal(error.includes('**title**: Expected type `"string"`, received "number"'), true);
+			assert.match(error, /\*\*title\*\*: Expected type `"string"`, received `"number"`/);
 		});
 	});
 

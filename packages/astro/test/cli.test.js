@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import { promises as fs, readFileSync } from 'node:fs';
 import { isIPv4 } from 'node:net';
 import { join } from 'node:path';
+import { platform } from 'node:process';
 import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
+import { readFromClipboard } from '../dist/cli/info/index.js';
 import { cli, cliServerLogSetup, loadFixture, parseCliDevStart } from './test-utils.js';
 
 describe('astro cli', () => {
@@ -76,6 +78,26 @@ describe('astro cli', () => {
 		const proc = await cli('--version');
 
 		assert.equal(proc.stdout.includes(pkgVersion), true);
+	});
+
+	it('astro info', async () => {
+		const proc = await cli('info', '--copy');
+		const pkgURL = new URL('../package.json', import.meta.url);
+		const pkgVersion = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data).version);
+		assert.ok(proc.stdout.includes(`v${pkgVersion}`));
+		assert.equal(proc.exitCode, 0);
+
+		// On Linux we only check if we have Wayland or x11. In Codespaces it falsely reports that it does have x11
+		if (
+			platform === 'linux' &&
+			((!process.env.WAYLAND_DISPLAY && !process.env.DISPLAY) || process.env.CODESPACES)
+		) {
+			assert.ok(proc.stdout.includes('Please manually copy the text above'));
+		} else {
+			assert.ok(proc.stdout.includes('Copied to clipboard!'));
+			const clipboardContent = await readFromClipboard();
+			assert.ok(clipboardContent.includes(`v${pkgVersion}`));
+		}
 	});
 
 	it(
