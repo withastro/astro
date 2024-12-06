@@ -6,6 +6,7 @@ import * as colors from 'kleur/colors';
 import { debug } from '../logger/core.js';
 import { makePageDataKey } from './plugins/util.js';
 import { SERVER_ISLAND_COMPONENT } from '../server-islands/endpoint.js';
+import { DEFAULT_COMPONENTS } from '../routing/default.js';
 
 export interface CollectPagesDataOptions {
 	settings: AstroSettings;
@@ -29,15 +30,21 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 	// NOTE: This enforces that `getStaticPaths()` is only called once per route,
 	// and is then cached across all future SSR builds. In the past, we've had trouble
 	// with parallelized builds without guaranteeing that this is called first.
+
 	for (const route of manifest.routes) {
-		// There's special handling in SSR
+		for (const component of DEFAULT_COMPONENTS) {
+			if (route.component === component) {
+				continue;
+			}
+		}
 		if (route.component === SERVER_ISLAND_COMPONENT) {
+			// There's special handling in SSR
 			continue;
 		}
 		// Generate a unique key to identify each page in the build process.
 		const key = makePageDataKey(route.route, route.component);
-		// static route:
 		if (route.pathname) {
+			// static route:
 			allPages[key] = {
 				key: key,
 				component: route.component,

@@ -745,6 +745,8 @@ export async function createRouteManifest(
 		// - To know if we use serve islands, we need to build
 		// - The build runs before we can inject the server island route
 		injectServerIslandRoute(settings.config, { routes });
+		// In SSR, a 404 route is injected in the App directly for some special handling,
+		// it must not appear in the manifest
 	}
 	await runHookRoutesResolved({ routes, settings, logger });
 
