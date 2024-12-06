@@ -20,10 +20,9 @@ export interface CreateRequestOptions {
 	 * @default false
 	 */
 	isPrerendered?: boolean;
-}
 
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const clientLocalsSymbol = Symbol.for('astro.locals');
+	routePattern: string;
+}
 
 /**
  * Used by astro internals to create a web standard request object.
@@ -35,12 +34,11 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
 export function createRequest({
 	url,
 	headers,
-	clientAddress,
 	method = 'GET',
 	body = undefined,
 	logger,
-	locals,
 	isPrerendered = false,
+	routePattern,
 }: CreateRequestOptions): Request {
 	// headers are made available on the created request only if the request is for a page that will be on-demand rendered
 	const headersObj = isPrerendered
@@ -82,7 +80,7 @@ export function createRequest({
 			get() {
 				logger.warn(
 					null,
-					`\`Astro.request.headers\` is not available on prerendered pages. If you need access to request headers, make sure that the page is server rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server rendered.`,
+					`\`Astro.request.headers\` was used when rendering the route \`${routePattern}'\`. \`Astro.request.headers\` is not available on prerendered pages. If you need access to request headers, make sure that the page is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server-rendered by default.`,
 				);
 				return _headers;
 			},
@@ -90,12 +88,7 @@ export function createRequest({
 				_headers = newHeaders;
 			},
 		});
-	} else if (clientAddress) {
-		// clientAddress is stored to be read by RenderContext, only if the request is for a page that will be on-demand rendered
-		Reflect.set(request, clientAddressSymbol, clientAddress);
 	}
-
-	Reflect.set(request, clientLocalsSymbol, locals ?? {});
 
 	return request;
 }
