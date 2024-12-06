@@ -16,7 +16,6 @@ type Props = {
 const StaticHtml = ({ value, name, hydrate = true }: Props) => {
 	if (!value) return null;
 	const tagName = hydrate ? 'astro-slot' : 'astro-static-slot';
-	// @ts-expect-error pass `name` as a prop, ignoring type errors
 	return h(tagName, { name, dangerouslySetInnerHTML: { __html: value } });
 };
 
