@@ -1,5 +1,6 @@
 ---
 const currentLocale = Astro.currentLocale;
+const search = Astro.url.search.toString()
 ---
 
 <html>
@@ -8,5 +9,6 @@ const currentLocale = Astro.currentLocale;
 </head>
 <body>
 Oi essa e start: {currentLocale}
+Search: {search}
 </body>
 </html>

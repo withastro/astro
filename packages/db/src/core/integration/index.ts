@@ -16,7 +16,7 @@ import {
 } from 'vite';
 import parseArgs from 'yargs-parser';
 import { AstroDbError } from '../../runtime/utils.js';
-import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
+import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
 import { SEED_DEV_FILE_NAME } from '../queries.js';
@@ -153,7 +153,7 @@ function astroDBIntegration(): AstroIntegration {
 					);
 					// Eager load astro:db module on startup
 					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
-						server.ssrLoadModule(resolved.module).catch((e) => {
+						server.ssrLoadModule(VIRTUAL_MODULE_ID).catch((e) => {
 							logger.error(e instanceof Error ? e.message : String(e));
 						});
 					}

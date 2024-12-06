@@ -30,7 +30,7 @@ describe('Content Collections - error map', () => {
 			}),
 			{ foo: 1 },
 		);
-		assert.deepEqual(messages(error), ['**foo**: Expected type `"string"`, received "number"']);
+		assert.deepEqual(messages(error), ['**foo**: Expected type `"string"`, received `"number"`']);
 	});
 	it('Returns formatted error for literal mismatch', () => {
 		const error = getParseError(
@@ -39,7 +39,7 @@ describe('Content Collections - error map', () => {
 			}),
 			{ lang: 'es' },
 		);
-		assert.deepEqual(messages(error), ['**lang**: Expected `"en"`, received "es"']);
+		assert.deepEqual(messages(error), ['**lang**: Expected `"en"`, received `"es"`']);
 	});
 	it('Replaces undefined errors with "Required"', () => {
 		const error = getParseError(
@@ -58,7 +58,7 @@ describe('Content Collections - error map', () => {
 		);
 		assert.deepEqual(messages(error), [
 			fixLineEndings(
-				'Did not match union:\n> Expected type `"boolean" | "number"`, received "string"',
+				'Did not match union.\n> Expected type `"boolean" | "number"`, received `"string"`',
 			),
 		]);
 	});
@@ -76,7 +76,7 @@ describe('Content Collections - error map', () => {
 		);
 		assert.deepEqual(messages(error), [
 			fixLineEndings(
-				'Did not match union:\n> **type**: Expected `"tutorial" | "article"`, received "integration-guide"',
+				'Did not match union.\n> **type**: Expected `"tutorial" | "article"`, received `"integration-guide"`',
 			),
 		]);
 	});

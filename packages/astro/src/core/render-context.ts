@@ -48,6 +48,7 @@ export class RenderContext {
 		public request: Request,
 		public routeData: RouteData,
 		public status: number,
+		public clientAddress: string | undefined,
 		protected cookies = new AstroCookies(request),
 		public params = getParams(routeData, pathname),
 		protected url = new URL(request.url),
@@ -71,10 +72,11 @@ export class RenderContext {
 		pipeline,
 		request,
 		routeData,
+		clientAddress,
 		status = 200,
 		props,
 		partial = undefined,
-	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
+	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'> &
 		Partial<
 			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial'>
 		>): Promise<RenderContext> {
@@ -88,6 +90,7 @@ export class RenderContext {
 			request,
 			routeData,
 			status,
+			clientAddress,
 			undefined,
 			undefined,
 			undefined,
@@ -309,7 +312,7 @@ export class RenderContext {
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			get clientAddress() {
-				return renderContext.clientAddress();
+				return renderContext.getClientAddress();
 			},
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
@@ -490,7 +493,7 @@ export class RenderContext {
 			isPrerendered: this.routeData.prerender,
 			cookies,
 			get clientAddress() {
-				return renderContext.clientAddress();
+				return renderContext.getClientAddress();
 			},
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
@@ -519,14 +522,22 @@ export class RenderContext {
 		};
 	}
 
-	clientAddress() {
-		const { pipeline, request } = this;
-		if (clientAddressSymbol in request) {
-			return Reflect.get(request, clientAddressSymbol) as string;
+	getClientAddress() {
+		const { pipeline, request, routeData, clientAddress } = this;
+
+		if (routeData.prerender) {
+			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
 		}
 
-		if (request.body === null) {
-			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
+		if (clientAddress) {
+			return clientAddress;
+		}
+
+		// TODO: Legacy, should not need to get here.
+		// Some adapters set this symbol so we can't remove support yet.
+		// Adapters should be updated to provide it via RenderOptions instead.
+		if (clientAddressSymbol in request) {
+			return Reflect.get(request, clientAddressSymbol) as string;
 		}
 
 		if (pipeline.adapterName) {

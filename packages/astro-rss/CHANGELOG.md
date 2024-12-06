@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.10
+
+### Patch Changes
+
+- [#12644](https://github.com/withastro/astro/pull/12644) [`5b9b618`](https://github.com/withastro/astro/commit/5b9b6181839d8ae0ad0a0d475257b7e09f748950) Thanks [@kunyan](https://github.com/kunyan)! - Sends the standard RSS content type response header, with UTF-8 charset
+
 ## 4.0.9
 
 ### Patch Changes
