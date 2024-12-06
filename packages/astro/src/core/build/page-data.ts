@@ -5,7 +5,6 @@ import type { AllPagesData } from './types.js';
 import * as colors from 'kleur/colors';
 import { debug } from '../logger/core.js';
 import { makePageDataKey } from './plugins/util.js';
-import { SERVER_ISLAND_COMPONENT } from '../server-islands/endpoint.js';
 import { DEFAULT_COMPONENTS } from '../routing/default.js';
 
 export interface CollectPagesDataOptions {
@@ -32,14 +31,11 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 	// with parallelized builds without guaranteeing that this is called first.
 
 	for (const route of manifest.routes) {
+		// There's special handling in SSR
 		for (const component of DEFAULT_COMPONENTS) {
 			if (route.component === component) {
 				continue;
 			}
-		}
-		if (route.component === SERVER_ISLAND_COMPONENT) {
-			// There's special handling in SSR
-			continue;
 		}
 		// Generate a unique key to identify each page in the build process.
 		const key = makePageDataKey(route.route, route.component);
