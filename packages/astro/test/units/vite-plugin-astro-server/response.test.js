@@ -96,9 +96,8 @@ describe('endpoints', () => {
 			await done;
 
 			assert.ok(true);
-			
 		} catch (err) {
-			assert.fail(err)
+			assert.fail(err);
 		}
 	});
 });
