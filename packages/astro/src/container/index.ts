@@ -155,7 +155,6 @@ function createManifest(
 		i18n: manifest?.i18n,
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middlewareInstance,
-		envGetSecretEnabled: false,
 		key: createKey(),
 	};
 }

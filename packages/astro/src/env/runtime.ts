@@ -4,14 +4,14 @@ import type { ValidationResultInvalid } from './validators.js';
 export { validateEnvVariable, getEnvFieldType } from './validators.js';
 
 export type GetEnv = (key: string) => string | undefined;
-type OnSetGetEnv = (reset: boolean) => void;
+type OnSetGetEnv = () => void;
 
 let _getEnv: GetEnv = (key) => process.env[key];
 
-export function setGetEnv(fn: GetEnv, reset = false) {
+export function setGetEnv(fn: GetEnv) {
 	_getEnv = fn;
 
-	_onSetGetEnv(reset);
+	_onSetGetEnv();
 }
 
 let _onSetGetEnv: OnSetGetEnv = () => {};

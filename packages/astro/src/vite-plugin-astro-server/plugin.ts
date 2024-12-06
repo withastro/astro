@@ -191,7 +191,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		i18n: i18nManifest,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
-		envGetSecretEnabled: false,
 		key: hasEnvironmentKey() ? getEnvironmentKey() : createKey(),
 		middleware() {
 			return {

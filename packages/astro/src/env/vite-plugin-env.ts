@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { type Plugin, loadEnv } from 'vite';
+import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
@@ -11,26 +10,35 @@ import {
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
+import type { EnvLoader } from './env-loader.js';
 
 interface AstroEnvPluginParams {
 	settings: AstroSettings;
 	mode: string;
 	sync: boolean;
+	envLoader: EnvLoader;
 }
 
-export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin {
+export function astroEnv({ settings, mode, sync, envLoader }: AstroEnvPluginParams): Plugin {
 	const { schema, validateSecrets } = settings.config.env;
+	let isDev: boolean;
 
 	let templates: { client: string; server: string; internal: string } | null = null;
 
 	return {
 		name: 'astro-env-plugin',
 		enforce: 'pre',
+		config(_, { command }) {
+			isDev = command !== 'build';
+		},
 		buildStart() {
-			const loadedEnv = loadEnv(mode, fileURLToPath(settings.config.root), '');
-			for (const [key, value] of Object.entries(loadedEnv)) {
-				if (value !== undefined) {
-					process.env[key] = value;
+			const loadedEnv = envLoader.load(mode, settings.config);
+
+			if (!isDev) {
+				for (const [key, value] of Object.entries(loadedEnv)) {
+					if (value !== undefined) {
+						process.env[key] = value;
+					}
 				}
 			}
 
@@ -42,7 +50,7 @@ export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin
 			});
 
 			templates = {
-				...getTemplates(schema, validatedVariables),
+				...getTemplates(schema, validatedVariables, isDev ? loadedEnv : null),
 				internal: `export const schema = ${JSON.stringify(schema)};`,
 			};
 		},
@@ -122,6 +130,7 @@ function validatePublicVariables({
 function getTemplates(
 	schema: EnvSchema,
 	validatedVariables: ReturnType<typeof validatePublicVariables>,
+	loadedEnv: Record<string, string> | null,
 ) {
 	let client = '';
 	let server = readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
@@ -142,10 +151,15 @@ function getTemplates(
 		}
 
 		server += `export let ${key} = _internalGetSecret(${JSON.stringify(key)});\n`;
-		onSetGetEnv += `${key} = reset ? undefined : _internalGetSecret(${JSON.stringify(key)});\n`;
+		onSetGetEnv += `${key} = _internalGetSecret(${JSON.stringify(key)});\n`;
 	}
 
 	server = server.replace('// @@ON_SET_GET_ENV@@', onSetGetEnv);
+	if (loadedEnv) {
+		server = server.replace('// @@GET_ENV@@', `return (${JSON.stringify(loadedEnv)})[key];`);
+	} else {
+		server = server.replace('// @@GET_ENV@@', 'return _getEnv(key);');
+	}
 
 	return {
 		client,

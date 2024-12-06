@@ -274,8 +274,5 @@ function buildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
-		envGetSecretEnabled:
-			(unwrapSupportKind(settings.adapter?.supportedAstroFeatures.envGetSecret) ??
-				'unsupported') !== 'unsupported',
 	};
 }
