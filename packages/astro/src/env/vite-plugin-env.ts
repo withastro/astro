@@ -156,7 +156,9 @@ function getTemplates(
 
 	server = server.replace('// @@ON_SET_GET_ENV@@', onSetGetEnv);
 	if (loadedEnv) {
-		server = server.replace('// @@GET_ENV@@', `return (${JSON.stringify(loadedEnv)})[key]`);
+		server = server.replace('// @@GET_ENV@@', `return (${JSON.stringify(loadedEnv)})[key];`);
+	} else {
+		server = server.replace('// @@GET_ENV@@', 'return _getEnv(key);');
 	}
 
 	return {

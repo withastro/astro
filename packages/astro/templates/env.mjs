@@ -8,10 +8,14 @@ import {
 	validateEnvVariable,
 } from 'astro/env/runtime';
 
+// @ts-ignore
+/** @returns {string} */
+// used while generating the virtual module
+// biome-ignore lint/correctness/noUnusedFunctionParameters: `key` is used by the generated code
+// biome-ignore lint/correctness/noUnusedVariables: `key` is used by the generated code
 const getEnv = (key) => {
 	// @@GET_ENV@@
-	return _getEnv(key);
-}
+};
 
 export const getSecret = (key) => {
 	return getEnv(key)
