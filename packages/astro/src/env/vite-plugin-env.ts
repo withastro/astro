@@ -9,6 +9,7 @@ import {
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
+import { ENV_SYMBOL } from './runtime-constants.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
@@ -28,11 +29,7 @@ export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin
 		enforce: 'pre',
 		buildStart() {
 			const loadedEnv = loadEnv(mode, fileURLToPath(settings.config.root), '');
-			for (const [key, value] of Object.entries(loadedEnv)) {
-				if (value !== undefined) {
-					process.env[key] = value;
-				}
-			}
+			(globalThis as any)[ENV_SYMBOL] = loadedEnv;
 
 			const validatedVariables = validatePublicVariables({
 				schema,
