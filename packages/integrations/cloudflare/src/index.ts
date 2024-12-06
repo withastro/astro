@@ -131,8 +131,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					integrations: [astroWhen()],
 					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
 				});
-				addWatchFile(new URL('./wrangler.toml', config.root));
-				addWatchFile(new URL('./wrangler.json', config.root));
+				if (args?.platformProxy?.configPath) {
+					addWatchFile(new URL(args.platformProxy.configPath, config.root));
+				} else {
+					addWatchFile(new URL('./wrangler.toml', config.root));
+					addWatchFile(new URL('./wrangler.json', config.root));
+					addWatchFile(new URL('./wrangler.jsonc', config.root));
+				}
 				addMiddleware({
 					entrypoint: '@astrojs/cloudflare/entrypoints/middleware.js',
 					order: 'pre',
