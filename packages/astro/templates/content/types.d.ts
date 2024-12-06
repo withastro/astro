@@ -31,11 +31,11 @@ declare module 'astro:content' {
 		ContentEntryMap[C]
 	>['slug'];
 
-	export type ReferenceDataEntry<C extends CollectionKey, E extends keyof DataEntryMap[C]> = {
+	export type ReferenceDataEntry<C extends CollectionKey, E extends keyof DataEntryMap[C] = string> = {
 		collection: C;
 		id: E;
 	}
-	export type ReferenceContentEntry<C extends keyof ContentEntryMap, E extends ValidContentEntrySlug<C> | (string & {})> = {
+	export type ReferenceContentEntry<C extends keyof ContentEntryMap, E extends ValidContentEntrySlug<C> | (string & {}) = string> = {
 		collection: C;
 		slug: E;
 	}
