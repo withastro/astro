@@ -18,12 +18,21 @@ describe('defineAction accept', () => {
 		expectTypeOf(jsonAction).parameter(0).toBeAny();
 		expectTypeOf(jsonAction).parameter(0).not.toEqualTypeOf<FormData>();
 	});
+
 	it('accepts type `FormData` when input is omitted with accept form', async () => {
 		const action = defineAction({
 			accept: 'form',
 			handler: () => {},
 		});
 		expectTypeOf(action).parameter(0).toEqualTypeOf<FormData>();
+	});
+
+	it('accepts type `URLSearchParams` when input is omitted with accept form', async () => {
+		const action = defineAction({
+			accept: 'search',
+			handler: () => {},
+		});
+		expectTypeOf(action).parameter(0).toEqualTypeOf<URLSearchParams>();
 	});
 
 	it('accept type safe values for input with accept json', async () => {
@@ -41,5 +50,14 @@ describe('defineAction accept', () => {
 			handler: () => {},
 		});
 		expectTypeOf(action).parameter(0).toEqualTypeOf<FormData>();
+	});
+
+	it('accepts type `URLSearchParams` for all inputs with accept form', async () => {
+		const action = defineAction({
+			accept: 'form',
+			input: z.object({ name: z.string() }),
+			handler: () => {},
+		});
+		expectTypeOf(action).parameter(0).toEqualTypeOf<URLSearchParams>();
 	});
 });
