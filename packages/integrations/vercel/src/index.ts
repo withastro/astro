@@ -57,12 +57,14 @@ const ISR_PATH = `/_isr?${ASTRO_PATH_PARAM}=$0`;
 const SUPPORTED_NODE_VERSIONS: Record<
 	string,
 	| { status: 'default' }
+	| { status: 'available' }
 	| { status: 'beta' }
 	| { status: 'retiring'; removal: Date | string; warnDate: Date }
 	| { status: 'deprecated'; removal: Date }
 > = {
 	18: { status: 'retiring', removal: 'Early 2025', warnDate: new Date('October 1 2024') },
-	20: { status: 'default' },
+	20: { status: 'available' },
+	22: { status: 'default' },
 };
 
 function getAdapter({
@@ -589,7 +591,7 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		);
 		return 'nodejs18.x';
 	}
-	if (support.status === 'default') {
+	if (support.status === 'default' || support.status === 'available') {
 		return `nodejs${major}.x`;
 	}
 	if (support.status === 'retiring') {
