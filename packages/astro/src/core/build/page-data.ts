@@ -39,8 +39,8 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 		}
 		// Generate a unique key to identify each page in the build process.
 		const key = makePageDataKey(route.route, route.component);
+		// static route:
 		if (route.pathname) {
-			// static route:
 			allPages[key] = {
 				key: key,
 				component: route.component,
