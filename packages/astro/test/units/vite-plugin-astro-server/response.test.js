@@ -97,8 +97,8 @@ describe('endpoints', () => {
 
 			assert.ok(true);
 			
-		} catch {
-			assert.fail()
+		} catch (err) {
+			assert.fail(err)
 		}
 	});
 });
