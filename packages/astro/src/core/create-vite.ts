@@ -33,7 +33,6 @@ import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
-import vitePluginSessions from '../vite-plugin-sessions/index.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
 import type { SSRManifest } from './app/types.js';
 import type { Logger } from './logger/core.js';
@@ -144,7 +143,6 @@ export async function createVite(
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({ settings, logger }),
 			astroScriptsPlugin({ settings }),
-			vitePluginSessions({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			command === 'dev' && vitePluginAstroServer({ settings, logger, fs, manifest, ssrManifest }), // ssrManifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function

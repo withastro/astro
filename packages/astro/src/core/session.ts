@@ -1,6 +1,16 @@
 import { stringify, unflatten } from 'devalue';
-import { type BuiltinDriverOptions, type Driver, type Storage, builtinDrivers, createStorage } from 'unstorage';
-import type { SessionConfig, SessionDriverName } from '../types/public/config.js';
+import {
+	type BuiltinDriverOptions,
+	type Driver,
+	type Storage,
+	builtinDrivers,
+	createStorage,
+} from 'unstorage';
+import type {
+	ResolvedSessionConfig,
+	SessionConfig,
+	SessionDriverName,
+} from '../types/public/config.js';
 import type { AstroCookies } from './cookies/cookies.js';
 import type { AstroCookieSetOptions } from './cookies/cookies.js';
 import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
@@ -15,7 +25,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	// The cookies object.
 	#cookies: AstroCookies;
 	// The session configuration.
-	#config: Omit<SessionConfig<TDriver>, 'cookie'>;
+	#config: Omit<ResolvedSessionConfig<TDriver>, 'cookie'>;
 	// The cookie config
 	#cookieConfig?: AstroCookieSetOptions;
 	// The cookie name
@@ -41,7 +51,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		{
 			cookie: cookieConfig = DEFAULT_COOKIE_NAME,
 			...config
-		}: Exclude<SessionConfig<TDriver>, undefined>,
+		}: Exclude<ResolvedSessionConfig<TDriver>, undefined>,
 	) {
 		this.#cookies = cookies;
 		if (typeof cookieConfig === 'object') {
@@ -354,7 +364,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			return this.#storage;
 		}
 		// Use fsLite rather than fs, because fs can't be bundled. Add a default base path if not provided.
-		if(this.#config.driver === 'fs' || this.#config.driver === 'fsLite') {
+		if (this.#config.driver === 'fs' || this.#config.driver === 'fsLite') {
 			this.#config.options ??= {};
 			this.#config.driver = 'fsLite';
 			(this.#config.options as BuiltinDriverOptions['fsLite']).base ??= '.astro/session';
@@ -370,21 +380,13 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
-		const isBuiltin = this.#config.driver in builtinDrivers;
-		// Try to load the driver from the built-in unstorage drivers.
-		// Otherwise, assume it's a custom driver and load by name.
-		const driverPackage: string = isBuiltin
-			? builtinDrivers[this.#config.driver as keyof typeof builtinDrivers]
-			: this.#config.driver;
 
+		const driverPackage = await resolveSessionDriver(this.#config.driver);
 		try {
-			// If driver is not a builtin, or in development or test, load the driver directly.
-			if (!isBuiltin || process.env.NODE_ENV === 'development' || process.env.NODE_TEST_CONTEXT) {
-				driver = await import(/* @vite-ignore */ driverPackage).then((r) => r.default || r);
-			} else {
-				// In production, load via the virtual module as it will be bundled by Vite
-				// @ts-expect-error - virtual module
-				driver = await import('@astro-session-driver').then((r) => r.default || r);
+			if (this.#config.driverModule) {
+				driver = (await this.#config.driverModule()).default;
+			} else if (driverPackage) {
+				driver = (await import(driverPackage)).default;
 			}
 		} catch (err: any) {
 			// If the driver failed to load, throw an error.
@@ -430,4 +432,17 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			);
 		}
 	}
+}
+// TODO: make this sync when we drop support for Node < 18.19.0
+export function resolveSessionDriver(driver: string | undefined): Promise<string> | string | null {
+	if (!driver) {
+		return null;
+	}
+	if (driver === 'fs') {
+		return import.meta.resolve(builtinDrivers.fsLite);
+	}
+	if (driver in builtinDrivers) {
+		return import.meta.resolve(builtinDrivers[driver as keyof typeof builtinDrivers]);
+	}
+	return driver;
 }
