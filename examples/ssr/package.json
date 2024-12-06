@@ -5,16 +5,15 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "server": "node dist/server/entry.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^8.3.3",
-    "@astrojs/svelte": "^5.7.0",
-    "astro": "^4.14.3",
-    "svelte": "^4.2.18"
+    "@astrojs/node": "^9.0.0",
+    "@astrojs/svelte": "^7.0.1",
+    "astro": "^5.0.3",
+    "svelte": "^5.1.16"
   }
 }

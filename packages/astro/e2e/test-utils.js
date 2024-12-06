@@ -14,12 +14,18 @@ const testFileToPort = new Map();
 for (let i = 0; i < testFiles.length; i++) {
 	const file = testFiles[i];
 	if (file.endsWith('.test.js')) {
-		testFileToPort.set(file.slice(0, -8), 4000 + i);
+		// Port 4045 is an unsafe port in Chrome, so skip it.
+		if (4000 + i === 4045) {
+			i++;
+		}
+		testFileToPort.set(file, 4000 + i);
 	}
 }
 
-export function loadFixture(inlineConfig) {
+export function loadFixture(testFile, inlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
+
+	const port = testFileToPort.get(path.basename(testFile));
 
 	// resolve the relative root (i.e. "./fixtures/tailwindcss") to a full filepath
 	// without this, the main `loadFixture` helper will resolve relative to `packages/astro/test`
@@ -27,17 +33,25 @@ export function loadFixture(inlineConfig) {
 		...inlineConfig,
 		root: fileURLToPath(new URL(inlineConfig.root, import.meta.url)),
 		server: {
-			port: testFileToPort.get(path.basename(inlineConfig.root)),
+			...inlineConfig?.server,
+			port,
+		},
+		vite: {
+			...inlineConfig?.vite,
+			server: {
+				...inlineConfig?.vite?.server,
+				strictPort: true,
+			},
 		},
 	});
 }
 
-export function testFactory(inlineConfig) {
+export function testFactory(testFile, inlineConfig) {
 	let fixture;
 
 	const test = testBase.extend({
 		astro: async ({}, use) => {
-			fixture = fixture || (await loadFixture(inlineConfig));
+			fixture = fixture || (await loadFixture(testFile, inlineConfig));
 			await use(fixture);
 		},
 	});

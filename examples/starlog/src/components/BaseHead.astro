@@ -1,5 +1,5 @@
 ---
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 import SEO, { type Props as SEOProps } from './SEO.astro';
 import { SiteTitle, SiteDescription } from '../consts';
 
@@ -17,4 +17,4 @@ const { title = SiteTitle, name = SiteTitle, description = SiteDescription, ...s
 	rel="stylesheet"
 />
 
-<ViewTransitions />
+<ClientRouter />

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { ASTRO_VERSION } from '../core/constants.js';
@@ -7,6 +6,7 @@ type CLICommand =
 	| 'help'
 	| 'version'
 	| 'add'
+	| 'create-key'
 	| 'docs'
 	| 'dev'
 	| 'build'
@@ -30,6 +30,7 @@ async function printAstroHelp() {
 				['add', 'Add an integration.'],
 				['build', 'Build your project and write it to disk.'],
 				['check', 'Check your project for errors.'],
+				['create-key', 'Create a cryptography key'],
 				['db', 'Manage your Astro database.'],
 				['dev', 'Start the development server.'],
 				['docs', 'Open documentation in your web browser.'],
@@ -78,11 +79,12 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 		'build',
 		'preview',
 		'check',
+		'create-key',
 		'docs',
 		'db',
 		'info',
 		'login',
-		'loutout',
+		'logout',
 		'link',
 		'init',
 	]);
@@ -111,6 +113,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			await printInfo({ flags });
 			return;
 		}
+		case 'create-key': {
+			const { createKey } = await import('./create-key/index.js');
+			const exitCode = await createKey({ flags });
+			return process.exit(exitCode);
+		}
 		case 'docs': {
 			const { docs } = await import('./docs/index.js');
 			await docs({ flags });
@@ -126,8 +133,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 		case 'sync': {
 			const { sync } = await import('./sync/index.js');
-			const exitCode = await sync({ flags });
-			return process.exit(exitCode);
+			await sync({ flags });
+			return;
 		}
 		case 'preferences': {
 			const { preferences } = await import('./preferences/index.js');

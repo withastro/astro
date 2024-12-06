@@ -2,7 +2,7 @@ import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
 import { ZodIssueCode, z } from 'zod';
-import type { GetImageResult, ImageMetadata } from '../@types/astro.js';
+import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
@@ -26,12 +26,22 @@ type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
 
+export function getImporterFilename() {
+	// The 4th line in the stack trace should be the importer filename
+	const stackLine = new Error().stack?.split('\n')?.[3];
+	if (!stackLine) {
+		return null;
+	}
+	// Extract the relative path from the stack line
+	const match = /\/(src\/.*?):\d+:\d+/.exec(stackLine);
+	return match?.[1] ?? null;
+}
+
 export function defineCollection(config: any) {
 	if ('loader' in config) {
 		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
 			throw new AstroUserError(
-				'Collections that use the Content Layer API must have a `loader` defined and no `type` set.',
-				"Check your collection definitions in `src/content/config.*`.'",
+				`Collections that use the Content Layer API must have a \`loader\` defined and no \`type\` set. Check your collection definitions in ${getImporterFilename() ?? 'your content config file'}.`,
 			);
 		}
 		config.type = CONTENT_LAYER_TYPE;
@@ -84,9 +94,7 @@ export function createGetCollection({
 
 			const result = [];
 			for (const rawEntry of store.values<DataEntry>(collection)) {
-				const data = rawEntry.filePath
-					? updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap)
-					: rawEntry.data;
+				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
 
 				const entry = {
 					...rawEntry,
@@ -96,11 +104,10 @@ export function createGetCollection({
 				if (hasFilter && !filter(entry)) {
 					continue;
 				}
-				result.push(entry);
+				result.push(entry.legacyId ? emulateLegacyEntry(entry) : entry);
 			}
 			return result;
 		} else {
-			// eslint-disable-next-line no-console
 			console.warn(
 				`The collection ${JSON.stringify(
 					collection,
@@ -164,23 +171,30 @@ export function createGetEntryBySlug({
 	getEntryImport,
 	getRenderEntryImport,
 	collectionNames,
+	getEntry,
 }: {
 	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
 	collectionNames: Set<string>;
+	getEntry: ReturnType<typeof createGetEntry>;
 }) {
 	return async function getEntryBySlug(collection: string, slug: string) {
 		const store = await globalDataStore.get();
 
 		if (!collectionNames.has(collection)) {
 			if (store.hasCollection(collection)) {
+				const entry = await getEntry(collection, slug);
+				if (entry && 'slug' in entry) {
+					return entry;
+				}
 				throw new AstroError({
 					...AstroErrorData.GetEntryDeprecationError,
 					message: AstroErrorData.GetEntryDeprecationError.message(collection, 'getEntryBySlug'),
 				});
 			}
-			// eslint-disable-next-line no-console
-			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			console.warn(
+				`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`,
+			);
 			return undefined;
 		}
 
@@ -209,28 +223,27 @@ export function createGetEntryBySlug({
 export function createGetDataEntryById({
 	getEntryImport,
 	collectionNames,
+	getEntry,
 }: {
 	getEntryImport: GetEntryImport;
 	collectionNames: Set<string>;
+	getEntry: ReturnType<typeof createGetEntry>;
 }) {
 	return async function getDataEntryById(collection: string, id: string) {
 		const store = await globalDataStore.get();
 
 		if (!collectionNames.has(collection)) {
 			if (store.hasCollection(collection)) {
-				throw new AstroError({
-					...AstroErrorData.GetEntryDeprecationError,
-					message: AstroErrorData.GetEntryDeprecationError.message(collection, 'getDataEntryById'),
-				});
+				return getEntry(collection, id);
 			}
-			// eslint-disable-next-line no-console
-			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			console.warn(
+				`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`,
+			);
 			return undefined;
 		}
 
 		const lazyImport = await getEntryImport(collection, id);
 
-		// TODO: AstroError
 		if (!lazyImport) throw new Error(`Entry ${collection} → ${id} was not found.`);
 		const entry = await lazyImport();
 
@@ -258,6 +271,21 @@ type DataEntryResult = {
 };
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
+
+function emulateLegacyEntry(entry: DataEntry) {
+	// Define this first so it's in scope for the render function
+	const legacyEntry = {
+		...entry,
+		id: entry.legacyId!,
+		slug: entry.id,
+	};
+	delete legacyEntry.legacyId;
+	return {
+		...legacyEntry,
+		// Define separately so the render function isn't included in the object passed to `renderEntry()`
+		render: () => renderEntry(legacyEntry),
+	};
+}
 
 export function createGetEntry({
 	getEntryImport,
@@ -298,15 +326,15 @@ export function createGetEntry({
 		if (store.hasCollection(collection)) {
 			const entry = store.get<DataEntry>(collection, lookupId);
 			if (!entry) {
-				// eslint-disable-next-line no-console
 				console.warn(`Entry ${collection} → ${lookupId} was not found.`);
 				return;
 			}
 
-			if (entry.filePath) {
-				// @ts-expect-error	virtual module
-				const { default: imageAssetMap } = await import('astro:asset-imports');
-				entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+			// @ts-expect-error	virtual module
+			const { default: imageAssetMap } = await import('astro:asset-imports');
+			entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+			if (entry.legacyId) {
+				return { ...emulateLegacyEntry(entry), collection } as ContentEntryResult;
 			}
 			return {
 				...entry,
@@ -315,8 +343,9 @@ export function createGetEntry({
 		}
 
 		if (!collectionNames.has(collection)) {
-			// eslint-disable-next-line no-console
-			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			console.warn(
+				`The collection ${JSON.stringify(collection)} does not exist. Please ensure it is defined in your content config.`,
+			);
 			return undefined;
 		}
 
@@ -415,18 +444,19 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 
 function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
-	fileName: string,
-	imageAssetMap: Map<string, ImageMetadata>,
+	fileName?: string,
+	imageAssetMap?: Map<string, ImageMetadata>,
 ): T {
 	return new Traverse(data).map(function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
+
 			const id = imageSrcToImportId(src, fileName);
 			if (!id) {
 				ctx.update(src);
 				return;
 			}
-			const imported = imageAssetMap.get(id);
+			const imported = imageAssetMap?.get(id);
 			if (imported) {
 				ctx.update(imported);
 			} else {
@@ -437,9 +467,16 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 }
 
 export async function renderEntry(
-	entry: DataEntry | { render: () => Promise<{ Content: AstroComponentFactory }> },
+	entry:
+		| DataEntry
+		| { render: () => Promise<{ Content: AstroComponentFactory }> }
+		| (DataEntry & { render: () => Promise<{ Content: AstroComponentFactory }> }),
 ) {
-	if (entry && 'render' in entry) {
+	if (!entry) {
+		throw new AstroError(AstroErrorData.RenderUndefinedEntryError);
+	}
+
+	if ('render' in entry && !('legacyId' in entry)) {
 		// This is an old content collection entry, so we use its render method
 		return entry.render();
 	}
@@ -448,15 +485,13 @@ export async function renderEntry(
 		try {
 			// @ts-expect-error	virtual module
 			const { default: contentModules } = await import('astro:content-module-imports');
-			const module = contentModules.get(entry.filePath);
-			const deferredMod = await module();
-			return {
-				Content: deferredMod.Content,
-				headings: deferredMod.getHeadings?.() ?? [],
-				remarkPluginFrontmatter: deferredMod.frontmatter ?? {},
-			};
+			const renderEntryImport = contentModules.get(entry.filePath);
+			return render({
+				collection: '',
+				id: entry.id,
+				renderEntryImport,
+			});
 		} catch (e) {
-			// eslint-disable-next-line
 			console.error(e);
 		}
 	}
@@ -603,16 +638,9 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 							});
 							return;
 						}
+						// We won't throw if the collection is missing, because it may be a content layer collection and the store may not yet be populated.
+						// If it is an object then we're validating later in the build, so we can check the collection at that point.
 
-						// A reference object might refer to an invalid collection, because when we convert it we don't have access to the store.
-						// If it is an object then we're validating later in the pipeline, so we can check the collection at that point.
-						if (!lookupMap[collection] && !collectionIsInStore) {
-							ctx.addIssue({
-								code: ZodIssueCode.custom,
-								message: `**${flattenedErrorPath}:** Reference to ${collection} invalid. Collection does not exist or is empty.`,
-							});
-							return;
-						}
 						return lookup;
 					}
 
@@ -628,13 +656,14 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						return { id: lookup, collection };
 					}
 
-					if (!lookupMap[collection] && store.collections().size === 0) {
-						// If the collection is not in the lookup map or store, it may be a content layer collection and the store may not yet be populated.
+					// If the collection is not in the lookup map or store, it may be a content layer collection and the store may not yet be populated.
+					// If the store has 0 or 1 entries it probably means that the entries have not yet been loaded.
+					// The store may have a single entry even if the collections have not loaded, because the top-level metadata collection is generated early.
+					if (!lookupMap[collection] && store.collections().size <= 1) {
 						// For now, we can't validate this reference, so we'll optimistically convert it to a reference object which we'll validate
 						// later in the pipeline when we do have access to the store.
 						return { id: lookup, collection };
 					}
-
 					const { type, entries } = lookupMap[collection];
 					const entry = entries[lookup];
 

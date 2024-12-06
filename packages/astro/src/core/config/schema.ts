@@ -6,13 +6,14 @@ import type {
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
-import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { z } from 'zod';
+import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import { EnvSchema } from '../../env/schema.js';
+import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
@@ -57,14 +58,16 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	trailingSlash: 'ignore',
 	build: {
 		format: 'directory',
-		client: './dist/client/',
-		server: './dist/server/',
+		client: './client/',
+		server: './server/',
 		assets: '_astro',
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
+		concurrency: 1,
 	},
 	image: {
+		endpoint: { entrypoint: undefined, route: '/_image' },
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 	},
 	devToolbar: {
@@ -79,21 +82,22 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	integrations: [],
 	markdown: markdownConfigDefaults,
 	vite: {},
-	legacy: {},
+	legacy: {
+		collections: false,
+	},
 	redirects: {},
-	security: {},
+	security: {
+		checkOrigin: true,
+	},
+	env: {
+		schema: {},
+		validateSecrets: false,
+	},
 	experimental: {
-		actions: false,
-		directRenderScript: false,
-		contentCollectionCache: false,
 		clientPrerender: false,
-		globalRoutePriority: false,
-		serverIslands: false,
 		contentIntellisense: false,
-		env: {
-			validateSecrets: false,
-		},
-		contentLayer: false,
+		responsiveImages: false,
+		svg: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -131,7 +135,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
 	output: z
-		.union([z.literal('static'), z.literal('server'), z.literal('hybrid')])
+		.union([z.literal('static'), z.literal('server')])
 		.optional()
 		.default('static'),
 	scopedStyleStrategy: z
@@ -187,6 +191,7 @@ export const AstroConfigSchema = z.object({
 				.enum(['always', 'auto', 'never'])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
+			concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 		})
 		.default({}),
 	server: z.preprocess(
@@ -241,15 +246,19 @@ export const AstroConfigSchema = z.object({
 		.optional(),
 	image: z
 		.object({
-			endpoint: z.string().optional(),
+			endpoint: z
+				.object({
+					route: z
+						.literal('/_image')
+						.or(z.string())
+						.default(ASTRO_CONFIG_DEFAULTS.image.endpoint.route),
+					entrypoint: z.string().optional(),
+				})
+				.default(ASTRO_CONFIG_DEFAULTS.image.endpoint),
 			service: z
 				.object({
 					entrypoint: z
-						.union([
-							z.literal('astro/assets/services/sharp'),
-							z.literal('astro/assets/services/squoosh'),
-							z.string(),
-						])
+						.union([z.literal('astro/assets/services/sharp'), z.string()])
 						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
 					config: z.record(z.any()).default({}),
 				})
@@ -278,6 +287,10 @@ export const AstroConfigSchema = z.object({
 					}),
 				)
 				.default([]),
+			experimentalLayout: z.enum(['responsive', 'fixed', 'full-width', 'none']).optional(),
+			experimentalObjectFit: z.string().optional(),
+			experimentalObjectPosition: z.string().optional(),
+			experimentalBreakpoints: z.array(z.number()).optional(),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
 	devToolbar: z
@@ -312,6 +325,10 @@ export const AstroConfigSchema = z.object({
 							return langs;
 						})
 						.default([]),
+					langAlias: z
+						.record(z.string(), z.string())
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.langAlias!),
 					theme: z
 						.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 						.or(z.custom<ShikiTheme>())
@@ -330,17 +347,6 @@ export const AstroConfigSchema = z.object({
 					transformers: z
 						.custom<ShikiTransformer>()
 						.array()
-						.transform((transformers) => {
-							for (const transformer of transformers) {
-								// When updating shikiji to shiki, the `token` property was renamed to `span`.
-								// We apply the compat here for now until the next Astro major.
-								// TODO: Remove this in Astro 5.0
-								if ((transformer as any).token && !('span' in transformer)) {
-									transformer.span = (transformer as any).token;
-								}
-							}
-							return transformers;
-						})
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.transformers!),
 				})
 				.default({}),
@@ -403,6 +409,7 @@ export const AstroConfigSchema = z.object({
 							.object({
 								prefixDefaultLocale: z.boolean().optional().default(false),
 								redirectToDefaultLocale: z.boolean().optional().default(true),
+								fallbackType: z.enum(['redirect', 'rewrite']).optional().default('redirect'),
 							})
 							.refine(
 								({ prefixDefaultLocale, redirectToDefaultLocale }) => {
@@ -503,59 +510,78 @@ export const AstroConfigSchema = z.object({
 	),
 	security: z
 		.object({
-			checkOrigin: z.boolean().default(false),
+			checkOrigin: z.boolean().default(ASTRO_CONFIG_DEFAULTS.security.checkOrigin),
 		})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.security),
+	env: z
+		.object({
+			schema: EnvSchema.optional().default(ASTRO_CONFIG_DEFAULTS.env.schema),
+			validateSecrets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.env.validateSecrets),
+		})
+		.strict()
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.env),
 	experimental: z
 		.object({
-			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
-			directRenderScript: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.directRenderScript),
-			contentCollectionCache: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
 			clientPrerender: z
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.clientPrerender),
-			globalRoutePriority: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
-			env: z
-				.object({
-					schema: EnvSchema.optional(),
-					validateSecrets: z
-						.boolean()
-						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.experimental.env.validateSecrets),
-				})
-				.strict()
-				.optional(),
-			serverIslands: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.serverIslands),
 			contentIntellisense: z
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
-			contentLayer: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.contentLayer),
+			responsiveImages: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
+			svg: z
+				.union([
+					z.boolean(),
+					z
+						.object({
+							mode: z.union([z.literal('inline'), z.literal('sprite')]).optional(),
+						})
+						.optional(),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.svg)
+				.transform((svgConfig) => {
+					// Handle normalization of `experimental.svg` config boolean values
+					if (typeof svgConfig === 'boolean') {
+						return svgConfig
+							? {
+									mode: 'inline' as SvgRenderMode,
+								}
+							: undefined;
+					} else {
+						if (!svgConfig.mode) {
+							return {
+								mode: 'inline' as SvgRenderMode,
+							};
+						}
+					}
+					return svgConfig;
+				}),
 		})
 		.strict(
-			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,
+			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
 		)
 		.default({}),
-	legacy: z.object({}).default({}),
+	legacy: z
+		.object({
+			collections: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.legacy.collections),
+		})
+		.default({}),
 });
 
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
 
 export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
+	let originalBuildClient: string;
+	let originalBuildServer: string;
+
 	// We need to extend the global schema to add transforms that are relative to root.
 	// This is type checked against the global schema to make sure we still match.
 	const AstroConfigRelativeSchema = AstroConfigSchema.extend({
@@ -586,16 +612,30 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.union([z.literal('file'), z.literal('directory'), z.literal('preserve')])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.format),
+				// NOTE: `client` and `server` are transformed relative to the default outDir first,
+				// later we'll fix this to be relative to the actual `outDir`
 				client: z
 					.string()
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.client)
-					.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
+					.transform((val) => {
+						originalBuildClient = val;
+						return resolveDirAsUrl(
+							val,
+							path.resolve(fileProtocolRoot, ASTRO_CONFIG_DEFAULTS.outDir),
+						);
+					}),
 				server: z
 					.string()
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.server)
-					.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
+					.transform((val) => {
+						originalBuildServer = val;
+						return resolveDirAsUrl(
+							val,
+							path.resolve(fileProtocolRoot, ASTRO_CONFIG_DEFAULTS.outDir),
+						);
+					}),
 				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
 				assetsPrefix: z
 					.string()
@@ -620,6 +660,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.enum(['always', 'auto', 'never'])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
+				concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 			})
 			.optional()
 			.default({}),
@@ -652,28 +693,31 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		),
 	})
 		.transform((config) => {
-			// If the user changed outDir but not build.server, build.config, adjust so those
-			// are relative to the outDir, as is the expected default.
+			// If the user changed `outDir`, we need to also update `build.client` and `build.server`
+			// the be based on the correct `outDir`
 			if (
-				!config.build.server.toString().startsWith(config.outDir.toString()) &&
-				config.build.server.toString().endsWith('dist/server/')
+				config.outDir.toString() !==
+				resolveDirAsUrl(ASTRO_CONFIG_DEFAULTS.outDir, fileProtocolRoot).toString()
 			) {
-				config.build.server = new URL('./dist/server/', config.outDir);
-			}
-			if (
-				!config.build.client.toString().startsWith(config.outDir.toString()) &&
-				config.build.client.toString().endsWith('dist/client/')
-			) {
-				config.build.client = new URL('./dist/client/', config.outDir);
+				const outDirPath = fileURLToPath(config.outDir);
+				config.build.client = resolveDirAsUrl(originalBuildClient, outDirPath);
+				config.build.server = resolveDirAsUrl(originalBuildServer, outDirPath);
 			}
 
-			// Handle `base` trailing slash based on `trailingSlash` config
+			// Handle `base` and `image.endpoint.route` trailing slash based on `trailingSlash` config
 			if (config.trailingSlash === 'never') {
 				config.base = prependForwardSlash(removeTrailingForwardSlash(config.base));
+				config.image.endpoint.route = prependForwardSlash(
+					removeTrailingForwardSlash(config.image.endpoint.route),
+				);
 			} else if (config.trailingSlash === 'always') {
 				config.base = prependForwardSlash(appendForwardSlash(config.base));
+				config.image.endpoint.route = prependForwardSlash(
+					appendForwardSlash(config.image.endpoint.route),
+				);
 			} else {
 				config.base = prependForwardSlash(config.base);
+				config.image.endpoint.route = prependForwardSlash(config.image.endpoint.route);
 			}
 
 			return config;
@@ -683,7 +727,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		})
 		.superRefine((configuration, ctx) => {
-			const { site, i18n, output } = configuration;
+			const { site, i18n, output, image, experimental } = configuration;
 			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
 			if (hasDomains) {
 				if (!site) {
@@ -699,6 +743,19 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 						message: 'Domain support is only available when `output` is `"server"`.',
 					});
 				}
+			}
+			if (
+				!experimental.responsiveImages &&
+				(image.experimentalLayout ||
+					image.experimentalObjectFit ||
+					image.experimentalObjectPosition ||
+					image.experimentalBreakpoints)
+			) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message:
+						'The `experimentalLayout`, `experimentalObjectFit`, `experimentalObjectPosition` and `experimentalBreakpoints` options are only available when `experimental.responsiveImages` is enabled.',
+				});
 			}
 		});
 

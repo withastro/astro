@@ -1,5 +1,5 @@
 import type { Rollup } from 'vite';
-import type { RouteData, SSRResult } from '../../@types/astro.js';
+import type { RouteData, SSRResult } from '../../types/public/internal.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 import { makePageDataKey } from './plugins/util.js';
@@ -15,15 +15,10 @@ export interface BuildInternals {
 	 */
 	cssModuleToChunkIdMap: Map<string, string>;
 
-	// A mapping of hoisted script ids back to the exact hoisted scripts it references
-	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
-	// A mapping of hoisted script ids back to the pages which reference it
-	hoistedScriptIdToPagesMap: Map<string, Set<string>>;
-
 	/**
-	 * Used by the `directRenderScript` option. If script is inlined, its id and
-	 * inlined code is mapped here. The resolved id is an URL like "/_astro/something.js"
-	 * but will no longer exist as the content is now inlined in this map.
+	 * If script is inlined, its id and inlined code is mapped here. The resolved id is
+	 * an URL like "/_astro/something.js" but will no longer exist as the content is now
+	 * inlined in this map.
 	 */
 	inlinedScripts: Map<string, string>;
 
@@ -72,24 +67,16 @@ export interface BuildInternals {
 	 */
 	discoveredClientOnlyComponents: Map<string, string[]>;
 	/**
-	 * A list of hoisted scripts that are discovered during the SSR build
+	 * A list of scripts that are discovered during the SSR build.
 	 * These will be used as the top-level entrypoints for the client build.
 	 */
 	discoveredScripts: Set<string>;
-
-	cachedClientEntries: string[];
-	cacheManifestUsed: boolean;
 
 	/**
 	 * Map of propagated module ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`)
 	 * to a set of stylesheets that it uses.
 	 */
 	propagatedStylesMap: Map<string, Set<StylesheetAsset>>;
-	/**
-	 * Map of propagated module ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`)
-	 * to a set of hoisted scripts that it uses.
-	 */
-	propagatedScriptsMap: Map<string, Set<string>>;
 
 	// A list of all static files created during the build. Used for SSR.
 	staticFiles: Set<string>;
@@ -113,17 +100,8 @@ export interface BuildInternals {
  * @returns {BuildInternals}
  */
 export function createBuildInternals(): BuildInternals {
-	// These are for tracking hoisted script bundling
-	const hoistedScriptIdToHoistedMap = new Map<string, Set<string>>();
-
-	// This tracks hoistedScriptId => page components
-	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
-
 	return {
-		cachedClientEntries: [],
 		cssModuleToChunkIdMap: new Map(),
-		hoistedScriptIdToHoistedMap,
-		hoistedScriptIdToPagesMap,
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pagesByKeys: new Map(),
@@ -132,7 +110,6 @@ export function createBuildInternals(): BuildInternals {
 		pagesByScriptId: new Map(),
 
 		propagatedStylesMap: new Map(),
-		propagatedScriptsMap: new Map(),
 
 		discoveredHydratedComponents: new Map(),
 		discoveredClientOnlyComponents: new Map(),
@@ -140,14 +117,13 @@ export function createBuildInternals(): BuildInternals {
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
 		entryPoints: new Map(),
-		cacheManifestUsed: false,
 		prerenderOnlyChunks: [],
 	};
 }
 
 export function trackPageData(
 	internals: BuildInternals,
-	component: string,
+	_component: string,
 	pageData: PageBuildData,
 	componentModuleId: string,
 	componentURL: URL,
@@ -179,7 +155,7 @@ export function trackClientOnlyPageDatas(
 }
 
 /**
- * Tracks scripts to the pages they are associated with. (experimental.directRenderScript)
+ * Tracks scripts to the pages they are associated with.
  */
 export function trackScriptPageDatas(
 	internals: BuildInternals,
@@ -245,60 +221,6 @@ export function getPageData(
 		return pageData;
 	}
 	return undefined;
-}
-
-/**
- * Get all pages datas from the build internals, using a specific component.
- * @param internals Build Internals with all the pages
- * @param component path to the component, used to identify related pages
- */
-function getPagesDatasByComponent(internals: BuildInternals, component: string): PageBuildData[] {
-	const pageDatas: PageBuildData[] = [];
-	internals.pagesByKeys.forEach((pageData) => {
-		if (component === pageData.component) pageDatas.push(pageData);
-	});
-	return pageDatas;
-}
-
-// TODO: Should be removed in the future. (Astro 5?)
-/**
- * Map internals.pagesByKeys to a new map with the public key instead of the internal key.
- * This function is only used to avoid breaking changes in the Integrations API, after we changed the way
- * we identify pages, from the entrypoint component to an internal key.
- * If the page component is unique -> the public key is the component path. (old behavior)
- * If the page component is shared -> the public key is the internal key. (new behavior)
- * The new behavior on shared entrypoint it's not a breaking change, because it was not supported before.
- * @param pagesByKeys A map of all page data by their internal key
- */
-export function getPageDatasWithPublicKey(
-	pagesByKeys: Map<string, PageBuildData>,
-): Map<string, PageBuildData> {
-	// Create a map to store the pages with the public key, mimicking internal.pagesByKeys
-	const pagesWithPublicKey = new Map<string, PageBuildData>();
-
-	const pagesByComponentsArray = Array.from(pagesByKeys.values()).map((pageData) => {
-		return { component: pageData.component, pageData: pageData };
-	});
-
-	// Get pages with unique component, and set the public key to the component.
-	const pagesWithUniqueComponent = pagesByComponentsArray.filter((page) => {
-		return pagesByComponentsArray.filter((p) => p.component === page.component).length === 1;
-	});
-
-	pagesWithUniqueComponent.forEach((page) => {
-		pagesWithPublicKey.set(page.component, page.pageData);
-	});
-
-	// Get pages with shared component, and set the public key to the internal key.
-	const pagesWithSharedComponent = pagesByComponentsArray.filter((page) => {
-		return pagesByComponentsArray.filter((p) => p.component === page.component).length > 1;
-	});
-
-	pagesWithSharedComponent.forEach((page) => {
-		pagesWithPublicKey.set(page.pageData.key, page.pageData);
-	});
-
-	return pagesWithPublicKey;
 }
 
 export function getPageDataByViteID(
@@ -370,25 +292,4 @@ export function mergeInlineCss(
 	}
 	acc.push(current);
 	return acc;
-}
-
-/**
- * Get all pages data from the build internals, using a specific hoisted script id.
- * @param internals Build Internals with all the pages
- * @param id Hoisted script id, used to identify the pages using it
- */
-export function getPageDatasByHoistedScriptId(
-	internals: BuildInternals,
-	id: string,
-): PageBuildData[] {
-	const set = internals.hoistedScriptIdToPagesMap.get(id);
-	const pageDatas: PageBuildData[] = [];
-	if (set) {
-		for (const pageId of set) {
-			getPagesDatasByComponent(internals, pageId.slice(1)).forEach((pageData) => {
-				pageDatas.push(pageData);
-			});
-		}
-	}
-	return pageDatas;
 }

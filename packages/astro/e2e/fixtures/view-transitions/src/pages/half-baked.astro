@@ -1,7 +1,7 @@
 ---
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 
-// For the test fixture, we import the script but we don't use the <ViewTransitions /> component
+// For the test fixture, we import the script but we don't use the <ClientRouter /> component
 // While this seems to be some strange mistake,
 // it might be realistic, e.g. in a configurable CommonHead component
 
@@ -10,10 +10,11 @@ interface Props {
 }
 const { transitions } = Astro.props;
 ---
+
 <html>
 	<head>
 		<title>Half-Baked</title>
-		{transitions && <ViewTransitions />}
+		{transitions && <ClientRouter />}
 	</head>
 	<body>
 		<main>

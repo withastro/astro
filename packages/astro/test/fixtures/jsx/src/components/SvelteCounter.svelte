@@ -1,6 +1,6 @@
 
 <script>
-  let count = 0;
+	let count = $state(0);
 
   function add() {
 		count += 1;
@@ -13,9 +13,9 @@
 
 <div id="svelte">
 	<div class="counter">
-		<button on:click={subtract}>-</button>
+		<button onclick={subtract}>-</button>
 		<pre>{count}</pre>
-		<button on:click={add}>+</button>
+		<button onclick={add}>+</button>
 	</div>
 	<div class="children">Svelte</div>
 </div>

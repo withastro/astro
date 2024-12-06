@@ -6,13 +6,18 @@ import { bold, cyan } from 'kleur/colors';
 import { type ViteDevServer, normalizePath } from 'vite';
 import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { printNode, zodToTs } from 'zod-to-ts';
-import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
-import { CONTENT_LAYER_TYPE, CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { ContentEntryType } from '../types/public/content.js';
+import {
+	COLLECTIONS_DIR,
+	CONTENT_LAYER_TYPE,
+	CONTENT_TYPES_FILE,
+	VIRTUAL_MODULE_ID,
+} from './consts.js';
 import {
 	type CollectionConfig,
 	type ContentConfig,
@@ -81,30 +86,31 @@ export async function createContentTypesGenerator({
 	async function init(): Promise<
 		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
 	> {
-		if (!fs.existsSync(contentPaths.contentDir)) {
-			return { typesGenerated: false, reason: 'no-content-dir' };
-		}
-
 		events.push({ name: 'add', entry: contentPaths.config.url });
 
-		const globResult = await glob('**', {
-			cwd: fileURLToPath(contentPaths.contentDir),
-			fs: {
-				readdir: fs.readdir.bind(fs),
-				readdirSync: fs.readdirSync.bind(fs),
-			},
-			onlyFiles: false,
-			objectMode: true,
-		});
+		if (settings.config.legacy.collections) {
+			if (!fs.existsSync(contentPaths.contentDir)) {
+				return { typesGenerated: false, reason: 'no-content-dir' };
+			}
+			const globResult = await glob('**', {
+				cwd: fileURLToPath(contentPaths.contentDir),
+				fs: {
+					readdir: fs.readdir.bind(fs),
+					readdirSync: fs.readdirSync.bind(fs),
+				},
+				onlyFiles: false,
+				objectMode: true,
+			});
 
-		for (const entry of globResult) {
-			const fullPath = path.join(fileURLToPath(contentPaths.contentDir), entry.path);
-			const entryURL = pathToFileURL(fullPath);
-			if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
-			if (entry.dirent.isFile()) {
-				events.push({ name: 'add', entry: entryURL });
-			} else if (entry.dirent.isDirectory()) {
-				events.push({ name: 'addDir', entry: entryURL });
+			for (const entry of globResult) {
+				const fullPath = path.join(fileURLToPath(contentPaths.contentDir), entry.path);
+				const entryURL = pathToFileURL(fullPath);
+				if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
+				if (entry.dirent.isFile()) {
+					events.push({ name: 'add', entry: entryURL });
+				} else if (entry.dirent.isDirectory()) {
+					events.push({ name: 'addDir', entry: entryURL });
+				}
 			}
 		}
 		await runEvents();
@@ -396,8 +402,17 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (collection?.type === CONTENT_LAYER_TYPE) {
 		const schema = await getContentLayerSchema(collection, collectionKey);
 		if (schema) {
-			const ast = zodToTs(schema);
-			return printNode(ast.node);
+			try {
+				const zodToTs = await import('zod-to-ts');
+				const ast = zodToTs.zodToTs(schema);
+				return zodToTs.printNode(ast.node);
+			} catch (err: any) {
+				// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
+				if (err.message.includes("Cannot find package 'typescript'")) {
+					return 'any';
+				}
+				throw err;
+			}
 		}
 	}
 	return 'any';
@@ -427,10 +442,8 @@ async function writeContentFiles({
 	let contentTypesStr = '';
 	let dataTypesStr = '';
 
-	const collectionSchemasDir = new URL('./collections/', settings.dotAstroDir);
-	if (!fs.existsSync(collectionSchemasDir)) {
-		fs.mkdirSync(collectionSchemasDir, { recursive: true });
-	}
+	const collectionSchemasDir = new URL(COLLECTIONS_DIR, settings.dotAstroDir);
+	fs.mkdirSync(collectionSchemasDir, { recursive: true });
 
 	for (const [collection, config] of Object.entries(contentConfig?.collections ?? {})) {
 		collectionEntryMap[JSON.stringify(collection)] ??= {
@@ -473,9 +486,8 @@ async function writeContentFiles({
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
-					collectionConfig?.type ?? 'data'
+					(collectionConfig?.type ?? 'data')
 				: collection.type;
-
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
 		const dataType = await typeForCollection(collectionConfig, collectionKey);
 		switch (resolvedType) {
@@ -497,7 +509,10 @@ async function writeContentFiles({
 				contentTypesStr += `};\n`;
 				break;
 			case CONTENT_LAYER_TYPE:
-				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent \n}>;\n`;
+				const legacyTypes = (collectionConfig as any)?._legacy
+					? 'render(): Render[".md"];\n  slug: string;\n  body: string;\n'
+					: 'body?: string;\n';
+				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  ${legacyTypes}  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n}>;\n`;
 				break;
 			case 'data':
 				if (collectionEntryKeys.length === 0) {
@@ -510,20 +525,10 @@ async function writeContentFiles({
 					dataTypesStr += `};\n`;
 				}
 
-				if (collectionConfig?.schema) {
-					await generateJSONSchema(
-						fs,
-						collectionConfig,
-						collectionKey,
-						collectionSchemasDir,
-						logger,
-					);
-				}
 				break;
 		}
 
 		if (
-			settings.config.experimental.contentIntellisense &&
 			collectionConfig &&
 			(collectionConfig.schema || (await getContentLayerSchema(collectionConfig, collectionKey)))
 		) {
@@ -567,12 +572,8 @@ async function writeContentFiles({
 		);
 	}
 
-	if (!fs.existsSync(settings.dotAstroDir)) {
-		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
-	}
-
 	const configPathRelativeToCacheDir = normalizeConfigPath(
-		new URL('astro', settings.dotAstroDir).pathname,
+		settings.dotAstroDir.pathname,
 		contentPaths.config.url.pathname,
 	);
 
@@ -590,9 +591,11 @@ async function writeContentFiles({
 
 	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content
 	if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
-		const filePath = fileURLToPath(new URL(CONTENT_TYPES_FILE, settings.dotAstroDir));
-		await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-		await fs.promises.writeFile(filePath, typeTemplateContent, 'utf-8');
+		await fs.promises.writeFile(
+			new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
+			typeTemplateContent,
+			'utf-8',
+		);
 	} else {
 		settings.injectedTypes.push({
 			filename: CONTENT_TYPES_FILE,

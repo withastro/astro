@@ -60,7 +60,13 @@ declare module 'astro:content' {
 	type ContentLayerConfig<S extends BaseSchema, TData extends { id: string } = { id: string }> = {
 		type?: 'content_layer';
 		schema?: S | ((context: SchemaContext) => S);
-		loader: import('astro/loaders').Loader | (() => Array<TData> | Promise<Array<TData>>);
+		loader:
+			| import('astro/loaders').Loader
+			| (() =>
+					| Array<TData>
+					| Promise<Array<TData>>
+					| Record<string, Omit<TData, 'id'> & { id?: string }>
+					| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
 	};
 
 	type DataCollectionConfig<S extends BaseSchema> = {
@@ -98,6 +104,7 @@ declare module 'astro:content' {
 	/** Run `astro sync` to generate high fidelity types */
 	export type CollectionKey = any;
 	/** Run `astro sync` to generate high fidelity types */
+	// biome-ignore lint/correctness/noUnusedVariables: stub generic type to match generated type
 	export type CollectionEntry<C> = any;
 	/** Run `astro sync` to generate high fidelity types */
 	export type ContentCollectionKey = any;

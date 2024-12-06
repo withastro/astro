@@ -1,8 +1,8 @@
 <script>
   import './logResize';
 
-  let count = parseInt(localStorage.getItem('test:count')) || 0;
-  $: localStorage.setItem('test:count', count);
+  let count = $state(parseInt(localStorage.getItem('test:count')) || 0)
+  $effect(() => localStorage.setItem('test:count', count));
 
   function add() {
     count += 1;
@@ -18,7 +18,7 @@
 	}
 </style>
 <div class="counter">
-  <button on:click={subtract}>-</button>
+  <button onclick={subtract}>-</button>
   <pre>{ count }</pre>
-  <button on:click={add}>+</button>
+  <button onclick={add}>+</button>
 </div>

@@ -1,13 +1,13 @@
 import { createRequire } from 'node:module';
 import boxen from 'boxen';
 import ci from 'ci-info';
-import { execa } from 'execa';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
-import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import whichPm from 'which-pm';
+import yoctoSpinner from 'yocto-spinner';
 import type { Logger } from '../core/logger/core.js';
+import { exec } from './exec.js';
 
 const require = createRequire(import.meta.url);
 
@@ -139,19 +139,25 @@ async function installPackage(
 	}
 
 	if (Boolean(response)) {
-		const spinner = ora('Installing dependencies...').start();
+		const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
 		try {
-			await execa(
+			await exec(
 				installCommand.pm,
 				[installCommand.command, ...installCommand.flags, ...installCommand.dependencies],
-				{ cwd: cwd },
+				{
+					nodeOptions: {
+						cwd,
+						// reset NODE_ENV to ensure install command run in dev mode
+						env: { NODE_ENV: undefined },
+					},
+				},
 			);
-			spinner.succeed();
+			spinner.success();
 
 			return true;
 		} catch (err) {
 			logger.debug('add', 'Error installing dependencies', err);
-			spinner.fail();
+			spinner.error();
 
 			return false;
 		}
@@ -203,8 +209,8 @@ async function getRegistry(): Promise<string> {
 	const fallback = 'https://registry.npmjs.org';
 	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
 	try {
-		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
-		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
+		const { stdout } = await exec(packageManager, ['config', 'get', 'registry']);
+		_registry = stdout.trim()?.replace(/\/$/, '') || fallback;
 		// Detect cases where the shell command returned a non-URL (e.g. a warning)
 		if (!new URL(_registry).host) _registry = fallback;
 	} catch {

@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory, waitForHydrate } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/view-transitions/' });
+const test = testFactory(import.meta.url, { root: './fixtures/view-transitions/' });
 
 let devServer;
 
@@ -114,7 +114,7 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
-	test('Moving to a page without ViewTransitions triggers a full page navigation', async ({
+	test('Moving to a page without ClientRouter triggers a full page navigation', async ({
 		page,
 		astro,
 	}) => {
@@ -125,7 +125,7 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
-		// Go to page 3 which does *not* have ViewTransitions enabled
+		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
@@ -136,7 +136,7 @@ test.describe('View Transitions', () => {
 		).toEqual(2);
 	});
 
-	test('Moving within a page without ViewTransitions does not trigger a full page navigation', async ({
+	test('Moving within a page without ClientRouter does not trigger a full page navigation', async ({
 		page,
 		astro,
 	}) => {
@@ -146,7 +146,7 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
-		// Go to page 3 which does *not* have ViewTransitions enabled
+		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
@@ -167,14 +167,14 @@ test.describe('View Transitions', () => {
 		).toEqual(2);
 	});
 
-	test('Moving from a page without ViewTransitions w/ back button', async ({ page, astro }) => {
+	test('Moving from a page without ClientRouter w/ back button', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
-		// Go to page 3 which does *not* have ViewTransitions enabled
+		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
@@ -447,7 +447,9 @@ test.describe('View Transitions', () => {
 		expect(consoleCount).toEqual(1);
 
 		// forward '' to 'hash' (no transition)
-		await page.goForward();
+		// NOTE: the networkidle below is needed for Firefox to consistently
+		// pass the `#longpage` viewport check below
+		await page.goForward({ waitUntil: 'networkidle' });
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
 		expect(consoleCount).toEqual(1);
@@ -502,25 +504,36 @@ test.describe('View Transitions', () => {
 		await expect(img).toBeVisible('The image tag should have the transition scope attribute.');
 	});
 
-	test('<video> can persist using transition:persist', async ({ page, astro }) => {
+	test('<video> can persist using transition:persist', async ({ page, astro, browserName }) => {
+		// NOTE: works locally but fails on CI
+		test.skip(browserName === 'firefox', 'Firefox has issues playing the video. Errors on play()');
+
 		const getTime = () => document.querySelector('video').currentTime;
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/video-one'));
 		const vid = page.locator('video');
 		await expect(vid).toBeVisible();
+		// Mute the video before playing, otherwise there's actually sounds when testing
+		await vid.evaluate((el) => (el.muted = true));
+		// Browser blocks autoplay, so we manually play it here. For some reason,
+		// you need to click and play it manually for it to actually work.
+		await vid.click();
+		await vid.evaluate((el) => el.play());
 		const firstTime = await page.evaluate(getTime);
 
 		// Navigate to page 2
 		await page.click('#click-two');
-		const p = page.locator('#video-two');
-		await expect(p).toBeVisible();
+		const vid2 = page.locator('#video-two');
+		await expect(vid2).toBeVisible();
+		// Use a very short timeout so we can ensure there's always a video playtime gap
+		await page.waitForTimeout(50);
 		const secondTime = await page.evaluate(getTime);
 
-		expect(secondTime).toBeGreaterThanOrEqual(firstTime);
+		expect(secondTime).toBeGreaterThan(firstTime);
 	});
 
-	test('Islands can persist using transition:persist', async ({ page, astro }) => {
+	test('React Islands can persist using transition:persist', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-one'));
 		let cnt = page.locator('.counter pre');
@@ -540,6 +553,67 @@ test.describe('View Transitions', () => {
 		// Props should have changed
 		const pageTitle = page.locator('.page');
 		await expect(pageTitle).toHaveText('Island 2');
+	});
+
+	test('Solid Islands can persist using transition:persist', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/island-solid-one'));
+		let cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('A0');
+
+		await page.click('.increment');
+		await expect(cnt).toHaveText('A1');
+
+		// Navigate to page 2
+		await page.click('#click-two');
+		let p = page.locator('#island-two');
+		await expect(p).toBeVisible();
+		cnt = page.locator('.counter pre');
+		// Count should remain, but the prefix should be updated
+		await expect(cnt).toHaveText('B1!');
+
+		await page.click('#click-one');
+		p = page.locator('#island-one');
+		await expect(p).toBeVisible();
+		cnt = page.locator('.counter pre');
+		// Count should remain, but the postfix should be removed again (to test unsetting props)
+		await expect(cnt).toHaveText('A1');
+	});
+
+	test('Svelte Islands can persist using transition:persist', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/island-svelte-one'));
+		let cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('A0');
+
+		await page.click('.increment');
+		await expect(cnt).toHaveText('A1');
+
+		// Navigate to page 2
+		await page.click('#click-two');
+		let p = page.locator('#island-two');
+		await expect(p).toBeVisible();
+		cnt = page.locator('.counter pre');
+		// Count should remain, but the prefix should be updated
+		await expect(cnt).toHaveText('B1');
+	});
+
+	test('Vue Islands can persist using transition:persist', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/island-vue-one'));
+		let cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('AA0');
+
+		await page.click('.increment');
+		await expect(cnt).toHaveText('AA1');
+
+		// Navigate to page 2
+		await page.click('#click-two');
+		const p = page.locator('#island-two');
+		await expect(p).toBeVisible();
+		cnt = page.locator('.counter pre');
+		// Count should remain, but the prefix should be updated
+		await expect(cnt).toHaveText('BB1');
 	});
 
 	test('transition:persist-props prevents props from changing', async ({ page, astro }) => {
@@ -604,7 +678,7 @@ test.describe('View Transitions', () => {
 		await expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
-	test('Importing ViewTransitions w/o using the component must not mess with history', async ({
+	test('Importing ClientRouter w/o using the component must not mess with history', async ({
 		page,
 		astro,
 	}) => {
@@ -704,7 +778,7 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should be 2 page load').toEqual(2);
 	});
 
-	test('Scroll position is restored on back navigation from page w/o ViewTransitions', async ({
+	test('Scroll position is restored on back navigation from page w/o ClientRouter', async ({
 		page,
 		astro,
 	}) => {
@@ -714,7 +788,7 @@ test.describe('View Transitions', () => {
 		let locator = page.locator('#click-external');
 		await expect(locator).toBeInViewport();
 
-		// Go to a page that has not enabled ViewTransitions
+		// Go to a page that has not enabled ClientRouter
 		await page.click('#click-external');
 		locator = page.locator('#three');
 		await expect(locator).toHaveText('Page 3');
@@ -1445,7 +1519,7 @@ test.describe('View Transitions', () => {
 		await page.click('#click');
 		await expect(page.locator('#name'), 'should have content').toHaveText('Keep 2');
 
-		const styleElement = await page.$('head > style');
+		const styleElement = await page.$('head > style:nth-child(1)');
 		const styleContent = await page.evaluate((style) => style.innerHTML, styleElement);
 		expect(styleContent).toBe('body { background-color: purple; }');
 	});

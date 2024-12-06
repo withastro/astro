@@ -4,7 +4,8 @@ import type { OutputChunk } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
-import { toRoutingStrategy } from '../../../i18n/utils.js';
+import { toFallbackType, toRoutingStrategy } from '../../../i18n/utils.js';
+import { unwrapSupportKind } from '../../../integrations/features-validation.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type {
@@ -176,7 +177,7 @@ function buildManifest(
 		if (!route.prerender) continue;
 		if (!route.pathname) continue;
 
-		const outFolder = getOutFolder(opts.settings.config, route.pathname, route);
+		const outFolder = getOutFolder(opts.settings, route.pathname, route);
 		const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route);
 		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
 		routes.push({
@@ -193,16 +194,6 @@ function buildManifest(
 		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
 		if (route.prerender || !pageData) continue;
 		const scripts: SerializedRouteInfo['scripts'] = [];
-		if (pageData.hoistedScript) {
-			const shouldPrefixAssetPath = pageData.hoistedScript.type === 'external';
-			const hoistedValue = pageData.hoistedScript.value;
-			const value = shouldPrefixAssetPath ? prefixAssetPath(hoistedValue) : hoistedValue;
-			scripts.unshift(
-				Object.assign({}, pageData.hoistedScript, {
-					value,
-				}),
-			);
-		}
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			const src = entryModules[PAGE_SCRIPT_ID];
 
@@ -254,6 +245,7 @@ function buildManifest(
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
+			fallbackType: toFallbackType(settings.config.i18n.routing),
 			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
 			locales: settings.config.i18n.locales,
 			defaultLocale: settings.config.i18n.defaultLocale,
@@ -278,11 +270,12 @@ function buildManifest(
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
-		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		checkOrigin:
+			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
-		experimentalEnvGetSecretEnabled:
-			settings.config.experimental.env !== undefined &&
-			(settings.adapter?.supportedAstroFeatures.envGetSecret ?? 'unsupported') !== 'unsupported',
+		envGetSecretEnabled:
+			(unwrapSupportKind(settings.adapter?.supportedAstroFeatures.envGetSecret) ??
+				'unsupported') !== 'unsupported',
 	};
 }

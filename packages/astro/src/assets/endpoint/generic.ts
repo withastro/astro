@@ -2,7 +2,7 @@
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import * as mime from 'mrmime';
-import type { APIRoute } from '../../@types/astro.js';
+import type { APIRoute } from '../../types/public/common.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
@@ -73,7 +73,6 @@ export const GET: APIRoute = async ({ request }) => {
 			},
 		});
 	} catch (err: unknown) {
-		// eslint-disable-next-line no-console
 		console.error('Could not process image request:', err);
 		return new Response(`Server Error: ${err}`, { status: 500 });
 	}

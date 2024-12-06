@@ -47,9 +47,9 @@ const first = defineMiddleware(async (context, next) => {
 			context.cookies.set('foo', 'bar');
 		}
 
-		context.locals = {
+		Object.assign(context.locals, {
 			name: 'bar',
-		};
+		});
 	}
 	return await next();
 });
@@ -65,13 +65,22 @@ const second = defineMiddleware(async (context, next) => {
 
 const third = defineMiddleware(async (context, next) => {
 	if (context.request.url.includes('/broken-locals')) {
-		context.locals = {
+		Object.assign(context.locals, {
 			fn() {},
-		};
+		});
 	} else if (context.request.url.includes('/does-nothing')) {
 		return undefined;
 	}
 	return next();
 });
 
-export const onRequest = sequence(first, second, third);
+const fourth = defineMiddleware((context, next) => {
+	if (context.request.url.includes('/no-route-but-200')) {
+		return new Response("It's OK!", {
+			status: 200
+		});
+	}
+	return next()
+})
+
+export const onRequest = sequence(first, second, third, fourth);

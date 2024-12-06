@@ -70,6 +70,13 @@ describe('Middleware in DEV mode', () => {
 		assert.equal($('title').html(), 'MiddlewareNoDataOrNextCalled');
 	});
 
+	it('should return 200 if the middleware returns a 200 Response', async () => {
+		const response = await fixture.fetch('/no-route-but-200');
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		assert.match(html, /It's OK!/);
+	});
+
 	it('should allow setting cookies', async () => {
 		const res = await fixture.fetch('/');
 		assert.equal(res.headers.get('set-cookie'), 'foo=bar');
@@ -125,6 +132,12 @@ describe('Integration hooks with no user middleware', () => {
 
 	it('Integration middleware marked as "post" runs', async () => {
 		const res = await fixture.fetch('/post');
+		const json = await res.json();
+		assert.equal(json.post, 'works');
+	});
+
+	it('Integration middleware marked as "url" runs', async () => {
+		const res = await fixture.fetch('/url');
 		const json = await res.json();
 		assert.equal(json.post, 'works');
 	});
@@ -239,6 +252,14 @@ describe('Middleware API in PROD mode, SSR', () => {
 		assert.notEqual($('title').html(), 'MiddlewareNoDataReturned');
 	});
 
+	it('should return 200 if the middleware returns a 200 Response', async () => {
+		const request = new Request('http://example.com/no-route-but-200');
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		assert.match(html, /It's OK!/);
+	});
+
 	it('should correctly work for API endpoints that return a Response object', async () => {
 		const request = new Request('http://example.com/api/endpoint');
 		const response = await app.render(request);
@@ -340,40 +361,3 @@ describe('Middleware with tailwind', () => {
 		assert.equal(bundledCSS.includes('--tw-content'), true);
 	});
 });
-
-// `loadTestAdapterApp()` does not understand how to load the page with `functionPerRoute`
-// since there's no `entry.mjs`. Skip for now.
-describe(
-	'Middleware supports functionPerRoute feature',
-	{
-		skip: "`loadTestAdapterApp()` does not understand how to load the page with `functionPerRoute` since there's no `entry.mjs`",
-	},
-	() => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
-
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/middleware space/',
-				output: 'server',
-				adapter: testAdapter({
-					extendAdapter: {
-						adapterFeatures: {
-							functionPerRoute: true,
-						},
-					},
-				}),
-			});
-			await fixture.build();
-		});
-
-		it('should not render locals data because the page does not export it', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-			assert.equal($('p').html(), 'bar');
-		});
-	},
-);

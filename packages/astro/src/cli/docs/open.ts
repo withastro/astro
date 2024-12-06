@@ -1,5 +1,5 @@
-import type { ExecaChildProcess } from 'execa';
-import { execa } from 'execa';
+import type { Result } from 'tinyexec';
+import { exec } from '../exec.js';
 
 /**
  *  Credit: Azhar22
@@ -9,6 +9,7 @@ const getPlatformSpecificCommand = (): [string] | [string, string[]] => {
 	const isGitPod = Boolean(process.env.GITPOD_REPO_ROOT);
 	const platform = isGitPod ? 'gitpod' : process.platform;
 
+	// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 	switch (platform) {
 		case 'android':
 		case 'linux':
@@ -26,7 +27,7 @@ const getPlatformSpecificCommand = (): [string] | [string, string[]] => {
 	}
 };
 
-export async function openInBrowser(url: string): Promise<ExecaChildProcess> {
+export async function openInBrowser(url: string): Promise<Result> {
 	const [command, args = []] = getPlatformSpecificCommand();
-	return execa(command, [...args, encodeURI(url)]);
+	return exec(command, [...args, encodeURI(url)]);
 }

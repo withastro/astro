@@ -1,9 +1,11 @@
 import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
-import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { globalContentLayer } from '../../content/content-layer.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
+import { SETTINGS_FILE } from '../../preferences/constants.js';
+import type { AstroSettings } from '../../types/astro.js';
+import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createNodeLogger, createSettings, resolveConfig } from '../config/index.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
@@ -30,7 +32,7 @@ async function createRestartedContainer(
 	return newContainer;
 }
 
-const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
+const configRE = /.*astro.config.(?:mjs|mts|cjs|cts|js|ts)$/;
 
 function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
@@ -49,7 +51,7 @@ function shouldRestartContainer(
 	else {
 		shouldRestart = configRE.test(normalizedChangedFile);
 		const settingsPath = vite.normalizePath(
-			fileURLToPath(new URL('settings.json', settings.dotAstroDir)),
+			fileURLToPath(new URL(SETTINGS_FILE, settings.dotAstroDir)),
 		);
 		if (settingsPath.endsWith(normalizedChangedFile)) {
 			shouldRestart = settings.preferences.ignoreNextPreferenceReload ? false : true;
@@ -134,7 +136,7 @@ export async function createContainerWithAutomaticRestart({
 		},
 	};
 
-	async function handleServerRestart(logMsg = '') {
+	async function handleServerRestart(logMsg = '', server?: vite.ViteDevServer) {
 		logger.info(null, (logMsg + ' Restarting...').trim());
 		const container = restart.container;
 		const result = await restartContainer(container);
@@ -145,6 +147,11 @@ export async function createContainerWithAutomaticRestart({
 			// Restart success. Add new watches because this is a new container with a new Vite server
 			restart.container = result;
 			setupContainer();
+			if (server) {
+				// Vite expects the resolved URLs to be available
+				server.resolvedUrls = result.viteServer.resolvedUrls;
+			}
+
 			resolveRestart(null);
 		}
 		restartComplete = new Promise<Error | null>((resolve) => {
@@ -169,7 +176,11 @@ export async function createContainerWithAutomaticRestart({
 
 		// Restart the Astro dev server instead of Vite's when the API is called by plugins.
 		// Ignore the `forceOptimize` parameter for now.
-		restart.container.viteServer.restart = () => handleServerRestart();
+		restart.container.viteServer.restart = async () => {
+			if (!restart.container.restartInFlight) {
+				await handleServerRestart('', restart.container.viteServer);
+			}
+		};
 
 		// Set up shortcuts
 
@@ -180,17 +191,13 @@ export async function createContainerWithAutomaticRestart({
 			{ key: 'c', description: '' },
 		];
 
-		if (restart.container.settings.config.experimental.contentLayer) {
-			customShortcuts.push({
-				key: 's',
-				description: 'sync content layer',
-				action: () => {
-					if (globalContentLayer.initialized()) {
-						globalContentLayer.get().sync();
-					}
-				},
-			});
-		}
+		customShortcuts.push({
+			key: 's',
+			description: 'sync content layer',
+			action: () => {
+				globalContentLayer.get()?.sync();
+			},
+		});
 		restart.container.viteServer.bindCLIShortcuts({
 			customShortcuts,
 		});

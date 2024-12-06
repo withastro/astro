@@ -1,4 +1,4 @@
-import type { DevToolbarApp } from '../../../../../@types/astro.js';
+import type { ResolvedDevToolbarApp } from '../../../../../types/public/toolbar.js';
 import { settings } from '../../settings.js';
 import type { DevToolbarHighlight } from '../../ui-library/highlight.js';
 import { positionHighlight } from '../utils/highlight.js';
@@ -219,4 +219,4 @@ export default {
 			});
 		}
 	},
-} satisfies DevToolbarApp;
+} satisfies ResolvedDevToolbarApp;

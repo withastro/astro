@@ -1,7 +1,7 @@
-import { execaCommand } from 'execa';
-import { markdownTable } from 'markdown-table';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { markdownTable } from 'markdown-table';
+import { exec } from 'tinyexec';
 import { astroBin } from './_util.js';
 
 /** @typedef {Record<string, import('../../packages/astro/src/core/config/timer').Stat>} AstroTimerStat */
@@ -18,12 +18,15 @@ export async function run(projectDir, outputFile) {
 	const outputFilePath = fileURLToPath(outputFile);
 
 	console.log('Building and benchmarking...');
-	await execaCommand(`node --expose-gc --max_old_space_size=10000 ${astroBin} build --silent`, {
-		cwd: root,
-		stdio: 'inherit',
-		env: {
-			ASTRO_TIMER_PATH: outputFilePath,
+	await exec('node', ['--expose-gc', '--max_old_space_size=10000', astroBin, 'build'], {
+		nodeOptions: {
+			cwd: root,
+			stdio: 'inherit',
+			env: {
+				ASTRO_TIMER_PATH: outputFilePath,
+			},
 		},
+		throwOnError: true,
 	});
 
 	console.log('Raw results written to', outputFilePath);
@@ -53,6 +56,6 @@ function printResult(output) {
 		],
 		{
 			align: ['l', 'r', 'r', 'r'],
-		}
+		},
 	);
 }

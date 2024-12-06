@@ -64,6 +64,35 @@ export async function setupRemoteDbServer(astroConfig) {
 	};
 }
 
+export async function initializeRemoteDb(astroConfig) {
+	await cli({
+		config: astroConfig,
+		flags: {
+			_: [undefined, 'astro', 'db', 'push'],
+			remote: true,
+		},
+	});
+	await cli({
+		config: astroConfig,
+		flags: {
+			_: [undefined, 'astro', 'db', 'execute', 'db/seed.ts'],
+			remote: true,
+		},
+	});
+}
+
+/**
+ * Clears the environment variables related to Astro DB and Astro Studio.
+ */
+export function clearEnvironment() {
+	const keys = Array.from(Object.keys(process.env));
+	for (const key of keys) {
+		if (key.startsWith('ASTRO_DB_') || key.startsWith('ASTRO_STUDIO_')) {
+			delete process.env[key];
+		}
+	}
+}
+
 function createRemoteDbServer() {
 	const dbClient = createClient({
 		url: ':memory:',

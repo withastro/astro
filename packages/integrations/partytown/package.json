@@ -1,14 +1,14 @@
 {
   "name": "@astrojs/partytown",
   "description": "Use Partytown to move scripts into a web worker in your Astro project",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/integrations/partytown"
   },
   "keywords": [

@@ -4,6 +4,6 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*",
-    "astro-embed": "^0.7.2"
+    "astro-embed": "^0.8.0"
   }
 }

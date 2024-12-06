@@ -23,14 +23,14 @@ describe('Head injection w/ MDX', () => {
 			await fixture.build();
 		});
 
-		it('only injects contents into head', async () => {
+		it('injects content styles into head', async () => {
 			const html = await fixture.readFile('/indexThree/index.html');
 			const { document } = parseHTML(html);
 
 			const links = document.querySelectorAll('head link[rel=stylesheet]');
-			assert.equal(links.length, 1);
+			assert.equal(links.length, 2);
 
-			const scripts = document.querySelectorAll('head script[type=module]');
+			const scripts = document.querySelectorAll('script[type=module]');
 			assert.equal(scripts.length, 1);
 		});
 
@@ -39,7 +39,7 @@ describe('Head injection w/ MDX', () => {
 			const { document } = parseHTML(html);
 
 			const links = document.querySelectorAll('head link[rel=stylesheet]');
-			assert.equal(links.length, 1);
+			assert.equal(links.length, 2);
 		});
 
 		it('injects content from a component using Content#render()', async () => {
@@ -47,9 +47,9 @@ describe('Head injection w/ MDX', () => {
 			const { document } = parseHTML(html);
 
 			const links = document.querySelectorAll('head link[rel=stylesheet]');
-			assert.equal(links.length, 1);
+			assert.equal(links.length, 2);
 
-			const scripts = document.querySelectorAll('head script[type=module]');
+			const scripts = document.querySelectorAll('script[type=module]');
 			assert.equal(scripts.length, 1);
 		});
 
@@ -67,7 +67,7 @@ describe('Head injection w/ MDX', () => {
 			const $ = cheerio.load(html);
 
 			const headLinks = $('head link[rel=stylesheet]');
-			assert.equal(headLinks.length, 1);
+			assert.equal(headLinks.length, 2);
 
 			const bodyLinks = $('body link[rel=stylesheet]');
 			assert.equal(bodyLinks.length, 0);
@@ -79,7 +79,7 @@ describe('Head injection w/ MDX', () => {
 			const $ = cheerio.load(html);
 
 			const headLinks = $('head link[rel=stylesheet]');
-			assert.equal(headLinks.length, 1);
+			assert.equal(headLinks.length, 2);
 
 			const bodyLinks = $('body link[rel=stylesheet]');
 			assert.equal(bodyLinks.length, 0);
@@ -92,7 +92,7 @@ describe('Head injection w/ MDX', () => {
 			const $ = cheerio.load(html);
 
 			const headLinks = $('head link[rel=stylesheet]');
-			assert.equal(headLinks.length, 1);
+			assert.equal(headLinks.length, 2);
 
 			const bodyLinks = $('body link[rel=stylesheet]');
 			assert.equal(bodyLinks.length, 0);

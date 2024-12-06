@@ -231,12 +231,20 @@ function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 
 	}
 }
 
+const codeRegex = /`([^`]+)`/g;
+
 export function formatConfigErrorMessage(err: ZodError) {
-	const errorList = err.issues.map(
-		(issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`,
+	const errorList = err.issues.map((issue) =>
+		`! ${renderErrorMarkdown(issue.message, 'cli')}`
+			// Make text wrapped in backticks blue.
+			.replaceAll(codeRegex, blue('$1'))
+			// Make the first line red and indent the rest.
+			.split('\n')
+			.map((line, index) => (index === 0 ? red(line) : '  ' + line))
+			.join('\n'),
 	);
-	return `${red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join(
-		'\n',
+	return `${red('[config]')} Astro found issue(s) with your configuration:\n\n${errorList.join(
+		'\n\n',
 	)}`;
 }
 
@@ -296,6 +304,11 @@ export function formatErrorMessage(err: ErrorWithMetadata, showFullStacktrace: b
 	if (docsLink) {
 		output.push(`  ${bold('Error reference:')}`);
 		output.push(`    ${cyan(underline(docsLink))}`);
+	}
+
+	if (showFullStacktrace && err.loc) {
+		output.push(`  ${bold('Location:')}`);
+		output.push(`    ${underline(`${err.loc.file}:${err.loc.line ?? 0}:${err.loc.column ?? 0}`)}`);
 	}
 
 	if (err.stack) {
@@ -380,6 +393,6 @@ export function printHelp({
 		message.push(linebreak(), `${description}`);
 	}
 
-	// eslint-disable-next-line no-console
+	// biome-ignore lint/suspicious/noConsoleLog: allowed
 	console.log(message.join('\n') + '\n');
 }

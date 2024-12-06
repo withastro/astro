@@ -4,9 +4,9 @@ import fastGlob from 'fast-glob';
 import { bold, green } from 'kleur/colors';
 import micromatch from 'micromatch';
 import pLimit from 'p-limit';
-import type { ContentEntryRenderFuction, ContentEntryType } from '../../@types/astro.js';
+import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
 import type { RenderedContent } from '../data-store.js';
-import { getContentEntryIdAndSlug, getEntryConfigByExtMap, posixRelative } from '../utils.js';
+import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
 
 export interface GenerateIdOptions {
@@ -21,7 +21,7 @@ export interface GenerateIdOptions {
 
 export interface GlobOptions {
 	/** The glob pattern to match files, relative to the base directory */
-	pattern: string;
+	pattern: string | Array<string>;
 	/** The base directory to resolve the glob pattern from. Relative to the root directory, or an absolute file URL. Defaults to `.` */
 	base?: string | URL;
 	/**
@@ -35,7 +35,7 @@ function generateIdDefault({ entry, base, data }: GenerateIdOptions): string {
 	if (data.slug) {
 		return data.slug as string;
 	}
-	const entryURL = new URL(entry, base);
+	const entryURL = new URL(encodeURI(entry), base);
 	const { slug } = getContentEntryIdAndSlug({
 		entry: entryURL,
 		contentDir: base,
@@ -44,17 +44,33 @@ function generateIdDefault({ entry, base, data }: GenerateIdOptions): string {
 	return slug;
 }
 
+function checkPrefix(pattern: string | Array<string>, prefix: string) {
+	if (Array.isArray(pattern)) {
+		return pattern.some((p) => p.startsWith(prefix));
+	}
+	return pattern.startsWith(prefix);
+}
+
 /**
  * Loads multiple entries, using a glob pattern to match files.
  * @param pattern A glob pattern to match files, relative to the content directory.
  */
+export function glob(globOptions: GlobOptions): Loader;
+/** @private */
+export function glob(
+	globOptions: GlobOptions & {
+		/** @deprecated */
+		_legacy?: true;
+	},
+): Loader;
+
 export function glob(globOptions: GlobOptions): Loader {
-	if (globOptions.pattern.startsWith('../')) {
+	if (checkPrefix(globOptions.pattern, '../')) {
 		throw new Error(
 			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.',
 		);
 	}
-	if (globOptions.pattern.startsWith('/')) {
+	if (checkPrefix(globOptions.pattern, '/')) {
 		throw new Error(
 			'Glob patterns cannot start with `/`. Set the `base` option to a parent directory or use a relative path instead.',
 		);
@@ -66,26 +82,28 @@ export function glob(globOptions: GlobOptions): Loader {
 
 	return {
 		name: 'glob-loader',
-		load: async ({ settings, logger, watcher, parseData, store, generateDigest }) => {
+		load: async ({ config, logger, watcher, parseData, store, generateDigest, entryTypes }) => {
 			const renderFunctionByContentType = new WeakMap<
 				ContentEntryType,
-				ContentEntryRenderFuction
+				ContentEntryRenderFunction
 			>();
 
 			const untouchedEntries = new Set(store.keys());
-
+			const isLegacy = (globOptions as any)._legacy;
+			// If global legacy collection handling flag is *not* enabled then this loader is used to emulate them instead
+			const emulateLegacyCollections = !config.legacy.collections;
 			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
 				if (!entryType) {
 					logger.warn(`No entry type found for ${entry}`);
 					return;
 				}
-				const fileUrl = new URL(entry, base);
+				const fileUrl = new URL(encodeURI(entry), base);
 				const contents = await fs.readFile(fileUrl, 'utf-8').catch((err) => {
 					logger.error(`Error reading ${entry}: ${err.message}`);
 					return;
 				});
 
-				if (!contents) {
+				if (!contents && contents !== '') {
 					logger.warn(`No contents found for ${entry}`);
 					return;
 				}
@@ -96,32 +114,39 @@ export function glob(globOptions: GlobOptions): Loader {
 				});
 
 				const id = generateId({ entry, base, data });
+				let legacyId: string | undefined;
+
+				if (isLegacy) {
+					const entryURL = new URL(encodeURI(entry), base);
+					const legacyOptions = getContentEntryIdAndSlug({
+						entry: entryURL,
+						contentDir: base,
+						collection: '',
+					});
+					legacyId = legacyOptions.id;
+				}
 				untouchedEntries.delete(id);
 
 				const existingEntry = store.get(id);
 
 				const digest = generateDigest(contents);
+				const filePath = fileURLToPath(fileUrl);
 
 				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
 					if (existingEntry.deferredRender) {
 						store.addModuleImport(existingEntry.filePath);
 					}
 
-					if (existingEntry.rendered?.metadata?.imagePaths?.length) {
+					if (existingEntry.assetImports?.length) {
 						// Add asset imports for existing entries
-						store.addAssetImports(
-							existingEntry.rendered.metadata.imagePaths,
-							existingEntry.filePath,
-						);
+						store.addAssetImports(existingEntry.assetImports, existingEntry.filePath);
 					}
-					// Re-parsing to resolve images and other effects
-					await parseData(existingEntry);
+
+					fileToIdMap.set(filePath, id);
 					return;
 				}
 
-				const filePath = fileURLToPath(fileUrl);
-
-				const relativePath = posixRelative(fileURLToPath(settings.config.root), filePath);
+				const relativePath = posixRelative(fileURLToPath(config.root), filePath);
 
 				const parsedData = await parseData({
 					id,
@@ -129,9 +154,15 @@ export function glob(globOptions: GlobOptions): Loader {
 					filePath,
 				});
 				if (entryType.getRenderFunction) {
+					if (isLegacy && data.layout) {
+						logger.error(
+							`The Markdown "layout" field is not supported in content collections in Astro 5. Ignoring layout for ${JSON.stringify(entry)}. Enable "legacy.collections" if you need to use the layout field.`,
+						);
+					}
+
 					let render = renderFunctionByContentType.get(entryType);
 					if (!render) {
-						render = await entryType.getRenderFunction(settings);
+						render = await entryType.getRenderFunction(config);
 						// Cache the render function for this content type, so it can re-use parsers and other expensive setup
 						renderFunctionByContentType.set(entryType, render);
 					}
@@ -156,10 +187,10 @@ export function glob(globOptions: GlobOptions): Loader {
 						filePath: relativePath,
 						digest,
 						rendered,
+						assetImports: rendered?.metadata?.imagePaths,
+						legacyId,
 					});
-					if (rendered?.metadata?.imagePaths?.length) {
-						store.addAssetImports(rendered.metadata.imagePaths, relativePath);
-					}
+
 					// todo: add an explicit way to opt in to deferred rendering
 				} else if ('contentModuleTypes' in entryType) {
 					store.set({
@@ -169,22 +200,16 @@ export function glob(globOptions: GlobOptions): Loader {
 						filePath: relativePath,
 						digest,
 						deferredRender: true,
+						legacyId,
 					});
 				} else {
-					store.set({ id, data: parsedData, body, filePath: relativePath, digest });
+					store.set({ id, data: parsedData, body, filePath: relativePath, digest, legacyId });
 				}
 
 				fileToIdMap.set(filePath, id);
 			}
 
-			const entryConfigByExt = getEntryConfigByExtMap([
-				...settings.contentEntryTypes,
-				...settings.dataEntryTypes,
-			] as Array<ContentEntryType>);
-
-			const baseDir = globOptions.base
-				? new URL(globOptions.base, settings.config.root)
-				: settings.config.root;
+			const baseDir = globOptions.base ? new URL(globOptions.base, config.root) : config.root;
 
 			if (!baseDir.pathname.endsWith('/')) {
 				baseDir.pathname = `${baseDir.pathname}/`;
@@ -200,13 +225,13 @@ export function glob(globOptions: GlobOptions): Loader {
 					logger.warn(`No extension found for ${file}`);
 					return;
 				}
-				return entryConfigByExt.get(`.${ext}`);
+				return entryTypes.get(`.${ext}`);
 			}
 
 			const limit = pLimit(10);
 			const skippedFiles: Array<string> = [];
 
-			const contentDir = new URL('content/', settings.config.srcDir);
+			const contentDir = new URL('content/', config.srcDir);
 
 			function isInContentDir(file: string) {
 				const fileUrl = new URL(file, baseDir);
@@ -227,7 +252,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					if (isConfigFile(entry)) {
 						return;
 					}
-					if (isInContentDir(entry)) {
+					if (!emulateLegacyCollections && isInContentDir(entry)) {
 						skippedFiles.push(entry);
 						return;
 					}
@@ -241,13 +266,19 @@ export function glob(globOptions: GlobOptions): Loader {
 			const skipCount = skippedFiles.length;
 
 			if (skipCount > 0) {
-				logger.warn(`The glob() loader cannot be used for files in ${bold('src/content')}.`);
+				const patternList = Array.isArray(globOptions.pattern)
+					? globOptions.pattern.join(', ')
+					: globOptions.pattern;
+
+				logger.warn(
+					`The glob() loader cannot be used for files in ${bold('src/content')} when legacy mode is enabled.`,
+				);
 				if (skipCount > 10) {
 					logger.warn(
-						`Skipped ${green(skippedFiles.length)} files that matched ${green(globOptions.pattern)}.`,
+						`Skipped ${green(skippedFiles.length)} files that matched ${green(patternList)}.`,
 					);
 				} else {
-					logger.warn(`Skipped the following files that matched ${green(globOptions.pattern)}:`);
+					logger.warn(`Skipped the following files that matched ${green(patternList)}:`);
 					skippedFiles.forEach((file) => logger.warn(`• ${green(file)}`));
 				}
 			}
@@ -259,9 +290,8 @@ export function glob(globOptions: GlobOptions): Loader {
 				return;
 			}
 
-			const matcher: RegExp = micromatch.makeRe(globOptions.pattern);
-
-			const matchesGlob = (entry: string) => !entry.startsWith('../') && matcher.test(entry);
+			const matchesGlob = (entry: string) =>
+				!entry.startsWith('../') && micromatch.isMatch(entry, globOptions.pattern);
 
 			const basePath = fileURLToPath(baseDir);
 

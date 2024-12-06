@@ -1,14 +1,15 @@
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
-import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
+import type { AstroSettings } from '../types/astro.js';
 import type {
 	PluginCssMetadata as AstroPluginCssMetadata,
 	PluginMetadata as AstroPluginMetadata,
 	CompileMetadata,
 } from './types.js';
 
-import { normalizePath } from 'vite';
+import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
+import type { AstroConfig } from '../types/public/config.js';
 import { hasSpecialQueries, normalizeFilename } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
@@ -42,6 +43,18 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 	const prePlugin: vite.Plugin = {
 		name: 'astro:build',
 		enforce: 'pre', // run transforms before other plugins can
+		async configEnvironment(name, viteConfig, opts) {
+			viteConfig.resolve ??= {};
+			// Emulate Vite default fallback for `resolve.conditions` if not set
+			if (viteConfig.resolve.conditions == null) {
+				if (viteConfig.consumer === 'client' || name === 'client' || opts.isSsrTargetWebworker) {
+					viteConfig.resolve.conditions = [...defaultClientConditions];
+				} else {
+					viteConfig.resolve.conditions = [...defaultServerConditions];
+				}
+			}
+			viteConfig.resolve.conditions.push('astro');
+		},
 		configResolved(viteConfig) {
 			// Initialize `compile` function to simplify usage later
 			compile = (code, filename) => {
@@ -97,13 +110,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					// `compile` should re-set `filename` in `astroFileToCompileMetadata`
 					if (code != null) await compile(code, filename);
 				}
-				// When cached we might load client-side scripts during the build
-				else if (config.experimental.contentCollectionCache) {
-					await this.load({
-						id: filename,
-						resolveDependencies: false,
-					});
-				}
 
 				compileMetadata = astroFileToCompileMetadata.get(filename);
 			}
@@ -147,22 +153,22 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				}
 				case 'script': {
 					if (typeof query.index === 'undefined') {
-						throw new Error(`Requests for hoisted scripts must include an index`);
+						throw new Error(`Requests for scripts must include an index`);
 					}
-					// HMR hoisted script only exists to make them appear in the module graph.
+					// SSR script only exists to make them appear in the module graph.
 					if (opts?.ssr) {
 						return {
-							code: `/* client hoisted script, empty in SSR: ${id} */`,
+							code: `/* client script, empty in SSR: ${id} */`,
 						};
 					}
 
-					const hoistedScript = compileMetadata.scripts[query.index];
-					if (!hoistedScript) {
-						throw new Error(`No hoisted script at index ${query.index}`);
+					const script = compileMetadata.scripts[query.index];
+					if (!script) {
+						throw new Error(`No script at index ${query.index}`);
 					}
 
-					if (hoistedScript.type === 'external') {
-						const src = hoistedScript.src;
+					if (script.type === 'external') {
+						const src = script.src;
 						if (src.startsWith('/') && !isBrowserPath(src)) {
 							const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
 							throw new Error(
@@ -180,14 +186,14 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						},
 					};
 
-					switch (hoistedScript.type) {
+					switch (script.type) {
 						case 'inline': {
-							const { code, map } = hoistedScript;
+							const { code, map } = script;
 							result.code = appendSourceMap(code, map);
 							break;
 						}
 						case 'external': {
-							const { src } = hoistedScript;
+							const { src } = script;
 							result.code = `import "${src}"`;
 							break;
 						}
@@ -195,6 +201,9 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 					return result;
 				}
+				case 'custom':
+				case 'template':
+				case undefined:
 				default:
 					return null;
 			}
@@ -205,6 +214,19 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			const parsedId = parseAstroRequest(id);
 			// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
 			if (!parsedId.filename.endsWith('.astro') || parsedId.query.astro) {
+				// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here take affect
+				// TODO: Remove this when Vite fixes it (https://github.com/vitejs/vite/pull/18103)
+				if (this.environment.name === 'client') {
+					const astroFilename = normalizePath(normalizeFilename(parsedId.filename, config.root));
+					const compileMetadata = astroFileToCompileMetadata.get(astroFilename);
+					if (compileMetadata && parsedId.query.type === 'style' && parsedId.query.index != null) {
+						const result = compileMetadata.css[parsedId.query.index];
+
+						// Register dependencies from preprocessing this style
+						result.dependencies?.forEach((dep) => this.addWatchFile(dep));
+					}
+				}
+
 				return;
 			}
 

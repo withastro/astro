@@ -1,6 +1,6 @@
 import type { YAMLException } from 'js-yaml';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
-import type { SSRError } from '../../@types/astro.js';
+import type { SSRError } from '../../types/public/internal.js';
 
 /**
  * Get the line and character based on the offset

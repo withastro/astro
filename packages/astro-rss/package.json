@@ -1,14 +1,14 @@
 {
   "name": "@astrojs/rss",
   "description": "Add RSS feeds to your Astro projects",
-  "version": "4.0.7",
+  "version": "4.0.10",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/astro-rss"
   },
   "bugs": "https://github.com/withastro/astro/issues",
@@ -33,7 +33,7 @@
     "xml2js": "0.6.2"
   },
   "dependencies": {
-    "fast-xml-parser": "^4.4.1",
+    "fast-xml-parser": "^4.5.0",
     "kleur": "^4.1.5"
   }
 }

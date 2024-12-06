@@ -1,5 +1,43 @@
 # @astrojs/preact
 
+## 4.0.0
+
+### Major Changes
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates Vite dependency to v6 to match Astro v5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+## 4.0.0-beta.1
+
+### Major Changes
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates Vite dependency to v6 to match Astro v5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+## 3.5.4
+
+### Patch Changes
+
+- [#12481](https://github.com/withastro/astro/pull/12481) [`8a46e80`](https://github.com/withastro/astro/commit/8a46e8074d6afb4a23badbd59ed239d526294e8c) Thanks [@marbrex](https://github.com/marbrex)! - Resolve `vite` peer dependency problem for strict package managers like **Yarn in PnP mode**.
+
+## 3.5.3
+
+### Patch Changes
+
+- [#11930](https://github.com/withastro/astro/pull/11930) [`4a44e82`](https://github.com/withastro/astro/commit/4a44e82bbdf0572190618d8c5882c63a6525a198) Thanks [@lukasbachlechner](https://github.com/lukasbachlechner)! - Preact components no longer throw an error if a property is null.
+
+## 3.5.2
+
+### Patch Changes
+
+- [#11834](https://github.com/withastro/astro/pull/11834) [`5f2536b`](https://github.com/withastro/astro/commit/5f2536b51df93bfd51098c48220d647e7ad3954c) Thanks [@ph1p](https://github.com/ph1p)! - Preact signals are now serialized correctly in arrays when they are given to components.
+
 ## 3.5.1
 
 ### Patch Changes
