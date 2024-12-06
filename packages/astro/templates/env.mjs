@@ -8,7 +8,7 @@ import {
 	validateEnvVariable,
 } from 'astro/env/runtime';
 
-// @ts-ignore
+// @ts-expect-error
 /** @returns {string} */
 // used while generating the virtual module
 // biome-ignore lint/correctness/noUnusedFunctionParameters: `key` is used by the generated code
