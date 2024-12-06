@@ -39,6 +39,11 @@ export type CreateContext = {
 	 * User defined default locale
 	 */
 	defaultLocale: string;
+
+	/**
+	 * Initial value of the locals
+	 */
+	locals: App.Locals;
 };
 
 /**
@@ -49,6 +54,7 @@ function createContext({
 	params = {},
 	userDefinedLocales = [],
 	defaultLocale = '',
+	locals,
 }: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
@@ -104,15 +110,15 @@ function createContext({
 			return clientIpAddress;
 		},
 		get locals() {
-			let locals = Reflect.get(request, clientLocalsSymbol);
+			// TODO: deprecate this usage. This is used only by the edge middleware for now, so its usage should be basically none.
+			let _locals = locals ?? Reflect.get(request, clientLocalsSymbol);
 			if (locals === undefined) {
-				locals = {};
-				Reflect.set(request, clientLocalsSymbol, locals);
+				_locals = {};
 			}
-			if (typeof locals !== 'object') {
+			if (typeof _locals !== 'object') {
 				throw new AstroError(AstroErrorData.LocalsNotAnObject);
 			}
-			return locals;
+			return _locals;
 		},
 		set locals(_) {
 			throw new AstroError(AstroErrorData.LocalsReassigned);
