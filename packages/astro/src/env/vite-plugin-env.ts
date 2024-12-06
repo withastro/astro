@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { type Plugin, loadEnv } from 'vite';
+import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
@@ -11,14 +10,16 @@ import {
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
+import type { EnvLoader } from './env-loader.js';
 
 interface AstroEnvPluginParams {
 	settings: AstroSettings;
 	mode: string;
 	sync: boolean;
+	envLoader: EnvLoader;
 }
 
-export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin {
+export function astroEnv({ settings, mode, sync, envLoader }: AstroEnvPluginParams): Plugin {
 	const { schema, validateSecrets } = settings.config.env;
 	let isDev: boolean;
 
@@ -31,7 +32,7 @@ export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin
 			isDev = command !== 'build';
 		},
 		buildStart() {
-			const loadedEnv = loadEnv(mode, fileURLToPath(settings.config.root), '');
+			const loadedEnv = envLoader.load(mode, settings.config);
 
 			if (!isDev) {
 				for (const [key, value] of Object.entries(loadedEnv)) {
