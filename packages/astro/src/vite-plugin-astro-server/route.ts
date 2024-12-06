@@ -160,6 +160,7 @@ export async function handleRoute({
 	let mod: ComponentInstance | undefined = undefined;
 	let route: RouteData;
 	const middleware = (await loadMiddleware(loader)).onRequest;
+	// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
 	const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 
 	const { preloadedComponent } = matchedRoute;
@@ -242,7 +243,7 @@ export async function handleRoute({
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (fourOhFourRoute) {
 			renderContext = await RenderContext.create({
-				locals,
+				locals: {},
 				pipeline,
 				pathname,
 				middleware: isDefaultPrerendered404(fourOhFourRoute.route) ? undefined : middleware,
