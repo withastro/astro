@@ -1,5 +1,5 @@
 ---
-'@astrojs/markdown-remark': patch
+'@astrojs/remark': minor
 ---
 
-Fixes frontmatter parsing if file is encoded in UTF8 with BOM
+Fixes React 19 support. Updates peer deps for React 19 instead of React 19 beta 
