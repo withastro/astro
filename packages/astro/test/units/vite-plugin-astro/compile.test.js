@@ -1,17 +1,17 @@
 import * as assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { describe, it, before } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { init, parse } from 'es-module-lexer';
 import { resolveConfig } from 'vite';
 import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
 
-const viteConfig = await resolveConfig({ configFile: false }, 'serve');
-
+let inlineConfig;
 /**
  * @param {string} source
  * @param {string} id
  */
 async function compile(source, id) {
+	const viteConfig = await resolveConfig({ configFile: false, ...inlineConfig }, 'serve');
 	return await compileAstro({
 		compileProps: {
 			astroConfig: { root: pathToFileURL('/'), base: '/', experimental: {} },
@@ -24,6 +24,10 @@ async function compile(source, id) {
 }
 
 describe('astro full compile', () => {
+	before(() => {
+		inlineConfig = {};
+	})
+
 	it('should compile a single file', async () => {
 		const result = await compile(`<h1>Hello World</h1>`, '/src/components/index.astro');
 		assert.ok(result.code);
@@ -69,4 +73,25 @@ const name = 'world
 		assert.equal(names.includes('file'), true);
 		assert.equal(names.includes('url'), true);
 	});
+
+	describe('when the code contains syntax that is transformed by esbuild', () => {
+		let code = `\
+---
+using x = {}
+---`;
+
+		it('should not transform the syntax by default', async () => {
+			const result = await compile(code, '/src/components/index.astro');
+			assert.equal(result.code.includes('using x = {}'), true);
+		});
+
+		it('should transform the syntax by esbuild.target', async () => {
+			inlineConfig = {
+				esbuild: { target: 'es2018' },
+			}
+			const result = await compile(code, '/src/components/index.astro');
+			assert.equal(result.code.includes('using x = {}'), false);
+		});
+	});
+
 });
