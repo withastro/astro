@@ -107,7 +107,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	let store: MutableDataStore | undefined;
 	try {
-		const dataStoreFile = getDataStoreFile(restart.container.settings);
+		const dataStoreFile = getDataStoreFile(restart.container.settings, true);
 		if (existsSync(dataStoreFile)) {
 			store = await MutableDataStore.fromFile(dataStoreFile);
 		}

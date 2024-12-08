@@ -1,5 +1,14 @@
 # @astrojs/db
 
+## 0.14.1
+
+### Patch Changes
+
+- [#12628](https://github.com/withastro/astro/pull/12628) [`348c71e`](https://github.com/withastro/astro/commit/348c71ecdc7e2a7afb169c2251692416d5e59fcb) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused an error to be logged about invalid entrypoints
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.2
+
 ## 0.14.0
 
 ### Minor Changes
