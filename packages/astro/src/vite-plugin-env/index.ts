@@ -1,63 +1,14 @@
-import { fileURLToPath } from 'node:url';
 import { transform } from 'esbuild';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
-import { loadEnv } from 'vite';
-import type { AstroSettings } from '../types/astro.js';
-import type { AstroConfig } from '../types/public/config.js';
+import type { EnvLoader } from '../env/env-loader.js';
 
 interface EnvPluginOptions {
-	settings: AstroSettings;
+	envLoader: EnvLoader;
 }
 
 // Match `import.meta.env` directly without trailing property access
 const importMetaEnvOnlyRe = /\bimport\.meta\.env\b(?!\.)/;
-// Match valid JS variable names (identifiers), which accepts most alphanumeric characters,
-// except that the first character cannot be a number.
-const isValidIdentifierRe = /^[_$a-zA-Z][\w$]*$/;
-
-function getPrivateEnv(
-	viteConfig: vite.ResolvedConfig,
-	astroConfig: AstroConfig,
-): Record<string, string> {
-	let envPrefixes: string[] = ['PUBLIC_'];
-	if (viteConfig.envPrefix) {
-		envPrefixes = Array.isArray(viteConfig.envPrefix)
-			? viteConfig.envPrefix
-			: [viteConfig.envPrefix];
-	}
-
-	// Loads environment variables from `.env` files and `process.env`
-	const fullEnv = loadEnv(
-		viteConfig.mode,
-		viteConfig.envDir ?? fileURLToPath(astroConfig.root),
-		'',
-	);
-
-	const privateEnv: Record<string, string> = {};
-	for (const key in fullEnv) {
-		// Ignore public env var
-		if (isValidIdentifierRe.test(key) && envPrefixes.every((prefix) => !key.startsWith(prefix))) {
-			if (typeof process.env[key] !== 'undefined') {
-				let value = process.env[key];
-				// Replacements are always strings, so try to convert to strings here first
-				if (typeof value !== 'string') {
-					value = `${value}`;
-				}
-				// Boolean values should be inlined to support `export const prerender`
-				// We already know that these are NOT sensitive values, so inlining is safe
-				if (value === '0' || value === '1' || value === 'true' || value === 'false') {
-					privateEnv[key] = value;
-				} else {
-					privateEnv[key] = `process.env.${key}`;
-				}
-			} else {
-				privateEnv[key] = JSON.stringify(fullEnv[key]);
-			}
-		}
-	}
-	return privateEnv;
-}
 
 function getReferencedPrivateKeys(source: string, privateEnv: Record<string, any>): Set<string> {
 	const references = new Set<string>();
@@ -114,13 +65,12 @@ async function replaceDefine(
 	};
 }
 
-export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plugin {
+export default function envVitePlugin({ envLoader }: EnvPluginOptions): vite.Plugin {
 	let privateEnv: Record<string, string>;
 	let defaultDefines: Record<string, string>;
 	let isDev: boolean;
 	let devImportMetaEnvPrepend: string;
 	let viteConfig: vite.ResolvedConfig;
-	const { config: astroConfig } = settings;
 	return {
 		name: 'astro:vite-plugin-env',
 		config(_, { command }) {
@@ -152,7 +102,9 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 			}
 
 			// Find matches for *private* env and do our own replacement.
-			privateEnv ??= getPrivateEnv(viteConfig, astroConfig);
+			// Env is retrieved before process.env is populated by astro:env
+			// so that import.meta.env is first replaced by values, not process.env
+			privateEnv ??= envLoader.getPrivateEnv();
 
 			// In dev, we can assign the private env vars to `import.meta.env` directly for performance
 			if (isDev) {
