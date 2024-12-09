@@ -12,6 +12,7 @@ import {
 	astroContentImportPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
+import { createEnvLoader } from '../env/env-loader.js';
 import { astroEnv } from '../env/vite-plugin-env.js';
 import astroInternationalization from '../i18n/vite-plugin-i18n.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
@@ -41,7 +42,6 @@ import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { isObject } from './util.js';
-import { createEnvLoader } from '../env/env-loader.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;

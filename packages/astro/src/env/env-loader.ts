@@ -1,6 +1,6 @@
+import { fileURLToPath } from 'node:url';
 import { loadEnv } from 'vite';
 import type { AstroConfig } from '../types/public/index.js';
-import { fileURLToPath } from 'node:url';
 
 // Match valid JS variable names (identifiers), which accepts most alphanumeric characters,
 // except that the first character cannot be a number.

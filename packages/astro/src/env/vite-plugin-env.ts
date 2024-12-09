@@ -7,10 +7,10 @@ import {
 	VIRTUAL_MODULES_IDS,
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
+import type { EnvLoader } from './env-loader.js';
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
-import type { EnvLoader } from './env-loader.js';
 
 interface AstroEnvPluginParams {
 	settings: AstroSettings;
