@@ -985,7 +985,7 @@ export const AstroGlobNoMatch = {
 /**
  * @docs
  * @see
- * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#astroredirect)
+ * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#redirect)
  * @description
  * A redirect must be given a location with the `Location` header.
  */

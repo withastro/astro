@@ -260,7 +260,6 @@ export class App {
 				this.#logger.error(null, error.stack!);
 				return this.#renderError(request, { status: 500, error, clientAddress });
 			}
-			Reflect.set(request, clientLocalsSymbol, locals);
 		}
 		if (!routeData) {
 			routeData = this.match(request);
