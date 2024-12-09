@@ -1,5 +1,11 @@
 # astro
 
+## 5.0.5
+
+### Patch Changes
+
+- [#12697](https://github.com/withastro/astro/pull/12697) [`1c4a032`](https://github.com/withastro/astro/commit/1c4a032247747c830be94dbdd0c953511a6bfa53) Thanks [@ascorbic](https://github.com/ascorbic)! - Fix a bug that caused builds to fail if an image had a quote mark in its name
+
 ## 5.0.4
 
 ### Patch Changes
