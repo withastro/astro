@@ -102,7 +102,7 @@ export class MutableDataStore extends ImmutableDataStore {
 		const exports: Array<string> = [];
 		this.#assetImports.forEach((id) => {
 			const symbol = importIdToSymbolName(id);
-			imports.push(`import ${symbol} from '${id}';`);
+			imports.push(`import ${symbol} from ${JSON.stringify(id)};`);
 			exports.push(`[${JSON.stringify(id)}, ${symbol}]`);
 		});
 		const code = /* js */ `
