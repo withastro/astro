@@ -559,6 +559,5 @@ function createBuildManifest(
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,
-		envGetSecretEnabled: false,
 	};
 }
