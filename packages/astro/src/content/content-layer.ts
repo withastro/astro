@@ -206,6 +206,7 @@ export class ContentLayer {
 						},
 						collectionWithResolvedSchema,
 						false,
+						!!this.#settings.config.experimental.svg
 					);
 
 					return parsedData;

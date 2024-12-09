@@ -164,6 +164,7 @@ export async function getEntryDataAndImages<
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
+	experimentalSvgEnabled: boolean,
 	pluginContext?: PluginContext,
 ): Promise<{ data: TOutputData; imageImports: Array<string> }> {
 	let data: TOutputData;
@@ -182,7 +183,12 @@ export async function getEntryDataAndImages<
 	if (typeof schema === 'function') {
 		if (pluginContext) {
 			schema = schema({
-				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
+				image: createImage(
+					pluginContext,
+					shouldEmitFile,
+					entry._internal.filePath,
+					experimentalSvgEnabled,
+				),
 			});
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
 			schema = schema({
@@ -257,12 +263,14 @@ export async function getEntryData(
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
+	experimentalSvgEnabled: boolean,
 	pluginContext?: PluginContext,
 ) {
 	const { data } = await getEntryDataAndImages(
 		entry,
 		collectionConfig,
 		shouldEmitFile,
+		experimentalSvgEnabled,
 		pluginContext,
 	);
 	return data;
