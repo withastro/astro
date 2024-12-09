@@ -45,6 +45,7 @@ export async function emitESMImage(
 	});
 
 	// Attach file data for SVGs
+	// TODO: this is a workaround to prevent the a memory leak, and it must be fixed before we remove the experimental flag
 	if (fileMetadata.format === 'svg' && experimentalSvgEnabled === true) {
 		emittedImage.contents = fileData;
 	}
