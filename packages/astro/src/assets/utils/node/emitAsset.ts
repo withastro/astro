@@ -15,6 +15,7 @@ export async function emitESMImage(
 	_watchMode: boolean,
 	// FIX: in Astro 6, this function should not be passed in dev mode at all.
 	// Or rethink the API so that a function that throws isn't passed through.
+	experimentalSvgEnabled: boolean,
 	fileEmitter?: FileEmitter,
 ): Promise<ImageMetadataWithContents | undefined> {
 	if (!id) {
@@ -44,7 +45,7 @@ export async function emitESMImage(
 	});
 
 	// Attach file data for SVGs
-	if (fileMetadata.format === 'svg') {
+	if (fileMetadata.format === 'svg' && experimentalSvgEnabled === true) {
 		emittedImage.contents = fileData;
 	}
 

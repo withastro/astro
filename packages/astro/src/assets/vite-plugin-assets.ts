@@ -205,7 +205,12 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 					}
 
 					const emitFile = shouldEmitFile ? this.emitFile : undefined;
-					const imageMetadata = await emitESMImage(id, this.meta.watchMode, emitFile);
+					const imageMetadata = await emitESMImage(
+						id,
+						this.meta.watchMode,
+						!!settings.config.experimental.svg,
+						emitFile,
+					);
 
 					if (!imageMetadata) {
 						throw new AstroError({
