@@ -88,11 +88,12 @@
 			},
 		},
 		{
-			"include": ["*.astro", "client.d.ts"],
+			"include": ["*.astro", "client.d.ts", "jsx-runtime.d.ts"],
 			"linter": {
 				"rules": {
 					"correctness": {
 						"noUnusedVariables": "off",
+						"noUnusedImports": "off",
 					},
 				},
 			},
