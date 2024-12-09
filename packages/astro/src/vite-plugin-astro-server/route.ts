@@ -11,7 +11,7 @@ import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { routeIsRedirect } from '../core/redirects/index.js';
 import { RenderContext } from '../core/render-context.js';
-import { type SSROptions, getProps } from '../core/render/index.js';
+import { getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 import { matchAllRoutes } from '../core/routing/index.js';

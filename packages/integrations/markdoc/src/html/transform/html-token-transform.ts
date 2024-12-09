@@ -1,6 +1,7 @@
 import type { Tokenizer } from '@markdoc/markdoc';
 import { Parser } from 'htmlparser2';
 // @ts-expect-error This type isn't exported
+// biome-ignore lint/correctness/noUnusedImports: not correctly detected because type isn't exported
 import type * as Token from 'markdown-it/lib/token';
 
 export function htmlTokenTransform(tokenizer: Tokenizer, tokens: Token[]): Token[] {

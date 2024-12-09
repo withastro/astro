@@ -1,5 +1,4 @@
 import { toStyleString } from '../../runtime/server/render/util.js';
-import type { AstroConfig } from '../../types/public/config.js';
 import type { GetImageResult, ImageLayout, LocalImageProps, RemoteImageProps } from '../types.js';
 
 export function addCSSVarsToStyle(

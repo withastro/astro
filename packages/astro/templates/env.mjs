@@ -1,6 +1,7 @@
 // @ts-check
 import { schema } from 'virtual:astro:env/internal';
 import {
+	// biome-ignore lint/correctness/noUnusedImports: `_getEnv` is used by the generated code
 	getEnv as _getEnv,
 	createInvalidVariablesError,
 	getEnvFieldType,
