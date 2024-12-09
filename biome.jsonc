@@ -34,6 +34,7 @@
 			"correctness": {
 				"noUnusedVariables": "info",
 				"noUnusedFunctionParameters": "info",
+				"noUnusedImports": "warn",
 			},
 		},
 	},
