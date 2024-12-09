@@ -85,7 +85,7 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 			value: newChildren,
 		});
 	}
-	const formState = this ? await getFormState(this) : undefined;
+	const formState = this?.result ? await getFormState(this) : undefined;
 	if (formState) {
 		attrs['data-action-result'] = JSON.stringify(formState[0]);
 		attrs['data-action-key'] = formState[1];
