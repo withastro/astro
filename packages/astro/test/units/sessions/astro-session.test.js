@@ -14,6 +14,7 @@ const stringify = (data) => JSON.parse(devalueStringify(data));
 const defaultConfig = {
 	driver: 'memory',
 	cookie: 'test-session',
+	ttl: 60,
 };
 
 // Helper to create a new session instance with mocked dependencies
@@ -142,7 +143,7 @@ test('AstroSession - Data Persistence', async (t) => {
 
 	await t.test('should load data from storage', async () => {
 		const mockStorage = {
-			get: async () => stringify(new Map([['key', 'value']])),
+			get: async () => stringify(new Map([['key', { data: 'value' }]])),
 			setItem: async () => {},
 		};
 
@@ -151,7 +152,45 @@ test('AstroSession - Data Persistence', async (t) => {
 		const value = await session.get('key');
 		assert.equal(value, 'value');
 	});
+
+	await t.test('should remove expired session data', async () => {
+		const mockStorage = {
+			get: async () => stringify(new Map([['key', { data: 'value', expires: -1 }]])),
+			setItem: async () => {},
+		};
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		const value = await session.get('key');
+
+		assert.equal(value, undefined);
+	});
+
+
+	await t.test('should not write flash session data to storage a second time', async () => {
+		let storedData;
+		const mockStorage = {
+			get: async () => stringify(new Map([['key', { data: 'value', expires: "flash" }]])),
+			setItem: async (_key, value) => {
+				storedData = value;
+			},
+		};
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		const value = await session.get('key');
+
+		assert.equal(value, 'value');
+
+		await session[PERSIST_SYMBOL]();
+
+		const emptyMap = devalueStringify(new Map());
+		assert.equal(storedData, emptyMap);
+	})
+
+
 });
+
+
 
 test('AstroSession - Error Handling', async (t) => {
 	await t.test('should throw error when setting invalid data', async () => {
@@ -227,9 +266,9 @@ test('AstroSession - Sparse Data Operations', async (t) => {
 	await t.test('should handle multiple operations in sparse mode', async () => {
 		const existingData = stringify(
 			new Map([
-				['keep', 'original'],
-				['delete', 'remove'],
-				['update', 'old'],
+				['keep', { data: 'original' }],
+				['delete', { data: 'remove' }],
+				['update', { data: 'old' }],
 			]),
 		);
 

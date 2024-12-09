@@ -8,6 +8,7 @@ export default defineConfig({
 	experimental: {
 		session: {
 			driver: 'fs',
+			ttl: 20,
 		},
 	},
 });
