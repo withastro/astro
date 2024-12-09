@@ -48,7 +48,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	#dirty = false;
 	// Whether the session cookie has been set.
 	#cookieSet = false;
-	// The local data is "partial" if it has not been loaded from storage yet and only 
+	// The local data is "partial" if it has not been loaded from storage yet and only
 	// contains values that have been set or deleted in-memory locally.
 	// We do this to avoid the need to block on loading data when it is only being set.
 	// When we load the data from storage, we need to merge it with the local partial data,
@@ -122,7 +122,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Sets a session value. The session is created if it does not exist.
 	 */
 
-	set<T = any>(key: string, value: T, ttl?: number | 'flash') {
+	set<T = any>(key: string, value: T, { ttl }: { ttl?: number | 'flash' } = {}) {
 		if (!key) {
 			throw new AstroError({
 				...SessionStorageSaveError,
@@ -157,7 +157,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	}
 
 	flash<T = any>(key: string, value: T) {
-		this.set(key, value, 'flash');
+		this.set(key, value, { ttl: 'flash' });
 	}
 
 	/**
