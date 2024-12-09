@@ -1,5 +1,18 @@
 # astro
 
+## 5.0.4
+
+### Patch Changes
+
+- [#12653](https://github.com/withastro/astro/pull/12653) [`e21c7e6`](https://github.com/withastro/astro/commit/e21c7e67fde1155cf593fd2b40010c5e2c2cd3f2) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates a reference in an error message
+
+- [#12585](https://github.com/withastro/astro/pull/12585) [`a9373c0`](https://github.com/withastro/astro/commit/a9373c0c9a3c2e1773fc11bb14e156698b0d9d38) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `process.env` would be frozen despite changes made to environment variables in development
+
+- [#12695](https://github.com/withastro/astro/pull/12695) [`a203d5d`](https://github.com/withastro/astro/commit/a203d5dd582166674c45e807a5dc9113e26e24f0) Thanks [@ascorbic](https://github.com/ascorbic)! - Throws a more helpful error when images are missing
+
+- Updated dependencies [[`f13417b`](https://github.com/withastro/astro/commit/f13417bfbf73130c224752379e2da33084f89554), [`87231b1`](https://github.com/withastro/astro/commit/87231b1168da66bb593f681206c42fa555dfcabc), [`a71e9b9`](https://github.com/withastro/astro/commit/a71e9b93b317edc0ded49d4d50f1b7841c8cd428)]:
+  - @astrojs/markdown-remark@6.0.1
+
 ## 5.0.3
 
 ### Patch Changes
