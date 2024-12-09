@@ -21,6 +21,11 @@ export const PERSIST_SYMBOL = Symbol();
 const DEFAULT_COOKIE_NAME = 'astro-session';
 const VALID_COOKIE_REGEX = /^[\w-]+$/;
 
+interface SessionEntry {
+	data: any;
+	expires?: number | 'flash';
+}
+
 export class AstroSession<TDriver extends SessionDriverName = any> {
 	// The cookies object.
 	#cookies: AstroCookies;
@@ -32,19 +37,23 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	#cookieName: string;
 	// The unstorage object for the session driver.
 	#storage: Storage | undefined;
-	#data: Map<string, any> | undefined;
+	#data: Map<string, SessionEntry> | undefined;
 	// The session ID. A v4 UUID.
 	#sessionID: string | undefined;
 	// Sessions to destroy. Needed because we won't have the old session ID after it's destroyed locally.
 	#toDestroy = new Set<string>();
-	// Session keys to delete. Used for sparse data sets to avoid overwriting the deleted value.
+	// Session keys to delete. Used for partial data sets to avoid overwriting the deleted value.
 	#toDelete = new Set<string>();
 	// Whether the session is dirty and needs to be saved.
 	#dirty = false;
 	// Whether the session cookie has been set.
 	#cookieSet = false;
-	// Whether the session data is sparse and needs to be merged with the existing data.
-	#sparse = true;
+	// The local data is "partial" if it has not been loaded from storage yet and only 
+	// contains values that have been set or deleted in-memory locally.
+	// We do this to avoid the need to block on loading data when it is only being set.
+	// When we load the data from storage, we need to merge it with the local partial data,
+	// preserving in-memory changes and deletions.
+	#partial = true;
 
 	constructor(
 		cookies: AstroCookies,
@@ -67,7 +76,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Gets a session value. Returns `undefined` if the session or value does not exist.
 	 */
 	async get<T = any>(key: string): Promise<T | undefined> {
-		return (await this.#ensureData()).get(key);
+		return (await this.#ensureData()).get(key)?.data;
 	}
 
 	/**
@@ -88,14 +97,14 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Gets all session values.
 	 */
 	async values() {
-		return (await this.#ensureData()).values();
+		return [...(await this.#ensureData()).values()].map((entry) => entry.data);
 	}
 
 	/**
 	 * Gets all session entries.
 	 */
 	async entries() {
-		return (await this.#ensureData()).entries();
+		return [...(await this.#ensureData()).entries()].map(([key, entry]) => [key, entry.data]);
 	}
 
 	/**
@@ -103,7 +112,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 */
 	delete(key: string) {
 		this.#data?.delete(key);
-		if (this.#sparse) {
+		if (this.#partial) {
 			this.#toDelete.add(key);
 		}
 		this.#dirty = true;
@@ -113,7 +122,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Sets a session value. The session is created if it does not exist.
 	 */
 
-	set<T = any>(key: string, value: T) {
+	set<T = any>(key: string, value: T, ttl?: number | 'flash') {
 		if (!key) {
 			throw new AstroError({
 				...SessionStorageSaveError,
@@ -138,8 +147,17 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			this.#cookieSet = true;
 		}
 		this.#data ??= new Map();
-		this.#data.set(key, value);
+		const lifetime = ttl ?? this.#config.ttl;
+		const expires = typeof lifetime === 'number' ? Date.now() + lifetime * 1000 : lifetime;
+		this.#data.set(key, {
+			data: value,
+			expires,
+		});
 		this.#dirty = true;
+	}
+
+	flash<T = any>(key: string, value: T) {
+		this.set(key, value, 'flash');
 	}
 
 	/**
@@ -194,6 +212,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 
 		if (this.#dirty && this.#data) {
 			const data = await this.#ensureData();
+			this.#toDelete.forEach((key) => data.delete(key));
 			const key = this.#ensureSessionID();
 			let serialized;
 			try {
@@ -256,12 +275,12 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 
 	/**
 	 * Attempts to load the session data from storage, or creates a new data object if none exists.
-	 * If there is existing sparse data, it will be merged into the new data object.
+	 * If there is existing partial data, it will be merged into the new data object.
 	 */
 
 	async #ensureData() {
 		const storage = await this.#ensureStorage();
-		if (this.#data && !this.#sparse) {
+		if (this.#data && !this.#partial) {
 			return this.#data;
 		}
 		this.#data ??= new Map();
@@ -289,26 +308,25 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 					),
 				});
 			}
-			// The local data is "sparse" if it has not been loaded from storage yet. This means
-			// it only contains values that have been set or deleted in-memory locally.
-			// We do this to avoid the need to block on loading data when it is only being set.
-			// When we load the data from storage, we need to merge it with the local sparse data,
-			// preserving in-memory changes and deletions.
 
-			if (this.#sparse) {
-				// For sparse updates, only copy values from storage that:
-				// 1. Don't exist in memory (preserving in-memory changes)
-				// 2. Haven't been marked for deletion
-				for (const [key, value] of storedMap) {
-					if (!this.#data.has(key) && !this.#toDelete.has(key)) {
-						this.#data.set(key, value);
+			const now = Date.now();
+
+			// Only copy values from storage that:
+			// 1. Don't exist in memory (preserving in-memory changes)
+			// 2. Haven't been marked for deletion
+			// 3. Haven't expired
+			for (const [key, value] of storedMap) {
+				const expired = typeof value.expires === 'number' && value.expires < now;
+				if (!this.#data.has(key) && !this.#toDelete.has(key) && !expired) {
+					this.#data.set(key, value);
+					if (value?.expires === 'flash') {
+						this.#toDelete.add(key);
+						this.#dirty = true;
 					}
 				}
-			} else {
-				this.#data = storedMap;
 			}
 
-			this.#sparse = false;
+			this.#partial = false;
 			return this.#data;
 		} catch (err) {
 			await this.#destroySafe();

@@ -14,6 +14,7 @@ const stringify = (data) => JSON.parse(devalueStringify(data));
 const defaultConfig = {
 	driver: 'memory',
 	cookie: 'test-session',
+	ttl: 60,
 };
 
 // Helper to create a new session instance with mocked dependencies
@@ -142,7 +143,7 @@ test('AstroSession - Data Persistence', async (t) => {
 
 	await t.test('should load data from storage', async () => {
 		const mockStorage = {
-			get: async () => stringify(new Map([['key', 'value']])),
+			get: async () => stringify(new Map([['key', { data: 'value' }]])),
 			setItem: async () => {},
 		};
 
@@ -227,9 +228,9 @@ test('AstroSession - Sparse Data Operations', async (t) => {
 	await t.test('should handle multiple operations in sparse mode', async () => {
 		const existingData = stringify(
 			new Map([
-				['keep', 'original'],
-				['delete', 'remove'],
-				['update', 'old'],
+				['keep', { data: 'original' }],
+				['delete', { data: 'remove' }],
+				['update', { data: 'old' }],
 			]),
 		);
 
