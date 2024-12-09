@@ -22,6 +22,7 @@ import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
+import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
@@ -172,6 +173,19 @@ function buildManifest(
 			return prependForwardSlash(joinPaths(settings.config.base, pth));
 		}
 	};
+
+	for (const route of opts.manifest.routes) {
+		if (!DEFAULT_COMPONENTS.find((component) => route.component === component)) {
+			continue;
+		}
+		routes.push({
+			file: '',
+			links: [],
+			scripts: [],
+			styles: [],
+			routeData: serializeRouteData(route, settings.config.trailingSlash),
+		});
+	}
 
 	for (const route of opts.manifest.routes) {
 		if (!route.prerender) continue;
