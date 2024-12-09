@@ -30,19 +30,12 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 	// and is then cached across all future SSR builds. In the past, we've had trouble
 	// with parallelized builds without guaranteeing that this is called first.
 
-	let exit = false
 	for (const route of manifest.routes) {
 		// There's special handling in SSR
-		for (const component of DEFAULT_COMPONENTS) {
-			if (route.component === component) {
-				exit = true
-				break;
-			}
-		}
-		if (exit) {
-			exit = false
+		if (DEFAULT_COMPONENTS.some((component) => route.component === component)) {
 			continue;
 		}
+
 		// Generate a unique key to identify each page in the build process.
 		const key = makePageDataKey(route.route, route.component);
 		// static route:
