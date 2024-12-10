@@ -66,7 +66,7 @@ export async function copyToClipboard(text: string, force?: boolean) {
 		// Unix: check if a supported command is installed
 
 		const unixCommands: Array<[string, Array<string>]> = [
-			['xclip', ['-sel', 'clipboard', '-l', '1']],
+			['xclip', ['-selection', 'clipboard', '-l', '1']],
 			['wl-copy', []],
 		];
 		for (const [unixCommand, unixArgs] of unixCommands) {
@@ -101,7 +101,7 @@ export async function copyToClipboard(text: string, force?: boolean) {
 	}
 
 	try {
-		const result = spawnSync(command, args, { input: text });
+		const result = spawnSync(command, args, { input: text, stdio: ['pipe', 'ignore', 'ignore'] });
 		if (result.error) {
 			throw result.error;
 		}
