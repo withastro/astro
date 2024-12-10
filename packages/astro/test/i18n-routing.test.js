@@ -1,6 +1,6 @@
+import * as cheerio from 'cheerio';
 import * as assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
@@ -2086,5 +2086,13 @@ describe('Fallback rewrite SSR', () => {
 		assert.equal(response.status, 200);
 		const html = await response.text();
 		assert.match(html, /Hello/);
+	});
+
+	it('should render paths with path parameters correctly', async () => {
+		let request = new Request('http://example.com/new-site/fr/blog/1');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.equal(text.includes('Hello world'), true);
 	});
 });
