@@ -171,6 +171,21 @@ describe('Middleware in PROD mode, SSG', () => {
 	});
 });
 
+describe('Middleware should not be executed or imported during', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	it('should build the project without errors', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-full-ssr/',
+			output: 'server',
+			adapter: testAdapter({}),
+		});
+		await fixture.build();
+		assert.ok('Should build');
+	});
+});
+
 describe('Middleware API in PROD mode, SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
