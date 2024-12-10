@@ -137,7 +137,7 @@ export default new Map([${exports.join(', ')}]);
 		// We then export them all, mapped by the import id, so we can find them again in the build.
 		const lines: Array<string> = [];
 		for (const [fileName, specifier] of this.#moduleImports) {
-			lines.push(`['${fileName}', () => import('${specifier}')]`);
+			lines.push(`[${JSON.stringify(fileName)}, () => import(${JSON.stringify(specifier)})]`);
 		}
 		const code = `
 export default new Map([\n${lines.join(',\n')}]);
