@@ -1,5 +1,6 @@
-import type { ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
+import type { ManifestData } from '../../types/astro.js';
+import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import {
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
@@ -71,6 +72,7 @@ export interface RenderErrorOptions {
 	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
 	 */
 	error?: unknown;
+	clientAddress: string | undefined;
 }
 
 export class App {
@@ -113,7 +115,7 @@ export class App {
 		return AppPipeline.create(manifestData, {
 			logger: this.#logger,
 			manifest: this.#manifest,
-			mode: 'production',
+			runtimeMode: 'production',
 			renderers: this.#manifest.renderers,
 			defaultRoutes: createDefaultRoutes(this.#manifest),
 			resolve: async (specifier: string) => {
@@ -232,48 +234,17 @@ export class App {
 		return pathname;
 	}
 
-	async render(request: Request, options?: RenderOptions): Promise<Response>;
-	/**
-	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
-	 * See https://github.com/withastro/astro/pull/9199 for more information.
-	 */
-	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response>;
-	async render(
-		request: Request,
-		routeDataOrOptions?: RouteData | RenderOptions,
-		maybeLocals?: object,
-	): Promise<Response> {
+	async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
 		let routeData: RouteData | undefined;
 		let locals: object | undefined;
 		let clientAddress: string | undefined;
 		let addCookieHeader: boolean | undefined;
 
-		if (
-			routeDataOrOptions &&
-			('addCookieHeader' in routeDataOrOptions ||
-				'clientAddress' in routeDataOrOptions ||
-				'locals' in routeDataOrOptions ||
-				'routeData' in routeDataOrOptions)
-		) {
-			if ('addCookieHeader' in routeDataOrOptions) {
-				addCookieHeader = routeDataOrOptions.addCookieHeader;
-			}
-			if ('clientAddress' in routeDataOrOptions) {
-				clientAddress = routeDataOrOptions.clientAddress;
-			}
-			if ('routeData' in routeDataOrOptions) {
-				routeData = routeDataOrOptions.routeData;
-			}
-			if ('locals' in routeDataOrOptions) {
-				locals = routeDataOrOptions.locals;
-			}
-		} else {
-			routeData = routeDataOrOptions as RouteData | undefined;
-			locals = maybeLocals;
-			if (routeDataOrOptions || locals) {
-				this.#logRenderOptionsDeprecationWarning();
-			}
-		}
+		addCookieHeader = renderOptions?.addCookieHeader;
+		clientAddress = renderOptions?.clientAddress ?? Reflect.get(request, clientAddressSymbol);
+		routeData = renderOptions?.routeData;
+		locals = renderOptions?.locals;
+
 		if (routeData) {
 			this.#logger.debug(
 				'router',
@@ -286,12 +257,8 @@ export class App {
 			if (typeof locals !== 'object') {
 				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
 				this.#logger.error(null, error.stack!);
-				return this.#renderError(request, { status: 500, error });
+				return this.#renderError(request, { status: 500, error, clientAddress });
 			}
-			Reflect.set(request, clientLocalsSymbol, locals);
-		}
-		if (clientAddress) {
-			Reflect.set(request, clientAddressSymbol, clientAddress);
 		}
 		if (!routeData) {
 			routeData = this.match(request);
@@ -301,7 +268,7 @@ export class App {
 		if (!routeData) {
 			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);
 			this.#logger.debug('router', "Here's the available routes:\n", this.#manifestData);
-			return this.#renderError(request, { locals, status: 404 });
+			return this.#renderError(request, { locals, status: 404, clientAddress });
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
@@ -318,11 +285,12 @@ export class App {
 				request,
 				routeData,
 				status: defaultStatus,
+				clientAddress,
 			});
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
-			return this.#renderError(request, { locals, status: 500, error: err });
+			return this.#renderError(request, { locals, status: 500, error: err, clientAddress });
 		}
 
 		if (
@@ -336,6 +304,7 @@ export class App {
 				// We don't have an error to report here. Passing null means we pass nothing intentionally
 				// while undefined means there's no error
 				error: response.status === 500 ? null : undefined,
+				clientAddress,
 			});
 		}
 
@@ -352,15 +321,6 @@ export class App {
 
 		Reflect.set(response, responseSentSymbol, true);
 		return response;
-	}
-
-	#logRenderOptionsDeprecationWarning() {
-		if (this.#renderOptionsDeprecationWarningShown) return;
-		this.#logger.warn(
-			'deprecated',
-			`The adapter ${this.#manifest.adapterName} is using a deprecated signature of the 'app.render()' method. From Astro 4.0, locals and routeData are provided as properties on an optional object to this method. Using the old signature will cause an error in Astro 5.0. See https://github.com/withastro/astro/pull/9199 for more information.`,
-		);
-		this.#renderOptionsDeprecationWarningShown = true;
 	}
 
 	setCookieHeaders(response: Response) {
@@ -392,6 +352,7 @@ export class App {
 			response: originalResponse,
 			skipMiddleware = false,
 			error,
+			clientAddress,
 		}: RenderErrorOptions,
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
@@ -425,6 +386,7 @@ export class App {
 					routeData: errorRouteData,
 					status,
 					props: { error },
+					clientAddress,
 				});
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
@@ -436,6 +398,7 @@ export class App {
 						status,
 						response: originalResponse,
 						skipMiddleware: true,
+						clientAddress,
 					});
 				}
 			}
@@ -475,6 +438,15 @@ export class App {
 			// this function could throw an error...
 			originalResponse.headers.delete('Content-type');
 		} catch {}
+		// we use a map to remove duplicates
+		const mergedHeaders = new Map([
+			...Array.from(newResponse.headers),
+			...Array.from(originalResponse.headers),
+		]);
+		const newHeaders = new Headers();
+		for (const [name, value] of mergedHeaders) {
+			newHeaders.set(name, value);
+		}
 		return new Response(newResponse.body, {
 			status,
 			statusText: status === 200 ? newResponse.statusText : originalResponse.statusText,
@@ -483,10 +455,7 @@ export class App {
 			// If users see something weird, it's because they are setting some headers they should not.
 			//
 			// Although, we don't want it to replace the content-type, because the error page must return `text/html`
-			headers: new Headers([
-				...Array.from(newResponse.headers),
-				...Array.from(originalResponse.headers),
-			]),
+			headers: newHeaders,
 		});
 	}
 

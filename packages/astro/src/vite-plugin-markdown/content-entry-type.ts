@@ -1,17 +1,17 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
-import type { ContentEntryType } from '../@types/astro.js';
 import { safeParseFrontmatter } from '../content/utils.js';
+import type { ContentEntryType } from '../types/public/content.js';
 
 export const markdownContentEntryType: ContentEntryType = {
 	extensions: ['.md'],
 	async getEntryInfo({ contents, fileUrl }: { contents: string; fileUrl: URL }) {
 		const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
 		return {
-			data: parsed.data,
-			body: parsed.content,
-			slug: parsed.data.slug,
-			rawData: parsed.matter,
+			data: parsed.frontmatter,
+			body: parsed.content.trim(),
+			slug: parsed.frontmatter.slug,
+			rawData: parsed.rawFrontmatter,
 		};
 	},
 	// We need to handle propagation for Markdown because they support layouts which will bring in styles.
@@ -32,10 +32,7 @@ export const markdownContentEntryType: ContentEntryType = {
 			});
 			return {
 				html: result.code,
-				metadata: {
-					...result.metadata,
-					imagePaths: Array.from(result.metadata.imagePaths),
-				},
+				metadata: result.metadata,
 			};
 		};
 	},

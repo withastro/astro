@@ -34,6 +34,8 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	 */
 	deferredRender?: boolean;
 	assetImports?: Array<string>;
+	/** @deprecated */
+	legacyId?: string;
 }
 
 /**
@@ -41,7 +43,7 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
  * To add or modify data, use {@link MutableDataStore} instead.
  */
 
-export class DataStore {
+export class ImmutableDataStore {
 	protected _collections = new Map<string, Map<string, any>>();
 
 	constructor() {
@@ -92,31 +94,31 @@ export class DataStore {
 			// @ts-expect-error - this is a virtual module
 			const data = await import('astro:data-layer-content');
 			if (data.default instanceof Map) {
-				return DataStore.fromMap(data.default);
+				return ImmutableDataStore.fromMap(data.default);
 			}
 			const map = devalue.unflatten(data.default);
-			return DataStore.fromMap(map);
+			return ImmutableDataStore.fromMap(map);
 		} catch {}
-		return new DataStore();
+		return new ImmutableDataStore();
 	}
 
 	static async fromMap(data: Map<string, Map<string, any>>) {
-		const store = new DataStore();
+		const store = new ImmutableDataStore();
 		store._collections = data;
 		return store;
 	}
 }
 
 function dataStoreSingleton() {
-	let instance: Promise<DataStore> | DataStore | undefined = undefined;
+	let instance: Promise<ImmutableDataStore> | ImmutableDataStore | undefined = undefined;
 	return {
 		get: async () => {
 			if (!instance) {
-				instance = DataStore.fromModule();
+				instance = ImmutableDataStore.fromModule();
 			}
 			return instance;
 		},
-		set: (store: DataStore) => {
+		set: (store: ImmutableDataStore) => {
 			instance = store;
 		},
 	};

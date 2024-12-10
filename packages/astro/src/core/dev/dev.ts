@@ -5,12 +5,12 @@ import { performance } from 'node:perf_hooks';
 import { green } from 'kleur/colors';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
-import type { AstroInlineConfig } from '../../@types/astro.js';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
+import type { AstroInlineConfig } from '../../types/public/config.js';
 import * as msg from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { startContainer } from './container.js';
@@ -107,7 +107,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	let store: MutableDataStore | undefined;
 	try {
-		const dataStoreFile = getDataStoreFile(restart.container.settings);
+		const dataStoreFile = getDataStoreFile(restart.container.settings, true);
 		if (existsSync(dataStoreFile)) {
 			store = await MutableDataStore.fromFile(dataStoreFile);
 		}

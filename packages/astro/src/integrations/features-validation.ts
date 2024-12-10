@@ -1,25 +1,21 @@
-import type {
-	AstroAdapterFeatures,
-	AstroAssetsFeature,
-	AstroConfig,
-	AstroFeatureMap,
-	SupportsKind,
-} from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
+import type { AstroSettings } from '../types/astro.js';
+import type {
+	AdapterSupport,
+	AdapterSupportsKind,
+	AstroAdapterFeatureMap,
+} from '../types/public/integrations.js';
 
-const STABLE = 'stable';
-const DEPRECATED = 'deprecated';
-const UNSUPPORTED = 'unsupported';
-const EXPERIMENTAL = 'experimental';
-
-const UNSUPPORTED_ASSETS_FEATURE: AstroAssetsFeature = {
-	supportKind: UNSUPPORTED,
-	isSquooshCompatible: false,
-	isSharpCompatible: false,
-};
+export const AdapterFeatureStability = {
+	STABLE: 'stable',
+	DEPRECATED: 'deprecated',
+	UNSUPPORTED: 'unsupported',
+	EXPERIMENTAL: 'experimental',
+	LIMITED: 'limited',
+} as const;
 
 type ValidationResult = {
-	[Property in keyof AstroFeatureMap]: boolean;
+	[Property in keyof AstroAdapterFeatureMap]: boolean;
 };
 
 /**
@@ -31,18 +27,17 @@ type ValidationResult = {
  */
 export function validateSupportedFeatures(
 	adapterName: string,
-	featureMap: AstroFeatureMap,
-	config: AstroConfig,
-	adapterFeatures: AstroAdapterFeatures | undefined,
+	featureMap: AstroAdapterFeatureMap,
+	settings: AstroSettings,
 	logger: Logger,
 ): ValidationResult {
 	const {
-		assets = UNSUPPORTED_ASSETS_FEATURE,
-		serverOutput = UNSUPPORTED,
-		staticOutput = UNSUPPORTED,
-		hybridOutput = UNSUPPORTED,
-		i18nDomains = UNSUPPORTED,
-		envGetSecret = UNSUPPORTED,
+		serverOutput = AdapterFeatureStability.UNSUPPORTED,
+		staticOutput = AdapterFeatureStability.UNSUPPORTED,
+		hybridOutput = AdapterFeatureStability.UNSUPPORTED,
+		i18nDomains = AdapterFeatureStability.UNSUPPORTED,
+		envGetSecret = AdapterFeatureStability.UNSUPPORTED,
+		sharpImageService = AdapterFeatureStability.UNSUPPORTED,
 	} = featureMap;
 	const validationResult: ValidationResult = {};
 
@@ -51,7 +46,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'staticOutput',
-		() => config?.output === 'static',
+		() => settings.buildOutput === 'static',
 	);
 
 	validationResult.hybridOutput = validateSupportKind(
@@ -59,7 +54,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'hybridOutput',
-		() => config?.output === 'hybrid',
+		() => settings.config.output == 'static' && settings.buildOutput === 'server',
 	);
 
 	validationResult.serverOutput = validateSupportKind(
@@ -67,114 +62,121 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'serverOutput',
-		() => config?.output === 'server',
+		() => settings.config?.output === 'server' || settings.buildOutput === 'server',
 	);
-	validationResult.assets = validateAssetsFeature(assets, adapterName, config, logger);
 
-	if (config.i18n?.domains) {
+	if (settings.config.i18n?.domains) {
 		validationResult.i18nDomains = validateSupportKind(
 			i18nDomains,
 			adapterName,
 			logger,
 			'i18nDomains',
 			() => {
-				return config?.output === 'server' && !config?.site;
+				return settings.config?.output === 'server' && !settings.config?.site;
 			},
 		);
-		if (adapterFeatures?.functionPerRoute) {
-			logger.error(
-				'config',
-				'The Astro feature `i18nDomains` is incompatible with the Adapter feature `functionPerRoute`',
-			);
-		}
 	}
 
-	if (config.experimental?.env) {
-		validationResult.envGetSecret = validateSupportKind(
-			envGetSecret,
-			adapterName,
-			logger,
-			'astro:env getSecret',
-			() => true,
-		);
-	}
+	validationResult.envGetSecret = validateSupportKind(
+		envGetSecret,
+		adapterName,
+		logger,
+		'astro:env getSecret',
+		() => Object.keys(settings.config?.env?.schema ?? {}).length !== 0,
+	);
+
+	validationResult.sharpImageService = validateSupportKind(
+		sharpImageService,
+		adapterName,
+		logger,
+		'sharp',
+		() => settings.config?.image?.service?.entrypoint === 'astro/assets/services/sharp',
+	);
 
 	return validationResult;
 }
 
+export function unwrapSupportKind(supportKind?: AdapterSupport): AdapterSupportsKind | undefined {
+	if (!supportKind) {
+		return undefined;
+	}
+
+	return typeof supportKind === 'object' ? supportKind.support : supportKind;
+}
+
+export function getSupportMessage(supportKind: AdapterSupport): string | undefined {
+	return typeof supportKind === 'object' ? supportKind.message : undefined;
+}
+
 function validateSupportKind(
-	supportKind: SupportsKind,
+	supportKind: AdapterSupport,
 	adapterName: string,
 	logger: Logger,
 	featureName: string,
 	hasCorrectConfig: () => boolean,
 ): boolean {
-	if (supportKind === STABLE) {
-		return true;
-	} else if (supportKind === DEPRECATED) {
-		featureIsDeprecated(adapterName, logger, featureName);
-	} else if (supportKind === EXPERIMENTAL) {
-		featureIsExperimental(adapterName, logger, featureName);
-	}
+	const supportValue = unwrapSupportKind(supportKind);
+	const message = getSupportMessage(supportKind);
 
-	if (hasCorrectConfig() && supportKind === UNSUPPORTED) {
-		featureIsUnsupported(adapterName, logger, featureName);
+	if (!supportValue) {
 		return false;
-	} else {
-		return true;
 	}
+
+	if (supportValue === AdapterFeatureStability.STABLE) {
+		return true;
+	} else if (hasCorrectConfig()) {
+		// If the user has the relevant configuration, but the adapter doesn't support it, warn the user
+		logFeatureSupport(adapterName, logger, featureName, supportValue, message);
+	}
+
+	return false;
 }
 
-function featureIsUnsupported(adapterName: string, logger: Logger, featureName: string) {
-	logger.error(
-		'config',
-		`The adapter ${adapterName} doesn't currently support the feature "${featureName}".`,
-	);
-}
-
-function featureIsExperimental(adapterName: string, logger: Logger, featureName: string) {
-	logger.warn(
-		'config',
-		`The adapter ${adapterName} provides experimental support for "${featureName}". You may experience issues or breaking changes until this feature is fully supported by the adapter.`,
-	);
-}
-
-function featureIsDeprecated(adapterName: string, logger: Logger, featureName: string) {
-	logger.warn(
-		'config',
-		`The adapter ${adapterName} has deprecated its support for "${featureName}", and future compatibility is not guaranteed. The adapter may completely remove support for this feature without warning.`,
-	);
-}
-
-const SHARP_SERVICE = 'astro/assets/services/sharp';
-const SQUOOSH_SERVICE = 'astro/assets/services/squoosh';
-
-function validateAssetsFeature(
-	assets: AstroAssetsFeature,
+function logFeatureSupport(
 	adapterName: string,
-	config: AstroConfig,
 	logger: Logger,
-): boolean {
-	const {
-		supportKind = UNSUPPORTED,
-		isSharpCompatible = false,
-		isSquooshCompatible = false,
-	} = assets;
-	if (config?.image?.service?.entrypoint === SHARP_SERVICE && !isSharpCompatible) {
-		logger.warn(
-			null,
-			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Sharp".`,
-		);
-		return false;
+	featureName: string,
+	supportKind: AdapterSupport,
+	adapterMessage?: string,
+) {
+	switch (supportKind) {
+		case AdapterFeatureStability.STABLE:
+			break;
+		case AdapterFeatureStability.DEPRECATED:
+			logger.warn(
+				'config',
+				`The adapter ${adapterName} has deprecated its support for "${featureName}", and future compatibility is not guaranteed. The adapter may completely remove support for this feature without warning.`,
+			);
+			break;
+		case AdapterFeatureStability.EXPERIMENTAL:
+			logger.warn(
+				'config',
+				`The adapter ${adapterName} provides experimental support for "${featureName}". You may experience issues or breaking changes until this feature is fully supported by the adapter.`,
+			);
+			break;
+		case AdapterFeatureStability.LIMITED:
+			logger.warn(
+				'config',
+				`The adapter ${adapterName} has limited support for "${featureName}". Certain features may not work as expected.`,
+			);
+			break;
+		case AdapterFeatureStability.UNSUPPORTED:
+			logger.error(
+				'config',
+				`The adapter ${adapterName} does not currently support the feature "${featureName}". Your project may not build correctly.`,
+			);
+			break;
 	}
 
-	if (config?.image?.service?.entrypoint === SQUOOSH_SERVICE && !isSquooshCompatible) {
-		logger.warn(
-			null,
-			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Squoosh".`,
-		);
-		return false;
+	// If the adapter specified a custom message, log it after the default message
+	if (adapterMessage) {
+		logger.warn('adapter', adapterMessage);
 	}
+}
 
-	return validateSupportKind(supportKind, adapterName, logger, 'assets', () => true);
+export function getAdapterStaticRecommendation(adapterName: string): string | undefined {
+	return {
+		'@astrojs/vercel/static':
+			'Update your configuration to use `@astrojs/vercel/serverless` to unlock server-side rendering capabilities.',
+	}[adapterName];
 }

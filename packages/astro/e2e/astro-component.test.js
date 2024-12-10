@@ -35,7 +35,7 @@ test.describe('Astro component HMR', () => {
 		);
 	});
 
-	test('hoisted scripts', async ({ page, astro }) => {
+	test('Scripts', async ({ page, astro }) => {
 		const initialLog = page.waitForEvent(
 			'console',
 			(message) => message.text() === 'Hello, Astro!',
@@ -52,7 +52,7 @@ test.describe('Astro component HMR', () => {
 			(message) => message.text() === 'Hello, updated Astro!',
 		);
 
-		// Edit the hoisted script on the page
+		// Edit the script on the page
 		await astro.editFile('./src/pages/index.astro', (content) =>
 			content.replace('Hello, Astro!', 'Hello, updated Astro!'),
 		);

@@ -38,13 +38,13 @@ const content = "${loremIpsum}"
 		</div>
 	</body>
 </html>`,
-		'utf-8'
+		'utf-8',
 	);
 
 	await fs.writeFile(
 		new URL('./src/components/Paragraph.astro', projectDir),
 		`<div>{Astro.props.num} {Astro.props.str}</div>`,
-		'utf-8'
+		'utf-8',
 	);
 
 	await fs.writeFile(
@@ -57,6 +57,6 @@ export default defineConfig({
 	output: 'server',
 	adapter: nodejs({ mode: 'standalone' }),
 });`,
-		'utf-8'
+		'utf-8',
 	);
 }

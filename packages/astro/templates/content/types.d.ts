@@ -1,5 +1,5 @@
 declare module 'astro:content' {
-	interface RenderResult {
+	export interface RenderResult {
 		Content: import('astro/runtime/server/index.js').AstroComponentFactory;
 		headings: import('astro').MarkdownHeading[];
 		remarkPluginFrontmatter: Record<string, any>;
@@ -92,7 +92,9 @@ declare module 'astro:content' {
 		collection: C,
 		id: E,
 	): E extends keyof DataEntryMap[C]
-		? Promise<DataEntryMap[C][E]>
+		? string extends keyof DataEntryMap[C]
+			? Promise<DataEntryMap[C][E]> | undefined
+			: Promise<DataEntryMap[C][E]>
 		: Promise<CollectionEntry<C> | undefined>;
 
 	/** Resolve an array of entry references from the same collection */

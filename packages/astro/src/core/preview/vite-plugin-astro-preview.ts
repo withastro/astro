@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type { Connect, Plugin } from 'vite';
-import type { AstroSettings } from '../../@types/astro.js';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../../template/4xx.js';
+import type { AstroSettings } from '../../types/astro.js';
 import { cleanUrl } from '../../vite-plugin-utils/index.js';
 import { stripBase } from './util.js';
 
@@ -16,7 +16,7 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 		const errorPagePath = fileURLToPath(outDir + '/404.html');
 		if (fs.existsSync(errorPagePath)) {
 			res.statusCode = 404;
-			res.setHeader('Content-Type', 'text/html;charset=utf-8');
+			res.setHeader('Content-Type', 'text/html');
 			res.end(fs.readFileSync(errorPagePath));
 		} else {
 			res.statusCode = 404;

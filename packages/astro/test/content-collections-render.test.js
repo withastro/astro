@@ -26,7 +26,7 @@ describe('Content Collections - render()', () => {
 			assert.equal($('ul li').length, 3);
 
 			// Includes styles
-			assert.equal($('link[rel=stylesheet]').length, 1);
+			assert.equal($('link[rel=stylesheet]').length, 2);
 		});
 
 		it('Excludes CSS for non-rendered entries', async () => {
@@ -34,7 +34,7 @@ describe('Content Collections - render()', () => {
 			const $ = cheerio.load(html);
 
 			// Excludes styles
-			assert.equal($('link[rel=stylesheet]').length, 0);
+			assert.equal($('link[rel=stylesheet]').length, 1);
 		});
 
 		it('De-duplicates CSS used both in layout and directly in target page', async () => {
@@ -60,18 +60,8 @@ describe('Content Collections - render()', () => {
 			const html = await fixture.readFile('/launch-week-component-scripts/index.html');
 			const $ = cheerio.load(html);
 
-			const allScripts = $('head > script[type="module"]');
-			assert.ok(allScripts.length);
-
-			// Includes hoisted script
-			const scriptWithSrc = [...allScripts].find((script) =>
-				$(script).attr('src')?.includes('WithScripts'),
-			);
-			assert.notEqual(
-				scriptWithSrc,
-				undefined,
-				'`WithScripts.astro` hoisted script missing from head.',
-			);
+			// Includes script
+			assert.equal($('script[type="module"]').length, 1);
 
 			// Includes inline script
 			assert.equal($('script[data-is-inline]').length, 1);
@@ -81,17 +71,7 @@ describe('Content Collections - render()', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			const allScripts = $('head > script[type="module"]');
-
-			// Excludes hoisted script
-			const scriptWithText = [...allScripts].find((script) =>
-				$(script).text().includes('document.querySelector("#update-me")'),
-			);
-			assert.equal(
-				scriptWithText,
-				undefined,
-				'`WithScripts.astro` hoisted script included unexpectedly.',
-			);
+			assert.equal($('script').length, 0);
 		});
 
 		it('Applies MDX components export', async () => {
@@ -130,7 +110,7 @@ describe('Content Collections - render()', () => {
 			assert.equal($('ul li').length, 3);
 
 			// Includes styles
-			assert.equal($('link[rel=stylesheet]').length, 1);
+			assert.equal($('link[rel=stylesheet]').length, 2);
 		});
 
 		it('Exclude CSS for non-rendered entries', async () => {
@@ -141,7 +121,7 @@ describe('Content Collections - render()', () => {
 			const $ = cheerio.load(html);
 
 			// Includes styles
-			assert.equal($('link[rel=stylesheet]').length, 0);
+			assert.equal($('link[rel=stylesheet]').length, 1);
 		});
 
 		it('De-duplicates CSS used both in layout and directly in target page', async () => {
@@ -222,7 +202,7 @@ describe('Content Collections - render()', () => {
 			assert.equal($('ul li').length, 3);
 
 			// Includes styles
-			assert.equal($('head > style').length, 1);
+			assert.equal($('head > style').length, 2);
 			assert.ok($('head > style').text().includes("font-family: 'Comic Sans MS'"));
 		});
 
@@ -233,17 +213,8 @@ describe('Content Collections - render()', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const allScripts = $('head > script[src]');
-			assert.ok(allScripts.length);
-			// Includes hoisted script
-			const scriptWithSrc = [...allScripts].find((script) =>
-				script.attribs.src.includes('WithScripts.astro'),
-			);
-			assert.notEqual(
-				scriptWithSrc,
-				undefined,
-				'`WithScripts.astro` hoisted script missing from head.',
-			);
+			// Includes script
+			assert.equal($('script[type="module"][src*="WithScripts.astro"]').length, 1);
 
 			// Includes inline script
 			assert.equal($('script[data-is-inline]').length, 1);

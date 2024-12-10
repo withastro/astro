@@ -1,5 +1,6 @@
-import type { AstroIntegration, AstroUserConfig } from '../@types/astro.js';
 import { AstroConfigSchema } from '../core/config/schema.js';
+import type { AstroUserConfig } from '../types/public/config.js';
+import type { AstroIntegration } from '../types/public/integrations.js';
 
 const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED';
 

@@ -1,10 +1,16 @@
 ---
-import { type LocalImageProps, type RemoteImageProps, getImage } from 'astro:assets';
+import { type LocalImageProps, type RemoteImageProps, getImage, imageConfig } from 'astro:assets';
 import * as mime from 'mrmime';
-import type { GetImageResult, ImageOutputFormat } from '../dist/@types/astro';
+import { applyResponsiveAttributes } from '../dist/assets/utils/imageAttributes';
 import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import type {
+	GetImageResult,
+	ImageOutputFormat,
+	UnresolvedImageTransform,
+} from '../dist/types/public/index.js';
 import type { HTMLAttributes } from '../types';
+import './image.css';
 
 type Props = (LocalImageProps | RemoteImageProps) & {
 	formats?: ImageOutputFormat[];
@@ -37,6 +43,17 @@ if (scopedStyleClass) {
 		pictureAttributes.class = scopedStyleClass;
 	}
 }
+
+const layout = props.layout ?? imageConfig.experimentalLayout ?? 'none';
+const useResponsive = imageConfig.experimentalResponsiveImages && layout !== 'none';
+
+if (useResponsive) {
+	// Apply defaults from imageConfig if not provided
+	props.layout ??= imageConfig.experimentalLayout;
+	props.fit ??= imageConfig.experimentalObjectFit ?? 'cover';
+	props.position ??= imageConfig.experimentalObjectPosition ?? 'center';
+}
+
 for (const key in props) {
 	if (key.startsWith('data-astro-cid')) {
 		pictureAttributes[key] = props[key];
@@ -53,7 +70,7 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 				format: format,
 				widths: props.widths,
 				densities: props.densities,
-			}),
+			} as UnresolvedImageTransform),
 	),
 );
 
@@ -71,7 +88,7 @@ const fallbackImage = await getImage({
 	format: resultFallbackFormat,
 	widths: props.widths,
 	densities: props.densities,
-});
+} as UnresolvedImageTransform);
 
 const imgAdditionalAttributes: HTMLAttributes<'img'> = {};
 const sourceAdditionalAttributes: HTMLAttributes<'source'> = {};
@@ -85,6 +102,15 @@ if (fallbackImage.srcSet.values.length > 0) {
 	imgAdditionalAttributes.srcset = fallbackImage.srcSet.attribute;
 }
 
+const { class: className, ...attributes } = useResponsive
+	? applyResponsiveAttributes({
+			layout,
+			image: fallbackImage,
+			props,
+			additionalAttributes: imgAdditionalAttributes,
+		})
+	: { ...imgAdditionalAttributes, ...fallbackImage.attributes };
+
 if (import.meta.env.DEV) {
 	imgAdditionalAttributes['data-image-component'] = 'true';
 }
@@ -94,7 +120,7 @@ if (import.meta.env.DEV) {
 	{
 		Object.entries(optimizedImages).map(([_, image]) => {
 			const srcsetAttribute =
-				props.densities || (!props.densities && !props.widths)
+				props.densities || (!props.densities && !props.widths && !useResponsive)
 					? `${image.src}${image.srcSet.values.length > 0 ? ', ' + image.srcSet.attribute : ''}`
 					: image.srcSet.attribute;
 			return (
@@ -106,5 +132,6 @@ if (import.meta.env.DEV) {
 			);
 		})
 	}
-	<img src={fallbackImage.src} {...imgAdditionalAttributes} {...fallbackImage.attributes} />
+	{/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}
+	<img src={fallbackImage.src} {...attributes} class={className} />
 </picture>

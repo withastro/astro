@@ -16,6 +16,7 @@ async function sync(root) {
 }
 
 const baseFileTree = {
+	'/astro.config.mjs': `export default { legacy: { collections: true }}`,
 	'/src/content/authors/placeholder.json': `{ "name": "Placeholder" }`,
 	'/src/content/blog/placeholder.md': `\
 ---
@@ -56,7 +57,7 @@ name: Ben
 # Ben
 `,
 			'/src/content/authors/tony.json': `{ "name": "Tony" }`,
-			'/src/content/config.ts': `\
+			'/src/content.config.ts': `\
 import { z, defineCollection } from 'astro:content';
 
 const authors = defineCollection({
@@ -84,7 +85,7 @@ title: Post
 # Post
 `,
 			'/src/content/blog/post.yaml': `title: YAML Post`,
-			'/src/content/config.ts': `\
+			'/src/content.config.ts': `\
 import { z, defineCollection } from 'astro:content';
 
 const blog = defineCollection({
@@ -127,7 +128,7 @@ export const collections = { banners };
 			...baseFileTree,
 			// Add placeholder to ensure directory exists
 			'/src/content/i18n/_placeholder.txt': 'Need content here',
-			'/src/content/config.ts': `\
+			'/src/content.config.ts': `\
 import { z, defineCollection } from 'astro:content';
 
 const i18n = defineCollection({

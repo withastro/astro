@@ -72,6 +72,25 @@ test.describe('Astro Actions - Blog', () => {
 		await expect(form.locator('p[data-error="body"]')).toBeVisible();
 	});
 
+	test('Comment action - progressive fallback lots of validation errors', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/lots-of-fields/'));
+
+		const form = page.getByTestId('lots');
+		const submitButton = form.getByRole('button');
+		await submitButton.click();
+
+		const expectedText = 'Expected string, received null';
+
+		const fields = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+
+		for await (const field of fields) {
+			await expect(form.locator(`.${field}.error`)).toHaveText(expectedText);
+		}
+	});
+
 	test('Comment action - progressive fallback success', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
 
@@ -136,14 +155,14 @@ test.describe('Astro Actions - Blog', () => {
 		await expect(page).toHaveURL(astro.resolveUrl('/blog/'));
 	});
 
-	test('Should redirect to the origin pathname when there is a rewrite', async ({
+	test('Should redirect to the origin pathname when there is a rewrite from an Astro page', async ({
 		page,
 		astro,
 	}) => {
 		await page.goto(astro.resolveUrl('/sum'));
 		const submitButton = page.getByTestId('submit');
 		await submitButton.click();
-		await expect(page).toHaveURL(astro.resolveUrl('/sum'));
+		await expect(page).toHaveURL(astro.resolveUrl('/sum?_action=sum'));
 		const p = page.locator('p').nth(0);
 		await expect(p).toContainText('Form result: {"data":3}');
 	});

@@ -1,11 +1,11 @@
 import type { TransformResult } from '@astrojs/compiler';
 import type { ResolvedConfig } from 'vite';
-import type { AstroConfig } from '../../@types/astro.js';
 
 import { fileURLToPath } from 'node:url';
 import { transform } from '@astrojs/compiler';
 import { normalizePath } from 'vite';
 import type { AstroPreferences } from '../../preferences/index.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroError } from '../errors/errors.js';
 import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
@@ -60,7 +60,7 @@ export async function compile({
 				astroConfig.devToolbar &&
 				astroConfig.devToolbar.enabled &&
 				(await preferences.get('devToolbar.enabled')),
-			renderScript: astroConfig.experimental.directRenderScript,
+			renderScript: true,
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,

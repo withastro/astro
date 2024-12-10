@@ -1,6 +1,7 @@
-import type { APIContext, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
-import type { SSRManifestI18n } from '../core/app/types.js';
-import { ROUTE_TYPE_HEADER } from '../core/constants.js';
+import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
+import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../core/constants.js';
+import type { MiddlewareHandler } from '../types/public/common.js';
+import type { APIContext } from '../types/public/context.js';
 import {
 	type MiddlewarePayload,
 	normalizeTheLocale,
@@ -65,6 +66,12 @@ export function createI18nMiddleware(
 	return async (context, next) => {
 		const response = await next();
 		const type = response.headers.get(ROUTE_TYPE_HEADER);
+
+		// This is case where we are internally rendering a 404/500, so we need to bypass checks that were done already
+		const isReroute = response.headers.get(REROUTE_DIRECTIVE_HEADER);
+		if (isReroute === 'no' && typeof i18n.fallback === 'undefined') {
+			return response;
+		}
 		// If the route we're processing is not a page, then we ignore it
 		if (type !== 'page' && type !== 'fallback') {
 			return response;

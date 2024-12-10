@@ -1,4 +1,4 @@
-import type { MiddlewareHandler } from '../../@types/astro.js';
+import type { MiddlewareHandler } from '../../types/public/common.js';
 import { NOOP_MIDDLEWARE_HEADER } from '../constants.js';
 
 export const NOOP_MIDDLEWARE_FN: MiddlewareHandler = async (_ctx, next) => {

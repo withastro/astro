@@ -1,10 +1,10 @@
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type {
 	AstroComponentMetadata,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../@types/astro.js';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+} from '../../types/public/internal.js';
 import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
 
@@ -158,7 +158,9 @@ export async function generateHydrateScript(
 	// Add renderer url
 	if (renderer.clientEntrypoint) {
 		island.props['component-export'] = componentExport.value;
-		island.props['renderer-url'] = await result.resolve(decodeURI(renderer.clientEntrypoint));
+		island.props['renderer-url'] = await result.resolve(
+			decodeURI(renderer.clientEntrypoint.toString()),
+		);
 		island.props['props'] = escapeHTML(serializeProps(props, metadata));
 	}
 

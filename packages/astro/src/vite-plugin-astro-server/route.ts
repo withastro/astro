@@ -1,5 +1,4 @@
 import type http from 'node:http';
-import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro.js';
 import {
 	DEFAULT_404_COMPONENT,
 	NOOP_MIDDLEWARE_HEADER,
@@ -10,11 +9,15 @@ import {
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
+import { routeIsRedirect } from '../core/redirects/index.js';
 import { RenderContext } from '../core/render-context.js';
 import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
+import { redirectTemplate } from '../core/routing/3xx.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
+import type { ComponentInstance, ManifestData } from '../types/astro.js';
+import type { RouteData } from '../types/public/internal.js';
 import type { DevPipeline } from './pipeline.js';
 import { writeSSRResult, writeWebResponse } from './response.js';
 
@@ -67,6 +70,7 @@ export async function matchRoute(
 				pathname: pathname,
 				logger,
 				serverLike,
+				base: config.base,
 			});
 			return {
 				route: maybeRoute,
@@ -127,7 +131,6 @@ type HandleRoute = {
 	url: URL;
 	pathname: string;
 	body: ArrayBuffer | undefined;
-	origin: string;
 	manifestData: ManifestData;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
@@ -139,7 +142,6 @@ export async function handleRoute({
 	url,
 	pathname,
 	body,
-	origin,
 	pipeline,
 	manifestData,
 	incomingRequest,
@@ -156,39 +158,29 @@ export async function handleRoute({
 	let request: Request;
 	let renderContext: RenderContext;
 	let mod: ComponentInstance | undefined = undefined;
-	let options: SSROptions | undefined = undefined;
 	let route: RouteData;
 	const middleware = (await loadMiddleware(loader)).onRequest;
+	// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
 	const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 
-	const filePath: URL | undefined = matchedRoute.filePath;
 	const { preloadedComponent } = matchedRoute;
 	route = matchedRoute.route;
+
 	// Allows adapters to pass in locals in dev mode.
 	request = createRequest({
-		base: config.base,
 		url,
 		headers: incomingRequest.headers,
 		method: incomingRequest.method,
 		body,
 		logger,
-		clientAddress: incomingRequest.socket.remoteAddress,
-		staticLike: config.output === 'static' || route.prerender,
+		isPrerendered: route.prerender,
+		routePattern: route.component,
 	});
 
 	// Set user specified headers to response object.
 	for (const [name, value] of Object.entries(config.server.headers ?? {})) {
 		if (value) incomingResponse.setHeader(name, value);
 	}
-
-	options = {
-		pipeline,
-		filePath,
-		preload: preloadedComponent,
-		pathname,
-		request,
-		route,
-	};
 
 	mod = preloadedComponent;
 
@@ -199,6 +191,7 @@ export async function handleRoute({
 		middleware: isDefaultPrerendered404(matchedRoute.route) ? undefined : middleware,
 		request,
 		routeData: route,
+		clientAddress: incomingRequest.socket.remoteAddress,
 	});
 
 	let response;
@@ -248,18 +241,18 @@ export async function handleRoute({
 
 	if (statusCode === 404 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
-		if (options && options.route !== fourOhFourRoute?.route)
-			return handleRoute({
-				...options,
-				matchedRoute: fourOhFourRoute,
-				url: new URL(pathname, url),
-				body,
-				origin,
+		if (fourOhFourRoute) {
+			renderContext = await RenderContext.create({
+				locals: {},
 				pipeline,
-				manifestData,
-				incomingRequest,
-				incomingResponse,
+				pathname,
+				middleware: isDefaultPrerendered404(fourOhFourRoute.route) ? undefined : middleware,
+				request,
+				routeData: fourOhFourRoute.route,
+				clientAddress: incomingRequest.socket.remoteAddress,
 			});
+			response = await renderContext.render(fourOhFourRoute.preloadedComponent);
+		}
 	}
 
 	// We remove the internally-used header before we send the response to the user agent.
@@ -288,6 +281,30 @@ export async function handleRoute({
 	// By default, we should give priority to the status code passed, although it's possible that
 	// the `Response` emitted by the user is a redirect. If so, then return the returned response.
 	if (response.status < 400 && response.status >= 300) {
+		if (
+			response.status >= 300 &&
+			response.status < 400 &&
+			routeIsRedirect(route) &&
+			!config.build.redirects &&
+			pipeline.settings.buildOutput === 'static'
+		) {
+			// If we're here, it means that the calling static redirect that was configured by the user
+			// We try to replicate the same behaviour that we provide during a static build
+			response = new Response(
+				redirectTemplate({
+					status: response.status,
+					location: response.headers.get('location')!,
+					from: pathname,
+				}),
+				{
+					status: 200,
+					headers: {
+						...response.headers,
+						'content-type': 'text/html',
+					},
+				},
+			);
+		}
 		await writeSSRResult(request, response, incomingResponse);
 		return;
 	}

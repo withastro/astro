@@ -1,5 +1,5 @@
 import { escape as escapeHTML } from 'html-escaper';
-import type { DevToolbarMetadata } from '../../../../../../@types/astro.js';
+import type { DevToolbarMetadata } from '../../../../../../types/public/toolbar.js';
 import {
 	attachTooltipToHighlight,
 	createHighlight,

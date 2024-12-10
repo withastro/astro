@@ -1,10 +1,51 @@
 # @astrojs/svelte
 
+## 7.0.1
+
+### Patch Changes
+
+- [#12594](https://github.com/withastro/astro/pull/12594) [`4f2fd0a`](https://github.com/withastro/astro/commit/4f2fd0a0d67a748af8b611b9afc7d4c789f7c8cc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes compatibility with Astro 5
+
+## 7.0.0
+
+### Major Changes
+
+- [#12060](https://github.com/withastro/astro/pull/12060) [`cb5d3ae`](https://github.com/withastro/astro/commit/cb5d3ae6ee6af646c9d7d46a9d8f551edac3092e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates peer dependency range to support Astro 5
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates `@sveltejs/vite-plugin-svelte` to v5 to handle Vite 6
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates Vite dependency to v6 to match Astro v5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+### Patch Changes
+
+- [#12102](https://github.com/withastro/astro/pull/12102) [`dcc1e89`](https://github.com/withastro/astro/commit/dcc1e895abbad1311719803363c933541c0ad984) Thanks [@hermit99](https://github.com/hermit99)! - Fixes an Reference Error that occurred during client transitions
+
+- [#12551](https://github.com/withastro/astro/pull/12551) [`b21a075`](https://github.com/withastro/astro/commit/b21a07500284a3621be4d509f5aa67c0a8fcbf07) Thanks [@ematipico](https://github.com/ematipico)! - New release to include changes from 5.7.3
+
+## 7.0.0-beta.1
+
+### Major Changes
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates `@sveltejs/vite-plugin-svelte` to v5 to handle Vite 6
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates Vite dependency to v6 to match Astro v5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
 ## 6.0.2
 
 ### Patch Changes
 
 - [#12481](https://github.com/withastro/astro/pull/12481) [`8a46e80`](https://github.com/withastro/astro/commit/8a46e8074d6afb4a23badbd59ed239d526294e8c) Thanks [@marbrex](https://github.com/marbrex)! - Resolve `vite` peer dependency problem for strict package managers like **Yarn in PnP mode**.
+
+- Updated dependencies [[`c48916c`](https://github.com/withastro/astro/commit/c48916cc4e6f7c31e3563d04b68a8698d8775b65), [`4364bff`](https://github.com/withastro/astro/commit/4364bff27332e52f92da72392620a36110daee42), [`c8f877c`](https://github.com/withastro/astro/commit/c8f877cad2d8f1780f70045413872d5b9d32ebed), [`8309c61`](https://github.com/withastro/astro/commit/8309c61f0dfa5991d3f6c5c5fca4403794d6fda2), [`af867f3`](https://github.com/withastro/astro/commit/af867f3910ecd8fc04a5337f591d84f03192e3fa), [`3f02d5f`](https://github.com/withastro/astro/commit/3f02d5f12b167514fff6eb9693b4e25c668e7a31)]:
+  - astro@5.0.0-beta.9
 
 ## 6.0.1
 
@@ -32,6 +73,31 @@
   ```
 
   Refer to the [Svelte 5 migration guide](https://svelte.dev/docs/svelte/v5-migration-guide) and [`@sveltejs/vite-plugin-svelte` changelog](https://github.com/sveltejs/vite-plugin-svelte/blob/main/packages/vite-plugin-svelte/CHANGELOG.md#400) for details of their respective breaking changes.
+
+## 6.0.0-beta.2
+
+### Patch Changes
+
+- [`b21a075`](https://github.com/withastro/astro/commit/b21a07500284a3621be4d509f5aa67c0a8fcbf07) Thanks [@bluwy](https://github.com/bluwy)! - New release to include changes from 5.7.3
+
+## 6.0.0-beta.1
+
+### Patch Changes
+
+- [#12102](https://github.com/withastro/astro/pull/12102) [`dcc1e89`](https://github.com/withastro/astro/commit/dcc1e895abbad1311719803363c933541c0ad984) Thanks [@hermit99](https://github.com/hermit99)! - Fixes an Reference Error that occurred during client transitions
+
+## 6.0.0-beta.0
+
+### Major Changes
+
+- [#12060](https://github.com/withastro/astro/pull/12060) [`cb5d3ae`](https://github.com/withastro/astro/commit/cb5d3ae6ee6af646c9d7d46a9d8f551edac3092e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates peer dependency range to support Astro 5
+
+## 6.0.0-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0), [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f), [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e), [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9), [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6), [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6)]:
+  - astro@5.0.0-alpha.0
 
 ## 5.7.3
 

@@ -1,13 +1,18 @@
-import { setVfileFrontmatter } from '@astrojs/markdown-remark';
 import type { SSRError } from 'astro';
 import { getAstroMetadata } from 'astro/jsx/rehype.js';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
 import { createMdxProcessor } from './plugins.js';
-import { parseFrontmatter } from './utils.js';
+import { safeParseFrontmatter } from './utils.js';
 
-export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
+export interface VitePluginMdxOptions {
+	mdxOptions: MdxOptions;
+	srcDir: URL;
+}
+
+// NOTE: Do not destructure `opts` as we're assigning a reference that will be mutated later
+export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 	let processor: ReturnType<typeof createMdxProcessor> | undefined;
 	let sourcemapEnabled: boolean;
 
@@ -39,16 +44,24 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 		async transform(code, id) {
 			if (!id.endsWith('.mdx')) return;
 
-			const { data: frontmatter, content: pageContent, matter } = parseFrontmatter(code, id);
-			const frontmatterLines = matter ? matter.match(/\n/g)?.join('') + '\n\n' : '';
+			const { frontmatter, content } = safeParseFrontmatter(code, id);
 
-			const vfile = new VFile({ value: frontmatterLines + pageContent, path: id });
-			// Ensure `data.astro` is available to all remark plugins
-			setVfileFrontmatter(vfile, frontmatter);
+			const vfile = new VFile({
+				value: content,
+				path: id,
+				data: {
+					astro: {
+						frontmatter,
+					},
+					applyFrontmatterExport: {
+						srcDir: opts.srcDir,
+					},
+				},
+			});
 
 			// Lazily initialize the MDX processor
 			if (!processor) {
-				processor = createMdxProcessor(mdxOptions, { sourcemap: sourcemapEnabled });
+				processor = createMdxProcessor(opts.mdxOptions, { sourcemap: sourcemapEnabled });
 			}
 
 			try {

@@ -40,7 +40,13 @@ test.describe('Custom Client Directives - build server', () => {
 
 	test.beforeAll(async ({ astro }) => {
 		await astro.build({
-			adapter: testAdapter(),
+			adapter: testAdapter({
+				extendAdapter: {
+					adapterFeatures: {
+						buildOutput: 'static',
+					},
+				},
+			}),
 		});
 		previewServer = await astro.preview();
 	});
