@@ -1,6 +1,7 @@
 ---
 const value = await Astro.session.get('value');
 const flash = await Astro.session.get('flash-value');
+const middlewareFlash = await Astro.session.get('middleware-flash');
 ---
 <html lang="en">
 <head>
@@ -11,6 +12,7 @@ const flash = await Astro.session.get('flash-value');
 <h1>Hi</h1>
 <p>{value}</p>
 <p>Flash: {flash}</p>
+<p>middlewareFlash: {middlewareFlash}</p>
 <p><a href="/flash">Set flash</a></p>
 <a href="/cart" style="font-size: 36px">🛒</a>
 </html>

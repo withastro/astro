@@ -7,6 +7,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Skip requests for prerendered pages
   if (context.isPrerendered) return next();
 
+	if(context.url.searchParams.has('setFlash') && context.url.pathname === '/') {
+		context.session.flash('middleware-flash', `Flashed message at ${new Date().toISOString()}`);
+	}
+
   const { action, setActionResult, serializeActionResult } =
     getActionContext(context);
 
