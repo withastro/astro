@@ -148,6 +148,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 		this.#data ??= new Map();
 		const lifetime = ttl ?? this.#config.ttl;
+		// If ttl is numeric, it is the number of seconds until expiry. To get an expiry timestamp, we convert to milliseconds and add to the current time.
 		const expires = typeof lifetime === 'number' ? Date.now() + lifetime * 1000 : lifetime;
 		this.#data.set(key, {
 			data: value,
