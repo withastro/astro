@@ -559,6 +559,7 @@ export const AstroConfigSchema = z.object({
 							return val;
 						})
 						.optional(),
+					ttl: z.number().optional(),
 				})
 				.optional(),
 			svg: z

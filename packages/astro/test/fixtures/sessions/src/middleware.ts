@@ -7,6 +7,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Skip requests for prerendered pages
   if (context.isPrerendered) return next();
 
+	if(context.url.searchParams.has('setFlash') && context.url.pathname === '/') {
+		context.session.flash('middleware-flash', `Flashed message at ${new Date().toISOString()}`);
+	}
+
+	if(context.url.pathname === '/next-rewrite-middleware') {
+		context.session.flash('middleware-flash', `Flashed rewrite message at ${new Date().toISOString()}`);
+		return next('/');
+	}
+	
+	if(context.url.pathname === '/ctx-rewrite-middleware') {
+		context.session.flash('middleware-flash', `Flashed rewrite message at ${new Date().toISOString()}`);
+		return context.rewrite(new Request(new URL('/', context.url)));
+	}
+
   const { action, setActionResult, serializeActionResult } =
     getActionContext(context);
 

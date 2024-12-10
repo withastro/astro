@@ -107,6 +107,11 @@ interface CommonSessionConfig {
 	cookie?:
 		| string
 		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & { name?: string });
+
+	/**
+	 * Default session duration in seconds. If not set, the session will be stored until deleted, or until the cookie expires.
+	 */
+	ttl?: number;
 }
 
 interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
