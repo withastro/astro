@@ -132,6 +132,7 @@ export class BuildPipeline extends Pipeline {
 
 		const middleware = internals.middlewareEntryPoint
 			? async function () {
+					// @ts-expect-error: the compiler can't understand the previous check
 					const mod = await import(internals.middlewareEntryPoint.toString());
 					return { onRequest: mod.onRequest };
 				}
