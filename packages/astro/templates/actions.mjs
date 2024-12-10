@@ -1,4 +1,9 @@
-import { ActionError, deserializeActionResult, getActionQueryString } from 'astro:actions';
+import {
+	ActionError,
+	deserializeActionResult,
+	getActionQueryString,
+	appendForwardSlash,
+} from 'astro:actions';
 
 const ENCODED_DOT = '%2E';
 
@@ -83,7 +88,15 @@ async function handleAction(param, path, context) {
 			headers.set('Content-Length', '0');
 		}
 	}
-	const rawResult = await fetch(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${path}`, {
+
+	const shouldAppendTrailingSlash = '/** @TRAILING_SLASH@ **/';
+	let actionPath = import.meta.env.BASE_URL.replace(/\/$/, '') + '/_actions/' + path;
+
+	if (shouldAppendTrailingSlash) {
+		actionPath = appendForwardSlash(actionPath);
+	}
+
+	const rawResult = await fetch(actionPath, {
 		method: 'POST',
 		body,
 		headers,
