@@ -83,7 +83,6 @@ export function createI18nMiddleware(
 		}
 
 		const { currentLocale } = context;
-
 		switch (i18n.strategy) {
 			// NOTE: theoretically, we should never hit this code path
 			case 'manual': {

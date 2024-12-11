@@ -298,9 +298,14 @@ export function redirectToDefaultLocale({
 }
 
 // NOTE: public function exported to the users via `astro:i18n` module
-export function notFound({ base, locales }: MiddlewarePayload) {
+export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 	return function (context: APIContext, response?: Response): Response | undefined {
-		if (response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no') return response;
+		if (
+			response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no' &&
+			typeof fallback === 'undefined'
+		) {
+			return response;
+		}
 
 		const url = context.url;
 		// We return a 404 if:
