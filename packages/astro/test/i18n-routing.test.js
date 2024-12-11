@@ -2066,13 +2066,15 @@ describe('Fallback rewrite SSR', () => {
 			adapter: testAdapter(),
 			i18n: {
 				defaultLocale: 'en',
-				locales: ['en', 'fr'],
+				locales: ['en', 'fr', 'es', 'it', 'pt'],
 				routing: {
 					prefixDefaultLocale: false,
 					fallbackType: 'rewrite',
 				},
 				fallback: {
 					fr: 'en',
+					it: 'pt',
+					es: 'pt',
 				},
 			},
 		});
@@ -2088,11 +2090,19 @@ describe('Fallback rewrite SSR', () => {
 		assert.match(html, /Hello/);
 	});
 
-	it('should render paths with path parameters correctly', async () => {
+	it('should render the first fallback locale paths with path parameters correctly', async () => {
 		let request = new Request('http://example.com/new-site/fr/blog/1');
 		let response = await app.render(request);
 		assert.equal(response.status, 200);
 		const text = await response.text();
-		assert.equal(text.includes('Hello world'), true);
+		assert.match(text, /Hello world/);
+	});
+
+	it('should render other fallback locale paths with path parameters correctly', async () => {
+		let request = new Request('http://example.com/new-site/es/blog/1');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.match(text, /Hola mundo/);
 	});
 });
