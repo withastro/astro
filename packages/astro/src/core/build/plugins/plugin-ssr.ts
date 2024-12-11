@@ -1,5 +1,4 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../../../types/astro.js';
 import type { AstroAdapter } from '../../../types/public/integrations.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';

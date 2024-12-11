@@ -1,6 +1,5 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
