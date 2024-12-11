@@ -6,8 +6,22 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, ImmutableDataStore } from './data-store.js';
 import { contentModuleToId } from './utils.js';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const SAVE_DEBOUNCE_MS = 500;
+
+// Write a file atomically, without triggering the file watcher
+async function writeFileAtomic(filePath: PathLike, data: string) {
+	const dir = await fs.mkdtemp(tmpdir() + '/astro-');
+	const tempFile = join(dir, 'temp');
+	await fs.writeFile(tempFile, data);
+	try {
+		await fs.rename(tempFile, filePath);
+	} finally {
+		await fs.rmdir(dir).catch(() => {});
+	}
+}
 
 /**
  * Extends the DataStore with the ability to change entries and write them to disk.
@@ -86,7 +100,7 @@ export class MutableDataStore extends ImmutableDataStore {
 
 		if (this.#assetImports.size === 0) {
 			try {
-				await fs.writeFile(filePath, 'export default new Map();');
+				await writeFileAtomic(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
@@ -110,7 +124,7 @@ ${imports.join('\n')}
 export default new Map([${exports.join(', ')}]);
 		`;
 		try {
-			await fs.writeFile(filePath, code);
+			await writeFileAtomic(filePath, code);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -122,7 +136,7 @@ export default new Map([${exports.join(', ')}]);
 
 		if (this.#moduleImports.size === 0) {
 			try {
-				await fs.writeFile(filePath, 'export default new Map();');
+				await writeFileAtomic(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
@@ -143,7 +157,7 @@ export default new Map([${exports.join(', ')}]);
 export default new Map([\n${lines.join(',\n')}]);
 		`;
 		try {
-			await fs.writeFile(filePath, code);
+			await writeFileAtomic(filePath, code);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -298,7 +312,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			return;
 		}
 		try {
-			await fs.writeFile(filePath, this.toString());
+			await writeFileAtomic(filePath, this.toString());
 			this.#file = filePath;
 			this.#dirty = false;
 		} catch (err) {
