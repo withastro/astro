@@ -5,6 +5,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	integrations: [mdx()],
 	experimental: {
-		contentIntellisense: true
+		contentIntellisense: true,
+		
 	}
 });

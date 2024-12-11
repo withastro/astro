@@ -1,14 +1,3 @@
-import type {
-	APIContext,
-	AstroGlobal,
-	AstroGlobalPartial,
-	ComponentInstance,
-	MiddlewareHandler,
-	Props,
-	RewritePayload,
-	RouteData,
-	SSRResult,
-} from '../@types/astro.js';
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
 import { deserializeActionResult } from '../actions/runtime/virtual/shared.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
@@ -19,6 +8,10 @@ import {
 } from '../i18n/utils.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
+import type { ComponentInstance } from '../types/astro.js';
+import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
+import type { APIContext, AstroGlobal, AstroGlobalPartial } from '../types/public/context.js';
+import type { RouteData, SSRResult } from '../types/public/internal.js';
 import {
 	ASTRO_VERSION,
 	REROUTE_DIRECTIVE_HEADER,
@@ -26,17 +19,19 @@ import {
 	REWRITE_DIRECTIVE_HEADER_VALUE,
 	ROUTE_TYPE_HEADER,
 	clientAddressSymbol,
-	clientLocalsSymbol,
 	responseSentSymbol,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
+import { ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
-import { copyRequest, setOriginPathname } from './routing/rewrite.js';
+import { isRoute404or500 } from './routing/match.js';
+import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
+import { SERVER_ISLAND_COMPONENT } from './server-islands/endpoint.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -53,6 +48,7 @@ export class RenderContext {
 		public request: Request,
 		public routeData: RouteData,
 		public status: number,
+		public clientAddress: string | undefined,
 		protected cookies = new AstroCookies(request),
 		public params = getParams(routeData, pathname),
 		protected url = new URL(request.url),
@@ -76,10 +72,11 @@ export class RenderContext {
 		pipeline,
 		request,
 		routeData,
+		clientAddress,
 		status = 200,
 		props,
 		partial = undefined,
-	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
+	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'> &
 		Partial<
 			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial'>
 		>): Promise<RenderContext> {
@@ -89,10 +86,11 @@ export class RenderContext {
 			pipeline,
 			locals,
 			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
-			pathname,
+			decodeURI(pathname),
 			request,
 			routeData,
 			status,
+			clientAddress,
 			undefined,
 			undefined,
 			undefined,
@@ -117,9 +115,7 @@ export class RenderContext {
 		slots: Record<string, any> = {},
 	): Promise<Response> {
 		const { cookies, middleware, pipeline } = this;
-		const { logger, serverLike, streaming } = pipeline;
-
-		const isPrerendered = !serverLike || this.routeData.prerender;
+		const { logger, serverLike, streaming, manifest } = pipeline;
 
 		const props =
 			Object.keys(this.props).length > 0
@@ -131,8 +127,9 @@ export class RenderContext {
 						pathname: this.pathname,
 						logger,
 						serverLike,
+						base: manifest.base,
 					});
-		const apiContext = this.createAPIContext(props, isPrerendered);
+		const apiContext = this.createAPIContext(props);
 
 		this.counter++;
 		if (this.counter === 4) {
@@ -153,6 +150,22 @@ export class RenderContext {
 					pathname,
 					newUrl,
 				} = await pipeline.tryRewrite(payload, this.request);
+
+				// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
+				// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
+				// so Astro can't retrieve it from the emitted manifest.
+				if (
+					this.pipeline.serverLike === true &&
+					this.routeData.prerender === false &&
+					routeData.prerender === true
+				) {
+					throw new AstroError({
+						...ForbiddenRewrite,
+						message: ForbiddenRewrite.message(this.pathname, pathname, routeData.component),
+						hint: ForbiddenRewrite.hint(routeData.component),
+					});
+				}
+
 				this.routeData = routeData;
 				componentInstance = newComponent;
 				if (payload instanceof Request) {
@@ -171,7 +184,12 @@ export class RenderContext {
 
 			switch (this.routeData.type) {
 				case 'endpoint': {
-					response = await renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+					response = await renderEndpoint(
+						componentInstance as any,
+						ctx,
+						this.routeData.prerender,
+						logger,
+					);
 					break;
 				}
 				case 'redirect':
@@ -229,7 +247,7 @@ export class RenderContext {
 		return response;
 	}
 
-	createAPIContext(props: APIContext['props'], isPrerendered: boolean): APIContext {
+	createAPIContext(props: APIContext['props']): APIContext {
 		const context = this.createActionAPIContext();
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
@@ -240,11 +258,6 @@ export class RenderContext {
 			redirect,
 			getActionResult: createGetActionResult(context.locals),
 			callAction: createCallAction(context),
-			// Used internally by Actions middleware.
-			// TODO: discuss exposing this information from APIContext.
-			// middleware runs on prerendered routes in the dev server,
-			// so this is useful information to have.
-			_isPrerendered: isPrerendered,
 		});
 	}
 
@@ -254,6 +267,21 @@ export class RenderContext {
 			reroutePayload,
 			this.request,
 		);
+		// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
+		// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
+		// so Astro can't retrieve it from the emitted manifest.
+		if (
+			this.pipeline.serverLike === true &&
+			this.routeData.prerender === false &&
+			routeData.prerender === true
+		) {
+			throw new AstroError({
+				...ForbiddenRewrite,
+				message: ForbiddenRewrite.message(this.pathname, pathname, routeData.component),
+				hint: ForbiddenRewrite.hint(routeData.component),
+			});
+		}
+
 		this.routeData = routeData;
 		if (reroutePayload instanceof Request) {
 			this.request = reroutePayload;
@@ -281,8 +309,10 @@ export class RenderContext {
 
 		return {
 			cookies,
+			routePattern: this.routeData.route,
+			isPrerendered: this.routeData.prerender,
 			get clientAddress() {
-				return renderContext.clientAddress();
+				return renderContext.getClientAddress();
 			},
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
@@ -291,16 +321,8 @@ export class RenderContext {
 			get locals() {
 				return renderContext.locals;
 			},
-			// TODO(breaking): disallow replacing the locals object
-			set locals(val) {
-				if (typeof val !== 'object') {
-					throw new AstroError(AstroErrorData.LocalsNotAnObject);
-				} else {
-					renderContext.locals = val;
-					// we also put it on the original Request object,
-					// where the adapter might be expecting to read it after the response.
-					Reflect.set(this.request, clientLocalsSymbol, val);
-				}
+			set locals(_) {
+				throw new AstroError(AstroErrorData.LocalsReassigned);
 			},
 			params,
 			get preferredLocale() {
@@ -313,6 +335,9 @@ export class RenderContext {
 			request: this.request,
 			site: pipeline.site,
 			url,
+			get originPathname() {
+				return getOriginPathname(renderContext.request);
+			},
 		};
 	}
 
@@ -325,9 +350,12 @@ export class RenderContext {
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
 		const headers = new Headers({ 'Content-Type': 'text/html' });
 		const partial = typeof this.partial === 'boolean' ? this.partial : Boolean(mod.partial);
+		const actionResult = hasActionPayload(this.locals)
+			? deserializeActionResult(this.locals._actionPayload.actionResult)
+			: undefined;
 		const response = {
-			status,
-			statusText: 'OK',
+			status: actionResult?.error ? actionResult?.error.status : status,
+			statusText: actionResult?.error ? actionResult?.error.type : 'OK',
 			get headers() {
 				return headers;
 			},
@@ -336,10 +364,6 @@ export class RenderContext {
 				throw new AstroError(AstroErrorData.AstroResponseHeadersReassigned);
 			},
 		} satisfies AstroGlobal['response'];
-
-		const actionResult = hasActionPayload(this.locals)
-			? deserializeActionResult(this.locals._actionPayload.actionResult)
-			: undefined;
 
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
@@ -465,9 +489,11 @@ export class RenderContext {
 		return {
 			generator: astroStaticPartial.generator,
 			glob: astroStaticPartial.glob,
+			routePattern: this.routeData.route,
+			isPrerendered: this.routeData.prerender,
 			cookies,
 			get clientAddress() {
-				return renderContext.clientAddress();
+				return renderContext.getClientAddress();
 			},
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
@@ -490,26 +516,35 @@ export class RenderContext {
 				return createCallAction(this);
 			},
 			url,
+			get originPathname() {
+				return getOriginPathname(renderContext.request);
+			},
 		};
 	}
 
-	clientAddress() {
-		const { pipeline, request } = this;
+	getClientAddress() {
+		const { pipeline, request, routeData, clientAddress } = this;
+
+		if (routeData.prerender) {
+			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
+		}
+
+		if (clientAddress) {
+			return clientAddress;
+		}
+
+		// TODO: Legacy, should not need to get here.
+		// Some adapters set this symbol so we can't remove support yet.
+		// Adapters should be updated to provide it via RenderOptions instead.
 		if (clientAddressSymbol in request) {
 			return Reflect.get(request, clientAddressSymbol) as string;
 		}
 
-		if (pipeline.serverLike) {
-			if (request.body === null) {
-				throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
-			}
-
-			if (pipeline.adapterName) {
-				throw new AstroError({
-					...AstroErrorData.ClientAddressNotAvailable,
-					message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
-				});
-			}
+		if (pipeline.adapterName) {
+			throw new AstroError({
+				...AstroErrorData.ClientAddressNotAvailable,
+				message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
+			});
 		}
 
 		throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
@@ -541,11 +576,20 @@ export class RenderContext {
 		}
 
 		let computedLocale;
-		if (routeData.pathname) {
-			computedLocale = computeCurrentLocale(routeData.pathname, locales, defaultLocale);
+		if (routeData.component === SERVER_ISLAND_COMPONENT) {
+			let referer = this.request.headers.get('referer');
+			if (referer) {
+				if (URL.canParse(referer)) {
+					referer = new URL(referer).pathname;
+				}
+				computedLocale = computeCurrentLocale(referer, locales, defaultLocale);
+			}
 		} else {
-			computedLocale = computeCurrentLocale(url.pathname, locales, defaultLocale);
+			const pathname =
+				routeData.pathname && !isRoute404or500(routeData) ? routeData.pathname : url.pathname;
+			computedLocale = computeCurrentLocale(pathname, locales, defaultLocale);
 		}
+
 		this.#currentLocale = computedLocale ?? fallbackTo;
 
 		return this.#currentLocale;

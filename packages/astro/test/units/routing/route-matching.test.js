@@ -134,7 +134,7 @@ describe('Route matching', () => {
 		settings = await createBasicSettings({
 			root: fixture.path,
 			trailingSlash: 'never',
-			output: 'hybrid',
+			output: 'static',
 			adapter: testAdapter(),
 		});
 		container = await createContainer({
@@ -145,7 +145,7 @@ describe('Route matching', () => {
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);
 		pipeline = DevPipeline.create(undefined, { loader, logger: defaultLogger, manifest, settings });
-		manifestData = createRouteManifest(
+		manifestData = await createRouteManifest(
 			{
 				cwd: fixture.path,
 				settings,

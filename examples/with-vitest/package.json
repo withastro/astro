@@ -5,14 +5,13 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest"
   },
   "dependencies": {
-    "astro": "^4.16.13",
-    "vitest": "^2.1.4"
+    "astro": "^5.0.5",
+    "vitest": "^2.1.6"
   }
 }

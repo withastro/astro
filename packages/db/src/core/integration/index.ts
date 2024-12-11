@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { ManagedAppToken } from '@astrojs/studio';
-import type { AstroConfig, AstroIntegration } from 'astro';
+import type { AstroIntegration } from 'astro';
 import { blue, yellow } from 'kleur/colors';
 import {
 	type HMRPayload,
@@ -15,7 +15,7 @@ import {
 } from 'vite';
 import parseArgs from 'yargs-parser';
 import { AstroDbError, isDbError } from '../../runtime/utils.js';
-import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
+import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
 import { SEED_DEV_FILE_NAME } from '../queries.js';
@@ -58,14 +58,13 @@ function astroDBIntegration(): AstroIntegration {
 	};
 
 	let command: 'dev' | 'build' | 'preview' | 'sync';
-	let output: AstroConfig['output'] = 'server';
+	let finalBuildOutput: string;
 	return {
 		name: 'astro:db',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, command: _command, logger }) => {
 				command = _command;
 				root = config.root;
-				output = config.output;
 
 				if (command === 'preview') return;
 
@@ -104,8 +103,10 @@ function astroDBIntegration(): AstroIntegration {
 					},
 				});
 			},
-			'astro:config:done': async ({ config, injectTypes }) => {
+			'astro:config:done': async ({ config, injectTypes, buildOutput }) => {
 				if (command === 'preview') return;
+
+				finalBuildOutput = buildOutput;
 
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
@@ -151,18 +152,14 @@ function astroDBIntegration(): AstroIntegration {
 					);
 					// Eager load astro:db module on startup
 					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
-						server.ssrLoadModule(resolved.module).catch((e) => {
+						server.ssrLoadModule(VIRTUAL_MODULE_ID).catch((e) => {
 							logger.error(e instanceof Error ? e.message : String(e));
 						});
 					}
 				}, 100);
 			},
 			'astro:build:start': async ({ logger }) => {
-				if (
-					!connectToRemote &&
-					!databaseFileEnvDefined() &&
-					(output === 'server' || output === 'hybrid')
-				) {
+				if (!connectToRemote && !databaseFileEnvDefined() && finalBuildOutput === 'server') {
 					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
 					const hint =
 						'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';

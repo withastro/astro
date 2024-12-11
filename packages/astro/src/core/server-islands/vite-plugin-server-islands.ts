@@ -1,5 +1,5 @@
 import type { ConfigEnv, ViteDevServer, Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../../@types/astro.js';
+import type { AstroSettings } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 
 export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';

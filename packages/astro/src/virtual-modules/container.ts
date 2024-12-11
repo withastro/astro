@@ -1,4 +1,5 @@
-import type { AstroRenderer, SSRLoadedRenderer } from '../@types/astro.js';
+import type { AstroRenderer } from '../types/public/integrations.js';
+import type { SSRLoadedRenderer } from '../types/public/internal.js';
 
 /**
  * Use this function to provide renderers to the `AstroContainer`:
@@ -17,7 +18,7 @@ import type { AstroRenderer, SSRLoadedRenderer } from '../@types/astro.js';
 export async function loadRenderers(renderers: AstroRenderer[]) {
 	const loadedRenderers = await Promise.all(
 		renderers.map(async (renderer) => {
-			const mod = await import(renderer.serverEntrypoint);
+			const mod = await import(renderer.serverEntrypoint.toString());
 			if (typeof mod.default !== 'undefined') {
 				return {
 					...renderer,

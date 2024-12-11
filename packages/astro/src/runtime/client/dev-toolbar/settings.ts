@@ -18,13 +18,6 @@ function getSettings() {
 	let _settings: Settings = { ...defaultSettings };
 	const toolbarSettings = localStorage.getItem('astro:dev-toolbar:settings');
 
-	// TODO: Remove in Astro 5.0
-	const oldSettings = localStorage.getItem('astro:dev-overlay:settings');
-	if (oldSettings && !toolbarSettings) {
-		localStorage.setItem('astro:dev-toolbar:settings', oldSettings);
-		localStorage.removeItem('astro:dev-overlay:settings');
-	}
-
 	if (toolbarSettings) {
 		_settings = { ..._settings, ...JSON.parse(toolbarSettings) };
 	}

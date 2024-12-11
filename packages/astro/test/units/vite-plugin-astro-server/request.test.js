@@ -49,7 +49,7 @@ describe('vite-plugin-astro-server', () => {
 			);
 			const controller = createController({ loader: pipeline.loader });
 			const { req, res, text } = createRequestAndResponse();
-			const manifestData = createRouteManifest(
+			const manifestData = await createRouteManifest(
 				{
 					cwd: fixture.path,
 					settings: pipeline.settings,

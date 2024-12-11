@@ -16,6 +16,11 @@ export default defineConfig({
 						entrypoint: fileURLToPath(new URL('./integration-middleware-post.js', import.meta.url)),
 						order: 'post'
 					});
+
+					addMiddleware({
+						entrypoint: new URL('./integration-middleware-url.js', import.meta.url),
+						order: 'post'
+					});
 				}
 			}
 		}

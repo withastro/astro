@@ -1,6 +1,6 @@
 import type http from 'node:http';
-import type { ManifestData } from '../@types/astro.js';
 import { removeTrailingForwardSlash } from '../core/path.js';
+import type { ManifestData } from '../types/astro.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
 import { recordServerError } from './error.js';
@@ -63,7 +63,6 @@ export async function handleRequest({
 				url,
 				pathname: resolvedPathname,
 				body,
-				origin,
 				pipeline,
 				manifestData,
 				incomingRequest: incomingRequest,

@@ -65,16 +65,6 @@ export default async function build(...args) {
 		await clean(outdir);
 	}
 
-	const copyPlugin = copyWASM
-		? copy({
-				resolveFrom: 'cwd',
-				assets: {
-					from: ['./src/assets/services/vendor/squoosh/**/*.wasm'],
-					to: ['./dist/assets/services/vendor/squoosh'],
-				},
-			})
-		: null;
-
 	if (!isDev) {
 		await esbuild.build({
 			...config,
@@ -84,7 +74,6 @@ export default async function build(...args) {
 			outdir,
 			outExtension: forceCJS ? { '.js': '.cjs' } : {},
 			format,
-			plugins: [copyPlugin].filter(Boolean),
 		});
 		return;
 	}
@@ -101,11 +90,11 @@ export default async function build(...args) {
 					console.error(dim(`[${date}] `) + red(error || result.errors.join('\n')));
 				} else {
 					if (result.warnings.length) {
-						console.log(
-							dim(`[${date}] `) + yellow('⚠ updated with warnings:\n' + result.warnings.join('\n')),
+						console.info(
+							dim(`[${date}] `) + yellow('! updated with warnings:\n' + result.warnings.join('\n')),
 						);
 					}
-					console.log(dim(`[${date}] `) + green('✔ updated'));
+					console.info(dim(`[${date}] `) + green('√ updated'));
 				}
 			});
 		},
@@ -117,7 +106,7 @@ export default async function build(...args) {
 		outdir,
 		format,
 		sourcemap: 'linked',
-		plugins: [rebuildPlugin, copyPlugin].filter(Boolean),
+		plugins: [rebuildPlugin],
 	});
 
 	await builder.watch();

@@ -2,12 +2,8 @@ import svelte from '@astrojs/svelte';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  output: 'hybrid',
+  output: 'static',
   integrations: [
     svelte()
   ],
-  experimental: {
-    serverIslands: true,
-  }
 });
-
