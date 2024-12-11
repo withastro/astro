@@ -1,4 +1,4 @@
-import { LibsqlError } from '@libsql/client';
+
 import { sql as _sql } from 'drizzle-orm';
 import type {
 	BooleanColumnInput,
