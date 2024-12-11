@@ -22,7 +22,8 @@ import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
 import { ensure404Route } from '../astro-designed-error-pages.js';
-import { injectDefaultRoutes } from '../default.js';
+import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
+import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -740,7 +741,11 @@ export async function createRouteManifest(
 		ensure404Route({ routes });
 	}
 	if (dev || settings.buildOutput === 'server') {
-		injectDefaultRoutes(settings, { routes }, dev);
+		injectImageEndpoint(settings, { routes }, dev ? 'dev' : 'build');
+		// During the build build, we can't only inject this route when server islands are used because:
+		// - To know if we use serve islands, we need to build
+		// - The build runs before we can inject the server island route
+		injectServerIslandRoute(settings.config, { routes });
 	}
 	await runHookRoutesResolved({ routes, settings, logger });
 
