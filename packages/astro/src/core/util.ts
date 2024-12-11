@@ -18,9 +18,11 @@ export function isURL(value: unknown): value is URL {
 }
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
+	// Strip query string
+	const id = fileId.split("?")[0];
 	const _suffix = option?.suffix ?? '';
 	for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
-		if (fileId.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
+		if (id.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
 	}
 	return false;
 }
