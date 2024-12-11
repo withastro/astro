@@ -568,7 +568,7 @@ it('Should support trailing slash', async () => {
 	const fixture = await loadFixture({
 		root: './fixtures/actions/',
 		adapter: testAdapter(),
-		trailingSlash: "always"
+		trailingSlash: 'always',
 	});
 	const devServer = await fixture.startDevServer();
 	const formData = new FormData();

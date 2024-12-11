@@ -1,8 +1,8 @@
 import {
 	ActionError,
+	appendForwardSlash,
 	deserializeActionResult,
 	getActionQueryString,
-	appendForwardSlash,
 } from 'astro:actions';
 
 const ENCODED_DOT = '%2E';
