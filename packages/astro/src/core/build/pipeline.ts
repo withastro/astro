@@ -131,11 +131,11 @@ export class BuildPipeline extends Pipeline {
 		const renderers = await import(renderersEntryUrl.toString());
 
 		const middleware = internals.middlewareEntryPoint
-			? await import(internals.middlewareEntryPoint.toString()).then((mod) => {
-					return function () {
-						return { onRequest: mod.onRequest };
-					};
-				})
+			? async function () {
+					// @ts-expect-error: the compiler can't understand the previous check
+					const mod = await import(internals.middlewareEntryPoint.toString());
+					return { onRequest: mod.onRequest };
+				}
 			: manifest.middleware;
 
 		if (!renderers) {

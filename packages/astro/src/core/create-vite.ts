@@ -12,6 +12,7 @@ import {
 	astroContentImportPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
+import { createEnvLoader } from '../env/env-loader.js';
 import { astroEnv } from '../env/vite-plugin-env.js';
 import astroInternationalization from '../i18n/vite-plugin-i18n.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
@@ -123,6 +124,7 @@ export async function createVite(
 	});
 
 	const srcDirPattern = glob.convertPathToPattern(fileURLToPath(settings.config.srcDir));
+	const envLoader = createEnvLoader();
 
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
@@ -146,8 +148,8 @@ export async function createVite(
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			command === 'dev' && vitePluginAstroServer({ settings, logger, fs, manifest, ssrManifest }), // ssrManifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
-			envVitePlugin({ settings }),
-			astroEnv({ settings, mode, sync }),
+			envVitePlugin({ envLoader }),
+			astroEnv({ settings, mode, sync, envLoader }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			astroPostprocessVitePlugin(),
