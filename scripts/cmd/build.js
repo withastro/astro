@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import esbuild from 'esbuild';
+import { copy } from 'esbuild-plugin-copy';
 import glob from 'fast-glob';
 import { dim, green, red, yellow } from 'kleur/colors';
 import prebuild from './prebuild.js';
@@ -48,6 +49,7 @@ export default async function build(...args) {
 	const noClean = args.includes('--no-clean-dist');
 	const bundle = args.includes('--bundle');
 	const forceCJS = args.includes('--force-cjs');
+	const copyWASM = args.includes('--copy-wasm');
 
 	const { type = 'module', dependencies = {} } = await readPackageJSON('./package.json');
 
