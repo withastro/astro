@@ -9,6 +9,7 @@ import type {
 	MaybePromise,
 	ActionAPIContext as _ActionAPIContext,
 } from '../utils.js';
+import type { ActionClient } from './server.js';
 
 export type ActionAPIContext = _ActionAPIContext;
 export const ACTION_QUERY_PARAMS = _ACTION_QUERY_PARAMS;
@@ -178,6 +179,10 @@ export async function callSafely<TOutput>(
 export function getActionQueryString(name: string) {
 	const searchParams = new URLSearchParams({ [_ACTION_QUERY_PARAMS.actionName]: name });
 	return `?${searchParams.toString()}`;
+}
+
+export function getActionPath(action: ActionClient<any, any, any>) {
+	return `${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${new URLSearchParams(action.toString()).get(ACTION_QUERY_PARAMS.actionName)}`;
 }
 
 export type SerializedActionResult =
