@@ -6,21 +6,14 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, ImmutableDataStore } from './data-store.js';
 import { contentModuleToId } from './utils.js';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 
 const SAVE_DEBOUNCE_MS = 500;
 
-// Write a file atomically, without triggering the file watcher
+// Write a file atomically
 async function writeFileAtomic(filePath: PathLike, data: string) {
-	const dir = await fs.mkdtemp(tmpdir() + '/astro-');
-	const tempFile = join(dir, 'temp');
+	const tempFile = filePath instanceof URL ? new URL(`${filePath.href}.tmp`) : `${filePath}.tmp`;
 	await fs.writeFile(tempFile, data);
-	try {
-		await fs.rename(tempFile, filePath);
-	} finally {
-		await fs.rmdir(dir).catch(() => {});
-	}
+	await fs.rename(tempFile, filePath);
 }
 
 /**
