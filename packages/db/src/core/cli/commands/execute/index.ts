@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import type { AstroConfig } from 'astro';
 import { green } from 'kleur/colors';
 import type { Arguments } from 'yargs-parser';
+import { isDbError } from '../../../../runtime/utils.js';
 import {
 	EXEC_DEFAULT_EXPORT_ERROR,
 	EXEC_ERROR,
@@ -15,7 +16,6 @@ import {
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import type { DBConfig } from '../../../types.js';
 import { getManagedRemoteToken } from '../../../utils.js';
-import { isDbError } from '../../../../runtime/utils.js';
 
 export async function cmd({
 	astroConfig,
