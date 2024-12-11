@@ -6,6 +6,7 @@ import type {
 } from '../../actions/runtime/virtual/server.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../core/constants.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
+import type { AstroSession } from '../../core/session.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { Params, RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
@@ -260,6 +261,10 @@ interface AstroSharedContext<
 	 * Utility for getting and setting the values of cookies.
 	 */
 	cookies: AstroCookies;
+	/**
+	 * Utility for handling sessions.
+	 */
+	session?: AstroSession;
 	/**
 	 * Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
 	 */
