@@ -54,19 +54,19 @@
     "vite": "^6.0.1"
   },
   "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "peerDependencies": {
     "@types/react": "^17.0.50 || ^18.0.21",
     "@types/react-dom": "^17.0.17 || ^18.0.6",
-    "react": "^17.0.2 || ^18.0.0 || ^19.0.0-beta",
-    "react-dom": "^17.0.2 || ^18.0.0 || ^19.0.0-beta"
+    "react": "^17.0.2 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^17.0.2 || ^18.0.0 || ^19.0.0"
   },
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=22.0.0"

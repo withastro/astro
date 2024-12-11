@@ -3,6 +3,7 @@ import ArrowFunction from '../components/ArrowFunction.jsx';
 import CloneElement from '../components/CloneElement';
 import Later from '../components/Goodbye.vue';
 import Hello from '../components/Hello.jsx';
+import GreetingsSolid from '../components/Greetings.solid.jsx';
 import PropsSpread from '../components/PropsSpread.jsx';
 import Pure from '../components/Pure.jsx';
 import {Research2} from '../components/Research.jsx';
@@ -37,5 +38,6 @@ const someProps = {
 		<WithChildren client:load children="test" />
 		<WithId client:idle />
 		<WithId client:idle />
+    <GreetingsSolid name="load" client:load />
   </body>
 </html>
