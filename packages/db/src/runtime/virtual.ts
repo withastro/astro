@@ -1,4 +1,3 @@
-
 import { sql as _sql } from 'drizzle-orm';
 import type {
 	BooleanColumnInput,
