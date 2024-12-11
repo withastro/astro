@@ -174,6 +174,9 @@ function buildManifest(
 		}
 	};
 
+	// Default components follow a special flow during build. We prevent their processing earlier
+	// in the build. As a result, they are not present on `internals.pagesByKeys` and not serialized
+	// in the manifest file. But we need them in the manifest, so we handle them here
 	for (const route of opts.manifest.routes) {
 		if (!DEFAULT_COMPONENTS.find((component) => route.component === component)) {
 			continue;
