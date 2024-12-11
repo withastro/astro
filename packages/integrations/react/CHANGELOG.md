@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 4.1.0
+
+### Minor Changes
+
+- [#12678](https://github.com/withastro/astro/pull/12678) [`97c9265`](https://github.com/withastro/astro/commit/97c9265754b78af12ad1e399cc75028435028dfa) Thanks [@bskimball](https://github.com/bskimball)! - Add React 19 stable to peer dependencies
+
 ## 4.0.0
 
 ### Major Changes
