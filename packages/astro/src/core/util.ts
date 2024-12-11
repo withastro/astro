@@ -5,7 +5,7 @@ import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { RouteType } from '../types/public/internal.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
-import { removeTrailingForwardSlash, slash } from './path.js';
+import { removeTrailingForwardSlash, slash, removeQueryString } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
@@ -18,8 +18,7 @@ export function isURL(value: unknown): value is URL {
 }
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
-	// Strip query string
-	const id = fileId.split('?')[0];
+	const id = removeQueryString(fileId);
 	const _suffix = option?.suffix ?? '';
 	for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
 		if (id.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
