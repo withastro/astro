@@ -1,5 +1,4 @@
 import { existsSync } from 'node:fs';
-import { LibsqlError } from '@libsql/client';
 import type { AstroConfig } from 'astro';
 import { green } from 'kleur/colors';
 import type { Arguments } from 'yargs-parser';
@@ -16,6 +15,7 @@ import {
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import type { DBConfig } from '../../../types.js';
 import { getManagedRemoteToken } from '../../../utils.js';
+import { isDbError } from '../../../../runtime/utils.js';
 
 export async function cmd({
 	astroConfig,
@@ -64,9 +64,7 @@ export async function cmd({
 		await mod.default();
 		console.info(`${green('✔')} File run successfully.`);
 	} catch (e) {
-		if (e instanceof LibsqlError) {
-			throw new Error(EXEC_ERROR(e.message));
-		}
-		throw e;
+		if (isDbError(e)) throw new Error(EXEC_ERROR(e.message));
+		else throw e;
 	}
 }
