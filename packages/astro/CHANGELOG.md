@@ -1,5 +1,15 @@
 # astro
 
+## 5.0.6
+
+### Patch Changes
+
+- [#12718](https://github.com/withastro/astro/pull/12718) [`ccc5ad1`](https://github.com/withastro/astro/commit/ccc5ad1676db5e7f5049ca2feb59802d1fe3a92e) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where Astro couldn't correctly handle i18n fallback when using the i18n middleware
+
+- [#12709](https://github.com/withastro/astro/pull/12709) [`e3bfd93`](https://github.com/withastro/astro/commit/e3bfd9396969caf35b3b05135539e82aab560c92) Thanks [@mtwilliams-code](https://github.com/mtwilliams-code)! - Fixes a bug where Astro couldn't correctly parse `params` and `props` when receiving i18n fallback URLs
+
+- [#12657](https://github.com/withastro/astro/pull/12657) [`14dffcc`](https://github.com/withastro/astro/commit/14dffcc3af49dd975635602a0d1847a3125c0746) Thanks [@darkmaga](https://github.com/darkmaga)! - Trailing slash support for actions
+
 ## 5.0.5
 
 ### Patch Changes
