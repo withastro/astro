@@ -2,6 +2,7 @@ import {
 	ActionError,
 	deserializeActionResult,
 	getActionQueryString,
+	appendForwardSlash,
 	getActionPath,
 } from 'astro:actions';
 
@@ -100,6 +101,19 @@ async function handleAction(param, path, context) {
 			headers,
 		},
 	);
+
+	const shouldAppendTrailingSlash = '/** @TRAILING_SLASH@ **/';
+	let actionPath = import.meta.env.BASE_URL.replace(/\/$/, '') + '/_actions/' + path;
+
+	if (shouldAppendTrailingSlash) {
+		actionPath = appendForwardSlash(actionPath);
+	}
+
+	const rawResult = await fetch(actionPath, {
+		method: 'POST',
+		body,
+		headers,
+	});
 	if (rawResult.status === 204) {
 		return deserializeActionResult({ type: 'empty', status: 204 });
 	}

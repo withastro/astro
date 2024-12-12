@@ -3,6 +3,7 @@ import type { z } from 'zod';
 import { REDIRECT_STATUS_CODES } from '../../../core/constants.js';
 import { ActionsReturnedInvalidDataError } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
+import { appendForwardSlash as _appendForwardSlash } from '../../../core/path.js';
 import { ACTION_QUERY_PARAMS as _ACTION_QUERY_PARAMS } from '../../consts.js';
 import type {
 	ErrorInferenceObject,
@@ -13,6 +14,8 @@ import type { ActionClient } from './server.js';
 
 export type ActionAPIContext = _ActionAPIContext;
 export const ACTION_QUERY_PARAMS = _ACTION_QUERY_PARAMS;
+
+export const appendForwardSlash = _appendForwardSlash;
 
 export const ACTION_ERROR_CODES = [
 	'BAD_REQUEST',
