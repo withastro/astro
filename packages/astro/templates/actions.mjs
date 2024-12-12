@@ -103,7 +103,7 @@ async function handleAction(param, path, context) {
 	const rawResult = await fetch(
 		getActionPath({
 			toString() {
-				return path;
+				return getActionQueryString(path);
 			},
 		}),
 		{
