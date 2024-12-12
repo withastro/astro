@@ -198,6 +198,8 @@ export default new Map([\n${lines.join(',\n')}]);
 	async #writeFileAtomic(filePath: PathLike, data: string, depth = 0) {
 		if(depth > MAX_DEPTH) {
 			// If we hit the max depth, we skip a write to prevent the stack from growing too large
+			// In theory this means we may miss the latest data, but in practice this will only happen when the file is being written to very frequently
+			// so it will be saved on the next write. This is unlikely to ever happen in practice, as the writes are debounced. It requires lots of writes to very large files.
 			return;
 		}
 		const fileKey = filePath.toString();
