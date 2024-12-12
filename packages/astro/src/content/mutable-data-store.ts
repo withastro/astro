@@ -9,12 +9,7 @@ import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
-// Write a file atomically
-async function writeFileAtomic(filePath: PathLike, data: string) {
-	const tempFile = filePath instanceof URL ? new URL(`${filePath.href}.tmp`) : `${filePath}.tmp`;
-	await fs.writeFile(tempFile, data);
-	await fs.rename(tempFile, filePath);
-}
+const MAX_DEPTH = 10;
 
 /**
  * Extends the DataStore with the ability to change entries and write them to disk.
@@ -93,7 +88,7 @@ export class MutableDataStore extends ImmutableDataStore {
 
 		if (this.#assetImports.size === 0) {
 			try {
-				await writeFileAtomic(filePath, 'export default new Map();');
+				await this.#writeFileAtomic(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
@@ -117,7 +112,7 @@ ${imports.join('\n')}
 export default new Map([${exports.join(', ')}]);
 		`;
 		try {
-			await writeFileAtomic(filePath, code);
+			await this.#writeFileAtomic(filePath, code);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -129,7 +124,7 @@ export default new Map([${exports.join(', ')}]);
 
 		if (this.#moduleImports.size === 0) {
 			try {
-				await writeFileAtomic(filePath, 'export default new Map();');
+				await this.#writeFileAtomic(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
@@ -150,7 +145,7 @@ export default new Map([${exports.join(', ')}]);
 export default new Map([\n${lines.join(',\n')}]);
 		`;
 		try {
-			await writeFileAtomic(filePath, code);
+			await this.#writeFileAtomic(filePath, code);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -194,6 +189,29 @@ export default new Map([\n${lines.join(',\n')}]);
 				this.#saveTimeout = undefined;
 				this.writeToDisk(this.#file!);
 			}, SAVE_DEBOUNCE_MS);
+		}
+	}
+
+	#writing = new Set<string>();
+	#pending = new Set<string>();
+
+	async #writeFileAtomic(filePath: PathLike, data: string, depth = 0) {
+		const fileKey = filePath.toString();
+		if (this.#writing.has(fileKey)) {
+			this.#pending.add(fileKey);
+			return;
+		}
+		const tempFile = filePath instanceof URL ? new URL(`${filePath.href}.tmp`) : `${filePath}.tmp`;
+		this.#writing.add(fileKey);
+		try {
+			await fs.writeFile(tempFile, data);
+			await fs.rename(tempFile, filePath);
+		} finally {
+			this.#writing.delete(fileKey);
+			if (this.#pending.has(fileKey) && depth < MAX_DEPTH) {
+				this.#pending.delete(fileKey);
+				await this.#writeFileAtomic(filePath, data, depth + 1);
+			}
 		}
 	}
 
@@ -305,7 +323,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			return;
 		}
 		try {
-			await writeFileAtomic(filePath, this.toString());
+			await this.#writeFileAtomic(filePath, this.toString());
 			this.#file = filePath;
 			this.#dirty = false;
 		} catch (err) {
