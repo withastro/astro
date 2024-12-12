@@ -3,7 +3,6 @@ import {
 	deserializeActionResult,
 	getActionQueryString,
 	appendForwardSlash,
-	getActionPath,
 } from 'astro:actions';
 
 const ENCODED_DOT = '%2E';
@@ -51,6 +50,17 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 			return toActionProxy(action, path + '.');
 		},
 	});
+}
+
+const SHOULD_APPEND_TRAILING_SLASH = '/** @TRAILING_SLASH@ **/';
+
+/** @param {import('astro:actions').ActionClient<any, any, any>} */
+export function getActionPath(action) {
+	let path = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${new URLSearchParams(action.toString()).get(ACTION_QUERY_PARAMS.actionName)}`;
+	if (SHOULD_APPEND_TRAILING_SLASH) {
+		path = appendForwardSlash(path);
+	}
+	return path;
 }
 
 /**
@@ -102,18 +112,6 @@ async function handleAction(param, path, context) {
 		},
 	);
 
-	const shouldAppendTrailingSlash = '/** @TRAILING_SLASH@ **/';
-	let actionPath = import.meta.env.BASE_URL.replace(/\/$/, '') + '/_actions/' + path;
-
-	if (shouldAppendTrailingSlash) {
-		actionPath = appendForwardSlash(actionPath);
-	}
-
-	const rawResult = await fetch(actionPath, {
-		method: 'POST',
-		body,
-		headers,
-	});
 	if (rawResult.status === 204) {
 		return deserializeActionResult({ type: 'empty', status: 204 });
 	}
