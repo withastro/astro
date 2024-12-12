@@ -16,17 +16,6 @@ export function injectImageEndpoint(
 	manifest.routes.unshift(getImageEndpointData(settings, mode, cwd));
 }
 
-export function ensureImageEndpointRoute(
-	settings: AstroSettings,
-	manifest: ManifestData,
-	mode: 'dev' | 'build',
-	cwd?: string,
-) {
-	if (!manifest.routes.some((route) => route.route === settings.config.image.endpoint.route)) {
-		manifest.routes.unshift(getImageEndpointData(settings, mode, cwd));
-	}
-}
-
 function getImageEndpointData(
 	settings: AstroSettings,
 	mode: 'dev' | 'build',

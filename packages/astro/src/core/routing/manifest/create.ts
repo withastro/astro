@@ -21,6 +21,9 @@ import { routeComparator } from '../priority.js';
 import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
+import { ensure404Route } from '../astro-designed-error-pages.js';
+import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
+import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -732,9 +735,19 @@ export async function createRouteManifest(
 		}
 	}
 
-	if (!dev) {
-		await runHookRoutesResolved({ routes, settings, logger });
+	if (dev) {
+		// In SSR, a 404 route is injected in the App directly for some special handling,
+		// it must not appear in the manifest
+		ensure404Route({ routes });
 	}
+	if (dev || settings.buildOutput === 'server') {
+		injectImageEndpoint(settings, { routes }, dev ? 'dev' : 'build');
+		// During the build build, we can't only inject this route when server islands are used because:
+		// - To know if we use serve islands, we need to build
+		// - The build runs before we can inject the server island route
+		injectServerIslandRoute(settings.config, { routes });
+	}
+	await runHookRoutesResolved({ routes, settings, logger });
 
 	return {
 		routes,

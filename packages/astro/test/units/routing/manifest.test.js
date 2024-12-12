@@ -261,6 +261,14 @@ describe('routing - createRouteManifest', () => {
 
 		assert.deepEqual(getManifestRoutes(manifest), [
 			{
+				route: '/_server-islands/[name]',
+				type: 'page',
+			},
+			{
+				route: '/_image',
+				type: 'endpoint',
+			},
+			{
 				route: '/blog/[...slug]',
 				type: 'page',
 			},
@@ -306,6 +314,14 @@ describe('routing - createRouteManifest', () => {
 		});
 
 		assert.deepEqual(getManifestRoutes(manifest), [
+			{
+				route: '/_server-islands/[name]',
+				type: 'page',
+			},
+			{
+				route: '/_image',
+				type: 'endpoint',
+			},
 			{
 				route: '/blog/about',
 				type: 'redirect',
@@ -441,6 +457,8 @@ describe('routing - createRouteManifest', () => {
 		});
 
 		assert.deepEqual(getManifestRoutes(manifest), [
+			{ type: 'page', route: '/_server-islands/[name]' },
+			{ type: 'endpoint', route: '/_image' },
 			{ type: 'endpoint', route: '/blog/a-[b].233' },
 			{ type: 'redirect', route: '/posts/a-[b].233' },
 			{ type: 'page', route: '/[c]-d' },
