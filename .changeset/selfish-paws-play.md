@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes bugs with parsing of params and props in i18n fallbacks that cause crashes in app server
+Fixes a bug where Astro couldn't correctly parse `params` and `props` when receiving i18n fallback URLs
