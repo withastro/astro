@@ -593,14 +593,15 @@ it('getActionPath() should return the right path', async () => {
 		root: './fixtures/actions/',
 		adapter: testAdapter(),
 		base: '/base',
+		trailingSlash: 'always',
 	});
 	const devServer = await fixture.startDevServer();
-	const res = await fixture.fetch('/base/get-action-path');
+	const res = await fixture.fetch('/base/get-action-path/');
 
 	assert.equal(res.ok, true);
 	const html = await res.text();
 	let $ = cheerio.load(html);
-	assert.equal($('[data-path]').text(), '/base/_actions/transformFormInput');
+	assert.equal($('[data-path]').text(), '/base/_actions/transformFormInput/');
 	await devServer.stop();
 });
 
