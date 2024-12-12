@@ -9,6 +9,8 @@ import type { Logger } from '../core/logger/core.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import { writeHtmlResponse } from './response.js';
 
+const justSlashes = /^\/{2,}$/;
+
 export function baseMiddleware(
 	settings: AstroSettings,
 	logger: Logger,
@@ -24,7 +26,9 @@ export function baseMiddleware(
 
 		let pathname: string;
 		try {
-			pathname = decodeURI(new URL(url, 'http://localhost').pathname);
+			// If the request is for just slashes it will break the URL constructor, so we special case it.
+			// We just set the pathname to "//", which will match a redirect to "/" in the dev server.
+			pathname = justSlashes.test(url) ? '//' : decodeURI(new URL(url, 'http://localhost').pathname);
 		} catch (e) {
 			/* malform uri */
 			return next(e);
