@@ -588,6 +588,23 @@ it('Should support trailing slash', async () => {
 	await devServer.stop();
 });
 
+it('getActionPath() should return the right path', async () => {
+	const fixture = await loadFixture({
+		root: './fixtures/actions/',
+		adapter: testAdapter(),
+		base: '/base',
+		trailingSlash: 'always',
+	});
+	const devServer = await fixture.startDevServer();
+	const res = await fixture.fetch('/base/get-action-path/');
+
+	assert.equal(res.ok, true);
+	const html = await res.text();
+	let $ = cheerio.load(html);
+	assert.equal($('[data-path]').text(), '/base/_actions/transformFormInput/');
+	await devServer.stop();
+});
+
 /**
  * Follow an expected redirect response.
  *
