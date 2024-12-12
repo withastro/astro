@@ -196,20 +196,31 @@ export default new Map([\n${lines.join(',\n')}]);
 	#pending = new Set<string>();
 
 	async #writeFileAtomic(filePath: PathLike, data: string, depth = 0) {
+		if(depth > MAX_DEPTH) {
+			// If we hit the max depth, we skip a write to prevent the stack from growing too large
+			return;
+		}
 		const fileKey = filePath.toString();
+		// If we are already writing this file, instead of writing now, flag it as pending and write it when we're done.
 		if (this.#writing.has(fileKey)) {
 			this.#pending.add(fileKey);
 			return;
 		}
-		const tempFile = filePath instanceof URL ? new URL(`${filePath.href}.tmp`) : `${filePath}.tmp`;
+		// Prevent concurrent writes to this file by flagging it as being written
 		this.#writing.add(fileKey);
+
+		const tempFile = filePath instanceof URL ? new URL(`${filePath.href}.tmp`) : `${filePath}.tmp`;
 		try {
+			// Write it to a temporary file first and then move it to prevent partial reads. 
 			await fs.writeFile(tempFile, data);
 			await fs.rename(tempFile, filePath);
 		} finally {
+			// We're done writing. Unflag the file and check if there are any pending writes for this file.
 			this.#writing.delete(fileKey);
-			if (this.#pending.has(fileKey) && depth < MAX_DEPTH) {
+			// If there are pending writes, we need to write again to ensure we flush the latest data.
+			if (this.#pending.has(fileKey)) {
 				this.#pending.delete(fileKey);
+				// Call ourself recursively to write the file again
 				await this.#writeFileAtomic(filePath, data, depth + 1);
 			}
 		}
