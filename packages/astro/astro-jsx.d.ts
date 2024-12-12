@@ -679,6 +679,7 @@ declare namespace astroHTML.JSX {
 
 	interface DialogHTMLAttributes extends HTMLAttributes {
 		open?: boolean | string | undefined | null;
+		closedby?: 'none' | 'closerequest' | 'any' | undefined | null;
 	}
 
 	interface EmbedHTMLAttributes extends HTMLAttributes {
