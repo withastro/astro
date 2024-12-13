@@ -291,7 +291,7 @@ export default function netlifyIntegration(
 					request,
 					params: {}
 				});
-				ctx.locals = { netlify: { context } }
+				ctx.locals.netlify = { context } 
 				// https://docs.netlify.com/edge-functions/api/#return-a-rewrite
 				ctx.rewrite = (target) => {
 					if(target instanceof Request) {
