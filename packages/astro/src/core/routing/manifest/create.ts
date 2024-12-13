@@ -506,7 +506,7 @@ export async function createRouteManifest(
 	}
 
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
-	if (dev) {
+	if (dev && !config.base) {
 		// Add a redirect for `//` to `/`. We only do this in dev because different platforms
 		// vary a lot in how or whether they handle this sort of redirect, so we leave it to the adapter
 		redirectRoutes.push({
