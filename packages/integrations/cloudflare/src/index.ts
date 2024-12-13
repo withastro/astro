@@ -12,7 +12,7 @@ import {
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import astroWhen from '@inox-tools/astro-when';
 import { AstroError } from 'astro/errors';
-import { defaultServerConditions } from 'vite';
+import { defaultClientConditions } from 'vite';
 import { type GetPlatformProxyOptions, getPlatformProxy } from 'wrangler';
 import {
 	type CloudflareModulePluginExtra,
@@ -223,7 +223,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					// (previously supported in esbuild instead: https://github.com/withastro/astro/pull/7092)
 					vite.ssr ||= {};
 					vite.ssr.resolve ||= {};
-					vite.ssr.resolve.conditions ||= [...defaultServerConditions];
+					vite.ssr.resolve.conditions ||= [...defaultClientConditions];
 					vite.ssr.resolve.conditions.push('workerd', 'worker');
 
 					vite.ssr.target = 'webworker';
