@@ -210,6 +210,13 @@ describe('Integration API', () => {
 								origin: 'internal',
 							},
 							{
+								entrypoint: '/',
+								isPrerendered: false,
+								origin: 'project',
+								params: [],
+								pattern: '//',
+							},
+							{
 								isPrerendered: false,
 								entrypoint: 'astro-default-404.astro',
 								pattern: '/404',
@@ -272,6 +279,13 @@ describe('Integration API', () => {
 								origin: 'internal',
 							},
 							{
+								entrypoint: '/',
+								isPrerendered: false,
+								origin: 'project',
+								params: [],
+								pattern: '//',
+							},
+							{
 								isPrerendered: false,
 								entrypoint: 'astro-default-404.astro',
 								pattern: '/404',
@@ -332,6 +346,13 @@ describe('Integration API', () => {
 								pattern: '/_image',
 								params: [],
 								origin: 'internal',
+							},
+							{
+								entrypoint: '/',
+								isPrerendered: false,
+								origin: 'project',
+								params: [],
+								pattern: '//',
 							},
 							{
 								isPrerendered: false,
