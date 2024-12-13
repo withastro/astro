@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 8.0.1
+
+### Patch Changes
+
+- [#472](https://github.com/withastro/adapters/pull/472) [`d9eed7e`](https://github.com/withastro/adapters/commit/d9eed7e73b0d27d62043c58c2459d00fd8e98303) Thanks [@bluwy](https://github.com/bluwy)! - Add back support for Node 22 on Vercel serverless that was fixed in v7 but lost in v8
+
 ## 8.0.0
 
 ### Major Changes
