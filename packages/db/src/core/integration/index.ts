@@ -26,7 +26,6 @@ import {
 	type LateSeedFiles,
 	type LateTables,
 	type SeedHandler,
-	resolved,
 	vitePluginDb,
 } from './vite-plugin-db.js';
 

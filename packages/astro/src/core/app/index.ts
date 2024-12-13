@@ -5,7 +5,6 @@ import {
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
-	clientLocalsSymbol,
 	responseSentSymbol,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
