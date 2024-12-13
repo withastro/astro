@@ -1,5 +1,15 @@
 # @astrojs/cloudflare
 
+## 12.1.0
+
+### Minor Changes
+
+- [#455](https://github.com/withastro/adapters/pull/455) [`1d4e6fc`](https://github.com/withastro/adapters/commit/1d4e6fca41b67277a21dcf2a42910e12206a0299) Thanks [@meyer](https://github.com/meyer)! - Adds `wrangler.jsonc` to the default watched config files. If a config file is specified in `platformProxy.configPath`, that file location is watched instead of the defaults.
+
+### Patch Changes
+
+- [#476](https://github.com/withastro/adapters/pull/476) [`a8a8ab1`](https://github.com/withastro/adapters/commit/a8a8ab12d9cfb5157e6a350b93a505010367b8e4) Thanks [@bluwy](https://github.com/bluwy)! - Removes resolving with "node" conditionto fix Vue imports
+
 ## 12.0.1
 
 ### Patch Changes
