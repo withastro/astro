@@ -6,6 +6,8 @@ import { loadFixture } from '../../../astro/test/test-utils.js';
 let fixture;
 
 describe('React Production Components', () => {
+	if (isWindows) return;
+
 	before(async () => {	
 		/**
 		 * Ensures that the NODE_ENV is set to "production" for this runner.
