@@ -4,12 +4,12 @@
   "private": true,
   "dependencies": {
     "@astrojs/react": "workspace:*",
-    "@astrojs/vue": "workspace:*",
     "@astrojs/solid-js": "workspace:*",
+    "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "vue": "^3.5.13",
-    "solid-js": "^1.9.3"
+    "solid-js": "^1.9.3",
+    "vue": "^3.5.13"
   }
 }
