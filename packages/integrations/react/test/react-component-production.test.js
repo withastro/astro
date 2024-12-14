@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { isWindows, loadFixture } from '../../../astro/test/test-utils.js';
 
 let fixture;
 
