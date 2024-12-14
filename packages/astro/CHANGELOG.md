@@ -1,5 +1,34 @@
 # astro
 
+## 5.0.5
+
+### Patch Changes
+
+- [#12705](https://github.com/withastro/astro/pull/12705) [`0d1eab5`](https://github.com/withastro/astro/commit/0d1eab560d56c51c359bbd35e8bfb51e238611ee) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug where MDX files with certain characters in the name would cause builds to fail
+
+- [#12707](https://github.com/withastro/astro/pull/12707) [`2aaed2d`](https://github.com/withastro/astro/commit/2aaed2d2a96ab35461af24e8d12b20f1da33983f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the middleware was incorrectly imported during the build
+
+- [#12697](https://github.com/withastro/astro/pull/12697) [`1c4a032`](https://github.com/withastro/astro/commit/1c4a032247747c830be94dbdd0c953511a6bfa53) Thanks [@ascorbic](https://github.com/ascorbic)! - Fix a bug that caused builds to fail if an image had a quote mark in its name
+
+- [#12694](https://github.com/withastro/astro/pull/12694) [`495f46b`](https://github.com/withastro/astro/commit/495f46bca78665732e51c629d93a68fa392b88a4) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the experimental feature `experimental.svg` was incorrectly used when generating ESM images
+
+- [#12658](https://github.com/withastro/astro/pull/12658) [`3169593`](https://github.com/withastro/astro/commit/316959355c3d59723ecb3e0f417becf1f03ddd74) Thanks [@jurajkapsz](https://github.com/jurajkapsz)! - Fixes astro info copy to clipboard process not returning to prompt in certain cases.
+
+- [#12712](https://github.com/withastro/astro/pull/12712) [`b01c74a`](https://github.com/withastro/astro/commit/b01c74aeccc4ec76b64fa75d163df58274b37970) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug which misidentified pages as markdown if a query string ended in a markdown extension
+
+## 5.0.4
+
+### Patch Changes
+
+- [#12653](https://github.com/withastro/astro/pull/12653) [`e21c7e6`](https://github.com/withastro/astro/commit/e21c7e67fde1155cf593fd2b40010c5e2c2cd3f2) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates a reference in an error message
+
+- [#12585](https://github.com/withastro/astro/pull/12585) [`a9373c0`](https://github.com/withastro/astro/commit/a9373c0c9a3c2e1773fc11bb14e156698b0d9d38) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `process.env` would be frozen despite changes made to environment variables in development
+
+- [#12695](https://github.com/withastro/astro/pull/12695) [`a203d5d`](https://github.com/withastro/astro/commit/a203d5dd582166674c45e807a5dc9113e26e24f0) Thanks [@ascorbic](https://github.com/ascorbic)! - Throws a more helpful error when images are missing
+
+- Updated dependencies [[`f13417b`](https://github.com/withastro/astro/commit/f13417bfbf73130c224752379e2da33084f89554), [`87231b1`](https://github.com/withastro/astro/commit/87231b1168da66bb593f681206c42fa555dfcabc), [`a71e9b9`](https://github.com/withastro/astro/commit/a71e9b93b317edc0ded49d4d50f1b7841c8cd428)]:
+  - @astrojs/markdown-remark@6.0.1
+
 ## 5.0.3
 
 ### Patch Changes

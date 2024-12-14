@@ -39,7 +39,7 @@ export function astroContentAssetPropagationPlugin({
 					? fileURLToPath(new URL(importerParam, settings.config.root))
 					: importer;
 
-				const resolved = this.resolve(base, importerPath, { skipSelf: true, ...opts });
+				const resolved = await this.resolve(base, importerPath, { skipSelf: true, ...opts });
 				if (!resolved) {
 					throw new AstroError({
 						...AstroErrorData.ImageNotFound,
