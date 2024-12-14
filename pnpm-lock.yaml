@@ -5041,6 +5041,33 @@ importers:
         specifier: ^19.0.0
         version: 19.0.0(react@19.0.0)
 
+  packages/integrations/react/test/fixtures/react-18-component:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/solid-js':
+        specifier: workspace:*
+        version: link:../../../../solid
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../vue
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      solid-js:
+        specifier: ^1.9.3
+        version: 1.9.3
+      vue:
+        specifier: ^3.5.13
+        version: 3.5.13(typescript@5.7.2)
+
   packages/integrations/react/test/fixtures/react-component:
     dependencies:
       '@astrojs/react':
