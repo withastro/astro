@@ -109,14 +109,17 @@ export const info = async (prefix: string, text: string, version = '') => {
 		);
 	}
 };
+
 export const upgrade = async (packageInfo: PackageInfo, text: string) => {
-	const { name, isMajor = false, targetVersion } = packageInfo;
+	const { name, isMajor = false, targetVersion, currentVersion } = packageInfo;
 
 	const bg = isMajor ? (v: string) => color.bgYellow(color.black(` ${v} `)) : color.green;
 	const style = isMajor ? color.yellow : color.green;
 	const symbol = isMajor ? '▲' : '●';
+
+	const fromVersion = currentVersion.replace(/^\D+/, '');
 	const toVersion = targetVersion.replace(/^\D+/, '');
-	const version = `v${toVersion}`;
+	const version = `v${fromVersion} → v${toVersion}`;
 
 	const length = 12 + name.length + text.length + version.length;
 	if (length > stdout.columns) {
