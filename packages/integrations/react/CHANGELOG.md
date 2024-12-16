@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 4.1.1
+
+### Patch Changes
+
+- [#12755](https://github.com/withastro/astro/pull/12755) [`391df0e`](https://github.com/withastro/astro/commit/391df0e410aecc4bb8871c42548e2d9634c5ef3a) Thanks [@matthewp](https://github.com/matthewp)! - Preoptimize React compiler runtime
+
 ## 4.1.0
 
 ### Minor Changes
