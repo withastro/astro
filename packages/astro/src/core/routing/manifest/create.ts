@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import pLimit from 'p-limit';
+import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookRoutesResolved } from '../../../integrations/hooks.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
@@ -16,14 +17,13 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
 import { AstroError } from '../../errors/index.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
+import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 import { resolvePages } from '../../util.js';
+import { ensure404Route } from '../astro-designed-error-pages.js';
 import { routeComparator } from '../priority.js';
 import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
-import { ensure404Route } from '../astro-designed-error-pages.js';
-import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
-import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 const require = createRequire(import.meta.url);
 
 interface Item {

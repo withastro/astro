@@ -14,6 +14,7 @@ import type {
 } from '../../app/types.js';
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
+import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
@@ -21,7 +22,6 @@ import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
-import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');

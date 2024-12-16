@@ -4,8 +4,8 @@ import type { AllPagesData } from './types.js';
 
 import * as colors from 'kleur/colors';
 import { debug } from '../logger/core.js';
-import { makePageDataKey } from './plugins/util.js';
 import { DEFAULT_COMPONENTS } from '../routing/default.js';
+import { makePageDataKey } from './plugins/util.js';
 
 export interface CollectPagesDataOptions {
 	settings: AstroSettings;
