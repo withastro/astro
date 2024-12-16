@@ -21,6 +21,9 @@ import { routeComparator } from '../priority.js';
 import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
+import { ensure404Route } from '../astro-designed-error-pages.js';
+import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
+import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -732,9 +735,22 @@ export async function createRouteManifest(
 		}
 	}
 
-	if (!dev) {
-		await runHookRoutesResolved({ routes, settings, logger });
+	if (dev) {
+		// In SSR, a 404 route is injected in the App directly for some special handling,
+		// it must not appear in the manifest
+		ensure404Route({ routes });
 	}
+	if (dev || settings.buildOutput === 'server') {
+		injectImageEndpoint(settings, { routes }, dev ? 'dev' : 'build');
+		// Ideally we would only inject the server islands route if server islands are used in the project.
+		// Unforunately, there is a "circular dependency": to know if server islands are used, we need to run
+		// the build but the build relies on the routes manifest.
+		// This situation also means we cannot update the buildOutput based on wether or not server islands
+		// are used in the project. If server islands are detected after the build but the buildOutput is
+		// static, we fail the build.
+		injectServerIslandRoute(settings.config, { routes });
+	}
+	await runHookRoutesResolved({ routes, settings, logger });
 
 	return {
 		routes,
