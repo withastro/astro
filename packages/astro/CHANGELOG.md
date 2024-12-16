@@ -1,5 +1,11 @@
 # astro
 
+## 5.0.7
+
+### Patch Changes
+
+- [#12746](https://github.com/withastro/astro/pull/12746) [`c879f50`](https://github.com/withastro/astro/commit/c879f501ff01b1a3c577de776a1f7100d78f8dd5) Thanks [@matthewp](https://github.com/matthewp)! - Remove all assets created from the server build
+
 ## 5.0.6
 
 ### Patch Changes
