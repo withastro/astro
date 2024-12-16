@@ -422,8 +422,6 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 		cwd: fileURLToPath(serverAssets),
 	});
 
-	console.log('FILES2', files);
-
 	if (files.length > 0) {
 		await Promise.all(
 			files.map(async function moveAsset(filename) {
