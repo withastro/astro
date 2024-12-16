@@ -1,5 +1,11 @@
 # astro
 
+## 5.0.8
+
+### Patch Changes
+
+- [#12749](https://github.com/withastro/astro/pull/12749) [`039d022`](https://github.com/withastro/astro/commit/039d022b1bbaacf9ea83071d27affc5318e0e515) Thanks [@matthewp](https://github.com/matthewp)! - Clean server sourcemaps from static output
+
 ## 5.0.7
 
 ### Patch Changes
