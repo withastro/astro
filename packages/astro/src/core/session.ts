@@ -23,7 +23,7 @@ const VALID_COOKIE_REGEX = /^[\w-]+$/;
 
 interface SessionEntry {
 	data: any;
-	expires?: number | 'flash';
+	expires?: number;
 }
 
 export class AstroSession<TDriver extends SessionDriverName = any> {
@@ -122,7 +122,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Sets a session value. The session is created if it does not exist.
 	 */
 
-	set<T = any>(key: string, value: T, { ttl }: { ttl?: number | 'flash' } = {}) {
+	set<T = any>(key: string, value: T, { ttl }: { ttl?: number } = {}) {
 		if (!key) {
 			throw new AstroError({
 				...SessionStorageSaveError,
@@ -155,10 +155,6 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			expires,
 		});
 		this.#dirty = true;
-	}
-
-	flash<T = any>(key: string, value: T) {
-		this.set(key, value, { ttl: 'flash' });
 	}
 
 	/**
@@ -320,10 +316,6 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 				const expired = typeof value.expires === 'number' && value.expires < now;
 				if (!this.#data.has(key) && !this.#toDelete.has(key) && !expired) {
 					this.#data.set(key, value);
-					if (value?.expires === 'flash') {
-						this.#toDelete.add(key);
-						this.#dirty = true;
-					}
 				}
 			}
 
