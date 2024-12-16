@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises';
 import esbuild from 'esbuild';
-import { copy } from 'esbuild-plugin-copy';
 import glob from 'fast-glob';
 import { dim, green, red, yellow } from 'kleur/colors';
 import prebuild from './prebuild.js';

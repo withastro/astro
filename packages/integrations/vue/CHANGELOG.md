@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 5.0.2
+
+### Patch Changes
+
+- [#12688](https://github.com/withastro/astro/pull/12688) [`7dc2fca`](https://github.com/withastro/astro/commit/7dc2fca2eeb646bf3fd362d21c5bbfe273838b5a) Thanks [@yoyo837](https://github.com/yoyo837)! - fix vite peer dependency issue for vue integration
+
 ## 5.0.1
 
 ### Patch Changes

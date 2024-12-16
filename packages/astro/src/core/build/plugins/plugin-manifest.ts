@@ -5,7 +5,6 @@ import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { toFallbackType, toRoutingStrategy } from '../../../i18n/utils.js';
-import { unwrapSupportKind } from '../../../integrations/features-validation.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type {
@@ -274,8 +273,5 @@ function buildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
-		envGetSecretEnabled:
-			(unwrapSupportKind(settings.adapter?.supportedAstroFeatures.envGetSecret) ??
-				'unsupported') !== 'unsupported',
 	};
 }

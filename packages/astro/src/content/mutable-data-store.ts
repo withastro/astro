@@ -9,6 +9,8 @@ import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
+const MAX_DEPTH = 10;
+
 /**
  * Extends the DataStore with the ability to change entries and write them to disk.
  * This is kept as a separate class to avoid needing node builtins at runtime, when read-only access is all that is needed.
@@ -86,7 +88,7 @@ export class MutableDataStore extends ImmutableDataStore {
 
 		if (this.#assetImports.size === 0) {
 			try {
-				await fs.writeFile(filePath, 'export default new Map();');
+				await this.#writeFileAtomic(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
@@ -102,7 +104,7 @@ export class MutableDataStore extends ImmutableDataStore {
 		const exports: Array<string> = [];
 		this.#assetImports.forEach((id) => {
 			const symbol = importIdToSymbolName(id);
-			imports.push(`import ${symbol} from '${id}';`);
+			imports.push(`import ${symbol} from ${JSON.stringify(id)};`);
 			exports.push(`[${JSON.stringify(id)}, ${symbol}]`);
 		});
 		const code = /* js */ `
@@ -110,7 +112,7 @@ ${imports.join('\n')}
 export default new Map([${exports.join(', ')}]);
 		`;
 		try {
-			await fs.writeFile(filePath, code);
+			await this.#writeFileAtomic(filePath, code);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -122,7 +124,7 @@ export default new Map([${exports.join(', ')}]);
 
 		if (this.#moduleImports.size === 0) {
 			try {
-				await fs.writeFile(filePath, 'export default new Map();');
+				await this.#writeFileAtomic(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
@@ -137,13 +139,13 @@ export default new Map([${exports.join(', ')}]);
 		// We then export them all, mapped by the import id, so we can find them again in the build.
 		const lines: Array<string> = [];
 		for (const [fileName, specifier] of this.#moduleImports) {
-			lines.push(`['${fileName}', () => import('${specifier}')]`);
+			lines.push(`[${JSON.stringify(fileName)}, () => import(${JSON.stringify(specifier)})]`);
 		}
 		const code = `
 export default new Map([\n${lines.join(',\n')}]);
 		`;
 		try {
-			await fs.writeFile(filePath, code);
+			await this.#writeFileAtomic(filePath, code);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -187,6 +189,42 @@ export default new Map([\n${lines.join(',\n')}]);
 				this.#saveTimeout = undefined;
 				this.writeToDisk(this.#file!);
 			}, SAVE_DEBOUNCE_MS);
+		}
+	}
+
+	#writing = new Set<string>();
+	#pending = new Set<string>();
+
+	async #writeFileAtomic(filePath: PathLike, data: string, depth = 0) {
+		if (depth > MAX_DEPTH) {
+			// If we hit the max depth, we skip a write to prevent the stack from growing too large
+			// In theory this means we may miss the latest data, but in practice this will only happen when the file is being written to very frequently
+			// so it will be saved on the next write. This is unlikely to ever happen in practice, as the writes are debounced. It requires lots of writes to very large files.
+			return;
+		}
+		const fileKey = filePath.toString();
+		// If we are already writing this file, instead of writing now, flag it as pending and write it when we're done.
+		if (this.#writing.has(fileKey)) {
+			this.#pending.add(fileKey);
+			return;
+		}
+		// Prevent concurrent writes to this file by flagging it as being written
+		this.#writing.add(fileKey);
+
+		const tempFile = filePath instanceof URL ? new URL(`${filePath.href}.tmp`) : `${filePath}.tmp`;
+		try {
+			// Write it to a temporary file first and then move it to prevent partial reads.
+			await fs.writeFile(tempFile, data);
+			await fs.rename(tempFile, filePath);
+		} finally {
+			// We're done writing. Unflag the file and check if there are any pending writes for this file.
+			this.#writing.delete(fileKey);
+			// If there are pending writes, we need to write again to ensure we flush the latest data.
+			if (this.#pending.has(fileKey)) {
+				this.#pending.delete(fileKey);
+				// Call ourself recursively to write the file again
+				await this.#writeFileAtomic(filePath, data, depth + 1);
+			}
 		}
 	}
 
@@ -298,7 +336,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			return;
 		}
 		try {
-			await fs.writeFile(filePath, this.toString());
+			await this.#writeFileAtomic(filePath, this.toString());
 			this.#file = filePath;
 			this.#dirty = false;
 		} catch (err) {

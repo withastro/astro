@@ -43,8 +43,8 @@ export async function verify(
 }
 
 function isOnline(registry: string): Promise<boolean> {
-	const { host } = new URL(registry);
-	return dns.lookup(host).then(
+	const { hostname } = new URL(registry);
+	return dns.lookup(hostname).then(
 		() => true,
 		() => false,
 	);

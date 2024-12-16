@@ -69,7 +69,6 @@ export type SSRManifest = {
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	checkOrigin: boolean;
-	envGetSecretEnabled: boolean;
 };
 
 export type SSRManifestI18n = {
