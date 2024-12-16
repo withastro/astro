@@ -18,9 +18,9 @@ describe('Sourcemap', async () => {
 
 	it('Builds non-empty sourcemap', async () => {
 		const assets = await fixture.readdir('/_astro');
-		const maps = assets.filter(file => file.endsWith('.map'));
+		const maps = assets.filter((file) => file.endsWith('.map'));
 		assert.ok(maps.length > 0, 'got source maps');
-		for(const mapName of maps) {
+		for (const mapName of maps) {
 			const filename = `/_astro/${mapName}`;
 			const map = await fixture.readFile(filename);
 			assert.equal(map.includes('"sources":[]'), false);
