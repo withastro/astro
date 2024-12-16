@@ -153,7 +153,6 @@ export async function staticBuild(
 		settings.timer.start('Server generate');
 		await generatePages(opts, internals);
 		await cleanStaticOutput(opts, internals);
-		opts.logger.info(null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 		await ssrMoveAssets(opts);
 		settings.timer.end('Server generate');
 	}
