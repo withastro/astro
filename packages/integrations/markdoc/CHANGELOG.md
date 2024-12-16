@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.12.3
+
+### Patch Changes
+
+- [#12694](https://github.com/withastro/astro/pull/12694) [`495f46b`](https://github.com/withastro/astro/commit/495f46bca78665732e51c629d93a68fa392b88a4) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the experimental feature `experimental.svg` was incorrectly used when generating ESM images
+
 ## 0.12.2
 
 ### Patch Changes

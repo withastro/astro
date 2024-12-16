@@ -1,6 +1,10 @@
 import { z } from 'zod';
+import type { Pipeline } from '../../../core/base-pipeline.js';
+import { shouldAppendForwardSlash } from '../../../core/build/util.js';
 import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
+import { removeTrailingForwardSlash } from '../../../core/path.js';
+import { apiContextRoutesSymbol } from '../../../core/render-context.js';
 import type { APIContext } from '../../../types/public/index.js';
 import { ACTION_RPC_ROUTE_PATTERN } from '../../consts.js';
 import {
@@ -279,7 +283,15 @@ export function getActionContext(context: APIContext): ActionMiddlewareContext {
 			calledFrom: callerInfo.from,
 			name: callerInfo.name,
 			handler: async () => {
-				const baseAction = await getAction(callerInfo.name);
+				const pipeline: Pipeline = Reflect.get(context, apiContextRoutesSymbol);
+				const callerInfoName = shouldAppendForwardSlash(
+					pipeline.manifest.trailingSlash,
+					pipeline.manifest.buildFormat,
+				)
+					? removeTrailingForwardSlash(callerInfo.name)
+					: callerInfo.name;
+
+				const baseAction = await getAction(callerInfoName);
 				let input;
 				try {
 					input = await parseRequestBody(context.request);

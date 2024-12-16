@@ -5,7 +5,6 @@ import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { toFallbackType, toRoutingStrategy } from '../../../i18n/utils.js';
-import { unwrapSupportKind } from '../../../integrations/features-validation.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type {
@@ -15,6 +14,7 @@ import type {
 } from '../../app/types.js';
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
+import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
@@ -178,6 +178,22 @@ function buildManifest(
 			return prependForwardSlash(joinPaths(settings.config.base, pth));
 		}
 	};
+
+	// Default components follow a special flow during build. We prevent their processing earlier
+	// in the build. As a result, they are not present on `internals.pagesByKeys` and not serialized
+	// in the manifest file. But we need them in the manifest, so we handle them here
+	for (const route of opts.manifest.routes) {
+		if (!DEFAULT_COMPONENTS.find((component) => route.component === component)) {
+			continue;
+		}
+		routes.push({
+			file: '',
+			links: [],
+			scripts: [],
+			styles: [],
+			routeData: serializeRouteData(route, settings.config.trailingSlash),
+		});
+	}
 
 	for (const route of opts.manifest.routes) {
 		if (!route.prerender) continue;

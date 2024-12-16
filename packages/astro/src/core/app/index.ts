@@ -5,7 +5,6 @@ import {
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
-	clientLocalsSymbol,
 	responseSentSymbol,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
@@ -21,7 +20,8 @@ import {
 } from '../path.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
-import { createDefaultRoutes, injectDefaultRoutes } from '../routing/default.js';
+import { ensure404Route } from '../routing/astro-designed-error-pages.js';
+import { createDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session.js';
 import { AppPipeline } from './pipeline.js';
@@ -90,9 +90,12 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = injectDefaultRoutes(manifest, {
+		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
-		});
+		};
+		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
+		// to return the host 404 if the user doesn't provide a custom 404
+		ensure404Route(this.#manifestData);
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = this.#createPipeline(this.#manifestData, streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
