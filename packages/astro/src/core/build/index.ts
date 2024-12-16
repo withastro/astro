@@ -204,8 +204,8 @@ class AstroBuilder {
 			key: keyPromise,
 		};
 
-		const { internals, ssrOutputChunkNames, contentFileNames } = await viteBuild(opts);
-		await staticBuild(opts, internals, ssrOutputChunkNames, contentFileNames);
+		const { internals, ssrOutputChunkNames } = await viteBuild(opts);
+		await staticBuild(opts, internals, ssrOutputChunkNames);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
