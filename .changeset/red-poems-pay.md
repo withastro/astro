@@ -2,4 +2,6 @@
 'astro': minor
 ---
 
-Improves the asset caching by allowing stale assets to be revalidated [using entity tags](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag) or the [Last-Modified](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified) date.
+Improves asset caching of remote images 
+
+Astro will now store [entity tags](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag) and the [Last-Modified](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified) date for cached remote images and use them to revalidate the cache when it goes stale.
