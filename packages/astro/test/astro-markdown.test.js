@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { fixLineEndings, loadFixture } from './test-utils.js';
 
@@ -152,6 +152,26 @@ describe('Astro Markdown', () => {
 			const { title = '' } = JSON.parse(await fixture.readFile('/vite-env-vars-glob.json'));
 			assert.ok(title.includes('import.meta.env.SITE'));
 			assert.ok(title.includes('import.meta.env.TITLE'));
+		});
+	});
+
+	describe('dev', () => {
+		let devServer;
+
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+
+		it('ignores .md extensions on query params', async () => {
+			const res = await fixture.fetch('/false-positive?page=page.md');
+			assert.ok(res.ok);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal($('p').text(), 'the page is not markdown');
+		});
+
+		after(async () => {
+			await devServer.stop();
 		});
 	});
 });
