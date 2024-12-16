@@ -174,7 +174,7 @@ describe('Astro basic build', () => {
 
 	it('server sourcemaps not included in output', async () => {
 		const files = await fixture.readdir('/');
-		const hasSourcemaps = files.some(fileName => {
+		const hasSourcemaps = files.some((fileName) => {
 			return fileName.endsWith('.map');
 		});
 		assert.equal(hasSourcemaps, false, 'no sourcemap files in output');

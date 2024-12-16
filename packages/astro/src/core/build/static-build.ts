@@ -410,8 +410,7 @@ async function cleanServerOutput(
 ) {
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output chunks for Astro are all .mjs files
-	const files = ssrOutputChunkNames
-		.filter((f) => f.endsWith('.mjs'));
+	const files = ssrOutputChunkNames.filter((f) => f.endsWith('.mjs'));
 	if (internals.manifestFileName) {
 		files.push(internals.manifestFileName);
 	}
@@ -421,10 +420,7 @@ async function cleanServerOutput(
 			files.map(async (filename) => {
 				const url = new URL(filename, out);
 				const map = new URL(url + '.map');
-				await Promise.all([
-					fs.promises.rm(url),
-					fs.promises.rm(new URL(map)).catch((e) => {})
-				]);
+				await Promise.all([fs.promises.rm(url), fs.promises.rm(new URL(map)).catch((e) => {})]);
 			}),
 		);
 
@@ -480,7 +476,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 		cwd: fileURLToPath(serverAssets),
 	});
 
-	console.log("FILES2", files);
+	console.log('FILES2', files);
 
 	if (files.length > 0) {
 		await Promise.all(
