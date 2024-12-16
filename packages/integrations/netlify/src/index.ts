@@ -289,9 +289,9 @@ export default function netlifyIntegration(
 			export default async (request, context) => {
 				const ctx = createContext({
 					request,
-					params: {}
+					params: {},
+					locals: { netlify: { context } }
 				});
-				ctx.locals.netlify = { context } 
 				// https://docs.netlify.com/edge-functions/api/#return-a-rewrite
 				ctx.rewrite = (target) => {
 					if(target instanceof Request) {

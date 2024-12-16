@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "@astrojs/netlify": "workspace:*",
-    "astro": "^5.0.0"
+    "astro": "^5.0.5"
   }
 }

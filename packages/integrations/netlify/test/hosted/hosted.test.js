@@ -12,10 +12,17 @@ describe('Hosted Netlify Tests', () => {
 		assert.equal(image.status, 200);
 	});
 
-	it('Server returns fresh content', async () => {
-		const responseOne = await fetch(`${NETLIFY_TEST_URL}/time`);
+	it('passes context from edge middleware', async () => {
+		const response = await fetch(`${NETLIFY_TEST_URL}/country`);
+		const body = await response.text();
+		assert.match(body, /has context/);
+		assert.match(body, /Deno/);
+	});
 
-		const responseTwo = await fetch(`${NETLIFY_TEST_URL}/time`);
+	it('Server returns fresh content', async () => {
+		const responseOne = await fetch(`${NETLIFY_TEST_URL}/time`).then((res) => res.text());
+
+		const responseTwo = await fetch(`${NETLIFY_TEST_URL}/time`).then((res) => res.text());
 
 		assert.notEqual(responseOne.body, responseTwo.body);
 	});
