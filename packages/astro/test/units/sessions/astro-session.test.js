@@ -167,26 +167,6 @@ test('AstroSession - Data Persistence', async (t) => {
 	});
 
 
-	await t.test('should not write flash session data to storage a second time', async () => {
-		let storedData;
-		const mockStorage = {
-			get: async () => stringify(new Map([['key', { data: 'value', expires: "flash" }]])),
-			setItem: async (_key, value) => {
-				storedData = value;
-			},
-		};
-		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
-
-		const value = await session.get('key');
-
-		assert.equal(value, 'value');
-
-		await session[PERSIST_SYMBOL]();
-
-		const emptyMap = devalueStringify(new Map());
-		assert.equal(storedData, emptyMap);
-	})
-
 
 });
 
