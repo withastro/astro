@@ -1,5 +1,13 @@
 # @astrojs/netlify
 
+## 6.0.1
+
+### Patch Changes
+
+- [#481](https://github.com/withastro/adapters/pull/481) [`9d98b8a`](https://github.com/withastro/adapters/commit/9d98b8a19efdd5c7483cce70b732208093bf82b2) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an error where edge middleware would incorrectly assign locals
+
+- [#488](https://github.com/withastro/adapters/pull/488) [`f3739be`](https://github.com/withastro/adapters/commit/f3739bef812aa9659ff9bdd10ba9046ac716a3d5) Thanks [@ascorbic](https://github.com/ascorbic)! - Correctly pass Netlify context in edge middleware
+
 ## 6.0.0
 
 ### Major Changes
