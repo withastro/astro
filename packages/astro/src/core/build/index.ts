@@ -205,8 +205,7 @@ class AstroBuilder {
 			key: keyPromise,
 		};
 
-		const { internals, ssrOutputChunkNames, contentFileNames } =
-			await viteBuild(opts);
+		const { internals, ssrOutputChunkNames, contentFileNames } = await viteBuild(opts);
 
 		const hasServerIslands = this.settings.serverIslandNameMap.size > 0;
 		// Error if there are server islands but no adapter provided.
