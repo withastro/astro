@@ -205,8 +205,7 @@ class AstroBuilder {
 			key: keyPromise,
 		};
 
-		const { internals, ssrOutputChunkNames, ssrOutputAssetNames, contentFileNames } =
-			await viteBuild(opts);
+		const { internals, ssrOutputChunkNames } = await viteBuild(opts);
 
 		const hasServerIslands = this.settings.serverIslandNameMap.size > 0;
 		// Error if there are server islands but no adapter provided.
@@ -214,7 +213,7 @@ class AstroBuilder {
 			throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 		}
 
-		await staticBuild(opts, internals, ssrOutputChunkNames, ssrOutputAssetNames, contentFileNames);
+		await staticBuild(opts, internals, ssrOutputChunkNames);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();

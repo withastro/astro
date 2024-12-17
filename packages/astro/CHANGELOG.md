@@ -1,5 +1,43 @@
 # astro
 
+## 5.0.9
+
+### Patch Changes
+
+- [#12756](https://github.com/withastro/astro/pull/12756) [`95795f8`](https://github.com/withastro/astro/commit/95795f85dbd85ff29ee2ff4860d018fd4e9bcf8f) Thanks [@matthewp](https://github.com/matthewp)! - Remove debug logging from build
+
+## 5.0.8
+
+### Patch Changes
+
+- [#12749](https://github.com/withastro/astro/pull/12749) [`039d022`](https://github.com/withastro/astro/commit/039d022b1bbaacf9ea83071d27affc5318e0e515) Thanks [@matthewp](https://github.com/matthewp)! - Clean server sourcemaps from static output
+
+## 5.0.7
+
+### Patch Changes
+
+- [#12746](https://github.com/withastro/astro/pull/12746) [`c879f50`](https://github.com/withastro/astro/commit/c879f501ff01b1a3c577de776a1f7100d78f8dd5) Thanks [@matthewp](https://github.com/matthewp)! - Remove all assets created from the server build
+
+## 5.0.6
+
+### Patch Changes
+
+- [#12597](https://github.com/withastro/astro/pull/12597) [`564ac6c`](https://github.com/withastro/astro/commit/564ac6c2f2d77ee34f8519f1e5a4db2c6e194f65) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes an issue where image and server islands routes would not be passed to the `astro:routes:resolved` hook during builds
+
+- [#12718](https://github.com/withastro/astro/pull/12718) [`ccc5ad1`](https://github.com/withastro/astro/commit/ccc5ad1676db5e7f5049ca2feb59802d1fe3a92e) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where Astro couldn't correctly handle i18n fallback when using the i18n middleware
+
+- [#12728](https://github.com/withastro/astro/pull/12728) [`ee66a45`](https://github.com/withastro/astro/commit/ee66a45b250703a40b34c0a45ae34aefcb14ea44) Thanks [@argyleink](https://github.com/argyleink)! - Adds type support for the `closedby` attribute for `<dialog>` elements
+
+- [#12709](https://github.com/withastro/astro/pull/12709) [`e3bfd93`](https://github.com/withastro/astro/commit/e3bfd9396969caf35b3b05135539e82aab560c92) Thanks [@mtwilliams-code](https://github.com/mtwilliams-code)! - Fixes a bug where Astro couldn't correctly parse `params` and `props` when receiving i18n fallback URLs
+
+- [#12657](https://github.com/withastro/astro/pull/12657) [`14dffcc`](https://github.com/withastro/astro/commit/14dffcc3af49dd975635602a0d1847a3125c0746) Thanks [@darkmaga](https://github.com/darkmaga)! - Trailing slash support for actions
+
+- [#12715](https://github.com/withastro/astro/pull/12715) [`029661d`](https://github.com/withastro/astro/commit/029661daa9b28fd5299d8cc9360025c78f6cd8eb) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused errors in dev when editing sites with large numbers of MDX pages
+
+- [#12729](https://github.com/withastro/astro/pull/12729) [`8b1cecd`](https://github.com/withastro/astro/commit/8b1cecd6b491654ae760a0c75f3270df134c4e25) Thanks [@JoeMorgan](https://github.com/JoeMorgan)! - "Added `inert` to htmlBooleanAttributes"
+
+- [#12726](https://github.com/withastro/astro/pull/12726) [`7c7398c`](https://github.com/withastro/astro/commit/7c7398c04653877da09c7b0f80ee84b02e02aad0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where failing content entries in `astro check` would not be surfaced
+
 ## 5.0.5
 
 ### Patch Changes
