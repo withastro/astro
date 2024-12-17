@@ -152,11 +152,22 @@ describe('[DEV] i18n routing', () => {
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
 			const response = await fixture.fetch('/it/start');
 			assert.equal(response.status, 404);
+			const html = await response.text();
+			assert.match(html, /Can't find the page you're looking for./);
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
 			const response = await fixture.fetch('/fr/start');
 			assert.equal(response.status, 404);
+			const html = await response.text();
+			assert.match(html, /Can't find the page you're looking for./);
+		});
+
+		it('should render the custom 404.astro when navigating non-existing routes ', async () => {
+			const response = await fixture.fetch('/does-not-exist');
+			assert.equal(response.status, 404);
+			const html = await response.text();
+			assert.match(html, /Can't find the page you're looking for./);
 		});
 	});
 
