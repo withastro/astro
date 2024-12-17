@@ -1,10 +1,12 @@
 import { promises as fs, existsSync } from 'node:fs';
+import { deterministicString } from 'deterministic-object-hash';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
+
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
 import {
 	ASSET_IMPORTS_FILE,
@@ -19,7 +21,6 @@ import {
 	getEntryConfigByExtMap,
 	getEntryDataAndImages,
 	globalContentConfigObserver,
-	safeStringify,
 } from './utils.js';
 
 export interface ContentLayerOptions {
@@ -89,7 +90,7 @@ export class ContentLayer {
 		const { h64ToString } = await xxhash();
 
 		this.#generateDigest = (data: unknown) => {
-			const dataString = typeof data === 'string' ? data : safeStringify(data);
+			const dataString = typeof data === 'string' ? data : JSON.stringify(data);
 			return h64ToString(dataString);
 		};
 
@@ -144,20 +145,24 @@ export class ContentLayer {
 		}
 
 		logger.info('Syncing content');
-		const { vite: _vite, integrations: _integrations, adapter: _adapter, ...hashableConfig } = this.#settings.config;
-		const generateDigest = await this.#getGenerateDigest()
-		
-		const astroConfigDigest = generateDigest(hashableConfig);
+		const {
+			vite: _vite,
+			integrations: _integrations,
+			adapter: _adapter,
+			...hashableConfig
+		} = this.#settings.config;
+
+		const astroConfigDigest = deterministicString(hashableConfig);
 
 		const { digest: currentConfigDigest } = contentConfig.config;
 		this.#lastConfigDigest = currentConfigDigest;
 
 		let shouldClear = false;
-		const previousConfigDigest = await this.#store.metaStore().get('config-digest');
+		const previousConfigDigest = await this.#store.metaStore().get('content-config-digest');
 		const previousAstroConfigDigest = await this.#store.metaStore().get('astro-config-digest');
 		const previousAstroVersion = await this.#store.metaStore().get('astro-version');
 
-		if (astroConfigDigest && previousAstroConfigDigest !== astroConfigDigest) {
+		if (previousAstroConfigDigest && previousAstroConfigDigest !== astroConfigDigest) {
 			logger.info('Astro config changed');
 			shouldClear = true;
 		}

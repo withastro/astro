@@ -304,14 +304,13 @@ describe('Content Layer', () => {
 			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 1);
 			await fixture.editFile('astro.config.mjs', (prev) => {
-				return prev.replace("Astro content layer", "Astro more content layer");
+				return prev.replace('Astro content layer', 'Astro more content layer');
 			});
 			await fixture.build();
 			newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 1);
 			await fixture.resetAllFiles();
 		});
-
 	});
 
 	describe('Dev', () => {
