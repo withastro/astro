@@ -126,7 +126,7 @@ if (!isWindows) {
 					let found = true;
 					try {
 						await fixture.readFile('content/manifest.json');
-					} catch(e) {
+					} catch {
 						found = false;
 					}
 					assert.equal(found, false, 'manifest not in dist folder');
