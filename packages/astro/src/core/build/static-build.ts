@@ -283,7 +283,7 @@ async function clientBuild(
 		base: settings.config.base,
 	};
 
-	await runHookBuildSetup({
+	const updatedViteBuildConfig = await runHookBuildSetup({
 		config: settings.config,
 		pages: internals.pagesByKeys,
 		vite: viteBuildConfig,
@@ -291,7 +291,7 @@ async function clientBuild(
 		logger: opts.logger,
 	});
 
-	const buildResult = await vite.build(viteBuildConfig);
+	const buildResult = await vite.build(updatedViteBuildConfig);
 	return buildResult;
 }
 
