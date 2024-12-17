@@ -832,3 +832,26 @@ export function contentModuleToId(fileName: string) {
 	params.set(CONTENT_MODULE_FLAG, 'true');
 	return `${DEFERRED_MODULE}?${params.toString()}`;
 }
+
+// Based on https://github.com/sindresorhus/safe-stringify
+function safeStringifyReplacer(seen: WeakSet<object>) {
+	return function (_key: string, value: unknown) {
+		if (!(value !== null && typeof value === 'object')) {
+			return value;
+		}
+		if (seen.has(value)) {
+			return '[Circular]';
+		}
+		seen.add(value);
+		const newValue = Array.isArray(value) ? [] : {};
+		for (const [key2, value2] of Object.entries(value)) {
+			(newValue as Record<string, unknown>)[key2] = safeStringifyReplacer(seen)(key2, value2);
+		}
+		seen.delete(value);
+		return newValue;
+	};
+}
+export function safeStringify(value: unknown) {
+	const seen = new WeakSet();
+	return JSON.stringify(value, safeStringifyReplacer(seen));
+}

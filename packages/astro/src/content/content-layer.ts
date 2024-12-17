@@ -19,6 +19,7 @@ import {
 	getEntryConfigByExtMap,
 	getEntryDataAndImages,
 	globalContentConfigObserver,
+	safeStringify,
 } from './utils.js';
 
 export interface ContentLayerOptions {
@@ -87,8 +88,8 @@ export class ContentLayer {
 		// It uses wasm, so we need to load it asynchronously.
 		const { h64ToString } = await xxhash();
 
-		this.#generateDigest = (data: Record<string, unknown> | string) => {
-			const dataString = typeof data === 'string' ? data : JSON.stringify(data);
+		this.#generateDigest = (data: unknown) => {
+			const dataString = typeof data === 'string' ? data : safeStringify(data);
 			return h64ToString(dataString);
 		};
 
@@ -143,12 +144,24 @@ export class ContentLayer {
 		}
 
 		logger.info('Syncing content');
+		const { vite: _vite, integrations: _integrations, adapter: _adapter, ...hashableConfig } = this.#settings.config;
+		const generateDigest = await this.#getGenerateDigest()
+		
+		const astroConfigDigest = generateDigest(hashableConfig);
+
 		const { digest: currentConfigDigest } = contentConfig.config;
 		this.#lastConfigDigest = currentConfigDigest;
 
 		let shouldClear = false;
 		const previousConfigDigest = await this.#store.metaStore().get('config-digest');
+		const previousAstroConfigDigest = await this.#store.metaStore().get('astro-config-digest');
 		const previousAstroVersion = await this.#store.metaStore().get('astro-version');
+
+		if (astroConfigDigest && previousAstroConfigDigest !== astroConfigDigest) {
+			logger.info('Astro config changed');
+			shouldClear = true;
+		}
+
 		if (currentConfigDigest && previousConfigDigest !== currentConfigDigest) {
 			logger.info('Content config changed');
 			shouldClear = true;
@@ -165,7 +178,10 @@ export class ContentLayer {
 			await this.#store.metaStore().set('astro-version', process.env.ASTRO_VERSION);
 		}
 		if (currentConfigDigest) {
-			await this.#store.metaStore().set('config-digest', currentConfigDigest);
+			await this.#store.metaStore().set('content-config-digest', currentConfigDigest);
+		}
+		if (astroConfigDigest) {
+			await this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
 		}
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
