@@ -1,12 +1,12 @@
 import type { ConfigEnv, ViteDevServer, Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../../types/astro.js';
+import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 
 export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';
 export const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
 const serverIslandPlaceholder = "'$$server-islands$$'";
 
-export function vitePluginServerIslands({ settings }: { settings: AstroSettings }): VitePlugin {
+export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
 	let viteServer: ViteDevServer | null = null;
 	const referenceIdMap = new Map<string, string>();
@@ -37,6 +37,20 @@ export function vitePluginServerIslands({ settings }: { settings: AstroSettings 
 					if (astro?.serverComponents.length) {
 						for (const comp of astro.serverComponents) {
 							if (!settings.serverIslandNameMap.has(comp.resolvedPath)) {
+								if (!settings.adapter) {
+									logger.error(
+										'islands',
+										"You tried to use a server island without an adapter. This an error and your project won't build.",
+									);
+								}
+
+								if (settings.buildOutput !== 'server') {
+									logger.error(
+										'islands',
+										'You tried to use a server island, but your output isn\'t `"server"`. Use an adapter that support server output.',
+									);
+								}
+
 								let name = comp.localName;
 								let idx = 1;
 
