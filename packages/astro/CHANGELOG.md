@@ -1,5 +1,11 @@
 # astro
 
+## 5.0.9
+
+### Patch Changes
+
+- [#12756](https://github.com/withastro/astro/pull/12756) [`95795f8`](https://github.com/withastro/astro/commit/95795f85dbd85ff29ee2ff4860d018fd4e9bcf8f) Thanks [@matthewp](https://github.com/matthewp)! - Remove debug logging from build
+
 ## 5.0.8
 
 ### Patch Changes
