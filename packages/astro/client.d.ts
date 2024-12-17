@@ -535,3 +535,13 @@ declare module '*?inline' {
 	const src: string;
 	export default src;
 }
+
+declare module '*?url&inline' {
+	const src: string;
+	export default src;
+}
+
+declare module '*?url&no-inline' {
+	const src: string;
+	export default src;
+}
