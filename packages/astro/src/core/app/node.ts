@@ -48,7 +48,15 @@ export class NodeApp extends App {
 
 	/**
 	 * Converts a NodeJS IncomingMessage into a web standard Request.
-	 * ```js
+	 * 
+	 * @param req - The NodeJS IncomingMessage to convert.
+	 * @param {Object} [options={}] - Configuration options for creating the Request.
+	 * @param {boolean} [options.skipBody=false] - If true, the request body will not be included in the Request object.
+	 * @param {boolean} [options.trustDownstreamProxy=true] - Determines whether to consider X-Forwarded headers from upstream proxies. 
+	 *        If true, these headers will be processed; if false, they will be ignored.
+	 * @returns {Request} The web standard Request created from the NodeJS IncomingMessage.
+	 *
+	 * @example
 	 * import { NodeApp } from 'astro/app/node';
 	 * import { createServer } from 'node:http';
 	 *
@@ -57,31 +65,30 @@ export class NodeApp extends App {
 	 *     const response = await app.render(request);
 	 *     await NodeApp.writeResponse(response, res);
 	 * })
-	 * ```
 	 */
-	static createRequest(req: NodeRequest, { skipBody = false } = {}): Request {
+	static createRequest(req: NodeRequest, { skipBody = false, trustDownstreamProxy = true } = {}): Request {
 		const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
 
-		// Parses multiple header and returns first value if available.
-		const getFirstForwardedValue = (multiValueHeader?: string | string[]) => {
-			return multiValueHeader
-				?.toString()
-				?.split(',')
-				.map((e) => e.trim())?.[0];
-		};
+		/**
+		 * Some proxies append values with spaces and some do not.
+		 * We need to handle it here and parse the header correctly.
+		 * 
+		 * @see getFirstForwardedValue
+		 */
 
-		// Get the used protocol between the end client and first proxy.
-		// NOTE: Some proxies append values with spaces and some do not.
-		// We need to handle it here and parse the header correctly.
-		// @example "https, http,http" => "http"
+		/** @example "https, http,http" => "http" */
 		const forwardedProtocol = getFirstForwardedValue(req.headers['x-forwarded-proto']);
-		const protocol = forwardedProtocol ?? (isEncrypted ? 'https' : 'http');
+		const protocol = trustDownstreamProxy && forwardedProtocol
+			? forwardedProtocol
+			: (isEncrypted ? 'https' : 'http');
 
-		// @example "example.com,www2.example.com" => "example.com"
+		/** @example "example.com,www2.example.com" => "example.com" */
 		const forwardedHostname = getFirstForwardedValue(req.headers['x-forwarded-host']);
-		const hostname = forwardedHostname ?? req.headers.host ?? req.headers[':authority'];
+		const hostname = trustDownstreamProxy && forwardedHostname
+			? forwardedHostname
+			: req.headers.host ?? req.headers[':authority'];
 
-		// @example "443,8080,80" => "443"
+		/** @example "443,8080,80" => "443" */
 		const port = getFirstForwardedValue(req.headers['x-forwarded-port']);
 
 		const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
@@ -99,10 +106,11 @@ export class NodeApp extends App {
 
 		const request = new Request(url, options);
 
-		// Get the IP of end client behind the proxy.
-		// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
+		/** @example "1.1.1.1,8.8.8.8" => "1.1.1.1" */
 		const forwardedClientIp = getFirstForwardedValue(req.headers['x-forwarded-for']);
-		const clientIp = forwardedClientIp || req.socket?.remoteAddress;
+		const clientIp = trustDownstreamProxy && forwardedClientIp
+			? forwardedClientIp
+			: req.socket?.remoteAddress;
 		if (clientIp) {
 			Reflect.set(request, clientAddressSymbol, clientIp);
 		}
@@ -112,7 +120,11 @@ export class NodeApp extends App {
 
 	/**
 	 * Streams a web-standard Response into a NodeJS Server Response.
-	 * ```js
+	 *
+	 * @param source WhatWG Response
+	 * @param destination NodeJS ServerResponse
+	 * 
+	 * @example
 	 * import { NodeApp } from 'astro/app/node';
 	 * import { createServer } from 'node:http';
 	 *
@@ -121,9 +133,6 @@ export class NodeApp extends App {
 	 *     const response = await app.render(request);
 	 *     await NodeApp.writeResponse(response, res);
 	 * })
-	 * ```
-	 * @param source WhatWG Response
-	 * @param destination NodeJS ServerResponse
 	 */
 	static async writeResponse(source: Response, destination: ServerResponse) {
 		const { status, headers, body, statusText } = source;
@@ -159,6 +168,37 @@ export class NodeApp extends App {
 			});
 		}
 	}
+}
+
+/**
+ * Retrieves the first value from a header that may contain multiple comma-separated values.
+ * 
+ * This function is intended to handle HTTP headers that might include multiple values, such as the `X-Forwarded-For` header. 
+ * If the header contains multiple values separated by commas, it returns the first value. It also trims any extra whitespace from the result.
+ * 
+ * @param {string | string[]} [multiValueHeader] - The header that contains one or more values. It can be a string with comma-separated values or an array of strings.
+ * @returns {string | undefined} The first value from the header, trimmed of any surrounding whitespace, or `undefined` if no value is provided.
+ * 
+ * @example
+ * // Example with a string
+ * const header = '192.168.1.1, 192.168.1.2';
+ * const firstValue = getFirstForwardedValue(header); // '192.168.1.1'
+ * 
+ * @example
+ * // Example with an array
+ * const headerArray = ['192.168.1.1', '192.168.1.2'];
+ * const firstValue = getFirstForwardedValue(headerArray); // '192.168.1.1'
+ * 
+ * @remarks
+ * Some proxies append values without spaces, while others add spaces between values. 
+ * This function ensures consistent parsing by handling both cases and returning the first value correctly formatted.
+ */
+function getFirstForwardedValue(multiValueHeader?: string | string[]) {
+	return multiValueHeader
+		?.toString()
+		?.split(',')
+		?.at(0)
+		?.trim();
 }
 
 function makeRequestHeaders(req: NodeRequest): Headers {
