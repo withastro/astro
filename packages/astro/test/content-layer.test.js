@@ -288,11 +288,23 @@ describe('Content Layer', () => {
 			assert.equal(newJson.entryWithReference.data.something?.content, 'transform me');
 		});
 
-		it('clears the store on new build if the config has changed', async () => {
+		it('clears the store on new build if the content config has changed', async () => {
 			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 1);
 			await fixture.editFile('src/content.config.ts', (prev) => {
 				return `${prev}\nexport const foo = 'bar';`;
+			});
+			await fixture.build();
+			newJson = devalue.parse(await fixture.readFile('/collections.json'));
+			assert.equal(newJson.increment.data.lastValue, 1);
+			await fixture.resetAllFiles();
+		});
+
+		it('clears the store on new build if the Astro config has changed', async () => {
+			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
+			assert.equal(newJson.increment.data.lastValue, 1);
+			await fixture.editFile('astro.config.mjs', (prev) => {
+				return prev.replace('Astro content layer', 'Astro more content layer');
 			});
 			await fixture.build();
 			newJson = devalue.parse(await fixture.readFile('/collections.json'));
