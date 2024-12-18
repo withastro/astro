@@ -15,6 +15,7 @@ import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import { EnvSchema } from '../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { BUILTIN_PROVIDERS } from '../../assets/fonts/constants.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
@@ -596,14 +597,14 @@ export const AstroConfigSchema = z.object({
 						.array(
 							z
 								.object({
-									name: z
-										.string()
-										.refine((v) => v !== 'google', {
-											message: '"google" is a reserved provider name',
-										})
-										.refine((v) => v !== 'local', {
-											message: '"local" is a reserved provider name',
-										}),
+									name: z.string().superRefine((name, ctx) => {
+										if (BUILTIN_PROVIDERS.includes(name as any)) {
+											ctx.addIssue({
+												code: z.ZodIssueCode.custom,
+												message: `"${name}" is a reserved provider name`,
+											});
+										}
+									}),
 									entrypoint: z.string(),
 									config: z.record(z.string(), z.any()).optional(),
 								})
@@ -625,15 +626,15 @@ export const AstroConfigSchema = z.object({
 						return;
 					}
 					const providersNames = [
-						...['google', 'local'],
+						...BUILTIN_PROVIDERS,
 						...(fonts.providers ?? []).map((provider) => provider.name),
 					];
 					for (const family of fonts.families) {
 						if (!providersNames.includes(family.provider)) {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
-								message: `Invalid provider "${family.provider}"`
-							})
+								message: `Invalid provider "${family.provider}"`,
+							});
 						}
 					}
 				}),

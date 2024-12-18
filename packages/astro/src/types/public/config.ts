@@ -17,6 +17,7 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { BuiltInProvider, FontFamily, FontProvider } from '../../assets/fonts/types.js';
 export type Locales = (string | { codes: string[]; path: string })[];
 
 type NormalizeLocales<T extends Locales> = {
@@ -144,17 +145,6 @@ export type ResolvedSessionConfig<TDriver extends SessionDriverName> = SessionCo
 	driverModule?: () => Promise<{ default: () => Driver }>;
 };
 
-// TODO:
-interface FontProvider {
-	name: string;
-	entrypoing: string;
-	config?: Record<string, any>;
-}
-// TODO:
-interface FontFamily {
-	provider: string;
-}
-
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
 }
@@ -175,6 +165,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */ export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
+	TFontProviders extends Array<FontProvider<any, any>> = never,
 > {
 	/**
 	 * @docs
@@ -2092,7 +2083,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * TODO:
 			 * TODO: generics
 			 */
-			providers?: FontProvider[];
+			providers?: [TFontProviders] extends [never]
+				? TFontProviders
+				: FontProvider<string, Record<string, any>>[];
 
 			/**
 			 *
@@ -2104,7 +2097,11 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * TODO:
 			 * TODO: generics
 			 */
-			families: FontFamily[];
+			families: FontFamily<
+				[TFontProviders] extends [never]
+					? BuiltInProvider | (string & {})
+					: BuiltInProvider | NoInfer<TFontProviders>[number]['name']
+			>[];
 		};
 	};
 }
