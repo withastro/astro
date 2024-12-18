@@ -7,3 +7,10 @@ export function adobe(config: { apiKey: string }) {
 		config,
 	});
 }
+
+export function test() {
+	return defineFontProvider({
+		name: 'test',
+		entrypoint: 'astro/assets/fonts/providers/test',
+	});
+}

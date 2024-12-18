@@ -165,7 +165,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */ export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
-	TFontProviders extends Array<FontProvider<any, any>> = never,
+	TFontProvidersName extends string = never,
 > {
 	/**
 	 * @docs
@@ -2083,9 +2083,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * TODO:
 			 * TODO: generics
 			 */
-			providers?: [TFontProviders] extends [never]
-				? TFontProviders
-				: FontProvider<string, Record<string, any>>[];
+			providers?: TFontProvidersName extends never
+				? FontProvider<string>[]
+				: FontProvider<TFontProvidersName>[];
 
 			/**
 			 *
@@ -2097,11 +2097,12 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * TODO:
 			 * TODO: generics
 			 */
-			families: FontFamily<
-				[TFontProviders] extends [never]
-					? BuiltInProvider | (string & {})
-					: BuiltInProvider | NoInfer<TFontProviders>[number]['name']
-			>[];
+			// proper autocomplete
+			// families: TFontProvidersName extends never
+			// works when no providers specified
+			families: TFontProvidersName extends never
+				? FontFamily<BuiltInProvider | (string & {})>[]
+				: FontFamily<BuiltInProvider | NoInfer<TFontProvidersName>>[];
 		};
 	};
 }

@@ -1,9 +1,9 @@
 import type { BUILTIN_PROVIDERS } from './constants.js';
 
-export interface FontProvider<TName extends string, TConfig extends Record<string, any>> {
+export interface FontProvider<TName extends string> {
 	name: TName;
 	entrypoint: string;
-	config?: TConfig;
+	config?: Record<string, any>;
 }
 
 export type FontFamily<TProvider extends string> = {
