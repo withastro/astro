@@ -15,10 +15,10 @@ import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
-import { type RemoteCacheEntry, loadRemoteImage } from './remote.js';
+import { type RemoteCacheEntry, loadRemoteImage, revalidateRemoteImage } from './remote.js';
 
 interface GenerationDataUncached {
-	cached: false;
+	cached: 'miss';
 	weight: {
 		before: number;
 		after: number;
@@ -26,7 +26,7 @@ interface GenerationDataUncached {
 }
 
 interface GenerationDataCached {
-	cached: true;
+	cached: 'revalidated' | 'hit';
 }
 
 type GenerationData = GenerationDataUncached | GenerationDataCached;
@@ -43,7 +43,12 @@ type AssetEnv = {
 	assetsFolder: AstroConfig['build']['assets'];
 };
 
-type ImageData = { data: Uint8Array; expires: number };
+type ImageData = {
+	data: Uint8Array;
+	expires: number;
+	etag?: string;
+	lastModified?: string;
+};
 
 export async function prepareAssetsGenerationEnv(
 	pipeline: BuildPipeline,
@@ -135,9 +140,12 @@ export async function generateImagesForPath(
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
-		const statsText = generationData.cached
-			? `(reused cache entry)`
-			: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
+		const statsText =
+			generationData.cached !== 'miss'
+				? generationData.cached === 'hit'
+					? `(reused cache entry)`
+					: `(revalidated cache entry)`
+				: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
 		const count = `(${env.count.current}/${env.count.total})`;
 		env.logger.info(
 			null,
@@ -156,7 +164,7 @@ export async function generateImagesForPath(
 		const finalFolderURL = new URL('./', finalFileURL);
 		await fs.promises.mkdir(finalFolderURL, { recursive: true });
 
-		// For remote images, instead of saving the image directly, we save a JSON file with the image data and expiration date from the server
+		// For remote images, instead of saving the image directly, we save a JSON file with the image data, expiration date, etag and last-modified date from the server
 		const cacheFile = basename(filepath) + (isLocalImage ? '' : '.json');
 		const cachedFileURL = new URL(cacheFile, env.assetsCacheDir);
 
@@ -166,7 +174,7 @@ export async function generateImagesForPath(
 				await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
 
 				return {
-					cached: true,
+					cached: 'hit',
 				};
 			} else {
 				const JSONData = JSON.parse(readFileSync(cachedFileURL, 'utf-8')) as RemoteCacheEntry;
@@ -184,11 +192,43 @@ export async function generateImagesForPath(
 					await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
 
 					return {
-						cached: true,
+						cached: 'hit',
 					};
-				} else {
-					await fs.promises.unlink(cachedFileURL);
 				}
+
+				// Try to revalidate the cache
+				if (JSONData.etag || JSONData.lastModified) {
+					try {
+						const revalidatedData = await revalidateRemoteImage(options.src as string, {
+							etag: JSONData.etag,
+							lastModified: JSONData.lastModified,
+						});
+
+						if (revalidatedData.data.length) {
+							// Image cache was stale, update original image to avoid redownload
+							originalImage = revalidatedData;
+						} else {
+							revalidatedData.data = Buffer.from(JSONData.data, 'base64');
+
+							// Freshen cache on disk
+							await writeRemoteCacheFile(cachedFileURL, revalidatedData, env);
+
+							await fs.promises.writeFile(finalFileURL, revalidatedData.data);
+							return { cached: 'revalidated' };
+						}
+					} catch (e) {
+						// Reuse stale cache if revalidation fails
+						env.logger.warn(
+							null,
+							`An error was encountered while revalidating a cached remote asset. Proceeding with stale cache. ${e}`,
+						);
+
+						await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
+						return { cached: 'hit' };
+					}
+				}
+
+				await fs.promises.unlink(cachedFileURL);
 			}
 		} catch (e: any) {
 			if (e.code !== 'ENOENT') {
@@ -209,6 +249,8 @@ export async function generateImagesForPath(
 		let resultData: Partial<ImageData> = {
 			data: undefined,
 			expires: originalImage.expires,
+			etag: originalImage.etag,
+			lastModified: originalImage.lastModified,
 		};
 
 		const imageService = (await getConfiguredImageService()) as LocalImageService;
@@ -239,13 +281,7 @@ export async function generateImagesForPath(
 				if (isLocalImage) {
 					await fs.promises.writeFile(cachedFileURL, resultData.data);
 				} else {
-					await fs.promises.writeFile(
-						cachedFileURL,
-						JSON.stringify({
-							data: Buffer.from(resultData.data).toString('base64'),
-							expires: resultData.expires,
-						}),
-					);
+					await writeRemoteCacheFile(cachedFileURL, resultData as ImageData, env);
 				}
 			}
 		} catch (e) {
@@ -259,13 +295,32 @@ export async function generateImagesForPath(
 		}
 
 		return {
-			cached: false,
+			cached: 'miss',
 			weight: {
 				// Divide by 1024 to get size in kilobytes
 				before: Math.trunc(originalImage.data.byteLength / 1024),
 				after: Math.trunc(Buffer.from(resultData.data).byteLength / 1024),
 			},
 		};
+	}
+}
+
+async function writeRemoteCacheFile(cachedFileURL: URL, resultData: ImageData, env: AssetEnv) {
+	try {
+		return await fs.promises.writeFile(
+			cachedFileURL,
+			JSON.stringify({
+				data: Buffer.from(resultData.data).toString('base64'),
+				expires: resultData.expires,
+				etag: resultData.etag,
+				lastModified: resultData.lastModified,
+			}),
+		);
+	} catch (e) {
+		env.logger.warn(
+			null,
+			`An error was encountered while writing the cache file for a remote asset. Proceeding without caching this asset. Error: ${e}`,
+		);
 	}
 }
 
@@ -279,11 +334,7 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 
 async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	if (isRemotePath(path)) {
-		const remoteImage = await loadRemoteImage(path);
-		return {
-			data: remoteImage.data,
-			expires: remoteImage.expires,
-		};
+		return await loadRemoteImage(path);
 	}
 
 	return {
