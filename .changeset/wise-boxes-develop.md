@@ -2,9 +2,11 @@
 'astro': minor
 ---
 
-Exports a new `getActionPath()` helper from `astro:actions`
+Adds a new `getActionPath()` helper available from `astro:actions`
 
-The `getActionPath()` utility accepts an action and returns a URL path so you can execute an action call as a `fetch()` operation directly. This allows you to provide details such as custom headers when you call your action.
+Astro 5.1 introduces a new helper function, `getActionPath()` to give you more flexibility when calling your action.
+
+Calling `getActionPath()` with your action returns its URL path so you can make a `fetch()` request with custom headers, or use your action with an API such as `navigator.sendBeacon()`.
 
 This example shows how to call a defined `like` action passing the `Authorization` header and the [`keepalive`](https://developer.mozilla.org/en-US/docs/Web/API/Request/keepalive) option:
 
