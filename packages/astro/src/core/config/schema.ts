@@ -590,6 +590,53 @@ export const AstroConfigSchema = z.object({
 					}
 					return svgConfig;
 				}),
+			fonts: z
+				.object({
+					providers: z
+						.array(
+							z
+								.object({
+									name: z
+										.string()
+										.refine((v) => v !== 'google', {
+											message: '"google" is a reserved provider name',
+										})
+										.refine((v) => v !== 'local', {
+											message: '"local" is a reserved provider name',
+										}),
+									entrypoint: z.string(),
+									config: z.record(z.string(), z.any()).optional(),
+								})
+								.strict(),
+						)
+						.optional(),
+					families: z.array(
+						z
+							.object({
+								provider: z.string(),
+							})
+							.strict(),
+					),
+				})
+				.strict()
+				.optional()
+				.superRefine((fonts, ctx) => {
+					if (!fonts) {
+						return;
+					}
+					const providersNames = [
+						...['google', 'local'],
+						...(fonts.providers ?? []).map((provider) => provider.name),
+					];
+					for (const family of fonts.families) {
+						if (!providersNames.includes(family.provider)) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message: `Invalid provider "${family.provider}"`
+							})
+						}
+					}
+				}),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

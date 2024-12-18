@@ -144,6 +144,17 @@ export type ResolvedSessionConfig<TDriver extends SessionDriverName> = SessionCo
 	driverModule?: () => Promise<{ default: () => Driver }>;
 };
 
+// TODO:
+interface FontProvider {
+	name: string;
+	entrypoing: string;
+	config?: Record<string, any>;
+}
+// TODO:
+interface FontFamily {
+	provider: string;
+}
+
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
 }
@@ -2059,6 +2070,42 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 */
 					mode: SvgRenderMode;
 			  };
+
+		/**
+		 *
+		 * @name experimental.fonts
+		 * @type {object}
+		 * @default `undefined`
+		 * @version 5.x
+		 * @description
+		 *
+		 * TODO:
+		 */
+		fonts?: {
+			/**
+			 *
+			 * @name experimental.fonts.providers
+			 * @type {FontProvider[]}
+			 * @version 5.x
+			 * @description
+			 *
+			 * TODO:
+			 * TODO: generics
+			 */
+			providers?: FontProvider[];
+
+			/**
+			 *
+			 * @name experimental.fonts.families
+			 * @type {FontFamily[]}
+			 * @version 5.x
+			 * @description
+			 *
+			 * TODO:
+			 * TODO: generics
+			 */
+			families: FontFamily[];
+		};
 	};
 }
 
