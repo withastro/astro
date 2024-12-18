@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
 	name: 'Astro content layer',
-  integrations: [mdx(), {
+	integrations: [mdx(), {
 		name: '@astrojs/my-integration',
 		hooks: {
 				'astro:server:setup': async ({ server, refreshContent }) => {
