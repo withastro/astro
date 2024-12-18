@@ -172,6 +172,14 @@ describe('Astro basic build', () => {
 		assert.doesNotMatch(otherHtml, /<style/);
 	});
 
+	it('server sourcemaps not included in output', async () => {
+		const files = await fixture.readdir('/');
+		const hasSourcemaps = files.some((fileName) => {
+			return fileName.endsWith('.map');
+		});
+		assert.equal(hasSourcemaps, false, 'no sourcemap files in output');
+	});
+
 	describe('preview', () => {
 		it('returns 200 for valid URLs', async () => {
 			const result = await fixture.fetch('/');

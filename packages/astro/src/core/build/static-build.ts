@@ -111,10 +111,6 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
 	const clientOutputs = viteBuildReturnToRollupOutputs(clientOutput ?? []);
 	await runPostBuildHooks(container, ssrOutputs, clientOutputs);
-	let contentFileNames: string[] | undefined = undefined;
-	if (opts.settings.config.experimental.contentCollectionCache) {
-		contentFileNames = await copyContentToCache(opts);
-	}
 	settings.timer.end('Client build');
 
 	// Free up memory
@@ -134,26 +130,24 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		}
 	}
 
-	return { internals, ssrOutputChunkNames, contentFileNames };
+	return { internals, ssrOutputChunkNames };
 }
 
 export async function staticBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	ssrOutputChunkNames: string[],
-	contentFileNames?: string[],
 ) {
 	const { settings } = opts;
 	if (settings.config.output === 'static') {
 		settings.timer.start('Static generate');
 		await generatePages(opts, internals);
-		await cleanServerOutput(opts, ssrOutputChunkNames, contentFileNames, internals);
+		await cleanServerOutput(opts, ssrOutputChunkNames, internals);
 		settings.timer.end('Static generate');
 	} else if (isServerLikeOutput(settings.config)) {
 		settings.timer.start('Server generate');
 		await generatePages(opts, internals);
 		await cleanStaticOutput(opts, internals);
-		opts.logger.info(null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 		await ssrMoveAssets(opts);
 		settings.timer.end('Server generate');
 	}
@@ -412,14 +406,11 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 async function cleanServerOutput(
 	opts: StaticBuildOptions,
 	ssrOutputChunkNames: string[],
-	contentFileNames: string[] | undefined,
 	internals: BuildInternals,
 ) {
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output chunks for Astro are all .mjs files
-	const files = ssrOutputChunkNames
-		.filter((f) => f.endsWith('.mjs'))
-		.concat(contentFileNames ?? []);
+	const files = ssrOutputChunkNames.filter((f) => f.endsWith('.mjs'));
 	if (internals.manifestFileName) {
 		files.push(internals.manifestFileName);
 	}
@@ -428,7 +419,8 @@ async function cleanServerOutput(
 		await Promise.all(
 			files.map(async (filename) => {
 				const url = new URL(filename, out);
-				await fs.promises.rm(url);
+				const map = new URL(url + '.map');
+				await Promise.all([fs.promises.rm(url), fs.promises.rm(new URL(map)).catch(() => {})]);
 			}),
 		);
 
