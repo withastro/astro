@@ -536,6 +536,32 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
+			session: z
+				.object({
+					driver: z.string(),
+					options: z.record(z.any()).optional(),
+					cookie: z
+						.union([
+							z.object({
+								name: z.string().optional(),
+								domain: z.string().optional(),
+								path: z.string().optional(),
+								maxAge: z.number().optional(),
+								sameSite: z.union([z.enum(['strict', 'lax', 'none']), z.boolean()]).optional(),
+								secure: z.boolean().optional(),
+							}),
+							z.string(),
+						])
+						.transform((val) => {
+							if (typeof val === 'string') {
+								return { name: val };
+							}
+							return val;
+						})
+						.optional(),
+					ttl: z.number().optional(),
+				})
+				.optional(),
 			svg: z
 				.union([
 					z.boolean(),

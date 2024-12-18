@@ -1,7 +1,7 @@
 import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
-import type { Locales } from '../../types/public/config.js';
+import type { Locales, ResolvedSessionConfig, SessionConfig } from '../../types/public/config.js';
 import type {
 	RouteData,
 	SSRComponentMetadata,
@@ -69,6 +69,7 @@ export type SSRManifest = {
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	checkOrigin: boolean;
+	sessionConfig?: ResolvedSessionConfig<any>
 };
 
 export type SSRManifestI18n = {

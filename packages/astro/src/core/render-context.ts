@@ -32,6 +32,7 @@ import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 import { isRoute404or500 } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { SERVER_ISLAND_COMPONENT } from './server-islands/endpoint.js';
+import { AstroSession } from './session.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -54,6 +55,9 @@ export class RenderContext {
 		protected url = new URL(request.url),
 		public props: Props = {},
 		public partial: undefined | boolean = undefined,
+		public session: AstroSession | undefined = pipeline.manifest.sessionConfig
+			? new AstroSession(cookies, pipeline.manifest.sessionConfig)
+			: undefined,
 	) {}
 
 	/**
@@ -300,7 +304,7 @@ export class RenderContext {
 
 	createActionAPIContext(): ActionAPIContext {
 		const renderContext = this;
-		const { cookies, params, pipeline, url } = this;
+		const { cookies, params, pipeline, url, session } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
@@ -338,6 +342,7 @@ export class RenderContext {
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
 			},
+			session,
 		};
 	}
 
@@ -470,7 +475,7 @@ export class RenderContext {
 		astroStaticPartial: AstroGlobalPartial,
 	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const renderContext = this;
-		const { cookies, locals, params, pipeline, url } = this;
+		const { cookies, locals, params, pipeline, url, session } = this;
 		const { response } = result;
 		const redirect = (path: string, status = 302) => {
 			// If the response is already sent, error as we cannot proceed with the redirect.
@@ -492,6 +497,7 @@ export class RenderContext {
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			cookies,
+			session,
 			get clientAddress() {
 				return renderContext.getClientAddress();
 			},
