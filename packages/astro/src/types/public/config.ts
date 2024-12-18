@@ -1958,7 +1958,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		responsiveImages?: boolean;
 
 		/**
-		 * 
+		 *
 		 * @name experimental.session
 		 * @type {SessionConfig}
 		 * @version 5.0.0

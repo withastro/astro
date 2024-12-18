@@ -165,12 +165,7 @@ test('AstroSession - Data Persistence', async (t) => {
 
 		assert.equal(value, undefined);
 	});
-
-
-
 });
-
-
 
 test('AstroSession - Error Handling', async (t) => {
 	await t.test('should throw error when setting invalid data', async () => {
