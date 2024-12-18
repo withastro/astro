@@ -1,5 +1,13 @@
 # astro
 
+## 4.16.18
+
+### Patch Changes
+
+- [#12757](https://github.com/withastro/astro/pull/12757) [`d0aaac3`](https://github.com/withastro/astro/commit/d0aaac3e1443a84e673568ea2f649d70d74582b6) Thanks [@matthewp](https://github.com/matthewp)! - Remove all assets created from the server build
+
+- [#12757](https://github.com/withastro/astro/pull/12757) [`d0aaac3`](https://github.com/withastro/astro/commit/d0aaac3e1443a84e673568ea2f649d70d74582b6) Thanks [@matthewp](https://github.com/matthewp)! - Clean server sourcemaps from static output
+
 ## 4.16.17
 
 ### Patch Changes
