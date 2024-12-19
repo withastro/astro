@@ -1,5 +1,98 @@
 # astro
 
+## 5.1.0
+
+### Minor Changes
+
+- [#12441](https://github.com/withastro/astro/pull/12441) [`b4fec3c`](https://github.com/withastro/astro/commit/b4fec3c7d17ed92dcaaeea5e2545aae6dfd19e53) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds experimental session support
+
+  Sessions are used to store user state between requests for server-rendered pages, such as login status, shopping cart contents, or other user-specific data.
+
+  ```astro
+  ---
+  export const prerender = false; // Not needed in 'server' mode
+  const cart = await Astro.session.get('cart');
+  ---
+
+  <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
+  ```
+
+  Sessions are available in on-demand rendered/SSR pages, API endpoints, actions and middleware. To enable session support, you must configure a storage driver.
+
+  If you are using the Node.js adapter, you can use the `fs` driver to store session data on the filesystem:
+
+  ```js
+  // astro.config.mjs
+  {
+    adapter: node({ mode: 'standalone' }),
+    experimental: {
+      session: {
+        // Required: the name of the unstorage driver
+        driver: "fs",
+      },
+    },
+  }
+  ```
+
+  If you are deploying to a serverless environment, you can use drivers such as `redis`, `netlify-blobs`, `vercel-kv`, or `cloudflare-kv-binding` and optionally pass additional configuration options.
+
+  For more information, including using the session API with other adapters and a full list of supported drivers, see [the docs for experimental session support](https://docs.astro.build/en/reference/experimental-flags/sessions/). For even more details, and to leave feedback and participate in the development of this feature, [the Sessions RFC](https://github.com/withastro/roadmap/pull/1055).
+
+- [#12426](https://github.com/withastro/astro/pull/12426) [`3dc02c5`](https://github.com/withastro/astro/commit/3dc02c57e4060cb2bde7c4e05d91841dd5dd8eb7) Thanks [@oliverlynch](https://github.com/oliverlynch)! - Improves asset caching of remote images
+
+  Astro will now store [entity tags](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag) and the [Last-Modified](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified) date for cached remote images and use them to revalidate the cache when it goes stale.
+
+- [#12721](https://github.com/withastro/astro/pull/12721) [`c9d5110`](https://github.com/withastro/astro/commit/c9d51107d0a4b58a9ced486b28d09118f3885254) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new `getActionPath()` helper available from `astro:actions`
+
+  Astro 5.1 introduces a new helper function, `getActionPath()` to give you more flexibility when calling your action.
+
+  Calling `getActionPath()` with your action returns its URL path so you can make a `fetch()` request with custom headers, or use your action with an API such as `navigator.sendBeacon()`. Then, you can [handle the custom-formatted returned data](https://docs.astro.build/en/guides/actions/#handling-returned-data) as needed, just as if you had called an action directly.
+
+  This example shows how to call a defined `like` action passing the `Authorization` header and the [`keepalive`](https://developer.mozilla.org/en-US/docs/Web/API/Request/keepalive) option:
+
+  ```astro
+  <script>
+    // src/components/my-component.astro
+    import { actions, getActionPath } from 'astro:actions';
+
+    await fetch(getActionPath(actions.like), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer YOUR_TOKEN',
+      },
+      body: JSON.stringify({ id: 'YOUR_ID' }),
+      keepalive: true,
+    });
+  </script>
+  ```
+
+  This example shows how to call the same `like` action using the [`sendBeacon`](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon) API:
+
+  ```astro
+  <script>
+    // src/components/my-component.astro
+    import { actions, getActionPath } from 'astro:actions';
+
+    navigator.sendBeacon(
+      getActionPath(actions.like),
+      new Blob([JSON.stringify({ id: 'YOUR_ID' })], {
+        type: 'application/json',
+      }),
+    );
+  </script>
+  ```
+
+### Patch Changes
+
+- [#12786](https://github.com/withastro/astro/pull/12786) [`e56af4a`](https://github.com/withastro/astro/commit/e56af4a3d7039673658e4a014158969ea5076e32) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where Astro i18n didn't properly show the 404 page when using fallback and the option `prefixDefaultLocale` set to `true`.
+
+- [#12758](https://github.com/withastro/astro/pull/12758) [`483da89`](https://github.com/withastro/astro/commit/483da89cf68d68ec792ff8721d469ed10dc14e4a) Thanks [@delucis](https://github.com/delucis)! - Adds types for `?url&inline` and `?url&no-inline` [import queries](https://vite.dev/guide/assets.html#explicit-inline-handling) added in Vite 6
+
+- [#12763](https://github.com/withastro/astro/pull/12763) [`8da2318`](https://github.com/withastro/astro/commit/8da231855162af245f2b3664babb68dff0ba390f) Thanks [@rbsummers](https://github.com/rbsummers)! - Fixed changes to vite configuration made in the astro:build:setup integration hook having no effect when target is "client"
+
+- [#12767](https://github.com/withastro/astro/pull/12767) [`36c1e06`](https://github.com/withastro/astro/commit/36c1e0697da9fdc453a7a9a3c84e0e79cd0cb376) Thanks [@ascorbic](https://github.com/ascorbic)! - Clears the content layer cache when the Astro config is changed
+
 ## 5.0.9
 
 ### Patch Changes
