@@ -632,7 +632,7 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 					if (!store) {
 						ctx.addIssue({
 							code: ZodIssueCode.custom,
-							message: `**${ctx.path.join('.')}:** Reference to ${collection} could not be resolved. Store not available.`,
+							message: `**${ctx.path.join('.')}:** Reference to ${collection} could not be resolved: store not available.\nThis is an Astro bug, so please file an issue at https://github.com/withastro/astro/issues.`,
 						});
 						return;
 					}
