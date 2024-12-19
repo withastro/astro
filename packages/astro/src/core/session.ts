@@ -375,7 +375,11 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			return this.#storage!;
 		}
 		// Use fs-lite rather than fs, because fs can't be bundled. Add a default base path if not provided.
-		if (this.#config.driver === 'fs' || this.#config.driver === 'fsLite' || this.#config.driver === 'fs-lite') {
+		if (
+			this.#config.driver === 'fs' ||
+			this.#config.driver === 'fsLite' ||
+			this.#config.driver === 'fs-lite'
+		) {
 			this.#config.options ??= {};
 			this.#config.driver = 'fs-lite';
 			(this.#config.options as BuiltinDriverOptions['fs-lite']).base ??= '.astro/session';
