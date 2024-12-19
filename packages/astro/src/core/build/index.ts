@@ -12,7 +12,7 @@ import {
 	runHookConfigSetup,
 } from '../../integrations/hooks.js';
 import type { AstroSettings, ManifestData } from '../../types/astro.js';
-import type { AstroConfig, AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
+import type { AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
@@ -163,7 +163,7 @@ class AstroBuilder {
 		await runHookBuildStart({ config: this.settings.config, logging: this.logger });
 		this.validateConfig();
 
-		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
+		this.logger.info('build', `output: ${blue('"' + this.settings.buildOutput + '"')}`);
 		this.logger.info('build', `directory: ${blue(fileURLToPath(this.settings.config.outDir))}`);
 		if (this.settings.adapter) {
 			this.logger.info('build', `adapter: ${green(this.settings.adapter.name)}`);
@@ -283,7 +283,7 @@ class AstroBuilder {
 		logger: Logger;
 		timeStart: number;
 		pageCount: number;
-		buildMode: AstroConfig['output'];
+		buildMode: AstroSettings['buildOutput'];
 	}) {
 		const total = getTimeStat(timeStart, performance.now());
 
