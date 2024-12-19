@@ -33,7 +33,7 @@
     "xml2js": "0.6.2"
   },
   "dependencies": {
-    "fast-xml-parser": "^4.5.0",
+    "fast-xml-parser": "^4.5.1",
     "kleur": "^4.1.5"
   }
 }
