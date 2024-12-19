@@ -25,12 +25,12 @@ If you are using the Node.js adapter, you can use the `fs` driver to store sessi
   adapter: node({ mode: 'standalone' }),
   experimental: {
     session: {
-      // Required: the name of the Unstorage driver
+      // Required: the name of the unstorage driver
       driver: "fs",
     },
   },
 }
 ```
-If you are deploying to a serverless environment, you can use drivers such as `redis` or `netlifyBlobs` or `cloudflareKV` and optionally pass additional configuration options.
+If you are deploying to a serverless environment, you can use drivers such as `redis`, `netlify-blobs`, `vercel-kv`, or `cloudflare-kv-binding` and optionally pass additional configuration options.
 
 For more information, including using the session API with other adapters and a full list of supported drivers, see [the docs for experimental session support](https://docs.astro.build/en/reference/experimental-flags/sessions/). For even more details, and to leave feedback and participate in the development of this feature, [the Sessions RFC](https://github.com/withastro/roadmap/pull/1055).
