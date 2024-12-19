@@ -1,0 +1,17 @@
+---
+export function getStaticPaths() {
+	return [
+		{ params: { category: "food" } },
+	]
+}
+const { category } = Astro.params
+---
+<html>
+	<head>
+		<title>Testing</title>
+	</head>
+	<body>
+		<h1>Testing</h1>
+		<h2 class="category">{ category }</h2>
+	</body>
+</html>

@@ -1,0 +1,24 @@
+---
+//! astro-head-inject
+import type { Config } from '@markdoc/markdoc';
+import Markdoc from '@markdoc/markdoc';
+import { ComponentNode, createTreeNode } from './TreeNode.js';
+
+type Props = {
+	config: Config;
+	stringifiedAst: string;
+};
+
+const { stringifiedAst, config } = Astro.props as Props;
+
+const ast = Markdoc.Ast.fromJSON(stringifiedAst);
+const content = await Markdoc.transform(ast, config);
+---
+
+{
+	Array.isArray(content) ? (
+		content.map(async (c) => <ComponentNode treeNode={await createTreeNode(c)} />)
+	) : (
+		<ComponentNode treeNode={await createTreeNode(content)} />
+	)
+}
