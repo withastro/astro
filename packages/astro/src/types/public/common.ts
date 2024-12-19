@@ -72,7 +72,7 @@ export interface Page<T = any> {
 		next: string | undefined;
 		/** url of the first page (if the current page is not the first page) */
 		first: string | undefined;
-		/** url of the next page (if the current page in not the last page) */
+		/** url of the last page (if the current page is not the last page) */
 		last: string | undefined;
 	};
 }
