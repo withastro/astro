@@ -2655,6 +2655,15 @@ importers:
         specifier: ^10.25.0
         version: 10.25.1
 
+  packages/astro/test/fixtures/content-layer-remark-plugins:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/content-layer-rendering:
     dependencies:
       '@astrojs/mdx':
