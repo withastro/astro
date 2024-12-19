@@ -170,7 +170,7 @@ export async function createVite(
 			astroInternationalization({ settings }),
 			vitePluginActions({ fs, settings }),
 			vitePluginUserActions({ settings }),
-			vitePluginServerIslands({ settings }),
+			vitePluginServerIslands({ settings, logger }),
 			astroContainer(),
 			astroHmrReloadPlugin(),
 		],
