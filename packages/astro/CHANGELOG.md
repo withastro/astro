@@ -1,5 +1,11 @@
 # astro
 
+## 5.1.1
+
+### Patch Changes
+
+- [#12789](https://github.com/withastro/astro/pull/12789) [`f632b94`](https://github.com/withastro/astro/commit/f632b945275c2615fc0fdf2abc831c45d0ddebcd) Thanks [@ascorbic](https://github.com/ascorbic)! - Pass raw frontmatter to remark plugins in glob loader
+
 ## 5.1.0
 
 ### Minor Changes
