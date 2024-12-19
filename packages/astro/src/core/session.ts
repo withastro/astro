@@ -372,13 +372,13 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 
 		if (this.#config.driver === 'test') {
 			this.#storage = (this.#config as SessionConfig<'test'>).options.mockStorage;
-			return this.#storage;
+			return this.#storage!;
 		}
-		// Use fsLite rather than fs, because fs can't be bundled. Add a default base path if not provided.
-		if (this.#config.driver === 'fs' || this.#config.driver === 'fsLite') {
+		// Use fs-lite rather than fs, because fs can't be bundled. Add a default base path if not provided.
+		if (this.#config.driver === 'fs' || this.#config.driver === 'fsLite' || this.#config.driver === 'fs-lite') {
 			this.#config.options ??= {};
-			this.#config.driver = 'fsLite';
-			(this.#config.options as BuiltinDriverOptions['fsLite']).base ??= '.astro/session';
+			this.#config.driver = 'fs-lite';
+			(this.#config.options as BuiltinDriverOptions['fs-lite']).base ??= '.astro/session';
 		}
 
 		if (!this.#config?.driver) {
