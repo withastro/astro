@@ -1,6 +1,6 @@
+import * as cheerio from 'cheerio';
 import * as assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
@@ -2032,6 +2032,7 @@ describe('Fallback rewrite dev server', () => {
 	it('should correctly rewrite to en', async () => {
 		const html = await fixture.fetch('/fr').then((res) => res.text());
 		assert.match(html, /Hello/);
+		assert.match(html, /locale - fr/);
 		// assert.fail()
 	});
 
@@ -2085,6 +2086,7 @@ describe('Fallback rewrite SSG', () => {
 	it('should correctly rewrite to en', async () => {
 		const html = await fixture.readFile('/fr/index.html');
 		assert.match(html, /Hello/);
+		assert.match(html, /locale - fr/);
 		// assert.fail()
 	});
 
@@ -2138,6 +2140,7 @@ describe('Fallback rewrite SSR', () => {
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();
+		assert.match(html, /locale - fr/);
 		assert.match(html, /Hello/);
 	});
 
