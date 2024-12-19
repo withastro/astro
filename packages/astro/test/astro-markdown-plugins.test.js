@@ -121,8 +121,8 @@ describe('Astro Markdown plugins', () => {
 		testRehype(html, '#smartypants-test');
 	});
 
-	describe("content layer plugins", () => {
-		let fixture
+	describe('content layer plugins', () => {
+		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-layer-remark-plugins/',
@@ -135,9 +135,7 @@ describe('Astro Markdown plugins', () => {
 			const $ = cheerio.load(html);
 			assert.equal($('p').text(), 'Not transformed');
 		});
-
 	});
-
 });
 
 function testRehype(html, headingId) {
