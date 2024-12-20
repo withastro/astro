@@ -1,5 +1,11 @@
 # astro
 
+## 5.1.2
+
+### Patch Changes
+
+- [#12798](https://github.com/withastro/astro/pull/12798) [`7b0cb85`](https://github.com/withastro/astro/commit/7b0cb852f6336c0f9cc65bd044864004e759d810) Thanks [@ascorbic](https://github.com/ascorbic)! - Improves warning logs for invalid content collection configuration
+
 ## 5.1.1
 
 ### Patch Changes
