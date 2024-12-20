@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import { promises as fs, existsSync } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
+import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
+import { Logger } from '../dist/core/logger/core.js';
 
 import { loadFixture } from './test-utils.js';
 describe('Content Layer', () => {
@@ -316,8 +318,21 @@ describe('Content Layer', () => {
 	describe('Dev', () => {
 		let devServer;
 		let json;
+		const logs = [];
 		before(async () => {
-			devServer = await fixture.startDevServer({ force: true });
+			devServer = await fixture.startDevServer({
+				force: true,
+				logger: new Logger({
+					level: 'warn',
+					dest: new Writable({
+						objectMode: true,
+						write(event, _, callback) {
+							logs.push(event);
+							callback();
+						},
+					}),
+				}),
+			});
 			// Vite may not have noticed the saved data store yet. Wait a little just in case.
 			await fixture.onNextDataStoreChange(1000).catch(() => {
 				// Ignore timeout, because it may have saved before we get here.
@@ -329,6 +344,16 @@ describe('Content Layer', () => {
 
 		after(async () => {
 			devServer?.stop();
+		});
+
+		it("warns about missing directory in glob() loader's path", async () => {
+			assert.ok(logs.find((log) => log.level === 'warn' && log.message.includes('does not exist')));
+		});
+
+		it("warns about missing files in glob() loader's path", async () => {
+			assert.ok(
+				logs.find((log) => log.level === 'warn' && log.message.includes('No files found matching')),
+			);
 		});
 
 		it('Generates content types files', async () => {

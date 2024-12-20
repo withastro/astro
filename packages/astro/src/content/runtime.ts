@@ -111,7 +111,7 @@ export function createGetCollection({
 			console.warn(
 				`The collection ${JSON.stringify(
 					collection,
-				)} does not exist or is empty. Ensure a collection directory with this name exists.`,
+				)} does not exist or is empty. Please check your content config file for errors.`,
 			);
 			return [];
 		}

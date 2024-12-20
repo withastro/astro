@@ -1,4 +1,5 @@
-import { promises as fs } from 'node:fs';
+import { promises as fs, existsSync } from 'node:fs';
+import { relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import fastGlob from 'fast-glob';
 import { bold, green } from 'kleur/colors';
@@ -215,9 +216,26 @@ export function glob(globOptions: GlobOptions): Loader {
 				baseDir.pathname = `${baseDir.pathname}/`;
 			}
 
+			const filePath = fileURLToPath(baseDir);
+			const relativePath = relative(fileURLToPath(config.root), filePath);
+
+			const exists = existsSync(baseDir);
+
+			if (!exists) {
+				// We warn and don't return because we will still set up the watcher in case the directory is created later
+				logger.warn(`The base directory "${fileURLToPath(baseDir)}" does not exist.`);
+			}
+
 			const files = await fastGlob(globOptions.pattern, {
 				cwd: fileURLToPath(baseDir),
 			});
+
+			if (exists && files.length === 0) {
+				logger.warn(
+					`No files found matching "${globOptions.pattern}" in directory "${relativePath}"`,
+				);
+				return;
+			}
 
 			function configForFile(file: string) {
 				const ext = file.split('.').at(-1);

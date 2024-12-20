@@ -138,8 +138,15 @@ export class ContentLayer {
 	async #doSync(options: RefreshContentOptions) {
 		const contentConfig = globalContentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
+
+		if (contentConfig?.status === 'error') {
+			logger.error(`Error loading content config. Skipping sync.\n${contentConfig.error.message}`);
+			return;
+		}
+
+		// It shows as loaded with no collections even if there's no config
 		if (contentConfig?.status !== 'loaded') {
-			logger.debug('Content config not loaded, skipping sync');
+			logger.error('Content config not loaded, skipping sync');
 			return;
 		}
 
