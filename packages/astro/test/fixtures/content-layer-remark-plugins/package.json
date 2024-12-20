@@ -1,5 +1,5 @@
 {
-  "name": "@example/portfolio",
+  "name": "@test/content-layer-remark-plugins",
   "type": "module",
   "version": "0.0.1",
   "private": true,
@@ -10,6 +10,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.1.0"
+    "@astrojs/mdx": "workspace:*",
+    "astro": "workspace:*"
   }
 }

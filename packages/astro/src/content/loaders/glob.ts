@@ -171,7 +171,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					try {
 						rendered = await render?.({
 							id,
-							data: parsedData,
+							data,
 							body,
 							filePath,
 							digest,
