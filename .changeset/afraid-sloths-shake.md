@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Improve warning logs for invalid content config
+Improves warning logs for invalid content collection configuration

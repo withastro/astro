@@ -144,6 +144,7 @@ export class ContentLayer {
 			return;
 		}
 
+		// It shows as loaded with no collections even if there's no config
 		if (contentConfig?.status !== 'loaded') {
 			logger.error('Content config not loaded, skipping sync');
 			return;
