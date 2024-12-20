@@ -1,5 +1,15 @@
 # astro
 
+## 5.1.1
+
+### Patch Changes
+
+- [#12782](https://github.com/withastro/astro/pull/12782) [`f3d8385`](https://github.com/withastro/astro/commit/f3d83854aa671df4db6f95558a7ef5bad4bc64f9) Thanks [@fhiromasa](https://github.com/fhiromasa)! - update comment in packages/astro/src/types/public/common.ts
+
+- [#12789](https://github.com/withastro/astro/pull/12789) [`f632b94`](https://github.com/withastro/astro/commit/f632b945275c2615fc0fdf2abc831c45d0ddebcd) Thanks [@ascorbic](https://github.com/ascorbic)! - Pass raw frontmatter to remark plugins in glob loader
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
 ## 5.1.0
 
 ### Minor Changes

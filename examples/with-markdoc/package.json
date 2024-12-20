@@ -10,7 +10,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/markdoc": "^0.12.3",
-    "astro": "^5.1.0"
+    "@astrojs/markdoc": "^0.12.4",
+    "astro": "^5.1.1"
   }
 }
