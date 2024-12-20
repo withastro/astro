@@ -1,2 +1,4 @@
 import type { NamedSSRLoadedRendererValue } from 'astro';
-export default NamedSSRLoadedRendererValue;
+
+declare const renderer: NamedSSRLoadedRendererValue;
+export default renderer;
