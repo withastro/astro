@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/studio",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Internal package powering integrations between Astro projects and Astro Studio",
   "license": "MIT",
   "repository": {

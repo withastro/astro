@@ -1,5 +1,14 @@
 # @astrojs/db
 
+## 0.14.5
+
+### Patch Changes
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
+- Updated dependencies [[`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0)]:
+  - @astrojs/studio@0.1.3
+
 ## 0.14.4
 
 ### Patch Changes
