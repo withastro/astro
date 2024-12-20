@@ -41,7 +41,7 @@
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.1",
     "svelte2tsx": "^0.7.22",
-    "vite": "^6.0.1"
+    "vite": "^6.0.5"
   },
   "devDependencies": {
     "astro": "workspace:*",
