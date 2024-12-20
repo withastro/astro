@@ -18,6 +18,7 @@ interface CreateRedirectsFromAstroRoutesParams {
 	 */
 	routeToDynamicTargetMap: Map<IntegrationRouteData, string>;
 	dir: URL;
+	buildOutput: 'static' | 'server';
 }
 
 /**
@@ -27,6 +28,7 @@ export function createRedirectsFromAstroRoutes({
 	config,
 	routeToDynamicTargetMap,
 	dir,
+	buildOutput,
 }: CreateRedirectsFromAstroRoutesParams) {
 	const base =
 		config.base && config.base !== '/'
@@ -34,7 +36,8 @@ export function createRedirectsFromAstroRoutes({
 				? config.base.slice(0, -1)
 				: config.base
 			: '';
-	const output = config.output;
+	// TODO: the use of `config.output` is deprecated. We need to update the adapters that use this package to pass the new buildOutput
+	const output = buildOutput ?? config.output;
 	const _redirects = new Redirects();
 
 	for (const [route, dynamicTarget = ''] of routeToDynamicTargetMap) {
