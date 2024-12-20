@@ -326,6 +326,15 @@ async function emitOptimizedImages(
 								globalThis.astroAsset.referencedImages.add(fsPath);
 						}
 
+						// Repath relative image path for use in Markdoc image component
+						if (node.attributes.src.startsWith('./') || node.attributes.src.startsWith('../')) {
+							node.attributes.src = prependForwardSlash(
+								path.relative(
+									ctx.astroConfig.root.pathname,
+									path.join(path.dirname(ctx.filePath), node.attributes.src),
+								),
+							);
+						}
 						node.attributes[attributeName] = { ...src, fsPath };
 					}
 				} else {
