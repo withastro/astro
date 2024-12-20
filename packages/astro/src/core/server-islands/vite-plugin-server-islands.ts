@@ -44,13 +44,6 @@ export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions
 									);
 								}
 
-								if (settings.buildOutput !== 'server') {
-									logger.error(
-										'islands',
-										'You tried to use a server island, but your output isn\'t `"server"`. Use an adapter that support server output.',
-									);
-								}
-
 								let name = comp.localName;
 								let idx = 1;
 
