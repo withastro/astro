@@ -40,7 +40,7 @@ export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions
 								if (!settings.adapter) {
 									logger.error(
 										'islands',
-										"You tried to use a server island without an adapter. This an error and your project won't build.",
+										"You tried to render a server island without an adapter added to your project. An adapter is required to use the `server: defer` attribute on any component. Your project will fail to build unless you add an adapter or remove the attribute.",
 									);
 								}
 
