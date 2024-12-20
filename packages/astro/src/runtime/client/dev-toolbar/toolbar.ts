@@ -416,9 +416,9 @@ export class AstroDevToolbar extends HTMLElement {
 	}
 
 	getAppTemplate(app: DevToolbarApp) {
-		return `<button class="item" data-app-id="${app.id}" aria-labelledby="app-name-${app.name}">
+		return `<button class="item" data-app-id="${app.id}">
 				<div class="icon">${app.icon ? getAppIcon(app.icon) : '?'}<div class="notification"></div></div>
-				<span class="item-tooltip" id="app-name-${app.name}">${app.name}</span>
+				<span class="item-tooltip">${app.name}</span>
 			</button>`;
 	}
 
