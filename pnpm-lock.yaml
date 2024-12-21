@@ -751,6 +751,28 @@ importers:
         specifier: ^2.1.6
         version: 2.1.6(@types/node@18.19.50)(jiti@2.4.0)(jsdom@23.2.0)(sass@1.82.0)(yaml@2.5.1)
 
+  packages/astro-atom:
+    dependencies:
+      fast-xml-parser:
+        specifier: ^4.2.7
+        version: 4.3.6
+      kleur:
+        specifier: ^4.1.5
+        version: 4.1.5
+    devDependencies:
+      '@types/xml2js':
+        specifier: ^0.4.14
+        version: 0.4.14
+      astro:
+        specifier: workspace:*
+        version: link:../astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
+      xml2js:
+        specifier: 0.6.2
+        version: 0.6.2
+
   packages/astro-prism:
     dependencies:
       prismjs:
