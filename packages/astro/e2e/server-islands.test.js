@@ -44,7 +44,7 @@ test.describe('Server islands', () => {
 			await expect(el).toHaveText('test');
 		});
 
-		test("content-type header with media type still allows the island to be displayed", async ({
+		test('content-type header with media type still allows the island to be displayed', async ({
 			page,
 			astro,
 		}) => {
