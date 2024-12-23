@@ -37,7 +37,10 @@ export type SitemapOptions =
 			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
 
 			xslURL?: string;
+			/** Allows you to configure the separator used in the sitemap file names. Defaults to `-`. */
 			separator?: string;
+			/** Allows you to configure the index file name. Defaults to `sitemap-index`. */
+			indexFilename?: string
 	  }
 	| undefined;
 
@@ -69,8 +72,9 @@ const isStatusCodePage = (locales: string[]) => {
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 	let config: AstroConfig;
 	let separator = options?.separator ?? '-';
+	let indexFilename = options?.indexFilename ?? 'sitemap-index';
 
-	let outfile = `sitemap${separator}index.xml`;
+	let outfile = `${indexFilename}.xml`;
 
 	return {
 		name: PKG_NAME,
