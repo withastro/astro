@@ -2,4 +2,4 @@
 '@astrojs/sitemap': minor
 ---
 
-Add `separator` and `indedxFilename` options
+Add `separator` and `indexFilename` options
