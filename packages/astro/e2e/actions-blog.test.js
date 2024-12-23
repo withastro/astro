@@ -14,6 +14,8 @@ test.afterAll(async () => {
 });
 
 test.afterEach(async ({ astro }) => {
+	// Allow time for fs events to flush
+	await new Promise(resolve => setTimeout(resolve, 500))
 	// Force database reset between tests
 	await astro.editFile('./db/seed.ts', (original) => original);
 });
@@ -34,7 +36,6 @@ test.describe('Astro Actions - Blog', () => {
 
 		const likeButton = page.getByLabel('get-request');
 		const likeCount = page.getByLabel('Like');
-
 		await expect(likeCount, 'like button starts with 10 likes').toContainText('10');
 		await likeButton.click();
 		await expect(likeCount, 'like button should increment likes').toContainText('11');

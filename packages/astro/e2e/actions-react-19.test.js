@@ -7,9 +7,12 @@ let devServer;
 
 test.beforeAll(async ({ astro }) => {
 	devServer = await astro.startDevServer();
+
 });
 
 test.afterEach(async ({ astro }) => {
+	// Allow time for fs events to flush
+	await new Promise(resolve => setTimeout(resolve, 500))
 	// Force database reset between tests
 	await astro.editFile('./db/seed.ts', (original) => original);
 });
