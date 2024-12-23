@@ -14,16 +14,13 @@ test.afterAll(async () => {
 });
 
 test.afterEach(async ({ astro }) => {
-	// Allow time for fs events to flush
-	await new Promise(resolve => setTimeout(resolve, 500))
 	// Force database reset between tests
-	await astro.editFile('./db/seed.ts', (original) => original);
+	await astro.editFile('./db/seed.ts', (original) => original, false);
 });
 
 test.describe('Astro Actions - Blog', () => {
 	test('Like action', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
-
 		const likeButton = page.getByLabel('Like');
 		await waitForHydrate(page, likeButton);
 		await new Promise(resolve => setTimeout(resolve, 500))
