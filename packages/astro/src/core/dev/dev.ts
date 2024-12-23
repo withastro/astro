@@ -96,6 +96,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (!store) {
 		store = new MutableDataStore();
 	}
+	await attachContentServerListeners(restart.container);
 
 	const config = globalContentConfigObserver.get();
 	if (config.status === 'error') {
@@ -110,6 +111,8 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		});
 		contentLayer.watchContentConfig();
 		await contentLayer.sync();
+	} else {
+		logger.warn('content', 'Content config not loaded');
 	}
 
 	// Start listening to the port
@@ -131,7 +134,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
 	}
 
-	await attachContentServerListeners(restart.container);
 
 	logger.info(null, green('watching for file changes...'));
 
