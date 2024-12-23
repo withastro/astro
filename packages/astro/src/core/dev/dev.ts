@@ -84,27 +84,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		}
 	}
 
-	// Start listening to the port
-	const devServerAddressInfo = await startContainer(restart.container);
-	logger.info(
-		'SKIP_FORMAT',
-		msg.serverStart({
-			startupTime: performance.now() - devStart,
-			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
-			host: restart.container.settings.config.server.host,
-			base: restart.container.settings.config.base,
-		}),
-	);
-
-	if (isPrerelease) {
-		logger.warn('SKIP_FORMAT', msg.prerelease({ currentVersion }));
-	}
-	if (restart.container.viteServer.config.server?.fs?.strict === false) {
-		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
-	}
-
-	await attachContentServerListeners(restart.container);
-
 	let store: MutableDataStore | undefined;
 	try {
 		const dataStoreFile = getDataStoreFile(restart.container.settings, true);
@@ -132,6 +111,27 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		contentLayer.watchContentConfig();
 		await contentLayer.sync();
 	}
+
+	// Start listening to the port
+	const devServerAddressInfo = await startContainer(restart.container);
+	logger.info(
+		'SKIP_FORMAT',
+		msg.serverStart({
+			startupTime: performance.now() - devStart,
+			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
+			host: restart.container.settings.config.server.host,
+			base: restart.container.settings.config.base,
+		}),
+	);
+
+	if (isPrerelease) {
+		logger.warn('SKIP_FORMAT', msg.prerelease({ currentVersion }));
+	}
+	if (restart.container.viteServer.config.server?.fs?.strict === false) {
+		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
+	}
+
+	await attachContentServerListeners(restart.container);
 
 	logger.info(null, green('watching for file changes...'));
 
