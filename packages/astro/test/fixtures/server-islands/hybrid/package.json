@@ -5,6 +5,6 @@
   "dependencies": {
     "@astrojs/svelte": "workspace:*",
     "astro": "workspace:*",
-    "svelte": "^5.2.9"
+    "svelte": "^5.16.0"
   }
 }
