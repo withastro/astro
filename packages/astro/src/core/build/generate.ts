@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import os from 'node:os';
-import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
+import { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } from 'kleur/colors';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import {
@@ -191,16 +191,18 @@ async function generatePage(
 			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
 		}
 
-		await generatePath(path, pipeline, generationOptions, route);
+		const created = await generatePath(path, pipeline, generationOptions, route);
 
 		const timeEnd = performance.now();
 		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
 		const timeIncrease = (isSlow ? red : dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
+		const notCreated =
+			created === false ? yellow('(file not created, response body was empty)') : '';
 
 		if (isConcurrent) {
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncrease}`);
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncrease} ${notCreated}`);
 		} else {
-			logger.info('SKIP_FORMAT', ` ${timeIncrease}`);
+			logger.info('SKIP_FORMAT', ` ${timeIncrease} ${notCreated}`);
 		}
 	}
 
@@ -395,12 +397,20 @@ interface GeneratePathOptions {
 	mod: ComponentInstance;
 }
 
+/**
+ *
+ * @param pathname
+ * @param pipeline
+ * @param gopts
+ * @param route
+ * @return {Promise<boolean | undefined>} If `false` the file hasn't been created. If `undefined` it's expected to not be created.
+ */
 async function generatePath(
 	pathname: string,
 	pipeline: BuildPipeline,
 	gopts: GeneratePathOptions,
 	route: RouteData,
-) {
+): Promise<boolean | undefined> {
 	const { mod } = gopts;
 	const { config, logger, options } = pipeline;
 	logger.debug('build', `Generating: ${pathname}`);
@@ -420,7 +430,7 @@ async function generatePath(
 		// Check if there is a translated page with the same path
 		Object.values(options.allPages).some((val) => val.route.pattern.test(pathname))
 	) {
-		return;
+		return undefined;
 	}
 
 	const url = getUrlForPath(
@@ -462,7 +472,7 @@ async function generatePath(
 		// Adapters may handle redirects themselves, turning off Astro's redirect handling using `config.build.redirects` in the process.
 		// In that case, we skip rendering static files for the redirect routes.
 		if (routeIsRedirect(route) && !config.build.redirects) {
-			return;
+			return undefined;
 		}
 		const locationSite = getRedirectLocationOrThrow(response.headers);
 		const siteURL = config.site;
@@ -478,7 +488,7 @@ async function generatePath(
 		}
 	} else {
 		// If there's no body, do nothing
-		if (!response.body) return;
+		if (!response.body) return false;
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
@@ -495,6 +505,8 @@ async function generatePath(
 
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body);
+
+	return true;
 }
 
 function getPrettyRouteName(route: RouteData): string {
