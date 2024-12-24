@@ -5,7 +5,7 @@
   "dependencies": {
     "@astrojs/alpinejs": "workspace:*",
     "@types/alpinejs": "^3.13.11",
-    "alpinejs": "^3.14.3",
+    "alpinejs": "^3.14.8",
     "astro": "workspace:*"
   }
 }
