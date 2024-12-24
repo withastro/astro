@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 2.1.3
+
+### Patch Changes
+
+- [#12822](https://github.com/withastro/astro/pull/12822) [`1fab2f2`](https://github.com/withastro/astro/commit/1fab2f2ef671cc265c8dd46c5858915f971f2478) Thanks [@stdavis](https://github.com/stdavis)! - Updates the partytown dependency to the new npm org name and latest version.
+
 ## 2.1.2
 
 ### Patch Changes
