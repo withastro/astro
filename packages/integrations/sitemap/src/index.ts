@@ -37,6 +37,10 @@ export type SitemapOptions =
 			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
 
 			xslURL?: string;
+			/** Allows you to configure the separator used in the sitemap file names. Defaults to `-`. */
+			separator?: string;
+			/** Allows you to configure the index file name. Defaults to `sitemap-index`. */
+			indexFilename?: string
 	  }
 	| undefined;
 
@@ -46,7 +50,6 @@ function formatConfigErrorMessage(err: ZodError) {
 }
 
 const PKG_NAME = '@astrojs/sitemap';
-const OUTFILE = 'sitemap-index.xml';
 const STATUS_CODE_PAGES = new Set(['404', '500']);
 
 const isStatusCodePage = (locales: string[]) => {
@@ -68,6 +71,10 @@ const isStatusCodePage = (locales: string[]) => {
 };
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 	let config: AstroConfig;
+	let separator = options?.separator ?? '-';
+	let indexFilename = options?.indexFilename ?? 'sitemap-index';
+
+	let outfile = `${indexFilename}.xml`;
 
 	return {
 		name: PKG_NAME,
@@ -144,7 +151,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					}
 
 					if (pageUrls.length === 0) {
-						logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
+						logger.warn(`No pages found!\n\`${outfile}\` not created.`);
 						return;
 					}
 
@@ -179,10 +186,11 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							sourceData: urlData,
 							limit: entryLimit,
 							xslURL: xslURL,
+							separator,
 						},
 						config,
 					);
-					logger.info(`\`${OUTFILE}\` created at \`${path.relative(process.cwd(), destDir)}\``);
+					logger.info(`\`${outfile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {
 					if (err instanceof ZodError) {
 						logger.warn(formatConfigErrorMessage(err));
