@@ -37,6 +37,11 @@ describe('Server islands', () => {
 				assert.equal(serverIslandEl.length, 0);
 			});
 
+			it('island is not indexed', async () => {
+				const res = await fixture.fetch('/_server-islands/Island');
+				assert.equal(res.headers.get('X-Robots-Tag'), 'noindex');
+			});
+
 			it('island can set headers', async () => {
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
@@ -73,6 +78,13 @@ describe('Server islands', () => {
 
 				const serverIslandScript = $('script[data-island-id]');
 				assert.equal(serverIslandScript.length, 1, 'has the island script');
+			});
+
+			it('island is not indexed', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/_server-islands/Island');
+				const response = await app.render(request);
+				assert.equal(response.headers.get('X-Robots-Tag'), 'noindex');
 			});
 		});
 	});
