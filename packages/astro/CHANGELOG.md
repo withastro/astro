@@ -1,5 +1,15 @@
 # astro
 
+## 5.1.2
+
+### Patch Changes
+
+- [#12798](https://github.com/withastro/astro/pull/12798) [`7b0cb85`](https://github.com/withastro/astro/commit/7b0cb852f6336c0f9cc65bd044864004e759d810) Thanks [@ascorbic](https://github.com/ascorbic)! - Improves warning logs for invalid content collection configuration
+
+- [#12810](https://github.com/withastro/astro/pull/12810) [`70a9f0b`](https://github.com/withastro/astro/commit/70a9f0b984638c21a4da1d83b7d5a5c9940bb693) Thanks [@louisescher](https://github.com/louisescher)! - Fixes server islands failing to check content-type header under certain circumstances
+
+  Sometimes a reverse proxy or similar service might modify the content-type header to include the charset or other parameters in the media type of the response. This previously wasn't handled by the client-side server island script and thus removed the script without actually placing the requested content in the DOM. This fix makes it so the script checks if the header starts with the proper content type instead of exactly matching `text/html`, so the following will still be considered a valid header: `text/html; charset=utf-8`
+
 ## 5.1.1
 
 ### Patch Changes
