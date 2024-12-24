@@ -84,6 +84,37 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		}
 	}
 
+	let store: MutableDataStore | undefined;
+	try {
+		const dataStoreFile = getDataStoreFile(restart.container.settings, true);
+		if (existsSync(dataStoreFile)) {
+			store = await MutableDataStore.fromFile(dataStoreFile);
+		}
+	} catch (err: any) {
+		logger.error('content', err.message);
+	}
+	if (!store) {
+		store = new MutableDataStore();
+	}
+	await attachContentServerListeners(restart.container);
+
+	const config = globalContentConfigObserver.get();
+	if (config.status === 'error') {
+		logger.error('content', config.error.message);
+	}
+	if (config.status === 'loaded') {
+		const contentLayer = globalContentLayer.init({
+			settings: restart.container.settings,
+			logger,
+			watcher: restart.container.viteServer.watcher,
+			store,
+		});
+		contentLayer.watchContentConfig();
+		await contentLayer.sync();
+	} else {
+		logger.warn('content', 'Content config not loaded');
+	}
+
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
 	logger.info(
@@ -103,35 +134,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
 	}
 
-	await attachContentServerListeners(restart.container);
-
-	let store: MutableDataStore | undefined;
-	try {
-		const dataStoreFile = getDataStoreFile(restart.container.settings, true);
-		if (existsSync(dataStoreFile)) {
-			store = await MutableDataStore.fromFile(dataStoreFile);
-		}
-	} catch (err: any) {
-		logger.error('content', err.message);
-	}
-	if (!store) {
-		store = new MutableDataStore();
-	}
-
-	const config = globalContentConfigObserver.get();
-	if (config.status === 'error') {
-		logger.error('content', config.error.message);
-	}
-	if (config.status === 'loaded') {
-		const contentLayer = globalContentLayer.init({
-			settings: restart.container.settings,
-			logger,
-			watcher: restart.container.viteServer.watcher,
-			store,
-		});
-		contentLayer.watchContentConfig();
-		await contentLayer.sync();
-	}
 
 	logger.info(null, green('watching for file changes...'));
 

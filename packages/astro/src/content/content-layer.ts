@@ -173,11 +173,11 @@ export class ContentLayer {
 			shouldClear = true;
 		}
 
-		if (currentConfigDigest && previousConfigDigest !== currentConfigDigest) {
+		if (previousConfigDigest && previousConfigDigest !== currentConfigDigest) {
 			logger.info('Content config changed');
 			shouldClear = true;
 		}
-		if (process.env.ASTRO_VERSION && previousAstroVersion !== process.env.ASTRO_VERSION) {
+		if (previousAstroVersion && previousAstroVersion !== process.env.ASTRO_VERSION) {
 			logger.info('Astro version changed');
 			shouldClear = true;
 		}
