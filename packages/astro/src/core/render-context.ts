@@ -591,8 +591,20 @@ export class RenderContext {
 				computedLocale = computeCurrentLocale(referer, locales, defaultLocale);
 			}
 		} else {
-			const pathname =
-				routeData.pathname && !isRoute404or500(routeData) ? routeData.pathname : url.pathname;
+			// For SSG we match the route naively, for dev we handle fallback on 404, for SSR we find route from fallbackRoutes
+			const route =
+				(routeData.pattern.test(url.pathname)
+					? routeData
+					: routeData.fallbackRoutes.find((fallbackRoute) =>
+							fallbackRoute.pattern.test(url.pathname),
+						)) ?? routeData;
+			const pathname = route.pathname && !isRoute404or500(route) ? route.pathname : url.pathname;
+			// console.log('route', route);
+			// console.table({
+			// 	routePath: routeData.pathname,
+			// 	is404Or500: isRoute404or500(routeData),
+			// 	urlPathname: url.pathname,
+			// });
 			computedLocale = computeCurrentLocale(pathname, locales, defaultLocale);
 		}
 
