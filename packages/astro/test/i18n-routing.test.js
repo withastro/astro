@@ -1,6 +1,6 @@
-import * as cheerio from 'cheerio';
 import * as assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
@@ -2014,13 +2014,13 @@ describe('Fallback rewrite dev server', () => {
 				locales: ['en', 'fr', 'es', 'it', 'pt'],
 				routing: {
 					prefixDefaultLocale: false,
+					fallbackType: 'rewrite',
 				},
 				fallback: {
 					fr: 'en',
 					it: 'en',
 					es: 'pt',
 				},
-				fallbackType: 'rewrite',
 			},
 		});
 		devServer = await fixture.startDevServer();
