@@ -599,12 +599,6 @@ export class RenderContext {
 							fallbackRoute.pattern.test(url.pathname),
 						)) ?? routeData;
 			const pathname = route.pathname && !isRoute404or500(route) ? route.pathname : url.pathname;
-			// console.log('route', route);
-			// console.table({
-			// 	routePath: routeData.pathname,
-			// 	is404Or500: isRoute404or500(routeData),
-			// 	urlPathname: url.pathname,
-			// });
 			computedLocale = computeCurrentLocale(pathname, locales, defaultLocale);
 		}
 
