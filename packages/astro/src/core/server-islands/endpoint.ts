@@ -7,6 +7,7 @@ import {
 import { isAstroComponentFactory } from '../../runtime/server/render/astro/factory.js';
 import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
 import type { ComponentInstance, ManifestData } from '../../types/astro.js';
+import type { AstroGlobal } from '../../types/public/context.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { decryptString } from '../encryption.js';
 import { getPattern } from '../routing/manifest/pattern.js';
@@ -104,6 +105,7 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		// Get the request data from the body or search params
 		const data = await getRequestData(result.request);
+		// probably error
 		if (data instanceof Response) {
 			return data;
 		}
@@ -129,6 +131,9 @@ export function createEndpoint(manifest: SSRManifest) {
 		for (const prop in data.slots) {
 			slots[prop] = createSlotValueFromString(data.slots[prop]);
 		}
+
+		// Prevent server islands from being indexed
+		result.response.headers.set('X-Robots-Tag', 'noindex')
 
 		// Wrap Astro components so we can set propagation to
 		// `self` which is needed to force the runtime to wait

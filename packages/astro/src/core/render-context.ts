@@ -225,10 +225,6 @@ export class RenderContext {
 					if (this.isRewriting) {
 						response.headers.set(REWRITE_DIRECTIVE_HEADER_KEY, REWRITE_DIRECTIVE_HEADER_VALUE);
 					}
-					// Prevent server islands from being indexed
-					if (this.routeData.component === SERVER_ISLAND_COMPONENT) {
-						response.headers.set('X-Robots-Tag', 'noindex');
-					}
 					break;
 				}
 				case 'fallback': {
