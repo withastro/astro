@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-ensure session regeneration
+Fixes a bug where the session ID wasn't correctly regenerated
