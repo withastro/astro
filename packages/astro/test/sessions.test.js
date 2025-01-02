@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
-describe('Astro.cookies', () => {
+describe('Astro.session', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
