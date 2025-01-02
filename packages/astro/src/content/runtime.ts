@@ -96,15 +96,20 @@ export function createGetCollection({
 			for (const rawEntry of store.values<DataEntry>(collection)) {
 				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
 
-				const entry = {
+				let entry = {
 					...rawEntry,
 					data,
 					collection,
 				};
+
+				if (entry.legacyId) {
+					entry = emulateLegacyEntry(entry);
+				}
+
 				if (hasFilter && !filter(entry)) {
 					continue;
 				}
-				result.push(entry.legacyId ? emulateLegacyEntry(entry) : entry);
+				result.push(entry);
 			}
 			return result;
 		} else {
@@ -272,19 +277,18 @@ type DataEntryResult = {
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
 
-function emulateLegacyEntry(entry: DataEntry) {
+function emulateLegacyEntry({ legacyId, ...entry }: DataEntry & { collection: string }) {
 	// Define this first so it's in scope for the render function
 	const legacyEntry = {
 		...entry,
-		id: entry.legacyId!,
+		id: legacyId!,
 		slug: entry.id,
 	};
-	delete legacyEntry.legacyId;
 	return {
 		...legacyEntry,
 		// Define separately so the render function isn't included in the object passed to `renderEntry()`
 		render: () => renderEntry(legacyEntry),
-	};
+	} as ContentEntryResult;
 }
 
 export function createGetEntry({
@@ -334,7 +338,7 @@ export function createGetEntry({
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 			entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
 			if (entry.legacyId) {
-				return { ...emulateLegacyEntry(entry), collection } as ContentEntryResult;
+				return emulateLegacyEntry({ ...entry, collection });
 			}
 			return {
 				...entry,
