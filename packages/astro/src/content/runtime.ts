@@ -18,7 +18,7 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX } from './consts.js';
-import { type DataEntry, globalDataStore } from './data-store.js';
+import { type DataEntry, type ImmutableDataStore, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
 
 type LazyImport = () => Promise<any>;
@@ -604,6 +604,10 @@ async function render({
 }
 
 export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) {
+	// We're handling it like this to avoid needing an async schema. Not ideal, but should
+	// be safe because the store will already have been loaded by the time this is called.
+	let store: ImmutableDataStore | null = null;
+	globalDataStore.get().then((s) => (store = s));
 	return function reference(collection: string) {
 		return z
 			.union([
@@ -618,15 +622,22 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 				}),
 			])
 			.transform(
-				async (
+				(
 					lookup:
 						| string
 						| { id: string; collection: string }
 						| { slug: string; collection: string },
 					ctx,
 				) => {
+					if (!store) {
+						ctx.addIssue({
+							code: ZodIssueCode.custom,
+							message: `**${ctx.path.join('.')}:** Reference to ${collection} could not be resolved: store not available.\nThis is an Astro bug, so please file an issue at https://github.com/withastro/astro/issues.`,
+						});
+						return;
+					}
+
 					const flattenedErrorPath = ctx.path.join('.');
-					const store = await globalDataStore.get();
 					const collectionIsInStore = store.hasCollection(collection);
 
 					if (typeof lookup === 'object') {
