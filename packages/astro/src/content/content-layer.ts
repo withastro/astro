@@ -16,9 +16,11 @@ import {
 import type { LoaderContext } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import {
+	type ContentObservable,
 	getEntryConfigByExtMap,
 	getEntryDataAndImages,
 	globalContentConfigObserver,
+	reloadContentConfigObserver,
 	safeStringify,
 } from './utils.js';
 
@@ -136,8 +138,26 @@ export class ContentLayer {
 	}
 
 	async #doSync(options: RefreshContentOptions) {
-		const contentConfig = globalContentConfigObserver.get();
+		let contentConfig = globalContentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
+
+		if (contentConfig?.status === 'loading') {
+			contentConfig = await Promise.race<ReturnType<ContentObservable['get']>>([
+				new Promise((resolve) => {
+					const unsub = globalContentConfigObserver.subscribe((ctx) => {
+						unsub();
+						resolve(ctx);
+					});
+				}),
+				new Promise((resolve) =>
+					setTimeout(
+						() =>
+							resolve({ status: 'error', error: new Error('Content config loading timed out') }),
+						5000,
+					),
+				),
+			]);
+		}
 
 		if (contentConfig?.status === 'error') {
 			logger.error(`Error loading content config. Skipping sync.\n${contentConfig.error.message}`);
@@ -146,7 +166,7 @@ export class ContentLayer {
 
 		// It shows as loaded with no collections even if there's no config
 		if (contentConfig?.status !== 'loaded') {
-			logger.error('Content config not loaded, skipping sync');
+			logger.error(`Content config not loaded, skipping sync. Status was ${contentConfig?.status}`);
 			return;
 		}
 
@@ -173,11 +193,11 @@ export class ContentLayer {
 			shouldClear = true;
 		}
 
-		if (currentConfigDigest && previousConfigDigest !== currentConfigDigest) {
+		if (previousConfigDigest && previousConfigDigest !== currentConfigDigest) {
 			logger.info('Content config changed');
 			shouldClear = true;
 		}
-		if (process.env.ASTRO_VERSION && previousAstroVersion !== process.env.ASTRO_VERSION) {
+		if (previousAstroVersion && previousAstroVersion !== process.env.ASTRO_VERSION) {
 			logger.info('Astro version changed');
 			shouldClear = true;
 		}
