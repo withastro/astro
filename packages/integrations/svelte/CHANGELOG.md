@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 7.0.3
+
+### Patch Changes
+
+- [#12776](https://github.com/withastro/astro/pull/12776) [`8809b85`](https://github.com/withastro/astro/commit/8809b85747c1af4a772a3649ce8a8b3bb0f31236) Thanks [@aminevg](https://github.com/aminevg)! - Fixes an issue where TypeScript couldn't infer the correct types of the `server.mjs` file
+
 ## 7.0.2
 
 ### Patch Changes
