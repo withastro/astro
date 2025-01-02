@@ -181,7 +181,7 @@ export async function loadFixture(inlineConfig) {
 			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
-			await new Promise(resolve => setTimeout(resolve, 100))
+			await new Promise((resolve) => setTimeout(resolve, 100));
 			return devServer;
 		},
 		onNextDataStoreChange: (timeout = 5000) => {

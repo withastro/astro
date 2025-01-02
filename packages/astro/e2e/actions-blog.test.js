@@ -23,7 +23,7 @@ test.describe('Astro Actions - Blog', () => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
 		const likeButton = page.getByLabel('Like');
 		await waitForHydrate(page, likeButton);
-		await new Promise(resolve => setTimeout(resolve, 500))
+		await new Promise((resolve) => setTimeout(resolve, 500));
 		await expect(likeButton, 'like button starts with 10 likes').toContainText('10');
 		await likeButton.click();
 		await expect(likeButton, 'like button should increment likes').toContainText('11');

@@ -134,7 +134,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
 	}
 
-
 	logger.info(null, green('watching for file changes...'));
 
 	return {

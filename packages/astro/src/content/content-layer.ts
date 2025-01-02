@@ -20,7 +20,6 @@ import {
 	getEntryConfigByExtMap,
 	getEntryDataAndImages,
 	globalContentConfigObserver,
-	reloadContentConfigObserver,
 	safeStringify,
 } from './utils.js';
 

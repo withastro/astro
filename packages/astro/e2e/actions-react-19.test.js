@@ -23,7 +23,7 @@ test.describe('Astro Actions - React 19', () => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
 		const likeButton = page.getByLabel('likes-client');
 		await waitForHydrate(page, likeButton);
-		await new Promise(resolve => setTimeout(resolve, 500))
+		await new Promise((resolve) => setTimeout(resolve, 500));
 
 		await expect(likeButton).toBeVisible();
 		await likeButton.click();
