@@ -38,8 +38,15 @@ describe('Server islands', () => {
 			});
 
 			it('island is not indexed', async () => {
-				const res = await fixture.fetch('/_server-islands/Island');
-				assert.equal(res.headers.get('X-Robots-Tag'), 'noindex');
+				const res = await fixture.fetch('/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						slots: {},
+					}),
+				});
+				assert.equal(res.headers.get('x-robots-tag'), 'noindex');
 			});
 
 			it('island can set headers', async () => {
@@ -82,9 +89,19 @@ describe('Server islands', () => {
 
 			it('island is not indexed', async () => {
 				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/_server-islands/Island');
+				const request = new Request('http://example.com/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						slots: {},
+					}),
+					headers: {
+						origin: 'http://example.com',
+					},
+				});
 				const response = await app.render(request);
-				assert.equal(response.headers.get('X-Robots-Tag'), 'noindex');
+				assert.equal(response.headers.get('x-robots-tag'), 'noindex');
 			});
 		});
 	});
