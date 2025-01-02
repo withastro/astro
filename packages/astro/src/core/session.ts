@@ -63,12 +63,21 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}: Exclude<ResolvedSessionConfig<TDriver>, undefined>,
 	) {
 		this.#cookies = cookies;
+		let cookieConfigObject: AstroCookieSetOptions | undefined;
 		if (typeof cookieConfig === 'object') {
-			this.#cookieConfig = cookieConfig;
-			this.#cookieName = cookieConfig.name || DEFAULT_COOKIE_NAME;
+			const { name = DEFAULT_COOKIE_NAME, ...rest } = cookieConfig;
+			this.#cookieName = name;
+			cookieConfigObject = rest;
 		} else {
 			this.#cookieName = cookieConfig || DEFAULT_COOKIE_NAME;
 		}
+		this.#cookieConfig = {
+			sameSite: 'lax',
+			secure: true,
+			path: '/',
+			...cookieConfigObject,
+			httpOnly: true,
+		};
 		this.#config = config;
 	}
 
@@ -258,15 +267,9 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 				message: 'Invalid cookie name. Cookie names can only contain letters, numbers, and dashes.',
 			});
 		}
-		const cookieOptions: AstroCookieSetOptions = {
-			sameSite: 'lax',
-			secure: true,
-			path: '/',
-			...this.#cookieConfig,
-			httpOnly: true,
-		};
+
 		const value = this.#ensureSessionID();
-		this.#cookies.set(this.#cookieName, value, cookieOptions);
+		this.#cookies.set(this.#cookieName, value, this.#cookieConfig);
 	}
 
 	/**
@@ -345,7 +348,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			this.#toDestroy.add(this.#sessionID);
 		}
 		if (this.#cookieName) {
-			this.#cookies.delete(this.#cookieName);
+			this.#cookies.delete(this.#cookieName, this.#cookieConfig);
 		}
 		this.#sessionID = undefined;
 		this.#data = undefined;
