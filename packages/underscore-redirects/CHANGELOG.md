@@ -1,5 +1,11 @@
 # @astrojs/underscore-redirects
 
+## 0.5.0
+
+### Minor Changes
+
+- [#12768](https://github.com/withastro/astro/pull/12768) [`524c855`](https://github.com/withastro/astro/commit/524c855075bb75696500445fdc31cb2c69b09627) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new `buildOutput` property to the API `createRedirectsFromAstroRoutes`
+
 ## 0.4.0
 
 ### Minor Changes
