@@ -62,7 +62,7 @@ describe('rss', () => {
 		assertXmlDeepEqual(str, validXmlResult);
 
 		const contentType = response.headers.get('Content-Type');
-		assert.equal(contentType, 'application/rss+xml; charset=utf-8');
+		assert.equal(contentType, 'application/xml');
 	});
 
 	it('should be the same string as getRssString', async () => {

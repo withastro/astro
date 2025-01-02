@@ -182,9 +182,8 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		const oldSessionId = this.#sessionID;
 
 		// Create new session
-		this.#sessionID = undefined;
+		this.#sessionID = crypto.randomUUID();
 		this.#data = data;
-		this.#ensureSessionID();
 		await this.#setCookie();
 
 		// Clean up old session asynchronously
