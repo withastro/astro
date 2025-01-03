@@ -1,3 +1,4 @@
+import MagicString from 'magic-string';
 import type { ConfigEnv, ViteDevServer, Plugin as VitePlugin } from 'vite';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
@@ -82,6 +83,15 @@ export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions
 		},
 		renderChunk(code) {
 			if (code.includes(serverIslandPlaceholder)) {
+				// If there's no reference, we can fast-path to an empty map replacement
+				// without sourcemaps as it doesn't shift rows
+				if (referenceIdMap.size === 0) {
+					return {
+						code: code.replace(serverIslandPlaceholder, 'new Map();'),
+						map: null,
+					};
+				}
+
 				let mapSource = 'new Map([';
 				for (let [resolvedPath, referenceId] of referenceIdMap) {
 					const fileName = this.getFileName(referenceId);
@@ -90,7 +100,13 @@ export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions
 				}
 				mapSource += '\n]);';
 				referenceIdMap.clear();
-				return code.replace(serverIslandPlaceholder, mapSource);
+
+				const ms = new MagicString(code);
+				ms.replace(serverIslandPlaceholder, mapSource);
+				return {
+					code: ms.toString(),
+					map: ms.generateMap({ hires: 'boundary' }),
+				};
 			}
 		},
 	};
