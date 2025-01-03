@@ -101,8 +101,8 @@ importers:
         version: 0.3.1
     devDependencies:
       '@codspeed/vitest-plugin':
-        specifier: 3.1.1
-        version: 3.1.1(vite@6.0.5(@types/node@18.19.50)(jiti@2.4.0)(sass@1.82.0)(yaml@2.5.1))(vitest@3.0.0-beta.3(@types/node@18.19.50)(jiti@2.4.0)(jsdom@23.2.0)(sass@1.82.0)(yaml@2.5.1))
+        specifier: 4.0.0
+        version: 4.0.0(vite@6.0.5(@types/node@18.19.50)(jiti@2.4.0)(sass@1.82.0)(yaml@2.5.1))(vitest@3.0.0-beta.3(@types/node@18.19.50)(jiti@2.4.0)(jsdom@23.2.0)(sass@1.82.0)(yaml@2.5.1))
       vitest:
         specifier: ^3.0.0-beta.3
         version: 3.0.0-beta.3(@types/node@18.19.50)(jiti@2.4.0)(jsdom@23.2.0)(sass@1.82.0)(yaml@2.5.1)
@@ -5961,11 +5961,11 @@ packages:
     bundledDependencies:
       - is-unicode-supported
 
-  '@codspeed/core@3.1.1':
-    resolution: {integrity: sha512-ONhERVDAtkm0nc+FYPivDozoMOlNUP2BWRBFDJYATGA18Iap5Kd2mZ1/Lwz54RB5+g+3YDOpsvotHa4hd3Q+7Q==}
+  '@codspeed/core@4.0.0':
+    resolution: {integrity: sha512-B3zwdwLG8rcV0ORfYKX1wDP6ZCWf9C6ySidSf61q2vm9v5Lj2cWwRvj7vX+w/UyFHWKjp/zSyWTEed/r3Fv4Tg==}
 
-  '@codspeed/vitest-plugin@3.1.1':
-    resolution: {integrity: sha512-/PJUgxIfuRqpBSbaD8bgWXtbXxCqgnW89dzr3220fMkx/LA6z6oUb4tJGjeVsOWAzAgu0VBdSA+8hC+7D9BIuQ==}
+  '@codspeed/vitest-plugin@4.0.0':
+    resolution: {integrity: sha512-L7oCOuVL2xI1/z+HLt56+7Xs/MGzbaf5aaOys6vOMDAs1PmxbmyAz6g1Y0x1TrP1+dvR9LUZQCKM/CsXHCrNxg==}
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0
       vitest: '>=1.2.2'
@@ -11924,7 +11924,7 @@ snapshots:
       picocolors: 1.1.1
       sisteransi: 1.0.5
 
-  '@codspeed/core@3.1.1':
+  '@codspeed/core@4.0.0':
     dependencies:
       axios: 1.7.7
       find-up: 6.3.0
@@ -11933,9 +11933,9 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@codspeed/vitest-plugin@3.1.1(vite@6.0.5(@types/node@18.19.50)(jiti@2.4.0)(sass@1.82.0)(yaml@2.5.1))(vitest@3.0.0-beta.3(@types/node@18.19.50)(jiti@2.4.0)(jsdom@23.2.0)(sass@1.82.0)(yaml@2.5.1))':
+  '@codspeed/vitest-plugin@4.0.0(vite@6.0.5(@types/node@18.19.50)(jiti@2.4.0)(sass@1.82.0)(yaml@2.5.1))(vitest@3.0.0-beta.3(@types/node@18.19.50)(jiti@2.4.0)(jsdom@23.2.0)(sass@1.82.0)(yaml@2.5.1))':
     dependencies:
-      '@codspeed/core': 3.1.1
+      '@codspeed/core': 4.0.0
       vite: 6.0.5(@types/node@18.19.50)(jiti@2.4.0)(sass@1.82.0)(yaml@2.5.1)
       vitest: 3.0.0-beta.3(@types/node@18.19.50)(jiti@2.4.0)(jsdom@23.2.0)(sass@1.82.0)(yaml@2.5.1)
     transitivePeerDependencies:
