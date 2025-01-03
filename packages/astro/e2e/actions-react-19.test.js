@@ -11,7 +11,7 @@ test.beforeAll(async ({ astro }) => {
 
 test.afterEach(async ({ astro }) => {
 	// Force database reset between tests
-	await astro.editFile('./db/seed.ts', (original) => original);
+	await astro.editFile('./db/seed.ts', (original) => original, false);
 });
 
 test.afterAll(async () => {
@@ -21,9 +21,9 @@ test.afterAll(async () => {
 test.describe('Astro Actions - React 19', () => {
 	test('Like action - client pending state', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
-
 		const likeButton = page.getByLabel('likes-client');
 		await waitForHydrate(page, likeButton);
+		await new Promise((resolve) => setTimeout(resolve, 500));
 
 		await expect(likeButton).toBeVisible();
 		await likeButton.click();

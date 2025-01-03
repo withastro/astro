@@ -12,6 +12,7 @@ const fixtures = [
 				exists: true,
 			},
 			contentDir: new URL('src/content/', import.meta.url),
+			root: new URL('.', import.meta.url),
 		},
 	},
 	{
@@ -22,6 +23,7 @@ const fixtures = [
 				exists: true,
 			},
 			contentDir: new URL('_src/content/', import.meta.url),
+			root: new URL('.', import.meta.url),
 		},
 	},
 ];

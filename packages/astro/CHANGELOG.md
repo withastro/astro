@@ -1,5 +1,33 @@
 # astro
 
+## 5.1.2
+
+### Patch Changes
+
+- [#12798](https://github.com/withastro/astro/pull/12798) [`7b0cb85`](https://github.com/withastro/astro/commit/7b0cb852f6336c0f9cc65bd044864004e759d810) Thanks [@ascorbic](https://github.com/ascorbic)! - Improves warning logs for invalid content collection configuration
+
+- [#12781](https://github.com/withastro/astro/pull/12781) [`96c4b92`](https://github.com/withastro/astro/commit/96c4b925333fede1a53d19657d15e0052da90780) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a regression that caused `default()` to not work with `reference()`
+
+- [#12820](https://github.com/withastro/astro/pull/12820) [`892dd9f`](https://github.com/withastro/astro/commit/892dd9f6cd3935ce1d4f4dec523b248c2d15da12) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused cookies to not be deleted when destroying a session
+
+- [#12864](https://github.com/withastro/astro/pull/12864) [`440d8a5`](https://github.com/withastro/astro/commit/440d8a54f7b3d75dd16decb7d9d29e3724bff394) Thanks [@kaytwo](https://github.com/kaytwo)! - Fixes a bug where the session ID wasn't correctly regenerated
+
+- [#12768](https://github.com/withastro/astro/pull/12768) [`524c855`](https://github.com/withastro/astro/commit/524c855075bb75696500445fdc31cb2c69b09627) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where Astro didn't print error logs when Astro Islands were used in incorrect cases.
+
+- [#12814](https://github.com/withastro/astro/pull/12814) [`f12f111`](https://github.com/withastro/astro/commit/f12f1118bc4687cc807a4495ffcaafcb0861b7a2) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where Astro didn't log anything in case a file isn't created during the build.
+
+- [#12875](https://github.com/withastro/astro/pull/12875) [`e109002`](https://github.com/withastro/astro/commit/e109002c3d5980362788360211e61f11f4394837) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug in emulated legacy collections where the entry passed to the getCollection filter function did not include the legacy entry fields.
+
+- [#12768](https://github.com/withastro/astro/pull/12768) [`524c855`](https://github.com/withastro/astro/commit/524c855075bb75696500445fdc31cb2c69b09627) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where Astro was printing the incorrect output format when running the `astro build` command
+
+- [#12810](https://github.com/withastro/astro/pull/12810) [`70a9f0b`](https://github.com/withastro/astro/commit/70a9f0b984638c21a4da1d83b7d5a5c9940bb693) Thanks [@louisescher](https://github.com/louisescher)! - Fixes server islands failing to check content-type header under certain circumstances
+
+  Sometimes a reverse proxy or similar service might modify the content-type header to include the charset or other parameters in the media type of the response. This previously wasn't handled by the client-side server island script and thus removed the script without actually placing the requested content in the DOM. This fix makes it so the script checks if the header starts with the proper content type instead of exactly matching `text/html`, so the following will still be considered a valid header: `text/html; charset=utf-8`
+
+- [#12816](https://github.com/withastro/astro/pull/12816) [`7fb2184`](https://github.com/withastro/astro/commit/7fb21844dff893c90dc0a07fd13cefdba61d0a45) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where an injected route entrypoint wasn't correctly marked because the resolved file path contained a query parameter.
+
+  This fixes some edge case where some injected entrypoint were not resolved when using an adapter.
+
 ## 5.1.1
 
 ### Patch Changes

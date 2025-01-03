@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.11
+
+### Patch Changes
+
+- [#12829](https://github.com/withastro/astro/pull/12829) [`ebe2aa9`](https://github.com/withastro/astro/commit/ebe2aa95c7f4a6559cec8b82d155da34a57bdd53) Thanks [@SapphicMoe](https://github.com/SapphicMoe)! - Revert incorrect Content-Type header applied for RSS XML file
+
 ## 4.0.10
 
 ### Patch Changes

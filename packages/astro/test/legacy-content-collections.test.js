@@ -55,6 +55,12 @@ describe('Legacy Content Collections', () => {
 				);
 			});
 
+			it('Passes legacy entry to filter function', async () => {
+				assert.ok(json.hasOwnProperty('filtered'));
+				assert.ok(Array.isArray(json.filtered));
+				assert.ok(json.filtered.length > 0);
+			});
+
 			it('Returns `with schema` collection', async () => {
 				assert.ok(json.hasOwnProperty('withSchemaConfig'));
 				assert.equal(Array.isArray(json.withSchemaConfig), true);

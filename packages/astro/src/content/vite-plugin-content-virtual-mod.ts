@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import glob from 'fast-glob';
 import pLimit from 'p-limit';
-import type { Plugin } from 'vite';
+import type { Plugin, ViteDevServer } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -51,11 +51,16 @@ export function astroContentVirtualModPlugin({
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
 	let dataStoreFile: URL;
+	let devServer: ViteDevServer;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		config(_, env) {
 			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+		},
+		buildStart() {
+			// We defer adding the data store file to the watcher until the server is ready
+			devServer?.watcher.add(fileURLToPath(dataStoreFile));
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
@@ -155,10 +160,10 @@ export function astroContentVirtualModPlugin({
 				return fs.readFileSync(modules, 'utf-8');
 			}
 		},
-		configureServer(server) {
-			const dataStorePath = fileURLToPath(dataStoreFile);
 
-			server.watcher.add(dataStorePath);
+		configureServer(server) {
+			devServer = server;
+			const dataStorePath = fileURLToPath(dataStoreFile);
 
 			function invalidateDataStore() {
 				const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
