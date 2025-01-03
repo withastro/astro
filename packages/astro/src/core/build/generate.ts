@@ -370,7 +370,7 @@ function getUrlForPath(
 		}
 		case 'file':
 		default: {
-			ending = '.html';
+			ending = '';
 			break;
 		}
 	}
