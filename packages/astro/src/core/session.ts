@@ -1,4 +1,4 @@
-import { parse, stringify as rawStringify, unflatten as rawUnflatten } from 'devalue';
+import { stringify as rawStringify, unflatten as rawUnflatten } from 'devalue';
 import {
 	type BuiltinDriverOptions,
 	type Driver,
@@ -155,7 +155,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		let cloned: T;
 		try {
 			// Attempt to serialize the value so we can throw an error early if needed
-			cloned = parse(stringify(value));
+			cloned = unflatten(JSON.parse(stringify(value)));
 		} catch (err) {
 			throw new AstroError(
 				{
