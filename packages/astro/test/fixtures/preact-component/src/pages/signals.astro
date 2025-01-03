@@ -6,6 +6,21 @@ import SignalsInObject from '../components/SignalsInObject';
 import ComponentWithNullProp from '../components/ComponentWithNullProp';
 const count = signal(1);
 const secondCount = signal(2);
+const deepNestedObject = {
+	title:'I am a title',
+	counter: count,
+	deep: {
+		signal: count,
+		evenDeeper: {
+			signal: signal(0),
+		},
+	},
+};
+const deepNestedArray = ["I'm not a signal", count, count, 12345, secondCount,
+	signal(401),
+	deepNestedObject,
+	[count, "string"]
+];
 ---
 <html>
 	<head>
@@ -14,8 +29,8 @@ const secondCount = signal(2);
 	<body>
 		<Signals client:load count={count} />
 		<Signals client:load count={count} />
-		<SignalsInArray client:load signalsArray={["I'm not a signal", count, count, 12345, secondCount]} />
-		<SignalsInObject client:load signalsObject={{title:'I am a title', counter: count}}, />
+		<SignalsInArray client:load signalsArray={deepNestedArray} />
+		<SignalsInObject client:load signalsObject={deepNestedObject} />
 		<ComponentWithNullProp client:load nullProp={null} />
 	</body>
 </html>
