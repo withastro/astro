@@ -1,4 +1,4 @@
-import { stringify, unflatten } from 'devalue';
+import { stringify as rawStringify, unflatten as rawUnflatten } from 'devalue';
 import {
 	type BuiltinDriverOptions,
 	type Driver,
@@ -25,6 +25,20 @@ interface SessionEntry {
 	data: any;
 	expires?: number;
 }
+
+const unflatten: typeof rawUnflatten = (parsed, _) => {
+	// Revive URL objects
+	return rawUnflatten(parsed, {
+		URL: (href) => new URL(href),
+	});
+};
+
+const stringify: typeof rawStringify = (data, _) => {
+	return rawStringify(data, {
+		// Support URL objects
+		URL: (val) => val instanceof URL && val.href,
+	});
+};
 
 export class AstroSession<TDriver extends SessionDriverName = any> {
 	// The cookies object.
@@ -138,9 +152,12 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 				message: 'The session key was not provided.',
 			});
 		}
+		// save a clone of the passed in object so later updates are not
+		// persisted into the store. Attempting to serialize also allows
+		// us to throw an error early if needed.
+		let cloned: T;
 		try {
-			// Attempt to serialize the value so we can throw an error early if needed
-			stringify(value);
+			cloned = unflatten(JSON.parse(stringify(value)));
 		} catch (err) {
 			throw new AstroError(
 				{
@@ -160,7 +177,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		// If ttl is numeric, it is the number of seconds until expiry. To get an expiry timestamp, we convert to milliseconds and add to the current time.
 		const expires = typeof lifetime === 'number' ? Date.now() + lifetime * 1000 : lifetime;
 		this.#data.set(key, {
-			data: value,
+			data: cloned,
 			expires,
 		});
 		this.#dirty = true;
@@ -221,10 +238,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			const key = this.#ensureSessionID();
 			let serialized;
 			try {
-				serialized = stringify(data, {
-					// Support URL objects
-					URL: (val) => val instanceof URL && val.href,
-				});
+				serialized = stringify(data);
 			} catch (err) {
 				throw new AstroError(
 					{
@@ -293,10 +307,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 
 		try {
-			const storedMap = unflatten(raw, {
-				// Revive URL objects
-				URL: (href) => new URL(href),
-			});
+			const storedMap = unflatten(raw);
 			if (!(storedMap instanceof Map)) {
 				await this.#destroySafe();
 				throw new AstroError({

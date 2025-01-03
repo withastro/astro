@@ -298,7 +298,7 @@ export class App {
 			this.#logger.error(null, err.stack || err.message || String(err));
 			return this.#renderError(request, { locals, status: 500, error: err, clientAddress });
 		} finally {
-			session?.[PERSIST_SYMBOL]();
+			await session?.[PERSIST_SYMBOL]();
 		}
 
 		if (
@@ -412,7 +412,7 @@ export class App {
 					});
 				}
 			} finally {
-				session?.[PERSIST_SYMBOL]();
+				await session?.[PERSIST_SYMBOL]();
 			}
 		}
 
