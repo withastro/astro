@@ -257,8 +257,8 @@ importers:
         specifier: ^4.0.1
         version: link:../../packages/integrations/preact
       '@preact/signals':
-        specifier: ^1.3.0
-        version: 1.3.0(preact@10.25.1)
+        specifier: ^2.0.0
+        version: 2.0.0(preact@10.25.1)
       astro:
         specifier: ^5.1.2
         version: link:../../packages/astro
@@ -3491,8 +3491,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../integrations/preact
       '@preact/signals':
-        specifier: 1.3.0
-        version: 1.3.0(preact@10.25.1)
+        specifier: 2.0.0
+        version: 2.0.0(preact@10.25.1)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -5006,8 +5006,8 @@ importers:
         specifier: 2.8.2
         version: 2.8.2(@babel/core@7.26.0)(preact@10.25.1)(vite@6.0.5(@types/node@18.19.50)(jiti@2.4.0)(sass@1.82.0)(yaml@2.5.1))
       '@preact/signals':
-        specifier: ^1.3.0
-        version: 1.3.0(preact@10.25.1)
+        specifier: ^2.0.0
+        version: 2.0.0(preact@10.25.1)
       babel-plugin-transform-hook-names:
         specifier: ^1.0.2
         version: 1.0.2(@babel/core@7.26.0)
@@ -6941,8 +6941,8 @@ packages:
   '@preact/signals-core@1.8.0':
     resolution: {integrity: sha512-OBvUsRZqNmjzCZXWLxkZfhcgT+Fk8DDcT/8vD6a1xhDemodyy87UJRJfASMuSD8FaAIeGgGm85ydXhm7lr4fyA==}
 
-  '@preact/signals@1.3.0':
-    resolution: {integrity: sha512-EOMeg42SlLS72dhoq6Vjq08havnLseWmPQ8A0YsgIAqMgWgx7V1a39+Pxo6i7SY5NwJtH4849JogFq3M67AzWg==}
+  '@preact/signals@2.0.0':
+    resolution: {integrity: sha512-wzx6YEXw2a+vKdE+p+XlIGsmH2bDjJzzevirtshT9ixoNIV2WJg83kG+QErPHs/ZkeR+MsqgRIFB6x22fDVRlg==}
     peerDependencies:
       preact: 10.x
 
@@ -12755,7 +12755,7 @@ snapshots:
 
   '@preact/signals-core@1.8.0': {}
 
-  '@preact/signals@1.3.0(preact@10.25.1)':
+  '@preact/signals@2.0.0(preact@10.25.1)':
     dependencies:
       '@preact/signals-core': 1.8.0
       preact: 10.25.1
