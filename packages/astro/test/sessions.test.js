@@ -55,7 +55,6 @@ describe('Astro.session', () => {
 
 			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
 			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
-			console.log(`first session id: ${firstSessionId}`);
 			const secondResponse = await fetchResponse('/update', {
 				method: 'GET',
 				headers: {
@@ -63,7 +62,6 @@ describe('Astro.session', () => {
 				},
 			});
 			const secondValue = await secondResponse.json();
-			console.log(`second value: ${JSON.stringify(secondValue)}`)
 			assert.equal(secondValue.previousValue, 'expected');
 		});
 
