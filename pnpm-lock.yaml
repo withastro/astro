@@ -67,8 +67,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/integrations/mdx
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       '@benchmark/adapter':
         specifier: workspace:*
         version: link:packages/adapter
@@ -801,8 +801,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../db
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -834,8 +834,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../db
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -1070,8 +1070,8 @@ importers:
   packages/astro/e2e/fixtures/i18n:
     dependencies:
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -1472,8 +1472,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../integrations/mdx
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -1490,8 +1490,8 @@ importers:
   packages/astro/e2e/fixtures/server-islands-key:
     dependencies:
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -1588,8 +1588,8 @@ importers:
   packages/astro/e2e/fixtures/view-transitions:
     dependencies:
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -2429,8 +2429,8 @@ importers:
   packages/astro/test/fixtures/client-address-node:
     dependencies:
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2948,8 +2948,8 @@ importers:
   packages/astro/test/fixtures/custom-assets-name:
     dependencies:
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3822,8 +3822,8 @@ importers:
   packages/astro/test/fixtures/ssr-api-route:
     dependencies:
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4034,8 +4034,8 @@ importers:
   packages/astro/test/fixtures/static-build-ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       '@test/static-build-pkg':
         specifier: workspace:*
         version: link:../static-build/pkg
@@ -4430,8 +4430,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -5361,8 +5361,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../db
       '@astrojs/node':
-        specifier: ^8.3.4
-        version: 8.3.4(astro@packages+astro)
+        specifier: ^9.0.0
+        version: 9.0.0(astro@packages+astro)
       '@astrojs/web-vitals':
         specifier: workspace:*
         version: link:../../..
@@ -5658,11 +5658,6 @@ packages:
         optional: true
       prettier-plugin-astro:
         optional: true
-
-  '@astrojs/node@8.3.4':
-    resolution: {integrity: sha512-xzQs39goN7xh9np9rypGmbgZj3AmmjNxEMj9ZWz5aBERlqqFF3n8A/w/uaJeZ/bkHS60l1BXVS0tgsQt9MFqBA==}
-    peerDependencies:
-      astro: ^4.2.0
 
   '@astrojs/node@9.0.0':
     resolution: {integrity: sha512-3h/5kFZvpuo+chYAjj75YhtRUxfquxEJrpZRRC7TdiMGp2WhLp2us4VXm2mjezJp/zHKotW2L3qgp0P2ujQ0xw==}
@@ -7980,14 +7975,6 @@ packages:
   dataloader@1.4.0:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
 
-  debug@2.6.9:
-    resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-
   debug@4.4.0:
     resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
     engines: {node: '>=6.0'}
@@ -8240,10 +8227,6 @@ packages:
 
   emoji-regex@9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
-
-  encodeurl@1.0.2:
-    resolution: {integrity: sha512-TPJXq8JqFaVYm2CWmPvnP2Iyo4ZSM7/QKcSmuMLDObfpH5fi7RUGmd/rTDf+rut/saiDiQEeVTNgAmJEdAOx0w==}
-    engines: {node: '>= 0.8'}
 
   encodeurl@2.0.0:
     resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
@@ -9430,9 +9413,6 @@ packages:
     resolution: {integrity: sha512-eu38+hdgojoyq63s+yTpN4XMBdt5l8HhMhc4VKLO9KM5caLIBvUm4thi7fFaxyTmCKeNnXZ5pAlBwCUnhA09uw==}
     engines: {node: '>=10'}
 
-  ms@2.0.0:
-    resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
-
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
@@ -10344,10 +10324,6 @@ packages:
     resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
     engines: {node: '>=10'}
     hasBin: true
-
-  send@0.19.0:
-    resolution: {integrity: sha512-dW41u5VfLXu8SJh5bwRmyYUbAoSB3c9uQh6L8h/KtsFREPWpbX1lrljJo186Jc4nmci/sGUZ9a0a0J2zgfq2hw==}
-    engines: {node: '>= 0.8.0'}
 
   send@1.1.0:
     resolution: {integrity: sha512-v67WcEouB5GxbTWL/4NeToqcZiAWEq90N888fczVArY8A79J0L4FD7vj5hm3eUMua5EpoQ59wa/oovY6TLvRUA==}
@@ -11503,14 +11479,6 @@ snapshots:
       prettier-plugin-astro: 0.14.1
     transitivePeerDependencies:
       - typescript
-
-  '@astrojs/node@8.3.4(astro@packages+astro)':
-    dependencies:
-      astro: link:packages/astro
-      send: 0.19.0
-      server-destroy: 1.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   '@astrojs/node@9.0.0(astro@packages+astro)':
     dependencies:
@@ -13933,10 +13901,6 @@ snapshots:
 
   dataloader@1.4.0: {}
 
-  debug@2.6.9:
-    dependencies:
-      ms: 2.0.0
-
   debug@4.4.0:
     dependencies:
       ms: 2.1.3
@@ -14058,8 +14022,6 @@ snapshots:
   emoji-regex@8.0.0: {}
 
   emoji-regex@9.2.2: {}
-
-  encodeurl@1.0.2: {}
 
   encodeurl@2.0.0: {}
 
@@ -15738,8 +15700,6 @@ snapshots:
 
   mrmime@2.0.0: {}
 
-  ms@2.0.0: {}
-
   ms@2.1.3: {}
 
   muggle-string@0.4.1: {}
@@ -16770,24 +16730,6 @@ snapshots:
   semver@6.3.1: {}
 
   semver@7.6.3: {}
-
-  send@0.19.0:
-    dependencies:
-      debug: 2.6.9
-      depd: 2.0.0
-      destroy: 1.2.0
-      encodeurl: 1.0.2
-      escape-html: 1.0.3
-      etag: 1.8.1
-      fresh: 0.5.2
-      http-errors: 2.0.0
-      mime: 1.6.0
-      ms: 2.1.3
-      on-finished: 2.4.1
-      range-parser: 1.2.1
-      statuses: 2.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   send@1.1.0:
     dependencies:
