@@ -214,7 +214,7 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^4.27.4",
     "sass": "^1.81.0",
-    "undici": "^6.21.0",
+    "undici": "^7.2.0",
     "unified": "^11.0.5",
     "vitest": "^3.0.0-beta.3"
   },
