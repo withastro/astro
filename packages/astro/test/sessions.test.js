@@ -43,5 +43,23 @@ describe('Astro.session', () => {
 			const secondSessionId = secondHeaders[0].split(';')[0].split('=')[1];
 			assert.notEqual(firstSessionId, secondSessionId);
 		});
+
+		it('can save session data by value', async () => {
+			const firstResponse = await fetchResponse('/update', { method: 'GET' });
+			const firstValue = await firstResponse.json();
+			assert.equal(firstValue.previousValue, 'none');
+
+			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
+			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
+
+			const secondResponse = await fetchResponse('/update', {
+				method: 'GET',
+				headers: {
+					cookie: `astro-session=${firstSessionId}`,
+				},
+			});
+			const secondValue = await secondResponse.json();
+			assert.equal(secondValue.previousValue, 'expected');
+		});
 	});
 });
