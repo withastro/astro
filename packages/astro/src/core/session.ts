@@ -449,13 +449,6 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			this.#storage = createStorage({
 				driver: driver(this.#config.options),
 			});
-			if (this.#config.driver === 'fs-lite') {
-				// seems to be a race condition in unstorage when the session directory doesn't exist
-				// this ensures that the directory is created before we try to use it for real sessions
-				const dummyId = crypto.randomUUID();
-				await this.#storage.setItem(dummyId, 'init');
-				await this.#storage.removeItem(dummyId);
-			}
 			return this.#storage;
 		} catch (err) {
 			throw new AstroError(
