@@ -112,4 +112,6 @@ declare module 'astro:content' {
 	export type DataCollectionKey = any;
 	/** Run `astro sync` to generate high fidelity types */
 	export type ContentConfig = any;
+	/** Run `astro sync` to generate high fidelity types */
+	export const render: (entry: any) => any;
 }
