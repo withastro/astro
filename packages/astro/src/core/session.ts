@@ -153,7 +153,8 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			});
 		}
 		// save a clone of the passed in object so later updates are not
-		// persisted into the store
+		// persisted into the store. Attempting to serialize also allows
+		// us to throw an error early if needed.
 		let cloned: T;
 		try {
 			cloned = unflatten(JSON.parse(stringify(value)));
