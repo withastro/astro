@@ -3,7 +3,6 @@ import { before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
-import fs from 'node:fs';
 
 describe('Astro.session', () => {
 	/** @type {import('./test-utils').Fixture} */
