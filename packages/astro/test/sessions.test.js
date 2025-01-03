@@ -10,8 +10,6 @@ describe('Astro.session', () => {
 	let fixture;
 
 	before(async () => {
-		// seems to be a race condition in unstorage when the session directory doesn't exist
-		await fs.promises.mkdir('.astro/session', { recursive: true });
 		fixture = await loadFixture({
 			root: './fixtures/sessions/',
 			output: 'server',

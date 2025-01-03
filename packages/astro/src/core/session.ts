@@ -152,9 +152,10 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 				message: 'The session key was not provided.',
 			});
 		}
+		// save a clone of the passed in object so later updates are not
+		// persisted into the store
 		let cloned: T;
 		try {
-			// Attempt to serialize the value so we can throw an error early if needed
 			cloned = unflatten(JSON.parse(stringify(value)));
 		} catch (err) {
 			throw new AstroError(
@@ -393,7 +394,13 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		) {
 			this.#config.options ??= {};
 			this.#config.driver = 'fs-lite';
-			(this.#config.options as BuiltinDriverOptions['fs-lite']).base ??= '.astro/session';
+			const base = ((this.#config.options as BuiltinDriverOptions['fs-lite']).base ??=
+				'.astro/session');
+			// seems to be a race condition in unstorage when the session directory doesn't exist
+			const fs = await import('node:fs');
+			if (!fs.existsSync(base)) {
+				fs.mkdirSync(base, { recursive: true });
+			}
 		}
 
 		if (!this.#config?.driver) {
