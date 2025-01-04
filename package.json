@@ -57,19 +57,19 @@
     "@astrojs/check": "^0.9.4",
     "@biomejs/biome": "1.9.3",
     "@changesets/changelog-github": "^0.5.0",
-    "@changesets/cli": "^2.27.10",
+    "@changesets/cli": "^2.27.11",
     "@types/node": "^18.17.8",
     "esbuild": "^0.21.5",
-    "eslint": "^9.15.0",
+    "eslint": "^9.17.0",
     "eslint-plugin-regexp": "^2.7.0",
     "globby": "^14.0.2",
     "only-allow": "^1.2.1",
-    "prettier": "^3.4.1",
+    "prettier": "^3.4.2",
     "prettier-plugin-astro": "^0.14.1",
     "publint": "^0.2.12",
     "turbo": "^2.3.3",
     "typescript": "~5.7.2",
-    "typescript-eslint": "^8.16.0"
+    "typescript-eslint": "^8.19.0"
   },
   "pnpm": {
     "peerDependencyRules": {
