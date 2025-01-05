@@ -20,8 +20,10 @@ import {
 	getEntryConfigByExtMap,
 	getEntryDataAndImages,
 	globalContentConfigObserver,
+	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
+import type { z } from 'zod';
 
 export interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -29,6 +31,12 @@ export interface ContentLayerOptions {
 	logger: Logger;
 	watcher?: FSWatcher;
 }
+
+type CollectionLoader<TData> = () =>
+	| Array<TData>
+	| Promise<Array<TData>>
+	| Record<string, Record<string, unknown>>
+	| Promise<Record<string, Record<string, unknown>>>;
 
 export class ContentLayer {
 	#logger: Logger;
@@ -266,7 +274,7 @@ export class ContentLayer {
 				});
 
 				if (typeof collection.loader === 'function') {
-					return simpleLoader(collection.loader, context);
+					return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
 				}
 
 				if (!collection.loader.load) {
@@ -325,15 +333,38 @@ export class ContentLayer {
 }
 
 export async function simpleLoader<TData extends { id: string }>(
-	handler: () =>
-		| Array<TData>
-		| Promise<Array<TData>>
-		| Record<string, Record<string, unknown>>
-		| Promise<Record<string, Record<string, unknown>>>,
+	handler: CollectionLoader<TData>,
 	context: LoaderContext,
 ) {
-	const data = await handler();
+	const unsafeData = await handler();
+	const parsedData = loaderReturnSchema.safeParse(unsafeData);
+
+	if (!parsedData.success) {
+		const issue = parsedData.error.issues[0] as z.ZodInvalidUnionIssue;
+
+		// Due to this being a union, zod will always throw an "Expected array, received object" error along with the other errors.
+		// This error is in the second position if the data is an array, and in the first position if the data is an object.
+		const parseIssue = Array.isArray(unsafeData) 
+			? issue.unionErrors[0] 
+			: issue.unionErrors[1];
+
+		const error = parseIssue.errors[0];
+		const firstPathItem = error.path[0];
+
+		const entry = Array.isArray(unsafeData) 
+			? unsafeData[firstPathItem as number] 
+			: unsafeData[firstPathItem as string];
+		
+		throw new AstroError({
+			...AstroErrorData.ContentLoaderReturnsInvalidResult,
+			message: AstroErrorData.ContentLoaderReturnsInvalidResult.message(context.collection, entry, error.message),
+		});
+	}
+
+	const data = parsedData.data;
+
 	context.store.clear();
+
 	if (Array.isArray(data)) {
 		for (const raw of data) {
 			if (!raw.id) {
