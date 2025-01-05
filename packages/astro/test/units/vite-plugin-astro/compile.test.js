@@ -1,16 +1,15 @@
 import * as assert from 'node:assert/strict';
-import { describe, it, before } from 'node:test';
+import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { init, parse } from 'es-module-lexer';
 import { resolveConfig } from 'vite';
 import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
 
-let inlineConfig;
 /**
  * @param {string} source
  * @param {string} id
  */
-async function compile(source, id) {
+async function compile(source, id, inlineConfig = {}) {
 	const viteConfig = await resolveConfig({ configFile: false, ...inlineConfig }, 'serve');
 	return await compileAstro({
 		compileProps: {
@@ -24,10 +23,6 @@ async function compile(source, id) {
 }
 
 describe('astro full compile', () => {
-	before(() => {
-		inlineConfig = {};
-	})
-
 	it('should compile a single file', async () => {
 		const result = await compile(`<h1>Hello World</h1>`, '/src/components/index.astro');
 		assert.ok(result.code);
@@ -86,10 +81,9 @@ using x = {}
 		});
 
 		it('should transform the syntax by esbuild.target', async () => {
-			inlineConfig = {
+			const result = await compile(code, '/src/components/index.astro', {
 				esbuild: { target: 'es2018' },
-			}
-			const result = await compile(code, '/src/components/index.astro');
+			});
 			assert.equal(result.code.includes('using x = {}'), false);
 		});
 	});
