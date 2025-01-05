@@ -183,7 +183,7 @@ function createFileBasedRoutes(
 			validateSegment(segment, file);
 
 			const parts = getParts(segment, file);
-			const isIndex = isDir ? false : basename.substring(0, basename.lastIndexOf('.')) === "index";
+			const isIndex = isDir ? false : basename.substring(0, basename.lastIndexOf('.')) === 'index';
 			const routeSuffix = basename.slice(basename.indexOf('.'), -ext.length);
 			const isPage = validPageExtensions.has(ext);
 
