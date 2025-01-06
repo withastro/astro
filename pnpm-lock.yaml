@@ -379,6 +379,9 @@ importers:
 
   examples/toolbar-app:
     devDependencies:
+      '@types/node':
+        specifier: ^18.17.8
+        version: 18.19.50
       astro:
         specifier: ^5.1.2
         version: link:../../packages/astro
@@ -10999,6 +11002,9 @@ packages:
     resolution: {integrity: sha512-M/wqwtOEjgb956/+m5ZrYT/Iq6Hax0OakWbokj8+9PXOnB7b/4AxESHieEtnNEy7ZpjsjYW1/5nK8fATQMmRxw==}
     peerDependencies:
       vue: '>=3.2.13'
+    peerDependenciesMeta:
+      vue:
+        optional: true
 
   vite@6.0.5:
     resolution: {integrity: sha512-akD5IAH/ID5imgue2DYhzsEwCi0/4VKY31uhMLEYJwPP4TiUp8pL5PIK+Wo7H8qT8JY9i+pVfPydcFPYD1EL7g==}
@@ -17471,6 +17477,7 @@ snapshots:
   vite-svg-loader@5.1.0(vue@3.5.13(typescript@5.7.2)):
     dependencies:
       svgo: 3.3.2
+    optionalDependencies:
       vue: 3.5.13(typescript@5.7.2)
 
   vite@6.0.5(@types/node@18.19.50)(jiti@2.4.0)(sass@1.82.0)(yaml@2.5.1):
