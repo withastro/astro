@@ -5,9 +5,10 @@ import { renderJSX } from 'astro/runtime/server/index.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
-// MDX components are tagged with `__astro_tag_component__` in `vite-plugin-mdx-postprocess.ts`,
-// so this check isn't really useful as any untagged component wouldn't have belonged to MDX,
-// so we always return false here
+// MDX components are tagged with `__astro_tag_component__` in `vite-plugin-mdx-postprocess.ts`
+// and tagged componenets can directly tell Astro which renderer to use in build-time, rather
+// than checking the components in runtime. So this function is made a no-op as any untagged
+// component wouldn't have belonged to MDX.
 export async function check() {
 	return false;
 }
