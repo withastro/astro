@@ -1,0 +1,9 @@
+{
+  "imports": {
+    "@std/testing": "jsr:@std/testing@^1.0.8",
+    "node:test": "./node-remap.ts"
+  },
+  "test": {
+    "exclude": ["**/*.astro", "packages/astro/test/fixtures", "packages/astro/test/env-secret.test.js"]
+  }
+}
