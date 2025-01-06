@@ -47,7 +47,6 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		base,
 	});
 
-	if (!staticPaths.length) return {};
 	// The pathname used here comes from the server, which already encoded.
 	// Since we decided to not mess up with encoding anymore, we need to decode them back so the parameters can match
 	// the ones expected from the users
