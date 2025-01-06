@@ -2598,6 +2598,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/content-collections-number-id:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/content-collections-same-contents:
     dependencies:
       astro:

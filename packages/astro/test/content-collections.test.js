@@ -300,6 +300,21 @@ describe('Content Collections', () => {
 		});
 	});
 
+	describe('With numbers for IDs', () => {
+		it('Throws the right error', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-number-id/',
+			});
+			let error;
+			try {
+				await fixture.build({ force: true });
+			} catch (e) {
+				error = e.message;
+			}
+			assert.match(error, /Content entry `id` must be a string:/);
+		});
+	});
+
 	describe('With empty collections directory', () => {
 		it('Handles the empty directory correctly', async () => {
 			const fixture = await loadFixture({
