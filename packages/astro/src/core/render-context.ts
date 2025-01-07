@@ -592,12 +592,14 @@ export class RenderContext {
 			}
 		} else {
 			// For SSG we match the route naively, for dev we handle fallback on 404, for SSR we find route from fallbackRoutes
-			const route =
-				(routeData.pattern.test(url.pathname)
-					? routeData
-					: routeData.fallbackRoutes.find((fallbackRoute) =>
-							fallbackRoute.pattern.test(url.pathname),
-						)) ?? routeData;
+			let route = routeData;
+			if (!routeData.pattern.test(url.pathname) && routeData.fallbackRoutes) {
+				// if
+				route =
+					routeData.fallbackRoutes.find((fallbackRoute) =>
+						fallbackRoute.pattern.test(url.pathname),
+					) || routeData;
+			}
 			const pathname = route.pathname && !isRoute404or500(route) ? route.pathname : url.pathname;
 			computedLocale = computeCurrentLocale(pathname, locales, defaultLocale);
 		}
