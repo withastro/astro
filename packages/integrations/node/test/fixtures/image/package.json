@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "astro": "^5.0.0",
-    "@astrojs/node": "workspace:*"
+    "@astrojs/node": "workspace:*",
+    "astro": "^5.1.3"
   },
   "peerDependencies": {
     "sharp": "^0.33.5"

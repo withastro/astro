@@ -18,7 +18,6 @@ const createPreviewServer: CreatePreviewServer = async (preview) => {
 			ssrHandler = ssrModule.handler;
 			// biome-ignore lint/style/noNonNullAssertion: <explanation>
 			options = ssrModule.options!;
-			// biome-ignore lint/complexity/useArrowFunction: <explanation>
 		} else {
 			throw new AstroError(
 				`The server entrypoint doesn't have a handler. Are you sure this is the right file?`
