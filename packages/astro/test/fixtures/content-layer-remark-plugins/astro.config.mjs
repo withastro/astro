@@ -15,6 +15,14 @@ export default defineConfig({
 					});
         };
       },
+      function addFrontmatter() {
+        return function (tree, file) {
+          if (file.data.astro?.frontmatter) {
+          file.data.astro.frontmatter.customProperty =
+            'Generated property via remark plugin!';
+          }
+        };
+      }
     ],
   },
 });
