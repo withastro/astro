@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroIntegration, IntegrationRouteData } from 'astro';
+import type { AstroConfig, AstroIntegration, HookParameters, IntegrationRouteData } from 'astro';
 import type { PluginOption } from 'vite';
 
 import { createReadStream } from 'node:fs';
@@ -88,6 +88,7 @@ function setProcessEnv(config: AstroConfig, env: Record<string, unknown>) {
 
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
+	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
 
 	const cloudflareModulePlugin: PluginOption & CloudflareModulePluginExtra = cloudflareModuleLoader(
 		args?.cloudflareModules ?? true
@@ -151,6 +152,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				_config = config;
+				finalBuildOutput = buildOutput;
 
 				setAdapter({
 					name: '@astrojs/cloudflare',
@@ -339,6 +341,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					config: _config,
 					routeToDynamicTargetMap: new Map(Array.from(redirectRoutes)),
 					dir,
+					buildOutput: finalBuildOutput,
 				});
 
 				if (!trueRedirects.empty()) {

@@ -74,6 +74,7 @@ export function createExports(manifest: SSRManifest) {
 							'`passThroughOnException` is currently not available in Cloudflare Pages. See https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions.'
 						);
 					},
+					props: {},
 				},
 			},
 		};
