@@ -10,6 +10,7 @@ import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
 	HookParameters,
+	IntegrationResolvedRoute,
 	IntegrationRouteData,
 } from 'astro';
 import { build } from 'esbuild';
@@ -211,6 +212,28 @@ export default function netlifyIntegration(
 			emptyDir(ssrOutputDir()),
 			emptyDir(ssrBuildDir()),
 		]);
+
+	function resolvedRouteToRouteData(
+		assets: HookParameters<'astro:build:done'>['assets'],
+		route: IntegrationResolvedRoute
+	): IntegrationRouteData {
+		return {
+			pattern: route.patternRegex,
+			component: route.entrypoint,
+			prerender: route.isPrerendered,
+			route: route.pattern,
+			generate: route.generate,
+			params: route.params,
+			segments: route.segments,
+			type: route.type,
+			pathname: route.pathname,
+			redirect: route.redirect,
+			distURL: assets.get(route.pattern),
+			redirectRoute: route.redirectRoute
+				? resolvedRouteToRouteData(assets, route.redirectRoute)
+				: undefined,
+		};
+	}
 
 	async function writeRedirects(
 		routes: IntegrationRouteData[],
@@ -432,6 +455,8 @@ export default function netlifyIntegration(
 		return context;
 	}
 
+	let routes: IntegrationResolvedRoute[];
+
 	return {
 		name: '@astrojs/netlify',
 		hooks: {
@@ -464,6 +489,9 @@ export default function netlifyIntegration(
 					},
 				});
 			},
+			'astro:routes:resolved': (params) => {
+				routes = params.routes;
+			},
 			'astro:config:done': async ({ config, setAdapter, logger, buildOutput }) => {
 				rootDir = config.root;
 				_config = config;
@@ -494,8 +522,12 @@ export default function netlifyIntegration(
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
 				astroMiddlewareEntryPoint = middlewareEntryPoint;
 			},
-			'astro:build:done': async ({ routes, dir, logger }) => {
-				await writeRedirects(routes, dir, finalBuildOutput);
+			'astro:build:done': async ({ assets, dir, logger }) => {
+				await writeRedirects(
+					routes.map((route) => resolvedRouteToRouteData(assets, route)),
+					dir,
+					finalBuildOutput
+				);
 				logger.info('Emitted _redirects');
 
 				if (finalBuildOutput !== 'static') {
