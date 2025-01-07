@@ -73,13 +73,12 @@ function getImageComponentAttributes(props: Properties): MdxJsxAttribute[] {
 
 export function rehypeImageToComponent() {
 	return function (tree: Root, file: VFile) {
-		if (!file.data.astro?.imagePaths) return;
-
+		if (!file.data.astro?.imagePaths?.length) return;
 		const importsStatements: MdxjsEsm[] = [];
 		const importedImages = new Map<string, string>();
 
 		visit(tree, 'element', (node, index, parent) => {
-			if (!file.data.astro?.imagePaths || node.tagName !== 'img' || !node.properties.src) return;
+			if (!file.data.astro?.imagePaths?.length || node.tagName !== 'img' || !node.properties.src) return;
 
 			const src = decodeURI(String(node.properties.src));
 
