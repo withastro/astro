@@ -87,5 +87,4 @@ using x = {}
 			assert.equal(result.code.includes('using x = {}'), false);
 		});
 	});
-
 });
