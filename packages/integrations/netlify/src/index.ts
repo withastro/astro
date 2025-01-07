@@ -482,7 +482,7 @@ export default function netlifyIntegration(
 						staticOutput: 'stable',
 						serverOutput: 'stable',
 						sharpImageService: 'stable',
-						envGetSecret: 'experimental',
+						envGetSecret: 'stable',
 					},
 				});
 			},
