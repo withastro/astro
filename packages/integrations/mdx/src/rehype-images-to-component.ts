@@ -78,7 +78,8 @@ export function rehypeImageToComponent() {
 		const importedImages = new Map<string, string>();
 
 		visit(tree, 'element', (node, index, parent) => {
-			if (!file.data.astro?.imagePaths?.length || node.tagName !== 'img' || !node.properties.src) return;
+			if (!file.data.astro?.imagePaths?.length || node.tagName !== 'img' || !node.properties.src)
+				return;
 
 			const src = decodeURI(String(node.properties.src));
 
