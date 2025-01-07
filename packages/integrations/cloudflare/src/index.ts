@@ -166,7 +166,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						staticOutput: 'unsupported',
 						i18nDomains: 'experimental',
 						sharpImageService: 'limited',
-						envGetSecret: 'experimental',
+						envGetSecret: 'stable',
 					},
 				});
 			},
