@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Modified compileAstro to reflect the settings in viteConfig.esbuild
+Allows configuring Astro modules TypeScript compilation with the `vite.esbuild` config
