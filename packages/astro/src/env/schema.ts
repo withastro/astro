@@ -89,7 +89,7 @@ const EnvFieldMetadata = z.custom<z.input<typeof _EnvFieldMetadata>>().superRefi
 		if (issue.code === z.ZodIssueCode.invalid_union) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				message: `**Invalid combination** of "access" and "context" options:\n  Review the configuration of \`env.schema.${ctx.path.at(-1)}\`.\n  Learn more at https://docs.astro.build/en/guides/environment-variables/#variable-types`,
+				message: `**Invalid combination** of "access" and "context" options:\n  Server client variables are not supported, review the configuration of \`env.schema.${ctx.path.at(-1)}\`.\n  Learn more at https://docs.astro.build/en/guides/environment-variables/#variable-types`,
 				path: ['context', 'access'],
 			});
 		} else {
