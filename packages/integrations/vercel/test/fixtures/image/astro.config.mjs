@@ -1,4 +1,4 @@
-import vercel from '@astrojs/vercel/static';
+import vercel from '@astrojs/vercel';
 import { defineConfig } from 'astro/config';
 import { testImageService } from '../../test-image-service.js';
 
