@@ -125,7 +125,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 
 		const assetsTimer = performance.now();
 		for (const [originalPath, transforms] of staticImageList) {
-			await generateImagesForPath(originalPath, transforms, assetsCreationPipeline, queue);
+			generateImagesForPath(originalPath, transforms, assetsCreationPipeline, queue);
 		}
 
 		await queue.onIdle();
