@@ -42,6 +42,10 @@ describe('ISR', () => {
 				dest: '_render',
 			},
 			{
+				src: '^\\/_server-islands\\/([^/]+?)\\/?$',
+				dest: '_render',
+			},
+			{
 				src: '^\\/_image\\/?$',
 				dest: '_render',
 			},

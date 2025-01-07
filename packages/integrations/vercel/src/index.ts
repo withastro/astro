@@ -8,6 +8,7 @@ import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
 	HookParameters,
+	IntegrationResolvedRoute,
 	IntegrationRouteData,
 } from 'astro';
 import glob from 'fast-glob';
@@ -194,6 +195,7 @@ export default function vercelAdapter({
 	let _buildOutput: 'server' | 'static';
 
 	let staticDir: URL | undefined;
+	let routes: IntegrationResolvedRoute[];
 
 	return {
 		name: PACKAGE_NAME,
@@ -227,6 +229,9 @@ export default function vercelAdapter({
 						config.image
 					),
 				});
+			},
+			'astro:routes:resolved': (params) => {
+				routes = params.routes;
 			},
 			'astro:config:done': ({ setAdapter, config, logger, buildOutput }) => {
 				_buildOutput = buildOutput;
@@ -290,7 +295,7 @@ export default function vercelAdapter({
 				);
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
-			'astro:build:done': async ({ routes, logger }: HookParameters<'astro:build:done'>) => {
+			'astro:build:done': async ({ assets, logger }: HookParameters<'astro:build:done'>) => {
 				const outDir = new URL('./.vercel/output/', _config.root);
 				if (staticDir) {
 					if (existsSync(staticDir)) {
@@ -385,15 +390,19 @@ export default function vercelAdapter({
 							}
 							await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
 							for (const route of routes) {
-								const src = route.pattern.source;
-								const dest = src.startsWith('^\\/_image') ? NODE_PATH : ISR_PATH;
-								if (!route.prerender) routeDefinitions.push({ src, dest });
+								const src = route.patternRegex.source;
+								const dest =
+									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
+										? NODE_PATH
+										: ISR_PATH;
+								if (!route.isPrerendered) routeDefinitions.push({ src, dest });
 							}
 						} else {
 							await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of routes) {
-								if (!route.prerender) routeDefinitions.push({ src: route.pattern.source, dest });
+								if (!route.isPrerendered)
+									routeDefinitions.push({ src: route.patternRegex.source, dest });
 							}
 						}
 					}
@@ -408,7 +417,10 @@ export default function vercelAdapter({
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				const destination = new URL('./.vercel/output/config.json', _config.root);
 				const finalRoutes = [
-					...getRedirects(routes, _config),
+					...getRedirects(
+						routes.map((route) => resolvedRouteToRouteData(assets, route)),
+						_config
+					),
 					{
 						src: `^/${_config.build.assets}/(.*)$`,
 						headers: { 'cache-control': 'public, max-age=31536000, immutable' },
@@ -424,7 +436,7 @@ export default function vercelAdapter({
 					if (_buildOutput === 'server') {
 						finalRoutes.push({
 							src: '/.*',
-							dest: fourOhFourRoute.prerender
+							dest: fourOhFourRoute.isPrerendered
 								? '/404.html'
 								: _middlewareEntryPoint
 									? MIDDLEWARE_PATH
@@ -473,6 +485,28 @@ export default function vercelAdapter({
 				}
 			},
 		},
+	};
+}
+
+function resolvedRouteToRouteData(
+	assets: HookParameters<'astro:build:done'>['assets'],
+	route: IntegrationResolvedRoute
+): IntegrationRouteData {
+	return {
+		pattern: route.patternRegex,
+		component: route.entrypoint,
+		prerender: route.isPrerendered,
+		route: route.pattern,
+		generate: route.generate,
+		params: route.params,
+		segments: route.segments,
+		type: route.type,
+		pathname: route.pathname,
+		redirect: route.redirect,
+		distURL: assets.get(route.pattern),
+		redirectRoute: route.redirectRoute
+			? resolvedRouteToRouteData(assets, route.redirectRoute)
+			: undefined,
 	};
 }
 
