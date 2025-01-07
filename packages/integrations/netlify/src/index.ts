@@ -212,7 +212,11 @@ export default function netlifyIntegration(
 			emptyDir(ssrBuildDir()),
 		]);
 
-	async function writeRedirects(routes: IntegrationRouteData[], dir: URL) {
+	async function writeRedirects(
+		routes: IntegrationRouteData[],
+		dir: URL,
+		buildOutput: HookParameters<'astro:config:done'>['buildOutput']
+	) {
 		const fallback = finalBuildOutput === 'static' ? '/.netlify/static' : '/.netlify/functions/ssr';
 		const redirects = createRedirectsFromAstroRoutes({
 			config: _config,
@@ -228,6 +232,7 @@ export default function netlifyIntegration(
 						return [route, fallback];
 					})
 			),
+			buildOutput,
 		});
 
 		if (!redirects.empty()) {
@@ -490,7 +495,7 @@ export default function netlifyIntegration(
 				astroMiddlewareEntryPoint = middlewareEntryPoint;
 			},
 			'astro:build:done': async ({ routes, dir, logger }) => {
-				await writeRedirects(routes, dir);
+				await writeRedirects(routes, dir, finalBuildOutput);
 				logger.info('Emitted _redirects');
 
 				if (finalBuildOutput !== 'static') {
