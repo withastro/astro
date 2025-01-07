@@ -1,4 +1,10 @@
-import type { AstroConfig, AstroIntegration, HookParameters, IntegrationRouteData } from 'astro';
+import type {
+	AstroConfig,
+	AstroIntegration,
+	HookParameters,
+	IntegrationResolvedRoute,
+	IntegrationRouteData,
+} from 'astro';
 import type { PluginOption } from 'vite';
 
 import { createReadStream } from 'node:fs';
@@ -10,7 +16,6 @@ import {
 	removeLeadingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
-import astroWhen from '@inox-tools/astro-when';
 import { AstroError } from 'astro/errors';
 import { defaultClientConditions } from 'vite';
 import { type GetPlatformProxyOptions, getPlatformProxy } from 'wrangler';
@@ -86,6 +91,28 @@ function setProcessEnv(config: AstroConfig, env: Record<string, unknown>) {
 	}
 }
 
+function resolvedRouteToRouteData(
+	assets: HookParameters<'astro:build:done'>['assets'],
+	route: IntegrationResolvedRoute
+): IntegrationRouteData {
+	return {
+		pattern: route.patternRegex,
+		component: route.entrypoint,
+		prerender: route.isPrerendered,
+		route: route.pattern,
+		generate: route.generate,
+		params: route.params,
+		segments: route.segments,
+		type: route.type,
+		pathname: route.pathname,
+		redirect: route.redirect,
+		distURL: assets.get(route.pattern),
+		redirectRoute: route.redirectRoute
+			? resolvedRouteToRouteData(assets, route.redirectRoute)
+			: undefined,
+	};
+}
+
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
@@ -93,6 +120,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	const cloudflareModulePlugin: PluginOption & CloudflareModulePluginExtra = cloudflareModuleLoader(
 		args?.cloudflareModules ?? true
 	);
+
+	let _routes: IntegrationResolvedRoute[];
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -129,7 +158,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							},
 						],
 					},
-					integrations: [astroWhen()],
 					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
 				});
 				if (args?.platformProxy?.configPath) {
@@ -143,6 +171,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					entrypoint: '@astrojs/cloudflare/entrypoints/middleware.js',
 					order: 'pre',
 				});
+			},
+			'astro:routes:resolved': ({ routes }) => {
+				_routes = routes;
 			},
 			'astro:config:done': ({ setAdapter, config, buildOutput, logger }) => {
 				if (buildOutput === 'static') {
@@ -167,7 +198,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						hybridOutput: 'stable',
 						staticOutput: 'unsupported',
 						i18nDomains: 'experimental',
-						sharpImageService: 'limited',
+						sharpImageService: {
+							support: 'limited',
+							message:
+								'Cloudflare does not support sharp. You can use the `compile` image service to compile images at build time. It will not work for any on-demand rendered images.',
+						},
 						envGetSecret: 'stable',
 					},
 				});
@@ -260,7 +295,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					};
 				}
 			},
-			'astro:build:done': async ({ pages, routes, dir, logger }) => {
+			'astro:build:done': async ({ pages, dir, logger, assets }) => {
 				await cloudflareModulePlugin.afterBuildCompleted(_config);
 				const PLATFORM_FILES = ['_headers', '_redirects', '_routes.json'];
 				if (_config.base !== '/') {
@@ -285,7 +320,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					redirectsExists = false;
 				}
 
-				const redirects: IntegrationRouteData['segments'][] = [];
+				const redirects: IntegrationResolvedRoute['segments'][] = [];
 				if (redirectsExists) {
 					const rl = createInterface({
 						input: createReadStream(new URL('./_redirects', _config.outDir)),
@@ -324,7 +359,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					await createRoutesFile(
 						_config,
 						logger,
-						routes,
+						_routes,
 						pages,
 						redirects,
 						args?.routes?.extend?.include,
@@ -333,8 +368,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				const redirectRoutes: [IntegrationRouteData, string][] = [];
-				for (const route of routes) {
-					if (route.type === 'redirect') redirectRoutes.push([route, '']);
+				for (const route of _routes) {
+					// TODO: Replace workaround after upstream @astrojs/underscore-redirects is changed, to support new IntegrationResolvedRoute type
+					if (route.type === 'redirect')
+						redirectRoutes.push([resolvedRouteToRouteData(assets, route), '']);
 				}
 
 				const trueRedirects = createRedirectsFromAstroRoutes({
