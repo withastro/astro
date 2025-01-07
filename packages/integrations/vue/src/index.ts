@@ -116,7 +116,7 @@ async function getViteConfiguration(
 
 	const config: UserConfig = {
 		optimizeDeps: {
-			include: ['@astrojs/vue/client.js', 'vue'],
+			include: ['@astrojs/vue/client.js'],
 			exclude: ['@astrojs/vue/server.js', VIRTUAL_MODULE_ID],
 		},
 		plugins: [vue(vueOptions), virtualAppEntrypoint(vueOptions)],
