@@ -197,9 +197,11 @@ export async function generateImagesForPath(
 				
 				// Upgrade old base64 encoded asset cache to the new format
 				if (JSONData.data) {
+					const { data, ...meta } = JSONData;
+					
 					await Promise.all([
-						fs.promises.writeFile(cachedFileURL, Buffer.from(JSONData.data, 'base64')),
-						writeCacheMetaFile(cachedMetaFileURL, JSONData as Omit<ImageData, 'data'>, env),
+						fs.promises.writeFile(cachedFileURL, Buffer.from(data, 'base64')),
+						writeCacheMetaFile(cachedMetaFileURL, meta, env),
 					]);
 				}
 				
