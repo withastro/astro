@@ -67,9 +67,9 @@ export default async function sync(
 		settings,
 		logger,
 	});
-	const manifest = await createRouteManifest({ settings, fsMod: fs }, logger);
-
 	await runHookConfigDone({ settings, logger });
+
+	const manifest = await createRouteManifest({ settings, fsMod: fs }, logger);
 
 	return await syncInternal({
 		settings,

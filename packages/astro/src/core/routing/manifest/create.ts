@@ -516,7 +516,9 @@ export async function createRouteManifest(
 		...[...filteredFiledBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
 	];
 
-	settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
+	// NOTE: `buildOutput` may already be set by `runHookConfigDone` if the adapter only
+	// support server build output
+	settings.buildOutput ??= getPrerenderDefault(config) ? 'static' : 'server';
 
 	// Check the prerender option for each route
 	const limit = pLimit(10);

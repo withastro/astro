@@ -119,10 +119,9 @@ class AstroBuilder {
 			command: 'build',
 			logger: logger,
 		});
+		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 
 		this.manifest = await createRouteManifest({ settings: this.settings }, this.logger);
-
-		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 
 		// If we're building for the server, we need to ensure that an adapter is installed.
 		// If the adapter installed does not support a server output, an error will be thrown when the adapter is added, so no need to check here.

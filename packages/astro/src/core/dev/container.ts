@@ -53,6 +53,7 @@ export async function createContainer({
 		logger: logger,
 		isRestart,
 	});
+	await runHookConfigDone({ settings, logger, command: 'dev' });
 
 	const {
 		base,
@@ -84,8 +85,6 @@ export async function createContainer({
 	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
 	const manifest = await createRouteManifest({ settings, fsMod: fs }, logger, { dev: true });
 	const devSSRManifest = createDevelopmentManifest(settings);
-
-	await runHookConfigDone({ settings, logger, command: 'dev' });
 
 	warnMissingAdapter(logger, settings);
 

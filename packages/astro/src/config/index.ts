@@ -53,6 +53,7 @@ export function getViteConfig(
 		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
 		let settings = await createSettings(config, userViteConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
+		await runHookConfigDone({ settings, logger });
 		const manifest = await createRouteManifest({ settings }, logger);
 		const devSSRManifest = createDevelopmentManifest(settings);
 		const viteConfig = await createVite(
@@ -66,7 +67,6 @@ export function getViteConfig(
 			},
 			{ settings, command: cmd, logger, mode, sync: false, manifest, ssrManifest: devSSRManifest },
 		);
-		await runHookConfigDone({ settings, logger });
 		return mergeConfig(viteConfig, userViteConfig);
 	};
 }
