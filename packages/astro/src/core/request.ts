@@ -1,5 +1,4 @@
 import type { IncomingHttpHeaders } from 'node:http';
-import { AstroError, AstroErrorData } from './errors/index.js';
 import type { Logger } from './logger/core.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
@@ -102,33 +101,4 @@ export function createRequest({
 	}
 
 	return request;
-}
-
-/**
- * Utility function that creates a new `Request` with a new URL from an old `Request`.
- *
- * @param newUrl The new `URL`
- * @param oldRequest The old `Request`
- */
-export function copyRequest(newUrl: URL, oldRequest: Request, isPrerendered: boolean): Request {
-	if (oldRequest.bodyUsed) {
-		throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
-	}
-	return new Request(newUrl, {
-		method: oldRequest.method,
-		headers: isPrerendered ? {} : oldRequest.headers,
-		body: oldRequest.body,
-		referrer: oldRequest.referrer,
-		referrerPolicy: oldRequest.referrerPolicy,
-		mode: oldRequest.mode,
-		credentials: oldRequest.credentials,
-		cache: oldRequest.cache,
-		redirect: oldRequest.redirect,
-		integrity: oldRequest.integrity,
-		signal: oldRequest.signal,
-		keepalive: oldRequest.keepalive,
-		// https://fetch.spec.whatwg.org/#dom-request-duplex
-		// @ts-expect-error It isn't part of the types, but undici accepts it and it allows to carry over the body to a new request
-		duplex: 'half',
-	});
 }
