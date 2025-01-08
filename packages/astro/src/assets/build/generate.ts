@@ -1,7 +1,6 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
 import { dim, green } from 'kleur/colors';
-import type PQueue from 'p-queue';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
 import type { BuildPipeline } from '../../core/build/pipeline.js';
 import { getTimeStat } from '../../core/build/util.js';
@@ -101,16 +100,11 @@ export async function generateImagesForPath(
 	originalFilePath: string,
 	transformsAndPath: MapValue<AssetsGlobalStaticImagesList>,
 	env: AssetEnv,
-	queue: PQueue,
 ) {
 	let originalImage: ImageData;
 
 	for (const [_, transform] of transformsAndPath.transforms) {
-		await queue
-			.add(async () => generateImage(transform.finalPath, transform.transform))
-			.catch((e) => {
-				throw e;
-			});
+		await generateImage(transform.finalPath, transform.transform);
 	}
 
 	// In SSR, we cannot know if an image is referenced in a server-rendered page, so we can't delete anything
