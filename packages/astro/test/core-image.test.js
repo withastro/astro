@@ -61,6 +61,9 @@ describe('astro:image', () => {
 				assert.equal($img.attr('src').startsWith('/_image'), true);
 			});
 
+			it('does not inject responsive image styles when not enabled', () => {
+				assert.ok(!html.includes('[data-astro-image]'));
+			});
 			it('includes loading and decoding attributes', () => {
 				let $img = $('#local img');
 				assert.equal(!!$img.attr('loading'), true);
