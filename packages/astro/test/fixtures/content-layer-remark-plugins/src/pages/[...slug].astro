@@ -10,7 +10,7 @@ export async function getStaticPaths() {
 }
 
 const { doc } = Astro.props;
-const { Content } = await render(doc);
+const { Content, remarkPluginFrontmatter } = await render(doc);
 ---
 
 <!DOCTYPE html>
@@ -22,6 +22,7 @@ const { Content } = await render(doc);
 </head>
 <body>
 	<h1>{doc.data.title}</h1>
+  <div id="frontmatter-custom-property">{remarkPluginFrontmatter?.customProperty}</div>
 	<Content />
 </body>
 </html>

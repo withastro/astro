@@ -202,7 +202,7 @@ describe('Content Collections - render()', () => {
 			assert.equal($('ul li').length, 3);
 
 			// Includes styles
-			assert.equal($('head > style').length, 2);
+			assert.equal($('head > style').length, 1);
 			assert.ok($('head > style').text().includes("font-family: 'Comic Sans MS'"));
 		});
 

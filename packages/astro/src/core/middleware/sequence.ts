@@ -62,7 +62,11 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						) {
 							throw new AstroError({
 								...ForbiddenRewrite,
-								message: ForbiddenRewrite.message(pathname, pathname, routeData.component),
+								message: ForbiddenRewrite.message(
+									handleContext.url.pathname,
+									pathname,
+									routeData.component,
+								),
 								hint: ForbiddenRewrite.hint(routeData.component),
 							});
 						}
