@@ -49,10 +49,11 @@ describe('astro:image', () => {
 
 		describe('basics', () => {
 			let $;
+			let body;
 			before(async () => {
 				let res = await fixture.fetch('/');
-				let html = await res.text();
-				$ = cheerio.load(html);
+				body = await res.text();
+				$ = cheerio.load(body);
 			});
 
 			it('Adds the <img> tag', () => {
@@ -61,6 +62,9 @@ describe('astro:image', () => {
 				assert.equal($img.attr('src').startsWith('/_image'), true);
 			});
 
+			it('does not inject responsive image styles when not enabled', () => {
+				assert.ok(!body.includes('[data-astro-image]'));
+			});
 			it('includes loading and decoding attributes', () => {
 				let $img = $('#local img');
 				assert.equal(!!$img.attr('loading'), true);

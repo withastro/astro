@@ -39,7 +39,7 @@ describe('Head injection w/ MDX', () => {
 			const { document } = parseHTML(html);
 
 			const links = document.querySelectorAll('head link[rel=stylesheet]');
-			assert.equal(links.length, 2);
+			assert.equal(links.length, 1);
 		});
 
 		it('injects content from a component using Content#render()', async () => {
@@ -47,7 +47,7 @@ describe('Head injection w/ MDX', () => {
 			const { document } = parseHTML(html);
 
 			const links = document.querySelectorAll('head link[rel=stylesheet]');
-			assert.equal(links.length, 2);
+			assert.equal(links.length, 1);
 
 			const scripts = document.querySelectorAll('script[type=module]');
 			assert.equal(scripts.length, 1);
@@ -79,7 +79,7 @@ describe('Head injection w/ MDX', () => {
 			const $ = cheerio.load(html);
 
 			const headLinks = $('head link[rel=stylesheet]');
-			assert.equal(headLinks.length, 2);
+			assert.equal(headLinks.length, 1);
 
 			const bodyLinks = $('body link[rel=stylesheet]');
 			assert.equal(bodyLinks.length, 0);
