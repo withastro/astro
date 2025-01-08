@@ -28,7 +28,7 @@ describe('MDX math', () => {
 			const mjxContainer = document.querySelector('mjx-container[jax="SVG"]');
 			assert.notEqual(mjxContainer, null);
 
-			const mjxStyle = document.querySelectorAll('style')[1].innerHTML;
+			const mjxStyle = document.querySelectorAll('style')[0].innerHTML;
 			assert.equal(
 				mjxStyle.includes('mjx-container[jax="SVG"]'),
 				true,
@@ -62,7 +62,7 @@ describe('MDX math', () => {
 			const mjxContainer = document.querySelector('mjx-container[jax="CHTML"]');
 			assert.notEqual(mjxContainer, null);
 
-			const mjxStyle = document.querySelectorAll('style')[1].innerHTML;
+			const mjxStyle = document.querySelectorAll('style')[0].innerHTML;
 			assert.equal(
 				mjxStyle.includes('mjx-container[jax="CHTML"]'),
 				true,
