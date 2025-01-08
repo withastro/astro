@@ -26,7 +26,7 @@ export function baseMiddleware(
 		try {
 			pathname = decodeURI(new URL(url, 'http://localhost').pathname);
 		} catch (e) {
-			/* malform uri */
+			/* malformed uri */
 			return next(e);
 		}
 
