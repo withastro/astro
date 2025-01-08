@@ -181,7 +181,7 @@ async function generatePage(
 		const timeStart = performance.now();
 		pipeline.logger.debug('build', `Generating: ${path}`);
 
-		const filePath = getOutputFilename(config, path, pageData.route.type);
+		const filePath = getOutputFilename(config, path, pageData.route);
 		const lineIcon =
 			(index === paths.length - 1 && !isConcurrent) || paths.length === 1 ? '└─' : '├─';
 
