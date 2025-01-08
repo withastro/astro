@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
-import type { RouteType } from '../types/public/internal.js';
+import type { RouteData } from '../types/public/internal.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { removeQueryString, removeTrailingForwardSlash, slash } from './path.js';
 
@@ -43,14 +43,17 @@ const STATUS_CODE_PAGES = new Set(['/404', '/500']);
  * Handles both "/foo" and "foo" `name` formats.
  * Handles `/404` and `/` correctly.
  */
-export function getOutputFilename(astroConfig: AstroConfig, name: string, type: RouteType) {
-	if (type === 'endpoint') {
+export function getOutputFilename(astroConfig: AstroConfig, name: string, routeData: RouteData) {
+	if (routeData.type === 'endpoint') {
 		return name;
 	}
 	if (name === '/' || name === '') {
 		return path.posix.join(name, 'index.html');
 	}
 	if (astroConfig.build.format === 'file' || STATUS_CODE_PAGES.has(name)) {
+		return `${removeTrailingForwardSlash(name || 'index')}.html`;
+	}
+	if (astroConfig.build.format === 'preserve' && !routeData.isIndex) {
 		return `${removeTrailingForwardSlash(name || 'index')}.html`;
 	}
 	return path.posix.join(name, 'index.html');
