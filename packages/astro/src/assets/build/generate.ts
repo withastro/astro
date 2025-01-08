@@ -334,7 +334,6 @@ async function writeCacheMetaFile(
 		return await fs.promises.writeFile(
 			cachedMetaFileURL,
 			JSON.stringify({
-				// data: Buffer.from(resultData.data).toString('base64'),
 				expires: resultData.expires,
 				etag: resultData.etag,
 				lastModified: resultData.lastModified,
