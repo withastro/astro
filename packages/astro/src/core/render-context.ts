@@ -45,6 +45,7 @@ export class RenderContext {
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
+		// It must be a DECODED pathname
 		public pathname: string,
 		public request: Request,
 		public routeData: RouteData,
@@ -90,7 +91,7 @@ export class RenderContext {
 			pipeline,
 			locals,
 			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
-			decodeURI(pathname),
+			pathname,
 			request,
 			routeData,
 			status,
@@ -102,7 +103,6 @@ export class RenderContext {
 			partial,
 		);
 	}
-
 	/**
 	 * The main function of the RenderContext.
 	 *

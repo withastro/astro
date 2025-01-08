@@ -366,7 +366,8 @@ async function cleanServerOutput(
 			files.map(async (filename) => {
 				const url = new URL(filename, out);
 				const map = new URL(url + '.map');
-				await Promise.all([fs.promises.rm(url), fs.promises.rm(new URL(map)).catch((e) => {})]);
+				// Sourcemaps may not be generated, so ignore any errors if fail to remove it
+				await Promise.all([fs.promises.rm(url), fs.promises.rm(map).catch(() => {})]);
 			}),
 		);
 

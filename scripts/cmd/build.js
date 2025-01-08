@@ -48,7 +48,6 @@ export default async function build(...args) {
 	const noClean = args.includes('--no-clean-dist');
 	const bundle = args.includes('--bundle');
 	const forceCJS = args.includes('--force-cjs');
-	const copyWASM = args.includes('--copy-wasm');
 
 	const { type = 'module', dependencies = {} } = await readPackageJSON('./package.json');
 
