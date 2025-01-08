@@ -70,10 +70,12 @@ export function astroContentVirtualModPlugin({
 			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
 		},
 		buildStart() {
-			// We defer adding the data store file to the watcher until the server is ready
-			devServer.watcher.add(fileURLToPath(dataStoreFile));
-			// Manually invalidate the data store to avoid a race condition in file watching
-			invalidateDataStore(devServer);
+			if (devServer) {
+				// We defer adding the data store file to the watcher until the server is ready
+				devServer.watcher.add(fileURLToPath(dataStoreFile));
+				// Manually invalidate the data store to avoid a race condition in file watching
+				invalidateDataStore(devServer);
+			}
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
