@@ -10,9 +10,8 @@ import type {
 	UnresolvedImageTransform,
 } from '../dist/types/public/index.js';
 import type { HTMLAttributes } from '../types';
-import './image.css';
 
-type Props = (LocalImageProps | RemoteImageProps) & {
+export type Props = (LocalImageProps | RemoteImageProps) & {
 	formats?: ImageOutputFormat[];
 	fallbackFormat?: ImageOutputFormat;
 	pictureAttributes?: HTMLAttributes<'picture'>;

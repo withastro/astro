@@ -99,7 +99,7 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 		referencedImages: new Set(),
 	};
 
-	const usesResponsiveImages = settings.config.experimental.responsiveImages;
+	const imageComponentPrefix = settings.config.experimental.responsiveImages ? 'Responsive' : '';
 	return [
 		// Expose the components and different utilities from `astro:assets`
 		{
@@ -120,9 +120,8 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 					return /* ts */ `
 					export { getConfiguredImageService, isLocalService } from "astro/assets";
 					import { getImage as getImageInternal } from "astro/assets";
-					${usesResponsiveImages ? `import "astro/components/image.css"` : ''}
-					export { default as Image } from "astro/components/Image.astro";
-					export { default as Picture } from "astro/components/Picture.astro";
+					export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
+					export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
 					export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
 					export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
