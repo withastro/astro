@@ -6,11 +6,10 @@ import { diffWords } from 'diff';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
 import { type ASTNode, type ProxifiedModule, builders, generateCode, loadFile } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
-import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
-import { exec } from 'tinyexec';
+import yoctoSpinner from 'yocto-spinner';
 import {
 	loadTSConfig,
 	resolveConfig,
@@ -30,6 +29,7 @@ import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
+import { exec } from '../exec.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
 
@@ -89,7 +89,7 @@ export default async function seed() {
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	netlify: '@astrojs/netlify',
-	vercel: '@astrojs/vercel/serverless',
+	vercel: '@astrojs/vercel',
 	cloudflare: '@astrojs/cloudflare',
 	node: '@astrojs/node',
 };
@@ -344,7 +344,11 @@ export async function add(names: string[], { flags }: AddOptions) {
 			logger.info('SKIP_FORMAT', msg.success(`Configuration up-to-date.`));
 			break;
 		}
-		default: {
+		// NOTE: failure shouldn't happen in practice because `updateAstroConfig` doesn't return that.
+		// Pipe this to the same handling as `UpdateResult.updated` for now.
+		case UpdateResult.failure:
+		case UpdateResult.updated:
+		case undefined: {
 			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
 			logger.info(
 				'SKIP_FORMAT',
@@ -375,7 +379,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 				`Unknown error parsing tsconfig.json or jsconfig.json. Could not update TypeScript settings.`,
 			);
 		}
-		default:
+		case UpdateResult.updated:
 			logger.info('SKIP_FORMAT', msg.success(`Successfully updated TypeScript settings`));
 	}
 }
@@ -390,13 +394,16 @@ function isAdapter(
 // Some examples:
 //  - @astrojs/image => image
 //  - @astrojs/markdown-component => markdownComponent
+//  - @astrojs/image@beta => image
 //  - astro-cast => cast
+//  - astro-cast@next => cast
 //  - markdown-astro => markdown
 //  - some-package => somePackage
 //  - example.com => exampleCom
 //  - under_score => underScore
 //  - 123numeric => numeric
 //  - @npm/thingy => npmThingy
+//  - @npm/thingy@1.2.3 => npmThingy
 //  - @jane/foo.js => janeFoo
 //  - @tokencss/astro => tokencss
 const toIdent = (name: string) => {
@@ -409,7 +416,9 @@ const toIdent = (name: string) => {
 		// convert to camel case
 		.replace(/[.\-_/]+([a-zA-Z])/g, (_, w) => w.toUpperCase())
 		// drop invalid first characters
-		.replace(/^[^a-zA-Z$_]+/, '');
+		.replace(/^[^a-zA-Z$_]+/, '')
+		// drop version or tag
+		.replace(/@.*$/, '');
 	return `${ident[0].toLowerCase()}${ident.slice(1)}`;
 };
 
@@ -461,10 +470,6 @@ export function setAdapter(
 			local: adapterId,
 			from: exportName,
 		});
-	}
-
-	if (!config.output) {
-		config.output = 'server';
 	}
 
 	switch (adapter.id) {
@@ -670,7 +675,7 @@ async function tryToInstallIntegrations({
 		);
 
 		if (await askToContinue({ flags })) {
-			const spinner = ora('Installing dependencies...').start();
+			const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
 			try {
 				await exec(
 					installCommand.pm,
@@ -688,10 +693,10 @@ async function tryToInstallIntegrations({
 						},
 					},
 				);
-				spinner.succeed();
+				spinner.success();
 				return UpdateResult.updated;
 			} catch (err: any) {
-				spinner.fail();
+				spinner.error();
 				logger.debug('add', 'Error installing dependencies', err);
 				// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
 				console.error('\n', err.stdout || err.message, '\n');
@@ -704,7 +709,7 @@ async function tryToInstallIntegrations({
 }
 
 async function validateIntegrations(integrations: string[]): Promise<IntegrationInfo[]> {
-	const spinner = ora('Resolving packages...').start();
+	const spinner = yoctoSpinner({ text: 'Resolving packages...' }).start();
 	try {
 		const integrationEntries = await Promise.all(
 			integrations.map(async (integration): Promise<IntegrationInfo> => {
@@ -722,9 +727,9 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 					const firstPartyPkgCheck = await fetchPackageJson('@astrojs', name, tag);
 					if (firstPartyPkgCheck instanceof Error) {
 						if (firstPartyPkgCheck.message) {
-							spinner.warn(yellow(firstPartyPkgCheck.message));
+							spinner.warning(yellow(firstPartyPkgCheck.message));
 						}
-						spinner.warn(yellow(`${bold(integration)} is not an official Astro package.`));
+						spinner.warning(yellow(`${bold(integration)} is not an official Astro package.`));
 						const response = await prompts({
 							type: 'confirm',
 							name: 'askToContinue',
@@ -749,7 +754,7 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 					const thirdPartyPkgCheck = await fetchPackageJson(scope, name, tag);
 					if (thirdPartyPkgCheck instanceof Error) {
 						if (thirdPartyPkgCheck.message) {
-							spinner.warn(yellow(thirdPartyPkgCheck.message));
+							spinner.warning(yellow(thirdPartyPkgCheck.message));
 						}
 						throw new Error(`Unable to fetch ${bold(integration)}. Does the package exist?`);
 					} else {
@@ -794,11 +799,11 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 				return { id: integration, packageName, dependencies, type: integrationType };
 			}),
 		);
-		spinner.succeed();
+		spinner.success();
 		return integrationEntries;
 	} catch (e) {
 		if (e instanceof Error) {
-			spinner.fail(e.message);
+			spinner.error(e.message);
 			process.exit(1);
 		} else {
 			throw e;

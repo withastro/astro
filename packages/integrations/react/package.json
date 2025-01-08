@@ -1,14 +1,14 @@
 {
   "name": "@astrojs/react",
   "description": "Use React components within Astro",
-  "version": "3.6.2",
+  "version": "4.1.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/integrations/react"
   },
   "keywords": [
@@ -24,14 +24,8 @@
     "./actions": "./dist/actions.js",
     "./client.js": "./client.js",
     "./client-v17.js": "./client-v17.js",
-    "./server.js": {
-      "default": "./server.js",
-      "types": "./server.d.ts"
-    },
-    "./server-v17.js": {
-      "default": "./server-v17.js",
-      "types": "./server-v17.d.ts"
-    },
+    "./server.js": "./server.js",
+    "./server-v17.js": "./server-v17.js",
     "./package.json": "./package.json",
     "./jsx-runtime": "./jsx-runtime.js"
   },
@@ -55,27 +49,27 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.3.2",
-    "ultrahtml": "^1.5.3"
+    "@vitejs/plugin-react": "^4.3.4",
+    "ultrahtml": "^1.5.3",
+    "vite": "^6.0.5"
   },
   "devDependencies": {
-    "@types/react": "^18.3.11",
+    "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "vite": "^5.4.9"
+    "react-dom": "^18.3.1"
   },
   "peerDependencies": {
-    "@types/react": "^17.0.50 || ^18.0.21",
-    "@types/react-dom": "^17.0.17 || ^18.0.6",
-    "react": "^17.0.2 || ^18.0.0 || ^19.0.0-beta",
-    "react-dom": "^17.0.2 || ^18.0.0 || ^19.0.0-beta"
+    "@types/react": "^17.0.50 || ^18.0.21 || ^19.0.0",
+    "@types/react-dom": "^17.0.17 || ^18.0.6 || ^19.0.0",
+    "react": "^17.0.2 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^17.0.2 || ^18.0.0 || ^19.0.0"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
+    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true

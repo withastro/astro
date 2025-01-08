@@ -46,7 +46,7 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 		});
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fixture.path,
 			settings,
 		});
@@ -59,28 +59,27 @@ describe('routing - createRouteManifest', () => {
 		const fixture = await createFixture({
 			'/src/pages/[contact].astro': `<h1>test</h1>`,
 			'/src/pages/[contact].ts': `<h1>test</h1>`,
+			'/src/entrypoint.astro': `<h1>test</h1>`,
+			'/src/entrypoint.ts': `<h1>test</h1>`,
 		});
 		const settings = await createBasicSettings({
 			root: fixture.path,
 			base: '/search',
 			trailingSlash: 'never',
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		settings.injectedRoutes = [
 			{
 				pattern: '/about',
-				entrypoint: '@lib/legacy/static.astro',
+				entrypoint: 'src/entrypoint.astro',
 			},
 			{
 				pattern: '/api',
-				entrypoint: '@lib/legacy/static.ts',
+				entrypoint: 'src/entrypoint.ts',
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fixture.path,
 			settings,
 		});
@@ -117,12 +116,9 @@ describe('routing - createRouteManifest', () => {
 			root: fixture.path,
 			base: '/search',
 			trailingSlash: 'never',
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fixture.path,
 			settings,
 		});
@@ -153,12 +149,9 @@ describe('routing - createRouteManifest', () => {
 			root: fixture.path,
 			base: '/search',
 			trailingSlash: 'never',
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fixture.path,
 			settings,
 		});
@@ -198,12 +191,9 @@ describe('routing - createRouteManifest', () => {
 			root: fixture.path,
 			base: '/search',
 			trailingSlash: 'never',
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fixture.path,
 			settings,
 		});
@@ -239,87 +229,45 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 
-	it('injected routes are sorted in legacy mode above filesystem routes', async () => {
-		const fixture = await createFixture({
-			'/src/pages/index.astro': `<h1>test</h1>`,
-			'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
-		});
-		const settings = await createBasicSettings({
-			root: fixture.path,
-			output: 'server',
-			base: '/search',
-			trailingSlash: 'never',
-		});
-
-		settings.injectedRoutes = [
-			{
-				pattern: '/contributing',
-				entrypoint: '@lib/legacy/static.astro',
-			},
-			{
-				pattern: '/[...slug]',
-				entrypoint: '@lib/legacy/dynamic.astro',
-			},
-		];
-
-		const manifest = createRouteManifest({
-			cwd: fixture.path,
-			settings,
-		});
-
-		assert.deepEqual(getManifestRoutes(manifest), [
-			{
-				route: '/contributing',
-				type: 'page',
-			},
-			{
-				route: '/[...slug]',
-				type: 'page',
-			},
-			{
-				route: '/blog/[...slug]',
-				type: 'page',
-			},
-			{
-				route: '/',
-				type: 'page',
-			},
-		]);
-	});
-
 	it('injected routes are sorted alongside filesystem routes', async () => {
 		const fixture = await createFixture({
 			'/src/pages/index.astro': `<h1>test</h1>`,
 			'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
+			'/src/entrypoint.astro': `<h1>test</h1>`,
 		});
 		const settings = await createBasicSettings({
 			root: fixture.path,
 			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		settings.injectedRoutes = [
 			{
 				pattern: '/contributing',
-				entrypoint: '@lib/legacy/static.astro',
+				entrypoint: 'src/entrypoint.astro',
 			},
 			{
 				pattern: '/[...slug]',
-				entrypoint: '@lib/legacy/dynamic.astro',
+				entrypoint: 'src/entrypoint.astro',
 				priority: 'normal',
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fixture.path,
 			settings,
 		});
 
 		assert.deepEqual(getManifestRoutes(manifest), [
+			{
+				route: '/_server-islands/[name]',
+				type: 'page',
+			},
+			{
+				route: '/_image',
+				type: 'endpoint',
+			},
 			{
 				route: '/blog/[...slug]',
 				type: 'page',
@@ -335,49 +283,6 @@ describe('routing - createRouteManifest', () => {
 			{
 				route: '/[...slug]',
 				type: 'page',
-			},
-		]);
-	});
-
-	it('redirects are sorted in legacy mode below the filesystem routes', async () => {
-		const fixture = await createFixture({
-			'/src/pages/index.astro': `<h1>test</h1>`,
-			'/src/pages/blog/contributing.astro': `<h1>test</h1>`,
-		});
-		const settings = await createBasicSettings({
-			root: fixture.path,
-			output: 'server',
-			base: '/search',
-			trailingSlash: 'never',
-			redirects: {
-				'/blog/[...slug]': '/',
-				'/blog/about': {
-					status: 302,
-					destination: '/another',
-				},
-			},
-		});
-		const manifest = createRouteManifest({
-			cwd: fixture.path,
-			settings,
-		});
-
-		assert.deepEqual(getManifestRoutes(manifest), [
-			{
-				route: '/blog/contributing',
-				type: 'page',
-			},
-			{
-				route: '/',
-				type: 'page',
-			},
-			{
-				route: '/blog/about',
-				type: 'redirect',
-			},
-			{
-				route: '/blog/[...slug]',
-				type: 'redirect',
 			},
 		]);
 	});
@@ -402,16 +307,21 @@ describe('routing - createRouteManifest', () => {
 					destination: '/another',
 				},
 			},
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fixture.path,
 			settings,
 		});
 
 		assert.deepEqual(getManifestRoutes(manifest), [
+			{
+				route: '/_server-islands/[name]',
+				type: 'page',
+			},
+			{
+				route: '/_image',
+				type: 'endpoint',
+			},
 			{
 				route: '/blog/about',
 				type: 'redirect',
@@ -434,6 +344,7 @@ describe('routing - createRouteManifest', () => {
 	it('report colliding static routes', async () => {
 		const fixture = await createFixture({
 			'/src/pages/contributing.astro': `<h1>test</h1>`,
+			'/src/entrypoint.astro': `<h1>test</h1>`,
 		});
 		const settings = await createBasicSettings({
 			root: fixture.path,
@@ -441,15 +352,12 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 			integrations: [],
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		settings.injectedRoutes = [
 			{
 				pattern: '/contributing',
-				entrypoint: '@lib/legacy/static.astro',
+				entrypoint: 'src/entrypoint.astro',
 			},
 		];
 
@@ -460,14 +368,14 @@ describe('routing - createRouteManifest', () => {
 
 		const { logger, logs } = getLogger();
 
-		createRouteManifest(manifestOptions, logger);
+		await createRouteManifest(manifestOptions, logger);
 
 		assert.deepEqual(logs, [
 			{
 				label: 'router',
 				level: 'warn',
 				message:
-					'The route "/contributing" is defined in both "src/pages/contributing.astro" and "@lib/legacy/static.astro". A static route cannot be defined more than once.',
+					'The route "/contributing" is defined in both "src/pages/contributing.astro" and "src/entrypoint.astro". A static route cannot be defined more than once.',
 				newLine: true,
 			},
 			{
@@ -490,9 +398,6 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 			integrations: [],
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		const manifestOptions = {
@@ -502,7 +407,7 @@ describe('routing - createRouteManifest', () => {
 
 		const { logger, logs } = getLogger();
 
-		createRouteManifest(manifestOptions, logger);
+		await createRouteManifest(manifestOptions, logger);
 
 		assert.deepEqual(logs, [
 			{
@@ -525,6 +430,7 @@ describe('routing - createRouteManifest', () => {
 		const fixture = await createFixture({
 			'/src/pages/a-[b].astro': `<h1>test</h1>`,
 			'/src/pages/blog/a-[b].233.ts': ``,
+			'/src/entrypoint.astro': `<h1>test</h1>`,
 		});
 
 		const settings = await createBasicSettings({
@@ -535,25 +441,24 @@ describe('routing - createRouteManifest', () => {
 			redirects: {
 				'/posts/a-[b].233': '/blog/a-[b].233',
 			},
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		settings.injectedRoutes = [
 			{
 				pattern: '/[c]-d',
-				entrypoint: '@lib/legacy/dynamic.astro',
+				entrypoint: 'src/entrypoint.astro',
 				priority: 'normal',
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const manifest = await createRouteManifest({
 			cwd: fixture.path,
 			settings,
 		});
 
 		assert.deepEqual(getManifestRoutes(manifest), [
+			{ type: 'page', route: '/_server-islands/[name]' },
+			{ type: 'endpoint', route: '/_image' },
 			{ type: 'endpoint', route: '/blog/a-[b].233' },
 			{ type: 'redirect', route: '/posts/a-[b].233' },
 			{ type: 'page', route: '/[c]-d' },

@@ -5,6 +5,7 @@ dist/
 .vercel
 .netlify
 _site/
+.astro/
 scripts/smoke/*-main/
 scripts/memory/project/src/pages/
 benchmark/projects/

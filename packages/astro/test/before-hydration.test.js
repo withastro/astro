@@ -15,10 +15,6 @@ describe('Astro Scripts before-hydration', () => {
 				fixture = await loadFixture({
 					root: './fixtures/before-hydration/',
 					outDir: './dist/static-integration',
-					build: {
-						client: './dist/static-integration/client',
-						server: './dist/static-integration/server',
-					},
 					integrations: [
 						preact(),
 						{
@@ -74,10 +70,6 @@ describe('Astro Scripts before-hydration', () => {
 				fixture = await loadFixture({
 					root: './fixtures/before-hydration/',
 					outDir: './dist/static-no-integration',
-					build: {
-						client: './dist/static-no-integration/client',
-						server: './dist/static-no-integration/server',
-					},
 				});
 			});
 
@@ -126,10 +118,6 @@ describe('Astro Scripts before-hydration', () => {
 					output: 'server',
 					adapter: testAdapter(),
 					outDir: './dist/server-integration',
-					build: {
-						client: './dist/server-integration/client',
-						server: './dist/server-integration/server',
-					},
 					integrations: [
 						preact(),
 						{
@@ -169,10 +157,6 @@ describe('Astro Scripts before-hydration', () => {
 					root: './fixtures/before-hydration/',
 					output: 'server',
 					outDir: './dist/static-no-integration',
-					build: {
-						client: './dist/static-no-integration/client',
-						server: './dist/static-no-integration/server',
-					},
 					adapter: testAdapter(),
 				});
 			});

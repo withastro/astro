@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
-import type { RouteData } from '../../@types/astro.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { clientAddressSymbol } from '../constants.js';
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
@@ -153,8 +153,10 @@ export class NodeApp extends App {
 			}
 			destination.end();
 			// the error will be logged by the "on end" callback above
-		} catch {
-			destination.end('Internal server error');
+		} catch (err) {
+			destination.write('Internal server error', () => {
+				err instanceof Error ? destination.destroy(err) : destination.destroy();
+			});
 		}
 	}
 }

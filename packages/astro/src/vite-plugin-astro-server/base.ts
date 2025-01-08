@@ -1,5 +1,5 @@
 import type * as vite from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
 
 import * as fs from 'node:fs';
 import path from 'node:path';
@@ -26,7 +26,7 @@ export function baseMiddleware(
 		try {
 			pathname = decodeURI(new URL(url, 'http://localhost').pathname);
 		} catch (e) {
-			/* malform uri */
+			/* malformed uri */
 			return next(e);
 		}
 

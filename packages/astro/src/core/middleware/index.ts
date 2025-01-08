@@ -1,14 +1,16 @@
-import type { APIContext, MiddlewareHandler, Params, RewritePayload } from '../../@types/astro.js';
 import { createCallAction, createGetActionResult } from '../../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
-import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
+import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
+import type { APIContext } from '../../types/public/context.js';
+import { ASTRO_VERSION, clientLocalsSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getClientIpAddress } from '../routing/request.js';
+import { getOriginPathname } from '../routing/rewrite.js';
 import { sequence } from './sequence.js';
 
 function defineMiddleware(fn: MiddlewareHandler) {
@@ -37,6 +39,11 @@ export type CreateContext = {
 	 * User defined default locale
 	 */
 	defaultLocale: string;
+
+	/**
+	 * Initial value of the locals
+	 */
+	locals: App.Locals;
 };
 
 /**
@@ -47,6 +54,7 @@ function createContext({
 	params = {},
 	userDefinedLocales = [],
 	defaultLocale = '',
+	locals,
 }: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
@@ -68,6 +76,7 @@ function createContext({
 		generator: `Astro v${ASTRO_VERSION}`,
 		props: {},
 		rewrite,
+		routePattern: '',
 		redirect(path, status) {
 			return new Response(null, {
 				status: status || 302,
@@ -76,6 +85,7 @@ function createContext({
 				},
 			});
 		},
+		isPrerendered: false,
 		get preferredLocale(): string | undefined {
 			return (preferredLocale ??= computePreferredLocale(request, userDefinedLocales));
 		},
@@ -86,6 +96,9 @@ function createContext({
 			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales, defaultLocale));
 		},
 		url,
+		get originPathname() {
+			return getOriginPathname(request);
+		},
 		get clientAddress() {
 			if (clientIpAddress) {
 				return clientIpAddress;
@@ -97,23 +110,18 @@ function createContext({
 			return clientIpAddress;
 		},
 		get locals() {
-			let locals = Reflect.get(request, clientLocalsSymbol);
+			// TODO: deprecate this usage. This is used only by the edge middleware for now, so its usage should be basically none.
+			let _locals = locals ?? Reflect.get(request, clientLocalsSymbol);
 			if (locals === undefined) {
-				locals = {};
-				Reflect.set(request, clientLocalsSymbol, locals);
+				_locals = {};
 			}
-			if (typeof locals !== 'object') {
+			if (typeof _locals !== 'object') {
 				throw new AstroError(AstroErrorData.LocalsNotAnObject);
 			}
-			return locals;
+			return _locals;
 		},
-		// We define a custom property, so we can check the value passed to locals
-		set locals(val) {
-			if (typeof val !== 'object') {
-				throw new AstroError(AstroErrorData.LocalsNotAnObject);
-			} else {
-				Reflect.set(request, clientLocalsSymbol, val);
-			}
+		set locals(_) {
+			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
 	};
 	return Object.assign(context, {

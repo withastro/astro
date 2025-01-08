@@ -1,6 +1,5 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
@@ -134,7 +133,7 @@ describe('Route matching', () => {
 		settings = await createBasicSettings({
 			root: fixture.path,
 			trailingSlash: 'never',
-			output: 'hybrid',
+			output: 'static',
 			adapter: testAdapter(),
 		});
 		container = await createContainer({
@@ -145,7 +144,7 @@ describe('Route matching', () => {
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);
 		pipeline = DevPipeline.create(undefined, { loader, logger: defaultLogger, manifest, settings });
-		manifestData = createRouteManifest(
+		manifestData = await createRouteManifest(
 			{
 				cwd: fixture.path,
 				settings,

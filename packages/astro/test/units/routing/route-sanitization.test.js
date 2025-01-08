@@ -36,7 +36,7 @@ describe('Route sanitization', () => {
 		settings = await createBasicSettings({
 			root: fixture.path,
 			trailingSlash: 'never',
-			output: 'hybrid',
+			output: 'static',
 			adapter: testAdapter(),
 		});
 		container = await createContainer({

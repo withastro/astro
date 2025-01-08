@@ -1,15 +1,18 @@
 import { bold } from 'kleur/colors';
-import type { APIContext, EndpointHandler } from '../../@types/astro.js';
 import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/constants.js';
 import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import type { Logger } from '../../core/logger/core.js';
+import type { APIRoute } from '../../types/public/common.js';
+import type { APIContext } from '../../types/public/context.js';
 
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(
-	mod: EndpointHandler,
+	mod: {
+		[method: string]: APIRoute;
+	},
 	context: APIContext,
-	ssr: boolean,
+	isPrerendered: boolean,
 	logger: Logger,
 ) {
 	const { request, url } = context;
@@ -17,12 +20,12 @@ export async function renderEndpoint(
 	const method = request.method.toUpperCase();
 	// use the exact match on `method`, fallback to ALL
 	const handler = mod[method] ?? mod['ALL'];
-	if (!ssr && ssr === false && method !== 'GET') {
+	if (isPrerendered && method !== 'GET') {
 		logger.warn(
 			'router',
 			`${url.pathname} ${bold(
 				method,
-			)} requests are not available for a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` to enable.`,
+			)} requests are not available in static endpoints. Mark this page as server-rendered (\`export const prerender = false;\`) or update your config to \`output: 'server'\` to make all your pages server-rendered by default.`,
 		);
 	}
 	if (handler === undefined) {

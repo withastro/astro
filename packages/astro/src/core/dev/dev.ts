@@ -5,12 +5,12 @@ import { performance } from 'node:perf_hooks';
 import { green } from 'kleur/colors';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
-import type { AstroInlineConfig } from '../../@types/astro.js';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
+import type { AstroInlineConfig } from '../../types/public/config.js';
 import * as msg from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { startContainer } from './container.js';
@@ -84,6 +84,37 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		}
 	}
 
+	let store: MutableDataStore | undefined;
+	try {
+		const dataStoreFile = getDataStoreFile(restart.container.settings, true);
+		if (existsSync(dataStoreFile)) {
+			store = await MutableDataStore.fromFile(dataStoreFile);
+		}
+	} catch (err: any) {
+		logger.error('content', err.message);
+	}
+	if (!store) {
+		store = new MutableDataStore();
+	}
+	await attachContentServerListeners(restart.container);
+
+	const config = globalContentConfigObserver.get();
+	if (config.status === 'error') {
+		logger.error('content', config.error.message);
+	}
+	if (config.status === 'loaded') {
+		const contentLayer = globalContentLayer.init({
+			settings: restart.container.settings,
+			logger,
+			watcher: restart.container.viteServer.watcher,
+			store,
+		});
+		contentLayer.watchContentConfig();
+		await contentLayer.sync();
+	} else {
+		logger.warn('content', 'Content config not loaded');
+	}
+
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
 	logger.info(
@@ -101,36 +132,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	}
 	if (restart.container.viteServer.config.server?.fs?.strict === false) {
 		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
-	}
-
-	await attachContentServerListeners(restart.container);
-
-	let store: MutableDataStore | undefined;
-	try {
-		const dataStoreFile = getDataStoreFile(restart.container.settings);
-		if (existsSync(dataStoreFile)) {
-			store = await MutableDataStore.fromFile(dataStoreFile);
-		}
-	} catch (err: any) {
-		logger.error('content', err.message);
-	}
-	if (!store) {
-		store = new MutableDataStore();
-	}
-
-	const config = globalContentConfigObserver.get();
-	if (config.status === 'error') {
-		logger.error('content', config.error.message);
-	}
-	if (config.status === 'loaded') {
-		const contentLayer = globalContentLayer.init({
-			settings: restart.container.settings,
-			logger,
-			watcher: restart.container.viteServer.watcher,
-			store,
-		});
-		contentLayer.watchContentConfig();
-		await contentLayer.sync();
 	}
 
 	logger.info(null, green('watching for file changes...'));

@@ -8,9 +8,21 @@ export const rehypeShiki: Plugin<[ShikiConfig?], Root> = (config) => {
 	let highlighterAsync: Promise<ShikiHighlighter> | undefined;
 
 	return async (tree) => {
-		highlighterAsync ??= createShikiHighlighter(config);
+		highlighterAsync ??= createShikiHighlighter({
+			langs: config?.langs,
+			theme: config?.theme,
+			themes: config?.themes,
+			langAlias: config?.langAlias,
+		});
 		const highlighter = await highlighterAsync;
 
-		await highlightCodeBlocks(tree, highlighter.highlight);
+		await highlightCodeBlocks(tree, (code, language, options) => {
+			return highlighter.codeToHast(code, language, {
+				meta: options?.meta,
+				wrap: config?.wrap,
+				defaultColor: config?.defaultColor,
+				transformers: config?.transformers,
+			});
+		});
 	};
 };

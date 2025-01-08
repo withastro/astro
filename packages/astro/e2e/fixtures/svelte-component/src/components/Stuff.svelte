@@ -1,4 +1,4 @@
 <script>
-	export let id;
+	let { id, children } = $props();
 </script>
-<div {id}>Slot goes here:<slot /></div>
+<div {id}>Slot goes here:{@render children?.()}</div>

@@ -1,16 +1,13 @@
-import type { SSRElement } from '../../../@types/astro.js';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 import { clsx } from 'clsx';
+import type { SSRElement } from '../../../types/public/internal.js';
 import { HTMLString, markHTMLString } from '../escape.js';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
-	/^(?:allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|selected|itemscope)$/i;
-const htmlEnumAttributes = /^(?:contenteditable|draggable|spellcheck|value)$/i;
-// Note: SVG is case-sensitive!
-const svgEnumAttributes = /^(?:autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
+	/^(?:allowfullscreen|async|autofocus|autoplay|checked|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|inert|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|selected|itemscope)$/i;
 
 const AMPERSAND_REGEX = /&/g;
 const DOUBLE_QUOTE_REGEX = /"/g;
@@ -31,7 +28,8 @@ export const toAttributeString = (value: any, shouldEscape = true) =>
 
 const kebab = (k: string) =>
 	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
-const toStyleString = (obj: Record<string, any>) =>
+
+export const toStyleString = (obj: Record<string, any>) =>
 	Object.entries(obj)
 		.filter(([_, v]) => (typeof v === 'string' && v.trim()) || typeof v === 'number')
 		.map(([k, v]) => {
@@ -64,13 +62,6 @@ export function formatList(values: string[]): string {
 // A helper used to turn expressions into attribute key/value
 export function addAttribute(value: any, key: string, shouldEscape = true) {
 	if (value == null) {
-		return '';
-	}
-
-	if (value === false) {
-		if (htmlEnumAttributes.test(key) || svgEnumAttributes.test(key)) {
-			return markHTMLString(` ${key}="false"`);
-		}
 		return '';
 	}
 
@@ -114,11 +105,16 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	}
 
 	// Boolean values only need the key
-	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
-		return markHTMLString(` ${key}`);
-	} else {
-		return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
+	if (htmlBooleanAttributes.test(key)) {
+		return markHTMLString(value ? ` ${key}` : '');
 	}
+
+	// Other attributes with an empty string value can omit rendering the value
+	if (value === '') {
+		return markHTMLString(` ${key}`);
+	}
+
+	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
 }
 
 // Adds support for `<Component {...value} />
