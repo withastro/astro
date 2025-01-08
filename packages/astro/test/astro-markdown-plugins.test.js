@@ -135,6 +135,16 @@ describe('Astro Markdown plugins', () => {
 			const $ = cheerio.load(html);
 			assert.equal($('p').text(), 'Not transformed');
 		});
+
+		it('processes empty markdown content with remark plugins', async () => {
+			const html = await fixture.readFile('/empty-content/index.html');
+			const $ = cheerio.load(html);
+			assert.equal($('h1').text(), 'Test Empty Markdown');
+			assert.equal(
+				$('#frontmatter-custom-property').text(),
+				'Generated property via remark plugin!',
+			);
+		});
 	});
 });
 
