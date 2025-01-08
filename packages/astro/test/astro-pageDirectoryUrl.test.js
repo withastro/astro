@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
 import { Logger } from '../dist/core/logger/core.js';
+import { loadFixture } from './test-utils.js';
 
 describe('build format', () => {
 	describe('build.format: file', () => {
@@ -27,7 +27,7 @@ describe('build format', () => {
 							callback();
 						},
 					}),
-				})
+				}),
 			});
 		});
 
@@ -38,10 +38,14 @@ describe('build format', () => {
 		});
 
 		it('logs correct output paths', () => {
-			assert.ok(logs.find((log) => log.level === 'info' && log.message.includes('/client.html')))
-			assert.ok(logs.find((log) => log.level === 'info' && log.message.includes('/nested-md.html')))
-			assert.ok(logs.find((log) => log.level === 'info' && log.message.includes('/nested-astro.html')))
-		})
+			assert.ok(logs.find((log) => log.level === 'info' && log.message.includes('/client.html')));
+			assert.ok(
+				logs.find((log) => log.level === 'info' && log.message.includes('/nested-md.html')),
+			);
+			assert.ok(
+				logs.find((log) => log.level === 'info' && log.message.includes('/nested-astro.html')),
+			);
+		});
 	});
 
 	describe('build.format: preserve', () => {
@@ -77,9 +81,15 @@ describe('build format', () => {
 		});
 
 		it('logs correct output paths', () => {
-			assert.ok(logs.find((log) => log.level === 'info' && log.message.includes('/client.html')))
-			assert.ok(logs.find((log) => log.level === 'info' && log.message.includes('/nested-md/index.html')))
-			assert.ok(logs.find((log) => log.level === 'info' && log.message.includes('/nested-astro/index.html')))
-		})
+			assert.ok(logs.find((log) => log.level === 'info' && log.message.includes('/client.html')));
+			assert.ok(
+				logs.find((log) => log.level === 'info' && log.message.includes('/nested-md/index.html')),
+			);
+			assert.ok(
+				logs.find(
+					(log) => log.level === 'info' && log.message.includes('/nested-astro/index.html'),
+				),
+			);
+		});
 	});
 });
