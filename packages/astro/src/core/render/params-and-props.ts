@@ -50,7 +50,7 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 	// The pathname used here comes from the server, which already encoded.
 	// Since we decided to not mess up with encoding anymore, we need to decode them back so the parameters can match
 	// the ones expected from the users
-	const params = getParams(route, decodeURI(pathname));
+	const params = getParams(route, pathname);
 	const matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger);
 	if (!matchedStaticPath && (serverLike ? route.prerender : true)) {
 		throw new AstroError({
