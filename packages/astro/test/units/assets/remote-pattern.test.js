@@ -84,7 +84,7 @@ describe('astro/src/assets/utils/remotePattern', () => {
 				matchPattern(url1, {
 					protocol: 'https',
 				}),
-				true
+				true,
 			);
 
 			assert.equal(
@@ -92,7 +92,7 @@ describe('astro/src/assets/utils/remotePattern', () => {
 					protocol: 'https',
 					hostname: '**.astro.build',
 				}),
-				true
+				true,
 			);
 
 			assert.equal(
@@ -101,7 +101,7 @@ describe('astro/src/assets/utils/remotePattern', () => {
 					hostname: '**.astro.build',
 					pathname: '/en/**',
 				}),
-				true
+				true,
 			);
 
 			assert.equal(
@@ -109,7 +109,7 @@ describe('astro/src/assets/utils/remotePattern', () => {
 					protocol: 'https',
 					hostname: 'example.com',
 				}),
-				false
+				false,
 			);
 		});
 	});

@@ -82,7 +82,7 @@ function* unescapeChunks(iterable: Iterable<any>): any {
 }
 
 export function unescapeHTML(
-	str: any
+	str: any,
 ):
 	| BlessedType
 	| Promise<BlessedType | AsyncGenerator<BlessedType, void, unknown>>

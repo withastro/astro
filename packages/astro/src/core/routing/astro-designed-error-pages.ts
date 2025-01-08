@@ -1,5 +1,6 @@
-import type { ComponentInstance, ManifestData, RouteData } from '../../@types/astro.js';
 import notFoundTemplate from '../../template/4xx.js';
+import type { ComponentInstance, ManifestData } from '../../types/astro.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { DEFAULT_404_COMPONENT, DEFAULT_500_COMPONENT } from '../constants.js';
 
 export const DEFAULT_404_ROUTE: RouteData = {
@@ -14,6 +15,7 @@ export const DEFAULT_404_ROUTE: RouteData = {
 	route: '/404',
 	fallbackRoutes: [],
 	isIndex: false,
+	origin: 'internal',
 };
 
 export const DEFAULT_500_ROUTE: RouteData = {
@@ -28,6 +30,7 @@ export const DEFAULT_500_ROUTE: RouteData = {
 	route: '/500',
 	fallbackRoutes: [],
 	isIndex: false,
+	origin: 'internal',
 };
 
 export function ensure404Route(manifest: ManifestData) {
@@ -45,7 +48,7 @@ async function default404Page({ pathname }: { pathname: string }) {
 			tabTitle: '404: Not Found',
 			pathname,
 		}),
-		{ status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+		{ status: 404, headers: { 'Content-Type': 'text/html' } },
 	);
 }
 // mark the function as an AstroComponentFactory for the rendering internals

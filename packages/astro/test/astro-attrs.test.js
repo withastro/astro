@@ -16,37 +16,57 @@ describe('Attributes', async () => {
 		const $ = cheerio.load(html);
 
 		const attrs = {
-			'false-str': { attribute: 'attr', value: 'false' },
-			'true-str': { attribute: 'attr', value: 'true' },
-			false: { attribute: 'attr', value: undefined },
-			true: { attribute: 'attr', value: 'true' },
-			empty: { attribute: 'attr', value: '' },
+			'boolean-attr-true': { attribute: 'allowfullscreen', value: '' },
+			'boolean-attr-false': { attribute: 'allowfullscreen', value: undefined },
+			'boolean-attr-string-truthy': { attribute: 'allowfullscreen', value: '' },
+			'boolean-attr-string-falsy': { attribute: 'allowfullscreen', value: undefined },
+			'boolean-attr-number-truthy': { attribute: 'allowfullscreen', value: '' },
+			'boolean-attr-number-falsy': { attribute: 'allowfullscreen', value: undefined },
+			'data-attr-true': { attribute: 'data-foobar', value: 'true' },
+			'data-attr-false': { attribute: 'data-foobar', value: 'false' },
+			'data-attr-string-truthy': { attribute: 'data-foobar', value: 'foo' },
+			'data-attr-string-falsy': { attribute: 'data-foobar', value: '' },
+			'data-attr-number-truthy': { attribute: 'data-foobar', value: '1' },
+			'data-attr-number-falsy': { attribute: 'data-foobar', value: '0' },
+			'normal-attr-true': { attribute: 'foobar', value: 'true' },
+			'normal-attr-false': { attribute: 'foobar', value: 'false' },
+			'normal-attr-string-truthy': { attribute: 'foobar', value: 'foo' },
+			'normal-attr-string-falsy': { attribute: 'foobar', value: '' },
+			'normal-attr-number-truthy': { attribute: 'foobar', value: '1' },
+			'normal-attr-number-falsy': { attribute: 'foobar', value: '0' },
 			null: { attribute: 'attr', value: undefined },
 			undefined: { attribute: 'attr', value: undefined },
-			'html-boolean': { attribute: 'async', value: 'async' },
-			'html-boolean-true': { attribute: 'async', value: 'async' },
-			'html-boolean-false': { attribute: 'async', value: undefined },
 			'html-enum': { attribute: 'draggable', value: 'true' },
 			'html-enum-true': { attribute: 'draggable', value: 'true' },
 			'html-enum-false': { attribute: 'draggable', value: 'false' },
 		};
 
+		assert.ok(!/allowfullscreen=/.test(html), 'boolean attributes should not have values');
+		assert.ok(
+			!/id="data-attr-string-falsy"\s+data-foobar=/.test(html),
+			"data attributes should not have values if it's an empty string",
+		);
+		assert.ok(
+			!/id="normal-attr-string-falsy"\s+data-foobar=/.test(html),
+			"normal attributes should not have values if it's an empty string",
+		);
+
 		// cheerio will unescape the values, so checking that the url rendered unescaped to begin with has to be done manually
 		assert.equal(
 			html.includes('https://example.com/api/og?title=hello&description=somedescription'),
-			true
+			true,
 		);
 
 		// cheerio will unescape the values, so checking that the url rendered unescaped to begin with has to be done manually
 		assert.equal(
 			html.includes('cmd: echo &#34;foo&#34; &#38;&#38; echo &#34;bar&#34; > /tmp/hello.txt'),
-			true
+			true,
 		);
 
 		for (const id of Object.keys(attrs)) {
 			const { attribute, value } = attrs[id];
 			const attr = $(`#${id}`).attr(attribute);
-			assert.equal(attr, value);
+			assert.equal(attr, value, `Expected ${attribute} to be ${value} for #${id}`);
 		}
 	});
 

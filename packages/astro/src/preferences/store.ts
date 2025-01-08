@@ -2,13 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import dget from 'dlv';
 import { dset } from 'dset';
+import { SETTINGS_FILE } from './constants.js';
 
 export class PreferenceStore {
 	private file: string;
 
 	constructor(
 		private dir: string,
-		filename = 'settings.json'
+		filename = SETTINGS_FILE,
 	) {
 		this.file = path.join(this.dir, filename);
 	}

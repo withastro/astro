@@ -1,5 +1,5 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
-import type { AstroConfig } from '../../@types/astro.js';
+import type { AstroConfig } from '../../types/public/config.js';
 
 export type RemotePattern = {
 	hostname?: string;
@@ -70,7 +70,7 @@ export function isRemoteAllowed(
 	{
 		domains = [],
 		remotePatterns = [],
-	}: Partial<Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>>
+	}: Partial<Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>>,
 ): boolean {
 	if (!isRemotePath(src)) return false;
 

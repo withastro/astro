@@ -23,7 +23,7 @@ describe('URLs with base path', () => {
 			assert.equal(sitemapZero.urlset.url[0].loc[0], 'http://example.com/base/one/');
 			assert.equal(
 				sitemapIndex.sitemapindex.sitemap[0].loc[0],
-				'http://example.com/base/sitemap-0.xml'
+				'http://example.com/base/sitemap-0.xml',
 			);
 		});
 	});
@@ -45,7 +45,7 @@ describe('URLs with base path', () => {
 			assert.equal(sitemapZero.urlset.url[0].loc[0], 'http://example.com/base/123/');
 			assert.equal(
 				sitemapIndex.sitemapindex.sitemap[0].loc[0],
-				'http://example.com/base/sitemap-0.xml'
+				'http://example.com/base/sitemap-0.xml',
 			);
 		});
 	});

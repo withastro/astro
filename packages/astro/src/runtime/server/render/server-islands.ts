@@ -1,4 +1,5 @@
-import type { SSRResult } from '../../../@types/astro.js';
+import { encryptString } from '../../../core/encryption.js';
+import type { SSRResult } from '../../../types/public/internal.js';
 import { renderChild } from './any.js';
 import type { RenderInstance } from './common.js';
 import { type ComponentSlots, renderSlotToString } from './slot.js';
@@ -29,11 +30,26 @@ function safeJsonStringify(obj: any) {
 		.replace(commentRegex, commentReplacer);
 }
 
+function createSearchParams(componentExport: string, encryptedProps: string, slots: string) {
+	const params = new URLSearchParams();
+	params.set('e', componentExport);
+	params.set('p', encryptedProps);
+	params.set('s', slots);
+	return params;
+}
+
+function isWithinURLLimit(pathname: string, params: URLSearchParams) {
+	const url = pathname + '?' + params.toString();
+	const chars = url.length;
+	// https://chromium.googlesource.com/chromium/src/+/master/docs/security/url_display_guidelines/url_display_guidelines.md#url-length
+	return chars < 2048;
+}
+
 export function renderServerIsland(
 	result: SSRResult,
 	_displayName: string,
 	props: Record<string | number, any>,
-	slots: ComponentSlots
+	slots: ComponentSlots,
 ): RenderInstance {
 	return {
 		async render(destination) {
@@ -52,7 +68,7 @@ export function renderServerIsland(
 				}
 			}
 
-			destination.write('<!--server-island-start-->');
+			destination.write('<!--[if astro]>server-island-start<![endif]-->');
 
 			// Render the slots
 			const renderedSlots: Record<string, string> = {};
@@ -65,37 +81,70 @@ export function renderServerIsland(
 				}
 			}
 
+			const key = await result.key;
+			const propsEncrypted = await encryptString(key, JSON.stringify(props));
+
 			const hostId = crypto.randomUUID();
 
+			const slash = result.base.endsWith('/') ? '' : '/';
+			let serverIslandUrl = `${result.base}${slash}_server-islands/${componentId}${result.trailingSlash === 'always' ? '/' : ''}`;
+
+			// Determine if its safe to use a GET request
+			const potentialSearchParams = createSearchParams(
+				componentExport,
+				propsEncrypted,
+				safeJsonStringify(renderedSlots),
+			);
+			const useGETRequest = isWithinURLLimit(serverIslandUrl, potentialSearchParams);
+
+			if (useGETRequest) {
+				serverIslandUrl += '?' + potentialSearchParams.toString();
+				destination.write(
+					`<link rel="preload" as="fetch" href="${serverIslandUrl}" crossorigin="anonymous">`,
+				);
+			}
+
 			destination.write(`<script async type="module" data-island-id="${hostId}">
-let componentId = ${safeJsonStringify(componentId)};
-let componentExport = ${safeJsonStringify(componentExport)};
 let script = document.querySelector('script[data-island-id="${hostId}"]');
-let data = {
-	componentExport,
-	props: ${safeJsonStringify(props)},
+
+${
+	useGETRequest
+		? // GET request
+			`let response = await fetch('${serverIslandUrl}');
+`
+		: // POST request
+			`let data = {
+	componentExport: ${safeJsonStringify(componentExport)},
+	encryptedProps: ${safeJsonStringify(propsEncrypted)},
 	slots: ${safeJsonStringify(renderedSlots)},
 };
 
-let response = await fetch('/_server-islands/${componentId}', {
+let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
 });
-
-if(response.status === 200 && response.headers.get('content-type') === 'text/html') {
-	let html = await response.text();
-
-	// Swap!
-	while(script.previousSibling?.nodeType !== 8 &&
-		script.previousSibling?.data !== 'server-island-start') {
-		script.previousSibling?.remove();
-	}
-	script.previousSibling?.remove();
-
-	let frag = document.createRange().createContextualFragment(html);
-	script.before(frag);
+`
 }
-script.remove();
+if (script) {
+	if(
+		response.status === 200 
+		&& response.headers.has('content-type') 
+		&& response.headers.get('content-type').split(";")[0].trim() === 'text/html') {
+		let html = await response.text();
+	
+		// Swap!
+		while(script.previousSibling &&
+			script.previousSibling.nodeType !== 8 &&
+			script.previousSibling.data !== '[if astro]>server-island-start<![endif]') {
+			script.previousSibling.remove();
+		}
+		script.previousSibling?.remove();
+	
+		let frag = document.createRange().createContextualFragment(html);
+		script.before(frag);
+	}
+	script.remove();
+}
 </script>`);
 		},
 	};

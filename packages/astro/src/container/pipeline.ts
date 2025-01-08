@@ -1,17 +1,13 @@
-import type {
-	ComponentInstance,
-	RewritePayload,
-	RouteData,
-	SSRElement,
-	SSRResult,
-} from '../@types/astro.js';
-import { type HeadElements, Pipeline } from '../core/base-pipeline.js';
+import { type HeadElements, Pipeline, type TryRewriteResult } from '../core/base-pipeline.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
 import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
+import type { ComponentInstance } from '../types/astro.js';
+import type { RewritePayload } from '../types/public/common.js';
+import type { RouteData, SSRElement, SSRResult } from '../types/public/internal.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**
@@ -41,7 +37,7 @@ export class ContainerPipeline extends Pipeline {
 			renderers,
 			resolve,
 			serverLike,
-			streaming
+			streaming,
 		);
 	}
 
@@ -68,11 +64,8 @@ export class ContainerPipeline extends Pipeline {
 		return { links, styles, scripts };
 	}
 
-	async tryRewrite(
-		payload: RewritePayload,
-		request: Request
-	): Promise<[RouteData, ComponentInstance, URL]> {
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
+		const { newUrl, pathname, routeData } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.manifest?.routes.map((r) => r.routeData),
@@ -81,8 +74,8 @@ export class ContainerPipeline extends Pipeline {
 			base: this.manifest.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { componentInstance, routeData, newUrl, pathname };
 	}
 
 	insertRoute(route: RouteData, componentInstance: ComponentInstance): void {
@@ -91,7 +84,7 @@ export class ContainerPipeline extends Pipeline {
 				return Promise.resolve(componentInstance);
 			},
 			renderers: this.manifest.renderers,
-			onRequest: this.manifest.middleware,
+			onRequest: this.resolvedMiddleware,
 		});
 	}
 

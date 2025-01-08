@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -82,6 +82,24 @@ describe('[DEV] i18n routing', () => {
 			assert.equal(response.status, 200);
 			assert.equal((await response.text()).includes('Endurance'), true);
 		});
+
+		it('should render the 404.astro file', async () => {
+			const response = await fixture.fetch('/do-not-exist');
+			assert.equal(response.status, 404);
+			assert.match(await response.text(), /Custom 404/);
+		});
+
+		it('should return the correct locale on 404 page for non existing default locale page', async () => {
+			const response = await fixture.fetch('/es/nonexistent-page');
+			assert.equal(response.status, 404);
+			assert.equal((await response.text()).includes('Current Locale: es'), true);
+		});
+
+		it('should return the correct locale on 404 page for non existing english locale page', async () => {
+			const response = await fixture.fetch('/en/nonexistent-page');
+			assert.equal(response.status, 404);
+			assert.equal((await response.text()).includes('Current Locale: en'), true);
+		});
 	});
 
 	describe('i18n routing', () => {
@@ -134,11 +152,22 @@ describe('[DEV] i18n routing', () => {
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
 			const response = await fixture.fetch('/it/start');
 			assert.equal(response.status, 404);
+			const html = await response.text();
+			assert.match(html, /Can't find the page you're looking for./);
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
 			const response = await fixture.fetch('/fr/start');
 			assert.equal(response.status, 404);
+			const html = await response.text();
+			assert.match(html, /Can't find the page you're looking for./);
+		});
+
+		it('should render the custom 404.astro when navigating non-existing routes ', async () => {
+			const response = await fixture.fetch('/does-not-exist');
+			assert.equal(response.status, 404);
+			const html = await response.text();
+			assert.match(html, /Can't find the page you're looking for./);
 		});
 	});
 
@@ -1105,8 +1134,8 @@ describe('[SSG] i18n routing', () => {
 			});
 
 			it('should return the default locale', async () => {
-				const html = await fixture.readFile('/current-locale/index.html');
-				assert.equal(html.includes('Current Locale: en'), true);
+				let html = await fixture.readFile('/current-locale/index.html');
+				assert.equal(html.includes('Current Locale: es'), true);
 			});
 
 			it('should return the default locale when rendering a route with spread operator', async () => {
@@ -1121,7 +1150,7 @@ describe('[SSG] i18n routing', () => {
 
 			it('should return the default locale when a route is dynamic', async () => {
 				const html = await fixture.readFile('/dynamic/lorem/index.html');
-				assert.equal(html.includes('Current Locale: en'), true);
+				assert.equal(html.includes('Current Locale: es'), true);
 			});
 
 			it('should returns the correct locale when requesting a locale via path', async () => {
@@ -1151,6 +1180,30 @@ describe('[SSG] i18n routing', () => {
 				assert.equal(html.includes('Current Locale: pt'), true);
 			});
 		});
+
+		describe('with dynamic paths', async () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+			let devServer;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing/',
+				});
+				devServer = await fixture.startDevServer();
+			});
+
+			afterEach(async () => {
+				devServer.stop();
+			});
+
+			it('should return the correct current locale', async () => {
+				let html = await fixture.fetch('/en').then((r) => r.text());
+				assert.match(html, /en/);
+				html = await fixture.fetch('/ru').then((r) => r.text());
+				assert.match(html, /ru/);
+			});
+		});
 	});
 });
 describe('[SSR] i18n routing', () => {
@@ -1175,6 +1228,20 @@ describe('[SSR] i18n routing', () => {
 			let response = await app.render(request);
 			assert.equal(response.status, 200);
 			assert.equal((await response.text()).includes('Endurance'), true);
+		});
+
+		it('should return the correct locale on 404 page for non existing default locale page', async () => {
+			let request = new Request('http://example.com/es/nonexistent-page');
+			let response = await app.render(request);
+			assert.equal(response.status, 404);
+			assert.equal((await response.text()).includes('Current Locale: es'), true);
+		});
+
+		it('should return the correct locale on 404 page for non existing english locale page', async () => {
+			let request = new Request('http://example.com/en/nonexistent-page');
+			let response = await app.render(request);
+			assert.equal(response.status, 404);
+			assert.equal((await response.text()).includes('Current Locale: en'), true);
 		});
 	});
 
@@ -1337,10 +1404,6 @@ describe('[SSR] i18n routing', () => {
 				root: './fixtures/i18n-routing-prefix-always/',
 				output: 'server',
 				outDir: './dist/pathname-prefix-always-no-redirect',
-				build: {
-					client: './dist/pathname-prefix-always-no-redirect/client',
-					server: './dist/pathname-prefix-always-no-redirect/server',
-				},
 				adapter: testAdapter(),
 				i18n: {
 					routing: {
@@ -1530,6 +1593,22 @@ describe('[SSR] i18n routing', () => {
 			assert.equal(response.status, 404);
 		});
 
+		it('should pass search to render when using requested locale', async () => {
+			let request = new Request('http://example.com/new-site/pt/start?search=1');
+			let response = await app.render(request);
+			assert.equal(response.status, 200);
+			const text = await response.text();
+			assert.match(text, /Oi essa e start/);
+			assert.match(text, /search=1/);
+		});
+
+		it('should include search on the redirect when using fallback', async () => {
+			let request = new Request('http://example.com/new-site/it/start?search=1');
+			let response = await app.render(request);
+			assert.equal(response.status, 302);
+			assert.equal(response.headers.get('location'), '/new-site/start?search=1');
+		});
+
 		describe('with routing strategy [pathname-prefix-always]', () => {
 			before(async () => {
 				fixture = await loadFixture({
@@ -1628,10 +1707,6 @@ describe('[SSR] i18n routing', () => {
 					root: './fixtures/i18n-routing/',
 					output: 'server',
 					outDir: './dist/locales-underscore',
-					build: {
-						client: './dist/locales-underscore/client',
-						server: './dist/locales-underscore/server',
-					},
 					adapter: testAdapter(),
 					i18n: {
 						defaultLocale: 'en',
@@ -1701,7 +1776,7 @@ describe('[SSR] i18n routing', () => {
 				let request = new Request('http://example.com/current-locale', {});
 				let response = await app.render(request);
 				assert.equal(response.status, 200);
-				assert.equal((await response.text()).includes('Current Locale: en'), true);
+				assert.equal((await response.text()).includes('Current Locale: es'), true);
 			});
 
 			it('should return the default locale when rendering a route with spread operator', async () => {
@@ -1722,7 +1797,7 @@ describe('[SSR] i18n routing', () => {
 				let request = new Request('http://example.com/dynamic/lorem', {});
 				let response = await app.render(request);
 				assert.equal(response.status, 200);
-				assert.equal((await response.text()).includes('Current Locale: en'), true);
+				assert.equal((await response.text()).includes('Current Locale: es'), true);
 			});
 		});
 
@@ -1763,7 +1838,7 @@ describe('[SSR] i18n routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-routing-prefix-always/',
-				output: 'hybrid',
+				output: 'static',
 				adapter: testAdapter(),
 			});
 			await fixture.build();
@@ -1902,10 +1977,6 @@ describe('SSR fallback from missing locale index to default locale index', () =>
 			root: './fixtures/i18n-routing-prefix-other-locales/',
 			output: 'server',
 			outDir: './dist/missing-locale-to-default',
-			build: {
-				client: './dist/missing-locale-to-default/client',
-				server: './dist/missing-locale-to-default/server',
-			},
 			adapter: testAdapter(),
 			i18n: {
 				defaultLocale: 'en',
@@ -1927,5 +1998,170 @@ describe('SSR fallback from missing locale index to default locale index', () =>
 		let response = await app.render(request);
 		assert.equal(response.status, 302);
 		assert.equal(response.headers.get('location'), '/');
+	});
+});
+
+describe('Fallback rewrite dev server', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-fallback/',
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr', 'es', 'it', 'pt'],
+				routing: {
+					prefixDefaultLocale: false,
+				},
+				fallback: {
+					fr: 'en',
+					it: 'en',
+					es: 'pt',
+				},
+				fallbackType: 'rewrite',
+			},
+		});
+		devServer = await fixture.startDevServer();
+	});
+	after(async () => {
+		devServer.stop();
+	});
+
+	it('should correctly rewrite to en', async () => {
+		const html = await fixture.fetch('/fr').then((res) => res.text());
+		assert.match(html, /Hello/);
+		// assert.fail()
+	});
+
+	it('should render fallback locale paths with path parameters correctly (fr)', async () => {
+		let response = await fixture.fetch('/fr/blog/1');
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.match(text, /Hello world/);
+	});
+
+	it('should render fallback locale paths with path parameters correctly (es)', async () => {
+		let response = await fixture.fetch('/es/blog/1');
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.match(text, /Hola mundo/);
+	});
+
+	it('should render fallback locale paths with query parameters correctly (it)', async () => {
+		let response = await fixture.fetch('/it/blog/1');
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.match(text, /Hello world/);
+	});
+});
+
+describe('Fallback rewrite SSG', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-fallback/',
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr', 'es', 'it', 'pt'],
+				routing: {
+					prefixDefaultLocale: false,
+					fallbackType: 'rewrite',
+				},
+				fallback: {
+					fr: 'en',
+					it: 'en',
+					es: 'pt',
+				},
+			},
+		});
+		await fixture.build();
+		// app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly rewrite to en', async () => {
+		const html = await fixture.readFile('/fr/index.html');
+		assert.match(html, /Hello/);
+		// assert.fail()
+	});
+
+	it('should render fallback locale paths with path parameters correctly (fr)', async () => {
+		const html = await fixture.readFile('/fr/blog/1/index.html');
+		assert.match(html, /Hello world/);
+	});
+
+	it('should render fallback locale paths with path parameters correctly (es)', async () => {
+		const html = await fixture.readFile('/es/blog/1/index.html');
+		assert.match(html, /Hola mundo/);
+	});
+
+	it('should render fallback locale paths with query parameters correctly (it)', async () => {
+		const html = await fixture.readFile('/it/blog/1/index.html');
+		assert.match(html, /Hello world/);
+	});
+});
+
+describe('Fallback rewrite SSR', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-fallback/',
+			output: 'server',
+			outDir: './dist/i18n-routing-fallback',
+			adapter: testAdapter(),
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr', 'es', 'it', 'pt'],
+				routing: {
+					prefixDefaultLocale: false,
+					fallbackType: 'rewrite',
+				},
+				fallback: {
+					fr: 'en',
+					it: 'en',
+					es: 'pt',
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly rewrite to en', async () => {
+		const request = new Request('http://example.com/fr');
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		assert.match(html, /Hello/);
+	});
+
+	it('should render fallback locale paths with path parameters correctly (fr)', async () => {
+		let request = new Request('http://example.com/new-site/fr/blog/1');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.match(text, /Hello world/);
+	});
+
+	it('should render fallback locale paths with path parameters correctly (es)', async () => {
+		let request = new Request('http://example.com/new-site/es/blog/1');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.match(text, /Hola mundo/);
+	});
+
+	it('should render fallback locale paths with query parameters correctly (it)', async () => {
+		let request = new Request('http://example.com/new-site/it/blog/1');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.match(text, /Hello world/);
 	});
 });

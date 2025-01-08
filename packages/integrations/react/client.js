@@ -33,7 +33,7 @@ function createReactElementFromDOMElement(element) {
 					return undefined;
 				}
 			})
-			.filter((a) => !!a)
+			.filter((a) => !!a),
 	);
 }
 
@@ -88,7 +88,7 @@ export default (element) =>
 		const componentEl = createElement(
 			Component,
 			props,
-			getChildren(children, element.hasAttribute('data-react-children'))
+			getChildren(children, element.hasAttribute('data-react-children')),
 		);
 		const rootKey = isAlreadyHydrated(element);
 		// HACK: delete internal react marker for nested components to suppress aggressive warnings

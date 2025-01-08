@@ -46,7 +46,7 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 				const pageDatas = getPagesFromVirtualModulePageName(
 					internals,
 					ASTRO_PAGE_RESOLVED_MODULE_ID,
-					chunk.facadeModuleId
+					chunk.facadeModuleId,
 				);
 				const prerender = pageDatas.every((pageData) => pageData.route.prerender);
 				if (prerender) {
@@ -54,21 +54,6 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 					continue;
 				}
 			}
-			// Ideally we should record entries when `functionPerRoute` is enabled, but this breaks some tests
-			// that expect the entrypoint to still exist even if it should be unused.
-			// TODO: Revisit this so we can delete additional unused chunks
-			// else if (chunk.facadeModuleId?.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
-			// 	const pageDatas = getPagesFromVirtualModulePageName(
-			// 		internals,
-			// 		RESOLVED_SPLIT_MODULE_ID,
-			// 		chunk.facadeModuleId
-			// 	);
-			// 	const prerender = pageDatas.every((pageData) => pageData.route.prerender);
-			// 	if (prerender) {
-			// 		prerenderOnlyEntryChunks.add(chunk);
-			// 		continue;
-			// 	}
-			// }
 
 			nonPrerenderOnlyEntryChunks.add(chunk);
 		}
@@ -102,10 +87,10 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 
 export function pluginPrerender(
 	opts: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	// Static output can skip prerender completely because we're already rendering all pages
-	if (opts.settings.config.output === 'static') {
+	if (opts.settings.buildOutput === 'static') {
 		return { targets: ['server'] };
 	}
 

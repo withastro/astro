@@ -89,7 +89,7 @@ function viaLocal(dir, isEtag, uri, extns) {
 	}
 }
 
-function is404(req, res) {
+function is404(_req, res) {
 	return (res.statusCode = 404), res.end();
 }
 
@@ -217,10 +217,10 @@ export default function (dir, opts = {}) {
 		if (brots && /br/i.test(val)) extns.unshift(...brots);
 		extns.push(...extensions); // [...br, ...gz, orig, ...exts]
 
-		if (pathname.indexOf('%') !== -1) {
+		if (pathname.includes('%')) {
 			try {
 				pathname = decodeURIComponent(pathname);
-			} catch (err) {
+			} catch {
 				/* malform uri */
 			}
 		}

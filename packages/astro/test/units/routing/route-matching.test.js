@@ -1,6 +1,5 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
@@ -11,12 +10,11 @@ import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-serve
 import testAdapter from '../../test-adapter.js';
 import {
 	createBasicSettings,
-	createFs,
+	createFixture,
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
 
-const root = new URL('../../fixtures/alias/', import.meta.url);
 const fileSystem = {
 	'/src/pages/[serverDynamic].astro': `
 		---
@@ -131,15 +129,14 @@ describe('Route matching', () => {
 	let settings;
 
 	before(async () => {
-		const fs = createFs(fileSystem, root);
+		const fixture = await createFixture(fileSystem);
 		settings = await createBasicSettings({
-			root: fileURLToPath(root),
+			root: fixture.path,
 			trailingSlash: 'never',
-			output: 'hybrid',
+			output: 'static',
 			adapter: testAdapter(),
 		});
 		container = await createContainer({
-			fs,
 			settings,
 			logger: defaultLogger,
 		});
@@ -147,13 +144,12 @@ describe('Route matching', () => {
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);
 		pipeline = DevPipeline.create(undefined, { loader, logger: defaultLogger, manifest, settings });
-		manifestData = createRouteManifest(
+		manifestData = await createRouteManifest(
 			{
-				cwd: fileURLToPath(root),
+				cwd: fixture.path,
 				settings,
-				fsMod: fs,
 			},
-			defaultLogger
+			defaultLogger,
 		);
 	});
 

@@ -1,4 +1,4 @@
-import type { DevToolbarApp } from '../../../../@types/astro.js';
+import type { ResolvedDevToolbarApp } from '../../../../types/public/toolbar.js';
 import { type Settings, settings } from '../settings.js';
 import { isValidPlacement, placements } from '../ui-library/window.js';
 import {
@@ -163,7 +163,7 @@ export default {
 						Run <code>astro preferences disable devToolbar</code> in your terminal to disable the toolbar. <a href="https://docs.astro.build/en/reference/cli-reference/#astro-preferences" target="_blank">Learn more</a>.
 					</section>
 				</label>
-				`
+				`,
 			);
 			const general = windowElement.querySelector('#general')!;
 			for (const settingsRow of settingsRows) {
@@ -196,7 +196,7 @@ export default {
 								option.selected = true;
 							}
 							option.textContent = `${placement.slice(0, 1).toUpperCase()}${placement.slice(
-								1
+								1,
 							)}`.replace('-', ' ');
 							astroSelect.append(option);
 						});
@@ -204,6 +204,8 @@ export default {
 						label.append(astroSelect);
 						break;
 					}
+					case 'number':
+					case 'text':
 					default:
 						break;
 				}
@@ -212,4 +214,4 @@ export default {
 			}
 		}
 	},
-} satisfies DevToolbarApp;
+} satisfies ResolvedDevToolbarApp;

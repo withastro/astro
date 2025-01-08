@@ -1,17 +1,15 @@
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
-/* eslint-disable no-console */
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
-import type yargs from 'yargs-parser';
-import type { AstroConfig, AstroUserConfig } from '../../@types/astro.js';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
-import { flagsToAstroInlineConfig } from '../flags.js';
+import type { AstroConfig, AstroUserConfig } from '../../types/public/config.js';
+import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface InfoOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 export async function getInfoOutput({
@@ -51,51 +49,108 @@ export async function printInfo({ flags }: InfoOptions) {
 	applyPolyfill();
 	const { userConfig } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
 	const output = await getInfoOutput({ userConfig, print: true });
-
-	await copyToClipboard(output);
+	await copyToClipboard(output, flags.copy);
 }
 
-async function copyToClipboard(text: string) {
+export async function copyToClipboard(text: string, force?: boolean) {
+	text = text.trim();
 	const system = platform();
 	let command = '';
+	let args: Array<string> = [];
+
 	if (system === 'darwin') {
 		command = 'pbcopy';
 	} else if (system === 'win32') {
 		command = 'clip';
 	} else {
-		try {
-			// Unix: check if `xclip` is installed
-			const output = execSync('which xclip', { encoding: 'utf8' });
-			if (output[0] !== '/') {
-				// Did not find a path for xclip, bail out!
-				return;
+		// Unix: check if a supported command is installed
+
+		const unixCommands: Array<[string, Array<string>]> = [
+			['xclip', ['-selection', 'clipboard', '-l', '1']],
+			['wl-copy', []],
+		];
+		for (const [unixCommand, unixArgs] of unixCommands) {
+			try {
+				const output = spawnSync('which', [unixCommand], { encoding: 'utf8' });
+				if (output.stdout.trim()) {
+					command = unixCommand;
+					args = unixArgs;
+					break;
+				}
+			} catch {
+				continue;
 			}
-			command = 'xclip -sel clipboard -l 1';
-		} catch (e) {
-			// Did not find xclip, bail out!
-			return;
 		}
 	}
 
-	console.log();
-	const { shouldCopy } = await prompts({
-		type: 'confirm',
-		name: 'shouldCopy',
-		message: 'Copy to clipboard?',
-		initial: true,
-	});
-	if (!shouldCopy) return;
+	if (!command) {
+		console.error(colors.red('\nClipboard command not found!'));
+		console.info('Please manually copy the text above.');
+		return;
+	}
+
+	if (!force) {
+		const { shouldCopy } = await prompts({
+			type: 'confirm',
+			name: 'shouldCopy',
+			message: 'Copy to clipboard?',
+			initial: true,
+		});
+
+		if (!shouldCopy) return;
+	}
 
 	try {
-		execSync(command, {
-			input: text.trim(),
-			encoding: 'utf8',
-		});
-	} catch (e) {
+		const result = spawnSync(command, args, { input: text, stdio: ['pipe', 'ignore', 'ignore'] });
+		if (result.error) {
+			throw result.error;
+		}
+		console.info(colors.green('Copied to clipboard!'));
+	} catch {
 		console.error(
-			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`
+			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`,
 		);
 	}
+}
+
+export function readFromClipboard() {
+	const system = platform();
+	let command = '';
+	let args: Array<string> = [];
+
+	if (system === 'darwin') {
+		command = 'pbpaste';
+	} else if (system === 'win32') {
+		command = 'powershell';
+		args = ['-command', 'Get-Clipboard'];
+	} else {
+		const unixCommands: Array<[string, Array<string>]> = [
+			['xclip', ['-sel', 'clipboard', '-o']],
+			['wl-paste', []],
+		];
+		for (const [unixCommand, unixArgs] of unixCommands) {
+			try {
+				const output = spawnSync('which', [unixCommand], { encoding: 'utf8' });
+				if (output.stdout.trim()) {
+					command = unixCommand;
+					args = unixArgs;
+					break;
+				}
+			} catch {
+				continue;
+			}
+		}
+	}
+
+	if (!command) {
+		throw new Error('Clipboard read command not found!');
+	}
+
+	const result = spawnSync(command, args, { encoding: 'utf8' });
+	if (result.error) {
+		throw result.error;
+	}
+	return result.stdout.trim();
 }
 
 const PLATFORM_TO_OS: Partial<Record<ReturnType<typeof platform>, string>> = {
@@ -132,7 +187,7 @@ function printRow(label: string, value: string | string[], print: boolean) {
 	}
 	plaintext += '\n';
 	if (print) {
-		console.log(richtext);
+		console.info(richtext);
 	}
 	return plaintext;
 }

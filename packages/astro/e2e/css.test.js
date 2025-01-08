@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/css/',
 	devToolbar: {
 		enabled: false,
@@ -26,7 +26,7 @@ test.describe('CSS HMR', () => {
 		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
 
 		await astro.editFile('./src/styles/main.css', (original) =>
-			original.replace('--h1-color: red;', '--h1-color: green;')
+			original.replace('--h1-color: red;', '--h1-color: green;'),
 		);
 
 		await expect(h).toHaveCSS('color', 'rgb(0, 128, 0)');

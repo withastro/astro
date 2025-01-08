@@ -167,9 +167,9 @@ describe('MDX plugins', () => {
 				assert.equal(
 					selectTocLink(
 						document,
-						'`remarkToc` plugin applied unexpectedly. Should override Markdown config.'
+						'`remarkToc` plugin applied unexpectedly. Should override Markdown config.',
 					),
-					null
+					null,
 				);
 			});
 
@@ -194,13 +194,13 @@ describe('MDX plugins', () => {
 					assert.equal(
 						quote.textContent.includes('"Smartypants" is -- awesome'),
 						true,
-						'Does not respect `markdown.smartypants` option.'
+						'Does not respect `markdown.smartypants` option.',
 					);
 				} else {
 					assert.equal(
 						quote.textContent.includes('“Smartypants” is — awesome'),
 						true,
-						'Respects `markdown.smartypants` unexpectedly.'
+						'Respects `markdown.smartypants` unexpectedly.',
 					);
 				}
 			});

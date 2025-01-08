@@ -64,7 +64,7 @@ for (const caseNumber of [1, 2, 3, 4, 5]) {
 				async () => {
 					const response = await app.render(new Request('https://example.com/alvsibdlvjks'));
 					assert.equal(response.status, 404);
-				}
+				},
 			);
 		});
 	});

@@ -26,5 +26,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.issue.number }}
           body: |
-            Hello @${{ github.event.issue.user.login }}. Please provide a [minimal reproduction](https://stackoverflow.com/help/minimal-reproducible-example) using a GitHub repository or [StackBlitz](https://astro.new). Issues marked with `needs repro` will be closed if they have no activity within 3 days.
+            Hello @${{ github.event.issue.user.login }}. Please provide a [minimal reproduction](https://stackoverflow.com/help/minimal-reproducible-example) using a GitHub repository or [StackBlitz](https://astro.new/repro). Issues marked with `needs repro` will be closed if they have no activity within 3 days.
           labels: "needs triage"

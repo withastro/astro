@@ -36,7 +36,8 @@ export const perf: AuditRuleWithSelector[] = [
 		match(element) {
 			const htmlElement = element as HTMLImageElement | HTMLIFrameElement;
 			// Ignore elements that are above the fold, they should be loaded eagerly
-			if (htmlElement.offsetTop < window.innerHeight) return false;
+			const elementYPosition = htmlElement.getBoundingClientRect().y + window.scrollY;
+			if (elementYPosition < window.innerHeight) return false;
 
 			// Ignore elements using `data:` URI, the `loading` attribute doesn't do anything for these
 			if (htmlElement.src.startsWith('data:')) return false;
@@ -54,7 +55,8 @@ export const perf: AuditRuleWithSelector[] = [
 			const htmlElement = element as HTMLImageElement | HTMLIFrameElement;
 
 			// Ignore elements that are below the fold, they should be loaded lazily
-			if (htmlElement.offsetTop > window.innerHeight) return false;
+			const elementYPosition = htmlElement.getBoundingClientRect().y + window.scrollY;
+			if (elementYPosition > window.innerHeight) return false;
 
 			// Ignore elements using `data:` URI, the `loading` attribute doesn't do anything for these
 			if (htmlElement.src.startsWith('data:')) return false;
@@ -89,7 +91,7 @@ export const perf: AuditRuleWithSelector[] = [
 		title: 'Server-rendered component took a long time to render',
 		message: (element) =>
 			`This component took an unusually long time to render on the server (${getCleanRenderingTime(
-				element.getAttribute('server-render-time')
+				element.getAttribute('server-render-time'),
 			)}). This might be a sign that it's doing too much work on the server, or something is blocking rendering.`,
 		selector: 'astro-island[server-render-time]',
 		match(element) {
@@ -107,7 +109,7 @@ export const perf: AuditRuleWithSelector[] = [
 		title: 'Client-rendered component took a long time to hydrate',
 		message: (element) =>
 			`This component took an unusually long time to render on the server (${getCleanRenderingTime(
-				element.getAttribute('client-render-time')
+				element.getAttribute('client-render-time'),
 			)}). This could be a sign that something is blocking the main thread and preventing the component from hydrating quickly.`,
 		selector: 'astro-island[client-render-time]',
 		match(element) {

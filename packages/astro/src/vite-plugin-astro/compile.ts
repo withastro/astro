@@ -1,7 +1,7 @@
 import { type ESBuildTransformResult, transformWithEsbuild } from 'vite';
-import type { AstroConfig } from '../@types/astro.js';
 import { type CompileProps, type CompileResult, compile } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
+import type { AstroConfig } from '../types/public/config.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
@@ -37,8 +37,8 @@ export async function compileAstro({
 		// Compile all TypeScript to JavaScript.
 		// Also, catches invalid JS/TS in the compiled output before returning.
 		esbuildResult = await transformWithEsbuild(transformResult.code, compileProps.filename, {
+			...compileProps.viteConfig.esbuild,
 			loader: 'ts',
-			target: 'esnext',
 			sourcemap: 'external',
 			tsconfigRaw: {
 				compilerOptions: {
@@ -61,12 +61,12 @@ export async function compileAstro({
 
 	const { fileId: file, fileUrl: url } = getFileInfo(
 		compileProps.filename,
-		compileProps.astroConfig
+		compileProps.astroConfig,
 	);
 
 	let SUFFIX = '';
 	SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
-		url
+		url,
 	)};export { $$file as file, $$url as url };\n`;
 
 	// Add HMR handling in dev mode.
@@ -126,7 +126,7 @@ async function enhanceCompileError({
 			if (frontmatterErr?.message) {
 				frontmatterErr.message = frontmatterErr.message.replace(
 					'end of file',
-					'end of frontmatter'
+					'end of frontmatter',
 				);
 			}
 			throw frontmatterErr;

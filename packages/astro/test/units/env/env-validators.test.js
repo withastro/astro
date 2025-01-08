@@ -38,7 +38,7 @@ const createFixture = () => {
 			const errors = typeof providedErrors === 'string' ? [providedErrors] : providedErrors;
 			assert.equal(
 				result.errors.every((element) => errors.includes(element)),
-				true
+				true,
 			);
 			input = undefined;
 		},
@@ -58,7 +58,7 @@ describe('astro:env validators', () => {
 			getEnvFieldType({
 				type: 'string',
 			}),
-			'string'
+			'string',
 		);
 
 		assert.equal(
@@ -66,7 +66,7 @@ describe('astro:env validators', () => {
 				type: 'string',
 				optional: true,
 			}),
-			'string | undefined'
+			'string | undefined',
 		);
 
 		assert.equal(
@@ -75,14 +75,14 @@ describe('astro:env validators', () => {
 				optional: true,
 				default: 'abc',
 			}),
-			'string'
+			'string',
 		);
 
 		assert.equal(
 			getEnvFieldType({
 				type: 'number',
 			}),
-			'number'
+			'number',
 		);
 
 		assert.equal(
@@ -90,7 +90,7 @@ describe('astro:env validators', () => {
 				type: 'number',
 				optional: true,
 			}),
-			'number | undefined'
+			'number | undefined',
 		);
 
 		assert.equal(
@@ -99,14 +99,14 @@ describe('astro:env validators', () => {
 				optional: true,
 				default: 456,
 			}),
-			'number'
+			'number',
 		);
 
 		assert.equal(
 			getEnvFieldType({
 				type: 'boolean',
 			}),
-			'boolean'
+			'boolean',
 		);
 
 		assert.equal(
@@ -114,7 +114,7 @@ describe('astro:env validators', () => {
 				type: 'boolean',
 				optional: true,
 			}),
-			'boolean | undefined'
+			'boolean | undefined',
 		);
 
 		assert.equal(
@@ -123,7 +123,7 @@ describe('astro:env validators', () => {
 				optional: true,
 				default: true,
 			}),
-			'boolean'
+			'boolean',
 		);
 
 		assert.equal(
@@ -131,7 +131,7 @@ describe('astro:env validators', () => {
 				type: 'enum',
 				values: ['A'],
 			}),
-			"'A'"
+			"'A'",
 		);
 
 		assert.equal(
@@ -139,7 +139,7 @@ describe('astro:env validators', () => {
 				type: 'enum',
 				values: ['A', 'B'],
 			}),
-			"'A' | 'B'"
+			"'A' | 'B'",
 		);
 
 		assert.equal(
@@ -148,7 +148,7 @@ describe('astro:env validators', () => {
 				optional: true,
 				values: ['A'],
 			}),
-			"'A' | undefined"
+			"'A' | undefined",
 		);
 		assert.equal(
 			getEnvFieldType({
@@ -157,7 +157,7 @@ describe('astro:env validators', () => {
 				values: ['A', 'B'],
 				default: 'A',
 			}),
-			"'A' | 'B'"
+			"'A' | 'B'",
 		);
 	});
 

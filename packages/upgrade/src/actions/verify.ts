@@ -10,7 +10,7 @@ import semverParse from 'semver/functions/parse.js';
 import { bannerAbort, error, getRegistry, info, newline } from '../messages.js';
 
 export async function verify(
-	ctx: Pick<Context, 'version' | 'packages' | 'cwd' | 'dryRun' | 'exit'>
+	ctx: Pick<Context, 'version' | 'packages' | 'cwd' | 'dryRun' | 'exit'>,
 ) {
 	const registry = await getRegistry();
 
@@ -24,7 +24,13 @@ export async function verify(
 		}
 	}
 
-	await verifyAstroProject(ctx);
+	const isAstroProject = await verifyAstroProject(ctx);
+	if (!isAstroProject) {
+		bannerAbort();
+		newline();
+		error('error', `Astro installation not found in the current directory.`);
+		ctx.exit(1);
+	}
 
 	const ok = await verifyVersions(ctx, registry);
 	if (!ok) {
@@ -37,10 +43,10 @@ export async function verify(
 }
 
 function isOnline(registry: string): Promise<boolean> {
-	const { host } = new URL(registry);
-	return dns.lookup(host).then(
+	const { hostname } = new URL(registry);
+	return dns.lookup(hostname).then(
 		() => true,
-		() => false
+		() => false,
 	);
 }
 
@@ -88,7 +94,7 @@ function isSupportedPackage(name: string, version: string): boolean {
 export function collectPackageInfo(
 	ctx: Pick<Context, 'version' | 'packages'>,
 	dependencies: Record<string, string> = {},
-	devDependencies: Record<string, string> = {}
+	devDependencies: Record<string, string> = {},
 ) {
 	for (const [name, currentVersion] of Object.entries(dependencies)) {
 		if (!isSupportedPackage(name, currentVersion)) continue;
@@ -111,7 +117,7 @@ export function collectPackageInfo(
 
 async function verifyVersions(
 	ctx: Pick<Context, 'version' | 'packages' | 'exit'>,
-	registry: string
+	registry: string,
 ) {
 	const tasks: Promise<void>[] = [];
 	for (const packageInfo of ctx.packages) {
@@ -185,7 +191,7 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 function extractChangelogURLFromRepository(
 	repository: Record<string, string>,
 	version: string,
-	branch = 'main'
+	branch = 'main',
 ) {
 	return (
 		repository.url.replace('git+', '').replace('.git', '') +

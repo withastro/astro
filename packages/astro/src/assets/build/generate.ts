@@ -2,7 +2,6 @@ import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
 import { dim, green } from 'kleur/colors';
 import type PQueue from 'p-queue';
-import type { AstroConfig } from '../../@types/astro.js';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
 import type { BuildPipeline } from '../../core/build/pipeline.js';
 import { getTimeStat } from '../../core/build/util.js';
@@ -10,16 +9,16 @@ import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
-import { isServerLikeOutput } from '../../core/util.js';
 import type { MapValue } from '../../type-utils.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
-import { type RemoteCacheEntry, loadRemoteImage } from './remote.js';
+import { type RemoteCacheEntry, loadRemoteImage, revalidateRemoteImage } from './remote.js';
 
 interface GenerationDataUncached {
-	cached: false;
+	cached: 'miss';
 	weight: {
 		before: number;
 		after: number;
@@ -27,7 +26,7 @@ interface GenerationDataUncached {
 }
 
 interface GenerationDataCached {
-	cached: true;
+	cached: 'revalidated' | 'hit';
 }
 
 type GenerationData = GenerationDataUncached | GenerationDataCached;
@@ -44,13 +43,18 @@ type AssetEnv = {
 	assetsFolder: AstroConfig['build']['assets'];
 };
 
-type ImageData = { data: Uint8Array; expires: number };
+type ImageData = {
+	data: Uint8Array;
+	expires: number;
+	etag?: string;
+	lastModified?: string;
+};
 
 export async function prepareAssetsGenerationEnv(
 	pipeline: BuildPipeline,
-	totalCount: number
+	totalCount: number,
 ): Promise<AssetEnv> {
-	const { config, logger } = pipeline;
+	const { config, logger, settings } = pipeline;
 	let useCache = true;
 	const assetsCacheDir = new URL('assets/', config.cacheDir);
 	const count = { total: totalCount, current: 1 };
@@ -61,13 +65,14 @@ export async function prepareAssetsGenerationEnv(
 	} catch (err) {
 		logger.warn(
 			null,
-			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${err}`
+			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${err}`,
 		);
 		useCache = false;
 	}
 
+	const isServerOutput = settings.buildOutput === 'server';
 	let serverRoot: URL, clientRoot: URL;
-	if (isServerLikeOutput(config)) {
+	if (isServerOutput) {
 		serverRoot = config.build.server;
 		clientRoot = config.build.client;
 	} else {
@@ -77,7 +82,7 @@ export async function prepareAssetsGenerationEnv(
 
 	return {
 		logger,
-		isSSR: isServerLikeOutput(config),
+		isSSR: isServerOutput,
 		count,
 		useCache,
 		assetsCacheDir,
@@ -96,13 +101,13 @@ export async function generateImagesForPath(
 	originalFilePath: string,
 	transformsAndPath: MapValue<AssetsGlobalStaticImagesList>,
 	env: AssetEnv,
-	queue: PQueue
+	queue: PQueue,
 ) {
-	const originalImageData = await loadImage(originalFilePath, env);
+	let originalImage: ImageData;
 
 	for (const [_, transform] of transformsAndPath.transforms) {
 		await queue
-			.add(async () => generateImage(originalImageData, transform.finalPath, transform.transform))
+			.add(async () => generateImage(transform.finalPath, transform.transform))
 			.catch((e) => {
 				throw e;
 			});
@@ -119,46 +124,47 @@ export async function generateImagesForPath(
 			if (transformsAndPath.originalSrcPath) {
 				env.logger.debug(
 					'assets',
-					`Deleting ${originalFilePath} as it's not referenced outside of image processing.`
+					`Deleting ${originalFilePath} as it's not referenced outside of image processing.`,
 				);
 				await fs.promises.unlink(getFullImagePath(originalFilePath, env));
 			}
-		} catch (e) {
+		} catch {
 			/* No-op, it's okay if we fail to delete one of the file, we're not too picky. */
 		}
 	}
 
-	async function generateImage(
-		originalImage: ImageData,
-		filepath: string,
-		options: ImageTransform
-	) {
+	async function generateImage(filepath: string, options: ImageTransform) {
 		const timeStart = performance.now();
-		const generationData = await generateImageInternal(originalImage, filepath, options);
+		const generationData = await generateImageInternal(filepath, options);
 
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
-		const statsText = generationData.cached
-			? `(reused cache entry)`
-			: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
+		const statsText =
+			generationData.cached !== 'miss'
+				? generationData.cached === 'hit'
+					? `(reused cache entry)`
+					: `(revalidated cache entry)`
+				: `(before: ${generationData.weight.before}kB, after: ${generationData.weight.after}kB)`;
 		const count = `(${env.count.current}/${env.count.total})`;
 		env.logger.info(
 			null,
-			`  ${green('▶')} ${filepath} ${dim(statsText)} ${dim(timeIncrease)} ${dim(count)}`
+			`  ${green('▶')} ${filepath} ${dim(statsText)} ${dim(timeIncrease)} ${dim(count)}`,
 		);
 		env.count.current++;
 	}
 
 	async function generateImageInternal(
-		originalImage: ImageData,
 		filepath: string,
-		options: ImageTransform
+		options: ImageTransform,
 	): Promise<GenerationData> {
 		const isLocalImage = isESMImportedImage(options.src);
 		const finalFileURL = new URL('.' + filepath, env.clientRoot);
 
-		// For remote images, instead of saving the image directly, we save a JSON file with the image data and expiration date from the server
+		const finalFolderURL = new URL('./', finalFileURL);
+		await fs.promises.mkdir(finalFolderURL, { recursive: true });
+
+		// For remote images, instead of saving the image directly, we save a JSON file with the image data, expiration date, etag and last-modified date from the server
 		const cacheFile = basename(filepath) + (isLocalImage ? '' : '.json');
 		const cachedFileURL = new URL(cacheFile, env.assetsCacheDir);
 
@@ -168,7 +174,7 @@ export async function generateImagesForPath(
 				await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
 
 				return {
-					cached: true,
+					cached: 'hit',
 				};
 			} else {
 				const JSONData = JSON.parse(readFileSync(cachedFileURL, 'utf-8')) as RemoteCacheEntry;
@@ -177,7 +183,7 @@ export async function generateImagesForPath(
 					await fs.promises.unlink(cachedFileURL);
 
 					throw new Error(
-						`Malformed cache entry for ${filepath}, cache will be regenerated for this file.`
+						`Malformed cache entry for ${filepath}, cache will be regenerated for this file.`,
 					);
 				}
 
@@ -186,11 +192,43 @@ export async function generateImagesForPath(
 					await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
 
 					return {
-						cached: true,
+						cached: 'hit',
 					};
-				} else {
-					await fs.promises.unlink(cachedFileURL);
 				}
+
+				// Try to revalidate the cache
+				if (JSONData.etag || JSONData.lastModified) {
+					try {
+						const revalidatedData = await revalidateRemoteImage(options.src as string, {
+							etag: JSONData.etag,
+							lastModified: JSONData.lastModified,
+						});
+
+						if (revalidatedData.data.length) {
+							// Image cache was stale, update original image to avoid redownload
+							originalImage = revalidatedData;
+						} else {
+							revalidatedData.data = Buffer.from(JSONData.data, 'base64');
+
+							// Freshen cache on disk
+							await writeRemoteCacheFile(cachedFileURL, revalidatedData, env);
+
+							await fs.promises.writeFile(finalFileURL, revalidatedData.data);
+							return { cached: 'revalidated' };
+						}
+					} catch (e) {
+						// Reuse stale cache if revalidation fails
+						env.logger.warn(
+							null,
+							`An error was encountered while revalidating a cached remote asset. Proceeding with stale cache. ${e}`,
+						);
+
+						await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
+						return { cached: 'hit' };
+					}
+				}
+
+				await fs.promises.unlink(cachedFileURL);
 			}
 		} catch (e: any) {
 			if (e.code !== 'ENOENT') {
@@ -199,17 +237,20 @@ export async function generateImagesForPath(
 			// If the cache file doesn't exist, just move on, and we'll generate it
 		}
 
-		const finalFolderURL = new URL('./', finalFileURL);
-		await fs.promises.mkdir(finalFolderURL, { recursive: true });
-
 		// The original filepath or URL from the image transform
 		const originalImagePath = isLocalImage
 			? (options.src as ImageMetadata).src
 			: (options.src as string);
 
+		if (!originalImage) {
+			originalImage = await loadImage(originalFilePath, env);
+		}
+
 		let resultData: Partial<ImageData> = {
 			data: undefined,
 			expires: originalImage.expires,
+			etag: originalImage.etag,
+			lastModified: originalImage.lastModified,
 		};
 
 		const imageService = (await getConfiguredImageService()) as LocalImageService;
@@ -219,7 +260,7 @@ export async function generateImagesForPath(
 				await imageService.transform(
 					originalImage.data,
 					{ ...options, src: originalImagePath },
-					env.imageConfig
+					env.imageConfig,
 				)
 			).data;
 		} catch (e) {
@@ -228,7 +269,7 @@ export async function generateImagesForPath(
 					...AstroErrorData.CouldNotTransformImage,
 					message: AstroErrorData.CouldNotTransformImage.message(originalFilePath),
 				},
-				{ cause: e }
+				{ cause: e },
 			);
 
 			throw error;
@@ -240,19 +281,13 @@ export async function generateImagesForPath(
 				if (isLocalImage) {
 					await fs.promises.writeFile(cachedFileURL, resultData.data);
 				} else {
-					await fs.promises.writeFile(
-						cachedFileURL,
-						JSON.stringify({
-							data: Buffer.from(resultData.data).toString('base64'),
-							expires: resultData.expires,
-						})
-					);
+					await writeRemoteCacheFile(cachedFileURL, resultData as ImageData, env);
 				}
 			}
 		} catch (e) {
 			env.logger.warn(
 				null,
-				`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${e}`
+				`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${e}`,
 			);
 		} finally {
 			// Write the final file
@@ -260,13 +295,32 @@ export async function generateImagesForPath(
 		}
 
 		return {
-			cached: false,
+			cached: 'miss',
 			weight: {
 				// Divide by 1024 to get size in kilobytes
 				before: Math.trunc(originalImage.data.byteLength / 1024),
 				after: Math.trunc(Buffer.from(resultData.data).byteLength / 1024),
 			},
 		};
+	}
+}
+
+async function writeRemoteCacheFile(cachedFileURL: URL, resultData: ImageData, env: AssetEnv) {
+	try {
+		return await fs.promises.writeFile(
+			cachedFileURL,
+			JSON.stringify({
+				data: Buffer.from(resultData.data).toString('base64'),
+				expires: resultData.expires,
+				etag: resultData.etag,
+				lastModified: resultData.lastModified,
+			}),
+		);
+	} catch (e) {
+		env.logger.warn(
+			null,
+			`An error was encountered while writing the cache file for a remote asset. Proceeding without caching this asset. Error: ${e}`,
+		);
 	}
 }
 
@@ -280,11 +334,7 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 
 async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	if (isRemotePath(path)) {
-		const remoteImage = await loadRemoteImage(path);
-		return {
-			data: remoteImage.data,
-			expires: remoteImage.expires,
-		};
+		return await loadRemoteImage(path);
 	}
 
 	return {

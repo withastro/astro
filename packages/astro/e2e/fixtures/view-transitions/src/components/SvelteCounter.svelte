@@ -1,5 +1,6 @@
 <script lang="ts">
-	let count = 0;
+	let { prefix, children } = $props()
+	let count = $state(0);
 
 	function add() {
 		count += 1;
@@ -11,12 +12,12 @@
 </script>
 
 <div class="counter">
-	<button on:click={subtract}>-</button>
-	<pre>{count}</pre>
-	<button on:click={add}>+</button>
+	<button onclick={subtract} class="decrement">-</button>
+	<pre>{prefix}{count}</pre>
+	<button onclick={add} class="increment">+</button>
 </div>
 <div class="message">
-	<slot />
+	{@render children?.()}
 </div>
 
 <style>

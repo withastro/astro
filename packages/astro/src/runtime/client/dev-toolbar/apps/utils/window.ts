@@ -10,7 +10,7 @@ export function createWindowElement(content: string, placement = settings.config
 
 export function closeOnOutsideClick(
 	eventTarget: EventTarget,
-	additionalCheck?: (target: Element) => boolean
+	additionalCheck?: (target: Element) => boolean,
 ) {
 	function onPageClick(event: MouseEvent) {
 		const target = event.target as Element | null;
@@ -23,7 +23,7 @@ export function closeOnOutsideClick(
 				detail: {
 					state: false,
 				},
-			})
+			}),
 		);
 	}
 	eventTarget.addEventListener('app-toggled', (event: any) => {

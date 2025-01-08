@@ -62,7 +62,7 @@ const interactiveElements = [
 	...MAYBE_INTERACTIVE.keys(),
 ];
 
-const labellableElements = ['input', 'meter', 'output', 'progress', 'select', 'textarea'];
+const labellableElements = ['button', 'input', 'meter', 'output', 'progress', 'select', 'textarea'];
 
 const aria_non_interactive_roles = [
 	'alert',
@@ -126,12 +126,6 @@ const a11y_required_content = [
 
 const a11y_distracting_elements = ['blink', 'marquee'];
 
-// Unused for now
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const a11y_nested_implicit_semantics = new Map([
-	['header', 'banner'],
-	['footer', 'contentinfo'],
-]);
 const a11y_implicit_semantics = new Map([
 	['a', 'link'],
 	['area', 'link'],
@@ -200,14 +194,14 @@ const input_type_to_implicit_role = new Map([
 
 const ariaAttributes = new Set(
 	'activedescendant atomic autocomplete busy checked colcount colindex colspan controls current describedby description details disabled dropeffect errormessage expanded flowto grabbed haspopup hidden invalid keyshortcuts label labelledby level live modal multiline multiselectable orientation owns placeholder posinset pressed readonly relevant required roledescription rowcount rowindex rowspan selected setsize sort valuemax valuemin valuenow valuetext'.split(
-		' '
-	)
+		' ',
+	),
 );
 
 const ariaRoles = new Set(
 	'alert alertdialog application article banner button cell checkbox columnheader combobox complementary contentinfo definition dialog directory document feed figure form grid gridcell group heading img link list listbox listitem log main marquee math menu menubar menuitem menuitemcheckbox menuitemradio navigation none note option presentation progressbar radio radiogroup region row rowgroup rowheader scrollbar search searchbox separator slider spinbutton status switch tab tablist tabpanel textbox timer toolbar tooltip tree treegrid treeitem'.split(
-		' '
-	)
+		' ',
+	),
 );
 
 function isInteractive(element: Element): boolean {
@@ -321,7 +315,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			if (!tracks.length) return true;
 
 			const hasCaptionTrack = Array.from(tracks).some(
-				(track) => track.getAttribute('kind') === 'captions'
+				(track) => track.getAttribute('kind') === 'captions',
 			);
 
 			return !hasCaptionTrack;
@@ -344,7 +338,7 @@ export const a11y: AuditRuleWithSelector[] = [
 				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
 
 			const missingAttributes = requiredAttributes.filter(
-				(attribute) => !element.hasAttribute(attribute)
+				(attribute) => !element.hasAttribute(attribute),
 			);
 
 			return `${
@@ -567,7 +561,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			return `${
 				element.localName
 			} element has ARIA attributes that are not supported by its role (${role}): ${unsupported.join(
-				', '
+				', ',
 			)}`;
 		},
 		selector: '*',
@@ -581,7 +575,7 @@ export const a11y: AuditRuleWithSelector[] = [
 				const attributes = getAttributeObject(element);
 				const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
 				const invalidAttributes: string[] = Object.keys(attributes).filter(
-					(key) => key.startsWith('aria-') && unsupportedAttributes.includes(key as any)
+					(key) => key.startsWith('aria-') && unsupportedAttributes.includes(key as any),
 				);
 				if (invalidAttributes.length > 0) {
 					(element as any).__astro_role = elementRole;
@@ -624,19 +618,6 @@ export const a11y: AuditRuleWithSelector[] = [
 	},
 ];
 
-// Unused for now
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const a11y_labelable = [
-	'button',
-	'input',
-	'keygen',
-	'meter',
-	'output',
-	'progress',
-	'select',
-	'textarea',
-];
-
 /**
  * Exceptions to the rule which follows common A11y conventions
  * TODO make this configurable by the user
@@ -662,7 +643,6 @@ function input_implicit_role(attributes: Record<string, string>) {
 	return input_type_to_implicit_role.get(type);
 }
 
-/** @param {Map<string, import('#compiler').Attribute>} attribute_map */
 function menuitem_implicit_role(attributes: Record<string, string>) {
 	if (!('type' in attributes)) return;
 	const { type } = attributes;
@@ -698,15 +678,10 @@ function getAttributeObject(element: Element): Record<string, string> {
 	return obj;
 }
 
-/**
- * @param {import('aria-query').ARIARoleDefinitionKey} role
- * @param {string} tag_name
- * @param {Map<string, import('#compiler').Attribute>} attribute_map
- */
 function is_semantic_role_element(
-	role: string,
+	role: ARIARoleDefinitionKey,
 	tag_name: string,
-	attributes: Record<string, string>
+	attributes: Record<string, string>,
 ) {
 	for (const [schema, ax_object] of elementAXObjects.entries()) {
 		if (

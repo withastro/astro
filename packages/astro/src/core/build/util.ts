@@ -1,5 +1,5 @@
 import type { Rollup } from 'vite';
-import type { AstroConfig } from '../../@types/astro.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import type { ViteBuildReturn } from './types.js';
 
 export function getTimeStat(timeStart: number, timeEnd: number) {
@@ -12,7 +12,7 @@ export function getTimeStat(timeStart: number, timeEnd: number) {
  */
 export function shouldAppendForwardSlash(
 	trailingSlash: AstroConfig['trailingSlash'],
-	buildFormat: AstroConfig['build']['format']
+	buildFormat: AstroConfig['build']['format'],
 ): boolean {
 	switch (trailingSlash) {
 		case 'always':
@@ -57,7 +57,7 @@ export function encodeName(name: string): string {
 }
 
 export function viteBuildReturnToRollupOutputs(
-	viteBuildReturn: ViteBuildReturn
+	viteBuildReturn: ViteBuildReturn,
 ): Rollup.RollupOutput[] {
 	const result: Rollup.RollupOutput[] = [];
 	if (Array.isArray(viteBuildReturn)) {

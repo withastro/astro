@@ -1,5 +1,63 @@
 # @astrojs/solid-js
 
+## 5.0.1
+
+### Patch Changes
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
+## 5.0.0
+
+### Major Changes
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates Vite dependency to v6 to match Astro v5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+### Patch Changes
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates vite-plugin-solid to handle Vite 6
+
+## 5.0.0-beta.1
+
+### Major Changes
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates Vite dependency to v6 to match Astro v5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+### Patch Changes
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates vite-plugin-solid to handle Vite 6
+
+## 4.4.4
+
+### Patch Changes
+
+- [#12481](https://github.com/withastro/astro/pull/12481) [`8a46e80`](https://github.com/withastro/astro/commit/8a46e8074d6afb4a23badbd59ed239d526294e8c) Thanks [@marbrex](https://github.com/marbrex)! - Resolve `vite` peer dependency problem for strict package managers like **Yarn in PnP mode**.
+
+## 4.4.3
+
+### Patch Changes
+
+- [#12364](https://github.com/withastro/astro/pull/12364) [`9fc2ab8`](https://github.com/withastro/astro/commit/9fc2ab8cc848739a21bfa3f754e9bec4926dc034) Thanks [@jdtjenkins](https://github.com/jdtjenkins)! - Handles checking Svelte 5 component functions to avoid processing them as Solid components
+
+## 4.4.2
+
+### Patch Changes
+
+- [#11998](https://github.com/withastro/astro/pull/11998) [`082f450`](https://github.com/withastro/astro/commit/082f45094471d52e55c55d3291f541306d9388b1) Thanks [@johannesspohr](https://github.com/johannesspohr)! - Fix view transition state persistence
+
+## 4.4.1
+
+### Patch Changes
+
+- [#11624](https://github.com/withastro/astro/pull/11624) [`7adb350`](https://github.com/withastro/astro/commit/7adb350a37f3975c8c9db89a32bf63b9fd0b78c2) Thanks [@bluwy](https://github.com/bluwy)! - Prevents throwing errors when checking if a component is a Solid component in runtime
+
 ## 4.4.0
 
 ### Minor Changes

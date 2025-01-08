@@ -4,7 +4,11 @@ import { toText } from 'hast-util-to-text';
 import { removePosition } from 'unist-util-remove-position';
 import { visitParents } from 'unist-util-visit-parents';
 
-type Highlighter = (code: string, language: string, options?: { meta?: string }) => Promise<string>;
+type Highlighter = (
+	code: string,
+	language: string,
+	options?: { meta?: string },
+) => Promise<Root | string>;
 
 const languagePattern = /\blanguage-(\S+)\b/;
 
@@ -43,14 +47,14 @@ export async function highlightCodeBlocks(tree: Root, highlighter: Highlighter) 
 		let languageMatch: RegExpMatchArray | null | undefined;
 		let { className } = node.properties;
 		if (typeof className === 'string') {
-			languageMatch = className.match(languagePattern);
+			languageMatch = languagePattern.exec(className);
 		} else if (Array.isArray(className)) {
 			for (const cls of className) {
 				if (typeof cls !== 'string') {
 					continue;
 				}
 
-				languageMatch = cls.match(languagePattern);
+				languageMatch = languagePattern.exec(cls);
 				if (languageMatch) {
 					break;
 				}
@@ -73,12 +77,17 @@ export async function highlightCodeBlocks(tree: Root, highlighter: Highlighter) 
 	for (const { node, language, grandParent, parent } of nodes) {
 		const meta = (node.data as any)?.meta ?? node.properties.metastring ?? undefined;
 		const code = toText(node, { whitespace: 'pre' });
-		// TODO: In Astro 5, have `highlighter()` return hast directly to skip expensive HTML parsing and serialization.
-		const html = await highlighter(code, language, { meta });
-		// The replacement returns a root node with 1 child, the `<pr>` element replacement.
-		const replacement = fromHtml(html, { fragment: true }).children[0] as Element;
-		// We just generated this node, so any positional information is invalid.
-		removePosition(replacement);
+		const result = await highlighter(code, language, { meta });
+
+		let replacement: Element;
+		if (typeof result === 'string') {
+			// The replacement returns a root node with 1 child, the `<pre>` element replacement.
+			replacement = fromHtml(result, { fragment: true }).children[0] as Element;
+			// We just generated this node, so any positional information is invalid.
+			removePosition(replacement);
+		} else {
+			replacement = result.children[0] as Element;
+		}
 
 		// We replace the parent in its parent with the new `<pre>` element.
 		const index = grandParent.children.indexOf(parent);

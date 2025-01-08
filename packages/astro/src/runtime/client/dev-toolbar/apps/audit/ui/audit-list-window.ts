@@ -317,7 +317,7 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 			rulesCategories.forEach((category) => {
 				const headerEntryContainer = document.createElement('div');
 				const auditCount = this.audits.filter(
-					(audit) => getAuditCategory(audit.rule) === category.code
+					(audit) => getAuditCategory(audit.rule) === category.code,
 				).length;
 
 				const categoryBadge = createRoundedBadge(category.icon);
@@ -334,7 +334,7 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 		if (backToListButton) {
 			backToListButton.addEventListener('click', () => {
 				const activeAudit = this.shadowRoot.querySelector(
-					'astro-dev-toolbar-audit-list-item[active]'
+					'astro-dev-toolbar-audit-list-item[active]',
 				);
 				if (activeAudit) {
 					activeAudit.toggleAttribute('active', false);
@@ -355,7 +355,7 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 			if (this.audits.length > 0) {
 				for (const category of rulesCategories) {
 					const template = this.shadowRoot.getElementById(
-						'category-template'
+						'category-template',
 					) as HTMLTemplateElement;
 					if (!template) return;
 
@@ -368,7 +368,7 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 					const categoryContent = clone.querySelector('.category-content')!;
 
 					const categoryAudits = this.audits.filter(
-						(audit) => getAuditCategory(audit.rule) === category.code
+						(audit) => getAuditCategory(audit.rule) === category.code,
 					);
 
 					for (const audit of categoryAudits) {
@@ -399,7 +399,7 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 	updateBadgeCounts() {
 		for (const category of rulesCategories) {
 			const auditCount = this.audits.filter(
-				(audit) => getAuditCategory(audit.rule) === category.code
+				(audit) => getAuditCategory(audit.rule) === category.code,
 			).length;
 			this.badges[category.code].updateCount(auditCount);
 		}

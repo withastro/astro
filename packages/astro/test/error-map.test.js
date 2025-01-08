@@ -14,7 +14,7 @@ describe('Content Collections - error map', () => {
 				}),
 				union: z.union([z.string(), z.number()]),
 			}),
-			{ base: 1, nested: { key: 2 }, union: true }
+			{ base: 1, nested: { key: 2 }, union: true },
 		);
 		const msgs = messages(error).sort();
 		assert.equal(msgs.length, 3);
@@ -28,18 +28,18 @@ describe('Content Collections - error map', () => {
 			z.object({
 				foo: z.string(),
 			}),
-			{ foo: 1 }
+			{ foo: 1 },
 		);
-		assert.deepEqual(messages(error), ['**foo**: Expected type `"string"`, received "number"']);
+		assert.deepEqual(messages(error), ['**foo**: Expected type `"string"`, received `"number"`']);
 	});
 	it('Returns formatted error for literal mismatch', () => {
 		const error = getParseError(
 			z.object({
 				lang: z.literal('en'),
 			}),
-			{ lang: 'es' }
+			{ lang: 'es' },
 		);
-		assert.deepEqual(messages(error), ['**lang**: Expected `"en"`, received "es"']);
+		assert.deepEqual(messages(error), ['**lang**: Expected `"en"`, received `"es"`']);
 	});
 	it('Replaces undefined errors with "Required"', () => {
 		const error = getParseError(
@@ -47,18 +47,18 @@ describe('Content Collections - error map', () => {
 				foo: z.string(),
 				bar: z.string(),
 			}),
-			{ foo: 'foo' }
+			{ foo: 'foo' },
 		);
 		assert.deepEqual(messages(error), ['**bar**: Required']);
 	});
 	it('Returns formatted error for basic union mismatch', () => {
 		const error = getParseError(
 			z.union([z.boolean(), z.number()]),
-			'not a boolean or a number, oops!'
+			'not a boolean or a number, oops!',
 		);
 		assert.deepEqual(messages(error), [
 			fixLineEndings(
-				'Did not match union:\n> Expected type `"boolean" | "number"`, received "string"'
+				'Did not match union.\n> Expected type `"boolean" | "number"`, received `"string"`',
 			),
 		]);
 	});
@@ -72,11 +72,11 @@ describe('Content Collections - error map', () => {
 					type: z.literal('article'),
 				}),
 			]),
-			{ type: 'integration-guide' }
+			{ type: 'integration-guide' },
 		);
 		assert.deepEqual(messages(error), [
 			fixLineEndings(
-				'Did not match union:\n> **type**: Expected `"tutorial" | "article"`, received "integration-guide"'
+				'Did not match union.\n> **type**: Expected `"tutorial" | "article"`, received `"integration-guide"`',
 			),
 		]);
 	});
@@ -85,7 +85,7 @@ describe('Content Collections - error map', () => {
 			z.object({
 				lang: z.enum(['en', 'fr']),
 			}),
-			{ lang: 'jp' }
+			{ lang: 'jp' },
 		);
 		assert.deepEqual(messages(error), [
 			"**lang**: Invalid enum value. Expected 'en' | 'fr', received 'jp'",

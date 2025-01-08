@@ -1,33 +1,24 @@
 import type * as vite from 'vite';
 import type { InlineConfig } from 'vite';
-import type {
-	AstroConfig,
-	AstroSettings,
-	ComponentInstance,
-	ManifestData,
-	MiddlewareHandler,
-	RouteData,
-	RuntimeMode,
-	SSRLoadedRenderer,
-} from '../../@types/astro.js';
+import type { AstroSettings, ComponentInstance, ManifestData } from '../../types/astro.js';
+import type { MiddlewareHandler } from '../../types/public/common.js';
+import type { RuntimeMode } from '../../types/public/config.js';
+import type { RouteData, SSRLoadedRenderer } from '../../types/public/internal.js';
 import type { Logger } from '../logger/core.js';
 
 export type ComponentPath = string;
 export type ViteID = string;
-export type PageOutput = AstroConfig['output'];
 
 export type StylesheetAsset =
 	| { type: 'inline'; content: string }
 	| { type: 'external'; src: string };
 
-export type HoistedScriptAsset = { type: 'inline' | 'external'; value: string };
-
+/** Public type exposed through the `astro:build:setup` integration hook */
 export interface PageBuildData {
 	key: string;
 	component: ComponentPath;
 	route: RouteData;
 	moduleSpecifier: string;
-	hoistedScript: HoistedScriptAsset | undefined;
 	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
 }
 
@@ -39,11 +30,12 @@ export interface StaticBuildOptions {
 	settings: AstroSettings;
 	logger: Logger;
 	manifest: ManifestData;
-	mode: RuntimeMode;
+	runtimeMode: RuntimeMode;
 	origin: string;
 	pageNames: string[];
 	viteConfig: InlineConfig;
 	teardownCompiler: boolean;
+	key: Promise<CryptoKey>;
 }
 
 type ImportComponentInstance = () => Promise<ComponentInstance>;
@@ -58,8 +50,3 @@ export interface SinglePageBuiltModule {
 }
 
 export type ViteBuildReturn = Awaited<ReturnType<typeof vite.build>>;
-export type RollupOutput = Extract<
-	Extract<ViteBuildReturn, Exclude<ViteBuildReturn, Array<any>>>,
-	{ output: any }
->;
-export type OutputChunk = Extract<RollupOutput['output'][number], { type: 'chunk' }>;

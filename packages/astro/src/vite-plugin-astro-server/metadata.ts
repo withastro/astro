@@ -1,12 +1,12 @@
-import type { SSRComponentMetadata, SSRResult } from '../@types/astro.js';
 import type { ModuleInfo, ModuleLoader } from '../core/module-loader/index.js';
 import { viteID } from '../core/util.js';
+import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 import { crawlGraph } from './vite.js';
 
 export async function getComponentMetadata(
 	filePath: URL,
-	loader: ModuleLoader
+	loader: ModuleLoader,
 ): Promise<SSRResult['componentMetadata']> {
 	const map: SSRResult['componentMetadata'] = new Map();
 

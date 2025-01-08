@@ -1,13 +1,13 @@
+import type { ComponentInstance } from '../../types/astro.js';
 import type {
-	ComponentInstance,
 	GetStaticPathsItem,
 	GetStaticPathsResult,
 	GetStaticPathsResultKeyed,
 	PaginateFunction,
 	Params,
-	RouteData,
-	RuntimeMode,
-} from '../../@types/astro.js';
+} from '../../types/public/common.js';
+import type { AstroConfig, RuntimeMode } from '../../types/public/config.js';
+import type { RouteData } from '../../types/public/internal.js';
 import type { Logger } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
@@ -20,6 +20,7 @@ interface CallGetStaticPathsOptions {
 	routeCache: RouteCache;
 	logger: Logger;
 	ssr: boolean;
+	base: AstroConfig['base'];
 }
 
 export async function callGetStaticPaths({
@@ -28,6 +29,7 @@ export async function callGetStaticPaths({
 	routeCache,
 	logger,
 	ssr,
+	base,
 }: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> {
 	const cached = routeCache.get(route);
 	if (!mod) {
@@ -57,7 +59,7 @@ export async function callGetStaticPaths({
 	staticPaths = await mod.getStaticPaths({
 		// Q: Why the cast?
 		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
-		paginate: generatePaginateFunction(route) as PaginateFunction,
+		paginate: generatePaginateFunction(route, base) as PaginateFunction,
 	});
 
 	validateGetStaticPathsResult(staticPaths, logger, route);
@@ -86,11 +88,11 @@ interface RouteCacheEntry {
 export class RouteCache {
 	private logger: Logger;
 	private cache: Record<string, RouteCacheEntry> = {};
-	private mode: RuntimeMode;
+	private runtimeMode: RuntimeMode;
 
-	constructor(logger: Logger, mode: RuntimeMode = 'production') {
+	constructor(logger: Logger, runtimeMode: RuntimeMode = 'production') {
 		this.logger = logger;
-		this.mode = mode;
+		this.runtimeMode = runtimeMode;
 	}
 
 	/** Clear the cache. */
@@ -103,7 +105,7 @@ export class RouteCache {
 		// NOTE: This shouldn't be called on an already-cached component.
 		// Warn here so that an unexpected double-call of getStaticPaths()
 		// isn't invisible and developer can track down the issue.
-		if (this.mode === 'production' && this.cache[key]?.staticPaths) {
+		if (this.runtimeMode === 'production' && this.cache[key]?.staticPaths) {
 			this.logger.warn(null, `Internal Warning: route cache overwritten. (${key})`);
 		}
 		this.cache[key] = entry;
@@ -122,7 +124,7 @@ export function findPathItemByKey(
 	staticPaths: GetStaticPathsResultKeyed,
 	params: Params,
 	route: RouteData,
-	logger: Logger
+	logger: Logger,
 ) {
 	const paramsKey = stringifyParams(params, route);
 	const matchedStaticPath = staticPaths.keyed.get(paramsKey);

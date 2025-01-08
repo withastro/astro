@@ -14,12 +14,18 @@ const testFileToPort = new Map();
 for (let i = 0; i < testFiles.length; i++) {
 	const file = testFiles[i];
 	if (file.endsWith('.test.js')) {
-		testFileToPort.set(file.slice(0, -8), 4000 + i);
+		// Port 4045 is an unsafe port in Chrome, so skip it.
+		if (4000 + i === 4045) {
+			i++;
+		}
+		testFileToPort.set(file, 4000 + i);
 	}
 }
 
-export function loadFixture(inlineConfig) {
+export function loadFixture(testFile, inlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
+
+	const port = testFileToPort.get(path.basename(testFile));
 
 	// resolve the relative root (i.e. "./fixtures/tailwindcss") to a full filepath
 	// without this, the main `loadFixture` helper will resolve relative to `packages/astro/test`
@@ -27,17 +33,25 @@ export function loadFixture(inlineConfig) {
 		...inlineConfig,
 		root: fileURLToPath(new URL(inlineConfig.root, import.meta.url)),
 		server: {
-			port: testFileToPort.get(path.basename(inlineConfig.root)),
+			...inlineConfig?.server,
+			port,
+		},
+		vite: {
+			...inlineConfig?.vite,
+			server: {
+				...inlineConfig?.vite?.server,
+				strictPort: true,
+			},
 		},
 	});
 }
 
-export function testFactory(inlineConfig) {
+export function testFactory(testFile, inlineConfig) {
 	let fixture;
 
 	const test = testBase.extend({
 		astro: async ({}, use) => {
-			fixture = fixture || (await loadFixture(inlineConfig));
+			fixture = fixture || (await loadFixture(testFile, inlineConfig));
 			await use(fixture);
 		},
 	});
@@ -51,8 +65,8 @@ export function testFactory(inlineConfig) {
 
 /**
  *
- * @param {string} page
- * @returns {Promise<{message: string, hint: string, absoluteFileLocation: string, fileLocation: string}>}
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<{message: string, hint: string, absoluteFileLocation: string, fileLocation: string, codeFrame: import('@playwright/test').ElementHandle}>}
  */
 export async function getErrorOverlayContent(page) {
 	const overlay = await page.waitForSelector('vite-error-overlay', {
@@ -68,7 +82,10 @@ export async function getErrorOverlayContent(page) {
 		m[0].title,
 		m[0].textContent,
 	]);
-	return { message, hint, absoluteFileLocation, fileLocation };
+
+	const codeFrame = await overlay.$('#code pre code');
+
+	return { message, hint, absoluteFileLocation, fileLocation, codeFrame };
 }
 
 /**
@@ -81,7 +98,7 @@ export async function waitForHydrate(page, el) {
 	const astroIslandId = await astroIsland.last().getAttribute('uid');
 	await page.waitForFunction(
 		(selector) => document.querySelector(selector)?.hasAttribute('ssr') === false,
-		`astro-island[uid="${astroIslandId}"]`
+		`astro-island[uid="${astroIslandId}"]`,
 	);
 }
 

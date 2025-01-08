@@ -5,13 +5,12 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^8.3.2",
-    "astro": "^4.12.2"
+    "@astrojs/node": "^9.0.0",
+    "astro": "^5.1.3"
   }
 }

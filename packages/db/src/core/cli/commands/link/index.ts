@@ -9,10 +9,10 @@ import {
 } from '@astrojs/studio';
 import { slug } from 'github-slugger';
 import { bgRed, cyan } from 'kleur/colors';
-import ora from 'ora';
 import prompts from 'prompts';
+import yoctoSpinner from 'yocto-spinner';
 import { safeFetch } from '../../../../runtime/utils.js';
-import { type Result } from '../../../utils.js';
+import type { Result } from '../../../utils.js';
 
 export async function cmd() {
 	const sessionToken = await getSessionIdFromFile();
@@ -33,7 +33,7 @@ export async function cmd() {
 		const workspaceId = await promptWorkspace(sessionToken);
 		const newProjectName = await promptNewProjectName();
 		const newProjectRegion = await promptNewProjectRegion();
-		const spinner = ora('Creating new project...').start();
+		const spinner = yoctoSpinner({ text: 'Creating new project...' }).start();
 		const newProjectData = await createNewProject({
 			workspaceId,
 			name: newProjectName,
@@ -42,7 +42,7 @@ export async function cmd() {
 		// TODO(fks): Actually listen for project creation before continuing
 		// This is just a dumb spinner that roughly matches database creation time.
 		await new Promise((r) => setTimeout(r, 4000));
-		spinner.succeed('Project created!');
+		spinner.success('Project created!');
 		return await linkProject(newProjectData.id);
 	}
 }
@@ -69,12 +69,12 @@ async function getWorkspaces(sessionToken: string) {
 			if (res.status === 401) {
 				throw new Error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro login'
-					)} to authenticate and then try linking again.\n\n`
+						'astro login',
+					)} to authenticate and then try linking again.\n\n`,
 				);
 			}
 			throw new Error(`Failed to fetch user workspace: ${res.status} ${res.statusText}`);
-		}
+		},
 	);
 
 	const { data, success } = (await response.json()) as Result<{ id: string; name: string }[]>;
@@ -139,14 +139,14 @@ export async function createNewProject({
 			if (res.status === 401) {
 				console.error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro login'
-					)} to authenticate and then try linking again.\n\n`
+						'astro login',
+					)} to authenticate and then try linking again.\n\n`,
 				);
 				process.exit(1);
 			}
 			console.error(`Failed to create project: ${res.status} ${res.statusText}`);
 			process.exit(1);
-		}
+		},
 	);
 
 	const { data, success } = (await response.json()) as Result<{ id: string; idName: string }>;
@@ -173,14 +173,14 @@ export async function promptExistingProjectName({ workspaceId }: { workspaceId: 
 			if (res.status === 401) {
 				console.error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro login'
-					)} to authenticate and then try linking again.\n\n`
+						'astro login',
+					)} to authenticate and then try linking again.\n\n`,
 				);
 				process.exit(1);
 			}
 			console.error(`Failed to fetch projects: ${res.status} ${res.statusText}`);
 			process.exit(1);
-		}
+		},
 	);
 
 	const { data, success } = (await response.json()) as Result<

@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseFrontmatter } from '@astrojs/markdown-remark';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import { emitESMImage } from 'astro/assets/utils';
-import matter from 'gray-matter';
 import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
@@ -26,12 +26,20 @@ export async function getContentEntryType({
 }): Promise<ContentEntryType> {
 	return {
 		extensions: ['.mdoc'],
-		getEntryInfo,
+		getEntryInfo({ fileUrl, contents }) {
+			const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
+			return {
+				data: parsed.frontmatter,
+				body: parsed.content.trim(),
+				slug: parsed.frontmatter.slug,
+				rawData: parsed.rawFrontmatter,
+			};
+		},
 		handlePropagation: true,
 		async getRenderModule({ contents, fileUrl, viteId }) {
-			const entry = getEntryInfo({ contents, fileUrl });
+			const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
 			const tokenizer = getMarkdocTokenizer(options);
-			let tokens = tokenizer.tokenize(entry.body);
+			let tokens = tokenizer.tokenize(parsed.content);
 
 			if (options?.allowHTML) {
 				tokens = htmlTokenTransform(tokenizer, tokens);
@@ -47,7 +55,6 @@ export async function getContentEntryType({
 				ast,
 				/* Raised generics issue with Markdoc core https://github.com/markdoc/markdoc/discussions/400 */
 				markdocConfig: markdocConfig as MarkdocConfig,
-				entry,
 				viteId,
 				astroConfig,
 				filePath,
@@ -64,7 +71,6 @@ export async function getContentEntryType({
 					raiseValidationErrors({
 						ast: partialAst,
 						markdocConfig: markdocConfig as MarkdocConfig,
-						entry,
 						viteId,
 						astroConfig,
 						filePath: partialPath,
@@ -78,13 +84,13 @@ export async function getContentEntryType({
 			// Only include component imports for tags used in the document.
 			// Avoids style and script bleed.
 			for (const tag of usedTags) {
-				const render = userMarkdocConfig.tags?.[tag]?.render;
+				const render = markdocConfig.tags?.[tag]?.render;
 				if (isComponentConfig(render)) {
 					componentConfigByTagMap[tag] = render;
 				}
 			}
 			let componentConfigByNodeMap: Record<string, ComponentConfig> = {};
-			for (const [nodeType, schema] of Object.entries(userMarkdocConfig.nodes ?? {})) {
+			for (const [nodeType, schema] of Object.entries(markdocConfig.nodes ?? {})) {
 				const render = schema?.render;
 				if (isComponentConfig(render)) {
 					componentConfigByNodeMap[nodeType] = render;
@@ -117,7 +123,7 @@ const nodeComponentMap = ${getStringifiedMap(componentConfigByNodeMap, 'Node')};
 const options = ${JSON.stringify(options)};
 
 const stringifiedAst = ${JSON.stringify(
-				/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
+				/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast),
 			)};
 
 export const getHeadings = createGetHeadings(stringifiedAst, markdocConfig, options);
@@ -133,7 +139,7 @@ export const Content = createContentComponent(
 		},
 		contentModuleTypes: await fs.promises.readFile(
 			new URL('../template/content-module-types.d.ts', import.meta.url),
-			'utf-8'
+			'utf-8',
 		),
 	};
 }
@@ -182,7 +188,7 @@ async function resolvePartials({
 				if (!partialId) {
 					const attemptResolveAsRelative = await pluginContext.resolve(
 						'./' + file,
-						fileURLToPath(fileUrl)
+						fileURLToPath(fileUrl),
 					);
 					if (!attemptResolveAsRelative?.id) throw new Error();
 					partialId = attemptResolveAsRelative.id;
@@ -224,14 +230,12 @@ async function resolvePartials({
 function raiseValidationErrors({
 	ast,
 	markdocConfig,
-	entry,
 	viteId,
 	astroConfig,
 	filePath,
 }: {
 	ast: Node;
 	markdocConfig: MarkdocConfig;
-	entry: ReturnType<typeof getEntryInfo>;
 	viteId: string;
 	astroConfig: AstroConfig;
 	filePath: string;
@@ -245,13 +249,11 @@ function raiseValidationErrors({
 			e.error.id !== 'variable-undefined' &&
 			// Ignore missing partial errors.
 			// We will resolve these in `resolvePartials`.
-			!(e.error.id === 'attribute-value-invalid' && e.error.message.match(/^Partial .+ not found/))
+			!(e.error.id === 'attribute-value-invalid' && /^Partial .+ not found/.test(e.error.message))
 		);
 	});
 
 	if (validationErrors.length) {
-		// Heuristic: take number of newlines for `rawData` and add 2 for the `---` fences
-		const frontmatterBlockOffset = entry.rawData.split('\n').length + 2;
 		const rootRelativePath = path.relative(fileURLToPath(astroConfig.root), filePath);
 		throw new MarkdocError({
 			message: [
@@ -261,7 +263,7 @@ function raiseValidationErrors({
 			location: {
 				// Error overlay does not support multi-line or ranges.
 				// Just point to the first line.
-				line: frontmatterBlockOffset + validationErrors[0].lines[0],
+				line: validationErrors[0].lines[0],
 				file: viteId,
 			},
 		});
@@ -275,21 +277,11 @@ function getUsedTags(markdocAst: Node) {
 	// This is our signal that a tag is being used!
 	for (const { error } of validationErrors) {
 		if (error.id === 'tag-undefined') {
-			const [, tagName] = error.message.match(/Undefined tag: '(.*)'/) ?? [];
+			const [, tagName] = /Undefined tag: '(.*)'/.exec(error.message) ?? [];
 			tags.add(tagName);
 		}
 	}
 	return tags;
-}
-
-function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
-	const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
-	return {
-		data: parsed.data,
-		body: parsed.content,
-		slug: parsed.data.slug,
-		rawData: parsed.matter,
-	};
 }
 
 /**
@@ -302,7 +294,7 @@ async function emitOptimizedImages(
 		pluginContext: Rollup.PluginContext;
 		filePath: string;
 		astroConfig: AstroConfig;
-	}
+	},
 ) {
 	for (const node of nodeChildren) {
 		let isComponent = node.type === 'tag' && node.tag === 'image';
@@ -320,7 +312,8 @@ async function emitOptimizedImages(
 					const src = await emitESMImage(
 						resolved.id,
 						ctx.pluginContext.meta.watchMode,
-						ctx.pluginContext.emitFile
+						!!ctx.astroConfig.experimental.svg,
+						ctx.pluginContext.emitFile,
 					);
 
 					const fsPath = resolved.id;
@@ -338,7 +331,7 @@ async function emitOptimizedImages(
 				} else {
 					throw new MarkdocError({
 						message: `Could not resolve image ${JSON.stringify(
-							node.attributes.src
+							node.attributes.src,
 						)} from ${JSON.stringify(ctx.filePath)}. Does the file exist?`,
 					});
 				}
@@ -366,7 +359,7 @@ function shouldOptimizeImage(src: string) {
 function getStringifiedImports(
 	componentConfigMap: Record<string, ComponentConfig>,
 	componentNamePrefix: string,
-	root: URL
+	root: URL,
 ) {
 	let stringifiedComponentImports = '';
 	for (const [key, config] of Object.entries(componentConfigMap)) {
@@ -394,7 +387,7 @@ function toImportName(unsafeName: string) {
  */
 function getStringifiedMap(
 	componentConfigMap: Record<string, ComponentConfig>,
-	componentNamePrefix: string
+	componentNamePrefix: string,
 ) {
 	let stringifiedComponentMap = '{';
 	for (const key in componentConfigMap) {
@@ -410,12 +403,11 @@ function getStringifiedMap(
  * Match YAML exception handling from Astro core errors
  * @see 'astro/src/core/errors.ts'
  */
-function parseFrontmatter(fileContents: string, filePath: string) {
+function safeParseFrontmatter(fileContents: string, filePath: string) {
 	try {
-		// `matter` is empty string on cache results
-		// clear cache to prevent this
-		(matter as any).clearCache();
-		return matter(fileContents);
+		// empty with lines to preserve sourcemap location, but not `empty-with-spaces`
+		// because markdoc struggles with spaces
+		return parseFrontmatter(fileContents, { frontmatter: 'empty-with-lines' });
 	} catch (e: any) {
 		if (e.name === 'YAMLException') {
 			const err: Error & ViteErrorPayload['err'] = e;

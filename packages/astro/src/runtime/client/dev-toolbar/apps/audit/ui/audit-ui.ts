@@ -1,5 +1,5 @@
 import { escape as escapeHTML } from 'html-escaper';
-import type { DevToolbarMetadata } from '../../../../../../@types/astro.js';
+import type { DevToolbarMetadata } from '../../../../../../types/public/toolbar.js';
 import {
 	attachTooltipToHighlight,
 	createHighlight,
@@ -79,7 +79,7 @@ function buildAuditTooltip(rule: ResolvedAuditRule, element: Element) {
 
 		tooltip.sections.push({
 			content: elementFileWithPosition.slice(
-				(window as DevToolbarMetadata).__astro_dev_toolbar__.root.length - 1 // We want to keep the final slash, so minus one.
+				(window as DevToolbarMetadata).__astro_dev_toolbar__.root.length - 1, // We want to keep the final slash, so minus one.
 			),
 			clickDescription: 'Click to go to file',
 			async clickAction() {
@@ -97,10 +97,10 @@ function buildAuditCard(
 	rule: ResolvedAuditRule,
 	highlightElement: HTMLElement,
 	auditedElement: Element,
-	audits: Audit[]
+	audits: Audit[],
 ) {
 	const card = document.createElement(
-		'astro-dev-toolbar-audit-list-item'
+		'astro-dev-toolbar-audit-list-item',
 	) as DevToolbarAuditListItem;
 
 	card.clickAction = () => {

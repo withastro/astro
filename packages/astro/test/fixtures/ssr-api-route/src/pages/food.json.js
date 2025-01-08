@@ -5,14 +5,19 @@ export function GET() {
 			{ name: 'lettuce' },
 			{ name: 'broccoli' },
 			{ name: 'pizza' }
-		])
+		]), {
+			status: 200,
+			statusText: `tasty`,
+		}
 	)
 }
 
 export async function POST({ params, request }) {
 	const body = await request.text();
-	return new Response(body === `some data` ? `ok` : `not ok`, {
-		status: 200,
+	const ok = body === `some data`
+	return new Response( ok ? `ok` : `not ok`, {
+		status: ok ? 200 : 400,
+		statusText: ok ? `ok` : `not ok`,
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded'
 		}

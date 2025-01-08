@@ -1,25 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { appendForwardSlash } from '../path.js';
 
 const isWindows = process.platform === 'win32';
 
-/** An fs utility, similar to `rimraf` or `rm -rf` */
-export function removeDir(_dir: URL): void {
-	const dir = fileURLToPath(_dir);
-	fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 });
-}
-
-export function removeEmptyDirs(root: URL): void {
-	const dir = fileURLToPath(root);
+export function removeEmptyDirs(dir: string): void {
 	if (!fs.statSync(dir).isDirectory()) return;
 	let files = fs.readdirSync(dir);
 
 	if (files.length > 0) {
 		files.map((file) => {
-			const url = new URL(`./${file}`, appendForwardSlash(root.toString()));
-			removeEmptyDirs(url);
+			removeEmptyDirs(path.join(dir, file));
 		});
 		files = fs.readdirSync(dir);
 	}

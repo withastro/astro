@@ -1,5 +1,8 @@
 import { escape as escapeHTML } from 'html-escaper';
-import type { DevToolbarApp, DevToolbarMetadata } from '../../../../@types/astro.js';
+import type {
+	DevToolbarMetadata,
+	ResolvedDevToolbarApp,
+} from '../../../../types/public/toolbar.js';
 import type { DevToolbarHighlight } from '../ui-library/highlight.js';
 import {
 	attachTooltipToHighlight,
@@ -14,7 +17,7 @@ import {
 } from './utils/window.js';
 
 const icon =
-	'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="#fff" d="M7.9 1.5v-.4a1.1 1.1 0 0 1 2.2 0v.4a1.1 1.1 0 1 1-2.2 0Zm-6.4 8.6a1.1 1.1 0 1 0 0-2.2h-.4a1.1 1.1 0 0 0 0 2.2h.4ZM12 3.7a1.1 1.1 0 0 0 1.4-.7l.4-1.1a1.1 1.1 0 0 0-2.1-.8l-.4 1.2a1.1 1.1 0 0 0 .7 1.4Zm-9.7 7.6-1.2.4a1.1 1.1 0 1 0 .8 2.1l1-.4a1.1 1.1 0 1 0-.6-2ZM20.8 17a1.9 1.9 0 0 1 0 2.6l-1.2 1.2a1.9 1.9 0 0 1-2.6 0l-4.3-4.2-1.6 3.6a1.9 1.9 0 0 1-1.7 1.2A1.9 1.9 0 0 1 7.5 20L2.7 5a1.9 1.9 0 0 1 2.4-2.4l15 5a1.9 1.9 0 0 1 .2 3.4l-3.7 1.6 4.2 4.3ZM19 18.3 14.6 14a1.9 1.9 0 0 1 .6-3l3.2-1.5L5.1 5.1l4.3 13.3 1.5-3.2a1.9 1.9 0 0 1 3-.6l4.4 4.4.7-.7Z"/></svg>';
+	'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M7.9 1.5v-.4a1.1 1.1 0 0 1 2.2 0v.4a1.1 1.1 0 1 1-2.2 0Zm-6.4 8.6a1.1 1.1 0 1 0 0-2.2h-.4a1.1 1.1 0 0 0 0 2.2h.4ZM12 3.7a1.1 1.1 0 0 0 1.4-.7l.4-1.1a1.1 1.1 0 0 0-2.1-.8l-.4 1.2a1.1 1.1 0 0 0 .7 1.4Zm-9.7 7.6-1.2.4a1.1 1.1 0 1 0 .8 2.1l1-.4a1.1 1.1 0 1 0-.6-2ZM20.8 17a1.9 1.9 0 0 1 0 2.6l-1.2 1.2a1.9 1.9 0 0 1-2.6 0l-4.3-4.2-1.6 3.6a1.9 1.9 0 0 1-1.7 1.2A1.9 1.9 0 0 1 7.5 20L2.7 5a1.9 1.9 0 0 1 2.4-2.4l15 5a1.9 1.9 0 0 1 .2 3.4l-3.7 1.6 4.2 4.3ZM19 18.3 14.6 14a1.9 1.9 0 0 1 .6-3l3.2-1.5L5.1 5.1l4.3 13.3 1.5-3.2a1.9 1.9 0 0 1 3-.6l4.4 4.4.7-.7Z"/></svg>';
 
 export default {
 	id: 'astro:xray',
@@ -71,7 +74,7 @@ export default {
 					<p>
 						It looks like there are no interactive component islands on this page. Did you forget to add a client directive to your interactive UI component?
 					</p>
-					`
+					`,
 				);
 
 				canvas.append(window);
@@ -140,13 +143,13 @@ export default {
 			// Display the props if we have any
 			// Ignore the "data-astro-cid-XXXXXX" prop (internal)
 			const islandPropsEntries = Object.entries(islandProps).filter(
-				(prop: any) => !prop[0].startsWith('data-astro-cid-')
+				(prop: any) => !prop[0].startsWith('data-astro-cid-'),
 			);
 			if (islandPropsEntries.length > 0) {
 				const stringifiedProps = JSON.stringify(
 					Object.fromEntries(islandPropsEntries.map((prop: any) => [prop[0], prop[1][1]])),
 					undefined,
-					2
+					2,
 				);
 				tooltip.sections.push({
 					title: 'Props',
@@ -167,8 +170,8 @@ export default {
 							'/__open-in-editor?file=' +
 								encodeURIComponent(
 									(window as DevToolbarMetadata).__astro_dev_toolbar__.root +
-										islandComponentPath.slice(1)
-								)
+										islandComponentPath.slice(1),
+								),
 						);
 					},
 				});
@@ -177,4 +180,4 @@ export default {
 			return tooltip;
 		}
 	},
-} satisfies DevToolbarApp;
+} satisfies ResolvedDevToolbarApp;

@@ -1,11 +1,11 @@
 import { viteID } from '../dist/core/util.js';
 
 /**
- * @typedef {import('../src/@types/astro.js').AstroAdapter} AstroAdapter
- * @typedef {import('../src/@types/astro.js').AstroIntegration} AstroIntegration
- * @typedef {import('../src/@types/astro.js').HookParameters<"astro:build:ssr">['entryPoints']} EntryPoints
- * @typedef {import('../src/@types/astro.js').HookParameters<"astro:build:ssr">['middlewareEntryPoint']} MiddlewareEntryPoint
- * @typedef {import('../src/@types/astro.js').HookParameters<"astro:build:done">['routes']} Routes
+ * @typedef {import('../src/types/public/integrations.js').AstroAdapter} AstroAdapter
+ * @typedef {import('../src/types/public/integrations.js').AstroIntegration} AstroIntegration
+ * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:ssr">['entryPoints']} EntryPoints
+ * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:ssr">['middlewareEntryPoint']} MiddlewareEntryPoint
+ * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:done">['routes']} Routes
  */
 
 /**
@@ -72,7 +72,7 @@ export default function ({
 												async render(request, { routeData, clientAddress, locals, addCookieHeader } = {}) {
 													const url = new URL(request.url);
 													if(this.#manifest.assets.has(url.pathname)) {
-														const filePath = new URL('../client/' + this.removeBase(url.pathname), import.meta.url);
+														const filePath = new URL('../../client/' + this.removeBase(url.pathname), import.meta.url);
 														const data = await fs.promises.readFile(filePath);
 														return new Response(data);
 													}
@@ -108,6 +108,13 @@ export default function ({
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						envGetSecret: 'experimental',
+						staticOutput: 'stable',
+						hybridOutput: 'stable',
+						assets: 'stable',
+						i18nDomains: 'stable',
+					},
+					adapterFeatures: {
+						buildOutput: 'server',
 					},
 					...extendAdapter,
 				});

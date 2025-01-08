@@ -8,7 +8,11 @@ import { isESMImportedImage } from './imageKind.js';
 export function propsToFilename(filePath: string, transform: ImageTransform, hash: string) {
 	let filename = decodeURIComponent(removeQueryString(filePath));
 	const ext = extname(filename);
-	filename = basename(filename, ext);
+	if (filePath.startsWith('data:')) {
+		filename = shorthash(filePath);
+	} else {
+		filename = basename(filename, ext);
+	}
 	const prefixDirname = isESMImportedImage(transform.src) ? dirname(filePath) : '';
 
 	let outputExt = transform.format ? `.${transform.format}` : ext;
@@ -18,7 +22,7 @@ export function propsToFilename(filePath: string, transform: ImageTransform, has
 export function hashTransform(
 	transform: ImageTransform,
 	imageService: string,
-	propertiesToHash: string[]
+	propertiesToHash: string[],
 ) {
 	// Extract the fields we want to hash
 	const hashFields = propertiesToHash.reduce(
@@ -28,7 +32,7 @@ export function hashTransform(
 			acc[prop] = transform[prop];
 			return acc;
 		},
-		{ imageService } as Record<string, unknown>
+		{ imageService } as Record<string, unknown>,
 	);
 	return shorthash(deterministicString(hashFields));
 }

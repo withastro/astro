@@ -25,7 +25,7 @@ describe('MDX frontmatter injection', () => {
 	it('rehype supports custom vfile data - reading time', async () => {
 		const frontmatterByPage = JSON.parse(await fixture.readFile('/glob.json'));
 		const readingTimes = frontmatterByPage.map(
-			(frontmatter = {}) => frontmatter.injectedReadingTime
+			(frontmatter = {}) => frontmatter.injectedReadingTime,
 		);
 		assert.equal(readingTimes.length > 0, true);
 		for (let readingTime of readingTimes) {
@@ -39,11 +39,11 @@ describe('MDX frontmatter injection', () => {
 		const descriptions = frontmatterByPage.map((frontmatter = {}) => frontmatter.description);
 		assert.equal(
 			descriptions.includes('Processed by remarkDescription plugin: Page 1 description'),
-			true
+			true,
 		);
 		assert.equal(
 			descriptions.includes('Processed by remarkDescription plugin: Page 2 description'),
-			true
+			true,
 		);
 	});
 

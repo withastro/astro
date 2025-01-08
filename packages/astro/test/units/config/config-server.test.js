@@ -13,7 +13,7 @@ describe('config.server', () => {
 				root: cwd,
 				...flags,
 			}),
-			'dev'
+			'dev',
 		);
 	}
 

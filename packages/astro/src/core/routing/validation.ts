@@ -1,4 +1,6 @@
-import type { ComponentInstance, GetStaticPathsResult, RouteData } from '../../@types/astro.js';
+import type { ComponentInstance } from '../../types/astro.js';
+import type { GetStaticPathsResult } from '../../types/public/common.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 
@@ -26,7 +28,7 @@ export function validateDynamicRouteModule(
 	}: {
 		ssr: boolean;
 		route: RouteData;
-	}
+	},
 ) {
 	if ((!ssr || route.prerender) && !mod.getStaticPaths) {
 		throw new AstroError({
@@ -40,7 +42,7 @@ export function validateDynamicRouteModule(
 export function validateGetStaticPathsResult(
 	result: GetStaticPathsResult,
 	logger: Logger,
-	route: RouteData
+	route: RouteData,
 ) {
 	if (!Array.isArray(result)) {
 		throw new AstroError({
@@ -57,7 +59,7 @@ export function validateGetStaticPathsResult(
 			throw new AstroError({
 				...AstroErrorData.InvalidGetStaticPathsEntry,
 				message: AstroErrorData.InvalidGetStaticPathsEntry.message(
-					Array.isArray(pathObject) ? 'array' : typeof pathObject
+					Array.isArray(pathObject) ? 'array' : typeof pathObject,
 				),
 			});
 		}
@@ -81,14 +83,14 @@ export function validateGetStaticPathsResult(
 				logger.warn(
 					'router',
 					`getStaticPaths() returned an invalid path param: "${key}". A string, number or undefined value was expected, but got \`${JSON.stringify(
-						val
-					)}\`.`
+						val,
+					)}\`.`,
 				);
 			}
 			if (typeof val === 'string' && val === '') {
 				logger.warn(
 					'router',
-					`getStaticPaths() returned an invalid path param: "${key}". \`undefined\` expected for an optional param, but got empty string.`
+					`getStaticPaths() returned an invalid path param: "${key}". \`undefined\` expected for an optional param, but got empty string.`,
 				);
 			}
 		}

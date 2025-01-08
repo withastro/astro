@@ -5,7 +5,6 @@ interface AppToggledEventPayload {
 }
 
 export function eventAppToggled(options: {
-	// eslint-disable-next-line @typescript-eslint/ban-types
 	appName: 'other' | (string & {});
 }): { eventName: string; payload: AppToggledEventPayload }[] {
 	const payload: AppToggledEventPayload = {

@@ -26,7 +26,7 @@ interface AstroCookiesInterface {
 	set(
 		key: string,
 		value: string | number | boolean | Record<string, any>,
-		options?: AstroCookieSetOptions
+		options?: AstroCookieSetOptions,
 	): void;
 	delete(key: string, options?: AstroCookieDeleteOptions): void;
 }
@@ -105,7 +105,7 @@ class AstroCookies implements AstroCookiesInterface {
 	 */
 	get(
 		key: string,
-		options: AstroCookieGetOptions | undefined = undefined
+		options: AstroCookieGetOptions | undefined = undefined,
 	): AstroCookie | undefined {
 		// Check for outgoing Set-Cookie values first
 		if (this.#outgoing?.has(key)) {
@@ -153,10 +153,9 @@ class AstroCookies implements AstroCookiesInterface {
 			const warning = new Error(
 				'Astro.cookies.set() was called after the cookies had already been sent to the browser.\n' +
 					'This may have happened if this method was called in an imported component.\n' +
-					'Please make sure that Astro.cookies.set() is only called in the frontmatter of the main page.'
+					'Please make sure that Astro.cookies.set() is only called in the frontmatter of the main page.',
 			);
 			warning.name = 'Warning';
-			// eslint-disable-next-line no-console
 			console.warn(warning);
 		}
 		let serializedValue: string;

@@ -1,16 +1,16 @@
 import { fileURLToPath } from 'node:url';
 import ancestor from 'common-ancestor-path';
-import type { AstroConfig } from '../@types/astro.js';
 import {
 	appendExtension,
 	appendForwardSlash,
 	removeLeadingForwardSlashWindows,
 } from '../core/path.js';
 import { viteID } from '../core/util.js';
+import type { AstroConfig } from '../types/public/config.js';
 
 export function getFileInfo(id: string, config: AstroConfig) {
 	const sitePathname = appendForwardSlash(
-		config.site ? new URL(config.base, config.site).pathname : config.base
+		config.site ? new URL(config.base, config.site).pathname : config.base,
 	);
 
 	const fileId = id.split('?')[0];

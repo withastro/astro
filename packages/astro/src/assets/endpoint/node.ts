@@ -1,13 +1,13 @@
-/* eslint-disable no-console */
+import { readFile } from 'node:fs/promises';
+
 import os from 'node:os';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 // @ts-expect-error
 import { assetsDir, imageConfig, outDir } from 'astro:assets';
 import { isRemotePath, removeQueryString } from '@astrojs/internal-helpers/path';
-import { readFile } from 'fs/promises';
 import * as mime from 'mrmime';
-import type { APIRoute } from '../../@types/astro.js';
+import type { APIRoute } from '../../types/public/common.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
@@ -24,13 +24,19 @@ async function loadLocalImage(src: string, url: URL) {
 		fileUrl = pathToFileURL(removeQueryString(replaceFileSystemReferences(src)));
 	} else {
 		try {
+			// If the _image segment isn't at the start of the path, we have a base
+			const idx = url.pathname.indexOf('/_image');
+			if (idx > 0) {
+				// Remove the base path
+				src = src.slice(idx);
+			}
 			fileUrl = new URL('.' + src, outDir);
 			const filePath = fileURLToPath(fileUrl);
 
 			if (!isAbsolute(filePath) || !filePath.startsWith(assetsDirPath)) {
 				return undefined;
 			}
-		} catch (err: unknown) {
+		} catch {
 			return undefined;
 		}
 	}
@@ -39,7 +45,7 @@ async function loadLocalImage(src: string, url: URL) {
 
 	try {
 		buffer = await readFile(fileUrl);
-	} catch (e) {
+	} catch {
 		// Fallback to try to load the file using `fetch`
 		try {
 			const sourceUrl = new URL(src, url.origin);
@@ -62,7 +68,7 @@ async function loadRemoteImage(src: URL) {
 		}
 
 		return Buffer.from(await res.arrayBuffer());
-	} catch (err: unknown) {
+	} catch {
 		return undefined;
 	}
 }
@@ -83,7 +89,7 @@ export const GET: APIRoute = async ({ request }) => {
 
 		if (!transform?.src) {
 			const err = new Error(
-				'Incorrect transform returned by `parseURL`. Expected a transform with a `src` property.'
+				'Incorrect transform returned by `parseURL`. Expected a transform with a `src` property.',
 			);
 			console.error('Could not parse image transform from URL:', err);
 			return new Response('Internal Server Error', { status: 500 });
@@ -122,7 +128,7 @@ export const GET: APIRoute = async ({ request }) => {
 			import.meta.env.DEV ? `Could not process image request: ${err}` : `Internal Server Error`,
 			{
 				status: 500,
-			}
+			},
 		);
 	}
 };

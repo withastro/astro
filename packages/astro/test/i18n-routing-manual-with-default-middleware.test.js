@@ -61,7 +61,7 @@ describe('SSG manual routing', () => {
 		try {
 			await fixture.readFile('/blog.html');
 			assert.fail();
-		} catch (e) {}
+		} catch {}
 	});
 
 	it('should return a 200 because the custom middleware allows it', async () => {
@@ -111,6 +111,15 @@ describe('SSR manual routing', () => {
 
 	it('should correctly print the relative locale url', async () => {
 		let request = new Request('http://example.com/en/start');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		assert.equal($('p').text(), '/en/blog/title/');
+	});
+
+	it('should use the fallback', async () => {
+		let request = new Request('http://example.com/it/start');
 		let response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();

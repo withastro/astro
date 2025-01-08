@@ -1,25 +1,27 @@
 import npath from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { AstroConfig, RouteData } from '../../@types/astro.js';
 import { appendForwardSlash } from '../../core/path.js';
+import type { AstroSettings } from '../../types/astro.js';
+import type { AstroConfig } from '../../types/public/config.js';
+import type { RouteData } from '../../types/public/internal.js';
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 const FALLBACK_OUT_DIR_NAME = './.astro/';
 
-function getOutRoot(astroConfig: AstroConfig): URL {
-	if (astroConfig.output === 'static') {
-		return new URL('./', astroConfig.outDir);
+function getOutRoot(astroSettings: AstroSettings): URL {
+	if (astroSettings.buildOutput === 'static') {
+		return new URL('./', astroSettings.config.outDir);
 	} else {
-		return new URL('./', astroConfig.build.client);
+		return new URL('./', astroSettings.config.build.client);
 	}
 }
 
 export function getOutFolder(
-	astroConfig: AstroConfig,
+	astroSettings: AstroSettings,
 	pathname: string,
-	routeData: RouteData
+	routeData: RouteData,
 ): URL {
-	const outRoot = getOutRoot(astroConfig);
+	const outRoot = getOutRoot(astroSettings);
 	const routeType = routeData.type;
 
 	// This is the root folder to write to.
@@ -29,7 +31,7 @@ export function getOutFolder(
 		case 'fallback':
 		case 'page':
 		case 'redirect':
-			switch (astroConfig.build.format) {
+			switch (astroSettings.config.build.format) {
 				case 'directory': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
@@ -59,7 +61,7 @@ export function getOutFile(
 	astroConfig: AstroConfig,
 	outFolder: URL,
 	pathname: string,
-	routeData: RouteData
+	routeData: RouteData,
 ): URL {
 	const routeType = routeData.type;
 	switch (routeType) {

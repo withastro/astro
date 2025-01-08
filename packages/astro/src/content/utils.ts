@@ -1,21 +1,30 @@
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
-import matter from 'gray-matter';
+import { green } from 'kleur/colors';
 import type { PluginContext } from 'rollup';
-import { type ViteDevServer, normalizePath } from 'vite';
+import type { ViteDevServer } from 'vite';
+import xxhash from 'xxhash-wasm';
 import { z } from 'zod';
-import type {
-	AstroConfig,
-	AstroSettings,
-	ContentEntryType,
-	DataEntryType,
-} from '../@types/astro.js';
 import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
-import { CONTENT_FLAGS, PROPAGATED_ASSET_FLAG } from './consts.js';
+import { appendForwardSlash } from '../core/path.js';
+import { normalizePath } from '../core/viteUtils.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroConfig } from '../types/public/config.js';
+import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
+import {
+	CONTENT_FLAGS,
+	CONTENT_LAYER_TYPE,
+	CONTENT_MODULE_FLAG,
+	DEFERRED_MODULE,
+	IMAGE_IMPORT_PREFIX,
+	PROPAGATED_ASSET_FLAG,
+} from './consts.js';
+import { glob } from './loaders/glob.js';
 import { createImage } from './runtime-assets.js';
 /**
  * Amap from a collection + slug to the local file path.
@@ -26,7 +35,18 @@ export type ContentLookupMap = {
 	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
 };
 
-export const collectionConfigParser = z.union([
+const entryTypeSchema = z
+	.object({
+		id: z
+			.string({
+				invalid_type_error: 'Content entry `id` must be a string',
+				// Default to empty string so we can validate properly in the loader
+			})
+			.catch(''),
+	})
+	.catchall(z.unknown());
+
+const collectionConfigParser = z.union([
 	z.object({
 		type: z.literal('content').optional().default('content'),
 		schema: z.any().optional(),
@@ -35,21 +55,81 @@ export const collectionConfigParser = z.union([
 		type: z.literal('data'),
 		schema: z.any().optional(),
 	}),
+	z.object({
+		type: z.literal(CONTENT_LAYER_TYPE),
+		schema: z.any().optional(),
+		loader: z.union([
+			z.function().returns(
+				z.union([
+					z.array(entryTypeSchema),
+					z.promise(z.array(entryTypeSchema)),
+					z.record(
+						z.string(),
+						z
+							.object({
+								id: z
+									.string({
+										invalid_type_error: 'Content entry `id` must be a string',
+									})
+									.optional(),
+							})
+							.catchall(z.unknown()),
+					),
+
+					z.promise(
+						z.record(
+							z.string(),
+							z
+								.object({
+									id: z
+										.string({
+											invalid_type_error: 'Content entry `id` must be a string',
+										})
+										.optional(),
+								})
+								.catchall(z.unknown()),
+						),
+					),
+				]),
+			),
+			z.object({
+				name: z.string(),
+				load: z.function(
+					z.tuple(
+						[
+							z.object({
+								collection: z.string(),
+								store: z.any(),
+								meta: z.any(),
+								logger: z.any(),
+								config: z.any(),
+								entryTypes: z.any(),
+								parseData: z.any(),
+								generateDigest: z.function(z.tuple([z.any()], z.string())),
+								watcher: z.any().optional(),
+								refreshContextData: z.record(z.unknown()).optional(),
+							}),
+						],
+						z.unknown(),
+					),
+				),
+				schema: z.any().optional(),
+				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
+			}),
+		]),
+		/** deprecated */
+		_legacy: z.boolean().optional(),
+	}),
 ]);
 
-export const contentConfigParser = z.object({
+const contentConfigParser = z.object({
 	collections: z.record(collectionConfigParser),
 });
 
 export type CollectionConfig = z.infer<typeof collectionConfigParser>;
-export type ContentConfig = z.infer<typeof contentConfigParser>;
+export type ContentConfig = z.infer<typeof contentConfigParser> & { digest?: string };
 
 type EntryInternal = { rawData: string | undefined; filePath: string };
-
-export const msg = {
-	collectionConfigMissing: (collection: string) =>
-		`${collection} does not have a config. We suggest adding one for type safety!`,
-};
 
 export function parseEntrySlug({
 	id,
@@ -72,30 +152,53 @@ export function parseEntrySlug({
 	}
 }
 
-export async function getEntryData(
+export async function getEntryDataAndImages<
+	TInputData extends Record<string, unknown> = Record<string, unknown>,
+	TOutputData extends TInputData = TInputData,
+>(
 	entry: {
 		id: string;
 		collection: string;
-		unvalidatedData: Record<string, unknown>;
+		unvalidatedData: TInputData;
 		_internal: EntryInternal;
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
-	pluginContext: PluginContext
-) {
-	let data;
-	if (collectionConfig.type === 'data') {
-		data = entry.unvalidatedData;
-	} else {
+	experimentalSvgEnabled: boolean,
+	pluginContext?: PluginContext,
+): Promise<{ data: TOutputData; imageImports: Array<string> }> {
+	let data: TOutputData;
+	// Legacy content collections have 'slug' removed
+	if (collectionConfig.type === 'content' || (collectionConfig as any)._legacy) {
 		const { slug, ...unvalidatedData } = entry.unvalidatedData;
-		data = unvalidatedData;
+		data = unvalidatedData as TOutputData;
+	} else {
+		data = entry.unvalidatedData as TOutputData;
 	}
 
 	let schema = collectionConfig.schema;
+
+	const imageImports = new Set<string>();
+
 	if (typeof schema === 'function') {
-		schema = schema({
-			image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
-		});
+		if (pluginContext) {
+			schema = schema({
+				image: createImage(
+					pluginContext,
+					shouldEmitFile,
+					entry._internal.filePath,
+					experimentalSvgEnabled,
+				),
+			});
+		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
+			schema = schema({
+				image: () =>
+					z.string().transform((val) => {
+						imageImports.add(val);
+						return `${IMAGE_IMPORT_PREFIX}${val}`;
+					}),
+			});
+		}
 	}
 
 	if (schema) {
@@ -124,19 +227,22 @@ export async function getEntryData(
 			},
 		});
 		if (parsed.success) {
-			data = parsed.data as Record<string, unknown>;
+			data = parsed.data as TOutputData;
 		} else {
 			if (!formattedError) {
+				const errorType =
+					collectionConfig.type === 'content'
+						? AstroErrorData.InvalidContentEntryFrontmatterError
+						: AstroErrorData.InvalidContentEntryDataError;
 				formattedError = new AstroError({
-					...AstroErrorData.InvalidContentEntryFrontmatterError,
-					message: AstroErrorData.InvalidContentEntryFrontmatterError.message(
-						entry.collection,
-						entry.id,
-						parsed.error
-					),
+					...errorType,
+					message: errorType.message(entry.collection, entry.id, parsed.error),
 					location: {
-						file: entry._internal.filePath,
-						line: getYAMLErrorLine(entry._internal.rawData, String(parsed.error.errors[0].path[0])),
+						file: entry._internal?.filePath,
+						line: getYAMLErrorLine(
+							entry._internal?.rawData,
+							String(parsed.error.errors[0].path[0]),
+						),
 						column: 0,
 					},
 				});
@@ -144,6 +250,29 @@ export async function getEntryData(
 			throw formattedError;
 		}
 	}
+
+	return { data, imageImports: Array.from(imageImports) };
+}
+
+export async function getEntryData(
+	entry: {
+		id: string;
+		collection: string;
+		unvalidatedData: Record<string, unknown>;
+		_internal: EntryInternal;
+	},
+	collectionConfig: CollectionConfig,
+	shouldEmitFile: boolean,
+	experimentalSvgEnabled: boolean,
+	pluginContext?: PluginContext,
+) {
+	const { data } = await getEntryDataAndImages(
+		entry,
+		collectionConfig,
+		shouldEmitFile,
+		experimentalSvgEnabled,
+		pluginContext,
+	);
 	return data;
 }
 
@@ -156,7 +285,7 @@ export function getDataEntryExts(settings: Pick<AstroSettings, 'dataEntryTypes'>
 }
 
 export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | DataEntryType>(
-	entryTypes: TEntryType[]
+	entryTypes: TEntryType[],
 ): Map<string, TEntryType> {
 	const map = new Map<string, TEntryType>();
 	for (const entryType of entryTypes) {
@@ -253,7 +382,7 @@ export function getDataEntryId({
 	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
 	const withoutFileExt = normalizePath(relativePath).replace(
 		new RegExp(path.extname(relativePath) + '$'),
-		''
+		'',
 	);
 
 	return withoutFileExt;
@@ -291,31 +420,40 @@ function getRelativeEntryPath(entry: URL, collection: string, contentDir: URL) {
 	return relativeToCollection;
 }
 
+function isParentDirectory(parent: URL, child: URL) {
+	const relative = path.relative(fileURLToPath(parent), fileURLToPath(child));
+	return !relative.startsWith('..') && !path.isAbsolute(relative);
+}
+
 export function getEntryType(
 	entryPath: string,
-	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
+	paths: Pick<ContentPaths, 'config' | 'contentDir' | 'root'>,
 	contentFileExts: string[],
-	dataFileExts: string[]
+	dataFileExts: string[],
 ): 'content' | 'data' | 'config' | 'ignored' {
 	const { ext } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
-	if (hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir)) {
+	const dotAstroDir = new URL('./.astro/', paths.root);
+
+	if (fileUrl.href === paths.config.url.href) {
+		return 'config';
+	} else if (hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir)) {
+		return 'ignored';
+	} else if (isParentDirectory(dotAstroDir, fileUrl)) {
 		return 'ignored';
 	} else if (contentFileExts.includes(ext)) {
 		return 'content';
 	} else if (dataFileExts.includes(ext)) {
 		return 'data';
-	} else if (fileUrl.href === paths.config.url.href) {
-		return 'config';
 	} else {
 		return 'ignored';
 	}
 }
 
-export function hasUnderscoreBelowContentDirectoryPath(
+function hasUnderscoreBelowContentDirectoryPath(
 	fileUrl: URL,
-	contentDir: ContentPaths['contentDir']
+	contentDir: ContentPaths['contentDir'],
 ): boolean {
 	const parts = fileUrl.pathname.replace(contentDir.pathname, '').split('/');
 	for (const part of parts) {
@@ -329,7 +467,7 @@ function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
 	const indexOfObjectKey = rawData.search(
 		// Match key either at the top of the file or after a newline
 		// Ensures matching on top-level object keys only
-		new RegExp(`(\n|^)${objectKey}`)
+		new RegExp(`(\n|^)${objectKey}`),
 	);
 	if (indexOfObjectKey === -1) return 0;
 
@@ -340,7 +478,7 @@ function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
 
 export function safeParseFrontmatter(source: string, id?: string) {
 	try {
-		return matter(source);
+		return parseFrontmatter(source, { frontmatter: 'empty-with-spaces' });
 	} catch (err: any) {
 		const markdownError = new MarkdownError({
 			name: 'MarkdownError',
@@ -388,7 +526,12 @@ export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[numb
 	return flags.has(flag);
 }
 
-export async function loadContentConfig({
+export function isDeferredModule(viteId: string): boolean {
+	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
+	return flags.has(CONTENT_MODULE_FLAG);
+}
+
+async function loadContentConfig({
 	fs,
 	settings,
 	viteServer,
@@ -407,10 +550,104 @@ export async function loadContentConfig({
 
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
-		return config.data;
+		// Generate a digest of the config file so we can invalidate the cache if it changes
+		const hasher = await xxhash();
+		const digest = await hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));
+		return { ...config.data, digest };
 	} else {
 		return undefined;
 	}
+}
+
+export async function autogenerateCollections({
+	config,
+	settings,
+	fs,
+}: {
+	config?: ContentConfig;
+	settings: AstroSettings;
+	fs: typeof fsMod;
+}): Promise<ContentConfig | undefined> {
+	if (settings.config.legacy.collections) {
+		return config;
+	}
+	const contentDir = new URL('./content/', settings.config.srcDir);
+
+	const collections: Record<string, CollectionConfig> = config?.collections ?? {};
+
+	const contentExts = getContentEntryExts(settings);
+	const dataExts = getDataEntryExts(settings);
+
+	const contentPattern = globWithUnderscoresIgnored('', contentExts);
+	const dataPattern = globWithUnderscoresIgnored('', dataExts);
+	let usesContentLayer = false;
+	for (const collectionName of Object.keys(collections)) {
+		if (collections[collectionName]?.type === 'content_layer') {
+			usesContentLayer = true;
+			// This is already a content layer, skip
+			continue;
+		}
+
+		const isDataCollection = collections[collectionName]?.type === 'data';
+		const base = new URL(`${collectionName}/`, contentDir);
+		// Only "content" collections need special legacy handling
+		const _legacy = !isDataCollection || undefined;
+		collections[collectionName] = {
+			...collections[collectionName],
+			type: 'content_layer',
+			_legacy,
+			loader: glob({
+				base,
+				pattern: isDataCollection ? dataPattern : contentPattern,
+				_legacy,
+				// Legacy data collections IDs aren't slugified
+				generateId: isDataCollection
+					? ({ entry }) =>
+							getDataEntryId({
+								entry: new URL(entry, base),
+								collection: collectionName,
+								contentDir,
+							})
+					: undefined,
+
+				// Zod weirdness has trouble with typing the args to the load function
+			}) as any,
+		};
+	}
+	if (!usesContentLayer && fs.existsSync(contentDir)) {
+		// If the user hasn't defined any collections using the content layer, we'll try and help out by checking for
+		// any orphaned folders in the content directory and creating collections for them.
+		const orphanedCollections = [];
+		for (const entry of await fs.promises.readdir(contentDir, { withFileTypes: true })) {
+			const collectionName = entry.name;
+			if (['_', '.'].includes(collectionName.at(0) ?? '')) {
+				continue;
+			}
+			if (entry.isDirectory() && !(collectionName in collections)) {
+				orphanedCollections.push(collectionName);
+				const base = new URL(`${collectionName}/`, contentDir);
+				collections[collectionName] = {
+					type: 'content_layer',
+					loader: glob({
+						base,
+						pattern: contentPattern,
+						_legacy: true,
+					}) as any,
+				};
+			}
+		}
+		if (orphanedCollections.length > 0) {
+			console.warn(
+				`
+Auto-generating collections for folders in "src/content/" that are not defined as collections.
+This is deprecated, so you should define these collections yourself in "src/content.config.ts".
+The following collections have been auto-generated: ${orphanedCollections
+					.map((name) => green(name))
+					.join(', ')}\n`,
+			);
+		}
+	}
+	return { ...config, collections };
 }
 
 export async function reloadContentConfigObserver({
@@ -424,7 +661,13 @@ export async function reloadContentConfigObserver({
 }) {
 	observer.set({ status: 'loading' });
 	try {
-		const config = await loadContentConfig(loadContentConfigOpts);
+		let config = await loadContentConfig(loadContentConfigOpts);
+
+		config = await autogenerateCollections({
+			config,
+			...loadContentConfigOpts,
+		});
+
 		if (config) {
 			observer.set({ status: 'loaded', config });
 		} else {
@@ -478,6 +721,7 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 }
 
 export type ContentPaths = {
+	root: URL;
 	contentDir: URL;
 	assetsDir: URL;
 	typesTemplate: URL;
@@ -489,12 +733,13 @@ export type ContentPaths = {
 };
 
 export function getContentPaths(
-	{ srcDir }: Pick<AstroConfig, 'root' | 'srcDir'>,
-	fs: typeof fsMod = fsMod
+	{ srcDir, legacy, root }: Pick<AstroConfig, 'root' | 'srcDir' | 'legacy'>,
+	fs: typeof fsMod = fsMod,
 ): ContentPaths {
-	const configStats = search(fs, srcDir);
+	const configStats = search(fs, srcDir, legacy?.collections);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
+		root: new URL('./', root),
 		contentDir: new URL('./content/', srcDir),
 		assetsDir: new URL('./assets/', srcDir),
 		typesTemplate: new URL('templates/content/types.d.ts', pkgBase),
@@ -502,10 +747,16 @@ export function getContentPaths(
 		config: configStats,
 	};
 }
-function search(fs: typeof fsMod, srcDir: URL) {
-	const paths = ['config.mjs', 'config.js', 'config.mts', 'config.ts'].map(
-		(p) => new URL(`./content/${p}`, srcDir)
-	);
+function search(fs: typeof fsMod, srcDir: URL, legacy?: boolean) {
+	const paths = [
+		...(legacy
+			? []
+			: ['content.config.mjs', 'content.config.js', 'content.config.mts', 'content.config.ts']),
+		'content/config.mjs',
+		'content/config.js',
+		'content/config.mts',
+		'content/config.ts',
+	].map((p) => new URL(`./${p}`, srcDir));
 	for (const file of paths) {
 		if (fs.existsSync(file)) {
 			return { exists: true, url: file };
@@ -560,4 +811,58 @@ export function hasAssetPropagationFlag(id: string): boolean {
 	} catch {
 		return false;
 	}
+}
+
+export function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
+	const extGlob = getExtGlob(exts);
+	const contentDir = relContentDir.length > 0 ? appendForwardSlash(relContentDir) : relContentDir;
+	return [
+		`${contentDir}**/*${extGlob}`,
+		`!${contentDir}**/_*/**/*${extGlob}`,
+		`!${contentDir}**/_*${extGlob}`,
+	];
+}
+
+/**
+ * Convert a platform path to a posix path.
+ */
+export function posixifyPath(filePath: string) {
+	return filePath.split(path.sep).join('/');
+}
+
+/**
+ * Unlike `path.posix.relative`, this function will accept a platform path and return a posix path.
+ */
+export function posixRelative(from: string, to: string) {
+	return posixifyPath(path.relative(from, to));
+}
+
+export function contentModuleToId(fileName: string) {
+	const params = new URLSearchParams(DEFERRED_MODULE);
+	params.set('fileName', fileName);
+	params.set(CONTENT_MODULE_FLAG, 'true');
+	return `${DEFERRED_MODULE}?${params.toString()}`;
+}
+
+// Based on https://github.com/sindresorhus/safe-stringify
+function safeStringifyReplacer(seen: WeakSet<object>) {
+	return function (_key: string, value: unknown) {
+		if (!(value !== null && typeof value === 'object')) {
+			return value;
+		}
+		if (seen.has(value)) {
+			return '[Circular]';
+		}
+		seen.add(value);
+		const newValue = Array.isArray(value) ? [] : {};
+		for (const [key2, value2] of Object.entries(value)) {
+			(newValue as Record<string, unknown>)[key2] = safeStringifyReplacer(seen)(key2, value2);
+		}
+		seen.delete(value);
+		return newValue;
+	};
+}
+export function safeStringify(value: unknown) {
+	const seen = new WeakSet();
+	return JSON.stringify(value, safeStringifyReplacer(seen));
 }

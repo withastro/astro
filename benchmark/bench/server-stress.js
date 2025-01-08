@@ -1,10 +1,10 @@
-import autocannon from 'autocannon';
-import { execaCommand } from 'execa';
-import { markdownTable } from 'markdown-table';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import autocannon from 'autocannon';
+import { markdownTable } from 'markdown-table';
 import { waitUntilBusy } from 'port-authority';
 import pb from 'pretty-bytes';
+import { exec } from 'tinyexec';
 import { astroBin } from './_util.js';
 
 const port = 4321;
@@ -19,15 +19,20 @@ export async function run(projectDir, outputFile) {
 	const root = fileURLToPath(projectDir);
 
 	console.log('Building...');
-	await execaCommand(`${astroBin} build`, {
-		cwd: root,
-		stdio: 'inherit',
+	await exec(astroBin, ['build'], {
+		nodeOptions: {
+			cwd: root,
+			stdio: 'inherit',
+		},
+		throwOnError: true,
 	});
 
 	console.log('Previewing...');
-	const previewProcess = execaCommand(`${astroBin} preview --port ${port}`, {
-		cwd: root,
-		stdio: 'inherit',
+	const previewProcess = await exec(astroBin, ['preview', '--port', port], {
+		nodeOptions: {
+			cwd: root,
+			stdio: 'inherit',
+		},
 	});
 
 	console.log('Waiting for server ready...');
@@ -56,7 +61,7 @@ export async function run(projectDir, outputFile) {
 /**
  * @returns {Promise<import('autocannon').Result>}
  */
-async function benchmarkCannon() {
+export async function benchmarkCannon() {
 	return new Promise((resolve, reject) => {
 		const instance = autocannon(
 			{
@@ -73,7 +78,7 @@ async function benchmarkCannon() {
 					instance.stop();
 					resolve(result);
 				}
-			}
+			},
 		);
 		autocannon.track(instance, { renderResultsTable: false });
 	});
@@ -92,7 +97,7 @@ function printResult(output) {
 		],
 		{
 			align: ['l', 'r', 'r', 'r'],
-		}
+		},
 	);
 
 	const reqAndBytesTable = markdownTable(
@@ -103,7 +108,7 @@ function printResult(output) {
 		],
 		{
 			align: ['l', 'r', 'r', 'r', 'r'],
-		}
+		},
 	);
 
 	return `${latencyTable}\n\n${reqAndBytesTable}`;

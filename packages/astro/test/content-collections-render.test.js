@@ -60,18 +60,8 @@ describe('Content Collections - render()', () => {
 			const html = await fixture.readFile('/launch-week-component-scripts/index.html');
 			const $ = cheerio.load(html);
 
-			const allScripts = $('head > script[type="module"]');
-			assert.ok(allScripts.length);
-
-			// Includes hoisted script
-			const scriptWithSrc = [...allScripts].find((script) =>
-				$(script).attr('src')?.includes('WithScripts')
-			);
-			assert.notEqual(
-				scriptWithSrc,
-				undefined,
-				'`WithScripts.astro` hoisted script missing from head.'
-			);
+			// Includes script
+			assert.equal($('script[type="module"]').length, 1);
 
 			// Includes inline script
 			assert.equal($('script[data-is-inline]').length, 1);
@@ -81,17 +71,7 @@ describe('Content Collections - render()', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			const allScripts = $('head > script[type="module"]');
-
-			// Excludes hoisted script
-			const scriptWithText = [...allScripts].find((script) =>
-				$(script).text().includes('document.querySelector("#update-me")')
-			);
-			assert.equal(
-				scriptWithText,
-				undefined,
-				'`WithScripts.astro` hoisted script included unexpectedly.'
-			);
+			assert.equal($('script').length, 0);
 		});
 
 		it('Applies MDX components export', async () => {
@@ -233,17 +213,8 @@ describe('Content Collections - render()', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const allScripts = $('head > script[src]');
-			assert.ok(allScripts.length);
-			// Includes hoisted script
-			const scriptWithSrc = [...allScripts].find((script) =>
-				script.attribs.src.includes('WithScripts.astro')
-			);
-			assert.notEqual(
-				scriptWithSrc,
-				undefined,
-				'`WithScripts.astro` hoisted script missing from head.'
-			);
+			// Includes script
+			assert.equal($('script[type="module"][src*="WithScripts.astro"]').length, 1);
 
 			// Includes inline script
 			assert.equal($('script[data-is-inline]').length, 1);

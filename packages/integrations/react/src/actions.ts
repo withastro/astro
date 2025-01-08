@@ -25,8 +25,9 @@ export function experimental_withState<T>(action: FormFn<T>) {
 	callback.$$FORM_ACTION = action.$$FORM_ACTION;
 	// Called by React when form state is passed from the server.
 	// If the action names match, React returns this state from `useActionState()`.
-	callback.$$IS_SIGNATURE_EQUAL = (actionName: string) => {
-		return action.toString() === actionName;
+	callback.$$IS_SIGNATURE_EQUAL = (incomingActionName: string) => {
+		const actionName = new URLSearchParams(action.toString()).get('_action');
+		return actionName === incomingActionName;
 	};
 
 	// React calls `.bind()` internally to pass the initial state value.
@@ -45,12 +46,14 @@ export function experimental_withState<T>(action: FormFn<T>) {
  */
 export async function experimental_getActionState<T>({
 	request,
-}: { request: Request }): Promise<T> {
+}: {
+	request: Request;
+}): Promise<T> {
 	const contentType = request.headers.get('Content-Type');
 	if (!contentType || !isFormRequest(contentType)) {
 		throw new AstroError(
 			'`getActionState()` must be called with a form request.',
-			"Ensure your action uses the `accept: 'form'` option."
+			"Ensure your action uses the `accept: 'form'` option.",
 		);
 	}
 	const formData = await request.clone().formData();
@@ -58,7 +61,7 @@ export async function experimental_getActionState<T>({
 	if (!state) {
 		throw new AstroError(
 			'`getActionState()` could not find a state object.',
-			'Ensure your action was passed to `useActionState()` with the `experimental_withState()` wrapper.'
+			'Ensure your action was passed to `useActionState()` with the `experimental_withState()` wrapper.',
 		);
 	}
 	return JSON.parse(state) as T;

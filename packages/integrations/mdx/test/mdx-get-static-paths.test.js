@@ -28,7 +28,7 @@ describe('getStaticPaths', () => {
 		assert.equal(
 			$('#file').text().includes('fixtures/mdx-get-static-paths/src/content/1.mdx'),
 			true,
-			'file is included'
+			'file is included',
 		);
 	});
 });

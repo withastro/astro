@@ -16,7 +16,7 @@ describe('autolinking', () => {
 
 			assert.equal(
 				code.replace(/\n/g, ''),
-				`<p>See <a href="https://example.com">https://example.com</a> for more.</p>`
+				`<p>See <a href="https://example.com">https://example.com</a> for more.</p>`,
 			);
 		});
 
@@ -26,7 +26,7 @@ describe('autolinking', () => {
 
 			assert.equal(
 				code.trim(),
-				`<p>See <a href="http://www.example.com">www.example.com</a> for more.</p>`
+				`<p>See <a href="http://www.example.com">www.example.com</a> for more.</p>`,
 			);
 		});
 
@@ -36,7 +36,7 @@ describe('autolinking', () => {
 
 			assert.equal(
 				code.trim(),
-				`<p>See <code>https://example.com</code> or <code>www.example.com</code> for more.</p>`
+				`<p>See <code>https://example.com</code> or <code>www.example.com</code> for more.</p>`,
 			);
 		});
 	});

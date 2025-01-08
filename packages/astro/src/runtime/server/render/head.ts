@@ -1,5 +1,4 @@
-import type { SSRResult } from '../../../@types/astro.js';
-
+import type { SSRResult } from '../../../types/public/internal.js';
 import { markHTMLString } from '../escape.js';
 import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instruction.js';
 import { createRenderInstruction } from './instruction.js';
@@ -21,7 +20,7 @@ export function renderAllHeadContent(result: SSRResult) {
 		.map((style) =>
 			style.props.rel === 'stylesheet'
 				? renderElement('link', style)
-				: renderElement('style', style)
+				: renderElement('style', style),
 		);
 	// Clear result.styles so that any new styles added will be inlined.
 	result.styles.clear();

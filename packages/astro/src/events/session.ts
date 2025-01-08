@@ -1,5 +1,6 @@
-import type { AstroIntegration, AstroUserConfig } from '../@types/astro.js';
 import { AstroConfigSchema } from '../core/config/schema.js';
+import type { AstroUserConfig } from '../types/public/config.js';
+import type { AstroIntegration } from '../types/public/integrations.js';
 
 const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED';
 
@@ -41,7 +42,7 @@ type StringLiteral<T> = T extends string ? (string extends T ? never : T) : neve
  * results in an error, to make sure generic user input is never measured directly.
  */
 function measureStringLiteral<T extends string>(
-	val: StringLiteral<T> | boolean | undefined
+	val: StringLiteral<T> | boolean | undefined,
 ): string | boolean | undefined {
 	return val;
 }
@@ -62,7 +63,7 @@ function sanitizeConfigInfo(obj: object | undefined, validKeys: string[]): Confi
 			result[key] = measureIsDefined((obj as Record<string, unknown>)[key]);
 			return result;
 		},
-		{} as Record<string, boolean | undefined>
+		{} as Record<string, boolean | undefined>,
 	);
 }
 
@@ -82,23 +83,23 @@ function createAnonymousConfigInfo(userConfig: AstroUserConfig) {
 		...sanitizeConfigInfo(userConfig, Object.keys(AstroConfigSchema.shape)),
 		build: sanitizeConfigInfo(
 			userConfig.build,
-			Object.keys(AstroConfigSchema.shape.build._def.innerType.shape)
+			Object.keys(AstroConfigSchema.shape.build._def.innerType.shape),
 		),
 		image: sanitizeConfigInfo(
 			userConfig.image,
-			Object.keys(AstroConfigSchema.shape.image._def.innerType.shape)
+			Object.keys(AstroConfigSchema.shape.image._def.innerType.shape),
 		),
 		markdown: sanitizeConfigInfo(
 			userConfig.markdown,
-			Object.keys(AstroConfigSchema.shape.markdown._def.innerType.shape)
+			Object.keys(AstroConfigSchema.shape.markdown._def.innerType.shape),
 		),
 		experimental: sanitizeConfigInfo(
 			userConfig.experimental,
-			Object.keys(AstroConfigSchema.shape.experimental._def.innerType.shape)
+			Object.keys(AstroConfigSchema.shape.experimental._def.innerType.shape),
 		),
 		legacy: sanitizeConfigInfo(
 			userConfig.legacy,
-			Object.keys(AstroConfigSchema.shape.legacy._def.innerType.shape)
+			Object.keys(AstroConfigSchema.shape.legacy._def.innerType.shape),
 		),
 		vite: userConfig.vite
 			? sanitizeConfigInfo(userConfig.vite, Object.keys(userConfig.vite))
@@ -123,7 +124,7 @@ function createAnonymousConfigInfo(userConfig: AstroUserConfig) {
 export function eventCliSession(
 	cliCommand: string,
 	userConfig: AstroUserConfig,
-	flags?: Record<string, any>
+	flags?: Record<string, any>,
 ): { eventName: string; payload: EventPayload }[] {
 	// Filter out yargs default `_` flag which is the cli command
 	const cliFlags = flags ? Object.keys(flags).filter((name) => name != '_') : undefined;

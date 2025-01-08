@@ -1,5 +1,51 @@
 # @astrojs/upgrade
 
+## 0.4.2
+
+### Patch Changes
+
+- [#12706](https://github.com/withastro/astro/pull/12706) [`f6c4214`](https://github.com/withastro/astro/commit/f6c4214042c68de137a69aa15dea81ed9cbc822a) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused registry URLs that specify a port to be incorrectly detected as offline.
+
+## 0.4.1
+
+### Patch Changes
+
+- [#12576](https://github.com/withastro/astro/pull/12576) [`19b3ac0`](https://github.com/withastro/astro/commit/19b3ac0036cc6f27da887d19b16d804c6f0b8124) Thanks [@apatel369](https://github.com/apatel369)! - Fixes an issue where running `upgrade` in a directory without `astro` installed shows a false success message
+
+## 0.4.0
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+### Patch Changes
+
+- [#12577](https://github.com/withastro/astro/pull/12577) [`b139390`](https://github.com/withastro/astro/commit/b139390deb738f96759cb787fe9e784be71f2134) Thanks [@apatel369](https://github.com/apatel369)! - Fixes an issue where `@astrojs/upgrade` announces integration updates for already up to date packages
+
+## 0.4.0-beta.0
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+## 0.3.4
+
+### Patch Changes
+
+- [#12118](https://github.com/withastro/astro/pull/12118) [`f47b347`](https://github.com/withastro/astro/commit/f47b347da899c6e1dcd0b2e7887f7fce6ec8e270) Thanks [@Namchee](https://github.com/Namchee)! - Removes the `strip-ansi` dependency in favor of the native Node API
+
+## 0.3.3
+
+### Patch Changes
+
+- [#11733](https://github.com/withastro/astro/pull/11733) [`391324d`](https://github.com/withastro/astro/commit/391324df969db71d1c7ca25c2ed14c9eb6eea5ee) Thanks [@bluwy](https://github.com/bluwy)! - Reverts back to `arg` package for CLI argument parsing
+
+## 0.3.2
+
+### Patch Changes
+
+- [#11645](https://github.com/withastro/astro/pull/11645) [`849e4c6`](https://github.com/withastro/astro/commit/849e4c6c23e61f7fa59f583419048b998bef2475) Thanks [@bluwy](https://github.com/bluwy)! - Refactors internally to use `node:util` `parseArgs` instead of `arg`
+
 ## 0.3.1
 
 ### Patch Changes

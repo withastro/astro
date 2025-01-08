@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { isAstroConfigZodError } from '../core/errors/errors.js';
 import { createSafeError } from '../core/errors/index.js';

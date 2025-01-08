@@ -12,7 +12,7 @@ const CI_INSTRUCTIONS = {
 };
 
 // Hardcode supported Node.js version so we don't have to read differently in CJS & ESM.
-const engines = '>=18.14.1';
+const engines = '>=18.17.1';
 const skipSemverCheckIfAbove = 19;
 
 /** `astro *` */
@@ -52,6 +52,7 @@ async function errorNodeUnsupported() {
 Node.js v${process.versions.node} is not supported by Astro!
 Please upgrade Node.js to a supported version: "${engines}"\n`);
 
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	const ci = typeof require !== 'undefined' ? require('ci-info') : await import('ci-info');
 
 	// Special instructions for CI environments, which may have special steps needed.
@@ -65,7 +66,7 @@ Please upgrade Node.js to a supported version: "${engines}"\n`);
 			}
 		}
 		console.log(
-			`${ci.name} CI Environment Detected!\nAdditional steps may be needed to set your Node.js version:`
+			`${ci.name} CI Environment Detected!\nAdditional steps may be needed to set your Node.js version:`,
 		);
 		console.log(`Documentation: https://docs.astro.build/en/guides/deploy/`);
 		if (CI_INSTRUCTIONS[platform]) {

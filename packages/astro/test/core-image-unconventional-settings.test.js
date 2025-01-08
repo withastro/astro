@@ -6,7 +6,7 @@ import { testImageService } from './test-image-service.js';
 import { loadFixture } from './test-utils.js';
 
 /**
- ** @typedef {import('../src/@types/astro').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
+ ** @typedef {import('../src/types/public/config.js').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
  */
 
 /** @type {AstroInlineConfig} */
@@ -174,7 +174,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 
 		const unoptimizedData = await fixture.readFile(
 			unoptimizedSrc.replace('https://cdn.example.com/', ''),
-			null
+			null,
 		);
 		assert.equal(unoptimizedData instanceof Buffer, true);
 

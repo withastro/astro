@@ -1,15 +1,15 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { MissingLocale } from '#astro/core/errors/errors-data';
-import { AstroError } from '#astro/core/errors/index';
-import { toRoutingStrategy } from '#astro/i18n/utils';
 import { validateConfig } from '../../../dist/core/config/validate.js';
+import { MissingLocale } from '../../../dist/core/errors/errors-data.js';
+import { AstroError } from '../../../dist/core/errors/index.js';
 import {
 	getLocaleAbsoluteUrl,
 	getLocaleAbsoluteUrlList,
 	getLocaleRelativeUrl,
 	getLocaleRelativeUrlList,
 } from '../../../dist/i18n/index.js';
+import { toRoutingStrategy } from '../../../dist/i18n/utils.js';
 import { parseLocale } from '../../../dist/i18n/utils.js';
 
 describe('getLocaleRelativeUrl', () => {
@@ -45,7 +45,7 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'directory',
 				...config.experimental.i18n,
 			}),
-			'/blog/'
+			'/blog/',
 		);
 		assert.equal(
 			getLocaleRelativeUrl({
@@ -55,7 +55,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			}),
-			'/blog/es/'
+			'/blog/es/',
 		);
 
 		// file format
@@ -67,7 +67,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'file',
 			}),
-			'/blog/'
+			'/blog/',
 		);
 		assert.equal(
 			getLocaleRelativeUrl({
@@ -77,7 +77,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'file',
 			}),
-			'/blog/es/'
+			'/blog/es/',
 		);
 
 		assert.equal(
@@ -88,7 +88,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'file',
 			}),
-			'/blog/italiano/'
+			'/blog/italiano/',
 		);
 	});
 
@@ -114,7 +114,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			}),
-			'/'
+			'/',
 		);
 		assert.equal(
 			getLocaleRelativeUrl({
@@ -124,7 +124,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			}),
-			'/es/'
+			'/es/',
 		);
 	});
 
@@ -155,7 +155,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'never',
 				format: 'directory',
 			}),
-			'/blog'
+			'/blog',
 		);
 		assert.equal(
 			getLocaleRelativeUrl({
@@ -165,7 +165,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			}),
-			'/blog/es/'
+			'/blog/es/',
 		);
 
 		assert.equal(
@@ -176,7 +176,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'file',
 			}),
-			'/blog/italiano/'
+			'/blog/italiano/',
 		);
 
 		assert.equal(
@@ -187,7 +187,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'ignore',
 				format: 'directory',
 			}),
-			'/blog/'
+			'/blog/',
 		);
 
 		// directory file
@@ -199,7 +199,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'never',
 				format: 'file',
 			}),
-			'/blog'
+			'/blog',
 		);
 		assert.equal(
 			getLocaleRelativeUrl({
@@ -209,7 +209,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'file',
 			}),
-			'/blog/es/'
+			'/blog/es/',
 		);
 
 		assert.equal(
@@ -221,7 +221,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'ignore',
 				format: 'file',
 			}),
-			'/blog'
+			'/blog',
 		);
 	});
 
@@ -247,7 +247,7 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'directory',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			'/blog/en-us/'
+			'/blog/en-us/',
 		);
 
 		assert.equal(
@@ -260,7 +260,7 @@ describe('getLocaleRelativeUrl', () => {
 				normalizeLocale: false,
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			'/blog/en_US/'
+			'/blog/en_US/',
 		);
 
 		assert.equal(
@@ -272,7 +272,7 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'directory',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			'/blog/en-au/'
+			'/blog/en-au/',
 		);
 	});
 
@@ -302,7 +302,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			'/blog/en/'
+			'/blog/en/',
 		);
 		assert.equal(
 			getLocaleRelativeUrl({
@@ -313,7 +313,7 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'directory',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			'/blog/es/'
+			'/blog/es/',
 		);
 
 		// file format
@@ -326,7 +326,7 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'file',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			'/blog/en/'
+			'/blog/en/',
 		);
 		assert.equal(
 			getLocaleRelativeUrl({
@@ -337,7 +337,7 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'file',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			'/blog/es/'
+			'/blog/es/',
 		);
 	});
 
@@ -368,7 +368,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			'/blog/en/'
+			'/blog/en/',
 		);
 		assert.equal(
 			getLocaleRelativeUrl({
@@ -379,7 +379,7 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'directory',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			'/blog/es/'
+			'/blog/es/',
 		);
 
 		// file format
@@ -392,7 +392,7 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'file',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			'/blog/en/'
+			'/blog/en/',
 		);
 		assert.equal(
 			getLocaleRelativeUrl({
@@ -403,7 +403,7 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'file',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			'/blog/es/'
+			'/blog/es/',
 		);
 	});
 });
@@ -439,7 +439,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'never',
 				format: 'directory',
 			}),
-			['/blog', '/blog/en-us', '/blog/es', '/blog/italiano']
+			['/blog', '/blog/en-us', '/blog/es', '/blog/italiano'],
 		);
 	});
 
@@ -473,7 +473,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 			}),
-			['/blog/', '/blog/en-us/', '/blog/es/', '/blog/italiano/']
+			['/blog/', '/blog/en-us/', '/blog/es/', '/blog/italiano/'],
 		);
 	});
 
@@ -499,7 +499,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'always',
 				format: 'file',
 			}),
-			['/blog/', '/blog/en-us/', '/blog/es/']
+			['/blog/', '/blog/en-us/', '/blog/es/'],
 		);
 	});
 
@@ -525,7 +525,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'never',
 				format: 'file',
 			}),
-			['/blog', '/blog/en-us', '/blog/es']
+			['/blog', '/blog/en-us', '/blog/es'],
 		);
 	});
 
@@ -551,7 +551,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'ignore',
 				format: 'file',
 			}),
-			['/blog', '/blog/en-us', '/blog/es']
+			['/blog', '/blog/en-us', '/blog/es'],
 		);
 	});
 
@@ -577,7 +577,7 @@ describe('getLocaleRelativeUrlList', () => {
 				trailingSlash: 'ignore',
 				format: 'directory',
 			}),
-			['/blog/', '/blog/en-us/', '/blog/es/']
+			['/blog/', '/blog/en-us/', '/blog/es/'],
 		);
 	});
 
@@ -605,7 +605,7 @@ describe('getLocaleRelativeUrlList', () => {
 				format: 'directory',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			['/blog/en', '/blog/en-us', '/blog/es']
+			['/blog/en', '/blog/en-us', '/blog/es'],
 		);
 	});
 
@@ -634,7 +634,7 @@ describe('getLocaleRelativeUrlList', () => {
 				format: 'directory',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
-			['/blog/en', '/blog/en-us', '/blog/es']
+			['/blog/en', '/blog/en-us', '/blog/es'],
 		);
 	});
 });
@@ -676,7 +676,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					...config.i18n,
 				}),
-				'https://example.com/blog/'
+				'https://example.com/blog/',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -687,7 +687,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					site: 'https://example.com',
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 
 			assert.equal(
@@ -700,7 +700,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					isBuild: true,
 				}),
-				'https://es.example.com/blog/'
+				'https://es.example.com/blog/',
 			);
 
 			assert.throws(
@@ -717,7 +717,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				new AstroError({
 					...MissingLocale,
 					message: MissingLocale.message('ff'),
-				})
+				}),
 			);
 
 			// file format
@@ -730,7 +730,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'file',
 					site: 'https://example.com',
 				}),
-				'https://example.com/blog/'
+				'https://example.com/blog/',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -741,7 +741,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'file',
 					site: 'https://example.com',
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 
 			assert.equal(
@@ -753,7 +753,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'file',
 					site: 'https://example.com',
 				}),
-				'https://example.com/blog/italiano/'
+				'https://example.com/blog/italiano/',
 			);
 
 			assert.equal(
@@ -766,7 +766,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					isBuild: true,
 				}),
-				'https://es.example.com/blog/'
+				'https://es.example.com/blog/',
 			);
 
 			assert.equal(
@@ -781,7 +781,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					path: 'first-post',
 					isBuild: true,
 				}),
-				'https://es.example.com/blog/some-name/first-post/'
+				'https://es.example.com/blog/some-name/first-post/',
 			);
 
 			// en isn't mapped to a domain
@@ -797,7 +797,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					path: 'first-post',
 					isBuild: true,
 				}),
-				'https://example.com/blog/some-name/first-post/'
+				'https://example.com/blog/some-name/first-post/',
 			);
 		});
 	});
@@ -832,7 +832,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					...config.i18n,
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/en/'
+				'https://example.com/blog/en/',
 			);
 
 			assert.equal(
@@ -845,7 +845,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 
 			// file format
@@ -859,7 +859,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/en/'
+				'https://example.com/blog/en/',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -871,7 +871,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 
 			assert.equal(
@@ -885,7 +885,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					isBuild: true,
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://es.example.com/blog/'
+				'https://es.example.com/blog/',
 			);
 
 			assert.equal(
@@ -901,7 +901,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					isBuild: true,
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://es.example.com/blog/some-name/first-post/'
+				'https://es.example.com/blog/some-name/first-post/',
 			);
 		});
 		it('should correctly return the URL without base', () => {
@@ -929,7 +929,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/en/'
+				'https://example.com/en/',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -941,7 +941,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/es/'
+				'https://example.com/es/',
 			);
 		});
 
@@ -970,7 +970,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/en'
+				'https://example.com/blog/en',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -982,7 +982,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 
 			assert.equal(
@@ -995,7 +995,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/en/'
+				'https://example.com/blog/en/',
 			);
 
 			// directory file
@@ -1009,7 +1009,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/en'
+				'https://example.com/blog/en',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -1021,7 +1021,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 
 			assert.equal(
@@ -1035,7 +1035,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/en'
+				'https://example.com/blog/en',
 			);
 		});
 
@@ -1063,7 +1063,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'directory',
 				}),
-				'/blog/en-us/'
+				'/blog/en-us/',
 			);
 
 			assert.equal(
@@ -1074,7 +1074,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'directory',
 				}),
-				'/blog/en-au/'
+				'/blog/en-au/',
 			);
 
 			assert.equal(
@@ -1086,7 +1086,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					normalizeLocale: true,
 				}),
-				'/blog/en-us/'
+				'/blog/en-us/',
 			);
 		});
 
@@ -1117,7 +1117,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					...config.i18n,
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/en/'
+				'https://example.com/blog/en/',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -1129,7 +1129,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 
 			// file format
@@ -1143,7 +1143,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'file',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/en/'
+				'https://example.com/blog/en/',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -1155,7 +1155,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'file',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 		});
 
@@ -1187,7 +1187,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					...config.i18n,
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/en/'
+				'https://example.com/blog/en/',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -1199,7 +1199,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 
 			// file format
@@ -1213,7 +1213,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'file',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/en/'
+				'https://example.com/blog/en/',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -1225,7 +1225,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'file',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 		});
 		it('should correctly return the URL without base', () => {
@@ -1259,7 +1259,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					site: 'https://example.com',
 				}),
-				'https://example.com/'
+				'https://example.com/',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -1270,7 +1270,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					site: 'https://example.com',
 				}),
-				'https://example.com/es/'
+				'https://example.com/es/',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -1281,7 +1281,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					site: 'https://example.com',
 				}),
-				'https://example.com/italiano/'
+				'https://example.com/italiano/',
 			);
 		});
 
@@ -1309,7 +1309,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					site: 'https://example.com',
 				}),
-				'https://example.com/blog'
+				'https://example.com/blog',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -1320,7 +1320,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					site: 'https://example.com',
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 
 			assert.equal(
@@ -1332,7 +1332,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					site: 'https://example.com',
 				}),
-				'https://example.com/blog/'
+				'https://example.com/blog/',
 			);
 
 			// directory file
@@ -1345,7 +1345,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'file',
 					site: 'https://example.com',
 				}),
-				'https://example.com/blog'
+				'https://example.com/blog',
 			);
 			assert.equal(
 				getLocaleAbsoluteUrl({
@@ -1356,7 +1356,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'file',
 					site: 'https://example.com',
 				}),
-				'https://example.com/blog/es/'
+				'https://example.com/blog/es/',
 			);
 
 			assert.equal(
@@ -1369,7 +1369,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'file',
 					site: 'https://example.com',
 				}),
-				'https://example.com/blog'
+				'https://example.com/blog',
 			);
 		});
 
@@ -1397,7 +1397,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'directory',
 				}),
-				'/blog/en-us/'
+				'/blog/en-us/',
 			);
 
 			assert.equal(
@@ -1408,7 +1408,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'directory',
 				}),
-				'/blog/en-au/'
+				'/blog/en-au/',
 			);
 
 			assert.equal(
@@ -1420,7 +1420,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					normalizeLocale: true,
 				}),
-				'/blog/en-us/'
+				'/blog/en-us/',
 			);
 		});
 	});
@@ -1451,7 +1451,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 					],
 				},
 			},
-			process.cwd()
+			process.cwd(),
 		);
 		// directory format
 		assert.deepEqual(
@@ -1466,7 +1466,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				'https://example.com/blog/en-us',
 				'https://example.com/blog/es',
 				'https://example.com/blog/italiano',
-			]
+			],
 		);
 	});
 
@@ -1486,7 +1486,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 					locales: ['en', 'en_US', 'es'],
 				},
 			},
-			process.cwd()
+			process.cwd(),
 		);
 		// directory format
 		assert.deepEqual(
@@ -1499,7 +1499,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				'https://example.com/blog/',
 				'https://example.com/blog/en-us/',
 				'https://example.com/blog/es/',
-			]
+			],
 		);
 	});
 
@@ -1521,7 +1521,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 					},
 				},
 			},
-			process.cwd()
+			process.cwd(),
 		);
 		// directory format
 		assert.deepEqual(
@@ -1536,7 +1536,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				'https://example.com/en/download/',
 				'https://example.com/en-us/download/',
 				'https://example.com/es/download/',
-			]
+			],
 		);
 	});
 
@@ -1562,7 +1562,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 					},
 				},
 			},
-			process.cwd()
+			process.cwd(),
 		);
 		// directory format
 		assert.deepEqual(
@@ -1578,7 +1578,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				'https://example.com/en/download/',
 				'https://example.com/en-us/download/',
 				'https://es.example.com/download/',
-			]
+			],
 		);
 	});
 
@@ -1616,7 +1616,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				'https://example.com/blog/en-us/',
 				'https://example.com/blog/es/',
 				'https://example.com/blog/italiano/',
-			]
+			],
 		);
 	});
 
@@ -1643,7 +1643,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				format: 'file',
 				site: 'https://example.com',
 			}),
-			['https://example.com/blog', 'https://example.com/blog/en-us', 'https://example.com/blog/es']
+			['https://example.com/blog', 'https://example.com/blog/en-us', 'https://example.com/blog/es'],
 		);
 	});
 
@@ -1670,7 +1670,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				format: 'file',
 				site: 'https://example.com',
 			}),
-			['https://example.com/blog', 'https://example.com/blog/en-us', 'https://example.com/blog/es']
+			['https://example.com/blog', 'https://example.com/blog/en-us', 'https://example.com/blog/es'],
 		);
 	});
 
@@ -1701,7 +1701,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				'https://example.com/blog/',
 				'https://example.com/blog/en-us/',
 				'https://example.com/blog/es/',
-			]
+			],
 		);
 	});
 
@@ -1734,7 +1734,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				'https://example.com/blog/en/',
 				'https://example.com/blog/en-us/',
 				'https://example.com/blog/es/',
-			]
+			],
 		);
 	});
 
@@ -1768,7 +1768,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				'https://example.com/blog/en/',
 				'https://example.com/blog/en-us/',
 				'https://example.com/blog/es/',
-			]
+			],
 		);
 	});
 
@@ -1804,7 +1804,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				'https://example.uk/blog/',
 				'https://example.com/blog/en-us/',
 				'https://es.example.com/blog/',
-			]
+			],
 		);
 	});
 });

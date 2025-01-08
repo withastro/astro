@@ -7,7 +7,7 @@ export default function() {
 				addRenderer({
 					name: 'renderer-two',
 					clientEntrypoint: null,
-					serverEntrypoint: '@test/astro-renderer-two/server.mjs',
+					serverEntrypoint: new URL('server.mjs', import.meta.url),
 				});
 			}
 		}

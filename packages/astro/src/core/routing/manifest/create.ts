@@ -1,28 +1,29 @@
-import type {
-	AstroConfig,
-	AstroSettings,
-	ManifestData,
-	RouteData,
-	RoutePart,
-	RoutePriorityOverride,
-} from '../../../@types/astro.js';
+import type { AstroSettings, ManifestData } from '../../../types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
-import { createRequire } from 'module';
 import nodeFs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
+import pLimit from 'p-limit';
+import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
+import { runHookRoutesResolved } from '../../../integrations/hooks.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
+import type { AstroConfig } from '../../../types/public/config.js';
+import type { RouteData, RoutePart } from '../../../types/public/internal.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
 import { AstroError } from '../../errors/index.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
+import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 import { resolvePages } from '../../util.js';
+import { ensure404Route } from '../astro-designed-error-pages.js';
 import { routeComparator } from '../priority.js';
 import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
+import { getRoutePrerenderOption } from './prerender.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -74,7 +75,7 @@ export function getParts(part: string, file: string) {
 export function validateSegment(segment: string, file = '') {
 	if (!file) file = segment;
 
-	if (/\]\[/.test(segment)) {
+	if (segment.includes('][')) {
 		throw new Error(`Invalid route ${file} \u2014 parameters must be separated`);
 	}
 	if (countOccurrences('[', segment) !== countOccurrences(']', segment)) {
@@ -133,7 +134,7 @@ export interface CreateRouteManifestParams {
 
 function createFileBasedRoutes(
 	{ settings, cwd, fsMod }: CreateRouteManifestParams,
-	logger: Logger
+	logger: Logger,
 ): RouteData[] {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
@@ -150,7 +151,7 @@ function createFileBasedRoutes(
 		fs: typeof nodeFs,
 		dir: string,
 		parentSegments: RoutePart[][],
-		parentParams: string[]
+		parentParams: string[],
 	) {
 		let items: Item[] = [];
 		const files = fs.readdirSync(dir);
@@ -172,8 +173,8 @@ function createFileBasedRoutes(
 				logger.warn(
 					null,
 					`Unsupported file type ${bold(
-						resolved
-					)} found. Prefix filename with an underscore (\`_\`) to ignore.`
+						resolved,
+					)} found. Prefix filename with an underscore (\`_\`) to ignore.`,
 				);
 
 				continue;
@@ -182,7 +183,7 @@ function createFileBasedRoutes(
 			validateSegment(segment, file);
 
 			const parts = getParts(segment, file);
-			const isIndex = isDir ? false : basename.startsWith('index.');
+			const isIndex = isDir ? false : basename.substring(0, basename.lastIndexOf('.')) === 'index';
 			const routeSuffix = basename.slice(basename.indexOf('.'), -ext.length);
 			const isPage = validPageExtensions.has(ext);
 
@@ -257,6 +258,8 @@ function createFileBasedRoutes(
 					pathname: pathname || undefined,
 					prerender,
 					fallbackRoutes: [],
+					distURL: [],
+					origin: 'project',
 				});
 			}
 		}
@@ -275,28 +278,15 @@ function createFileBasedRoutes(
 	return routes;
 }
 
-type PrioritizedRoutesData = Record<RoutePriorityOverride, RouteData[]>;
-
-function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): PrioritizedRoutesData {
+function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
 	const prerender = getPrerenderDefault(config);
 
-	const routes: PrioritizedRoutesData = {
-		normal: [],
-		legacy: [],
-	};
-
-	const priority = computeRoutePriority(config);
+	const routes: RouteData[] = [];
 
 	for (const injectedRoute of settings.injectedRoutes) {
-		const { pattern: name, entrypoint, prerender: prerenderInjected } = injectedRoute;
-		let resolved: string;
-		try {
-			resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
-		} catch (e) {
-			resolved = fileURLToPath(new URL(entrypoint, config.root));
-		}
-		const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
+		const { pattern: name, entrypoint, prerender: prerenderInjected, origin } = injectedRoute;
+		const { resolved, component } = resolveInjectedRoute(entrypoint.toString(), config.root, cwd);
 
 		const segments = removeLeadingForwardSlash(name)
 			.split(path.posix.sep)
@@ -321,7 +311,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 			.map((p) => p.content);
 		const route = joinSegments(segments);
 
-		routes[priority].push({
+		routes.push({
 			type,
 			// For backwards compatibility, an injected route is never considered an index route.
 			isIndex: false,
@@ -334,6 +324,8 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 			pathname: pathname || void 0,
 			prerender: prerenderInjected ?? prerender,
 			fallbackRoutes: [],
+			distURL: [],
+			origin,
 		});
 	}
 
@@ -346,17 +338,13 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 function createRedirectRoutes(
 	{ settings }: CreateRouteManifestParams,
 	routeMap: Map<string, RouteData>,
-	logger: Logger
-): PrioritizedRoutesData {
+	logger: Logger,
+): RouteData[] {
 	const { config } = settings;
 	const trailingSlash = config.trailingSlash;
 
-	const routes: PrioritizedRoutesData = {
-		normal: [],
-		legacy: [],
-	};
+	const routes: RouteData[] = [];
 
-	const priority = computeRoutePriority(settings.config);
 	for (const [from, to] of Object.entries(settings.config.redirects)) {
 		const segments = removeLeadingForwardSlash(from)
 			.split(path.posix.sep)
@@ -387,11 +375,11 @@ function createRedirectRoutes(
 		if (/^https?:\/\//.test(destination)) {
 			logger.warn(
 				'redirects',
-				`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`
+				`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`,
 			);
 		}
 
-		routes[priority].push({
+		routes.push({
 			type: 'redirect',
 			// For backwards compatibility, a redirect is never considered an index route.
 			isIndex: false,
@@ -406,6 +394,8 @@ function createRedirectRoutes(
 			redirect: to,
 			redirectRoute: routeMap.get(destination),
 			fallbackRoutes: [],
+			distURL: [],
+			origin: 'project',
 		});
 	}
 
@@ -450,11 +440,11 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 		// such that one of them will never be matched.
 		logger.warn(
 			'router',
-			`The route "${a.route}" is defined in both "${a.component}" and "${b.component}". A static route cannot be defined more than once.`
+			`The route "${a.route}" is defined in both "${a.component}" and "${b.component}". A static route cannot be defined more than once.`,
 		);
 		logger.warn(
 			'router',
-			'A collision will result in an hard error in following versions of Astro.'
+			'A collision will result in an hard error in following versions of Astro.',
 		);
 		return;
 	}
@@ -488,16 +478,17 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 	// Both routes are guaranteed to collide such that one will never be matched.
 	logger.warn(
 		'router',
-		`The route "${a.route}" is defined in both "${a.component}" and "${b.component}" using SSR mode. A dynamic SSR route cannot be defined more than once.`
+		`The route "${a.route}" is defined in both "${a.component}" and "${b.component}" using SSR mode. A dynamic SSR route cannot be defined more than once.`,
 	);
 	logger.warn('router', 'A collision will result in an hard error in following versions of Astro.');
 }
 
 /** Create manifest of all static routes */
-export function createRouteManifest(
+export async function createRouteManifest(
 	params: CreateRouteManifestParams,
-	logger: Logger
-): ManifestData {
+	logger: Logger,
+	{ dev = false }: { dev?: boolean } = {},
+): Promise<ManifestData> {
 	const { settings } = params;
 	const { config } = settings;
 	// Create a map of all routes so redirects can refer to any route
@@ -509,28 +500,47 @@ export function createRouteManifest(
 	}
 
 	const injectedRoutes = createInjectedRoutes(params);
-	for (const [, routes] of Object.entries(injectedRoutes)) {
-		for (const route of routes) {
-			routeMap.set(route.route, route);
-		}
+	for (const route of injectedRoutes) {
+		routeMap.set(route.route, route);
 	}
 
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
 
+	// we remove the file based routes that were deemed redirects
+	const filteredFiledBasedRoutes = fileBasedRoutes.filter((fileBasedRoute) => {
+		const isRedirect = redirectRoutes.findIndex((rd) => rd.route === fileBasedRoute.route);
+		return isRedirect < 0;
+	});
+
 	const routes: RouteData[] = [
-		...injectedRoutes['legacy'].sort(routeComparator),
-		...[...fileBasedRoutes, ...injectedRoutes['normal'], ...redirectRoutes['normal']].sort(
-			routeComparator
-		),
-		...redirectRoutes['legacy'].sort(routeComparator),
+		...[...filteredFiledBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
 	];
 
+	settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
+
+	// Check the prerender option for each route
+	const limit = pLimit(10);
+	let promises = [];
+	for (const route of routes) {
+		promises.push(
+			limit(async () => {
+				if (route.type !== 'page' && route.type !== 'endpoint') return;
+				const localFs = params.fsMod ?? nodeFs;
+				const content = await localFs.promises.readFile(
+					fileURLToPath(new URL(route.component, settings.config.root)),
+					'utf-8',
+				);
+
+				await getRoutePrerenderOption(content, route, settings, logger);
+			}),
+		);
+	}
+	await Promise.all(promises);
+
 	// Report route collisions
-	if (config.experimental.globalRoutePriority) {
-		for (const [index, higherRoute] of routes.entries()) {
-			for (const lowerRoute of routes.slice(index + 1)) {
-				detectRouteCollision(higherRoute, lowerRoute, config, logger);
-			}
+	for (const [index, higherRoute] of routes.entries()) {
+		for (const lowerRoute of routes.slice(index + 1)) {
+			detectRouteCollision(higherRoute, lowerRoute, config, logger);
 		}
 	}
 
@@ -543,7 +553,7 @@ export function createRouteManifest(
 			if (!index) {
 				let relativePath = path.relative(
 					fileURLToPath(settings.config.root),
-					fileURLToPath(new URL('pages', settings.config.srcDir))
+					fileURLToPath(new URL('pages', settings.config.srcDir)),
 				);
 				throw new AstroError({
 					...MissingIndexForInternationalization,
@@ -725,16 +735,40 @@ export function createRouteManifest(
 		}
 	}
 
+	if (dev) {
+		// In SSR, a 404 route is injected in the App directly for some special handling,
+		// it must not appear in the manifest
+		ensure404Route({ routes });
+	}
+	if (dev || settings.buildOutput === 'server') {
+		injectImageEndpoint(settings, { routes }, dev ? 'dev' : 'build');
+		// Ideally we would only inject the server islands route if server islands are used in the project.
+		// Unforunately, there is a "circular dependency": to know if server islands are used, we need to run
+		// the build but the build relies on the routes manifest.
+		// This situation also means we cannot update the buildOutput based on wether or not server islands
+		// are used in the project. If server islands are detected after the build but the buildOutput is
+		// static, we fail the build.
+		injectServerIslandRoute(settings.config, { routes });
+	}
+	await runHookRoutesResolved({ routes, settings, logger });
+
 	return {
 		routes,
 	};
 }
 
-function computeRoutePriority(config: AstroConfig): RoutePriorityOverride {
-	if (config.experimental.globalRoutePriority) {
-		return 'normal';
+export function resolveInjectedRoute(entrypoint: string, root: URL, cwd?: string) {
+	let resolved;
+	try {
+		resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(root)] });
+	} catch {
+		resolved = fileURLToPath(new URL(entrypoint, root));
 	}
-	return 'legacy';
+
+	return {
+		resolved: resolved,
+		component: slash(path.relative(cwd || fileURLToPath(root), resolved)),
+	};
 }
 
 function joinSegments(segments: RoutePart[][]): string {

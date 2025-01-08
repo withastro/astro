@@ -1,7 +1,7 @@
 import type * as vite from 'vite';
-import type { AstroPluginOptions } from '../@types/astro.js';
 import { telemetry } from '../events/index.js';
 import { eventAppToggled } from '../events/toolbar.js';
+import type { AstroPluginOptions } from '../types/astro.js';
 
 const PRIVATE_VIRTUAL_MODULE_ID = 'astro:toolbar:internal';
 const resolvedPrivateVirtualModuleId = '\0' + PRIVATE_VIRTUAL_MODULE_ID;
@@ -28,14 +28,14 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 			server.hot.on('astro:devtoolbar:error:load', (args) => {
 				logger.error(
 					'toolbar',
-					`Failed to load dev toolbar app from ${args.entrypoint}: ${args.error}`
+					`Failed to load dev toolbar app from ${args.entrypoint}: ${args.error}`,
 				);
 			});
 
 			server.hot.on('astro:devtoolbar:error:init', (args) => {
 				logger.error(
 					'toolbar',
-					`Failed to initialize dev toolbar app ${args.app.name} (${args.app.id}):\n${args.error}`
+					`Failed to initialize dev toolbar app ${args.app.name} (${args.app.id}):\n${args.error}`,
 				);
 			});
 
@@ -51,7 +51,7 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 					telemetry.record(
 						eventAppToggled({
 							appName: nameToRecord,
-						})
+						}),
 					);
 				}, 200);
 			});
@@ -64,12 +64,12 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 							.map(
 								(plugin) =>
 									`safeLoadPlugin(${JSON.stringify(
-										plugin
+										plugin,
 									)}, async () => (await import(${JSON.stringify(
-										typeof plugin === 'string' ? plugin : plugin.entrypoint
+										typeof plugin === 'string' ? plugin : plugin.entrypoint.toString(),
 									)})).default, ${JSON.stringify(
-										typeof plugin === 'string' ? plugin : plugin.entrypoint
-									)})`
+										typeof plugin === 'string' ? plugin : plugin.entrypoint.toString(),
+									)})`,
 							)
 							.join(',')}]));
 					};

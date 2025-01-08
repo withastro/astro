@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/astro-envs/',
 	devToolbar: {
 		enabled: false,
@@ -35,7 +35,7 @@ test.describe('Astro Environment BASE_URL', () => {
 
 		const clientComponentBaseUrl = page.locator('id=client-component-base-url');
 		await expect(clientComponentBaseUrl, 'clientComponentBaseUrl equals to /blog').toHaveText(
-			'/blog'
+			'/blog',
 		);
 	});
 });

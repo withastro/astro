@@ -4,7 +4,7 @@ import type { OutputChunk } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
-import { toRoutingStrategy } from '../../../i18n/utils.js';
+import { toFallbackType, toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type {
@@ -12,8 +12,11 @@ import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
 } from '../../app/types.js';
+import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
+import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { serializeRouteData } from '../../routing/index.js';
+import { resolveSessionDriver } from '../../session.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
@@ -27,7 +30,7 @@ const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
 export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
 export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
 
-function vitePluginManifest(_options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+function vitePluginManifest(options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-build-manifest',
 		enforce: 'post',
@@ -50,11 +53,18 @@ function vitePluginManifest(_options: StaticBuildOptions, internals: BuildIntern
 					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
 					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
 				];
+
+				const resolvedDriver = await resolveSessionDriver(
+					options.settings.config.experimental?.session?.driver,
+				);
+
 				const contents = [
 					`const manifest = _deserializeManifest('${manifestReplace}');`,
+					`if (manifest.sessionConfig) manifest.sessionConfig.driverModule = ${resolvedDriver ? `() => import(${JSON.stringify(resolvedDriver)})` : 'null'};`,
 					`_privateSetManifestDontUseThis(manifest);`,
 				];
 				const exports = [`export { manifest }`];
+
 				return [...imports, ...contents, ...exports].join('\n');
 			}
 		},
@@ -78,7 +88,7 @@ function vitePluginManifest(_options: StaticBuildOptions, internals: BuildIntern
 
 export function pluginManifest(
 	options: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	return {
 		targets: ['server'],
@@ -113,9 +123,9 @@ export function pluginManifest(
 	};
 }
 
-export async function createManifest(
+async function createManifest(
 	buildOpts: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): Promise<SerializedSSRManifest> {
 	if (!internals.manifestEntryChunk) {
 		throw new Error(`Did not generate an entry chunk for SSR`);
@@ -125,23 +135,21 @@ export async function createManifest(
 	const clientStatics = new Set(
 		await glob('**/*', {
 			cwd: fileURLToPath(buildOpts.settings.config.build.client),
-		})
+		}),
 	);
 	for (const file of clientStatics) {
 		internals.staticFiles.add(file);
 	}
 
 	const staticFiles = internals.staticFiles;
-	return buildManifest(buildOpts, internals, Array.from(staticFiles));
+	const encodedKey = await encodeKey(await buildOpts.key);
+	return buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
 }
 
 /**
  * It injects the manifest in the given output rollup chunk. It returns the new emitted code
- * @param buildOpts
- * @param internals
- * @param chunk
  */
-export function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
+function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
 	const code = chunk.code;
 
 	return code.replace(replaceExp, () => {
@@ -152,7 +160,8 @@ export function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<
 function buildManifest(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-	staticFiles: string[]
+	staticFiles: string[],
+	encodedKey: string,
 ): SerializedSSRManifest {
 	const { settings } = opts;
 
@@ -172,11 +181,27 @@ function buildManifest(
 		}
 	};
 
+	// Default components follow a special flow during build. We prevent their processing earlier
+	// in the build. As a result, they are not present on `internals.pagesByKeys` and not serialized
+	// in the manifest file. But we need them in the manifest, so we handle them here
+	for (const route of opts.manifest.routes) {
+		if (!DEFAULT_COMPONENTS.find((component) => route.component === component)) {
+			continue;
+		}
+		routes.push({
+			file: '',
+			links: [],
+			scripts: [],
+			styles: [],
+			routeData: serializeRouteData(route, settings.config.trailingSlash),
+		});
+	}
+
 	for (const route of opts.manifest.routes) {
 		if (!route.prerender) continue;
 		if (!route.pathname) continue;
 
-		const outFolder = getOutFolder(opts.settings.config, route.pathname, route);
+		const outFolder = getOutFolder(opts.settings, route.pathname, route);
 		const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route);
 		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
 		routes.push({
@@ -193,16 +218,6 @@ function buildManifest(
 		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
 		if (route.prerender || !pageData) continue;
 		const scripts: SerializedRouteInfo['scripts'] = [];
-		if (pageData.hoistedScript) {
-			const shouldPrefixAssetPath = pageData.hoistedScript.type === 'external';
-			const hoistedValue = pageData.hoistedScript.value;
-			const value = shouldPrefixAssetPath ? prefixAssetPath(hoistedValue) : hoistedValue;
-			scripts.unshift(
-				Object.assign({}, pageData.hoistedScript, {
-					value,
-				})
-			);
-		}
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			const src = entryModules[PAGE_SCRIPT_ID];
 
@@ -254,6 +269,7 @@ function buildManifest(
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
+			fallbackType: toFallbackType(settings.config.i18n.routing),
 			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
 			locales: settings.config.i18n.locales,
 			defaultLocale: settings.config.i18n.defaultLocale,
@@ -278,11 +294,10 @@ function buildManifest(
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
-		checkOrigin: settings.config.security?.checkOrigin ?? false,
-		rewritingEnabled: settings.config.experimental.rewriting,
+		checkOrigin:
+			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
-		experimentalEnvGetSecretEnabled:
-			settings.config.experimental.env !== undefined &&
-			(settings.adapter?.supportedAstroFeatures.envGetSecret ?? 'unsupported') !== 'unsupported',
+		key: encodedKey,
+		sessionConfig: settings.config.experimental.session,
 	};
 }

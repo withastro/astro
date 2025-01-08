@@ -1,10 +1,12 @@
-import type { AstroConfig, RouteData, SerializedRouteData } from '../../../@types/astro.js';
+import type { SerializedRouteData } from '../../../types/astro.js';
+import type { AstroConfig } from '../../../types/public/config.js';
+import type { RouteData } from '../../../types/public/internal.js';
 
 import { getRouteGenerator } from './generator.js';
 
 export function serializeRouteData(
 	routeData: RouteData,
-	trailingSlash: AstroConfig['trailingSlash']
+	trailingSlash: AstroConfig['trailingSlash'],
 ): SerializedRouteData {
 	return {
 		...routeData,
@@ -39,5 +41,6 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 			return deserializeRouteData(fallback);
 		}),
 		isIndex: rawRouteData.isIndex,
+		origin: rawRouteData.origin,
 	};
 }

@@ -11,7 +11,7 @@ export async function safeFetch(
 	options: Parameters<typeof fetch>[1] = {},
 	onNotOK: (response: Response) => void | Promise<void> = () => {
 		throw new Error(`Request to ${url} returned a non-OK status code.`);
-	}
+	},
 ): Promise<Response> {
 	const response = await fetch(url, options);
 
@@ -40,6 +40,10 @@ export class DetailedLibsqlError extends LibsqlError {
 		super(message, code, rawCode, cause);
 		this.hint = hint;
 	}
+}
+
+export function isDbError(err: unknown): err is LibsqlError {
+	return err instanceof LibsqlError || (err instanceof Error && (err as any).libsqlError === true);
 }
 
 function slash(path: string) {

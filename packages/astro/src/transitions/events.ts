@@ -38,7 +38,7 @@ class BeforeEvent extends Event {
 		sourceElement: Element | undefined,
 		info: any,
 		newDocument: Document,
-		signal: AbortSignal
+		signal: AbortSignal,
 	) {
 		super(type, eventInitDict);
 		this.from = from;
@@ -68,7 +68,7 @@ class BeforeEvent extends Event {
 
  */
 export const isTransitionBeforePreparationEvent = (
-	value: any
+	value: any,
 ): value is TransitionBeforePreparationEvent => value.type === TRANSITION_BEFORE_PREPARATION;
 export class TransitionBeforePreparationEvent extends BeforeEvent {
 	formData: FormData | undefined;
@@ -83,7 +83,7 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 		newDocument: Document,
 		signal: AbortSignal,
 		formData: FormData | undefined,
-		loader: (event: TransitionBeforePreparationEvent) => Promise<void>
+		loader: (event: TransitionBeforePreparationEvent) => Promise<void>,
 	) {
 		super(
 			TRANSITION_BEFORE_PREPARATION,
@@ -95,7 +95,7 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 			sourceElement,
 			info,
 			newDocument,
-			signal
+			signal,
 		);
 		this.formData = formData;
 		this.loader = loader.bind(this, this);
@@ -128,7 +128,7 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 			afterPreparation.sourceElement,
 			afterPreparation.info,
 			afterPreparation.newDocument,
-			afterPreparation.signal
+			afterPreparation.signal,
 		);
 		this.direction = afterPreparation.direction;
 		this.viewTransition = viewTransition;
@@ -151,7 +151,7 @@ export async function doPreparation(
 	info: any,
 	signal: AbortSignal,
 	formData: FormData | undefined,
-	defaultLoader: (event: TransitionBeforePreparationEvent) => Promise<void>
+	defaultLoader: (event: TransitionBeforePreparationEvent) => Promise<void>,
 ) {
 	const event = new TransitionBeforePreparationEvent(
 		from,
@@ -163,7 +163,7 @@ export async function doPreparation(
 		window.document,
 		signal,
 		formData,
-		defaultLoader
+		defaultLoader,
 	);
 	if (document.dispatchEvent(event)) {
 		await event.loader();

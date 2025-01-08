@@ -55,7 +55,7 @@ describe('Astro.redirect', () => {
 			} catch (e) {
 				assert.equal(
 					e.message,
-					'The response has already been sent to the browser and cannot be altered.'
+					'The response has already been sent to the browser and cannot be altered.',
 				);
 			}
 		});
@@ -105,7 +105,7 @@ describe('Astro.redirect', () => {
 				const response = await app.render(request);
 				assert.equal(
 					response.headers.get('Location'),
-					'/not-verbatim/target1/Las%20Vegas%E2%80%99'
+					'/not-verbatim/target1/Las%20Vegas%E2%80%99',
 				);
 			});
 		});

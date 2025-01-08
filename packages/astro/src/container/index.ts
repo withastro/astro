@@ -1,30 +1,42 @@
+import './polyfill.js';
 import { posix } from 'node:path';
+import { getDefaultClientDirectives } from '../core/client-directive/index.js';
+import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
+import { validateConfig } from '../core/config/validate.js';
+import { createKey } from '../core/encryption.js';
+import { Logger } from '../core/logger/core.js';
+import { nodeLogDestination } from '../core/logger/node.js';
+import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
+import { removeLeadingForwardSlash } from '../core/path.js';
+import { RenderContext } from '../core/render-context.js';
+import { getParts, validateSegment } from '../core/routing/manifest/create.js';
+import { getPattern } from '../core/routing/manifest/pattern.js';
+import type { AstroComponentFactory } from '../runtime/server/index.js';
+import type { ComponentInstance } from '../types/astro.js';
+import type { AstroMiddlewareInstance, MiddlewareHandler, Props } from '../types/public/common.js';
+import type { AstroConfig, AstroUserConfig } from '../types/public/config.js';
 import type {
-	AstroConfig,
-	AstroUserConfig,
-	ComponentInstance,
-	ContainerImportRendererFn,
-	MiddlewareHandler,
 	NamedSSRLoadedRendererValue,
-	Props,
 	RouteData,
 	RouteType,
 	SSRLoadedRenderer,
 	SSRLoadedRendererValue,
 	SSRManifest,
 	SSRResult,
-} from '../@types/astro.js';
-import { getDefaultClientDirectives } from '../core/client-directive/index.js';
-import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
-import { validateConfig } from '../core/config/validate.js';
-import { Logger } from '../core/logger/core.js';
-import { nodeLogDestination } from '../core/logger/node.js';
-import { removeLeadingForwardSlash } from '../core/path.js';
-import { RenderContext } from '../core/render-context.js';
-import { getParts, validateSegment } from '../core/routing/manifest/create.js';
-import { getPattern } from '../core/routing/manifest/pattern.js';
-import type { AstroComponentFactory } from '../runtime/server/index.js';
+} from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
+
+/** Public type, used for integrations to define a renderer for the container API */
+export type ContainerRenderer = {
+	/**
+	 * The name of the renderer.
+	 */
+	name: string;
+	/**
+	 * The entrypoint that is used to render a component on the server
+	 */
+	serverEntrypoint: string;
+};
 
 /**
  * Options to be passed when rendering a route
@@ -85,6 +97,14 @@ export type ContainerRenderOptions = {
 	 * ```
 	 */
 	props?: Props;
+
+	/**
+	 * When `false`, it forces to render the component as it was a full-fledged page.
+	 *
+	 * By default, the container API render components as [partials](https://docs.astro.build/en/basics/astro-pages/#page-partials).
+	 *
+	 */
+	partial?: boolean;
 };
 
 export type AddServerRenderer =
@@ -102,18 +122,23 @@ export type AddClientRenderer = {
 	entrypoint: string;
 };
 
+type ContainerImportRendererFn = (
+	containerRenderer: ContainerRenderer,
+) => Promise<SSRLoadedRenderer>;
+
 function createManifest(
 	manifest?: AstroContainerManifest,
 	renderers?: SSRLoadedRenderer[],
-	middleware?: MiddlewareHandler
+	middleware?: MiddlewareHandler,
 ): SSRManifest {
-	const defaultMiddleware: MiddlewareHandler = (_, next) => {
-		return next();
-	};
+	function middlewareInstance(): AstroMiddlewareInstance {
+		return {
+			onRequest: middleware ?? NOOP_MIDDLEWARE_FN,
+		};
+	}
 
 	return {
 		hrefRoot: import.meta.url,
-		rewritingEnabled: false,
 		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
 		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
@@ -129,8 +154,8 @@ function createManifest(
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
 		checkOrigin: false,
-		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
-		experimentalEnvGetSecretEnabled: false,
+		middleware: manifest?.middleware ?? middlewareInstance,
+		key: createKey(),
 	};
 }
 
@@ -275,7 +300,7 @@ export class experimental_AstroContainer {
 	 * @param {AstroContainerOptions=} containerOptions
 	 */
 	public static async create(
-		containerOptions: AstroContainerOptions = {}
+		containerOptions: AstroContainerOptions = {},
 	): Promise<experimental_AstroContainer> {
 		const { streaming = false, manifest, renderers = [], resolve } = containerOptions;
 		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
@@ -316,7 +341,7 @@ export class experimental_AstroContainer {
 		if (!renderer.check || !renderer.renderToStaticMarkup) {
 			throw new Error(
 				"The renderer you passed isn't valid. A renderer is usually an object that exposes the `check` and `renderToStaticMarkup` functions.\n" +
-					"Usually, the renderer is exported by a /server.js entrypoint e.g. `import renderer from '@astrojs/react/server.js'`"
+					"Usually, the renderer is exported by a /server.js entrypoint e.g. `import renderer from '@astrojs/react/server.js'`",
 			);
 		}
 		if (isNamedRenderer(renderer)) {
@@ -363,7 +388,7 @@ export class experimental_AstroContainer {
 			throw new Error(
 				'You tried to add the ' +
 					name +
-					" client renderer, but its server renderer wasn't added. You must add the server renderer first. Use the `addServerRenderer` function."
+					" client renderer, but its server renderer wasn't added. You must add the server renderer first. Use the `addServerRenderer` function.",
 			);
 		}
 		const renderer = this.#pipeline.manifest.renderers[rendererIndex];
@@ -375,7 +400,7 @@ export class experimental_AstroContainer {
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
 	// @ematipico: I plan to use it for a possible integration that could help people
 	private static async createFromManifest(
-		manifest: SSRManifest
+		manifest: SSRManifest,
 	): Promise<experimental_AstroContainer> {
 		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new experimental_AstroContainer({
@@ -432,7 +457,7 @@ export class experimental_AstroContainer {
 	 */
 	public async renderToString(
 		component: AstroComponentFactory,
-		options: ContainerRenderOptions = {}
+		options: ContainerRenderOptions = {},
 	): Promise<string> {
 		const response = await this.renderToResponse(component, options);
 		return await response.text();
@@ -459,7 +484,7 @@ export class experimental_AstroContainer {
 	 */
 	public async renderToResponse(
 		component: AstroComponentFactory,
-		options: ContainerRenderOptions = {}
+		options: ContainerRenderOptions = {},
 	): Promise<Response> {
 		const { routeType = 'page', slots } = options;
 		const request = options?.request ?? new Request('https://example.com/');
@@ -474,14 +499,15 @@ export class experimental_AstroContainer {
 			params: options.params,
 			type: routeType,
 		});
-		const renderContext = RenderContext.create({
+		const renderContext = await RenderContext.create({
 			pipeline: this.#pipeline,
 			routeData,
 			status: 200,
-			middleware: this.#pipeline.middleware,
 			request,
 			pathname: url.pathname,
 			locals: options?.locals ?? {},
+			partial: options?.partial ?? true,
+			clientAddress: '',
 		});
 		if (options.params) {
 			renderContext.params = options.params;
@@ -511,13 +537,14 @@ export class experimental_AstroContainer {
 			pattern: getPattern(
 				segments,
 				ASTRO_CONFIG_DEFAULTS.base,
-				ASTRO_CONFIG_DEFAULTS.trailingSlash
+				ASTRO_CONFIG_DEFAULTS.trailingSlash,
 			),
 			prerender: false,
 			segments,
 			type,
 			fallbackRoutes: [],
 			isIndex: false,
+			origin: 'internal',
 		};
 	}
 
@@ -529,7 +556,7 @@ export class experimental_AstroContainer {
 	 */
 	#wrapComponent(
 		componentFactory: AstroComponentFactory,
-		params?: Record<string, string | undefined>
+		params?: Record<string, string | undefined>,
 	): ComponentInstance {
 		if (params) {
 			return {

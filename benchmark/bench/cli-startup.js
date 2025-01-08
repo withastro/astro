@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import { execaCommand } from 'execa';
 import { markdownTable } from 'markdown-table';
+import { exec } from 'tinyexec';
 import { astroBin, calculateStat } from './_util.js';
 
 /** Default project to run for this benchmark if not specified */
@@ -8,17 +8,16 @@ export const defaultProject = 'render-default';
 
 /**
  * @param {URL} projectDir
- * @param {URL} outputFile
  */
-export async function run(projectDir, outputFile) {
+export async function run(projectDir) {
 	const root = fileURLToPath(projectDir);
 
 	console.log('Benchmarking `astro --help`...');
-	const helpStat = await benchmarkCommand(`node ${astroBin} --help`, root);
+	const helpStat = await benchmarkCommand('node', [astroBin, '--help'], root);
 	console.log('Done');
 
-	console.log('Benchmarking `astro info`...');
-	const infoStat = await benchmarkCommand(`node ${astroBin} info`, root);
+	console.log('Benchmarking `astro preferences list`...');
+	const infoStat = await benchmarkCommand('node', [astroBin, 'preferences', 'list'], root);
 	console.log('Done');
 
 	console.log('Result preview:');
@@ -28,23 +27,24 @@ export async function run(projectDir, outputFile) {
 		printResult({
 			'astro --help': helpStat,
 			'astro info': infoStat,
-		})
+		}),
 	);
 	console.log('='.repeat(10));
 }
 
 /**
  * @param {string} command
+ * @param {string[]} args
  * @param {string} root
  * @returns {Promise<import('./_util.js').Stat>}
  */
-async function benchmarkCommand(command, root) {
+async function benchmarkCommand(command, args, root) {
 	/** @type {number[]} */
 	const durations = [];
 
 	for (let i = 0; i < 10; i++) {
 		const start = performance.now();
-		await execaCommand(command, { cwd: root });
+		await exec(command, args, { nodeOptions: { cwd: root }, throwOnError: true });
 		durations.push(performance.now() - start);
 	}
 
@@ -68,6 +68,6 @@ function printResult(result) {
 		],
 		{
 			align: ['l', 'r', 'r', 'r'],
-		}
+		},
 	);
 }

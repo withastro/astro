@@ -17,9 +17,9 @@ describe('Pagination root', () => {
 
 	it('correct prev url in root spread', async () => {
 		const prevMap = {
-			'/4/': '/3',
-			'/3/': '/2',
-			'/2/': '/',
+			'/4/': '/blog/3',
+			'/3/': '/blog/2',
+			'/2/': '/blog/',
 			'/': undefined,
 		};
 
@@ -28,7 +28,7 @@ describe('Pagination root', () => {
 				const html = await fixture.readFile(curr + 'index.html');
 				const $ = cheerio.load(html);
 				assert.equal($('#prev').attr('href'), prev);
-			})
+			}),
 		);
 	});
 });

@@ -22,7 +22,7 @@ export interface ResolvedAuditRule {
 export interface AuditRuleWithSelector extends AuditRule {
 	selector: string;
 	match?: (
-		element: Element
+		element: Element,
 	) =>
 		| boolean
 		| null

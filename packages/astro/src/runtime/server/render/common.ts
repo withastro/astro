@@ -1,6 +1,6 @@
-import type { SSRResult } from '../../../@types/astro.js';
 import type { RenderInstruction } from './instruction.js';
 
+import type { SSRResult } from '../../../types/public/internal.js';
 import type { HTMLBytes, HTMLString } from '../escape.js';
 import { markHTMLString } from '../escape.js';
 import {
@@ -54,7 +54,7 @@ export const decoder = new TextDecoder();
 // can ensure they are added only once, and as soon as possible.
 function stringifyChunk(
 	result: SSRResult,
-	chunk: string | HTMLString | SlotString | RenderInstruction
+	chunk: string | HTMLString | SlotString | RenderInstruction,
 ): string {
 	if (isRenderInstruction(chunk)) {
 		const instruction = chunk;
@@ -130,7 +130,7 @@ export function chunkToString(result: SSRResult, chunk: Exclude<RenderDestinatio
 
 export function chunkToByteArray(
 	result: SSRResult,
-	chunk: Exclude<RenderDestinationChunk, Response>
+	chunk: Exclude<RenderDestinationChunk, Response>,
 ): Uint8Array {
 	if (ArrayBuffer.isView(chunk)) {
 		return chunk as Uint8Array;

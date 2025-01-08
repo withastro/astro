@@ -13,7 +13,7 @@ const rehypeEscape: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
 					s.overwrite(
 						node.position!.start.offset!,
 						node.position!.end.offset!,
-						escapeTemplateLiteralCharacters(node.value)
+						escapeTemplateLiteralCharacters(node.value),
 					);
 				}
 			} else if (node.type === 'element') {

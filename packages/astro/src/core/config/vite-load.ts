@@ -7,24 +7,11 @@ import { debug } from '../logger/core.js';
 async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDevServer> {
 	const viteServer = await createServer({
 		configFile: false,
-		server: { middlewareMode: true, hmr: false, watch: null },
+		server: { middlewareMode: true, hmr: false, watch: null, ws: false },
 		optimizeDeps: { noDiscovery: true },
 		clearScreen: false,
 		appType: 'custom',
-		ssr: {
-			// NOTE: Vite doesn't externalize linked packages by default. During testing locally,
-			// these dependencies trip up Vite's dev SSR transform. Awaiting upstream feature:
-			// https://github.com/vitejs/vite/pull/10939
-			external: [
-				'@astrojs/tailwind',
-				'@astrojs/mdx',
-				'@astrojs/react',
-				'@astrojs/preact',
-				'@astrojs/sitemap',
-				'@astrojs/markdoc',
-				'@astrojs/db',
-			],
-		},
+		ssr: { external: true },
 		plugins: [loadFallbackPlugin({ fs, root: pathToFileURL(root) })],
 	});
 

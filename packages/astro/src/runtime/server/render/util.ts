@@ -1,16 +1,13 @@
-import type { SSRElement } from '../../../@types/astro.js';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 import { clsx } from 'clsx';
+import type { SSRElement } from '../../../types/public/internal.js';
 import { HTMLString, markHTMLString } from '../escape.js';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
-	/^(?:allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
-const htmlEnumAttributes = /^(?:contenteditable|draggable|spellcheck|value)$/i;
-// Note: SVG is case-sensitive!
-const svgEnumAttributes = /^(?:autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
+	/^(?:allowfullscreen|async|autofocus|autoplay|checked|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|inert|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|selected|itemscope)$/i;
 
 const AMPERSAND_REGEX = /&/g;
 const DOUBLE_QUOTE_REGEX = /"/g;
@@ -31,7 +28,8 @@ export const toAttributeString = (value: any, shouldEscape = true) =>
 
 const kebab = (k: string) =>
 	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
-const toStyleString = (obj: Record<string, any>) =>
+
+export const toStyleString = (obj: Record<string, any>) =>
 	Object.entries(obj)
 		.filter(([_, v]) => (typeof v === 'string' && v.trim()) || typeof v === 'number')
 		.map(([k, v]) => {
@@ -48,7 +46,7 @@ export function defineScriptVars(vars: Record<any, any>) {
 		// https://stackoverflow.com/questions/29194024/cant-use-let-keyword-in-safari-javascript
 		output += `const ${toIdent(key)} = ${JSON.stringify(value)?.replace(
 			/<\/script>/g,
-			'\\x3C/script>'
+			'\\x3C/script>',
 		)};\n`;
 	}
 	return markHTMLString(output);
@@ -67,16 +65,8 @@ export function addAttribute(value: any, key: string, shouldEscape = true) {
 		return '';
 	}
 
-	if (value === false) {
-		if (htmlEnumAttributes.test(key) || svgEnumAttributes.test(key)) {
-			return markHTMLString(` ${key}="false"`);
-		}
-		return '';
-	}
-
 	// compiler directives cannot be applied dynamically, log a warning and ignore.
 	if (STATIC_DIRECTIVES.has(key)) {
-		// eslint-disable-next-line no-console
 		console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
 
 Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the dynamic spread syntax (\`{...{ "${key}": value }}\`).`);
@@ -96,7 +86,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	if (key === 'style' && !(value instanceof HTMLString)) {
 		if (Array.isArray(value) && value.length === 2) {
 			return markHTMLString(
-				` ${key}="${toAttributeString(`${toStyleString(value[0])};${value[1]}`, shouldEscape)}"`
+				` ${key}="${toAttributeString(`${toStyleString(value[0])};${value[1]}`, shouldEscape)}"`,
 			);
 		}
 		if (typeof value === 'object') {
@@ -115,11 +105,16 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	}
 
 	// Boolean values only need the key
-	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
-		return markHTMLString(` ${key}`);
-	} else {
-		return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
+	if (htmlBooleanAttributes.test(key)) {
+		return markHTMLString(value ? ` ${key}` : '');
 	}
+
+	// Other attributes with an empty string value can omit rendering the value
+	if (value === '') {
+		return markHTMLString(` ${key}`);
+	}
+
+	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
 }
 
 // Adds support for `<Component {...value} />
@@ -134,7 +129,7 @@ export function internalSpreadAttributes(values: Record<any, any>, shouldEscape 
 export function renderElement(
 	name: string,
 	{ props: _props, children = '' }: SSRElement,
-	shouldEscape = true
+	shouldEscape = true,
 ) {
 	// Do not print `hoist`, `lang`, `is:global`
 	const { lang: _, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;

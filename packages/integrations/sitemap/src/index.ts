@@ -35,6 +35,8 @@ export type SitemapOptions =
 
 			// called for each sitemap item just before to save them on disk, sync or async
 			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
+
+			xslURL?: string;
 	  }
 	| undefined;
 
@@ -51,7 +53,7 @@ const isStatusCodePage = (locales: string[]) => {
 	const statusPathNames = new Set(
 		locales
 			.flatMap((locale) => [...STATUS_CODE_PAGES].map((page) => `${locale}/${page}`))
-			.concat([...STATUS_CODE_PAGES])
+			.concat([...STATUS_CODE_PAGES]),
 	);
 
 	return (pathname: string): boolean => {
@@ -79,7 +81,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 				try {
 					if (!config.site) {
 						logger.warn(
-							'The Sitemap integration requires the `site` astro.config option. Skipping.'
+							'The Sitemap integration requires the `site` astro.config option. Skipping.',
 						);
 						return;
 					}
@@ -88,7 +90,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					const { filter, customPages, serialize, entryLimit } = opts;
 
-					let finalSiteUrl = new URL(config.base, config.site);
+					const finalSiteUrl = new URL(config.base, config.site);
 					const shouldIgnoreStatus = isStatusCodePage(Object.keys(opts.i18n?.locales ?? {}));
 					let pageUrls = pages
 						.filter((p) => !shouldIgnoreStatus(p.pathname))
@@ -100,7 +102,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							return new URL(fullPath, finalSiteUrl).href;
 						});
 
-					let routeUrls = routes.reduce<string[]>((urls, r) => {
+					const routeUrls = routes.reduce<string[]>((urls, r) => {
 						// Only expose pages, not endpoints or redirects
 						if (r.type !== 'page') return urls;
 
@@ -116,7 +118,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							if (fullPath.endsWith('/')) fullPath += r.generate(r.pathname).substring(1);
 							else fullPath += r.generate(r.pathname);
 
-							let newUrl = new URL(fullPath, finalSiteUrl).href;
+							const newUrl = new URL(fullPath, finalSiteUrl).href;
 
 							if (config.trailingSlash === 'never') {
 								urls.push(newUrl);
@@ -168,6 +170,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						}
 					}
 					const destDir = fileURLToPath(dir);
+					const xslURL = opts.xslURL ? new URL(opts.xslURL, finalSiteUrl).href : undefined;
 					await writeSitemap(
 						{
 							hostname: finalSiteUrl.href,
@@ -175,8 +178,9 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							publicBasePath: config.base,
 							sourceData: urlData,
 							limit: entryLimit,
+							xslURL: xslURL,
 						},
-						config
+						config,
 					);
 					logger.info(`\`${OUTFILE}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {

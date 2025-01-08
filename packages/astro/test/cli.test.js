@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import { promises as fs, readFileSync } from 'node:fs';
 import { isIPv4 } from 'node:net';
 import { join } from 'node:path';
+import { platform } from 'node:process';
 import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import stripAnsi from 'strip-ansi';
+import { stripVTControlCharacters } from 'node:util';
+import { readFromClipboard } from '../dist/cli/info/index.js';
 import { cli, cliServerLogSetup, loadFixture, parseCliDevStart } from './test-utils.js';
 
 describe('astro cli', () => {
@@ -45,7 +47,7 @@ describe('astro cli', () => {
 					dest: new Writable({
 						objectMode: true,
 						write(event, _, callback) {
-							logs.push({ ...event, message: stripAnsi(event.message) });
+							logs.push({ ...event, message: stripVTControlCharacters(event.message) });
 							if (event.message.includes('1 error')) {
 								messageResolve(logs);
 							}
@@ -62,11 +64,11 @@ describe('astro cli', () => {
 			await fs.writeFile(pagePath, pageContent);
 			await checkServer.stop();
 			const diagnostics = messages.filter(
-				(m) => m.type === 'diagnostics' && m.message.includes('Result')
+				(m) => m.type === 'diagnostics' && m.message.includes('Result'),
 			);
 			assert.equal(diagnostics[0].message.includes('0 errors'), true);
 			assert.equal(diagnostics[1].message.includes('1 error'), true);
-		}
+		},
 	);
 
 	it('astro --version', async () => {
@@ -76,6 +78,26 @@ describe('astro cli', () => {
 		const proc = await cli('--version');
 
 		assert.equal(proc.stdout.includes(pkgVersion), true);
+	});
+
+	it('astro info', async () => {
+		const proc = await cli('info', '--copy');
+		const pkgURL = new URL('../package.json', import.meta.url);
+		const pkgVersion = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data).version);
+		assert.ok(proc.stdout.includes(`v${pkgVersion}`));
+		assert.equal(proc.exitCode, 0);
+
+		// On Linux we only check if we have Wayland or x11. In Codespaces it falsely reports that it does have x11
+		if (
+			platform === 'linux' &&
+			((!process.env.WAYLAND_DISPLAY && !process.env.DISPLAY) || process.env.CODESPACES)
+		) {
+			assert.ok(proc.stdout.includes('Please manually copy the text above'));
+		} else {
+			assert.ok(proc.stdout.includes('Copied to clipboard!'));
+			const clipboardContent = await readFromClipboard();
+			assert.ok(clipboardContent.includes(`v${pkgVersion}`));
+		}
 	});
 
 	it(
@@ -88,10 +110,10 @@ describe('astro cli', () => {
 			const projectRootURL = new URL('./fixtures/astro-check-no-errors/', import.meta.url);
 			try {
 				proc = await cli('check', '--root', fileURLToPath(projectRootURL));
-			} catch (err) {}
+			} catch {}
 
 			assert.equal(proc?.stdout.includes('0 errors'), true);
-		}
+		},
 	);
 
 	it(
@@ -112,7 +134,7 @@ describe('astro cli', () => {
 			}
 
 			assert.equal(stdout.includes('1 error'), true);
-		}
+		},
 	);
 
 	it('astro dev welcome', async () => {
@@ -136,7 +158,7 @@ describe('astro cli', () => {
 			it(`astro ${cmd} ${flag} ${flagValue ?? ''} - network log`, async () => {
 				const { local, network } = await cliServerLogSetupWithFixture(
 					flagValue ? [flag, flagValue] : [flag],
-					cmd
+					cmd,
 				);
 
 				assert.notEqual(local, undefined);
@@ -153,12 +175,12 @@ describe('astro cli', () => {
 				assert.equal(
 					networkURL.port,
 					localURL.port,
-					`Expected local and network ports to be equal`
+					`Expected local and network ports to be equal`,
 				);
 				assert.equal(
 					isIPv4(networkURL.hostname),
 					true,
-					`Expected network URL to respect --host flag`
+					`Expected network URL to respect --host flag`,
 				);
 			});
 		});
@@ -175,7 +197,7 @@ describe('astro cli', () => {
 				assert.equal(
 					['localhost', '127.0.0.1'].includes(localURL.hostname),
 					true,
-					`Expected local URL to be on localhost`
+					`Expected local URL to be on localhost`,
 				);
 
 				assert.throws(() => new URL(networkURL));
@@ -197,7 +219,7 @@ describe('astro cli', () => {
 				assert.equal(
 					['localhost', '127.0.0.1'].includes(localURL.hostname),
 					true,
-					`Expected local URL to be on localhost`
+					`Expected local URL to be on localhost`,
 				);
 			});
 		});

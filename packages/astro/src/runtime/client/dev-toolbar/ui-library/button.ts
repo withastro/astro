@@ -20,7 +20,7 @@ export class DevToolbarButton extends HTMLElement {
 	set size(value) {
 		if (!sizes.includes(value)) {
 			settings.logger.error(
-				`Invalid size: ${value}, expected one of ${sizes.join(', ')}, got ${value}.`
+				`Invalid size: ${value}, expected one of ${sizes.join(', ')}, got ${value}.`,
 			);
 			return;
 		}
@@ -35,7 +35,7 @@ export class DevToolbarButton extends HTMLElement {
 	set buttonStyle(value) {
 		if (!styles.includes(value)) {
 			settings.logger.error(
-				`Invalid style: ${value}, expected one of ${styles.join(', ')}, got ${value}.`
+				`Invalid style: ${value}, expected one of ${styles.join(', ')}, got ${value}.`,
 			);
 			return;
 		}
@@ -50,7 +50,7 @@ export class DevToolbarButton extends HTMLElement {
 	set buttonBorderRadius(value) {
 		if (!borderRadii.includes(value)) {
 			settings.logger.error(
-				`Invalid border-radius: ${value}, expected one of ${borderRadii.join(', ')}, got ${value}.`
+				`Invalid border-radius: ${value}, expected one of ${borderRadii.join(', ')}, got ${value}.`,
 			);
 			return;
 		}
@@ -131,8 +131,6 @@ export class DevToolbarButton extends HTMLElement {
 					cursor: pointer;
 				}
 
-				/* TODO: Remove "astro-dev-overlay-icon" in Astro 5.0 */
-				::slotted(astro-dev-overlay-icon),
 				::slotted(astro-dev-toolbar-icon) {
 					display: inline-block;
 					height: 1em;

@@ -20,7 +20,7 @@ export async function getRegistry(): Promise<string> {
 		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
 		// Detect cases where the shell command returned a non-URL (e.g. a warning)
 		if (!new URL(_registry).host) _registry = fallback;
-	} catch (e) {
+	} catch {
 		_registry = fallback;
 	}
 	return _registry;
@@ -86,8 +86,8 @@ export const newline = () => stdout.write('\n');
 export const banner = async () =>
 	log(
 		`\n${label('astro', color.bgGreen, color.black)}  ${color.bold(
-			'Integration upgrade in progress.'
-		)}`
+			'Integration upgrade in progress.',
+		)}`,
 	);
 
 export const bannerAbort = () =>
@@ -105,7 +105,7 @@ export const info = async (prefix: string, text: string, version = '') => {
 		log(`${' '.repeat(9)}${color.dim(text)} ${color.reset(version)}`);
 	} else {
 		log(
-			`${' '.repeat(5)} ${color.cyan(symbol)}  ${prefix} ${color.dim(text)} ${color.reset(version)}`
+			`${' '.repeat(5)} ${color.cyan(symbol)}  ${prefix} ${color.dim(text)} ${color.reset(version)}`,
 		);
 	}
 };

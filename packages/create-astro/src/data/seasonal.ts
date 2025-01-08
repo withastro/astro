@@ -57,6 +57,7 @@ export default function getSeasonalHouston({ fancy }: { fancy?: boolean }): Seas
 					`Your creativity is the gift that keeps on giving!`,
 				],
 			};
+		case undefined:
 		default:
 			return {
 				hats: fancy ? ['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦'] : undefined,

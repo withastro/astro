@@ -1,7 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
-import type { AstroSettings } from '../../@types/astro.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
+import type { AstroSettings } from '../../types/astro.js';
 import { addRollupInput } from '../build/add-rollup-input.js';
 import type { BuildInternals } from '../build/internal.js';
 import type { StaticBuildOptions } from '../build/types.js';
@@ -13,7 +13,6 @@ export const MIDDLEWARE_MODULE_ID = '\0astro-internal:middleware';
 const NOOP_MIDDLEWARE = '\0noop-middleware';
 
 export function vitePluginMiddleware({ settings }: { settings: AstroSettings }): VitePlugin {
-	let isCommandBuild = false;
 	let resolvedMiddlewareId: string | undefined = undefined;
 	const hasIntegrationMiddleware =
 		settings.middlewares.pre.length > 0 || settings.middlewares.post.length > 0;
@@ -21,14 +20,10 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 
 	return {
 		name: '@astro/plugin-middleware',
-		config(opts, { command }) {
-			isCommandBuild = command === 'build';
-			return opts;
-		},
 		async resolveId(id) {
 			if (id === MIDDLEWARE_MODULE_ID) {
 				const middlewareId = await this.resolve(
-					`${decodeURI(settings.config.srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`
+					`${decodeURI(settings.config.srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`,
 				);
 				userMiddlewareIsPresent = !!middlewareId;
 				if (middlewareId) {
@@ -53,15 +48,6 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 			} else if (id === MIDDLEWARE_MODULE_ID) {
 				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
 					throw new AstroError(MissingMiddlewareForInternationalization);
-				}
-				// In the build, tell Vite to emit this file
-				if (isCommandBuild) {
-					this.emitFile({
-						type: 'chunk',
-						preserveSignature: 'strict',
-						fileName: 'middleware.mjs',
-						id,
-					});
 				}
 
 				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
@@ -91,7 +77,7 @@ export const onRequest = sequence(
 
 function createMiddlewareImports(
 	entrypoints: string[],
-	prefix: string
+	prefix: string,
 ): {
 	importsCode: string;
 	sequenceCode: string;
@@ -114,7 +100,7 @@ function createMiddlewareImports(
 
 export function vitePluginMiddlewareBuild(
 	opts: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): VitePlugin {
 	return {
 		name: '@astro/plugin-middleware-build',
@@ -125,8 +111,8 @@ export function vitePluginMiddlewareBuild(
 
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
-				if (chunk.type !== 'asset' && chunk.fileName === 'middleware.mjs') {
-					const outputDirectory = getOutputDirectory(opts.settings.config);
+				if (chunk.type !== 'asset' && chunk.facadeModuleId === MIDDLEWARE_MODULE_ID) {
+					const outputDirectory = getOutputDirectory(opts.settings);
 					internals.middlewareEntryPoint = new URL(chunkName, outputDirectory);
 				}
 			}

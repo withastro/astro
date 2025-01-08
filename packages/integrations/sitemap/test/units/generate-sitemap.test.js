@@ -14,7 +14,7 @@ describe('generateSitemap', () => {
 					`${site}/b`,
 					`${site}/c`,
 				],
-				site
+				site,
 			);
 			assert.equal(items.length, 3);
 			assert.equal(items[0].url, `${site}/a`);
@@ -30,7 +30,7 @@ describe('generateSitemap', () => {
 					`${site}/a`,
 					`${site}/b`,
 				],
-				site
+				site,
 			);
 			assert.equal(items.length, 3);
 			assert.equal(items[0].url, `${site}/a`);
@@ -52,7 +52,7 @@ describe('generateSitemap', () => {
 					changefreq: 'monthly',
 					lastmod: now,
 					priority: 0.5,
-				}
+				},
 			);
 
 			assert.equal(items.length, 3);
@@ -99,7 +99,7 @@ describe('generateSitemap', () => {
 							fr: 'fr-CA',
 						},
 					},
-				}
+				},
 			);
 
 			assert.equal(items.length, 8);

@@ -19,21 +19,29 @@ async function check(
 	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
-	children: any
+	children: any,
 ) {
 	if (typeof Component !== 'function') return false;
 	if (Component.name === 'QwikComponent') return false;
+	// Svelte component renders fine by Solid as an empty string. The only way to detect
+	// if this isn't a Solid but Svelte component is to unfortunately copy the check
+	// implementation of the Svelte renderer.
+	if (Component.toString().includes('$$payload')) return false;
 
 	// There is nothing particularly special about Solid components. Basically they are just functions.
 	// In general, components from other frameworks (eg, MDX, React, etc.) tend to render as "undefined",
 	// so we take advantage of this trick to decide if this is a Solid component or not.
 
-	const { html } = await renderToStaticMarkup.call(this, Component, props, children, {
-		// The purpose of check() is just to validate that this is a Solid component and not
-		// React, etc. We should render in sync mode which should skip Suspense boundaries
-		// or loading resources like external API calls.
-		renderStrategy: 'sync' as RenderStrategy,
-	});
+	let html: string | undefined;
+	try {
+		const result = await renderToStaticMarkup.call(this, Component, props, children, {
+			// The purpose of check() is just to validate that this is a Solid component and not
+			// React, etc. We should render in sync mode which should skip Suspense boundaries
+			// or loading resources like external API calls.
+			renderStrategy: 'sync' as RenderStrategy,
+		});
+		html = result.html;
+	} catch {}
 
 	return typeof html === 'string';
 }
@@ -44,7 +52,7 @@ async function renderToStaticMarkup(
 	Component: any,
 	props: Record<string, any>,
 	{ default: children, ...slotted }: any,
-	metadata?: undefined | Record<string, any>
+	metadata?: Record<string, any>,
 ) {
 	const ctx = getContext(this.result);
 	const renderId = metadata?.hydrate ? incrementId(ctx) : '';

@@ -32,7 +32,7 @@ describe('MDX - Vite env vars', () => {
 			document
 				.querySelector('[data-env-site]')
 				?.innerHTML.includes('https://mdx-is-neat.com/blog/cool-post'),
-			true
+			true,
 		);
 	});
 	it('Transforms `import.meta.env` in variable exports', async () => {
@@ -41,13 +41,13 @@ describe('MDX - Vite env vars', () => {
 
 		assert.equal(
 			document.querySelector('[data-env-variable-exports]')?.innerHTML.includes('MODE works'),
-			true
+			true,
 		);
 		assert.equal(
 			document
 				.querySelector('[data-env-variable-exports-unknown]')
 				?.innerHTML.includes('exports: ""'),
-			true
+			true,
 		);
 	});
 	it('Transforms `import.meta.env` in HTML attributes', async () => {
@@ -57,8 +57,8 @@ describe('MDX - Vite env vars', () => {
 		const dataAttrDump = document.querySelector('[data-env-dump]');
 		assert.notEqual(dataAttrDump, null);
 
-		assert.notEqual(dataAttrDump.getAttribute('data-env-prod'), null);
-		assert.equal(dataAttrDump.getAttribute('data-env-dev'), null);
+		assert.equal(dataAttrDump.getAttribute('data-env-prod'), 'true');
+		assert.equal(dataAttrDump.getAttribute('data-env-dev'), 'false');
 		assert.equal(dataAttrDump.getAttribute('data-env-base-url'), '/');
 		assert.equal(dataAttrDump.getAttribute('data-env-mode'), 'production');
 	});

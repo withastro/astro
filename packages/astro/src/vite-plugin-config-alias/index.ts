@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { CompilerOptions } from 'typescript';
 import { type ResolvedConfig, type Plugin as VitePlugin, normalizePath } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
 
 type Alias = {
 	find: RegExp;
@@ -28,9 +28,9 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 			const find = new RegExp(
 				`^${[...alias]
 					.map((segment) =>
-						segment === '*' ? '(.+)' : segment.replace(/[\\^$*+?.()|[\]{}]/, '\\$&')
+						segment === '*' ? '(.+)' : segment.replace(/[\\^$*+?.()|[\]{}]/, '\\$&'),
 					)
-					.join('')}$`
+					.join('')}$`,
 			);
 
 			/** Internal index used to calculate the matching id in a replacement. */

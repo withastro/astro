@@ -1,13 +1,16 @@
-import fs from 'node:fs';
+import fs, { existsSync } from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { performance } from 'node:perf_hooks';
 import { green } from 'kleur/colors';
-import { performance } from 'perf_hooks';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
-import type { AstroInlineConfig } from '../../@types/astro.js';
+import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { attachContentServerListeners } from '../../content/index.js';
+import { MutableDataStore } from '../../content/mutable-data-store.js';
+import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
+import type { AstroInlineConfig } from '../../types/public/config.js';
 import * as msg from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { startContainer } from './container.js';
@@ -70,15 +73,46 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 								'SKIP_FORMAT',
 								await msg.newVersionAvailable({
 									latestVersion: version,
-								})
+								}),
 							);
 						}
 					}
 				})
 				.catch(() => {});
-		} catch (e) {
+		} catch {
 			// Just ignore the error, we don't want to block the dev server from starting and this is just a nice-to-have feature
 		}
+	}
+
+	let store: MutableDataStore | undefined;
+	try {
+		const dataStoreFile = getDataStoreFile(restart.container.settings, true);
+		if (existsSync(dataStoreFile)) {
+			store = await MutableDataStore.fromFile(dataStoreFile);
+		}
+	} catch (err: any) {
+		logger.error('content', err.message);
+	}
+	if (!store) {
+		store = new MutableDataStore();
+	}
+	await attachContentServerListeners(restart.container);
+
+	const config = globalContentConfigObserver.get();
+	if (config.status === 'error') {
+		logger.error('content', config.error.message);
+	}
+	if (config.status === 'loaded') {
+		const contentLayer = globalContentLayer.init({
+			settings: restart.container.settings,
+			logger,
+			watcher: restart.container.viteServer.watcher,
+			store,
+		});
+		contentLayer.watchContentConfig();
+		await contentLayer.sync();
+	} else {
+		logger.warn('content', 'Content config not loaded');
 	}
 
 	// Start listening to the port
@@ -90,7 +124,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: restart.container.settings.config.server.host,
 			base: restart.container.settings.config.base,
-		})
+		}),
 	);
 
 	if (isPrerelease) {
@@ -99,8 +133,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (restart.container.viteServer.config.server?.fs?.strict === false) {
 		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
 	}
-
-	await attachContentServerListeners(restart.container);
 
 	logger.info(null, green('watching for file changes...'));
 

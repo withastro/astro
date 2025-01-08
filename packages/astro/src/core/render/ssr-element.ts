@@ -1,7 +1,7 @@
-import type { AssetsPrefix, SSRElement } from '../../@types/astro.js';
 import { getAssetsPrefix } from '../../assets/utils/getAssetsPrefix.js';
 import { fileExtension, joinPaths, prependForwardSlash, slash } from '../../core/path.js';
-import type { StylesheetAsset } from '../app/types.js';
+import type { SSRElement } from '../../types/public/internal.js';
+import type { AssetsPrefix, StylesheetAsset } from '../app/types.js';
 
 export function createAssetLink(href: string, base?: string, assetsPrefix?: AssetsPrefix): string {
 	if (assetsPrefix) {
@@ -17,7 +17,7 @@ export function createAssetLink(href: string, base?: string, assetsPrefix?: Asse
 export function createStylesheetElement(
 	stylesheet: StylesheetAsset,
 	base?: string,
-	assetsPrefix?: AssetsPrefix
+	assetsPrefix?: AssetsPrefix,
 ): SSRElement {
 	if (stylesheet.type === 'inline') {
 		return {
@@ -38,7 +38,7 @@ export function createStylesheetElement(
 export function createStylesheetElementSet(
 	stylesheets: StylesheetAsset[],
 	base?: string,
-	assetsPrefix?: AssetsPrefix
+	assetsPrefix?: AssetsPrefix,
 ): Set<SSRElement> {
 	return new Set(stylesheets.map((s) => createStylesheetElement(s, base, assetsPrefix)));
 }
@@ -46,7 +46,7 @@ export function createStylesheetElementSet(
 export function createModuleScriptElement(
 	script: { type: 'inline' | 'external'; value: string },
 	base?: string,
-	assetsPrefix?: AssetsPrefix
+	assetsPrefix?: AssetsPrefix,
 ): SSRElement {
 	if (script.type === 'external') {
 		return createModuleScriptElementWithSrc(script.value, base, assetsPrefix);
@@ -63,7 +63,7 @@ export function createModuleScriptElement(
 export function createModuleScriptElementWithSrc(
 	src: string,
 	base?: string,
-	assetsPrefix?: AssetsPrefix
+	assetsPrefix?: AssetsPrefix,
 ): SSRElement {
 	return {
 		props: {
@@ -72,24 +72,4 @@ export function createModuleScriptElementWithSrc(
 		},
 		children: '',
 	};
-}
-
-export function createModuleScriptElementWithSrcSet(
-	srces: string[],
-	site?: string,
-	assetsPrefix?: AssetsPrefix
-): Set<SSRElement> {
-	return new Set<SSRElement>(
-		srces.map((src) => createModuleScriptElementWithSrc(src, site, assetsPrefix))
-	);
-}
-
-export function createModuleScriptsSet(
-	scripts: { type: 'inline' | 'external'; value: string }[],
-	base?: string,
-	assetsPrefix?: AssetsPrefix
-): Set<SSRElement> {
-	return new Set<SSRElement>(
-		scripts.map((script) => createModuleScriptElement(script, base, assetsPrefix))
-	);
 }

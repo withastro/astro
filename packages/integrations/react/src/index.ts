@@ -50,7 +50,7 @@ function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
 
 function getViteConfiguration(
 	{ include, exclude, babel, experimentalReactChildren }: ReactIntegrationOptions = {},
-	reactConfig: ReactVersionConfig
+	reactConfig: ReactVersionConfig,
 ) {
 	return {
 		optimizeDeps: {
@@ -60,6 +60,7 @@ function getViteConfiguration(
 				'react/jsx-runtime',
 				'react/jsx-dev-runtime',
 				'react-dom',
+				'react-compiler-runtime',
 			],
 			exclude: [reactConfig.server],
 		},
@@ -101,7 +102,7 @@ export default function ({
 				updateConfig({
 					vite: getViteConfiguration(
 						{ include, exclude, babel, experimentalReactChildren },
-						versionConfig
+						versionConfig,
 					),
 				});
 				if (command === 'dev') {

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
+ 
 import type { IImage, ISize } from './interface.ts'
 import { toUTF8String } from './utils.js'
 
@@ -51,9 +52,9 @@ function parseViewbox(viewbox: string): IAttributes {
 }
 
 function parseAttributes(root: string): IAttributes {
-  const width = root.match(extractorRegExps.width)
-  const height = root.match(extractorRegExps.height)
-  const viewbox = root.match(extractorRegExps.viewbox)
+  const width = extractorRegExps.width.exec(root)
+  const height = extractorRegExps.height.exec(root)
+  const viewbox = extractorRegExps.viewbox.exec(root)
   return {
     height: height && (parseLength(height[2]) as number),
     viewbox: viewbox && (parseViewbox(viewbox[2]) as IAttributes),
@@ -93,7 +94,7 @@ export const SVG: IImage = {
   validate: (input) => svgReg.test(toUTF8String(input, 0, 1000)),
 
   calculate(input) {
-    const root = toUTF8String(input).match(extractorRegExps.root)
+    const root = extractorRegExps.root.exec(toUTF8String(input))
     if (root) {
       const attrs = parseAttributes(root[0])
       if (attrs.width && attrs.height) {

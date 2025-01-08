@@ -1,5 +1,134 @@
 # @astrojs/svelte
 
+## 7.0.3
+
+### Patch Changes
+
+- [#12776](https://github.com/withastro/astro/pull/12776) [`8809b85`](https://github.com/withastro/astro/commit/8809b85747c1af4a772a3649ce8a8b3bb0f31236) Thanks [@aminevg](https://github.com/aminevg)! - Fixes an issue where TypeScript couldn't infer the correct types of the `server.mjs` file
+
+## 7.0.2
+
+### Patch Changes
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
+## 7.0.1
+
+### Patch Changes
+
+- [#12594](https://github.com/withastro/astro/pull/12594) [`4f2fd0a`](https://github.com/withastro/astro/commit/4f2fd0a0d67a748af8b611b9afc7d4c789f7c8cc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes compatibility with Astro 5
+
+## 7.0.0
+
+### Major Changes
+
+- [#12060](https://github.com/withastro/astro/pull/12060) [`cb5d3ae`](https://github.com/withastro/astro/commit/cb5d3ae6ee6af646c9d7d46a9d8f551edac3092e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates peer dependency range to support Astro 5
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates `@sveltejs/vite-plugin-svelte` to v5 to handle Vite 6
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates Vite dependency to v6 to match Astro v5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+### Patch Changes
+
+- [#12102](https://github.com/withastro/astro/pull/12102) [`dcc1e89`](https://github.com/withastro/astro/commit/dcc1e895abbad1311719803363c933541c0ad984) Thanks [@hermit99](https://github.com/hermit99)! - Fixes an Reference Error that occurred during client transitions
+
+- [#12551](https://github.com/withastro/astro/pull/12551) [`b21a075`](https://github.com/withastro/astro/commit/b21a07500284a3621be4d509f5aa67c0a8fcbf07) Thanks [@ematipico](https://github.com/ematipico)! - New release to include changes from 5.7.3
+
+## 7.0.0-beta.1
+
+### Major Changes
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates `@sveltejs/vite-plugin-svelte` to v5 to handle Vite 6
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates Vite dependency to v6 to match Astro v5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+## 6.0.2
+
+### Patch Changes
+
+- [#12481](https://github.com/withastro/astro/pull/12481) [`8a46e80`](https://github.com/withastro/astro/commit/8a46e8074d6afb4a23badbd59ed239d526294e8c) Thanks [@marbrex](https://github.com/marbrex)! - Resolve `vite` peer dependency problem for strict package managers like **Yarn in PnP mode**.
+
+- Updated dependencies [[`c48916c`](https://github.com/withastro/astro/commit/c48916cc4e6f7c31e3563d04b68a8698d8775b65), [`4364bff`](https://github.com/withastro/astro/commit/4364bff27332e52f92da72392620a36110daee42), [`c8f877c`](https://github.com/withastro/astro/commit/c8f877cad2d8f1780f70045413872d5b9d32ebed), [`8309c61`](https://github.com/withastro/astro/commit/8309c61f0dfa5991d3f6c5c5fca4403794d6fda2), [`af867f3`](https://github.com/withastro/astro/commit/af867f3910ecd8fc04a5337f591d84f03192e3fa), [`3f02d5f`](https://github.com/withastro/astro/commit/3f02d5f12b167514fff6eb9693b4e25c668e7a31)]:
+  - astro@5.0.0-beta.9
+
+## 6.0.1
+
+### Patch Changes
+
+- [#12442](https://github.com/withastro/astro/pull/12442) [`bde49f1`](https://github.com/withastro/astro/commit/bde49f186e4d620ce0c926353db38215e33dceef) Thanks [@bluwy](https://github.com/bluwy)! - Publishes missing file
+
+## 6.0.0
+
+### Major Changes
+
+- [#12364](https://github.com/withastro/astro/pull/12364) [`9fc2ab8`](https://github.com/withastro/astro/commit/9fc2ab8cc848739a21bfa3f754e9bec4926dc034) Thanks [@jdtjenkins](https://github.com/jdtjenkins)! - Adds support for Svelte 5. Svelte 3 and 4 are no longer supported.
+
+  The integration will now also no longer add `vitePreprocess()` by default if a preprocessor is not set up in `svelte.config.js`. It is recommended to set up the Svelte config manually so that features like IDE completion and syntax highlighting work properly.
+
+  If you're using SCSS, Stylus, etc in your Svelte component style tags, make sure that the preprocessor is also set up in `svelte.config.js`. For example:
+
+  ```js
+  // svelte.config.js
+  import { vitePreprocess } from '@astrojs/svelte';
+
+  export default {
+    preprocess: vitePreprocess(),
+  };
+  ```
+
+  Refer to the [Svelte 5 migration guide](https://svelte.dev/docs/svelte/v5-migration-guide) and [`@sveltejs/vite-plugin-svelte` changelog](https://github.com/sveltejs/vite-plugin-svelte/blob/main/packages/vite-plugin-svelte/CHANGELOG.md#400) for details of their respective breaking changes.
+
+## 6.0.0-beta.2
+
+### Patch Changes
+
+- [`b21a075`](https://github.com/withastro/astro/commit/b21a07500284a3621be4d509f5aa67c0a8fcbf07) Thanks [@bluwy](https://github.com/bluwy)! - New release to include changes from 5.7.3
+
+## 6.0.0-beta.1
+
+### Patch Changes
+
+- [#12102](https://github.com/withastro/astro/pull/12102) [`dcc1e89`](https://github.com/withastro/astro/commit/dcc1e895abbad1311719803363c933541c0ad984) Thanks [@hermit99](https://github.com/hermit99)! - Fixes an Reference Error that occurred during client transitions
+
+## 6.0.0-beta.0
+
+### Major Changes
+
+- [#12060](https://github.com/withastro/astro/pull/12060) [`cb5d3ae`](https://github.com/withastro/astro/commit/cb5d3ae6ee6af646c9d7d46a9d8f551edac3092e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates peer dependency range to support Astro 5
+
+## 6.0.0-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0), [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f), [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e), [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9), [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6), [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6)]:
+  - astro@5.0.0-alpha.0
+
+## 5.7.3
+
+### Patch Changes
+
+- [#12390](https://github.com/withastro/astro/pull/12390) [`6fd3d59`](https://github.com/withastro/astro/commit/6fd3d5960f5ab16591bfdb94d1f9b9a9b72006cf) Thanks [@bluwy](https://github.com/bluwy)! - Adds support for Svelte 5's new `@render` syntax while maintaining backward compatibility with traditional slots.
+
+## 5.7.2
+
+### Patch Changes
+
+- [#12129](https://github.com/withastro/astro/pull/12129) [`5bc6223`](https://github.com/withastro/astro/commit/5bc6223b1200baba9679a4dafea79c73486c275d) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an Reference Error that occurred during client transitions
+
+## 5.7.1
+
+### Patch Changes
+
+- [#12006](https://github.com/withastro/astro/pull/12006) [`a582cb6`](https://github.com/withastro/astro/commit/a582cb61241b9c2a6f95900920145c055d5d6c12) Thanks [@johannesspohr](https://github.com/johannesspohr)! - Fix Svelte component view transition state persistence
+
 ## 5.7.0
 
 ### Minor Changes
@@ -121,7 +250,7 @@
 
 ### Major Changes
 
-- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vite.dev/guide/migration.html) for details of the breaking changes from Vite instead.
 
 - [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Drops support for Svelte 3 as `@sveltejs/vite-plugin-svelte` is updated to `3.0.0` which does not support Svelte 3
 
@@ -129,7 +258,7 @@
 
 ### Major Changes
 
-- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vite.dev/guide/migration.html) for details of the breaking changes from Vite instead.
 
 - [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Drops support for Svelte 3 as `@sveltejs/vite-plugin-svelte` is updated to `3.0.0` which does not support Svelte 3
 
@@ -339,7 +468,7 @@
 
 - [#5782](https://github.com/withastro/astro/pull/5782) [`1f92d64ea`](https://github.com/withastro/astro/commit/1f92d64ea35c03fec43aff64eaf704dc5a9eb30a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 14. Minimum supported Node version is now >=16.12.0
 
-- [#5685](https://github.com/withastro/astro/pull/5685) [`f6cf92b48`](https://github.com/withastro/astro/commit/f6cf92b48317a19a3840ad781b77d6d3cae143bb) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade to Vite 4. Please see its [migration guide](https://vitejs.dev/guide/migration.html) for more information.
+- [#5685](https://github.com/withastro/astro/pull/5685) [`f6cf92b48`](https://github.com/withastro/astro/commit/f6cf92b48317a19a3840ad781b77d6d3cae143bb) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade to Vite 4. Please see its [migration guide](https://vite.dev/guide/migration.html) for more information.
 
 - [#5685](https://github.com/withastro/astro/pull/5685) [`f6cf92b48`](https://github.com/withastro/astro/commit/f6cf92b48317a19a3840ad781b77d6d3cae143bb) Thanks [@bluwy](https://github.com/bluwy)! - Simplify Svelte preprocess setup. `<style lang="postcss">` is now required if using PostCSS inside style tags.
 
@@ -423,7 +552,7 @@
 
 ### Major Changes
 
-- [#5685](https://github.com/withastro/astro/pull/5685) [`f6cf92b48`](https://github.com/withastro/astro/commit/f6cf92b48317a19a3840ad781b77d6d3cae143bb) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade to Vite 4. Please see its [migration guide](https://vitejs.dev/guide/migration.html) for more information.
+- [#5685](https://github.com/withastro/astro/pull/5685) [`f6cf92b48`](https://github.com/withastro/astro/commit/f6cf92b48317a19a3840ad781b77d6d3cae143bb) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade to Vite 4. Please see its [migration guide](https://vite.dev/guide/migration.html) for more information.
 
 - [#5685](https://github.com/withastro/astro/pull/5685) [`f6cf92b48`](https://github.com/withastro/astro/commit/f6cf92b48317a19a3840ad781b77d6d3cae143bb) Thanks [@bluwy](https://github.com/bluwy)! - Simplify Svelte preprocess setup. `<style lang="postcss">` is now required if using PostCSS inside style tags.
 

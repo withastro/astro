@@ -3,10 +3,10 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, cyan, underline } from 'kleur/colors';
 import type { ViteDevServer } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
 import { loadTSConfig } from '../core/config/tsconfig.js';
 import type { Logger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
+import type { AstroSettings } from '../types/astro.js';
 import { createContentTypesGenerator } from './types-generator.js';
 import { type ContentPaths, getContentPaths, globalContentConfigObserver } from './utils.js';
 
@@ -24,13 +24,21 @@ export async function attachContentServerListeners({
 	settings,
 }: ContentServerListenerParams) {
 	const contentPaths = getContentPaths(settings.config, fs);
-
-	if (fs.existsSync(contentPaths.contentDir)) {
+	if (!settings.config.legacy?.collections) {
+		const contentGenerator = await createContentTypesGenerator({
+			fs,
+			settings,
+			logger,
+			viteServer,
+			contentConfigObserver: globalContentConfigObserver,
+		});
+		await contentGenerator.init();
+	} else if (fs.existsSync(contentPaths.contentDir)) {
 		logger.debug(
 			'content',
 			`Watching ${cyan(
-				contentPaths.contentDir.href.replace(settings.config.root.href, '')
-			)} for changes`
+				contentPaths.contentDir.href.replace(settings.config.root.href, ''),
+			)} for changes`,
 		);
 		const maybeTsConfigStats = await getTSConfigStatsWhenAllowJsFalse({ contentPaths, settings });
 		if (maybeTsConfigStats) warnAllowJsIsFalse({ ...maybeTsConfigStats, logger });
@@ -61,16 +69,16 @@ export async function attachContentServerListeners({
 			contentGenerator.queueEvent({ name: 'add', entry });
 		});
 		viteServer.watcher.on('addDir', (entry) =>
-			contentGenerator.queueEvent({ name: 'addDir', entry })
+			contentGenerator.queueEvent({ name: 'addDir', entry }),
 		);
 		viteServer.watcher.on('change', (entry) =>
-			contentGenerator.queueEvent({ name: 'change', entry })
+			contentGenerator.queueEvent({ name: 'change', entry }),
 		);
 		viteServer.watcher.on('unlink', (entry) => {
 			contentGenerator.queueEvent({ name: 'unlink', entry });
 		});
 		viteServer.watcher.on('unlinkDir', (entry) =>
-			contentGenerator.queueEvent({ name: 'unlinkDir', entry })
+			contentGenerator.queueEvent({ name: 'unlinkDir', entry }),
 		);
 	}
 }
@@ -87,12 +95,12 @@ function warnAllowJsIsFalse({
 	logger.warn(
 		'content',
 		`Make sure you have the ${bold('allowJs')} compiler option set to ${bold(
-			'true'
+			'true',
 		)} in your ${bold(tsConfigFileName)} file to have autocompletion in your ${bold(
-			contentConfigFileName
+			contentConfigFileName,
 		)} file. See ${underline(
-			cyan('https://www.typescriptlang.org/tsconfig#allowJs')
-		)} for more information.`
+			cyan('https://www.typescriptlang.org/tsconfig#allowJs'),
+		)} for more information.`,
 	);
 }
 
@@ -104,7 +112,7 @@ async function getTSConfigStatsWhenAllowJsFalse({
 	settings: AstroSettings;
 }) {
 	const isContentConfigJsFile = ['.js', '.mjs'].some((ext) =>
-		contentPaths.config.url.pathname.endsWith(ext)
+		contentPaths.config.url.pathname.endsWith(ext),
 	);
 	if (!isContentConfigJsFile) return;
 

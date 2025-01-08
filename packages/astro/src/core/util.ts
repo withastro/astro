@@ -1,9 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroConfig } from '../types/public/config.js';
+import type { RouteType } from '../types/public/internal.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
-import { removeTrailingForwardSlash, slash } from './path.js';
+import { removeQueryString, removeTrailingForwardSlash, slash } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
@@ -16,9 +18,10 @@ export function isURL(value: unknown): value is URL {
 }
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
+	const id = removeQueryString(fileId);
 	const _suffix = option?.suffix ?? '';
 	for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
-		if (fileId.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
+		if (id.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
 	}
 	return false;
 }
@@ -55,7 +58,7 @@ export function getOutputFilename(astroConfig: AstroConfig, name: string, type: 
 
 /** is a specifier an npm package? */
 export function parseNpmName(
-	spec: string
+	spec: string,
 ): { scope?: string; name: string; subpath?: string } | undefined {
 	// not an npm package
 	if (!spec || spec[0] === '.' || spec[0] === '/') return undefined;
@@ -112,7 +115,11 @@ function isInPagesDir(file: URL, config: AstroConfig): boolean {
 function isInjectedRoute(file: URL, settings: AstroSettings) {
 	let fileURL = file.toString();
 	for (const route of settings.resolvedInjectedRoutes) {
-		if (route.resolvedEntryPoint && fileURL === route.resolvedEntryPoint.toString()) return true;
+		if (
+			route.resolvedEntryPoint &&
+			removeQueryString(fileURL) === removeQueryString(route.resolvedEntryPoint.toString())
+		)
+			return true;
 	}
 	return false;
 }
@@ -151,39 +158,9 @@ export function isPage(file: URL, settings: AstroSettings): boolean {
 }
 
 export function isEndpoint(file: URL, settings: AstroSettings): boolean {
-	if (!isInPagesDir(file, settings.config)) return false;
+	if (!isInPagesDir(file, settings.config) && !isInjectedRoute(file, settings)) return false;
 	if (!isPublicRoute(file, settings.config)) return false;
-	return !endsWithPageExt(file, settings);
-}
-
-export function isServerLikeOutput(config: AstroConfig) {
-	return config.output === 'server' || config.output === 'hybrid';
-}
-
-export function isModeServerWithNoAdapter(settings: AstroSettings): boolean {
-	return isServerLikeOutput(settings.config) && !settings.adapter;
-}
-
-export function isContentCollectionsCacheEnabled(config: AstroConfig): boolean {
-	return (
-		config.experimental.contentCollectionCache &&
-		// contentCollectionsCache is an SSG only feature
-		!isServerLikeOutput(config)
-	);
-}
-
-export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
-	let id: string;
-	if (typeof idOrUrl !== 'string') {
-		id = unwrapId(viteID(idOrUrl));
-	} else {
-		id = idOrUrl;
-	}
-	return id.slice(slash(fileURLToPath(config.srcDir)).length);
-}
-
-export function emoji(char: string, fallback: string) {
-	return process.platform !== 'win32' ? char : fallback;
+	return !endsWithPageExt(file, settings) && !file.toString().includes('?astro');
 }
 
 export function resolveJsToTs(filePath: string) {

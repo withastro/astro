@@ -7,15 +7,17 @@ import type { ImageMetadata } from '../../types.js';
 import { imageMetadata } from '../metadata.js';
 
 type FileEmitter = vite.Rollup.EmitFile;
+type ImageMetadataWithContents = ImageMetadata & { contents?: Buffer };
 
 export async function emitESMImage(
 	id: string | undefined,
 	/** @deprecated */
 	_watchMode: boolean,
-	// FIX: in Astro 5, this function should not be passed in dev mode at all.
+	// FIX: in Astro 6, this function should not be passed in dev mode at all.
 	// Or rethink the API so that a function that throws isn't passed through.
-	fileEmitter?: FileEmitter
-): Promise<ImageMetadata | undefined> {
+	experimentalSvgEnabled: boolean,
+	fileEmitter?: FileEmitter,
+): Promise<ImageMetadataWithContents | undefined> {
 	if (!id) {
 		return undefined;
 	}
@@ -24,13 +26,13 @@ export async function emitESMImage(
 	let fileData: Buffer;
 	try {
 		fileData = await fs.readFile(url);
-	} catch (err) {
+	} catch {
 		return undefined;
 	}
 
 	const fileMetadata = await imageMetadata(fileData, id);
 
-	const emittedImage: Omit<ImageMetadata, 'fsPath'> = {
+	const emittedImage: Omit<ImageMetadataWithContents, 'fsPath'> = {
 		src: '',
 		...fileMetadata,
 	};
@@ -41,6 +43,12 @@ export async function emitESMImage(
 		writable: false,
 		value: id,
 	});
+
+	// Attach file data for SVGs
+	// TODO: this is a workaround to prevent a memory leak, and it must be fixed before we remove the experimental flag, see
+	if (fileMetadata.format === 'svg' && experimentalSvgEnabled === true) {
+		emittedImage.contents = fileData;
+	}
 
 	// Build
 	let isBuild = typeof fileEmitter === 'function';
@@ -71,7 +79,7 @@ export async function emitESMImage(
 		emittedImage.src = `/@fs` + prependForwardSlash(fileURLToNormalizedPath(url));
 	}
 
-	return emittedImage as ImageMetadata;
+	return emittedImage as ImageMetadataWithContents;
 }
 
 function fileURLToNormalizedPath(filePath: URL): string {

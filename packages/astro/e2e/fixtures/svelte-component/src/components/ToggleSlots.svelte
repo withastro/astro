@@ -1,9 +1,9 @@
 <script>
-  let isNavOpen = false;
+	let isNavOpen = $state(false);
   const toggleNav = () => (isNavOpen = !isNavOpen);
 </script>
 
-<button id="toggle" on:click={toggleNav}>
+<button id="toggle" onclick={toggleNav}>
   {#if isNavOpen}
       <slot name="open" />
   {:else}

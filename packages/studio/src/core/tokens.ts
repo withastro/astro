@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ci from 'ci-info';
 import { green } from 'kleur/colors';
-import ora from 'ora';
+import yoctoSpinner from 'yocto-spinner';
 import {
 	MISSING_PROJECT_ID_ERROR,
 	MISSING_SESSION_ID_CI_ERROR,
@@ -50,9 +50,9 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 
 	static async createToken(
 		sessionToken: string,
-		projectId: string
+		projectId: string,
 	): Promise<{ token: string; ttl: number }> {
-		const spinner = ora('Connecting to remote database...').start();
+		const spinner = yoctoSpinner({ text: 'Connecting to remote database...' }).start();
 		const response = await safeFetch(
 			new URL(`${getAstroStudioUrl()}/auth/cli/token-create`),
 			{
@@ -64,9 +64,9 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 			},
 			(res) => {
 				throw new Error(`Failed to create token: ${res.status} ${res.statusText}`);
-			}
+			},
 		);
-		spinner.succeed(green('Connected to remote database.'));
+		spinner.success(green('Connected to remote database.'));
 
 		const { token, ttl } = await response.json();
 		return { token, ttl };
@@ -94,7 +94,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 			},
 			() => {
 				throw new Error(`Failed to fetch ${url}.`);
-			}
+			},
 		);
 	}
 
@@ -125,7 +125,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 			try {
 				const { token, ttl } = await ManagedRemoteAppToken.createToken(
 					this.session,
-					this.projectId
+					this.projectId,
 				);
 				this.token = token;
 				this.ttl = ttl;
@@ -135,7 +135,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 				// If we get here we couldn't create a new token. Since the existing token
 				// is expired we really can't do anything and should exit.
 				throw new Error(
-					`Token has expired and attempts to renew it have failed, please try again.`
+					`Token has expired and attempts to renew it have failed, please try again.`,
 				);
 			}
 		}
@@ -151,7 +151,6 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 				throw new Error(`Unexpected response: ${response.status} ${response.statusText}`);
 			}
 		} catch (error: any) {
-			// eslint-disable-next-line no-console
 			console.error('Failed to delete token.', error?.message);
 		}
 	}
@@ -160,7 +159,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 export async function getProjectIdFromFile() {
 	try {
 		return await readFile(PROJECT_ID_FILE, 'utf-8');
-	} catch (error) {
+	} catch {
 		return undefined;
 	}
 }
@@ -168,7 +167,7 @@ export async function getProjectIdFromFile() {
 export async function getSessionIdFromFile() {
 	try {
 		return await readFile(SESSION_LOGIN_FILE, 'utf-8');
-	} catch (error) {
+	} catch {
 		return undefined;
 	}
 }
@@ -187,17 +186,14 @@ export async function getManagedAppTokenOrExit(token?: string): Promise<ManagedA
 	const sessionToken = await getSessionIdFromFile();
 	if (!sessionToken) {
 		if (ci.isCI) {
-			// eslint-disable-next-line no-console
 			console.error(MISSING_SESSION_ID_CI_ERROR);
 		} else {
-			// eslint-disable-next-line no-console
 			console.error(MISSING_SESSION_ID_ERROR);
 		}
 		process.exit(1);
 	}
 	const projectId = await getProjectIdFromFile();
 	if (!projectId) {
-		// eslint-disable-next-line no-console
 		console.error(MISSING_PROJECT_ID_ERROR);
 		process.exit(1);
 	}
@@ -217,7 +213,7 @@ async function safeFetch(
 	options: Parameters<typeof fetch>[1] = {},
 	onNotOK: (response: Response) => void | Promise<void> = () => {
 		throw new Error(`Request to ${url} returned a non-OK status code.`);
-	}
+	},
 ): Promise<Response> {
 	const response = await fetch(url, options);
 

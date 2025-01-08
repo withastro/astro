@@ -18,13 +18,6 @@ function getSettings() {
 	let _settings: Settings = { ...defaultSettings };
 	const toolbarSettings = localStorage.getItem('astro:dev-toolbar:settings');
 
-	// TODO: Remove in Astro 5.0
-	const oldSettings = localStorage.getItem('astro:dev-overlay:settings');
-	if (oldSettings && !toolbarSettings) {
-		localStorage.setItem('astro:dev-toolbar:settings', oldSettings);
-		localStorage.removeItem('astro:dev-overlay:settings');
-	}
-
 	if (toolbarSettings) {
 		_settings = { ..._settings, ...JSON.parse(toolbarSettings) };
 	}
@@ -35,11 +28,10 @@ function getSettings() {
 	}
 
 	function log(message: string, level: 'log' | 'warn' | 'error' = 'log') {
-		// eslint-disable-next-line no-console
 		console[level](
 			`%cAstro`,
 			'background: linear-gradient(66.77deg, #D83333 0%, #F041FF 100%); color: white; padding-inline: 4px; border-radius: 2px; font-family: monospace;',
-			message
+			message,
 		);
 	}
 

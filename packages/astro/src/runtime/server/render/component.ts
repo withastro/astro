@@ -1,14 +1,7 @@
-import type {
-	AstroComponentMetadata,
-	RouteData,
-	SSRLoadedRenderer,
-	SSRResult,
-} from '../../../@types/astro.js';
-import { type RenderInstruction, createRenderInstruction } from './instruction.js';
+import { createRenderInstruction } from './instruction.js';
 
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
-import type { HTMLBytes } from '../escape.js';
 import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
@@ -18,6 +11,12 @@ import { type AstroComponentFactory, isAstroComponentFactory } from './astro/fac
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
 
+import type {
+	AstroComponentMetadata,
+	RouteData,
+	SSRLoadedRenderer,
+	SSRResult,
+} from '../../../types/public/internal.js';
 import {
 	Fragment,
 	type RenderDestination,
@@ -33,7 +32,7 @@ import { formatList, internalSpreadAttributes, renderElement, voidElementNames }
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
-const clientOnlyValues = new Set(['solid-js', 'react', 'preact', 'vue', 'svelte', 'lit']);
+const clientOnlyValues = new Set(['solid-js', 'react', 'preact', 'vue', 'svelte']);
 
 function guessRenderers(componentUrl?: string): string[] {
 	const extname = componentUrl?.split('.').pop();
@@ -45,6 +44,7 @@ function guessRenderers(componentUrl?: string): string[] {
 		case 'jsx':
 		case 'tsx':
 			return ['@astrojs/react', '@astrojs/preact', '@astrojs/solid-js', '@astrojs/vue (jsx)'];
+		case undefined:
 		default:
 			return [
 				'@astrojs/react',
@@ -52,12 +52,9 @@ function guessRenderers(componentUrl?: string): string[] {
 				'@astrojs/solid-js',
 				'@astrojs/vue',
 				'@astrojs/svelte',
-				'@astrojs/lit',
 			];
 	}
 }
-
-export type ComponentIterable = AsyncIterable<string | HTMLBytes | RenderInstruction>;
 
 function isFragmentComponent(Component: unknown) {
 	return Component === Fragment;
@@ -80,11 +77,11 @@ async function renderFrameworkComponent(
 	displayName: string,
 	Component: unknown,
 	_props: Record<string | number, any>,
-	slots: any = {}
+	slots: any = {},
 ): Promise<RenderInstance> {
 	if (!Component && 'client:only' in _props === false) {
 		throw new Error(
-			`Unable to render ${displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`
+			`Unable to render ${displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`,
 		);
 	}
 
@@ -96,7 +93,7 @@ async function renderFrameworkComponent(
 
 	const { hydration, isPage, props, propsWithoutTransitionAttributes } = extractDirectives(
 		_props,
-		clientDirectives
+		clientDirectives,
 	);
 	let html = '';
 	let attrs: Record<string, string> | undefined = undefined;
@@ -155,7 +152,7 @@ async function renderFrameworkComponent(
 				result,
 				Component as typeof HTMLElement,
 				_props,
-				slots
+				slots,
 			);
 			return {
 				render(destination) {
@@ -171,7 +168,7 @@ async function renderFrameworkComponent(
 				: metadata.hydrateArgs;
 			if (clientOnlyValues.has(rendererName)) {
 				renderer = renderers.find(
-					({ name }) => name === `@astrojs/${rendererName}` || name === rendererName
+					({ name }) => name === `@astrojs/${rendererName}` || name === rendererName,
 				);
 			}
 		}
@@ -182,9 +179,7 @@ async function renderFrameworkComponent(
 		// Attempt: can we guess the renderer from the export extension?
 		if (!renderer) {
 			const extname = metadata.componentUrl?.split('.').pop();
-			renderer = renderers.filter(
-				({ name }) => name === `@astrojs/${extname}` || name === extname
-			)[0];
+			renderer = renderers.find(({ name }) => name === `@astrojs/${extname}` || name === extname);
 		}
 	}
 
@@ -204,10 +199,10 @@ async function renderFrameworkComponent(
 						metadata.displayName,
 						metadata?.componentUrl?.split('.').pop(),
 						plural,
-						validRenderers.length
+						validRenderers.length,
 					),
 					hint: AstroErrorData.NoMatchingRenderer.hint(
-						formatList(probableRendererNames.map((r) => '`' + r + '`'))
+						formatList(probableRendererNames.map((r) => '`' + r + '`')),
 					),
 				});
 			} else {
@@ -216,13 +211,13 @@ async function renderFrameworkComponent(
 					...AstroErrorData.NoClientOnlyHint,
 					message: AstroErrorData.NoClientOnlyHint.message(metadata.displayName),
 					hint: AstroErrorData.NoClientOnlyHint.hint(
-						probableRendererNames.map((r) => r.replace('@astrojs/', '')).join('|')
+						probableRendererNames.map((r) => r.replace('@astrojs/', '')).join('|'),
 					),
 				});
 			}
 		} else if (typeof Component !== 'string') {
 			const matchingRenderers = validRenderers.filter((r) =>
-				probableRendererNames.includes(r.name)
+				probableRendererNames.includes(r.name),
 			);
 			const plural = validRenderers.length > 1;
 			if (matchingRenderers.length === 0) {
@@ -232,10 +227,10 @@ async function renderFrameworkComponent(
 						metadata.displayName,
 						metadata?.componentUrl?.split('.').pop(),
 						plural,
-						validRenderers.length
+						validRenderers.length,
 					),
 					hint: AstroErrorData.NoMatchingRenderer.hint(
-						formatList(probableRendererNames.map((r) => '`' + r + '`'))
+						formatList(probableRendererNames.map((r) => '`' + r + '`')),
 					),
 				});
 			} else if (matchingRenderers.length === 1) {
@@ -247,7 +242,7 @@ async function renderFrameworkComponent(
 					Component,
 					propsWithoutTransitionAttributes,
 					children,
-					metadata
+					metadata,
 				));
 			} else {
 				throw new Error(`Unable to render ${metadata.displayName}!
@@ -265,16 +260,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		}
 	} else {
 		if (metadata.hydrate === 'only') {
-			const rendererName = rendererAliases.has(metadata.hydrateArgs)
-				? rendererAliases.get(metadata.hydrateArgs)
-				: metadata.hydrateArgs;
-			if (!clientOnlyValues.has(rendererName)) {
-				// warning if provide incorrect client:only directive but find the renderer by guess
-				// eslint-disable-next-line no-console
-				console.warn(
-					`The client:only directive for ${metadata.displayName} is not recognized. The renderer ${renderer.name} will be used. If you intended to use a different renderer, please provide a valid client:only directive.`
-				);
-			}
 			html = await renderSlotToString(result, slots?.fallback);
 		} else {
 			const componentRenderStartTime = performance.now();
@@ -283,29 +268,11 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				Component,
 				propsWithoutTransitionAttributes,
 				children,
-				metadata
+				metadata,
 			));
 			if (process.env.NODE_ENV === 'development')
 				componentServerRenderEndTime = performance.now() - componentRenderStartTime;
 		}
-	}
-
-	// HACK! The lit renderer doesn't include a clientEntrypoint for custom elements, allow it
-	// to render here until we find a better way to recognize when a client entrypoint isn't required.
-	if (
-		renderer &&
-		!renderer.clientEntrypoint &&
-		renderer.name !== '@astrojs/lit' &&
-		metadata.hydrate
-	) {
-		throw new AstroError({
-			...AstroErrorData.NoClientEntrypoint,
-			message: AstroErrorData.NoClientEntrypoint.message(
-				displayName,
-				metadata.hydrate,
-				renderer.name
-			),
-		});
 	}
 
 	// This is a custom element without a renderer. Because of that, render it
@@ -316,9 +283,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		const childSlots = Object.values(children).join('');
 
 		const renderTemplateResult = renderTemplate`<${Tag}${internalSpreadAttributes(
-			props
+			props,
 		)}${markHTMLString(
-			childSlots === '' && voidElementNames.test(Tag) ? `/>` : `>${childSlots}</${Tag}>`
+			childSlots === '' && voidElementNames.test(Tag) ? `/>` : `>${childSlots}</${Tag}>`,
 		)}`;
 
 		html = '';
@@ -344,7 +311,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 					destination.write(html);
 				} else if (html && html.length > 0) {
 					destination.write(
-						markHTMLString(removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot))
+						markHTMLString(removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot)),
 					);
 				}
 			},
@@ -355,13 +322,13 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	const astroId = shorthash(
 		`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}\n${serializeProps(
 			props,
-			metadata
-		)}`
+			metadata,
+		)}`,
 	);
 
 	const island = await generateHydrateScript(
 		{ renderer: renderer!, result, astroId, props, attrs },
-		metadata as Required<AstroComponentMetadata>
+		metadata as Required<AstroComponentMetadata>,
 	);
 
 	if (componentServerRenderEndTime && process.env.NODE_ENV === 'development')
@@ -393,7 +360,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 						(key) =>
 							`<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${
 								children[key]
-							}</template>`
+							}</template>`,
 					)
 					.join('')
 			: '';
@@ -421,7 +388,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 						type: 'renderer-hydration-script',
 						rendererName: renderer.name,
 						render: renderer.ssr.renderHydrationScript,
-					})
+					}),
 				);
 			}
 			const renderedElement = renderElement('astro-island', island, false);
@@ -438,7 +405,7 @@ function sanitizeElementName(tag: string) {
 
 async function renderFragmentComponent(
 	result: SSRResult,
-	slots: ComponentSlots = {}
+	slots: ComponentSlots = {},
 ): Promise<RenderInstance> {
 	const children = await renderSlotToString(result, slots?.default);
 	return {
@@ -453,7 +420,7 @@ async function renderHTMLComponent(
 	result: SSRResult,
 	Component: unknown,
 	_props: Record<string | number, any>,
-	slots: any = {}
+	slots: any = {},
 ): Promise<RenderInstance> {
 	const { slotInstructions, children } = await renderSlots(result, slots);
 	const html = (Component as any)({ slots: children });
@@ -472,7 +439,7 @@ function renderAstroComponent(
 	displayName: string,
 	Component: AstroComponentFactory,
 	props: Record<string | number, any>,
-	slots: any = {}
+	slots: any = {},
 ): RenderInstance {
 	if (containsServerDirective(props)) {
 		return renderServerIsland(result, displayName, props, slots);
@@ -494,7 +461,7 @@ export async function renderComponent(
 	displayName: string,
 	Component: unknown,
 	props: Record<string | number, any>,
-	slots: ComponentSlots = {}
+	slots: ComponentSlots = {},
 ): Promise<RenderInstance> {
 	if (isPromise(Component)) {
 		Component = await Component.catch(handleCancellation);
@@ -517,7 +484,7 @@ export async function renderComponent(
 	}
 
 	return await renderFrameworkComponent(result, displayName, Component, props, slots).catch(
-		handleCancellation
+		handleCancellation,
 	);
 
 	function handleCancellation(e: unknown) {
@@ -548,7 +515,7 @@ export async function renderComponentToString(
 	props: Record<string | number, any>,
 	slots: any = {},
 	isPage = false,
-	route?: RouteData
+	route?: RouteData,
 ): Promise<string> {
 	let str = '';
 	let renderedFirstPageChunk = false;
@@ -602,7 +569,7 @@ export type NonAstroPageComponent = {
 };
 
 function nonAstroPageNeedsHeadInjection(
-	pageComponent: any
+	pageComponent: any,
 ): pageComponent is NonAstroPageComponent {
 	return !!pageComponent?.[needsHeadRenderingSymbol];
 }

@@ -29,6 +29,6 @@ runHighlighterWithAstro(
 
   <div>{helloAstro}</div>
 `,
-  'astro'
+  'astro',
 );
 ```

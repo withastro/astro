@@ -1,5 +1,5 @@
 import { before, beforeEach } from 'node:test';
-import stripAnsi from 'strip-ansi';
+import { stripVTControlCharacters } from 'node:util';
 import { setStdout } from '../dist/index.js';
 
 export function setup() {
@@ -8,10 +8,10 @@ export function setup() {
 		setStdout(
 			Object.assign({}, process.stdout, {
 				write(buf) {
-					ctx.messages.push(stripAnsi(String(buf)).trim());
+					ctx.messages.push(stripVTControlCharacters(String(buf)).trim());
 					return true;
 				},
-			})
+			}),
 		);
 	});
 	beforeEach(() => {

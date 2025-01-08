@@ -1,7 +1,7 @@
 import { styleToObject } from './style-to-object.js';
 
 export function parseInlineCSSToReactLikeObject(
-	css: string | undefined | null
+	css: string | undefined | null,
 ): React.CSSProperties | undefined {
 	if (typeof css === 'string') {
 		const cssObject: Record<string, string> = {};

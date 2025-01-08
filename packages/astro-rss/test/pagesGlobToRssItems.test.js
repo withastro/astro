@@ -16,7 +16,7 @@ describe('pagesGlobToRssItems', () => {
 							pubDate: phpFeedItem.pubDate,
 							description: phpFeedItem.description,
 						},
-					})
+					}),
 				),
 			'./posts/nested/web1.md': () =>
 				new Promise((resolve) =>
@@ -27,7 +27,7 @@ describe('pagesGlobToRssItems', () => {
 							pubDate: web1FeedItem.pubDate,
 							description: web1FeedItem.description,
 						},
-					})
+					}),
 				),
 		};
 
@@ -49,7 +49,7 @@ describe('pagesGlobToRssItems', () => {
 
 		assert.deepEqual(
 			items.sort((a, b) => a.pubDate - b.pubDate),
-			expected
+			expected,
 		);
 	});
 
@@ -63,7 +63,7 @@ describe('pagesGlobToRssItems', () => {
 							pubDate: phpFeedItem.pubDate,
 							description: phpFeedItem.description,
 						},
-					})
+					}),
 				),
 		};
 		return assert.rejects(pagesGlobToRssItems(globResult));
@@ -80,7 +80,7 @@ describe('pagesGlobToRssItems', () => {
 							pubDate: phpFeedItem.pubDate,
 							description: undefined,
 						},
-					})
+					}),
 				),
 		};
 		return assert.rejects(pagesGlobToRssItems(globResult));
@@ -97,7 +97,7 @@ describe('pagesGlobToRssItems', () => {
 							pubDate: phpFeedItem.pubDate,
 							description: phpFeedItem.description,
 						},
-					})
+					}),
 				),
 		};
 		return assert.doesNotReject(pagesGlobToRssItems(globResult));
@@ -114,7 +114,7 @@ describe('pagesGlobToRssItems', () => {
 							pubDate: phpFeedItem.pubDate,
 							description: undefined,
 						},
-					})
+					}),
 				),
 		};
 		return assert.doesNotReject(pagesGlobToRssItems(globResult));

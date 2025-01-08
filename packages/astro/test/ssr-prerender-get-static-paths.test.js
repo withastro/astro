@@ -130,14 +130,14 @@ describe('Prerender', () => {
 					assert.equal(
 						canonical.attr('href'),
 						`https://mysite.dev/blog/posts/${page}`,
-						`doesn't trim the /${page} route param`
+						`doesn't trim the /${page} route param`,
 					);
 				}
 			});
 		});
 	});
 
-	describe('output: "hybrid"', () => {
+	describe('output: "static" with server output', () => {
 		describe('getStaticPaths - build calls', () => {
 			before(async () => {
 				fixture = await loadFixture({
@@ -145,7 +145,7 @@ describe('Prerender', () => {
 					site: 'https://mysite.dev/',
 					adapter: testAdapter(),
 					base: '/blog',
-					output: 'hybrid',
+					output: 'static',
 					vite: {
 						plugins: [vitePluginRemovePrerenderExport()],
 					},
@@ -258,7 +258,7 @@ describe('Prerender', () => {
 					assert.equal(
 						canonical.attr('href'),
 						`https://mysite.dev/blog/posts/${page}`,
-						`doesn't trim the /${page} route param`
+						`doesn't trim the /${page} route param`,
 					);
 				}
 			});

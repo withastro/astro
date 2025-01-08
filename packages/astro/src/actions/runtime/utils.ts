@@ -1,3 +1,17 @@
+import type { APIContext } from '../../types/public/context.js';
+import type { SerializedActionResult } from './virtual/shared.js';
+
+export type ActionPayload = {
+	actionResult: SerializedActionResult;
+	actionName: string;
+};
+
+export type Locals = {
+	_actionPayload: ActionPayload;
+};
+
+export const ACTION_API_CONTEXT_SYMBOL = Symbol.for('astro.actionAPIContext');
+
 export const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
 
 export function hasContentType(contentType: string, expected: string[]) {
@@ -8,29 +22,11 @@ export function hasContentType(contentType: string, expected: string[]) {
 	return expected.some((t) => type === t);
 }
 
+export type ActionAPIContext = Omit<
+	APIContext,
+	'getActionResult' | 'callAction' | 'props' | 'redirect'
+>;
 export type MaybePromise<T> = T | Promise<T>;
-
-/**
- * Get server-side action based on the route path.
- * Imports from `import.meta.env.ACTIONS_PATH`, which maps to
- * the user's `src/actions/index.ts` file at build-time.
- */
-export async function getAction(
-	path: string
-): Promise<((param: unknown) => MaybePromise<unknown>) | undefined> {
-	const pathKeys = path.replace('/_actions/', '').split('.');
-	let { server: actionLookup } = await import(import.meta.env.ACTIONS_PATH);
-	for (const key of pathKeys) {
-		if (!(key in actionLookup)) {
-			return undefined;
-		}
-		actionLookup = actionLookup[key];
-	}
-	if (typeof actionLookup !== 'function') {
-		return undefined;
-	}
-	return actionLookup;
-}
 
 /**
  * Used to preserve the input schema type in the error object.
@@ -42,3 +38,8 @@ export async function getAction(
  * `result.error.fields` will be typed with the `name` field.
  */
 export type ErrorInferenceObject = Record<string, any>;
+
+export function isActionAPIContext(ctx: ActionAPIContext): boolean {
+	const symbol = Reflect.get(ctx, ACTION_API_CONTEXT_SYMBOL);
+	return symbol === true;
+}

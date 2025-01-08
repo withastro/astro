@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import testAdapter from '../test/test-adapter.js';
 import { testFactory, waitForHydrate } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/custom-client-directives/',
 });
 
@@ -40,7 +40,13 @@ test.describe('Custom Client Directives - build server', () => {
 
 	test.beforeAll(async ({ astro }) => {
 		await astro.build({
-			adapter: testAdapter(),
+			adapter: testAdapter({
+				extendAdapter: {
+					adapterFeatures: {
+						buildOutput: 'static',
+					},
+				},
+			}),
 		});
 		previewServer = await astro.preview();
 	});
@@ -98,7 +104,7 @@ function testClientDirectivesShared() {
 
 		const clientOptions = page.locator('#options');
 		await expect(clientOptions).toHaveText(
-			'Passed options are: {"message":"Hello! I was passed as an option"}'
+			'Passed options are: {"message":"Hello! I was passed as an option"}',
 		);
 	});
 }

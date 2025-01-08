@@ -1,5 +1,141 @@
 # @astrojs/react
 
+## 4.1.2
+
+### Patch Changes
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
+## 4.1.1
+
+### Patch Changes
+
+- [#12755](https://github.com/withastro/astro/pull/12755) [`391df0e`](https://github.com/withastro/astro/commit/391df0e410aecc4bb8871c42548e2d9634c5ef3a) Thanks [@matthewp](https://github.com/matthewp)! - Preoptimize React compiler runtime
+
+## 4.1.0
+
+### Minor Changes
+
+- [#12678](https://github.com/withastro/astro/pull/12678) [`97c9265`](https://github.com/withastro/astro/commit/97c9265754b78af12ad1e399cc75028435028dfa) Thanks [@bskimball](https://github.com/bskimball)! - Add React 19 stable to peer dependencies
+
+## 4.0.0
+
+### Major Changes
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates Vite dependency to v6 to match Astro v5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+- [#12510](https://github.com/withastro/astro/pull/12510) [`14feaf3`](https://github.com/withastro/astro/commit/14feaf30e1a4266b8422865722a4478d39202404) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Changes the generated URL query param from `_astroAction` to `_action` when submitting a form using Actions. This avoids leaking the framework name into the URL bar, which may be considered a security issue.
+
+## 4.0.0-beta.2
+
+### Major Changes
+
+- [#12524](https://github.com/withastro/astro/pull/12524) [`9f44019`](https://github.com/withastro/astro/commit/9f440196dc39f36fce0198bf4c97131160e5bcc1) Thanks [@bluwy](https://github.com/bluwy)! - Updates Vite dependency to v6 to match Astro v5
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+## 3.7.0-beta.1
+
+### Minor Changes
+
+- [#12510](https://github.com/withastro/astro/pull/12510) [`14feaf3`](https://github.com/withastro/astro/commit/14feaf30e1a4266b8422865722a4478d39202404) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Changes the generated URL query param from `_astroAction` to `_action` when submitting a form using Actions. This avoids leaking the framework name into the URL bar, which may be considered a security issue.
+
+## 3.6.3
+
+### Patch Changes
+
+- [#12481](https://github.com/withastro/astro/pull/12481) [`8a46e80`](https://github.com/withastro/astro/commit/8a46e8074d6afb4a23badbd59ed239d526294e8c) Thanks [@marbrex](https://github.com/marbrex)! - Resolve `vite` peer dependency problem for strict package managers like **Yarn in PnP mode**.
+
+## 3.6.2
+
+### Patch Changes
+
+- [#11624](https://github.com/withastro/astro/pull/11624) [`7adb350`](https://github.com/withastro/astro/commit/7adb350a37f3975c8c9db89a32bf63b9fd0b78c2) Thanks [@bluwy](https://github.com/bluwy)! - Prevents throwing errors when checking if a component is a React component in runtime
+
+## 3.6.1
+
+### Patch Changes
+
+- [#11571](https://github.com/withastro/astro/pull/11571) [`1c3265a`](https://github.com/withastro/astro/commit/1c3265a8c9c0b1b1bd597f756b63463146bacc3a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - **BREAKING CHANGE to the experimental Actions API only.** Install the latest `@astrojs/react` integration as well if you're using React 19 features.
+
+  Make `.safe()` the default return value for actions. This means `{ data, error }` will be returned when calling an action directly. If you prefer to get the data while allowing errors to throw, chain the `.orThrow()` modifier.
+
+  ```ts
+  import { actions } from 'astro:actions';
+
+  // Before
+  const { data, error } = await actions.like.safe();
+  // After
+  const { data, error } = await actions.like();
+
+  // Before
+  const newLikes = await actions.like();
+  // After
+  const newLikes = await actions.like.orThrow();
+  ```
+
+  ## Migration
+
+  To migrate your existing action calls:
+
+  - Remove `.safe` from existing _safe_ action calls
+  - Add `.orThrow` to existing _unsafe_ action calls
+
+- [#11570](https://github.com/withastro/astro/pull/11570) [`84189b6`](https://github.com/withastro/astro/commit/84189b6511dc2a14bcfe608696f56a64c2046f39) Thanks [@bholmesdev](https://github.com/bholmesdev)! - **BREAKING CHANGE to the experimental Actions API only.** Install the latest `@astrojs/react` integration as well if you're using React 19 features.
+
+  Updates the Astro Actions fallback to support `action={actions.name}` instead of using `getActionProps().` This will submit a form to the server in zero-JS scenarios using a search parameter:
+
+  ```astro
+  ---
+  import { actions } from 'astro:actions';
+  ---
+
+  <form action={actions.logOut}>
+    <!--output: action="?_astroAction=logOut"-->
+    <button>Log Out</button>
+  </form>
+  ```
+
+  You may also construct form action URLs using string concatenation, or by using the `URL()` constructor, with the an action's `.queryString` property:
+
+  ```astro
+  ---
+  import { actions } from 'astro:actions';
+
+  const confirmationUrl = new URL('/confirmation', Astro.url);
+  confirmationUrl.search = actions.queryString;
+  ---
+
+  <form method="POST" action={confirmationUrl.pathname}>
+    <button>Submit</button>
+  </form>
+  ```
+
+  ## Migration
+
+  `getActionProps()` is now deprecated. To use the new fallback pattern, remove the `getActionProps()` input from your form and pass your action function to the form `action` attribute:
+
+  ```diff
+  ---
+  import {
+    actions,
+  - getActionProps,
+  } from 'astro:actions';
+  ---
+
+  + <form method="POST" action={actions.logOut}>
+  - <form method="POST">
+  - <input {...getActionProps(actions.logOut)} />
+    <button>Log Out</button>
+  </form>
+  ```
+
 ## 3.6.0
 
 ### Minor Changes
@@ -76,7 +212,7 @@
   export function Like({ postId }: { postId: string }) {
     const [state, action, pending] = useActionState(
       experimental_withState(actions.like),
-      0 // initial likes
+      0, // initial likes
     );
 
     return (
@@ -204,13 +340,13 @@
 
 ### Patch Changes
 
-- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vite.dev/guide/migration.html) for details of the breaking changes from Vite instead.
 
 ## 3.0.7-beta.0
 
 ### Patch Changes
 
-- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vitejs.dev/guide/migration.html) for details of the breaking changes from Vite instead.
+- [#9122](https://github.com/withastro/astro/pull/9122) [`1c48ed286`](https://github.com/withastro/astro/commit/1c48ed286538ab9e354eca4e4dcd7c6385c96721) Thanks [@bluwy](https://github.com/bluwy)! - Adds Vite 5 support. There are no breaking changes from Astro. Check the [Vite migration guide](https://vite.dev/guide/migration.html) for details of the breaking changes from Vite instead.
 
 ## 3.0.6
 

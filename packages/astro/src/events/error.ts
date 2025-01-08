@@ -28,7 +28,7 @@ interface ConfigErrorEventPayload extends ErrorEventPayload {
  */
 const ANONYMIZE_MESSAGE_REGEX = /^(?:\w| )+/;
 function anonymizeErrorMessage(msg: string): string | undefined {
-	const matchedMessage = msg.match(ANONYMIZE_MESSAGE_REGEX);
+	const matchedMessage = ANONYMIZE_MESSAGE_REGEX.exec(msg);
 	if (!matchedMessage?.[0]) {
 		return undefined;
 	}
@@ -82,7 +82,7 @@ export function eventError({
 /**
  * Safely get the error message from an error, even if it's a function.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 function getSafeErrorMessage(message: string | Function): string {
 	if (typeof message === 'string') {
 		return message;
@@ -101,11 +101,11 @@ function getSafeErrorMessage(message: string | Function): string {
 			.slice(1, -1)
 			.replace(
 				/\$\{([^}]+)\}/g,
-				(str, match1) =>
+				(_str, match1) =>
 					`${match1
 						.split(/\.?(?=[A-Z])/)
 						.join('_')
-						.toUpperCase()}`
+						.toUpperCase()}`,
 			)
 			.replace(/\\`/g, '`');
 	}

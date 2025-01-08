@@ -5,6 +5,7 @@ dist/
 .vercel
 .netlify
 _site/
+.astro/
 scripts/smoke/*-main/
 scripts/memory/project/src/pages/
 benchmark/projects/
@@ -16,15 +17,13 @@ package-lock.json
 .eslintcache
 .pnpm-store
 
-# ignore top-level vscode settings
-/.vscode/settings.json
-
 # do not commit .env files or any files that end with `.env`
 *.env
 
 packages/astro/src/**/*.prebuilt.ts
 packages/astro/src/**/*.prebuilt-dev.ts
-!packages/astro/vendor/vite/dist
+packages/astro/test/units/_temp-fixtures/*
+!packages/astro/test/units/_temp-fixtures/package.json
 packages/integrations/**/.netlify/
 
 # exclude IntelliJ/WebStorm stuff
@@ -37,3 +36,8 @@ packages/**/e2e/**/fixtures/**/.astro/
 packages/**/e2e/**/fixtures/**/env.d.ts
 examples/**/.astro/
 examples/**/env.d.ts
+
+# make it easy for people to add project-specific Astro settings that they don't
+# want to share with others (see
+# https://github.com/withastro/astro/pull/11759#discussion_r1721444711)
+*.code-workspace

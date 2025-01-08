@@ -1,7 +1,7 @@
-import type { AstroConfig, RouteData, SSRResult } from '../../../@types/astro.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
 import type { AstroComponentFactory } from './index.js';
 
+import type { RouteData, SSRResult } from '../../../types/public/internal.js';
 import { isAstroComponentFactory } from './astro/index.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
@@ -13,7 +13,7 @@ export async function renderPage(
 	props: any,
 	children: any,
 	streaming: boolean,
-	route?: RouteData
+	route?: RouteData,
 ): Promise<Response> {
 	if (!isAstroComponentFactory(componentFactory)) {
 		result._metadata.headInTree =
@@ -28,14 +28,14 @@ export async function renderPage(
 			pageProps,
 			{},
 			true,
-			route
+			route,
 		);
 
 		const bytes = encoder.encode(str);
 
 		return new Response(bytes, {
 			headers: new Headers([
-				['Content-Type', 'text/html; charset=utf-8'],
+				['Content-Type', 'text/html'],
 				['Content-Length', bytes.byteLength.toString()],
 			]),
 		});
@@ -57,7 +57,7 @@ export async function renderPage(
 				props,
 				children,
 				true,
-				route
+				route,
 			);
 			// Node.js allows passing in an AsyncIterable to the Response constructor.
 			// This is non-standard so using `any` here to preserve types everywhere else.
@@ -79,11 +79,6 @@ export async function renderPage(
 	if (!streaming && typeof body === 'string') {
 		body = encoder.encode(body);
 		headers.set('Content-Length', body.byteLength.toString());
-	}
-	// TODO: Revisit if user should manually set charset by themselves in Astro 4
-	// This code preserves the existing behaviour for markdown pages since Astro 2
-	if (route?.component.endsWith('.md')) {
-		headers.set('Content-Type', 'text/html; charset=utf-8');
 	}
 	let status = init.status;
 	// Custom 404.astro and 500.astro are particular routes that must return a fixed status code

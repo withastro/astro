@@ -42,7 +42,7 @@ export async function inferRemoteSize(url: string): Promise<Omit<ImageMetadata, 
 
 					return dimensions;
 				}
-			} catch (error) {
+			} catch {
 				// This catch block is specifically for `imageMetadata` errors
 				// which might occur if the accumulated data isn't yet sufficient.
 			}

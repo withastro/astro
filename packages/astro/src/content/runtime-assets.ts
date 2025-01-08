@@ -6,7 +6,8 @@ import { emitESMImage } from '../assets/utils/node/emitAsset.js';
 export function createImage(
 	pluginContext: PluginContext,
 	shouldEmitFile: boolean,
-	entryFilePath: string
+	entryFilePath: string,
+	experimentalSvgEnabled: boolean,
 ) {
 	return () => {
 		return z.string().transform(async (imagePath, ctx) => {
@@ -14,7 +15,8 @@ export function createImage(
 			const metadata = (await emitESMImage(
 				resolvedFilePath,
 				pluginContext.meta.watchMode,
-				shouldEmitFile ? pluginContext.emitFile : undefined
+				experimentalSvgEnabled,
+				shouldEmitFile ? pluginContext.emitFile : undefined,
 			)) as OmitBrand<ImageMetadata>;
 
 			if (!metadata) {

@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import * as path from 'node:path';
 import pLimit from 'p-limit';
-import { tsconfigResolverSync } from 'tsconfig-resolver';
+import { toJson } from 'tsconfck';
 
 const skippedExamples = ['toolbar-app', 'component', 'server-islands'];
 
@@ -70,25 +70,17 @@ function checkExamples() {
  */
 function prepareExample(examplePath) {
 	const tsconfigPath = path.join('./examples/', examplePath, 'tsconfig.json');
-	const tsconfig = tsconfigResolverSync({ filePath: tsconfigPath, cache: false });
-	let originalConfig = undefined;
+	if (!existsSync(tsconfigPath)) return
+	
+	const originalConfig = readFileSync(tsconfigPath, 'utf-8');
+	const tsconfig = JSON.parse(toJson(originalConfig));
 
-	if (tsconfig.exists) {
-		tsconfig.config.extends = 'astro/tsconfigs/strictest';
-		originalConfig = readFileSync(tsconfigPath).toString();
+	// Swap to strictest config to make sure it also passes
+	tsconfig.extends = 'astro/tsconfigs/strictest';
+	tsconfig.compilerOptions ??= {}
+	tsconfig.compilerOptions.types = tsconfig.compilerOptions.types ?? []; // Speeds up tests
 
-		if (!tsconfig.config.compilerOptions) {
-			tsconfig.config.compilerOptions = {};
-		}
-
-		tsconfig.config.compilerOptions = Object.assign(tsconfig.config.compilerOptions, {
-			types: tsconfig.config.compilerOptions.types ?? [], // Speeds up tests
-		});
-	}
-
-	if (tsconfig.config) {
-		writeFileSync(tsconfigPath, JSON.stringify(tsconfig.config));
-	}
+	writeFileSync(tsconfigPath, JSON.stringify(tsconfig));
 
 	return originalConfig;
 }

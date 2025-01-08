@@ -18,7 +18,7 @@ describe('Custom 500', () => {
 			try {
 				renameSync(
 					new URL('./fixtures/custom-500/src/pages/_500.astro', import.meta.url),
-					new URL('./fixtures/custom-500/src/pages/500.astro', import.meta.url)
+					new URL('./fixtures/custom-500/src/pages/500.astro', import.meta.url),
 				);
 			} catch (_) {}
 		});
@@ -26,7 +26,7 @@ describe('Custom 500', () => {
 		it('renders default error overlay', async () => {
 			renameSync(
 				new URL('./fixtures/custom-500/src/pages/500.astro', import.meta.url),
-				new URL('./fixtures/custom-500/src/pages/_500.astro', import.meta.url)
+				new URL('./fixtures/custom-500/src/pages/_500.astro', import.meta.url),
 			);
 			fixture = await loadFixture({
 				root: './fixtures/custom-500/',

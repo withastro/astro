@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { getErrorOverlayContent, testFactory } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/errors/',
 	// Only test the error overlay, don't print to console
 	vite: {
@@ -33,7 +33,7 @@ test.describe('Error display', () => {
 			// Edit the component file
 			await astro.editFile(
 				'./src/pages/astro-syntax-error.astro',
-				() => `<h1>No syntax error</h1>`
+				() => `<h1>No syntax error</h1>`,
 			),
 		]);
 
@@ -67,18 +67,22 @@ test.describe('Error display', () => {
 		expect(fileLocation).toMatch(/^pages\/import-not-found\.astro/);
 	});
 
+	// NOTE: It's not possible to detect some JSX components if they have errors because
+	// their renderers' check functions run the render directly, and if a runtime error is
+	// thrown, it assumes that it's simply not that renderer's component and skips it
 	test('shows correct file path when a component has an error', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/preact-runtime-error'), { waitUntil: 'networkidle' });
+		await page.goto(astro.resolveUrl('/vue-runtime-error'), { waitUntil: 'networkidle' });
 
 		const { fileLocation, absoluteFileLocation } = await getErrorOverlayContent(page);
 		const absoluteFileUrl = 'file://' + absoluteFileLocation.replace(/:\d+:\d+$/, '');
 		const fileExists = astro.pathExists(absoluteFileUrl);
 
 		expect(fileExists).toBeTruthy();
-		expect(fileLocation).toMatch(/^preact\/PreactRuntimeError.jsx/);
+		expect(fileLocation).toMatch(/^vue\/VueRuntimeError.vue/);
 	});
 
-	test('shows correct line when a style preprocess has an error', async ({ page, astro }) => {
+	// TODO: unskip when upgrading to Vite 6.0.0-beta.7 or above
+	test.skip('shows correct line when a style preprocess has an error', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/astro-sass-error'), { waitUntil: 'networkidle' });
 
 		const { fileLocation, absoluteFileLocation } = await getErrorOverlayContent(page);
@@ -88,7 +92,7 @@ test.describe('Error display', () => {
 		expect(fileExists).toBeTruthy();
 
 		const fileContent = await astro.readFile(absoluteFileUrl);
-		const lineNumber = absoluteFileLocation.match(/:(\d+):\d+$/)[1];
+		const lineNumber = /:(\d+):\d+$/.exec(absoluteFileLocation)[1];
 		const highlightedLine = fileContent.split('\n')[lineNumber - 1];
 		expect(highlightedLine).toContain(`@use '../styles/inexistent' as *;`);
 
@@ -107,7 +111,7 @@ test.describe('Error display', () => {
 			// Edit the component file
 			astro.editFile(
 				'./src/components/svelte/SvelteSyntaxError.svelte',
-				() => `<h1>No mismatch</h1>`
+				() => `<h1>No mismatch</h1>`,
 			),
 		]);
 
@@ -124,5 +128,19 @@ test.describe('Error display', () => {
 		await page.goto(astro.resolveUrl('/astro-glob-outside-astro'), { waitUntil: 'networkidle' });
 		const message = (await getErrorOverlayContent(page)).message;
 		expect(message).toMatch('can only be used in');
+	});
+
+	test('can handle DomException errors', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/dom-exception'), { waitUntil: 'networkidle' });
+		const message = (await getErrorOverlayContent(page)).message;
+		expect(message).toMatch('The operation was aborted due to timeout');
+	});
+
+	test('properly highlight the line with the error', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/import-not-found'), { waitUntil: 'networkidle' });
+
+		const { codeFrame } = await getErrorOverlayContent(page);
+		const codeFrameContent = await codeFrame.innerHTML();
+		expect(codeFrameContent).toContain('error-line');
 	});
 });

@@ -34,14 +34,14 @@ describe('MDX script style raw', () => {
 			assert.equal(
 				scriptContent.includes("console.log('raw script')"),
 				true,
-				'script should not be html-escaped'
+				'script should not be html-escaped',
 			);
 
 			const styleContent = document.getElementById('test-style').innerHTML;
 			assert.equal(
 				styleContent.includes('h1[id="script-style-raw"]'),
 				true,
-				'style should not be html-escaped'
+				'style should not be html-escaped',
 			);
 		});
 	});
@@ -61,14 +61,14 @@ describe('MDX script style raw', () => {
 			assert.equal(
 				scriptContent.includes("console.log('raw script')"),
 				true,
-				'script should not be html-escaped'
+				'script should not be html-escaped',
 			);
 
 			const styleContent = document.getElementById('test-style').innerHTML;
 			assert.equal(
 				styleContent.includes('h1[id="script-style-raw"]'),
 				true,
-				'style should not be html-escaped'
+				'style should not be html-escaped',
 			);
 		});
 	});

@@ -4,15 +4,22 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'fast-glob';
 import { bold, cyan } from 'kleur/colors';
 import { type ViteDevServer, normalizePath } from 'vite';
-import { z } from 'zod';
+import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
-import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { ContentEntryType } from '../types/public/content.js';
 import {
+	COLLECTIONS_DIR,
+	CONTENT_LAYER_TYPE,
+	CONTENT_TYPES_FILE,
+	VIRTUAL_MODULE_ID,
+} from './consts.js';
+import {
+	type CollectionConfig,
 	type ContentConfig,
 	type ContentObservable,
 	type ContentPaths,
@@ -44,7 +51,7 @@ type CollectionEntryMap = {
 				entries: Record<string, ContentEntryMetadata>;
 		  }
 		| {
-				type: 'data';
+				type: 'data' | typeof CONTENT_LAYER_TYPE;
 				entries: Record<string, DataEntryMetadata>;
 		  };
 };
@@ -79,30 +86,31 @@ export async function createContentTypesGenerator({
 	async function init(): Promise<
 		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
 	> {
-		if (!fs.existsSync(contentPaths.contentDir)) {
-			return { typesGenerated: false, reason: 'no-content-dir' };
-		}
-
 		events.push({ name: 'add', entry: contentPaths.config.url });
 
-		const globResult = await glob('**', {
-			cwd: fileURLToPath(contentPaths.contentDir),
-			fs: {
-				readdir: fs.readdir.bind(fs),
-				readdirSync: fs.readdirSync.bind(fs),
-			},
-			onlyFiles: false,
-			objectMode: true,
-		});
+		if (settings.config.legacy.collections) {
+			if (!fs.existsSync(contentPaths.contentDir)) {
+				return { typesGenerated: false, reason: 'no-content-dir' };
+			}
+			const globResult = await glob('**', {
+				cwd: fileURLToPath(contentPaths.contentDir),
+				fs: {
+					readdir: fs.readdir.bind(fs),
+					readdirSync: fs.readdirSync.bind(fs),
+				},
+				onlyFiles: false,
+				objectMode: true,
+			});
 
-		for (const entry of globResult) {
-			const fullPath = path.join(fileURLToPath(contentPaths.contentDir), entry.path);
-			const entryURL = pathToFileURL(fullPath);
-			if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
-			if (entry.dirent.isFile()) {
-				events.push({ name: 'add', entry: entryURL });
-			} else if (entry.dirent.isDirectory()) {
-				events.push({ name: 'addDir', entry: entryURL });
+			for (const entry of globResult) {
+				const fullPath = path.join(fileURLToPath(contentPaths.contentDir), entry.path);
+				const entryURL = pathToFileURL(fullPath);
+				if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
+				if (entry.dirent.isFile()) {
+					events.push({ name: 'add', entry: entryURL });
+				} else if (entry.dirent.isDirectory()) {
+					events.push({ name: 'addDir', entry: entryURL });
+				}
 			}
 		}
 		await runEvents();
@@ -112,7 +120,7 @@ export async function createContentTypesGenerator({
 	async function handleEvent(event: ContentEvent): Promise<{ shouldGenerateTypes: boolean }> {
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
 			const collection = normalizePath(
-				path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
+				path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry)),
 			);
 			const collectionKey = JSON.stringify(collection);
 			// If directory is multiple levels deep, it is not a collection. Ignore event.
@@ -137,7 +145,7 @@ export async function createContentTypesGenerator({
 			fileURLToPath(event.entry),
 			contentPaths,
 			contentEntryExts,
-			dataEntryExts
+			dataEntryExts,
 		);
 		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };
@@ -156,9 +164,9 @@ export async function createContentTypesGenerator({
 				'content',
 				`${bold(
 					normalizePath(
-						path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
-					)
-				)} must live in a ${bold('content/...')} collection subdirectory.`
+						path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry)),
+					),
+				)} must live in a ${bold('content/...')} collection subdirectory.`,
 			);
 			return { shouldGenerateTypes: false };
 		}
@@ -245,7 +253,7 @@ export async function createContentTypesGenerator({
 					collectionEntryMap[collectionKey] = {
 						type: 'content',
 						entries: {
-							...collectionInfo.entries,
+							...(collectionInfo.entries as Record<string, ContentEntryMetadata>),
 							[entryKey]: { slug: addedSlug },
 						},
 					};
@@ -356,6 +364,60 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
+const schemaCache = new Map<string, ZodSchema>();
+
+async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
+	collection: ContentConfig['collections'][T],
+	collectionKey: T,
+): Promise<ZodSchema | undefined> {
+	const cached = schemaCache.get(collectionKey);
+	if (cached) {
+		return cached;
+	}
+
+	if (
+		collection?.type === CONTENT_LAYER_TYPE &&
+		typeof collection.loader === 'object' &&
+		collection.loader.schema
+	) {
+		let schema = collection.loader.schema;
+		if (typeof schema === 'function') {
+			schema = await schema();
+		}
+		if (schema) {
+			schemaCache.set(collectionKey, await schema);
+			return schema;
+		}
+	}
+}
+
+async function typeForCollection<T extends keyof ContentConfig['collections']>(
+	collection: ContentConfig['collections'][T] | undefined,
+	collectionKey: T,
+): Promise<string> {
+	if (collection?.schema) {
+		return `InferEntrySchema<${collectionKey}>`;
+	}
+
+	if (collection?.type === CONTENT_LAYER_TYPE) {
+		const schema = await getContentLayerSchema(collection, collectionKey);
+		if (schema) {
+			try {
+				const zodToTs = await import('zod-to-ts');
+				const ast = zodToTs.zodToTs(schema);
+				return zodToTs.printNode(ast.node);
+			} catch (err: any) {
+				// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
+				if (err.message.includes("Cannot find package 'typescript'")) {
+					return 'any';
+				}
+				throw err;
+			}
+		}
+	}
+	return 'any';
+}
+
 async function writeContentFiles({
 	fs,
 	contentPaths,
@@ -380,13 +442,8 @@ async function writeContentFiles({
 	let contentTypesStr = '';
 	let dataTypesStr = '';
 
-	const collectionSchemasDir = new URL('./collections/', settings.dotAstroDir);
-	if (
-		settings.config.experimental.contentCollectionJsonSchema &&
-		!fs.existsSync(collectionSchemasDir)
-	) {
-		fs.mkdirSync(collectionSchemasDir, { recursive: true });
-	}
+	const collectionSchemasDir = new URL(COLLECTIONS_DIR, settings.dotAstroDir);
+	fs.mkdirSync(collectionSchemasDir, { recursive: true });
 
 	for (const [collection, config] of Object.entries(contentConfig?.collections ?? {})) {
 		collectionEntryMap[JSON.stringify(collection)] ??= {
@@ -394,12 +451,15 @@ async function writeContentFiles({
 			entries: {},
 		};
 	}
+
+	let contentCollectionsMap: CollectionEntryMap = {};
 	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
 		if (
 			collectionConfig?.type &&
 			collection.type !== 'unknown' &&
+			collectionConfig.type !== CONTENT_LAYER_TYPE &&
 			collection.type !== collectionConfig.type
 		) {
 			viteServer.hot.send({
@@ -409,7 +469,7 @@ async function writeContentFiles({
 					message: AstroErrorData.ContentCollectionTypeMismatchError.message(
 						collectionKey,
 						collection.type,
-						collectionConfig.type
+						collectionConfig.type,
 					),
 					hint:
 						collection.type === 'data'
@@ -422,15 +482,14 @@ async function writeContentFiles({
 			});
 			return;
 		}
-		const resolvedType: 'content' | 'data' =
+		const resolvedType =
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
-					collectionConfig?.type ?? 'data'
+					(collectionConfig?.type ?? 'data')
 				: collection.type;
-
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
-		const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+		const dataType = await typeForCollection(collectionConfig, collectionKey);
 		switch (resolvedType) {
 			case 'content':
 				if (collectionEntryKeys.length === 0) {
@@ -441,13 +500,19 @@ async function writeContentFiles({
 				for (const entryKey of collectionEntryKeys) {
 					const entryMetadata = collection.entries[entryKey];
 					const renderType = `{ render(): Render[${JSON.stringify(
-						path.extname(JSON.parse(entryKey))
+						path.extname(JSON.parse(entryKey)),
 					)}] }`;
 
 					const slugType = JSON.stringify(entryMetadata.slug);
 					contentTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  slug: ${slugType};\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType}\n} & ${renderType};\n`;
 				}
 				contentTypesStr += `};\n`;
+				break;
+			case CONTENT_LAYER_TYPE:
+				const legacyTypes = (collectionConfig as any)?._legacy
+					? 'render(): Render[".md"];\n  slug: string;\n  body: string;\n'
+					: 'body?: string;\n';
+				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  ${legacyTypes}  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n}>;\n`;
 				break;
 			case 'data':
 				if (collectionEntryKeys.length === 0) {
@@ -460,47 +525,56 @@ async function writeContentFiles({
 					dataTypesStr += `};\n`;
 				}
 
-				if (settings.config.experimental.contentCollectionJsonSchema && collectionConfig?.schema) {
-					let zodSchemaForJson =
-						typeof collectionConfig.schema === 'function'
-							? collectionConfig.schema({ image: () => z.string() })
-							: collectionConfig.schema;
-					if (zodSchemaForJson instanceof z.ZodObject) {
-						zodSchemaForJson = zodSchemaForJson.extend({
-							$schema: z.string().optional(),
-						});
-					}
-					try {
-						await fs.promises.writeFile(
-							new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
-							JSON.stringify(
-								zodToJsonSchema(zodSchemaForJson, {
-									name: collectionKey.replace(/"/g, ''),
-									markdownDescription: true,
-									errorMessages: true,
-								}),
-								null,
-								2
-							)
-						);
-					} catch (err) {
-						logger.warn(
-							'content',
-							`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`
-						);
-					}
-				}
 				break;
+		}
+
+		if (
+			collectionConfig &&
+			(collectionConfig.schema || (await getContentLayerSchema(collectionConfig, collectionKey)))
+		) {
+			await generateJSONSchema(fs, collectionConfig, collectionKey, collectionSchemasDir, logger);
+
+			contentCollectionsMap[collectionKey] = collection;
 		}
 	}
 
-	if (!fs.existsSync(settings.dotAstroDir)) {
-		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
+	if (settings.config.experimental.contentIntellisense) {
+		let contentCollectionManifest: {
+			collections: { hasSchema: boolean; name: string }[];
+			entries: Record<string, string>;
+		} = {
+			collections: [],
+			entries: {},
+		};
+		Object.entries(contentCollectionsMap).forEach(([collectionKey, collection]) => {
+			const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
+			const key = JSON.parse(collectionKey);
+
+			contentCollectionManifest.collections.push({
+				hasSchema: Boolean(collectionConfig?.schema || schemaCache.has(collectionKey)),
+				name: key,
+			});
+
+			Object.keys(collection.entries).forEach((entryKey) => {
+				const entryPath = new URL(
+					JSON.parse(entryKey),
+					contentPaths.contentDir + `${key}/`,
+				).toString();
+
+				// Save entry path in lower case to avoid case sensitivity issues between Windows and Unix
+				contentCollectionManifest.entries[entryPath.toLowerCase()] = key;
+			});
+		});
+
+		await fs.promises.writeFile(
+			new URL('./collections.json', collectionSchemasDir),
+			JSON.stringify(contentCollectionManifest, null, 2),
+		);
 	}
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(
 		settings.dotAstroDir.pathname,
-		contentPaths.config.url.pathname
+		contentPaths.config.url.pathname,
 	);
 
 	for (const contentEntryType of contentEntryTypes) {
@@ -512,11 +586,65 @@ async function writeContentFiles({
 	typeTemplateContent = typeTemplateContent.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr);
 	typeTemplateContent = typeTemplateContent.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
-		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
+		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never',
 	);
 
-	await fs.promises.writeFile(
-		new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
-		typeTemplateContent
-	);
+	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content
+	if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
+		await fs.promises.writeFile(
+			new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
+			typeTemplateContent,
+			'utf-8',
+		);
+	} else {
+		settings.injectedTypes.push({
+			filename: CONTENT_TYPES_FILE,
+			content: typeTemplateContent,
+		});
+	}
+}
+
+async function generateJSONSchema(
+	fsMod: typeof import('node:fs'),
+	collectionConfig: CollectionConfig,
+	collectionKey: string,
+	collectionSchemasDir: URL,
+	logger: Logger,
+) {
+	let zodSchemaForJson =
+		typeof collectionConfig.schema === 'function'
+			? collectionConfig.schema({ image: () => z.string() })
+			: collectionConfig.schema;
+
+	if (!zodSchemaForJson && collectionConfig.type === CONTENT_LAYER_TYPE) {
+		zodSchemaForJson = await getContentLayerSchema(collectionConfig, collectionKey);
+	}
+
+	if (zodSchemaForJson instanceof z.ZodObject) {
+		zodSchemaForJson = zodSchemaForJson.extend({
+			$schema: z.string().optional(),
+		});
+	}
+	try {
+		await fsMod.promises.writeFile(
+			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
+			JSON.stringify(
+				zodToJsonSchema(zodSchemaForJson, {
+					name: collectionKey.replace(/"/g, ''),
+					markdownDescription: true,
+					errorMessages: true,
+					// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
+					dateStrategy: ['format:date-time', 'format:date', 'integer'],
+				}),
+				null,
+				2,
+			),
+		);
+	} catch (err) {
+		// This should error gracefully and not crash the dev server
+		logger.warn(
+			'content',
+			`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`,
+		);
+	}
 }

@@ -38,7 +38,7 @@ describe('Markdoc - Image assets', () => {
 			const { document } = parseHTML(html);
 			assert.match(
 				document.querySelector('#relative > img')?.src,
-				/\/_image\?href=.*%2Fsrc%2Fassets%2Frelative%2Foar.jpg%3ForigWidth%3D420%26origHeight%3D630%26origFormat%3Djpg&f=webp/
+				/\/_image\?href=.*%2Fsrc%2Fassets%2Frelative%2Foar.jpg%3ForigWidth%3D420%26origHeight%3D630%26origFormat%3Djpg&w=420&h=630&f=webp/,
 			);
 		});
 
@@ -48,7 +48,7 @@ describe('Markdoc - Image assets', () => {
 			const { document } = parseHTML(html);
 			assert.match(
 				document.querySelector('#alias > img')?.src,
-				/\/_image\?href=.*%2Fsrc%2Fassets%2Falias%2Fcityscape.jpg%3ForigWidth%3D420%26origHeight%3D280%26origFormat%3Djpg&f=webp/
+				/\/_image\?href=.*%2Fsrc%2Fassets%2Falias%2Fcityscape.jpg%3ForigWidth%3D420%26origHeight%3D280%26origFormat%3Djpg&w=420&h=280&f=webp/,
 			);
 		});
 

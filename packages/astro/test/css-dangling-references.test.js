@@ -30,7 +30,7 @@ describe("When Vite's preloadModule polyfill is used", async () => {
 				assert.equal(
 					missingReferences.length,
 					0,
-					`${filePath} contains a reference to a deleted css asset: ${missingReferences}`
+					`${filePath} contains a reference to a deleted css asset: ${missingReferences}`,
 				);
 			});
 

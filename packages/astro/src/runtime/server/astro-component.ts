@@ -1,5 +1,5 @@
-import type { PropagationHint } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import type { PropagationHint } from '../../types/public/internal.js';
 import type { AstroComponentFactory } from './render/index.js';
 
 function validateArgs(args: unknown[]): args is Parameters<AstroComponentFactory> {
@@ -10,7 +10,7 @@ function validateArgs(args: unknown[]): args is Parameters<AstroComponentFactory
 function baseCreateComponent(
 	cb: AstroComponentFactory,
 	moduleId?: string,
-	propagation?: PropagationHint
+	propagation?: PropagationHint,
 ): AstroComponentFactory {
 	const name = moduleId?.split('/').pop()?.replace('.astro', '') ?? '';
 	const fn = (...args: Parameters<AstroComponentFactory>) => {
@@ -44,7 +44,7 @@ function createComponentWithOptions(opts: CreateComponentOptions) {
 export function createComponent(
 	arg1: AstroComponentFactory | CreateComponentOptions,
 	moduleId?: string,
-	propagation?: PropagationHint
+	propagation?: PropagationHint,
 ) {
 	if (typeof arg1 === 'function') {
 		return baseCreateComponent(arg1, moduleId, propagation);

@@ -1,14 +1,18 @@
-import type { Arguments as Flags } from 'yargs-parser';
-import type { AstroInlineConfig } from '../@types/astro.js';
+import type { Arguments } from 'yargs-parser';
 import { type LogOptions, Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
+import type { AstroInlineConfig } from '../types/public/config.js';
+
+// Alias for now, but allows easier migration to node's `parseArgs` in the future.
+export type Flags = Arguments;
 
 export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 	return {
 		// Inline-only configs
 		configFile: typeof flags.config === 'string' ? flags.config : undefined,
-		mode: typeof flags.mode === 'string' ? (flags.mode as AstroInlineConfig['mode']) : undefined,
+		mode: typeof flags.mode === 'string' ? flags.mode : undefined,
 		logLevel: flags.verbose ? 'debug' : flags.silent ? 'silent' : undefined,
+		force: flags.force ? true : undefined,
 
 		// Astro user configs
 		root: typeof flags.root === 'string' ? flags.root : undefined,

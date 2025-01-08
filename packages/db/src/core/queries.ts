@@ -1,4 +1,4 @@
-import { type SQL } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { bold } from 'kleur/colors';
 import {
@@ -33,14 +33,14 @@ export function getCreateTableQuery(tableName: string, table: DBTable) {
 
 	const colQueries = [];
 	const colHasPrimaryKey = Object.entries(table.columns).find(([, column]) =>
-		hasPrimaryKey(column)
+		hasPrimaryKey(column),
 	);
 	if (!colHasPrimaryKey) {
 		colQueries.push('_id INTEGER PRIMARY KEY');
 	}
 	for (const [columnName, column] of Object.entries(table.columns)) {
 		const colQuery = `${sqlite.escapeName(columnName)} ${schemaTypeToSqlType(
-			column.type
+			column.type,
 		)}${getModifiers(columnName, column)}`;
 		colQueries.push(colQuery);
 	}
@@ -59,7 +59,7 @@ export function getCreateIndexQueries(tableName: string, table: Pick<DBTable, 'i
 
 		const unique = indexProps.unique ? 'UNIQUE ' : '';
 		const indexQuery = `CREATE ${unique}INDEX ${sqlite.escapeName(
-			indexName
+			indexName,
 		)} ON ${sqlite.escapeName(tableName)} (${onCols.join(', ')})`;
 		queries.push(indexQuery);
 	}
@@ -190,12 +190,12 @@ function getDefaultValueSql(columnName: string, column: DBColumnWithDefault): st
 			let stringified = '';
 			try {
 				stringified = JSON.stringify(column.schema.default);
-			} catch (e) {
-				// eslint-disable-next-line no-console
+			} catch {
+				// biome-ignore lint/suspicious/noConsoleLog: allowed
 				console.log(
 					`Invalid default value for column ${bold(
-						columnName
-					)}. Defaults must be valid JSON when using the \`json()\` type.`
+						columnName,
+					)}. Defaults must be valid JSON when using the \`json()\` type.`,
 				);
 				process.exit(0);
 			}

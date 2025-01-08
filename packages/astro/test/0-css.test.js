@@ -37,7 +37,7 @@ describe('CSS', function () {
 			},
 			{
 				timeout: 45000,
-			}
+			},
 		);
 
 		describe('Astro Styles', () => {
@@ -75,7 +75,7 @@ describe('CSS', function () {
 				assert.equal($('#no-scope').attr('class'), undefined);
 			});
 
-			it('Child inheritance', (t, done) => {
+			it('Child inheritance', (_t, done) => {
 				for (const [key] of Object.entries($('#passed-in')[0].attribs)) {
 					if (/^data-astro-cid-[A-Za-z\d-]+/.test(key)) {
 						done();
@@ -225,7 +225,7 @@ describe('CSS', function () {
 			it('<style module>', async () => {
 				const el = $('#vue-modules');
 				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
+				const moduleClass = classes.find((name) => /^_vueModules_[\w-]+/.test(name));
 
 				// 1. check HTML
 				assert.equal(el.attr('class').includes(moduleClass), true);
@@ -260,7 +260,7 @@ describe('CSS', function () {
 				const el = $('#svelte-css');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-css' && /^svelte-[A-Za-z\d-]+/.test(name)
+					(name) => name !== 'svelte-css' && /^svelte-[A-Za-z\d-]+/.test(name),
 				);
 
 				// 1. check HTML
@@ -269,7 +269,7 @@ describe('CSS', function () {
 				// 2. check CSS
 				assert.match(
 					bundledCSS,
-					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:ComicSansMS`)
+					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:ComicSansMS`),
 				);
 			});
 
@@ -277,7 +277,7 @@ describe('CSS', function () {
 				const el = $('#svelte-sass');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-sass' && /^svelte-[A-Za-z\d-]+/.test(name)
+					(name) => name !== 'svelte-sass' && /^svelte-[A-Za-z\d-]+/.test(name),
 				);
 
 				// 1. check HTML
@@ -286,7 +286,7 @@ describe('CSS', function () {
 				// 2. check CSS
 				assert.match(
 					bundledCSS,
-					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:ComicSansMS`)
+					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:ComicSansMS`),
 				);
 			});
 
@@ -294,7 +294,7 @@ describe('CSS', function () {
 				const el = $('#svelte-scss');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-scss' && /^svelte-[A-Za-z\d-]+/.test(name)
+					(name) => name !== 'svelte-scss' && /^svelte-[A-Za-z\d-]+/.test(name),
 				);
 
 				// 1. check HTML
@@ -303,7 +303,7 @@ describe('CSS', function () {
 				// 2. check CSS
 				assert.match(
 					bundledCSS,
-					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:ComicSansMS`)
+					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:ComicSansMS`),
 				);
 			});
 
@@ -405,18 +405,13 @@ describe('CSS', function () {
 		});
 
 		it('resolves CSS from Vue', async () => {
-			const styles = ['VueModules.vue?vue&type=style&index=0&lang.module.scss'];
-			for (const style of styles) {
-				const href = $(`link[href$="${style}"]`).attr('href');
-				assert.equal((await fixture.fetch(href)).status, 200, style);
-			}
-
 			const allInjectedStyles = $('style').text().replace(/\s*/g, '');
 
 			assert.equal(allInjectedStyles.includes('.vue-css{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-sass{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-scss{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-scoped[data-v-'), true);
+			assert.equal(allInjectedStyles.includes('._vueModules_'), true);
 		});
 
 		it('remove unused styles from client:load components', async () => {
@@ -436,7 +431,7 @@ describe('CSS', function () {
 			assert.equal(
 				foundVitePreloadCSS,
 				false,
-				'Should not have found a preload for the dynamic CSS'
+				'Should not have found a preload for the dynamic CSS',
 			);
 		});
 

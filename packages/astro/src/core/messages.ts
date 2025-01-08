@@ -93,7 +93,7 @@ export function serverStart({
 	const messages = [
 		'',
 		`${bgGreen(bold(` astro `))} ${green(`v${version}`)} ${dim(`ready in`)} ${Math.round(
-			startupTime
+			startupTime,
 		)} ${dim('ms')}`,
 		'',
 		...localUrlMessages,
@@ -151,7 +151,7 @@ export function preferenceDefaultIntro(name: string) {
 
 export function preferenceDefault(name: string, value: any) {
 	return `${yellow('◯')} ${name} has not been set. It defaults to ${bgYellow(
-		black(` ${JSON.stringify(value)} `)
+		black(` ${JSON.stringify(value)} `),
 	)}\n`;
 }
 
@@ -221,7 +221,7 @@ export function cancelled(message: string, tip?: string) {
 
 const LOCAL_IP_HOSTS = new Set(['localhost', '127.0.0.1']);
 
-export function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 'visible' {
+function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 'visible' {
 	if (host === false) {
 		return 'host-to-expose';
 	} else if (typeof host === 'string' && LOCAL_IP_HOSTS.has(host)) {
@@ -231,12 +231,20 @@ export function getNetworkLogging(host: string | boolean): 'none' | 'host-to-exp
 	}
 }
 
+const codeRegex = /`([^`]+)`/g;
+
 export function formatConfigErrorMessage(err: ZodError) {
-	const errorList = err.issues.map(
-		(issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`
+	const errorList = err.issues.map((issue) =>
+		`! ${renderErrorMarkdown(issue.message, 'cli')}`
+			// Make text wrapped in backticks blue.
+			.replaceAll(codeRegex, blue('$1'))
+			// Make the first line red and indent the rest.
+			.split('\n')
+			.map((line, index) => (index === 0 ? red(line) : '  ' + line))
+			.join('\n'),
 	);
-	return `${red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join(
-		'\n'
+	return `${red('[config]')} Astro found issue(s) with your configuration:\n\n${errorList.join(
+		'\n\n',
 	)}`;
 }
 
@@ -246,7 +254,7 @@ const IRRELEVANT_STACK_REGEXP = /node_modules|astro[/\\]dist/g;
 
 function formatErrorStackTrace(
 	err: Error | ErrorWithMetadata,
-	showFullStacktrace: boolean
+	showFullStacktrace: boolean,
 ): string {
 	const stackLines = (err.stack || '').split('\n').filter((line) => STACK_LINE_REGEXP.test(line));
 	// If full details are required, just return the entire stack trace.
@@ -296,6 +304,11 @@ export function formatErrorMessage(err: ErrorWithMetadata, showFullStacktrace: b
 	if (docsLink) {
 		output.push(`  ${bold('Error reference:')}`);
 		output.push(`    ${cyan(underline(docsLink))}`);
+	}
+
+	if (showFullStacktrace && err.loc) {
+		output.push(`  ${bold('Location:')}`);
+		output.push(`    ${underline(`${err.loc.file}:${err.loc.line ?? 0}:${err.loc.column ?? 0}`)}`);
 	}
 
 	if (err.stack) {
@@ -355,8 +368,8 @@ export function printHelp({
 		message.push(
 			linebreak(),
 			`  ${bgGreen(black(` ${commandName} `))} ${green(
-				`v${process.env.PACKAGE_VERSION ?? ''}`
-			)} ${headline}`
+				`v${process.env.PACKAGE_VERSION ?? ''}`,
+			)} ${headline}`,
 		);
 	}
 
@@ -380,6 +393,6 @@ export function printHelp({
 		message.push(linebreak(), `${description}`);
 	}
 
-	// eslint-disable-next-line no-console
+	// biome-ignore lint/suspicious/noConsoleLog: allowed
 	console.log(message.join('\n') + '\n');
 }

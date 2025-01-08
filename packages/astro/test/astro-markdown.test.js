@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { fixLineEndings, loadFixture } from './test-utils.js';
 
@@ -20,7 +20,7 @@ describe('Astro Markdown', () => {
 
 		assert.equal(
 			fixLineEndings(raw).trim(),
-			`# Basic page\n\nLets make sure raw and compiled content look right!`
+			`# Basic page\n\nLets make sure raw and compiled content look right!`,
 		);
 	});
 
@@ -29,7 +29,7 @@ describe('Astro Markdown', () => {
 
 		assert.equal(
 			fixLineEndings(compiled).trim(),
-			`<h1 id="basic-page">Basic page</h1>\n<p>Lets make sure raw and compiled content look right!</p>`
+			`<h1 id="basic-page">Basic page</h1>\n<p>Lets make sure raw and compiled content look right!</p>`,
 		);
 	});
 
@@ -87,7 +87,7 @@ describe('Astro Markdown', () => {
 
 		assert.equal(
 			fixLineEndings(compiledContent.text()).trim(),
-			`<h2 id="section-1">Section 1</h2>\n<h2 id="section-2">Section 2</h2>`
+			`<h2 id="section-1">Section 1</h2>\n<h2 id="section-2">Section 2</h2>`,
 		);
 	});
 
@@ -121,7 +121,7 @@ describe('Astro Markdown', () => {
 		assert.equal(
 			frontmatterFile?.endsWith('with-layout.md'),
 			true,
-			'"file" prop does not end with correct path or is undefined'
+			'"file" prop does not end with correct path or is undefined',
 		);
 		assert.equal(frontmatterUrl, '/with-layout');
 		assert.equal(file, frontmatterFile);
@@ -152,6 +152,26 @@ describe('Astro Markdown', () => {
 			const { title = '' } = JSON.parse(await fixture.readFile('/vite-env-vars-glob.json'));
 			assert.ok(title.includes('import.meta.env.SITE'));
 			assert.ok(title.includes('import.meta.env.TITLE'));
+		});
+	});
+
+	describe('dev', () => {
+		let devServer;
+
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+
+		it('ignores .md extensions on query params', async () => {
+			const res = await fixture.fetch('/false-positive?page=page.md');
+			assert.ok(res.ok);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal($('p').text(), 'the page is not markdown');
+		});
+
+		after(async () => {
+			await devServer.stop();
 		});
 	});
 });

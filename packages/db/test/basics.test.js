@@ -3,7 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
-import { setupRemoteDbServer } from './test-utils.js';
+import { clearEnvironment, setupRemoteDbServer } from './test-utils.js';
 
 describe('astro:db', () => {
 	let fixture;
@@ -15,10 +15,11 @@ describe('astro:db', () => {
 		});
 	});
 
-	describe('development', () => {
+	describe({ skip: process.platform === 'darwin' }, 'development', () => {
 		let devServer;
 
 		before(async () => {
+			clearEnvironment();
 			devServer = await fixture.startDevServer();
 		});
 
@@ -93,11 +94,12 @@ describe('astro:db', () => {
 		});
 	});
 
-	describe('development --remote', () => {
+	describe({ skip: process.platform === 'darwin' }, 'development --remote', () => {
 		let devServer;
 		let remoteDbServer;
 
 		before(async () => {
+			clearEnvironment();
 			remoteDbServer = await setupRemoteDbServer(fixture.config);
 			devServer = await fixture.startDevServer();
 		});
@@ -178,6 +180,7 @@ describe('astro:db', () => {
 		let remoteDbServer;
 
 		before(async () => {
+			clearEnvironment();
 			process.env.ASTRO_STUDIO_APP_TOKEN = 'some token';
 			remoteDbServer = await setupRemoteDbServer(fixture.config);
 			await fixture.build();

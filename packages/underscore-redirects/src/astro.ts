@@ -1,10 +1,10 @@
 import { posix } from 'node:path';
-import type { AstroConfig, RouteData, ValidRedirectStatus } from 'astro';
+import type { AstroConfig, IntegrationRouteData, ValidRedirectStatus } from 'astro';
 import { Redirects } from './redirects.js';
 
 const pathJoin = posix.join;
 
-function getRedirectStatus(route: RouteData): ValidRedirectStatus {
+function getRedirectStatus(route: IntegrationRouteData): ValidRedirectStatus {
 	if (typeof route.redirect === 'object') {
 		return route.redirect.status;
 	}
@@ -16,8 +16,9 @@ interface CreateRedirectsFromAstroRoutesParams {
 	/**
 	 * Maps a `RouteData` to a dynamic target
 	 */
-	routeToDynamicTargetMap: Map<RouteData, string>;
+	routeToDynamicTargetMap: Map<IntegrationRouteData, string>;
 	dir: URL;
+	buildOutput: 'static' | 'server';
 }
 
 /**
@@ -27,6 +28,7 @@ export function createRedirectsFromAstroRoutes({
 	config,
 	routeToDynamicTargetMap,
 	dir,
+	buildOutput,
 }: CreateRedirectsFromAstroRoutesParams) {
 	const base =
 		config.base && config.base !== '/'
@@ -34,7 +36,8 @@ export function createRedirectsFromAstroRoutes({
 				? config.base.slice(0, -1)
 				: config.base
 			: '';
-	const output = config.output;
+	// TODO: the use of `config.output` is deprecated. We need to update the adapters that use this package to pass the new buildOutput
+	const output = buildOutput ?? config.output;
 	const _redirects = new Redirects();
 
 	for (const [route, dynamicTarget = ''] of routeToDynamicTargetMap) {
@@ -125,7 +128,7 @@ export function createRedirectsFromAstroRoutes({
  * /team/articles/*
  * With stars replacing spread and :id syntax replacing [id]
  */
-function generateDynamicPattern(route: RouteData) {
+function generateDynamicPattern(route: IntegrationRouteData) {
 	const pattern =
 		'/' +
 		route.segments

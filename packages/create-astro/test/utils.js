@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { before, beforeEach } from 'node:test';
-import stripAnsi from 'strip-ansi';
+import { stripVTControlCharacters } from 'node:util';
 import { setStdout } from '../dist/index.js';
 
 export function setup() {
@@ -9,10 +9,10 @@ export function setup() {
 		setStdout(
 			Object.assign({}, process.stdout, {
 				write(buf) {
-					ctx.messages.push(stripAnsi(String(buf)).trim());
+					ctx.messages.push(stripVTControlCharacters(String(buf)).trim());
 					return true;
 				},
-			})
+			}),
 		);
 	});
 	beforeEach(() => {
@@ -40,7 +40,7 @@ const resetNotEmptyFixture = async () => {
 	const tsconfigPath = new URL('./fixtures/not-empty/tsconfig.json', import.meta.url);
 
 	const packageJsonData = JSON.parse(
-		await fs.promises.readFile(packagePath, { encoding: 'utf-8' })
+		await fs.promises.readFile(packagePath, { encoding: 'utf-8' }),
 	);
 	const overriddenPackageJson = Object.assign(packageJsonData, {
 		scripts: {

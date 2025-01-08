@@ -1,5 +1,5 @@
-import type { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, type AstroVNode, isVNode } from '../../jsx-runtime/index.js';
+import type { SSRResult } from '../../types/public/internal.js';
 import {
 	HTMLString,
 	escapeHTML,
@@ -37,7 +37,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			return '';
 		case Array.isArray(vnode):
 			return markHTMLString(
-				(await Promise.all(vnode.map((v: any) => renderJSX(result, v)))).join('')
+				(await Promise.all(vnode.map((v: any) => renderJSX(result, v)))).join(''),
 			);
 	}
 
@@ -130,7 +130,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 					renderJSX(result, value).then((output) => {
 						if (output.toString().trim().length === 0) return;
 						slots[key] = () => output;
-					})
+					}),
 				);
 			}
 			await Promise.all(slotPromises);
@@ -142,7 +142,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 					vnode.props['client:display-name'] ?? '',
 					null,
 					props,
-					slots
+					slots,
 				);
 			} else {
 				output = await renderComponentToString(
@@ -150,7 +150,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 					typeof vnode.type === 'function' ? vnode.type.name : vnode.type,
 					vnode.type,
 					props,
-					slots
+					slots,
 				);
 			}
 			return markHTMLString(output);
@@ -163,7 +163,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 async function renderElement(
 	result: any,
 	tag: string,
-	{ children, ...props }: Record<string, any>
+	{ children, ...props }: Record<string, any>,
 ) {
 	return markHTMLString(
 		`<${tag}${spreadAttributes(props)}${markHTMLString(
@@ -171,8 +171,8 @@ async function renderElement(
 				? `/>`
 				: `>${
 						children == null ? '' : await renderJSX(result, prerenderElementChildren(tag, children))
-					}</${tag}>`
-		)}`
+					}</${tag}>`,
+		)}`,
 	);
 }
 

@@ -1,13 +1,8 @@
-/* eslint-disable no-console */
-import type yargs from 'yargs-parser';
-import type { AstroSettings } from '../../@types/astro.js';
-
 import { fileURLToPath } from 'node:url';
-import { bgGreen, black, bold, dim, yellow } from 'kleur/colors';
-
 import { formatWithOptions } from 'node:util';
 import dlv from 'dlv';
 import { flattie } from 'flattie';
+import { bgGreen, black, bold, dim, yellow } from 'kleur/colors';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
@@ -15,10 +10,11 @@ import * as msg from '../../core/messages.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import { type PreferenceKey, coerce, isValidKey } from '../../preferences/index.js';
-import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import type { AstroSettings } from '../../types/astro.js';
+import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface PreferencesOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 const PREFERENCES_SUBCOMMANDS = [
@@ -43,7 +39,7 @@ export async function preferences(
 	subcommand: string,
 	key: string,
 	value: string | undefined,
-	{ flags }: PreferencesOptions
+	{ flags }: PreferencesOptions,
 ): Promise<number> {
 	applyPolyfill();
 	if (!isValidSubcommand(subcommand) || flags?.help || flags?.h) {
@@ -77,7 +73,7 @@ export async function preferences(
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 	const opts: SubcommandOptions = {
 		location: flags.global ? 'global' : undefined,
-		json: flags.json,
+		json: !!flags.json,
 	};
 
 	if (subcommand === 'list') {
@@ -98,8 +94,8 @@ export async function preferences(
 		console.error(
 			msg.formatErrorMessage(
 				collectErrorMetadata(new Error(`Please provide a ${type} value for "${key}"`)),
-				true
-			)
+				true,
+			),
 		);
 		return 1;
 	}
@@ -128,7 +124,7 @@ interface SubcommandOptions {
 async function getPreference(
 	settings: AstroSettings,
 	key: PreferenceKey,
-	{ location = 'project' }: SubcommandOptions
+	{ location = 'project' }: SubcommandOptions,
 ) {
 	try {
 		let value = await settings.preferences.get(key, { location });
@@ -155,7 +151,7 @@ async function setPreference(
 	settings: AstroSettings,
 	key: PreferenceKey,
 	value: unknown,
-	{ location }: SubcommandOptions
+	{ location }: SubcommandOptions,
 ) {
 	try {
 		const defaultType = typeof dlv(DEFAULT_PREFERENCES, key);
@@ -178,7 +174,7 @@ async function setPreference(
 async function enablePreference(
 	settings: AstroSettings,
 	key: PreferenceKey,
-	{ location }: SubcommandOptions
+	{ location }: SubcommandOptions,
 ) {
 	try {
 		await settings.preferences.set(key, true, { location });
@@ -191,7 +187,7 @@ async function enablePreference(
 async function disablePreference(
 	settings: AstroSettings,
 	key: PreferenceKey,
-	{ location }: SubcommandOptions
+	{ location }: SubcommandOptions,
 ) {
 	try {
 		await settings.preferences.set(key, false, { location });
@@ -204,7 +200,7 @@ async function disablePreference(
 async function resetPreference(
 	settings: AstroSettings,
 	key: PreferenceKey,
-	{ location }: SubcommandOptions
+	{ location }: SubcommandOptions,
 ) {
 	try {
 		await settings.preferences.set(key, undefined as any, { location });
@@ -216,13 +212,13 @@ async function resetPreference(
 
 function annotate(flat: Record<string, any>, annotation: string) {
 	return Object.fromEntries(
-		Object.entries(flat).map(([key, value]) => [key, { annotation, value }])
+		Object.entries(flat).map(([key, value]) => [key, { annotation, value }]),
 	);
 }
 function userValues(
 	flatDefault: Record<string, string | number | boolean>,
 	flatProject: Record<string, string | number | boolean>,
-	flatGlobal: Record<string, string | number | boolean>
+	flatGlobal: Record<string, string | number | boolean>,
 ) {
 	const result: AnnotatedValues = {};
 	for (const key of Object.keys(flatDefault)) {
@@ -289,8 +285,8 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 	) {
 		console.log(
 			yellow(
-				'The dev toolbar is currently disabled. To enable it, set devToolbar: {enabled: true} in your astroConfig file.'
-			)
+				'The dev toolbar is currently disabled. To enable it, set devToolbar: {enabled: true} in your astroConfig file.',
+			),
 		);
 	}
 
@@ -327,7 +323,7 @@ function annotatedFormat(mv: AnnotatedValue) {
 // this is the real formatting for annotated values
 function formatAnnotated(
 	mv: AnnotatedValue,
-	style: (value: string | number | boolean) => string = (v) => v.toString()
+	style: (value: string | number | boolean) => string = (v) => v.toString(),
 ) {
 	return mv.annotation ? `${style(mv.value)} ${dim(mv.annotation)}` : style(mv.value);
 }
@@ -336,31 +332,31 @@ function formatTable(object: Record<string, AnnotatedValue>, columnLabels: [stri
 	const colALength = [colA, ...Object.keys(object)].reduce(longest, 0) + 3;
 	const colBLength = [colB, ...Object.values(object).map(annotatedFormat)].reduce(longest, 0) + 3;
 	function formatRow(
-		i: number,
+		_i: number,
 		a: string,
 		b: AnnotatedValue,
-		style: (value: string | number | boolean) => string = (v) => v.toString()
+		style: (value: string | number | boolean) => string = (v) => v.toString(),
 	): string {
 		return `${dim(chars.v)} ${style(a)} ${space(colALength - a.length - 2)} ${dim(
-			chars.v
+			chars.v,
 		)} ${formatAnnotated(b, style)} ${space(colBLength - annotatedFormat(b).length - 3)} ${dim(
-			chars.v
+			chars.v,
 		)}`;
 	}
 	const top = dim(
 		`${chars.topLeft}${chars.h.repeat(colALength + 1)}${chars.hBottom}${chars.h.repeat(
-			colBLength
-		)}${chars.topRight}`
+			colBLength,
+		)}${chars.topRight}`,
 	);
 	const bottom = dim(
 		`${chars.bottomLeft}${chars.h.repeat(colALength + 1)}${chars.hTop}${chars.h.repeat(
-			colBLength
-		)}${chars.bottomRight}`
+			colBLength,
+		)}${chars.bottomRight}`,
 	);
 	const divider = dim(
 		`${chars.vRightThick}${chars.hThick.repeat(colALength + 1)}${
 			chars.hThickCross
-		}${chars.hThick.repeat(colBLength)}${chars.vLeftThick}`
+		}${chars.hThick.repeat(colBLength)}${chars.vLeftThick}`,
 	);
 	const rows: string[] = [top, formatRow(-1, colA, { value: colB, annotation: '' }, bold), divider];
 	let i = 0;
