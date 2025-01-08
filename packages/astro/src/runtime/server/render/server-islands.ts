@@ -15,10 +15,10 @@ export function containsServerDirective(props: Record<string | number, any>) {
 	return 'server:component-directive' in props;
 }
 
-const scriptRegex = /<\/script/giu;
-const commentRegex = /<!--/gu;
-const scriptReplacer = '<\\/script';
-const commentReplacer = '\\u003C!--';
+const SCRIPT_RE = /<\/script/giu;
+const COMMENT_RE = /<!--/gu;
+const SCRIPT_REPLACER = '<\\/script';
+const COMMENT_REPLACER = '\\u003C!--';
 
 /**
  * Encodes the script end-tag open (ETAGO) delimiter and opening HTML comment syntax for JSON inside a `<script>` tag.
@@ -26,8 +26,8 @@ const commentReplacer = '\\u003C!--';
  */
 function safeJsonStringify(obj: any) {
 	return JSON.stringify(obj)
-		.replace(scriptRegex, scriptReplacer)
-		.replace(commentRegex, commentReplacer);
+		.replace(SCRIPT_RE, SCRIPT_REPLACER)
+		.replace(COMMENT_RE, COMMENT_REPLACER);
 }
 
 function createSearchParams(componentExport: string, encryptedProps: string, slots: string) {
