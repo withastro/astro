@@ -406,5 +406,25 @@ describe('Config Validation', () => {
 				'A valid variable name cannot start with a number.',
 			);
 		});
+
+		it('Should provide a useful error for access/context invalid combinations', async () => {
+			const configError = await validateConfig(
+				{
+					env: {
+						schema: {
+							BAR: envField.string({ access: 'secret', context: 'client' }),
+						},
+					},
+				},
+				process.cwd(),
+			).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'**Invalid combination** of "access" and "context" options',
+				),
+				true,
+			);
+		});
 	});
 });
