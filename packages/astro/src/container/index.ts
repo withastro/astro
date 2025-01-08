@@ -1,7 +1,7 @@
 import './polyfill.js';
 import { posix } from 'node:path';
 import { getDefaultClientDirectives } from '../core/client-directive/index.js';
-import { ASTRO_CONFIG_DEFAULTS } from '../core/config/default.js';
+import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
 import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
 import { Logger } from '../core/logger/core.js';
