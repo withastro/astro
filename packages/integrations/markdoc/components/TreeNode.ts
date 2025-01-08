@@ -16,7 +16,7 @@ import {
 
 export type TreeNode =
 	// Markdoc `if` tag often returns an array of nodes in the AST, which gets translated
-	// here as an array of `TreeNode`s, which we'll render sequentially without a wrapper.
+	// here as an array of `TreeNode`s, which we'll render all without a wrapper.
 	| TreeNode[]
 	| {
 			type: 'text';
