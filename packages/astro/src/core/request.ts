@@ -1,15 +1,22 @@
 import type { IncomingHttpHeaders } from 'node:http';
+import { AstroError, AstroErrorData } from './errors/index.js';
 import type { Logger } from './logger/core.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
-type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;
+type RequestBody =
+	| ArrayBuffer
+	| Blob
+	| ReadableStream
+	| URLSearchParams
+	| FormData
+	| ReadableStream<Uint8Array>;
 
 export interface CreateRequestOptions {
 	url: URL | string;
 	clientAddress?: string | undefined;
 	headers: HeaderType;
 	method?: string;
-	body?: RequestBody | undefined;
+	body?: RequestBody | undefined | null;
 	logger: Logger;
 	locals?: object | undefined;
 	/**
@@ -22,6 +29,8 @@ export interface CreateRequestOptions {
 	isPrerendered?: boolean;
 
 	routePattern: string;
+
+	init?: RequestInit;
 }
 
 /**
@@ -39,6 +48,7 @@ export function createRequest({
 	logger,
 	isPrerendered = false,
 	routePattern,
+	init,
 }: CreateRequestOptions): Request {
 	// headers are made available on the created request only if the request is for a page that will be on-demand rendered
 	const headersObj = isPrerendered
@@ -65,6 +75,7 @@ export function createRequest({
 		headers: headersObj,
 		// body is made available only if the request is for a page that will be on-demand rendered
 		body: isPrerendered ? null : body,
+		...init,
 	});
 
 	if (isPrerendered) {
@@ -91,4 +102,33 @@ export function createRequest({
 	}
 
 	return request;
+}
+
+/**
+ * Utility function that creates a new `Request` with a new URL from an old `Request`.
+ *
+ * @param newUrl The new `URL`
+ * @param oldRequest The old `Request`
+ */
+export function copyRequest(newUrl: URL, oldRequest: Request, isPrerendered: boolean): Request {
+	if (oldRequest.bodyUsed) {
+		throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
+	}
+	return new Request(newUrl, {
+		method: oldRequest.method,
+		headers: isPrerendered ? {} : oldRequest.headers,
+		body: oldRequest.body,
+		referrer: oldRequest.referrer,
+		referrerPolicy: oldRequest.referrerPolicy,
+		mode: oldRequest.mode,
+		credentials: oldRequest.credentials,
+		cache: oldRequest.cache,
+		redirect: oldRequest.redirect,
+		integrity: oldRequest.integrity,
+		signal: oldRequest.signal,
+		keepalive: oldRequest.keepalive,
+		// https://fetch.spec.whatwg.org/#dom-request-duplex
+		// @ts-expect-error It isn't part of the types, but undici accepts it and it allows to carry over the body to a new request
+		duplex: 'half',
+	});
 }
