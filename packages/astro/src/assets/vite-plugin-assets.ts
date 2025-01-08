@@ -1,7 +1,6 @@
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
-import { normalizePath } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import {
 	appendForwardSlash,
@@ -10,6 +9,7 @@ import {
 	removeBase,
 	removeQueryString,
 } from '../core/path.js';
+import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import type { ImageTransform } from './types.js';
