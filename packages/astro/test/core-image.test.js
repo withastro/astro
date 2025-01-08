@@ -49,9 +49,10 @@ describe('astro:image', () => {
 
 		describe('basics', () => {
 			let $;
+			let html;
 			before(async () => {
 				let res = await fixture.fetch('/');
-				let html = await res.text();
+				html = await res.text();
 				$ = cheerio.load(html);
 			});
 
