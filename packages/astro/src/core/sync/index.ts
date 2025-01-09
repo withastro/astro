@@ -1,4 +1,4 @@
-import fsMod, { existsSync } from 'node:fs';
+import fsMod from 'node:fs';
 import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
