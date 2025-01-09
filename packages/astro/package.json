@@ -225,5 +225,9 @@
   },
   "publishConfig": {
     "provenance": true
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/astrodotbuild"
   }
 }
