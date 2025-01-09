@@ -12,7 +12,7 @@ describe('Custom 404 locals', () => {
 			site: 'http://example.com',
 		});
 	});
- 
+
 	describe('dev', () => {
 		let devServer;
 		let $;
