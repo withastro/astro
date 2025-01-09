@@ -2,20 +2,13 @@ import type { IncomingHttpHeaders } from 'node:http';
 import type { Logger } from './logger/core.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
-type RequestBody =
-	| ArrayBuffer
-	| Blob
-	| ReadableStream
-	| URLSearchParams
-	| FormData
-	| ReadableStream<Uint8Array>;
 
 export interface CreateRequestOptions {
 	url: URL | string;
 	clientAddress?: string | undefined;
 	headers: HeaderType;
 	method?: string;
-	body?: RequestBody | undefined | null;
+	body?: RequestInit['body'];
 	logger: Logger;
 	locals?: object | undefined;
 	/**
