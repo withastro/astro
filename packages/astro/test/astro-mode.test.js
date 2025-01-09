@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
+import { promises as fs, existsSync } from 'node:fs';
 import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import { existsSync, promises as fs } from 'node:fs';
 
 describe('--mode', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -51,7 +51,7 @@ describe('--mode', () => {
 
 		it('writes data store file in the correct location', async () => {
 			assert.ok(existsSync(prodDataStoreFile));
-		})
+		});
 	});
 
 	describe('build --mode testing --devOutput', () => {
@@ -68,12 +68,12 @@ describe('--mode', () => {
 			assert.equal($('#env-prod').text(), 'false');
 			assert.equal($('#env-title').text(), '');
 			assert.equal($('#env-astro-title').text(), 'unset');
-			assert.ok
+			assert.ok;
 		});
 
 		it('writes data store file in the correct location', async () => {
 			assert.ok(existsSync(prodDataStoreFile));
-		})
+		});
 	});
 
 	describe('build --mode staging', () => {
@@ -94,8 +94,7 @@ describe('--mode', () => {
 
 		it('writes data store file in the correct location', async () => {
 			assert.ok(existsSync(prodDataStoreFile));
-		})
-
+		});
 	});
 
 	describe('dev', () => {
@@ -123,7 +122,7 @@ describe('--mode', () => {
 
 		it('writes data store file in the correct location', async () => {
 			assert.ok(existsSync(devDataStoreFile));
-		})
+		});
 	});
 
 	describe('dev --mode develop', () => {
@@ -151,7 +150,6 @@ describe('--mode', () => {
 
 		it('writes data store file in the correct location', async () => {
 			assert.ok(existsSync(devDataStoreFile));
-		})
-
+		});
 	});
 });

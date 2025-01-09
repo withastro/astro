@@ -49,7 +49,7 @@ export type SyncOptions = {
 		cleanup?: boolean;
 	};
 	manifest: ManifestData;
-	command: "build" | "dev" | "sync";
+	command: 'build' | 'dev' | 'sync';
 };
 
 export default async function sync(

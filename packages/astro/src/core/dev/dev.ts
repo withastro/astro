@@ -92,7 +92,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		logger.error('content', err.message);
 	}
 
-	if(!store) {
+	if (!store) {
 		logger.error('content', 'Failed to create data store');
 	}
 
