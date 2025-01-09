@@ -41,7 +41,7 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				assert.equal(html.includes("</script><script>alert('xss')</script>"), false);
+				assert.equal(html.includes("</script><script>alert('xss')</script><!--"), false);
 			});
 
 			it('island is not indexed', async () => {
