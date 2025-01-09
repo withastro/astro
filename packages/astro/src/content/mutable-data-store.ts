@@ -377,6 +377,8 @@ export default new Map([\n${lines.join(',\n')}]);
 				const store = await MutableDataStore.fromString(data);
 				store.#file = filePath;
 				return store;
+			} else {
+				await fs.mkdir(new URL('./', filePath), { recursive: true });
 			}
 		} catch {}
 		const store = new MutableDataStore();
