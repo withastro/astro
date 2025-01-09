@@ -119,6 +119,7 @@ export async function createContainer({
 		},
 		force: inlineConfig?.force,
 		manifest,
+		command: 'dev',
 	});
 
 	const viteServer = await vite.createServer(viteConfig);
