@@ -166,7 +166,7 @@ export async function generateImagesForPath(
 
 		const cacheFile = basename(filepath);
 		const cachedFileURL = new URL(cacheFile, env.assetsCacheDir);
-		
+
 		// For remote images, we also save a JSON file with the expiration date, etag and last-modified date from the server
 		const cacheMetaFile = cacheFile + '.json';
 		const cachedMetaFileURL = new URL(cacheMetaFile, env.assetsCacheDir);
@@ -194,17 +194,17 @@ export async function generateImagesForPath(
 						`Malformed cache entry for ${filepath}, cache will be regenerated for this file.`,
 					);
 				}
-				
+
 				// Upgrade old base64 encoded asset cache to the new format
 				if (JSONData.data) {
 					const { data, ...meta } = JSONData;
-					
+
 					await Promise.all([
 						fs.promises.writeFile(cachedFileURL, Buffer.from(data, 'base64')),
 						writeCacheMetaFile(cachedMetaFileURL, meta, env),
 					]);
 				}
-				
+
 				// If the cache entry is not expired, use it
 				if (JSONData.expires > Date.now()) {
 					await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
@@ -229,7 +229,11 @@ export async function generateImagesForPath(
 							// Freshen cache on disk
 							await writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env);
 
-							await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
+							await fs.promises.copyFile(
+								cachedFileURL,
+								finalFileURL,
+								fs.constants.COPYFILE_FICLONE,
+							);
 							return { cached: 'revalidated' };
 						}
 					} catch (e) {

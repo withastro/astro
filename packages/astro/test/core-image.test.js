@@ -1004,9 +1004,7 @@ describe('astro:image', () => {
 			const generatedImages = (await fixture.glob('_astro/**/*.webp'))
 				.map((path) => basename(path))
 				.sort();
-			const cachedImages = [
-				...(await fixture.glob('../node_modules/.astro/assets/**/*.webp')),
-			]
+			const cachedImages = [...(await fixture.glob('../node_modules/.astro/assets/**/*.webp'))]
 				.map((path) => basename(path))
 				.sort();
 
@@ -1038,11 +1036,12 @@ describe('astro:image', () => {
 		it('writes remote image cache metadata', async () => {
 			const html = await fixture.readFile('/remote/index.html');
 			const $ = cheerio.load(html);
-			const metaSrc = "../node_modules/.astro/assets/" + basename($('#remote img').attr('src')) + ".json";
+			const metaSrc =
+				'../node_modules/.astro/assets/' + basename($('#remote img').attr('src')) + '.json';
 			const data = await fixture.readFile(metaSrc, null);
 			assert.equal(data instanceof Buffer, true);
 			const metadata = JSON.parse(data.toString());
-			assert.equal(typeof metadata.expires, "number");
+			assert.equal(typeof metadata.expires, 'number');
 		});
 
 		it('client images are written to build', async () => {
