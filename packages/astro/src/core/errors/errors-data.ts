@@ -879,7 +879,7 @@ export const SessionStorageInitError = {
 	name: 'SessionStorageInitError',
 	title: 'Session storage could not be initialized.',
 	message: (error: string, driver?: string) =>
-		`Error when initializing session storage${driver ? ` with driver ${driver}` : ''}. ${error ?? ''}`,
+		`Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ''}. ${error ?? ''}`,
 	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
 } satisfies ErrorData;
 
@@ -894,7 +894,7 @@ export const SessionStorageSaveError = {
 	name: 'SessionStorageSaveError',
 	title: 'Session data could not be saved.',
 	message: (error: string, driver?: string) =>
-		`Error when saving session data${driver ? ` with driver ${driver}` : ''}. ${error ?? ''}`,
+		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. ${error ?? ''}`,
 	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
 } satisfies ErrorData;
 
