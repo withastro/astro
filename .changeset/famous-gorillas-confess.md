@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-use same request context (Astro.locals) for initial request also for 404 page renders after a 404 response from a component (e.g. runtime from adapters)
+Fixes an issue where `Astro.locals` coming from an adapter weren't available in the `404.astro`, when using the `astro dev` command,
