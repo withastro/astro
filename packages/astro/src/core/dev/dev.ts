@@ -93,7 +93,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	}
 
 	if(!store) {
-		throw new Error('Failed to create data store');
+		logger.error('content', 'Failed to create data store');
 	}
 
 	await attachContentServerListeners(restart.container);
@@ -102,7 +102,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (config.status === 'error') {
 		logger.error('content', config.error.message);
 	}
-	if (config.status === 'loaded') {
+	if (config.status === 'loaded' && store) {
 		const contentLayer = globalContentLayer.init({
 			settings: restart.container.settings,
 			logger,

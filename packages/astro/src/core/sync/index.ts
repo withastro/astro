@@ -136,7 +136,8 @@ export async function syncInternal({
 			logger.error('content', err.message);
 		}
 		if (!store) {
-			throw new Error('Failed to load content store');
+			logger.error('content', 'Failed to load content store');
+			return;
 		}
 		const contentLayer = globalContentLayer.init({
 			settings,
