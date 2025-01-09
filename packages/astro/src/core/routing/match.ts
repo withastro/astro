@@ -17,14 +17,15 @@ export function matchAllRoutes(pathname: string, manifest: ManifestData): RouteD
 	return manifest.routes.filter((route) => route.pattern.test(decodeURI(pathname)));
 }
 
+const ROUTE404_RE = /^\/404\/?$/;
+const ROUTE500_RE = /^\/500\/?$/;
+
 export function isRoute404(route: string) {
-	const route404Pattern = /^\/404\/?$/;
-	return route404Pattern.test(route);
+	return ROUTE404_RE.test(route);
 }
 
 export function isRoute500(route: string) {
-	const route500Pattern = /^\/500\/?$/;
-	return route500Pattern.test(route);
+	return ROUTE500_RE.test(route);
 }
 
 /**
