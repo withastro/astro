@@ -36,16 +36,6 @@ export function padMultilineString(source: string, n = 2) {
 	return lines.map((l) => ` `.repeat(n) + l).join(`\n`);
 }
 
-export function isRoute404(route: string) {
-	const route404Pattern = /^\/404\/?$/;
-	return route404Pattern.test(route);
-}
-
-export function isRoute500(route: string) {
-	const route500Pattern = /^\/500\/?$/;
-	return route500Pattern.test(route);
-}
-
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
 /**
