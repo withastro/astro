@@ -187,7 +187,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			}
 			this.#saveTimeout = setTimeout(() => {
 				this.#saveTimeout = undefined;
-				this.writeToDisk(this.#file!);
+				this.writeToDisk();
 			}, SAVE_DEBOUNCE_MS);
 		}
 	}
@@ -331,13 +331,15 @@ export default new Map([\n${lines.join(',\n')}]);
 		return devalue.stringify(this._collections);
 	}
 
-	async writeToDisk(filePath: PathLike) {
+	async writeToDisk() {
 		if (!this.#dirty) {
 			return;
 		}
+		if (!this.#file) {
+			throw new AstroError(AstroErrorData.UnknownFilesystemError);
+		}
 		try {
-			await this.#writeFileAtomic(filePath, this.toString());
-			this.#file = filePath;
+			await this.#writeFileAtomic(this.#file, this.toString());
 			this.#dirty = false;
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
@@ -373,10 +375,14 @@ export default new Map([\n${lines.join(',\n')}]);
 		try {
 			if (existsSync(filePath)) {
 				const data = await fs.readFile(filePath, 'utf-8');
-				return MutableDataStore.fromString(data);
+				const store = await MutableDataStore.fromString(data);
+				store.#file = filePath;
+				return store;
 			}
 		} catch {}
-		return new MutableDataStore();
+		const store = new MutableDataStore();
+		store.#file = filePath;
+		return store;
 	}
 }
 

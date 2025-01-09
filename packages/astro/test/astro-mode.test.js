@@ -2,15 +2,25 @@ import assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
+import { existsSync, promises as fs } from 'node:fs';
 
 describe('--mode', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
+	let devDataStoreFile;
+	let prodDataStoreFile;
+
+	async function deleteDataStoreFiles() {
+		await fs.unlink(devDataStoreFile).catch(() => {});
+		await fs.unlink(prodDataStoreFile).catch(() => {});
+	}
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-mode/',
 		});
+		devDataStoreFile = new URL('./.astro/data-store.json', fixture.config.root);
+		prodDataStoreFile = new URL('./node_modules/.astro/data-store.json', fixture.config.root);
 	});
 
 	afterEach(() => {
@@ -25,6 +35,7 @@ describe('--mode', () => {
 
 	describe('build', () => {
 		before(async () => {
+			await deleteDataStoreFiles();
 			await fixture.build();
 		});
 
@@ -37,10 +48,15 @@ describe('--mode', () => {
 			assert.equal($('#env-title').text(), 'production');
 			assert.equal($('#env-astro-title').text(), 'production');
 		});
+
+		it('writes data store file in the correct location', async () => {
+			assert.ok(existsSync(prodDataStoreFile));
+		})
 	});
 
 	describe('build --mode testing --devOutput', () => {
 		before(async () => {
+			await deleteDataStoreFiles();
 			await fixture.build({ mode: 'testing' }, { devOutput: true });
 		});
 
@@ -52,11 +68,17 @@ describe('--mode', () => {
 			assert.equal($('#env-prod').text(), 'false');
 			assert.equal($('#env-title').text(), '');
 			assert.equal($('#env-astro-title').text(), 'unset');
+			assert.ok
 		});
+
+		it('writes data store file in the correct location', async () => {
+			assert.ok(existsSync(prodDataStoreFile));
+		})
 	});
 
 	describe('build --mode staging', () => {
 		before(async () => {
+			await deleteDataStoreFiles();
 			await fixture.build({ mode: 'staging' });
 		});
 
@@ -69,12 +91,18 @@ describe('--mode', () => {
 			assert.equal($('#env-title').text(), 'staging');
 			assert.equal($('#env-astro-title').text(), 'staging');
 		});
+
+		it('writes data store file in the correct location', async () => {
+			assert.ok(existsSync(prodDataStoreFile));
+		})
+
 	});
 
 	describe('dev', () => {
 		/** @type {import('./test-utils.js').DevServer} */
 		let devServer;
 		before(async () => {
+			await deleteDataStoreFiles();
 			devServer = await fixture.startDevServer();
 		});
 		after(async () => {
@@ -92,12 +120,17 @@ describe('--mode', () => {
 			assert.equal($('#env-title').text(), 'development');
 			assert.equal($('#env-astro-title').text(), 'development');
 		});
+
+		it('writes data store file in the correct location', async () => {
+			assert.ok(existsSync(devDataStoreFile));
+		})
 	});
 
 	describe('dev --mode develop', () => {
 		/** @type {import('./test-utils.js').DevServer} */
 		let devServer;
 		before(async () => {
+			await deleteDataStoreFiles();
 			devServer = await fixture.startDevServer({ mode: 'develop' });
 		});
 		after(async () => {
@@ -115,5 +148,10 @@ describe('--mode', () => {
 			assert.equal($('#env-title').text(), '');
 			assert.equal($('#env-astro-title').text(), 'unset');
 		});
+
+		it('writes data store file in the correct location', async () => {
+			assert.ok(existsSync(devDataStoreFile));
+		})
+
 	});
 });

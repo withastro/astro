@@ -88,12 +88,14 @@ export async function clearContentLayerCache({
 	settings,
 	logger,
 	fs = fsMod,
+	isDev,
 }: {
 	settings: AstroSettings;
 	logger: Logger;
 	fs?: typeof fsMod;
+	isDev: boolean;
 }) {
-	const dataStore = getDataStoreFile(settings);
+	const dataStore = getDataStoreFile(settings, isDev);
 	if (fs.existsSync(dataStore)) {
 		logger.debug('content', 'clearing data store');
 		await fs.promises.rm(dataStore, { force: true });
@@ -116,8 +118,9 @@ export async function syncInternal({
 	force,
 	manifest,
 }: SyncOptions): Promise<void> {
+	const isDev = mode === 'development';
 	if (force) {
-		await clearContentLayerCache({ settings, logger, fs });
+		await clearContentLayerCache({ settings, logger, fs, isDev });
 	}
 
 	const timerStart = performance.now();
@@ -127,15 +130,13 @@ export async function syncInternal({
 		settings.timer.start('Sync content layer');
 		let store: MutableDataStore | undefined;
 		try {
-			const dataStoreFile = getDataStoreFile(settings);
-			if (existsSync(dataStoreFile)) {
-				store = await MutableDataStore.fromFile(dataStoreFile);
-			}
+			const dataStoreFile = getDataStoreFile(settings, isDev);
+			store = await MutableDataStore.fromFile(dataStoreFile);
 		} catch (err: any) {
 			logger.error('content', err.message);
 		}
 		if (!store) {
-			store = new MutableDataStore();
+			throw new Error('Failed to load content store');
 		}
 		const contentLayer = globalContentLayer.init({
 			settings,

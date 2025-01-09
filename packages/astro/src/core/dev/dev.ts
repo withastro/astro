@@ -1,4 +1,4 @@
-import fs, { existsSync } from 'node:fs';
+import fs from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { performance } from 'node:perf_hooks';
@@ -87,15 +87,15 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	let store: MutableDataStore | undefined;
 	try {
 		const dataStoreFile = getDataStoreFile(restart.container.settings, true);
-		if (existsSync(dataStoreFile)) {
-			store = await MutableDataStore.fromFile(dataStoreFile);
-		}
+		store = await MutableDataStore.fromFile(dataStoreFile);
 	} catch (err: any) {
 		logger.error('content', err.message);
 	}
-	if (!store) {
-		store = new MutableDataStore();
+
+	if(!store) {
+		throw new Error('Failed to create data store');
 	}
+
 	await attachContentServerListeners(restart.container);
 
 	const config = globalContentConfigObserver.get();
