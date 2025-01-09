@@ -2,6 +2,4 @@
 'astro': patch
 ---
 
-Improve static asset generation performance by removing the `await` in the `for` loop. This change will allow the p-queue concurrency to limit the number of parallel tasks. Previously, the `await` in the `for` loop would cause all asset generation tasks to run serially.
-
-Fixes #12845
+Improves performance of static asset generation by fixing a bug that caused image transforms to be performed serially. This fix ensures that processing uses all CPUs when running in a multi-core environment.
