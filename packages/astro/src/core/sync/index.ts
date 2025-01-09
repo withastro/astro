@@ -4,7 +4,6 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
-import { normalizePath } from 'vite';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { createContentTypesGenerator } from '../../content/index.js';
@@ -32,6 +31,7 @@ import {
 import type { Logger } from '../logger/core.js';
 import { createRouteManifest } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
+import { normalizePath } from '../viteUtils.js';
 
 export type SyncOptions = {
 	mode: string;

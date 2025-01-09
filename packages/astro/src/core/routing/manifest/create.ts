@@ -24,6 +24,8 @@ import { routeComparator } from '../priority.js';
 import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
+import { validateSegment } from './segment.js';
+
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -35,14 +37,6 @@ interface Item {
 	isIndex: boolean;
 	isPage: boolean;
 	routeSuffix: string;
-}
-
-function countOccurrences(needle: string, haystack: string) {
-	let count = 0;
-	for (const hay of haystack) {
-		if (hay === needle) count += 1;
-	}
-	return count;
 }
 
 // Disable eslint as we're not sure how to improve this regex yet
@@ -71,24 +65,6 @@ export function getParts(part: string, file: string) {
 
 	return result;
 }
-
-export function validateSegment(segment: string, file = '') {
-	if (!file) file = segment;
-
-	if (segment.includes('][')) {
-		throw new Error(`Invalid route ${file} \u2014 parameters must be separated`);
-	}
-	if (countOccurrences('[', segment) !== countOccurrences(']', segment)) {
-		throw new Error(`Invalid route ${file} \u2014 brackets are unbalanced`);
-	}
-	if (
-		(/.+\[\.\.\.[^\]]+\]/.test(segment) || /\[\.\.\.[^\]]+\].+/.test(segment)) &&
-		file.endsWith('.astro')
-	) {
-		throw new Error(`Invalid route ${file} \u2014 rest parameter must be a standalone segment`);
-	}
-}
-
 /**
  * Checks whether two route segments are semantically equivalent.
  *
