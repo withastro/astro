@@ -5012,7 +5012,7 @@ importers:
         specifier: ^7.25.9
         version: 7.25.9(@babel/core@7.26.0)
       '@preact/preset-vite':
-        specifier: 2.9.4
+        specifier: ^2.9.4
         version: 2.9.4(@babel/core@7.26.0)(preact@10.25.1)(vite@6.0.5(@types/node@18.19.50)(jiti@2.4.0)(sass@1.82.0)(yaml@2.5.1))
       '@preact/signals':
         specifier: ^2.0.0
