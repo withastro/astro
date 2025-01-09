@@ -149,10 +149,22 @@ export class App {
 		return pathname;
 	}
 
+	/**
+	 * It removes the base from the request URL, prepends it with a forward slash and attempts to decoded it.
+	 *
+	 * If the decoding fails, it logs the error and return the pathname as is.
+	 * @param request
+	 * @private
+	 */
 	#getPathnameFromRequest(request: Request): string {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
-		return pathname;
+		try {
+			return decodeURI(pathname);
+		} catch (e: any) {
+			this.getAdapterLogger().error(e.toString());
+			return pathname;
+		}
 	}
 
 	match(request: Request): RouteData | undefined {
@@ -298,7 +310,7 @@ export class App {
 			this.#logger.error(null, err.stack || err.message || String(err));
 			return this.#renderError(request, { locals, status: 500, error: err, clientAddress });
 		} finally {
-			session?.[PERSIST_SYMBOL]();
+			await session?.[PERSIST_SYMBOL]();
 		}
 
 		if (
@@ -412,7 +424,7 @@ export class App {
 					});
 				}
 			} finally {
-				session?.[PERSIST_SYMBOL]();
+				await session?.[PERSIST_SYMBOL]();
 			}
 		}
 

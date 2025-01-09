@@ -20,12 +20,8 @@ export const markdownContentEntryType: ContentEntryType = {
 	async getRenderFunction(config) {
 		const processor = await createMarkdownProcessor(config.markdown);
 		return async function renderToString(entry) {
-			if (!entry.body) {
-				return {
-					html: '',
-				};
-			}
-			const result = await processor.render(entry.body, {
+			// Process markdown even if it's empty as remark/rehype plugins may add content or frontmatter dynamically
+			const result = await processor.render(entry.body ?? '', {
 				frontmatter: entry.data,
 				// @ts-expect-error Internal API
 				fileURL: entry.filePath ? pathToFileURL(entry.filePath) : undefined,

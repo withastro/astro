@@ -21,7 +21,16 @@ export const server = {
 		accept: 'json',
 		handler: async (input, context) => {
 			await context.session.set('cart', []);
-			return {cart: [], message: 'Cart cleared at ' + new Date().toTimeString() };
+			return { cart: [], message: 'Cart cleared at ' + new Date().toTimeString() };
 		},
 	}),
-};
+	addUrl: defineAction({
+		input: z.object({ favoriteUrl: z.string().url() }),
+		handler: async (input, context) => {
+			const previousFavoriteUrl = await context.session.get<URL>('favoriteUrl');
+			const url = new URL(input.favoriteUrl);
+			context.session.set('favoriteUrl', url);
+			return { message: 'Favorite URL set to ' + url.href + ' from ' + (previousFavoriteUrl?.href ?? "nothing") };
+		}
+	})
+}

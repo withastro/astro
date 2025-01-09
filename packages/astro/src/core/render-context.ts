@@ -45,6 +45,7 @@ export class RenderContext {
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
+		// It must be a DECODED pathname
 		public pathname: string,
 		public request: Request,
 		public routeData: RouteData,
@@ -90,7 +91,7 @@ export class RenderContext {
 			pipeline,
 			locals,
 			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
-			decodeURI(pathname),
+			pathname,
 			request,
 			routeData,
 			status,
@@ -102,7 +103,6 @@ export class RenderContext {
 			partial,
 		);
 	}
-
 	/**
 	 * The main function of the RenderContext.
 	 *
@@ -175,7 +175,14 @@ export class RenderContext {
 				if (payload instanceof Request) {
 					this.request = payload;
 				} else {
-					this.request = copyRequest(newUrl, this.request);
+					this.request = copyRequest(
+						newUrl,
+						this.request,
+						// need to send the flag of the previous routeData
+						routeData.prerender,
+						this.pipeline.logger,
+						this.routeData.route,
+					);
 				}
 				this.isRewriting = true;
 				this.url = new URL(this.request.url);
@@ -290,7 +297,14 @@ export class RenderContext {
 		if (reroutePayload instanceof Request) {
 			this.request = reroutePayload;
 		} else {
-			this.request = copyRequest(newUrl, this.request);
+			this.request = copyRequest(
+				newUrl,
+				this.request,
+				// need to send the flag of the previous routeData
+				routeData.prerender,
+				this.pipeline.logger,
+				this.routeData.route,
+			);
 		}
 		this.url = new URL(this.request.url);
 		this.cookies = new AstroCookies(this.request);
