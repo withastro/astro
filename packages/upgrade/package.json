@@ -1,12 +1,12 @@
 {
   "name": "@astrojs/upgrade",
-  "version": "0.3.4",
+  "version": "0.4.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/upgrade"
   },
   "bugs": "https://github.com/withastro/astro/issues",
@@ -40,6 +40,6 @@
     "astro-scripts": "workspace:*"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
+    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
   }
 }

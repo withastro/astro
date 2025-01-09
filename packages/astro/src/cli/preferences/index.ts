@@ -3,7 +3,6 @@ import { formatWithOptions } from 'node:util';
 import dlv from 'dlv';
 import { flattie } from 'flattie';
 import { bgGreen, black, bold, dim, yellow } from 'kleur/colors';
-import type { AstroSettings } from '../../@types/astro.js';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
@@ -11,6 +10,7 @@ import * as msg from '../../core/messages.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import { type PreferenceKey, coerce, isValidKey } from '../../preferences/index.js';
+import type { AstroSettings } from '../../types/astro.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface PreferencesOptions {

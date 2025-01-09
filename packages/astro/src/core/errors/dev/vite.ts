@@ -3,11 +3,11 @@ import { fileURLToPath } from 'node:url';
 import { codeToHtml, createCssVariablesTheme } from 'shiki';
 import type { ShikiTransformer } from 'shiki';
 import type { ErrorPayload } from 'vite';
+import type { SSRLoadedRenderer } from '../../../types/public/internal.js';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
 import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
-import type { SSRLoadedRenderer } from './../../../@types/astro.js';
 import { getDocsForError, renderErrorMarkdown } from './utils.js';
 
 export function enhanceViteSSRError({
@@ -105,6 +105,7 @@ export function enhanceViteSSRError({
 }
 
 export interface AstroErrorPayload {
+	__isEnhancedAstroErrorPayload: true;
 	type: ErrorPayload['type'];
 	err: Omit<ErrorPayload['err'], 'loc'> & {
 		name?: string;
@@ -164,6 +165,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 		: undefined;
 
 	return {
+		__isEnhancedAstroErrorPayload: true,
 		type: 'error',
 		err: {
 			...err,

@@ -1,27 +1,19 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
 	"files": {
-		"ignore": [
-			"vendor",
-			"**/dist/**",
-			"**/smoke/**",
-			"**/fixtures/**",
-			"**/vendor/**",
-			"**/.vercel/**",
-		],
-		"include": ["test/**", "e2e/**", "packages/**", "/scripts/**"],
+		"ignore": ["**/smoke/**", "**/fixtures/**", "**/_temp-fixtures/**", "**/vendor/**"],
+		"include": ["test/**", "e2e/**", "packages/**", "scripts/**", "benchmark"],
+	},
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true,
 	},
 	"formatter": {
 		"indentStyle": "tab",
 		"indentWidth": 2,
 		"lineWidth": 100,
-		"ignore": [
-			"benchmark/projects/",
-			"benchmark/results/",
-			".changeset",
-			"pnpm-lock.yaml",
-			"*.astro",
-		],
+		"ignore": [".changeset", "pnpm-lock.yaml", "*.astro"],
 	},
 	"organizeImports": {
 		"enabled": true,
@@ -42,6 +34,7 @@
 			"correctness": {
 				"noUnusedVariables": "info",
 				"noUnusedFunctionParameters": "info",
+				"noUnusedImports": "warn",
 			},
 		},
 	},
@@ -95,11 +88,12 @@
 			},
 		},
 		{
-			"include": ["*.astro", "client.d.ts"],
+			"include": ["*.astro", "client.d.ts", "jsx-runtime.d.ts"],
 			"linter": {
 				"rules": {
 					"correctness": {
 						"noUnusedVariables": "off",
+						"noUnusedImports": "off",
 					},
 				},
 			},

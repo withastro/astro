@@ -1,4 +1,4 @@
-import type { AstroConfig, Locales } from '../@types/astro.js';
+import type { AstroConfig, Locales } from '../types/public/config.js';
 import { normalizeTheLocale, toCodes } from './index.js';
 
 type BrowserLocale = {
@@ -157,7 +157,6 @@ export function computeCurrentLocale(
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
 				// we skip ta locale that isn't present in the current segment
-
 				if (!segment.includes(locale)) continue;
 				if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
 					return locale;

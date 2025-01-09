@@ -1,5 +1,4 @@
 import { blue, bold, dim, red, yellow } from 'kleur/colors';
-import stringWidth from 'string-width';
 
 export interface LogWritable<T> {
 	write: (chunk: T) => boolean;
@@ -33,6 +32,8 @@ export type LoggerLabel =
 	| 'assets'
 	| 'env'
 	| 'update'
+	| 'adapter'
+	| 'islands'
 	// SKIP_FORMAT: A special label that tells the logger not to apply any formatting.
 	// Useful for messages that are already formatted, like the server start message.
 	| 'SKIP_FORMAT';
@@ -117,28 +118,10 @@ export function error(opts: LogOptions, label: string | null, message: string, n
 	return log(opts, 'error', label, message, newLine);
 }
 
-type LogFn = typeof info | typeof warn | typeof error;
-
-export function table(opts: LogOptions, columns: number[]) {
-	return function logTable(logFn: LogFn, ...input: Array<any>) {
-		const message = columns.map((len, i) => padStr(input[i].toString(), len)).join(' ');
-		logFn(opts, null, message);
-	};
-}
-
 export function debug(...args: any[]) {
 	if ('_astroGlobalDebug' in globalThis) {
 		(globalThis as any)._astroGlobalDebug(...args);
 	}
-}
-
-function padStr(str: string, len: number) {
-	const strLen = stringWidth(str);
-	if (strLen > len) {
-		return str.substring(0, len - 3) + '...';
-	}
-	const spaces = Array.from({ length: len - strLen }, () => ' ').join('');
-	return str + spaces;
 }
 
 /**

@@ -19,6 +19,14 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 	{ label: 'dribbble', href: 'https://dribbble.com/me', icon: 'dribbble-logo' },
 	{ label: 'YouTube', href: 'https://www.youtube.com/@me/', icon: 'youtube-logo' },
 ];
+
+/** Test if a link is pointing to the current page. */
+const isCurrentPage = (href: string) => {
+	let pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
+	if (pathname.at(0) !== '/') pathname = '/' + pathname;
+	if (pathname.at(-1) !== '/') pathname += '/';
+	return pathname === href || (href !== '/' && pathname.startsWith(href));
+};
 ---
 
 <nav>
@@ -41,18 +49,7 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 			{
 				textLinks.map(({ label, href }) => (
 					<li>
-						<a
-							aria-current={Astro.url.pathname === href}
-							class:list={[
-								'link',
-								{
-									active:
-										Astro.url.pathname === href ||
-										(href !== '/' && Astro.url.pathname.startsWith(href)),
-								},
-							]}
-							href={href}
-						>
+						<a aria-current={isCurrentPage(href) ? 'page' : null} class="link" href={href}>
 							{label}
 						</a>
 					</li>
@@ -79,18 +76,7 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 			{
 				textLinks.map(({ label, href }) => (
 					<li>
-						<a
-							aria-current={Astro.url.pathname === href}
-							class:list={[
-								'link',
-								{
-									active:
-										Astro.url.pathname === href ||
-										(href !== '/' && Astro.url.pathname.startsWith(href)),
-								},
-							]}
-							href={href}
-						>
+						<a aria-current={isCurrentPage(href) ? 'page' : null} class="link" href={href}>
 							{label}
 						</a>
 					</li>
@@ -234,7 +220,7 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 		text-decoration: none;
 	}
 
-	.link.active {
+	.link[aria-current] {
 		color: var(--gray-0);
 	}
 
@@ -332,7 +318,7 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 			background-color: var(--accent-subtle-overlay);
 		}
 
-		.link.active {
+		.link[aria-current='page'] {
 			color: var(--accent-text-over);
 			background-color: var(--accent-regular);
 		}
@@ -360,7 +346,7 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 		}
 	}
 	@media (forced-colors: active) {
-		.link.active {
+		.link[aria-current='page'] {
 			color: SelectedItem;
 		}
 	}

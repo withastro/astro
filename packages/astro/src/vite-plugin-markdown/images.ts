@@ -23,7 +23,6 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 													const matchKey = ${rawUrl} + '_' + occurrenceCounter;
 													const imageProps = JSON.parse(match[1].replace(/&#x22;/g, '"'));
 													const { src, ...props } = imageProps;
-													
 													imageSources[matchKey] = await getImage({src: Astro__${entry.safeName}, ...props});
 													occurrenceCounter++;
 											}
@@ -33,32 +32,28 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 					return imageSources;
 			};
 
-			async function updateImageReferences(html) {
-				return images(html).then((imageSources) => {
-						return html.replaceAll(/__ASTRO_IMAGE_="([^"]+)"/gm, (full, imagePath) => {
-								const decodedImagePath = JSON.parse(imagePath.replace(/&#x22;/g, '"'));
-		
-								// Use the 'index' property for each image occurrence
-								const srcKey = decodedImagePath.src + '_' + decodedImagePath.index;
-		
-								if (imageSources[srcKey].srcSet && imageSources[srcKey].srcSet.values.length > 0) {
-										imageSources[srcKey].attributes.srcset = imageSources[srcKey].srcSet.attribute;
-								}
-		
-								const { index, ...attributesWithoutIndex } = imageSources[srcKey].attributes;
-		
-								return spreadAttributes({
-										src: imageSources[srcKey].src,
-										...attributesWithoutIndex,
-								});
-						});
-				});
-		}
-		
+		async function updateImageReferences(html) {
+			const imageSources = await images(html);
 
-		// NOTE: This causes a top-level await to appear in the user's code, which can break very easily due to a Rollup
-	  // bug and certain adapters not supporting it correctly. See: https://github.com/rollup/rollup/issues/4708
-	  // Tread carefully!
-			const html = await updateImageReferences(${JSON.stringify(html)});
+			return html.replaceAll(/__ASTRO_IMAGE_="([^"]+)"/gm, (full, imagePath) => {
+				const decodedImagePath = JSON.parse(imagePath.replace(/&#x22;/g, '"'));
+
+				// Use the 'index' property for each image occurrence
+				const srcKey = decodedImagePath.src + '_' + decodedImagePath.index;
+
+				if (imageSources[srcKey].srcSet && imageSources[srcKey].srcSet.values.length > 0) {
+					imageSources[srcKey].attributes.srcset = imageSources[srcKey].srcSet.attribute;
+				}
+
+				const { index, ...attributesWithoutIndex } = imageSources[srcKey].attributes;
+
+				return spreadAttributes({
+					src: imageSources[srcKey].src,
+					...attributesWithoutIndex,
+				});
+			});
+		}
+
+		const html = async () => await updateImageReferences(${JSON.stringify(html)});
 	`;
 }

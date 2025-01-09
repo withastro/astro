@@ -1,11 +1,11 @@
 {
   "name": "@astrojs/studio",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "Internal package powering integrations between Astro projects and Astro Studio",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/studio"
   },
   "bugs": "https://github.com/withastro/astro/issues",
@@ -34,14 +34,14 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "ci-info": "^4.0.0",
+    "ci-info": "^4.1.0",
     "kleur": "^4.1.5",
-    "ora": "^8.1.0"
+    "yocto-spinner": "^0.1.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.8"
+    "typescript": "^5.6.3",
+    "vite": "^6.0.5"
   }
 }

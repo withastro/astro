@@ -84,6 +84,7 @@ export class DevToolbarSelect extends HTMLElement {
 	}
 
 	connectedCallback() {
+		this.element.name = 'dev-toolbar-select';
 		this.shadowRoot.append(this.element);
 		this.updateStyle();
 	}

@@ -1,14 +1,14 @@
 {
   "name": "@astrojs/markdoc",
   "description": "Add support for Markdoc in your Astro site",
-  "version": "0.11.5",
+  "version": "0.12.4",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/integrations/markdoc"
   },
   "keywords": [
@@ -68,11 +68,10 @@
     "@markdoc/markdoc": "^0.4.0",
     "esbuild": "^0.21.5",
     "github-slugger": "^2.0.0",
-    "gray-matter": "^4.0.3",
-    "htmlparser2": "^9.1.0"
+    "htmlparser2": "^10.0.0"
   },
   "peerDependencies": {
-    "astro": "^3.0.0 || ^4.0.0"
+    "astro": "^5.0.0"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",
@@ -80,10 +79,10 @@
     "astro-scripts": "workspace:*",
     "devalue": "^5.1.1",
     "linkedom": "^0.18.5",
-    "vite": "^5.4.8"
+    "vite": "^6.0.5"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
+    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true

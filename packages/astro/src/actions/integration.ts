@@ -1,8 +1,9 @@
-import type { AstroIntegration, AstroSettings } from '../@types/astro.js';
 import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
-import { isServerLikeOutput, viteID } from '../core/util.js';
-import { ACTIONS_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
+import { viteID } from '../core/util.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroIntegration } from '../types/public/integrations.js';
+import { ACTIONS_TYPES_FILE, ACTION_RPC_ROUTE_PATTERN, VIRTUAL_MODULE_ID } from './consts.js';
 
 /**
  * This integration is applied when the user is using Actions in their project.
@@ -17,10 +18,11 @@ export default function astroIntegrationActionsRouteHandler({
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
-				params.injectRoute({
-					pattern: '/_actions/[...path]',
+				settings.injectedRoutes.push({
+					pattern: ACTION_RPC_ROUTE_PATTERN,
 					entrypoint: 'astro/actions/runtime/route.js',
 					prerender: false,
+					origin: 'internal',
 				});
 
 				params.addMiddleware({
@@ -29,14 +31,14 @@ export default function astroIntegrationActionsRouteHandler({
 				});
 			},
 			'astro:config:done': async (params) => {
-				if (!isServerLikeOutput(params.config)) {
+				if (params.buildOutput === 'static') {
 					const error = new AstroError(ActionsWithoutServerOutputError);
 					error.stack = undefined;
 					throw error;
 				}
 
 				const stringifiedActionsImport = JSON.stringify(
-					viteID(new URL('./actions', params.config.srcDir)),
+					viteID(new URL('./actions/index.ts', params.config.srcDir)),
 				);
 				settings.injectedTypes.push({
 					filename: ACTIONS_TYPES_FILE,

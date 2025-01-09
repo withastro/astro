@@ -1,6 +1,6 @@
 import type http from 'node:http';
-import type { ManifestData } from '../@types/astro.js';
 import { removeTrailingForwardSlash } from '../core/path.js';
+import type { ManifestData } from '../types/astro.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
 import { recordServerError } from './error.js';
@@ -34,7 +34,9 @@ export async function handleRequest({
 	if (config.trailingSlash === 'never' && !incomingRequest.url) {
 		pathname = '';
 	} else {
-		pathname = url.pathname;
+		// We already have a middleware that checks if there's an incoming URL that has invalid URI, so it's safe
+		// to not handle the error: packages/astro/src/vite-plugin-astro-server/base.ts
+		pathname = decodeURI(url.pathname);
 	}
 
 	// Add config.base back to url before passing it to SSR
@@ -63,7 +65,6 @@ export async function handleRequest({
 				url,
 				pathname: resolvedPathname,
 				body,
-				origin,
 				pipeline,
 				manifestData,
 				incomingRequest: incomingRequest,

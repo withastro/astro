@@ -1,17 +1,14 @@
 import type { IncomingHttpHeaders } from 'node:http';
 import type { Logger } from './logger/core.js';
-import { appendForwardSlash, prependForwardSlash } from './path.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
-type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;
 
 export interface CreateRequestOptions {
-	base: string;
 	url: URL | string;
 	clientAddress?: string | undefined;
 	headers: HeaderType;
 	method?: string;
-	body?: RequestBody | undefined;
+	body?: RequestInit['body'];
 	logger: Logger;
 	locals?: object | undefined;
 	/**
@@ -21,11 +18,12 @@ export interface CreateRequestOptions {
 	 *
 	 * @default false
 	 */
-	staticLike?: boolean;
-}
+	isPrerendered?: boolean;
 
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const clientLocalsSymbol = Symbol.for('astro.locals');
+	routePattern: string;
+
+	init?: RequestInit;
+}
 
 /**
  * Used by astro internals to create a web standard request object.
@@ -35,18 +33,17 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
  * This is used by the static build to create fake requests for prerendering, and by the dev server to convert node requests into the standard request object.
  */
 export function createRequest({
-	base,
 	url,
 	headers,
-	clientAddress,
 	method = 'GET',
 	body = undefined,
 	logger,
-	locals,
-	staticLike = false,
+	isPrerendered = false,
+	routePattern,
+	init,
 }: CreateRequestOptions): Request {
 	// headers are made available on the created request only if the request is for a page that will be on-demand rendered
-	const headersObj = staticLike
+	const headersObj = isPrerendered
 		? undefined
 		: headers instanceof Headers
 			? headers
@@ -60,10 +57,8 @@ export function createRequest({
 
 	if (typeof url === 'string') url = new URL(url);
 
-	const imageEndpoint = prependForwardSlash(appendForwardSlash(base)) + '_image';
-
-	// HACK! astro:assets uses query params for the injected route in `dev`
-	if (staticLike && url.pathname !== imageEndpoint) {
+	// Remove search parameters if the request is for a page that will be on-demand rendered
+	if (isPrerendered) {
 		url.search = '';
 	}
 
@@ -71,29 +66,32 @@ export function createRequest({
 		method: method,
 		headers: headersObj,
 		// body is made available only if the request is for a page that will be on-demand rendered
-		body: staticLike ? null : body,
+		body: isPrerendered ? null : body,
+		...init,
 	});
 
-	if (staticLike) {
+	if (isPrerendered) {
 		// Warn when accessing headers in SSG mode
-		const _headers = request.headers;
-		const headersDesc = Object.getOwnPropertyDescriptor(request, 'headers') || {};
+		let _headers = request.headers;
+
+		// We need to remove descriptor's value and writable properties because we're adding getters and setters.
+		const { value, writable, ...headersDesc } =
+			Object.getOwnPropertyDescriptor(request, 'headers') || {};
+
 		Object.defineProperty(request, 'headers', {
 			...headersDesc,
 			get() {
 				logger.warn(
 					null,
-					`\`Astro.request.headers\` is unavailable in "static" output mode, and in prerendered pages within "hybrid" and "server" output modes. If you need access to request headers, make sure that \`output\` is configured as either \`"server"\` or \`output: "hybrid"\` in your config file, and that the page accessing the headers is rendered on-demand.`,
+					`\`Astro.request.headers\` was used when rendering the route \`${routePattern}'\`. \`Astro.request.headers\` is not available on prerendered pages. If you need access to request headers, make sure that the page is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server-rendered by default.`,
 				);
 				return _headers;
 			},
+			set(newHeaders: Headers) {
+				_headers = newHeaders;
+			},
 		});
-	} else if (clientAddress) {
-		// clientAddress is stored to be read by RenderContext, only if the request is for a page that will be on-demand rendered
-		Reflect.set(request, clientAddressSymbol, clientAddress);
 	}
-
-	Reflect.set(request, clientLocalsSymbol, locals ?? {});
 
 	return request;
 }

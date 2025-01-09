@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte",
-  "version": "5.7.2",
+  "version": "7.0.3",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -8,7 +8,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/integrations/svelte"
   },
   "keywords": [
@@ -23,26 +23,15 @@
     ".": "./dist/index.js",
     "./editor": "./dist/editor.cjs",
     "./*": "./*",
-    "./client.js": "./client.js",
-    "./client-v5.js": "./client-v5.js",
-    "./server.js": {
-      "default": "./server.js",
-      "types": "./server.d.ts"
-    },
-    "./server-v5.js": {
-      "default": "./server-v5.js",
-      "types": "./server-v5.d.ts"
-    },
+    "./client.js": "./client.svelte.js",
+    "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
-    "client.js",
-    "client-v5.js",
+    "client.svelte.js",
     "server.js",
-    "server.d.ts",
-    "server-v5.js",
-    "server-v5.d.ts"
+    "server.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
@@ -50,22 +39,22 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^3.1.2",
-    "svelte2tsx": "^0.7.21"
+    "@sveltejs/vite-plugin-svelte": "^5.0.1",
+    "svelte2tsx": "^0.7.22",
+    "vite": "^6.0.5"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^4.2.19",
-    "vite": "^5.4.8"
+    "svelte": "^5.2.9"
   },
   "peerDependencies": {
-    "astro": "^4.0.0",
-    "svelte": "^4.0.0 || ^5.0.0-next.190",
+    "astro": "^5.0.0",
+    "svelte": "^5.1.16",
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
+    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true

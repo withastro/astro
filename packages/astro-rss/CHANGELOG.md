@@ -1,5 +1,23 @@
 # @astrojs/rss
 
+## 4.0.11
+
+### Patch Changes
+
+- [#12829](https://github.com/withastro/astro/pull/12829) [`ebe2aa9`](https://github.com/withastro/astro/commit/ebe2aa95c7f4a6559cec8b82d155da34a57bdd53) Thanks [@SapphicMoe](https://github.com/SapphicMoe)! - Revert incorrect Content-Type header applied for RSS XML file
+
+## 4.0.10
+
+### Patch Changes
+
+- [#12644](https://github.com/withastro/astro/pull/12644) [`5b9b618`](https://github.com/withastro/astro/commit/5b9b6181839d8ae0ad0a0d475257b7e09f748950) Thanks [@kunyan](https://github.com/kunyan)! - Sends the standard RSS content type response header, with UTF-8 charset
+
+## 4.0.9
+
+### Patch Changes
+
+- [#12157](https://github.com/withastro/astro/pull/12157) [`925cff3`](https://github.com/withastro/astro/commit/925cff31bc040874e73decd6a6b3a5ba84c60258) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improves README configuration reference.
+
 ## 4.0.8
 
 ### Patch Changes

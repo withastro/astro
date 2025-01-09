@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
-import { promises as fs } from 'node:fs';
+import { promises as fs, existsSync } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
+import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
+import { Logger } from '../dist/core/logger/core.js';
 
 import { loadFixture } from './test-utils.js';
 describe('Content Layer', () => {
@@ -53,11 +55,11 @@ describe('Content Layer', () => {
 			assert.equal(json.customLoader.length, 5);
 		});
 
-		it('Returns `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('fileLoader'));
-			assert.ok(Array.isArray(json.fileLoader));
+		it('Returns json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('jsonLoader'));
+			assert.ok(Array.isArray(json.jsonLoader));
 
-			const ids = json.fileLoader.map((item) => item.data.id);
+			const ids = json.jsonLoader.map((item) => item.data.id);
 			assert.deepEqual(ids, [
 				'labrador-retriever',
 				'german-shepherd',
@@ -85,6 +87,68 @@ describe('Content Layer', () => {
 				'english-springer-spaniel',
 				'shetland-sheepdog',
 			]);
+		});
+
+		it('handles negative matches in glob() loader', async () => {
+			assert.ok(json.hasOwnProperty('probes'));
+			assert.ok(Array.isArray(json.probes));
+			assert.equal(json.probes.length, 5);
+			assert.ok(
+				json.probes.every(({ id }) => !id.startsWith('voyager')),
+				'Voyager probes should not be included',
+			);
+		});
+
+		it('Returns nested json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('nestedJsonLoader'));
+			assert.ok(Array.isArray(json.nestedJsonLoader));
+
+			const ids = json.nestedJsonLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
+		});
+
+		it('Returns yaml `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('yamlLoader'));
+			assert.ok(Array.isArray(json.yamlLoader));
+
+			const ids = json.yamlLoader.map((item) => item.id);
+			assert.deepEqual(ids, [
+				'bubbles',
+				'finn',
+				'shadow',
+				'spark',
+				'splash',
+				'nemo',
+				'angel-fish',
+				'gold-stripe',
+				'blue-tail',
+				'bubble-buddy',
+			]);
+		});
+
+		it('Returns toml `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('tomlLoader'));
+			assert.ok(Array.isArray(json.tomlLoader));
+
+			const ids = json.tomlLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, [
+				'crown',
+				'nikes-on-my-feet',
+				'stars',
+				'never-let-me-down',
+				'no-church-in-the-wild',
+				'family-ties',
+				'somebody',
+				'honest',
+			]);
+		});
+
+		it('Returns nested json `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('nestedJsonLoader'));
+			assert.ok(Array.isArray(json.nestedJsonLoader));
+
+			const ids = json.nestedJsonLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
 		});
 
 		it('Returns data entry by id', async () => {
@@ -124,6 +188,23 @@ describe('Content Layer', () => {
 			});
 		});
 
+		it('returns a collection from a simple loader that uses an object', async () => {
+			assert.ok(json.hasOwnProperty('simpleLoaderObject'));
+			assert.ok(Array.isArray(json.simpleLoaderObject));
+			assert.deepEqual(json.simpleLoaderObject[0], {
+				id: 'capybara',
+				collection: 'rodents',
+				data: {
+					name: 'Capybara',
+					scientificName: 'Hydrochoerus hydrochaeris',
+					lifespan: 10,
+					weight: 50000,
+					diet: ['grass', 'aquatic plants', 'bark', 'fruits'],
+					nocturnal: false,
+				},
+			});
+		});
+
 		it('transforms a reference id to a reference object', async () => {
 			assert.ok(json.hasOwnProperty('entryWithReference'));
 			assert.deepEqual(json.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
@@ -136,6 +217,12 @@ describe('Content Layer', () => {
 		it('loads images in frontmatter', async () => {
 			assert.ok(json.entryWithReference.data.heroImage.src.startsWith('/_astro'));
 			assert.equal(json.entryWithReference.data.heroImage.format, 'jpg');
+		});
+
+		it('loads images with uppercase extensions', async () => {
+			assert.ok(json.atlantis.data.heroImage.src.startsWith('/_astro'));
+			assert.ok(json.atlantis.data.heroImage.src.endsWith('.JPG'));
+			assert.equal(json.atlantis.data.heroImage.format, 'jpg');
 		});
 
 		it('loads images from custom loaders', async () => {
@@ -180,6 +267,10 @@ describe('Content Layer', () => {
 			});
 		});
 
+		it('allows "slug" as a field', async () => {
+			assert.equal(json.increment.data.slug, 'slimy');
+		});
+
 		it('updates the store on new builds', async () => {
 			assert.equal(json.increment.data.lastValue, 1);
 			assert.equal(json.entryWithReference.data.something?.content, 'transform me');
@@ -199,11 +290,23 @@ describe('Content Layer', () => {
 			assert.equal(newJson.entryWithReference.data.something?.content, 'transform me');
 		});
 
-		it('clears the store on new build if the config has changed', async () => {
+		it('clears the store on new build if the content config has changed', async () => {
 			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 1);
-			await fixture.editFile('src/content/config.ts', (prev) => {
+			await fixture.editFile('src/content.config.ts', (prev) => {
 				return `${prev}\nexport const foo = 'bar';`;
+			});
+			await fixture.build();
+			newJson = devalue.parse(await fixture.readFile('/collections.json'));
+			assert.equal(newJson.increment.data.lastValue, 1);
+			await fixture.resetAllFiles();
+		});
+
+		it('clears the store on new build if the Astro config has changed', async () => {
+			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
+			assert.equal(newJson.increment.data.lastValue, 1);
+			await fixture.editFile('astro.config.mjs', (prev) => {
+				return prev.replace('Astro content layer', 'Astro more content layer');
 			});
 			await fixture.build();
 			newJson = devalue.parse(await fixture.readFile('/collections.json'));
@@ -215,8 +318,21 @@ describe('Content Layer', () => {
 	describe('Dev', () => {
 		let devServer;
 		let json;
+		const logs = [];
 		before(async () => {
-			devServer = await fixture.startDevServer({ force: true });
+			devServer = await fixture.startDevServer({
+				force: true,
+				logger: new Logger({
+					level: 'warn',
+					dest: new Writable({
+						objectMode: true,
+						write(event, _, callback) {
+							logs.push(event);
+							callback();
+						},
+					}),
+				}),
+			});
 			// Vite may not have noticed the saved data store yet. Wait a little just in case.
 			await fixture.onNextDataStoreChange(1000).catch(() => {
 				// Ignore timeout, because it may have saved before we get here.
@@ -228,6 +344,22 @@ describe('Content Layer', () => {
 
 		after(async () => {
 			devServer?.stop();
+		});
+
+		it("warns about missing directory in glob() loader's path", async () => {
+			assert.ok(logs.find((log) => log.level === 'warn' && log.message.includes('does not exist')));
+		});
+
+		it("warns about missing files in glob() loader's path", async () => {
+			assert.ok(
+				logs.find((log) => log.level === 'warn' && log.message.includes('No files found matching')),
+			);
+		});
+
+		it('Generates content types files', async () => {
+			assert.ok(existsSync(new URL('./.astro/content.d.ts', fixture.config.root)));
+			const data = await fs.readFile(new URL('./.astro/types.d.ts', fixture.config.root), 'utf-8');
+			assert.match(data, /<reference path="content.d.ts"/);
 		});
 
 		it('Returns custom loader collection', async () => {
@@ -248,10 +380,10 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('fileLoader'));
-			assert.ok(Array.isArray(json.fileLoader));
+			assert.ok(json.hasOwnProperty('jsonLoader'));
+			assert.ok(Array.isArray(json.jsonLoader));
 
-			const ids = json.fileLoader.map((item) => item.data.id);
+			const ids = json.jsonLoader.map((item) => item.data.id);
 			assert.deepEqual(ids, [
 				'labrador-retriever',
 				'german-shepherd',
@@ -299,10 +431,28 @@ describe('Content Layer', () => {
 			});
 		});
 
+		it('reloads data when an integration triggers a content refresh', async () => {
+			const rawJsonResponse = await fixture.fetch('/collections.json');
+			const initialJson = devalue.parse(await rawJsonResponse.text());
+			assert.equal(initialJson.increment.data.lastValue, 1);
+			const now = new Date().toISOString();
+
+			const refreshResponse = await fixture.fetch('/_refresh', {
+				method: 'POST',
+				body: JSON.stringify({ now }),
+			});
+			const refreshData = await refreshResponse.json();
+			assert.equal(refreshData.message, 'Content refreshed successfully');
+			const updatedJsonResponse = await fixture.fetch('/collections.json');
+			const updated = devalue.parse(await updatedJsonResponse.text());
+			assert.equal(updated.increment.data.lastValue, 2);
+			assert.deepEqual(updated.increment.data.refreshContextData, { webhookBody: { now } });
+		});
+
 		it('updates collection when data file is changed', async () => {
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const initialJson = devalue.parse(await rawJsonResponse.text());
-			assert.equal(initialJson.fileLoader[0].data.temperament.includes('Bouncy'), false);
+			assert.equal(initialJson.jsonLoader[0].data.temperament.includes('Bouncy'), false);
 
 			await fixture.editFile('/src/data/dogs.json', (prev) => {
 				const data = JSON.parse(prev);
@@ -313,7 +463,7 @@ describe('Content Layer', () => {
 			await fixture.onNextDataStoreChange();
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
-			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
+			assert.ok(updated.jsonLoader[0].data.temperament.includes('Bouncy'));
 			await fixture.resetAllFiles();
 		});
 
@@ -322,6 +472,27 @@ describe('Content Layer', () => {
 			const text = await res.text();
 			assert.equal(res.status, 500);
 			assert.ok(text.includes('RenderUndefinedEntryError'));
+		});
+
+		it('update the store when a file is renamed', async () => {
+			const rawJsonResponse = await fixture.fetch('/collections.json');
+			const initialJson = devalue.parse(await rawJsonResponse.text());
+			assert.equal(initialJson.numbers.map((e) => e.id).includes('src/data/glob-data/three'), true);
+
+			const oldPath = new URL('./data/glob-data/three.json', fixture.config.srcDir);
+			const newPath = new URL('./data/glob-data/four.json', fixture.config.srcDir);
+
+			await fs.rename(oldPath, newPath);
+			await fixture.onNextDataStoreChange();
+
+			try {
+				const updatedJsonResponse = await fixture.fetch('/collections.json');
+				const updated = devalue.parse(await updatedJsonResponse.text());
+				assert.equal(updated.numbers.map((e) => e.id).includes('src/data/glob-data/three'), false);
+				assert.equal(updated.numbers.map((e) => e.id).includes('src/data/glob-data/four'), true);
+			} finally {
+				await fs.rename(newPath, oldPath);
+			}
 		});
 	});
 });

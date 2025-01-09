@@ -1,12 +1,12 @@
 {
   "name": "create-astro",
-  "version": "4.9.2",
+  "version": "4.11.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/create-astro"
   },
   "bugs": "https://github.com/withastro/astro/issues",
@@ -32,7 +32,7 @@
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
     "@astrojs/cli-kit": "^0.4.1",
-    "@bluwy/giget-core": "^0.1.0"
+    "@bluwy/giget-core": "^0.1.1"
   },
   "devDependencies": {
     "arg": "^5.0.2",
@@ -40,7 +40,7 @@
     "strip-json-comments": "^5.0.1"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
+    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true

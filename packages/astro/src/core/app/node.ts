@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
-import type { RouteData } from '../../@types/astro.js';
+import type { RouteData } from '../../types/public/internal.js';
+import { clientAddressSymbol } from '../constants.js';
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import { App } from './index.js';
@@ -9,8 +10,6 @@ import type { RenderOptions } from './index.js';
 import type { SSRManifest, SerializedSSRManifest } from './types.js';
 
 export { apply as applyPolyfills } from '../polyfill.js';
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
 /**
  * Allow the request body to be explicitly overridden. For example, this
@@ -83,12 +82,10 @@ export class NodeApp extends App {
 		const hostname = forwardedHostname ?? req.headers.host ?? req.headers[':authority'];
 
 		// @example "443,8080,80" => "443"
-		const forwardedPort = getFirstForwardedValue(req.headers['x-forwarded-port']);
-		const port =
-			forwardedPort ?? req.socket?.remotePort?.toString() ?? (isEncrypted ? '443' : '80');
+		const port = getFirstForwardedValue(req.headers['x-forwarded-port']);
 
 		const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
-		const hostnamePort = portInHostname ? hostname : `${hostname}:${port}`;
+		const hostnamePort = portInHostname ? hostname : `${hostname}${port ? `:${port}` : ''}`;
 
 		const url = `${protocol}://${hostnamePort}${req.url}`;
 		const options: RequestInit = {
@@ -156,8 +153,10 @@ export class NodeApp extends App {
 			}
 			destination.end();
 			// the error will be logged by the "on end" callback above
-		} catch {
-			destination.end('Internal server error');
+		} catch (err) {
+			destination.write('Internal server error', () => {
+				err instanceof Error ? destination.destroy(err) : destination.destroy();
+			});
 		}
 	}
 }

@@ -5,15 +5,14 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/alpinejs": "^0.4.0",
+    "@astrojs/alpinejs": "^0.4.1",
     "@types/alpinejs": "^3.13.10",
-    "alpinejs": "^3.14.1",
-    "astro": "^4.16.0"
+    "alpinejs": "^3.14.3",
+    "astro": "^5.1.4"
   }
 }

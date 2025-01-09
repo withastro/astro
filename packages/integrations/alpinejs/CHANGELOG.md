@@ -1,5 +1,11 @@
 # @astrojs/alpinejs
 
+## 0.4.1
+
+### Patch Changes
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
 ## 0.4.0
 
 ### Minor Changes

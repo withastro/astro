@@ -149,6 +149,13 @@ describe('Dev rewrite, hybrid/server', () => {
 
 		assert.equal($('title').text(), 'RewriteWithBodyUsed');
 	});
+
+	it('should error when rewriting from a SSR route to a SSG route', async () => {
+		const html = await fixture.fetch('/forbidden/dynamic').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.match($('title').text(), /ForbiddenRewrite/);
+	});
 });
 
 describe('Build reroute', () => {

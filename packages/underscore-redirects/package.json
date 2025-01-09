@@ -1,13 +1,13 @@
 {
   "name": "@astrojs/underscore-redirects",
   "description": "Utilities to generate _redirects files in Astro projects",
-  "version": "0.3.4",
+  "version": "0.6.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/underscore-redirects"
   },
   "bugs": "https://github.com/withastro/astro/issues",
