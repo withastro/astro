@@ -180,16 +180,15 @@ export default new Map([\n${lines.join(',\n')}]);
 
 	#saveToDiskDebounced() {
 		this.#dirty = true;
-		// Only save to disk if it has already been saved once
-		if (this.#file) {
-			if (this.#saveTimeout) {
-				clearTimeout(this.#saveTimeout);
-			}
-			this.#saveTimeout = setTimeout(() => {
-				this.#saveTimeout = undefined;
-				this.writeToDisk();
-			}, SAVE_DEBOUNCE_MS);
+		if (this.#saveTimeout) {
+			clearTimeout(this.#saveTimeout);
 		}
+		this.#saveTimeout = setTimeout(() => {
+			this.#saveTimeout = undefined;
+			if (this.#file) {
+				this.writeToDisk();
+			}
+		}, SAVE_DEBOUNCE_MS);
 	}
 
 	#writing = new Set<string>();
