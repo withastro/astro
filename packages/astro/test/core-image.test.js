@@ -1006,9 +1006,8 @@ describe('astro:image', () => {
 				.sort();
 			const cachedImages = [
 				...(await fixture.glob('../node_modules/.astro/assets/**/*.webp')),
-				...(await fixture.glob('../node_modules/.astro/assets/**/*.json')),
 			]
-				.map((path) => basename(path).replace('.webp.json', '.webp'))
+				.map((path) => basename(path))
 				.sort();
 
 			assert.deepEqual(generatedImages, cachedImages);
@@ -1034,6 +1033,16 @@ describe('astro:image', () => {
 			);
 
 			assert.equal(isReusingCache, true);
+		});
+
+		it('writes remote image cache metadata', async () => {
+			const html = await fixture.readFile('/remote/index.html');
+			const $ = cheerio.load(html);
+			const metaSrc = "../node_modules/.astro/assets/" + basename($('#remote img').attr('src')) + ".json";
+			const data = await fixture.readFile(metaSrc, null);
+			assert.equal(data instanceof Buffer, true);
+			const metadata = JSON.parse(data.toString());
+			assert.equal(typeof metadata.expires, "number");
 		});
 
 		it('client images are written to build', async () => {
