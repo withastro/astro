@@ -246,7 +246,7 @@ export async function handleRoute({
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (fourOhFourRoute) {
 			renderContext = await RenderContext.create({
-				locals: {},
+				locals,
 				pipeline,
 				pathname,
 				middleware: isDefaultPrerendered404(fourOhFourRoute.route) ? undefined : middleware,
