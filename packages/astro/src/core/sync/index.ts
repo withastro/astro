@@ -49,6 +49,7 @@ export type SyncOptions = {
 		cleanup?: boolean;
 	};
 	manifest: ManifestData;
+	command: "build" | "dev" | "sync";
 };
 
 export default async function sync(
@@ -78,6 +79,7 @@ export default async function sync(
 		fs,
 		force: inlineConfig.force,
 		manifest,
+		command: 'sync',
 	});
 }
 
@@ -117,8 +119,9 @@ export async function syncInternal({
 	skip,
 	force,
 	manifest,
+	command,
 }: SyncOptions): Promise<void> {
-	const isDev = mode === 'development';
+	const isDev = command === 'dev';
 	if (force) {
 		await clearContentLayerCache({ settings, logger, fs, isDev });
 	}

@@ -155,6 +155,7 @@ class AstroBuilder {
 			logger,
 			fs,
 			manifest: this.manifest,
+			command: 'build',
 		});
 
 		return { viteConfig };
