@@ -46,6 +46,17 @@ interface AstroContentVirtualModPluginParams {
 	fs: typeof nodeFs;
 }
 
+function invalidateDataStore(server: ViteDevServer) {
+	const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+	if (module) {
+		server.moduleGraph.invalidateModule(module);
+	}
+	server.ws.send({
+		type: 'full-reload',
+		path: '*',
+	});
+}
+
 export function astroContentVirtualModPlugin({
 	settings,
 	fs,
@@ -59,8 +70,12 @@ export function astroContentVirtualModPlugin({
 			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
 		},
 		buildStart() {
-			// We defer adding the data store file to the watcher until the server is ready
-			devServer?.watcher.add(fileURLToPath(dataStoreFile));
+			if (devServer) {
+				// We defer adding the data store file to the watcher until the server is ready
+				devServer.watcher.add(fileURLToPath(dataStoreFile));
+				// Manually invalidate the data store to avoid a race condition in file watching
+				invalidateDataStore(devServer);
+			}
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
@@ -164,29 +179,17 @@ export function astroContentVirtualModPlugin({
 		configureServer(server) {
 			devServer = server;
 			const dataStorePath = fileURLToPath(dataStoreFile);
-
-			function invalidateDataStore() {
-				const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
-				if (module) {
-					server.moduleGraph.invalidateModule(module);
-				}
-				server.ws.send({
-					type: 'full-reload',
-					path: '*',
-				});
-			}
-
 			// If the datastore file changes, invalidate the virtual module
 
 			server.watcher.on('add', (addedPath) => {
 				if (addedPath === dataStorePath) {
-					invalidateDataStore();
+					invalidateDataStore(server);
 				}
 			});
 
 			server.watcher.on('change', (changedPath) => {
 				if (changedPath === dataStorePath) {
-					invalidateDataStore();
+					invalidateDataStore(server);
 				}
 			});
 		},

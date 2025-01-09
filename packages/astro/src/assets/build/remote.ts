@@ -1,7 +1,7 @@
 import CachePolicy from 'http-cache-semantics';
 
 export type RemoteCacheEntry = {
-	data: string;
+	data?: string;
 	expires: number;
 	etag?: string;
 	lastModified?: string;

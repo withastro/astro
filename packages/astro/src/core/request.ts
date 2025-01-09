@@ -2,14 +2,20 @@ import type { IncomingHttpHeaders } from 'node:http';
 import type { Logger } from './logger/core.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
-type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;
+type RequestBody =
+	| ArrayBuffer
+	| Blob
+	| ReadableStream
+	| URLSearchParams
+	| FormData
+	| ReadableStream<Uint8Array>;
 
 export interface CreateRequestOptions {
 	url: URL | string;
 	clientAddress?: string | undefined;
 	headers: HeaderType;
 	method?: string;
-	body?: RequestBody | undefined;
+	body?: RequestBody | undefined | null;
 	logger: Logger;
 	locals?: object | undefined;
 	/**
@@ -22,6 +28,8 @@ export interface CreateRequestOptions {
 	isPrerendered?: boolean;
 
 	routePattern: string;
+
+	init?: RequestInit;
 }
 
 /**
@@ -39,6 +47,7 @@ export function createRequest({
 	logger,
 	isPrerendered = false,
 	routePattern,
+	init,
 }: CreateRequestOptions): Request {
 	// headers are made available on the created request only if the request is for a page that will be on-demand rendered
 	const headersObj = isPrerendered
@@ -65,6 +74,7 @@ export function createRequest({
 		headers: headersObj,
 		// body is made available only if the request is for a page that will be on-demand rendered
 		body: isPrerendered ? null : body,
+		...init,
 	});
 
 	if (isPrerendered) {
