@@ -119,7 +119,7 @@ export const upgrade = async (packageInfo: PackageInfo, text: string) => {
 
 	const fromVersion = currentVersion.replace(/^\D+/, '');
 	const toVersion = targetVersion.replace(/^\D+/, '');
-	const version = `v${fromVersion} → v${toVersion}`;
+	const version = `from v${fromVersion} to v${toVersion}`;
 
 	const length = 12 + name.length + text.length + version.length;
 	if (length > stdout.columns) {
