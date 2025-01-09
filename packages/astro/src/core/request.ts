@@ -8,14 +8,14 @@ type RequestBody =
 	| ReadableStream
 	| URLSearchParams
 	| FormData
-	| ReadableStream<Uint8Array>;
+	| Request['body'];
 
 export interface CreateRequestOptions {
 	url: URL | string;
 	clientAddress?: string | undefined;
 	headers: HeaderType;
 	method?: string;
-	body?: RequestBody | undefined | null;
+	body?: RequestBody | undefined;
 	logger: Logger;
 	locals?: object | undefined;
 	/**
