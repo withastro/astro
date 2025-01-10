@@ -24,6 +24,7 @@ export async function check(
 	} catch (e) {
 		throwEnhancedErrorIfMdxComponent(e as Error, Component);
 	}
+	return false;
 }
 
 export async function renderToStaticMarkup(
