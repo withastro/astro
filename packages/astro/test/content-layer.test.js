@@ -486,16 +486,15 @@ describe('Content Layer', () => {
 
 			await fixture.editFile('/src/content/space/exomars.md', (prev) => {
 				return prev.replace('rosalind-franklin-rover', 'rosalind-franklin');
-			})
+			});
 
 			await fixture.onNextDataStoreChange();
 			const updatedJsonResponse2 = await fixture.fetch('/collections.json');
 			const updated2 = devalue.parse(await updatedJsonResponse2.text());
 			assert.ok(!updated2.spacecraft.includes('rosalind-franklin-rover'));
 			assert.ok(updated2.spacecraft.includes('rosalind-franklin'));
-			
-			await fixture.resetAllFiles();
 
+			await fixture.resetAllFiles();
 		});
 
 		it('returns an error if we render an undefined entry', async () => {

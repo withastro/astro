@@ -93,7 +93,12 @@ export function glob(globOptions: GlobOptions): Loader {
 			const isLegacy = (globOptions as any)._legacy;
 			// If global legacy collection handling flag is *not* enabled then this loader is used to emulate them instead
 			const emulateLegacyCollections = !config.legacy.collections;
-			async function syncData(entry: string, base: URL, entryType?: ContentEntryType, oldId?: string) {
+			async function syncData(
+				entry: string,
+				base: URL,
+				entryType?: ContentEntryType,
+				oldId?: string,
+			) {
 				if (!entryType) {
 					logger.warn(`No entry type found for ${entry}`);
 					return;
@@ -116,7 +121,7 @@ export function glob(globOptions: GlobOptions): Loader {
 
 				const id = generateId({ entry, base, data });
 
-				if(oldId && oldId !== id) {
+				if (oldId && oldId !== id) {
 					store.delete(oldId);
 				}
 
