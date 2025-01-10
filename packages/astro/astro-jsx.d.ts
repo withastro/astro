@@ -837,7 +837,7 @@ declare namespace astroHTML.JSX {
 
 	interface LinkHTMLAttributes extends HTMLAttributes {
 		as?: string | undefined | null;
-		blocking?: 'render'	 | undefined | null;
+		blocking?: 'render' | undefined | null;
 		crossorigin?: boolean | string | undefined | null;
 		disabled?: boolean | undefined | null;
 		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
