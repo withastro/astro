@@ -278,8 +278,7 @@ export class ContentLayer {
 		);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
-		const cacheFile = getDataStoreFile(this.#settings);
-		await this.#store.writeToDisk(cacheFile);
+		await this.#store.writeToDisk();
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeAssetImports(assetImportsFile);
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
@@ -379,8 +378,7 @@ export async function simpleLoader<TData extends { id: string }>(
  * During development, this is in the `.astro` directory so that the Vite watcher can see it.
  * In production, it's in the cache directory so that it's preserved between builds.
  */
-export function getDataStoreFile(settings: AstroSettings, isDev?: boolean) {
-	isDev ??= process?.env.NODE_ENV === 'development';
+export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
 	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }
 

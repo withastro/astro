@@ -68,7 +68,8 @@ export default async function build(
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	if (inlineConfig.force) {
-		await clearContentLayerCache({ settings, logger, fs });
+		// isDev is always false, because it's interested in the build command, not the output type
+		await clearContentLayerCache({ settings, logger, fs, isDev: false });
 	}
 
 	const builder = new AstroBuilder(settings, {
@@ -154,6 +155,7 @@ class AstroBuilder {
 			logger,
 			fs,
 			manifest: this.manifest,
+			command: 'build',
 		});
 
 		return { viteConfig };

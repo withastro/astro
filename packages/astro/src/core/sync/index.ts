@@ -1,4 +1,4 @@
-import fsMod, { existsSync } from 'node:fs';
+import fsMod from 'node:fs';
 import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
@@ -49,6 +49,7 @@ export type SyncOptions = {
 		cleanup?: boolean;
 	};
 	manifest: ManifestData;
+	command: 'build' | 'dev' | 'sync';
 };
 
 export default async function sync(
@@ -78,6 +79,7 @@ export default async function sync(
 		fs,
 		force: inlineConfig.force,
 		manifest,
+		command: 'sync',
 	});
 }
 
@@ -88,12 +90,14 @@ export async function clearContentLayerCache({
 	settings,
 	logger,
 	fs = fsMod,
+	isDev,
 }: {
 	settings: AstroSettings;
 	logger: Logger;
 	fs?: typeof fsMod;
+	isDev: boolean;
 }) {
-	const dataStore = getDataStoreFile(settings);
+	const dataStore = getDataStoreFile(settings, isDev);
 	if (fs.existsSync(dataStore)) {
 		logger.debug('content', 'clearing data store');
 		await fs.promises.rm(dataStore, { force: true });
@@ -115,9 +119,11 @@ export async function syncInternal({
 	skip,
 	force,
 	manifest,
+	command,
 }: SyncOptions): Promise<void> {
+	const isDev = command === 'dev';
 	if (force) {
-		await clearContentLayerCache({ settings, logger, fs });
+		await clearContentLayerCache({ settings, logger, fs, isDev });
 	}
 
 	const timerStart = performance.now();
@@ -127,15 +133,14 @@ export async function syncInternal({
 		settings.timer.start('Sync content layer');
 		let store: MutableDataStore | undefined;
 		try {
-			const dataStoreFile = getDataStoreFile(settings);
-			if (existsSync(dataStoreFile)) {
-				store = await MutableDataStore.fromFile(dataStoreFile);
-			}
+			const dataStoreFile = getDataStoreFile(settings, isDev);
+			store = await MutableDataStore.fromFile(dataStoreFile);
 		} catch (err: any) {
 			logger.error('content', err.message);
 		}
 		if (!store) {
-			store = new MutableDataStore();
+			logger.error('content', 'Failed to load content store');
+			return;
 		}
 		const contentLayer = globalContentLayer.init({
 			settings,
