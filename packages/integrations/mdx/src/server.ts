@@ -1,7 +1,7 @@
 import { AstroJSX, jsx } from 'astro/jsx-runtime';
 
-import type { NamedSSRLoadedRendererValue } from 'astro';
 import { AstroError } from 'astro/errors';
+import type { NamedSSRLoadedRendererValue } from 'astro';
 import { renderJSX } from 'astro/runtime/server/index.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
@@ -11,25 +11,29 @@ const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w
 export async function check(
 	Component: any,
 	props: any,
-	{ default: children = null, ...slotted } = {},
-) {
+	{ default: children = null, ...slotted } = {}
+  ) {
 	if (typeof Component !== 'function') return false;
+  
 	const slots: Record<string, any> = {};
 	for (const [key, value] of Object.entries(slotted)) {
-		const name = slotName(key);
-		slots[name] = value;
+	  const name = slotName(key);
+	  slots[name] = value;
 	}
+  
 	try {
-		const vnode = jsx(Component, { ...props, ...slots, children });
-
-		const rendered = await renderJSX(null, vnode);
-
-		return rendered[AstroJSX];
+	  const vnode = jsx(Component, { ...props, ...slots, children });
+	  
+  
+	  const result = { styles: [], scripts: [], links: [] }; 
+	  const rendered = await renderJSX(result, vnode);
+  
+	  return rendered[AstroJSX];
 	} catch (e) {
-		throwEnhancedErrorIfMdxComponent(e as Error, Component);
+	  throwEnhancedErrorIfMdxComponent(e as Error, Component);
 	}
 	return false;
-}
+  }
 
 export async function renderToStaticMarkup(
 	this: any,
