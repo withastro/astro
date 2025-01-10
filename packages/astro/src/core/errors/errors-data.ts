@@ -870,6 +870,7 @@ export const AstroResponseHeadersReassigned = {
 
 /**
  * @docs
+ * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
  * @see
  * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
  * @description
@@ -885,6 +886,7 @@ export const SessionStorageInitError = {
 
 /**
  * @docs
+ * @message Error when saving session data with driver `DRIVER`. `ERROR`
  * @see
  * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
  * @description
