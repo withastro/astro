@@ -1567,28 +1567,26 @@ export const InvalidContentEntryDataError = {
  * @docs
  * @message
  * **Example error message:**<br/>
- * The content loader for the collection **blog** returned an invalid result:<br/>
- * Content entry `id` must be a string:<br/>
+ * The content loader for the collection **blog** returned an entry with an invalid `id`:<br/>
  * {<br/>
  * 	 "id": 1,<br/>
  * 	 "title": "Hello, World!"<br/>
  * }
  * @description
- * A content loader returned an invalid result.
- * Make sure that the ID of the entry is a string.
+ * A content loader returned an invalid `id`.
+ * Make sure that the `id` of the entry is a string.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
  */
-export const ContentLoaderReturnsInvalidResult = {
-	name: 'ContentLoaderReturnsInvalidResult',
-	title: 'Content loader returns invalid result.',
-	message(collection: string, entry: any, message: string) {
+export const ContentLoaderReturnsInvalidId = {
+	name: 'ContentLoaderReturnsInvalidId',
+	title: 'Content loader returned an entry with an invalid `id`.',
+	message(collection: string, entry: any) {
 		return [
-			`The content loader for the collection **${String(collection)}** returned an invalid result:`,
-			`${message}:`,
+			`The content loader for the collection **${String(collection)}** returned an entry with an invalid \`id\`:`,
 			JSON.stringify(entry, null, 2),
 		].join('\n');
 	},
-	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+	hint: 'Make sure that the `id` of the entry is a string. See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders.',
 } satisfies ErrorData;
 
 /**

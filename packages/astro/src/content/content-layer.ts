@@ -356,8 +356,8 @@ export async function simpleLoader<TData extends { id: string }>(
 			: unsafeData[firstPathItem as string];
 		
 		throw new AstroError({
-			...AstroErrorData.ContentLoaderReturnsInvalidResult,
-			message: AstroErrorData.ContentLoaderReturnsInvalidResult.message(context.collection, entry, error.message),
+			...AstroErrorData.ContentLoaderReturnsInvalidId,
+			message: AstroErrorData.ContentLoaderReturnsInvalidId.message(context.collection, entry),
 		});
 	}
 
