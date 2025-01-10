@@ -120,7 +120,7 @@ export function createEndpoint(manifest: SSRManifest) {
 		const key = await manifest.key;
 		const encryptedProps = data.encryptedProps;
 
-		const propString = await decryptString(key, encryptedProps);
+		const propString = encryptedProps === '' ? '{}' : await decryptString(key, encryptedProps);
 		const props = JSON.parse(propString);
 
 		const componentModule = await imp();
