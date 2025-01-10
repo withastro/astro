@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.12.5
+
+### Patch Changes
+
+- [#12930](https://github.com/withastro/astro/pull/12930) [`a20a4d7`](https://github.com/withastro/astro/commit/a20a4d7b8ffe3ae941b5c510b319ac6f9783aabe) Thanks [@bluwy](https://github.com/bluwy)! - Fixes rendering code blocks within if tags
+
 ## 0.12.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 4.0.5
+
+### Patch Changes
+
+- [#12959](https://github.com/withastro/astro/pull/12959) [`3a267f3`](https://github.com/withastro/astro/commit/3a267f33a2a2576c9065c88646ed67f5a7a8ba0b) Thanks [@bluwy](https://github.com/bluwy)! - Reverts https://github.com/withastro/astro/commit/9a3b48c5c3e8f597159454f06c5a0ce8e709bc50 which caused a regression for rendering inline MDX components and MDX files from content collections
+
 ## 4.0.4
 
 ### Patch Changes
