@@ -1,7 +1,7 @@
 import { AstroJSX, jsx } from 'astro/jsx-runtime';
 
-import { AstroError } from 'astro/errors';
 import type { NamedSSRLoadedRendererValue } from 'astro';
+import { AstroError } from 'astro/errors';
 import { renderJSX } from 'astro/runtime/server/index.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
@@ -21,13 +21,13 @@ export async function check(
 	}
 	try {
 		const vnode = jsx(Component, { ...props, ...slots, children });
-	
+
 		const rendered = await renderJSX(null, vnode);
-	
+
 		return rendered[AstroJSX];
-	  } catch (e) {
+	} catch (e) {
 		throwEnhancedErrorIfMdxComponent(e as Error, Component);
-	  }
+	}
 	return false;
 }
 
