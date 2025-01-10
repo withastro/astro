@@ -8,13 +8,12 @@ import type {
 	ContentEntryType,
 	HookParameters,
 } from 'astro';
-import astroJSXRenderer from 'astro/jsx/renderer.js';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
-import { ignoreStringPlugins, parseFrontmatter } from './utils.js';
+import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
-import { vitePluginMdx } from './vite-plugin-mdx.js';
+import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;
@@ -37,14 +36,14 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 export function getContainerRenderer(): ContainerRenderer {
 	return {
 		name: 'astro:jsx',
-		serverEntrypoint: 'astro/jsx/server.js',
+		serverEntrypoint: '@astrojs/mdx/server.js',
 	};
 }
 
 export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
 	// @ts-expect-error Temporarily assign an empty object here, which will be re-assigned by the
 	// `astro:config:done` hook later. This is so that `vitePluginMdx` can get hold of a reference earlier.
-	let mdxOptions: MdxOptions = {};
+	let vitePluginMdxOptions: VitePluginMdxOptions = {};
 
 	return {
 		name: '@astrojs/mdx',
@@ -53,17 +52,20 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				const { updateConfig, config, addPageExtension, addContentEntryType, addRenderer } =
 					params as SetupHookParams;
 
-				addRenderer(astroJSXRenderer);
+				addRenderer({
+					name: 'astro:jsx',
+					serverEntrypoint: new URL('../dist/server.js', import.meta.url),
+				});
 				addPageExtension('.mdx');
 				addContentEntryType({
 					extensions: ['.mdx'],
 					async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
-						const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
+						const parsed = safeParseFrontmatter(contents, fileURLToPath(fileUrl));
 						return {
-							data: parsed.data,
-							body: parsed.content,
-							slug: parsed.data.slug,
-							rawData: parsed.matter,
+							data: parsed.frontmatter,
+							body: parsed.content.trim(),
+							slug: parsed.frontmatter.slug,
+							rawData: parsed.rawFrontmatter,
 						};
 					},
 					contentModuleTypes: await fs.readFile(
@@ -77,7 +79,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 
 				updateConfig({
 					vite: {
-						plugins: [vitePluginMdx(mdxOptions), vitePluginMdxPostprocess(config)],
+						plugins: [vitePluginMdx(vitePluginMdxOptions), vitePluginMdxPostprocess(config)],
 					},
 				});
 			},
@@ -96,10 +98,13 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				});
 
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
-				Object.assign(mdxOptions, resolvedMdxOptions);
+				Object.assign(vitePluginMdxOptions, {
+					mdxOptions: resolvedMdxOptions,
+					srcDir: config.srcDir,
+				});
 				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
 				// Re-assign it so that the garbage can be collected later.
-				mdxOptions = {};
+				vitePluginMdxOptions = {};
 			},
 		},
 	};

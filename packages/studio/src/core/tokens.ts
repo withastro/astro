@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ci from 'ci-info';
 import { green } from 'kleur/colors';
-import ora from 'ora';
+import yoctoSpinner from 'yocto-spinner';
 import {
 	MISSING_PROJECT_ID_ERROR,
 	MISSING_SESSION_ID_CI_ERROR,
@@ -52,7 +52,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 		sessionToken: string,
 		projectId: string,
 	): Promise<{ token: string; ttl: number }> {
-		const spinner = ora('Connecting to remote database...').start();
+		const spinner = yoctoSpinner({ text: 'Connecting to remote database...' }).start();
 		const response = await safeFetch(
 			new URL(`${getAstroStudioUrl()}/auth/cli/token-create`),
 			{
@@ -66,7 +66,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 				throw new Error(`Failed to create token: ${res.status} ${res.statusText}`);
 			},
 		);
-		spinner.succeed(green('Connected to remote database.'));
+		spinner.success(green('Connected to remote database.'));
 
 		const { token, ttl } = await response.json();
 		return { token, ttl };

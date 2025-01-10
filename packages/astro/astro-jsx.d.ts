@@ -16,23 +16,21 @@ declare namespace astroHTML.JSX {
 		children: {};
 	}
 
-	interface IntrinsicAttributes
-		extends AstroBuiltinProps,
-			AstroBuiltinAttributes,
-			AstroClientDirectives {
+	interface IntrinsicAttributes extends AstroComponentDirectives, AstroBuiltinAttributes {
 		slot?: string | undefined | null;
 		children?: Children;
 	}
 
-	type AstroBuiltinProps = import('./dist/@types/astro.js').AstroBuiltinProps;
-	type AstroClientDirectives = import('./dist/@types/astro.js').AstroClientDirectives;
-	type AstroBuiltinAttributes = import('./dist/@types/astro.js').AstroBuiltinAttributes;
-	type AstroDefineVarsAttribute = import('./dist/@types/astro.js').AstroDefineVarsAttribute;
-	type AstroScriptAttributes = import('./dist/@types/astro.js').AstroScriptAttributes &
+	type AstroComponentDirectives =
+		import('./dist/types/public/elements.js').AstroComponentDirectives;
+	type AstroBuiltinAttributes = import('./dist/types/public/elements.js').AstroBuiltinAttributes;
+	type AstroDefineVarsAttribute =
+		import('./dist/types/public/elements.js').AstroDefineVarsAttribute;
+	type AstroScriptAttributes = import('./dist/types/public/elements.js').AstroScriptAttributes &
 		AstroDefineVarsAttribute;
-	type AstroStyleAttributes = import('./dist/@types/astro.js').AstroStyleAttributes &
+	type AstroStyleAttributes = import('./dist/types/public/elements.js').AstroStyleAttributes &
 		AstroDefineVarsAttribute;
-	type AstroSlotAttributes = import('./dist/@types/astro.js').AstroSlotAttributes;
+	type AstroSlotAttributes = import('./dist/types/public/elements.js').AstroSlotAttributes;
 
 	// This is an unfortunate use of `any`, but unfortunately we can't make a type that works for every framework
 	// without importing every single framework's types (which comes with its own set of problems).
@@ -681,6 +679,7 @@ declare namespace astroHTML.JSX {
 
 	interface DialogHTMLAttributes extends HTMLAttributes {
 		open?: boolean | string | undefined | null;
+		closedby?: 'none' | 'closerequest' | 'any' | undefined | null;
 	}
 
 	interface EmbedHTMLAttributes extends HTMLAttributes {
@@ -838,10 +837,12 @@ declare namespace astroHTML.JSX {
 
 	interface LinkHTMLAttributes extends HTMLAttributes {
 		as?: string | undefined | null;
+		blocking?: 'render' | undefined | null;
 		crossorigin?: boolean | string | undefined | null;
+		disabled?: boolean | undefined | null;
+		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
 		href?: string | URL | undefined | null;
 		hreflang?: string | undefined | null;
-		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
 		integrity?: string | undefined | null;
 		media?: string | undefined | null;
 		imagesrcset?: string | undefined | null;

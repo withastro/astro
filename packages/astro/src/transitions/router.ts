@@ -428,7 +428,7 @@ async function transition(
 		// see https://developer.mozilla.org/en-US/docs/Web/API/DOMParser/parseFromString
 		preparationEvent.newDocument.querySelectorAll('noscript').forEach((el) => el.remove());
 
-		// If ViewTransitions is not enabled on the incoming page, do a full page load to it.
+		// If ClientRouter is not enabled on the incoming page, do a full page load to it.
 		// Unless this was a form submission, in which case we do not want to trigger another mutation.
 		if (
 			!preparationEvent.newDocument.querySelector('[name="astro-view-transitions-enabled"]') &&
@@ -636,7 +636,7 @@ if (inBrowser) {
 				'scroll',
 				() => {
 					if (intervalId !== undefined) return;
-					(lastIndex = history.state.index), (lastY = scrollY), (lastX = scrollX);
+					(lastIndex = history.state?.index), (lastY = scrollY), (lastX = scrollX);
 					intervalId = window.setInterval(scrollInterval, 50);
 				},
 				{ passive: true },

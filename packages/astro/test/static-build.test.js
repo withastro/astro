@@ -160,16 +160,16 @@ describe('Static build', () => {
 		});
 	});
 
-	describe('Hoisted scripts', () => {
-		it('Get bundled together on the page', async () => {
-			const html = await fixture.readFile('/hoisted/index.html');
+	describe('Scripts', () => {
+		it('Get included on the page', async () => {
+			const html = await fixture.readFile('/scripts/index.html');
 			const $ = cheerioLoad(html);
-			assert.equal($('script[type="module"]').length, 1, 'hoisted script added');
+			assert.equal($('script[type="module"]').length, 2, 'Script added');
 		});
 
 		it('Do not get added to the wrong page', async () => {
-			const hoistedHTML = await fixture.readFile('/hoisted/index.html');
-			const $ = cheerioLoad(hoistedHTML);
+			const scriptsHTML = await fixture.readFile('/scripts/index.html');
+			const $ = cheerioLoad(scriptsHTML);
 			const href = $('script[type="module"]').attr('src');
 			const indexHTML = await fixture.readFile('/index.html');
 			const $$ = cheerioLoad(indexHTML);
@@ -186,7 +186,7 @@ describe('Static build', () => {
 	it('warns when accessing headers', async () => {
 		let found = false;
 		for (const log of logs) {
-			if (/`Astro\.request\.headers` is unavailable in "static" output mode/.test(log.message)) {
+			if (/`Astro\.request\.headers` is not available on prerendered pages./.test(log.message)) {
 				found = true;
 			}
 		}

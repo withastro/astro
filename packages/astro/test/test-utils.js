@@ -10,9 +10,6 @@ import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/content-layer.js';
 import { globalContentConfigObserver } from '../dist/content/utils.js';
 import build from '../dist/core/build/index.js';
-import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
-import { getVirtualModulePageName } from '../dist/core/build/plugins/util.js';
-import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
@@ -23,8 +20,8 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
 
 /**
  * @typedef {import('../src/core/dev/dev').DevServer} DevServer
- * @typedef {import('../src/@types/astro').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
- * @typedef {import('../src/@types/astro').AstroConfig} AstroConfig
+ * @typedef {import('../src/types/public/config.js').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
+ * @typedef {import('../src/types/public/config.js').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App
  * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
@@ -165,7 +162,8 @@ export async function loadFixture(inlineConfig) {
 		build: async (extraInlineConfig = {}, options = {}) => {
 			globalContentLayer.dispose();
 			globalContentConfigObserver.set({ status: 'init' });
-			process.env.NODE_ENV = 'production';
+			// Reset NODE_ENV so it can be re-set by `build()`
+			delete process.env.NODE_ENV;
 			return build(mergeConfig(inlineConfig, extraInlineConfig), {
 				teardownCompiler: false,
 				...options,
@@ -178,10 +176,12 @@ export async function loadFixture(inlineConfig) {
 		startDevServer: async (extraInlineConfig = {}) => {
 			globalContentLayer.dispose();
 			globalContentConfigObserver.set({ status: 'init' });
-			process.env.NODE_ENV = 'development';
+			// Reset NODE_ENV so it can be re-set by `dev()`
+			delete process.env.NODE_ENV;
 			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
+			await new Promise((resolve) => setTimeout(resolve, 100));
 			return devServer;
 		},
 		onNextDataStoreChange: (timeout = 5000) => {
@@ -236,7 +236,8 @@ export async function loadFixture(inlineConfig) {
 			}
 		},
 		preview: async (extraInlineConfig = {}) => {
-			process.env.NODE_ENV = 'production';
+			// Reset NODE_ENV so it can be re-set by `preview()`
+			delete process.env.NODE_ENV;
 			const previewServer = await preview(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port
@@ -284,16 +285,7 @@ export async function loadFixture(inlineConfig) {
 			app.manifest = manifest;
 			return app;
 		},
-		loadEntryPoint: async (pagePath, routes, streaming) => {
-			const virtualModule = getVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, pagePath);
-			const filePath = makeSplitEntryPointFileName(virtualModule, routes);
-			const url = new URL(`./server/${filePath}?id=${fixtureId}`, config.outDir);
-			const { createApp, manifest } = await import(url);
-			const app = createApp(streaming);
-			app.manifest = manifest;
-			return app;
-		},
-		editFile: async (filePath, newContentsOrCallback) => {
+		editFile: async (filePath, newContentsOrCallback, waitForNextWrite = true) => {
 			const fileUrl = new URL(filePath.replace(/^\//, ''), config.root);
 			const contents = await fs.promises.readFile(fileUrl, 'utf-8');
 			const reset = () => {
@@ -308,7 +300,7 @@ export async function loadFixture(inlineConfig) {
 				typeof newContentsOrCallback === 'function'
 					? newContentsOrCallback(contents)
 					: newContentsOrCallback;
-			const nextChange = devServer ? onNextChange() : Promise.resolve();
+			const nextChange = devServer && waitForNextWrite ? onNextChange() : Promise.resolve();
 			await fs.promises.writeFile(fileUrl, newContents);
 			await nextChange;
 			return reset;

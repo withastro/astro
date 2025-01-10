@@ -75,11 +75,28 @@ const SecretServerEnvFieldMetadata = z.object({
 	context: z.literal('server'),
 	access: z.literal('secret'),
 });
-const EnvFieldMetadata = z.union([
+const _EnvFieldMetadata = z.union([
 	PublicClientEnvFieldMetadata,
 	PublicServerEnvFieldMetadata,
 	SecretServerEnvFieldMetadata,
 ]);
+const EnvFieldMetadata = z.custom<z.input<typeof _EnvFieldMetadata>>().superRefine((data, ctx) => {
+	const result = _EnvFieldMetadata.safeParse(data);
+	if (result.success) {
+		return;
+	}
+	for (const issue of result.error.issues) {
+		if (issue.code === z.ZodIssueCode.invalid_union) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: `**Invalid combination** of "access" and "context" options:\n  Secret client variables are not supported. Please review the configuration of \`env.schema.${ctx.path.at(-1)}\`.\n  Learn more at https://docs.astro.build/en/guides/environment-variables/#variable-types`,
+				path: ['context', 'access'],
+			});
+		} else {
+			ctx.addIssue(issue);
+		}
+	}
+});
 
 const EnvSchemaKey = z
 	.string()

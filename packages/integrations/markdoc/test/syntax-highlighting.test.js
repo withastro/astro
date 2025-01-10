@@ -68,6 +68,27 @@ describe('Markdoc - syntax highlighting', () => {
 				assert.equal(pre.getAttribute('style').includes('word-wrap: break-word'), true);
 			}
 		});
+		it('transform within if tags', async () => {
+			const ast = Markdoc.parse(`
+{% if equals("true", "true") %}
+Inside truthy
+
+\`\`\`js
+const hello = "yes";
+\`\`\`
+
+{% /if %}`);
+			const content = await Markdoc.transform(ast, await getConfigExtendingShiki());
+			assert.equal(content.children.length, 1);
+			assert.equal(content.children[0].length, 2);
+			const pTag = content.children[0][0];
+			assert.equal(pTag.name, 'p');
+			const codeBlock = content.children[0][1];
+			assert.equal(isHTMLString(codeBlock), true);
+			const pre = parsePreTag(codeBlock);
+			assert.equal(pre.classList.contains('astro-code'), true);
+			assert.equal(pre.classList.contains('github-dark'), true);
+		});
 	});
 
 	describe('prism', () => {

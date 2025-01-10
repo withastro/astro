@@ -45,43 +45,15 @@ async function getDevtoolsPlugin(logger: AstroIntegrationLogger, retrieve: boole
 	}
 }
 
-async function getViteConfiguration(
-	isDev: boolean,
+function getViteConfiguration(
 	{ include, exclude }: Options,
 	devtoolsPlugin: DevtoolsPlugin | null,
 ) {
-	// https://github.com/solidjs/vite-plugin-solid
-	// We inject the dev mode only if the user explicitly wants it or if we are in dev (serve) mode
-	const nestedDeps = ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'];
 	const config: UserConfig = {
-		resolve: {
-			conditions: ['solid', ...(isDev ? ['development'] : [])],
-			dedupe: nestedDeps,
-			alias: [{ find: /^solid-refresh$/, replacement: '/@solid-refresh' }],
-		},
 		optimizeDeps: {
-			include: [...nestedDeps],
 			exclude: ['@astrojs/solid-js/server.js'],
 		},
-		plugins: [
-			solid({ include, exclude, dev: isDev, ssr: true }),
-			{
-				name: '@astrojs/solid:config-overrides',
-				enforce: 'post',
-				config() {
-					return {
-						esbuild: {
-							// To support using alongside other JSX frameworks, still let
-							// esbuild compile stuff. Solid goes first anyways.
-							include: /\.(m?ts|[jt]sx)$/,
-						},
-					};
-				},
-			},
-		],
-		ssr: {
-			external: ['babel-preset-solid'],
-		},
+		plugins: [solid({ include, exclude, ssr: true })],
 	};
 
 	if (devtoolsPlugin) {
@@ -128,7 +100,7 @@ export default function (options: Options = {}): AstroIntegration {
 
 				addRenderer(getRenderer());
 				updateConfig({
-					vite: await getViteConfiguration(command === 'dev', options, devtoolsPlugin),
+					vite: getViteConfiguration(options, devtoolsPlugin),
 				});
 
 				if (devtoolsPlugin) {

@@ -1,9 +1,14 @@
-import type { AstroConfig } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
-import type { ImageOutputFormat, ImageTransform, UnresolvedSrcSetValue } from '../types.js';
-import { isESMImportedImage } from '../utils/imageKind.js';
+import type {
+	ImageFit,
+	ImageOutputFormat,
+	ImageTransform,
+	UnresolvedSrcSetValue,
+} from '../types.js';
+import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
@@ -33,7 +38,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	/**
 	 * Return the URL to the endpoint or URL your images are generated from.
 	 *
-	 * For a local service, your service should expose an endpoint handling the image requests, or use Astro's at `/_image`.
+	 * For a local service, your service should expose an endpoint handling the image requests, or use Astro's which by default, is located at `/_image`.
 	 *
 	 * For external services, this should point to the URL your images are coming from, for instance, `/_vercel/image`
 	 *
@@ -116,7 +121,11 @@ export type BaseServiceTransform = {
 	height?: number;
 	format: string;
 	quality?: string | null;
+	fit?: ImageFit;
+	position?: string;
 };
+
+const sortNumeric = (a: number, b: number) => a - b;
 
 /**
  * Basic local service using the included `_image` endpoint.
@@ -142,7 +151,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 	propertiesToHash: DEFAULT_HASH_PROPS,
 	validateOptions(options) {
 		// `src` is missing or is `undefined`.
-		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
+		if (!options.src || (!isRemoteImage(options.src) && !isESMImportedImage(options.src))) {
 			throw new AstroError({
 				...AstroErrorData.ExpectedImage,
 				message: AstroErrorData.ExpectedImage.message(
@@ -219,14 +228,32 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		// Sometimes users will pass number generated from division, which can result in floating point numbers
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
-
+		if (options.layout && options.width && options.height) {
+			options.fit ??= 'cover';
+			delete options.layout;
+		}
+		if (options.fit === 'none') {
+			delete options.fit;
+		}
 		return options;
 	},
 	getHTMLAttributes(options) {
 		const { targetWidth, targetHeight } = getTargetDimensions(options);
-		const { src, width, height, format, quality, densities, widths, formats, ...attributes } =
-			options;
-
+		const {
+			src,
+			width,
+			height,
+			format,
+			quality,
+			densities,
+			widths,
+			formats,
+			layout,
+			priority,
+			fit,
+			position,
+			...attributes
+		} = options;
 		return {
 			...attributes,
 			width: targetWidth,
@@ -235,11 +262,13 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			decoding: attributes.decoding ?? 'async',
 		};
 	},
-	getSrcSet(options) {
-		const srcSet: UnresolvedSrcSetValue[] = [];
-		const { targetWidth } = getTargetDimensions(options);
+	getSrcSet(options): Array<UnresolvedSrcSetValue> {
+		const { targetWidth, targetHeight } = getTargetDimensions(options);
+		const aspectRatio = targetWidth / targetHeight;
 		const { widths, densities } = options;
 		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;
+
+		let transformedWidths = (widths ?? []).sort(sortNumeric);
 
 		// For remote images, we don't know the original image's dimensions, so we cannot know the maximum width
 		// It is ultimately the user's responsibility to make sure they don't request images larger than the original
@@ -250,7 +279,17 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		if (isESMImportedImage(options.src)) {
 			imageWidth = options.src.width;
 			maxWidth = imageWidth;
+
+			// We've already sorted the widths, so we'll remove any that are larger than the original image's width
+			if (transformedWidths.length > 0 && transformedWidths.at(-1)! > maxWidth) {
+				transformedWidths = transformedWidths.filter((width) => width <= maxWidth);
+				// If we've had to remove some widths, we'll add the maximum width back in
+				transformedWidths.push(maxWidth);
+			}
 		}
+
+		// Dedupe the widths
+		transformedWidths = Array.from(new Set(transformedWidths));
 
 		// Since `widths` and `densities` ultimately control the width and height of the image,
 		// we don't want the dimensions the user specified, we'll create those ourselves.
@@ -261,7 +300,10 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		} = options;
 
 		// Collect widths to generate from specified densities or widths
-		const allWidths: { maxTargetWidth: number; descriptor: `${number}x` | `${number}w` }[] = [];
+		let allWidths: Array<{
+			width: number;
+			descriptor: `${number}x` | `${number}w`;
+		}> = [];
 		if (densities) {
 			// Densities can either be specified as numbers, or descriptors (ex: '1x'), we'll convert them all to numbers
 			const densityValues = densities.map((density) => {
@@ -274,51 +316,31 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 			// Calculate the widths for each density, rounding to avoid floats.
 			const densityWidths = densityValues
-				.sort()
+				.sort(sortNumeric)
 				.map((density) => Math.round(targetWidth * density));
 
-			allWidths.push(
-				...densityWidths.map((width, index) => ({
-					maxTargetWidth: Math.min(width, maxWidth),
-					descriptor: `${densityValues[index]}x` as const,
-				})),
-			);
-		} else if (widths) {
-			allWidths.push(
-				...widths.map((width) => ({
-					maxTargetWidth: Math.min(width, maxWidth),
-					descriptor: `${width}w` as const,
-				})),
-			);
+			allWidths = densityWidths.map((width, index) => ({
+				width,
+				descriptor: `${densityValues[index]}x`,
+			}));
+		} else if (transformedWidths.length > 0) {
+			allWidths = transformedWidths.map((width) => ({
+				width,
+				descriptor: `${width}w`,
+			}));
 		}
 
-		// Caution: The logic below is a bit tricky, as we need to make sure we don't generate the same image multiple times
-		// When making changes, make sure to test with different combinations of local/remote images widths, densities, and dimensions etc.
-		for (const { maxTargetWidth, descriptor } of allWidths) {
-			const srcSetTransform: ImageTransform = { ...transformWithoutDimensions };
-
-			// Only set the width if it's different from the original image's width, to avoid generating the same image multiple times
-			if (maxTargetWidth !== imageWidth) {
-				srcSetTransform.width = maxTargetWidth;
-			} else {
-				// If the width is the same as the original image's width, and we have both dimensions, it probably means
-				// it's a remote image, so we'll use the user's specified dimensions to avoid recreating the original image unnecessarily
-				if (options.width && options.height) {
-					srcSetTransform.width = options.width;
-					srcSetTransform.height = options.height;
-				}
-			}
-
-			srcSet.push({
-				transform: srcSetTransform,
+		return allWidths.map(({ width, descriptor }) => {
+			const height = Math.round(width / aspectRatio);
+			const transform = { ...transformWithoutDimensions, width, height };
+			return {
+				transform,
 				descriptor,
 				attributes: {
 					type: `image/${targetFormat}`,
 				},
-			});
-		}
-
-		return srcSet;
+			};
+		});
 	},
 	getURL(options, imageConfig) {
 		const searchParams = new URLSearchParams();
@@ -337,13 +359,15 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			h: 'height',
 			q: 'quality',
 			f: 'format',
+			fit: 'fit',
+			position: 'position',
 		};
 
 		Object.entries(params).forEach(([param, key]) => {
 			options[key] && searchParams.append(param, options[key].toString());
 		});
 
-		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, '/_image');
+		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, imageConfig.endpoint.route);
 		return `${imageEndpoint}?${searchParams}`;
 	},
 	parseURL(url) {
@@ -359,6 +383,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			height: params.has('h') ? parseInt(params.get('h')!) : undefined,
 			format: params.get('f') as ImageOutputFormat,
 			quality: params.get('q'),
+			fit: params.get('fit') as ImageFit,
+			position: params.get('position') ?? undefined,
 		};
 
 		return transform;

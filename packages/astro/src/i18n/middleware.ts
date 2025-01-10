@@ -1,6 +1,7 @@
-import type { APIContext, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
-import type { SSRManifestI18n } from '../core/app/types.js';
-import { ROUTE_TYPE_HEADER } from '../core/constants.js';
+import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
+import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../core/constants.js';
+import type { MiddlewareHandler } from '../types/public/common.js';
+import type { APIContext } from '../types/public/context.js';
 import {
 	type MiddlewarePayload,
 	normalizeTheLocale,
@@ -30,7 +31,7 @@ export function createI18nMiddleware(
 	const _requestHasLocale = requestHasLocale(payload.locales);
 	const _redirectToFallback = redirectToFallback(payload);
 
-	const prefixAlways = (context: APIContext): Response | undefined => {
+	const prefixAlways = (context: APIContext, response: Response): Response | undefined => {
 		const url = context.url;
 		if (url.pathname === base + '/' || url.pathname === base) {
 			return _redirectToDefaultLocale(context);
@@ -38,7 +39,7 @@ export function createI18nMiddleware(
 
 		// Astro can't know where the default locale is supposed to be, so it returns a 404.
 		else if (!_requestHasLocale(context)) {
-			return _noFoundForNonLocaleRoute(context);
+			return _noFoundForNonLocaleRoute(context, response);
 		}
 
 		return undefined;
@@ -65,6 +66,12 @@ export function createI18nMiddleware(
 	return async (context, next) => {
 		const response = await next();
 		const type = response.headers.get(ROUTE_TYPE_HEADER);
+
+		// This is case where we are internally rendering a 404/500, so we need to bypass checks that were done already
+		const isReroute = response.headers.get(REROUTE_DIRECTIVE_HEADER);
+		if (isReroute === 'no' && typeof i18n.fallback === 'undefined') {
+			return response;
+		}
 		// If the route we're processing is not a page, then we ignore it
 		if (type !== 'page' && type !== 'fallback') {
 			return response;
@@ -76,7 +83,6 @@ export function createI18nMiddleware(
 		}
 
 		const { currentLocale } = context;
-
 		switch (i18n.strategy) {
 			// NOTE: theoretically, we should never hit this code path
 			case 'manual': {
@@ -118,7 +124,7 @@ export function createI18nMiddleware(
 			}
 
 			case 'pathname-prefix-always': {
-				const result = prefixAlways(context);
+				const result = prefixAlways(context, response);
 				if (result) {
 					return result;
 				}
@@ -126,7 +132,7 @@ export function createI18nMiddleware(
 			}
 			case 'domains-prefix-always': {
 				if (localeHasntDomain(i18n, currentLocale)) {
-					const result = prefixAlways(context);
+					const result = prefixAlways(context, response);
 					if (result) {
 						return result;
 					}

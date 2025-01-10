@@ -18,7 +18,7 @@
     "astro": "workspace:*"
   },
   "dependencies": {
-    "preact": "^10.24.3",
+    "preact": "^10.25.0",
     "react": "^18.3.1"
   }
 }

@@ -1,20 +1,8 @@
 import fs from 'node:fs';
 import os from 'node:os';
-import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
+import { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } from 'kleur/colors';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
-import type {
-	AstroConfig,
-	AstroSettings,
-	ComponentInstance,
-	GetStaticPathsItem,
-	MiddlewareHandler,
-	RouteData,
-	RouteType,
-	SSRError,
-	SSRLoadedRenderer,
-	SSRManifest,
-} from '../../@types/astro.js';
 import {
 	generateImagesForPath,
 	getStaticImageList,
@@ -30,17 +18,28 @@ import {
 import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated } from '../../integrations/hooks.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
-import type { SSRManifestI18n } from '../app/types.js';
+import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
+import type { GetStaticPathsItem, MiddlewareHandler } from '../../types/public/common.js';
+import type { AstroConfig } from '../../types/public/config.js';
+import type {
+	RouteData,
+	RouteType,
+	SSRError,
+	SSRLoadedRenderer,
+} from '../../types/public/internal.js';
+import type { SSRManifest, SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
 import { RenderContext } from '../render-context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
+import { redirectTemplate } from '../routing/3xx.js';
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
-import { getOutputFilename, isServerLikeOutput } from '../util.js';
-import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
+import { getOutputFilename } from '../util.js';
+import { getOutFile, getOutFolder } from './common.js';
 import { cssOrder, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type {
@@ -51,28 +50,19 @@ import type {
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
-function createEntryURL(filePath: string, outFolder: URL) {
-	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
-}
-
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
-	const ssr = isServerLikeOutput(options.settings.config);
+	const ssr = options.settings.buildOutput === 'server';
 	let manifest: SSRManifest;
 	if (ssr) {
 		manifest = await BuildPipeline.retrieveManifest(options, internals);
 	} else {
-		const baseDirectory = getOutputDirectory(options.settings.config);
+		const baseDirectory = getOutputDirectory(options.settings);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
-		let middleware: MiddlewareHandler = (_, next) => next();
-		try {
-			// middleware.mjs is not emitted if there is no user middleware
-			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
-			middleware = await import(new URL('middleware.mjs', baseDirectory).toString()).then(
-				(mod) => mod.onRequest,
-			);
-		} catch {}
+		const middleware: MiddlewareHandler = internals.middlewareEntryPoint
+			? await import(internals.middlewareEntryPoint.toString()).then((mod) => mod.onRequest)
+			: NOOP_MIDDLEWARE_FN;
 		manifest = createBuildManifest(
 			options.settings,
 			internals,
@@ -84,15 +74,10 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	const pipeline = BuildPipeline.create({ internals, manifest, options });
 	const { config, logger } = pipeline;
 
-	const outFolder = ssr
-		? options.settings.config.build.server
-		: getOutDirWithinCwd(options.settings.config.outDir);
-
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
 	if (ssr && !hasPrerenderedPages(internals)) {
 		delete globalThis?.astroAsset?.addStaticImage;
-		return;
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
@@ -111,22 +96,9 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 				}
 
 				const ssrEntryPage = await pipeline.retrieveSsrEntry(pageData.route, filePath);
-				if (options.settings.adapter?.adapterFeatures?.functionPerRoute) {
-					// forcing to use undefined, so we fail in an expected way if the module is not even there.
-					// @ts-expect-error When building for `functionPerRoute`, the module exports a `pageModule` function instead
-					const ssrEntry = ssrEntryPage?.pageModule;
-					if (ssrEntry) {
-						await generatePage(pageData, ssrEntry, builtPaths, pipeline);
-					} else {
-						const ssrEntryURLPage = createEntryURL(filePath, outFolder);
-						throw new Error(
-							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`,
-						);
-					}
-				} else {
-					const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-					await generatePage(pageData, ssrEntry, builtPaths, pipeline);
-				}
+
+				const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
+				await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 			}
 		}
 	} else {
@@ -153,7 +125,73 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 
 		const assetsTimer = performance.now();
 		for (const [originalPath, transforms] of staticImageList) {
-			await generateImagesForPath(originalPath, transforms, assetsCreationPipeline, queue);
+			// Process each source image in parallel based on the queue’s concurrency
+			// (`cpuCount`). Process each transform for a source image sequentially.
+			//
+			// # Design Decision:
+			// We have 3 source images (A.png, B.png, C.png) and 3 transforms for
+			// each:
+			// ```
+			// A1.png A2.png A3.png
+			// B1.png B2.png B3.png
+			// C1.png C2.png C3.png
+			// ```
+			//
+			// ## Option 1
+			// Enqueue all transforms indiscriminantly
+			// ```
+			// |_A1.png   |_B2.png   |_C1.png
+			// |_B3.png   |_A2.png   |_C3.png
+			// |_C2.png   |_A3.png   |_B1.png
+			// ```
+			// * Advantage: Maximum parallelism, saturate CPU
+			// * Disadvantage: Spike in context switching
+			//
+			// ## Option 2
+			// Enqueue all transforms, but constrain processing order by source image
+			// ```
+			// |_A3.png   |_B1.png   |_C2.png
+			// |_A1.png   |_B3.png   |_C1.png
+			// |_A2.png   |_B2.png   |_C3.png
+			// ```
+			// * Advantage: Maximum parallelism, saturate CPU (same as Option 1) in
+			//   hope to avoid context switching
+			// * Disadvantage: Context switching still occurs and performance still
+			//   suffers
+			//
+			// ## Option 3
+			// Enqueue each source image, but perform the transforms for that source
+			// image sequentially
+			// ```
+			// \_A1.png   \_B1.png   \_C1.png
+			//  \_A2.png   \_B2.png   \_C2.png
+			//   \_A3.png   \_B3.png   \_C3.png
+			// ```
+			// * Advantage: Less context switching
+			// * Disadvantage: If you have a low number of source images with high
+			//   number of transforms then this is suboptimal.
+			//
+			// ## BEST OPTION:
+			// **Option 3**. Most projects will have a higher number of source images
+			// with a few transforms on each. Even though Option 2 should be faster
+			// and _should_ prevent context switching, this was not observed in
+			// nascent tests. Context switching was high and the overall performance
+			// was half of Option 3.
+			//
+			// If looking to optimize further, please consider the following:
+			// * Avoid `queue.add()` in an async for loop. Notice the `await
+			//   queue.onIdle();` after this loop. We do not want to create a scenario
+			//   where tasks are added to the queue after the queue.onIdle() resolves.
+			//   This can break tests and create annoying race conditions.
+			// * Exposing a concurrency property in `astro.config.mjs` to allow users
+			//   to override Node’s os.cpus().length default.
+			// * Create a proper performance benchmark for asset transformations of
+			//   projects in varying sizes of source images and transforms.
+			queue
+				.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
+				.catch((e) => {
+					throw e;
+				});
 		}
 
 		await queue.onIdle();
@@ -163,7 +201,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
 
-	await runHookBuildGenerated({ config, logger });
+	await runHookBuildGenerated({ settings: options.settings, logger });
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
@@ -185,7 +223,6 @@ async function generatePage(
 		.reduce(mergeInlineCss, []);
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 	const linkIds: [] = [];
-	const scripts = pageData.hoistedScript ?? null;
 	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`,
@@ -195,7 +232,7 @@ async function generatePage(
 	const generationOptions: Readonly<GeneratePathOptions> = {
 		pageData,
 		linkIds,
-		scripts,
+		scripts: null,
 		styles,
 		mod: pageModule,
 	};
@@ -210,7 +247,7 @@ async function generatePage(
 		const timeStart = performance.now();
 		pipeline.logger.debug('build', `Generating: ${path}`);
 
-		const filePath = getOutputFilename(config, path, pageData.route.type);
+		const filePath = getOutputFilename(config, path, pageData.route);
 		const lineIcon =
 			(index === paths.length - 1 && !isConcurrent) || paths.length === 1 ? '└─' : '├─';
 
@@ -220,16 +257,18 @@ async function generatePage(
 			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
 		}
 
-		await generatePath(path, pipeline, generationOptions, route);
+		const created = await generatePath(path, pipeline, generationOptions, route);
 
 		const timeEnd = performance.now();
 		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
 		const timeIncrease = (isSlow ? red : dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
+		const notCreated =
+			created === false ? yellow('(file not created, response body was empty)') : '';
 
 		if (isConcurrent) {
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncrease}`);
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncrease} ${notCreated}`);
 		} else {
-			logger.info('SKIP_FORMAT', ` ${timeIncrease}`);
+			logger.info('SKIP_FORMAT', ` ${timeIncrease} ${notCreated}`);
 		}
 	}
 
@@ -275,7 +314,7 @@ async function getPathsForRoute(
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
-	const { logger, options, routeCache, serverLike } = pipeline;
+	const { logger, options, routeCache, serverLike, config } = pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
@@ -287,6 +326,7 @@ async function getPathsForRoute(
 			routeCache,
 			logger,
 			ssr: serverLike,
+			base: config.base,
 		}).catch((err) => {
 			logger.error('build', `Failed to call getStaticPaths for ${route.component}`);
 			throw err;
@@ -394,6 +434,7 @@ function getUrlForPath(
 			ending = trailingSlash === 'never' ? '' : '/';
 			break;
 		}
+		case 'file':
 		default: {
 			ending = '.html';
 			break;
@@ -422,12 +463,20 @@ interface GeneratePathOptions {
 	mod: ComponentInstance;
 }
 
+/**
+ *
+ * @param pathname
+ * @param pipeline
+ * @param gopts
+ * @param route
+ * @return {Promise<boolean | undefined>} If `false` the file hasn't been created. If `undefined` it's expected to not be created.
+ */
 async function generatePath(
 	pathname: string,
 	pipeline: BuildPipeline,
 	gopts: GeneratePathOptions,
 	route: RouteData,
-) {
+): Promise<boolean | undefined> {
 	const { mod } = gopts;
 	const { config, logger, options } = pipeline;
 	logger.debug('build', `Generating: ${pathname}`);
@@ -447,7 +496,7 @@ async function generatePath(
 		// Check if there is a translated page with the same path
 		Object.values(options.allPages).some((val) => val.route.pattern.test(pathname))
 	) {
-		return;
+		return undefined;
 	}
 
 	const url = getUrlForPath(
@@ -460,17 +509,18 @@ async function generatePath(
 	);
 
 	const request = createRequest({
-		base: config.base,
 		url,
 		headers: new Headers(),
 		logger,
-		staticLike: true,
+		isPrerendered: true,
+		routePattern: route.component,
 	});
 	const renderContext = await RenderContext.create({
 		pipeline,
-		pathname,
+		pathname: pathname,
 		request,
 		routeData: route,
+		clientAddress: undefined,
 	});
 
 	let body: string | Uint8Array;
@@ -488,23 +538,13 @@ async function generatePath(
 		// Adapters may handle redirects themselves, turning off Astro's redirect handling using `config.build.redirects` in the process.
 		// In that case, we skip rendering static files for the redirect routes.
 		if (routeIsRedirect(route) && !config.build.redirects) {
-			return;
+			return undefined;
 		}
 		const locationSite = getRedirectLocationOrThrow(response.headers);
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		// A short delay causes Google to interpret the redirect as temporary.
-		// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
-		const delay = response.status === 302 ? 2 : 0;
-		body = `<!doctype html>
-<title>Redirecting to: ${location}</title>
-<meta http-equiv="refresh" content="${delay};url=${location}">
-<meta name="robots" content="noindex">
-<link rel="canonical" href="${location}">
-<body>
-	<a href="${location}">Redirecting from <code>${fromPath}</code> to <code>${location}</code></a>
-</body>`;
+		body = redirectTemplate({ status: response.status, location, from: fromPath });
 		if (config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}
@@ -514,28 +554,37 @@ async function generatePath(
 		}
 	} else {
 		// If there's no body, do nothing
-		if (!response.body) return;
+		if (!response.body) return false;
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	const outFolder = getOutFolder(config, pathname, route);
-	const outFile = getOutFile(config, outFolder, pathname, route);
-	route.distURL = outFile;
+	// We encode the path because some paths will received encoded characters, e.g. /[page] VS /%5Bpage%5D.
+	// Node.js decodes the paths, so to avoid a clash between paths, do encode paths again, so we create the correct files and folders requested by the user.
+	const encodedPath = encodeURI(pathname);
+	const outFolder = getOutFolder(pipeline.settings, encodedPath, route);
+	const outFile = getOutFile(config, outFolder, encodedPath, route);
+	if (route.distURL) {
+		route.distURL.push(outFile);
+	} else {
+		route.distURL = [outFile];
+	}
 
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body);
+
+	return true;
 }
 
 function getPrettyRouteName(route: RouteData): string {
 	if (isRelativePath(route.component)) {
 		return route.route;
-	} else if (route.component.includes('node_modules/')) {
+	}
+	if (route.component.includes('node_modules/')) {
 		// For routes from node_modules (usually injected by integrations),
 		// prettify it by only grabbing the part after the last `node_modules/`
 		return /.*node_modules\/(.+)/.exec(route.component)?.[1] ?? route.component;
-	} else {
-		return route.component;
 	}
+	return route.component;
 }
 
 /**
@@ -585,8 +634,8 @@ function createBuildManifest(
 				onRequest: middleware,
 			};
 		},
-		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		checkOrigin:
+			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,
-		experimentalEnvGetSecretEnabled: false,
 	};
 }

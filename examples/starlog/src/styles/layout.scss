@@ -1,3 +1,7 @@
+@use 'sass:color';
+@use './colors.scss' as colors;
+@use './type.scss' as type;
+
 $container: 1040px;
 $tablet: 768px;
 $mobile: 420px;
@@ -11,9 +15,9 @@ body {
 	padding: 0 1em;
 	width: 1040px;
 	max-width: 100%;
-	background-color: $white;
+	background-color: colors.$white;
 	@media (prefers-color-scheme: dark) {
-		background-color: color(gray, 950);
+		background-color: colors.color(gray, 950);
 	}
 	@media (max-width: $tablet) {
 		font-size: 16px;
@@ -39,8 +43,8 @@ body {
 		height: 240px;
 		background: radial-gradient(
 			50% 50% at 50% 50%,
-			rgba(color(orange, 500), 0.2) 0%,
-			rgba(color(orange, 500), 0) 100%
+			rgba(colors.color(orange, 500), 0.2) 0%,
+			rgba(colors.color(orange, 500), 0) 100%
 		);
 		@media (prefers-color-scheme: dark) {
 			background: radial-gradient(
@@ -53,31 +57,31 @@ body {
 }
 
 ::selection {
-	background: color(orange, 200);
+	background: colors.color(orange, 200);
 	@media (prefers-color-scheme: dark) {
-		background: color(orange, 600);
+		background: colors.color(orange, 600);
 	}
 }
 
 a,
 a:visited {
-	color: color(orange, 600);
-	@media (prefers-color-scheme: dark) {
-		color: color(orange, 300);
-	}
+	color: colors.color(orange, 600);
 	transition: 0.1s ease;
+	@media (prefers-color-scheme: dark) {
+		color: colors.color(orange, 300);
+	}
 
 	&:hover {
-		color: color(orange, 500);
+		color: colors.color(orange, 500);
 	}
 }
 
 hr {
 	margin: 1em 0;
 	border: 0;
-	border-bottom: 1px solid color(gray, 100);
+	border-bottom: 1px solid colors.color(gray, 100);
 	@media (prefers-color-scheme: dark) {
-		border-color: color(gray, 900);
+		border-color: colors.color(gray, 900);
 	}
 }
 
@@ -102,22 +106,22 @@ nav {
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		color: color(gray, 950);
-		@media (prefers-color-scheme: dark) {
-			color: $white;
-		}
+		color: colors.color(gray, 950);
 		font-size: 16px;
 		font-weight: 700;
 		letter-spacing: 2px;
 		line-height: 1;
 		text-decoration: none;
 		text-transform: uppercase;
+		@media (prefers-color-scheme: dark) {
+			color: colors.$white;
+		}
 	}
 	.links a {
 		margin-left: 1em;
-		color: color(gray, 800);
+		color: colors.color(gray, 800);
 		@media (prefers-color-scheme: dark) {
-			color: color(gray, 200);
+			color: colors.color(gray, 200);
 		}
 	}
 }
@@ -144,7 +148,7 @@ nav {
 				top: 0.63em;
 				width: 8px;
 				height: 8px;
-				background: linear-gradient(25deg, color(purple, 500), color(orange, 500));
+				background: linear-gradient(25deg, colors.color(purple, 500), colors.color(orange, 500));
 				border-radius: 99px;
 			}
 		}
@@ -178,12 +182,12 @@ nav {
 
 .version_wrapper {
 	flex-basis: 260px;
-	@media (max-width: $container) {
-		flex-basis: 140px;
-	}
 	flex-grow: 0;
 	flex-shrink: 0;
 	margin: 4.5em 0 0 0;
+	@media (max-width: $container) {
+		flex-basis: 140px;
+	}
 	@media (max-width: $tablet) {
 		flex-basis: 0;
 		margin-top: 2em;
@@ -200,7 +204,7 @@ nav {
 
 	a {
 		float: left;
-		color: $white;
+		color: colors.$white;
 		text-decoration: none;
 		transition: 0.1s ease;
 
@@ -212,45 +216,45 @@ nav {
 
 .version_number {
 	display: inline-block;
-	font-family: $codeFont;
+	font-family: type.$codeFont;
 	line-height: 1;
 	margin-bottom: 8px;
 	padding: 4px 12px;
-	color: $white;
+	color: colors.$white;
 	background: linear-gradient(
 		25deg,
-		color(purple, 800),
-		color(purple, 700),
-		mix(color(purple, 500), color(orange, 500)),
-		color(orange, 500)
+		colors.color(purple, 800),
+		colors.color(purple, 700),
+		color.mix(colors.color(purple, 500), colors.color(orange, 500)),
+		colors.color(orange, 500)
 	);
 	border-radius: 8px;
 }
 
 .date {
 	clear: both;
+	color: colors.color(gray, 800);
+	font-family: type.$codeFont;
+	font-size: type.$fontSizeSmall;
 	@media (max-width: $tablet) {
 		display: inline;
 		margin-left: 1em;
 	}
-	color: color(gray, 800);
 	@media (prefers-color-scheme: dark) {
-		color: color(gray, 200);
+		color: colors.color(gray, 200);
 	}
-	font-family: $codeFont;
-	font-size: $fontSizeSmall;
 }
 
 .content {
 	margin: 0;
 	padding: 4em 0;
+	border-bottom: 1px solid colors.color(gray, 100);
 	@media (max-width: $tablet) {
 		margin: 1em 0;
 		padding: 0 0 2em 0;
 	}
-	border-bottom: 1px solid color(gray, 100);
 	@media (prefers-color-scheme: dark) {
-		border-color: color(gray, 900);
+		border-color: colors.color(gray, 900);
 	}
 	*:first-child {
 		margin-top: 0;
@@ -259,9 +263,9 @@ nav {
 		max-width: 100%;
 		height: auto;
 		border-radius: 12px;
-		border: 1px solid color(gray, 200);
+		border: 1px solid colors.color(gray, 200);
 		@media (prefers-color-scheme: dark) {
-			border-color: color(gray, 800);
+			border-color: colors.color(gray, 800);
 		}
 	}
 }
@@ -269,22 +273,22 @@ nav {
 footer {
 	display: flex;
 	padding: 2em 0;
+	color: colors.color(gray, 500);
+	justify-content: space-between;
+	border-top: 1px solid colors.color(gray, 100);
 	@media (max-width: $tablet) {
 		padding: 1em 0;
 	}
-	color: color(gray, 500);
-	justify-content: space-between;
-	border-top: 1px solid color(gray, 100);
 	@media (prefers-color-scheme: dark) {
-		border-color: color(gray, 900);
+		border-color: colors.color(gray, 900);
 	}
 
 	a {
 		margin-left: 1em;
-		color: color(gray, 500);
+		color: colors.color(gray, 500);
 		text-decoration: none;
 		&:hover {
-			color: color(gray, 500);
+			color: colors.color(gray, 500);
 			opacity: 0.6;
 		}
 	}

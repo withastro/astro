@@ -1,9 +1,9 @@
-import fsMod, { existsSync } from 'node:fs';
+import fsMod from 'node:fs';
+import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
-import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { createContentTypesGenerator } from '../../content/index.js';
@@ -13,25 +13,28 @@ import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
+import type { AstroSettings, ManifestData } from '../../types/astro.js';
+import type { AstroInlineConfig } from '../../types/public/config.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { collectErrorMetadata } from '../errors/dev/utils.js';
 import {
 	AstroError,
 	AstroErrorData,
 	AstroUserError,
+	type ErrorWithMetadata,
 	createSafeError,
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { formatErrorMessage } from '../messages.js';
+import { createRouteManifest } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { writeFiles } from './write-files.js';
+import { normalizePath } from '../viteUtils.js';
 
 export type SyncOptions = {
+	mode: string;
 	/**
 	 * @internal only used for testing
 	 */
@@ -42,7 +45,11 @@ export type SyncOptions = {
 	skip?: {
 		// Must be skipped in dev
 		content?: boolean;
+		// Cleanup can be skipped in dev as some state can be reused on updates
+		cleanup?: boolean;
 	};
+	manifest: ManifestData;
+	command: 'build' | 'dev' | 'sync';
 };
 
 export default async function sync(
@@ -61,20 +68,19 @@ export default async function sync(
 		settings,
 		logger,
 	});
+	const manifest = await createRouteManifest({ settings, fsMod: fs }, logger);
 
-	// Run `astro:config:done`
-	// Actions will throw if there is misconfiguration, so catch here.
-	try {
-		await runHookConfigDone({ settings, logger });
-	} catch (err) {
-		if (err instanceof Error) {
-			const errorMessage = err.toString();
-			logger.error('sync', errorMessage);
-		}
-		throw err;
-	}
+	await runHookConfigDone({ settings, logger });
 
-	return await syncInternal({ settings, logger, fs, force: inlineConfig.force });
+	return await syncInternal({
+		settings,
+		logger,
+		mode: 'production',
+		fs,
+		force: inlineConfig.force,
+		manifest,
+		command: 'sync',
+	});
 }
 
 /**
@@ -84,8 +90,14 @@ export async function clearContentLayerCache({
 	settings,
 	logger,
 	fs = fsMod,
-}: { settings: AstroSettings; logger: Logger; fs?: typeof fsMod }) {
-	const dataStore = getDataStoreFile(settings);
+	isDev,
+}: {
+	settings: AstroSettings;
+	logger: Logger;
+	fs?: typeof fsMod;
+	isDev: boolean;
+}) {
+	const dataStore = getDataStoreFile(settings, isDev);
 	if (fs.existsSync(dataStore)) {
 		logger.debug('content', 'clearing data store');
 		await fs.promises.rm(dataStore, { force: true });
@@ -100,63 +112,94 @@ export async function clearContentLayerCache({
  * @experimental The JavaScript API is experimental
  */
 export async function syncInternal({
+	mode,
 	logger,
 	fs = fsMod,
 	settings,
 	skip,
 	force,
+	manifest,
+	command,
 }: SyncOptions): Promise<void> {
+	const isDev = command === 'dev';
 	if (force) {
-		await clearContentLayerCache({ settings, logger, fs });
+		await clearContentLayerCache({ settings, logger, fs, isDev });
 	}
 
 	const timerStart = performance.now();
 
-	try {
-		if (!skip?.content) {
-			await syncContentCollections(settings, { fs, logger });
-			settings.timer.start('Sync content layer');
-			let store: MutableDataStore | undefined;
-			try {
-				const dataStoreFile = getDataStoreFile(settings);
-				if (existsSync(dataStoreFile)) {
-					store = await MutableDataStore.fromFile(dataStoreFile);
-				}
-			} catch (err: any) {
-				logger.error('content', err.message);
-			}
-			if (!store) {
-				store = new MutableDataStore();
-			}
-			const contentLayer = globalContentLayer.init({
-				settings,
-				logger,
-				store,
-			});
-			await contentLayer.sync();
-			settings.timer.end('Sync content layer');
-		} else if (fs.existsSync(fileURLToPath(getContentPaths(settings.config, fs).contentDir))) {
-			// Content is synced after writeFiles. That means references are not created
-			// To work around it, we create a stub so the reference is created and content
-			// sync will override the empty file
+	if (!skip?.content) {
+		await syncContentCollections(settings, { mode, fs, logger, manifest });
+		settings.timer.start('Sync content layer');
+		let store: MutableDataStore | undefined;
+		try {
+			const dataStoreFile = getDataStoreFile(settings, isDev);
+			store = await MutableDataStore.fromFile(dataStoreFile);
+		} catch (err: any) {
+			logger.error('content', err.message);
+		}
+		if (!store) {
+			logger.error('content', 'Failed to load content store');
+			return;
+		}
+		const contentLayer = globalContentLayer.init({
+			settings,
+			logger,
+			store,
+		});
+		await contentLayer.sync();
+		if (!skip?.cleanup) {
+			// Free up memory (usually in builds since we only need to use this once)
+			contentLayer.dispose();
+		}
+		settings.timer.end('Sync content layer');
+	} else {
+		const paths = getContentPaths(settings.config, fs);
+		if (
+			paths.config.exists ||
+			// Legacy collections don't require a config file
+			(settings.config.legacy?.collections && fs.existsSync(paths.contentDir))
+		) {
+			// We only create the reference, without a stub to avoid overriding the
+			// already generated types
 			settings.injectedTypes.push({
 				filename: CONTENT_TYPES_FILE,
-				content: '',
 			});
 		}
-		syncAstroEnv(settings, fs);
-
-		await writeFiles(settings, fs, logger);
-		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
-	} catch (err) {
-		const error = createSafeError(err);
-		logger.error(
-			'types',
-			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
-		);
-		// Will return exit code 1 in CLI
-		throw error;
 	}
+	syncAstroEnv(settings);
+
+	writeInjectedTypes(settings, fs);
+	logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
+}
+
+function getTsReference(type: 'path' | 'types', value: string) {
+	return `/// <reference ${type}=${JSON.stringify(value)} />`;
+}
+
+const CLIENT_TYPES_REFERENCE = getTsReference('types', 'astro/client');
+
+function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
+	const references: Array<string> = [];
+
+	for (const { filename, content } of settings.injectedTypes) {
+		const filepath = fileURLToPath(new URL(filename, settings.dotAstroDir));
+		fs.mkdirSync(dirname(filepath), { recursive: true });
+		if (content) {
+			fs.writeFileSync(filepath, content, 'utf-8');
+		}
+		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), filepath)));
+	}
+
+	const astroDtsContent = `${CLIENT_TYPES_REFERENCE}\n${references.map((reference) => getTsReference('path', reference)).join('\n')}`;
+	if (references.length === 0) {
+		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
+	}
+	fs.writeFileSync(
+		fileURLToPath(new URL('./types.d.ts', settings.dotAstroDir)),
+		astroDtsContent,
+		'utf-8',
+	);
 }
 
 /**
@@ -175,7 +218,12 @@ export async function syncInternal({
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs }: Required<Pick<SyncOptions, 'logger' | 'fs'>>,
+	{
+		mode,
+		logger,
+		fs,
+		manifest,
+	}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs' | 'manifest'>>,
 ): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
@@ -186,7 +234,7 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command: 'build', fs, sync: true },
+			{ settings, logger, mode, command: 'build', fs, sync: true, manifest },
 		),
 	);
 
@@ -223,16 +271,32 @@ async function syncContentCollections(
 			}
 		}
 	} catch (e) {
-		const safeError = createSafeError(e);
+		const safeError = createSafeError(e) as ErrorWithMetadata;
 		if (isAstroError(e)) {
 			throw e;
 		}
-		const hint = AstroUserError.is(e) ? e.hint : AstroErrorData.GenerateContentTypesError.hint;
+		let configFile;
+		try {
+			const contentPaths = getContentPaths(settings.config, fs);
+			if (contentPaths.config.exists) {
+				const matches = /\/(src\/.+)/.exec(contentPaths.config.url.href);
+				if (matches) {
+					configFile = matches[1];
+				}
+			}
+		} catch {
+			// ignore
+		}
+
+		const hint = AstroUserError.is(e)
+			? e.hint
+			: AstroErrorData.GenerateContentTypesError.hint(configFile);
 		throw new AstroError(
 			{
 				...AstroErrorData.GenerateContentTypesError,
 				hint,
 				message: AstroErrorData.GenerateContentTypesError.message(safeError.message),
+				location: safeError.loc,
 			},
 			{ cause: e },
 		);

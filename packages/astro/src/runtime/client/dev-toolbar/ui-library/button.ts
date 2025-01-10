@@ -131,8 +131,6 @@ export class DevToolbarButton extends HTMLElement {
 					cursor: pointer;
 				}
 
-				/* TODO: Remove "astro-dev-overlay-icon" in Astro 5.0 */
-				::slotted(astro-dev-overlay-icon),
 				::slotted(astro-dev-toolbar-icon) {
 					display: inline-block;
 					height: 1em;

@@ -1,5 +1,75 @@
 # @astrojs/db
 
+## 0.14.5
+
+### Patch Changes
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
+- Updated dependencies [[`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0)]:
+  - @astrojs/studio@0.1.3
+
+## 0.14.4
+
+### Patch Changes
+
+- [#12416](https://github.com/withastro/astro/pull/12416) [`618de28`](https://github.com/withastro/astro/commit/618de283f57d19397246f69dd476611abd56cf13) Thanks [@abegehr](https://github.com/abegehr)! - Fixes `isDbError()` guard for `LibsqlError`
+
+- [#12719](https://github.com/withastro/astro/pull/12719) [`358eae8`](https://github.com/withastro/astro/commit/358eae83b7cf3d79395eea3824e321b502522547) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes the publishing of the package
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.2
+
+## 0.14.1
+
+### Patch Changes
+
+- [#12628](https://github.com/withastro/astro/pull/12628) [`348c71e`](https://github.com/withastro/astro/commit/348c71ecdc7e2a7afb169c2251692416d5e59fcb) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused an error to be logged about invalid entrypoints
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.2
+
+## 0.14.0
+
+### Minor Changes
+
+- [#12008](https://github.com/withastro/astro/pull/12008) [`5608338`](https://github.com/withastro/astro/commit/560833843c6d3ce2b6c6c473ec4ae70e744bf255) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
+
+  Starting from this release, no breaking changes will be introduced unless absolutely necessary.
+
+  To learn how to upgrade, check out the [Astro v5.0 upgrade guide in our beta docs site](https://5-0-0-beta.docs.astro.build/en/guides/upgrade-to/v5/).
+
+### Patch Changes
+
+- [#12073](https://github.com/withastro/astro/pull/12073) [`acf264d`](https://github.com/withastro/astro/commit/acf264d8c003718cda5a0b9ce5fb7ac1cd6641b6) Thanks [@bluwy](https://github.com/bluwy)! - Replaces `ora` with `yocto-spinner`
+
+- Updated dependencies [[`acf264d`](https://github.com/withastro/astro/commit/acf264d8c003718cda5a0b9ce5fb7ac1cd6641b6)]:
+  - @astrojs/studio@0.1.2
+
+## 0.14.0-beta.2
+
+### Patch Changes
+
+- [#12073](https://github.com/withastro/astro/pull/12073) [`acf264d`](https://github.com/withastro/astro/commit/acf264d8c003718cda5a0b9ce5fb7ac1cd6641b6) Thanks [@bluwy](https://github.com/bluwy)! - Replaces `ora` with `yocto-spinner`
+
+- Updated dependencies [[`acf264d`](https://github.com/withastro/astro/commit/acf264d8c003718cda5a0b9ce5fb7ac1cd6641b6)]:
+  - @astrojs/studio@0.1.2-beta.0
+
+## 0.14.0-beta.1
+
+### Minor Changes
+
+- [#12008](https://github.com/withastro/astro/pull/12008) [`5608338`](https://github.com/withastro/astro/commit/560833843c6d3ce2b6c6c473ec4ae70e744bf255) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
+
+  Starting from this release, no breaking changes will be introduced unless absolutely necessary.
+
+  To learn how to upgrade, check out the [Astro v5.0 upgrade guide in our beta docs site](https://5-0-0-beta.docs.astro.build/en/guides/upgrade-to/v5/).
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
 ## 0.14.3
 
 ### Patch Changes

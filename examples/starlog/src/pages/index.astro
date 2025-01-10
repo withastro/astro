@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
 import Layout from '../layouts/IndexLayout.astro';
 
@@ -17,14 +17,14 @@ posts.sort((a, b) => +b.data.date - +a.data.date);
 					<li class="post">
 						<div class="version_wrapper">
 							<div class="version_info">
-								<a href={`/releases/${post.slug}`}>
+								<a href={`/releases/${post.id}`}>
 									<div class="version_number">{post.data.versionNumber}</div>
 									<FormattedDate class="date" date={post.data.date} />
 								</a>
 							</div>
 						</div>
 						<div class="content">
-							{post.render().then(({ Content }) => (
+							{render(post).then(({ Content }) => (
 								<Content />
 							))}
 						</div>

@@ -1,6 +1,7 @@
 import type fsMod from 'node:fs';
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import { shouldAppendForwardSlash } from '../core/build/util.js';
+import type { AstroSettings } from '../types/astro.js';
 import {
 	NOOP_ACTIONS,
 	RESOLVED_VIRTUAL_INTERNAL_MODULE_ID,
@@ -85,6 +86,12 @@ export function vitePluginActions({
 			} else {
 				code += `\nexport * from 'astro/actions/runtime/virtual/client.js';`;
 			}
+			code = code.replace(
+				"'/** @TRAILING_SLASH@ **/'",
+				JSON.stringify(
+					shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
+				),
+			);
 			return code;
 		},
 	};

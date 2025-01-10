@@ -18,5 +18,6 @@ export const onRequest = sequence(
 	customLogic,
 	middleware({
 		prefixDefaultLocale: true,
+		fallbackType: "rewrite"
 	})
 );

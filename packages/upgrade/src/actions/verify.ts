@@ -24,7 +24,13 @@ export async function verify(
 		}
 	}
 
-	await verifyAstroProject(ctx);
+	const isAstroProject = await verifyAstroProject(ctx);
+	if (!isAstroProject) {
+		bannerAbort();
+		newline();
+		error('error', `Astro installation not found in the current directory.`);
+		ctx.exit(1);
+	}
 
 	const ok = await verifyVersions(ctx, registry);
 	if (!ok) {
@@ -37,8 +43,8 @@ export async function verify(
 }
 
 function isOnline(registry: string): Promise<boolean> {
-	const { host } = new URL(registry);
-	return dns.lookup(host).then(
+	const { hostname } = new URL(registry);
+	return dns.lookup(hostname).then(
 		() => true,
 		() => false,
 	);

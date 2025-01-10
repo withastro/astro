@@ -5,15 +5,14 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^3.1.9",
-    "@astrojs/preact": "^3.5.3",
-    "astro": "^4.16.8",
+    "@astrojs/mdx": "^4.0.5",
+    "@astrojs/preact": "^4.0.1",
+    "astro": "^5.1.5",
     "preact": "^10.24.3"
   }
 }

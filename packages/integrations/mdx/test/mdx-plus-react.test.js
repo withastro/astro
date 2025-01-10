@@ -47,4 +47,9 @@ describe('MDX and React', () => {
 		const errors = unhook();
 		assert.equal(errors.length === 0, true);
 	});
+
+	it('renders inline mdx component', async () => {
+		const html = await fixture.readFile('/inline-component/index.html');
+		assert.match(html, /This is an inline component: <span>Comp<\/span>/);
+	});
 });

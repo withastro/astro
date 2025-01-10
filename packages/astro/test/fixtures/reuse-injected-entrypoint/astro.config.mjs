@@ -6,7 +6,7 @@ export default defineConfig({
 		{
 			name: 'astropi',
 			hooks: {
-				'astro:config:setup': async ({ injectRoute }) => {
+				'astro:config:setup': async ({ injectRoute, config }) => {
 					injectRoute({
 						pattern: `/injected-a`,
 						entrypoint: './src/to-inject.astro',
@@ -27,6 +27,11 @@ export default defineConfig({
 						entrypoint: './src/[id].astro',
 						prerender: true,
 					});
+					injectRoute({
+						pattern: `/dynamic-c/[id]`,
+						entrypoint: new URL('./[id].astro', config.srcDir),
+						prerender: true,
+					})
 				},
 			},
 		},
