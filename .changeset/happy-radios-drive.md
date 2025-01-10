@@ -2,4 +2,4 @@
 '@astrojs/upgrade': patch
 ---
 
-Changed the version string format to show both the source and target versions.
+Updates displayed data to show both source and target versions
