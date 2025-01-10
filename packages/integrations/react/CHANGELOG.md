@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 4.1.3
+
+### Patch Changes
+
+- [#12948](https://github.com/withastro/astro/pull/12948) [`51ab7b5`](https://github.com/withastro/astro/commit/51ab7b5722acecce722fb404ca6bc152a109c9e5) Thanks [@bluwy](https://github.com/bluwy)! - Supports checking for React 19 components
+
 ## 4.1.2
 
 ### Patch Changes

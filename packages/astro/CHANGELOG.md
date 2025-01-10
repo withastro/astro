@@ -1,5 +1,17 @@
 # astro
 
+## 5.1.5
+
+### Patch Changes
+
+- [#12934](https://github.com/withastro/astro/pull/12934) [`673a518`](https://github.com/withastro/astro/commit/673a518b011e2df35a099f8205611d98a223a92a) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where the Astro Container didn't work during the build, using `pnpm`
+
+- [#12955](https://github.com/withastro/astro/pull/12955) [`db447f2`](https://github.com/withastro/astro/commit/db447f2816836b635355cc2b0a73678facd155a5) Thanks [@martrapp](https://github.com/martrapp)! - Lets TypeScript know about the "blocking" and "disabled" attributes of the `<link>` element.
+
+- [#12922](https://github.com/withastro/astro/pull/12922) [`faf74af`](https://github.com/withastro/astro/commit/faf74af522f4499ab95531b24a0a1c14070abe8b) Thanks [@adamchal](https://github.com/adamchal)! - Improves performance of static asset generation by fixing a bug that caused image transforms to be performed serially. This fix ensures that processing uses all CPUs when running in a multi-core environment.
+
+- [#12947](https://github.com/withastro/astro/pull/12947) [`3c2292f`](https://github.com/withastro/astro/commit/3c2292f2f0accf1974b30dbe32f040c56413e731) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused empty content collections when running dev with NODE_ENV set
+
 ## 5.1.4
 
 ### Patch Changes
