@@ -164,9 +164,12 @@ export async function generateImagesForPath(
 		const finalFolderURL = new URL('./', finalFileURL);
 		await fs.promises.mkdir(finalFolderURL, { recursive: true });
 
-		// For remote images, instead of saving the image directly, we save a JSON file with the image data, expiration date, etag and last-modified date from the server
-		const cacheFile = basename(filepath) + (isLocalImage ? '' : '.json');
+		const cacheFile = basename(filepath);
 		const cachedFileURL = new URL(cacheFile, env.assetsCacheDir);
+
+		// For remote images, we also save a JSON file with the expiration date, etag and last-modified date from the server
+		const cacheMetaFile = cacheFile + '.json';
+		const cachedMetaFileURL = new URL(cacheMetaFile, env.assetsCacheDir);
 
 		// Check if we have a cached entry first
 		try {
@@ -177,19 +180,34 @@ export async function generateImagesForPath(
 					cached: 'hit',
 				};
 			} else {
-				const JSONData = JSON.parse(readFileSync(cachedFileURL, 'utf-8')) as RemoteCacheEntry;
+				const JSONData = JSON.parse(readFileSync(cachedMetaFileURL, 'utf-8')) as RemoteCacheEntry;
 
-				if (!JSONData.data || !JSONData.expires) {
-					await fs.promises.unlink(cachedFileURL);
+				if (!JSONData.expires) {
+					try {
+						await fs.promises.unlink(cachedFileURL);
+					} catch {
+						/* Old caches may not have a seperate image binary, no-op */
+					}
+					await fs.promises.unlink(cachedMetaFileURL);
 
 					throw new Error(
 						`Malformed cache entry for ${filepath}, cache will be regenerated for this file.`,
 					);
 				}
 
+				// Upgrade old base64 encoded asset cache to the new format
+				if (JSONData.data) {
+					const { data, ...meta } = JSONData;
+
+					await Promise.all([
+						fs.promises.writeFile(cachedFileURL, Buffer.from(data, 'base64')),
+						writeCacheMetaFile(cachedMetaFileURL, meta, env),
+					]);
+				}
+
 				// If the cache entry is not expired, use it
 				if (JSONData.expires > Date.now()) {
-					await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
+					await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
 
 					return {
 						cached: 'hit',
@@ -208,12 +226,14 @@ export async function generateImagesForPath(
 							// Image cache was stale, update original image to avoid redownload
 							originalImage = revalidatedData;
 						} else {
-							revalidatedData.data = Buffer.from(JSONData.data, 'base64');
-
 							// Freshen cache on disk
-							await writeRemoteCacheFile(cachedFileURL, revalidatedData, env);
+							await writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env);
 
-							await fs.promises.writeFile(finalFileURL, revalidatedData.data);
+							await fs.promises.copyFile(
+								cachedFileURL,
+								finalFileURL,
+								fs.constants.COPYFILE_FICLONE,
+							);
 							return { cached: 'revalidated' };
 						}
 					} catch (e) {
@@ -223,12 +243,13 @@ export async function generateImagesForPath(
 							`An error was encountered while revalidating a cached remote asset. Proceeding with stale cache. ${e}`,
 						);
 
-						await fs.promises.writeFile(finalFileURL, Buffer.from(JSONData.data, 'base64'));
+						await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
 						return { cached: 'hit' };
 					}
 				}
 
 				await fs.promises.unlink(cachedFileURL);
+				await fs.promises.unlink(cachedMetaFileURL);
 			}
 		} catch (e: any) {
 			if (e.code !== 'ENOENT') {
@@ -281,7 +302,10 @@ export async function generateImagesForPath(
 				if (isLocalImage) {
 					await fs.promises.writeFile(cachedFileURL, resultData.data);
 				} else {
-					await writeRemoteCacheFile(cachedFileURL, resultData as ImageData, env);
+					await Promise.all([
+						fs.promises.writeFile(cachedFileURL, resultData.data),
+						writeCacheMetaFile(cachedMetaFileURL, resultData as ImageData, env),
+					]);
 				}
 			}
 		} catch (e) {
@@ -305,12 +329,15 @@ export async function generateImagesForPath(
 	}
 }
 
-async function writeRemoteCacheFile(cachedFileURL: URL, resultData: ImageData, env: AssetEnv) {
+async function writeCacheMetaFile(
+	cachedMetaFileURL: URL,
+	resultData: Omit<ImageData, 'data'>,
+	env: AssetEnv,
+) {
 	try {
 		return await fs.promises.writeFile(
-			cachedFileURL,
+			cachedMetaFileURL,
 			JSON.stringify({
-				data: Buffer.from(resultData.data).toString('base64'),
 				expires: resultData.expires,
 				etag: resultData.etag,
 				lastModified: resultData.lastModified,
