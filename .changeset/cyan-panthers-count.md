@@ -1,7 +1,7 @@
 ---
-'@astrojs/markdoc': minor
-'@astrojs/markdown-remark': minor
-'astro': minor
+'@astrojs/markdoc': patch
+'@astrojs/markdown-remark': patch
+'astro': patch
 ---
 
-Upgrade the minimum required version of `esbuild` to match the one used by `vite` which also address various critical vulnerabilities included in the prebuilt binary of esbuild
+Upgrades the `esbuild` version to match `vite`
