@@ -55,13 +55,11 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 				}
 			});
 
-			node.properties = node.properties || {};
+			node.properties ??= {};
 			if (typeof node.properties.id !== 'string') {
-				let slug = slugger.slug(text);
-
-				if (slug.endsWith('-')) slug = slug.slice(0, -1);
-
-				node.properties.id = slug;
+				const NBSP = /[\u00A0\u2007\u202F]/g;
+				const EXTRA_HYPHENS = /^-+|(?<=-)-+|-+$/g;
+				node.properties.id = slugger.slug(text.replace(NBSP, ' ')).replace(EXTRA_HYPHENS, '');
 			}
 
 			headings.push({ depth, slug: node.properties.id, text });
