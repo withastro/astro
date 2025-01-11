@@ -152,7 +152,7 @@ const spacecraft = defineCollection({
 			publishedDate: z.coerce.date(),
 			tags: z.array(z.string()),
 			heroImage: image().optional(),
-			cat: reference('cats').optional(),
+			cat: reference('cats').default('siamese'),
 			something: z
 				.string()
 				.optional()
@@ -177,6 +177,13 @@ const numbers = defineCollection({
 	loader: glob({ pattern: 'src/data/glob-data/*', base: '.' }),
 });
 
+const notADirectory = defineCollection({
+	loader: glob({ pattern: '*', base: 'src/nonexistent' }),
+});
+
+const nothingMatches = defineCollection({
+	loader: glob({ pattern: 'nothingmatches/*', base: 'src/data' }),
+});
 const images = defineCollection({
 	loader: () => [
 		{
@@ -259,4 +266,7 @@ export const collections = {
 	songs,
 	probes,
 	rodents,
+	notADirectory,
+	nothingMatches
 };
+

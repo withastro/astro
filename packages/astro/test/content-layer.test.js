@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import { promises as fs, existsSync } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
+import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
+import { Logger } from '../dist/core/logger/core.js';
 
 import { loadFixture } from './test-utils.js';
 describe('Content Layer', () => {
@@ -288,11 +290,23 @@ describe('Content Layer', () => {
 			assert.equal(newJson.entryWithReference.data.something?.content, 'transform me');
 		});
 
-		it('clears the store on new build if the config has changed', async () => {
+		it('clears the store on new build if the content config has changed', async () => {
 			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 1);
 			await fixture.editFile('src/content.config.ts', (prev) => {
 				return `${prev}\nexport const foo = 'bar';`;
+			});
+			await fixture.build();
+			newJson = devalue.parse(await fixture.readFile('/collections.json'));
+			assert.equal(newJson.increment.data.lastValue, 1);
+			await fixture.resetAllFiles();
+		});
+
+		it('clears the store on new build if the Astro config has changed', async () => {
+			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
+			assert.equal(newJson.increment.data.lastValue, 1);
+			await fixture.editFile('astro.config.mjs', (prev) => {
+				return prev.replace('Astro content layer', 'Astro more content layer');
 			});
 			await fixture.build();
 			newJson = devalue.parse(await fixture.readFile('/collections.json'));
@@ -304,8 +318,21 @@ describe('Content Layer', () => {
 	describe('Dev', () => {
 		let devServer;
 		let json;
+		const logs = [];
 		before(async () => {
-			devServer = await fixture.startDevServer({ force: true });
+			devServer = await fixture.startDevServer({
+				force: true,
+				logger: new Logger({
+					level: 'warn',
+					dest: new Writable({
+						objectMode: true,
+						write(event, _, callback) {
+							logs.push(event);
+							callback();
+						},
+					}),
+				}),
+			});
 			// Vite may not have noticed the saved data store yet. Wait a little just in case.
 			await fixture.onNextDataStoreChange(1000).catch(() => {
 				// Ignore timeout, because it may have saved before we get here.
@@ -317,6 +344,16 @@ describe('Content Layer', () => {
 
 		after(async () => {
 			devServer?.stop();
+		});
+
+		it("warns about missing directory in glob() loader's path", async () => {
+			assert.ok(logs.find((log) => log.level === 'warn' && log.message.includes('does not exist')));
+		});
+
+		it("warns about missing files in glob() loader's path", async () => {
+			assert.ok(
+				logs.find((log) => log.level === 'warn' && log.message.includes('No files found matching')),
+			);
 		});
 
 		it('Generates content types files', async () => {
@@ -427,6 +464,36 @@ describe('Content Layer', () => {
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
 			assert.ok(updated.jsonLoader[0].data.temperament.includes('Bouncy'));
+			await fixture.resetAllFiles();
+		});
+
+		it('removes old entry when slug is changed', async () => {
+			const rawJsonResponse = await fixture.fetch('/collections.json');
+			const initialJson = devalue.parse(await rawJsonResponse.text());
+
+			assert.ok(initialJson.spacecraft.includes('exomars'));
+			assert.ok(!initialJson.spacecraft.includes('rosalind-franklin-rover'));
+
+			await fixture.editFile('/src/content/space/exomars.md', (prev) => {
+				return prev.replace('# slug', 'slug');
+			});
+
+			await fixture.onNextDataStoreChange();
+			const updatedJsonResponse = await fixture.fetch('/collections.json');
+			const updated = devalue.parse(await updatedJsonResponse.text());
+			assert.ok(!updated.spacecraft.includes('exomars'));
+			assert.ok(updated.spacecraft.includes('rosalind-franklin-rover'));
+
+			await fixture.editFile('/src/content/space/exomars.md', (prev) => {
+				return prev.replace('rosalind-franklin-rover', 'rosalind-franklin');
+			});
+
+			await fixture.onNextDataStoreChange();
+			const updatedJsonResponse2 = await fixture.fetch('/collections.json');
+			const updated2 = devalue.parse(await updatedJsonResponse2.text());
+			assert.ok(!updated2.spacecraft.includes('rosalind-franklin-rover'));
+			assert.ok(updated2.spacecraft.includes('rosalind-franklin'));
+
 			await fixture.resetAllFiles();
 		});
 

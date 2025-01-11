@@ -679,6 +679,7 @@ declare namespace astroHTML.JSX {
 
 	interface DialogHTMLAttributes extends HTMLAttributes {
 		open?: boolean | string | undefined | null;
+		closedby?: 'none' | 'closerequest' | 'any' | undefined | null;
 	}
 
 	interface EmbedHTMLAttributes extends HTMLAttributes {
@@ -836,10 +837,12 @@ declare namespace astroHTML.JSX {
 
 	interface LinkHTMLAttributes extends HTMLAttributes {
 		as?: string | undefined | null;
+		blocking?: 'render' | undefined | null;
 		crossorigin?: boolean | string | undefined | null;
+		disabled?: boolean | undefined | null;
+		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
 		href?: string | URL | undefined | null;
 		hreflang?: string | undefined | null;
-		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
 		integrity?: string | undefined | null;
 		media?: string | undefined | null;
 		imagesrcset?: string | undefined | null;

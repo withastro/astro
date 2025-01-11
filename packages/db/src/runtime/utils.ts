@@ -42,6 +42,10 @@ export class DetailedLibsqlError extends LibsqlError {
 	}
 }
 
+export function isDbError(err: unknown): err is LibsqlError {
+	return err instanceof LibsqlError || (err instanceof Error && (err as any).libsqlError === true);
+}
+
 function slash(path: string) {
 	const isExtendedLengthPath = path.startsWith('\\\\?\\');
 

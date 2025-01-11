@@ -6,5 +6,10 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	integrations: [preact(), mdx()],
 	// make sure CLI flags have precedence
-  server: () => ({ port: 4321 })
+  server: () => ({ port: 4321 }),
+  vite: {
+  	build: {
+  		sourcemap: true,
+  	}
+  }
 });

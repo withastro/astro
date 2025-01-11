@@ -120,7 +120,10 @@ let response = await fetch('${serverIslandUrl}', {
 `
 }
 if (script) {
-	if(response.status === 200 && response.headers.get('content-type') === 'text/html') {
+	if(
+		response.status === 200 
+		&& response.headers.has('content-type') 
+		&& response.headers.get('content-type').split(";")[0].trim() === 'text/html') {
 		let html = await response.text();
 	
 		// Swap!

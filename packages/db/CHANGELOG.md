@@ -1,5 +1,25 @@
 # @astrojs/db
 
+## 0.14.5
+
+### Patch Changes
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
+- Updated dependencies [[`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0)]:
+  - @astrojs/studio@0.1.3
+
+## 0.14.4
+
+### Patch Changes
+
+- [#12416](https://github.com/withastro/astro/pull/12416) [`618de28`](https://github.com/withastro/astro/commit/618de283f57d19397246f69dd476611abd56cf13) Thanks [@abegehr](https://github.com/abegehr)! - Fixes `isDbError()` guard for `LibsqlError`
+
+- [#12719](https://github.com/withastro/astro/pull/12719) [`358eae8`](https://github.com/withastro/astro/commit/358eae83b7cf3d79395eea3824e321b502522547) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes the publishing of the package
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.2
+
 ## 0.14.1
 
 ### Patch Changes

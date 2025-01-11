@@ -37,6 +37,18 @@ describe('Server islands', () => {
 				assert.equal(serverIslandEl.length, 0);
 			});
 
+			it('island is not indexed', async () => {
+				const res = await fixture.fetch('/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						slots: {},
+					}),
+				});
+				assert.equal(res.headers.get('x-robots-tag'), 'noindex');
+			});
+
 			it('island can set headers', async () => {
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
@@ -73,6 +85,23 @@ describe('Server islands', () => {
 
 				const serverIslandScript = $('script[data-island-id]');
 				assert.equal(serverIslandScript.length, 1, 'has the island script');
+			});
+
+			it('island is not indexed', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						slots: {},
+					}),
+					headers: {
+						origin: 'http://example.com',
+					},
+				});
+				const response = await app.render(request);
+				assert.equal(response.headers.get('x-robots-tag'), 'noindex');
 			});
 		});
 	});
