@@ -180,7 +180,7 @@ export async function generateImagesForPath(
 					try {
 						await fs.promises.unlink(cachedFileURL);
 					} catch {
-						/* Old caches may not have a seperate image binary, no-op */
+						/* Old caches may not have a separate image binary, no-op */
 					}
 					await fs.promises.unlink(cachedMetaFileURL);
 
