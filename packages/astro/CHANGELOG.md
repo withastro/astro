@@ -3648,7 +3648,7 @@
   }
   ```
 
-- [#11862](https://github.com/withastro/astro/pull/11862) [`0e35safe`](https://github.com/withastro/astro/commit/0e35afe44f5a3c9f87b41dc89d5128b02e448895) Thanks [@ascorbic](https://github.com/ascorbic)! - **BREAKING CHANGE to experimental content layer loaders only!**
+- [#11862](https://github.com/withastro/astro/pull/11862) [`0e35afe`](https://github.com/withastro/astro/commit/0e35afe44f5a3c9f87b41dc89d5128b02e448895) Thanks [@ascorbic](https://github.com/ascorbic)! - **BREAKING CHANGE to experimental content layer loaders only!**
 
   Passes `AstroConfig` instead of `AstroSettings` object to content layer loaders.
 
