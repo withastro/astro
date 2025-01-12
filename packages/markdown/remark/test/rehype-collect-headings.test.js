@@ -63,7 +63,10 @@ describe('rehypeHeadingIds()', () => {
 				metadata: { headings },
 			} = await processor.render(repeatedMarkdownHeadings);
 
-			assert.equal(headings.length, new Set(headings.map(({ slug }) => slug)).size);
+			const numberOfHeadings = headings.length;
+			const numberOfUniqueIdValues = new Set(headings.map(({ slug }) => slug)).size;
+
+			assert.equal(numberOfHeadings, numberOfUniqueIdValues);
 		});
 	});
 });
