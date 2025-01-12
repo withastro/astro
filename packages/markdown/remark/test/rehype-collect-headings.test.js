@@ -1,7 +1,6 @@
-import { createMarkdownProcessor } from '../dist/index.js';
-
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { createMarkdownProcessor } from '../dist/index.js';
 
 describe('rehypeHeadingIds()', () => {
 	let processor;
@@ -21,24 +20,26 @@ describe('rehypeHeadingIds()', () => {
 				metadata: {
 					headings: [heading],
 				},
-			} = await processor.render(markdownHeading());
+			} = await processor.render(markdownHeading(NON_BREAKING_SPACES));
 
-			assert.equal(heading.slug, expectedSlug());
+			assert.equal(heading.slug, expectedSlug(NON_BREAKING_SPACES));
 
 			/**
-			 * Value function
-			 * @returns {string} markdown heading with defined `NON_BREAKING_SPACES` in text
+			 * Helper function
+			 * @param {string[]} nbsp - list of non-breaking spaces
+			 * @returns {string} markdown heading with given `nbsp` list
 			 * */
-			function markdownHeading() {
-				return `## text${NON_BREAKING_SPACES.join('text')}text`;
+			function markdownHeading(nbsp = []) {
+				return `## text${nbsp.join('text')}text`;
 			}
 
 			/**
-			 * Value function
-			 * @returns {string} expected slug value of `markdownHeading()`
+			 * Helper function
+			 * @param {string[]} nbsp - list of non-breaking spaces
+			 * @returns {string} expected slug value of `markdownHeading()` with given `nbsp` list
 			 * */
-			function expectedSlug() {
-				return `text-${NON_BREAKING_SPACES.map(() => 'text').join('-')}`;
+			function expectedSlug(nbsp = []) {
+				return `text-${nbsp.map(() => 'text').join('-')}`;
 			}
 		});
 
