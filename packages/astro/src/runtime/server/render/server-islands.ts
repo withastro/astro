@@ -76,7 +76,8 @@ export function renderServerIsland(
 			}
 
 			const key = await result.key;
-			const propsEncrypted = await encryptString(key, JSON.stringify(props));
+			const propsEncrypted =
+				Object.keys(props).length === 0 ? '' : await encryptString(key, JSON.stringify(props));
 
 			const hostId = crypto.randomUUID();
 
