@@ -1,5 +1,17 @@
 # @astrojs/netlify
 
+## 6.1.0
+
+### Minor Changes
+
+- [#496](https://github.com/withastro/adapters/pull/496) [`4b5cd22`](https://github.com/withastro/adapters/commit/4b5cd2268e8ed5e720772f50241b299762ea1eb8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Stabilizes `astro:env` secrets support
+
+### Patch Changes
+
+- [#454](https://github.com/withastro/adapters/pull/454) [`83cedad`](https://github.com/withastro/adapters/commit/83cedad780bf7a23ae9f6ca0c44a7b7f1c1767e1) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Improves Astro 5 support
+
+- [#501](https://github.com/withastro/adapters/pull/501) [`012b31d`](https://github.com/withastro/adapters/commit/012b31d98ce87c1199eb38b7aba2a28b7c1cf8cc) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactor of the redirects logic
+
 ## 6.0.1
 
 ### Patch Changes
