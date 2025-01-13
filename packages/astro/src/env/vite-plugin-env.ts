@@ -14,12 +14,11 @@ import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
 interface AstroEnvPluginParams {
 	settings: AstroSettings;
-	mode: string;
 	sync: boolean;
 	envLoader: EnvLoader;
 }
 
-export function astroEnv({ settings, mode, sync, envLoader }: AstroEnvPluginParams): Plugin {
+export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): Plugin {
 	const { schema, validateSecrets } = settings.config.env;
 	let isDev: boolean;
 
@@ -32,7 +31,7 @@ export function astroEnv({ settings, mode, sync, envLoader }: AstroEnvPluginPara
 			isDev = command !== 'build';
 		},
 		buildStart() {
-			const loadedEnv = envLoader.load(mode, settings.config);
+			const loadedEnv = envLoader.get();
 
 			if (!isDev) {
 				for (const [key, value] of Object.entries(loadedEnv)) {
