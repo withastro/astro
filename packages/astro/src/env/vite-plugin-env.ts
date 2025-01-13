@@ -24,6 +24,34 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 
 	let templates: { client: string; server: string; internal: string } | null = null;
 
+	function ensureTemplateAreLoaded() {
+		if (templates !== null) {
+			return;
+		}
+
+		const loadedEnv = envLoader.get();
+
+		if (!isDev) {
+			for (const [key, value] of Object.entries(loadedEnv)) {
+				if (value !== undefined) {
+					process.env[key] = value;
+				}
+			}
+		}
+
+		const validatedVariables = validatePublicVariables({
+			schema,
+			loadedEnv,
+			validateSecrets,
+			sync,
+		});
+
+		templates = {
+			...getTemplates(schema, validatedVariables, isDev ? loadedEnv : null),
+			internal: `export const schema = ${JSON.stringify(schema)};`,
+		};
+	}
+
 	return {
 		name: 'astro-env-plugin',
 		enforce: 'pre',
@@ -31,27 +59,7 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 			isDev = command !== 'build';
 		},
 		buildStart() {
-			const loadedEnv = envLoader.get();
-
-			if (!isDev) {
-				for (const [key, value] of Object.entries(loadedEnv)) {
-					if (value !== undefined) {
-						process.env[key] = value;
-					}
-				}
-			}
-
-			const validatedVariables = validatePublicVariables({
-				schema,
-				loadedEnv,
-				validateSecrets,
-				sync,
-			});
-
-			templates = {
-				...getTemplates(schema, validatedVariables, isDev ? loadedEnv : null),
-				internal: `export const schema = ${JSON.stringify(schema)};`,
-			};
+			ensureTemplateAreLoaded();
 		},
 		buildEnd() {
 			templates = null;
@@ -63,10 +71,12 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 		},
 		load(id, options) {
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.client)) {
+				ensureTemplateAreLoaded();
 				return templates!.client;
 			}
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.server)) {
 				if (options?.ssr) {
+					ensureTemplateAreLoaded();
 					return templates!.server;
 				}
 				throw new AstroError({
@@ -75,6 +85,7 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 				});
 			}
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.internal)) {
+				ensureTemplateAreLoaded();
 				return templates!.internal;
 			}
 		},
