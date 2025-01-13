@@ -3,7 +3,6 @@ import type {
 	AstroIntegration,
 	HookParameters,
 	IntegrationResolvedRoute,
-	IntegrationRouteData,
 } from 'astro';
 import type { PluginOption } from 'vite';
 
@@ -89,28 +88,6 @@ function setProcessEnv(config: AstroConfig, env: Record<string, unknown>) {
 			}
 		}
 	}
-}
-
-function resolvedRouteToRouteData(
-	assets: HookParameters<'astro:build:done'>['assets'],
-	route: IntegrationResolvedRoute
-): IntegrationRouteData {
-	return {
-		pattern: route.patternRegex,
-		component: route.entrypoint,
-		prerender: route.isPrerendered,
-		route: route.pattern,
-		generate: route.generate,
-		params: route.params,
-		segments: route.segments,
-		type: route.type,
-		pathname: route.pathname,
-		redirect: route.redirect,
-		distURL: assets.get(route.pattern),
-		redirectRoute: route.redirectRoute
-			? resolvedRouteToRouteData(assets, route.redirectRoute)
-			: undefined,
-	};
 }
 
 export default function createIntegration(args?: Options): AstroIntegration {
@@ -367,18 +344,18 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					);
 				}
 
-				const redirectRoutes: [IntegrationRouteData, string][] = [];
-				for (const route of _routes) {
-					// TODO: Replace workaround after upstream @astrojs/underscore-redirects is changed, to support new IntegrationResolvedRoute type
-					if (route.type === 'redirect')
-						redirectRoutes.push([resolvedRouteToRouteData(assets, route), '']);
-				}
-
 				const trueRedirects = createRedirectsFromAstroRoutes({
 					config: _config,
-					routeToDynamicTargetMap: new Map(Array.from(redirectRoutes)),
+					routeToDynamicTargetMap: new Map(
+						Array.from(
+							_routes
+								.filter((route) => route.type === 'redirect')
+								.map((route) => [route, ''] as const)
+						)
+					),
 					dir,
 					buildOutput: finalBuildOutput,
+					assets,
 				});
 
 				if (!trueRedirects.empty()) {
