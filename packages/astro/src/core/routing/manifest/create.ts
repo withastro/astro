@@ -392,7 +392,7 @@ function isStaticSegment(segment: RoutePart[]) {
  * Routes that may collide depending on the parameters returned by their `getStaticPaths`
  * are not reported as collisions at this stage.
  *
- * Two routes are guarantted to collide in the following scenarios:
+ * Two routes are guaranteed to collide in the following scenarios:
  * - Both are the exact same static route.
  * 	 For example, `/foo` from an injected route and `/foo` from a file in the project.
  * - Both are non-prerendered dynamic routes with equal static parts in matching positions
@@ -719,9 +719,9 @@ export async function createRouteManifest(
 	if (dev || settings.buildOutput === 'server') {
 		injectImageEndpoint(settings, { routes }, dev ? 'dev' : 'build');
 		// Ideally we would only inject the server islands route if server islands are used in the project.
-		// Unforunately, there is a "circular dependency": to know if server islands are used, we need to run
+		// Unfortunately, there is a "circular dependency": to know if server islands are used, we need to run
 		// the build but the build relies on the routes manifest.
-		// This situation also means we cannot update the buildOutput based on wether or not server islands
+		// This situation also means we cannot update the buildOutput based on whether or not server islands
 		// are used in the project. If server islands are detected after the build but the buildOutput is
 		// static, we fail the build.
 		injectServerIslandRoute(settings.config, { routes });

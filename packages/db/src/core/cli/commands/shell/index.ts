@@ -41,7 +41,7 @@ export async function cmd({
 			ASTRO_DATABASE_FILE,
 			new URL(DB_PATH, astroConfig.root).href,
 		);
-		const db = createLocalDatabaseClient({ dbUrl, enableTransations: dbInfo.type === 'libsql' });
+		const db = createLocalDatabaseClient({ dbUrl, enableTransactions: dbInfo.type === 'libsql' });
 		const result = await db.run(sql.raw(query));
 		console.log(result);
 	}
