@@ -110,7 +110,7 @@ declare module '*.avif' {
 declare module '*.svg' {
 	type Props = {
 		/**
-		 * Accesible, short-text description
+		 * Accessible, short-text description
 		 *
 		 *  {@link https://developer.mozilla.org/en-US/docs/Web/SVG/Element/title|MDN Reference}
 		 */
