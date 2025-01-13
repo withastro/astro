@@ -59,7 +59,7 @@
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.3",
     "astro-scripts": "workspace:*",
-    "esbuild": "^0.21.5",
+    "esbuild": "^0.24.2",
     "mdast-util-mdx-expression": "^2.0.1"
   },
   "publishConfig": {
