@@ -6,6 +6,6 @@
     "@astrojs/tailwind": "workspace:*",
     "astro": "workspace:*",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.15"
+    "tailwindcss": "^3.4.17"
   }
 }
