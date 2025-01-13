@@ -13,6 +13,7 @@ import { createSafeError } from '../errors/index.js';
 import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
+import { attachContentServerListeners } from '../../content/server-listeners.js';
 
 async function createRestartedContainer(
 	container: Container,
@@ -147,6 +148,8 @@ export async function createContainerWithAutomaticRestart({
 			// Restart success. Add new watches because this is a new container with a new Vite server
 			restart.container = result;
 			setupContainer();
+			await attachContentServerListeners(restart.container);
+
 			if (server) {
 				// Vite expects the resolved URLs to be available
 				server.resolvedUrls = result.viteServer.resolvedUrls;

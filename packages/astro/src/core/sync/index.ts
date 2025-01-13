@@ -3,7 +3,7 @@ import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
-import { type HMRPayload, createServer } from 'vite';
+import { type FSWatcher, type HMRPayload, createServer } from 'vite';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { createContentTypesGenerator } from '../../content/index.js';
@@ -50,6 +50,7 @@ export type SyncOptions = {
 	};
 	manifest: ManifestData;
 	command: 'build' | 'dev' | 'sync';
+	watcher?: FSWatcher
 };
 
 export default async function sync(
@@ -120,6 +121,7 @@ export async function syncInternal({
 	force,
 	manifest,
 	command,
+	watcher
 }: SyncOptions): Promise<void> {
 	const isDev = command === 'dev';
 	if (force) {
@@ -131,22 +133,35 @@ export async function syncInternal({
 	if (!skip?.content) {
 		await syncContentCollections(settings, { mode, fs, logger, manifest });
 		settings.timer.start('Sync content layer');
-		let store: MutableDataStore | undefined;
-		try {
-			const dataStoreFile = getDataStoreFile(settings, isDev);
-			store = await MutableDataStore.fromFile(dataStoreFile);
-		} catch (err: any) {
-			logger.error('content', err.message);
+		let contentLayer = globalContentLayer.get();
+
+		if(contentLayer && !contentLayer.configMatches(settings.config)) {
+			logger.info('content', 'Astro config changed: reloading content layer.');
+			contentLayer = null;
 		}
-		if (!store) {
-			logger.error('content', 'Failed to load content store');
-			return;
+		if (!contentLayer) {
+			let store: MutableDataStore | undefined;
+			try {
+				const dataStoreFile = getDataStoreFile(settings, isDev);
+				store = await MutableDataStore.fromFile(dataStoreFile);
+			} catch (err: any) {
+				logger.error('content', err.message);
+			}
+			if (!store) {
+				logger.error('content', 'Failed to load content store');
+				return;
+			}
+
+			contentLayer = globalContentLayer.init({
+				settings,
+				logger,
+				store,
+				watcher
+			});
+			if(watcher) {
+				contentLayer.watchContentConfig();
+			}
 		}
-		const contentLayer = globalContentLayer.init({
-			settings,
-			logger,
-			store,
-		});
 		await contentLayer.sync();
 		if (!skip?.cleanup) {
 			// Free up memory (usually in builds since we only need to use this once)
