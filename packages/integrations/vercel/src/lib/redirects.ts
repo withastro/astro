@@ -1,6 +1,6 @@
 import nodePath from 'node:path';
 import { appendForwardSlash, removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
-import type { AstroConfig, IntegrationRouteData, RoutePart } from 'astro';
+import type { AstroConfig, IntegrationResolvedRoute, RoutePart } from 'astro';
 
 const pathJoin = nodePath.posix.join;
 
@@ -91,7 +91,7 @@ function getReplacePattern(segments: RoutePart[][]) {
 	return result;
 }
 
-function getRedirectLocation(route: IntegrationRouteData, config: AstroConfig): string {
+function getRedirectLocation(route: IntegrationResolvedRoute, config: AstroConfig): string {
 	if (route.redirectRoute) {
 		const pattern = getReplacePattern(route.redirectRoute.segments);
 		const path = config.trailingSlash === 'always' ? appendForwardSlash(pattern) : pattern;
@@ -105,7 +105,7 @@ function getRedirectLocation(route: IntegrationRouteData, config: AstroConfig): 
 	}
 }
 
-function getRedirectStatus(route: IntegrationRouteData): number {
+function getRedirectStatus(route: IntegrationResolvedRoute): number {
 	if (typeof route.redirect === 'object') {
 		return route.redirect.status;
 	}
@@ -122,7 +122,10 @@ export function escapeRegex(content: string) {
 	return `^/${getMatchPattern(segments)}$`;
 }
 
-export function getRedirects(routes: IntegrationRouteData[], config: AstroConfig): VercelRoute[] {
+export function getRedirects(
+	routes: IntegrationResolvedRoute[],
+	config: AstroConfig
+): VercelRoute[] {
 	const redirects: VercelRoute[] = [];
 
 	for (const route of routes) {
@@ -132,7 +135,7 @@ export function getRedirects(routes: IntegrationRouteData[], config: AstroConfig
 				headers: { Location: getRedirectLocation(route, config) },
 				status: getRedirectStatus(route),
 			});
-		} else if (route.type === 'page' && route.route !== '/') {
+		} else if (route.type === 'page' && route.pattern !== '/') {
 			if (config.trailingSlash === 'always') {
 				redirects.push({
 					src: config.base + getMatchPattern(route.segments),

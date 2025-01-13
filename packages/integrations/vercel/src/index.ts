@@ -9,7 +9,6 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
-	IntegrationRouteData,
 } from 'astro';
 import glob from 'fast-glob';
 import {
@@ -185,7 +184,7 @@ export default function vercelAdapter({
 	let _config: AstroConfig;
 	let _buildTempFolder: URL;
 	let _serverEntry: string;
-	let _entryPoints: Map<IntegrationRouteData, URL>;
+	let _entryPoints: Map<Pick<IntegrationResolvedRoute, 'entrypoint' | 'patternRegex'>, URL>;
 	let _middlewareEntryPoint: URL | undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
@@ -291,11 +290,19 @@ export default function vercelAdapter({
 			},
 			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
 				_entryPoints = new Map(
-					Array.from(entryPoints).filter(([routeData]) => !routeData.prerender)
+					Array.from(entryPoints)
+						.filter(([routeData]) => !routeData.prerender)
+						.map(([routeData, url]) => [
+							{
+								entrypoint: routeData.component,
+								patternRegex: routeData.pattern,
+							},
+							url,
+						])
 				);
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
-			'astro:build:done': async ({ assets, logger }: HookParameters<'astro:build:done'>) => {
+			'astro:build:done': async ({ logger }: HookParameters<'astro:build:done'>) => {
 				const outDir = new URL('./.vercel/output/', _config.root);
 				if (staticDir) {
 					if (existsSync(staticDir)) {
@@ -356,8 +363,8 @@ export default function vercelAdapter({
 
 					// Multiple entrypoint support
 					if (_entryPoints.size) {
-						const getRouteFuncName = (route: IntegrationRouteData) =>
-							route.component.replace('src/pages/', '');
+						const getRouteFuncName = (route: Pick<IntegrationResolvedRoute, 'entrypoint'>) =>
+							route.entrypoint.replace('src/pages/', '');
 
 						const getFallbackFuncName = (entryFile: URL) =>
 							basename(entryFile.toString())
@@ -365,14 +372,14 @@ export default function vercelAdapter({
 								.replace(/\.mjs$/, '');
 
 						for (const [route, entryFile] of _entryPoints) {
-							const func = route.component.startsWith('src/pages/')
+							const func = route.entrypoint.startsWith('src/pages/')
 								? getRouteFuncName(route)
 								: getFallbackFuncName(entryFile);
 
 							await builder.buildServerlessFolder(entryFile, func, _config.root);
 
 							routeDefinitions.push({
-								src: route.pattern.source,
+								src: route.patternRegex.source,
 								dest: func,
 							});
 						}
@@ -417,10 +424,7 @@ export default function vercelAdapter({
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				const destination = new URL('./.vercel/output/config.json', _config.root);
 				const finalRoutes = [
-					...getRedirects(
-						routes.map((route) => resolvedRouteToRouteData(assets, route)),
-						_config
-					),
+					...getRedirects(routes, _config),
 					{
 						src: `^/${_config.build.assets}/(.*)$`,
 						headers: { 'cache-control': 'public, max-age=31536000, immutable' },
@@ -485,28 +489,6 @@ export default function vercelAdapter({
 				}
 			},
 		},
-	};
-}
-
-function resolvedRouteToRouteData(
-	assets: HookParameters<'astro:build:done'>['assets'],
-	route: IntegrationResolvedRoute
-): IntegrationRouteData {
-	return {
-		pattern: route.patternRegex,
-		component: route.entrypoint,
-		prerender: route.isPrerendered,
-		route: route.pattern,
-		generate: route.generate,
-		params: route.params,
-		segments: route.segments,
-		type: route.type,
-		pathname: route.pathname,
-		redirect: route.redirect,
-		distURL: assets.get(route.pattern),
-		redirectRoute: route.redirectRoute
-			? resolvedRouteToRouteData(assets, route.redirectRoute)
-			: undefined,
 	};
 }
 
