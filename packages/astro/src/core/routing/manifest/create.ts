@@ -317,7 +317,6 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 function createRedirectRoutes(
 	{ settings }: CreateRouteManifestParams,
 	routeMap: Map<string, RouteData>,
-	logger: Logger,
 ): RouteData[] {
 	const { config } = settings;
 	const trailingSlash = config.trailingSlash;
@@ -484,7 +483,7 @@ export async function createRouteManifest(
 		routeMap.set(route.route, route);
 	}
 
-	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
+	const redirectRoutes = createRedirectRoutes(params, routeMap);
 
 	// we remove the file based routes that were deemed redirects
 	const filteredFiledBasedRoutes = fileBasedRoutes.filter((fileBasedRoute) => {
