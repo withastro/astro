@@ -18,14 +18,14 @@ export default defineConfig({
             const { ext, dir, base } = path.parse(option.name);
 
             if (ext == ".css") return path.join(dir, "assets/css", 'a.css');
-            return "imgAssets/[name].[ext]";
+            return "assets/img/[name].[ext]";
           }
         }
       }
     }
   },
   build: {
-    assets: 'assetsDir'
+    assets: 'assets'
   },
   output: "server",
   adapter: node({

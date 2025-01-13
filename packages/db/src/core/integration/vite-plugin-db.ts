@@ -211,7 +211,7 @@ async function recreateTables({ tables, root }: { tables: LateTables; root: URL 
 	const dbInfo = getRemoteDatabaseInfo();
 	const { ASTRO_DATABASE_FILE } = getAstroEnv();
 	const dbUrl = normalizeDatabaseUrl(ASTRO_DATABASE_FILE, new URL(DB_PATH, root).href);
-	const db = createLocalDatabaseClient({ dbUrl, enableTransations: dbInfo.type === 'libsql' });
+	const db = createLocalDatabaseClient({ dbUrl, enableTransactions: dbInfo.type === 'libsql' });
 	const setupQueries: SQL[] = [];
 	for (const [name, table] of Object.entries(tables.get() ?? {})) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);

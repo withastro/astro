@@ -1,5 +1,23 @@
 # @astrojs/vue
 
+## 5.0.4
+
+### Patch Changes
+
+- [#12776](https://github.com/withastro/astro/pull/12776) [`8809b85`](https://github.com/withastro/astro/commit/8809b85747c1af4a772a3649ce8a8b3bb0f31236) Thanks [@aminevg](https://github.com/aminevg)! - Fixes an issue where TypeScript couldn't infer the correct types of the `server.mjs` file
+
+## 5.0.3
+
+### Patch Changes
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
+## 5.0.2
+
+### Patch Changes
+
+- [#12688](https://github.com/withastro/astro/pull/12688) [`7dc2fca`](https://github.com/withastro/astro/commit/7dc2fca2eeb646bf3fd362d21c5bbfe273838b5a) Thanks [@yoyo837](https://github.com/yoyo837)! - fix vite peer dependency issue for vue integration
+
 ## 5.0.1
 
 ### Patch Changes

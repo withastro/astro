@@ -1,4 +1,10 @@
-import { ActionError, deserializeActionResult, getActionQueryString } from 'astro:actions';
+import {
+	ACTION_QUERY_PARAMS,
+	ActionError,
+	appendForwardSlash,
+	deserializeActionResult,
+	getActionQueryString,
+} from 'astro:actions';
 
 const ENCODED_DOT = '%2E';
 
@@ -47,6 +53,17 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	});
 }
 
+const SHOULD_APPEND_TRAILING_SLASH = '/** @TRAILING_SLASH@ **/';
+
+/** @param {import('astro:actions').ActionClient<any, any, any>} */
+export function getActionPath(action) {
+	let path = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${new URLSearchParams(action.toString()).get(ACTION_QUERY_PARAMS.actionName)}`;
+	if (SHOULD_APPEND_TRAILING_SLASH) {
+		path = appendForwardSlash(path);
+	}
+	return path;
+}
+
 /**
  * @param {*} param argument passed to the action when called server or client-side.
  * @param {string} path Built path to call action by path name.
@@ -83,11 +100,19 @@ async function handleAction(param, path, context) {
 			headers.set('Content-Length', '0');
 		}
 	}
-	const rawResult = await fetch(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${path}`, {
-		method: 'POST',
-		body,
-		headers,
-	});
+	const rawResult = await fetch(
+		getActionPath({
+			toString() {
+				return getActionQueryString(path);
+			},
+		}),
+		{
+			method: 'POST',
+			body,
+			headers,
+		},
+	);
+
 	if (rawResult.status === 204) {
 		return deserializeActionResult({ type: 'empty', status: 204 });
 	}

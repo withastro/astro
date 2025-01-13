@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.0.3",
+  "version": "5.1.5",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -166,8 +166,9 @@
     "tsconfck": "^3.1.4",
     "ultrahtml": "^1.5.3",
     "unist-util-visit": "^5.0.0",
+    "unstorage": "^1.14.0",
     "vfile": "^6.0.3",
-    "vite": "^6.0.1",
+    "vite": "^6.0.5",
     "vitefu": "^1.0.4",
     "which-pm": "^3.0.0",
     "xxhash-wasm": "^1.1.0",
@@ -213,9 +214,9 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^4.27.4",
     "sass": "^1.81.0",
-    "undici": "^6.21.0",
+    "undici": "^7.2.0",
     "unified": "^11.0.5",
-    "vitest": "^2.1.6"
+    "vitest": "^3.0.0-beta.3"
   },
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=22.0.0",
@@ -224,5 +225,9 @@
   },
   "publishConfig": {
     "provenance": true
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/astrodotbuild"
   }
 }

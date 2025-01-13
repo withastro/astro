@@ -18,7 +18,7 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX } from './consts.js';
-import { type DataEntry, globalDataStore } from './data-store.js';
+import { type DataEntry, type ImmutableDataStore, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
 
 type LazyImport = () => Promise<any>;
@@ -96,22 +96,27 @@ export function createGetCollection({
 			for (const rawEntry of store.values<DataEntry>(collection)) {
 				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
 
-				const entry = {
+				let entry = {
 					...rawEntry,
 					data,
 					collection,
 				};
+
+				if (entry.legacyId) {
+					entry = emulateLegacyEntry(entry);
+				}
+
 				if (hasFilter && !filter(entry)) {
 					continue;
 				}
-				result.push(entry.legacyId ? emulateLegacyEntry(entry) : entry);
+				result.push(entry);
 			}
 			return result;
 		} else {
 			console.warn(
 				`The collection ${JSON.stringify(
 					collection,
-				)} does not exist or is empty. Ensure a collection directory with this name exists.`,
+				)} does not exist or is empty. Please check your content config file for errors.`,
 			);
 			return [];
 		}
@@ -272,19 +277,18 @@ type DataEntryResult = {
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
 
-function emulateLegacyEntry(entry: DataEntry) {
+function emulateLegacyEntry({ legacyId, ...entry }: DataEntry & { collection: string }) {
 	// Define this first so it's in scope for the render function
 	const legacyEntry = {
 		...entry,
-		id: entry.legacyId!,
+		id: legacyId!,
 		slug: entry.id,
 	};
-	delete legacyEntry.legacyId;
 	return {
 		...legacyEntry,
 		// Define separately so the render function isn't included in the object passed to `renderEntry()`
 		render: () => renderEntry(legacyEntry),
-	};
+	} as ContentEntryResult;
 }
 
 export function createGetEntry({
@@ -334,7 +338,7 @@ export function createGetEntry({
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 			entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
 			if (entry.legacyId) {
-				return { ...emulateLegacyEntry(entry), collection } as ContentEntryResult;
+				return emulateLegacyEntry({ ...entry, collection });
 			}
 			return {
 				...entry,
@@ -604,6 +608,10 @@ async function render({
 }
 
 export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) {
+	// We're handling it like this to avoid needing an async schema. Not ideal, but should
+	// be safe because the store will already have been loaded by the time this is called.
+	let store: ImmutableDataStore | null = null;
+	globalDataStore.get().then((s) => (store = s));
 	return function reference(collection: string) {
 		return z
 			.union([
@@ -618,15 +626,22 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 				}),
 			])
 			.transform(
-				async (
+				(
 					lookup:
 						| string
 						| { id: string; collection: string }
 						| { slug: string; collection: string },
 					ctx,
 				) => {
+					if (!store) {
+						ctx.addIssue({
+							code: ZodIssueCode.custom,
+							message: `**${ctx.path.join('.')}:** Reference to ${collection} could not be resolved: store not available.\nThis is an Astro bug, so please file an issue at https://github.com/withastro/astro/issues.`,
+						});
+						return;
+					}
+
 					const flattenedErrorPath = ctx.path.join('.');
-					const store = await globalDataStore.get();
 					const collectionIsInStore = store.hasCollection(collection);
 
 					if (typeof lookup === 'object') {

@@ -54,19 +54,10 @@ function getViteConfiguration(
 ) {
 	return {
 		optimizeDeps: {
-			include: [
-				reactConfig.client,
-				'react',
-				'react/jsx-runtime',
-				'react/jsx-dev-runtime',
-				'react-dom',
-			],
+			include: [reactConfig.client],
 			exclude: [reactConfig.server],
 		},
 		plugins: [react({ include, exclude, babel }), optionsPlugin(!!experimentalReactChildren)],
-		resolve: {
-			dedupe: ['react', 'react-dom', 'react-dom/server'],
-		},
 		ssr: {
 			external: reactConfig.externals,
 			noExternal: [
