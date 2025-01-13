@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 5.0.2
+
+### Patch Changes
+
+- [#12923](https://github.com/withastro/astro/pull/12923) [`c7642fb`](https://github.com/withastro/astro/commit/c7642fb80b2a2b4d1ec18369b37700ff28b4c041) Thanks [@bluwy](https://github.com/bluwy)! - Adds the client entrypoint to `optimizeDeps.include`
+
 ## 5.0.1
 
 ### Patch Changes

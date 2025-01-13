@@ -1,5 +1,21 @@
 # astro
 
+## 5.1.6
+
+### Patch Changes
+
+- [#12956](https://github.com/withastro/astro/pull/12956) [`3aff68a`](https://github.com/withastro/astro/commit/3aff68a4195a608e92dc6299610a4b06e7bb96f1) Thanks [@kaytwo](https://github.com/kaytwo)! - Removes encryption of empty props to allow server island cacheability
+
+- [#12977](https://github.com/withastro/astro/pull/12977) [`80067c0`](https://github.com/withastro/astro/commit/80067c032f9ce5852f3315d1046b2d0c220ddcd5) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where accessing `astro:env` APIs or `import.meta.env` inside the content config file would not work
+
+- [#12839](https://github.com/withastro/astro/pull/12839) [`57be349`](https://github.com/withastro/astro/commit/57be3494e2bdc178d073243c8cbfa10edb85b049) Thanks [@mtwilliams-code](https://github.com/mtwilliams-code)! - Fix Astro.currentLocale returning the incorrect locale when using fallback rewrites in SSR mode
+
+- [#12962](https://github.com/withastro/astro/pull/12962) [`4b7a2ce`](https://github.com/withastro/astro/commit/4b7a2ce9e743a5624617563022635678a5ba6051) Thanks [@ascorbic](https://github.com/ascorbic)! - Skips updating content layer files if content is unchanged
+
+- [#12942](https://github.com/withastro/astro/pull/12942) [`f00c2dd`](https://github.com/withastro/astro/commit/f00c2ddc31b5285d14c2f0808c01eafaaf31f5c9) Thanks [@liruifengv](https://github.com/liruifengv)! - Improves the session error messages
+
+- [#12966](https://github.com/withastro/astro/pull/12966) [`d864e09`](https://github.com/withastro/astro/commit/d864e0991e05438d4bdb5e14fab4f7f75efe2a1f) Thanks [@ascorbic](https://github.com/ascorbic)! - Ensures old content collection entry is deleted if a markdown frontmatter slug is changed in dev
+
 ## 5.1.5
 
 ### Patch Changes
