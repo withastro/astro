@@ -11,7 +11,6 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
-	IntegrationRouteData,
 } from 'astro';
 import { build } from 'esbuild';
 import { copyDependenciesToFunction } from './lib/nft.js';
@@ -26,9 +25,6 @@ export interface NetlifyLocals {
 		context: Context;
 	};
 }
-
-const isStaticRedirect = (route: IntegrationRouteData) =>
-	route.type === 'redirect' && (route.redirect || route.redirectRoute);
 
 type RemotePattern = AstroConfig['image']['remotePatterns'][number];
 
@@ -213,49 +209,36 @@ export default function netlifyIntegration(
 			emptyDir(ssrBuildDir()),
 		]);
 
-	function resolvedRouteToRouteData(
-		assets: HookParameters<'astro:build:done'>['assets'],
-		route: IntegrationResolvedRoute
-	): IntegrationRouteData {
-		return {
-			pattern: route.patternRegex,
-			component: route.entrypoint,
-			prerender: route.isPrerendered,
-			route: route.pattern,
-			generate: route.generate,
-			params: route.params,
-			segments: route.segments,
-			type: route.type,
-			pathname: route.pathname,
-			redirect: route.redirect,
-			distURL: assets.get(route.pattern),
-			redirectRoute: route.redirectRoute
-				? resolvedRouteToRouteData(assets, route.redirectRoute)
-				: undefined,
-		};
-	}
-
 	async function writeRedirects(
-		routes: IntegrationRouteData[],
+		routes: IntegrationResolvedRoute[],
 		dir: URL,
-		buildOutput: HookParameters<'astro:config:done'>['buildOutput']
+		buildOutput: HookParameters<'astro:config:done'>['buildOutput'],
+		assets: HookParameters<'astro:build:done'>['assets']
 	) {
+		// all other routes are handled by SSR
+		const staticRedirects = routes.filter(
+			(route) => route.type === 'redirect' && (route.redirect || route.redirectRoute)
+		);
+
+		// this is needed to support redirects to dynamic routes
+		// on static. not sure why this is needed, but it works.
+		for (const { pattern, redirectRoute } of staticRedirects) {
+			const distURL = assets.get(pattern);
+			if (!distURL && redirectRoute) {
+				const redirectDistURL = assets.get(redirectRoute.pattern);
+				if (redirectDistURL) {
+					assets.set(pattern, redirectDistURL);
+				}
+			}
+		}
+
 		const fallback = finalBuildOutput === 'static' ? '/.netlify/static' : '/.netlify/functions/ssr';
 		const redirects = createRedirectsFromAstroRoutes({
 			config: _config,
 			dir,
-			routeToDynamicTargetMap: new Map(
-				routes
-					.filter(isStaticRedirect) // all other routes are handled by SSR
-					.map((route) => {
-						// this is needed to support redirects to dynamic routes
-						// on static. not sure why this is needed, but it works.
-						route.distURL ??= route.redirectRoute?.distURL;
-
-						return [route, fallback];
-					})
-			),
+			routeToDynamicTargetMap: new Map(staticRedirects.map((route) => [route, fallback])),
 			buildOutput,
+			assets,
 		});
 
 		if (!redirects.empty()) {
@@ -523,11 +506,7 @@ export default function netlifyIntegration(
 				astroMiddlewareEntryPoint = middlewareEntryPoint;
 			},
 			'astro:build:done': async ({ assets, dir, logger }) => {
-				await writeRedirects(
-					routes.map((route) => resolvedRouteToRouteData(assets, route)),
-					dir,
-					finalBuildOutput
-				);
+				await writeRedirects(routes, dir, finalBuildOutput, assets);
 				logger.info('Emitted _redirects');
 
 				if (finalBuildOutput !== 'static') {

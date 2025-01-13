@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@astrojs/internal-helpers": "0.4.2",
-    "@astrojs/underscore-redirects": "^0.5.0",
+    "@astrojs/underscore-redirects": "^0.6.0",
     "@netlify/functions": "^2.8.0",
     "@vercel/nft": "^0.29.0",
     "esbuild": "^0.24.0",
