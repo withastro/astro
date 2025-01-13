@@ -51,6 +51,7 @@ function getViteConfiguration(
 ) {
 	const config: UserConfig = {
 		optimizeDeps: {
+			include: ['@astrojs/solid-js/client.js'],
 			exclude: ['@astrojs/solid-js/server.js'],
 		},
 		plugins: [solid({ include, exclude, ssr: true })],
