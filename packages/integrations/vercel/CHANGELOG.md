@@ -1,5 +1,13 @@
 # @astrojs/vercel
 
+## 8.0.2
+
+### Patch Changes
+
+- [#454](https://github.com/withastro/adapters/pull/454) [`83cedad`](https://github.com/withastro/adapters/commit/83cedad780bf7a23ae9f6ca0c44a7b7f1c1767e1) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Improves Astro 5 support
+
+- [#501](https://github.com/withastro/adapters/pull/501) [`012b31d`](https://github.com/withastro/adapters/commit/012b31d98ce87c1199eb38b7aba2a28b7c1cf8cc) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactor of the redirects logic
+
 ## 8.0.1
 
 ### Patch Changes
