@@ -133,13 +133,16 @@ export function getFallback(): Fallback {
 }
 
 const scriptsAlreadyRan = new Set<string>();
+const detectScriptExecuted = (script: HTMLScriptElement) => {
+	const key = script.src ? new URL(script.src, location.href).href : script.textContent!;
+	if (scriptsAlreadyRan.has(key)) return true;
+	scriptsAlreadyRan.add(key);
+	return false;
+};
 function runScripts() {
 	let wait = Promise.resolve();
 	for (const script of document.getElementsByTagName('script')) {
-		const key = script.src ? new URL(script.src, location.href).href : script.textContent!;
-		if (scriptsAlreadyRan.has(key)) continue;
-		scriptsAlreadyRan.add(key);
-		if (script.dataset.astroExec === '') continue;
+		if (detectScriptExecuted(script)) continue;
 		const type = script.getAttribute('type');
 		if (type && type !== 'module' && type !== 'text/javascript') continue;
 		const newScript = document.createElement('script');
@@ -647,7 +650,7 @@ if (inBrowser) {
 		}
 	}
 	for (const script of document.getElementsByTagName('script')) {
-		script.dataset.astroExec = '';
+		detectScriptExecuted(script);
 	}
 }
 
