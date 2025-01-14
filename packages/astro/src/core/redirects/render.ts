@@ -42,7 +42,6 @@ function redirectRouteGenerate(renderContext: RenderContext): string {
 		if (redirectIsExternal(redirect)) {
 			return redirect;
 		} else {
-			// TODO: this logic is duplicated between here and manifest/create.ts
 			let target = redirect;
 			for (const param of Object.keys(params)) {
 				const paramValue = params[param]!;
