@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 6.0.2
+
+### Patch Changes
+
+- [#12361](https://github.com/withastro/astro/pull/12361) [`3d89e62`](https://github.com/withastro/astro/commit/3d89e6282235a8da45d9ddfe02bcf7ec78056941) Thanks [@LunaticMuch](https://github.com/LunaticMuch)! - Upgrades the `esbuild` version to match `vite`
+
 ## 6.0.1
 
 ### Patch Changes

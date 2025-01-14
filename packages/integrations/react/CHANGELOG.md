@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 4.1.5
+
+### Patch Changes
+
+- [#12887](https://github.com/withastro/astro/pull/12887) [`ea603ae`](https://github.com/withastro/astro/commit/ea603aec80531205d38fed11c525b3faa0271903) Thanks [@louisescher](https://github.com/louisescher)! - Adds a warning message when multiple JSX-based UI frameworks are being used without either the `include` or `exclude` property being set on the integration.
+
 ## 4.1.4
 
 ### Patch Changes
