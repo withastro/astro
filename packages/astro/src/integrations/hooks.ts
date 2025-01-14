@@ -327,10 +327,6 @@ export async function runHookConfigDone({
 					setAdapter(adapter) {
 						validateSetAdapter(logger, settings, adapter, integration.name, command);
 
-						if (adapter.adapterFeatures?.buildOutput !== 'static') {
-							settings.buildOutput = 'server';
-						}
-
 						if (!adapter.supportedAstroFeatures) {
 							throw new Error(
 								`The adapter ${adapter.name} doesn't provide a feature map. It is required in Astro 4.0.`,
