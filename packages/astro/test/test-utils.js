@@ -34,12 +34,12 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {typeof build} build
  * @property {(url: string) => string} resolveUrl
  * @property {(path: string) => Promise<boolean>} pathExists
- * @property {(url: string, opts: Parameters<typeof fetch>[1]) => Promise<Response>} fetch
+ * @property {(url: string, opts?: Parameters<typeof fetch>[1]) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
  * @property {(path: string, updater: (content: string) => string) => Promise<void>} editFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {(pattern: string) => Promise<string[]>} glob
- * @property {typeof dev} startDevServer
+ * @property {(inlineConfig?: Parameters<typeof dev>[0]) => ReturnType<typeof dev>} startDevServer
  * @property {typeof preview} preview
  * @property {() => Promise<void>} clean
  * @property {() => Promise<App>} loadTestAdapterApp
