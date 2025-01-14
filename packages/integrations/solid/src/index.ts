@@ -110,12 +110,16 @@ export default function (options: Options = {}): AstroIntegration {
 			},
 			'astro:config:done': ({ logger, config }) => {
 				const knownJsxRenderers = ['@astrojs/react', '@astrojs/preact', '@astrojs/solid-js'];
-				const enabledKnownJsxRenderers = config.integrations.filter((renderer) => knownJsxRenderers.includes(renderer.name));
+				const enabledKnownJsxRenderers = config.integrations.filter((renderer) =>
+					knownJsxRenderers.includes(renderer.name),
+				);
 
 				if (enabledKnownJsxRenderers.length > 1 && !options.include && !options.exclude) {
-					logger.warn('More than one JSX renderer is enabled. This will lead to unexpected behavior unless you set the `include` or `exclude` option. See https://docs.astro.build/en/guides/integrations-guide/solid-js/#combining-multiple-jsx-frameworks for more information.');
+					logger.warn(
+						'More than one JSX renderer is enabled. This will lead to unexpected behavior unless you set the `include` or `exclude` option. See https://docs.astro.build/en/guides/integrations-guide/solid-js/#combining-multiple-jsx-frameworks for more information.',
+					);
 				}
-			}
+			},
 		},
 	};
 }
