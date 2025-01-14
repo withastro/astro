@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds support for external redirects `astro.config.mjs`:
+Adds support for configured external redirects:
 
 ```js 
 // astro.config.mjs
