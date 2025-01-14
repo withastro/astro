@@ -3,9 +3,11 @@ import type { RenderContext } from '../render-context.js';
 
 export function redirectIsExternal(redirect: RedirectConfig): boolean {
 	if (typeof redirect === 'string') {
-		return redirect.startsWith('http') || redirect.startsWith('https');
+		return redirect.startsWith('http://') || redirect.startsWith('https://');
 	} else {
-		return redirect.destination.startsWith('http') || redirect.destination.startsWith('https');
+		return (
+			redirect.destination.startsWith('http://') || redirect.destination.startsWith('https://')
+		);
 	}
 }
 
