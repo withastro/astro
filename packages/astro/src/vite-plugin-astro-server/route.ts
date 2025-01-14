@@ -15,6 +15,8 @@ import { getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 import { matchAllRoutes } from '../core/routing/index.js';
+import { isRoute404, isRoute500 } from '../core/routing/match.js';
+import { PERSIST_SYMBOL } from '../core/session.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { ComponentInstance, ManifestData } from '../types/astro.js';
 import type { RouteData } from '../types/public/internal.js';
@@ -40,13 +42,11 @@ function isLoggedRequest(url: string) {
 }
 
 function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
-	const route404 = /^\/404\/?$/;
-	return manifestData.routes.find((r) => route404.test(r.route));
+	return manifestData.routes.find((r) => isRoute404(r.route));
 }
 
 function getCustom500Route(manifestData: ManifestData): RouteData | undefined {
-	const route500 = /^\/500\/?$/;
-	return manifestData.routes.find((r) => route500.test(r.route));
+	return manifestData.routes.find((r) => isRoute500(r.route));
 }
 
 export async function matchRoute(
@@ -223,6 +223,8 @@ export async function handleRoute({
 		renderContext.props.error = err;
 		response = await renderContext.render(preloaded500Component);
 		statusCode = 500;
+	} finally {
+		renderContext.session?.[PERSIST_SYMBOL]();
 	}
 
 	if (isLoggedRequest(pathname)) {
@@ -243,7 +245,7 @@ export async function handleRoute({
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (fourOhFourRoute) {
 			renderContext = await RenderContext.create({
-				locals: {},
+				locals,
 				pipeline,
 				pathname,
 				middleware: isDefaultPrerendered404(fourOhFourRoute.route) ? undefined : middleware,

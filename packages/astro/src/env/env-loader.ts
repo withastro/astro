@@ -43,17 +43,12 @@ function getPrivateEnv(
 	return privateEnv;
 }
 
-export const createEnvLoader = () => {
-	let privateEnv: Record<string, string> = {};
+export const createEnvLoader = (mode: string, config: AstroConfig) => {
+	const loaded = loadEnv(mode, config.vite.envDir ?? fileURLToPath(config.root), '');
+	const privateEnv = getPrivateEnv(loaded, config);
 	return {
-		load: (mode: string, config: AstroConfig) => {
-			const loaded = loadEnv(mode, config.vite.envDir ?? fileURLToPath(config.root), '');
-			privateEnv = getPrivateEnv(loaded, config);
-			return loaded;
-		},
-		getPrivateEnv: () => {
-			return privateEnv;
-		},
+		get: () => loaded,
+		getPrivateEnv: () => privateEnv,
 	};
 };
 

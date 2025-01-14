@@ -1,9 +1,9 @@
 ---
-import { getEntry } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import MyImage from 'src/components/MyImage.astro';
 
 const entry = await getEntry('blog', 'entry');
-const { Content } = await entry.render();
+const { Content } = await render(entry)
 ---
 
 <!DOCTYPE html>

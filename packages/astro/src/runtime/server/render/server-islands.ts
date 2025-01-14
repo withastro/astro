@@ -76,7 +76,8 @@ export function renderServerIsland(
 			}
 
 			const key = await result.key;
-			const propsEncrypted = await encryptString(key, JSON.stringify(props));
+			const propsEncrypted =
+				Object.keys(props).length === 0 ? '' : await encryptString(key, JSON.stringify(props));
 
 			const hostId = crypto.randomUUID();
 
@@ -120,7 +121,10 @@ let response = await fetch('${serverIslandUrl}', {
 `
 }
 if (script) {
-	if(response.status === 200 && response.headers.get('content-type') === 'text/html') {
+	if(
+		response.status === 200 
+		&& response.headers.has('content-type') 
+		&& response.headers.get('content-type').split(";")[0].trim() === 'text/html') {
 		let html = await response.text();
 	
 		// Swap!

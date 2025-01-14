@@ -1,7 +1,7 @@
 import { transform } from 'esbuild';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
-import type { EnvLoader } from '../env/env-loader.js';
+import type { EnvLoader } from './env-loader.js';
 
 interface EnvPluginOptions {
 	envLoader: EnvLoader;
@@ -65,7 +65,7 @@ async function replaceDefine(
 	};
 }
 
-export default function envVitePlugin({ envLoader }: EnvPluginOptions): vite.Plugin {
+export function importMetaEnv({ envLoader }: EnvPluginOptions): vite.Plugin {
 	let privateEnv: Record<string, string>;
 	let defaultDefines: Record<string, string>;
 	let isDev: boolean;

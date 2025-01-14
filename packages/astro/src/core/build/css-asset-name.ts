@@ -3,9 +3,9 @@ import type { GetModuleInfo, ModuleInfo } from 'rollup';
 import crypto from 'node:crypto';
 import npath from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normalizePath } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import { viteID } from '../util.js';
+import { normalizePath } from '../viteUtils.js';
 import { getTopLevelPageModuleInfos } from './graph.js';
 
 // These pages could be used as base names for the chunk hashed name, but they are confusing

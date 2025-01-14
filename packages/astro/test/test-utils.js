@@ -181,6 +181,7 @@ export async function loadFixture(inlineConfig) {
 			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
+			await new Promise((resolve) => setTimeout(resolve, 100));
 			return devServer;
 		},
 		onNextDataStoreChange: (timeout = 5000) => {
@@ -284,7 +285,7 @@ export async function loadFixture(inlineConfig) {
 			app.manifest = manifest;
 			return app;
 		},
-		editFile: async (filePath, newContentsOrCallback) => {
+		editFile: async (filePath, newContentsOrCallback, waitForNextWrite = true) => {
 			const fileUrl = new URL(filePath.replace(/^\//, ''), config.root);
 			const contents = await fs.promises.readFile(fileUrl, 'utf-8');
 			const reset = () => {
@@ -299,7 +300,7 @@ export async function loadFixture(inlineConfig) {
 				typeof newContentsOrCallback === 'function'
 					? newContentsOrCallback(contents)
 					: newContentsOrCallback;
-			const nextChange = devServer ? onNextChange() : Promise.resolve();
+			const nextChange = devServer && waitForNextWrite ? onNextChange() : Promise.resolve();
 			await fs.promises.writeFile(fileUrl, newContents);
 			await nextChange;
 			return reset;

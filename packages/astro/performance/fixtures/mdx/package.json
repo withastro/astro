@@ -16,8 +16,8 @@
     "@astrojs/mdx": "workspace:*",
     "@astrojs/react": "workspace:*",
     "@performance/utils": "workspace:*",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
     "astro": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
