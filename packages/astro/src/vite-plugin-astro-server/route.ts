@@ -241,7 +241,13 @@ export async function handleRoute({
 		);
 	}
 
-	if (statusCode === 404 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {
+	if (
+		statusCode === 404 &&
+		// If the body isn't null, that means the user sets the 404 status
+		// but uses the current route to handle the 404
+		response.body === null &&
+		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
+	) {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (fourOhFourRoute) {
 			renderContext = await RenderContext.create({
