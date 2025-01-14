@@ -136,7 +136,7 @@ const scriptsAlreadyRan = new Set<string>();
 function runScripts() {
 	let wait = Promise.resolve();
 	for (const script of document.getElementsByTagName('script')) {
-		const key = script.src || script.textContent!;
+		const key = script.src ? new URL(script.src, location.href).href : script.textContent!;
 		if (scriptsAlreadyRan.has(key)) continue;
 		scriptsAlreadyRan.add(key);
 		if (script.dataset.astroExec === '') continue;
