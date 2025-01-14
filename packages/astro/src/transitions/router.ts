@@ -132,9 +132,13 @@ export function getFallback(): Fallback {
 	return 'animate';
 }
 
+const scriptsAlreadyRan = new Set<string>();
 function runScripts() {
 	let wait = Promise.resolve();
 	for (const script of document.getElementsByTagName('script')) {
+		const key = script.src || script.textContent!;
+		if (scriptsAlreadyRan.has(key)) continue;
+		scriptsAlreadyRan.add(key);
 		if (script.dataset.astroExec === '') continue;
 		const type = script.getAttribute('type');
 		if (type && type !== 'module' && type !== 'text/javascript') continue;
@@ -149,7 +153,6 @@ function runScripts() {
 			}
 			newScript.setAttribute(attr.name, attr.value);
 		}
-		newScript.dataset.astroExec = '';
 		script.replaceWith(newScript);
 	}
 	return wait;
