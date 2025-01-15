@@ -270,9 +270,14 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```js
 	 * export default defineConfig({
 	 *   redirects: {
-	 *     '/old': '/new',
-	 *     '/blog/[...slug]': '/articles/[...slug]',
-	 *   }
+	 *   	'/old': '/new',
+	 *    '/blog/[...slug]': '/articles/[...slug]',
+	 *    '/about': 'https://example.com/about',
+	 *    '/news': {
+	 *        status: 302,
+	 *        destination: 'https://example.com/news'
+	 *  	}
+	 * 	}
 	 * })
 	 * ```
 	 *
@@ -296,21 +301,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *   }
 	 * })
 	 * ```
-	 *
-	 * Since **v5.2.0**, the property accepts external URLs:
-	 *
-	 * ```js
-	 * export default defineConfig({
-	 *   redirects: {
-	 *     '/blog': 'https://example.com/blog',
-	 *     '/news': {
-	 *        status: 302,
-	 *        destination: 'https://example.com/news'
-	 *     }
-	 *   }
-	 * })
-	 * ```
-	 */
 	redirects?: Record<string, RedirectConfig>;
 
 	/**
