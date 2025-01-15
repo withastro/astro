@@ -313,6 +313,24 @@ describe('Content Layer', () => {
 			assert.equal(newJson.increment.data.lastValue, 1);
 			await fixture.resetAllFiles();
 		});
+
+
+		it('can handle references being renamed after a build', async () => {
+			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
+			assert.deepEqual(newJson.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
+			await fixture.editFile('src/data/cats.json', (prev) => {
+				return prev.replace('tabby', 'tabby-cat');
+			});
+			await fixture.editFile('src/content/space/columbia-copy.md', (prev) => {
+				return prev.replace('cat: tabby', 'cat: tabby-cat');
+			});
+			await fixture.build();
+			newJson = devalue.parse(await fixture.readFile('/collections.json'));
+			assert.deepEqual(newJson.entryWithReference.data.cat, { collection: 'cats', id: 'tabby-cat' });
+			await fixture.resetAllFiles();
+		});
+
+
 	});
 
 	describe('Dev', () => {
