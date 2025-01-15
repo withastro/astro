@@ -176,13 +176,6 @@ describe('Integration API', () => {
 						[
 							{
 								isPrerendered: false,
-								entrypoint: '_server-islands.astro',
-								pattern: '/_server-islands/[name]',
-								params: ['name'],
-								origin: 'internal',
-							},
-							{
-								isPrerendered: false,
 								entrypoint: '../../../../dist/actions/runtime/route.js',
 								pattern: '/_actions/[...path]',
 								params: ['...path'],
@@ -229,13 +222,6 @@ describe('Integration API', () => {
 					assert.deepEqual(
 						routes,
 						[
-							{
-								isPrerendered: false,
-								entrypoint: '_server-islands.astro',
-								pattern: '/_server-islands/[name]',
-								params: ['name'],
-								origin: 'internal',
-							},
 							{
 								isPrerendered: false,
 								entrypoint: '../../../../dist/actions/runtime/route.js',
@@ -291,13 +277,6 @@ describe('Integration API', () => {
 					assert.deepEqual(
 						routes,
 						[
-							{
-								isPrerendered: false,
-								entrypoint: '_server-islands.astro',
-								pattern: '/_server-islands/[name]',
-								params: ['name'],
-								origin: 'internal',
-							},
 							{
 								isPrerendered: false,
 								entrypoint: '../../../../dist/actions/runtime/route.js',

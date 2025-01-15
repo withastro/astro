@@ -720,11 +720,11 @@ export async function createRouteManifest(
 		injectImageEndpoint(settings, { routes }, dev ? 'dev' : 'build');
 	}
 
-	// If an adapter is added and it supports server output, we unconditionally inject the server islands route.
+	// If an adapter is added, we unconditionally inject the server islands route.
 	// Ideally we would only inject the server islands route if server islands are used in the project.
 	// Unfortunately, there is a "circular dependency": to know if server islands are used, we need to run
 	// the build but the build relies on the routes manifest.
-	if (settings.adapter && settings.adapter.adapterFeatures?.buildOutput !== 'static') {
+	if (settings.config.adapter) {
 		injectServerIslandRoute(settings.config, { routes });
 	}
 	await runHookRoutesResolved({ routes, settings, logger });
