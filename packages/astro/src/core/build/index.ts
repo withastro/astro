@@ -212,7 +212,7 @@ class AstroBuilder {
 
 		const hasServerIslands = this.settings.serverIslandNameMap.size > 0;
 		// Error if there are server islands but no adapter provided.
-		if (hasServerIslands && this.settings.buildOutput !== 'server') {
+		if (hasServerIslands && !this.settings.config.adapter) {
 			throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 		}
 
