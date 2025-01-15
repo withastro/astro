@@ -50,7 +50,7 @@ export type SyncOptions = {
 	};
 	manifest: ManifestData;
 	command: 'build' | 'dev' | 'sync';
-	watcher?: FSWatcher
+	watcher?: FSWatcher;
 };
 
 export default async function sync(
@@ -121,7 +121,7 @@ export async function syncInternal({
 	force,
 	manifest,
 	command,
-	watcher
+	watcher,
 }: SyncOptions): Promise<void> {
 	const isDev = command === 'dev';
 	if (force) {
@@ -133,34 +133,27 @@ export async function syncInternal({
 	if (!skip?.content) {
 		await syncContentCollections(settings, { mode, fs, logger, manifest });
 		settings.timer.start('Sync content layer');
-		let contentLayer = globalContentLayer.get();
 
-		if(contentLayer && !contentLayer.configMatches(settings.config)) {
-			logger.info('content', 'Astro config changed: reloading content layer.');
-			contentLayer = null;
+		let store: MutableDataStore | undefined;
+		try {
+			const dataStoreFile = getDataStoreFile(settings, isDev);
+			store = await MutableDataStore.fromFile(dataStoreFile);
+		} catch (err: any) {
+			logger.error('content', err.message);
 		}
-		if (!contentLayer) {
-			let store: MutableDataStore | undefined;
-			try {
-				const dataStoreFile = getDataStoreFile(settings, isDev);
-				store = await MutableDataStore.fromFile(dataStoreFile);
-			} catch (err: any) {
-				logger.error('content', err.message);
-			}
-			if (!store) {
-				logger.error('content', 'Failed to load content store');
-				return;
-			}
+		if (!store) {
+			logger.error('content', 'Failed to load content store');
+			return;
+		}
 
-			contentLayer = globalContentLayer.init({
-				settings,
-				logger,
-				store,
-				watcher
-			});
-			if(watcher) {
-				contentLayer.watchContentConfig();
-			}
+		const contentLayer = globalContentLayer.init({
+			settings,
+			logger,
+			store,
+			watcher,
+		});
+		if (watcher) {
+			contentLayer.watchContentConfig();
 		}
 		await contentLayer.sync();
 		if (!skip?.cleanup) {

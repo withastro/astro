@@ -32,10 +32,6 @@ export interface ContentLayerOptions {
 	watcher?: FSWatcher;
 }
 
-export function getAstroConfigDigest(config: AstroConfig) {
-	const { vite, integrations, adapter, ...hashableConfig } = config;
-	return safeStringify(hashableConfig);
-}
 
 export class ContentLayer {
 	#logger: Logger;
@@ -146,9 +142,6 @@ export class ContentLayer {
 		return this.#queue.add(() => this.#doSync(options));
 	}
 
-	configMatches(config: AstroConfig) {
-		return getAstroConfigDigest(config) === getAstroConfigDigest(this.#settings.config);
-	}
 
 	async #doSync(options: RefreshContentOptions) {
 		let contentConfig = globalContentConfigObserver.get();
@@ -184,8 +177,14 @@ export class ContentLayer {
 		}
 
 		logger.info('Syncing content');
-		const astroConfigDigest = getAstroConfigDigest(this.#settings.config);
+		const {
+			vite: _vite,
+			integrations: _integrations,
+			adapter: _adapter,
+			...hashableConfig
+		} = this.#settings.config;
 
+		const astroConfigDigest = safeStringify(hashableConfig);
 		const { digest: currentConfigDigest } = contentConfig.config;
 		this.#lastConfigDigest = currentConfigDigest;
 
