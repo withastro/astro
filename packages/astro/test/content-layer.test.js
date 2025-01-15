@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { promises as fs, existsSync } from 'node:fs';
-import { setTimeout } from "node:timers/promises"
+import { setTimeout } from 'node:timers/promises';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { Writable } from 'node:stream';
@@ -468,8 +468,6 @@ describe('Content Layer', () => {
 			await fixture.resetAllFiles();
 		});
 
-		
-
 		it('removes old entry when slug is changed', async () => {
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const initialJson = devalue.parse(await rawJsonResponse.text());
@@ -529,7 +527,9 @@ describe('Content Layer', () => {
 		});
 
 		it('still updates collection when data file is changed after server has restarted via config change', async () => {
-			await fixture.editFile('astro.config.mjs', (prev) => prev.replace("'Astro content layer'", "'Astro content layer edited'"))
+			await fixture.editFile('astro.config.mjs', (prev) =>
+				prev.replace("'Astro content layer'", "'Astro content layer edited'"),
+			);
 			logs.length = 0;
 
 			// Give time for the server to restart
@@ -544,17 +544,16 @@ describe('Content Layer', () => {
 				data[0].temperament.push('Bouncy');
 				return JSON.stringify(data, null, 2);
 			});
-			
+
 			await fixture.onNextDataStoreChange();
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
 			assert.ok(updated.jsonLoader[0].data.temperament.includes('Bouncy'));
-			logs.length = 0
+			logs.length = 0;
 
 			await fixture.resetAllFiles();
 			// Give time for the server to restart again
 			await setTimeout(5000);
 		});
-
 	});
 });

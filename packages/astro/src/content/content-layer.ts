@@ -142,7 +142,6 @@ export class ContentLayer {
 		return this.#queue.add(() => this.#doSync(options));
 	}
 
-
 	async #doSync(options: RefreshContentOptions) {
 		let contentConfig = globalContentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
@@ -185,6 +184,7 @@ export class ContentLayer {
 		} = this.#settings.config;
 
 		const astroConfigDigest = safeStringify(hashableConfig);
+		
 		const { digest: currentConfigDigest } = contentConfig.config;
 		this.#lastConfigDigest = currentConfigDigest;
 
