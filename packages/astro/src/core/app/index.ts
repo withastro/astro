@@ -1,9 +1,8 @@
-import { hasFileExtension } from '@astrojs/internal-helpers/path';
+import { collapseDuplicateTrailingSlashes, hasFileExtension } from '@astrojs/internal-helpers/path';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { ManifestData } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import {
-	MANY_SLASHES,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
@@ -253,32 +252,32 @@ export class App {
 		return pathname;
 	}
 
-	#redirectTrailingSlash(pathname: string): string | undefined {
+	#redirectTrailingSlash(pathname: string): string {
 		const { trailingSlash } = this.#manifest;
 
 		// Ignore root and internal paths
 		if (pathname === '/' || pathname.startsWith('/_')) {
-			return;
+			return pathname;
 		}
 
 		// Redirect multiple trailing slashes to collapsed path
-		if (MANY_SLASHES.test(pathname)) {
-			const path = pathname.replace(MANY_SLASHES, trailingSlash === 'never' ? '' : '/');
-			return path ? path : '/';
+		const path = collapseDuplicateTrailingSlashes(pathname, trailingSlash !== 'never');
+		if (path !== pathname) {
+			return path;
 		}
 
 		if (trailingSlash === 'ignore') {
-			return;
+			return pathname;
 		}
 
-		// Add a trailing slash if it's not a file
-		const hasTrailingSlash = pathname.endsWith('/');
-		if (trailingSlash === 'always' && !hasTrailingSlash && !hasFileExtension(pathname)) {
-			return `${pathname}/`;
+		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
+			return appendForwardSlash(pathname);
 		}
-		if (trailingSlash === 'never' && hasTrailingSlash) {
-			return pathname.slice(0, -1);
+		if (trailingSlash === 'never') {
+			return removeTrailingForwardSlash(pathname);
 		}
+
+		return pathname;
 	}
 
 	async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
@@ -290,7 +289,7 @@ export class App {
 		const url = new URL(request.url);
 		const redirect = this.#redirectTrailingSlash(url.pathname);
 
-		if (redirect) {
+		if (redirect !== url.pathname) {
 			const status = request.method === 'GET' ? 301 : 308;
 			return new Response(redirectTemplate({ status, location: redirect, from: request.url }), {
 				status,

@@ -25,6 +25,14 @@ describe('Redirecting trailing slashes in SSR', () => {
 			assert.equal(response.headers.get('Location'), '/another/');
 		});
 
+		it('Redirects to collapse multiple trailing slashes', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/another///');
+			const response = await app.render(request);
+			assert.equal(response.status, 301);
+			assert.equal(response.headers.get('Location'), '/another/');
+		});
+
 		it('Does not redirect when trailing slash is present', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another/');
@@ -121,6 +129,14 @@ describe('Redirecting trailing slashes in SSR', () => {
 			assert.equal(response.headers.get('Location'), '/another');
 		});
 
+		it('Redirects to collapse multiple trailing slashes', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/another///');
+			const response = await app.render(request);
+			assert.equal(response.status, 301);
+			assert.equal(response.headers.get('Location'), '/another');
+		});
+
 		it('Does not redirect when trailing slash is absent', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another');
@@ -200,6 +216,14 @@ describe('Redirecting trailing slashes in SSR', () => {
 				trailingSlash: 'ignore',
 			});
 			await fixture.build();
+		});
+
+		it("Redirects to collapse multiple trailing slashes", async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/another///');
+			const response = await app.render(request);
+			assert.equal(response.status, 301);
+			assert.equal(response.headers.get('Location'), '/another/');
 		});
 
 		it('Does not redirect when trailing slash is absent', async () => {

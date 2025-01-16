@@ -19,6 +19,13 @@ export function collapseDuplicateSlashes(path: string) {
 	return path.replace(/(?<!:)\/{2,}/g, '/');
 }
 
+export const MANY_TRAILING_SLASHES = /\/{2,}/g;
+
+export function collapseDuplicateTrailingSlashes(path: string, trailingSlash: boolean) {
+	const pathname = path.replace(MANY_TRAILING_SLASHES, trailingSlash ? '/' : '');
+	return pathname ? pathname : '/';
+}
+
 export function removeTrailingForwardSlash(path: string) {
 	return path.endsWith('/') ? path.slice(0, path.length - 1) : path;
 }
@@ -105,8 +112,8 @@ export function removeBase(path: string, base: string) {
 	return path;
 }
 
-const withFileExt = /\/[^/]+\.\w+$/;
+const WITH_FILE_EXT = /\/[^/]+\.\w+$/;
 
 export function hasFileExtension(path: string) {
-	return withFileExt.test(path);
+	return WITH_FILE_EXT.test(path);
 }
