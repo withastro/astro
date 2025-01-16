@@ -104,3 +104,9 @@ export function removeBase(path: string, base: string) {
 	}
 	return path;
 }
+
+const withFileExt = /\/[^/]+\.\w+$/;
+
+export function hasFileExtension(path: string) {
+	return withFileExt.test(path);
+}
