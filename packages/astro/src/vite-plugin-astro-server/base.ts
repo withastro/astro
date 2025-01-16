@@ -40,7 +40,7 @@ export function baseMiddleware(
 		}
 
 		if (req.headers.accept?.includes('text/html')) {
-			const html = notFoundTemplate(pathname, 'Not Found');
+			const html = notFoundTemplate(pathname);
 			return writeHtmlResponse(res, 404, html);
 		}
 

@@ -10,9 +10,9 @@ export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.N
 
 	return function devTrailingSlash(req, res, next) {
 		const url = req.url!;
+
 		const destination = collapseDuplicateTrailingSlashes(url, true);
 		if (url && destination !== url) {
-			console.log({url, destination});
 			return writeRedirectResponse(res, 301, destination);
 		}
 		let pathname: string;
