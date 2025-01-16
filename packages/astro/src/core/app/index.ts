@@ -285,7 +285,6 @@ export class App {
 		let locals: object | undefined;
 		let clientAddress: string | undefined;
 		let addCookieHeader: boolean | undefined;
-
 		const url = new URL(request.url);
 		const redirect = this.#redirectTrailingSlash(url.pathname);
 

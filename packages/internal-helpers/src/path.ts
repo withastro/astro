@@ -22,8 +22,10 @@ export function collapseDuplicateSlashes(path: string) {
 export const MANY_TRAILING_SLASHES = /\/{2,}/g;
 
 export function collapseDuplicateTrailingSlashes(path: string, trailingSlash: boolean) {
-	const pathname = path.replace(MANY_TRAILING_SLASHES, trailingSlash ? '/' : '');
-	return pathname ? pathname : '/';
+	if(!path) {
+		return path
+	}
+	return path.replace(MANY_TRAILING_SLASHES, trailingSlash ? '/' : '') || '/';
 }
 
 export function removeTrailingForwardSlash(path: string) {

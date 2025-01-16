@@ -25,7 +25,7 @@ export function baseMiddleware(
 	return function devBaseMiddleware(req, res, next) {
 		const url = req.url!;
 		const destination = collapseDuplicateTrailingSlashes(url, true);
-		if (destination !== url) {
+		if (url && destination !== url) {
 			return writeRedirectResponse(res, 301, destination);
 		}
 		let pathname: string;
