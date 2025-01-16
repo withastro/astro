@@ -315,7 +315,6 @@ describe('Content Layer', () => {
 			await fixture.resetAllFiles();
 		});
 
-
 		it('can handle references being renamed after a build', async () => {
 			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.deepEqual(newJson.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
@@ -327,11 +326,12 @@ describe('Content Layer', () => {
 			});
 			await fixture.build();
 			newJson = devalue.parse(await fixture.readFile('/collections.json'));
-			assert.deepEqual(newJson.entryWithReference.data.cat, { collection: 'cats', id: 'tabby-cat' });
+			assert.deepEqual(newJson.entryWithReference.data.cat, {
+				collection: 'cats',
+				id: 'tabby-cat',
+			});
 			await fixture.resetAllFiles();
 		});
-
-
 	});
 
 	describe('Dev', () => {
