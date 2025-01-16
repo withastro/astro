@@ -406,10 +406,6 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 		// Fallbacks are always added below other routes exactly to avoid collisions.
 		return;
 	}
-	// The double-slash redirect will never collide with any other route.
-	if (a.route === '//' || b.route === '//') {
-		return;
-	}
 
 	if (
 		a.route === b.route &&
@@ -485,27 +481,6 @@ export async function createRouteManifest(
 	}
 
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
-	if (dev && config.base === '/') {
-		// Add a redirect for `//` to `/`. We only do this in dev because different platforms
-		// vary a lot in how or whether they handle this sort of redirect, so we leave it to the adapter
-		redirectRoutes.push({
-			type: 'redirect',
-			isIndex: false,
-			route: '//',
-			pattern: /^\/+$/,
-			segments: [],
-			params: [],
-			component: '/',
-			generate: () => '//',
-			pathname: '//',
-			prerender: false,
-			redirect: '/',
-			redirectRoute: routeMap.get('/'),
-			fallbackRoutes: [],
-			distURL: [],
-			origin: 'project',
-		});
-	}
 
 	// we remove the file based routes that were deemed redirects
 	const filteredFiledBasedRoutes = fileBasedRoutes.filter((fileBasedRoute) => {
