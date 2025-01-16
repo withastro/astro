@@ -124,7 +124,6 @@ export async function createContainer({
 		watcher: viteServer.watcher,
 	});
 
-
 	const container: Container = {
 		inlineConfig: inlineConfig ?? {},
 		fs,

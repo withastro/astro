@@ -2,6 +2,7 @@ import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import { globalContentLayer } from '../../content/content-layer.js';
+import { attachContentServerListeners } from '../../content/server-listeners.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { SETTINGS_FILE } from '../../preferences/constants.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -13,7 +14,6 @@ import { createSafeError } from '../errors/index.js';
 import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
-import { attachContentServerListeners } from '../../content/server-listeners.js';
 
 async function createRestartedContainer(
 	container: Container,

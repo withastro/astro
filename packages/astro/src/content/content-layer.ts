@@ -23,7 +23,6 @@ import {
 	safeStringify,
 } from './utils.js';
 import { type WrappedWatcher, createWatcherWrapper } from './watcher.js';
-import type { AstroConfig } from '../types/public/index.js';
 
 export interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -31,7 +30,6 @@ export interface ContentLayerOptions {
 	logger: Logger;
 	watcher?: FSWatcher;
 }
-
 
 export class ContentLayer {
 	#logger: Logger;
@@ -184,7 +182,7 @@ export class ContentLayer {
 		} = this.#settings.config;
 
 		const astroConfigDigest = safeStringify(hashableConfig);
-		
+
 		const { digest: currentConfigDigest } = contentConfig.config;
 		this.#lastConfigDigest = currentConfigDigest;
 

@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { promises as fs, existsSync } from 'node:fs';
-import { setTimeout } from 'node:timers/promises';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
+import { setTimeout } from 'node:timers/promises';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 import { Logger } from '../dist/core/logger/core.js';
