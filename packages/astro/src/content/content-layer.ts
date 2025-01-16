@@ -22,6 +22,7 @@ import {
 	globalContentConfigObserver,
 	safeStringify,
 } from './utils.js';
+import { type WrappedWatcher, createWatcherWrapper } from './watcher.js';
 
 export interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -34,7 +35,7 @@ export class ContentLayer {
 	#logger: Logger;
 	#store: MutableDataStore;
 	#settings: AstroSettings;
-	#watcher?: FSWatcher;
+	#watcher?: WrappedWatcher;
 	#lastConfigDigest?: string;
 	#unsubscribe?: () => void;
 
@@ -49,7 +50,9 @@ export class ContentLayer {
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;
-		this.#watcher = watcher;
+		if (watcher) {
+			this.#watcher = createWatcherWrapper(watcher);
+		}
 		this.#queue = new PQueue({ concurrency: 1 });
 	}
 
@@ -79,6 +82,7 @@ export class ContentLayer {
 	dispose() {
 		this.#queue.clear();
 		this.#unsubscribe?.();
+		this.#watcher?.removeAllTrackedListeners();
 	}
 
 	async #getGenerateDigest() {
@@ -213,6 +217,12 @@ export class ContentLayer {
 		if (astroConfigDigest) {
 			await this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
 		}
+
+		if (!options?.loaders?.length) {
+			// Remove all listeners before syncing, as they will be re-added by the loaders, but not if this is a selective sync
+			this.#watcher?.removeAllTrackedListeners();
+		}
+
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
 				if (collection.type !== CONTENT_LAYER_TYPE) {

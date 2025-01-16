@@ -1,5 +1,18 @@
 # astro
 
+## 5.1.7
+
+### Patch Changes
+
+- [#12361](https://github.com/withastro/astro/pull/12361) [`3d89e62`](https://github.com/withastro/astro/commit/3d89e6282235a8da45d9ddfe02bcf7ec78056941) Thanks [@LunaticMuch](https://github.com/LunaticMuch)! - Upgrades the `esbuild` version to match `vite`
+
+- [#12980](https://github.com/withastro/astro/pull/12980) [`1a026af`](https://github.com/withastro/astro/commit/1a026afb427cd4b472c8f1174a08f10086f4fb89) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where setting the status of a page to `404` in development would show the default 404 page (or custom one if provided) instead of using the current page
+
+- [#12182](https://github.com/withastro/astro/pull/12182) [`c30070b`](https://github.com/withastro/astro/commit/c30070b9271e4c494e7cbf3a1c45515782034911) Thanks [@braden-w](https://github.com/braden-w)! - Improves matching of 404 and 500 routes
+
+- Updated dependencies [[`3d89e62`](https://github.com/withastro/astro/commit/3d89e6282235a8da45d9ddfe02bcf7ec78056941)]:
+  - @astrojs/markdown-remark@6.0.2
+
 ## 5.1.6
 
 ### Patch Changes

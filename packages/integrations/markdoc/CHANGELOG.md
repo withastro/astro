@@ -1,5 +1,16 @@
 # @astrojs/markdoc
 
+## 0.12.6
+
+### Patch Changes
+
+- [#12361](https://github.com/withastro/astro/pull/12361) [`3d89e62`](https://github.com/withastro/astro/commit/3d89e6282235a8da45d9ddfe02bcf7ec78056941) Thanks [@LunaticMuch](https://github.com/LunaticMuch)! - Upgrades the `esbuild` version to match `vite`
+
+- [#12967](https://github.com/withastro/astro/pull/12967) [`0ef1613`](https://github.com/withastro/astro/commit/0ef1613ea36439a76965290053ccc3f8afb9f400) Thanks [@bluwy](https://github.com/bluwy)! - Fixes rendering components when the `nodes.document.render` Markdoc config is set to `null`
+
+- Updated dependencies [[`3d89e62`](https://github.com/withastro/astro/commit/3d89e6282235a8da45d9ddfe02bcf7ec78056941)]:
+  - @astrojs/markdown-remark@6.0.2
+
 ## 0.12.5
 
 ### Patch Changes
