@@ -1,3 +1,6 @@
+import type { OutgoingHttpHeaders } from 'node:http';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type {
 	ShikiConfig,
 	RehypePlugin as _RehypePlugin,
@@ -6,10 +9,6 @@ import type {
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
-
-import type { OutgoingHttpHeaders } from 'node:http';
-import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import { EnvSchema } from '../../env/schema.js';
@@ -536,6 +535,32 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
+			session: z
+				.object({
+					driver: z.string(),
+					options: z.record(z.any()).optional(),
+					cookie: z
+						.union([
+							z.object({
+								name: z.string().optional(),
+								domain: z.string().optional(),
+								path: z.string().optional(),
+								maxAge: z.number().optional(),
+								sameSite: z.union([z.enum(['strict', 'lax', 'none']), z.boolean()]).optional(),
+								secure: z.boolean().optional(),
+							}),
+							z.string(),
+						])
+						.transform((val) => {
+							if (typeof val === 'string') {
+								return { name: val };
+							}
+							return val;
+						})
+						.optional(),
+					ttl: z.number().optional(),
+				})
+				.optional(),
 			svg: z
 				.union([
 					z.boolean(),

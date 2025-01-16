@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import glob from 'fast-glob';
 import pLimit from 'p-limit';
-import type { Plugin } from 'vite';
+import type { Plugin, ViteDevServer } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -46,16 +46,36 @@ interface AstroContentVirtualModPluginParams {
 	fs: typeof nodeFs;
 }
 
+function invalidateDataStore(server: ViteDevServer) {
+	const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+	if (module) {
+		server.moduleGraph.invalidateModule(module);
+	}
+	server.ws.send({
+		type: 'full-reload',
+		path: '*',
+	});
+}
+
 export function astroContentVirtualModPlugin({
 	settings,
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
 	let dataStoreFile: URL;
+	let devServer: ViteDevServer;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		config(_, env) {
 			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+		},
+		buildStart() {
+			if (devServer) {
+				// We defer adding the data store file to the watcher until the server is ready
+				devServer.watcher.add(fileURLToPath(dataStoreFile));
+				// Manually invalidate the data store to avoid a race condition in file watching
+				invalidateDataStore(devServer);
+			}
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
@@ -155,33 +175,21 @@ export function astroContentVirtualModPlugin({
 				return fs.readFileSync(modules, 'utf-8');
 			}
 		},
+
 		configureServer(server) {
+			devServer = server;
 			const dataStorePath = fileURLToPath(dataStoreFile);
-
-			server.watcher.add(dataStorePath);
-
-			function invalidateDataStore() {
-				const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
-				if (module) {
-					server.moduleGraph.invalidateModule(module);
-				}
-				server.ws.send({
-					type: 'full-reload',
-					path: '*',
-				});
-			}
-
 			// If the datastore file changes, invalidate the virtual module
 
 			server.watcher.on('add', (addedPath) => {
 				if (addedPath === dataStorePath) {
-					invalidateDataStore();
+					invalidateDataStore(server);
 				}
 			});
 
 			server.watcher.on('change', (changedPath) => {
 				if (changedPath === dataStorePath) {
-					invalidateDataStore();
+					invalidateDataStore(server);
 				}
 			});
 		},

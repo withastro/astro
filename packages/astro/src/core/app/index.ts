@@ -23,6 +23,7 @@ import { createAssetLink } from '../render/ssr-element.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
+import { type AstroSession, PERSIST_SYMBOL } from '../session.js';
 import { AppPipeline } from './pipeline.js';
 
 export { deserializeManifest } from './common.js';
@@ -148,10 +149,22 @@ export class App {
 		return pathname;
 	}
 
+	/**
+	 * It removes the base from the request URL, prepends it with a forward slash and attempts to decoded it.
+	 *
+	 * If the decoding fails, it logs the error and return the pathname as is.
+	 * @param request
+	 * @private
+	 */
 	#getPathnameFromRequest(request: Request): string {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
-		return pathname;
+		try {
+			return decodeURI(pathname);
+		} catch (e: any) {
+			this.getAdapterLogger().error(e.toString());
+			return pathname;
+		}
 	}
 
 	match(request: Request): RouteData | undefined {
@@ -277,6 +290,7 @@ export class App {
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 
 		let response;
+		let session: AstroSession | undefined;
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
 			const mod = await this.#pipeline.getModuleForRoute(routeData);
@@ -290,10 +304,13 @@ export class App {
 				status: defaultStatus,
 				clientAddress,
 			});
+			session = renderContext.session;
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
 			return this.#renderError(request, { locals, status: 500, error: err, clientAddress });
+		} finally {
+			await session?.[PERSIST_SYMBOL]();
 		}
 
 		if (
@@ -379,6 +396,7 @@ export class App {
 				}
 			}
 			const mod = await this.#pipeline.getModuleForRoute(errorRouteData);
+			let session: AstroSession | undefined;
 			try {
 				const renderContext = await RenderContext.create({
 					locals,
@@ -391,6 +409,7 @@ export class App {
 					props: { error },
 					clientAddress,
 				});
+				session = renderContext.session;
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
@@ -404,6 +423,8 @@ export class App {
 						clientAddress,
 					});
 				}
+			} finally {
+				await session?.[PERSIST_SYMBOL]();
 			}
 		}
 

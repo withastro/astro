@@ -45,12 +45,12 @@ describe('Markdoc - propagated assets', () => {
 				let styleContents;
 				if (mode === 'dev') {
 					const styles = stylesDocument.querySelectorAll('style');
-					assert.equal(styles.length, 2);
-					styleContents = styles[1].textContent;
+					assert.equal(styles.length, 1);
+					styleContents = styles[0].textContent;
 				} else {
 					const links = stylesDocument.querySelectorAll('link[rel="stylesheet"]');
-					assert.equal(links.length, 2);
-					styleContents = await fixture.readFile(links[1].href);
+					assert.equal(links.length, 1);
+					styleContents = await fixture.readFile(links[0].href);
 				}
 				assert.equal(styleContents.includes('--color-base-purple: 269, 79%;'), true);
 			});
@@ -58,10 +58,10 @@ describe('Markdoc - propagated assets', () => {
 			it('[fails] Does not bleed styles to other page', async () => {
 				if (mode === 'dev') {
 					const styles = scriptsDocument.querySelectorAll('style');
-					assert.equal(styles.length, 1);
+					assert.equal(styles.length, 0);
 				} else {
 					const links = scriptsDocument.querySelectorAll('link[rel="stylesheet"]');
-					assert.equal(links.length, 1);
+					assert.equal(links.length, 0);
 				}
 			});
 		});

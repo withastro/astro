@@ -98,7 +98,7 @@
 
 ### Patch Changes
 
-- [#10255](https://github.com/withastro/astro/pull/10255) [`2aec2cdc21f48f9b4f1dd82e2fd16fa3d653ccc5`](https://github.com/withastro/astro/commit/2aec2cdc21f48f9b4f1dd82e2fd16fa3d653ccc5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes an issue where TypeScript and `@astrojs/check` versions would occassionally print as `undefined`.
+- [#10255](https://github.com/withastro/astro/pull/10255) [`2aec2cdc21f48f9b4f1dd82e2fd16fa3d653ccc5`](https://github.com/withastro/astro/commit/2aec2cdc21f48f9b4f1dd82e2fd16fa3d653ccc5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes an issue where TypeScript and `@astrojs/check` versions would occasionally print as `undefined`.
 
 ## 4.7.3
 

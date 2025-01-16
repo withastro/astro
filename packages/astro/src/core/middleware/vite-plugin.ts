@@ -1,5 +1,4 @@
 import type { Plugin as VitePlugin } from 'vite';
-import { normalizePath } from 'vite';
 import { getOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { addRollupInput } from '../build/add-rollup-input.js';
@@ -8,6 +7,7 @@ import type { StaticBuildOptions } from '../build/types.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
 import { MissingMiddlewareForInternationalization } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
+import { normalizePath } from '../viteUtils.js';
 
 export const MIDDLEWARE_MODULE_ID = '\0astro-internal:middleware';
 const NOOP_MIDDLEWARE = '\0noop-middleware';

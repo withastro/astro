@@ -24,6 +24,8 @@ import { routeComparator } from '../priority.js';
 import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
+import { validateSegment } from './segment.js';
+
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -35,14 +37,6 @@ interface Item {
 	isIndex: boolean;
 	isPage: boolean;
 	routeSuffix: string;
-}
-
-function countOccurrences(needle: string, haystack: string) {
-	let count = 0;
-	for (const hay of haystack) {
-		if (hay === needle) count += 1;
-	}
-	return count;
 }
 
 // Disable eslint as we're not sure how to improve this regex yet
@@ -71,24 +65,6 @@ export function getParts(part: string, file: string) {
 
 	return result;
 }
-
-export function validateSegment(segment: string, file = '') {
-	if (!file) file = segment;
-
-	if (segment.includes('][')) {
-		throw new Error(`Invalid route ${file} \u2014 parameters must be separated`);
-	}
-	if (countOccurrences('[', segment) !== countOccurrences(']', segment)) {
-		throw new Error(`Invalid route ${file} \u2014 brackets are unbalanced`);
-	}
-	if (
-		(/.+\[\.\.\.[^\]]+\]/.test(segment) || /\[\.\.\.[^\]]+\].+/.test(segment)) &&
-		file.endsWith('.astro')
-	) {
-		throw new Error(`Invalid route ${file} \u2014 rest parameter must be a standalone segment`);
-	}
-}
-
 /**
  * Checks whether two route segments are semantically equivalent.
  *
@@ -183,7 +159,7 @@ function createFileBasedRoutes(
 			validateSegment(segment, file);
 
 			const parts = getParts(segment, file);
-			const isIndex = isDir ? false : basename.startsWith('index.');
+			const isIndex = isDir ? false : basename.substring(0, basename.lastIndexOf('.')) === 'index';
 			const routeSuffix = basename.slice(basename.indexOf('.'), -ext.length);
 			const isPage = validPageExtensions.has(ext);
 
@@ -416,7 +392,7 @@ function isStaticSegment(segment: RoutePart[]) {
  * Routes that may collide depending on the parameters returned by their `getStaticPaths`
  * are not reported as collisions at this stage.
  *
- * Two routes are guarantted to collide in the following scenarios:
+ * Two routes are guaranteed to collide in the following scenarios:
  * - Both are the exact same static route.
  * 	 For example, `/foo` from an injected route and `/foo` from a file in the project.
  * - Both are non-prerendered dynamic routes with equal static parts in matching positions
@@ -768,9 +744,9 @@ export async function createRouteManifest(
 	if (dev || settings.buildOutput === 'server') {
 		injectImageEndpoint(settings, { routes }, dev ? 'dev' : 'build');
 		// Ideally we would only inject the server islands route if server islands are used in the project.
-		// Unforunately, there is a "circular dependency": to know if server islands are used, we need to run
+		// Unfortunately, there is a "circular dependency": to know if server islands are used, we need to run
 		// the build but the build relies on the routes manifest.
-		// This situation also means we cannot update the buildOutput based on wether or not server islands
+		// This situation also means we cannot update the buildOutput based on whether or not server islands
 		// are used in the project. If server islands are detected after the build but the buildOutput is
 		// static, we fail the build.
 		injectServerIslandRoute(settings.config, { routes });

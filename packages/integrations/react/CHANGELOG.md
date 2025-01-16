@@ -1,5 +1,35 @@
 # @astrojs/react
 
+## 4.1.5
+
+### Patch Changes
+
+- [#12887](https://github.com/withastro/astro/pull/12887) [`ea603ae`](https://github.com/withastro/astro/commit/ea603aec80531205d38fed11c525b3faa0271903) Thanks [@louisescher](https://github.com/louisescher)! - Adds a warning message when multiple JSX-based UI frameworks are being used without either the `include` or `exclude` property being set on the integration.
+
+## 4.1.4
+
+### Patch Changes
+
+- [#12923](https://github.com/withastro/astro/pull/12923) [`c7642fb`](https://github.com/withastro/astro/commit/c7642fb80b2a2b4d1ec18369b37700ff28b4c041) Thanks [@bluwy](https://github.com/bluwy)! - Removes react-specific entrypoints in `optimizeDeps.include` and rely on `@vitejs/plugin-react` to add
+
+## 4.1.3
+
+### Patch Changes
+
+- [#12948](https://github.com/withastro/astro/pull/12948) [`51ab7b5`](https://github.com/withastro/astro/commit/51ab7b5722acecce722fb404ca6bc152a109c9e5) Thanks [@bluwy](https://github.com/bluwy)! - Supports checking for React 19 components
+
+## 4.1.2
+
+### Patch Changes
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
+## 4.1.1
+
+### Patch Changes
+
+- [#12755](https://github.com/withastro/astro/pull/12755) [`391df0e`](https://github.com/withastro/astro/commit/391df0e410aecc4bb8871c42548e2d9634c5ef3a) Thanks [@matthewp](https://github.com/matthewp)! - Preoptimize React compiler runtime
+
 ## 4.1.0
 
 ### Minor Changes
@@ -312,7 +342,7 @@
 
 ### Patch Changes
 
-- [#9482](https://github.com/withastro/astro/pull/9482) [`72b26daf694b213918f02d0fcbf90ab5b7ebc31f`](https://github.com/withastro/astro/commit/72b26daf694b213918f02d0fcbf90ab5b7ebc31f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improves compatability with the [Qwik adapter](https://github.com/QwikDev/astro)
+- [#9482](https://github.com/withastro/astro/pull/9482) [`72b26daf694b213918f02d0fcbf90ab5b7ebc31f`](https://github.com/withastro/astro/commit/72b26daf694b213918f02d0fcbf90ab5b7ebc31f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improves compatibility with the [Qwik adapter](https://github.com/QwikDev/astro)
 
 - [#9479](https://github.com/withastro/astro/pull/9479) [`1baf0b0d3cbd0564954c2366a7278794fad6726e`](https://github.com/withastro/astro/commit/1baf0b0d3cbd0564954c2366a7278794fad6726e) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates README
 

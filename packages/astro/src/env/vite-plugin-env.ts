@@ -14,16 +14,43 @@ import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
 interface AstroEnvPluginParams {
 	settings: AstroSettings;
-	mode: string;
 	sync: boolean;
 	envLoader: EnvLoader;
 }
 
-export function astroEnv({ settings, mode, sync, envLoader }: AstroEnvPluginParams): Plugin {
+export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): Plugin {
 	const { schema, validateSecrets } = settings.config.env;
 	let isDev: boolean;
 
 	let templates: { client: string; server: string; internal: string } | null = null;
+
+	function ensureTemplateAreLoaded() {
+		if (templates !== null) {
+			return;
+		}
+
+		const loadedEnv = envLoader.get();
+
+		if (!isDev) {
+			for (const [key, value] of Object.entries(loadedEnv)) {
+				if (value !== undefined) {
+					process.env[key] = value;
+				}
+			}
+		}
+
+		const validatedVariables = validatePublicVariables({
+			schema,
+			loadedEnv,
+			validateSecrets,
+			sync,
+		});
+
+		templates = {
+			...getTemplates(schema, validatedVariables, isDev ? loadedEnv : null),
+			internal: `export const schema = ${JSON.stringify(schema)};`,
+		};
+	}
 
 	return {
 		name: 'astro-env-plugin',
@@ -32,27 +59,7 @@ export function astroEnv({ settings, mode, sync, envLoader }: AstroEnvPluginPara
 			isDev = command !== 'build';
 		},
 		buildStart() {
-			const loadedEnv = envLoader.load(mode, settings.config);
-
-			if (!isDev) {
-				for (const [key, value] of Object.entries(loadedEnv)) {
-					if (value !== undefined) {
-						process.env[key] = value;
-					}
-				}
-			}
-
-			const validatedVariables = validatePublicVariables({
-				schema,
-				loadedEnv,
-				validateSecrets,
-				sync,
-			});
-
-			templates = {
-				...getTemplates(schema, validatedVariables, isDev ? loadedEnv : null),
-				internal: `export const schema = ${JSON.stringify(schema)};`,
-			};
+			ensureTemplateAreLoaded();
 		},
 		buildEnd() {
 			templates = null;
@@ -64,10 +71,12 @@ export function astroEnv({ settings, mode, sync, envLoader }: AstroEnvPluginPara
 		},
 		load(id, options) {
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.client)) {
+				ensureTemplateAreLoaded();
 				return templates!.client;
 			}
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.server)) {
 				if (options?.ssr) {
+					ensureTemplateAreLoaded();
 					return templates!.server;
 				}
 				throw new AstroError({
@@ -76,6 +85,7 @@ export function astroEnv({ settings, mode, sync, envLoader }: AstroEnvPluginPara
 				});
 			}
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.internal)) {
+				ensureTemplateAreLoaded();
 				return templates!.internal;
 			}
 		},

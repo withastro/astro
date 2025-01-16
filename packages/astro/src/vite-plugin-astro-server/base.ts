@@ -30,7 +30,7 @@ export function baseMiddleware(
 			// We just set the pathname to "//", which will match a redirect to "/" in the dev server.
 			pathname = justSlashes.test(url) ? '//' : decodeURI(new URL(url, 'http://localhost').pathname);
 		} catch (e) {
-			/* malform uri */
+			/* malformed uri */
 			return next(e);
 		}
 

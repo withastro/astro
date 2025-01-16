@@ -85,13 +85,13 @@ export function vitePluginActions({
 				code += `\nexport * from 'astro/actions/runtime/virtual/server.js';`;
 			} else {
 				code += `\nexport * from 'astro/actions/runtime/virtual/client.js';`;
-				code = code.replace(
-					"'/** @TRAILING_SLASH@ **/'",
-					JSON.stringify(
-						shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
-					),
-				);
 			}
+			code = code.replace(
+				"'/** @TRAILING_SLASH@ **/'",
+				JSON.stringify(
+					shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
+				),
+			);
 			return code;
 		},
 	};
