@@ -60,7 +60,6 @@ describe('Development Routing', () => {
 			assert.equal(response.headers.get('Location'), '/');
 		});
 
-
 		it('404 when loading invalid dynamic route', async () => {
 			const response = await fixture.fetch('/2');
 			assert.equal(response.status, 404);
