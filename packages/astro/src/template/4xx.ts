@@ -1,3 +1,4 @@
+import { appendForwardSlash, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import { escape } from 'html-escaper';
 
 interface ErrorTemplateOptions {
@@ -129,11 +130,17 @@ export function subpathNotUsedTemplate(base: string, pathname: string) {
 	});
 }
 
-export function notFoundTemplate(pathname: string, message = 'Not found') {
+export function trailingSlashMismatchTemplate(pathname: string, trailingSlash: 'always' | 'never' | 'ignore') {
+	const corrected =
+		trailingSlash === 'always'
+			? appendForwardSlash(pathname)
+			: removeTrailingForwardSlash(pathname);
 	return template({
 		pathname,
 		statusCode: 404,
-		title: message,
-		tabTitle: `404: ${message}`,
+		title: 'Not found',
+		tabTitle: '404: Not Found',
+		body: `<p>Your site is configured with <code>trailingSlash</code> set to <code>${trailingSlash}</code>. Do you want to go to <a href="${corrected}">${corrected}</a> instead?</p>
+<p>Come to our <a href="https://astro.build/chat">Discord</a> if you need help.</p>`,
 	});
 }

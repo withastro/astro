@@ -3,10 +3,13 @@ import type { AstroSettings } from '../types/astro.js';
 
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import { appendForwardSlash, hasFileExtension } from '@astrojs/internal-helpers/path';
 import { bold } from 'kleur/colors';
 import type { Logger } from '../core/logger/core.js';
-import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
+import notFoundTemplate, {
+	subpathNotUsedTemplate,
+	trailingSlashMismatchTemplate,
+} from '../template/4xx.js';
 import { writeHtmlResponse, writeRedirectResponse } from './response.js';
 
 const manySlashes = /\/{2,}$/;
@@ -20,6 +23,7 @@ export function baseMiddleware(
 	const devRootURL = new URL(config.base, 'http://localhost');
 	const devRoot = site ? site.pathname : devRootURL.pathname;
 	const devRootReplacement = devRoot.endsWith('/') ? '/' : '';
+	const { trailingSlash } = settings.config;
 
 	return function devBaseMiddleware(req, res, next) {
 		const url = req.url!;
@@ -33,6 +37,14 @@ export function baseMiddleware(
 		} catch (e) {
 			/* malformed uri */
 			return next(e);
+		}
+
+		if (
+			(trailingSlash === 'never' && pathname.endsWith('/')) ||
+			(trailingSlash === 'always' && !pathname.endsWith('/') && !hasFileExtension(pathname))
+		) {
+			const html = trailingSlashMismatchTemplate(pathname, trailingSlash);
+			return writeHtmlResponse(res, 404, html);
 		}
 
 		if (pathname.startsWith(devRoot)) {
