@@ -144,3 +144,12 @@ export function trailingSlashMismatchTemplate(pathname: string, trailingSlash: '
 <p>Come to our <a href="https://astro.build/chat">Discord</a> if you need help.</p>`,
 	});
 }
+
+export function notFoundTemplate(pathname: string, message = 'Not found') {
+	return template({
+		pathname,
+		statusCode: 404,
+		title: message,
+		tabTitle: `404: ${message}`,
+	});
+}

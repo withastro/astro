@@ -3,18 +3,11 @@ import type { AstroSettings } from '../types/astro.js';
 
 import * as fs from 'node:fs';
 import path from 'node:path';
-import {
-	appendForwardSlash,
-	collapseDuplicateTrailingSlashes,
-	hasFileExtension,
-} from '@astrojs/internal-helpers/path';
 import { bold } from 'kleur/colors';
 import type { Logger } from '../core/logger/core.js';
-import notFoundTemplate, {
-	subpathNotUsedTemplate,
-	trailingSlashMismatchTemplate,
-} from '../template/4xx.js';
-import { writeHtmlResponse, writeRedirectResponse } from './response.js';
+import { notFoundTemplate, subpathNotUsedTemplate } from '../template/4xx.js';
+import { writeHtmlResponse } from './response.js';
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 
 export function baseMiddleware(
 	settings: AstroSettings,
@@ -25,28 +18,15 @@ export function baseMiddleware(
 	const devRootURL = new URL(config.base, 'http://localhost');
 	const devRoot = site ? site.pathname : devRootURL.pathname;
 	const devRootReplacement = devRoot.endsWith('/') ? '/' : '';
-	const { trailingSlash } = settings.config;
 
 	return function devBaseMiddleware(req, res, next) {
 		const url = req.url!;
-		const destination = collapseDuplicateTrailingSlashes(url, true);
-		if (url && destination !== url) {
-			return writeRedirectResponse(res, 301, destination);
-		}
 		let pathname: string;
 		try {
 			pathname = decodeURI(new URL(url, 'http://localhost').pathname);
 		} catch (e) {
 			/* malformed uri */
 			return next(e);
-		}
-
-		if (
-			(trailingSlash === 'never' && pathname.endsWith('/')) ||
-			(trailingSlash === 'always' && !pathname.endsWith('/') && !hasFileExtension(pathname))
-		) {
-			const html = trailingSlashMismatchTemplate(pathname, trailingSlash);
-			return writeHtmlResponse(res, 404, html);
 		}
 
 		if (pathname.startsWith(devRoot)) {
@@ -60,12 +40,7 @@ export function baseMiddleware(
 		}
 
 		if (req.headers.accept?.includes('text/html')) {
-			const html = notFoundTemplate({
-				statusCode: 404,
-				title: 'Not found',
-				tabTitle: '404: Not Found',
-				pathname,
-			});
+			const html = notFoundTemplate(pathname, 'Not Found');
 			return writeHtmlResponse(res, 404, html);
 		}
 
