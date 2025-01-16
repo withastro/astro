@@ -724,7 +724,7 @@ export async function createRouteManifest(
 	// Ideally we would only inject the server islands route if server islands are used in the project.
 	// Unfortunately, there is a "circular dependency": to know if server islands are used, we need to run
 	// the build but the build relies on the routes manifest.
-	if (settings.config.adapter) {
+	if (dev || settings.config.adapter) {
 		injectServerIslandRoute(settings.config, { routes });
 	}
 	await runHookRoutesResolved({ routes, settings, logger });
