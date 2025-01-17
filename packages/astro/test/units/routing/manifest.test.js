@@ -310,7 +310,6 @@ describe('routing - createRouteManifest', () => {
 		});
 
 		assert.deepEqual(getManifestRoutes(manifest), [
-
 			{
 				route: '/_image',
 				type: 'endpoint',
