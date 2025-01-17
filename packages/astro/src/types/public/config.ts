@@ -166,7 +166,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
 	TFontProviders extends FontProvider<string>[] = never,
-	// TODO: extract 'google' type
 	TFontFamilies extends FontFamily<
 		(TFontProviders extends never ? [] : TFontProviders)[number]['name'] | BuiltInProvider
 	>[] = never,
@@ -2085,7 +2084,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * @description
 			 *
 			 * TODO:
-			 * TODO: generics
 			 */
 			providers?: TFontProviders;
 
