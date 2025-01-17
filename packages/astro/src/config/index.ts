@@ -7,7 +7,8 @@ import type {
 	SessionDriverName,
 } from '../types/public/config.js';
 import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js';
-import * as _fontProviders from '../assets/fonts/providers.js';
+import type { FontFamily, FontProvider } from '../assets/fonts/types.js';
+import { fontProviders } from './entrypoint.js';
 
 /**
  * See the full Astro Configuration API Documentation
@@ -16,19 +17,19 @@ import * as _fontProviders from '../assets/fonts/providers.js';
 export function defineConfig<
 	const TLocales extends Locales = never,
 	const TDriver extends SessionDriverName = never,
-	TFontProvidersName extends string = never,
->(config: AstroUserConfig<TLocales, TDriver, TFontProvidersName>) {
+	TFontProviders extends FontProvider<string>[] = never,
+	TFontFamilies extends FontFamily<
+		(TFontProviders extends never ? [] : TFontProviders)[number]['name'] | 'google' | 'local'
+	>[] = never,
+>(config: AstroUserConfig<TLocales, TDriver, TFontProviders, TFontFamilies>) {
 	return config;
 }
-
-/** TODO: */
-export const fontProviders = _fontProviders;
 
 defineConfig({
 	experimental: {
 		fonts: {
 			providers: [fontProviders.adobe({ apiKey: '' }), fontProviders.test()],
-			families: [{ provider: 'local' }],
+			families: [{ provider: 'adobe' }, { provider: 'google' }, { provider: 'local', src: 'test' }],
 		},
 	},
 });

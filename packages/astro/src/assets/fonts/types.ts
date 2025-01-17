@@ -6,13 +6,18 @@ export interface FontProvider<TName extends string> {
 	config?: Record<string, any>;
 }
 
-export type FontFamily<TProvider extends string> = {
+type LocalFontFamily = {
+	provider: 'local';
+	// TODO: refine type
+	src: string;
+};
+
+type StandardFontFamily<TProvider extends string> = {
 	provider: TProvider;
-} & (TProvider extends 'local'
-	? {
-			src: any;
-		}
-	: // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-		{});
+};
+
+export type FontFamily<TProvider extends string> = TProvider extends 'local'
+	? LocalFontFamily
+	: StandardFontFamily<TProvider>;
 
 export type BuiltInProvider = (typeof BUILTIN_PROVIDERS)[number];
