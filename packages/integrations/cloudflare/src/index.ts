@@ -243,26 +243,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.ssr.target = 'webworker';
 					vite.ssr.noExternal = true;
 
-					if (typeof _config.vite.ssr?.external === 'undefined') vite.ssr.external = [];
-					if (typeof _config.vite.ssr?.external === 'boolean')
-						vite.ssr.external = _config.vite.ssr?.external;
-					if (Array.isArray(_config.vite.ssr?.external))
-						// `@astrojs/vue` sets `@vue/server-renderer` to external
-						// https://github.com/withastro/astro/blob/e648c5575a8774af739231cfa9fc27a32086aa5f/packages/integrations/vue/src/index.ts#L119
-						// the cloudflare adapter needs to get all dependencies inlined, we use `noExternal` for that, but any `external` config overrides that
-						// therefore we need to remove `@vue/server-renderer` from the external config again
-						vite.ssr.external = _config.vite.ssr?.external.filter(
-							(entry) => entry !== '@vue/server-renderer'
-						);
-
 					vite.build ||= {};
 					vite.build.rollupOptions ||= {};
 					vite.build.rollupOptions.output ||= {};
 					// @ts-expect-error
 					vite.build.rollupOptions.output.banner ||=
 						'globalThis.process ??= {}; globalThis.process.env ??= {};';
-
-					vite.build.rollupOptions.external = _config.vite.build?.rollupOptions?.external ?? [];
 
 					// Cloudflare env is only available per request. This isn't feasible for code that access env vars
 					// in a global way, so we shim their access as `process.env.*`. This is not the recommended way for users to access environment variables. But we'll add this for compatibility for chosen variables. Mainly to support `@astrojs/db`
