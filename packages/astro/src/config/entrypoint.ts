@@ -5,8 +5,7 @@ import type { ImageServiceConfig } from '../types/public/index.js';
 
 export { defineConfig, getViteConfig } from './index.js';
 export { envField } from '../env/config.js';
-
-import * as _fontProviders from '../assets/fonts/providers.js';
+export { fontProviders } from '../assets/fonts/providers.js';
 
 /**
  * Return the configuration needed to use the Sharp-based image service
@@ -30,6 +29,3 @@ export function passthroughImageService(): ImageServiceConfig {
 		config: {},
 	};
 }
-
-/** TODO: */
-export const fontProviders = _fontProviders;

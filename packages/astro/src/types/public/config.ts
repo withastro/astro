@@ -17,7 +17,7 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
+import type { BuiltInProvider, FontFamily, FontProvider } from '../../assets/fonts/types.js';
 export type Locales = (string | { codes: string[]; path: string })[];
 
 type NormalizeLocales<T extends Locales> = {
@@ -168,7 +168,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	TFontProviders extends FontProvider<string>[] = never,
 	// TODO: extract 'google' type
 	TFontFamilies extends FontFamily<
-		(TFontProviders extends never ? [] : TFontProviders)[number]['name'] | 'google' | 'local'
+		(TFontProviders extends never ? [] : TFontProviders)[number]['name'] | BuiltInProvider
 	>[] = never,
 > {
 	/**
