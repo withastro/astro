@@ -1,10 +1,10 @@
 ---
 export function getStaticPaths() {
 	return [
-		{ params: { category: "food" } },
+		{ params: { group: "food" } },
 	]
 }
-const { category } = Astro.params
+const { group } = Astro.params
 ---
 <html>
 	<head>
@@ -12,6 +12,6 @@ const { category } = Astro.params
 	</head>
 	<body>
 		<h1>Testing</h1>
-		<h2 class="category">{ category }</h2>
+		<h2 class="category">{ group }</h2>
 	</body>
 </html>

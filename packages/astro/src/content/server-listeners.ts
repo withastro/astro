@@ -25,14 +25,7 @@ export async function attachContentServerListeners({
 }: ContentServerListenerParams) {
 	const contentPaths = getContentPaths(settings.config, fs);
 	if (!settings.config.legacy?.collections) {
-		const contentGenerator = await createContentTypesGenerator({
-			fs,
-			settings,
-			logger,
-			viteServer,
-			contentConfigObserver: globalContentConfigObserver,
-		});
-		await contentGenerator.init();
+		await attachListeners();
 	} else if (fs.existsSync(contentPaths.contentDir)) {
 		logger.debug(
 			'content',
@@ -71,9 +64,9 @@ export async function attachContentServerListeners({
 		viteServer.watcher.on('addDir', (entry) =>
 			contentGenerator.queueEvent({ name: 'addDir', entry }),
 		);
-		viteServer.watcher.on('change', (entry) =>
-			contentGenerator.queueEvent({ name: 'change', entry }),
-		);
+		viteServer.watcher.on('change', (entry) => {
+			contentGenerator.queueEvent({ name: 'change', entry });
+		});
 		viteServer.watcher.on('unlink', (entry) => {
 			contentGenerator.queueEvent({ name: 'unlink', entry });
 		});

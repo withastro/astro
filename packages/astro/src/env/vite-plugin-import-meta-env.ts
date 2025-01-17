@@ -1,7 +1,8 @@
 import { transform } from 'esbuild';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
-import type { EnvLoader } from '../env/env-loader.js';
+import { createFilter, isCSSRequest } from 'vite';
+import type { EnvLoader } from './env-loader.js';
 
 interface EnvPluginOptions {
 	envLoader: EnvLoader;
@@ -65,12 +66,13 @@ async function replaceDefine(
 	};
 }
 
-export default function envVitePlugin({ envLoader }: EnvPluginOptions): vite.Plugin {
+export function importMetaEnv({ envLoader }: EnvPluginOptions): vite.Plugin {
 	let privateEnv: Record<string, string>;
 	let defaultDefines: Record<string, string>;
 	let isDev: boolean;
 	let devImportMetaEnvPrepend: string;
 	let viteConfig: vite.ResolvedConfig;
+	const filter = createFilter(null, ['**/*.html', '**/*.htm', '**/*.json']);
 	return {
 		name: 'astro:vite-plugin-env',
 		config(_, { command }) {
@@ -96,11 +98,17 @@ export default function envVitePlugin({ envLoader }: EnvPluginOptions): vite.Plu
 				}
 			}
 		},
+
 		transform(source, id, options) {
-			if (!options?.ssr || !source.includes('import.meta.env')) {
+			if (
+				!options?.ssr ||
+				!source.includes('import.meta.env') ||
+				!filter(id) ||
+				isCSSRequest(id) ||
+				viteConfig.assetsInclude(id)
+			) {
 				return;
 			}
-
 			// Find matches for *private* env and do our own replacement.
 			// Env is retrieved before process.env is populated by astro:env
 			// so that import.meta.env is first replaced by values, not process.env

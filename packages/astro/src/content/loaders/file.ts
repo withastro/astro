@@ -101,6 +101,8 @@ export function file(fileName: string, options?: FileOptions): Loader {
 
 			await syncData(filePath, context);
 
+			watcher?.add(filePath);
+
 			watcher?.on('change', async (changedPath) => {
 				if (changedPath === filePath) {
 					logger.info(`Reloading data from ${fileName}`);

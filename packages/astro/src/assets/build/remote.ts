@@ -1,7 +1,7 @@
 import CachePolicy from 'http-cache-semantics';
 
 export type RemoteCacheEntry = {
-	data: string;
+	data?: string;
 	expires: number;
 	etag?: string;
 	lastModified?: string;
@@ -68,7 +68,7 @@ export async function revalidateRemoteImage(
 		webToCachePolicyRequest(req),
 		webToCachePolicyResponse(
 			res.ok ? res : new Response(null, { status: 200, headers: res.headers }),
-		), // 304 responses themselves are not cachable, so just pretend to get the refreshed TTL
+		), // 304 responses themselves are not cacheable, so just pretend to get the refreshed TTL
 	);
 	const expires = policy.storable() ? policy.timeToLive() : 0;
 

@@ -1,4 +1,8 @@
-# vite-plugin-env
+# env
+
+The content of this directory is for `astro:env` features, except for `vite-plugin-import-meta-env.ts`.
+
+# vite-plugin-import-meta-env
 
 Improves Vite's [Env Variables](https://vite.dev/guide/env-and-mode.html#env-files) support to include **private** env variables during Server-Side Rendering (SSR) but never in client-side rendering (CSR).
 
