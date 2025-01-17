@@ -2059,6 +2059,19 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 */
 					mode: SvgRenderMode;
 			  };
+
+		/**
+		 * @name experimental.serializeManifest
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 *
+		 * Allows to use the virtual modules `astro:manifest/server` and `astro:manifest/client`.
+		 *
+		 * These two virtual modules contain a serializable subset of the Astro configuration.
+		 */
+		serializeManifest?: boolean;
 	};
 }
 

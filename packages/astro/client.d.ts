@@ -189,6 +189,18 @@ declare module 'astro:middleware' {
 	export * from 'astro/virtual-modules/middleware.js';
 }
 
+declare module 'astro:manifest/server' {
+	type ServerConfigSerialized = import('./dist/types/public/manifest.js').ServerConfigSerialized;
+	const manifest: ServerConfigSerialized;
+	export default manifest;
+}
+
+declare module 'astro:manifest/client' {
+	type ClientConfigSerialized = import('./dist/types/public/manifest.js').ClientConfigSerialized;
+	const manifest: ClientConfigSerialized;
+	export default manifest;
+}
+
 declare module 'astro:components' {
 	export * from 'astro/components';
 }

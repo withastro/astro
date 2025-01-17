@@ -341,7 +341,7 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^5.1.7
+        specifier: workspace:*
         version: link:../../packages/astro
 
   examples/portfolio:
@@ -2154,6 +2154,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/astro-jsx:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/astro-manifest:
     dependencies:
       astro:
         specifier: workspace:*
