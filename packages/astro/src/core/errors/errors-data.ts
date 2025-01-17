@@ -870,8 +870,9 @@ export const AstroResponseHeadersReassigned = {
 
 /**
  * @docs
+ * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
  * @see
- * 	- [experimental.session](https://5-0-0-beta.docs.astro.build/en/reference/configuration-reference/#experimentalsession)
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
  * @description
  * Thrown when the session storage could not be initialized.
  */
@@ -879,14 +880,15 @@ export const SessionStorageInitError = {
 	name: 'SessionStorageInitError',
 	title: 'Session storage could not be initialized.',
 	message: (error: string, driver?: string) =>
-		`Error when initializing session storage${driver ? ` with driver ${driver}` : ''}. ${error ?? ''}`,
-	hint: 'For more information, see https://5-0-0-beta.docs.astro.build/en/reference/configuration-reference/#experimentalsession',
+		`Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
 } satisfies ErrorData;
 
 /**
  * @docs
+ * @message Error when saving session data with driver `DRIVER`. `ERROR`
  * @see
- * 	- [experimental.session](https://5-0-0-beta.docs.astro.build/en/reference/configuration-reference/#experimentalsession)
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
  * @description
  * Thrown when the session data could not be saved.
  */
@@ -894,8 +896,8 @@ export const SessionStorageSaveError = {
 	name: 'SessionStorageSaveError',
 	title: 'Session data could not be saved.',
 	message: (error: string, driver?: string) =>
-		`Error when saving session data${driver ? ` with driver ${driver}` : ''}. ${error ?? ''}`,
-	hint: 'For more information, see https://5-0-0-beta.docs.astro.build/en/reference/configuration-reference/#experimentalsession',
+		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
 } satisfies ErrorData;
 
 /**

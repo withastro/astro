@@ -63,7 +63,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	registerAllPlugins(container);
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
-	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
+	opts.logger.info('build', `Building ${settings.buildOutput} entrypoints...`);
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
 	opts.logger.info('build', green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
@@ -366,7 +366,8 @@ async function cleanServerOutput(
 			files.map(async (filename) => {
 				const url = new URL(filename, out);
 				const map = new URL(url + '.map');
-				await Promise.all([fs.promises.rm(url), fs.promises.rm(new URL(map)).catch((e) => {})]);
+				// Sourcemaps may not be generated, so ignore any errors if fail to remove it
+				await Promise.all([fs.promises.rm(url), fs.promises.rm(map).catch(() => {})]);
 			}),
 		);
 

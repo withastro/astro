@@ -1,6 +1,6 @@
 import {
-	ActionError,
 	ACTION_QUERY_PARAMS,
+	ActionError,
 	appendForwardSlash,
 	deserializeActionResult,
 	getActionQueryString,

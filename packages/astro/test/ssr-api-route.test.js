@@ -141,7 +141,7 @@ describe('API routes in SSR', () => {
 			const response = await fixture.fetch('/fail');
 			const text = await response.text();
 			assert.equal(response.status, 500);
-			assert.equal(text, '');
+			assert.equal(text, '500 Internal Server Error');
 		});
 
 		it('Has valid api context', async () => {

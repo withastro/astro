@@ -108,6 +108,11 @@ const routes = [
 		fourOhFour: true,
 	},
 	{
+		description: 'do not match /empty-paths/hello to empty-paths/[...slug].astro',
+		url: '/empty-paths/hello',
+		fourOhFour: true,
+	},
+	{
 		description: 'matches /api/catch/a.json to api/catch/[...slug].json.ts',
 		url: '/api/catch/a.json',
 		htmlMatch: JSON.stringify({ path: 'a' }),

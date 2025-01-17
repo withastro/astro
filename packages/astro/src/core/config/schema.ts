@@ -1,3 +1,6 @@
+import type { OutgoingHttpHeaders } from 'node:http';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type {
 	ShikiConfig,
 	RehypePlugin as _RehypePlugin,
@@ -6,10 +9,6 @@ import type {
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
-
-import type { OutgoingHttpHeaders } from 'node:http';
-import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import { EnvSchema } from '../../env/schema.js';

@@ -22,7 +22,7 @@ describe('SSR Assets', () => {
 		const app = await fixture.loadTestAdapterApp();
 		/** @type {Set<string>} */
 		const assets = app.manifest.assets;
-		assert.equal(assets.size, 2);
+		assert.equal(assets.size, 1);
 		assert.equal(Array.from(assets)[0].endsWith('.css'), true);
 	});
 });

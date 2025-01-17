@@ -152,11 +152,22 @@ describe('[DEV] i18n routing', () => {
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
 			const response = await fixture.fetch('/it/start');
 			assert.equal(response.status, 404);
+			const html = await response.text();
+			assert.match(html, /Can't find the page you're looking for./);
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
 			const response = await fixture.fetch('/fr/start');
 			assert.equal(response.status, 404);
+			const html = await response.text();
+			assert.match(html, /Can't find the page you're looking for./);
+		});
+
+		it('should render the custom 404.astro when navigating non-existing routes ', async () => {
+			const response = await fixture.fetch('/does-not-exist');
+			assert.equal(response.status, 404);
+			const html = await response.text();
+			assert.match(html, /Can't find the page you're looking for./);
 		});
 	});
 
@@ -2003,13 +2014,13 @@ describe('Fallback rewrite dev server', () => {
 				locales: ['en', 'fr', 'es', 'it', 'pt'],
 				routing: {
 					prefixDefaultLocale: false,
+					fallbackType: 'rewrite',
 				},
 				fallback: {
 					fr: 'en',
 					it: 'en',
 					es: 'pt',
 				},
-				fallbackType: 'rewrite',
 			},
 		});
 		devServer = await fixture.startDevServer();
@@ -2021,6 +2032,7 @@ describe('Fallback rewrite dev server', () => {
 	it('should correctly rewrite to en', async () => {
 		const html = await fixture.fetch('/fr').then((res) => res.text());
 		assert.match(html, /Hello/);
+		assert.match(html, /locale - fr/);
 		// assert.fail()
 	});
 
@@ -2074,6 +2086,7 @@ describe('Fallback rewrite SSG', () => {
 	it('should correctly rewrite to en', async () => {
 		const html = await fixture.readFile('/fr/index.html');
 		assert.match(html, /Hello/);
+		assert.match(html, /locale - fr/);
 		// assert.fail()
 	});
 
@@ -2127,6 +2140,7 @@ describe('Fallback rewrite SSR', () => {
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();
+		assert.match(html, /locale - fr/);
 		assert.match(html, /Hello/);
 	});
 
