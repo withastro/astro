@@ -1,4 +1,5 @@
 {
+  "biome.enabled": true,
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
