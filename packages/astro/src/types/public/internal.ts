@@ -214,6 +214,7 @@ export interface SSRResult {
 	 */
 	cancelled: boolean;
 	base: string;
+	viteBase: string;
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;

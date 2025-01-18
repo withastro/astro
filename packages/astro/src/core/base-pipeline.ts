@@ -28,6 +28,7 @@ export abstract class Pipeline {
 	constructor(
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
+		readonly config: any,
 		/**
 		 * "development" or "production" only
 		 */
