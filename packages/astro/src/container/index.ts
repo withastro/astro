@@ -241,6 +241,7 @@ type AstroContainerConstructor = {
 	streaming?: boolean;
 	renderers?: SSRLoadedRenderer[];
 	manifest?: AstroContainerManifest;
+	config?: any;
 	resolve?: SSRResult['resolve'];
 	astroConfig?: AstroConfig;
 };
@@ -263,6 +264,7 @@ export class experimental_AstroContainer {
 	private constructor({
 		streaming = false,
 		manifest,
+		config,
 		renderers,
 		resolve,
 		astroConfig,
@@ -273,6 +275,7 @@ export class experimental_AstroContainer {
 				dest: nodeLogDestination,
 			}),
 			manifest: createManifest(manifest, renderers),
+			config,
 			streaming,
 			serverLike: true,
 			renderers: renderers ?? manifest?.renderers ?? [],
