@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Updates `AriaAttributes` and `AriaRole` types for WAI-ARIA 1.2
+Updates types and dev toolbar for ARIA 1.2 attributes and roles
