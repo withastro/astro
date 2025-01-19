@@ -1,5 +1,5 @@
 ---
-'astro': major
+'astro': patch
 ---
 
 nginx proxy pass dev mode
