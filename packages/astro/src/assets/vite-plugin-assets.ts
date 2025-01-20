@@ -19,6 +19,7 @@ import { emitESMImage } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { fonts } from './fonts/vite-plugin-fonts.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -90,7 +91,9 @@ const addStaticImageFactory = (
 	};
 };
 
-export default function assets({ settings }: { settings: AstroSettings }): vite.Plugin[] {
+export default function assets({
+	settings,
+}: { settings: AstroSettings }): (vite.Plugin | undefined)[] {
 	let resolvedConfig: vite.ResolvedConfig;
 	let shouldEmitFile = false;
 	let isBuild = false;
@@ -117,6 +120,7 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 			},
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
+					// TODO: export Fonts component
 					return /* ts */ `
 					export { getConfiguredImageService, isLocalService } from "astro/assets";
 					import { getImage as getImageInternal } from "astro/assets";
@@ -243,5 +247,6 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 				}
 			},
 		},
+		fonts({ settings }),
 	];
 }

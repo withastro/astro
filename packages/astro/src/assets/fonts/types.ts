@@ -8,6 +8,11 @@ export interface FontProvider<TName extends string> {
 	config?: Record<string, any>;
 }
 
+export interface ResolvedFontProvider {
+	name: string;
+	handle: () => void;
+}
+
 type LocalFontFamily = {
 	provider: LocalProviderName;
 	// TODO: refine type
