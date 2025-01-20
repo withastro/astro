@@ -126,8 +126,110 @@ describe('defineConfig()', () => {
 			},
 		);
 
-		// TODO: providers
+		assertType(
+			defineConfig({
+				experimental: {
+					fonts: {
+						providers: [],
+						families: [],
+					},
+				},
+			}),
+			(config) => {
+				expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, [], []>>();
+				expectTypeOf(config.experimental!.fonts!.providers!).toEqualTypeOf<[]>();
+				expectTypeOf(config.experimental!.fonts!.families).toEqualTypeOf<[]>();
+			},
+		);
 
-		// TODO: combinations
+		assertType(
+			defineConfig({
+				experimental: {
+					fonts: {
+						providers: [{ name: 'adobe', entrypoint: '' }],
+						families: [],
+					},
+				},
+			}),
+			(config) => {
+				expectTypeOf(config).toEqualTypeOf<
+					AstroUserConfig<
+						never,
+						never,
+						[
+							{
+								readonly name: 'adobe';
+								readonly entrypoint: '';
+							},
+						],
+						[]
+					>
+				>();
+				expectTypeOf(config.experimental!.fonts!.providers!).toEqualTypeOf<
+					[
+						{
+							readonly name: 'adobe';
+							readonly entrypoint: '';
+						},
+					]
+				>();
+				expectTypeOf(config.experimental!.fonts!.families).toEqualTypeOf<[]>();
+			},
+		);
+
+		assertType(
+			defineConfig({
+				experimental: {
+					fonts: {
+						providers: [{ name: 'adobe', entrypoint: '' }],
+						families: [
+							{ provider: 'google' },
+							{ provider: 'local', src: 'test' },
+							{ provider: 'adobe' },
+						],
+					},
+				},
+			}),
+			(config) => {
+				expectTypeOf(config).toEqualTypeOf<
+					AstroUserConfig<
+						never,
+						never,
+						[
+							{
+								readonly name: 'adobe';
+								readonly entrypoint: '';
+							},
+						],
+						[
+							{ readonly provider: 'google' },
+							{
+								readonly provider: 'local';
+								readonly src: 'test';
+							},
+							{ readonly provider: 'adobe' },
+						]
+					>
+				>();
+				expectTypeOf(config.experimental!.fonts!.providers!).toEqualTypeOf<
+					[
+						{
+							readonly name: 'adobe';
+							readonly entrypoint: '';
+						},
+					]
+				>();
+				expectTypeOf(config.experimental!.fonts!.families).toEqualTypeOf<
+					[
+						{ readonly provider: 'google' },
+						{
+							readonly provider: 'local';
+							readonly src: 'test';
+						},
+						{ readonly provider: 'adobe' },
+					]
+				>();
+			},
+		);
 	});
 });
