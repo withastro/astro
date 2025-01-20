@@ -215,6 +215,20 @@ export default function vercelAdapter({
 						format: 'directory',
 						redirects: false,
 					},
+					integrations: [
+						{
+							name: 'astro:copy-vercel-output',
+							hooks: {
+								'astro:build:done': async () => {
+									if (_buildOutput === 'static') {
+										cpSync(_config.outDir, new URL('./.vercel/output/static/', _config.root), {
+											recursive: true,
+										});
+									}
+								},
+							},
+						},
+					],
 					vite: {
 						ssr: {
 							external: ['@vercel/nft'],
@@ -308,13 +322,13 @@ export default function vercelAdapter({
 					if (existsSync(staticDir)) {
 						emptyDir(staticDir);
 					}
-					mkdirSync(new URL('./.vercel/output/static/', _config.root), { recursive: true });
+					mkdirSync(new URL('./.vercel/output/static/', _config.root), {
+						recursive: true,
+					});
 
-					if (_buildOutput === 'static' && staticDir) {
-						cpSync(_config.outDir, new URL('./.vercel/output/static/', _config.root), {
-							recursive: true,
-						});
-					} else {
+					mkdirSync(new URL('./.vercel/output/server/', _config.root));
+
+					if (_buildOutput !== 'static') {
 						cpSync(_config.build.client, new URL('./.vercel/output/static/', _config.root), {
 							recursive: true,
 						});
