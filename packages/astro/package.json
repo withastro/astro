@@ -168,7 +168,7 @@
     "unist-util-visit": "^5.0.0",
     "unstorage": "^1.14.4",
     "vfile": "^6.0.3",
-    "vite": "^6.0.7",
+    "vite": "^6.0.9",
     "vitefu": "^1.0.5",
     "which-pm": "^3.0.0",
     "xxhash-wasm": "^1.1.0",
@@ -216,7 +216,7 @@
     "sass": "^1.83.1",
     "undici": "^7.2.1",
     "unified": "^11.0.5",
-    "vitest": "^3.0.0-beta.4"
+    "vitest": "^3.0.2"
   },
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=22.0.0",
