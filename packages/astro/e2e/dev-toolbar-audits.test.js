@@ -44,7 +44,10 @@ test.describe('Dev Toolbar - Audits', () => {
 		await appButton.click();
 	});
 
-	test('does not warn about perf issue for below the fold image after mutation when body is unscrollable', async ({ page, astro }) => {
+	test('does not warn about perf issue for below the fold image after mutation when body is unscrollable', async ({
+		page,
+		astro,
+	}) => {
 		await page.goto(astro.resolveUrl('/audits-perf-body-unscrollable'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
@@ -67,7 +70,10 @@ test.describe('Dev Toolbar - Audits', () => {
 		expect(auditHighlights).toHaveCount(1);
 	});
 
-	test('does not warn about perf issue for below the fold image in relative container', async ({ page, astro }) => {
+	test('does not warn about perf issue for below the fold image in relative container', async ({
+		page,
+		astro,
+	}) => {
 		await page.goto(astro.resolveUrl('/audits-perf-relative'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
@@ -80,7 +86,10 @@ test.describe('Dev Toolbar - Audits', () => {
 		expect(auditHighlights).toHaveCount(0);
 	});
 
-	test('can warn about perf issue for below the fold image in absolute container', async ({ page, astro }) => {
+	test('can warn about perf issue for below the fold image in absolute container', async ({
+		page,
+		astro,
+	}) => {
 		await page.goto(astro.resolveUrl('/audits-perf-absolute'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
