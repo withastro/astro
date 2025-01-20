@@ -124,7 +124,7 @@ describe('vite-plugin-astro-server', () => {
 			container.handle(req, res);
 			const html = await text();
 			assert.equal(res.statusCode, 200);
-		
+
 			assert.deepEqual(html, '<!DOCTYPE html>http://localhost/prerendered');
 		});
 	});
