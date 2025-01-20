@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.12.7
+
+### Patch Changes
+
+- [#13011](https://github.com/withastro/astro/pull/13011) [`cf30880`](https://github.com/withastro/astro/commit/cf3088060d45227dcb48e041c4ed5e0081d71398) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite
+
 ## 0.12.6
 
 ### Patch Changes
