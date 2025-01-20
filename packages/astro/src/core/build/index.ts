@@ -23,6 +23,7 @@ import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { createRouteManifest } from '../routing/index.js';
+import { getServerIslandRouteData } from '../server-islands/endpoint.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
@@ -67,7 +68,8 @@ export default async function build(
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	if (inlineConfig.force) {
-		await clearContentLayerCache({ settings, logger, fs });
+		// isDev is always false, because it's interested in the build command, not the output type
+		await clearContentLayerCache({ settings, logger, fs, isDev: false });
 	}
 
 	const builder = new AstroBuilder(settings, {
@@ -153,6 +155,7 @@ class AstroBuilder {
 			logger,
 			fs,
 			manifest: this.manifest,
+			command: 'build',
 		});
 
 		return { viteConfig };
@@ -232,7 +235,8 @@ class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
-				.map((pageData) => pageData.route),
+				.map((pageData) => pageData.route)
+				.concat(hasServerIslands ? getServerIslandRouteData(this.settings.config) : []),
 			logging: this.logger,
 		});
 

@@ -48,6 +48,18 @@ describe('Development Routing', () => {
 			assert.equal(response.status, 200);
 		});
 
+		it('redirects when loading double slash', async () => {
+			const response = await fixture.fetch('//', { redirect: 'manual' });
+			assert.equal(response.status, 301);
+			assert.equal(response.headers.get('Location'), '/');
+		});
+
+		it('redirects when loading multiple slashes', async () => {
+			const response = await fixture.fetch('/////', { redirect: 'manual' });
+			assert.equal(response.status, 301);
+			assert.equal(response.headers.get('Location'), '/');
+		});
+
 		it('404 when loading invalid dynamic route', async () => {
 			const response = await fixture.fetch('/2');
 			assert.equal(response.status, 404);

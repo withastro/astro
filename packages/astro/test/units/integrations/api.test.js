@@ -346,6 +346,55 @@ describe('Integration API', () => {
 			);
 		});
 	});
+
+	describe('Routes setup hook', () => {
+		it('should work in dev', async () => {
+			let routes = [];
+			const fixture = await createFixture({
+				'/src/pages/no-prerender.astro': '---\nexport const prerender = false\n---',
+				'/src/pages/prerender.astro': '---\nexport const prerender = true\n---',
+				'/src/pages/unknown-prerender.astro': '',
+			});
+
+			await runInContainer(
+				{
+					inlineConfig: {
+						root: fixture.path,
+						integrations: [
+							{
+								name: 'test',
+								hooks: {
+									'astro:route:setup': (params) => {
+										routes.push({
+											component: params.route.component,
+											prerender: params.route.prerender,
+										});
+									},
+								},
+							},
+						],
+					},
+				},
+				async () => {
+					routes.sort((a, b) => a.component.localeCompare(b.component));
+					assert.deepEqual(routes, [
+						{
+							component: 'src/pages/no-prerender.astro',
+							prerender: false,
+						},
+						{
+							component: 'src/pages/prerender.astro',
+							prerender: true,
+						},
+						{
+							component: 'src/pages/unknown-prerender.astro',
+							prerender: true,
+						},
+					]);
+				},
+			);
+		});
+	});
 });
 
 describe('Astro feature map', function () {

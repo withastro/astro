@@ -24,6 +24,7 @@ import {
 	safeStringify,
 } from './utils.js';
 import type { z } from 'zod';
+import { type WrappedWatcher, createWatcherWrapper } from './watcher.js';
 
 export interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -42,7 +43,7 @@ export class ContentLayer {
 	#logger: Logger;
 	#store: MutableDataStore;
 	#settings: AstroSettings;
-	#watcher?: FSWatcher;
+	#watcher?: WrappedWatcher;
 	#lastConfigDigest?: string;
 	#unsubscribe?: () => void;
 
@@ -57,7 +58,9 @@ export class ContentLayer {
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;
-		this.#watcher = watcher;
+		if (watcher) {
+			this.#watcher = createWatcherWrapper(watcher);
+		}
 		this.#queue = new PQueue({ concurrency: 1 });
 	}
 
@@ -87,6 +90,7 @@ export class ContentLayer {
 	dispose() {
 		this.#queue.clear();
 		this.#unsubscribe?.();
+		this.#watcher?.removeAllTrackedListeners();
 	}
 
 	async #getGenerateDigest() {
@@ -221,6 +225,12 @@ export class ContentLayer {
 		if (astroConfigDigest) {
 			await this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
 		}
+
+		if (!options?.loaders?.length) {
+			// Remove all listeners before syncing, as they will be re-added by the loaders, but not if this is a selective sync
+			this.#watcher?.removeAllTrackedListeners();
+		}
+
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
 				if (collection.type !== CONTENT_LAYER_TYPE) {
@@ -286,8 +296,7 @@ export class ContentLayer {
 		);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
-		const cacheFile = getDataStoreFile(this.#settings);
-		await this.#store.writeToDisk(cacheFile);
+		await this.#store.writeToDisk();
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeAssetImports(assetImportsFile);
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
@@ -410,8 +419,7 @@ export async function simpleLoader<TData extends { id: string }>(
  * During development, this is in the `.astro` directory so that the Vite watcher can see it.
  * In production, it's in the cache directory so that it's preserved between builds.
  */
-export function getDataStoreFile(settings: AstroSettings, isDev?: boolean) {
-	isDev ??= process?.env.NODE_ENV === 'development';
+export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
 	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }
 

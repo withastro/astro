@@ -1,1 +1,1 @@
-throw new Error("Shoud not error at build time")
+throw new Error("Should not error at build time")

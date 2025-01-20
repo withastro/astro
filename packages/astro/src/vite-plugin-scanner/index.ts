@@ -2,12 +2,11 @@ import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import type { Plugin as VitePlugin } from 'vite';
-import { normalizePath } from 'vite';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import type { Logger } from '../core/logger/core.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
-import { rootRelativePath } from '../core/viteUtils.js';
+import { normalizePath, rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings, ManifestData } from '../types/astro.js';
 
 export interface AstroPluginScannerOptions {

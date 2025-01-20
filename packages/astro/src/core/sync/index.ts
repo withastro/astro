@@ -1,10 +1,9 @@
-import fsMod, { existsSync } from 'node:fs';
+import fsMod from 'node:fs';
 import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
-import { type HMRPayload, createServer } from 'vite';
-import { normalizePath } from 'vite';
+import { type FSWatcher, type HMRPayload, createServer } from 'vite';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { createContentTypesGenerator } from '../../content/index.js';
@@ -32,6 +31,7 @@ import {
 import type { Logger } from '../logger/core.js';
 import { createRouteManifest } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
+import { normalizePath } from '../viteUtils.js';
 
 export type SyncOptions = {
 	mode: string;
@@ -49,6 +49,8 @@ export type SyncOptions = {
 		cleanup?: boolean;
 	};
 	manifest: ManifestData;
+	command: 'build' | 'dev' | 'sync';
+	watcher?: FSWatcher;
 };
 
 export default async function sync(
@@ -78,6 +80,7 @@ export default async function sync(
 		fs,
 		force: inlineConfig.force,
 		manifest,
+		command: 'sync',
 	});
 }
 
@@ -88,12 +91,14 @@ export async function clearContentLayerCache({
 	settings,
 	logger,
 	fs = fsMod,
+	isDev,
 }: {
 	settings: AstroSettings;
 	logger: Logger;
 	fs?: typeof fsMod;
+	isDev: boolean;
 }) {
-	const dataStore = getDataStoreFile(settings);
+	const dataStore = getDataStoreFile(settings, isDev);
 	if (fs.existsSync(dataStore)) {
 		logger.debug('content', 'clearing data store');
 		await fs.promises.rm(dataStore, { force: true });
@@ -115,9 +120,12 @@ export async function syncInternal({
 	skip,
 	force,
 	manifest,
+	command,
+	watcher,
 }: SyncOptions): Promise<void> {
+	const isDev = command === 'dev';
 	if (force) {
-		await clearContentLayerCache({ settings, logger, fs });
+		await clearContentLayerCache({ settings, logger, fs, isDev });
 	}
 
 	const timerStart = performance.now();
@@ -125,23 +133,28 @@ export async function syncInternal({
 	if (!skip?.content) {
 		await syncContentCollections(settings, { mode, fs, logger, manifest });
 		settings.timer.start('Sync content layer');
+
 		let store: MutableDataStore | undefined;
 		try {
-			const dataStoreFile = getDataStoreFile(settings);
-			if (existsSync(dataStoreFile)) {
-				store = await MutableDataStore.fromFile(dataStoreFile);
-			}
+			const dataStoreFile = getDataStoreFile(settings, isDev);
+			store = await MutableDataStore.fromFile(dataStoreFile);
 		} catch (err: any) {
 			logger.error('content', err.message);
 		}
 		if (!store) {
-			store = new MutableDataStore();
+			logger.error('content', 'Failed to load content store');
+			return;
 		}
+
 		const contentLayer = globalContentLayer.init({
 			settings,
 			logger,
 			store,
+			watcher,
 		});
+		if (watcher) {
+			contentLayer.watchContentConfig();
+		}
 		await contentLayer.sync();
 		if (!skip?.cleanup) {
 			// Free up memory (usually in builds since we only need to use this once)
@@ -150,17 +163,15 @@ export async function syncInternal({
 		settings.timer.end('Sync content layer');
 	} else {
 		const paths = getContentPaths(settings.config, fs);
-		// Content is synced after writeFiles. That means references are not created
-		// To work around it, we create a stub so the reference is created and content
-		// sync will override the empty file
 		if (
 			paths.config.exists ||
 			// Legacy collections don't require a config file
 			(settings.config.legacy?.collections && fs.existsSync(paths.contentDir))
 		) {
+			// We only create the reference, without a stub to avoid overriding the
+			// already generated types
 			settings.injectedTypes.push({
 				filename: CONTENT_TYPES_FILE,
-				content: '',
 			});
 		}
 	}
@@ -182,7 +193,9 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	for (const { filename, content } of settings.injectedTypes) {
 		const filepath = fileURLToPath(new URL(filename, settings.dotAstroDir));
 		fs.mkdirSync(dirname(filepath), { recursive: true });
-		fs.writeFileSync(filepath, content, 'utf-8');
+		if (content) {
+			fs.writeFileSync(filepath, content, 'utf-8');
+		}
 		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), filepath)));
 	}
 

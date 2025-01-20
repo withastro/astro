@@ -180,16 +180,15 @@ export default new Map([\n${lines.join(',\n')}]);
 
 	#saveToDiskDebounced() {
 		this.#dirty = true;
-		// Only save to disk if it has already been saved once
-		if (this.#file) {
-			if (this.#saveTimeout) {
-				clearTimeout(this.#saveTimeout);
-			}
-			this.#saveTimeout = setTimeout(() => {
-				this.#saveTimeout = undefined;
-				this.writeToDisk(this.#file!);
-			}, SAVE_DEBOUNCE_MS);
+		if (this.#saveTimeout) {
+			clearTimeout(this.#saveTimeout);
 		}
+		this.#saveTimeout = setTimeout(() => {
+			this.#saveTimeout = undefined;
+			if (this.#file) {
+				this.writeToDisk();
+			}
+		}, SAVE_DEBOUNCE_MS);
 	}
 
 	#writing = new Set<string>();
@@ -213,6 +212,11 @@ export default new Map([\n${lines.join(',\n')}]);
 
 		const tempFile = filePath instanceof URL ? new URL(`${filePath.href}.tmp`) : `${filePath}.tmp`;
 		try {
+			const oldData = await fs.readFile(filePath, 'utf-8').catch(() => '');
+			if (oldData === data) {
+				// If the data hasn't changed, we can skip the write
+				return;
+			}
 			// Write it to a temporary file first and then move it to prevent partial reads.
 			await fs.writeFile(tempFile, data);
 			await fs.rename(tempFile, filePath);
@@ -331,13 +335,15 @@ export default new Map([\n${lines.join(',\n')}]);
 		return devalue.stringify(this._collections);
 	}
 
-	async writeToDisk(filePath: PathLike) {
+	async writeToDisk() {
 		if (!this.#dirty) {
 			return;
 		}
+		if (!this.#file) {
+			throw new AstroError(AstroErrorData.UnknownFilesystemError);
+		}
 		try {
-			await this.#writeFileAtomic(filePath, this.toString());
-			this.#file = filePath;
+			await this.#writeFileAtomic(this.#file, this.toString());
 			this.#dirty = false;
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
@@ -373,10 +379,16 @@ export default new Map([\n${lines.join(',\n')}]);
 		try {
 			if (existsSync(filePath)) {
 				const data = await fs.readFile(filePath, 'utf-8');
-				return MutableDataStore.fromString(data);
+				const store = await MutableDataStore.fromString(data);
+				store.#file = filePath;
+				return store;
+			} else {
+				await fs.mkdir(new URL('./', filePath), { recursive: true });
 			}
 		} catch {}
-		return new MutableDataStore();
+		const store = new MutableDataStore();
+		store.#file = filePath;
+		return store;
 	}
 }
 
