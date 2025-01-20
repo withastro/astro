@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
-	name: 'Astro content layer edited',
+	name: 'Astro content layer',
 	integrations: [mdx(), {
 		name: '@astrojs/my-integration',
 		hooks: {
