@@ -1,7 +1,9 @@
 import { defineFontProvider } from '../helpers.js';
-import type { ResolvedFontProvider } from '../types.js';
+import { providers } from 'unifont';
 
-export function adobe(config: { apiKey: string }) {
+type Provider = typeof providers.adobe;
+
+export function adobe(config: Parameters<Provider>[0]) {
 	return defineFontProvider({
 		name: 'adobe',
 		entrypoint: 'astro/assets/fonts/providers/adobe',
@@ -9,4 +11,4 @@ export function adobe(config: { apiKey: string }) {
 	});
 }
 
-export const handle: ResolvedFontProvider['handle'] = () => {};
+export const provider: Provider = providers.adobe;

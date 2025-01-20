@@ -1,6 +1,7 @@
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import { resolveProviders } from './providers.js';
+import * as unifont from 'unifont';
 
 /* TODO:
 
@@ -26,10 +27,18 @@ export function fonts({ settings }: Options): Plugin | undefined {
 		async buildStart() {
 			const resolved = await resolveProviders({
 				settings,
-				providers: settings.config.experimental.fonts?.providers ?? [],
+				providers: settings.config.experimental.fonts!.providers ?? [],
 			});
-			for (const provider of resolved) {
-				provider.handle();
+
+			const instance = await unifont.createUnifont(
+				resolved.map((e) => e.provider(e.config)),
+				{
+					// TODO:
+					storage: undefined,
+				},
+			);
+			for (const family of settings.config.experimental.fonts!.families) {
+				const { fonts, fallbacks } = await instance.resolveFont(family.name, {}, [family.provider]);
 			}
 		},
 	};

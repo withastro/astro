@@ -1,6 +1,7 @@
 import type { BUILTIN_PROVIDERS } from './constants.js';
 import type { GOOGLE_PROVIDER_NAME } from './providers/google.js';
 import type { LOCAL_PROVIDER_NAME } from './providers/local.js';
+import type * as unifont from 'unifont';
 
 export interface FontProvider<TName extends string> {
 	name: TName;
@@ -10,8 +11,11 @@ export interface FontProvider<TName extends string> {
 
 export interface ResolvedFontProvider {
 	name: string;
-	handle: () => void;
+	provider: (config?: Record<string, any>) => UnifontProvider;
+	config?: Record<string, any>;
 }
+
+export type UnifontProvider = unifont.Provider;
 
 type LocalFontFamily = {
 	provider: LocalProviderName;

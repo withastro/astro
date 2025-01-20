@@ -166,6 +166,7 @@
     "tinyexec": "^0.3.2",
     "tsconfck": "^3.1.4",
     "ultrahtml": "^1.5.3",
+    "unifont": "^0.1.7",
     "unist-util-visit": "^5.0.0",
     "unstorage": "^1.14.4",
     "vfile": "^6.0.3",

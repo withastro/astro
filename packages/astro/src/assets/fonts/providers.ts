@@ -30,10 +30,10 @@ export async function resolveProviders({
 	const providers = [google(), local(), ..._providers];
 	const resolvedProviders: Array<ResolvedFontProvider> = [];
 
-	for (const provider of providers) {
-		const id = resolveEntrypoint(settings, provider.entrypoint);
-		const { handle } = await import(id);
-		resolvedProviders.push({ name: provider.name, handle });
+	for (const { name, entrypoint, config } of providers) {
+		const id = resolveEntrypoint(settings, entrypoint);
+		const { provider } = await import(id);
+		resolvedProviders.push({ name, config, provider });
 	}
 
 	return resolvedProviders;
