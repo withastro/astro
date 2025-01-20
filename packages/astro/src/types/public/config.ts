@@ -2085,7 +2085,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 *
 			 * TODO:
 			 */
-			providers?: TFontProviders;
+			providers?: [TFontProviders] extends [never] ? FontProvider<string>[] : TFontProviders;
 
 			/**
 			 *
@@ -2096,7 +2096,12 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 *
 			 * TODO:
 			 */
-			families: TFontFamilies;
+			families: [TFontFamilies] extends [never]
+				? FontFamily<
+						| ([TFontProviders] extends [never] ? [] : TFontProviders)[number]['name']
+						| BuiltInProvider
+					>[]
+				: TFontFamilies;
 		};
 	};
 }
