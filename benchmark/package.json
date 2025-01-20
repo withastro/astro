@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
-    "@astrojs/node": "^9.0.0",
+    "@astrojs/node": "^9.0.1",
     "@benchmark/timer": "workspace:*",
     "@benchmark/adapter": "workspace:*",
     "astro": "workspace:*",
