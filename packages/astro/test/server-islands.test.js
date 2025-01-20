@@ -72,7 +72,7 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/s);
 				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -81,7 +81,7 @@ describe('Server islands', () => {
 				assert.equal(res.status, 200);
 				const html = await res.text();
 				const fetchMatch = html.match(
-					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
+					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/s,
 				);
 				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
 				const firstProps = fetchMatch[1];
@@ -89,7 +89,7 @@ describe('Server islands', () => {
 				assert.equal(secondRes.status, 200);
 				const secondHtml = await secondRes.text();
 				const secondFetchMatch = secondHtml.match(
-					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
+					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/s,
 				);
 				assert.equal(secondFetchMatch.length, 2, 'should include props in the query	string');
 				assert.notEqual(
@@ -146,7 +146,7 @@ describe('Server islands', () => {
 				const response = await app.render(request);
 				assert.equal(response.status, 200);
 				const html = await response.text();
-				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/s);
 				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -157,7 +157,7 @@ describe('Server islands', () => {
 				assert.equal(response.status, 200);
 				const html = await response.text();
 				const fetchMatch = html.match(
-					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
+					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/s,
 				);
 				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
 				const firstProps = fetchMatch[1];
@@ -166,7 +166,7 @@ describe('Server islands', () => {
 				assert.equal(secondResponse.status, 200);
 				const secondHtml = await secondResponse.text();
 				const secondFetchMatch = secondHtml.match(
-					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
+					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/s,
 				);
 				assert.equal(secondFetchMatch.length, 2, 'should include props in the query	string');
 				assert.notEqual(

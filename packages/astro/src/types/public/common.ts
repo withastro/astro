@@ -98,9 +98,9 @@ export type PaginateFunction = <
 }[];
 
 export type APIRoute<
-	APIProps extends Record<string, any> = Record<string, any>,
+	Props extends Record<string, any> = Record<string, any>,
 	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
-> = (context: APIContext<APIProps, APIParams>) => Response | Promise<Response>;
+> = (context: APIContext<Props, APIParams>) => Response | Promise<Response>;
 
 export type RewritePayload = string | URL | Request;
 
