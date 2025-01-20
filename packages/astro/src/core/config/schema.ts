@@ -613,7 +613,10 @@ export const AstroConfigSchema = z.object({
 					families: z.array(
 						z
 							.object({
+								name: z.string(),
 								provider: z.string(),
+								// TODO: discriminated union
+								src: z.string().optional(),
 							})
 							.strict(),
 					),

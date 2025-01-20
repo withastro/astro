@@ -5,7 +5,12 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
     experimental: {
         fonts: {
-            families: []
+            families: [
+                {
+                    name: "Roboto",
+                    provider: "google"
+                }
+            ]
         }
     }
 });

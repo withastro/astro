@@ -17,19 +17,25 @@ export interface ResolvedFontProvider {
 
 export type UnifontProvider = unifont.Provider;
 
-type LocalFontFamily = {
+interface FontFamilyAttributes {
+	name: string;
+	provider: string;
+}
+
+interface LocalFontFamily extends Omit<FontFamilyAttributes, 'provider'> {
 	provider: LocalProviderName;
 	// TODO: refine type
 	src: string;
-};
+}
 
-type StandardFontFamily<TProvider extends string> = {
+interface CommonFontFamily<TProvider extends string>
+	extends Omit<FontFamilyAttributes, 'provider'> {
 	provider: TProvider;
-};
+}
 
 export type FontFamily<TProvider extends string> = TProvider extends LocalProviderName
 	? LocalFontFamily
-	: StandardFontFamily<TProvider>;
+	: CommonFontFamily<TProvider>;
 
 export type LocalProviderName = typeof LOCAL_PROVIDER_NAME;
 export type GoogleProviderName = typeof GOOGLE_PROVIDER_NAME;

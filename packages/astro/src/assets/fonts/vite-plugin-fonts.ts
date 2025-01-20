@@ -2,16 +2,7 @@ import type { Plugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import { resolveProviders } from './providers.js';
 import * as unifont from 'unifont';
-
-/* TODO:
-
-CACHE
-- in dev, store in .astro/fonts
-- in build, check in node_modules/.astro/fonts. If it doesn't exist, check in dev and copy to build
-
-UNIFONT
-FONTAINE
-*/
+import type { FontFamily, FontProvider } from './types.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -22,24 +13,37 @@ export function fonts({ settings }: Options): Plugin | undefined {
 		return;
 	}
 
+	const providers: Array<FontProvider<any>> = settings.config.experimental.fonts.providers ?? [];
+	const families: Array<FontFamily<any>> = settings.config.experimental.fonts.families;
+
 	return {
 		name: 'astro:fonts',
 		async buildStart() {
 			const resolved = await resolveProviders({
 				settings,
-				providers: settings.config.experimental.fonts!.providers ?? [],
+				providers,
 			});
 
 			const instance = await unifont.createUnifont(
 				resolved.map((e) => e.provider(e.config)),
 				{
-					// TODO:
+					// TODO: cache
 					storage: undefined,
 				},
 			);
-			for (const family of settings.config.experimental.fonts!.families) {
-				const { fonts, fallbacks } = await instance.resolveFont(family.name, {}, [family.provider]);
+			for (const family of families) {
+				const { fonts: fontsData, fallbacks } = await instance.resolveFont(family.name, {}, [
+					family.provider,
+				]);
+
+				console.dir(fontsData, { depth: null });
+				// TODO: fontaine if needed
 			}
+		},
+		async configureServer(server) {
+			return () => {
+				// server.middlewares.use(() => {})
+			};
 		},
 	};
 }
