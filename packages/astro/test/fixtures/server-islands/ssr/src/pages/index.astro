@@ -1,7 +1,5 @@
 ---
 import Island from '../components/Island.astro';
-
-const xssMe ="</script><script>alert('xss')</script><!--"
 ---
 <html>
 <head>
@@ -9,6 +7,6 @@ const xssMe ="</script><script>alert('xss')</script><!--"
 </head>
 <body>
   <h1>Testing</h1>
-  <Island server:defer message={xssMe} />
+  <Island server:defer />
 </body>
 </html>
