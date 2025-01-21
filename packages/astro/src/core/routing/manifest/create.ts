@@ -718,12 +718,13 @@ export async function createRouteManifest(
 	}
 	if (dev || settings.buildOutput === 'server') {
 		injectImageEndpoint(settings, { routes }, dev ? 'dev' : 'build');
-		// Ideally we would only inject the server islands route if server islands are used in the project.
-		// Unfortunately, there is a "circular dependency": to know if server islands are used, we need to run
-		// the build but the build relies on the routes manifest.
-		// This situation also means we cannot update the buildOutput based on whether or not server islands
-		// are used in the project. If server islands are detected after the build but the buildOutput is
-		// static, we fail the build.
+	}
+
+	// If an adapter is added, we unconditionally inject the server islands route.
+	// Ideally we would only inject the server islands route if server islands are used in the project.
+	// Unfortunately, there is a "circular dependency": to know if server islands are used, we need to run
+	// the build but the build relies on the routes manifest.
+	if (dev || settings.config.adapter) {
 		injectServerIslandRoute(settings.config, { routes });
 	}
 	await runHookRoutesResolved({ routes, settings, logger });
