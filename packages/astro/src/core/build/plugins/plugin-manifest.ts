@@ -14,7 +14,9 @@ import type {
 } from '../../app/types.js';
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
+import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { serializeRouteData } from '../../routing/index.js';
+import { resolveSessionDriver } from '../../session.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
@@ -28,7 +30,7 @@ const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
 export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
 export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
 
-function vitePluginManifest(_options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+function vitePluginManifest(options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-build-manifest',
 		enforce: 'post',
@@ -51,11 +53,18 @@ function vitePluginManifest(_options: StaticBuildOptions, internals: BuildIntern
 					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
 					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
 				];
+
+				const resolvedDriver = await resolveSessionDriver(
+					options.settings.config.experimental?.session?.driver,
+				);
+
 				const contents = [
 					`const manifest = _deserializeManifest('${manifestReplace}');`,
+					`if (manifest.sessionConfig) manifest.sessionConfig.driverModule = ${resolvedDriver ? `() => import(${JSON.stringify(resolvedDriver)})` : 'null'};`,
 					`_privateSetManifestDontUseThis(manifest);`,
 				];
 				const exports = [`export { manifest }`];
+
 				return [...imports, ...contents, ...exports].join('\n');
 			}
 		},
@@ -172,6 +181,22 @@ function buildManifest(
 		}
 	};
 
+	// Default components follow a special flow during build. We prevent their processing earlier
+	// in the build. As a result, they are not present on `internals.pagesByKeys` and not serialized
+	// in the manifest file. But we need them in the manifest, so we handle them here
+	for (const route of opts.manifest.routes) {
+		if (!DEFAULT_COMPONENTS.find((component) => route.component === component)) {
+			continue;
+		}
+		routes.push({
+			file: '',
+			links: [],
+			scripts: [],
+			styles: [],
+			routeData: serializeRouteData(route, settings.config.trailingSlash),
+		});
+	}
+
 	for (const route of opts.manifest.routes) {
 		if (!route.prerender) continue;
 		if (!route.pathname) continue;
@@ -273,5 +298,6 @@ function buildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
+		sessionConfig: settings.config.experimental.session,
 	};
 }

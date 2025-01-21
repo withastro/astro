@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import type { TransformOptions } from '@astrojs/compiler';
-import { type ResolvedConfig, normalizePath, preprocessCSS } from 'vite';
+import { type ResolvedConfig, preprocessCSS } from 'vite';
 import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
+import { normalizePath } from '../viteUtils.js';
 import type { CompileCssResult } from './types.js';
 
 export type PartialCompileCssResult = Pick<CompileCssResult, 'isGlobal' | 'dependencies'>;

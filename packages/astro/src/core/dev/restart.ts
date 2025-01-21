@@ -2,6 +2,7 @@ import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import { globalContentLayer } from '../../content/content-layer.js';
+import { attachContentServerListeners } from '../../content/server-listeners.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { SETTINGS_FILE } from '../../preferences/constants.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -147,6 +148,8 @@ export async function createContainerWithAutomaticRestart({
 			// Restart success. Add new watches because this is a new container with a new Vite server
 			restart.container = result;
 			setupContainer();
+			await attachContentServerListeners(restart.container);
+
 			if (server) {
 				// Vite expects the resolved URLs to be available
 				server.resolvedUrls = result.viteServer.resolvedUrls;

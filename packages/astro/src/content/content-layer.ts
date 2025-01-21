@@ -16,10 +16,13 @@ import {
 import type { LoaderContext } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import {
+	type ContentObservable,
 	getEntryConfigByExtMap,
 	getEntryDataAndImages,
 	globalContentConfigObserver,
+	safeStringify,
 } from './utils.js';
+import { type WrappedWatcher, createWatcherWrapper } from './watcher.js';
 
 export interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -32,7 +35,7 @@ export class ContentLayer {
 	#logger: Logger;
 	#store: MutableDataStore;
 	#settings: AstroSettings;
-	#watcher?: FSWatcher;
+	#watcher?: WrappedWatcher;
 	#lastConfigDigest?: string;
 	#unsubscribe?: () => void;
 
@@ -47,7 +50,9 @@ export class ContentLayer {
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;
-		this.#watcher = watcher;
+		if (watcher) {
+			this.#watcher = createWatcherWrapper(watcher);
+		}
 		this.#queue = new PQueue({ concurrency: 1 });
 	}
 
@@ -77,6 +82,7 @@ export class ContentLayer {
 	dispose() {
 		this.#queue.clear();
 		this.#unsubscribe?.();
+		this.#watcher?.removeAllTrackedListeners();
 	}
 
 	async #getGenerateDigest() {
@@ -87,7 +93,7 @@ export class ContentLayer {
 		// It uses wasm, so we need to load it asynchronously.
 		const { h64ToString } = await xxhash();
 
-		this.#generateDigest = (data: Record<string, unknown> | string) => {
+		this.#generateDigest = (data: unknown) => {
 			const dataString = typeof data === 'string' ? data : JSON.stringify(data);
 			return h64ToString(dataString);
 		};
@@ -135,25 +141,66 @@ export class ContentLayer {
 	}
 
 	async #doSync(options: RefreshContentOptions) {
-		const contentConfig = globalContentConfigObserver.get();
+		let contentConfig = globalContentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
+
+		if (contentConfig?.status === 'loading') {
+			contentConfig = await Promise.race<ReturnType<ContentObservable['get']>>([
+				new Promise((resolve) => {
+					const unsub = globalContentConfigObserver.subscribe((ctx) => {
+						unsub();
+						resolve(ctx);
+					});
+				}),
+				new Promise((resolve) =>
+					setTimeout(
+						() =>
+							resolve({ status: 'error', error: new Error('Content config loading timed out') }),
+						5000,
+					),
+				),
+			]);
+		}
+
+		if (contentConfig?.status === 'error') {
+			logger.error(`Error loading content config. Skipping sync.\n${contentConfig.error.message}`);
+			return;
+		}
+
+		// It shows as loaded with no collections even if there's no config
 		if (contentConfig?.status !== 'loaded') {
-			logger.debug('Content config not loaded, skipping sync');
+			logger.error(`Content config not loaded, skipping sync. Status was ${contentConfig?.status}`);
 			return;
 		}
 
 		logger.info('Syncing content');
+		const {
+			vite: _vite,
+			integrations: _integrations,
+			adapter: _adapter,
+			...hashableConfig
+		} = this.#settings.config;
+
+		const astroConfigDigest = safeStringify(hashableConfig);
+
 		const { digest: currentConfigDigest } = contentConfig.config;
 		this.#lastConfigDigest = currentConfigDigest;
 
 		let shouldClear = false;
-		const previousConfigDigest = await this.#store.metaStore().get('config-digest');
+		const previousConfigDigest = await this.#store.metaStore().get('content-config-digest');
+		const previousAstroConfigDigest = await this.#store.metaStore().get('astro-config-digest');
 		const previousAstroVersion = await this.#store.metaStore().get('astro-version');
-		if (currentConfigDigest && previousConfigDigest !== currentConfigDigest) {
+
+		if (previousAstroConfigDigest && previousAstroConfigDigest !== astroConfigDigest) {
+			logger.info('Astro config changed');
+			shouldClear = true;
+		}
+
+		if (previousConfigDigest && previousConfigDigest !== currentConfigDigest) {
 			logger.info('Content config changed');
 			shouldClear = true;
 		}
-		if (process.env.ASTRO_VERSION && previousAstroVersion !== process.env.ASTRO_VERSION) {
+		if (previousAstroVersion && previousAstroVersion !== process.env.ASTRO_VERSION) {
 			logger.info('Astro version changed');
 			shouldClear = true;
 		}
@@ -165,8 +212,17 @@ export class ContentLayer {
 			await this.#store.metaStore().set('astro-version', process.env.ASTRO_VERSION);
 		}
 		if (currentConfigDigest) {
-			await this.#store.metaStore().set('config-digest', currentConfigDigest);
+			await this.#store.metaStore().set('content-config-digest', currentConfigDigest);
 		}
+		if (astroConfigDigest) {
+			await this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
+		}
+
+		if (!options?.loaders?.length) {
+			// Remove all listeners before syncing, as they will be re-added by the loaders, but not if this is a selective sync
+			this.#watcher?.removeAllTrackedListeners();
+		}
+
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
 				if (collection.type !== CONTENT_LAYER_TYPE) {
@@ -232,8 +288,7 @@ export class ContentLayer {
 		);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
-		const cacheFile = getDataStoreFile(this.#settings);
-		await this.#store.writeToDisk(cacheFile);
+		await this.#store.writeToDisk();
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeAssetImports(assetImportsFile);
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
@@ -333,8 +388,7 @@ export async function simpleLoader<TData extends { id: string }>(
  * During development, this is in the `.astro` directory so that the Vite watcher can see it.
  * In production, it's in the cache directory so that it's preserved between builds.
  */
-export function getDataStoreFile(settings: AstroSettings, isDev?: boolean) {
-	isDev ??= process?.env.NODE_ENV === 'development';
+export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
 	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }
 

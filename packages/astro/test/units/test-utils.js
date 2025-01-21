@@ -44,6 +44,7 @@ export async function createFixture(tree) {
 
 export function createRequestAndResponse(reqOptions = {}) {
 	const req = httpMocks.createRequest(reqOptions);
+	req.headers.host ||= 'localhost';
 
 	const res = httpMocks.createResponse({
 		eventEmitter: EventEmitter,
