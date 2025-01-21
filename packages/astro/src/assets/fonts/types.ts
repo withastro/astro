@@ -17,11 +17,12 @@ export interface ResolvedFontProvider {
 
 export type UnifontProvider = unifont.Provider;
 
-interface FontFamilyAttributes {
+interface FontFamilyAttributes extends Partial<unifont.ResolveFontOptions> {
 	name: string;
 	provider: string;
 }
 
+// TODO: make provider optional and default to google
 interface LocalFontFamily extends Omit<FontFamilyAttributes, 'provider'> {
 	provider: LocalProviderName;
 	// TODO: refine type

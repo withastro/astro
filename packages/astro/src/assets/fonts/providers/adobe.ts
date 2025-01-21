@@ -6,7 +6,7 @@ type Provider = typeof providers.adobe;
 export function adobe(config: Parameters<Provider>[0]) {
 	return defineFontProvider({
 		name: 'adobe',
-		entrypoint: 'astro/assets/fonts/providers/adobe.js',
+		entrypoint: 'astro/assets/fonts/providers/adobe',
 		config,
 	});
 }
