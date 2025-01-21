@@ -20,6 +20,8 @@ import type { AstroIntegration } from './integrations.js';
 import type { BuiltInProvider, FontFamily, FontProvider } from '../../assets/fonts/types.js';
 export type Locales = (string | { codes: string[]; path: string })[];
 
+export type { FontProvider };
+
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
 		? T[K]
