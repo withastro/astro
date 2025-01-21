@@ -9,7 +9,7 @@ export const GOOGLE_PROVIDER_NAME = 'google';
 export function google(config?: Parameters<Provider>[0]) {
 	return defineFontProvider({
 		name: GOOGLE_PROVIDER_NAME,
-		entrypoint: 'astro/assets/fonts/providers/google',
+		entrypoint: 'astro/assets/fonts/providers/google.js',
 		config,
 	});
 }

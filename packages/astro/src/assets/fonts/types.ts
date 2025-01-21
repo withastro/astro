@@ -5,7 +5,7 @@ import type * as unifont from 'unifont';
 
 export interface FontProvider<TName extends string> {
 	name: TName;
-	entrypoint: string;
+	entrypoint: string | URL;
 	config?: Record<string, any>;
 }
 

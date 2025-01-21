@@ -31,7 +31,7 @@ export async function resolveProviders({
 	const resolvedProviders: Array<ResolvedFontProvider> = [];
 
 	for (const { name, entrypoint, config } of providers) {
-		const id = resolveEntrypoint(settings, entrypoint);
+		const id = resolveEntrypoint(settings, entrypoint.toString());
 		const { provider } = await import(id);
 		resolvedProviders.push({ name, config, provider });
 	}
