@@ -14,6 +14,10 @@ export type ReactIntegrationOptions = Pick<
 	'include' | 'exclude' | 'babel'
 > & {
 	experimentalReactChildren?: boolean;
+	/**
+	 * Disable streaming support for React components in order to support libraries that are not compatible with streaming like Stitches.js
+	 */
+	experimentalDisableStreaming?: boolean;
 };
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
@@ -26,7 +30,10 @@ function getRenderer(reactConfig: ReactVersionConfig) {
 	};
 }
 
-function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
+function optionsPlugin(
+	experimentalReactChildren: boolean,
+	experimentalDisableStreaming: boolean
+): vite.Plugin {
 	const virtualModule = 'astro:react:opts';
 	const virtualModuleId = '\0' + virtualModule;
 	return {
@@ -40,7 +47,8 @@ function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
 			if (id === virtualModuleId) {
 				return {
 					code: `export default {
-						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)}
+						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)},
+						experimentalDisableStreaming: ${JSON.stringify(experimentalDisableStreaming)}
 					}`,
 				};
 			}
@@ -49,7 +57,7 @@ function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
 }
 
 function getViteConfiguration(
-	{ include, exclude, babel, experimentalReactChildren }: ReactIntegrationOptions = {},
+	{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming }: ReactIntegrationOptions = {},
 	reactConfig: ReactVersionConfig,
 ) {
 	return {
@@ -63,7 +71,10 @@ function getViteConfiguration(
 			],
 			exclude: [reactConfig.server],
 		},
-		plugins: [react({ include, exclude, babel }), optionsPlugin(!!experimentalReactChildren)],
+		plugins: [
+			react({ include, exclude, babel }),
+			optionsPlugin(!!experimentalReactChildren, !!experimentalDisableStreaming),
+		],
 		resolve: {
 			dedupe: ['react', 'react-dom', 'react-dom/server'],
 		},
@@ -86,6 +97,7 @@ export default function ({
 	exclude,
 	babel,
 	experimentalReactChildren,
+	experimentalDisableStreaming,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if (isUnsupportedVersion(majorVersion)) {
@@ -100,7 +112,7 @@ export default function ({
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
 					vite: getViteConfiguration(
-						{ include, exclude, babel, experimentalReactChildren },
+						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming },
 						versionConfig,
 					),
 				});
