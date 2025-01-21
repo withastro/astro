@@ -3,6 +3,7 @@ import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Non-HTML Pages', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
 	before(async () => {

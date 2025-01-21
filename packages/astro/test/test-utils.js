@@ -22,8 +22,12 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @typedef {import('../src/core/dev/dev').DevServer} DevServer
  * @typedef {import('../src/types/public/config.js').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
  * @typedef {import('../src/types/public/config.js').AstroConfig} AstroConfig
+ * @typedef {import('../src/types/public/config.js').RouteData} RouteData
+ * @typedef {import('../src/types/public/config.js').RouteOptions} RouteOptions
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App
+ * @typedef {import('../src/core/app/types').SerializedSSRManifest} SerializedSSRManifest
+ * @typedef {import('../src/types/public/integrations').IntegrationResolvedRoute} IntegrationResolvedRoute
  * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
  * @typedef {import('../src/cli/check/index').CheckPayload} CheckPayload
  * @typedef {import('http').IncomingMessage} NodeRequest
