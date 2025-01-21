@@ -608,6 +608,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * }
 		 * ```
 		 *
+		 * This option is ignored when an astro template resolves to a non-html file, e.g. if middleware is used to override the filename of the template by providing a Content-Disposition header.
 		 *
 		 *
 		 * #### Effect on Astro.url

@@ -48,7 +48,7 @@ import type {
 	StaticBuildOptions,
 	StylesheetAsset,
 } from './types.js';
-import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { getFileDescriptorFromResponse, getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
@@ -561,8 +561,10 @@ async function generatePath(
 	// We encode the path because some paths will received encoded characters, e.g. /[page] VS /%5Bpage%5D.
 	// Node.js decodes the paths, so to avoid a clash between paths, do encode paths again, so we create the correct files and folders requested by the user.
 	const encodedPath = encodeURI(pathname);
-	const outFolder = getOutFolder(pipeline.settings, encodedPath, route);
-	const outFile = getOutFile(config, outFolder, encodedPath, route);
+	const fileDescriptor = getFileDescriptorFromResponse(response);
+	const outFolder = getOutFolder(pipeline.settings, encodedPath, route, fileDescriptor);
+	const outFile = getOutFile(config, outFolder, encodedPath, route, fileDescriptor);
+
 	if (route.distURL) {
 		route.distURL.push(outFile);
 	} else {
@@ -570,7 +572,7 @@ async function generatePath(
 	}
 
 	await fs.promises.mkdir(outFolder, { recursive: true });
-	await fs.promises.writeFile(outFile, body);
+	await fs.promises.writeFile(outFile, body, fileDescriptor.encoding);
 
 	return true;
 }

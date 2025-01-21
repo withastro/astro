@@ -4,6 +4,7 @@ import { appendForwardSlash } from '../../core/path.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
+import type { FileDescriptor } from './util.js';
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 const FALLBACK_OUT_DIR_NAME = './.astro/';
@@ -20,6 +21,7 @@ export function getOutFolder(
 	astroSettings: AstroSettings,
 	pathname: string,
 	routeData: RouteData,
+	fileDescriptor?: FileDescriptor,
 ): URL {
 	const outRoot = getOutRoot(astroSettings);
 	const routeType = routeData.type;
@@ -31,6 +33,15 @@ export function getOutFolder(
 		case 'fallback':
 		case 'page':
 		case 'redirect':
+			if (fileDescriptor?.isHtml === false) {
+				if (pathname === '' || routeData.isIndex) {
+					throw new Error(`Root must be html`);
+				}
+				const dirname = npath.dirname(pathname);
+				const result = new URL('.' + appendForwardSlash(dirname), outRoot);
+
+				return result;
+			}
 			switch (astroSettings.config.build.format) {
 				case 'directory': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
@@ -62,6 +73,7 @@ export function getOutFile(
 	outFolder: URL,
 	pathname: string,
 	routeData: RouteData,
+	fileDescriptor: FileDescriptor | null = null,
 ): URL {
 	const routeType = routeData.type;
 	switch (routeType) {
@@ -70,6 +82,17 @@ export function getOutFile(
 		case 'page':
 		case 'fallback':
 		case 'redirect':
+			if (fileDescriptor?.isHtml === false) {
+				let baseName = fileDescriptor.filename ?? npath.basename(pathname);
+				// If there is no base name this is the root route.
+				// If this is an index route, the name should be `index.html`.
+				if (!baseName || routeData.isIndex) {
+					throw new Error(`Root must be html`);
+				}
+				const result = new URL(`./${baseName}`, outFolder);
+
+				return result;
+			}
 			switch (astroConfig.build.format) {
 				case 'directory': {
 					if (STATUS_CODE_PAGES.has(pathname)) {

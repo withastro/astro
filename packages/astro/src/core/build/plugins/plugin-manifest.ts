@@ -201,8 +201,14 @@ function buildManifest(
 		if (!route.prerender) continue;
 		if (!route.pathname) continue;
 
-		const outFolder = getOutFolder(opts.settings, route.pathname, route);
-		const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route);
+		const outFile = route.distURL
+			? route.distURL
+			: getOutFile(
+					opts.settings.config,
+					getOutFolder(opts.settings, route.pathname, route),
+					route.pathname,
+					route,
+				);
 		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
 		routes.push({
 			file,

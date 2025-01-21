@@ -508,6 +508,12 @@ importers:
       common-ancestor-path:
         specifier: ^1.0.1
         version: 1.0.1
+      content-disposition:
+        specifier: ^0.5.4
+        version: 0.5.4
+      content-type:
+        specifier: ^1.0.5
+        version: 1.0.5
       cookie:
         specifier: ^0.7.2
         version: 0.7.2
@@ -660,6 +666,12 @@ importers:
       '@types/common-ancestor-path':
         specifier: ^1.0.2
         version: 1.0.2
+      '@types/content-disposition':
+        specifier: ^0.5.8
+        version: 0.5.8
+      '@types/content-type':
+        specifier: ^1.1.8
+        version: 1.1.8
       '@types/cssesc':
         specifier: ^3.0.2
         version: 3.0.2
@@ -7037,6 +7049,12 @@ packages:
   '@types/common-ancestor-path@1.0.2':
     resolution: {integrity: sha512-8llyULydTb7nM9yfiW78n6id3cet+qnATPV3R44yIywxgBaa8QXFSM9QTMf4OH64QOB45BlgZ3/oL4mmFLztQw==}
 
+  '@types/content-disposition@0.5.8':
+    resolution: {integrity: sha512-QVSSvno3dE0MgO76pJhmv4Qyi/j0Yk9pBp0Y7TJ2Tlj+KCgJWY6qX7nnxCOLkZ3VYRSIk1WTxCvwUSdx6CCLdg==}
+
+  '@types/content-type@1.1.8':
+    resolution: {integrity: sha512-1tBhmVUeso3+ahfyaKluXe38p+94lovUZdoVfQ3OnJo9uJC42JT7CBoN3k9HYhAae+GwiBYmHu+N9FZhOG+2Pg==}
+
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
 
@@ -7740,6 +7758,10 @@ packages:
 
   content-disposition@0.5.4:
     resolution: {integrity: sha512-FveZTNuGw04cxlAiWbzi6zTAL/lhehaWbTtgluJh4/E95DqMwTmha3KZN1aAWA8cFIhHzMZUvLevkw5Rqk+tSQ==}
+    engines: {node: '>= 0.6'}
+
+  content-type@1.0.5:
+    resolution: {integrity: sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA==}
     engines: {node: '>= 0.6'}
 
   convert-source-map@2.0.0:
@@ -12669,6 +12691,10 @@ snapshots:
 
   '@types/common-ancestor-path@1.0.2': {}
 
+  '@types/content-disposition@0.5.8': {}
+
+  '@types/content-type@1.1.8': {}
+
   '@types/cookie@0.6.0': {}
 
   '@types/cssesc@3.0.2': {}
@@ -13518,6 +13544,8 @@ snapshots:
   content-disposition@0.5.4:
     dependencies:
       safe-buffer: 5.2.1
+
+  content-type@1.0.5: {}
 
   convert-source-map@2.0.0: {}
 
