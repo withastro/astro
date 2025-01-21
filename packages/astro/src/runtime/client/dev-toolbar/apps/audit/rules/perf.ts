@@ -35,8 +35,14 @@ export const perf: AuditRuleWithSelector[] = [
 			'img:not([loading]), img[loading="eager"], iframe:not([loading]), iframe[loading="eager"]',
 		match(element) {
 			const htmlElement = element as HTMLImageElement | HTMLIFrameElement;
+
 			// Ignore elements that are above the fold, they should be loaded eagerly
-			const elementYPosition = htmlElement.getBoundingClientRect().y + window.scrollY;
+			let currentElement = element as HTMLElement;
+			let elementYPosition = 0;
+			while (currentElement) {
+				elementYPosition += currentElement.offsetTop;
+				currentElement = currentElement.offsetParent as HTMLElement;
+			}
 			if (elementYPosition < window.innerHeight) return false;
 
 			// Ignore elements using `data:` URI, the `loading` attribute doesn't do anything for these
@@ -55,7 +61,12 @@ export const perf: AuditRuleWithSelector[] = [
 			const htmlElement = element as HTMLImageElement | HTMLIFrameElement;
 
 			// Ignore elements that are below the fold, they should be loaded lazily
-			const elementYPosition = htmlElement.getBoundingClientRect().y + window.scrollY;
+			let currentElement = element as HTMLElement;
+			let elementYPosition = 0;
+			while (currentElement) {
+				elementYPosition += currentElement.offsetTop;
+				currentElement = currentElement.offsetParent as HTMLElement;
+			}
 			if (elementYPosition > window.innerHeight) return false;
 
 			// Ignore elements using `data:` URI, the `loading` attribute doesn't do anything for these

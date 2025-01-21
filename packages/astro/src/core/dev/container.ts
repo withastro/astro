@@ -108,21 +108,21 @@ export async function createContainer({
 			ssrManifest: devSSRManifest,
 		},
 	);
+	const viteServer = await vite.createServer(viteConfig);
 
 	await syncInternal({
 		settings,
 		mode,
 		logger,
 		skip: {
-			content: true,
+			content: !isRestart,
 			cleanup: true,
 		},
 		force: inlineConfig?.force,
 		manifest,
 		command: 'dev',
+		watcher: viteServer.watcher,
 	});
-
-	const viteServer = await vite.createServer(viteConfig);
 
 	const container: Container = {
 		inlineConfig: inlineConfig ?? {},

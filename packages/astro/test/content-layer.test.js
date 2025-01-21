@@ -4,6 +4,7 @@ import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
+import { setTimeout } from 'node:timers/promises';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 import { Logger } from '../dist/core/logger/core.js';
@@ -313,6 +314,24 @@ describe('Content Layer', () => {
 			assert.equal(newJson.increment.data.lastValue, 1);
 			await fixture.resetAllFiles();
 		});
+
+		it('can handle references being renamed after a build', async () => {
+			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
+			assert.deepEqual(newJson.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
+			await fixture.editFile('src/data/cats.json', (prev) => {
+				return prev.replace('tabby', 'tabby-cat');
+			});
+			await fixture.editFile('src/content/space/columbia-copy.md', (prev) => {
+				return prev.replace('cat: tabby', 'cat: tabby-cat');
+			});
+			await fixture.build();
+			newJson = devalue.parse(await fixture.readFile('/collections.json'));
+			assert.deepEqual(newJson.entryWithReference.data.cat, {
+				collection: 'cats',
+				id: 'tabby-cat',
+			});
+			await fixture.resetAllFiles();
+		});
 	});
 
 	describe('Dev', () => {
@@ -323,7 +342,7 @@ describe('Content Layer', () => {
 			devServer = await fixture.startDevServer({
 				force: true,
 				logger: new Logger({
-					level: 'warn',
+					level: 'info',
 					dest: new Writable({
 						objectMode: true,
 						write(event, _, callback) {
@@ -523,6 +542,36 @@ describe('Content Layer', () => {
 			} finally {
 				await fs.rename(newPath, oldPath);
 			}
+		});
+
+		it('still updates collection when data file is changed after server has restarted via config change', async () => {
+			await fixture.editFile('astro.config.mjs', (prev) =>
+				prev.replace("'Astro content layer'", "'Astro content layer edited'"),
+			);
+			logs.length = 0;
+
+			// Give time for the server to restart
+			await setTimeout(5000);
+
+			const rawJsonResponse = await fixture.fetch('/collections.json');
+			const initialJson = devalue.parse(await rawJsonResponse.text());
+			assert.equal(initialJson.jsonLoader[0].data.temperament.includes('Bouncy'), false);
+
+			await fixture.editFile('/src/data/dogs.json', (prev) => {
+				const data = JSON.parse(prev);
+				data[0].temperament.push('Bouncy');
+				return JSON.stringify(data, null, 2);
+			});
+
+			await fixture.onNextDataStoreChange();
+			const updatedJsonResponse = await fixture.fetch('/collections.json');
+			const updated = devalue.parse(await updatedJsonResponse.text());
+			assert.ok(updated.jsonLoader[0].data.temperament.includes('Bouncy'));
+			logs.length = 0;
+
+			await fixture.resetAllFiles();
+			// Give time for the server to restart again
+			await setTimeout(5000);
 		});
 	});
 });
