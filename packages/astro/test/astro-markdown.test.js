@@ -24,6 +24,14 @@ describe('Astro Markdown', () => {
 		);
 	});
 
+	it('Allows ?raw imports', async () => {
+		const raw = await fixture.readFile('/raw-content.txt');
+		assert.equal(
+			fixLineEndings(raw).trim(),
+			`# Basic page\n\nLets make sure raw and compiled content look right!`,
+		);
+	});
+
 	it('Exposes compiled HTML content', async () => {
 		const { compiled } = JSON.parse(await fixture.readFile('/raw-content.json'));
 
