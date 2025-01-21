@@ -21,13 +21,11 @@ declare namespace astroHTML.JSX {
 		children?: Children;
 	}
 
-	type AstroComponentDirectives = import(
-		'./dist/types/public/elements.js',
-	).AstroComponentDirectives;
+	// biome-ignore format: bug
+	type AstroComponentDirectives = import('./dist/types/public/elements.js').AstroComponentDirectives;
 	type AstroBuiltinAttributes = import('./dist/types/public/elements.js').AstroBuiltinAttributes;
-	type AstroDefineVarsAttribute = import(
-		'./dist/types/public/elements.js',
-	).AstroDefineVarsAttribute;
+	// biome-ignore format: bug
+	type AstroDefineVarsAttribute = import('./dist/types/public/elements.js').AstroDefineVarsAttribute;
 	type AstroScriptAttributes = import('./dist/types/public/elements.js').AstroScriptAttributes &
 		AstroDefineVarsAttribute;
 	type AstroStyleAttributes = import('./dist/types/public/elements.js').AstroStyleAttributes &
