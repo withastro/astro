@@ -69,9 +69,6 @@ function getViteConfiguration(
 			react({ include, exclude, babel }),
 			optionsPlugin(!!experimentalReactChildren, !!experimentalDisableStreaming),
 		],
-		resolve: {
-			dedupe: ['react', 'react-dom', 'react-dom/server'],
-		},
 		ssr: {
 			noExternal: [
 				// These are all needed to get mui to work.
