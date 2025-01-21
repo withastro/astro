@@ -97,6 +97,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		contentIntellisense: false,
 		responsiveImages: false,
 		svg: false,
+		serializeManifest: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -589,6 +590,10 @@ export const AstroConfigSchema = z.object({
 					}
 					return svgConfig;
 				}),
+			serializeManifest: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.serializeManifest),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
