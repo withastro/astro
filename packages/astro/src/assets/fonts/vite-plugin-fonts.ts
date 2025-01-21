@@ -23,6 +23,12 @@ export function fonts({ settings }: Options): Plugin | undefined {
 	const providers: Array<FontProvider<string>> = settings.config.experimental.fonts.providers ?? [];
 	const families: Array<FontFamily<string>> = settings.config.experimental.fonts.families;
 
+	let resolvedMap: Map<
+		string,
+		{ data: Array<unifont.FontFaceData>; fallbacks?: Array<string> }
+	> | null = null;
+	const tempMap = new Map<string, string>()
+
 	return {
 		name: 'astro:fonts',
 		async buildStart() {
@@ -38,6 +44,8 @@ export function fonts({ settings }: Options): Plugin | undefined {
 					storage: undefined,
 				},
 			);
+			resolvedMap = new Map();
+			let i = 0;
 			for (const family of families) {
 				const resolvedOptions: unifont.ResolveFontOptions = {
 					weights: family.weights ?? DEFAULTS.weights,
@@ -46,20 +54,43 @@ export function fonts({ settings }: Options): Plugin | undefined {
 					fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
 				};
 				// TODO: https://github.com/unjs/unifont/issues/108
-				const {
-					fonts: fontsData,
-					fallbacks,
-					provider,
-				} = await resolveFont(family.name, resolvedOptions, [family.provider]);
+				const { fonts: fontsData, fallbacks } = await resolveFont(family.name, resolvedOptions, [
+					family.provider,
+				]);
 
+				// TODO: use fontaine if needed
+				// TODO: generate css
+				resolvedMap.set(family.name, { data: fontsData, fallbacks });
+				const sources: Array<string> = fontsData
+					.map((a) => a.src.map((b) => ('name' in b ? b.name : b.url)))
+					.flat();
+				for (const src of sources) {
+					tempMap.set(`${i++}`, src)
+				}
 				// console.dir(fontsData);
-				// TODO: fontaine if needed
 			}
 		},
+		buildEnd() {
+			resolvedMap = null;
+		},
 		async configureServer(server) {
-			return () => {
-				// server.middlewares.use(() => {})
-			};
+			const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
+			// TODO: take base into account
+			server.middlewares.use('/_fonts', async (req, res, next) => {
+				if (!req.url) {
+					return next();
+				}
+				const key = req.url.slice(1);
+				const item = tempMap.get(key);
+				if (!item) {
+					return next();
+				}
+				const data = await fetch(item)
+					.then((r) => r.arrayBuffer())
+					.then((r) => Buffer.from(r));
+				res.setHeader('Cache-Control', `max-age=${ONE_YEAR_IN_SECONDS}`);
+				res.end(data);
+			});
 		},
 	};
 }
