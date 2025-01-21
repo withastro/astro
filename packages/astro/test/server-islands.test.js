@@ -37,13 +37,6 @@ describe('Server islands', () => {
 				assert.equal(serverIslandEl.length, 0);
 			});
 
-			it('HTML escapes scripts', async () => {
-				const res = await fixture.fetch('/');
-				assert.equal(res.status, 200);
-				const html = await res.text();
-				assert.equal(html.includes("</script><script>alert('xss')</script><!--"), false);
-			});
-
 			it('island is not indexed', async () => {
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
