@@ -1794,18 +1794,6 @@ export const CantUseManifestModule = {
 		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeManifest\` in your \`astro.config.mjs\` `,
 } satisfies ErrorData;
 
-/**
- * @docs
- * @description
- * Cannot the module without enabling the experimental feature
- */
-export const ForbiddenManifestModule = {
-	name: 'ForbiddenManifestModule',
-	title: 'Forbidden use of module on the client side.',
-	message:
-		'The module `astro:manifest/server` cannot be used for client side scripts. Use `astro:manifest/client` instead.',
-} satisfies ErrorData;
-
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
 

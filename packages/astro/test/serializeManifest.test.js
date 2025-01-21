@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { ForbiddenManifestModule } from '../dist/core/errors/errors-data.js';
+import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
 import { AstroError } from '../dist/core/errors/index.js';
 import { loadFixture } from './test-utils.js';
 
@@ -94,7 +94,7 @@ describe('astro:manifest/server', () => {
 		it('should return an error when using inside a client script', async () => {
 			const error = await fixture.build().catch((err) => err);
 			assert.equal(error instanceof AstroError, true);
-			assert.equal(error.name, ForbiddenManifestModule.name);
+			assert.equal(error.name, ServerOnlyModule.name);
 		});
 	});
 
