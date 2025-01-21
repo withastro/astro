@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { RouteData } from '../types/public/internal.js';
+import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { removeQueryString, removeTrailingForwardSlash, slash } from './path.js';
 
@@ -18,6 +19,9 @@ export function isURL(value: unknown): value is URL {
 }
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
+	if (hasSpecialQueries(fileId)) {
+		return false;
+	}
 	const id = removeQueryString(fileId);
 	const _suffix = option?.suffix ?? '';
 	for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {

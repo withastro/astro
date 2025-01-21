@@ -635,7 +635,7 @@ export const AstroConfigSchema = z.object({
 						if (!providersNames.includes(family.provider)) {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
-								message: `Invalid provider "${family.provider}"`,
+								message: `Invalid provider "${family.provider}". Please use of the following: ${providersNames.map((name) => `"${name}"`).join(', ')}`,
 							});
 						}
 					}

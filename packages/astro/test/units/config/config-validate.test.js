@@ -480,5 +480,20 @@ describe('Config Validation', () => {
 				true,
 			);
 		});
+
+		it('Should not allow using non registed providers', async () => {
+			const configError = await validateConfig(
+				{
+					experimental: {
+						fonts: {
+							families: [{ provider: 'custom' }],
+						},
+					},
+				},
+				process.cwd(),
+			).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(configError.errors[0].message.includes('Invalid provider "custom"'), true);
+		});
 	});
 });

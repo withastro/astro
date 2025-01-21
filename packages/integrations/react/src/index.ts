@@ -59,7 +59,6 @@ function getViteConfiguration(
 		},
 		plugins: [react({ include, exclude, babel }), optionsPlugin(!!experimentalReactChildren)],
 		ssr: {
-			external: reactConfig.externals,
 			noExternal: [
 				// These are all needed to get mui to work.
 				'@mui/material',

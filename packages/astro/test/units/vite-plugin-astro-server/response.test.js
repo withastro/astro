@@ -74,7 +74,6 @@ describe('endpoints', () => {
 		await done;
 		const headers = res.getHeaders();
 		assert.deepEqual(headers, {
-			'access-control-allow-origin': '*',
 			'x-single': 'single',
 			'x-triple': 'one, two, three',
 			'set-cookie': ['hello', 'world'],
