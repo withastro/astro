@@ -9,16 +9,10 @@ import type {
 	ServerConfigSerialized,
 } from '../types/public/index.js';
 
-const VIRTUAL_MODULES_IDS = {
-	client: 'astro:manifest/client',
-	server: 'astro:manifest/server',
-};
-
-const VIRTUAL_MODULES_IDS_SET = new Set(Object.values(VIRTUAL_MODULES_IDS));
-
-function resolveVirtualModuleId<T extends string>(id: T): `\0${T}` {
-	return `\0${id}`;
-}
+const VIRTUAL_SERVER_ID = 'astro:manifest/server'
+const RESOLVED_VIRTUAL_SERVER_ID = '\0' + VIRTUAL_SERVER_ID
+const VIRTUAL_CLIENT_ID = 'astro:manifest/client'
+const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID
 
 export default function virtualModulePlugin({
 	settings,
