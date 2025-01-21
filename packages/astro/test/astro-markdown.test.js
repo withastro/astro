@@ -30,7 +30,7 @@ describe('Astro Markdown', () => {
 			fixLineEndings(rawImport).trim(),
 			`# Basic page\n\nLets make sure raw and compiled content look right!`,
 		);
-		assert.ok(url.startsWith("data:text/markdown;base64,"));
+		assert.ok(url.startsWith('data:text/markdown;base64,'));
 	});
 
 	it('Exposes compiled HTML content', async () => {
