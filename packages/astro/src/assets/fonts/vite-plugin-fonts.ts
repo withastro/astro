@@ -23,6 +23,11 @@ export function fonts({ settings }: Options): Plugin | undefined {
 	const providers: Array<FontProvider<string>> = settings.config.experimental.fonts.providers ?? [];
 	const families: Array<FontFamily<string>> = settings.config.experimental.fonts.families;
 
+	// TODO: better structure (array)
+	// family name
+	// css
+	// css with fallback (optional), to be used if no preload
+
 	let resolvedMap: Map<
 		string,
 		{ data: Array<unifont.FontFaceData>; fallbacks?: Array<string> }
