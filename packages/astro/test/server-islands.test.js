@@ -69,7 +69,7 @@ describe('Server islands', () => {
 				assert.equal(works, 'true', 'able to set header from server island');
 			});
 			it('omits empty props from the query string', async () => {
-				const res = await fixture.fetch('/');
+				const res = await fixture.fetch('/empty-props');
 				assert.equal(res.status, 200);
 				const html = await res.text();
 				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
@@ -142,7 +142,7 @@ describe('Server islands', () => {
 			});
 			it('omits empty props from the query string', async () => {
 				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/');
+				const request = new Request('http://example.com/empty-props');
 				const response = await app.render(request);
 				assert.equal(response.status, 200);
 				const html = await response.text();
