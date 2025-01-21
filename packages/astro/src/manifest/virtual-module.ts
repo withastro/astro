@@ -84,23 +84,15 @@ function serializeClientConfig(config: AstroConfig): string {
 
 function serializeServerConfig(config: AstroConfig): string {
 	const serverConfig: ServerConfigSerialized = {
-		base: config.base,
-		i18n: config.i18n,
 		build: {
 			client: config.build.client,
 			server: config.build.server,
-			format: config.build.format,
-			redirects: config.build.redirects,
 		},
-		trailingSlash: config.trailingSlash,
-		compressHTML: config.compressHTML,
-		site: config.site,
 		cacheDir: config.cacheDir,
 		outDir: config.outDir,
 		publicDir: config.publicDir,
 		srcDir: config.srcDir,
 		root: config.root,
-		legacy: config.legacy,
 	};
 	const output = [];
 	for (const [key, value] of Object.entries(serverConfig)) {

@@ -2,10 +2,7 @@ import type { AstroConfig } from './config.js';
 
 export type SerializedClientBuild = Pick<AstroConfig['build'], 'format' | 'redirects'>;
 
-export type SerializedServerBuild = Pick<
-	AstroConfig['build'],
-	'format' | 'client' | 'server' | 'redirects'
->;
+export type SerializedServerBuild = Pick<AstroConfig['build'], 'client' | 'server'>;
 
 export type ClientConfigSerialized = Pick<
 	AstroConfig,
@@ -14,7 +11,9 @@ export type ClientConfigSerialized = Pick<
 	build: SerializedClientBuild;
 };
 
-export type ServerConfigSerialized = ClientConfigSerialized &
-	Pick<AstroConfig, 'cacheDir' | 'outDir' | 'publicDir' | 'srcDir' | 'root'> & {
-		build: SerializedServerBuild;
-	};
+export type ServerConfigSerialized = Pick<
+	AstroConfig,
+	'cacheDir' | 'outDir' | 'publicDir' | 'srcDir' | 'root'
+> & {
+	build: SerializedServerBuild;
+};
