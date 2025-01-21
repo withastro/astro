@@ -7,7 +7,7 @@ import { HTMLString, markHTMLString } from '../escape.js';
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
-	/^(?:allowfullscreen|async|autofocus|autoplay|checked|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|inert|loop|nomodule|novalidate|open|playsinline|popover|readonly|required|reversed|scoped|seamless|selected|itemscope)$/i;
+	/^(?:allowfullscreen|async|autofocus|autoplay|checked|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|inert|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|selected|itemscope)$/i;
 
 const AMPERSAND_REGEX = /&/g;
 const DOUBLE_QUOTE_REGEX = /"/g;
@@ -112,6 +112,11 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	// Other attributes with an empty string value can omit rendering the value
 	if (value === '') {
 		return markHTMLString(` ${key}`);
+	}
+
+	// Popover seems to be boolean, but it can actually have the value "auto" or "manual"
+	if (key === 'popover' && typeof value === 'boolean') {
+		return markHTMLString(value ? ` popover` : '');
 	}
 
 	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
