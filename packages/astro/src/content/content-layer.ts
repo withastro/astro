@@ -2,6 +2,7 @@ import { promises as fs, existsSync } from 'node:fs';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
+import type { z } from 'zod';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -23,7 +24,6 @@ import {
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
-import type { z } from 'zod';
 import { type WrappedWatcher, createWatcherWrapper } from './watcher.js';
 
 export interface ContentLayerOptions {
@@ -353,17 +353,15 @@ export async function simpleLoader<TData extends { id: string }>(
 
 		// Due to this being a union, zod will always throw an "Expected array, received object" error along with the other errors.
 		// This error is in the second position if the data is an array, and in the first position if the data is an object.
-		const parseIssue = Array.isArray(unsafeData) 
-			? issue.unionErrors[0] 
-			: issue.unionErrors[1];
+		const parseIssue = Array.isArray(unsafeData) ? issue.unionErrors[0] : issue.unionErrors[1];
 
 		const error = parseIssue.errors[0];
 		const firstPathItem = error.path[0];
 
-		const entry = Array.isArray(unsafeData) 
-			? unsafeData[firstPathItem as number] 
+		const entry = Array.isArray(unsafeData)
+			? unsafeData[firstPathItem as number]
 			: unsafeData[firstPathItem as string];
-		
+
 		throw new AstroError({
 			...AstroErrorData.ContentLoaderReturnsInvalidId,
 			message: AstroErrorData.ContentLoaderReturnsInvalidId.message(context.collection, entry),

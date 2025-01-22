@@ -38,22 +38,26 @@ export type ContentLookupMap = {
 
 const entryTypeSchema = z
 	.object({
-		id: z
-			.string({
-				invalid_type_error: 'Content entry `id` must be a string',
-				// Default to empty string so we can validate properly in the loader
-			}),
-	}).passthrough();
+		id: z.string({
+			invalid_type_error: 'Content entry `id` must be a string',
+			// Default to empty string so we can validate properly in the loader
+		}),
+	})
+	.passthrough();
 
 export const loaderReturnSchema = z.union([
 	z.array(entryTypeSchema),
 	z.record(
-		z.string(), 
-		z.object({ 
-			id: z.string({ 
-				invalid_type_error: 'Content entry `id` must be a string' 
-			}).optional() 
-		}).passthrough()
+		z.string(),
+		z
+			.object({
+				id: z
+					.string({
+						invalid_type_error: 'Content entry `id` must be a string',
+					})
+					.optional(),
+			})
+			.passthrough(),
 	),
 ]);
 

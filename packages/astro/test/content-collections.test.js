@@ -311,7 +311,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			assert.match(error, /returned an entry with an invalid `id`/); 
+			assert.match(error, /returned an entry with an invalid `id`/);
 		});
 	});
 
