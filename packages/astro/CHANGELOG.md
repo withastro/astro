@@ -1,5 +1,17 @@
 # astro
 
+## 5.1.9
+
+### Patch Changes
+
+- [#12986](https://github.com/withastro/astro/pull/12986) [`8911bda`](https://github.com/withastro/astro/commit/8911bdacabb7fffb82bb3b3628467731ea233187) Thanks [@wetheredge](https://github.com/wetheredge)! - Updates types and dev toolbar for ARIA 1.2 attributes and roles
+
+- [#12892](https://github.com/withastro/astro/pull/12892) [`8f520f1`](https://github.com/withastro/astro/commit/8f520f1cc67db51feb966c710e72490a05b88954) Thanks [@louisescher](https://github.com/louisescher)! - Adds a more descriptive error when a content collection entry has an invalid ID.
+
+- [#13031](https://github.com/withastro/astro/pull/13031) [`f576519`](https://github.com/withastro/astro/commit/f5765196e9cd5c582da04ae3bceb4ee1d62b7eae) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the server islands encoding logic to only escape the script end tag open delimiter and opening HTML comment syntax
+
+- [#13026](https://github.com/withastro/astro/pull/13026) [`1d272f6`](https://github.com/withastro/astro/commit/1d272f6a5a3af16ad2ab9af41b7193ce67964b69) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a regression that prevented the import of Markdown files as raw text or URLs.
+
 ## 5.1.8
 
 ### Patch Changes
