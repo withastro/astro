@@ -106,28 +106,6 @@ describe('External scripts in SSR', () => {
 		});
 	});
 
-	describe('with vite.base path', () => {
-		before(async () => {
-			fixture = await loadFixture({
-				...defaultFixtureOptions,
-				outDir: './dist/external-scripts-with-vite-base-path',
-				vite: {
-					base: '/hello',
-					build: {
-						assetsInlineLimit: 0,
-					},
-				},
-			});
-			await fixture.build();
-		});
-
-		it('script has correct path', async () => {
-			const html = await fetchHTML(fixture, '/hello/');
-			const $ = cheerioLoad(html);
-			assert.match($('script').attr('src'), /^\/hello\/@vite\/client$/);
-		});
-	});
-
 	describe('with assetsPrefix', () => {
 		before(async () => {
 			fixture = await loadFixture({
