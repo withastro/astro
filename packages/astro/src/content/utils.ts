@@ -26,8 +26,9 @@ import {
 } from './consts.js';
 import { glob } from './loaders/glob.js';
 import { createImage } from './runtime-assets.js';
+
 /**
- * Amap from a collection + slug to the local file path.
+ * A map from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
  * @see `templates/content/module.mjs`
  */
@@ -41,10 +42,20 @@ const entryTypeSchema = z
 			.string({
 				invalid_type_error: 'Content entry `id` must be a string',
 				// Default to empty string so we can validate properly in the loader
-			})
-			.catch(''),
-	})
-	.catchall(z.unknown());
+			}),
+	}).passthrough();
+
+export const loaderReturnSchema = z.union([
+	z.array(entryTypeSchema),
+	z.record(
+		z.string(), 
+		z.object({ 
+			id: z.string({ 
+				invalid_type_error: 'Content entry `id` must be a string' 
+			}).optional() 
+		}).passthrough()
+	),
+]);
 
 const collectionConfigParser = z.union([
 	z.object({
@@ -59,39 +70,7 @@ const collectionConfigParser = z.union([
 		type: z.literal(CONTENT_LAYER_TYPE),
 		schema: z.any().optional(),
 		loader: z.union([
-			z.function().returns(
-				z.union([
-					z.array(entryTypeSchema),
-					z.promise(z.array(entryTypeSchema)),
-					z.record(
-						z.string(),
-						z
-							.object({
-								id: z
-									.string({
-										invalid_type_error: 'Content entry `id` must be a string',
-									})
-									.optional(),
-							})
-							.catchall(z.unknown()),
-					),
-
-					z.promise(
-						z.record(
-							z.string(),
-							z
-								.object({
-									id: z
-										.string({
-											invalid_type_error: 'Content entry `id` must be a string',
-										})
-										.optional(),
-								})
-								.catchall(z.unknown()),
-						),
-					),
-				]),
-			),
+			z.function(),
 			z.object({
 				name: z.string(),
 				load: z.function(
