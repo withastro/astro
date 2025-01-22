@@ -1260,6 +1260,8 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/es/',
 			);
 		});
+	});
+	describe('with [prefix-other-locales]', () => {
 		it('should correctly return the URL without base', () => {
 			/**
 			 *
@@ -1314,6 +1316,39 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 				}),
 				'https://example.com/italiano/',
+			);
+			assert.equal(
+				getLocaleAbsoluteUrl({
+					locale: 'en',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com',
+			);
+			assert.equal(
+				getLocaleAbsoluteUrl({
+					locale: 'es',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/es',
+			);
+			assert.equal(
+				getLocaleAbsoluteUrl({
+					locale: 'it-VA',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/italiano',
 			);
 		});
 
