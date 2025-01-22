@@ -106,11 +106,17 @@ export function getLocaleRelativeUrl({
 	}
 	pathsToJoin.push(path);
 
+	let relativePath: string;
 	if (shouldAppendForwardSlash(trailingSlash, format)) {
-		return appendForwardSlash(joinPaths(...pathsToJoin));
+		relativePath = appendForwardSlash(joinPaths(...pathsToJoin));
 	} else {
-		return joinPaths(...pathsToJoin);
+		relativePath = joinPaths(...pathsToJoin);
 	}
+
+	if (relativePath === '') {
+		return '/';
+	}
+	return relativePath;
 }
 
 /**
