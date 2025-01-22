@@ -229,7 +229,7 @@ export function getLocaleByPath(path: string, locales: Locales): string {
  * - transforms all letters to be lower case;
  */
 export function normalizeTheLocale(locale: string): string {
-	return locale?.replace('_', '-').toLowerCase();
+	return locale?.replaceAll('_', '-').toLowerCase();
 }
 
 /**
