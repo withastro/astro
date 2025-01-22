@@ -5,21 +5,21 @@ import os from 'node:os';
 import type { AstroIntegrationLogger } from 'astro';
 import type { Options } from './types.js';
 
+const wildcardHosts = new Set(['0.0.0.0', '::', '0000:0000:0000:0000:0000:0000:0000:0000']);
+
 export async function logListeningOn(
 	logger: AstroIntegrationLogger,
 	server: http.Server | https.Server,
-	options: Pick<Options, 'host'>
+	configuredHost: string | boolean | undefined
 ) {
 	await new Promise<void>((resolve) => server.once('listening', resolve));
 	const protocol = server instanceof https.Server ? 'https' : 'http';
 	// Allow to provide host value at runtime
-	const host = getResolvedHostForHttpServer(
-		process.env.HOST !== undefined && process.env.HOST !== '' ? process.env.HOST : options.host
-	);
+	const host = getResolvedHostForHttpServer(configuredHost);
 	const { port } = server.address() as AddressInfo;
 	const address = getNetworkAddress(protocol, host, port);
 
-	if (host === undefined) {
+	if (host === undefined || wildcardHosts.has(host)) {
 		logger.info(
 			`Server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`
 		);
@@ -28,7 +28,7 @@ export async function logListeningOn(
 	}
 }
 
-function getResolvedHostForHttpServer(host: string | boolean) {
+function getResolvedHostForHttpServer(host: string | boolean | undefined) {
 	if (host === false) {
 		// Use a secure default
 		return 'localhost';
@@ -46,8 +46,6 @@ interface NetworkAddressOpt {
 	local: string[];
 	network: string[];
 }
-
-const wildcardHosts = new Set(['0.0.0.0', '::', '0000:0000:0000:0000:0000:0000:0000:0000']);
 
 // this code from vite https://github.com/vitejs/vite/blob/d09bbd093a4b893e78f0bbff5b17c7cf7821f403/packages/vite/src/node/utils.ts#L892-L914
 export function getNetworkAddress(

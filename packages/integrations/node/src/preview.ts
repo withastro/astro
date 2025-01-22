@@ -35,7 +35,13 @@ const createPreviewServer: CreatePreviewServer = async (preview) => {
 			throw err;
 		}
 	}
-	const host = preview.host ?? 'localhost';
+	// If the user didn't specify a host, it will already have been defaulted to
+	// "localhost" by getResolvedHostForHttpServer in astro core/preview/util.ts.
+	// The value `undefined` actually means that either the user set `options.server.host`
+	// to `true`, or they passed `--host` without an argument. In that case, we
+	// should listen on all IPs.
+	const host = process.env.HOST ?? preview.host ?? '0.0.0.0';
+
 	const port = preview.port ?? 4321;
 	const server = createServer(ssrHandler, host, port);
 
@@ -51,7 +57,7 @@ const createPreviewServer: CreatePreviewServer = async (preview) => {
 		});
 	}
 
-	logListeningOn(preview.logger, server.server, options);
+	logListeningOn(preview.logger, server.server, host);
 	await new Promise<void>((resolve, reject) => {
 		server.server.once('listening', resolve);
 		server.server.once('error', reject);

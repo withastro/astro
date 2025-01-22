@@ -24,7 +24,7 @@ export default function standalone(app: NodeApp, options: Options) {
 	const server = createServer(handler, host, port);
 	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
-		logListeningOn(app.getAdapterLogger(), server.server, options);
+		logListeningOn(app.getAdapterLogger(), server.server, host);
 	}
 	return {
 		server,
