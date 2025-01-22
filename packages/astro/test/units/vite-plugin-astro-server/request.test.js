@@ -110,8 +110,10 @@ describe('vite-plugin-astro-server', () => {
 				url: '/url?xyz=123',
 			});
 			container.handle(req, res);
+			assert.equal(res.statusCode, 200);
+
 			const html = await text();
-			assert.deepEqual(html, '<!DOCTYPE html>http://undefined/url?xyz=123');
+			assert.deepEqual(html, '<!DOCTYPE html>http://localhost/url?xyz=123');
 		});
 
 		it('params are excluded on prerendered routes', async () => {
@@ -121,7 +123,9 @@ describe('vite-plugin-astro-server', () => {
 			});
 			container.handle(req, res);
 			const html = await text();
-			assert.deepEqual(html, '<!DOCTYPE html>http://undefined/prerendered');
+			assert.equal(res.statusCode, 200);
+
+			assert.deepEqual(html, '<!DOCTYPE html>http://localhost/prerendered');
 		});
 	});
 });

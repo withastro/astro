@@ -2,6 +2,7 @@ import { defineCollection, z, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { loader } from './loaders/post-loader.js';
 import { parse as parseToml } from 'toml';
+import { readFile } from 'fs/promises';
 
 const blog = defineCollection({
 	loader: loader({ url: 'https://jsonplaceholder.typicode.com/posts' }),
@@ -71,43 +72,32 @@ const rodents = defineCollection({
 		nocturnal: z.boolean(),
 	}),
 });
+// Absolute paths should also work
+const absoluteRoot = new URL('content/space', import.meta.url);
+
+const spacecraft = defineCollection({
+	loader: glob({ pattern: '*.md', base: absoluteRoot }),
+	schema: ({ image }) =>
+		z.object({
+			title: z.string(),
+			description: z.string(),
+			publishedDate: z.coerce.date(),
+			tags: z.array(z.string()),
+			heroImage: image().optional(),
+			cat: reference('cats').default('siamese'),
+			something: z
+				.string()
+				.optional()
+				.transform((str) => ({ type: 'test', content: str })),
+		}),
+});
+
 
 const cats = defineCollection({
 	loader: async function () {
-		return [
-			{
-				breed: 'Siamese',
-				id: 'siamese',
-				size: 'Medium',
-				origin: 'Thailand',
-				lifespan: '15 years',
-				temperament: ['Active', 'Affectionate', 'Social', 'Playful'],
-			},
-			{
-				breed: 'Persian',
-				id: 'persian',
-				size: 'Medium',
-				origin: 'Iran',
-				lifespan: '15 years',
-				temperament: ['Calm', 'Affectionate', 'Social'],
-			},
-			{
-				breed: 'Tabby',
-				id: 'tabby',
-				size: 'Medium',
-				origin: 'Egypt',
-				lifespan: '15 years',
-				temperament: ['Curious', 'Playful', 'Independent'],
-			},
-			{
-				breed: 'Ragdoll',
-				id: 'ragdoll',
-				size: 'Medium',
-				origin: 'United States',
-				lifespan: '15 years',
-				temperament: ['Calm', 'Affectionate', 'Social'],
-			},
-		];
+		const file = new URL('data/cats.json', import.meta.url);
+		const data = await readFile(file, 'utf-8');
+		return JSON.parse(data);
 	},
 	schema: z.object({
 		breed: z.string(),
@@ -140,25 +130,6 @@ const birds = defineCollection({
 	}),
 });
 
-// Absolute paths should also work
-const absoluteRoot = new URL('content/space', import.meta.url);
-
-const spacecraft = defineCollection({
-	loader: glob({ pattern: '*.md', base: absoluteRoot }),
-	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			description: z.string(),
-			publishedDate: z.coerce.date(),
-			tags: z.array(z.string()),
-			heroImage: image().optional(),
-			cat: reference('cats').optional(),
-			something: z
-				.string()
-				.optional()
-				.transform((str) => ({ type: 'test', content: str })),
-		}),
-});
 
 const probes = defineCollection({
 	loader: glob({ pattern: ['*.md', '!voyager-*'], base: 'src/data/space-probes' }),

@@ -15,6 +15,8 @@ export async function GET() {
 	const atlantis = await getEntry('spacecraft', 'atlantis');
 	const referencedEntry = await getEntry(entryWithReference.data.cat);
 
+	const spacecraft = await getCollection('spacecraft');
+
 	const entryWithImagePath = await getEntry('spacecraft', 'lunar-module');
 
 	const increment = await getEntry('increment', 'value');
@@ -50,7 +52,8 @@ export async function GET() {
 			yamlLoader,
 			tomlLoader,
 			nestedJsonLoader,
-			atlantis
+			atlantis,
+			spacecraft: spacecraft.map(({id}) => id).sort((a, b) => a.localeCompare(b)),
 		})
 	);
 }

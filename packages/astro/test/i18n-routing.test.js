@@ -2014,13 +2014,13 @@ describe('Fallback rewrite dev server', () => {
 				locales: ['en', 'fr', 'es', 'it', 'pt'],
 				routing: {
 					prefixDefaultLocale: false,
+					fallbackType: 'rewrite',
 				},
 				fallback: {
 					fr: 'en',
 					it: 'en',
 					es: 'pt',
 				},
-				fallbackType: 'rewrite',
 			},
 		});
 		devServer = await fixture.startDevServer();
@@ -2032,6 +2032,7 @@ describe('Fallback rewrite dev server', () => {
 	it('should correctly rewrite to en', async () => {
 		const html = await fixture.fetch('/fr').then((res) => res.text());
 		assert.match(html, /Hello/);
+		assert.match(html, /locale - fr/);
 		// assert.fail()
 	});
 
@@ -2085,6 +2086,7 @@ describe('Fallback rewrite SSG', () => {
 	it('should correctly rewrite to en', async () => {
 		const html = await fixture.readFile('/fr/index.html');
 		assert.match(html, /Hello/);
+		assert.match(html, /locale - fr/);
 		// assert.fail()
 	});
 
@@ -2138,6 +2140,7 @@ describe('Fallback rewrite SSR', () => {
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();
+		assert.match(html, /locale - fr/);
 		assert.match(html, /Hello/);
 	});
 

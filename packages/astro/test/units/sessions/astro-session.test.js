@@ -86,18 +86,20 @@ test('AstroSession - Cookie Management', async (t) => {
 	});
 
 	await t.test('should delete cookie on destroy', async () => {
-		let cookieDeleted = false;
+		let cookieDeletedArgs;
+		let cookieDeletedName;
 		const mockCookies = {
 			...defaultMockCookies,
-			delete: () => {
-				cookieDeleted = true;
+			delete: (name, args) => {
+				cookieDeletedName = name;
+				cookieDeletedArgs = args;
 			},
 		};
 
 		const session = createSession(defaultConfig, mockCookies);
 		session.destroy();
-
-		assert.equal(cookieDeleted, true);
+		assert.equal(cookieDeletedName, 'test-session');
+		assert.equal(cookieDeletedArgs?.path, '/');
 	});
 });
 

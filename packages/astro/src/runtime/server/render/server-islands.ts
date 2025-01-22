@@ -15,13 +15,19 @@ export function containsServerDirective(props: Record<string | number, any>) {
 	return 'server:component-directive' in props;
 }
 
+const SCRIPT_RE = /<\/script/giu;
+const COMMENT_RE = /<!--/gu;
+const SCRIPT_REPLACER = '<\\/script';
+const COMMENT_REPLACER = '\\u003C!--';
+
+/**
+ * Encodes the script end-tag open (ETAGO) delimiter and opening HTML comment syntax for JSON inside a `<script>` tag.
+ * @see https://mathiasbynens.be/notes/etago
+ */
 function safeJsonStringify(obj: any) {
 	return JSON.stringify(obj)
-		.replace(/\u2028/g, '\\u2028')
-		.replace(/\u2029/g, '\\u2029')
-		.replace(/</g, '\\u003c')
-		.replace(/>/g, '\\u003e')
-		.replace(/\//g, '\\u002f');
+		.replace(SCRIPT_RE, SCRIPT_REPLACER)
+		.replace(COMMENT_RE, COMMENT_REPLACER);
 }
 
 function createSearchParams(componentExport: string, encryptedProps: string, slots: string) {
@@ -76,7 +82,8 @@ export function renderServerIsland(
 			}
 
 			const key = await result.key;
-			const propsEncrypted = await encryptString(key, JSON.stringify(props));
+			const propsEncrypted =
+				Object.keys(props).length === 0 ? '' : await encryptString(key, JSON.stringify(props));
 
 			const hostId = crypto.randomUUID();
 

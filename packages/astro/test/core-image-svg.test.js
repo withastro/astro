@@ -206,7 +206,7 @@ describe('astro:assets - SVG Components', () => {
 					const $path = $svg.children('path');
 					assert.equal($path.length, 1);
 				});
-				it('adds the svg into the document as a sprite, overridding the default', () => {
+				it('adds the svg into the document as a sprite, overriding the default', () => {
 					let $svg = $('#definition svg');
 					assert.equal($svg.length, 1);
 					assert.equal(!!$svg.attr('viewBox'), false);

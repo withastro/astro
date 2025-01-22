@@ -1,15 +1,13 @@
-import type { TransformResult } from '@astrojs/compiler';
-import type { ResolvedConfig } from 'vite';
-
 import { fileURLToPath } from 'node:url';
+import type { TransformResult } from '@astrojs/compiler';
 import { transform } from '@astrojs/compiler';
-import { normalizePath } from 'vite';
+import type { ResolvedConfig } from 'vite';
 import type { AstroPreferences } from '../../preferences/index.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroError } from '../errors/errors.js';
 import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
-import { resolvePath } from '../viteUtils.js';
+import { normalizePath, resolvePath } from '../viteUtils.js';
 import { type PartialCompileCssResult, createStylePreprocessor } from './style.js';
 import type { CompileCssResult } from './types.js';
 
