@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 12.2.1
+
+### Patch Changes
+
+- [#506](https://github.com/withastro/adapters/pull/506) [`ce66003`](https://github.com/withastro/adapters/commit/ce66003c093daa0e53a7ab1cf46ddd1d4ddcbee4) Thanks [@bluwy](https://github.com/bluwy)! - Removes internal `vue` handling
+
 ## 12.2.0
 
 ### Minor Changes
