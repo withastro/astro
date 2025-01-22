@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 9.0.2
+
+### Patch Changes
+
+- [#514](https://github.com/withastro/adapters/pull/514) [`ea4297b`](https://github.com/withastro/adapters/commit/ea4297b7bdb72ef0202e9f547625e7fa71a6a73e) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused the preview server to ignore wildcard host options
+
 ## 9.0.1
 
 ### Patch Changes
