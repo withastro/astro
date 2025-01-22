@@ -98,7 +98,7 @@ export default function createPlugin(options?: Options): AstroIntegration {
 import { setup } from 'virtual:@astrojs/alpinejs/entrypoint';
 setup(Alpine);
 window.Alpine = Alpine;
-document.addEventListener('DOMContentLoaded', () => Alpine.start());`
+document.addEventListener('DOMContentLoaded', () => Alpine.start());`,
 				);
 				updateConfig({
 					vite: {
