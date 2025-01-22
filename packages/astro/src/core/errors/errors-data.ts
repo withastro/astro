@@ -1571,8 +1571,8 @@ export const InvalidContentEntryDataError = {
  * **Example error message:**<br/>
  * The content loader for the collection **blog** returned an entry with an invalid `id`:<br/>
  * {<br/>
- * 	 "id": 1,<br/>
- * 	 "title": "Hello, World!"<br/>
+ * &nbsp;&nbsp;"id": 1,<br/>
+ * &nbsp;&nbsp;"title": "Hello, World!"<br/>
  * }
  * @description
  * A content loader returned an invalid `id`.
