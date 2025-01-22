@@ -23,17 +23,24 @@ export function requestIs404Or500(request: Request, base = '') {
 	return isRoute404(pathname) || isRoute500(pathname);
 }
 
-// Checks if the pathname has any locale
+// Checks if the `realtivePath` starts with any locale
 export function pathHasLocale(path: string, locales: Locales): boolean {
-	const segments = path.split('/');
-	for (const segment of segments) {
-		for (const locale of locales) {
-			if (typeof locale === 'string') {
-				if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
+	const base = import.meta.env.BASE_URL;
+	const relativePath = path.startsWith(base) ? path.slice(base.length) : path;
+	const segments = relativePath.split('/').filter(Boolean);
+
+	for (const locale of locales) {
+		if (typeof locale === 'string') {
+			if (normalizeTheLocale(segments[0]) === normalizeTheLocale(locale)) {
+				return true;
+			}
+		} else if (segments[0] === locale.path) {
+			return true;
+		} else if (locale.codes) {
+			for (const code of locale.codes) {
+				if (normalizeTheLocale(segments[0]) === normalizeTheLocale(code)) {
 					return true;
 				}
-			} else if (segment === locale.path) {
-				return true;
 			}
 		}
 	}
@@ -222,7 +229,7 @@ export function getLocaleByPath(path: string, locales: Locales): string {
  * - transforms all letters to be lower case;
  */
 export function normalizeTheLocale(locale: string): string {
-	return locale.replaceAll('_', '-').toLowerCase();
+	return locale?.replace('_', '-').toLowerCase();
 }
 
 /**
