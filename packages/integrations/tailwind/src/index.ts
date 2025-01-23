@@ -45,7 +45,7 @@ function baseStylesPlugin(configFile?: string): PluginOption {
 export default function tailwindIntegration({
 	applyBaseStyles = true,
 	configFile,
-}: TailwindOptions): AstroIntegration {
+}: TailwindOptions = {}): AstroIntegration {
 	if (applyBaseStyles && !configFile) {
 		configFile = './tailwind.config.mjs';
 	}
@@ -53,10 +53,9 @@ export default function tailwindIntegration({
 	return {
 		name: '@astrojs/tailwind',
 		hooks: {
-			'astro:config:setup': async ({ config, updateConfig, injectScript, logger }) => {
+			'astro:config:setup': async ({ config, updateConfig, injectScript }) => {
 				const plugins: PluginOption[] = [tailwindcss()];
 				if (applyBaseStyles) {
-					logger.warn('Deprecated');
 					plugins.push(
 						baseStylesPlugin(
 							configFile ? fileURLToPath(new URL(configFile, config.root)) : undefined,

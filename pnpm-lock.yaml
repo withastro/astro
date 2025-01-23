@@ -5224,6 +5224,9 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+      tailwindcss:
+        specifier: 4.0.0
+        version: 4.0.0
 
   packages/integrations/vercel: {}
 
