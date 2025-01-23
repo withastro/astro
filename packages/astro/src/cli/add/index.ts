@@ -824,7 +824,10 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 				}
 
 				if (integration === 'tailwind') {
-					dependencies.push(['@tailwindcss/vite', '^4.0.0']);
+					dependencies = [
+						['@tailwindcss/vite', '^4.0.0'],
+						['tailwindcss', '^4.0.0'],
+					];
 				}
 
 				return { id: integration, packageName, dependencies, type: integrationType };

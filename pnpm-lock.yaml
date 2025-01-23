@@ -433,27 +433,21 @@ importers:
       '@astrojs/mdx':
         specifier: ^4.0.7
         version: link:../../packages/integrations/mdx
-      '@astrojs/tailwind':
-        specifier: ^5.1.5
-        version: link:../../packages/integrations/tailwind
+      '@tailwindcss/vite':
+        specifier: ^4.0.0
+        version: 4.0.0(vite@6.0.9(@types/node@18.19.50)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.83.4)(yaml@2.5.1))
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
       astro:
         specifier: ^5.1.8
         version: link:../../packages/astro
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.4.20(postcss@8.5.1)
       canvas-confetti:
         specifier: ^1.9.3
         version: 1.9.3
-      postcss:
-        specifier: ^8.5.1
-        version: 8.5.1
       tailwindcss:
-        specifier: ^3.4.17
-        version: 3.4.17
+        specifier: ^4.0.0
+        version: 4.0.0
 
   examples/with-vitest:
     dependencies:
