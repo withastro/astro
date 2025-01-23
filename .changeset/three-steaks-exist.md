@@ -1,5 +1,5 @@
 ---
-"@astrojs/react": patch
+"@astrojs/react": minor
 ---
 
-feat: add experimentalDisableStreaming to react integration (#1)
+Adds experimental support for disabling streaming
