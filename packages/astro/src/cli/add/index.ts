@@ -152,7 +152,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 				if (!existsSync(styles)) {
 					logger.info(
 						'SKIP_FORMAT',
-						`\n  ${magenta(`Astro will scaffold ${green('./src/styles.global.css')}.`)}\n`,
+						`\n  ${magenta(`Astro will scaffold ${green('./src/styles/global.css')}.`)}\n`,
 					);
 
 					if (await askToContinue({ flags })) {
@@ -358,7 +358,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} to your project:\n${list}`,
 				),
 			);
-			logger.info('SKIP_FORMAT', msg.success("Import './src/styles.global.css' in a layout"));
+			logger.info('SKIP_FORMAT', msg.success("Import './src/styles/global.css' in a layout"));
 		}
 	}
 
