@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Updates `astro add` to add the Tailwind Vite plugin instead of the integration
+Updates `astro add tailwind` to add the `@tailwindcss/vite` plugin instead of the `@astrojs/tailwind` integration
