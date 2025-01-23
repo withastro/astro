@@ -51,14 +51,7 @@ const ALIASES = new Map([
 
 const STUBS = {
 	ASTRO_CONFIG: `import { defineConfig } from 'astro/config';\n// https://astro.build/config\nexport default defineConfig({});`,
-	TAILWIND_CONFIG: `/** @type {import('tailwindcss').Config} */
-export default {
-	content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
-	theme: {
-		extend: {},
-	},
-	plugins: [],
-}\n`,
+	TAILWIND_GLOBAL_CSS: `@import "tailwindcss";`,
 	SVELTE_CONFIG: `\
 import { vitePreprocess } from '@astrojs/svelte';
 
@@ -154,23 +147,26 @@ export async function add(names: string[], { flags }: AddOptions) {
 	switch (installResult) {
 		case UpdateResult.updated: {
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
-				await setupIntegrationConfig({
-					root,
-					logger,
+				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
+				const styles = new URL('./global.css', dir);
+				if (!existsSync(styles)) {
+					logger.info(
+						'SKIP_FORMAT',
+						`\n  ${magenta(`Astro will scaffold ${green('./src/styles.global.css')}.`)}\n`,
+					);
 
-					flags,
-					integrationName: 'Tailwind',
-					possibleConfigFiles: [
-						'./tailwind.config.cjs',
-						'./tailwind.config.mjs',
-						'./tailwind.config.ts',
-						'./tailwind.config.mts',
-						'./tailwind.config.cts',
-						'./tailwind.config.js',
-					],
-					defaultConfigFile: './tailwind.config.mjs',
-					defaultConfigContent: STUBS.TAILWIND_CONFIG,
-				});
+					if (await askToContinue({ flags })) {
+						await fs.mkdir(dir);
+						await fs.writeFile(styles, STUBS.TAILWIND_GLOBAL_CSS, 'utf-8');
+					} else {
+						logger.info(
+							'SKIP_FORMAT',
+							`\n  @astrojs/tailwind requires additional configuration. Please refer to TODO:`,
+						);
+					}
+				} else {
+					logger.debug('add', `Using existing tailwind configuration`);
+				}
 			}
 			if (integrations.find((integration) => integration.id === 'svelte')) {
 				await setupIntegrationConfig({
@@ -304,6 +300,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	if (mod) {
 		try {
+			// TODO: special case for tailwind
 			configResult = await updateAstroConfig({
 				configURL,
 				mod,
