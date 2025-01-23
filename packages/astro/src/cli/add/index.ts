@@ -156,7 +156,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 					);
 
 					if (await askToContinue({ flags })) {
-						await fs.mkdir(dir);
+						if (!existsSync(dir)) {
+							await fs.mkdir(dir);
+						}
 						await fs.writeFile(styles, STUBS.TAILWIND_GLOBAL_CSS, 'utf-8');
 					} else {
 						logger.info(
@@ -286,6 +288,8 @@ export async function add(names: string[], { flags }: AddOptions) {
 						)}`,
 					);
 				}
+			} else if (integration.id === 'tailwind') {
+				addVitePlugin(mod, 'tailwindcss', '@tailwindcss/vite');
 			} else {
 				addIntegration(mod, integration);
 			}
@@ -355,6 +359,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} to your project:\n${list}`,
 				),
 			);
+			logger.info('SKIP_FORMAT', msg.success("Import './src/styles.global.css' in a layout"));
 		}
 	}
 
@@ -450,6 +455,31 @@ function addIntegration(mod: ProxifiedModule<any>, integration: IntegrationInfo)
 		)
 	) {
 		config.integrations.push(builders.functionCall(integrationId));
+	}
+}
+
+function addVitePlugin(mod: ProxifiedModule<any>, pluginId: string, packageName: string) {
+	const config = getDefaultExportOptions(mod);
+
+	if (!mod.imports.$items.some((imp) => imp.local === pluginId)) {
+		mod.imports.$append({
+			imported: 'default',
+			local: pluginId,
+			from: packageName,
+		});
+	}
+
+	config.vite ??= {};
+	config.vite.plugins ??= [];
+	if (
+		!config.vite.plugins.$ast.elements.some(
+			(el: ASTNode) =>
+				el.type === 'CallExpression' &&
+				el.callee.type === 'Identifier' &&
+				el.callee.name === pluginId,
+		)
+	) {
+		config.vite.plugins.push(builders.functionCall(pluginId));
 	}
 }
 
@@ -791,6 +821,10 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 							'https://astro.build/integrations',
 						)}`,
 					);
+				}
+
+				if (integration === 'tailwind') {
+					dependencies.push(['@tailwindcss/vite', '^4.0.0']);
 				}
 
 				return { id: integration, packageName, dependencies, type: integrationType };
