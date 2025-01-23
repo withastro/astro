@@ -1554,18 +1554,15 @@ importers:
       '@astrojs/tailwind':
         specifier: workspace:*
         version: link:../../../../integrations/tailwind
+      '@tailwindcss/vite':
+        specifier: ^4.0.0
+        version: 4.0.0(vite@6.0.9(@types/node@18.19.50)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.83.4)(yaml@2.5.1))
       astro:
         specifier: workspace:*
         version: link:../../..
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.4.20(postcss@8.5.1)
-      postcss:
-        specifier: ^8.5.1
-        version: 8.5.1
       tailwindcss:
-        specifier: ^3.4.17
-        version: 3.4.17
+        specifier: ^4.0.0
+        version: 4.0.0
 
   packages/astro/e2e/fixtures/ts-resolution:
     dependencies:
