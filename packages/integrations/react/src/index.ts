@@ -30,10 +30,13 @@ function getRenderer(reactConfig: ReactVersionConfig) {
 	};
 }
 
-function optionsPlugin(
-	experimentalReactChildren: boolean,
-	experimentalDisableStreaming: boolean
-): vite.Plugin {
+function optionsPlugin({
+	experimentalReactChildren = false,
+	experimentalDisableStreaming = false
+}: {
+	experimentalReactChildren: boolean;
+	experimentalDisableStreaming: boolean;
+}): vite.Plugin {
 	const virtualModule = 'astro:react:opts';
 	const virtualModuleId = '\0' + virtualModule;
 	return {
@@ -67,7 +70,9 @@ function getViteConfiguration(
 		},
 		plugins: [
 			react({ include, exclude, babel }),
-			optionsPlugin(!!experimentalReactChildren, !!experimentalDisableStreaming),
+			optionsPlugin({
+				experimentalReactChildren: !!experimentalReactChildren, experimentalDisableStreaming: !!experimentalDisableStreaming
+			}),
 		],
 		ssr: {
 			noExternal: [
