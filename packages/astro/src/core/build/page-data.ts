@@ -1,4 +1,4 @@
-import type { AstroSettings, ManifestData } from '../../types/astro.js';
+import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { Logger } from '../logger/core.js';
 import type { AllPagesData } from './types.js';
 
@@ -10,7 +10,7 @@ import { makePageDataKey } from './plugins/util.js';
 export interface CollectPagesDataOptions {
 	settings: AstroSettings;
 	logger: Logger;
-	manifest: ManifestData;
+	manifest: RoutesList;
 }
 
 export interface CollectPagesDataResult {
@@ -51,10 +51,10 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 				const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
 				debug(
 					'build',
-					`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`,
+					`├── ${colors.bold(colors.green('√'))} ${route.component} → ${colors.yellow(html)}`,
 				);
 			} else {
-				debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component}`);
+				debug('build', `├── ${colors.bold(colors.green('√'))} ${route.component}`);
 			}
 			continue;
 		}

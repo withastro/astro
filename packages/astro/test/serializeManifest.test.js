@@ -65,14 +65,10 @@ describe('astro:manifest/client', () => {
 					},
 					build: {
 						format: 'directory',
-						redirects: true,
 					},
 					trailingSlash: 'ignore',
 					compressHTML: true,
 					site: 'https://astro.build/',
-					legacy: {
-						collections: false,
-					},
 				}),
 			);
 		});
@@ -87,7 +83,7 @@ describe('astro:manifest/server', () => {
 	describe('when build', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/astro-manifest/',
+				root: './fixtures/astro-manifest-invalid/',
 			});
 		});
 

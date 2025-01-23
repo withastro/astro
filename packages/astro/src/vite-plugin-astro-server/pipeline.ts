@@ -11,7 +11,7 @@ import { createDefaultRoutes } from '../core/routing/default.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { isPage, viteID } from '../core/util.js';
 import { resolveIdToUrl } from '../core/viteUtils.js';
-import type { AstroSettings, ComponentInstance, ManifestData } from '../types/astro.js';
+import type { AstroSettings, ComponentInstance, RoutesList } from '../types/astro.js';
 import type { RewritePayload } from '../types/public/common.js';
 import type {
 	RouteData,
@@ -30,7 +30,7 @@ export class DevPipeline extends Pipeline {
 	// so it needs to be mutable here unlike in other environments
 	override renderers = new Array<SSRLoadedRenderer>();
 
-	manifestData: ManifestData | undefined;
+	manifestData: RoutesList | undefined;
 
 	componentInterner: WeakMap<RouteData, ComponentInstance> = new WeakMap<
 		RouteData,
@@ -54,7 +54,7 @@ export class DevPipeline extends Pipeline {
 	}
 
 	static create(
-		manifestData: ManifestData,
+		manifestData: RoutesList,
 		{
 			loader,
 			logger,
@@ -209,7 +209,7 @@ export class DevPipeline extends Pipeline {
 		return { newUrl, pathname, componentInstance, routeData };
 	}
 
-	setManifestData(manifestData: ManifestData) {
+	setManifestData(manifestData: RoutesList) {
 		this.manifestData = manifestData;
 	}
 

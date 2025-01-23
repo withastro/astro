@@ -18,7 +18,7 @@ import { matchAllRoutes } from '../core/routing/index.js';
 import { isRoute404, isRoute500 } from '../core/routing/match.js';
 import { PERSIST_SYMBOL } from '../core/session.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
-import type { ComponentInstance, ManifestData } from '../types/astro.js';
+import type { ComponentInstance, RoutesList } from '../types/astro.js';
 import type { RouteData } from '../types/public/internal.js';
 import type { DevPipeline } from './pipeline.js';
 import { writeSSRResult, writeWebResponse } from './response.js';
@@ -41,17 +41,17 @@ function isLoggedRequest(url: string) {
 	return url !== '/favicon.ico';
 }
 
-function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
+function getCustom404Route(manifestData: RoutesList): RouteData | undefined {
 	return manifestData.routes.find((r) => isRoute404(r.route));
 }
 
-function getCustom500Route(manifestData: ManifestData): RouteData | undefined {
+function getCustom500Route(manifestData: RoutesList): RouteData | undefined {
 	return manifestData.routes.find((r) => isRoute500(r.route));
 }
 
 export async function matchRoute(
 	pathname: string,
-	manifestData: ManifestData,
+	manifestData: RoutesList,
 	pipeline: DevPipeline,
 ): Promise<MatchedRoute | undefined> {
 	const { config, logger, routeCache, serverLike, settings } = pipeline;
@@ -131,7 +131,7 @@ type HandleRoute = {
 	url: URL;
 	pathname: string;
 	body: ArrayBuffer | undefined;
-	manifestData: ManifestData;
+	routesList: RoutesList;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	pipeline: DevPipeline;
@@ -143,7 +143,7 @@ export async function handleRoute({
 	pathname,
 	body,
 	pipeline,
-	manifestData,
+	routesList,
 	incomingRequest,
 	incomingResponse,
 }: HandleRoute): Promise<void> {
@@ -212,7 +212,7 @@ export async function handleRoute({
 				? response.status
 				: (statusCodedMatched ?? response.status);
 	} catch (err: any) {
-		const custom500 = getCustom500Route(manifestData);
+		const custom500 = getCustom500Route(routesList);
 		if (!custom500) {
 			throw err;
 		}
@@ -248,7 +248,7 @@ export async function handleRoute({
 		response.body === null &&
 		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 	) {
-		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
+		const fourOhFourRoute = await matchRoute('/404', routesList, pipeline);
 		if (fourOhFourRoute) {
 			renderContext = await RenderContext.create({
 				locals,
