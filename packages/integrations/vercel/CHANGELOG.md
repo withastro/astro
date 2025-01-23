@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 8.0.4
+
+### Patch Changes
+
+- [#516](https://github.com/withastro/adapters/pull/516) [`3fe04eb`](https://github.com/withastro/adapters/commit/3fe04ebec19d1d2f490df373a102cbd265a1c658) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented integration-generated static assets from being deployed with non-static sites
+
 ## 8.0.3
 
 ### Patch Changes
