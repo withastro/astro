@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
-import type { Plugin } from 'vite';
+import type { PluginOption } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 
 type TailwindOptions = {
@@ -21,7 +21,7 @@ type TailwindOptions = {
 const VIRTUAL_MODULE_ID = 'virtual:@astrojs/tailwind/base.css';
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
-function baseStylesPlugin(configFile?: string): Plugin {
+function baseStylesPlugin(configFile?: string): PluginOption {
 	let content = '@import "tailwindcss";';
 	if (configFile) {
 		content += `@config ${JSON.stringify(configFile)};`;
@@ -54,25 +54,20 @@ export default function tailwindIntegration({
 		name: '@astrojs/tailwind',
 		hooks: {
 			'astro:config:setup': async ({ config, updateConfig, injectScript, logger }) => {
-				updateConfig({
-					vite: {
-						plugins: [tailwindcss()],
-					},
-				});
-
+				const plugins: PluginOption[] = [tailwindcss()];
 				if (applyBaseStyles) {
 					logger.warn('Deprecated');
-					updateConfig({
-						vite: {
-							plugins: [
-								baseStylesPlugin(
-									configFile ? fileURLToPath(new URL(configFile, config.root)) : undefined,
-								),
-							],
-						},
-					});
+					plugins.push(
+						baseStylesPlugin(
+							configFile ? fileURLToPath(new URL(configFile, config.root)) : undefined,
+						),
+					);
 					injectScript('page-ssr', `import ${JSON.stringify(VIRTUAL_MODULE_ID)};`);
 				}
+
+				updateConfig({
+					vite: { plugins },
+				});
 			},
 		},
 	};
