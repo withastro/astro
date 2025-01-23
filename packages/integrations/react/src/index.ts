@@ -15,7 +15,7 @@ export type ReactIntegrationOptions = Pick<
 > & {
 	experimentalReactChildren?: boolean;
 	/**
-	 * Disable streaming support for React components in order to support libraries that are not compatible with streaming like Stitches.js
+	 * Disable streaming in React components
 	 */
 	experimentalDisableStreaming?: boolean;
 };
