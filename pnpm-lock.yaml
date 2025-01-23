@@ -2314,12 +2314,15 @@ importers:
 
   packages/astro/test/fixtures/astro-scripts:
     dependencies:
-      '@astrojs/tailwind':
-        specifier: workspace:*
-        version: link:../../../../integrations/tailwind
+      '@tailwindcss/vite':
+        specifier: ^4.0.0
+        version: 4.0.0(vite@6.0.9(@types/node@18.19.50)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.83.4)(yaml@2.5.1))
       astro:
         specifier: workspace:*
         version: link:../../..
+      tailwindcss:
+        specifier: ^4.0.0
+        version: 4.0.0
 
   packages/astro/test/fixtures/astro-sitemap-rss:
     dependencies:
@@ -3362,12 +3365,15 @@ importers:
 
   packages/astro/test/fixtures/middleware-tailwind:
     dependencies:
-      '@astrojs/tailwind':
-        specifier: workspace:*
-        version: link:../../../../integrations/tailwind
+      '@tailwindcss/vite':
+        specifier: ^4.0.0
+        version: 4.0.0(vite@6.0.9(@types/node@18.19.50)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.83.4)(yaml@2.5.1))
       astro:
         specifier: workspace:*
         version: link:../../..
+      tailwindcss:
+        specifier: ^4.0.0
+        version: 4.0.0
 
   packages/astro/test/fixtures/middleware-virtual:
     dependencies:
