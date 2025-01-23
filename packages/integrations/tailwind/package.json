@@ -38,7 +38,7 @@
     "vite": "^6.0.9"
   },
   "peerDependencies": {
-    "astro": "^4.0.0 || ^5.0.0",
+    "astro": "^5.0.0",
     "tailwindcss": "^4.0.0"
   },
   "publishConfig": {

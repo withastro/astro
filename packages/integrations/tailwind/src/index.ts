@@ -1,7 +1,7 @@
-import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
-import type { PluginOption } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
+import { fileURLToPath } from 'node:url';
+import { writeFileSync } from 'node:fs';
 
 type TailwindOptions = {
 	/**
@@ -18,30 +18,6 @@ type TailwindOptions = {
 	applyBaseStyles?: boolean;
 };
 
-const VIRTUAL_MODULE_ID = 'virtual:@astrojs/tailwind/base.css';
-const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
-
-function baseStylesPlugin(configFile?: string): PluginOption {
-	let content = '@import "tailwindcss";';
-	if (configFile) {
-		content += `@config ${JSON.stringify(configFile)};`;
-	}
-
-	return {
-		name: '@astrojs/tailwind/virtual-css',
-		resolveId(id) {
-			if (id === VIRTUAL_MODULE_ID) {
-				return RESOLVED_VIRTUAL_MODULE_ID;
-			}
-		},
-		load(id, opts) {
-			if (id === RESOLVED_VIRTUAL_MODULE_ID && opts?.ssr) {
-				return content;
-			}
-		},
-	};
-}
-
 export default function tailwindIntegration({
 	applyBaseStyles = true,
 	configFile,
@@ -53,20 +29,23 @@ export default function tailwindIntegration({
 	return {
 		name: '@astrojs/tailwind',
 		hooks: {
-			'astro:config:setup': async ({ config, updateConfig, injectScript }) => {
-				const plugins: PluginOption[] = [tailwindcss()];
-				if (applyBaseStyles) {
-					plugins.push(
-						baseStylesPlugin(
-							configFile ? fileURLToPath(new URL(configFile, config.root)) : undefined,
-						),
-					);
-					injectScript('page-ssr', `import ${JSON.stringify(VIRTUAL_MODULE_ID)};`);
-				}
-
+			'astro:config:setup': async ({ config, updateConfig, injectScript, createCodegenDir }) => {
 				updateConfig({
-					vite: { plugins },
+					vite: { plugins: [tailwindcss()] },
 				});
+
+				if (applyBaseStyles) {
+					const codegenDir = createCodegenDir();
+					let content = '@import "tailwindcss";';
+					if (configFile) {
+						content += `\n@config ${JSON.stringify(fileURLToPath(new URL(configFile, config.root)))};`;
+					}
+
+					const url = new URL('tailwind.css', codegenDir);
+					writeFileSync(url, content, 'utf-8');
+
+					injectScript('page-ssr', `import ${JSON.stringify(url)};`);
+				}
 			},
 		},
 	};

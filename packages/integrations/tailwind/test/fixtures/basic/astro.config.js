@@ -5,7 +5,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   integrations: [
     tailwind({
-      applyBaseStyles: false,
+      // applyBaseStyles: false,
       configFile: "./tailwind.config.js"
     }),
   ]
