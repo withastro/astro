@@ -163,7 +163,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} else {
 						logger.info(
 							'SKIP_FORMAT',
-							`\n  @astrojs/tailwind requires additional configuration. Please refer to TODO:`,
+							`\n  @astrojs/tailwind requires additional configuration. Please refer to https://docs.astro.build/en/guides/integrations-guide/tailwind/`,
 						);
 					}
 				} else {
@@ -304,7 +304,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	if (mod) {
 		try {
-			// TODO: special case for tailwind
 			configResult = await updateAstroConfig({
 				configURL,
 				mod,
