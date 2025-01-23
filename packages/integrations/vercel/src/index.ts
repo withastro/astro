@@ -220,11 +220,12 @@ export default function vercelAdapter({
 							name: 'astro:copy-vercel-output',
 							hooks: {
 								'astro:build:done': async () => {
-									if (_buildOutput === 'static') {
-										cpSync(_config.outDir, new URL('./.vercel/output/static/', _config.root), {
-											recursive: true,
-										});
-									}
+									logger.info('Copying static files to .vercel/output/static');
+									const staticDir =
+										_buildOutput === 'static' ? _config.outDir : _config.build.client;
+									cpSync(staticDir, new URL('./.vercel/output/static/', _config.root), {
+										recursive: true,
+									});
 								},
 							},
 						},
@@ -329,9 +330,6 @@ export default function vercelAdapter({
 					mkdirSync(new URL('./.vercel/output/server/', _config.root));
 
 					if (_buildOutput !== 'static') {
-						cpSync(_config.build.client, new URL('./.vercel/output/static/', _config.root), {
-							recursive: true,
-						});
 						cpSync(_config.build.server, new URL('./.vercel/output/_functions/', _config.root), {
 							recursive: true,
 						});
