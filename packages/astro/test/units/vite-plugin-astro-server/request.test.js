@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
-import { createRouteManifest } from '../../../dist/core/routing/index.js';
+import { createRoutesList } from '../../../dist/core/routing/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createController, handleRequest } from '../../../dist/vite-plugin-astro-server/index.js';
 import { DevPipeline } from '../../../dist/vite-plugin-astro-server/pipeline.js';
@@ -49,7 +49,7 @@ describe('vite-plugin-astro-server', () => {
 			);
 			const controller = createController({ loader: pipeline.loader });
 			const { req, res, text } = createRequestAndResponse();
-			const manifestData = await createRouteManifest(
+			const manifestData = await createRoutesList(
 				{
 					cwd: fixture.path,
 					settings: pipeline.settings,
