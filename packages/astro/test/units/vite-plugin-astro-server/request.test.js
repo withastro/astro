@@ -42,7 +42,6 @@ describe('vite-plugin-astro-server', () => {
 				{
 					loader: createLoader({
 						import(id) {
-							console.log(id);
 							if (id === '\0astro-internal:middleware') {
 								return { onRequest: (_, next) => next() };
 							}
