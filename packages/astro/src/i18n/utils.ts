@@ -249,7 +249,7 @@ export function fromRoutingStrategy(
 				strategy === 'domains-prefix-always-no-redirect',
 
 			redirectToDefaultLocale: !(
-				strategy == 'pathname-prefix-always-no-redirect' ||
+				strategy === 'pathname-prefix-always-no-redirect' ||
 				strategy === 'domains-prefix-always-no-redirect'
 			),
 
