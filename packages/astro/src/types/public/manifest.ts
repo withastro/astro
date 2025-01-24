@@ -5,22 +5,34 @@
  * why do you need access to the shiki config? (very low-level confiig)
  */
 
+import type { SSRManifest } from '../../core/app/types.js';
 import type { AstroConfig } from './config.js';
 
-export type SerializedClientBuild = Pick<AstroConfig['build'], 'format' | 'redirects'>;
+// do not export
+type Extend<T, U> = { [K in keyof T]: T[K] | U };
 
-export type SerializedServerBuild = Pick<AstroConfig['build'], 'client' | 'server'>;
+// do not export
+type Dirs = Pick<SSRManifest, 'cacheDir' | 'outDir' | 'publicDir' | 'srcDir'>;
 
-export type ClientConfigSerialized = Pick<
-	AstroConfig,
-	'base' | 'i18n' | 'trailingSlash' | 'compressHTML' | 'site' | 'legacy'
+// do not export
+type DeserializedDirs = Extend<Dirs, URL>;
+
+// Export types after this comment
+
+export type ServerDeserializedManifest = Pick<
+	SSRManifest,
+	'base' | 'trailingSlash' | 'compressHTML' | 'site'
+> &
+	DeserializedDirs & {
+		i18n: AstroConfig['i18n'];
+		build: Pick<AstroConfig['build'], 'server' | 'client' | 'format'>;
+		root: URL;
+	};
+
+export type ClientDeserializedManifest = Pick<
+	SSRManifest,
+	'base' | 'trailingSlash' | 'compressHTML' | 'site'
 > & {
-	build: SerializedClientBuild;
-};
-
-export type ServerConfigSerialized = Pick<
-	AstroConfig,
-	'cacheDir' | 'outDir' | 'publicDir' | 'srcDir' | 'root'
-> & {
-	build: SerializedServerBuild;
+	i18n: AstroConfig['i18n'];
+	build: Pick<AstroConfig['build'], 'format'>;
 };

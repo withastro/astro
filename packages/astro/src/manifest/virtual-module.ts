@@ -2,11 +2,13 @@ import type { Plugin } from 'vite';
 import { CantUseManifestModule } from '../core/errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
+import { fromRoutingStrategy } from '../i18n/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type {
 	AstroConfig,
-	ClientConfigSerialized,
-	ServerConfigSerialized,
+	ClientDeserializedManifest,
+	SSRManifest,
+	ServerDeserializedManifest,
 } from '../types/public/index.js';
 
 const VIRTUAL_SERVER_ID = 'astro:manifest/server';
@@ -16,8 +18,9 @@ const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
 export default function virtualModulePlugin({
 	settings,
+	manifest,
 	logger: _logger,
-}: { settings: AstroSettings; logger: Logger }): Plugin {
+}: { settings: AstroSettings; manifest: SSRManifest; logger: Logger }): Plugin {
 	return {
 		enforce: 'pre',
 		name: 'astro-manifest-plugin',
@@ -39,7 +42,7 @@ export default function virtualModulePlugin({
 					});
 				}
 				// There's nothing wrong about using `/client` on the server
-				return `${serializeClientConfig(settings.config)};`;
+				return `${serializeClientConfig(manifest)};`;
 			}
 			// server
 			else if (id == RESOLVED_VIRTUAL_SERVER_ID) {
@@ -55,24 +58,31 @@ export default function virtualModulePlugin({
 						message: AstroErrorData.ServerOnlyModule.message(VIRTUAL_SERVER_ID),
 					});
 				}
-				return `${serializeServerConfig(settings.config)};`;
+				return `${serializeServerConfig(manifest)};`;
 			}
 		},
 	};
 }
 
-function serializeClientConfig(config: AstroConfig): string {
-	const serClientConfig: ClientConfigSerialized = {
-		base: config.base,
-		i18n: config.i18n,
+function serializeClientConfig(manifest: SSRManifest): string {
+	let i18n: AstroConfig['i18n'] | undefined = undefined;
+	if (manifest.i18n) {
+		i18n = {
+			defaultLocale: manifest.i18n.defaultLocale,
+			locales: manifest.i18n.locales,
+			routing: fromRoutingStrategy(manifest.i18n.strategy, manifest.i18n.fallbackType),
+			fallback: manifest.i18n.fallback,
+		};
+	}
+	const serClientConfig: ClientDeserializedManifest = {
+		base: manifest.base,
+		i18n,
 		build: {
-			format: config.build.format,
-			redirects: config.build.redirects,
+			format: manifest.buildFormat,
 		},
-		trailingSlash: config.trailingSlash,
-		compressHTML: config.compressHTML,
-		site: config.site,
-		legacy: config.legacy,
+		trailingSlash: manifest.trailingSlash,
+		compressHTML: manifest.compressHTML,
+		site: manifest.site,
 	};
 
 	const output = [];
@@ -82,17 +92,32 @@ function serializeClientConfig(config: AstroConfig): string {
 	return output.join('\n') + '\n';
 }
 
-function serializeServerConfig(config: AstroConfig): string {
-	const serverConfig: ServerConfigSerialized = {
+function serializeServerConfig(manifest: SSRManifest): string {
+	let i18n: AstroConfig['i18n'] | undefined = undefined;
+	if (manifest.i18n) {
+		i18n = {
+			defaultLocale: manifest.i18n.defaultLocale,
+			routing: fromRoutingStrategy(manifest.i18n.strategy, manifest.i18n.fallbackType),
+			locales: manifest.i18n.locales,
+			fallback: manifest.i18n.fallback,
+		};
+	}
+	const serverConfig: ServerDeserializedManifest = {
 		build: {
-			client: config.build.client,
-			server: config.build.server,
+			server: new URL(manifest.buildServerDir),
+			client: new URL(manifest.buildClientDir),
+			format: manifest.buildFormat,
 		},
-		cacheDir: config.cacheDir,
-		outDir: config.outDir,
-		publicDir: config.publicDir,
-		srcDir: config.srcDir,
-		root: config.root,
+		cacheDir: new URL(manifest.cacheDir),
+		outDir: new URL(manifest.outDir),
+		publicDir: new URL(manifest.publicDir),
+		srcDir: new URL(manifest.srcDir),
+		root: new URL(manifest.hrefRoot),
+		base: manifest.base,
+		i18n,
+		trailingSlash: manifest.trailingSlash,
+		site: manifest.site,
+		compressHTML: manifest.compressHTML,
 	};
 	const output = [];
 	for (const [key, value] of Object.entries(serverConfig)) {

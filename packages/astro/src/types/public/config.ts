@@ -17,7 +17,7 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-export type Locales = (string | { codes: string[]; path: string })[];
+export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
