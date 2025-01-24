@@ -28,3 +28,16 @@ jobs:
           body: |
             Hello @${{ github.event.issue.user.login }}. Please provide a [minimal reproduction](https://stackoverflow.com/help/minimal-reproducible-example) using a GitHub repository or [StackBlitz](https://astro.new/repro). Issues marked with `needs repro` will be closed if they have no activity within 3 days.
           labels: "needs triage"
+      - name: wontfix
+        if: github.event.label.name == 'wontfix'
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: "create-comment, close-issue"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            Hello! 
+
+            We're closing this issue because this isn't something that's likely to be fixed in the near future. With limited resources, we have to prioritize work that will benefit the most users.
+
+            We very much welcome [contributions](https://docs.astro.build/en/contribute/) so if you think you have a fix for this issue, please feel free to submit a PR. You can also discuss it in the [Astro Discord](https://astro.build/chat).
