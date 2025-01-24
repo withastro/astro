@@ -191,17 +191,15 @@ declare module 'astro:middleware' {
 }
 
 declare module 'astro:manifest/server' {
-	type ServerConfigSerialized = import(
-		'./dist/types/public/manifest.js',
-	).ServerDeserializedManifest;
+	// biome-ignore format: bug
+	type ServerConfigSerialized = import('./dist/types/public/manifest.js').ServerDeserializedManifest;
 	const manifest: ServerConfigSerialized;
 	export default manifest;
 }
 
 declare module 'astro:manifest/client' {
-	type ClientConfigSerialized = import(
-		'./dist/types/public/manifest.js',
-	).ClientDeserializedManifest;
+	// biome-ignore format: bug
+	type ClientConfigSerialized = import('./dist/types/public/manifest.js').ClientDeserializedManifest;
 	const manifest: ClientConfigSerialized;
 	export default manifest;
 }
