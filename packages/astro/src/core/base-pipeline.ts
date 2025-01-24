@@ -28,7 +28,7 @@ export abstract class Pipeline {
 	constructor(
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
-		readonly config: AstroConfig | undefined,
+		readonly astroConfig: AstroConfig | undefined,
 		/**
 		 * "development" or "production" only
 		 */

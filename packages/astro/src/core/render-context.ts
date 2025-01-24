@@ -362,7 +362,7 @@ export class RenderContext {
 
 	async createResult(mod: ComponentInstance) {
 		const { cookies, pathname, pipeline, routeData, status } = this;
-		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve, config } =
+		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve, astroConfig } =
 			pipeline;
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
 		const componentMetadata =
@@ -389,7 +389,7 @@ export class RenderContext {
 		// calling the render() function will populate the object with scripts, styles, etc.
 		const result: SSRResult = {
 			base: manifest.base,
-			viteBase: config?.vite ? config?.vite.base : '',
+			viteBase: astroConfig?.vite ? astroConfig?.vite.base : '',
 			cancelled: false,
 			clientDirectives,
 			inlinedScripts,
