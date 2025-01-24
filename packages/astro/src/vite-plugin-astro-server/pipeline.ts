@@ -30,7 +30,7 @@ export class DevPipeline extends Pipeline {
 	// so it needs to be mutable here unlike in other environments
 	override renderers = new Array<SSRLoadedRenderer>();
 
-	manifestData: RoutesList | undefined;
+	routesList: RoutesList | undefined;
 
 	componentInterner: WeakMap<RouteData, ComponentInstance> = new WeakMap<
 		RouteData,
@@ -63,7 +63,7 @@ export class DevPipeline extends Pipeline {
 		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>,
 	) {
 		const pipeline = new DevPipeline(loader, logger, manifest, settings);
-		pipeline.manifestData = manifestData;
+		pipeline.routesList = manifestData;
 		return pipeline;
 	}
 
@@ -193,13 +193,13 @@ export class DevPipeline extends Pipeline {
 	}
 
 	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
-		if (!this.manifestData) {
+		if (!this.routesList) {
 			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
 		}
 		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
-			routes: this.manifestData?.routes,
+			routes: this.routesList?.routes,
 			trailingSlash: this.config.trailingSlash,
 			buildFormat: this.config.build.format,
 			base: this.config.base,
@@ -210,7 +210,7 @@ export class DevPipeline extends Pipeline {
 	}
 
 	setManifestData(manifestData: RoutesList) {
-		this.manifestData = manifestData;
+		this.routesList = manifestData;
 	}
 
 	rewriteKnownRoute(route: string, sourceRoute: RouteData): ComponentInstance {

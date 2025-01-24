@@ -51,11 +51,11 @@ function getCustom500Route(manifestData: RoutesList): RouteData | undefined {
 
 export async function matchRoute(
 	pathname: string,
-	manifestData: RoutesList,
+	routesList: RoutesList,
 	pipeline: DevPipeline,
 ): Promise<MatchedRoute | undefined> {
 	const { config, logger, routeCache, serverLike, settings } = pipeline;
-	const matches = matchAllRoutes(pathname, manifestData);
+	const matches = matchAllRoutes(pathname, routesList);
 
 	const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
 
@@ -94,7 +94,7 @@ export async function matchRoute(
 	const altPathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, manifestData, pipeline);
+		return await matchRoute(altPathname, routesList, pipeline);
 	}
 
 	if (matches.length) {
@@ -108,7 +108,7 @@ export async function matchRoute(
 		);
 	}
 
-	const custom404 = getCustom404Route(manifestData);
+	const custom404 = getCustom404Route(routesList);
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, config.root);

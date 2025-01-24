@@ -20,8 +20,14 @@ async function createDevPipeline(overrides = {}, root) {
 	const settings = overrides.settings ?? (await createBasicSettings({ root }));
 	const loader = overrides.loader ?? createLoader();
 	const manifest = createDevelopmentManifest(settings);
-
-	return DevPipeline.create(undefined, { loader, logger: defaultLogger, manifest, settings });
+	const routesList = await createRoutesList(
+		{
+			cwd: root,
+			settings: settings,
+		},
+		defaultLogger,
+	);
+	return DevPipeline.create(routesList, { loader, logger: defaultLogger, manifest, settings });
 }
 
 describe('vite-plugin-astro-server', () => {
@@ -31,10 +37,12 @@ describe('vite-plugin-astro-server', () => {
 				// Note that the content doesn't matter here because we are using a custom loader.
 				'/src/pages/index.astro': '',
 			});
+
 			const pipeline = await createDevPipeline(
 				{
 					loader: createLoader({
 						import(id) {
+							console.log(id);
 							if (id === '\0astro-internal:middleware') {
 								return { onRequest: (_, next) => next() };
 							}
@@ -49,18 +57,11 @@ describe('vite-plugin-astro-server', () => {
 			);
 			const controller = createController({ loader: pipeline.loader });
 			const { req, res, text } = createRequestAndResponse();
-			const manifestData = await createRoutesList(
-				{
-					cwd: fixture.path,
-					settings: pipeline.settings,
-				},
-				defaultLogger,
-			);
 
 			try {
 				await handleRequest({
 					pipeline,
-					manifestData,
+					routesList: pipeline.routesList,
 					controller,
 					incomingRequest: req,
 					incomingResponse: res,
