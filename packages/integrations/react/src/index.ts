@@ -32,7 +32,7 @@ function getRenderer(reactConfig: ReactVersionConfig) {
 
 function optionsPlugin({
 	experimentalReactChildren = false,
-	experimentalDisableStreaming = false
+	experimentalDisableStreaming = false,
 }: {
 	experimentalReactChildren: boolean;
 	experimentalDisableStreaming: boolean;
@@ -60,7 +60,13 @@ function optionsPlugin({
 }
 
 function getViteConfiguration(
-	{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming }: ReactIntegrationOptions = {},
+	{
+		include,
+		exclude,
+		babel,
+		experimentalReactChildren,
+		experimentalDisableStreaming,
+	}: ReactIntegrationOptions = {},
 	reactConfig: ReactVersionConfig,
 ) {
 	return {
@@ -71,7 +77,8 @@ function getViteConfiguration(
 		plugins: [
 			react({ include, exclude, babel }),
 			optionsPlugin({
-				experimentalReactChildren: !!experimentalReactChildren, experimentalDisableStreaming: !!experimentalDisableStreaming
+				experimentalReactChildren: !!experimentalReactChildren,
+				experimentalDisableStreaming: !!experimentalDisableStreaming,
 			}),
 		],
 		ssr: {
