@@ -120,12 +120,12 @@ export default function assets({
 			},
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
-					// TODO: export Fonts component
 					return /* ts */ `
 					export { getConfiguredImageService, isLocalService } from "astro/assets";
 					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
 					export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
+					export { default as Fonts } from "astro/components/Fonts.astro";
 					export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
 					export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
