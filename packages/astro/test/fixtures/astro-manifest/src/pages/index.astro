@@ -1,8 +1,8 @@
 
 ---
-import { base, i18n, trailingSlash, compressHTML, site, legacy, build } from "astro:manifest/client";
+import { base, i18n, trailingSlash, compressHTML, site, build } from "astro:config/client";
 
-const config = JSON.stringify({ base, i18n, build, trailingSlash, compressHTML, site, legacy });
+const config = JSON.stringify({ base, i18n, build, trailingSlash, compressHTML, site });
 ---
 <!DOCTYPE html>
 <html lang="en">
