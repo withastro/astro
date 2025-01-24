@@ -168,9 +168,8 @@ declare module 'astro:transitions/client' {
 	export type TransitionBeforeSwapEvent = import('./dist/virtual-modules/transitions-events.js').TransitionBeforeSwapEvent;
 	export const isTransitionBeforePreparationEvent: EventModule['isTransitionBeforePreparationEvent'];
 	export const isTransitionBeforeSwapEvent: EventModule['isTransitionBeforeSwapEvent'];
-	type TransitionSwapFunctionModule = typeof import(
-		'./dist/virtual-modules/transitions-swap-functions.js',
-	);
+	// biome-ignore format: bug
+	type TransitionSwapFunctionModule = typeof import('./dist/virtual-modules/transitions-swap-functions.js');
 	export const swapFunctions: TransitionSwapFunctionModule['swapFunctions'];
 }
 
