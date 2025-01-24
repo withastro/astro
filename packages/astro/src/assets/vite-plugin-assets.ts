@@ -93,7 +93,8 @@ const addStaticImageFactory = (
 
 export default function assets({
 	settings,
-}: { settings: AstroSettings }): (vite.Plugin | undefined)[] {
+	sync,
+}: { settings: AstroSettings; sync: boolean }): (vite.Plugin | undefined)[] {
 	let resolvedConfig: vite.ResolvedConfig;
 	let shouldEmitFile = false;
 	let isBuild = false;
@@ -247,6 +248,6 @@ export default function assets({
 				}
 			},
 		},
-		fonts({ settings }),
+		fonts({ settings, sync }),
 	];
 }

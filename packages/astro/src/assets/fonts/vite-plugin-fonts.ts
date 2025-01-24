@@ -5,9 +5,12 @@ import * as unifont from 'unifont';
 import type { FontFamily, FontProvider } from './types.js';
 import xxhash from 'xxhash-wasm';
 import { extname } from 'node:path';
+import { getBuildOutputDir } from '../../core/build/util.js';
+import { mkdirSync, writeFileSync } from 'node:fs';
 
 interface Options {
 	settings: AstroSettings;
+	sync: boolean;
 }
 
 const DEFAULTS: unifont.ResolveFontOptions = {
@@ -56,7 +59,7 @@ function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], str
 		.join(', ');
 }
 
-export function fonts({ settings }: Options): Plugin | undefined {
+export function fonts({ settings, sync }: Options): Plugin | undefined {
 	if (!settings.config.experimental.fonts) {
 		return;
 	}
@@ -120,8 +123,24 @@ export function fonts({ settings }: Options): Plugin | undefined {
 
 			// console.log(Object.fromEntries(collected.entries()));
 		},
-		buildEnd() {
+		async buildEnd() {
 			resolvedMap = null;
+
+			if (sync) {
+				return;
+			}
+
+			const dir = getBuildOutputDir(settings);
+			const fontsDir = new URL('./_fonts/', dir);
+			mkdirSync(fontsDir, { recursive: true });
+			await Promise.all(
+				Array.from(collected.entries()).map(async ([hash, url]) => {
+					const response = await fetch(url);
+					const data = Buffer.from(await response.arrayBuffer());
+					writeFileSync(new URL(hash, fontsDir), data);
+					console.log(`Downloaded ${hash}`);
+				}),
+			);
 		},
 		resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
