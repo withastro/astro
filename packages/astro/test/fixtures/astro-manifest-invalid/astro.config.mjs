@@ -4,7 +4,7 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
 	site: "https://astro.build/",
 	experimental: {
-		serializeManifest: true,
+		serializeConfig: true,
 	},
 	i18n: {
 		locales: ["en", "fr"],

@@ -15,7 +15,7 @@ describe('astro:manifest/client', () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
 				experimental: {
-					serializeManifest: false,
+					serializeConfig: false,
 				},
 			});
 			devServer = await fixture.startDevServer();
@@ -99,7 +99,7 @@ describe('astro:manifest/server', () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
 				experimental: {
-					serializeManifest: false,
+					serializeConfig: false,
 				},
 			});
 			devServer = await fixture.startDevServer();

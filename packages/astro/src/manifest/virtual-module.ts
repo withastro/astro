@@ -11,9 +11,9 @@ import type {
 	ServerDeserializedManifest,
 } from '../types/public/index.js';
 
-const VIRTUAL_SERVER_ID = 'astro:manifest/server';
+const VIRTUAL_SERVER_ID = 'astro:config/server';
 const RESOLVED_VIRTUAL_SERVER_ID = '\0' + VIRTUAL_SERVER_ID;
-const VIRTUAL_CLIENT_ID = 'astro:manifest/client';
+const VIRTUAL_CLIENT_ID = 'astro:config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
 export default function virtualModulePlugin({
@@ -35,7 +35,7 @@ export default function virtualModulePlugin({
 		load(id, opts) {
 			// client
 			if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
-				if (!settings.config.experimental.serializeManifest) {
+				if (!settings.config.experimental.serializeConfig) {
 					throw new AstroError({
 						...CantUseManifestModule,
 						message: CantUseManifestModule.message(VIRTUAL_CLIENT_ID),
@@ -46,7 +46,7 @@ export default function virtualModulePlugin({
 			}
 			// server
 			else if (id == RESOLVED_VIRTUAL_SERVER_ID) {
-				if (!settings.config.experimental.serializeManifest) {
+				if (!settings.config.experimental.serializeConfig) {
 					throw new AstroError({
 						...CantUseManifestModule,
 						message: CantUseManifestModule.message(VIRTUAL_SERVER_ID),
