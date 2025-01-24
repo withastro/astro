@@ -3,6 +3,7 @@ import Island from '../components/Island.astro';
 import Self from '../components/Self.astro';
 import HTMLError from '../components/HTMLError.astro';
 import { generateLongText } from '../lorem';
+import MediaTypeInHeader from '../components/MediaTypeInHeader.astro';
 
 const content = generateLongText(5);
 
@@ -21,6 +22,8 @@ export const prerender = false;
 		</div>
 
 		<Self server:defer />
+
+		<MediaTypeInHeader server:defer />
 
 		<div id="big">
 			<Island server:defer secret="test" content={content} />

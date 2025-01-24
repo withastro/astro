@@ -870,6 +870,38 @@ export const AstroResponseHeadersReassigned = {
 
 /**
  * @docs
+ * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
+ * @see
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * @description
+ * Thrown when the session storage could not be initialized.
+ */
+export const SessionStorageInitError = {
+	name: 'SessionStorageInitError',
+	title: 'Session storage could not be initialized.',
+	message: (error: string, driver?: string) =>
+		`Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Error when saving session data with driver `DRIVER`. `ERROR`
+ * @see
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * @description
+ * Thrown when the session data could not be saved.
+ */
+export const SessionStorageSaveError = {
+	name: 'SessionStorageSaveError',
+	title: 'Session data could not be saved.',
+	message: (error: string, driver?: string) =>
+		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @description
  * Thrown in development mode when middleware throws an error while attempting to loading it.
  *
@@ -955,7 +987,7 @@ export const AstroGlobNoMatch = {
 /**
  * @docs
  * @see
- * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#astroredirect)
+ * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#redirect)
  * @description
  * A redirect must be given a location with the `Location` header.
  */
@@ -1531,6 +1563,32 @@ export const InvalidContentEntryDataError = {
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * The content loader for the collection **blog** returned an entry with an invalid `id`:<br/>
+ * &#123;<br/>
+ *   "id": 1,<br/>
+ *   "title": "Hello, World!"<br/>
+ * &#125;
+ * @description
+ * A content loader returned an invalid `id`.
+ * Make sure that the `id` of the entry is a string.
+ * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ */
+export const ContentLoaderReturnsInvalidId = {
+	name: 'ContentLoaderReturnsInvalidId',
+	title: 'Content loader returned an entry with an invalid `id`.',
+	message(collection: string, entry: any) {
+		return [
+			`The content loader for the collection **${String(collection)}** returned an entry with an invalid \`id\`:`,
+			JSON.stringify(entry, null, 2),
+		].join('\n');
+	},
+	hint: 'Make sure that the `id` of the entry is a string. See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders.',
 } satisfies ErrorData;
 
 /**

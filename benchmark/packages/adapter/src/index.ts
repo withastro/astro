@@ -1,4 +1,4 @@
-import type { AstroAdapter, AstroIntegration } from 'astro';
+import type { AstroIntegration } from 'astro';
 
 export default function createIntegration(): AstroIntegration {
 	return {

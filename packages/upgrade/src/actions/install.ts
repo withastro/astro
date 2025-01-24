@@ -48,7 +48,7 @@ export async function install(
 	const majors: PackageInfo[] = [];
 	for (const packageInfo of toInstall) {
 		const word = ctx.dryRun ? 'can' : 'will';
-		await upgrade(packageInfo, `${word} be updated to`);
+		await upgrade(packageInfo, `${word} be updated`);
 		if (packageInfo.isMajor) {
 			majors.push(packageInfo);
 		}

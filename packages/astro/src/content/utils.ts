@@ -26,8 +26,9 @@ import {
 } from './consts.js';
 import { glob } from './loaders/glob.js';
 import { createImage } from './runtime-assets.js';
+
 /**
- * Amap from a collection + slug to the local file path.
+ * A map from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
  * @see `templates/content/module.mjs`
  */
@@ -37,14 +38,28 @@ export type ContentLookupMap = {
 
 const entryTypeSchema = z
 	.object({
-		id: z
-			.string({
-				invalid_type_error: 'Content entry `id` must be a string',
-				// Default to empty string so we can validate properly in the loader
-			})
-			.catch(''),
+		id: z.string({
+			invalid_type_error: 'Content entry `id` must be a string',
+			// Default to empty string so we can validate properly in the loader
+		}),
 	})
-	.catchall(z.unknown());
+	.passthrough();
+
+export const loaderReturnSchema = z.union([
+	z.array(entryTypeSchema),
+	z.record(
+		z.string(),
+		z
+			.object({
+				id: z
+					.string({
+						invalid_type_error: 'Content entry `id` must be a string',
+					})
+					.optional(),
+			})
+			.passthrough(),
+	),
+]);
 
 const collectionConfigParser = z.union([
 	z.object({
@@ -59,39 +74,7 @@ const collectionConfigParser = z.union([
 		type: z.literal(CONTENT_LAYER_TYPE),
 		schema: z.any().optional(),
 		loader: z.union([
-			z.function().returns(
-				z.union([
-					z.array(entryTypeSchema),
-					z.promise(z.array(entryTypeSchema)),
-					z.record(
-						z.string(),
-						z
-							.object({
-								id: z
-									.string({
-										invalid_type_error: 'Content entry `id` must be a string',
-									})
-									.optional(),
-							})
-							.catchall(z.unknown()),
-					),
-
-					z.promise(
-						z.record(
-							z.string(),
-							z
-								.object({
-									id: z
-										.string({
-											invalid_type_error: 'Content entry `id` must be a string',
-										})
-										.optional(),
-								})
-								.catchall(z.unknown()),
-						),
-					),
-				]),
-			),
+			z.function(),
 			z.object({
 				name: z.string(),
 				load: z.function(
@@ -164,6 +147,7 @@ export async function getEntryDataAndImages<
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
+	experimentalSvgEnabled: boolean,
 	pluginContext?: PluginContext,
 ): Promise<{ data: TOutputData; imageImports: Array<string> }> {
 	let data: TOutputData;
@@ -182,7 +166,12 @@ export async function getEntryDataAndImages<
 	if (typeof schema === 'function') {
 		if (pluginContext) {
 			schema = schema({
-				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
+				image: createImage(
+					pluginContext,
+					shouldEmitFile,
+					entry._internal.filePath,
+					experimentalSvgEnabled,
+				),
 			});
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
 			schema = schema({
@@ -257,12 +246,14 @@ export async function getEntryData(
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
+	experimentalSvgEnabled: boolean,
 	pluginContext?: PluginContext,
 ) {
 	const { data } = await getEntryDataAndImages(
 		entry,
 		collectionConfig,
 		shouldEmitFile,
+		experimentalSvgEnabled,
 		pluginContext,
 	);
 	return data;
@@ -412,18 +403,27 @@ function getRelativeEntryPath(entry: URL, collection: string, contentDir: URL) {
 	return relativeToCollection;
 }
 
+function isParentDirectory(parent: URL, child: URL) {
+	const relative = path.relative(fileURLToPath(parent), fileURLToPath(child));
+	return !relative.startsWith('..') && !path.isAbsolute(relative);
+}
+
 export function getEntryType(
 	entryPath: string,
-	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
+	paths: Pick<ContentPaths, 'config' | 'contentDir' | 'root'>,
 	contentFileExts: string[],
 	dataFileExts: string[],
 ): 'content' | 'data' | 'config' | 'ignored' {
 	const { ext } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
+	const dotAstroDir = new URL('./.astro/', paths.root);
+
 	if (fileUrl.href === paths.config.url.href) {
 		return 'config';
 	} else if (hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir)) {
+		return 'ignored';
+	} else if (isParentDirectory(dotAstroDir, fileUrl)) {
 		return 'ignored';
 	} else if (contentFileExts.includes(ext)) {
 		return 'content';
@@ -704,6 +704,7 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 }
 
 export type ContentPaths = {
+	root: URL;
 	contentDir: URL;
 	assetsDir: URL;
 	typesTemplate: URL;
@@ -715,12 +716,13 @@ export type ContentPaths = {
 };
 
 export function getContentPaths(
-	{ srcDir, legacy }: Pick<AstroConfig, 'root' | 'srcDir' | 'legacy'>,
+	{ srcDir, legacy, root }: Pick<AstroConfig, 'root' | 'srcDir' | 'legacy'>,
 	fs: typeof fsMod = fsMod,
 ): ContentPaths {
 	const configStats = search(fs, srcDir, legacy?.collections);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
+		root: new URL('./', root),
 		contentDir: new URL('./content/', srcDir),
 		assetsDir: new URL('./assets/', srcDir),
 		typesTemplate: new URL('templates/content/types.d.ts', pkgBase),
@@ -823,4 +825,27 @@ export function contentModuleToId(fileName: string) {
 	params.set('fileName', fileName);
 	params.set(CONTENT_MODULE_FLAG, 'true');
 	return `${DEFERRED_MODULE}?${params.toString()}`;
+}
+
+// Based on https://github.com/sindresorhus/safe-stringify
+function safeStringifyReplacer(seen: WeakSet<object>) {
+	return function (_key: string, value: unknown) {
+		if (!(value !== null && typeof value === 'object')) {
+			return value;
+		}
+		if (seen.has(value)) {
+			return '[Circular]';
+		}
+		seen.add(value);
+		const newValue = Array.isArray(value) ? [] : {};
+		for (const [key2, value2] of Object.entries(value)) {
+			(newValue as Record<string, unknown>)[key2] = safeStringifyReplacer(seen)(key2, value2);
+		}
+		seen.delete(value);
+		return newValue;
+	};
+}
+export function safeStringify(value: unknown) {
+	const seen = new WeakSet();
+	return JSON.stringify(value, safeStringifyReplacer(seen));
 }

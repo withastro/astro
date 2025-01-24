@@ -49,10 +49,11 @@ describe('astro:image', () => {
 
 		describe('basics', () => {
 			let $;
+			let body;
 			before(async () => {
 				let res = await fixture.fetch('/');
-				let html = await res.text();
-				$ = cheerio.load(html);
+				body = await res.text();
+				$ = cheerio.load(body);
 			});
 
 			it('Adds the <img> tag', () => {
@@ -61,6 +62,9 @@ describe('astro:image', () => {
 				assert.equal($img.attr('src').startsWith('/_image'), true);
 			});
 
+			it('does not inject responsive image styles when not enabled', () => {
+				assert.ok(!body.includes('[data-astro-image]'));
+			});
 			it('includes loading and decoding attributes', () => {
 				let $img = $('#local img');
 				assert.equal(!!$img.attr('loading'), true);
@@ -1000,11 +1004,8 @@ describe('astro:image', () => {
 			const generatedImages = (await fixture.glob('_astro/**/*.webp'))
 				.map((path) => basename(path))
 				.sort();
-			const cachedImages = [
-				...(await fixture.glob('../node_modules/.astro/assets/**/*.webp')),
-				...(await fixture.glob('../node_modules/.astro/assets/**/*.json')),
-			]
-				.map((path) => basename(path).replace('.webp.json', '.webp'))
+			const cachedImages = [...(await fixture.glob('../node_modules/.astro/assets/**/*.webp'))]
+				.map((path) => basename(path))
 				.sort();
 
 			assert.deepEqual(generatedImages, cachedImages);
@@ -1030,6 +1031,17 @@ describe('astro:image', () => {
 			);
 
 			assert.equal(isReusingCache, true);
+		});
+
+		it('writes remote image cache metadata', async () => {
+			const html = await fixture.readFile('/remote/index.html');
+			const $ = cheerio.load(html);
+			const metaSrc =
+				'../node_modules/.astro/assets/' + basename($('#remote img').attr('src')) + '.json';
+			const data = await fixture.readFile(metaSrc, null);
+			assert.equal(data instanceof Buffer, true);
+			const metadata = JSON.parse(data.toString());
+			assert.equal(typeof metadata.expires, 'number');
 		});
 
 		it('client images are written to build', async () => {

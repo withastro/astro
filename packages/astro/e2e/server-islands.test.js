@@ -44,6 +44,15 @@ test.describe('Server islands', () => {
 			await expect(el).toHaveText('test');
 		});
 
+		test('content-type header with media type still allows the island to be displayed', async ({
+			page,
+			astro,
+		}) => {
+			await page.goto(astro.resolveUrl('/base/'));
+			let el = page.locator('#charset-in-content-type');
+			await expect(el).toHaveCount(1);
+		});
+
 		test('Self imported module can server defer', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/base/'));
 			let el = page.locator('.now');

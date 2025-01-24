@@ -1,5 +1,17 @@
 # @astrojs/upgrade
 
+## 0.4.3
+
+### Patch Changes
+
+- [#12739](https://github.com/withastro/astro/pull/12739) [`1f9571b`](https://github.com/withastro/astro/commit/1f9571b2b9839a5513fe2c03a90ff36235e8efe2) Thanks [@gnify](https://github.com/gnify)! - Updates displayed data to show both source and target versions
+
+## 0.4.2
+
+### Patch Changes
+
+- [#12706](https://github.com/withastro/astro/pull/12706) [`f6c4214`](https://github.com/withastro/astro/commit/f6c4214042c68de137a69aa15dea81ed9cbc822a) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused registry URLs that specify a port to be incorrectly detected as offline.
+
 ## 0.4.1
 
 ### Patch Changes

@@ -12,7 +12,9 @@ import {
 	astroContentImportPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
+import { createEnvLoader } from '../env/env-loader.js';
 import { astroEnv } from '../env/vite-plugin-env.js';
+import { importMetaEnv } from '../env/vite-plugin-import-meta-env.js';
 import astroInternationalization from '../i18n/vite-plugin-i18n.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
@@ -22,7 +24,6 @@ import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.j
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
-import envVitePlugin from '../vite-plugin-env/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import astroHmrReloadPlugin from '../vite-plugin-hmr-reload/index.js';
@@ -123,6 +124,7 @@ export async function createVite(
 	});
 
 	const srcDirPattern = glob.convertPathToPattern(fileURLToPath(settings.config.srcDir));
+	const envLoader = createEnvLoader(mode, settings.config);
 
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
@@ -146,8 +148,8 @@ export async function createVite(
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			command === 'dev' && vitePluginAstroServer({ settings, logger, fs, manifest, ssrManifest }), // ssrManifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
-			envVitePlugin({ settings }),
-			astroEnv({ settings, mode, sync }),
+			importMetaEnv({ envLoader }),
+			astroEnv({ settings, sync, envLoader }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			astroPostprocessVitePlugin(),
@@ -168,7 +170,7 @@ export async function createVite(
 			astroInternationalization({ settings }),
 			vitePluginActions({ fs, settings }),
 			vitePluginUserActions({ settings }),
-			vitePluginServerIslands({ settings }),
+			vitePluginServerIslands({ settings, logger }),
 			astroContainer(),
 			astroHmrReloadPlugin(),
 		],

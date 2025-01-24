@@ -120,6 +120,32 @@ describe('Astro Markdown plugins', () => {
 		testRemark(html);
 		testRehype(html, '#smartypants-test');
 	});
+
+	describe('content layer plugins', () => {
+		let fixture;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/content-layer-remark-plugins/',
+			});
+			await fixture.build();
+		});
+
+		it('passes untransformed frontmatter to remark plugins', async () => {
+			const html = await fixture.readFile('/test1/index.html');
+			const $ = cheerio.load(html);
+			assert.equal($('p').text(), 'Not transformed');
+		});
+
+		it('processes empty markdown content with remark plugins', async () => {
+			const html = await fixture.readFile('/empty-content/index.html');
+			const $ = cheerio.load(html);
+			assert.equal($('h1').text(), 'Test Empty Markdown');
+			assert.equal(
+				$('#frontmatter-custom-property').text(),
+				'Generated property via remark plugin!',
+			);
+		});
+	});
 });
 
 function testRehype(html, headingId) {

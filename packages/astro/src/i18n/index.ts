@@ -4,6 +4,7 @@ import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
 import { MissingLocale, i18nNoLocaleFoundInPath } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
+import { isRoute404, isRoute500 } from '../core/routing/match.js';
 import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
 import { createI18nMiddleware } from './middleware.js';
@@ -17,8 +18,9 @@ export function requestHasLocale(locales: Locales) {
 
 export function requestIs404Or500(request: Request, base = '') {
 	const url = new URL(request.url);
+	const pathname = url.pathname.slice(base.length);
 
-	return url.pathname.startsWith(`${base}/404`) || url.pathname.startsWith(`${base}/500`);
+	return isRoute404(pathname) || isRoute500(pathname);
 }
 
 // Checks if the pathname has any locale
@@ -104,11 +106,17 @@ export function getLocaleRelativeUrl({
 	}
 	pathsToJoin.push(path);
 
+	let relativePath: string;
 	if (shouldAppendForwardSlash(trailingSlash, format)) {
-		return appendForwardSlash(joinPaths(...pathsToJoin));
+		relativePath = appendForwardSlash(joinPaths(...pathsToJoin));
 	} else {
-		return joinPaths(...pathsToJoin);
+		relativePath = joinPaths(...pathsToJoin);
 	}
+
+	if (relativePath === '') {
+		return '/';
+	}
+	return relativePath;
 }
 
 /**
@@ -122,7 +130,9 @@ export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsolu
 		const base = domains[locale];
 		url = joinPaths(base, localeUrl.replace(`/${rest.locale}`, ''));
 	} else {
-		if (site) {
+		if (localeUrl === '/') {
+			url = site || '/';
+		} else if (site) {
 			url = joinPaths(site, localeUrl);
 		} else {
 			url = localeUrl;
@@ -298,9 +308,14 @@ export function redirectToDefaultLocale({
 }
 
 // NOTE: public function exported to the users via `astro:i18n` module
-export function notFound({ base, locales }: MiddlewarePayload) {
+export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 	return function (context: APIContext, response?: Response): Response | undefined {
-		if (response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no') return response;
+		if (
+			response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no' &&
+			typeof fallback === 'undefined'
+		) {
+			return response;
+		}
 
 		const url = context.url;
 		// We return a 404 if:

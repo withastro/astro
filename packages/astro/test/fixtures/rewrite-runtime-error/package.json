@@ -1,5 +1,5 @@
 {
-  "name": "@test/rewrite-runtime-errror",
+  "name": "@test/rewrite-runtime-error",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

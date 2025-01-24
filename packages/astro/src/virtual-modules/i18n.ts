@@ -378,10 +378,10 @@ if (i18n?.routing === 'manual') {
 		fallbackType = toFallbackType(customOptions);
 		const manifest: SSRManifest['i18n'] = {
 			...i18n,
-			fallback: undefined,
 			strategy,
 			domainLookupTable: {},
 			fallbackType,
+			fallback: i18n.fallback,
 		};
 		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
 	};

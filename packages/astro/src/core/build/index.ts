@@ -3,7 +3,6 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { blue, bold, green } from 'kleur/colors';
 import type * as vite from 'vite';
-import { injectImageEndpoint } from '../../assets/endpoint/config.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import {
@@ -13,7 +12,7 @@ import {
 	runHookConfigSetup,
 } from '../../integrations/hooks.js';
 import type { AstroSettings, ManifestData } from '../../types/astro.js';
-import type { AstroConfig, AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
+import type { AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
@@ -69,7 +68,8 @@ export default async function build(
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	if (inlineConfig.force) {
-		await clearContentLayerCache({ settings, logger, fs });
+		// isDev is always false, because it's interested in the build command, not the output type
+		await clearContentLayerCache({ settings, logger, fs, isDev: false });
 	}
 
 	const builder = new AstroBuilder(settings, {
@@ -123,10 +123,6 @@ class AstroBuilder {
 
 		this.manifest = await createRouteManifest({ settings: this.settings }, this.logger);
 
-		if (this.settings.buildOutput === 'server') {
-			injectImageEndpoint(this.settings, this.manifest, 'build');
-		}
-
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 
 		// If we're building for the server, we need to ensure that an adapter is installed.
@@ -159,6 +155,7 @@ class AstroBuilder {
 			logger,
 			fs,
 			manifest: this.manifest,
+			command: 'build',
 		});
 
 		return { viteConfig };
@@ -169,7 +166,7 @@ class AstroBuilder {
 		await runHookBuildStart({ config: this.settings.config, logging: this.logger });
 		this.validateConfig();
 
-		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
+		this.logger.info('build', `output: ${blue('"' + this.settings.buildOutput + '"')}`);
 		this.logger.info('build', `directory: ${blue(fileURLToPath(this.settings.config.outDir))}`);
 		if (this.settings.adapter) {
 			this.logger.info('build', `adapter: ${green(this.settings.adapter.name)}`);
@@ -211,8 +208,7 @@ class AstroBuilder {
 			key: keyPromise,
 		};
 
-		const { internals, ssrOutputChunkNames, ssrOutputAssetNames, contentFileNames } =
-			await viteBuild(opts);
+		const { internals, ssrOutputChunkNames } = await viteBuild(opts);
 
 		const hasServerIslands = this.settings.serverIslandNameMap.size > 0;
 		// Error if there are server islands but no adapter provided.
@@ -220,7 +216,7 @@ class AstroBuilder {
 			throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 		}
 
-		await staticBuild(opts, internals, ssrOutputChunkNames, ssrOutputAssetNames, contentFileNames);
+		await staticBuild(opts, internals, ssrOutputChunkNames);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
@@ -291,7 +287,7 @@ class AstroBuilder {
 		logger: Logger;
 		timeStart: number;
 		pageCount: number;
-		buildMode: AstroConfig['output'];
+		buildMode: AstroSettings['buildOutput'];
 	}) {
 		const total = getTimeStat(timeStart, performance.now());
 

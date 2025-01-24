@@ -6,11 +6,11 @@ import {
 	isFrontmatterValid,
 } from '@astrojs/markdown-remark';
 import type { Plugin } from 'vite';
-import { normalizePath } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isMarkdownFile, isPage } from '../core/util.js';
+import { normalizePath } from '../core/viteUtils.js';
 import { shorthash } from '../runtime/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';

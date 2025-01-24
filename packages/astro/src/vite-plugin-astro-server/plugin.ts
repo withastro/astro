@@ -13,7 +13,6 @@ import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { injectDefaultDevRoutes } from '../core/routing/dev-default.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
@@ -74,15 +73,11 @@ export default function createVitePluginAstroServer({
 					try {
 						const content = await fsMod.promises.readFile(routePath, 'utf-8');
 						await getRoutePrerenderOption(content, route, settings, logger);
+						await runHookRoutesResolved({ routes: routeManifest.routes, settings, logger });
 					} catch (_) {}
 				} else {
-					routeManifest = injectDefaultDevRoutes(
-						settings,
-						devSSRManifest,
-						await createRouteManifest({ settings, fsMod }, logger, { dev: true }),
-					);
+					routeManifest = await createRouteManifest({ settings, fsMod }, logger, { dev: true });
 				}
-				await runHookRoutesResolved({ routes: routeManifest.routes, settings, logger });
 
 				warnMissingAdapter(logger, settings);
 				pipeline.manifest.checkOrigin =
@@ -191,12 +186,12 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		i18n: i18nManifest,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
-		envGetSecretEnabled: false,
 		key: hasEnvironmentKey() ? getEnvironmentKey() : createKey(),
 		middleware() {
 			return {
 				onRequest: NOOP_MIDDLEWARE_FN,
 			};
 		},
+		sessionConfig: settings.config.experimental.session,
 	};
 }

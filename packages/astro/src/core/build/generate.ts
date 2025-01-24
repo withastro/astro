@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import os from 'node:os';
-import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
+import { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } from 'kleur/colors';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import {
@@ -125,7 +125,73 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 
 		const assetsTimer = performance.now();
 		for (const [originalPath, transforms] of staticImageList) {
-			await generateImagesForPath(originalPath, transforms, assetsCreationPipeline, queue);
+			// Process each source image in parallel based on the queue’s concurrency
+			// (`cpuCount`). Process each transform for a source image sequentially.
+			//
+			// # Design Decision:
+			// We have 3 source images (A.png, B.png, C.png) and 3 transforms for
+			// each:
+			// ```
+			// A1.png A2.png A3.png
+			// B1.png B2.png B3.png
+			// C1.png C2.png C3.png
+			// ```
+			//
+			// ## Option 1
+			// Enqueue all transforms indiscriminantly
+			// ```
+			// |_A1.png   |_B2.png   |_C1.png
+			// |_B3.png   |_A2.png   |_C3.png
+			// |_C2.png   |_A3.png   |_B1.png
+			// ```
+			// * Advantage: Maximum parallelism, saturate CPU
+			// * Disadvantage: Spike in context switching
+			//
+			// ## Option 2
+			// Enqueue all transforms, but constrain processing order by source image
+			// ```
+			// |_A3.png   |_B1.png   |_C2.png
+			// |_A1.png   |_B3.png   |_C1.png
+			// |_A2.png   |_B2.png   |_C3.png
+			// ```
+			// * Advantage: Maximum parallelism, saturate CPU (same as Option 1) in
+			//   hope to avoid context switching
+			// * Disadvantage: Context switching still occurs and performance still
+			//   suffers
+			//
+			// ## Option 3
+			// Enqueue each source image, but perform the transforms for that source
+			// image sequentially
+			// ```
+			// \_A1.png   \_B1.png   \_C1.png
+			//  \_A2.png   \_B2.png   \_C2.png
+			//   \_A3.png   \_B3.png   \_C3.png
+			// ```
+			// * Advantage: Less context switching
+			// * Disadvantage: If you have a low number of source images with high
+			//   number of transforms then this is suboptimal.
+			//
+			// ## BEST OPTION:
+			// **Option 3**. Most projects will have a higher number of source images
+			// with a few transforms on each. Even though Option 2 should be faster
+			// and _should_ prevent context switching, this was not observed in
+			// nascent tests. Context switching was high and the overall performance
+			// was half of Option 3.
+			//
+			// If looking to optimize further, please consider the following:
+			// * Avoid `queue.add()` in an async for loop. Notice the `await
+			//   queue.onIdle();` after this loop. We do not want to create a scenario
+			//   where tasks are added to the queue after the queue.onIdle() resolves.
+			//   This can break tests and create annoying race conditions.
+			// * Exposing a concurrency property in `astro.config.mjs` to allow users
+			//   to override Node’s os.cpus().length default.
+			// * Create a proper performance benchmark for asset transformations of
+			//   projects in varying sizes of source images and transforms.
+			queue
+				.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
+				.catch((e) => {
+					throw e;
+				});
 		}
 
 		await queue.onIdle();
@@ -181,7 +247,7 @@ async function generatePage(
 		const timeStart = performance.now();
 		pipeline.logger.debug('build', `Generating: ${path}`);
 
-		const filePath = getOutputFilename(config, path, pageData.route.type);
+		const filePath = getOutputFilename(config, path, pageData.route);
 		const lineIcon =
 			(index === paths.length - 1 && !isConcurrent) || paths.length === 1 ? '└─' : '├─';
 
@@ -191,16 +257,18 @@ async function generatePage(
 			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
 		}
 
-		await generatePath(path, pipeline, generationOptions, route);
+		const created = await generatePath(path, pipeline, generationOptions, route);
 
 		const timeEnd = performance.now();
 		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
 		const timeIncrease = (isSlow ? red : dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
+		const notCreated =
+			created === false ? yellow('(file not created, response body was empty)') : '';
 
 		if (isConcurrent) {
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncrease}`);
+			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncrease} ${notCreated}`);
 		} else {
-			logger.info('SKIP_FORMAT', ` ${timeIncrease}`);
+			logger.info('SKIP_FORMAT', ` ${timeIncrease} ${notCreated}`);
 		}
 	}
 
@@ -395,12 +463,20 @@ interface GeneratePathOptions {
 	mod: ComponentInstance;
 }
 
+/**
+ *
+ * @param pathname
+ * @param pipeline
+ * @param gopts
+ * @param route
+ * @return {Promise<boolean | undefined>} If `false` the file hasn't been created. If `undefined` it's expected to not be created.
+ */
 async function generatePath(
 	pathname: string,
 	pipeline: BuildPipeline,
 	gopts: GeneratePathOptions,
 	route: RouteData,
-) {
+): Promise<boolean | undefined> {
 	const { mod } = gopts;
 	const { config, logger, options } = pipeline;
 	logger.debug('build', `Generating: ${pathname}`);
@@ -420,7 +496,7 @@ async function generatePath(
 		// Check if there is a translated page with the same path
 		Object.values(options.allPages).some((val) => val.route.pattern.test(pathname))
 	) {
-		return;
+		return undefined;
 	}
 
 	const url = getUrlForPath(
@@ -462,7 +538,7 @@ async function generatePath(
 		// Adapters may handle redirects themselves, turning off Astro's redirect handling using `config.build.redirects` in the process.
 		// In that case, we skip rendering static files for the redirect routes.
 		if (routeIsRedirect(route) && !config.build.redirects) {
-			return;
+			return undefined;
 		}
 		const locationSite = getRedirectLocationOrThrow(response.headers);
 		const siteURL = config.site;
@@ -478,7 +554,7 @@ async function generatePath(
 		}
 	} else {
 		// If there's no body, do nothing
-		if (!response.body) return;
+		if (!response.body) return false;
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
@@ -495,6 +571,8 @@ async function generatePath(
 
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body);
+
+	return true;
 }
 
 function getPrettyRouteName(route: RouteData): string {
@@ -559,6 +637,5 @@ function createBuildManifest(
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,
-		envGetSecretEnabled: false,
 	};
 }
