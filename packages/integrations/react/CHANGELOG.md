@@ -1,5 +1,27 @@
 # @astrojs/react
 
+## 4.2.0
+
+### Minor Changes
+
+- [#13036](https://github.com/withastro/astro/pull/13036) [`3c90d8f`](https://github.com/withastro/astro/commit/3c90d8f3e0baba1463a9022c2e8c777204ad2250) Thanks [@artmsilva](https://github.com/artmsilva)! - Adds experimental support for disabling streaming
+
+  This is useful to support libraries that are not compatible with streaming such as some CSS-in-JS libraries. To disable streaming for all React components in your project, set `experimentalDisableStreaming: true` as a configuration option for `@astrojs/react`:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import react from '@astrojs/react';
+
+  export default defineConfig({
+    integrations: [
+      react({
+  +      experimentalDisableStreaming: true,
+      }),
+    ],
+  });
+  ```
+
 ## 4.1.6
 
 ### Patch Changes
