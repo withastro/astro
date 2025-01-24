@@ -136,7 +136,6 @@ export function fonts({ settings }: Options): Plugin | undefined {
 			}
 		},
 		async configureServer(server) {
-			const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
 			// TODO: take base into account
 			server.middlewares.use('/_fonts', async (req, res, next) => {
 				if (!req.url) {
@@ -147,10 +146,15 @@ export function fonts({ settings }: Options): Plugin | undefined {
 				if (!url) {
 					return next();
 				}
-				const data = await fetch(url)
-					.then((r) => r.arrayBuffer())
-					.then((r) => Buffer.from(r));
-				res.setHeader('Cache-Control', `max-age=${ONE_YEAR_IN_SECONDS}`);
+				const response = await fetch(url);
+				const data = Buffer.from(await response.arrayBuffer());
+				const keys = ['cache-control', 'content-type', 'content-length'];
+				for (const key of keys) {
+					const value = response.headers.get(key);
+					if (value) {
+						res.setHeader(key, value);
+					}
+				}
 				res.end(data);
 			});
 		},
