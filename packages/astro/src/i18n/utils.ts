@@ -233,6 +233,18 @@ export function toRoutingStrategy(
 	return strategy;
 }
 
+const PREFIX_DEFAULT_LOCALE = new Set([
+	'pathname-prefix-always',
+	'domains-prefix-always',
+	'pathname-prefix-always-no-redirect',
+	'domains-prefix-always-no-redirect',
+]);
+
+const REDIRECT_TO_DEFAULT_LOCALE = new Set([
+	'pathname-prefix-always-no-redirect',
+	'domains-prefix-always-no-redirect',
+]);
+
 export function fromRoutingStrategy(
 	strategy: RoutingStrategies,
 	fallbackType: NonNullable<SSRManifest['i18n']>['fallbackType'],
@@ -242,17 +254,8 @@ export function fromRoutingStrategy(
 		routing = 'manual';
 	} else {
 		routing = {
-			prefixDefaultLocale:
-				strategy === 'pathname-prefix-always' ||
-				strategy === 'domains-prefix-always' ||
-				strategy === 'pathname-prefix-always-no-redirect' ||
-				strategy === 'domains-prefix-always-no-redirect',
-
-			redirectToDefaultLocale: !(
-				strategy === 'pathname-prefix-always-no-redirect' ||
-				strategy === 'domains-prefix-always-no-redirect'
-			),
-
+			prefixDefaultLocale: PREFIX_DEFAULT_LOCALE.has(strategy),
+			redirectToDefaultLocale: !REDIRECT_TO_DEFAULT_LOCALE.has(strategy),
 			fallbackType,
 		};
 	}
