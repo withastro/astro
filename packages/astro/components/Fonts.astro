@@ -3,23 +3,26 @@ import { fontsData } from 'virtual:astro:assets/fonts/internal';
 
 interface Props {
 	family: string;
+	preload?: boolean;
 }
 
-const { family } = Astro.props;
+const { family, preload = false } = Astro.props;
 const data = fontsData.get(family);
 if (!data) {
 	throw new Error(`No data for ${family}`);
 }
 ---
 
+<style set:html={data.css}></style>
 {
-	data.hashes.map((hash: string) => (
-		<link
-			rel="preload"
-			href={`/_fonts/${hash}`}
-			as="font"
-			type={`font/${hash.split('.')[1]}`}
-			crossorigin
-		/>
-	))
+	preload &&
+		data.hashes.map((hash: string) => (
+			<link
+				rel="preload"
+				href={`/_fonts/${hash}`}
+				as="font"
+				type={`font/${hash.split('.')[1]}`}
+				crossorigin
+			/>
+		))
 }

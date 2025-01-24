@@ -20,6 +20,42 @@ const DEFAULTS: unifont.ResolveFontOptions = {
 const VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/internal';
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
+function generateFontFace(family: string, font: unifont.FontFaceData) {
+	return [
+		'@font-face {',
+		`  font-family: '${family}';`,
+		`  src: ${renderFontSrc(font.src)};`,
+		`  font-display: ${font.display || 'swap'};`,
+		font.unicodeRange && `  unicode-range: ${font.unicodeRange};`,
+		font.weight &&
+			`  font-weight: ${Array.isArray(font.weight) ? font.weight.join(' ') : font.weight};`,
+		font.style && `  font-style: ${font.style};`,
+		font.stretch && `  font-stretch: ${font.stretch};`,
+		font.featureSettings && `  font-feature-settings: ${font.featureSettings};`,
+		font.variationSettings && `  font-variation-settings: ${font.variationSettings};`,
+		`}`,
+	]
+		.filter(Boolean)
+		.join('\n');
+}
+
+function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], string>[]) {
+	return sources
+		.map((src) => {
+			if ('url' in src) {
+				let rendered = `url("${src.url}")`;
+				for (const key of ['format', 'tech'] as const) {
+					if (key in src) {
+						rendered += ` ${key}(${src[key]})`;
+					}
+				}
+				return rendered;
+			}
+			return `local("${src.name}")`;
+		})
+		.join(', ');
+}
+
 export function fonts({ settings }: Options): Plugin | undefined {
 	if (!settings.config.experimental.fonts) {
 		return;
@@ -29,7 +65,7 @@ export function fonts({ settings }: Options): Plugin | undefined {
 	const families: Array<FontFamily<string>> = settings.config.experimental.fonts.families;
 
 	// TODO: css
-	let resolvedMap: Map<string, { hashes: Array<string> }> | null = null;
+	let resolvedMap: Map<string, { hashes: Array<string>; css: string }> | null = null;
 	// HASH/URL
 	const collected = new Map<string, string>();
 
@@ -65,6 +101,7 @@ export function fonts({ settings }: Options): Plugin | undefined {
 
 				// TODO: use fontaine if needed
 				const hashes: Array<string> = [];
+				let css = '';
 				for (const data of fontsData) {
 					for (const source of data.src as unknown as Array<Record<string, string>>) {
 						const key = 'name' in source ? 'name' : 'url';
@@ -75,8 +112,9 @@ export function fonts({ settings }: Options): Plugin | undefined {
 						}
 						source[key] = `/_fonts/${hash}`;
 					}
+					css += generateFontFace(family.name, data);
 				}
-				resolvedMap.set(family.name, { hashes });
+				resolvedMap.set(family.name, { hashes, css });
 				// console.dir(fontsData);
 			}
 
