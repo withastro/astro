@@ -28,6 +28,10 @@ describe('Basic', () => {
 
 			assert.equal(css.includes('box-sizing:border-box;'), true); // base css
 			assert.equal(css.includes('text-red-500'), true); // class css
+			assert.equal(
+				new RegExp(/\.a\[data-astro-cid-.*?\] \.b\[data-astro-cid-.*?\]/).test(css),
+				true,
+			); // nesting
 		});
 	});
 });
