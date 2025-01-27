@@ -141,7 +141,7 @@ export function trailingSlashMismatchTemplate(pathname: string, trailingSlash: '
 		title: 'Not found',
 		tabTitle: '404: Not Found',
 		body: `<p>Your site is configured with <code>trailingSlash</code> set to <code>${trailingSlash}</code>. Do you want to go to <a href="${corrected}">${corrected}</a> instead?</p>
-<p>Come to our <a href="https://astro.build/chat">Discord</a> if you need help.</p>`,
+<p>See <a href=https://docs.astro.build/en/reference/configuration-reference/#trailingslash">the documentation for <code>trailingSlash</code></a> if you need help.</p>`,
 	});
 }
 
