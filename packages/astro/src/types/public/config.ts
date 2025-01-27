@@ -242,8 +242,13 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *   - `'ignore'` - Match URLs regardless of whether a trailing "/" exists
 	 *
 	 * Use this configuration option if your production host has strict handling of how trailing slashes work or do not work.
-	 *
-	 * You can also set this if you prefer to be more strict yourself, so that URLs with or without trailing slashes won't work during development.
+	 * 
+	 * If set to `'always'` or `'never'`, Astro will redirect requests for on-demand-rendered pages that do not match the configured 
+	 * behavior to the correct URL. For example, if you have `trailingSlash` is set to `'always'`, Astro will redirect requests for `/page` to `/page/`.
+	 * In development the requests will not be redirected, and will instead display a warning page. This can help you catch issues with your links early.
+	 * 
+	 * Note that for prerendered pages, trailing slashes are handled by the hosting platform, so may not behave in the same way.
+	 * See your hosting platform's documentation for more information.
 	 *
 	 * ```js
 	 * {
