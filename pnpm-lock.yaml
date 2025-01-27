@@ -5193,9 +5193,15 @@ importers:
 
   packages/integrations/tailwind:
     dependencies:
-      '@tailwindcss/vite':
-        specifier: ^4.0.0
-        version: 4.0.0(vite@6.0.9(@types/node@18.19.50)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.83.4)(yaml@2.5.1))
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.5.1)
+      postcss:
+        specifier: ^8.5.1
+        version: 8.5.1
+      postcss-load-config:
+        specifier: ^4.0.2
+        version: 4.0.2(postcss@8.5.1)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -5203,6 +5209,9 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
+      tailwindcss:
+        specifier: ^3.4.17
+        version: 3.4.17
       vite:
         specifier: ^6.0.9
         version: 6.0.9(@types/node@18.19.50)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.83.4)(yaml@2.5.1)
@@ -5215,9 +5224,6 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
-      tailwindcss:
-        specifier: 4.0.0
-        version: 4.0.0
 
   packages/integrations/vercel: {}
 
