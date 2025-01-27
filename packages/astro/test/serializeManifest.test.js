@@ -4,6 +4,7 @@ import * as cheerio from 'cheerio';
 import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
 import { AstroError } from '../dist/core/errors/index.js';
 import { loadFixture } from './test-utils.js';
+import testAdapter from "./test-adapter.js";
 
 describe('astro:manifest/client', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -32,7 +33,7 @@ describe('astro:manifest/client', () => {
 		});
 	});
 
-	describe('when the experimental flag is enabled', async () => {
+	describe('when the experimental flag is enabled in dev', async () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
@@ -73,12 +74,50 @@ describe('astro:manifest/client', () => {
 			);
 		});
 	});
+
+	describe('when the experimental flag is enabled in build', async () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/astro-manifest/',
+			});
+			await fixture.build();
+		});
+
+		it('should return the expected properties', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+
+			assert.deepEqual(
+				$('#config').text(),
+				JSON.stringify({
+					base: '/',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'fr'],
+						routing: {
+							prefixDefaultLocale: false,
+							redirectToDefaultLocale: true,
+							fallbackType: 'redirect',
+						},
+					},
+					build: {
+						format: 'directory',
+					},
+					trailingSlash: 'ignore',
+					compressHTML: true,
+					site: 'https://astro.build/',
+				}),
+			);
+		});
+	});
+
 });
 
 describe('astro:manifest/server', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
+	let app
 
 	describe('when build', () => {
 		before(async () => {
@@ -93,8 +132,9 @@ describe('astro:manifest/server', () => {
 			assert.equal(error.name, ServerOnlyModule.name);
 		});
 	});
+	
 
-	describe('when the experimental flag is not enabled', async () => {
+	describe('when the experimental flag is not enabled in dev', async () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
@@ -116,7 +156,7 @@ describe('astro:manifest/server', () => {
 		});
 	});
 
-	describe('when the experimental flag is enabled', async () => {
+	describe('when the experimental flag is enabled in dev', async () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
@@ -132,6 +172,55 @@ describe('astro:manifest/server', () => {
 			const response = await fixture.fetch('/server');
 			const html = await response.text();
 
+			const $ = cheerio.load(html);
+
+			assert.ok($('#out-dir').text().endsWith('/dist/'));
+			assert.ok($('#src-dir').text().endsWith('/src/'));
+			assert.ok($('#cache-dir').text().endsWith('/.astro/'));
+			assert.ok($('#root').text().endsWith('/'));
+			assert.ok($('#build-client').text().endsWith('/dist/client/'));
+			assert.ok($('#build-server').text().endsWith('/dist/server/'));
+		});
+	});
+
+	describe('when the experimental flag is enabled in build', async () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/astro-manifest/',
+			});
+			await fixture.build();
+		});
+
+		it('should return the expected properties', async () => {
+			const html = await fixture.readFile('/server/index.html');
+			const $ = cheerio.load(html);
+
+			assert.ok($('#out-dir').text().endsWith('/dist/'));
+			assert.ok($('#src-dir').text().endsWith('/src/'));
+			assert.ok($('#cache-dir').text().endsWith('/.astro/'));
+			assert.ok($('#root').text().endsWith('/'));
+			assert.ok($('#build-client').text().endsWith('/dist/client/'));
+			assert.ok($('#build-server').text().endsWith('/dist/server/'));
+		});
+	});
+
+	describe('when the experimental flag is enabled in SSR', async () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/astro-manifest/',
+				adapter: testAdapter(),
+				output: 'server',
+			});
+			
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+
+		it('should return the expected properties', async () => {
+			const request = new Request('http://example.com/server');
+			const response = await app.render(request);
+			const html = await response.text();
 			const $ = cheerio.load(html);
 
 			assert.ok($('#out-dir').text().endsWith('/dist/'));
