@@ -236,17 +236,11 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @see build.format
 	 * @description
 	 *
-	 * Set the route matching behavior of the dev server. Choose from the following options:
-	 *   - `'always'` - Only match URLs that include a trailing slash (ex: "/foo/")
-	 *   - `'never'` - Never match URLs that include a trailing slash (ex: "/foo")
-	 *   - `'ignore'` - Match URLs regardless of whether a trailing "/" exists
+	 * Set the route matching behavior for trailing slashes in the dev server and on-demand rendered pages. Choose from the following options:
+	 *   - `'ignore'` - Match URLs regardless of whether a trailing "/" exists. Requests for "/foo" and "/foo/" will both match the same route.
+	 *   - `'always'` - Only match URLs that **include** a trailing slash (e.g: "/foo/"). In production, requests for URLs *without* a trailing slash will be redirected to the correct URL. In development, requests for URLs *without* a trailing slash will display a warning page.
+	 *   - `'never'` - Only match URLs that **do not include** a trailing slash (e.g: "/foo"). In production, requests for URLs *with* a trailing slash will be redirected to the correct URL. In development, requests for URLs *with* a trailing slash will display a warning page.
 	 *
-	 * Use this configuration option if your production host has strict handling of how trailing slashes work or do not work.
-	 * 
-	 * If set to `'always'` or `'never'`, Astro will redirect requests for on-demand-rendered pages that do not match the configured 
-	 * behavior to the correct URL. For example, if you have `trailingSlash` is set to `'always'`, Astro will redirect requests for `/page` to `/page/`.
-	 * In development the requests will not be redirected, and will instead display a warning page. This can help you catch issues with your links early.
-	 * 
 	 * Note that for prerendered pages, trailing slashes are handled by the hosting platform, so may not behave in the same way.
 	 * See your hosting platform's documentation for more information.
 	 *
