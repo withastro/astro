@@ -237,11 +237,11 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @description
 	 *
 	 * Set the route matching behavior for trailing slashes in the dev server and on-demand rendered pages. Choose from the following options:
-	 *   - `'ignore'` - Match URLs regardless of whether a trailing "/" exists. Requests for "/foo" and "/foo/" will both match the same route.
-	 *   - `'always'` - Only match URLs that **include** a trailing slash (e.g: "/foo/"). In production, requests for URLs *without* a trailing slash will be redirected to the correct URL. In development, requests for URLs *without* a trailing slash will display a warning page.
-	 *   - `'never'` - Only match URLs that **do not include** a trailing slash (e.g: "/foo"). In production, requests for URLs *with* a trailing slash will be redirected to the correct URL. In development, requests for URLs *with* a trailing slash will display a warning page.
+	 *   - `'ignore'` - Match URLs regardless of whether a trailing "/" exists. Requests for "/about" and "/about/" will both match the same route.
+	 *   - `'always'` - Only match URLs that include a trailing slash (e.g: "/about/"). In production, requests for on-demand rendered URLs without a trailing slash will be redirected to the correct URL for your convenience. However, in development, they will display a warning page reminding you that you have `always` configured.
+	 *   - `'never'` - Only match URLs that do not include a trailing slash (e.g: "/about"). In production, requests for on-demand rendered URLs with a trailing slash will be redirected to the correct URL for your convenience. However, in development, they will display a warning page reminding you that you have `never` configured.
 	 *
-	 * Note that for prerendered pages, trailing slashes are handled by the hosting platform, so may not behave in the same way.
+	 * Trailing slashes on prerendered pages are handled by the hosting platform, and may not respect your chosen configuration.
 	 * See your hosting platform's documentation for more information.
 	 *
 	 * ```js
