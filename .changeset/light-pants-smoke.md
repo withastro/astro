@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds support for redirecting to external sites with the  [`redirects`](https://docs.astro.build/en/reference/configuration-reference/#redirects) configuration option.
+Adds support for redirecting to external sites with the [`redirects`](https://docs.astro.build/en/reference/configuration-reference/#redirects) configuration option.
 
 Now, you can redirect routes either internally to another path or externally by providing a URL beginning with `http` or `https`:
 
