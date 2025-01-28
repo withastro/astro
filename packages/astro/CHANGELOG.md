@@ -1,5 +1,49 @@
 # astro
 
+## 5.1.10
+
+### Patch Changes
+
+- [#13058](https://github.com/withastro/astro/pull/13058) [`1a14b53`](https://github.com/withastro/astro/commit/1a14b53678525379211c4a7cbcbc34a04c0e4f8d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes broken type declaration
+
+- [#13059](https://github.com/withastro/astro/pull/13059) [`e36837f`](https://github.com/withastro/astro/commit/e36837f91437a66d5c50eb1c399b3d812743251d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused tsconfig path aliases to break if there was more than one wildcard pattern
+
+- [#13045](https://github.com/withastro/astro/pull/13045) [`c7f1366`](https://github.com/withastro/astro/commit/c7f1366413692091bb8d62d901745a77fa663b18) Thanks [@mtwilliams-code](https://github.com/mtwilliams-code)! - Fixes a bug where the some utility functions of the `astro:i18n` virtual module would return an incorrect result when `trailingSlash` is set to `never`
+
+## 5.1.9
+
+### Patch Changes
+
+- [#12986](https://github.com/withastro/astro/pull/12986) [`8911bda`](https://github.com/withastro/astro/commit/8911bdacabb7fffb82bb3b3628467731ea233187) Thanks [@wetheredge](https://github.com/wetheredge)! - Updates types and dev toolbar for ARIA 1.2 attributes and roles
+
+- [#12892](https://github.com/withastro/astro/pull/12892) [`8f520f1`](https://github.com/withastro/astro/commit/8f520f1cc67db51feb966c710e72490a05b88954) Thanks [@louisescher](https://github.com/louisescher)! - Adds a more descriptive error when a content collection entry has an invalid ID.
+
+- [#13031](https://github.com/withastro/astro/pull/13031) [`f576519`](https://github.com/withastro/astro/commit/f5765196e9cd5c582da04ae3bceb4ee1d62b7eae) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the server islands encoding logic to only escape the script end tag open delimiter and opening HTML comment syntax
+
+- [#13026](https://github.com/withastro/astro/pull/13026) [`1d272f6`](https://github.com/withastro/astro/commit/1d272f6a5a3af16ad2ab9af41b7193ce67964b69) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a regression that prevented the import of Markdown files as raw text or URLs.
+
+## 5.1.8
+
+### Patch Changes
+
+- [#12998](https://github.com/withastro/astro/pull/12998) [`9ce0038`](https://github.com/withastro/astro/commit/9ce003802109f704cc1f081759f3d2af2c1ea2c2) Thanks [@Kynson](https://github.com/Kynson)! - Fixes the issue that audit incorrectly flag images as above the fold when the scrolling container is not body
+
+- [#12990](https://github.com/withastro/astro/pull/12990) [`2e12f1d`](https://github.com/withastro/astro/commit/2e12f1d7526f12fa0e1e63482f100bbb81a8b36e) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused references to be incorrectly reported as invalid
+
+- [#12984](https://github.com/withastro/astro/pull/12984) [`2d259cf`](https://github.com/withastro/astro/commit/2d259cf4abf27a4f0a067bedb32d0459c4fce507) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug in dev where files would stop being watched if the Astro config file was edited
+
+- [#12984](https://github.com/withastro/astro/pull/12984) [`2d259cf`](https://github.com/withastro/astro/commit/2d259cf4abf27a4f0a067bedb32d0459c4fce507) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug where the content layer would use an outdated version of the Astro config if it was edited in dev
+
+- [#12982](https://github.com/withastro/astro/pull/12982) [`429aa75`](https://github.com/withastro/astro/commit/429aa7547572915b5f7f9a4146529e704069128b) Thanks [@bluwy](https://github.com/bluwy)! - Fixes an issue where server islands do not work in projects that use an adapter but only have prerendered pages. If an adapter is added, the server island endpoint will now be added by default.
+
+- [#12995](https://github.com/withastro/astro/pull/12995) [`78fd73a`](https://github.com/withastro/astro/commit/78fd73a0dfbfab120111d5f1d1eaecd563bc82a6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `astro:actions` types would not work when using `src/actions.ts`
+
+- [#13011](https://github.com/withastro/astro/pull/13011) [`cf30880`](https://github.com/withastro/astro/commit/cf3088060d45227dcb48e041c4ed5e0081d71398) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite
+
+- [#12733](https://github.com/withastro/astro/pull/12733) [`bbf1d88`](https://github.com/withastro/astro/commit/bbf1d8894e6ce5d2ebe45452a27072b9929053a8) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused the dev server to return an error if requesting "//"
+
+- [#13001](https://github.com/withastro/astro/pull/13001) [`627aec3`](https://github.com/withastro/astro/commit/627aec3f04de424ec144cefac4a5a3b70d9ba0fb) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused Astro to attempt to inject environment variables into non-source files, causing performance problems and broken builds
+
 ## 5.1.7
 
 ### Patch Changes

@@ -44,6 +44,64 @@ test.describe('Dev Toolbar - Audits', () => {
 		await appButton.click();
 	});
 
+	test('does not warn about perf issue for below the fold image after mutation when body is unscrollable', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/audits-perf-body-unscrollable'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
+
+		expect(auditHighlights).toHaveCount(1);
+
+		await page.click('body');
+
+		let consolePromise = page.waitForEvent('console');
+		await page.locator('#mutation-button').click();
+		await consolePromise;
+
+		await appButton.click();
+
+		expect(auditHighlights).toHaveCount(1);
+	});
+
+	test('does not warn about perf issue for below the fold image in relative container', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/audits-perf-relative'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
+
+		expect(auditHighlights).toHaveCount(0);
+	});
+
+	test('can warn about perf issue for below the fold image in absolute container', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/audits-perf-absolute'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
+
+		expect(auditHighlights).toHaveCount(1);
+	});
+
 	test('can handle mutations', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/audits-mutations'));
 
