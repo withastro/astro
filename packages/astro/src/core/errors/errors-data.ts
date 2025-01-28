@@ -1811,11 +1811,11 @@ export const ActionCalledFromServerError = {
 /**
  * @docs
  * @description
- * Cannot the module without enabling the experimental feature
+ * Cannot use the module `astro:config` without enabling the experimental feature.
  */
 export const CantUseManifestModule = {
 	name: 'CantUseManifestModule',
-	title: 'Cannot the module without enabling the experimental feature.',
+	title: 'Cannot use the `astro:config` module without enabling the experimental feature.',
 	message: (moduleName) =>
 		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeManifest\` in your \`astro.config.mjs\` `,
 } satisfies ErrorData;
