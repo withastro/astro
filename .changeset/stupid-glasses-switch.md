@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds a new virtual module called `astro:config` as part of the relative [RFC Stage 3](https://github.com/withastro/roadmap/pull/1106).
+Adds a new experimental virtual module `astro:config` that exposes a type-safe subset of your `astro.config.mjs` configuration
 
 The new virtual module exposes a type-safe sub-set configuration defined in `astro.config.mjs`.
 
