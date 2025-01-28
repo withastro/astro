@@ -1,7 +1,7 @@
 import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
-import type { RuntimeMode, AstroConfig } from '../types/public/config.js';
+import type { RuntimeMode } from '../types/public/config.js';
 import type {
 	RouteData,
 	SSRLoadedRenderer,
@@ -28,7 +28,6 @@ export abstract class Pipeline {
 	constructor(
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
-		readonly astroConfig: AstroConfig | undefined,
 		/**
 		 * "development" or "production" only
 		 */

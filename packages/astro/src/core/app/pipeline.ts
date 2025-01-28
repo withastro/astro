@@ -15,7 +15,6 @@ export class AppPipeline extends Pipeline {
 		{
 			logger,
 			manifest,
-			astroConfig,
 			runtimeMode,
 			renderers,
 			resolve,
@@ -26,7 +25,6 @@ export class AppPipeline extends Pipeline {
 			AppPipeline,
 			| 'logger'
 			| 'manifest'
-			| 'astroConfig' 
 			| 'runtimeMode'
 			| 'renderers'
 			| 'resolve'
@@ -38,7 +36,6 @@ export class AppPipeline extends Pipeline {
 		const pipeline = new AppPipeline(
 			logger,
 			manifest,
-			astroConfig,
 			runtimeMode,
 			renderers,
 			resolve,

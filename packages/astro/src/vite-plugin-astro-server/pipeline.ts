@@ -48,7 +48,7 @@ export class DevPipeline extends Pipeline {
 		const resolve = createResolve(loader, config.root);
 		const serverLike = settings.buildOutput === 'server';
 		const streaming = true;
-		super(logger, manifest, config, 'development', [], resolve, serverLike, streaming);
+		super(logger, manifest, 'development', [], resolve, serverLike, streaming);
 		manifest.serverIslandMap = settings.serverIslandMap;
 		manifest.serverIslandNameMap = settings.serverIslandNameMap;
 	}

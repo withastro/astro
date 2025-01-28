@@ -151,6 +151,7 @@ function createManifest(
 		clientDirectives: manifest?.clientDirectives ?? getDefaultClientDirectives(),
 		renderers: renderers ?? manifest?.renderers ?? [],
 		base: manifest?.base ?? ASTRO_CONFIG_DEFAULTS.base,
+		viteBase: manifest?.viteBase ?? '',
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
@@ -228,6 +229,7 @@ type AstroContainerManifest = Pick<
 	| 'renderers'
 	| 'assetsPrefix'
 	| 'base'
+	| 'viteBase'
 	| 'routes'
 	| 'assets'
 	| 'entryModules'
@@ -273,7 +275,6 @@ export class experimental_AstroContainer {
 				dest: nodeLogDestination,
 			}),
 			manifest: createManifest(manifest, renderers),
-			astroConfig,
 			streaming,
 			serverLike: true,
 			renderers: renderers ?? manifest?.renderers ?? [],

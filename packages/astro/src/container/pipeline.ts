@@ -22,19 +22,17 @@ export class ContainerPipeline extends Pipeline {
 	static create({
 		logger,
 		manifest,
-		astroConfig,
 		renderers,
 		resolve,
 		serverLike,
 		streaming,
 	}: Pick<
 		ContainerPipeline,
-		'logger' | 'manifest' | 'astroConfig' | 'renderers' | 'resolve' | 'serverLike' | 'streaming'
+		'logger' | 'manifest' | 'renderers' | 'resolve' | 'serverLike' | 'streaming'
 	>) {
 		return new ContainerPipeline(
 			logger,
 			manifest,
-			astroConfig,
 			'development',
 			renderers,
 			resolve,
