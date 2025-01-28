@@ -2067,7 +2067,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @version 5.x
 		 * @description
 		 *
-		 * Allows to use the virtual modules `astro:config/server` and `astro:config/client`.
+		 * Enables the use of the experimental virtual modules `astro:config/server` and `astro:config/client`.
 		 *
 		 * These two virtual modules contain a serializable subset of the Astro configuration.
 		 */
