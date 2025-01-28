@@ -1,3 +1,4 @@
+import { isPromise } from 'util/types';
 import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
 import type { RouteData, SSRResult } from '../../../../types/public/internal.js';
 import { type RenderDestination, chunkToByteArray, chunkToString, encoder } from '../common.js';
@@ -317,7 +318,13 @@ export async function renderToAsyncIterable(
 		},
 	};
 
-	const renderPromise = templateResult.render(destination);
+	let renderPromise = templateResult.render(destination);
+
+	// TODO: this code is suspect
+	if (!isPromise(renderPromise)) {
+		renderPromise = Promise.resolve(renderPromise);
+	}
+
 	renderPromise
 		.then(() => {
 			// Once rendering is complete, calling resolve() allows the iterator to finish running.

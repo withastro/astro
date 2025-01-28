@@ -1,0 +1,10 @@
+---
+function immediate(): Promise<void> {
+	return new Promise(setImmediate);
+}
+
+await immediate();
+
+const message = "A";
+---
+{message}

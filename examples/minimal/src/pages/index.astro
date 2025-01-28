@@ -1,7 +1,19 @@
 ---
+export const prerender = false; // force ssr
+
+import AsyncWidget from "../components/AsyncWidget.astro";
+import SyncWidget from "../components/SyncWidget.astro";
+
+const syncWidgetCount = parseInt(Astro.url.searchParams.get("sync") ?? "0", 10);
+const asyncWidgetCount = parseInt(Astro.url.searchParams.get("async") ?? "0", 10);
+
+function* range<T>(count: number, fn: (i: number) => T) {
+	for (let i = 0; i < count; i++) {
+		yield fn(i);
+	}
+}
 
 ---
-
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -11,6 +23,12 @@
 		<title>Astro</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<h1>Astro (sync={syncWidgetCount}, async={asyncWidgetCount})</h1>
+		<code style="display: inline-block; white-space: normal; max-width:100%; word-break: break-all; word-wrap: break-word;">
+			{range(syncWidgetCount, (_) => <SyncWidget />)}
+		</code>
+		<code style="display: inline-block; white-space: normal; max-width:100%; word-break: break-all; word-wrap: break-word;">
+			{range(asyncWidgetCount, (_) => <AsyncWidget />)}
+		</code>
 	</body>
 </html>

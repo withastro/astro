@@ -175,7 +175,30 @@ class BufferedRenderer implements RenderDestination {
 		}
 	}
 
-	public async renderToFinalDestination(destination: RenderDestination) {
+	public renderToFinalDestination(destination: RenderDestination): void | Promise<void> {
+		return process.env.GO_FAST === "yes"
+			? this.renderToFinalDestinationFast(destination)
+			: this.renderToFinalDestinationSlow(destination);
+	}
+
+	public renderToFinalDestinationFast(destination: RenderDestination) : void | Promise<void> {
+		// Write the buffered chunks to the real destination
+		for (const chunk of this.chunks) {
+			destination.write(chunk);
+		}
+
+		// NOTE: We don't empty `this.chunks` after it's written as benchmarks show
+		// that it causes poorer performance, likely due to forced memory re-allocation,
+		// instead of letting the garbage collector handle it automatically.
+		// (Unsure how this affects on limited memory machines)
+
+		// Re-assign the real destination so `instance.render` will continue and write to the new destination
+		this.destination = destination;
+
+		return this.renderPromise;
+	}
+
+	public async renderToFinalDestinationSlow(destination: RenderDestination): Promise<void> {
 		// Write the buffered chunks to the real destination
 		for (const chunk of this.chunks) {
 			destination.write(chunk);
