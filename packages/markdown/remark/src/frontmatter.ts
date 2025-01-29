@@ -71,7 +71,10 @@ export function parseFrontmatter(
 			);
 			break;
 		case 'empty-with-lines':
-			content = code.replace(`${delims}${rawFrontmatter}${delims}`, rawFrontmatter.replace(/[^\r\n]/g, ''));
+			content = code.replace(
+				`${delims}${rawFrontmatter}${delims}`,
+				rawFrontmatter.replace(/[^\r\n]/g, ''),
+			);
 			break;
 	}
 

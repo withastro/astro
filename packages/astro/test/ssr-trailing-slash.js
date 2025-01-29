@@ -85,14 +85,14 @@ describe('Redirecting trailing slashes in SSR', () => {
 			assert.equal(response.headers.get('Location'), '/dot.in.directory/path/');
 		});
 
-		it("Does not redirect internal paths", async () => {
+		it('Does not redirect internal paths', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
 			for (const path of [
 				'/_astro/something',
 				'/_image?url=http://example.com/foo.jpg',
 				'/_server-islands/foo',
-				'/_actions/foo'
+				'/_actions/foo',
 			]) {
 				const request = new Request(`http://example.com${path}`);
 				const response = await app.render(request);
@@ -100,14 +100,13 @@ describe('Redirecting trailing slashes in SSR', () => {
 			}
 		});
 
-		it("Redirects POST requests", async () => {
+		it('Redirects POST requests', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another', { method: 'POST' });
 			const response = await app.render(request);
 			assert.equal(response.status, 308);
 			assert.equal(response.headers.get('Location'), '/another/');
 		});
-
 	});
 
 	describe('trailingSlash: never', () => {
@@ -189,7 +188,7 @@ describe('Redirecting trailing slashes in SSR', () => {
 				'/_astro/something/',
 				'/_image/?url=http://example.com/foo.jpg',
 				'/_server-islands/foo/',
-				'/_actions/foo/'
+				'/_actions/foo/',
 			]) {
 				const request = new Request(`http://example.com${path}/`);
 				const response = await app.render(request);
@@ -204,7 +203,6 @@ describe('Redirecting trailing slashes in SSR', () => {
 			assert.equal(response.status, 308);
 			assert.equal(response.headers.get('Location'), '/another');
 		});
-
 	});
 
 	describe('trailingSlash: ignore', () => {
@@ -218,7 +216,7 @@ describe('Redirecting trailing slashes in SSR', () => {
 			await fixture.build();
 		});
 
-		it("Redirects to collapse multiple trailing slashes", async () => {
+		it('Redirects to collapse multiple trailing slashes', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another///');
 			const response = await app.render(request);

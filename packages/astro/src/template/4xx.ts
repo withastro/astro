@@ -130,7 +130,10 @@ export function subpathNotUsedTemplate(base: string, pathname: string) {
 	});
 }
 
-export function trailingSlashMismatchTemplate(pathname: string, trailingSlash: 'always' | 'never' | 'ignore') {
+export function trailingSlashMismatchTemplate(
+	pathname: string,
+	trailingSlash: 'always' | 'never' | 'ignore',
+) {
 	const corrected =
 		trailingSlash === 'always'
 			? appendForwardSlash(pathname)

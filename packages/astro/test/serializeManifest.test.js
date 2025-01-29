@@ -3,8 +3,8 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
 import { AstroError } from '../dist/core/errors/index.js';
+import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
-import testAdapter from "./test-adapter.js";
 
 describe('astro:manifest/client', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -110,14 +110,13 @@ describe('astro:manifest/client', () => {
 			);
 		});
 	});
-
 });
 
 describe('astro:manifest/server', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
-	let app
+	let app;
 
 	describe('when build', () => {
 		before(async () => {
@@ -132,7 +131,6 @@ describe('astro:manifest/server', () => {
 			assert.equal(error.name, ServerOnlyModule.name);
 		});
 	});
-	
 
 	describe('when the experimental flag is not enabled in dev', async () => {
 		before(async () => {
@@ -211,11 +209,10 @@ describe('astro:manifest/server', () => {
 				adapter: testAdapter(),
 				output: 'server',
 			});
-			
+
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
 		});
-
 
 		it('should return the expected properties', async () => {
 			const request = new Request('http://example.com/server');
