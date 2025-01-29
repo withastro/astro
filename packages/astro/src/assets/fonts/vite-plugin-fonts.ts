@@ -85,10 +85,44 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 					css += generateFontFace(family.name, data);
 				}
 				resolvedMap.set(family.name, { preloadData, css });
-				// console.dir(fontsData);
 			}
-
-			// console.log(Object.fromEntries(collected.entries()));
+		},
+		async configureServer(server) {
+			// Base is taken into account by default
+			server.middlewares.use(URL_PREFIX, async (req, res, next) => {
+				if (!req.url) {
+					return next();
+				}
+				const hash = req.url.slice(1);
+				const url = collected?.get(hash);
+				if (!url) {
+					return next();
+				}
+				// TODO: cache
+				// TODO: logging
+				const response = await fetch(url);
+				const data = Buffer.from(await response.arrayBuffer());
+				const keys = ['cache-control', 'content-type', 'content-length'];
+				for (const key of keys) {
+					const value = response.headers.get(key);
+					if (value) {
+						res.setHeader(key, value);
+					}
+				}
+				res.end(data);
+			});
+		},
+		resolveId(id) {
+			if (id === VIRTUAL_MODULE_ID) {
+				return RESOLVED_VIRTUAL_MODULE_ID;
+			}
+		},
+		load(id, opts) {
+			if (id === RESOLVED_VIRTUAL_MODULE_ID && opts?.ssr) {
+				return `
+				export const fontsData = new Map(${JSON.stringify(Array.from(resolvedMap?.entries() ?? []))})
+				`;
+			}
 		},
 		async buildEnd() {
 			resolvedMap = null;
@@ -106,6 +140,8 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 			const dir = getBuildOutputDir(settings);
 			const fontsDir = new URL('.' + baseUrl, dir);
 			mkdirSync(fontsDir, { recursive: true });
+			// TODO: cache
+			// TODO: logging
 			await Promise.all(
 				Array.from(collected.entries()).map(async ([hash, url]) => {
 					const response = await fetch(url);
@@ -116,41 +152,6 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 			);
 
 			collected = null;
-		},
-		resolveId(id) {
-			if (id === VIRTUAL_MODULE_ID) {
-				return RESOLVED_VIRTUAL_MODULE_ID;
-			}
-		},
-		load(id, opts) {
-			if (id === RESOLVED_VIRTUAL_MODULE_ID && opts?.ssr) {
-				return `
-				export const fontsData = new Map(${JSON.stringify(Array.from(resolvedMap?.entries() ?? []))})
-				`;
-			}
-		},
-		async configureServer(server) {
-			// Base is taken into account by default
-			server.middlewares.use(URL_PREFIX, async (req, res, next) => {
-				if (!req.url) {
-					return next();
-				}
-				const hash = req.url.slice(1);
-				const url = collected?.get(hash);
-				if (!url) {
-					return next();
-				}
-				const response = await fetch(url);
-				const data = Buffer.from(await response.arrayBuffer());
-				const keys = ['cache-control', 'content-type', 'content-length'];
-				for (const key of keys) {
-					const value = response.headers.get(key);
-					if (value) {
-						res.setHeader(key, value);
-					}
-				}
-				res.end(data);
-			});
 		},
 	};
 }
