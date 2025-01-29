@@ -29,7 +29,7 @@ describe('astro:config/client', () => {
 		it('should throw an error when importing the module', async () => {
 			const response = await fixture.fetch('/');
 			const html = await response.text();
-			assert.match(html, /CantUseAstroConfigModule/);
+			assert.match(html, /CantUseAstroConfigModuleError/);
 		});
 	});
 
@@ -150,7 +150,7 @@ describe('astro:config/server', () => {
 		it('should throw an error when importing the module', async () => {
 			const response = await fixture.fetch('/server');
 			const html = await response.text();
-			assert.match(html, /CantUseAstroConfigModule/);
+			assert.match(html, /CantUseAstroConfigModuleError/);
 		});
 	});
 
