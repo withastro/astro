@@ -1771,7 +1771,6 @@ export const UnsupportedConfigTransformError = {
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
 } satisfies ErrorData;
 
-
 /**
  * @docs
  * @kind heading
