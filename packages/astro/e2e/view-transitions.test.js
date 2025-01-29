@@ -660,18 +660,12 @@ test.describe('View Transitions', () => {
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
-		// Go to page 3
-		await page.click('#click-three');
-		const article3 = page.locator('#three');
-		await expect(article3, 'should have content').toHaveText('Page 3');
-
-		// Go to page 5
-		await page.click('#click-five');
-		const article5 = page.locator('#five');
-		await expect(article5, 'should have content').toHaveText('Page 5');
+		// Go to page 8
+		await page.click('#click-eight');
+		const article8 = page.locator('#eight');
+		await expect(article8, 'should have content').toHaveText('Page 8');
 
 		// Go back to page 1
-		await page.goBack();
 		await page.goBack();
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
