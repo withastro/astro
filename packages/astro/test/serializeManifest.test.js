@@ -6,7 +6,7 @@ import { AstroError } from '../dist/core/errors/index.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
-describe('astro:manifest/client', () => {
+describe('astro:config/client', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
@@ -29,7 +29,7 @@ describe('astro:manifest/client', () => {
 		it('should throw an error when importing the module', async () => {
 			const response = await fixture.fetch('/');
 			const html = await response.text();
-			assert.match(html, /CantUseManifestModule/);
+			assert.match(html, /CantUseAstroConfigModuleError/);
 		});
 	});
 
@@ -112,7 +112,7 @@ describe('astro:manifest/client', () => {
 	});
 });
 
-describe('astro:manifest/server', () => {
+describe('astro:config/server', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
@@ -150,7 +150,7 @@ describe('astro:manifest/server', () => {
 		it('should throw an error when importing the module', async () => {
 			const response = await fixture.fetch('/server');
 			const html = await response.text();
-			assert.match(html, /CantUseManifestModule/);
+			assert.match(html, /CantUseAstroConfigModuleError/);
 		});
 	});
 
