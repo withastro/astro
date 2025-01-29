@@ -16,12 +16,12 @@ if (!data) {
 <style set:html={data.css}></style>
 {
 	preload &&
-		data.hashes.map((hash: string) => (
+		data.preloadData.map(({ url, type }) => (
 			<link
 				rel="preload"
-				href={`/_fonts/${hash}`}
+				href={url}
 				as="font"
-				type={`font/${hash.split('.')[1]}`}
+				type={`font/${type}`}
 				crossorigin
 			/>
 		))

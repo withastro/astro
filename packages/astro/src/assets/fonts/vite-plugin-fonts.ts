@@ -7,57 +7,21 @@ import xxhash from 'xxhash-wasm';
 import { extname } from 'node:path';
 import { getBuildOutputDir } from '../../core/build/util.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { generateFontFace } from './utils.js';
+import {
+	DEFAULTS,
+	VIRTUAL_MODULE_ID,
+	RESOLVED_VIRTUAL_MODULE_ID,
+	URL_PREFIX,
+} from './constants.js';
+import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
 }
 
-const DEFAULTS: unifont.ResolveFontOptions = {
-	weights: ['400'],
-	styles: ['normal', 'italic'],
-	subsets: ['cyrillic-ext', 'cyrillic', 'greek-ext', 'greek', 'vietnamese', 'latin-ext', 'latin'],
-	fallbacks: undefined,
-};
-
-const VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/internal';
-const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
-
-function generateFontFace(family: string, font: unifont.FontFaceData) {
-	return [
-		'@font-face {',
-		`  font-family: '${family}';`,
-		`  src: ${renderFontSrc(font.src)};`,
-		`  font-display: ${font.display || 'swap'};`,
-		font.unicodeRange && `  unicode-range: ${font.unicodeRange};`,
-		font.weight &&
-			`  font-weight: ${Array.isArray(font.weight) ? font.weight.join(' ') : font.weight};`,
-		font.style && `  font-style: ${font.style};`,
-		font.stretch && `  font-stretch: ${font.stretch};`,
-		font.featureSettings && `  font-feature-settings: ${font.featureSettings};`,
-		font.variationSettings && `  font-variation-settings: ${font.variationSettings};`,
-		`}`,
-	]
-		.filter(Boolean)
-		.join('\n');
-}
-
-function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], string>[]) {
-	return sources
-		.map((src) => {
-			if ('url' in src) {
-				let rendered = `url("${src.url}")`;
-				for (const key of ['format', 'tech'] as const) {
-					if (key in src) {
-						rendered += ` ${key}(${src[key]})`;
-					}
-				}
-				return rendered;
-			}
-			return `local("${src.name}")`;
-		})
-		.join(', ');
-}
+type PreloadData = Array<{ url: string; type: string }>;
 
 export function fonts({ settings, sync }: Options): Plugin | undefined {
 	if (!settings.config.experimental.fonts) {
@@ -67,10 +31,11 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 	const providers: Array<FontProvider<string>> = settings.config.experimental.fonts.providers ?? [];
 	const families: Array<FontFamily<string>> = settings.config.experimental.fonts.families;
 
-	// TODO: css
-	let resolvedMap: Map<string, { hashes: Array<string>; css: string }> | null = null;
-	// HASH/URL
-	const collected = new Map<string, string>();
+	const baseUrl = removeTrailingForwardSlash(settings.config.base) + URL_PREFIX;
+
+	let resolvedMap: Map<string, { preloadData: PreloadData; css: string }> | null = null;
+	/** Key is `${hash}.${ext}`, value is a URL */
+	let collected: Map<string, string> | null = null;
 
 	return {
 		name: 'astro:fonts',
@@ -90,6 +55,7 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 				},
 			);
 			resolvedMap = new Map();
+			collected = new Map();
 			for (const family of families) {
 				const resolvedOptions: unifont.ResolveFontOptions = {
 					weights: family.weights ?? DEFAULTS.weights,
@@ -103,21 +69,22 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 				]);
 
 				// TODO: use fontaine if needed
-				const hashes: Array<string> = [];
+				const preloadData: PreloadData = [];
 				let css = '';
 				for (const data of fontsData) {
 					for (const source of data.src as unknown as Array<Record<string, string>>) {
 						const key = 'name' in source ? 'name' : 'url';
 						const hash = h64ToString(source[key]) + extname(source[key]);
+						const url = baseUrl + hash;
 						if (!collected.has(hash)) {
 							collected.set(hash, source[key]);
-							hashes.push(hash);
+							preloadData.push({ url, type: hash.split('.')[1] });
 						}
-						source[key] = `/_fonts/${hash}`;
+						source[key] = url;
 					}
 					css += generateFontFace(family.name, data);
 				}
-				resolvedMap.set(family.name, { hashes, css });
+				resolvedMap.set(family.name, { preloadData, css });
 				// console.dir(fontsData);
 			}
 
@@ -127,11 +94,17 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 			resolvedMap = null;
 
 			if (sync) {
+				collected = null;
+				return;
+			}
+
+			// Should be defined at this point
+			if (!collected) {
 				return;
 			}
 
 			const dir = getBuildOutputDir(settings);
-			const fontsDir = new URL('./_fonts/', dir);
+			const fontsDir = new URL('.' + baseUrl, dir);
 			mkdirSync(fontsDir, { recursive: true });
 			await Promise.all(
 				Array.from(collected.entries()).map(async ([hash, url]) => {
@@ -141,6 +114,8 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 					console.log(`Downloaded ${hash}`);
 				}),
 			);
+
+			collected = null;
 		},
 		resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
@@ -155,13 +130,13 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 			}
 		},
 		async configureServer(server) {
-			// TODO: take base into account
-			server.middlewares.use('/_fonts', async (req, res, next) => {
+			// Base is taken into account by default
+			server.middlewares.use(URL_PREFIX, async (req, res, next) => {
 				if (!req.url) {
 					return next();
 				}
 				const hash = req.url.slice(1);
-				const url = collected.get(hash);
+				const url = collected?.get(hash);
 				if (!url) {
 					return next();
 				}
