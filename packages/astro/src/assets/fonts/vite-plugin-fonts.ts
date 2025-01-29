@@ -13,9 +13,11 @@ import {
 	VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	URL_PREFIX,
+	CACHE_DIR,
 } from './constants.js';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
+import { createStorage } from './cache.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -66,9 +68,13 @@ export function fonts({ settings, sync, logger }: Options): Plugin | undefined {
 	let resolvedMap: Map<string, { preloadData: PreloadData; css: string }> | null = null;
 	/** Key is `${hash}.${ext}`, value is a URL */
 	let collected: Map<string, string> | null = null;
+	let isBuild: boolean;
 
 	return {
 		name: 'astro:fonts',
+		config(_, { command }) {
+			isBuild = command === 'build';
+		},
 		async buildStart() {
 			const { h64ToString } = await xxhash();
 
@@ -80,8 +86,15 @@ export function fonts({ settings, sync, logger }: Options): Plugin | undefined {
 			const { resolveFont } = await unifont.createUnifont(
 				resolved.map((e) => e.provider(e.config)),
 				{
-					// TODO: cache
-					storage: undefined,
+					// In build, first check the build cache then fallback to dev cache
+					// In dev, only check dev cache
+					// TODO: extract storage so it can be reused in the cache inst
+					storage: createStorage({
+						bases: [
+							...(isBuild ? [new URL(CACHE_DIR, settings.config.cacheDir)] : []),
+							new URL(CACHE_DIR, settings.dotAstroDir),
+						],
+					}),
 				},
 			);
 			resolvedMap = new Map();
