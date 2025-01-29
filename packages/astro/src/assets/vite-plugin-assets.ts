@@ -20,6 +20,7 @@ import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 import { fonts } from './fonts/vite-plugin-fonts.js';
+import type { Logger } from '../core/logger/core.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -91,10 +92,13 @@ const addStaticImageFactory = (
 	};
 };
 
-export default function assets({
-	settings,
-	sync,
-}: { settings: AstroSettings; sync: boolean }): (vite.Plugin | undefined)[] {
+interface Options {
+	settings: AstroSettings;
+	sync: boolean;
+	logger: Logger;
+}
+
+export default function assets({ settings, sync, logger }: Options): (vite.Plugin | undefined)[] {
 	let resolvedConfig: vite.ResolvedConfig;
 	let shouldEmitFile = false;
 	let isBuild = false;
@@ -248,6 +252,6 @@ export default function assets({
 				}
 			},
 		},
-		fonts({ settings, sync }),
+		fonts({ settings, sync, logger }),
 	];
 }

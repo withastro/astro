@@ -15,15 +15,45 @@ import {
 	URL_PREFIX,
 } from './constants.js';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
+import type { Logger } from '../../core/logger/core.js';
 
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
+	logger: Logger;
 }
 
 type PreloadData = Array<{ url: string; type: string }>;
 
-export function fonts({ settings, sync }: Options): Plugin | undefined {
+const createLogManager = (logger: Logger) => {
+	const items = new Set<string>();
+	let id: NodeJS.Timeout | null = null;
+
+	return {
+		add: (value: string) => {
+			if (items.size === 0 && id === null) {
+				logger.info('assets', 'Downloading fonts...');
+			}
+			items.add(value);
+			if (id) {
+				clearTimeout(id);
+				id = null;
+			}
+		},
+		remove: (value: string) => {
+			items.delete(value);
+			if (id) {
+				clearTimeout(id);
+				id = null;
+			}
+			id = setTimeout(() => {
+				logger.info('assets', 'Done.');
+			}, 50);
+		},
+	};
+};
+
+export function fonts({ settings, sync, logger }: Options): Plugin | undefined {
 	if (!settings.config.experimental.fonts) {
 		return;
 	}
@@ -88,6 +118,7 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 			}
 		},
 		async configureServer(server) {
+			const logManager = createLogManager(logger);
 			// Base is taken into account by default
 			server.middlewares.use(URL_PREFIX, async (req, res, next) => {
 				if (!req.url) {
@@ -98,11 +129,18 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 				if (!url) {
 					return next();
 				}
+				logManager.add(hash);
 				// TODO: cache
 				// TODO: logging
 				const response = await fetch(url);
 				const data = Buffer.from(await response.arrayBuffer());
-				const keys = ['cache-control', 'content-type', 'content-length'];
+
+				logManager.remove(hash);
+
+				// TODO: add cache control back
+				// TODO: set content type and cache control manually
+				// const keys = ['cache-control', 'content-type', 'content-length'];
+				const keys = ['content-type', 'content-length'];
 				for (const key of keys) {
 					const value = response.headers.get(key);
 					if (value) {
@@ -137,17 +175,18 @@ export function fonts({ settings, sync }: Options): Plugin | undefined {
 				return;
 			}
 
+			const logManager = createLogManager(logger);
 			const dir = getBuildOutputDir(settings);
 			const fontsDir = new URL('.' + baseUrl, dir);
 			mkdirSync(fontsDir, { recursive: true });
 			// TODO: cache
-			// TODO: logging
 			await Promise.all(
 				Array.from(collected.entries()).map(async ([hash, url]) => {
+					logManager.add(hash);
 					const response = await fetch(url);
 					const data = Buffer.from(await response.arrayBuffer());
+					logManager.remove(hash);
 					writeFileSync(new URL(hash, fontsDir), data);
-					console.log(`Downloaded ${hash}`);
 				}),
 			);
 

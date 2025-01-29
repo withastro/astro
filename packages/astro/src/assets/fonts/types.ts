@@ -17,6 +17,7 @@ export interface ResolvedFontProvider {
 
 export type UnifontProvider = unifont.Provider;
 
+// TODO: support optional as prop
 interface FontFamilyAttributes extends Partial<unifont.ResolveFontOptions> {
 	name: string;
 	provider: string;
