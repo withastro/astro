@@ -361,10 +361,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * ```js
 	 * import react from '@astrojs/react';
-	 * import tailwind from '@astrojs/tailwind';
+	 * import mdx from '@astrojs/mdx';
 	 * {
-	 *   // Example: Add React + Tailwind support to Astro
-	 *   integrations: [react(), tailwind()]
+	 *   // Example: Add React + MDX support to Astro
+	 *   integrations: [react(), mdx()]
 	 * }
 	 * ```
 	 */
