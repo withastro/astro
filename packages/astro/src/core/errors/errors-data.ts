@@ -17,6 +17,19 @@ export interface ErrorData {
  * @name Astro Errors
  */
 // Astro Errors, most errors will go here!
+
+/**
+ * @docs
+ * @description
+ * Cannot use the module `astro:config` without enabling the experimental feature.
+ */
+export const CantUseAstroConfigModuleError = {
+	name: 'CantUseAstroConfigModuleError',
+	title: 'Cannot use the `astro:config` module without enabling the experimental feature.',
+	message: (moduleName) =>
+		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeManifest\` in your \`astro.config.mjs\` `,
+} satisfies ErrorData;
+
 /**
  * @docs
  * @message
@@ -1756,18 +1769,6 @@ export const UnsupportedConfigTransformError = {
 	message: (parseError: string) =>
 		`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * Cannot use the module `astro:config` without enabling the experimental feature.
- */
-export const CantUseAstroConfigModuleError = {
-	name: 'CantUseAstroConfigModuleError',
-	title: 'Cannot use the `astro:config` module without enabling the experimental feature.',
-	message: (moduleName) =>
-		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeManifest\` in your \`astro.config.mjs\` `,
 } satisfies ErrorData;
 
 
