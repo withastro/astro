@@ -1,5 +1,5 @@
 import type { Plugin } from 'vite';
-import { CantUseManifestModule } from '../core/errors/errors-data.js';
+import { CantUseAstroConfigModule } from '../core/errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { fromRoutingStrategy } from '../i18n/utils.js';
@@ -37,8 +37,8 @@ export default function virtualModulePlugin({
 			if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
 				if (!settings.config.experimental.serializeConfig) {
 					throw new AstroError({
-						...CantUseManifestModule,
-						message: CantUseManifestModule.message(VIRTUAL_CLIENT_ID),
+						...CantUseAstroConfigModule,
+						message: CantUseAstroConfigModule.message(VIRTUAL_CLIENT_ID),
 					});
 				}
 				// There's nothing wrong about using `/client` on the server
@@ -48,8 +48,8 @@ export default function virtualModulePlugin({
 			else if (id == RESOLVED_VIRTUAL_SERVER_ID) {
 				if (!settings.config.experimental.serializeConfig) {
 					throw new AstroError({
-						...CantUseManifestModule,
-						message: CantUseManifestModule.message(VIRTUAL_SERVER_ID),
+						...CantUseAstroConfigModule,
+						message: CantUseAstroConfigModule.message(VIRTUAL_SERVER_ID),
 					});
 				}
 				if (!opts?.ssr) {
