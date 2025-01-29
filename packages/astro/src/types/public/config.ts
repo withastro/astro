@@ -271,12 +271,12 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```js
 	 * export default defineConfig({
 	 *   redirects: {
-	 *   	'/old': '/new',
+	 *    '/old': '/new',
 	 *    '/blog/[...slug]': '/articles/[...slug]',
 	 *    '/about': 'https://example.com/about',
 	 *    '/news': {
-	 *        status: 302,
-	 *        destination: 'https://example.com/news'
+	 *      status: 302,
+	 *      destination: 'https://example.com/news'
 	 *  	}
 	 * 	}
 	 * })

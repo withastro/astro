@@ -1760,6 +1760,19 @@ export const UnsupportedConfigTransformError = {
 
 /**
  * @docs
+ * @description
+ * Cannot use the module `astro:config` without enabling the experimental feature.
+ */
+export const CantUseAstroConfigModule = {
+	name: 'CantUseAstroConfigModule',
+	title: 'Cannot use the `astro:config` module without enabling the experimental feature.',
+	message: (moduleName) =>
+		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeManifest\` in your \`astro.config.mjs\` `,
+} satisfies ErrorData;
+
+
+/**
+ * @docs
  * @kind heading
  * @name Action Errors
  */
@@ -1820,18 +1833,6 @@ export const ActionCalledFromServerError = {
 	message:
 		'Action called from a server page or endpoint without using `Astro.callAction()`. This wrapper must be used to call actions from server code.',
 	hint: 'See the `Astro.callAction()` reference for usage examples: https://docs.astro.build/en/reference/api-reference/#callaction',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * Cannot use the module `astro:config` without enabling the experimental feature.
- */
-export const CantUseManifestModule = {
-	name: 'CantUseManifestModule',
-	title: 'Cannot use the `astro:config` module without enabling the experimental feature.',
-	message: (moduleName) =>
-		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeManifest\` in your \`astro.config.mjs\` `,
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
