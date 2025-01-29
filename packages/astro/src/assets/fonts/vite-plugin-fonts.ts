@@ -17,7 +17,7 @@ import {
 } from './constants.js';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
-import { createStorage } from './cache.js';
+import { createCache, createStorage, type Cache } from './cache.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -28,11 +28,16 @@ interface Options {
 type PreloadData = Array<{ url: string; type: string }>;
 
 const createLogManager = (logger: Logger) => {
+	const done = new Set<string>();
 	const items = new Set<string>();
 	let id: NodeJS.Timeout | null = null;
 
 	return {
 		add: (value: string) => {
+			if (done.has(value)) {
+				return;
+			}
+
 			if (items.size === 0 && id === null) {
 				logger.info('assets', 'Downloading fonts...');
 			}
@@ -42,14 +47,23 @@ const createLogManager = (logger: Logger) => {
 				id = null;
 			}
 		},
-		remove: (value: string) => {
+		remove: (value: string, cached: boolean) => {
+			if (done.has(value)) {
+				return;
+			}
+
 			items.delete(value);
+			done.add(value);
 			if (id) {
 				clearTimeout(id);
 				id = null;
 			}
 			id = setTimeout(() => {
-				logger.info('assets', 'Done.');
+				let msg = 'Done';
+				if (cached) {
+					msg += ' (loaded from cache)';
+				}
+				logger.info('assets', msg);
 			}, 50);
 		},
 	};
@@ -69,6 +83,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin | undefined {
 	/** Key is `${hash}.${ext}`, value is a URL */
 	let collected: Map<string, string> | null = null;
 	let isBuild: boolean;
+	let cache: Cache['cache'] | null = null;
 
 	return {
 		name: 'astro:fonts',
@@ -83,19 +98,19 @@ export function fonts({ settings, sync, logger }: Options): Plugin | undefined {
 				providers,
 			});
 
+			const storage = createStorage({
+				// In build, first check the build cache then fallback to dev cache
+				// In dev, only check dev cache
+				bases: [
+					new URL(CACHE_DIR, settings.dotAstroDir),
+					...(isBuild ? [new URL(CACHE_DIR, settings.config.cacheDir)] : []),
+				],
+			});
+			cache = createCache({ storage }).cache;
+
 			const { resolveFont } = await unifont.createUnifont(
 				resolved.map((e) => e.provider(e.config)),
-				{
-					// In build, first check the build cache then fallback to dev cache
-					// In dev, only check dev cache
-					// TODO: extract storage so it can be reused in the cache inst
-					storage: createStorage({
-						bases: [
-							...(isBuild ? [new URL(CACHE_DIR, settings.config.cacheDir)] : []),
-							new URL(CACHE_DIR, settings.dotAstroDir),
-						],
-					}),
-				},
+				{ storage },
 			);
 			resolvedMap = new Map();
 			collected = new Map();
@@ -143,23 +158,23 @@ export function fonts({ settings, sync, logger }: Options): Plugin | undefined {
 					return next();
 				}
 				logManager.add(hash);
-				// TODO: cache
-				// TODO: logging
-				const response = await fetch(url);
-				const data = Buffer.from(await response.arrayBuffer());
-
-				logManager.remove(hash);
+				const { cached, data } = await cache!(hash, () =>
+					fetch(url)
+						.then((r) => r.arrayBuffer())
+						.then((arr) => Buffer.from(arr).toString()),
+				);
+				logManager.remove(hash, cached);
 
 				// TODO: add cache control back
 				// TODO: set content type and cache control manually
 				// const keys = ['cache-control', 'content-type', 'content-length'];
-				const keys = ['content-type', 'content-length'];
-				for (const key of keys) {
-					const value = response.headers.get(key);
-					if (value) {
-						res.setHeader(key, value);
-					}
-				}
+				// const keys = ['content-type', 'content-length'];
+				// for (const key of keys) {
+				// 	const value = response.headers.get(key);
+				// 	if (value) {
+				// 		res.setHeader(key, value);
+				// 	}
+				// }
 				res.end(data);
 			});
 		},
@@ -180,11 +195,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin | undefined {
 
 			if (sync) {
 				collected = null;
-				return;
-			}
-
-			// Should be defined at this point
-			if (!collected) {
+				cache = null;
 				return;
 			}
 
@@ -192,18 +203,21 @@ export function fonts({ settings, sync, logger }: Options): Plugin | undefined {
 			const dir = getBuildOutputDir(settings);
 			const fontsDir = new URL('.' + baseUrl, dir);
 			mkdirSync(fontsDir, { recursive: true });
-			// TODO: cache
 			await Promise.all(
-				Array.from(collected.entries()).map(async ([hash, url]) => {
+				Array.from(collected!.entries()).map(async ([hash, url]) => {
 					logManager.add(hash);
-					const response = await fetch(url);
-					const data = Buffer.from(await response.arrayBuffer());
-					logManager.remove(hash);
+					const { cached, data } = await cache!(hash, () =>
+						fetch(url)
+							.then((r) => r.arrayBuffer())
+							.then((arr) => Buffer.from(arr).toString()),
+					);
+					logManager.remove(hash, cached);
 					writeFileSync(new URL(hash, fontsDir), data);
 				}),
 			);
 
 			collected = null;
+			cache = null;
 		},
 	};
 }
