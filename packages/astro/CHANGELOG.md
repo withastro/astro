@@ -1,5 +1,11 @@
 # astro
 
+## 5.2.1
+
+### Patch Changes
+
+- [#13095](https://github.com/withastro/astro/pull/13095) [`740eb60`](https://github.com/withastro/astro/commit/740eb6019f405781a3918941d3bfb34a7bda1a3d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused some dev server asset requests to return 404 when trailingSlash was set to "always"
+
 ## 5.2.0
 
 ### Minor Changes
