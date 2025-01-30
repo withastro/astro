@@ -25,7 +25,7 @@ export function createOriginCheckMiddleware(): MiddlewareHandler {
 		if (isPrerendered) {
 			return next();
 		}
-		if (request.method === 'GET') {
+		if (request.method === 'GET' || request.method === "HEAD") {
 			return next();
 		}
 		const sameOrigin =
