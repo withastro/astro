@@ -6,21 +6,13 @@ astro-build:
 build:
 	npx pnpm --filter @example/minimal run build
 
-.PHONY: start-fast
-start-fast:
-	GO_FAST=yes npx pnpm --filter @example/minimal run dist --host
+.PHONY: start
+start:
+	npx pnpm --filter @example/minimal run dist --host
 
-.PHONY: start-slow
-start-slow:
-	GO_FAST=no npx pnpm --filter @example/minimal run dist --host
-
-.PHONY: debug-fast
-debug-fast:
+.PHONY: debug
+debug:
 	GO_FAST=yes npx pnpm --filter @example/minimal run dist:debug --host
-
-.PHONY: debug-slow
-debug-slow:
-	GO_FAST=no npx pnpm --filter @example/minimal run dist:debug --host
 
 .PHONY: loadtest
 loadtest:

@@ -33,5 +33,6 @@ export default function (data) {
 
   check(res, {
     'status is 200': (r) => r.status === 200,
+		'length is 15561': (r) => r.body.length === 15561,
   });
 }
