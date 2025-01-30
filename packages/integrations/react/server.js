@@ -101,7 +101,9 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 		formState,
 	};
 	let html;
-	if ('renderToReadableStream' in ReactDOM) {
+	if (opts.experimentalDisableStreaming) {
+		html = ReactDOM.renderToString(vnode);
+	} else if ('renderToReadableStream' in ReactDOM) {
 		html = await renderToReadableStreamAsync(vnode, renderOptions);
 	} else {
 		html = await renderToPipeableStreamAsync(vnode, renderOptions);

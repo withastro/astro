@@ -168,9 +168,8 @@ declare module 'astro:transitions/client' {
 	export type TransitionBeforeSwapEvent = import('./dist/virtual-modules/transitions-events.js').TransitionBeforeSwapEvent;
 	export const isTransitionBeforePreparationEvent: EventModule['isTransitionBeforePreparationEvent'];
 	export const isTransitionBeforeSwapEvent: EventModule['isTransitionBeforeSwapEvent'];
-	type TransitionSwapFunctionModule = typeof import(
-		'./dist/virtual-modules/transitions-swap-functions.js',
-	);
+	// biome-ignore format: bug
+	type TransitionSwapFunctionModule = typeof import('./dist/virtual-modules/transitions-swap-functions.js');
 	export const swapFunctions: TransitionSwapFunctionModule['swapFunctions'];
 }
 
@@ -188,6 +187,20 @@ declare module 'astro:container' {
 
 declare module 'astro:middleware' {
 	export * from 'astro/virtual-modules/middleware.js';
+}
+
+declare module 'astro:config/server' {
+	// biome-ignore format: bug
+	type ServerConfigSerialized = import('./dist/types/public/manifest.js').ServerDeserializedManifest;
+	const manifest: ServerConfigSerialized;
+	export default manifest;
+}
+
+declare module 'astro:config/client' {
+	// biome-ignore format: bug
+	type ClientConfigSerialized = import('./dist/types/public/manifest.js').ClientDeserializedManifest;
+	const manifest: ClientConfigSerialized;
+	export default manifest;
 }
 
 declare module 'astro:components' {
