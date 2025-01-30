@@ -18,7 +18,7 @@ describe('prerendered error pages routing', () => {
 		assert.deepEqual(
 			deploymentConfig.routes.find((r) => r.status === 404),
 			{
-				src: '/.*',
+				src: '^/.*$',
 				dest: '/404.html',
 				status: 404,
 			}

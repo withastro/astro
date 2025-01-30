@@ -38,31 +38,31 @@ describe('ISR', () => {
 				dest: '_render',
 			},
 			{
-				src: '^/excluded(?:\\/(.*?))?$',
+				src: '^/excluded(?:/(.*?))?$',
 				dest: '_render',
 			},
 			{
-				src: '^\\/_server-islands\\/([^/]+?)\\/?$',
+				src: '^/_server-islands/([^/]+?)/?$',
 				dest: '_render',
 			},
 			{
-				src: '^\\/_image\\/?$',
+				src: '^/_image/?$',
 				dest: '_render',
 			},
 			{
-				src: '^\\/excluded\\/([^/]+?)\\/?$',
+				src: '^/excluded/([^/]+?)/?$',
 				dest: '/_isr?x_astro_path=$0',
 			},
 			{
-				src: '^\\/excluded(?:\\/(.*?))?\\/?$',
+				src: '^/excluded(?:/(.*?))?/?$',
 				dest: '/_isr?x_astro_path=$0',
 			},
 			{
-				src: '^\\/one\\/?$',
+				src: '^/one/?$',
 				dest: '/_isr?x_astro_path=$0',
 			},
 			{
-				src: '^\\/two\\/?$',
+				src: '^/two/?$',
 				dest: '/_isr?x_astro_path=$0',
 			},
 		]);

@@ -17,7 +17,7 @@ describe('static routing', () => {
 		const deploymentConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
 		// change the index if necesseary
 		assert.deepEqual(deploymentConfig.routes[2], {
-			src: '/.*',
+			src: '^/.*$',
 			dest: '/404.html',
 			status: 404,
 		});

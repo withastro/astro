@@ -2,6 +2,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
+import { type Route, getTransformedRoutes, normalizeRoutes } from '@vercel/routing-utils';
 import type {
 	AstroAdapter,
 	AstroConfig,
@@ -10,6 +11,7 @@ import type {
 	HookParameters,
 	IntegrationResolvedRoute,
 } from 'astro';
+import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
 import {
 	type DevImageService,
@@ -261,16 +263,23 @@ export default function vercelAdapter({
 						);
 					}
 					const vercelConfigPath = new URL('vercel.json', config.root);
-					if (existsSync(vercelConfigPath)) {
+					if (
+						config.trailingSlash &&
+						config.trailingSlash !== 'ignore' &&
+						existsSync(vercelConfigPath)
+					) {
 						try {
 							const vercelConfig = JSON.parse(readFileSync(vercelConfigPath, 'utf-8'));
-							if (vercelConfig.trailingSlash === true && config.trailingSlash === 'always') {
-								logger.warn(
-									'\n' +
-										`\tYour "vercel.json" \`trailingSlash\` configuration (set to \`true\`) will conflict with your Astro \`trailinglSlash\` configuration (set to \`"always"\`).\n` +
-										// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
-										`\tThis would cause infinite redirects under certain conditions and throw an \`ERR_TOO_MANY_REDIRECTS\` error.\n` +
-										`\tTo prevent this, change your Astro configuration and update \`"trailingSlash"\` to \`"ignore"\`.\n`
+							if (
+								(vercelConfig.trailingSlash === true && config.trailingSlash === 'never') ||
+								(vercelConfig.trailingSlash === false && config.trailingSlash === 'always')
+							) {
+								logger.error(
+									`
+	Your "vercel.json" \`trailingSlash\` configuration (set to \`${vercelConfig.trailingSlash}\`) will conflict with your Astro \`trailingSlash\` configuration (set to \`${JSON.stringify(config.trailingSlash)}\`).
+	This would cause infinite redirects or duplicate content issues. 
+	Please remove the \`trailingSlash\` configuration from your \`vercel.json\` file or Astro config.
+`
 								);
 							}
 						} catch (_err) {
@@ -435,14 +444,12 @@ export default function vercelAdapter({
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				const destination = new URL('./.vercel/output/config.json', _config.root);
-				const finalRoutes = [
-					...getRedirects(routes, _config),
+				const finalRoutes: Route[] = [
 					{
 						src: `^/${_config.build.assets}/(.*)$`,
 						headers: { 'cache-control': 'public, max-age=31536000, immutable' },
 						continue: true,
 					},
-					{ handle: 'filesystem' },
 				];
 				if (_buildOutput === 'server') {
 					finalRoutes.push(...routeDefinitions);
@@ -467,6 +474,30 @@ export default function vercelAdapter({
 						});
 					}
 				}
+				// The Vercel `trailingSlash` option
+				let trailingSlash: boolean | undefined;
+				// Vercel's `trailingSlash` option maps to Astro's like so:
+				// - `true` -> `"always"`
+				// - `false` -> `"never"`
+				// - `undefined` -> `"ignore"`
+				// If config is set to "ignore", we leave it as undefined.
+				if (_config.trailingSlash && _config.trailingSlash !== 'ignore') {
+					// Otherwise, map it accordingly.
+					trailingSlash = _config.trailingSlash === 'always';
+				}
+
+				const { routes: redirects = [], error } = getTransformedRoutes({
+					trailingSlash,
+					rewrites: [],
+					redirects: getRedirects(routes, _config),
+					headers: [],
+				});
+				if (error) {
+					throw new AstroError(
+						`Error generating redirects: ${error.message}`,
+						error.link ? `${error.action ?? 'More info'}: ${error.link}` : undefined
+					);
+				}
 
 				let images: VercelImageConfig | undefined;
 				if (imageService || imagesConfig) {
@@ -487,11 +518,21 @@ export default function vercelAdapter({
 					}
 				}
 
+				const normalized = normalizeRoutes([...(redirects ?? []), ...finalRoutes]);
+				if (normalized.error) {
+					throw new AstroError(
+						`Error generating routes: ${normalized.error.message}`,
+						normalized.error.link
+							? `${normalized.error.action ?? 'More info'}: ${normalized.error.link}`
+							: undefined
+					);
+				}
+
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(destination, {
 					version: 3,
-					routes: finalRoutes,
+					routes: normalized.routes,
 					images,
 				});
 

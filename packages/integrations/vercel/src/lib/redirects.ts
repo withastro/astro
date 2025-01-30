@@ -1,6 +1,8 @@
 import nodePath from 'node:path';
-import { appendForwardSlash, removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
+import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { AstroConfig, IntegrationResolvedRoute, RoutePart } from 'astro';
+
+import type { Redirect } from '@vercel/routing-utils';
 
 const pathJoin = nodePath.posix.join;
 
@@ -40,10 +42,32 @@ function getParts(part: string, file: string) {
 
 	return result;
 }
+/**
+ * Convert Astro routes into Vercel path-to-regexp syntax, which are the input for getTransformedRoutes
+ */
+function getMatchPattern(segments: RoutePart[][]) {
+	return segments
+		.map((segment) => {
+			return segment
+				.map((part) => {
+					if (part.spread) {
+						// Extract parameter name from spread syntax (e.g., "...slug" -> "slug")
+						const paramName = part.content.startsWith('...') ? part.content.slice(3) : part.content;
+						return `:${paramName}*`;
+					}
+					if (part.dynamic) {
+						return `:${part.content}`;
+					}
+					return part.content;
+				})
+				.join('');
+		})
+		.join('/');
+}
 
 // Copied from /home/juanm04/dev/misc/astro/packages/astro/src/core/routing/manifest/create.ts
 // 2022-04-26
-function getMatchPattern(segments: RoutePart[][]) {
+function getMatchRegex(segments: RoutePart[][]) {
 	return segments
 		.map((segment, segmentIndex) => {
 			return segment.length === 1 && segment[0].spread
@@ -72,37 +96,16 @@ function getMatchPattern(segments: RoutePart[][]) {
 		.join('');
 }
 
-function getReplacePattern(segments: RoutePart[][]) {
-	let n = 0;
-	let result = '';
-
-	for (const segment of segments) {
-		for (const part of segment) {
-			// biome-ignore lint/style/useTemplate: <explanation>
-			if (part.dynamic) result += '$' + ++n;
-			else result += part.content;
-		}
-		result += '/';
-	}
-
-	// Remove trailing slash
-	result = result.slice(0, -1);
-
-	return result;
-}
-
 function getRedirectLocation(route: IntegrationResolvedRoute, config: AstroConfig): string {
 	if (route.redirectRoute) {
-		const pattern = getReplacePattern(route.redirectRoute.segments);
-		const path = config.trailingSlash === 'always' ? appendForwardSlash(pattern) : pattern;
-		return pathJoin(config.base, path);
-		// biome-ignore lint/style/noUselessElse: <explanation>
-	} else if (typeof route.redirect === 'object') {
-		return pathJoin(config.base, route.redirect.destination);
-		// biome-ignore lint/style/noUselessElse: <explanation>
-	} else {
-		return pathJoin(config.base, route.redirect || '');
+		const pattern = getMatchPattern(route.redirectRoute.segments);
+		return pathJoin(config.base, pattern);
 	}
+
+	if (typeof route.redirect === 'object') {
+		return pathJoin(config.base, route.redirect.destination);
+	}
+	return pathJoin(config.base, route.redirect || '');
 }
 
 function getRedirectStatus(route: IntegrationResolvedRoute): number {
@@ -119,40 +122,20 @@ export function escapeRegex(content: string) {
 		.map((s: string) => {
 			return getParts(s, content);
 		});
-	return `^/${getMatchPattern(segments)}$`;
+	return `^/${getMatchRegex(segments)}$`;
 }
 
-export function getRedirects(
-	routes: IntegrationResolvedRoute[],
-	config: AstroConfig
-): VercelRoute[] {
-	const redirects: VercelRoute[] = [];
+export function getRedirects(routes: IntegrationResolvedRoute[], config: AstroConfig): Redirect[] {
+	const redirects: Redirect[] = [];
 
 	for (const route of routes) {
 		if (route.type === 'redirect') {
 			redirects.push({
-				src: config.base + getMatchPattern(route.segments),
-				headers: { Location: getRedirectLocation(route, config) },
-				status: getRedirectStatus(route),
+				source: config.base + getMatchPattern(route.segments),
+				destination: getRedirectLocation(route, config),
+				statusCode: getRedirectStatus(route),
 			});
-		} else if (route.type === 'page' && route.pattern !== '/') {
-			if (config.trailingSlash === 'always') {
-				redirects.push({
-					src: config.base + getMatchPattern(route.segments),
-					// biome-ignore lint/style/useTemplate: <explanation>
-					headers: { Location: config.base + getReplacePattern(route.segments) + '/' },
-					status: 308,
-				});
-			} else if (config.trailingSlash === 'never') {
-				redirects.push({
-					// biome-ignore lint/style/useTemplate: <explanation>
-					src: config.base + getMatchPattern(route.segments) + '/',
-					headers: { Location: config.base + getReplacePattern(route.segments) },
-					status: 308,
-				});
-			}
 		}
 	}
-
 	return redirects;
 }

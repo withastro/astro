@@ -40,6 +40,7 @@
     "@vercel/analytics": "^1.4.1",
     "@vercel/edge": "^1.2.1",
     "@vercel/nft": "^0.29.0",
+    "@vercel/routing-utils": "^5.0.0",
     "esbuild": "^0.24.0",
     "fast-glob": "^3.3.3"
   },
