@@ -106,11 +106,17 @@ export function getLocaleRelativeUrl({
 	}
 	pathsToJoin.push(path);
 
+	let relativePath: string;
 	if (shouldAppendForwardSlash(trailingSlash, format)) {
-		return appendForwardSlash(joinPaths(...pathsToJoin));
+		relativePath = appendForwardSlash(joinPaths(...pathsToJoin));
 	} else {
-		return joinPaths(...pathsToJoin);
+		relativePath = joinPaths(...pathsToJoin);
 	}
+
+	if (relativePath === '') {
+		return '/';
+	}
+	return relativePath;
 }
 
 /**
@@ -124,7 +130,9 @@ export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsolu
 		const base = domains[locale];
 		url = joinPaths(base, localeUrl.replace(`/${rest.locale}`, ''));
 	} else {
-		if (site) {
+		if (localeUrl === '/') {
+			url = site || '/';
+		} else if (site) {
 			url = joinPaths(site, localeUrl);
 		} else {
 			url = localeUrl;

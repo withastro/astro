@@ -1,5 +1,15 @@
 # @astrojs/tailwind
 
+## 6.0.0
+
+### Major Changes
+
+- [#13049](https://github.com/withastro/astro/pull/13049) [`2ed4bd9`](https://github.com/withastro/astro/commit/2ed4bd90f25a3e5a183d0bc862e3b359b8289b93) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates the integration
+
+  Tailwind CSS now offers a Vite plugin which is the preferred way to use Tailwind 4 in Astro. Please uninstall `@astrojs/tailwind` and follow the [Tailwind documentation for manual installation](https://tailwindcss.com/docs/installation/framework-guides/astro).
+
+  This updated major version is only provided as a convenience for existing projects until they are able to migrate to the new plugin. It offers no additional functionality and is no longer recommended, but may continue to be used in your projects until it is removed entirely.
+
 ## 5.1.5
 
 ### Patch Changes

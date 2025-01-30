@@ -9,8 +9,7 @@ import {
 	getLocaleRelativeUrl,
 	getLocaleRelativeUrlList,
 } from '../../../dist/i18n/index.js';
-import { toRoutingStrategy } from '../../../dist/i18n/utils.js';
-import { parseLocale } from '../../../dist/i18n/utils.js';
+import { parseLocale, toRoutingStrategy } from '../../../dist/i18n/utils.js';
 
 describe('getLocaleRelativeUrl', () => {
 	it('should correctly return the URL with the base', () => {
@@ -125,6 +124,39 @@ describe('getLocaleRelativeUrl', () => {
 				format: 'directory',
 			}),
 			'/es/',
+		);
+
+		assert.equal(
+			getLocaleRelativeUrl({
+				locale: 'en',
+				base: '/',
+				...config.experimental.i18n,
+				trailingSlash: 'never',
+				format: 'file',
+			}),
+			'/',
+		);
+
+		assert.equal(
+			getLocaleRelativeUrl({
+				locale: 'es',
+				base: '/',
+				...config.experimental.i18n,
+				trailingSlash: 'never',
+				format: 'file',
+			}),
+			'/es',
+		);
+
+		assert.equal(
+			getLocaleRelativeUrl({
+				locale: 'en',
+				base: '/',
+				...config.experimental.i18n,
+				trailingSlash: 'never',
+				format: 'directory',
+			}),
+			'/',
 		);
 	});
 
@@ -1228,6 +1260,8 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/es/',
 			);
 		});
+	});
+	describe('with [prefix-other-locales]', () => {
 		it('should correctly return the URL without base', () => {
 			/**
 			 *
@@ -1282,6 +1316,39 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 				}),
 				'https://example.com/italiano/',
+			);
+			assert.equal(
+				getLocaleAbsoluteUrl({
+					locale: 'en',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com',
+			);
+			assert.equal(
+				getLocaleAbsoluteUrl({
+					locale: 'es',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/es',
+			);
+			assert.equal(
+				getLocaleAbsoluteUrl({
+					locale: 'it-VA',
+					base: '/',
+					...config.experimental.i18n,
+					trailingSlash: 'never',
+					format: 'directory',
+					site: 'https://example.com',
+				}),
+				'https://example.com/italiano',
 			);
 		});
 
