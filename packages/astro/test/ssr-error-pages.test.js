@@ -169,6 +169,12 @@ describe('trailing slashes for error pages', () => {
 			const $ = cheerio.load(html);
 			assert.equal($('h1').text(), `Something went horribly wrong!`);
 		});
+
+		it('serves Vite assets correctly when trailingSlash is always', async () => {
+			const response = await fixture.fetch('/@vite/client');
+			assert.equal(response.status, 200);
+		});
+
 	});
 
 	describe('Production', () => {
