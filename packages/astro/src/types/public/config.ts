@@ -18,7 +18,8 @@ import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
 import type { BuiltInProvider, FontFamily, FontProvider } from '../../assets/fonts/types.js';
-export type Locales = (string | { codes: string[]; path: string })[];
+
+export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
 export type { FontProvider };
 
@@ -243,14 +244,15 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @see build.format
 	 * @description
 	 *
-	 * Set the route matching behavior of the dev server. Choose from the following options:
-	 *   - `'always'` - Only match URLs that include a trailing slash (ex: "/foo/")
-	 *   - `'never'` - Never match URLs that include a trailing slash (ex: "/foo")
-	 *   - `'ignore'` - Match URLs regardless of whether a trailing "/" exists
+	 * Set the route matching behavior for trailing slashes in the dev server and on-demand rendered pages. Choose from the following options:
+	 *   - `'ignore'` - Match URLs regardless of whether a trailing "/" exists. Requests for "/about" and "/about/" will both match the same route.
+	 *   - `'always'` - Only match URLs that include a trailing slash (e.g: "/about/"). In production, requests for on-demand rendered URLs without a trailing slash will be redirected to the correct URL for your convenience. However, in development, they will display a warning page reminding you that you have `always` configured.
+	 *   - `'never'` - Only match URLs that do not include a trailing slash (e.g: "/about"). In production, requests for on-demand rendered URLs with a trailing slash will be redirected to the correct URL for your convenience. However, in development, they will display a warning page reminding you that you have `never` configured.
 	 *
-	 * Use this configuration option if your production host has strict handling of how trailing slashes work or do not work.
+	 * When redirects occur in production for GET requests, the redirect will be a 301 (permanent) redirect. For all other request methods, it will be a 308 (permanent, and preserve the request method) redirect.
 	 *
-	 * You can also set this if you prefer to be more strict yourself, so that URLs with or without trailing slashes won't work during development.
+	 * Trailing slashes on prerendered pages are handled by the hosting platform, and may not respect your chosen configuration.
+	 * See your hosting platform's documentation for more information.
 	 *
 	 * ```js
 	 * {
@@ -271,16 +273,21 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * and the value is the path to redirect to.
 	 *
 	 * You can redirect both static and dynamic routes, but only to the same kind of route.
-	 * For example you cannot have a `'/article': '/blog/[...slug]'` redirect.
+	 * For example, you cannot have a `'/article': '/blog/[...slug]'` redirect.
 	 *
 	 *
 	 * ```js
-	 * {
+	 * export default defineConfig({
 	 *   redirects: {
-	 *     '/old': '/new',
-	 *     '/blog/[...slug]': '/articles/[...slug]',
-	 *   }
-	 * }
+	 *    '/old': '/new',
+	 *    '/blog/[...slug]': '/articles/[...slug]',
+	 *    '/about': 'https://example.com/about',
+	 *    '/news': {
+	 *      status: 302,
+	 *      destination: 'https://example.com/news'
+	 *  	}
+	 * 	}
+	 * })
 	 * ```
 	 *
 	 *
@@ -294,14 +301,14 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * You can customize the [redirection status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#redirection_messages) using an object in the redirect config:
 	 *
 	 * ```js
-	 * {
+	 * export default defineConfig({
 	 *   redirects: {
 	 *     '/other': {
 	 *       status: 302,
 	 *       destination: '/place',
 	 *     },
 	 *   }
-	 * }
+	 * })
 	 * ```
 	 */
 	redirects?: Record<string, RedirectConfig>;
@@ -362,10 +369,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * ```js
 	 * import react from '@astrojs/react';
-	 * import tailwind from '@astrojs/tailwind';
+	 * import mdx from '@astrojs/mdx';
 	 * {
-	 *   // Example: Add React + Tailwind support to Astro
-	 *   integrations: [react(), tailwind()]
+	 *   // Example: Add React + MDX support to Astro
+	 *   integrations: [react(), mdx()]
 	 * }
 	 * ```
 	 */
@@ -2105,6 +2112,18 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					>[]
 				: TFontFamilies;
 		};
+		/*
+		 * @name experimental.serializeConfig
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 *
+		 * Enables the use of the experimental virtual modules `astro:config/server` and `astro:config/client`.
+		 *
+		 * These two virtual modules contain a serializable subset of the Astro configuration.
+		 */
+		serializeConfig?: boolean;
 	};
 }
 

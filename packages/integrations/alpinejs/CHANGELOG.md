@@ -1,5 +1,11 @@
 # @astrojs/alpinejs
 
+## 0.4.3
+
+### Patch Changes
+
+- [#13014](https://github.com/withastro/astro/pull/13014) [`820eee3`](https://github.com/withastro/astro/commit/820eee334b66e40d9e794daab04d0d1cf48f0185) Thanks [@jasonlav](https://github.com/jasonlav)! - Fixes an issue with user scripts running after `Alpine.start()`
+
 ## 0.4.2
 
 ### Patch Changes
