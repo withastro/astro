@@ -25,10 +25,10 @@ function* range<T>(count: number, fn: (i: number) => T) {
 	<body>
 		<h1>Astro (sync={syncWidgetCount}, async={asyncWidgetCount})</h1>
 		<code style="display: inline-block; white-space: normal; max-width:100%; word-break: break-all; word-wrap: break-word;">
-			{range(syncWidgetCount, (_) => <SyncWidget />)}
+			{range(syncWidgetCount, (_) => <SyncWidget depth="25" />)}
 		</code>
 		<code style="display: inline-block; white-space: normal; max-width:100%; word-break: break-all; word-wrap: break-word;">
-			{range(asyncWidgetCount, (_) => <AsyncWidget />)}
+			{range(asyncWidgetCount, (_) => <AsyncWidget depth="25" />)}
 		</code>
 	</body>
 </html>

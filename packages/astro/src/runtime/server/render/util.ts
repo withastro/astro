@@ -155,36 +155,36 @@ const noop = () => {};
  * Renders into a buffer until `renderToFinalDestination` is called (which
  * flushes the buffer)
  */
-class BufferedRenderer implements RenderDestination {
+class BufferedRenderer implements RenderDestination, RendererFlusher {
 	private chunks: RenderDestinationChunk[] = [];
 	private renderPromise: Promise<void> | void;
-	private destination?: RenderDestination;
+	private destination: RenderDestination;
+	private flushed: boolean = false;
 
-	public constructor(bufferRenderFunction: RenderFunction) {
-		this.renderPromise = bufferRenderFunction(this);
-		// Catch here in case it throws before `renderToFinalDestination` is called,
+	public constructor(destination: RenderDestination, renderFunction: RenderFunction) {
+		this.destination = destination;
+		this.renderPromise = renderFunction(this);
+		// Catch here in case it throws before `flush` is called,
 		// to prevent an unhandled rejection.
 		Promise.resolve(this.renderPromise).catch(noop);
 	}
 
 	public write(chunk: RenderDestinationChunk): void {
-		if (this.destination) {
+		if (this.flushed) {
 			this.destination.write(chunk);
 		} else {
 			this.chunks.push(chunk);
 		}
 	}
 
-	public renderToFinalDestination(destination: RenderDestination): void | Promise<void> {
-		return process.env.GO_FAST === "yes"
-			? this.renderToFinalDestinationFast(destination)
-			: this.renderToFinalDestinationSlow(destination);
-	}
+	public flush(): void | Promise<void> {
+		if (this.flushed) {
+			throw new Error("Already been flushed.");
+		}
 
-	public renderToFinalDestinationFast(destination: RenderDestination) : void | Promise<void> {
 		// Write the buffered chunks to the real destination
 		for (const chunk of this.chunks) {
-			destination.write(chunk);
+			this.destination.write(chunk);
 		}
 
 		// NOTE: We don't empty `this.chunks` after it's written as benchmarks show
@@ -192,28 +192,9 @@ class BufferedRenderer implements RenderDestination {
 		// instead of letting the garbage collector handle it automatically.
 		// (Unsure how this affects on limited memory machines)
 
-		// Re-assign the real destination so `instance.render` will continue and write to the new destination
-		this.destination = destination;
+		this.flushed = true;
 
 		return this.renderPromise;
-	}
-
-	public async renderToFinalDestinationSlow(destination: RenderDestination): Promise<void> {
-		// Write the buffered chunks to the real destination
-		for (const chunk of this.chunks) {
-			destination.write(chunk);
-		}
-
-		// NOTE: We don't empty `this.chunks` after it's written as benchmarks show
-		// that it causes poorer performance, likely due to forced memory re-allocation,
-		// instead of letting the garbage collector handle it automatically.
-		// (Unsure how this affects on limited memory machines)
-
-		// Re-assign the real destination so `instance.render` will continue and write to the new destination
-		this.destination = destination;
-
-		// Wait for render to finish entirely
-		await this.renderPromise;
 	}
 }
 
@@ -236,11 +217,12 @@ class BufferedRenderer implements RenderDestination {
  * }
  * ```
  */
-export function renderToBufferDestination(bufferRenderFunction: RenderFunction): {
-	renderToFinalDestination: RenderFunction;
-} {
-	const renderer = new BufferedRenderer(bufferRenderFunction);
-	return renderer;
+export function createBufferedRenderer(destination: RenderDestination, renderFunction: RenderFunction): RendererFlusher {
+	return new BufferedRenderer(destination, renderFunction);
+}
+
+export interface RendererFlusher {
+	flush(): void | Promise<void>
 }
 
 export const isNode =

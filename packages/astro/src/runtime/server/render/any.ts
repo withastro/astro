@@ -3,7 +3,7 @@ import { isPromise } from '../util.js';
 import { isAstroComponentInstance, isRenderTemplateResult } from './astro/index.js';
 import { type RenderDestination, isRenderInstance } from './common.js';
 import { SlotString } from './slot.js';
-import { renderToBufferDestination } from './util.js';
+import { createBufferedRenderer } from './util.js';
 
 export function renderChild(destination: RenderDestination, child: any): void | Promise<void> {
 	return process.env.GO_FAST === "yes"
@@ -22,13 +22,13 @@ export async function renderChildSlow(destination: RenderDestination, child: any
 	} else if (Array.isArray(child)) {
 		// Render all children eagerly and in parallel
 		const childRenders = child.map((c) => {
-			return renderToBufferDestination((bufferDestination) => {
+			return createBufferedRenderer(destination, (bufferDestination) => {
 				return renderChildSlow(bufferDestination, c);
 			});
 		});
 		for (const childRender of childRenders) {
 			if (!childRender) continue;
-			await childRender.renderToFinalDestination(destination);
+			await childRender.flush();
 		}
 	} else if (typeof child === 'function') {
 		// Special: If a child is a function, call it automatically.
@@ -143,23 +143,23 @@ export function renderChildFast(destination: RenderDestination, child: any) : vo
 
 function renderArray(destination: RenderDestination, children: any[]): void | Promise<void> {
 	// Render all children eagerly and in parallel
-	const childRenders = children.map((c) => {
-		return renderToBufferDestination((bufferDestination) => {
+	const flushers = children.map((c) => {
+		return createBufferedRenderer(destination, (bufferDestination) => {
 			return renderChildFast(bufferDestination, c);
 		});
 	});
 
-	const iterator = children[Symbol.iterator]();
+	const iterator = flushers[Symbol.iterator]();
 
 	const executor = (): void | Promise<void> => {
 		for (;;) {
-			const { value, done } = iterator.next();
+			const { value: flusher, done } = iterator.next();
 
 			if (done) {
 				break;
 			}
 
-			const result = renderChildFast(destination, value);
+			const result = flusher.flush();
 
 			if (isPromise(result)) {
 				return result.then(executor);

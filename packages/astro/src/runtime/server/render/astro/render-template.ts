@@ -2,7 +2,7 @@ import { markHTMLString } from '../../escape.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import type { RenderDestination, RenderFunction } from '../common.js';
-import { renderToBufferDestination } from '../util.js';
+import { createBufferedRenderer } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
 
@@ -38,44 +38,10 @@ export class RenderTemplateResult {
 			: this.renderSlow(destination);
 	}
 
-	renderFast(destination: RenderDestination): void | Promise<void> {
-		// Render all expressions eagerly and in parallel
-		const renderFns = this.expressions.map((exp) => {
-			return renderToBufferDestination((bufferDestination) => {
-				// Skip render if falsy, except the number 0
-				if (exp || exp === 0) {
-					return renderChild(bufferDestination, exp);
-				}
-			});
-		});
-
-		let i = 0;
-
-		const executor = (): void | Promise<void> => {
-			for (; i < this.htmlParts.length; i++) {
-				const html = this.htmlParts[i];
-				const renderFn = renderFns[i];
-	
-				destination.write(markHTMLString(html));
-				
-				if (renderFn) {
-					const result = renderFn.renderToFinalDestination(destination);
-	
-					if (isPromise(result)) {
-						i++; // prevent infinite loop!
-						return result.then(executor);
-					}
-				}
-			}
-		};
-
-		return executor();
-	}
-
 	async renderSlow(destination: RenderDestination): Promise<void> {
 		// Render all expressions eagerly and in parallel
 		const expRenders = this.expressions.map((exp) => {
-			return renderToBufferDestination((bufferDestination) => {
+			return createBufferedRenderer(destination, (bufferDestination) => {
 				// Skip render if falsy, except the number 0
 				if (exp || exp === 0) {
 					return renderChild(bufferDestination, exp);
@@ -89,9 +55,43 @@ export class RenderTemplateResult {
 
 			destination.write(markHTMLString(html));
 			if (expRender) {
-				await expRender.renderToFinalDestination(destination);
+				await expRender.flush();
 			}
 		}
+	}
+
+	renderFast(destination: RenderDestination): void | Promise<void> {
+		// Render all expressions eagerly and in parallel
+		const flushers = this.expressions.map((exp) => {
+			return createBufferedRenderer(destination, (bufferDestination) => {
+				// Skip render if falsy, except the number 0
+				if (exp || exp === 0) {
+					return renderChild(bufferDestination, exp);
+				}
+			});
+		});
+
+		let i = 0;
+
+		const executor = (): void | Promise<void> => {
+			for (; i < this.htmlParts.length; i++) {
+				const html = this.htmlParts[i];
+				const flusher = flushers[i];
+	
+				destination.write(markHTMLString(html));
+				
+				if (flusher) {
+					const result = flusher.flush();
+	
+					if (isPromise(result)) {
+						i++; // prevent infinite loop!
+						return result.then(executor);
+					}
+				}
+			}
+		};
+
+		return executor();
 	}
 }
 
