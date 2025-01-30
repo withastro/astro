@@ -174,7 +174,6 @@ describe('trailing slashes for error pages', () => {
 			const response = await fixture.fetch('/@vite/client');
 			assert.equal(response.status, 200);
 		});
-
 	});
 
 	describe('Production', () => {

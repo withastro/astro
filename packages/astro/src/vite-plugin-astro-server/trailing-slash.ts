@@ -22,7 +22,7 @@ export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.N
 			/* malformed uri */
 			return next(e);
 		}
-		if(pathname.startsWith('/_') || pathname.startsWith('/@')) {
+		if (pathname.startsWith('/_') || pathname.startsWith('/@')) {
 			return next();
 		}
 		if (
