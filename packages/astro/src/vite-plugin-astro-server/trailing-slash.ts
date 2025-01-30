@@ -22,6 +22,9 @@ export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.N
 			/* malformed uri */
 			return next(e);
 		}
+		if(pathname.startsWith('/_') || pathname.startsWith('/@')) {
+			return next();
+		}
 		if (
 			(trailingSlash === 'never' && pathname.endsWith('/') && pathname !== '/') ||
 			(trailingSlash === 'always' && !pathname.endsWith('/') && !hasFileExtension(pathname))
