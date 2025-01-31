@@ -115,5 +115,4 @@ describe('trailingSlash', () => {
 		assert.equal(html.includes(`<span class="statusMessage">Not found</span>`), true);
 		assert.equal(res.statusCode, 404);
 	});
-
 });
