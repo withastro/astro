@@ -43,8 +43,8 @@ export function routeComparator(a: RouteData, b: RouteData) {
 			}
 		}
 
-		const aIsUserDefined = a.origin === 'project';
-		const bIsUserDefined = b.origin === 'project';
+		const aIsUserDefined = a.origin === 'project' || typeof a.origin === 'undefined';
+		const bIsUserDefined = b.origin === 'project' || typeof b.origin === 'undefined';
 		if(aIsUserDefined !== bIsUserDefined) {
 			return aIsUserDefined ? -1 : 1;
 		}
