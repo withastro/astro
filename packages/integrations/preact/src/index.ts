@@ -60,7 +60,21 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 					};
 				}
 
-				viteConfig.plugins = [preactPlugin];
+				viteConfig.plugins = [
+					preactPlugin,
+					// TODO: remove once https://github.com/preactjs/preset-vite/pull/156 is released
+					{
+						name: '@astrojs/preact/esbuild-patch',
+						enforce: 'pre',
+						config(config) {
+							if (config.esbuild) {
+								// https://github.com/preactjs/preset-vite/blob/main/src/index.ts#L196
+								// conflicts with the react plugin. We reset it
+								config.esbuild.jsxImportSource = undefined;
+							}
+						},
+					},
+				];
 
 				addRenderer(getRenderer(command === 'dev'));
 				updateConfig({
