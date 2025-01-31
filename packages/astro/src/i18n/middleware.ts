@@ -1,5 +1,6 @@
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
 import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../core/constants.js';
+import { isRequestServerIsland, requestIs404Or500 } from '../core/routing/match.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
 import type { APIContext } from '../types/public/context.js';
 import {
@@ -10,7 +11,6 @@ import {
 	redirectToFallback,
 	requestHasLocale,
 } from './index.js';
-import { isRequestServerIsland, requestIs404Or500 } from '../core/routing/match.js';
 
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],

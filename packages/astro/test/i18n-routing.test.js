@@ -2169,8 +2169,7 @@ describe('Fallback rewrite SSR', () => {
 	});
 });
 
-
-describe("i18n routing with server islands", () => {
+describe('i18n routing with server islands', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	/** @type {import('./test-utils').DevServer} */
@@ -2182,10 +2181,10 @@ describe("i18n routing with server islands", () => {
 		});
 		devServer = await fixture.startDevServer();
 	});
-	
+
 	after(async () => {
 		await devServer.stop();
-	})
+	});
 
 	it('should render the en locale with server island', async () => {
 		const res = await fixture.fetch('/en/island');
@@ -2194,4 +2193,4 @@ describe("i18n routing with server islands", () => {
 		const serverIslandScript = $('script[data-island-id]');
 		assert.equal(serverIslandScript.length, 1, 'has the island script');
 	});
-})
+});
