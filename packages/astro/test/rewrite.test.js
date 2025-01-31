@@ -111,6 +111,37 @@ describe('Dev rewrite, trailing slash -> never, with base', () => {
 	});
 });
 
+describe('Dev rewrite, dynamic routing', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-dynamic-routing/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should decode the escaped characters in the URL', async () => {
+		const html = await fixture.fetch('/foo').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+
+	it('should decode the escaped characters in the params', async () => {
+		const html = await fixture.fetch('/bar').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+});
+
 describe('Dev rewrite, hybrid/server', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
