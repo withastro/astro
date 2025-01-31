@@ -3,6 +3,7 @@ import type { RenderDestination, RenderDestinationChunk, RenderFunction } from '
 import { clsx } from 'clsx';
 import type { SSRElement } from '../../../types/public/internal.js';
 import { HTMLString, markHTMLString } from '../escape.js';
+import { isPromise } from 'node:util/types';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
@@ -164,9 +165,12 @@ class BufferedRenderer implements RenderDestination, RendererFlusher {
 	public constructor(destination: RenderDestination, renderFunction: RenderFunction) {
 		this.destination = destination;
 		this.renderPromise = renderFunction(this);
-		// Catch here in case it throws before `flush` is called,
-		// to prevent an unhandled rejection.
-		Promise.resolve(this.renderPromise).catch(noop);
+
+		if (isPromise(this.renderPromise)) {
+			// Catch here in case it throws before `flush` is called,
+			// to prevent an unhandled rejection.
+			Promise.resolve(this.renderPromise).catch(noop);
+		}
 	}
 
 	public write(chunk: RenderDestinationChunk): void {
@@ -182,6 +186,8 @@ class BufferedRenderer implements RenderDestination, RendererFlusher {
 			throw new Error("Already been flushed.");
 		}
 
+		this.flushed = true;
+
 		// Write the buffered chunks to the real destination
 		for (const chunk of this.chunks) {
 			this.destination.write(chunk);
@@ -191,8 +197,6 @@ class BufferedRenderer implements RenderDestination, RendererFlusher {
 		// that it causes poorer performance, likely due to forced memory re-allocation,
 		// instead of letting the garbage collector handle it automatically.
 		// (Unsure how this affects on limited memory machines)
-
-		this.flushed = true;
 
 		return this.renderPromise;
 	}

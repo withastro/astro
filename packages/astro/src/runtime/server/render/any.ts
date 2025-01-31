@@ -85,15 +85,15 @@ export function renderChildFast(destination: RenderDestination, child: any) : vo
 		return renderChildFast(destination, child());
 	}
 	
-	if (typeof child === 'string') {
-		destination.write(markHTMLString(escapeHTML(child)));
-		return;
-	}
-	
 	if (!child && child !== 0) {
 		// do nothing, safe to ignore falsey values.
 		return;
 	}
+
+	if (typeof child === 'string') {
+		destination.write(markHTMLString(escapeHTML(child)));
+		return;
+	}	
 	
 	if (isRenderInstance(child)) {
 		return child.render(destination);
@@ -137,7 +137,7 @@ export function renderChildFast(destination: RenderDestination, child: any) : vo
 
 		return executor();
 	}
-
+	
 	destination.write(child);
 }
 
@@ -151,7 +151,7 @@ function renderArray(destination: RenderDestination, children: any[]): void | Pr
 
 	const iterator = flushers[Symbol.iterator]();
 
-	const executor = (): void | Promise<void> => {
+	const iterate = (): void | Promise<void> => {
 		for (;;) {
 			const { value: flusher, done } = iterator.next();
 
@@ -162,12 +162,12 @@ function renderArray(destination: RenderDestination, children: any[]): void | Pr
 			const result = flusher.flush();
 
 			if (isPromise(result)) {
-				return result.then(executor);
+				return result.then(iterate);
 			}
 		}
 	};
 
-	return executor();
+	return iterate();
 }
 
 async function renderAsyncIterable(destination: RenderDestination, children: AsyncIterable<any>) {

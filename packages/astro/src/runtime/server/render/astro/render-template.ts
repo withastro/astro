@@ -78,7 +78,10 @@ export class RenderTemplateResult {
 				const html = this.htmlParts[i];
 				const flusher = flushers[i];
 	
-				destination.write(markHTMLString(html));
+				if (html) {
+					// only write non-empty strings
+					destination.write(markHTMLString(html));
+				}
 				
 				if (flusher) {
 					const result = flusher.flush();
