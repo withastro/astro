@@ -16,13 +16,6 @@ export function requestHasLocale(locales: Locales) {
 	};
 }
 
-export function requestIs404Or500(request: Request, base = '') {
-	const url = new URL(request.url);
-	const pathname = url.pathname.slice(base.length);
-
-	return isRoute404(pathname) || isRoute500(pathname);
-}
-
 // Checks if the pathname has any locale
 export function pathHasLocale(path: string, locales: Locales): boolean {
 	const segments = path.split('/');
