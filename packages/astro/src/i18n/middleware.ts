@@ -9,8 +9,8 @@ import {
 	redirectToDefaultLocale,
 	redirectToFallback,
 	requestHasLocale,
-	requestIs404Or500,
 } from './index.js';
+import { isRequestServerIsland, requestIs404Or500 } from '../core/routing/match.js';
 
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
@@ -79,6 +79,12 @@ export function createI18nMiddleware(
 
 		// 404 and 500 are **known** routes (users can have their custom pages), so we need to let them be
 		if (requestIs404Or500(context.request, base)) {
+			return response;
+		}
+
+		// This is a case where the rendering phase belongs to a server island. Server island are
+		// special routes, and should be exhempt from i18n routing
+		if (isRequestServerIsland(context.request, base)) {
 			return response;
 		}
 
