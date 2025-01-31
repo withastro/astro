@@ -73,13 +73,18 @@ export class RenderTemplateResult {
 
 		let i = 0;
 
-		const executor = (): void | Promise<void> => {
-			for (; i < this.htmlParts.length; i++) {
+		const iterate = (): void | Promise<void> => {
+			while (i < this.htmlParts.length) {
 				const html = this.htmlParts[i];
 				const flusher = flushers[i];
+
+				// increment here due to potential return in 
+				// Promise scenario
+				i++;
 	
 				if (html) {
 					// only write non-empty strings
+					
 					destination.write(markHTMLString(html));
 				}
 				
@@ -87,14 +92,13 @@ export class RenderTemplateResult {
 					const result = flusher.flush();
 	
 					if (isPromise(result)) {
-						i++; // prevent infinite loop!
-						return result.then(executor);
+						return result.then(iterate);
 					}
 				}
 			}
 		};
 
-		return executor();
+		return iterate();
 	}
 }
 
