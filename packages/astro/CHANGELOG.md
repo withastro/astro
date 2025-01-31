@@ -1,5 +1,11 @@
 # astro
 
+## 5.2.2
+
+### Patch Changes
+
+- [#13106](https://github.com/withastro/astro/pull/13106) [`187c4d3`](https://github.com/withastro/astro/commit/187c4d3244a27c9b4e7e3cbe6307b01161140ca1) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused peer dependency errors when running `astro add tailwind`
+
 ## 5.2.1
 
 ### Patch Changes
