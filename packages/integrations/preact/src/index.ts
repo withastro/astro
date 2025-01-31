@@ -85,6 +85,18 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 					injectScript('page', 'import "preact/debug";');
 				}
 			},
+			'astro:config:done': ({ logger, config }) => {
+				const knownJsxRenderers = ['@astrojs/react', '@astrojs/preact', '@astrojs/solid-js'];
+				const enabledKnownJsxRenderers = config.integrations.filter((renderer) =>
+					knownJsxRenderers.includes(renderer.name),
+				);
+
+				if (enabledKnownJsxRenderers.length > 1 && !include && !exclude) {
+					logger.warn(
+						'More than one JSX renderer is enabled. This will lead to unexpected behavior unless you set the `include` or `exclude` option. See https://docs.astro.build/en/guides/integrations-guide/preact/#combining-multiple-jsx-frameworks for more information.',
+					);
+				}
+			},
 		},
 	};
 }

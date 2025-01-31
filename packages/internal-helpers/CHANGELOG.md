@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.5.0
+
+### Minor Changes
+
+- [#12994](https://github.com/withastro/astro/pull/12994) [`5361755`](https://github.com/withastro/astro/commit/536175528dbbe75aa978d615ba2517b64bad7879) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds `collapseDuplicateTrailingSlashes` function
+
 ## 0.4.2
 
 ### Patch Changes

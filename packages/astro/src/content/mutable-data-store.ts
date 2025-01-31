@@ -212,6 +212,11 @@ export default new Map([\n${lines.join(',\n')}]);
 
 		const tempFile = filePath instanceof URL ? new URL(`${filePath.href}.tmp`) : `${filePath}.tmp`;
 		try {
+			const oldData = await fs.readFile(filePath, 'utf-8').catch(() => '');
+			if (oldData === data) {
+				// If the data hasn't changed, we can skip the write
+				return;
+			}
 			// Write it to a temporary file first and then move it to prevent partial reads.
 			await fs.writeFile(tempFile, data);
 			await fs.rename(tempFile, filePath);

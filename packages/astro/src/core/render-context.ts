@@ -605,8 +605,17 @@ export class RenderContext {
 				computedLocale = computeCurrentLocale(referer, locales, defaultLocale);
 			}
 		} else {
-			const pathname =
-				routeData.pathname && !isRoute404or500(routeData) ? routeData.pathname : url.pathname;
+			// For SSG we match the route naively, for dev we handle fallback on 404, for SSR we find route from fallbackRoutes
+			let pathname = routeData.pathname;
+			if (!routeData.pattern.test(url.pathname)) {
+				for (const fallbackRoute of routeData.fallbackRoutes) {
+					if (fallbackRoute.pattern.test(url.pathname)) {
+						pathname = fallbackRoute.pathname;
+						break;
+					}
+				}
+			}
+			pathname = pathname && !isRoute404or500(routeData) ? pathname : url.pathname;
 			computedLocale = computeCurrentLocale(pathname, locales, defaultLocale);
 		}
 

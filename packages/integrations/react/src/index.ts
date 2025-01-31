@@ -14,6 +14,10 @@ export type ReactIntegrationOptions = Pick<
 	'include' | 'exclude' | 'babel'
 > & {
 	experimentalReactChildren?: boolean;
+	/**
+	 * Disable streaming in React components
+	 */
+	experimentalDisableStreaming?: boolean;
 };
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
@@ -26,7 +30,13 @@ function getRenderer(reactConfig: ReactVersionConfig) {
 	};
 }
 
-function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
+function optionsPlugin({
+	experimentalReactChildren = false,
+	experimentalDisableStreaming = false,
+}: {
+	experimentalReactChildren: boolean;
+	experimentalDisableStreaming: boolean;
+}): vite.Plugin {
 	const virtualModule = 'astro:react:opts';
 	const virtualModuleId = '\0' + virtualModule;
 	return {
@@ -40,7 +50,8 @@ function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
 			if (id === virtualModuleId) {
 				return {
 					code: `export default {
-						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)}
+						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)},
+						experimentalDisableStreaming: ${JSON.stringify(experimentalDisableStreaming)}
 					}`,
 				};
 			}
@@ -49,27 +60,28 @@ function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
 }
 
 function getViteConfiguration(
-	{ include, exclude, babel, experimentalReactChildren }: ReactIntegrationOptions = {},
+	{
+		include,
+		exclude,
+		babel,
+		experimentalReactChildren,
+		experimentalDisableStreaming,
+	}: ReactIntegrationOptions = {},
 	reactConfig: ReactVersionConfig,
 ) {
 	return {
 		optimizeDeps: {
-			include: [
-				reactConfig.client,
-				'react',
-				'react/jsx-runtime',
-				'react/jsx-dev-runtime',
-				'react-dom',
-				'react-compiler-runtime',
-			],
+			include: [reactConfig.client],
 			exclude: [reactConfig.server],
 		},
-		plugins: [react({ include, exclude, babel }), optionsPlugin(!!experimentalReactChildren)],
-		resolve: {
-			dedupe: ['react', 'react-dom', 'react-dom/server'],
-		},
+		plugins: [
+			react({ include, exclude, babel }),
+			optionsPlugin({
+				experimentalReactChildren: !!experimentalReactChildren,
+				experimentalDisableStreaming: !!experimentalDisableStreaming,
+			}),
+		],
 		ssr: {
-			external: reactConfig.externals,
 			noExternal: [
 				// These are all needed to get mui to work.
 				'@mui/material',
@@ -87,6 +99,7 @@ export default function ({
 	exclude,
 	babel,
 	experimentalReactChildren,
+	experimentalDisableStreaming,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if (isUnsupportedVersion(majorVersion)) {
@@ -101,13 +114,25 @@ export default function ({
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
 					vite: getViteConfiguration(
-						{ include, exclude, babel, experimentalReactChildren },
+						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming },
 						versionConfig,
 					),
 				});
 				if (command === 'dev') {
 					const preamble = FAST_REFRESH_PREAMBLE.replace(`__BASE__`, '/');
 					injectScript('before-hydration', preamble);
+				}
+			},
+			'astro:config:done': ({ logger, config }) => {
+				const knownJsxRenderers = ['@astrojs/react', '@astrojs/preact', '@astrojs/solid-js'];
+				const enabledKnownJsxRenderers = config.integrations.filter((renderer) =>
+					knownJsxRenderers.includes(renderer.name),
+				);
+
+				if (enabledKnownJsxRenderers.length > 1 && !include && !exclude) {
+					logger.warn(
+						'More than one JSX renderer is enabled. This will lead to unexpected behavior unless you set the `include` or `exclude` option. See https://docs.astro.build/en/guides/integrations-guide/react/#combining-multiple-jsx-frameworks for more information.',
+					);
 				}
 			},
 		},

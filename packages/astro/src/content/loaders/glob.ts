@@ -93,7 +93,12 @@ export function glob(globOptions: GlobOptions): Loader {
 			const isLegacy = (globOptions as any)._legacy;
 			// If global legacy collection handling flag is *not* enabled then this loader is used to emulate them instead
 			const emulateLegacyCollections = !config.legacy.collections;
-			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
+			async function syncData(
+				entry: string,
+				base: URL,
+				entryType?: ContentEntryType,
+				oldId?: string,
+			) {
 				if (!entryType) {
 					logger.warn(`No entry type found for ${entry}`);
 					return;
@@ -115,6 +120,11 @@ export function glob(globOptions: GlobOptions): Loader {
 				});
 
 				const id = generateId({ entry, base, data });
+
+				if (oldId && oldId !== id) {
+					store.delete(oldId);
+				}
+
 				let legacyId: string | undefined;
 
 				if (isLegacy) {
@@ -308,6 +318,8 @@ export function glob(globOptions: GlobOptions): Loader {
 				return;
 			}
 
+			watcher.add(filePath);
+
 			const matchesGlob = (entry: string) =>
 				!entry.startsWith('../') && micromatch.isMatch(entry, globOptions.pattern);
 
@@ -320,7 +332,8 @@ export function glob(globOptions: GlobOptions): Loader {
 				}
 				const entryType = configForFile(changedPath);
 				const baseUrl = pathToFileURL(basePath);
-				await syncData(entry, baseUrl, entryType);
+				const oldId = fileToIdMap.get(changedPath);
+				await syncData(entry, baseUrl, entryType, oldId);
 				logger.info(`Reloaded data from ${green(entry)}`);
 			}
 

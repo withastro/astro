@@ -246,7 +246,7 @@ export type ActionMiddlewareContext = {
 		calledFrom: 'rpc' | 'form';
 		/** The name of the action. Useful to track the source of an action result during a redirect. */
 		name: string;
-		/** Programatically call the action to get the result. */
+		/** Programmatically call the action to get the result. */
 		handler: () => Promise<SafeResult<any, any>>;
 	};
 	/**
