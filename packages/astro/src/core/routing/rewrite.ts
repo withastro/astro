@@ -53,9 +53,10 @@ export function findRouteToRewrite({
 		pathname = pathname.slice(base.length);
 	}
 
+	const decodedPathname = decodeURI(pathname);
 	let foundRoute;
 	for (const route of routes) {
-		if (route.pattern.test(decodeURI(pathname))) {
+		if (route.pattern.test(decodedPathname)) {
 			foundRoute = route;
 			break;
 		}
@@ -65,7 +66,7 @@ export function findRouteToRewrite({
 		return {
 			routeData: foundRoute,
 			newUrl,
-			pathname: decodeURI(pathname),
+			pathname: decodedPathname,
 		};
 	} else {
 		const custom404 = routes.find((route) => route.route === '/404');
