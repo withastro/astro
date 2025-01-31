@@ -1,0 +1,35 @@
+---
+import Lorem from '../components/Lorem.astro';
+import { CalcAdd } from '../components/calc-add.js';
+import { MyCounter } from '../components/my-counter.js';
+
+// Full Astro Component Syntax:
+// https://docs.astro.build/basics/astro-components/
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>Demo</title>
+	</head>
+	<body>
+		<h1>Test app</h1>
+		<MyCounter client:load />
+		<Lorem />
+
+		{
+			(
+				/**
+				 * Our editor tooling does not currently properly typecheck attributes on imported Lit components. As such, without a
+				 * pragma directive telling TypeScript to ignore the error, the line below will result in an error in the editor.
+				 * Nonetheless, this code works in Astro itself!
+				 */
+				// @ts-expect-error
+				<CalcAdd num={0} />
+			)
+		}
+	</body>
+</html>

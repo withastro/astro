@@ -1,0 +1,38 @@
+---
+import ClientOnlyComponent from '../components/ClientOnlyComponent.js';
+import MyCounter from '../components/Counter.js';
+import NonDeferredCounter from '../components/NonDeferredCounter.js';
+
+const someProps = {
+	count: 10,
+};
+---
+
+<html>
+  <head>
+    <!-- Head Stuff -->
+  </head>
+  <body>
+		<MyCounter id="client-idle" {...someProps} client:idle>
+			<h1>Hello, client:idle!</h1>
+		</MyCounter>
+
+		<NonDeferredCounter id="non-deferred" client:idle {...someProps}>
+		</NonDeferredCounter>
+
+		<MyCounter id="client-load" {...someProps} client:load>
+			<h1>Hello, client:load!</h1>
+		</MyCounter>
+
+    <MyCounter id="client-visible" {...someProps} client:visible>
+			<h1>Hello, client:visible!</h1>
+		</MyCounter>
+
+		<ClientOnlyComponent id="client-only" client:only="lit">
+			Frame<span class="default">work </span>
+			<span slot="foo" class="foo1">client:only</span>
+			<span slot="foo" class="foo2"> component</span>
+			<span slot="quux"> Should not be visible</span>
+		</ClientOnlyComponent>
+  </body>
+</html>
