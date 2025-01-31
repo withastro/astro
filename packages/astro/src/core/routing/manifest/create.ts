@@ -276,8 +276,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			});
 
 		const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
-		const isPage = type === 'page';
-		const trailingSlash = isPage ? config.trailingSlash : 'never';
+		const { trailingSlash } = config;
 
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const generate = getRouteGenerator(segments, trailingSlash);
