@@ -31,7 +31,6 @@ import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 import { isRoute404or500, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
-import { SERVER_ISLAND_COMPONENT } from './server-islands/endpoint.js';
 import { AstroSession } from './session.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
