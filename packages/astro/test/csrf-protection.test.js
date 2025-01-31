@@ -212,4 +212,15 @@ describe('CSRF origin check', () => {
 			something: 'true',
 		});
 	});
+
+	it('return 200 when calling HEAD', async () => {
+		let request;
+		let response;
+		request = new Request('http://example.com/', {
+			headers: { origin: 'http://loreum.com', 'content-type': 'multipart/form-data' },
+			method: 'HEAD',
+		});
+		response = await app.render(request);
+		assert.equal(response.status, 200);
+	})
 });
