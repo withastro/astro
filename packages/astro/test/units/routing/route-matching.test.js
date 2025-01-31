@@ -122,6 +122,21 @@ const fileSystem = {
 `,
 };
 
+const INTERNAL_ROUTE = {
+	component: 'astro-default-404.astro',
+	generate: () => "",
+	params: [],
+	pattern: /\/404/,
+	prerender: false,
+	pathname: '/404',
+	segments: [[]],
+	type: 'page',
+	route: '/404',
+	fallbackRoutes: [],
+	isIndex: false,
+	origin: 'internal'
+}
+
 describe('Route matching', () => {
 	let pipeline;
 	let manifestData;
@@ -186,6 +201,24 @@ describe('Route matching', () => {
 				'/[...serverrest]',
 			]);
 		});
+
+		it('should sort project routes before internal routes', async () => {
+			const matches = matchAllRoutes('/try-matching-a-route', manifestData);
+			matches.push(INTERNAL_ROUTE)
+			const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
+			const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
+
+			assert.deepEqual(sortedRouteNames, [
+				'/[astaticdynamic]',
+				'/[xstaticdynamic]',
+				'/[serverdynamic]',
+				'/[...astaticrest]',
+				'/[...xstaticrest]',
+				'/[...serverrest]',
+				'/404'
+			]);
+		});
+
 	});
 
 	describe('Request', () => {
