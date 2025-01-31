@@ -10,6 +10,8 @@ import type { RouteData } from '../../types/public/internal.js';
  *   For example, `/foo/bar` is sorted before `/foo`.
  *   Index routes, originating from a file named `index.astro`, are considered to have one more
  *   segment than the URL they represent.
+ * - Project routes are sorted before internal and external routes
+ *   For example, a dynamic route `/[id]` and should be sorted before the default `/404` error page
  * - Static routes are sorted before dynamic routes.
  *   For example, `/foo/bar` is sorted before `/foo/[bar]`.
  * - Dynamic routes with single parameters are sorted before dynamic routes with rest parameters.
@@ -39,6 +41,12 @@ export function routeComparator(a: RouteData, b: RouteData) {
 			if (aContent !== bContent) {
 				return aContent.localeCompare(bContent);
 			}
+		}
+
+		const aIsUserDefined = a.origin === 'project';
+		const bIsUserDefined = b.origin === 'project';
+		if(aIsUserDefined !== bIsUserDefined) {
+			return aIsUserDefined ? -1 : 1;
 		}
 
 		// Sort static routes before dynamic routes
