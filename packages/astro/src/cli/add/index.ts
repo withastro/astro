@@ -361,7 +361,12 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} to your project:\n${list}`,
 				),
 			);
-			logger.info('SKIP_FORMAT', msg.success("Import './src/styles/global.css' in a layout"));
+			logger.warn(
+				'SKIP_FORMAT',
+				msg.action(
+					"You must make a manual change by adding the following in a layout\nimport './src/styles/global.css'",
+				),
+			);
 		}
 	}
 

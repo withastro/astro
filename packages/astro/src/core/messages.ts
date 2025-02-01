@@ -209,6 +209,15 @@ export function failure(message: string, tip?: string) {
 		.join('\n');
 }
 
+export function action(message: string) {
+	const badge = bgYellow(black(` action`));
+	const headline = yellow(message);
+	return ['', `${badge} ${headline}`]
+		.filter((v) => v !== undefined)
+		.map((msg) => `  ${msg}`)
+		.join('\n');
+}
+
 export function cancelled(message: string, tip?: string) {
 	const badge = bgYellow(black(` cancelled `));
 	const headline = yellow(message);
