@@ -210,7 +210,7 @@ export function failure(message: string, tip?: string) {
 }
 
 export function action(message: string) {
-	const badge = bgYellow(black(` action`));
+	const badge = bgYellow(black(` action `));
 	const headline = yellow(message);
 	return ['', `${badge} ${headline}`]
 		.filter((v) => v !== undefined)
