@@ -363,8 +363,8 @@ export async function add(names: string[], { flags }: AddOptions) {
 			);
 			logger.warn(
 				'SKIP_FORMAT',
-				msg.action(
-					"You must make a manual change by adding the following in a layout\n  import './src/styles/global.css'\n",
+				msg.actionRequired(
+					"You must add the following in a layout:\n  import './src/styles/global.css'\n",
 				),
 			);
 		}

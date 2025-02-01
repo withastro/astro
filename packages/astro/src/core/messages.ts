@@ -209,8 +209,8 @@ export function failure(message: string, tip?: string) {
 		.join('\n');
 }
 
-export function action(message: string) {
-	const badge = bgYellow(black(` action `));
+export function actionRequired(message: string) {
+	const badge = bgYellow(black(` action required `));
 	const headline = yellow(message);
 	return ['', `${badge} ${headline}`]
 		.filter((v) => v !== undefined)
