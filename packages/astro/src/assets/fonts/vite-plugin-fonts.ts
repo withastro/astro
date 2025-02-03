@@ -71,7 +71,18 @@ const createLogManager = (logger: Logger) => {
 
 export function fonts({ settings, sync, logger }: Options): Plugin | undefined {
 	if (!settings.config.experimental.fonts) {
-		return;
+		return {
+			name: 'astro:fonts:fallback',
+			config() {
+				return {
+					build: {
+						rollupOptions: {
+							external: [VIRTUAL_MODULE_ID],
+						},
+					},
+				};
+			},
+		};
 	}
 
 	const providers: Array<FontProvider<string>> = settings.config.experimental.fonts.providers ?? [];
