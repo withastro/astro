@@ -361,12 +361,19 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} to your project:\n${list}`,
 				),
 			);
-			logger.warn(
-				'SKIP_FORMAT',
-				msg.actionRequired(
-					"You must add the following in a layout:\n  import './src/styles/global.css'\n",
-				),
-			);
+			if (integrations.find((integration) => integration.integrationName === 'tailwind')) {
+				const code = boxen(
+					getDiffContent('---\n---', "---\nimport './src/styles/global.css'\n---")!,
+					{
+						margin: 0.5,
+						padding: 0.5,
+						borderStyle: 'round',
+						title: 'src/layouts/Layout.astro',
+					},
+				);
+				logger.warn('SKIP_FORMAT', msg.actionRequired('You must add the following in a layout:\n'));
+				logger.info('SKIP_FORMAT', code + '\n');
+			}
 		}
 	}
 
