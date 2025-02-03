@@ -10,7 +10,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/preact": "^4.0.3",
+    "@astrojs/preact": "^4.0.4",
     "@astrojs/react": "^4.2.0",
     "@astrojs/solid-js": "^5.0.4",
     "@astrojs/svelte": "^7.0.4",
