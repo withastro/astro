@@ -111,9 +111,8 @@ describe('trailingSlash', () => {
 			url: '/dot.json/',
 		});
 		container.handle(req, res);
-		const html = await text();
-		assert.equal(html.includes(`<span class="statusMessage">Not found</span>`), true);
-		assert.equal(res.statusCode, 404);
+		const json = await text();
+		assert.equal(json, '{"success":true}');
 	});
 
 	it('should also match the API route when request lacks a trailing slash, with a file extension', async () => {
