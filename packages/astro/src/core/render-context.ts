@@ -29,9 +29,8 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
-import { isRoute404or500 } from './routing/match.js';
+import { isRoute404or500, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
-import { SERVER_ISLAND_COMPONENT } from './server-islands/endpoint.js';
 import { AstroSession } from './session.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
@@ -596,7 +595,7 @@ export class RenderContext {
 		}
 
 		let computedLocale;
-		if (routeData.component === SERVER_ISLAND_COMPONENT) {
+		if (isRouteServerIsland(routeData)) {
 			let referer = this.request.headers.get('referer');
 			if (referer) {
 				if (URL.canParse(referer)) {

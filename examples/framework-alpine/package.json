@@ -13,6 +13,6 @@
     "@astrojs/alpinejs": "^0.4.3",
     "@types/alpinejs": "^3.13.11",
     "alpinejs": "^3.14.8",
-    "astro": "^5.1.9"
+    "astro": "^5.2.3"
   }
 }
