@@ -1,5 +1,6 @@
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData } from '../../types/public/internal.js';
+import { redirectIsExternal } from '../redirects/render.js';
 import { SERVER_ISLAND_BASE_PREFIX, SERVER_ISLAND_COMPONENT } from '../server-islands/endpoint.js';
 
 /** Find matching route from pathname */
@@ -75,4 +76,19 @@ export function requestIs404Or500(request: Request, base = '') {
 	const pathname = url.pathname.slice(base.length);
 
 	return isRoute404(pathname) || isRoute500(pathname);
+}
+
+/**
+ * Determines whether a given route is an external redirect.
+ *
+ * @param {RouteData} route - The route object to check.
+ * @return {boolean} Returns true if the route is an external redirect, otherwise false.
+ */
+export function isRouteExternalRedirect(route: RouteData): boolean {
+	if (route.type === 'redirect') {
+		if (route.redirect && redirectIsExternal(route.redirect)) {
+			return true;
+		}
+	}
+	return false;
 }
