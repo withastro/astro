@@ -98,7 +98,7 @@ interface Options {
 	logger: Logger;
 }
 
-export default function assets({ settings, sync, logger }: Options): (vite.Plugin | undefined)[] {
+export default function assets({ settings, sync, logger }: Options): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 	let shouldEmitFile = false;
 	let isBuild = false;

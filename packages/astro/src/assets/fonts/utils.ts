@@ -1,5 +1,6 @@
 import type * as unifont from 'unifont';
 
+// Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
 	return [
 		'@font-face {',
@@ -19,6 +20,7 @@ export function generateFontFace(family: string, font: unifont.FontFaceData) {
 		.join('\n');
 }
 
+// Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L68-L81
 function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], string>[]) {
 	return sources
 		.map((src) => {

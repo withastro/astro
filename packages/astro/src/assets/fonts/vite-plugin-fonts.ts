@@ -69,8 +69,11 @@ const createLogManager = (logger: Logger) => {
 	};
 };
 
-export function fonts({ settings, sync, logger }: Options): Plugin | undefined {
+export function fonts({ settings, sync, logger }: Options): Plugin {
 	if (!settings.config.experimental.fonts) {
+		// this is required because the virtual module does not exist
+		// when fonts are not enabled, and that prevents rollup from building
+		// TODO: remove once fonts are stabilized
 		return {
 			name: 'astro:fonts:fallback',
 			config() {

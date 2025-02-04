@@ -6,9 +6,10 @@ import { local } from './providers/local.js';
 import type { FontProvider, ResolvedFontProvider } from './types.js';
 import { fileURLToPath } from 'node:url';
 
-/** TODO: */
+/** TODO: jsdoc */
 export const fontProviders = {
 	adobe,
+	// TODO: reexport all unifont providers
 };
 
 function resolveEntrypoint(settings: AstroSettings, entrypoint: string): string {
