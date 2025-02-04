@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.5.1
+
+### Patch Changes
+
+- [#13130](https://github.com/withastro/astro/pull/13130) [`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that meant that internal as well as trailing duplicate slashes were collapsed
+
 ## 0.5.0
 
 ### Minor Changes

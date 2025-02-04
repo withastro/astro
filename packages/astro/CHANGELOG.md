@@ -1,5 +1,16 @@
 # astro
 
+## 5.2.4
+
+### Patch Changes
+
+- [#13130](https://github.com/withastro/astro/pull/13130) [`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused duplicate slashes inside query params to be collapsed
+
+- [#13131](https://github.com/withastro/astro/pull/13131) [`d60c742`](https://github.com/withastro/astro/commit/d60c74243f639761ad735d66d814e627f8f847a2) Thanks [@ascorbic](https://github.com/ascorbic)! - Ignores trailing slashes for endpoints with file extensions in the route
+
+- Updated dependencies [[`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091)]:
+  - @astrojs/internal-helpers@0.5.1
+
 ## 5.2.3
 
 ### Patch Changes
