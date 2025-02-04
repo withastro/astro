@@ -64,7 +64,6 @@ export function createI18nMiddleware(
 	};
 
 	return async (context, next) => {
-		console.log('calling headers type');
 		const response = await next();
 		const type = response.headers.get(ROUTE_TYPE_HEADER);
 
