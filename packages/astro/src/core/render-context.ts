@@ -27,9 +27,9 @@ import { ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
-import { renderRedirect } from './redirects/render.js';
+import { redirectIsExternal, renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
-import { isRoute404or500, isRouteServerIsland } from './routing/match.js';
+import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
 
@@ -245,6 +245,12 @@ export class RenderContext {
 			}
 			return response;
 		};
+
+		// If we are rendering an extrnal redirect, we don't need go through the middleware,
+		// otherwise Astro will attempt to render the external website
+		if (isRouteExternalRedirect(this.routeData)) {
+			return renderRedirect(this);
+		}
 
 		const response = await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
