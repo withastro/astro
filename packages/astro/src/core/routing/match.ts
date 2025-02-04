@@ -85,10 +85,5 @@ export function requestIs404Or500(request: Request, base = '') {
  * @return {boolean} Returns true if the route is an external redirect, otherwise false.
  */
 export function isRouteExternalRedirect(route: RouteData): boolean {
-	if (route.type === 'redirect') {
-		if (route.redirect && redirectIsExternal(route.redirect)) {
-			return true;
-		}
-	}
-	return false;
+	return !!(route.type === 'redirect' && route.redirect && redirectIsExternal(route.redirect));
 }
