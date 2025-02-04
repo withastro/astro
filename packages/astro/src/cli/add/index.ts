@@ -371,7 +371,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 						title: 'src/layouts/Layout.astro',
 					},
 				);
-				logger.warn('SKIP_FORMAT', msg.actionRequired('You must add the following in a layout:\n'));
+				logger.warn('SKIP_FORMAT', msg.actionRequired('You must import your Tailwind stylesheet, e.g. in a shared layout:\n'));
 				logger.info('SKIP_FORMAT', code + '\n');
 			}
 		}
