@@ -95,6 +95,16 @@ describe('trailingSlash', () => {
 		assert.equal(res.statusCode, 404);
 	});
 
+	it('should match an injected route when request has a file extension and no slash', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/injected.json',
+		});
+		container.handle(req, res);
+		const json = await text();
+		assert.equal(json, '{"success":true}');
+	});
+
 	it('should match the API route when request has a trailing slash, with a file extension', async () => {
 		const { req, res, text } = createRequestAndResponse({
 			method: 'GET',
@@ -105,14 +115,13 @@ describe('trailingSlash', () => {
 		assert.equal(json, '{"success":true}');
 	});
 
-	it('should NOT match the API route when request lacks a trailing slash, with a file extension', async () => {
+	it('should also match the API route when request lacks a trailing slash, with a file extension', async () => {
 		const { req, res, text } = createRequestAndResponse({
 			method: 'GET',
 			url: '/dot.json',
 		});
 		container.handle(req, res);
-		const html = await text();
-		assert.equal(html.includes(`<span class="statusMessage">Not found</span>`), true);
-		assert.equal(res.statusCode, 404);
+		const json = await text();
+		assert.equal(json, '{"success":true}');
 	});
 });
