@@ -33,6 +33,28 @@ describe('Redirecting trailing slashes in SSR', () => {
 			assert.equal(response.headers.get('Location'), '/another/');
 		});
 
+		it('Redirects to collapse multiple trailing slashes with query param', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/another///?hello=world');
+			const response = await app.render(request);
+			assert.equal(response.status, 301);
+			assert.equal(response.headers.get('Location'), '/another/?hello=world');
+		});
+
+		it('Does not redirect to collapse multiple internal slashes', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/another///path/');
+			const response = await app.render(request);
+			assert.equal(response.status, 404);
+		});
+
+		it('Does not redirect trailing slashes on query params', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/another/?hello=world///');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+		});
+
 		it('Does not redirect when trailing slash is present', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another/');
