@@ -1,5 +1,15 @@
 # astro
 
+## 5.2.5
+
+### Patch Changes
+
+- [#13133](https://github.com/withastro/astro/pull/13133) [`e76aa83`](https://github.com/withastro/astro/commit/e76aa8391eb9d81c1a52fb2f9f21ede4790bd793) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Astro was failing to build an external redirect when the middleware was triggered
+
+- [#13119](https://github.com/withastro/astro/pull/13119) [`ac43580`](https://github.com/withastro/astro/commit/ac4358052af2c1817dec999598bc4e3d8fd0bdaf) Thanks [@Hacksore](https://github.com/Hacksore)! - Adds extra guidance in the terminal when using the `astro add tailwind` CLI command
+
+  Now, users are given a friendly reminder to import the stylesheet containing their Tailwind classes into any pages where they want to use Tailwind. Commonly, this is a shared layout component so that Tailwind styling can be used on multiple pages.
+
 ## 5.2.4
 
 ### Patch Changes
