@@ -237,6 +237,9 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 					return next();
 				}
 				logManager.add(hash);
+				// Cache should be defined at this point since initialize it called before registering
+				// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
+				// no url will be matched and this line will not be reached.
 				const { cached, data } = await cache!(hash, () => fetchFont(url));
 				logManager.remove(hash, cached);
 
