@@ -139,12 +139,10 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 		});
 
 		const storage = createStorage({
-			// In build, first check the build cache then fallback to dev cache
-			// In dev, only check dev cache
-			bases: [
-				new URL(CACHE_DIR, settings.dotAstroDir),
-				...(isBuild ? [new URL(CACHE_DIR, settings.config.cacheDir)] : []),
-			],
+			// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
+			base: isBuild
+				? new URL(CACHE_DIR, settings.config.cacheDir)
+				: new URL(CACHE_DIR, settings.dotAstroDir),
 		});
 		cache = createCache({ storage }).cache;
 
