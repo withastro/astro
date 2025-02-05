@@ -22,20 +22,36 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ModuleLoader } from '../../core/module-loader/loader.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
 
+// TODO: maybe rename Fonts component to Font
+
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
 	logger: Logger;
 }
 
-type PreloadData = Array<{ url: string; type: string }>;
+/**
+ * Preload data is used for links generation inside the <Fonts /> component
+ */
+type PreloadData = Array<{
+	/**
+	 * Absolute link to a font file, eg. /_astro/fonts/abc.woff
+	 */
+	url: string;
+	/**
+	 * A font type, eg. woff2, woff, ttf...
+	 */
+	type: string;
+}>;
 
-// We want to show logs related to font downloading (fresh or from cache)
-// However if we just use the logger as is, there are too many logs, and not
-// so useful.
-// This log manager allows avoiding repetitive logs:
-// - If there are many downloads started at once, only one log is shown for start and end
-// - If a given file has already been logged, it won't show up anymore (useful in dev)
+/**
+ * We want to show logs related to font downloading (fresh or from cache)
+ * However if we just use the logger as is, there are too many logs, and not
+ * so useful.
+ * This log manager allows avoiding repetitive logs:
+ * - If there are many downloads started at once, only one log is shown for start and end
+ * - If a given file has already been logged, it won't show up anymore (useful in dev)
+ */
 const createLogManager = (logger: Logger) => {
 	const done = new Set<string>();
 	const items = new Set<string>();
@@ -106,8 +122,10 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 	const baseUrl = removeTrailingForwardSlash(settings.config.base) + URL_PREFIX;
 
 	let resolvedMap: Map<string, { preloadData: PreloadData; css: string }> | null = null;
-	/** Key is `${hash}.${ext}`, value is a URL */
-	let collected: Map<string, string> | null = null;
+	// Key is `${hash}.${ext}`, value is a URL.
+	// When a font file is requested (eg. /_astro/fonts/abc.woff), we use the hash
+	// to download the original file, or retrieve it from cache
+	let hashToUrlMap: Map<string, string> | null = null;
 	let isBuild: boolean;
 	let cache: Cache['cache'] | null = null;
 
@@ -135,7 +153,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			{ storage },
 		);
 		resolvedMap = new Map();
-		collected = new Map();
+		hashToUrlMap = new Map();
 		for (const family of families) {
 			const resolvedOptions: unifont.ResolveFontOptions = {
 				weights: family.weights ?? DEFAULTS.weights,
@@ -156,8 +174,8 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 					const key = 'name' in source ? 'name' : 'url';
 					const hash = h64ToString(source[key]) + extname(source[key]);
 					const url = baseUrl + hash;
-					if (!collected.has(hash)) {
-						collected.set(hash, source[key]);
+					if (!hashToUrlMap.has(hash)) {
+						hashToUrlMap.set(hash, source[key]);
 						preloadData.push({ url, type: hash.split('.')[1] });
 					}
 					source[key] = url;
@@ -166,7 +184,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			}
 			resolvedMap.set(family.name, { preloadData, css });
 		}
-		logger.info('assets', 'Fonts initialized')
+		logger.info('assets', 'Fonts initialized');
 	}
 
 	return {
@@ -190,7 +208,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 					return next();
 				}
 				const hash = req.url.slice(1);
-				const url = collected?.get(hash);
+				const url = hashToUrlMap?.get(hash);
 				if (!url) {
 					return next();
 				}
@@ -231,7 +249,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			resolvedMap = null;
 
 			if (sync) {
-				collected = null;
+				hashToUrlMap = null;
 				cache = null;
 				return;
 			}
@@ -245,7 +263,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
 			}
 			await Promise.all(
-				Array.from(collected!.entries()).map(async ([hash, url]) => {
+				Array.from(hashToUrlMap!.entries()).map(async ([hash, url]) => {
 					logManager.add(hash);
 					const { cached, data } = await cache!(hash, () =>
 						fetch(url)
@@ -261,7 +279,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 				}),
 			);
 
-			collected = null;
+			hashToUrlMap = null;
 			cache = null;
 		},
 	};
