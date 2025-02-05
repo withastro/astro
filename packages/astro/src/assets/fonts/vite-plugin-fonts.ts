@@ -94,6 +94,9 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 	const providers: Array<FontProvider<string>> = settings.config.experimental.fonts.providers ?? [];
 	const families: Array<FontFamily<string>> = settings.config.experimental.fonts.families;
 
+	// We don't need to take the trailing slash and build output configuration options
+	// into account because we only serve (dev) or write (build) static assets (equivalent
+	// to trailingSlash: never)
 	const baseUrl = removeTrailingForwardSlash(settings.config.base) + URL_PREFIX;
 
 	let resolvedMap: Map<string, { preloadData: PreloadData; css: string }> | null = null;
