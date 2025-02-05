@@ -95,6 +95,17 @@ const createLogManager = (logger: Logger) => {
 	};
 };
 
+async function fetchFont(url: string): Promise<string> {
+	try {
+		const r = await fetch(url);
+		const arr = await r.arrayBuffer();
+		return Buffer.from(arr).toString();
+	} catch (e) {
+		// TODO: AstroError
+		throw new Error('Error downloading font file', { cause: e });
+	}
+}
+
 export function fonts({ settings, sync, logger }: Options): Plugin {
 	if (!settings.config.experimental.fonts) {
 		// this is required because the virtual module does not exist
@@ -226,11 +237,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 					return next();
 				}
 				logManager.add(hash);
-				const { cached, data } = await cache!(hash, () =>
-					fetch(url)
-						.then((r) => r.arrayBuffer())
-						.then((arr) => Buffer.from(arr).toString()),
-				);
+				const { cached, data } = await cache!(hash, () => fetchFont(url));
 				logManager.remove(hash, cached);
 
 				// TODO: add cache control back
@@ -278,11 +285,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			await Promise.all(
 				Array.from(hashToUrlMap!.entries()).map(async ([hash, url]) => {
 					logManager.add(hash);
-					const { cached, data } = await cache!(hash, () =>
-						fetch(url)
-							.then((r) => r.arrayBuffer())
-							.then((arr) => Buffer.from(arr).toString()),
-					);
+					const { cached, data } = await cache!(hash, () => fetchFont(url));
 					logManager.remove(hash, cached);
 					try {
 						writeFileSync(new URL(hash, fontsDir), data);
