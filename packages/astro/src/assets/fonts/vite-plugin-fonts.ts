@@ -19,6 +19,8 @@ import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
 import { createCache, createStorage, type Cache } from './cache.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import type { ModuleLoader } from '../../core/module-loader/loader.js';
+import { createViteLoader } from '../../core/module-loader/vite.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -100,67 +102,78 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 	let isBuild: boolean;
 	let cache: Cache['cache'] | null = null;
 
+	async function initialize(moduleLoader?: ModuleLoader) {
+		const { h64ToString } = await xxhash();
+
+		const resolved = await resolveProviders({
+			settings,
+			providers,
+			moduleLoader,
+		});
+
+		const storage = createStorage({
+			// In build, first check the build cache then fallback to dev cache
+			// In dev, only check dev cache
+			bases: [
+				new URL(CACHE_DIR, settings.dotAstroDir),
+				...(isBuild ? [new URL(CACHE_DIR, settings.config.cacheDir)] : []),
+			],
+		});
+		cache = createCache({ storage }).cache;
+
+		const { resolveFont } = await unifont.createUnifont(
+			resolved.map((e) => e.provider(e.config)),
+			{ storage },
+		);
+		resolvedMap = new Map();
+		collected = new Map();
+		for (const family of families) {
+			const resolvedOptions: unifont.ResolveFontOptions = {
+				weights: family.weights ?? DEFAULTS.weights,
+				styles: family.styles ?? DEFAULTS.styles,
+				subsets: family.subsets ?? DEFAULTS.subsets,
+				fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
+			};
+			// TODO: https://github.com/unjs/unifont/issues/108
+			const { fonts: fontsData, fallbacks } = await resolveFont(family.name, resolvedOptions, [
+				family.provider,
+			]);
+
+			// TODO: use fontaine if needed
+			const preloadData: PreloadData = [];
+			let css = '';
+			for (const data of fontsData) {
+				for (const source of data.src as unknown as Array<Record<string, string>>) {
+					const key = 'name' in source ? 'name' : 'url';
+					const hash = h64ToString(source[key]) + extname(source[key]);
+					const url = baseUrl + hash;
+					if (!collected.has(hash)) {
+						collected.set(hash, source[key]);
+						preloadData.push({ url, type: hash.split('.')[1] });
+					}
+					source[key] = url;
+				}
+				css += generateFontFace(family.name, data);
+			}
+			resolvedMap.set(family.name, { preloadData, css });
+		}
+		logger.info('assets', 'Fonts initialized')
+	}
+
 	return {
 		name: 'astro:fonts',
 		config(_, { command }) {
 			isBuild = command === 'build';
 		},
 		async buildStart() {
-			const { h64ToString } = await xxhash();
-
-			const resolved = await resolveProviders({
-				settings,
-				providers,
-			});
-
-			const storage = createStorage({
-				// In build, first check the build cache then fallback to dev cache
-				// In dev, only check dev cache
-				bases: [
-					new URL(CACHE_DIR, settings.dotAstroDir),
-					...(isBuild ? [new URL(CACHE_DIR, settings.config.cacheDir)] : []),
-				],
-			});
-			cache = createCache({ storage }).cache;
-
-			const { resolveFont } = await unifont.createUnifont(
-				resolved.map((e) => e.provider(e.config)),
-				{ storage },
-			);
-			resolvedMap = new Map();
-			collected = new Map();
-			for (const family of families) {
-				const resolvedOptions: unifont.ResolveFontOptions = {
-					weights: family.weights ?? DEFAULTS.weights,
-					styles: family.styles ?? DEFAULTS.styles,
-					subsets: family.subsets ?? DEFAULTS.subsets,
-					fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
-				};
-				// TODO: https://github.com/unjs/unifont/issues/108
-				const { fonts: fontsData, fallbacks } = await resolveFont(family.name, resolvedOptions, [
-					family.provider,
-				]);
-
-				// TODO: use fontaine if needed
-				const preloadData: PreloadData = [];
-				let css = '';
-				for (const data of fontsData) {
-					for (const source of data.src as unknown as Array<Record<string, string>>) {
-						const key = 'name' in source ? 'name' : 'url';
-						const hash = h64ToString(source[key]) + extname(source[key]);
-						const url = baseUrl + hash;
-						if (!collected.has(hash)) {
-							collected.set(hash, source[key]);
-							preloadData.push({ url, type: hash.split('.')[1] });
-						}
-						source[key] = url;
-					}
-					css += generateFontFace(family.name, data);
-				}
-				resolvedMap.set(family.name, { preloadData, css });
+			if (isBuild) {
+				await initialize();
 			}
 		},
 		async configureServer(server) {
+			const moduleLoader = createViteLoader(server);
+			await initialize(moduleLoader);
+
 			const logManager = createLogManager(logger);
 			// Base is taken into account by default
 			server.middlewares.use(URL_PREFIX, async (req, res, next) => {
