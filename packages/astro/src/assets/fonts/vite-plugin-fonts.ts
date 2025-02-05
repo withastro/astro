@@ -30,6 +30,12 @@ interface Options {
 
 type PreloadData = Array<{ url: string; type: string }>;
 
+// We want to show logs related to font downloading (fresh or from cache)
+// However if we just use the logger as is, there are too many logs, and not
+// so useful.
+// This log manager allows avoiding repetitive logs:
+// - If there are many downloads started at once, only one log is shown for start and end
+// - If a given file has already been logged, it won't show up anymore (useful in dev)
 const createLogManager = (logger: Logger) => {
 	const done = new Set<string>();
 	const items = new Set<string>();
