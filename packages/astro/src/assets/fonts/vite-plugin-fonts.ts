@@ -18,6 +18,7 @@ import {
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
 import { createCache, createStorage, type Cache } from './cache.js';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -216,7 +217,11 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			const logManager = createLogManager(logger);
 			const dir = getClientOutputDirectory(settings);
 			const fontsDir = new URL('.' + baseUrl, dir);
-			mkdirSync(fontsDir, { recursive: true });
+			try {
+				mkdirSync(fontsDir, { recursive: true });
+			} catch (e) {
+				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+			}
 			await Promise.all(
 				Array.from(collected!.entries()).map(async ([hash, url]) => {
 					logManager.add(hash);
@@ -226,7 +231,11 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 							.then((arr) => Buffer.from(arr).toString()),
 					);
 					logManager.remove(hash, cached);
-					writeFileSync(new URL(hash, fontsDir), data);
+					try {
+						writeFileSync(new URL(hash, fontsDir), data);
+					} catch (e) {
+						throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+					}
 				}),
 			);
 

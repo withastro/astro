@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type * as unifont from 'unifont';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 
 type Storage = Required<unifont.UnifontOptions>['storage'];
 
@@ -15,17 +16,31 @@ export const createStorage = ({
 		getItem: async (key) => {
 			for (const base of bases) {
 				const dest = new URL('./' + key, base);
-				if (!existsSync(dest)) {
-					return;
+				try {
+					if (!existsSync(dest)) {
+						return;
+					}
+					const content = await readFile(dest, 'utf-8');
+					try {
+						return JSON.parse(content);
+					} catch {
+						// If we can't parse the content, we assume the entry does not exist
+						return;
+					}
+				} catch (e) {
+					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
 				}
-				return JSON.parse(await readFile(dest, 'utf-8'));
 			}
 		},
 		setItem: async (key, value) => {
 			for (const base of bases) {
 				const dest = new URL('./' + key, base);
-				await mkdir(dirname(fileURLToPath(dest)), { recursive: true });
-				return await writeFile(dest, JSON.stringify(value), 'utf-8');
+				try {
+					await mkdir(dirname(fileURLToPath(dest)), { recursive: true });
+					return await writeFile(dest, JSON.stringify(value), 'utf-8');
+				} catch (e) {
+					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+				}
 			}
 		},
 	};
