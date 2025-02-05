@@ -162,6 +162,8 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			resolved.map((e) => e.provider(e.config)),
 			{ storage },
 		);
+		// We initialize shared variables here and reset them in buildEnd
+		// to avoid locking memory
 		resolvedMap = new Map();
 		hashToUrlMap = new Map();
 		for (const family of families) {
