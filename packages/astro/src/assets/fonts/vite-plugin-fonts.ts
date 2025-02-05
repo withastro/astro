@@ -5,7 +5,7 @@ import * as unifont from 'unifont';
 import type { FontFamily, FontProvider } from './types.js';
 import xxhash from 'xxhash-wasm';
 import { extname } from 'node:path';
-import { getBuildOutputDir } from '../../core/build/util.js';
+import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { generateFontFace } from './utils.js';
 import {
@@ -214,7 +214,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			}
 
 			const logManager = createLogManager(logger);
-			const dir = getBuildOutputDir(settings);
+			const dir = getClientOutputDirectory(settings);
 			const fontsDir = new URL('.' + baseUrl, dir);
 			mkdirSync(fontsDir, { recursive: true });
 			await Promise.all(

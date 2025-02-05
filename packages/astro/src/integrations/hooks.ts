@@ -32,7 +32,7 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import { getBuildOutputDir } from '../core/build/util.js';
+import { getClientOutputDirectory } from '../prerender/utils.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -587,7 +587,7 @@ type RunHookBuildDone = {
 };
 
 export async function runHookBuildDone({ settings, pages, routes, logging }: RunHookBuildDone) {
-	const dir = getBuildOutputDir(settings);
+	const dir = getClientOutputDirectory(settings);
 	await fsMod.promises.mkdir(dir, { recursive: true });
 	const integrationRoutes = routes.map(toIntegrationRouteData);
 	for (const integration of settings.config.integrations) {

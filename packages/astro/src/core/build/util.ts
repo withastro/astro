@@ -1,7 +1,6 @@
 import type { Rollup } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { ViteBuildReturn } from './types.js';
-import type { AstroSettings } from '../../types/astro.js';
 
 export function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;
@@ -69,6 +68,3 @@ export function viteBuildReturnToRollupOutputs(
 	return result;
 }
 
-export function getBuildOutputDir(settings: AstroSettings): URL {
-	return settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
-}
