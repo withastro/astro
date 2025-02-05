@@ -159,12 +159,11 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 				subsets: family.subsets ?? DEFAULTS.subsets,
 				fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
 			};
-			// TODO: https://github.com/unjs/unifont/issues/108
 			const { fonts: fontsData, fallbacks } = await resolveFont(family.name, resolvedOptions, [
 				family.provider,
 			]);
 
-			// TODO: use fontaine if needed
+			// TODO: investigate using fontaine for fallbacks
 			const preloadData: PreloadData = [];
 			let css = '';
 			for (const data of fontsData) {
