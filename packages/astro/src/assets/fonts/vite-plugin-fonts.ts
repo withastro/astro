@@ -224,9 +224,8 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			await initialize(moduleLoader);
 
 			const logManager = createLogManager(logger);
-			// Base is taken into account by default. The prefix
-			// The prefix contains a traling slash, so it matches correctly any
-			// hash, eg. /_astro/fonts/abc.woff => abc.woff
+			// Base is taken into account by default. The prefix contains a traling slash,
+			// so it matches correctly any hash, eg. /_astro/fonts/abc.woff => abc.woff
 			server.middlewares.use(URL_PREFIX, async (req, res, next) => {
 				if (!req.url) {
 					return next();
