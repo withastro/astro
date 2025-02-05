@@ -33,7 +33,6 @@
     "astro": "^5.0.0"
   },
   "devDependencies": {
-    "@astrojs/test-utils": "workspace:*",
     "@types/node": "^22.10.6",
     "@types/send": "^0.17.4",
     "@types/server-destroy": "^1.0.4",
