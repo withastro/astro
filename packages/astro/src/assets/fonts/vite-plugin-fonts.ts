@@ -14,6 +14,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	URL_PREFIX,
 	CACHE_DIR,
+	FONT_TYPES,
 } from './constants.js';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
@@ -168,13 +169,26 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			let css = '';
 			for (const data of fontsData) {
 				for (const source of data.src as unknown as Array<Record<string, string>>) {
+					// Types are wonky but a source is
+					// 1. local and has a name
+					// 2. remote and has an url
+					// Once we have the key, it's safe to access the related source property
 					const key = 'name' in source ? 'name' : 'url';
-					const hash = h64ToString(source[key]) + extname(source[key]);
+					const value = source[key];
+					const hash = h64ToString(value) + extname(value);
 					const url = baseUrl + hash;
 					if (!hashToUrlMap.has(hash)) {
-						hashToUrlMap.set(hash, source[key]);
-						preloadData.push({ url, type: hash.split('.')[1] });
+						hashToUrlMap.set(hash, value);
+						const segments = hash.split('.');
+						// It's safe, there's at least 1 member in the array
+						const type = segments.at(-1)!;
+						if (segments.length === 1 || !FONT_TYPES.includes(type)) {
+							// TODO: AstroError
+							throw new Error("can't extract type from filename");
+						}
+						preloadData.push({ url, type });
 					}
+					// Now that we collected the original url, we override it with our proxy
 					source[key] = url;
 				}
 				css += generateFontFace(family.name, data);
@@ -199,7 +213,9 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			await initialize(moduleLoader);
 
 			const logManager = createLogManager(logger);
-			// Base is taken into account by default
+			// Base is taken into account by default. The prefix
+			// The prefix contains a traling slash, so it matches correctly any
+			// hash, eg. /_astro/fonts/abc.woff => abc.woff
 			server.middlewares.use(URL_PREFIX, async (req, res, next) => {
 				if (!req.url) {
 					return next();
