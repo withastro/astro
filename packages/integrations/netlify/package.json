@@ -24,14 +24,14 @@
   },
   "files": ["dist"],
   "scripts": {
-    "build": "tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "test": "astro-scripts test \"test/**/*.test.js\"",
     "test-fn": "astro-scripts test \"test/functions/*.test.js\"",
     "test-static": "astro-scripts test \"test/static/*.test.js\"",
-    "test": "pnpm run test-fn && pnpm run test-static",
     "test:hosted": "astro-scripts test \"test/hosted/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "0.4.2",
+    "@astrojs/internal-helpers": "0.5.1",
     "@astrojs/underscore-redirects": "^0.6.0",
     "@netlify/functions": "^2.8.0",
     "@vercel/nft": "^0.29.0",
@@ -42,7 +42,6 @@
     "astro": "^5.0.0"
   },
   "devDependencies": {
-    "@astrojs/test-utils": "workspace:*",
     "@netlify/edge-functions": "^2.11.1",
     "@netlify/edge-handler-types": "^0.34.1",
     "@types/node": "^22.10.6",

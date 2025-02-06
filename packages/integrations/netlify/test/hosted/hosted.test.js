@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 
 const NETLIFY_TEST_URL = 'https://curious-boba-495d6d.netlify.app';
 

@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from '@astrojs/test-utils';
+import { loadFixture } from '../../../../astro/test/test-utils.js';
 
 describe(
 	'Middleware',

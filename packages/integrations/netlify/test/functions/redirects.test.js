@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from '@astrojs/test-utils';
+import { loadFixture } from '../../../../astro/test/test-utils.js';
 
 describe(
 	'SSR - Redirects',

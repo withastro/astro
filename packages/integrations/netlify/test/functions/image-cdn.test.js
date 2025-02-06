@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { remotePatternToRegex } from '@astrojs/netlify';
-import { loadFixture } from '@astrojs/test-utils';
+import { loadFixture } from '../../../../astro/test/test-utils.js';
 
 describe(
 	'Image CDN',
