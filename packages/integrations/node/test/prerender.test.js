@@ -34,7 +34,7 @@ describe('Prerendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			// biome-ignore lint/performance/noDelete: <explanation>
+
 			delete process.env.PRERENDER;
 		});
 
@@ -106,7 +106,7 @@ describe('Prerendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			// biome-ignore lint/performance/noDelete: <explanation>
+
 			delete process.env.PRERENDER;
 		});
 
@@ -179,7 +179,7 @@ describe('Prerendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			// biome-ignore lint/performance/noDelete: <explanation>
+
 			delete process.env.PRERENDER;
 		});
 
@@ -220,7 +220,7 @@ describe('Prerendering', () => {
 
 		after(async () => {
 			await devServer.stop();
-			// biome-ignore lint/performance/noDelete: <explanation>
+
 			delete process.env.PRERENDER;
 		});
 
@@ -271,7 +271,7 @@ describe('Hybrid rendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			// biome-ignore lint/performance/noDelete: <explanation>
+
 			delete process.env.PRERENDER;
 		});
 
@@ -341,7 +341,7 @@ describe('Hybrid rendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			// biome-ignore lint/performance/noDelete: <explanation>
+
 			delete process.env.PRERENDER;
 		});
 
@@ -403,7 +403,7 @@ describe('Hybrid rendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			// biome-ignore lint/performance/noDelete: <explanation>
+
 			delete process.env.PRERENDER;
 		});
 

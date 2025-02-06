@@ -31,7 +31,7 @@ describe('behavior from middleware, standalone', () => {
 	after(async () => {
 		await server.stop();
 		await fixture.clean();
-		// biome-ignore lint/performance/noDelete: <explanation>
+
 		delete process.env.PRERENDER;
 	});
 
@@ -72,7 +72,7 @@ describe('behavior from middleware, middleware', () => {
 	after(async () => {
 		server.close();
 		await fixture.clean();
-		// biome-ignore lint/performance/noDelete: <explanation>
+
 		delete process.env.PRERENDER;
 	});
 
