@@ -483,13 +483,17 @@ export function resolveSessionDriver(driver: string | undefined): Promise<string
 }
 
 export function validateSessionConfig(settings: AstroSettings): void {
-	let error: AstroError | null = null;
-	if (settings.config.experimental.session && !settings.config.session?.driver) {
-		error = new AstroError(SessionConfigMissingError);
-	} else if (settings.config.session?.driver && !settings.config.experimental.session) {
+	const { experimental, session } = settings.config;
+	const { buildOutput } = settings;
+	let error: AstroError | undefined;
+	if (experimental.session) {
+		if (!session?.driver) {
+			error = new AstroError(SessionConfigMissingError);
+		} else if (buildOutput === 'static') {
+			error = new AstroError(SessionWithoutServerOutputError);
+		}
+	} else if (session?.driver) {
 		error = new AstroError(SessionConfigWithoutFlagError);
-	} else if (settings.buildOutput === 'static') {
-		error = new AstroError(SessionWithoutServerOutputError);
 	}
 	if (error) {
 		error.stack = undefined;
