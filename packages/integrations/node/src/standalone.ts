@@ -60,7 +60,7 @@ export function createServer(listener: http.RequestListener, host: string, port:
 				key: fs.readFileSync(process.env.SERVER_KEY_PATH),
 				cert: fs.readFileSync(process.env.SERVER_CERT_PATH),
 			},
-			listener
+			listener,
 		);
 	} else {
 		httpServer = http.createServer(listener);

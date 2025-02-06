@@ -20,15 +20,15 @@ const createPreviewServer: CreatePreviewServer = async (preview) => {
 			options = ssrModule.options!;
 		} else {
 			throw new AstroError(
-				`The server entrypoint doesn't have a handler. Are you sure this is the right file?`
+				`The server entrypoint doesn't have a handler. Are you sure this is the right file?`,
 			);
 		}
 	} catch (err) {
 		if ((err as any).code === 'ERR_MODULE_NOT_FOUND') {
 			throw new AstroError(
 				`The server entrypoint ${fileURLToPath(
-					preview.serverEntrypoint
-				)} does not exist. Have you ran a build yet?`
+					preview.serverEntrypoint,
+				)} does not exist. Have you ran a build yet?`,
 			);
 			// biome-ignore lint/style/noUselessElse: <explanation>
 		} else {

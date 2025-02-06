@@ -3,14 +3,13 @@ import https from 'node:https';
 import type { AddressInfo } from 'node:net';
 import os from 'node:os';
 import type { AstroIntegrationLogger } from 'astro';
-import type { Options } from './types.js';
 
 const wildcardHosts = new Set(['0.0.0.0', '::', '0000:0000:0000:0000:0000:0000:0000:0000']);
 
 export async function logListeningOn(
 	logger: AstroIntegrationLogger,
 	server: http.Server | https.Server,
-	configuredHost: string | boolean | undefined
+	configuredHost: string | boolean | undefined,
 ) {
 	await new Promise<void>((resolve) => server.once('listening', resolve));
 	const protocol = server instanceof https.Server ? 'https' : 'http';
@@ -21,7 +20,7 @@ export async function logListeningOn(
 
 	if (host === undefined || wildcardHosts.has(host)) {
 		logger.info(
-			`Server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`
+			`Server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`,
 		);
 	} else {
 		logger.info(`Server listening on ${address.local[0]}`);
@@ -53,7 +52,7 @@ export function getNetworkAddress(
 	protocol: 'http' | 'https' = 'http',
 	hostname: string | undefined,
 	port: number,
-	base?: string
+	base?: string,
 ) {
 	const NetworkAddress: NetworkAddressOpt = {
 		local: [],
@@ -69,12 +68,12 @@ export function getNetworkAddress(
 				detail.address &&
 				(detail.family === 'IPv4' ||
 					// @ts-expect-error Node 18.0 - 18.3 returns number
-					detail.family === 4)
+					detail.family === 4),
 		)
 		.forEach((detail) => {
 			let host = detail.address.replace(
 				'127.0.0.1',
-				hostname === undefined || wildcardHosts.has(hostname) ? 'localhost' : hostname
+				hostname === undefined || wildcardHosts.has(hostname) ? 'localhost' : hostname,
 			);
 			// ipv6 host
 			if (host.includes(':')) {

@@ -39,7 +39,7 @@ describe('Bad URLs', () => {
 			assert.equal(
 				statusCodes.includes(fetchResult.status),
 				true,
-				`${weirdUrl} returned something else than 400, 404, or 500`
+				`${weirdUrl} returned something else than 400, 404, or 500`,
 			);
 		}
 		const stillWork = await fixture.fetch('/');

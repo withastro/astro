@@ -39,7 +39,7 @@ export function createAppHandler(app: NodeApp): RequestHandler {
 					addCookieHeader: true,
 					locals,
 					routeData,
-				})
+				}),
 			);
 			await NodeApp.writeResponse(response, res);
 		} else if (next) {
