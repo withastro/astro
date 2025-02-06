@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, after, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -25,7 +25,7 @@ describe('Astro.session', () => {
 		});
 
 		/** @type {import('../src/core/app/index').App} response */
-		let app
+		let app;
 		before(async () => {
 			await fixture.build({});
 			app = await fixture.loadTestAdapterApp();
@@ -104,7 +104,7 @@ describe('Astro.session', () => {
 	describe('Development', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
-		let devServer
+		let devServer;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/sessions/',
@@ -119,7 +119,6 @@ describe('Astro.session', () => {
 				},
 			});
 			devServer = await fixture.startDevServer();
-
 		});
 
 		after(async () => {
@@ -192,8 +191,7 @@ describe('Astro.session', () => {
 				'Favorite URL set to https://example.com/ from https://domain.invalid/',
 			);
 		});
-
-	})
+	});
 
 	describe('Configuration', () => {
 		it('throws if flag is enabled but driver is not set', async () => {

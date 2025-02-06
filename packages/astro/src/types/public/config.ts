@@ -1736,7 +1736,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
 	 *
 	 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
-	 * 
+	 *
 	 * See [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information.
 	 *
 	 * ```js title="astro.config.mjs"

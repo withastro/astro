@@ -1806,7 +1806,6 @@ export const ActionCalledFromServerError = {
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
 
-
 /**
  * @docs
  * @kind heading
@@ -1871,7 +1870,8 @@ export const SessionStorageSaveError = {
 export const SessionConfigMissingError = {
 	name: 'SessionConfigMissingError',
 	title: 'Session storage was enabled but not configured.',
-	message: 'The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage',
+	message:
+		'The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage',
 	hint: 'See https://docs.astro.build/en/reference/experimental-flags/sessions/',
 } satisfies ErrorData;
 
@@ -1889,8 +1889,6 @@ export const SessionConfigWithoutFlagError = {
 	message: 'Session config was provided without enabling the `experimental.session` flag',
 	hint: 'See https://docs.astro.build/en/reference/experimental-flags/sessions/',
 } satisfies ErrorData;
-
-
 
 /*
  * Adding an error? Follow these steps:

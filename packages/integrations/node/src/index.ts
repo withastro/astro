@@ -1,7 +1,7 @@
+import { fileURLToPath } from 'node:url';
 import type { AstroAdapter, AstroIntegration } from 'astro';
 import { AstroError } from 'astro/errors';
 import type { Options, UserOptions } from './types.js';
-import { fileURLToPath } from 'node:url';
 
 export function getAdapter(options: Options): AstroAdapter {
 	return {

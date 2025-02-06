@@ -6,6 +6,7 @@ import {
 	builtinDrivers,
 	createStorage,
 } from 'unstorage';
+import type { AstroSettings } from '../types/astro.js';
 import type {
 	ResolvedSessionConfig,
 	SessionConfig,
@@ -21,7 +22,6 @@ import {
 	SessionWithoutServerOutputError,
 } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
-import type { AstroSettings } from '../types/astro.js';
 
 export const PERSIST_SYMBOL = Symbol();
 
