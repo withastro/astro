@@ -3,7 +3,6 @@ import { before, after, describe, it } from 'node:test';
 import * as devalue from 'devalue';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
-import { getSetCookiesFromResponse } from '../dist/core/cookies/index.js';
 
 describe('Astro.session', () => {
 	describe('Production', () => {
@@ -129,7 +128,6 @@ describe('Astro.session', () => {
 
 		it('can regenerate session cookies upon request', async () => {
 			const firstResponse = await fixture.fetch('/regenerate');
-			console.log(firstResponse.headers	)
 			// @ts-ignore
 			const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
 			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
