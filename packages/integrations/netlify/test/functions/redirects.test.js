@@ -34,7 +34,7 @@ describe(
 		it('renders static 404 page', async () => {
 			const entryURL = new URL(
 				'./fixtures/redirects/.netlify/v1/functions/ssr/ssr.mjs',
-				import.meta.url
+				import.meta.url,
 			);
 			const { default: handler } = await import(entryURL);
 			const resp = await handler(new Request('http://example.com/nonexistant-page'), {});
@@ -54,7 +54,7 @@ describe(
 			testServer.listen(5678);
 			const entryURL = new URL(
 				'./fixtures/redirects/.netlify/v1/functions/ssr/ssr.mjs',
-				import.meta.url
+				import.meta.url,
 			);
 			const { default: handler } = await import(entryURL);
 			const resp = await handler(new Request('http://localhost:5678/nonexistant-page'), {});
@@ -65,5 +65,5 @@ describe(
 	},
 	{
 		timeout: 120000,
-	}
+	},
 );

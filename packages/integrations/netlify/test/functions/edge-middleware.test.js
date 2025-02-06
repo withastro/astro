@@ -18,7 +18,7 @@ describe(
 			it('emits no edge function', async () => {
 				assert.equal(
 					fixture.pathExists('../.netlify/v1/edge-functions/middleware/middleware.mjs'),
-					false
+					false,
 				);
 			});
 
@@ -44,7 +44,7 @@ describe(
 
 			it('emits an edge function', async () => {
 				const contents = await fixture.readFile(
-					'../.netlify/v1/edge-functions/middleware/middleware.mjs'
+					'../.netlify/v1/edge-functions/middleware/middleware.mjs',
 				);
 				assert.equal(contents.includes('"Hello world"'), false);
 			});
@@ -62,5 +62,5 @@ describe(
 	},
 	{
 		timeout: 120000,
-	}
+	},
 );

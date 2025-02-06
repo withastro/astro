@@ -67,24 +67,24 @@ describe(
 				assert.equal(
 					domain.test('https://www.example.net/image.jpg'),
 					false,
-					'subdomain should not match'
+					'subdomain should not match',
 				);
 				assert.equal(domain.test('http://example.net/image.jpg'), true, 'http should match');
 				assert.equal(
 					domain.test('https://example.net/subdomain/image.jpg'),
 					true,
-					'subpath should match'
+					'subpath should match',
 				);
 				const subdomain = regexes[1];
 				assert.equal(
 					subdomain.test('https://secret.example.edu/image.jpg'),
 					true,
-					'should match subdomains'
+					'should match subdomains',
 				);
 				assert.equal(
 					subdomain.test('https://secretxexample.edu/image.jpg'),
 					false,
-					'should not use dots in domains as wildcards'
+					'should not use dots in domains as wildcards',
 				);
 			});
 
@@ -93,22 +93,22 @@ describe(
 				assert.equal(
 					patterns.test('https://example.org/images/1.jpg'),
 					true,
-					'should match domain'
+					'should match domain',
 				);
 				assert.equal(
 					patterns.test('https://www.example.org/images/2.jpg'),
 					true,
-					'www subdomain should match'
+					'www subdomain should match',
 				);
 				assert.equal(
 					patterns.test('https://www.subdomain.example.org/images/2.jpg'),
 					false,
-					'second level subdomain should not match'
+					'second level subdomain should not match',
 				);
 				assert.equal(
 					patterns.test('https://example.org/not-images/2.jpg'),
 					false,
-					'wrong path should not match'
+					'wrong path should not match',
 				);
 			});
 
@@ -121,19 +121,19 @@ describe(
 						hostname: '*.examp[le.org',
 						pathname: '/images/*',
 					},
-					logger
+					logger,
 				);
 				assert.strictEqual(regex, undefined);
 				const calls = logger.warn.mock.calls;
 				assert.strictEqual(calls.length, 1);
 				assert.equal(
 					calls[0].arguments[0],
-					'Could not generate a valid regex from the remotePattern "{"hostname":"*.examp[le.org","pathname":"/images/*"}". Please check the syntax.'
+					'Could not generate a valid regex from the remotePattern "{"hostname":"*.examp[le.org","pathname":"/images/*"}". Please check the syntax.',
 				);
 			});
 		});
 	},
 	{
 		timeout: 120000,
-	}
+	},
 );

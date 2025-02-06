@@ -36,7 +36,7 @@ const service: ExternalImageService = {
 		if (options.format && !SUPPORTED_FORMATS.includes(options.format)) {
 			throw new AstroError(
 				`Unsupported image format "${options.format}"`,
-				`Use one of ${SUPPORTED_FORMATS.join(', ')} instead.`
+				`Use one of ${SUPPORTED_FORMATS.join(', ')} instead.`,
 			);
 		}
 
@@ -46,7 +46,7 @@ const service: ExternalImageService = {
 			if (options.quality < 1 || options.quality > 100) {
 				throw new AstroError(
 					`Invalid quality for picture "${options.src}"`,
-					'Quality needs to be between 1 and 100.'
+					'Quality needs to be between 1 and 100.',
 				);
 			}
 		}

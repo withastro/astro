@@ -17,7 +17,7 @@ import { copyDependenciesToFunction } from './lib/nft.js';
 import type { Args } from './ssr-function.js';
 
 const { version: packageVersion } = JSON.parse(
-	await readFile(new URL('../package.json', import.meta.url), 'utf8')
+	await readFile(new URL('../package.json', import.meta.url), 'utf8'),
 );
 
 export interface NetlifyLocals {
@@ -33,7 +33,7 @@ type RemotePattern = AstroConfig['image']['remotePatterns'][number];
  */
 export function remotePatternToRegex(
 	pattern: RemotePattern,
-	logger: AstroIntegrationLogger
+	logger: AstroIntegrationLogger,
 ): string | undefined {
 	let { protocol, hostname, port, pathname } = pattern;
 
@@ -94,8 +94,8 @@ export function remotePatternToRegex(
 	} catch (e) {
 		logger.warn(
 			`Could not generate a valid regex from the remotePattern "${JSON.stringify(
-				pattern
-			)}". Please check the syntax.`
+				pattern,
+			)}". Please check the syntax.`,
 		);
 		return undefined;
 	}
@@ -106,13 +106,13 @@ async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroInt
 	const remoteImages: Array<string> = [];
 	// Domains get a simple regex match
 	remoteImages.push(
-		...config.image.domains.map((domain) => `https?:\/\/${domain.replaceAll('.', '\\.')}\/.*`)
+		...config.image.domains.map((domain) => `https?:\/\/${domain.replaceAll('.', '\\.')}\/.*`),
 	);
 	// Remote patterns need to be converted to regexes
 	remoteImages.push(
 		...config.image.remotePatterns
 			.map((pattern) => remotePatternToRegex(pattern, logger))
-			.filter(Boolean as unknown as (pattern?: string) => pattern is string)
+			.filter(Boolean as unknown as (pattern?: string) => pattern is string),
 	);
 
 	const headers = config.build.assetsPrefix
@@ -134,7 +134,7 @@ async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroInt
 		JSON.stringify({
 			images: { remote_images: remoteImages },
 			headers,
-		})
+		}),
 	);
 }
 
@@ -181,10 +181,10 @@ export interface NetlifyIntegrationConfig {
 }
 
 export default function netlifyIntegration(
-	integrationConfig?: NetlifyIntegrationConfig
+	integrationConfig?: NetlifyIntegrationConfig,
 ): AstroIntegration {
 	const isRunningInNetlify = Boolean(
-		process.env.NETLIFY || process.env.NETLIFY_LOCAL || process.env.NETLIFY_DEV
+		process.env.NETLIFY || process.env.NETLIFY_LOCAL || process.env.NETLIFY_DEV,
 	);
 
 	let _config: AstroConfig;
@@ -213,11 +213,11 @@ export default function netlifyIntegration(
 		routes: IntegrationResolvedRoute[],
 		dir: URL,
 		buildOutput: HookParameters<'astro:config:done'>['buildOutput'],
-		assets: HookParameters<'astro:build:done'>['assets']
+		assets: HookParameters<'astro:build:done'>['assets'],
 	) {
 		// all other routes are handled by SSR
 		const staticRedirects = routes.filter(
-			(route) => route.type === 'redirect' && (route.redirect || route.redirectRoute)
+			(route) => route.type === 'redirect' && (route.redirect || route.redirectRoute),
 		);
 
 		// this is needed to support redirects to dynamic routes
@@ -266,7 +266,7 @@ export default function netlifyIntegration(
 				logger,
 				root,
 			},
-			TRACE_CACHE
+			TRACE_CACHE,
 		);
 
 		await writeFile(
@@ -285,7 +285,7 @@ export default function netlifyIntegration(
 					path: '/*',
 					preferStatic: true,
 				};
-			`
+			`,
 		);
 	}
 
@@ -337,7 +337,7 @@ export default function netlifyIntegration(
 				generator: "@astrojs/netlify@${packageVersion}",
 				path: "/*", excludedPath: ["/_astro/*", "/.netlify/images/*"]
 			};
-			`
+			`,
 		);
 
 		// taking over bundling, because Netlify bundling trips over NPM modules
