@@ -347,8 +347,8 @@ export default function netlifyIntegration(
 			plugins: [
 				{
 					name: 'allowNodePrefixedImports',
-					setup(build) {
-						build.onResolve({ filter: /^node:.*$/ }, (args) => ({
+					setup(puglinBuild) {
+						puglinBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
 							path: args.path,
 							external: true,
 						}));

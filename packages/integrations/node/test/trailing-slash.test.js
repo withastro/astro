@@ -36,7 +36,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-				// biome-ignore lint/performance/noDelete: <explanation>
+				
 				delete process.env.PRERENDER;
 			});
 
@@ -104,7 +104,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-				// biome-ignore lint/performance/noDelete: <explanation>
+				
 				delete process.env.PRERENDER;
 			});
 
@@ -175,7 +175,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-				// biome-ignore lint/performance/noDelete: <explanation>
+				
 				delete process.env.PRERENDER;
 			});
 
@@ -236,7 +236,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-				// biome-ignore lint/performance/noDelete: <explanation>
+				
 				delete process.env.PRERENDER;
 			});
 
@@ -300,7 +300,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-				// biome-ignore lint/performance/noDelete: <explanation>
+				
 				delete process.env.PRERENDER;
 			});
 
@@ -379,7 +379,7 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-				// biome-ignore lint/performance/noDelete: <explanation>
+				
 				delete process.env.PRERENDER;
 			});
 
