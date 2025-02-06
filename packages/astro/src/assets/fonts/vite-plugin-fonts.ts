@@ -199,6 +199,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 							// TODO: AstroError
 							throw new Error("can't extract type from filename");
 						}
+						// TODO: investigate if the extension matches the type, see https://github.com/unjs/unifont/blob/fd3828f6f809f54a188a9eb220e7eb99b3ec3960/src/css/parse.ts#L15-L22
 						preloadData.push({ url, type });
 					}
 					// Now that we collected the original url, we override it with our proxy
