@@ -4998,10 +4998,10 @@ importers:
   packages/integrations/netlify:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: 0.5.1
+        specifier: workspace:*
         version: link:../../internal-helpers
       '@astrojs/underscore-redirects':
-        specifier: ^0.6.0
+        specifier: workspace:*
         version: link:../../underscore-redirects
       '@netlify/functions':
         specifier: ^2.8.0
