@@ -423,7 +423,7 @@ export default function netlifyIntegration(
 			// @ts-expect-error This is not currently included in the public Netlify types
 			flags: undefined,
 			json: (input) => Response.json(input),
-			log: console.log,
+			log: console.info,
 			next: () => {
 				throw new Error('`context.next` is not implemented for serverless functions');
 			},
