@@ -16,8 +16,12 @@ import {
  *
  * Then this file gets bundled with esbuild. The bundle phase will inline the Astro middleware code.
  *
- * @param astroMiddlewareEntryPoint
+ * @param astroMiddlewareEntryPointPath
+ * @param root
+ * @param vercelEdgeMiddlewareHandlerPath
  * @param outPath
+ * @param middlewareSecret
+ * @param logger
  * @returns {Promise<URL>} The path to the bundled file
  */
 export async function generateEdgeMiddleware(
@@ -61,7 +65,6 @@ export async function generateEdgeMiddleware(
 				name: 'esbuild-namespace-node-built-in-modules',
 				setup(build) {
 					const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
-					// biome-ignore lint/style/useTemplate: <explanation>
 					build.onResolve({ filter }, (args) => ({ path: 'node:' + args.path, external: true }));
 				},
 			},
@@ -82,14 +85,12 @@ function edgeMiddlewareTemplate(
 	const filePathEdgeMiddleware = fileURLToPath(vercelEdgeMiddlewareHandlerPath);
 	let handlerTemplateImport = '';
 	let handlerTemplateCall = '{}';
-	// biome-ignore lint/style/useTemplate: <explanation>
 	if (existsSync(filePathEdgeMiddleware + '.js') || existsSync(filePathEdgeMiddleware + '.ts')) {
 		logger.warn(
 			'Usage of `vercel-edge-middleware.js` is deprecated. You can now use the `waitUntil(promise)` function directly as `ctx.locals.waitUntil(promise)`.'
 		);
 		const stringified = JSON.stringify(filePathEdgeMiddleware.replace(/\\/g, '/'));
 		handlerTemplateImport = `import handler from ${stringified}`;
-		// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 		handlerTemplateCall = `await handler({ request, context })`;
 	} else {
 	}

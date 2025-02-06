@@ -174,11 +174,9 @@ export default function vercelAdapter({
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
-			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			throw new TypeError(`maxDuration must be a number`, { cause: maxDuration });
 		}
 		if (maxDuration <= 0) {
-			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			throw new TypeError(`maxDuration must be a positive number`, { cause: maxDuration });
 		}
 	}
@@ -223,9 +221,9 @@ export default function vercelAdapter({
 							hooks: {
 								'astro:build:done': async () => {
 									logger.info('Copying static files to .vercel/output/static');
-									const staticDir =
+									const _staticDir =
 										_buildOutput === 'static' ? _config.outDir : _config.build.client;
-									cpSync(staticDir, new URL('./.vercel/output/static/', _config.root), {
+									cpSync(_staticDir, new URL('./.vercel/output/static/', _config.root), {
 										recursive: true,
 									});
 								},
@@ -258,7 +256,6 @@ export default function vercelAdapter({
 							`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`
 						);
 						logger.warn(
-							// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 							`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`
 						);
 					}
@@ -574,7 +571,7 @@ class VercelBuilder {
 	) {}
 
 	async buildServerlessFolder(entry: URL, functionName: string, root: URL) {
-		const { config, includeFiles, excludeFiles, logger, NTF_CACHE, runtime, maxDuration } = this;
+		const { includeFiles, excludeFiles, logger, NTF_CACHE, runtime, maxDuration } = this;
 		// .vercel/output/functions/<name>.func/
 		const functionFolder = new URL(`./functions/${functionName}.func/`, this.outDir);
 		const packageJson = new URL(`./functions/${functionName}.func/package.json`, this.outDir);
@@ -635,7 +632,6 @@ class VercelBuilder {
 			this.logger
 		);
 
-		// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
 			runtime: 'edge',
 			entrypoint: 'middleware.mjs',
@@ -649,13 +645,9 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 	const support = SUPPORTED_NODE_VERSIONS[major];
 	if (support === undefined) {
 		logger.warn(
-			// biome-ignore lint/style/useTemplate: <explanation>
-			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			`\n` +
 				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
-				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 				`\tYour project will use Node.js 18 as the runtime instead.\n` +
-				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 				`\tConsider switching your local version to 18.\n`
 		);
 		return 'nodejs18.x';
@@ -682,12 +674,9 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 			support.removal
 		);
 		logger.warn(
-			// biome-ignore lint/style/useTemplate: <explanation>
-			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
 				`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
-				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 				`\tConsider upgrading your local version to 18.\n`
 		);
 		return `nodejs${major}.x`;

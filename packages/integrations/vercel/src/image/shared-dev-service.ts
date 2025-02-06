@@ -15,7 +15,6 @@ export const baseDevService: Omit<LocalImageService, 'transform'> = {
 		options.width && searchParams.append('w', options.width.toString());
 		options.quality && searchParams.append('q', options.quality.toString());
 
-		// biome-ignore lint/style/useTemplate: <explanation>
 		return '/_image?' + searchParams;
 	},
 	parseURL(url) {
@@ -26,9 +25,7 @@ export const baseDevService: Omit<LocalImageService, 'transform'> = {
 		}
 
 		const transform = {
-			// biome-ignore lint/style/noNonNullAssertion: <explanation>
 			src: params.get('href')!,
-			// biome-ignore lint/style/noNonNullAssertion: <explanation>
 			width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
 			quality: params.get('q'),
 		};

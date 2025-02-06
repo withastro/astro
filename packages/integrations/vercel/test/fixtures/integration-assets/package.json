@@ -5,6 +5,6 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.2.1",
     "@astrojs/vercel": "workspace:*",
-    "astro": "^5.1.6"
+    "astro": "workspace:*"
   }
 }

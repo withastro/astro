@@ -142,7 +142,6 @@ export function sharedValidateOptions(
 	} else {
 		if (!configuredWidths.includes(options.width)) {
 			const nearestWidth = configuredWidths.reduce((prev, curr) => {
-				// biome-ignore lint/style/noNonNullAssertion: <explanation>
 				return Math.abs(curr - options.width!) < Math.abs(prev - options.width!) ? curr : prev;
 			});
 

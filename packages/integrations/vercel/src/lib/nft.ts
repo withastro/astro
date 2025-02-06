@@ -42,7 +42,6 @@ export async function copyDependenciesToFunction(
 
 	for (const error of result.warnings) {
 		if (error.message.startsWith('Failed to resolve dependency')) {
-			// biome-ignore lint/style/noNonNullAssertion: <explanation>
 			const [, module, file] = /Cannot find module '(.+?)' loaded from (.+)/.exec(error.message)!;
 
 			// The import(astroRemark) sometimes fails to resolve, but it's not a problem
@@ -65,7 +64,6 @@ export async function copyDependenciesToFunction(
 		// such as this html file in "main" meant for nw instead of node:
 		// https://github.com/vercel/nft/issues/311
 		else if (error.message.startsWith('Failed to parse')) {
-			// biome-ignore lint/correctness/noUnnecessaryContinue: <explanation>
 			continue;
 		} else {
 			throw error;

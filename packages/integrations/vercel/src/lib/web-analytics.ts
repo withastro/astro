@@ -7,7 +7,6 @@ export async function getInjectableWebAnalyticsContent({
 }: {
 	mode: 'development' | 'production';
 }) {
-	// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 	const base = `window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };`;
 
 	if (mode === 'development') {

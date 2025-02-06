@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Static Assets', () => {
-	/** @type {import('../../../astro/test/test-utils.js').Fixture} */
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
 	const VALID_CACHE_CONTROL = 'public, max-age=31536000, immutable';

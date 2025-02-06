@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Vercel edge middleware', () => {
-	/** @type {import('../../../astro/test/test-utils.js').Fixture} */
+	/** @type {import('./test-utils.js').Fixture} */
 	let build;
 	before(async () => {
 		build = await loadFixture({

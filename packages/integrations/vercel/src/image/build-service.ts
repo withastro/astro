@@ -53,7 +53,6 @@ const service: ExternalImageService = {
 		options.width && searchParams.append('w', options.width.toString());
 		options.quality && searchParams.append('q', options.quality.toString());
 
-		// biome-ignore lint/style/useTemplate: <explanation>
 		return '/_vercel/image?' + searchParams;
 	},
 };

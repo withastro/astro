@@ -6,16 +6,6 @@ import type { Redirect } from '@vercel/routing-utils';
 
 const pathJoin = nodePath.posix.join;
 
-// https://vercel.com/docs/project-configuration#legacy/routes
-interface VercelRoute {
-	src: string;
-	methods?: string[];
-	dest?: string;
-	headers?: Record<string, string>;
-	status?: number;
-	continue?: boolean;
-}
-
 // Copied from astro/packages/astro/src/core/routing/manifest/create.ts
 // Disable eslint as we're not sure how to improve this regex yet
 // eslint-disable-next-line regexp/no-super-linear-backtracking

@@ -4,7 +4,7 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Image', () => {
-	/** @type {import('../../../astro/test/test-utils.js').Fixture} */
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
 	before(async () => {
