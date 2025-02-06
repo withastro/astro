@@ -45,7 +45,6 @@ export function toPromise(res) {
 		const write = res.write;
 		res.write = function (data, encoding) {
 			if (ArrayBuffer.isView(data) && !Buffer.isBuffer(data)) {
-				// biome-ignore lint/style/noParameterAssign: <explanation>
 				data = Buffer.from(data.buffer);
 			}
 			return write.call(this, data, encoding);
