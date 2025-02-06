@@ -25,7 +25,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
-    "test": "astro-scripts test \"test/**/*.test.js\"",
+    "test": "pnpm run test-fn && pnpm run test-static",
     "test-fn": "astro-scripts test \"test/functions/*.test.js\"",
     "test-static": "astro-scripts test \"test/static/*.test.js\"",
     "test:hosted": "astro-scripts test \"test/hosted/*.test.js\""
