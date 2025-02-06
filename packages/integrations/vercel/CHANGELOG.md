@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 8.0.6
+
+### Patch Changes
+
+- [#528](https://github.com/withastro/adapters/pull/528) [`5c2ea1f`](https://github.com/withastro/adapters/commit/5c2ea1f3972934a8de03ddffaaf01f15f58968f3) Thanks [@ascorbic](https://github.com/ascorbic)! - Pins `@vercel/routing-utils` to avoid broken version
+
 ## 8.0.5
 
 ### Patch Changes
