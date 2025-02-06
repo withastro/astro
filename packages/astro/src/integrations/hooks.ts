@@ -32,6 +32,7 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
+import { validateSessionConfig } from '../core/session.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -369,6 +370,7 @@ export async function runHookConfigDone({
 			});
 		}
 	}
+	validateSessionConfig(settings);
 }
 
 export async function runHookServerSetup({

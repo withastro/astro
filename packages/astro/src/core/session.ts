@@ -13,8 +13,15 @@ import type {
 } from '../types/public/config.js';
 import type { AstroCookies } from './cookies/cookies.js';
 import type { AstroCookieSetOptions } from './cookies/cookies.js';
-import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
+import {
+	SessionConfigMissingError,
+	SessionConfigWithoutFlagError,
+	SessionStorageInitError,
+	SessionStorageSaveError,
+	SessionWithoutServerOutputError,
+} from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
+import type { AstroSettings } from '../types/astro.js';
 
 export const PERSIST_SYMBOL = Symbol();
 
@@ -473,4 +480,19 @@ export function resolveSessionDriver(driver: string | undefined): Promise<string
 		return import.meta.resolve(builtinDrivers[driver as keyof typeof builtinDrivers]);
 	}
 	return driver;
+}
+
+export function validateSessionConfig(settings: AstroSettings): void {
+	let error: AstroError | null = null;
+	if (settings.config.experimental.session && !settings.config.session?.driver) {
+		error = new AstroError(SessionConfigMissingError);
+	} else if (settings.config.session?.driver && !settings.config.experimental.session) {
+		error = new AstroError(SessionConfigWithoutFlagError);
+	} else if (settings.buildOutput === 'static') {
+		error = new AstroError(SessionWithoutServerOutputError);
+	}
+	if (error) {
+		error.stack = undefined;
+		throw error;
+	}
 }

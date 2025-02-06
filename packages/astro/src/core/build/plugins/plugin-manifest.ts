@@ -55,7 +55,7 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 				];
 
 				const resolvedDriver = await resolveSessionDriver(
-					options.settings.config.experimental?.session?.driver,
+					options.settings.config.session?.driver,
 				);
 
 				const contents = [
@@ -304,6 +304,6 @@ function buildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
-		sessionConfig: settings.config.experimental.session,
+		sessionConfig: settings.config.session,
 	};
 }
