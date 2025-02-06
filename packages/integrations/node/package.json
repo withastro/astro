@@ -22,7 +22,7 @@
   },
   "files": ["dist"],
   "scripts": {
-    "build": "tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
