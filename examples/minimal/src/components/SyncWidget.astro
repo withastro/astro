@@ -1,0 +1,10 @@
+---
+import InnerWidget from "./SyncWidget.astro";
+
+const message = "S";
+
+const { depth } = Astro.props;
+
+---
+{depth>0 && <InnerWidget depth={depth-1} />}
+{depth===0 && message}

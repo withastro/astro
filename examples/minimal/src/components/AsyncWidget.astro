@@ -1,0 +1,15 @@
+---
+import InnerWidget from "./AsyncWidget.astro";
+
+function immediate(): Promise<void> {
+	return new Promise(setImmediate);
+}
+
+await immediate();
+
+const { depth } = Astro.props;
+
+const message = "A";
+---
+{depth>0 && <InnerWidget depth={depth-1} />}
+{depth===0 && message}
