@@ -5130,6 +5130,15 @@ importers:
         specifier: ^5.1.6
         version: link:../../../../../astro
 
+  packages/integrations/node/test/fixtures/session:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: ^5.1.6
+        version: link:../../../../../astro
+
   packages/integrations/node/test/fixtures/trailing-slash:
     dependencies:
       '@astrojs/node':
