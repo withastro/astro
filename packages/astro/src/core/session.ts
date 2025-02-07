@@ -424,6 +424,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 				driver = (await import(driverPackage)).default;
 			}
 		} catch (err: any) {
+			console.error(err);
 			// If the driver failed to load, throw an error.
 			if (err.code === 'ERR_MODULE_NOT_FOUND') {
 				throw new AstroError(
@@ -473,6 +474,7 @@ export function resolveSessionDriver(driver: string | undefined): Promise<string
 	if (!driver) {
 		return null;
 	}
+	console.log({driver, id: builtinDrivers[driver as keyof typeof builtinDrivers]});
 	if (driver === 'fs') {
 		return import.meta.resolve(builtinDrivers.fsLite);
 	}
