@@ -1,5 +1,5 @@
 {
-  "name": "@test/session",
+  "name": "@test/node-sessions",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

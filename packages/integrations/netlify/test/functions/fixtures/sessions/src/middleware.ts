@@ -4,7 +4,6 @@ import { getActionContext } from 'astro:actions';
 const ACTION_SESSION_KEY = 'actionResult'
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  console.log("Deno" in globalThis ? "Deno" : "Node.js");
   // Skip requests for prerendered pages
   if (context.isPrerendered) return next();
 
@@ -14,7 +13,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		console.log(action?.name)
 
 	const actionPayload = await context.session.get(ACTION_SESSION_KEY);
-  console.log({actionPayload})
+
   if (actionPayload) {
     setActionResult(actionPayload.actionName, actionPayload.actionResult);
     context.session.delete(ACTION_SESSION_KEY);

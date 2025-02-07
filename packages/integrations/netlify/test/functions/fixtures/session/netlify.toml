@@ -1,6 +1,0 @@
-[build]
-command = "pnpm run --filter @test/netlify-session... build"
-publish = "dist"
-[dev]
-framework = "astro"
-targetPort = 4321
