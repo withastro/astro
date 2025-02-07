@@ -6,7 +6,6 @@ export const prerender = false;
 
 type Props = CollectionEntry<"blog">;
 
-// biome-ignore lint/style/noNonNullAssertion: <explanation>
 const post = await getEntry("blog", Astro.params.slug!);
 if (!post) return Astro.rewrite("/404");
 

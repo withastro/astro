@@ -127,7 +127,7 @@ export function cloudflareModuleLoader(
 				// chunk id can be many things, (alpha numeric, dollars, or underscores, maybe more)
 				replaced = replaced.replaceAll(
 					new RegExp(`${MAGIC_STRING}([^\\s]+?)${escapeRegExp(extension)}\\.mjs`, 'g'),
-					(s, assetId) => {
+					(_s, assetId) => {
 						const fileName = this.getFileName(assetId);
 						const relativePath = path
 							.relative(path.dirname(chunk.fileName), fileName)

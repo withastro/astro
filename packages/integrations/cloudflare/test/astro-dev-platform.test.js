@@ -18,7 +18,7 @@ describe('AstroDevPlatform', () => {
 		});
 	});
 
-	after((done) => {
+	after((_done) => {
 		cli.kill();
 	});
 

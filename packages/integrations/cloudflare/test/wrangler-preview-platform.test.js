@@ -18,13 +18,13 @@ describe('WranglerPreviewPlatform', () => {
 				// console.log('[stdout]', data.toString());
 				if (data.toString().includes('http://127.0.0.1:8788')) resolve();
 			});
-			wrangler.stderr.on('data', (data) => {
+			wrangler.stderr.on('data', (_data) => {
 				// console.log('[stderr]', data.toString());
 			});
 		});
 	});
 
-	after((done) => {
+	after((_done) => {
 		wrangler.kill();
 	});
 

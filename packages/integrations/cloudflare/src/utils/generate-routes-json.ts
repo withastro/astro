@@ -63,7 +63,7 @@ async function writeRoutesFileToOutDir(
 			),
 			'utf-8',
 		);
-	} catch (error) {
+	} catch (_error) {
 		logger.error("There was an error writing the '_routes.json' file to the output directory.");
 	}
 }
@@ -94,9 +94,9 @@ class PathTrie {
 		this.root = new TrieNode();
 	}
 
-	insert(path: string[]) {
+	insert(thisPath: string[]) {
 		let node = this.root;
-		for (const segment of path) {
+		for (const segment of thisPath) {
 			if (segment === '*') {
 				node.hasWildcardChild = true;
 				break;
@@ -105,7 +105,6 @@ class PathTrie {
 				node.children.set(segment, new TrieNode());
 			}
 
-			// biome-ignore lint/style/noNonNullAssertion: The `if` condition above ensures that the segment exists inside the map
 			node = node.children.get(segment)!;
 		}
 
@@ -117,19 +116,19 @@ class PathTrie {
 	 * It makes sure that all necessary paths are returned, but not paths with an existing wildcard prefix.
 	 * e.g. if we have a path like /foo/* and /foo/bar, we only want to return /foo/*
 	 */
-	private dfs(node: TrieNode, path: string[], allPaths: string[][]): void {
+	private dfs(node: TrieNode, thisPath: string[], allPaths: string[][]): void {
 		if (node.hasWildcardChild) {
 			this.returnHasWildcard = true;
-			allPaths.push([...path, '*']);
+			allPaths.push([...thisPath, '*']);
 			return;
 		}
 
 		if (node.isEndOfPath) {
-			allPaths.push([...path]);
+			allPaths.push([...thisPath]);
 		}
 
 		for (const [segment, childNode] of node.children) {
-			this.dfs(childNode, [...path, segment], allPaths);
+			this.dfs(childNode, [...thisPath, segment], allPaths);
 		}
 	}
 
@@ -322,7 +321,7 @@ export async function createRoutesFile(
 			logger,
 			['/*'].concat(includeExtends?.map((entry) => entry.pattern) ?? []),
 			deduplicatedExcludePaths
-				.map((path) => `${prependForwardSlash(path.join('/'))}`)
+				.map((thisPath) => `${prependForwardSlash(thisPath.join('/'))}`)
 				.slice(
 					0,
 					CLOUDFLARE_COMBINED_LIMIT -
@@ -337,11 +336,11 @@ export async function createRoutesFile(
 			_config,
 			logger,
 			deduplicatedIncludePaths
-				.map((path) => `${prependForwardSlash(path.join('/'))}`)
+				.map((thisPath) => `${prependForwardSlash(thisPath.join('/'))}`)
 				.concat(includeExtends?.map((entry) => entry.pattern) ?? []),
 			includedPathsHaveWildcard
 				? deduplicatedExcludePaths
-						.map((path) => `${prependForwardSlash(path.join('/'))}`)
+						.map((thisPath) => `${prependForwardSlash(thisPath.join('/'))}`)
 						.concat(excludeExtends?.map((entry) => entry.pattern) ?? [])
 				: [],
 		);

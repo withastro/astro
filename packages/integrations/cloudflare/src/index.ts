@@ -192,7 +192,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 					const clientLocalsSymbol = Symbol.for('astro.locals');
 
-					server.middlewares.use(async function middleware(req, res, next) {
+					server.middlewares.use(async function middleware(req, _res, next) {
 						Reflect.set(req, clientLocalsSymbol, {
 							runtime: {
 								env: platformProxy.env,
@@ -265,7 +265,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					for (const file of PLATFORM_FILES) {
 						try {
 							await rename(new URL(file, _config.build.client), new URL(file, _config.outDir));
-						} catch (e) {
+						} catch (_e) {
 							logger.error(
 								`There was an error moving ${file} to the root of the output directory.`,
 							);
@@ -279,7 +279,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					if (redirectsStat.isFile()) {
 						redirectsExists = true;
 					}
-				} catch (error) {
+				} catch (_error) {
 					redirectsExists = false;
 				}
 
@@ -314,7 +314,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					if (routesStat.isFile()) {
 						routesExists = true;
 					}
-				} catch (error) {
+				} catch (_error) {
 					routesExists = false;
 				}
 
@@ -347,7 +347,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if (!trueRedirects.empty()) {
 					try {
 						await appendFile(new URL('./_redirects', _config.outDir), trueRedirects.print());
-					} catch (error) {
+					} catch (_error) {
 						logger.error('Failed to write _redirects file');
 					}
 				}
