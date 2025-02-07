@@ -10,14 +10,11 @@ type MaybeServerModule = Partial<ServerModule>;
 
 const createPreviewServer: CreatePreviewServer = async (preview) => {
 	let ssrHandler: ServerModule['handler'];
-	let options: ServerModule['options'];
 	try {
 		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 		const ssrModule: MaybeServerModule = await import(preview.serverEntrypoint.toString());
 		if (typeof ssrModule.handler === 'function') {
 			ssrHandler = ssrModule.handler;
-			// biome-ignore lint/style/noNonNullAssertion: <explanation>
-			options = ssrModule.options!;
 		} else {
 			throw new AstroError(
 				`The server entrypoint doesn't have a handler. Are you sure this is the right file?`,
@@ -30,7 +27,6 @@ const createPreviewServer: CreatePreviewServer = async (preview) => {
 					preview.serverEntrypoint,
 				)} does not exist. Have you ran a build yet?`,
 			);
-			// biome-ignore lint/style/noUselessElse: <explanation>
 		} else {
 			throw err;
 		}
