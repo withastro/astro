@@ -1,5 +1,48 @@
 # astro
 
+## 5.2.5
+
+### Patch Changes
+
+- [#13133](https://github.com/withastro/astro/pull/13133) [`e76aa83`](https://github.com/withastro/astro/commit/e76aa8391eb9d81c1a52fb2f9f21ede4790bd793) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Astro was failing to build an external redirect when the middleware was triggered
+
+- [#13119](https://github.com/withastro/astro/pull/13119) [`ac43580`](https://github.com/withastro/astro/commit/ac4358052af2c1817dec999598bc4e3d8fd0bdaf) Thanks [@Hacksore](https://github.com/Hacksore)! - Adds extra guidance in the terminal when using the `astro add tailwind` CLI command
+
+  Now, users are given a friendly reminder to import the stylesheet containing their Tailwind classes into any pages where they want to use Tailwind. Commonly, this is a shared layout component so that Tailwind styling can be used on multiple pages.
+
+## 5.2.4
+
+### Patch Changes
+
+- [#13130](https://github.com/withastro/astro/pull/13130) [`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused duplicate slashes inside query params to be collapsed
+
+- [#13131](https://github.com/withastro/astro/pull/13131) [`d60c742`](https://github.com/withastro/astro/commit/d60c74243f639761ad735d66d814e627f8f847a2) Thanks [@ascorbic](https://github.com/ascorbic)! - Ignores trailing slashes for endpoints with file extensions in the route
+
+- Updated dependencies [[`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091)]:
+  - @astrojs/internal-helpers@0.5.1
+
+## 5.2.3
+
+### Patch Changes
+
+- [#13113](https://github.com/withastro/astro/pull/13113) [`3a26e45`](https://github.com/withastro/astro/commit/3a26e4541764085faa499bc63549b24d194146a6) Thanks [@unprintable123](https://github.com/unprintable123)! - Fixes the bug that rewrite will pass encoded url to the dynamic routing and cause params mismatch.
+
+- [#13111](https://github.com/withastro/astro/pull/13111) [`23978dd`](https://github.com/withastro/astro/commit/23978ddfe127bbc3762b6209b42d049588e52a14) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused injected endpoint routes to return not found when trailingSlash was set to always
+
+- [#13112](https://github.com/withastro/astro/pull/13112) [`0fa5c82`](https://github.com/withastro/astro/commit/0fa5c82977de73872ddeffffea48fddafba47398) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the i18n middleware was blocking a server island request when the `prefixDefaultLocale` option is set to `true`
+
+## 5.2.2
+
+### Patch Changes
+
+- [#13106](https://github.com/withastro/astro/pull/13106) [`187c4d3`](https://github.com/withastro/astro/commit/187c4d3244a27c9b4e7e3cbe6307b01161140ca1) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused peer dependency errors when running `astro add tailwind`
+
+## 5.2.1
+
+### Patch Changes
+
+- [#13095](https://github.com/withastro/astro/pull/13095) [`740eb60`](https://github.com/withastro/astro/commit/740eb6019f405781a3918941d3bfb34a7bda1a3d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused some dev server asset requests to return 404 when trailingSlash was set to "always"
+
 ## 5.2.0
 
 ### Minor Changes

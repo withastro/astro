@@ -1,6 +1,6 @@
 import { createRawSnippet, hydrate, mount, unmount } from 'svelte';
 
-/** @type {WrakMap<any, ReturnType<typeof createComponent>} */
+/** @type {WeakMap<any, ReturnType<typeof createComponent>} */
 const existingApplications = new WeakMap();
 
 export default (element) => {

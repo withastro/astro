@@ -9,19 +9,23 @@ export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.N
 	const { trailingSlash } = settings.config;
 
 	return function devTrailingSlash(req, res, next) {
-		const url = req.url!;
-
-		const destination = collapseDuplicateTrailingSlashes(url, true);
-		if (url && destination !== url) {
-			return writeRedirectResponse(res, 301, destination);
-		}
+		const url = new URL(`http://localhost${req.url}`);
 		let pathname: string;
 		try {
-			pathname = decodeURI(new URL(url, 'http://localhost').pathname);
+			pathname = decodeURI(url.pathname);
 		} catch (e) {
 			/* malformed uri */
 			return next(e);
 		}
+		if (pathname.startsWith('/_') || pathname.startsWith('/@')) {
+			return next();
+		}
+
+		const destination = collapseDuplicateTrailingSlashes(pathname, true);
+		if (pathname && destination !== pathname) {
+			return writeRedirectResponse(res, 301, `${destination}${url.search}`);
+		}
+
 		if (
 			(trailingSlash === 'never' && pathname.endsWith('/') && pathname !== '/') ||
 			(trailingSlash === 'always' && !pathname.endsWith('/') && !hasFileExtension(pathname))

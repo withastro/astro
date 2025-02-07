@@ -19,7 +19,7 @@ export function collapseDuplicateSlashes(path: string) {
 	return path.replace(/(?<!:)\/{2,}/g, '/');
 }
 
-export const MANY_TRAILING_SLASHES = /\/{2,}/g;
+export const MANY_TRAILING_SLASHES = /\/{2,}$/g;
 
 export function collapseDuplicateTrailingSlashes(path: string, trailingSlash: boolean) {
 	if (!path) {
