@@ -117,25 +117,7 @@ export function renderChildFast(destination: RenderDestination, child: any) : vo
 			return renderAsyncIterable(destination, child)
 		}
 		
-		const iterator = (child[Symbol.iterator] as () => Iterator<any>)();
-
-		const executor = (): void | Promise<void> => {
-			for (;;) {
-				const { value, done } = iterator.next();
-
-				if (done) {
-					break;
-				}
-
-				const result = renderChildFast(destination, value);
-
-				if (isPromise(result)) {
-					return result.then(executor);
-				}
-			}
-		};
-
-		return executor();
+		return renderIterable(destination, child);
 	}
 	
 	destination.write(child);
@@ -170,7 +152,32 @@ function renderArray(destination: RenderDestination, children: any[]): void | Pr
 	return iterate();
 }
 
-async function renderAsyncIterable(destination: RenderDestination, children: AsyncIterable<any>) {
+function renderIterable(destination: RenderDestination, children: Iterable<any>): void | Promise<void> {
+	// although arrays and iterables may be similar, an iterable
+	// may be unbounded, so rendering all children eagerly may not
+	// be possible.
+	const iterator = (children[Symbol.iterator] as () => Iterator<any>)();
+
+	const iterate = (): void | Promise<void> => {
+		for (;;) {
+			const { value, done } = iterator.next();
+
+			if (done) {
+				break;
+			}
+
+			const result = renderChildFast(destination, value);
+
+			if (isPromise(result)) {
+				return result.then(iterate);
+			}
+		}
+	};
+
+	return iterate();	
+}
+
+async function renderAsyncIterable(destination: RenderDestination, children: AsyncIterable<any>): Promise<void> {
 	for await (const value of children) {
 		await renderChildFast(destination, value);
 	}
