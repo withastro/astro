@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './_test-utils.js';
 import cloudflare from '../dist/index.js';
+import { loadFixture } from './_test-utils.js';
 
 /** @type {import('./test-utils.js').Fixture} */
 describe('_routes.json generation', () => {
