@@ -447,40 +447,17 @@ function renderAstroComponent(
 
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
 
-	if (process.env.GO_FAST === "yes") {
-		return 	{
-			render(destination) {
-				// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
-				// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
-				// The slots are initialized eagerly for head propagation.
-				return instance.render(destination);
-			},
-		};
-	}
-
 	return {
-		async render(destination) {
+		render(destination) {
 			// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
 			// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
 			// The slots are initialized eagerly for head propagation.
-			await instance.render(destination);
+			return instance.render(destination);
 		},
 	};
 }
 
 export function renderComponent(
-	result: SSRResult,
-	displayName: string,
-	Component: unknown,
-	props: Record<string | number, any>,
-	slots: ComponentSlots = {},
-): RenderInstance | Promise<RenderInstance> {
-	return process.env.GO_FAST === "yes"
-		? renderComponentFast(result, displayName, Component, props, slots)
-		: renderComponentSlow(result, displayName, Component, props, slots)
-}
-
-function renderComponentFast(
 	result: SSRResult,
 	displayName: string,
 	Component: unknown,
@@ -527,46 +504,6 @@ function renderComponentImplFast(
 	}
 
 	return renderFrameworkComponent(result, displayName, Component, props, slots).catch(
-		handleCancellation,
-	);
-
-	function handleCancellation(e: unknown) {
-		if (result.cancelled)
-			return {
-				render() {},
-			};
-		throw e;
-	}
-}
-
-async function renderComponentSlow(
-	result: SSRResult,
-	displayName: string,
-	Component: unknown,
-	props: Record<string | number, any>,
-	slots: ComponentSlots = {},
-): Promise<RenderInstance> {
-	if (isPromise(Component)) {
-		Component = await Component.catch(handleCancellation);
-	}
-
-	if (isFragmentComponent(Component)) {
-		return await renderFragmentComponent(result, slots).catch(handleCancellation);
-	}
-
-	// Ensure directives (`class:list`) are processed
-	props = normalizeProps(props);
-
-	// .html components
-	if (isHTMLComponent(Component)) {
-		return await renderHTMLComponent(result, Component, props, slots).catch(handleCancellation);
-	}
-
-	if (isAstroComponentFactory(Component)) {
-		return renderAstroComponent(result, displayName, Component, props, slots);
-	}
-
-	return await renderFrameworkComponent(result, displayName, Component, props, slots).catch(
 		handleCancellation,
 	);
 

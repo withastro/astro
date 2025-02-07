@@ -1,5 +1,5 @@
 import type { ComponentSlots } from '../slot.js';
-import type { AstroComponentFactory } from './factory.js';
+import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
 
 import type { SSRResult } from '../../../../types/public/internal.js';
 import { isPromise } from '../../util.js';
@@ -7,7 +7,6 @@ import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
-import type { RenderTemplateResult } from './render-template.js';
 
 type ComponentProps = Record<string | number, any>;
 
@@ -68,41 +67,20 @@ export class AstroComponentInstance {
 	}
 
 	render(destination: RenderDestination): void | Promise<void> {
-		return process.env.GO_FAST === "yes"
-			? this.renderFast(destination)
-			: this.renderSlow(destination);
-	}
-
-	async renderSlow(destination: RenderDestination): Promise<void> {
-		const returnValue = await this.init(this.result);
-
-		if (isHeadAndContent(returnValue)) {
-			await returnValue.content.render(destination);
-		} else {
-			await renderChild(destination, returnValue);
-		}
-	}
-
-	renderFast(destination: RenderDestination): void | Promise<void> {
 		const returnValue = this.init(this.result);
 
 		if (isPromise(returnValue)) {
-			return this.renderAsync(destination, returnValue as Promise<RenderTemplateResult>);
+			return returnValue.then((x) => this.renderImpl(destination, x));
 		}
 
+		return this.renderImpl(destination, returnValue);
+	}
+
+	private renderImpl(destination: RenderDestination, returnValue: AstroFactoryReturnValue) {
 		if (isHeadAndContent(returnValue)) {
 			return returnValue.content.render(destination);
 		} else {
 			return renderChild(destination, returnValue);
-		}
-	}
-
-	async renderAsync(destination: RenderDestination, awaitableReturnValue: Promise<RenderTemplateResult>) {
-		const returnValue = await awaitableReturnValue;
-		if (isHeadAndContent(returnValue)) {
-			await returnValue.content.render(destination);
-		} else {
-			await renderChild(destination, returnValue);
 		}
 	}
 }

@@ -33,34 +33,6 @@ export class RenderTemplateResult {
 	}
 
 	render(destination: RenderDestination): void | Promise<void> {
-		return process.env.GO_FAST === "yes"
-			? this.renderFast(destination)
-			: this.renderSlow(destination);
-	}
-
-	async renderSlow(destination: RenderDestination): Promise<void> {
-		// Render all expressions eagerly and in parallel
-		const expRenders = this.expressions.map((exp) => {
-			return createBufferedRenderer(destination, (bufferDestination) => {
-				// Skip render if falsy, except the number 0
-				if (exp || exp === 0) {
-					return renderChild(bufferDestination, exp);
-				}
-			});
-		});
-
-		for (let i = 0; i < this.htmlParts.length; i++) {
-			const html = this.htmlParts[i];
-			const expRender = expRenders[i];
-
-			destination.write(markHTMLString(html));
-			if (expRender) {
-				await expRender.flush();
-			}
-		}
-	}
-
-	renderFast(destination: RenderDestination): void | Promise<void> {
 		// Render all expressions eagerly and in parallel
 		const flushers = this.expressions.map((exp) => {
 			return createBufferedRenderer(destination, (bufferDestination) => {

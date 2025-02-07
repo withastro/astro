@@ -1,3 +1,5 @@
 ---
+// make this component async to ensure a render
+await new Promise((resolve) => setTimeout(resolve, 0));
 return Astro.redirect('/login');
 ---

@@ -6,62 +6,8 @@ import { SlotString } from './slot.js';
 import { createBufferedRenderer } from './util.js';
 
 export function renderChild(destination: RenderDestination, child: any): void | Promise<void> {
-	return process.env.GO_FAST === "yes"
-		? renderChildFast(destination, child)
-		: renderChildSlow(destination, child);
-}
-
-export async function renderChildSlow(destination: RenderDestination, child: any) {
 	if (isPromise(child)) {
-		child = await child;
-	}
-	if (child instanceof SlotString) {
-		destination.write(child);
-	} else if (isHTMLString(child)) {
-		destination.write(child);
-	} else if (Array.isArray(child)) {
-		// Render all children eagerly and in parallel
-		const childRenders = child.map((c) => {
-			return createBufferedRenderer(destination, (bufferDestination) => {
-				return renderChildSlow(bufferDestination, c);
-			});
-		});
-		for (const childRender of childRenders) {
-			if (!childRender) continue;
-			await childRender.flush();
-		}
-	} else if (typeof child === 'function') {
-		// Special: If a child is a function, call it automatically.
-		// This lets you do {() => ...} without the extra boilerplate
-		// of wrapping it in a function and calling it.
-		await renderChildSlow(destination, child());
-	} else if (typeof child === 'string') {
-		destination.write(markHTMLString(escapeHTML(child)));
-	} else if (!child && child !== 0) {
-		// do nothing, safe to ignore falsey values.
-	} else if (isRenderInstance(child)) {
-		await child.render(destination);
-	} else if (isRenderTemplateResult(child)) {
-		await child.render(destination);
-	} else if (isAstroComponentInstance(child)) {
-		await child.render(destination);
-	} else if (ArrayBuffer.isView(child)) {
-		destination.write(child);
-	} else if (
-		typeof child === 'object' &&
-		(Symbol.asyncIterator in child || Symbol.iterator in child)
-	) {
-		for await (const value of child) {
-			await renderChildSlow(destination, value);
-		}
-	} else {
-		destination.write(child);
-	}
-}
-
-export function renderChildFast(destination: RenderDestination, child: any) : void | Promise<void> {
-	if (isPromise(child)) {
-		return child.then((x) => renderChildFast(destination, x));
+		return child.then((x) => renderChild(destination, x));
 	}
 
 	if (child instanceof SlotString) {
@@ -82,7 +28,7 @@ export function renderChildFast(destination: RenderDestination, child: any) : vo
 		// Special: If a child is a function, call it automatically.
 		// This lets you do {() => ...} without the extra boilerplate
 		// of wrapping it in a function and calling it.
-		return renderChildFast(destination, child());
+		return renderChild(destination, child());
 	}
 	
 	if (!child && child !== 0) {
@@ -127,7 +73,7 @@ function renderArray(destination: RenderDestination, children: any[]): void | Pr
 	// Render all children eagerly and in parallel
 	const flushers = children.map((c) => {
 		return createBufferedRenderer(destination, (bufferDestination) => {
-			return renderChildFast(bufferDestination, c);
+			return renderChild(bufferDestination, c);
 		});
 	});
 
@@ -166,7 +112,7 @@ function renderIterable(destination: RenderDestination, children: Iterable<any>)
 				break;
 			}
 
-			const result = renderChildFast(destination, value);
+			const result = renderChild(destination, value);
 
 			if (isPromise(result)) {
 				return result.then(iterate);
@@ -179,6 +125,6 @@ function renderIterable(destination: RenderDestination, children: Iterable<any>)
 
 async function renderAsyncIterable(destination: RenderDestination, children: AsyncIterable<any>): Promise<void> {
 	for await (const value of children) {
-		await renderChildFast(destination, value);
+		await renderChild(destination, value);
 	}
 }

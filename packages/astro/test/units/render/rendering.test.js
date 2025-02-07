@@ -101,7 +101,7 @@ describe('rendering', () => {
 
 		const AsyncNested = createComponent(async (result, props) => {
 			evaluated.push(props.id);
-			await new Promise(setImmediate);
+			await new Promise((resolve) => setTimeout(resolve, 0));
 			return renderTemplate`<asyncnested id="${props.id}">
 				${renderComponent(result, "", Scalar, {id: `${props.id}/scalar`})}
 			</asyncnested>`;
@@ -156,7 +156,7 @@ describe('rendering', () => {
 		resetEvent.release();
 		
 		// relinquish control after release
-		await new Promise(setImmediate);
+		await new Promise((resolve) => setTimeout(resolve, 0));
 
 		assert.deepEqual(evaluated, [
 			"root",
@@ -208,9 +208,9 @@ describe('rendering', () => {
 				${() => renderComponent(result, "", Scalar, {id: `${props.id}/func`})}
 				${
 					new Promise((resolve) => {
-						setImmediate(() => {
+						setTimeout(() => {
 							resolve(renderComponent(result, "", Scalar, {id: `${props.id}/promise`}));
-						});
+						}, 0);
 					})
 				}
 				${[
@@ -220,9 +220,9 @@ describe('rendering', () => {
 				${
 					async function*() {
 						yield await new Promise((resolve) => {
-							setImmediate(() => {
+							setTimeout(() => {
 								resolve(renderComponent(result, "", Scalar, {id: `${props.id}/async_generator`}));
-							});
+							}, 0);
 						});
 					}
 				}
