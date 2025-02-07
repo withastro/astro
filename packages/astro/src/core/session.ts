@@ -424,7 +424,6 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 				driver = (await import(driverPackage)).default;
 			}
 		} catch (err: any) {
-			console.error(err);
 			// If the driver failed to load, throw an error.
 			if (err.code === 'ERR_MODULE_NOT_FOUND') {
 				throw new AstroError(
@@ -470,17 +469,21 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	}
 }
 // TODO: make this sync when we drop support for Node < 18.19.0
-export function resolveSessionDriver(driver: string | undefined): Promise<string> | string | null {
+export async function resolveSessionDriver(driver: string | undefined): Promise<string | null> {
 	if (!driver) {
 		return null;
 	}
-	console.log({driver, id: builtinDrivers[driver as keyof typeof builtinDrivers]});
-	if (driver === 'fs') {
-		return import.meta.resolve(builtinDrivers.fsLite);
+	try {
+		if (driver === 'fs') {
+			return await import.meta.resolve(builtinDrivers.fsLite);
+		}
+		if (driver in builtinDrivers) {
+			return await import.meta.resolve(builtinDrivers[driver as keyof typeof builtinDrivers]);
+		}
+	} catch {
+		return null;
 	}
-	if (driver in builtinDrivers) {
-		return import.meta.resolve(builtinDrivers[driver as keyof typeof builtinDrivers]);
-	}
+
 	return driver;
 }
 
