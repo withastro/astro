@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it, beforeEach } from 'node:test';
 import { isPromise } from 'node:util/types';
-import { renderTemplate, createComponent, renderComponent } from '../../../dist/runtime/server/index.js';
+import { renderTemplate, createComponent, renderComponent, HTMLString } from '../../../dist/runtime/server/index.js';
 import * as cheerio from 'cheerio';
 
 describe('rendering', () => {
@@ -101,7 +101,7 @@ describe('rendering', () => {
 
 		const AsyncNested = createComponent(async (result, props) => {
 			evaluated.push(props.id);
-			await Promise.resolve();
+			await new Promise(setImmediate);
 			return renderTemplate`<asyncnested id="${props.id}">
 				${renderComponent(result, "", Scalar, {id: `${props.id}/scalar`})}
 			</asyncnested>`;
@@ -127,8 +127,7 @@ describe('rendering', () => {
 	});
 
 	it('adjacent async components are evaluated eagerly', async () => {
-		const event1 = new ManualResetEvent();
-		// const event2 = new ManualResetEvent();
+		const resetEvent = new ManualResetEvent();
 
 		const Root = createComponent((result, props) => {
 			evaluated.push(props.id);
@@ -140,16 +139,10 @@ describe('rendering', () => {
 
 		const AsyncNested = createComponent(async (result, props) => {
 			evaluated.push(props.id);
-			await event1.wait();
+			await resetEvent.wait();
 			return renderTemplate`<asyncnested id="${props.id}">
-				${renderComponent(result, "", AsyncScalar, {id: `${props.id}/asyncscalar`})}
+				${renderComponent(result, "", Scalar, {id: `${props.id}/scalar`})}
 			</asyncnested>`;
-		});
-
-		const AsyncScalar = createComponent(async (result, props) => {
-			evaluated.push(props.id);
-			// await event2.wait();
-			return renderTemplate`<asyncscalar id="${props.id}"></asyncscalar>`;
 		});
 
 		const awaitableResult = renderToString(Root({}, {id: "root"}, {}));
@@ -160,11 +153,51 @@ describe('rendering', () => {
 			"root/asyncnested_2",
 		]);
 
-		const result = await awaitableResult;
-
-		event1.release();
+		resetEvent.release();
 		
+		// relinquish control after release
+		await new Promise(setImmediate);
+
+		assert.deepEqual(evaluated, [
+			"root",
+			"root/asyncnested_1",
+			"root/asyncnested_2",
+			"root/asyncnested_1/scalar",
+			"root/asyncnested_2/scalar"
+		]);
+
+		const result = await awaitableResult;		
 		const rendered = getRenderedIds(result);
+
+		assert.deepEqual(rendered, [
+			"root",
+			"root/asyncnested_1",
+			"root/asyncnested_1/scalar",
+			"root/asyncnested_2",
+			"root/asyncnested_2/scalar"
+		]);
+	});
+
+	it('skip rendering blank html fragments', async () => {
+		const Root = createComponent(() => {
+			const message = "hello world";
+			return renderTemplate`${message}`;
+		});
+
+		const renderInstance = await renderComponent({}, "", Root, {});
+
+		const chunks = [];
+		const destination = {
+			write: (chunk) => {
+				chunks.push(chunk);
+			},
+		}
+	
+		await renderInstance.render(destination);
+
+		assert.deepEqual(chunks, [
+			new HTMLString("hello world")
+		]);
 	});
 });
 
