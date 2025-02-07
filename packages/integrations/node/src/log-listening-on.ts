@@ -31,11 +31,9 @@ function getResolvedHostForHttpServer(host: string | boolean | undefined) {
 	if (host === false) {
 		// Use a secure default
 		return 'localhost';
-		// biome-ignore lint/style/noUselessElse: <explanation>
 	} else if (host === true) {
 		// If passed --host in the CLI without arguments
 		return undefined; // undefined typically means 0.0.0.0 or :: (listen on all IPs)
-		// biome-ignore lint/style/noUselessElse: <explanation>
 	} else {
 		return host;
 	}
@@ -48,7 +46,6 @@ interface NetworkAddressOpt {
 
 // this code from vite https://github.com/vitejs/vite/blob/d09bbd093a4b893e78f0bbff5b17c7cf7821f403/packages/vite/src/node/utils.ts#L892-L914
 export function getNetworkAddress(
-	// biome-ignore lint/style/useDefaultParameterLast: <explanation>
 	protocol: 'http' | 'https' = 'http',
 	hostname: string | undefined,
 	port: number,
@@ -58,12 +55,10 @@ export function getNetworkAddress(
 		local: [],
 		network: [],
 	};
-	// biome-ignore lint/complexity/noForEach: <explanation>
 	Object.values(os.networkInterfaces())
 		.flatMap((nInterface) => nInterface ?? [])
 		.filter(
 			(detail) =>
-				// biome-ignore lint/complexity/useOptionalChain: <explanation>
 				detail &&
 				detail.address &&
 				(detail.family === 'IPv4' ||
