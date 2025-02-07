@@ -38,7 +38,6 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			switch (trailingSlash) {
 				case 'never': {
 					if (isDirectory && urlPath !== '/' && hasSlash) {
-						// biome-ignore lint/style/useTemplate: more readable like this
 						pathname = urlPath.slice(0, -1) + (urlQuery ? '?' + urlQuery : '');
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
@@ -58,7 +57,6 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 				case 'always': {
 					// trailing slash is not added to "subresources"
 					if (!hasSlash && !isSubresourceRegex.test(urlPath)) {
-						// biome-ignore lint/style/useTemplate: more readable like this
 						pathname = urlPath + '/' + (urlQuery ? '?' + urlQuery : '');
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
@@ -117,7 +115,6 @@ function resolveClientDir(options: Options) {
 	while (!serverEntryFolderURL.endsWith(serverFolder)) {
 		serverEntryFolderURL = path.dirname(serverEntryFolderURL);
 	}
-	// biome-ignore lint/style/useTemplate: <explanation>
 	const serverEntryURL = serverEntryFolderURL + '/entry.mjs';
 	const clientURL = new URL(appendForwardSlash(rel), serverEntryURL);
 	const client = url.fileURLToPath(clientURL);
@@ -125,11 +122,9 @@ function resolveClientDir(options: Options) {
 }
 
 function prependForwardSlash(pth: string) {
-	// biome-ignore lint/style/useTemplate: <explanation>
 	return pth.startsWith('/') ? pth : '/' + pth;
 }
 
 function appendForwardSlash(pth: string) {
-	// biome-ignore lint/style/useTemplate: <explanation>
 	return pth.endsWith('/') ? pth : pth + '/';
 }
