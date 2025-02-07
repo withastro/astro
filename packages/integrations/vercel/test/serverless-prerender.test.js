@@ -20,7 +20,7 @@ describe('Serverless prerender', () => {
 
 	it('outDir is tree-shaken if not needed', async () => {
 		const [file] = await fixture.glob(
-			'../.vercel/output/functions/_render.func/packages/vercel/test/fixtures/serverless-prerender/.vercel/output/_functions/pages/_image.astro.mjs'
+			'../.vercel/output/functions/_render.func/packages/vercel/test/fixtures/serverless-prerender/.vercel/output/_functions/pages/_image.astro.mjs',
 		);
 		try {
 			await fixture.readFile(file);
@@ -34,8 +34,8 @@ describe('Serverless prerender', () => {
 	it.skip('includeFiles work', async () => {
 		assert.ok(
 			await fixture.readFile(
-				'../.vercel/output/functions/render.func/packages/vercel/test/fixtures/serverless-prerender/dist/middleware.mjs'
-			)
+				'../.vercel/output/functions/render.func/packages/vercel/test/fixtures/serverless-prerender/dist/middleware.mjs',
+			),
 		);
 	});
 });

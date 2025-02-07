@@ -205,7 +205,7 @@ export default function vercelAdapter({
 						'head-inline',
 						await getInjectableWebAnalyticsContent({
 							mode: command === 'dev' ? 'development' : 'production',
-						})
+						}),
 					);
 				}
 
@@ -240,7 +240,7 @@ export default function vercelAdapter({
 						imagesConfig,
 						command,
 						devImageService,
-						config.image
+						config.image,
 					),
 				});
 			},
@@ -253,10 +253,10 @@ export default function vercelAdapter({
 				if (_buildOutput === 'server') {
 					if (maxDuration && maxDuration > 900) {
 						logger.warn(
-							`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`
+							`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`,
 						);
 						logger.warn(
-							`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`
+							`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`,
 						);
 					}
 					const vercelConfigPath = new URL('vercel.json', config.root);
@@ -276,7 +276,7 @@ export default function vercelAdapter({
 	Your "vercel.json" \`trailingSlash\` configuration (set to \`${vercelConfig.trailingSlash}\`) will conflict with your Astro \`trailingSlash\` configuration (set to \`${JSON.stringify(config.trailingSlash)}\`).
 	This would cause infinite redirects or duplicate content issues. 
 	Please remove the \`trailingSlash\` configuration from your \`vercel.json\` file or Astro config.
-`
+`,
 								);
 							}
 						} catch (_err) {
@@ -289,7 +289,7 @@ export default function vercelAdapter({
 							edgeMiddleware,
 							middlewareSecret,
 							skewProtection,
-						})
+						}),
 					);
 				} else {
 					setAdapter(
@@ -298,7 +298,7 @@ export default function vercelAdapter({
 							middlewareSecret: '',
 							skewProtection,
 							buildOutput: _buildOutput,
-						})
+						}),
 					);
 				}
 				_config = config;
@@ -319,7 +319,7 @@ export default function vercelAdapter({
 								patternRegex: routeData.pattern,
 							},
 							url,
-						])
+						]),
 				);
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
@@ -376,7 +376,7 @@ export default function vercelAdapter({
 						includeFiles,
 						logger,
 						outDir,
-						maxDuration
+						maxDuration,
 					);
 
 					// Multiple entrypoint support
@@ -435,7 +435,7 @@ export default function vercelAdapter({
 						await builder.buildMiddlewareFolder(
 							_middlewareEntryPoint,
 							MIDDLEWARE_PATH,
-							middlewareSecret
+							middlewareSecret,
 						);
 					}
 				}
@@ -492,7 +492,7 @@ export default function vercelAdapter({
 				if (error) {
 					throw new AstroError(
 						`Error generating redirects: ${error.message}`,
-						error.link ? `${error.action ?? 'More info'}: ${error.link}` : undefined
+						error.link ? `${error.action ?? 'More info'}: ${error.link}` : undefined,
 					);
 				}
 
@@ -521,7 +521,7 @@ export default function vercelAdapter({
 						`Error generating routes: ${normalized.error.message}`,
 						normalized.error.link
 							? `${normalized.error.action ?? 'More info'}: ${normalized.error.link}`
-							: undefined
+							: undefined,
 					);
 				}
 
@@ -567,7 +567,7 @@ class VercelBuilder {
 		readonly logger: AstroIntegrationLogger,
 		readonly outDir: URL,
 		readonly maxDuration?: number,
-		readonly runtime = getRuntime(process, logger)
+		readonly runtime = getRuntime(process, logger),
 	) {}
 
 	async buildServerlessFolder(entry: URL, functionName: string, root: URL) {
@@ -587,7 +587,7 @@ class VercelBuilder {
 				logger,
 				root,
 			},
-			NTF_CACHE
+			NTF_CACHE,
 		);
 
 		// Enable ESM
@@ -609,7 +609,7 @@ class VercelBuilder {
 		await this.buildServerlessFolder(entry, functionName, root);
 		const prerenderConfig = new URL(
 			`./functions/${functionName}.prerender-config.json`,
-			this.outDir
+			this.outDir,
 		);
 		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
 		await writeJson(prerenderConfig, {
@@ -629,7 +629,7 @@ class VercelBuilder {
 			new URL(VERCEL_EDGE_MIDDLEWARE_FILE, this.config.srcDir),
 			new URL('./middleware.mjs', functionFolder),
 			middlewareSecret,
-			this.logger
+			this.logger,
 		);
 
 		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
@@ -648,7 +648,7 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 			`\n` +
 				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
 				`\tYour project will use Node.js 18 as the runtime instead.\n` +
-				`\tConsider switching your local version to 18.\n`
+				`\tConsider switching your local version to 18.\n`,
 		);
 		return 'nodejs18.x';
 	}
@@ -658,26 +658,26 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 	if (support.status === 'retiring') {
 		if (support.warnDate && new Date() >= support.warnDate) {
 			logger.warn(
-				`Your project is being built for Node.js ${major} as the runtime, which is retiring by ${support.removal}.`
+				`Your project is being built for Node.js ${major} as the runtime, which is retiring by ${support.removal}.`,
 			);
 		}
 		return `nodejs${major}.x`;
 	}
 	if (support.status === 'beta') {
 		logger.warn(
-			`Your project is being built for Node.js ${major} as the runtime, which is currently in beta for Vercel Serverless Functions.`
+			`Your project is being built for Node.js ${major} as the runtime, which is currently in beta for Vercel Serverless Functions.`,
 		);
 		return `nodejs${major}.x`;
 	}
 	if (support.status === 'deprecated') {
 		const removeDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(
-			support.removal
+			support.removal,
 		);
 		logger.warn(
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
 				`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
-				`\tConsider upgrading your local version to 18.\n`
+				`\tConsider upgrading your local version to 18.\n`,
 		);
 		return `nodejs${major}.x`;
 	}
