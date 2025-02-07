@@ -15,7 +15,7 @@ describe('ISR', () => {
 
 	it('generates expected prerender config', async () => {
 		const vcConfig = JSON.parse(
-			await fixture.readFile('../.vercel/output/functions/_isr.prerender-config.json')
+			await fixture.readFile('../.vercel/output/functions/_isr.prerender-config.json'),
 		);
 		assert.deepEqual(vcConfig, {
 			expiration: 120,

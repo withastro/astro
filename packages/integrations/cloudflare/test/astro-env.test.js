@@ -38,7 +38,7 @@ describe('astro:env', () => {
 			$('#runtime').text().includes('https://google.de') &&
 				$('#runtime').text().includes('4322') &&
 				$('#runtime').text().includes('123456789'),
-			true
+			true,
 		);
 	});
 

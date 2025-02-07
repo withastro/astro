@@ -14,7 +14,7 @@ describe('Vercel edge middleware', () => {
 
 	it('an edge function is created', async () => {
 		const contents = await build.readFile(
-			'../.vercel/output/functions/_middleware.func/.vc-config.json'
+			'../.vercel/output/functions/_middleware.func/.vc-config.json',
 		);
 		const contentsJSON = JSON.parse(contents);
 		assert.equal(contentsJSON.runtime, 'edge');
@@ -26,14 +26,14 @@ describe('Vercel edge middleware', () => {
 		const { routes } = JSON.parse(contents);
 		assert.equal(
 			routes.some((route) => route.dest === '_middleware'),
-			true
+			true,
 		);
 	});
 
 	it('edge sets Set-Cookie headers', async () => {
 		const entry = new URL(
 			'../.vercel/output/functions/_middleware.func/middleware.mjs',
-			build.config.outDir
+			build.config.outDir,
 		);
 		const module = await import(entry);
 		const request = new Request('http://example.com/foo');
@@ -50,7 +50,7 @@ describe('Vercel edge middleware', () => {
 		await fixture.build();
 		const contents = await fixture.readFile(
 			// this is abysmal...
-			'../.vercel/output/functions/render.func/www/withastro/astro/packages/vercel/test/fixtures/middleware-with-edge-file/dist/middleware.mjs'
+			'../.vercel/output/functions/render.func/www/withastro/astro/packages/vercel/test/fixtures/middleware-with-edge-file/dist/middleware.mjs',
 		);
 		// assert.equal(contents.includes('title:')).to.be.true;
 		// chaiJestSnapshot.setTestName('Middleware with handler file');
@@ -65,7 +65,7 @@ describe('Vercel edge middleware', () => {
 		await fixture.build();
 		const contents = await fixture.readFile(
 			// this is abysmal...
-			'../.vercel/output/functions/render.func/www/withastro/astro/packages/vercel/test/fixtures/middleware-without-edge-file/dist/middleware.mjs'
+			'../.vercel/output/functions/render.func/www/withastro/astro/packages/vercel/test/fixtures/middleware-without-edge-file/dist/middleware.mjs',
 		);
 		// assert.equal(contents.includes('title:')).to.be.false;
 		// chaiJestSnapshot.setTestName('Middleware without handler file');

@@ -29,7 +29,7 @@ const service: ExternalImageService = {
 			import.meta.env.BASE_URL,
 			'/cdn-cgi/image',
 			resizingParams.join(','),
-			imageSource
+			imageSource,
 		);
 
 		return imageEndpoint;

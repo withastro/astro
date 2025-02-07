@@ -26,7 +26,7 @@ export type ModuleType = 'CompiledWasm' | 'Text' | 'Data';
  * @returns Vite plugin with additional extension method to hook into astro build
  */
 export function cloudflareModuleLoader(
-	enabled: boolean
+	enabled: boolean,
 ): PluginOption & CloudflareModulePluginExtra {
 	/**
 	 * It's likely that eventually cloudflare will add support for custom extensions, like they do in vanilla cloudflare workers,
@@ -55,7 +55,7 @@ export function cloudflareModuleLoader(
 					rollupOptions: {
 						// mark the wasm files as external so that they are not bundled and instead are loaded from the files
 						external: extensions.map(
-							(x) => new RegExp(`^${MAGIC_STRING}.+${escapeRegExp(x)}.mjs$`, 'i')
+							(x) => new RegExp(`^${MAGIC_STRING}.+${escapeRegExp(x)}.mjs$`, 'i'),
 						),
 					},
 				},
@@ -71,7 +71,7 @@ export function cloudflareModuleLoader(
 			}
 			if (!enabled) {
 				throw new Error(
-					`Cloudflare module loading is experimental. The ${maybeExtension} module cannot be loaded unless you add \`cloudflareModules: true\` to your astro config.`
+					`Cloudflare module loading is experimental. The ${maybeExtension} module cannot be loaded unless you add \`cloudflareModules: true\` to your astro config.`,
 				);
 			}
 
@@ -140,7 +140,7 @@ export function cloudflareModuleLoader(
 							nodejsImport: relativePath,
 						});
 						return `./${relativePath}`;
-					}
+					},
 				);
 			}
 

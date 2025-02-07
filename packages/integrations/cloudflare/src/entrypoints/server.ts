@@ -29,7 +29,7 @@ export function createExports(manifest: SSRManifest) {
 	const fetch = async (
 		request: Request & CLOUDFLARE_REQUEST,
 		env: Env,
-		context: ExecutionContext
+		context: ExecutionContext,
 	) => {
 		const { pathname } = new URL(request.url);
 
@@ -42,7 +42,7 @@ export function createExports(manifest: SSRManifest) {
 		if (!routeData) {
 			// https://developers.cloudflare.com/pages/functions/api-reference/#envassetsfetch
 			const asset = await env.ASSETS.fetch(
-				request.url.replace(/index.html$/, '').replace(/\.html$/, '')
+				request.url.replace(/index.html$/, '').replace(/\.html$/, ''),
 			);
 			if (asset.status !== 404) {
 				return asset;
@@ -52,7 +52,7 @@ export function createExports(manifest: SSRManifest) {
 		Reflect.set(
 			request,
 			Symbol.for('astro.clientAddress'),
-			request.headers.get('cf-connecting-ip')
+			request.headers.get('cf-connecting-ip'),
 		);
 
 		process.env.ASTRO_STUDIO_APP_TOKEN ??= (() => {
@@ -71,7 +71,7 @@ export function createExports(manifest: SSRManifest) {
 					// Currently not available: https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions
 					passThroughOnException: () => {
 						throw new Error(
-							'`passThroughOnException` is currently not available in Cloudflare Pages. See https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions.'
+							'`passThroughOnException` is currently not available in Cloudflare Pages. See https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions.',
 						);
 					},
 					props: {},

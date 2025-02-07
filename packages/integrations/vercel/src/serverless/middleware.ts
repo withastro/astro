@@ -30,13 +30,13 @@ export async function generateEdgeMiddleware(
 	vercelEdgeMiddlewareHandlerPath: URL,
 	outPath: URL,
 	middlewareSecret: string,
-	logger: AstroIntegrationLogger
+	logger: AstroIntegrationLogger,
 ): Promise<URL> {
 	const code = edgeMiddlewareTemplate(
 		astroMiddlewareEntryPointPath,
 		vercelEdgeMiddlewareHandlerPath,
 		middlewareSecret,
-		logger
+		logger,
 	);
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = fileURLToPath(outPath);
@@ -77,17 +77,17 @@ function edgeMiddlewareTemplate(
 	astroMiddlewareEntryPointPath: URL,
 	vercelEdgeMiddlewareHandlerPath: URL,
 	middlewareSecret: string,
-	logger: AstroIntegrationLogger
+	logger: AstroIntegrationLogger,
 ) {
 	const middlewarePath = JSON.stringify(
-		fileURLToPath(astroMiddlewareEntryPointPath).replace(/\\/g, '/')
+		fileURLToPath(astroMiddlewareEntryPointPath).replace(/\\/g, '/'),
 	);
 	const filePathEdgeMiddleware = fileURLToPath(vercelEdgeMiddlewareHandlerPath);
 	let handlerTemplateImport = '';
 	let handlerTemplateCall = '{}';
 	if (existsSync(filePathEdgeMiddleware + '.js') || existsSync(filePathEdgeMiddleware + '.ts')) {
 		logger.warn(
-			'Usage of `vercel-edge-middleware.js` is deprecated. You can now use the `waitUntil(promise)` function directly as `ctx.locals.waitUntil(promise)`.'
+			'Usage of `vercel-edge-middleware.js` is deprecated. You can now use the `waitUntil(promise)` function directly as `ctx.locals.waitUntil(promise)`.',
 		);
 		const stringified = JSON.stringify(filePathEdgeMiddleware.replace(/\\/g, '/'));
 		handlerTemplateImport = `import handler from ${stringified}`;

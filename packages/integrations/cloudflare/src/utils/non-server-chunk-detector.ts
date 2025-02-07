@@ -75,7 +75,7 @@ export class NonServerChunkDetector {
 
 		// Any chunk not flagged as used on the server is a non-server chunk
 		this.nonServerChunks = Array.from(chunkToDependencies.keys()).filter(
-			(chunk) => !chunkDecisions.get(chunk)
+			(chunk) => !chunkDecisions.get(chunk),
 		);
 	}
 

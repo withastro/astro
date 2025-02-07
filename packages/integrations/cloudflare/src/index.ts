@@ -95,7 +95,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
 
 	const cloudflareModulePlugin: PluginOption & CloudflareModulePluginExtra = cloudflareModuleLoader(
-		args?.cloudflareModules ?? true
+		args?.cloudflareModules ?? true,
 	);
 
 	let _routes: IntegrationResolvedRoute[];
@@ -155,7 +155,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:config:done': ({ setAdapter, config, buildOutput, logger }) => {
 				if (buildOutput === 'static') {
 					logger.warn(
-						'[@astrojs/cloudflare] This adapter is intended to be used with server rendered pages, which this project does not contain any of. As such, this adapter is unnecessary.'
+						'[@astrojs/cloudflare] This adapter is intended to be used with server rendered pages, which this project does not contain any of. As such, this adapter is unnecessary.',
 					);
 				}
 
@@ -203,7 +203,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 									// Currently not available: https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions
 									passThroughOnException: () => {
 										throw new AstroError(
-											'`passThroughOnException` is currently not available in Cloudflare Pages. See https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions.'
+											'`passThroughOnException` is currently not available in Cloudflare Pages. See https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions.',
 										);
 									},
 								},
@@ -267,7 +267,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							await rename(new URL(file, _config.build.client), new URL(file, _config.outDir));
 						} catch (e) {
 							logger.error(
-								`There was an error moving ${file} to the root of the output directory.`
+								`There was an error moving ${file} to the root of the output directory.`,
 							);
 						}
 					}
@@ -326,7 +326,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						pages,
 						redirects,
 						args?.routes?.extend?.include,
-						args?.routes?.extend?.exclude
+						args?.routes?.extend?.exclude,
 					);
 				}
 
@@ -336,8 +336,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						Array.from(
 							_routes
 								.filter((route) => route.type === 'redirect')
-								.map((route) => [route, ''] as const)
-						)
+								.map((route) => [route, ''] as const),
+						),
 					),
 					dir,
 					buildOutput: finalBuildOutput,

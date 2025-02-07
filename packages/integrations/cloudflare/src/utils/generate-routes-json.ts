@@ -47,7 +47,7 @@ async function writeRoutesFileToOutDir(
 	_config: AstroConfig,
 	logger: AstroIntegrationLogger,
 	include: string[],
-	exclude: string[]
+	exclude: string[],
 ) {
 	try {
 		await writeFile(
@@ -59,9 +59,9 @@ async function writeRoutesFileToOutDir(
 					exclude: exclude,
 				},
 				null,
-				2
+				2,
 			),
-			'utf-8'
+			'utf-8',
 		);
 	} catch (error) {
 		logger.error("There was an error writing the '_routes.json' file to the output directory.");
@@ -182,7 +182,7 @@ export async function createRoutesFile(
 		| {
 				pattern: string;
 		  }[]
-		| undefined
+		| undefined,
 ) {
 	const includePaths: string[][] = [];
 	const excludePaths: string[][] = [];
@@ -197,7 +197,7 @@ export async function createRoutesFile(
 			[{ content: _config.build.assets, dynamic: false, spread: false }],
 			[{ content: '', dynamic: true, spread: false }],
 		],
-		_config
+		_config,
 	);
 	excludePaths.push(assetsPath);
 
@@ -328,9 +328,9 @@ export async function createRoutesFile(
 					CLOUDFLARE_COMBINED_LIMIT -
 						EXTENDED_INCLUDE_RULES_COUNT -
 						EXTENDED_EXCLUDE_RULES_COUNT -
-						1
+						1,
 				)
-				.concat(excludeExtends?.map((entry) => entry.pattern) ?? [])
+				.concat(excludeExtends?.map((entry) => entry.pattern) ?? []),
 		);
 	} else {
 		await writeRoutesFileToOutDir(
@@ -343,7 +343,7 @@ export async function createRoutesFile(
 				? deduplicatedExcludePaths
 						.map((path) => `${prependForwardSlash(path.join('/'))}`)
 						.concat(excludeExtends?.map((entry) => entry.pattern) ?? [])
-				: []
+				: [],
 		);
 	}
 }

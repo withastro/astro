@@ -22,7 +22,7 @@ export async function copyDependenciesToFunction(
 		root: URL;
 	},
 	// we want to pass the caching by reference, and not by value
-	cache: object
+	cache: object,
 ): Promise<{ handler: string }> {
 	const entryPath = fileURLToPath(entry);
 	logger.info(`Bundling function ${relativePath(fileURLToPath(outDir), entryPath)}`);
@@ -52,11 +52,11 @@ export async function copyDependenciesToFunction(
 
 			if (entryPath === file) {
 				logger.debug(
-					`[@astrojs/vercel] The module "${module}" couldn't be resolved. This may not be a problem, but it's worth checking.`
+					`[@astrojs/vercel] The module "${module}" couldn't be resolved. This may not be a problem, but it's worth checking.`,
 				);
 			} else {
 				logger.debug(
-					`[@astrojs/vercel] The module "${module}" inside the file "${file}" couldn't be resolved. This may not be a problem, but it's worth checking.`
+					`[@astrojs/vercel] The module "${module}" inside the file "${file}" couldn't be resolved. This may not be a problem, but it's worth checking.`,
 				);
 			}
 		}
@@ -73,7 +73,7 @@ export async function copyDependenciesToFunction(
 	const commonAncestor = await copyFilesToFolder(
 		[...result.fileList].map((file) => new URL(file, base)).concat(includeFiles),
 		outDir,
-		excludeFiles
+		excludeFiles,
 	);
 
 	return {
