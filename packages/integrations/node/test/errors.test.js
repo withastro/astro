@@ -20,7 +20,6 @@ describe('Errors', () => {
 	});
 	let devPreview;
 
-	// biome-ignore lint/suspicious/noDuplicateTestHooks: <explanation>
 	before(async () => {
 		// The two tests that need the server to run are skipped
 		// devPreview = await fixture.preview();
@@ -76,9 +75,6 @@ describe('Errors', () => {
 			const chunk2 = await reader.read();
 			const chunk3 = await reader.read();
 			assert.equal(chunk1.done, false);
-			console.log(chunk1);
-			console.log(chunk2);
-			console.log(chunk3);
 			if (chunk2.done) {
 				assert.equal(decoder.decode(chunk1.value), result.join(''));
 			} else if (chunk3.done) {

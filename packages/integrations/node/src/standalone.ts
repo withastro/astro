@@ -39,7 +39,6 @@ export function createStandaloneHandler(app: NodeApp, options: Options) {
 	return (req: http.IncomingMessage, res: http.ServerResponse) => {
 		try {
 			// validate request path
-			// biome-ignore lint/style/noNonNullAssertion: <explanation>
 			decodeURI(req.url!);
 		} catch {
 			res.writeHead(400);
