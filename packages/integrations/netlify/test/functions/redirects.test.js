@@ -46,7 +46,7 @@ describe(
 
 		it('does not pass through 404 request', async () => {
 			let testServerCalls = 0;
-			const testServer = createServer((req, res) => {
+			const testServer = createServer((_req, res) => {
 				testServerCalls++;
 				res.writeHead(200);
 				res.end();

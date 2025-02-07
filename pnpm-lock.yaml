@@ -5892,7 +5892,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       astro:
-        specifier: ^5.1.6
+        specifier: workspace:*
         version: link:../../../../../astro
 
   packages/integrations/vue:

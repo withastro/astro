@@ -225,7 +225,6 @@ describe('Prerendering', () => {
 		});
 
 		it('Can render SSR route', async () => {
-			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			const res = await fixture.fetch(`/one`);
 			const html = await res.text();
 			const $ = cheerio.load(html);
@@ -235,7 +234,6 @@ describe('Prerendering', () => {
 		});
 
 		it('Can render prerendered route', async () => {
-			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			const res = await fixture.fetch(`/two`);
 			const html = await res.text();
 			const $ = cheerio.load(html);

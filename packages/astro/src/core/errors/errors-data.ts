@@ -27,7 +27,7 @@ export const CantUseAstroConfigModuleError = {
 	name: 'CantUseAstroConfigModuleError',
 	title: 'Cannot use the `astro:config` module without enabling the experimental feature.',
 	message: (moduleName) =>
-		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeManifest\` in your \`astro.config.mjs\` `,
+		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeConfig\` in your \`astro.config.mjs\` `,
 } satisfies ErrorData;
 
 /**

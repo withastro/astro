@@ -9,7 +9,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
-    "directory": "packages/node"
+    "directory": "packages/integrations/node"
   },
   "keywords": [
     "withastro",

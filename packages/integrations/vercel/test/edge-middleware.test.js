@@ -48,7 +48,7 @@ describe('Vercel edge middleware', () => {
 			root: './fixtures/middleware-with-edge-file/',
 		});
 		await fixture.build();
-		const contents = await fixture.readFile(
+		const _contents = await fixture.readFile(
 			// this is abysmal...
 			'../.vercel/output/functions/render.func/www/withastro/astro/packages/vercel/test/fixtures/middleware-with-edge-file/dist/middleware.mjs',
 		);
@@ -63,7 +63,7 @@ describe('Vercel edge middleware', () => {
 			root: './fixtures/middleware-without-edge-file/',
 		});
 		await fixture.build();
-		const contents = await fixture.readFile(
+		const _contents = await fixture.readFile(
 			// this is abysmal...
 			'../.vercel/output/functions/render.func/www/withastro/astro/packages/vercel/test/fixtures/middleware-without-edge-file/dist/middleware.mjs',
 		);
