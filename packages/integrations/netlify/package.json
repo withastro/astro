@@ -54,6 +54,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
+    "devalue": "^5.1.1",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.3",
     "strip-ansi": "^7.1.0",
