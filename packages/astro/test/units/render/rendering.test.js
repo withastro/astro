@@ -199,6 +199,58 @@ describe('rendering', () => {
 			new HTMLString("hello world")
 		]);
 	});
+
+	it('all primitives are rendered in order', async () => {
+		const Root = createComponent((result, props) => {
+			evaluated.push(props.id);
+			return renderTemplate`<root id="${props.id}">
+				${renderComponent(result, "", Scalar, {id: `${props.id}/first`})}
+				${() => renderComponent(result, "", Scalar, {id: `${props.id}/func`})}
+				${
+					new Promise((resolve) => {
+						setImmediate(() => {
+							resolve(renderComponent(result, "", Scalar, {id: `${props.id}/promise`}));
+						});
+					})
+				}
+				${[
+					() => renderComponent(result, "", Scalar, {id: `${props.id}/array_func`}),
+					renderComponent(result, "", Scalar, {id: `${props.id}/array_scalar`})
+				]}
+				${
+					async function*() {
+						yield await new Promise((resolve) => {
+							setImmediate(() => {
+								resolve(renderComponent(result, "", Scalar, {id: `${props.id}/async_generator`}));
+							});
+						});
+					}
+				}
+				${
+					function*() {
+						yield renderComponent(result, "", Scalar, {id: `${props.id}/generator`});
+					}
+				}
+				${renderComponent(result, "", Scalar, {id: `${props.id}/last`})}
+			</root>`;
+		});
+
+		const result = await renderToString(Root({}, {id: "root"}, {}));
+
+		const rendered = getRenderedIds(result);
+
+		assert.deepEqual(rendered, [
+			'root',
+			'root/first',
+			'root/func',
+			'root/promise',
+			'root/array_func',
+			'root/array_scalar',
+			'root/async_generator',
+			'root/generator',
+			'root/last'
+		]);
+	});
 });
 
 function renderToString(item) {
