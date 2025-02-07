@@ -4,12 +4,10 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS=--inspect=0.0.0.0:6040 astro dev",
+    "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro",
-    "dist": "astro build && astro preview",
-    "dist:debug": "astro build && NODE_OPTIONS=--inspect=0.0.0.0:6040 astro preview"
+    "astro": "astro"
   },
   "dependencies": {
     "astro": "^5.2.5"

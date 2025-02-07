@@ -499,7 +499,6 @@ function renderComponentImplFast(
 	}
 
 	if (isAstroComponentFactory(Component)) {
-		// this is the magic sauce, we don't need to return a promise here for Sync components
 		return renderAstroComponent(result, displayName, Component, props, slots);
 	}
 

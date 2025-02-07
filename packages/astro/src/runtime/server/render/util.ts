@@ -3,7 +3,7 @@ import type { RenderDestination, RenderDestinationChunk, RenderFunction } from '
 import { clsx } from 'clsx';
 import type { SSRElement } from '../../../types/public/internal.js';
 import { HTMLString, markHTMLString } from '../escape.js';
-import { isPromise } from 'node:util/types';
+import { isPromise } from '../util.js';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
