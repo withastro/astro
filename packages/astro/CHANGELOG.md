@@ -1,5 +1,149 @@
 # astro
 
+## 5.2.5
+
+### Patch Changes
+
+- [#13133](https://github.com/withastro/astro/pull/13133) [`e76aa83`](https://github.com/withastro/astro/commit/e76aa8391eb9d81c1a52fb2f9f21ede4790bd793) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Astro was failing to build an external redirect when the middleware was triggered
+
+- [#13119](https://github.com/withastro/astro/pull/13119) [`ac43580`](https://github.com/withastro/astro/commit/ac4358052af2c1817dec999598bc4e3d8fd0bdaf) Thanks [@Hacksore](https://github.com/Hacksore)! - Adds extra guidance in the terminal when using the `astro add tailwind` CLI command
+
+  Now, users are given a friendly reminder to import the stylesheet containing their Tailwind classes into any pages where they want to use Tailwind. Commonly, this is a shared layout component so that Tailwind styling can be used on multiple pages.
+
+## 5.2.4
+
+### Patch Changes
+
+- [#13130](https://github.com/withastro/astro/pull/13130) [`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused duplicate slashes inside query params to be collapsed
+
+- [#13131](https://github.com/withastro/astro/pull/13131) [`d60c742`](https://github.com/withastro/astro/commit/d60c74243f639761ad735d66d814e627f8f847a2) Thanks [@ascorbic](https://github.com/ascorbic)! - Ignores trailing slashes for endpoints with file extensions in the route
+
+- Updated dependencies [[`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091)]:
+  - @astrojs/internal-helpers@0.5.1
+
+## 5.2.3
+
+### Patch Changes
+
+- [#13113](https://github.com/withastro/astro/pull/13113) [`3a26e45`](https://github.com/withastro/astro/commit/3a26e4541764085faa499bc63549b24d194146a6) Thanks [@unprintable123](https://github.com/unprintable123)! - Fixes the bug that rewrite will pass encoded url to the dynamic routing and cause params mismatch.
+
+- [#13111](https://github.com/withastro/astro/pull/13111) [`23978dd`](https://github.com/withastro/astro/commit/23978ddfe127bbc3762b6209b42d049588e52a14) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused injected endpoint routes to return not found when trailingSlash was set to always
+
+- [#13112](https://github.com/withastro/astro/pull/13112) [`0fa5c82`](https://github.com/withastro/astro/commit/0fa5c82977de73872ddeffffea48fddafba47398) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the i18n middleware was blocking a server island request when the `prefixDefaultLocale` option is set to `true`
+
+## 5.2.2
+
+### Patch Changes
+
+- [#13106](https://github.com/withastro/astro/pull/13106) [`187c4d3`](https://github.com/withastro/astro/commit/187c4d3244a27c9b4e7e3cbe6307b01161140ca1) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused peer dependency errors when running `astro add tailwind`
+
+## 5.2.1
+
+### Patch Changes
+
+- [#13095](https://github.com/withastro/astro/pull/13095) [`740eb60`](https://github.com/withastro/astro/commit/740eb6019f405781a3918941d3bfb34a7bda1a3d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused some dev server asset requests to return 404 when trailingSlash was set to "always"
+
+## 5.2.0
+
+### Minor Changes
+
+- [#12994](https://github.com/withastro/astro/pull/12994) [`5361755`](https://github.com/withastro/astro/commit/536175528dbbe75aa978d615ba2517b64bad7879) Thanks [@ascorbic](https://github.com/ascorbic)! - Redirects trailing slashes for on-demand pages
+
+  When the `trailingSlash` option is set to `always` or `never`, on-demand rendered pages will now redirect to the correct URL when the trailing slash doesn't match the configuration option. This was previously the case for static pages, but now works for on-demand pages as well.
+
+  Now, it doesn't matter whether your visitor navigates to `/about/`, `/about`, or even `/about///`. In production, they'll always end up on the correct page. For GET requests, the redirect will be a 301 (permanent) redirect, and for all other request methods, it will be a 308 (permanent, and preserve the request method) redirect.
+
+  In development, you'll see a helpful 404 page to alert you of a trailing slash mismatch so you can troubleshoot routes.
+
+- [#12979](https://github.com/withastro/astro/pull/12979) [`e621712`](https://github.com/withastro/astro/commit/e621712109b79313b24924ec4f0ba4f8ab6201c2) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for redirecting to external sites with the [`redirects`](https://docs.astro.build/en/reference/configuration-reference/#redirects) configuration option.
+
+  Now, you can redirect routes either internally to another path or externally by providing a URL beginning with `http` or `https`:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    redirects: {
+      '/blog': 'https://example.com/blog',
+      '/news': {
+        status: 302,
+        destination: 'https://example.com/news',
+      },
+    },
+  });
+  ```
+
+- [#13084](https://github.com/withastro/astro/pull/13084) [`0f3be31`](https://github.com/withastro/astro/commit/0f3be3104e62d5b50dabfb15023f97954a160b8e) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new experimental virtual module `astro:config` that exposes a type-safe subset of your `astro.config.mjs` configuration
+
+  The virtual module exposes two sub-paths for controlled access to your configuration:
+
+  - `astro:config/client`: exposes config information that is safe to expose to the client.
+  - `astro:config/server`: exposes additional information that is safe to expose to the server, such as file/dir paths.
+
+  To enable this new virtual module, add the `experimental.serializeManifest` feature flag to your Astro config:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  export default defineConfig({
+    experimental: {
+      serializeManifest: true,
+    },
+  });
+  ```
+
+  Then, you can access the module in any file inside your project to import and use values from your Astro config:
+
+  ```js
+  // src/utils.js
+  import { trailingSlash } from 'astro:config/client';
+
+  function addForwardSlash(path) {
+    if (trailingSlash === 'always') {
+      return path.endsWith('/') ? path : path + '/';
+    } else {
+      return path;
+    }
+  }
+  ```
+
+  For a complete overview, and to give feedback on this experimental API, see the [Serialized Manifest RFC](https://github.com/withastro/roadmap/blob/feat/serialised-config/proposals/0051-serialized-manifest.md).
+
+### Patch Changes
+
+- [#13049](https://github.com/withastro/astro/pull/13049) [`2ed4bd9`](https://github.com/withastro/astro/commit/2ed4bd90f25a3e5a183d0bc862e3b359b8289b93) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `astro add tailwind` to add the `@tailwindcss/vite` plugin instead of the `@astrojs/tailwind` integration
+
+- [#12994](https://github.com/withastro/astro/pull/12994) [`5361755`](https://github.com/withastro/astro/commit/536175528dbbe75aa978d615ba2517b64bad7879) Thanks [@ascorbic](https://github.com/ascorbic)! - Returns a more helpful 404 page in dev if there is a trailing slash mismatch between the route requested and the `trailingSlash` configuration
+
+- [#12666](https://github.com/withastro/astro/pull/12666) [`037495d`](https://github.com/withastro/astro/commit/037495d437d2328bf10ffadc22cc114ccf474c65) Thanks [@Thodor12](https://github.com/Thodor12)! - Added additional generated typings for the content layer
+
+- Updated dependencies [[`5361755`](https://github.com/withastro/astro/commit/536175528dbbe75aa978d615ba2517b64bad7879), [`db252e0`](https://github.com/withastro/astro/commit/db252e0692a0addf7239bfefc0220c525d63337d)]:
+  - @astrojs/internal-helpers@0.5.0
+  - @astrojs/markdown-remark@6.1.0
+
+## 5.1.10
+
+### Patch Changes
+
+- [#13058](https://github.com/withastro/astro/pull/13058) [`1a14b53`](https://github.com/withastro/astro/commit/1a14b53678525379211c4a7cbcbc34a04c0e4f8d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes broken type declaration
+
+- [#13059](https://github.com/withastro/astro/pull/13059) [`e36837f`](https://github.com/withastro/astro/commit/e36837f91437a66d5c50eb1c399b3d812743251d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused tsconfig path aliases to break if there was more than one wildcard pattern
+
+- [#13045](https://github.com/withastro/astro/pull/13045) [`c7f1366`](https://github.com/withastro/astro/commit/c7f1366413692091bb8d62d901745a77fa663b18) Thanks [@mtwilliams-code](https://github.com/mtwilliams-code)! - Fixes a bug where the some utility functions of the `astro:i18n` virtual module would return an incorrect result when `trailingSlash` is set to `never`
+
+## 5.1.9
+
+### Patch Changes
+
+- [#12986](https://github.com/withastro/astro/pull/12986) [`8911bda`](https://github.com/withastro/astro/commit/8911bdacabb7fffb82bb3b3628467731ea233187) Thanks [@wetheredge](https://github.com/wetheredge)! - Updates types and dev toolbar for ARIA 1.2 attributes and roles
+
+- [#12892](https://github.com/withastro/astro/pull/12892) [`8f520f1`](https://github.com/withastro/astro/commit/8f520f1cc67db51feb966c710e72490a05b88954) Thanks [@louisescher](https://github.com/louisescher)! - Adds a more descriptive error when a content collection entry has an invalid ID.
+
+- [#13031](https://github.com/withastro/astro/pull/13031) [`f576519`](https://github.com/withastro/astro/commit/f5765196e9cd5c582da04ae3bceb4ee1d62b7eae) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the server islands encoding logic to only escape the script end tag open delimiter and opening HTML comment syntax
+
+- [#13026](https://github.com/withastro/astro/pull/13026) [`1d272f6`](https://github.com/withastro/astro/commit/1d272f6a5a3af16ad2ab9af41b7193ce67964b69) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a regression that prevented the import of Markdown files as raw text or URLs.
+
 ## 5.1.8
 
 ### Patch Changes

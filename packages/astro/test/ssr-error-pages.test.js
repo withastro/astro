@@ -163,11 +163,16 @@ describe('trailing slashes for error pages', () => {
 		});
 
 		it('renders 404 page when a route does not match the request', async () => {
-			const response = await fixture.fetch('/ashbfjkasn');
+			const response = await fixture.fetch('/ashbfjkasn/');
 			assert.equal(response.status, 404);
 			const html = await response.text();
 			const $ = cheerio.load(html);
 			assert.equal($('h1').text(), `Something went horribly wrong!`);
+		});
+
+		it('serves Vite assets correctly when trailingSlash is always', async () => {
+			const response = await fixture.fetch('/@vite/client');
+			assert.equal(response.status, 200);
 		});
 	});
 
@@ -181,7 +186,7 @@ describe('trailing slashes for error pages', () => {
 		});
 
 		it('renders 404 page when a route does not match the request', async () => {
-			const response = await app.render(new Request('http://example.com/ajksalscla'));
+			const response = await app.render(new Request('http://example.com/ajksalscla/'));
 			assert.equal(response.status, 404);
 			const html = await response.text();
 			const $ = cheerio.load(html);

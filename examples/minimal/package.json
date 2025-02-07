@@ -12,7 +12,6 @@
     "dist:debug": "astro build && NODE_OPTIONS=--inspect=0.0.0.0:6040 astro preview"
   },
   "dependencies": {
-    "@astrojs/node": "^9.0.2",
-    "astro": "^5.1.8"
+    "astro": "^5.2.5"
   }
 }

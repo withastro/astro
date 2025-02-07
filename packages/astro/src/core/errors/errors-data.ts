@@ -17,6 +17,19 @@ export interface ErrorData {
  * @name Astro Errors
  */
 // Astro Errors, most errors will go here!
+
+/**
+ * @docs
+ * @description
+ * Cannot use the module `astro:config` without enabling the experimental feature.
+ */
+export const CantUseAstroConfigModuleError = {
+	name: 'CantUseAstroConfigModuleError',
+	title: 'Cannot use the `astro:config` module without enabling the experimental feature.',
+	message: (moduleName) =>
+		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeConfig\` in your \`astro.config.mjs\` `,
+} satisfies ErrorData;
+
 /**
  * @docs
  * @message
@@ -995,6 +1008,20 @@ export const RedirectWithNoLocation = {
 	name: 'RedirectWithNoLocation',
 	title: 'A redirect must be given a location with the `Location` header.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#redirect)
+ * @description
+ * An external redirect must start with http or https, and must be a valid URL.
+ */
+export const UnsupportedExternalRedirect = {
+	name: 'UnsupportedExternalRedirect',
+	title: 'Unsupported or malformed URL.',
+	message: 'An external redirect must start with http or https, and must be a valid URL.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @see
@@ -1563,6 +1590,32 @@ export const InvalidContentEntryDataError = {
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * The content loader for the collection **blog** returned an entry with an invalid `id`:<br/>
+ * &#123;<br/>
+ *   "id": 1,<br/>
+ *   "title": "Hello, World!"<br/>
+ * &#125;
+ * @description
+ * A content loader returned an invalid `id`.
+ * Make sure that the `id` of the entry is a string.
+ * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ */
+export const ContentLoaderReturnsInvalidId = {
+	name: 'ContentLoaderReturnsInvalidId',
+	title: 'Content loader returned an entry with an invalid `id`.',
+	message(collection: string, entry: any) {
+		return [
+			`The content loader for the collection **${String(collection)}** returned an entry with an invalid \`id\`:`,
+			JSON.stringify(entry, null, 2),
+		].join('\n');
+	},
+	hint: 'Make sure that the `id` of the entry is a string. See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders.',
 } satisfies ErrorData;
 
 /**
