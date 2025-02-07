@@ -14,12 +14,12 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		destination.write(child);
 		return;
 	}
-	
+
 	if (isHTMLString(child)) {
 		destination.write(child);
 		return;
 	}
-	
+
 	if (Array.isArray(child)) {
 		return renderArray(destination, child);
 	}
@@ -30,7 +30,7 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		// of wrapping it in a function and calling it.
 		return renderChild(destination, child());
 	}
-	
+
 	if (!child && child !== 0) {
 		// do nothing, safe to ignore falsey values.
 		return;
@@ -39,12 +39,12 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 	if (typeof child === 'string') {
 		destination.write(markHTMLString(escapeHTML(child)));
 		return;
-	}	
-	
+	}
+
 	if (isRenderInstance(child)) {
 		return child.render(destination);
 	}
-	
+
 	if (isRenderTemplateResult(child)) {
 		return child.render(destination);
 	}
@@ -60,12 +60,12 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 
 	if (typeof child === 'object' && (Symbol.asyncIterator in child || Symbol.iterator in child)) {
 		if (Symbol.asyncIterator in child) {
-			return renderAsyncIterable(destination, child)
+			return renderAsyncIterable(destination, child);
 		}
-		
+
 		return renderIterable(destination, child);
 	}
-	
+
 	destination.write(child);
 }
 
@@ -98,7 +98,10 @@ function renderArray(destination: RenderDestination, children: any[]): void | Pr
 	return iterate();
 }
 
-function renderIterable(destination: RenderDestination, children: Iterable<any>): void | Promise<void> {
+function renderIterable(
+	destination: RenderDestination,
+	children: Iterable<any>,
+): void | Promise<void> {
 	// although arrays and iterables may be similar, an iterable
 	// may be unbounded, so rendering all children eagerly may not
 	// be possible.
@@ -120,10 +123,13 @@ function renderIterable(destination: RenderDestination, children: Iterable<any>)
 		}
 	};
 
-	return iterate();	
+	return iterate();
 }
 
-async function renderAsyncIterable(destination: RenderDestination, children: AsyncIterable<any>): Promise<void> {
+async function renderAsyncIterable(
+	destination: RenderDestination,
+	children: AsyncIterable<any>,
+): Promise<void> {
 	for await (const value of children) {
 		await renderChild(destination, value);
 	}

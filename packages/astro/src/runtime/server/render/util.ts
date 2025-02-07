@@ -160,7 +160,7 @@ class BufferedRenderer implements RenderDestination, RendererFlusher {
 	private chunks: RenderDestinationChunk[] = [];
 	private renderPromise: Promise<void> | void;
 	private destination: RenderDestination;
-	private flushed: boolean = false;
+	private flushed = false;
 
 	public constructor(destination: RenderDestination, renderFunction: RenderFunction) {
 		this.destination = destination;
@@ -183,7 +183,7 @@ class BufferedRenderer implements RenderDestination, RendererFlusher {
 
 	public flush(): void | Promise<void> {
 		if (this.flushed) {
-			throw new Error("Already been flushed.");
+			throw new Error('Already been flushed.');
 		}
 
 		this.flushed = true;
@@ -221,12 +221,15 @@ class BufferedRenderer implements RenderDestination, RendererFlusher {
  * }
  * ```
  */
-export function createBufferedRenderer(destination: RenderDestination, renderFunction: RenderFunction): RendererFlusher {
+export function createBufferedRenderer(
+	destination: RenderDestination,
+	renderFunction: RenderFunction,
+): RendererFlusher {
 	return new BufferedRenderer(destination, renderFunction);
 }
 
 export interface RendererFlusher {
-	flush(): void | Promise<void>
+	flush(): void | Promise<void>;
 }
 
 export const isNode =

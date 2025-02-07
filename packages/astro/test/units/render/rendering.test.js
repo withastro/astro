@@ -1,8 +1,13 @@
 import * as assert from 'node:assert/strict';
-import { describe, it, beforeEach } from 'node:test';
+import { beforeEach, describe, it } from 'node:test';
 import { isPromise } from 'node:util/types';
-import { renderTemplate, createComponent, renderComponent, HTMLString } from '../../../dist/runtime/server/index.js';
 import * as cheerio from 'cheerio';
+import {
+	HTMLString,
+	createComponent,
+	renderComponent,
+	renderTemplate,
+} from '../../../dist/runtime/server/index.js';
 
 describe('rendering', () => {
 	const evaluated = [];
@@ -20,36 +25,36 @@ describe('rendering', () => {
 		const Root = createComponent((result, props) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
-				${renderComponent(result, "", Scalar, {id: `${props.id}/scalar_1`})}
-				${renderComponent(result, "", Nested, {id: `${props.id}/nested`})}
-				${renderComponent(result, "", Scalar, {id: `${props.id}/scalar_2`})}
+				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar_1` })}
+				${renderComponent(result, '', Nested, { id: `${props.id}/nested` })}
+				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar_2` })}
 			</root>`;
 		});
 
 		const Nested = createComponent((result, props) => {
 			evaluated.push(props.id);
 			return renderTemplate`<nested id="${props.id}">
-				${renderComponent(result, "", Scalar, {id: `${props.id}/scalar`})}
+				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar` })}
 			</nested>`;
 		});
 
-		const result = await renderToString(Root({}, {id: "root"}, {}));
+		const result = await renderToString(Root({}, { id: 'root' }, {}));
 		const rendered = getRenderedIds(result);
 
 		assert.deepEqual(evaluated, [
-			"root",
-			"root/scalar_1",
-			"root/nested",
-			"root/nested/scalar",			
-			"root/scalar_2",
+			'root',
+			'root/scalar_1',
+			'root/nested',
+			'root/nested/scalar',
+			'root/scalar_2',
 		]);
 
 		assert.deepEqual(rendered, [
-			"root",
-			"root/scalar_1",
-			"root/nested",
-			"root/nested/scalar",			
-			"root/scalar_2",
+			'root',
+			'root/scalar_1',
+			'root/nested',
+			'root/nested/scalar',
+			'root/scalar_2',
 		]);
 	});
 
@@ -57,36 +62,34 @@ describe('rendering', () => {
 		const Root = createComponent((result, props) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
-				${() => renderComponent(result, "", Scalar, {id: `${props.id}/scalar_1`})}
-				${function*() {
-					yield renderComponent(result, "", Scalar, {id: `${props.id}/scalar_2`});
+				${() => renderComponent(result, '', Scalar, { id: `${props.id}/scalar_1` })}
+				${function* () {
+					yield renderComponent(result, '', Scalar, { id: `${props.id}/scalar_2` });
 				}}
-				${[
-					renderComponent(result, "", Scalar, {id: `${props.id}/scalar_3`})
-				]}
-				${renderComponent(result, "", Scalar, {id: `${props.id}/scalar_4`})}
+				${[renderComponent(result, '', Scalar, { id: `${props.id}/scalar_3` })]}
+				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar_4` })}
 			</root>`;
 		});
 
-		const result = renderToString(Root({}, {id: "root"}, {}));
+		const result = renderToString(Root({}, { id: 'root' }, {}));
 		assert.ok(!isPromise(result));
-		
+
 		const rendered = getRenderedIds(result);
 
 		assert.deepEqual(evaluated, [
-			"root",
-			"root/scalar_1",
-			"root/scalar_2",
-			"root/scalar_3",
-			"root/scalar_4",
+			'root',
+			'root/scalar_1',
+			'root/scalar_2',
+			'root/scalar_3',
+			'root/scalar_4',
 		]);
 
 		assert.deepEqual(rendered, [
-			"root",
-			"root/scalar_1",
-			"root/scalar_2",
-			"root/scalar_3",
-			"root/scalar_4",
+			'root',
+			'root/scalar_1',
+			'root/scalar_2',
+			'root/scalar_3',
+			'root/scalar_4',
 		]);
 	});
 
@@ -94,8 +97,8 @@ describe('rendering', () => {
 		const Root = createComponent((result, props) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
-				${renderComponent(result, "", AsyncNested, {id: `${props.id}/asyncnested`})}
-				${renderComponent(result, "", Scalar, {id: `${props.id}/scalar`})}
+				${renderComponent(result, '', AsyncNested, { id: `${props.id}/asyncnested` })}
+				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar` })}
 			</root>`;
 		});
 
@@ -103,26 +106,26 @@ describe('rendering', () => {
 			evaluated.push(props.id);
 			await new Promise((resolve) => setTimeout(resolve, 0));
 			return renderTemplate`<asyncnested id="${props.id}">
-				${renderComponent(result, "", Scalar, {id: `${props.id}/scalar`})}
+				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar` })}
 			</asyncnested>`;
 		});
 
-		const result = await renderToString(Root({}, {id: "root"}, {}));
-		
+		const result = await renderToString(Root({}, { id: 'root' }, {}));
+
 		const rendered = getRenderedIds(result);
 
 		assert.deepEqual(evaluated, [
-			"root",
-			"root/asyncnested",
-			"root/scalar",
-			"root/asyncnested/scalar"
+			'root',
+			'root/asyncnested',
+			'root/scalar',
+			'root/asyncnested/scalar',
 		]);
 
 		assert.deepEqual(rendered, [
-			"root",
-			"root/asyncnested",
-			"root/asyncnested/scalar",
-			"root/scalar",
+			'root',
+			'root/asyncnested',
+			'root/asyncnested/scalar',
+			'root/scalar',
 		]);
 	});
 
@@ -132,8 +135,8 @@ describe('rendering', () => {
 		const Root = createComponent((result, props) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
-				${renderComponent(result, "", AsyncNested, {id: `${props.id}/asyncnested_1`})}
-				${renderComponent(result, "", AsyncNested, {id: `${props.id}/asyncnested_2`})}
+				${renderComponent(result, '', AsyncNested, { id: `${props.id}/asyncnested_1` })}
+				${renderComponent(result, '', AsyncNested, { id: `${props.id}/asyncnested_2` })}
 			</root>`;
 		});
 
@@ -141,101 +144,89 @@ describe('rendering', () => {
 			evaluated.push(props.id);
 			await resetEvent.wait();
 			return renderTemplate`<asyncnested id="${props.id}">
-				${renderComponent(result, "", Scalar, {id: `${props.id}/scalar`})}
+				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar` })}
 			</asyncnested>`;
 		});
 
-		const awaitableResult = renderToString(Root({}, {id: "root"}, {}));
+		const awaitableResult = renderToString(Root({}, { id: 'root' }, {}));
 
-		assert.deepEqual(evaluated, [
-			"root",
-			"root/asyncnested_1",
-			"root/asyncnested_2",
-		]);
+		assert.deepEqual(evaluated, ['root', 'root/asyncnested_1', 'root/asyncnested_2']);
 
 		resetEvent.release();
-		
+
 		// relinquish control after release
 		await new Promise((resolve) => setTimeout(resolve, 0));
 
 		assert.deepEqual(evaluated, [
-			"root",
-			"root/asyncnested_1",
-			"root/asyncnested_2",
-			"root/asyncnested_1/scalar",
-			"root/asyncnested_2/scalar"
+			'root',
+			'root/asyncnested_1',
+			'root/asyncnested_2',
+			'root/asyncnested_1/scalar',
+			'root/asyncnested_2/scalar',
 		]);
 
-		const result = await awaitableResult;		
+		const result = await awaitableResult;
 		const rendered = getRenderedIds(result);
 
 		assert.deepEqual(rendered, [
-			"root",
-			"root/asyncnested_1",
-			"root/asyncnested_1/scalar",
-			"root/asyncnested_2",
-			"root/asyncnested_2/scalar"
+			'root',
+			'root/asyncnested_1',
+			'root/asyncnested_1/scalar',
+			'root/asyncnested_2',
+			'root/asyncnested_2/scalar',
 		]);
 	});
 
 	it('skip rendering blank html fragments', async () => {
 		const Root = createComponent(() => {
-			const message = "hello world";
+			const message = 'hello world';
 			return renderTemplate`${message}`;
 		});
 
-		const renderInstance = await renderComponent({}, "", Root, {});
+		const renderInstance = await renderComponent({}, '', Root, {});
 
 		const chunks = [];
 		const destination = {
 			write: (chunk) => {
 				chunks.push(chunk);
 			},
-		}
-	
+		};
+
 		await renderInstance.render(destination);
 
-		assert.deepEqual(chunks, [
-			new HTMLString("hello world")
-		]);
+		assert.deepEqual(chunks, [new HTMLString('hello world')]);
 	});
 
 	it('all primitives are rendered in order', async () => {
 		const Root = createComponent((result, props) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
-				${renderComponent(result, "", Scalar, {id: `${props.id}/first`})}
-				${() => renderComponent(result, "", Scalar, {id: `${props.id}/func`})}
-				${
-					new Promise((resolve) => {
-						setTimeout(() => {
-							resolve(renderComponent(result, "", Scalar, {id: `${props.id}/promise`}));
-						}, 0);
-					})
-				}
+				${renderComponent(result, '', Scalar, { id: `${props.id}/first` })}
+				${() => renderComponent(result, '', Scalar, { id: `${props.id}/func` })}
+				${new Promise((resolve) => {
+					setTimeout(() => {
+						resolve(renderComponent(result, '', Scalar, { id: `${props.id}/promise` }));
+					}, 0);
+				})}
 				${[
-					() => renderComponent(result, "", Scalar, {id: `${props.id}/array_func`}),
-					renderComponent(result, "", Scalar, {id: `${props.id}/array_scalar`})
+					() => renderComponent(result, '', Scalar, { id: `${props.id}/array_func` }),
+					renderComponent(result, '', Scalar, { id: `${props.id}/array_scalar` }),
 				]}
-				${
-					async function*() {
-						yield await new Promise((resolve) => {
-							setTimeout(() => {
-								resolve(renderComponent(result, "", Scalar, {id: `${props.id}/async_generator`}));
-							}, 0);
-						});
-					}
-				}
-				${
-					function*() {
-						yield renderComponent(result, "", Scalar, {id: `${props.id}/generator`});
-					}
-				}
-				${renderComponent(result, "", Scalar, {id: `${props.id}/last`})}
+				${async function* () {
+					yield await new Promise((resolve) => {
+						setTimeout(() => {
+							resolve(renderComponent(result, '', Scalar, { id: `${props.id}/async_generator` }));
+						}, 0);
+					});
+				}}
+				${function* () {
+					yield renderComponent(result, '', Scalar, { id: `${props.id}/generator` });
+				}}
+				${renderComponent(result, '', Scalar, { id: `${props.id}/last` })}
 			</root>`;
 		});
 
-		const result = await renderToString(Root({}, {id: "root"}, {}));
+		const result = await renderToString(Root({}, { id: 'root' }, {}));
 
 		const rendered = getRenderedIds(result);
 
@@ -248,7 +239,7 @@ describe('rendering', () => {
 			'root/array_scalar',
 			'root/async_generator',
 			'root/generator',
-			'root/last'
+			'root/last',
 		]);
 	});
 });
@@ -258,13 +249,13 @@ function renderToString(item) {
 		return item.then(renderToString);
 	}
 
-	let result = "";
+	let result = '';
 
 	const destination = {
-		write: (chunk) => { 
+		write: (chunk) => {
 			result += chunk.toString();
 		},
-	}
+	};
 
 	const renderResult = item.render(destination);
 
@@ -277,8 +268,12 @@ function renderToString(item) {
 
 function getRenderedIds(html) {
 	return cheerio
-		.load(html, null, false)("*")
-		.map((_, node) => node.attribs["id"])
+		.load(
+			html,
+			null,
+			false,
+		)('*')
+		.map((_, node) => node.attribs['id'])
 		.toArray();
 }
 
@@ -307,7 +302,9 @@ class ManualResetEvent {
 		if (!this.#promise) {
 			this.#promise = this.#done
 				? Promise.resolve()
-				: new Promise((resolve) => { this.#resolve = resolve; });
+				: new Promise((resolve) => {
+						this.#resolve = resolve;
+					});
 		}
 
 		return this.#promise;

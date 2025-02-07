@@ -1,7 +1,7 @@
 import { markHTMLString } from '../../escape.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
-import type { RenderDestination, RenderFunction } from '../common.js';
+import type { RenderDestination, } from '../common.js';
 import { createBufferedRenderer } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
@@ -50,19 +50,19 @@ export class RenderTemplateResult {
 				const html = this.htmlParts[i];
 				const flusher = flushers[i];
 
-				// increment here due to potential return in 
+				// increment here due to potential return in
 				// Promise scenario
 				i++;
-	
+
 				if (html) {
 					// only write non-empty strings
-					
+
 					destination.write(markHTMLString(html));
 				}
-				
+
 				if (flusher) {
 					const result = flusher.flush();
-	
+
 					if (isPromise(result)) {
 						return result.then(iterate);
 					}

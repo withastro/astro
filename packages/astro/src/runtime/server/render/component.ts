@@ -465,7 +465,9 @@ export function renderComponent(
 	slots: ComponentSlots = {},
 ): RenderInstance | Promise<RenderInstance> {
 	if (isPromise(Component)) {
-		return Component.catch(handleCancellation).then((x) => renderComponentImplFast(result, displayName, x, props, slots));
+		return Component.catch(handleCancellation).then((x) =>
+			renderComponentImplFast(result, displayName, x, props, slots),
+		);
 	}
 
 	return renderComponentImplFast(result, displayName, Component, props, slots);
