@@ -91,7 +91,7 @@ export function remotePatternToRegex(
 	}
 	try {
 		new RegExp(regexStr);
-	} catch (_e) {
+	} catch {
 		logger.warn(
 			`Could not generate a valid regex from the remotePattern "${JSON.stringify(
 				pattern,
