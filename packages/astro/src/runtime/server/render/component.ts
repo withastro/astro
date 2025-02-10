@@ -448,7 +448,7 @@ function renderAstroComponent(
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
 
 	return {
-		render(destination) {
+		render(destination: RenderDestination): Promise<void> | void {
 			// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
 			// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
 			// The slots are initialized eagerly for head propagation.
@@ -465,29 +465,11 @@ export function renderComponent(
 	slots: ComponentSlots = {},
 ): RenderInstance | Promise<RenderInstance> {
 	if (isPromise(Component)) {
-		return Component.catch(handleCancellation).then((x) =>
-			renderComponentImplFast(result, displayName, x, props, slots),
-		);
+		return Component.catch(handleCancellation).then((x) => {
+			return renderComponent(result, displayName, x, props, slots);
+		});
 	}
 
-	return renderComponentImplFast(result, displayName, Component, props, slots);
-
-	function handleCancellation(e: unknown) {
-		if (result.cancelled)
-			return {
-				render() {},
-			};
-		throw e;
-	}
-}
-
-function renderComponentImplFast(
-	result: SSRResult,
-	displayName: string,
-	Component: unknown,
-	props: Record<string | number, any>,
-	slots: ComponentSlots = {},
-): RenderInstance | Promise<RenderInstance> {
 	if (isFragmentComponent(Component)) {
 		return renderFragmentComponent(result, slots).catch(handleCancellation);
 	}

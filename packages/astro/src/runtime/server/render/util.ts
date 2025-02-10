@@ -153,13 +153,18 @@ export function renderElement(
 const noop = () => {};
 
 /**
- * Renders into a buffer until `renderToFinalDestination` is called (which
+ * Renders into a buffer until `flush` is called (which
  * flushes the buffer)
  */
 class BufferedRenderer implements RenderDestination, RendererFlusher {
 	private chunks: RenderDestinationChunk[] = [];
 	private renderPromise: Promise<void> | void;
 	private destination: RenderDestination;
+
+	/**
+	 * Determines whether buffer has been flushed
+	 * to the final destination.
+	 */
 	private flushed = false;
 
 	public constructor(destination: RenderDestination, renderFunction: RenderFunction) {
@@ -174,6 +179,11 @@ class BufferedRenderer implements RenderDestination, RendererFlusher {
 	}
 
 	public write(chunk: RenderDestinationChunk): void {
+		// Before the buffer has been flushed, we want to
+		// append to the buffer, afterwards we'll write
+		// to the underlying destination if subsequent
+		// writes arrive.
+
 		if (this.flushed) {
 			this.destination.write(chunk);
 		} else {
@@ -183,7 +193,7 @@ class BufferedRenderer implements RenderDestination, RendererFlusher {
 
 	public flush(): void | Promise<void> {
 		if (this.flushed) {
-			throw new Error('Already been flushed.');
+			throw new Error('The render buffer has already been flushed.');
 		}
 
 		this.flushed = true;
@@ -204,20 +214,20 @@ class BufferedRenderer implements RenderDestination, RendererFlusher {
 
 /**
  * Executes the `bufferRenderFunction` to prerender it into a buffer destination, and return a promise
- * with an object containing the `renderToFinalDestination` function to flush the buffer to the final
+ * with an object containing the `flush` function to flush the buffer to the final
  * destination.
  *
  * @example
  * ```ts
  * // Render components in parallel ahead of time
  * const finalRenders = [ComponentA, ComponentB].map((comp) => {
- *   return renderToBufferDestination(async (bufferDestination) => {
+ *   return createBufferedRenderer(finalDestination, async (bufferDestination) => {
  *     await renderComponentToDestination(bufferDestination);
  *   });
  * });
  * // Render array of components serially
  * for (const finalRender of finalRenders) {
- *   await finalRender.renderToFinalDestination(finalDestination);
+ *   await finalRender.flush();
  * }
  * ```
  */
@@ -229,6 +239,11 @@ export function createBufferedRenderer(
 }
 
 export interface RendererFlusher {
+	/**
+	 * Flushes the current renderer to the underlying renderer.
+	 *
+	 * See example of `createBufferedRenderer` for usage.
+	 */
 	flush(): void | Promise<void>;
 }
 

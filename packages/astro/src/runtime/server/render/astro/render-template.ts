@@ -1,7 +1,7 @@
 import { markHTMLString } from '../../escape.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
-import type { RenderDestination, } from '../common.js';
+import type { RenderDestination } from '../common.js';
 import { createBufferedRenderer } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
