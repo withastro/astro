@@ -173,6 +173,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 				subsets: family.subsets ?? DEFAULTS.subsets,
 				fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
 			};
+			// TODO: custom options for local provider
 			const { fonts: fontsData, fallbacks } = await resolveFont(family.name, resolvedOptions, [
 				family.provider,
 			]);

@@ -1,5 +1,9 @@
-import { providers } from 'unifont';
+import * as unifont from 'unifont';
 import { defineFontProvider } from '../helpers.js';
+
+// https://fonts.nuxt.com/get-started/providers#local
+// https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
+// https://github.com/unjs/unifont/blob/main/src/providers/google.ts
 
 export const LOCAL_PROVIDER_NAME = 'local';
 
@@ -10,8 +14,29 @@ export function local() {
 	});
 }
 
-// TODO: implement
-export const provider = () =>
-	Object.assign(providers.google(), {
-		_name: 'local',
-	});
+// TODO: pass a dev watcher?
+export const provider = unifont.defineFontProvider(LOCAL_PROVIDER_NAME, async ({}: {}, ctx) => {
+	// TODO: init
+
+	return {
+		// TODO: custom options
+		resolveFont: async (family, options) => {
+			return {
+				fonts: [],
+			};
+		},
+	};
+});
+
+// TODO: requires changes to types
+const exampleLocal = {
+	name: 'Roboto',
+	provider: 'local',
+	src: [
+		{
+			weights: ['400'],
+			styles: ['normal'],
+			path: './src/fonts/Roboto-400.woff',
+		},
+	],
+};
