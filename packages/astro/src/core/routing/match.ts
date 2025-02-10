@@ -60,7 +60,7 @@ export function isRouteServerIsland(route: RouteData): boolean {
 export function isRequestServerIsland(request: Request, base = ''): boolean {
 	const url = new URL(request.url);
 	const pathname =
-		base == '/' ? url.pathname.slice(base.length) : url.pathname.slice(base.length + 1);
+		base === '/' ? url.pathname.slice(base.length) : url.pathname.slice(base.length + 1);
 
 	return pathname.startsWith(SERVER_ISLAND_BASE_PREFIX);
 }
