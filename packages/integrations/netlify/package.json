@@ -45,7 +45,7 @@
     "vite": "^6.0.7"
   },
   "peerDependencies": {
-    "astro": "^5.0.0"
+    "astro": "^5.3.0"
   },
   "devDependencies": {
     "@netlify/edge-functions": "^2.11.1",
