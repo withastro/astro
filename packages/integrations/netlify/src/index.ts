@@ -140,10 +140,30 @@ async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroInt
 }
 
 export interface NetlifyIntegrationConfig {
-	/** Force files to be bundled with your function. This is helpful when you notice missing files. */
+	/**
+	 * Force files to be bundled with your SSR function.
+	 * This is useful for including any type of file that is not directly detected by the bundler,
+	 * like configuration files or assets that are dynamically imported at runtime.
+	 *
+	 * Note: File paths are resolved relative to your project's rootDir. Absolute paths may not work as expected.
+	 *
+	 * @example
+	 * ```js
+	 * includeFiles: ['./src/data/*.json', './src/locales/*.yml', './src/config/*.yaml']
+	 * ```
+	 */
 	includeFiles?: string[];
 
-	/** Exclude any files from the bundling process that would otherwise be included. */
+	/**
+	 * Exclude files from the bundling process.
+	 * This is useful for excluding any type of file that is not intended to be bundled with your SSR function,
+	 * such as large assets, temporary files, or sensitive local configuration files.
+	 *
+	 * @example
+	 * ```js
+	 * excludeFiles: ['./src/secret/*.json', './src/temp/*.txt']
+	 * ```
+	 */
 	excludeFiles?: string[];
 
 	/**
