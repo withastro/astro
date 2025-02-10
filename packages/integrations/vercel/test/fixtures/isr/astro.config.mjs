@@ -7,7 +7,7 @@ export default defineConfig({
 		isr: {
 			bypassToken: "1c9e601d-9943-4e7c-9575-005556d774a8",
 			expiration: 120,
-			exclude: ["/two", "/excluded/[dynamic]", "/excluded/[...rest]"]
+			exclude: ["/two", "/excluded/[dynamic]", "/excluded/[...rest]", /^\/api/]
 		}
 	})
 });
