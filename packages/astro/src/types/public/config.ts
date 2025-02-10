@@ -1740,16 +1740,16 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * See [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information.
 	 *
 	 * ```js title="astro.config.mjs"
-	 * 	{
-	 *  		session: {
-	 *    		// Required: the name of the Unstorage driver
-	 *    		driver: "redis",
-	 *   			// The required options depend on the driver
-	 *   			options: {
-	 *     			url: process.env.REDIS_URL,
-	 * 				}
-	 *   	},
-	 * 	}
+	 *   {
+	 *     session: {
+	 *       // Required: the name of the Unstorage driver
+	 *       driver: 'redis',
+	 *       // The required options depend on the driver
+	 *       options: {
+	 *         url: process.env.REDIS_URL,
+	 *       },
+	 *     }
+	 *   }
 	 * ```
 	 */
 	session?: SessionConfig<TSession>;
