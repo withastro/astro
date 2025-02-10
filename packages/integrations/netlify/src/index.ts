@@ -284,7 +284,7 @@ export default function netlifyIntegration(
 			absolute: true,
 			ignore: exclude,
 		});
-		return files.map((file) => new URL(pathToFileURL(file), _config.root));
+		return files.map((file) => new URL(pathToFileURL(file)));
 	}
 
 	async function writeSSRFunction({
