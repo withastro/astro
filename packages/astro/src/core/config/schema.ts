@@ -636,7 +636,7 @@ export const AstroConfigSchema = z.object({
 										.strict(),
 									z
 										.object({
-											provider: z.string(),
+											provider: z.string().optional().default(GOOGLE_PROVIDER_NAME),
 											name: z.string(),
 										})
 										.merge(resolveFontOptionsSchema.partial())

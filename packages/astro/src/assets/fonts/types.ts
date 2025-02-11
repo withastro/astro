@@ -25,11 +25,8 @@ interface FontFamilyAttributes extends Partial<ResolveFontOptions> {
 	provider: string;
 }
 
-// TODO: make provider optional and default to google
-export interface LocalFontFamily {
-	name: string;
+export interface LocalFontFamily extends Pick<FontFamilyAttributes, 'name'> {
 	provider: LocalProviderName;
-	// TODO: refine type
 	src: Array<Partial<ResolveFontOptions> & { paths: Array<string> }>;
 }
 
