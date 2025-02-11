@@ -3,7 +3,7 @@ name: Preview release
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize, labeled, ready_for_review]
+    types: [labeled]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}
@@ -55,6 +55,37 @@ jobs:
   
       - name: Build Packages
         run: pnpm run build
+        
+      - name: Changesets status
+        run: pnpm changeset status --output=changesets.json
+        
+      - name: Retrieve packages to publish
+        uses: actions/github-script@v7
+        id: packages
+        with:
+          script: |
+            const fs = require('fs');
+            let packages = JSON.parse(fs.readFileSync('changesets.json', 'utf8'));
+            const releases = packages.releases
+              .filter(p => {
+                return p.changesets.length > 0;
+              })
+              .map(p => p.name);
+            if (releases.length > 0) {
+              return releases.join(' ');
+            }
+            return ""
+          result-encoding: string
   
       - name: Publish packages
-        run: pnpx pkg-pr-new publish --pnpm './packages/*' './packages/integrations/*'
+        if: ${{ steps.packages.outputs.result != '' }}
+        run: pnpx pkg-pr-new publish --pnpm --compact ${{ steps.packages.outputs.result }} 
+        
+      - name: Add comment
+        if: ${{ steps.packages.outputs.result == '' }}
+        uses: peter-evans/create-or-update-comment@v4
+        continue-on-error: true
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: "No preview release was published. Make sure the PR contains a changeset."
+          edit-mode: replace
