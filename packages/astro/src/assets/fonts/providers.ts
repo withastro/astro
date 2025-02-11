@@ -1,17 +1,10 @@
 import { createRequire } from 'node:module';
 import type { AstroSettings } from '../../types/astro.js';
-import { adobe } from './providers/adobe.js';
 import { google } from './providers/google.js';
 import { local } from './providers/local.js';
 import type { FontProvider, ResolvedFontProvider } from './types.js';
 import { fileURLToPath } from 'node:url';
 import type { ModuleLoader } from '../../core/module-loader/loader.js';
-
-/** TODO: jsdoc */
-export const fontProviders = {
-	adobe,
-	// TODO: reexport all unifont providers
-};
 
 function resolveEntrypoint(settings: AstroSettings, entrypoint: string): string {
 	const require = createRequire(settings.config.root);
