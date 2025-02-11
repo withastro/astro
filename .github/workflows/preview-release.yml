@@ -79,7 +79,7 @@ jobs:
   
       - name: Publish packages
         if: ${{ steps.packages.outputs.result != '' }}
-        run: pnpx pkg-pr-new publish --pnpm ${{ steps.packages.outputs.result }} --compact
+        run: pnpx pkg-pr-new publish --pnpm --compact ${{ steps.packages.outputs.result }} 
         
       - name: Add comment
         permissions:
