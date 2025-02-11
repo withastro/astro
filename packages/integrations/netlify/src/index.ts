@@ -145,7 +145,7 @@ export interface NetlifyIntegrationConfig {
 	 * This is useful for including any type of file that is not directly detected by the bundler,
 	 * like configuration files or assets that are dynamically imported at runtime.
 	 *
-	 * Note: File paths are resolved relative to your project's rootDir. Absolute paths may not work as expected.
+	 * Note: File paths are resolved relative to your project's `root`. Absolute paths may not work as expected.
 	 *
 	 * @example
 	 * ```js
