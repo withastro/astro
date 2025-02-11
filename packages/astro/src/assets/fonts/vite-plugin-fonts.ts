@@ -23,8 +23,6 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ModuleLoader } from '../../core/module-loader/loader.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
 
-// TODO: maybe rename Fonts component to Font
-
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
@@ -32,7 +30,7 @@ interface Options {
 }
 
 /**
- * Preload data is used for links generation inside the <Fonts /> component
+ * Preload data is used for links generation inside the <Font /> component
  */
 type PreloadData = Array<{
 	/**

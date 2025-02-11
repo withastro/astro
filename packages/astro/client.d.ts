@@ -54,7 +54,7 @@ declare module 'astro:assets' {
 		inferRemoteSize: typeof import('./dist/assets/utils/index.js').inferRemoteSize;
 		Image: typeof import('./components/Image.astro').default;
 		Picture: typeof import('./components/Picture.astro').default;
-		Fonts: typeof import('./components/Fonts.astro').default;
+		Font: typeof import('./components/Font.astro').default;
 	};
 
 	type ImgAttributes = import('./dist/type-utils.js').WithRequired<

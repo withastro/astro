@@ -9,7 +9,7 @@ describe('astro:fonts', () => {
 	/** @type {import('./test-utils.js').DevServer} */
 	let devServer;
 
-	describe('<Fonts /> component', () => {
+	describe('<Font /> component', () => {
 		// TODO: remove once fonts are stabilized
 		describe('Fonts are not enabled', () => {
 			before(async () => {
