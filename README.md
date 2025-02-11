@@ -96,9 +96,7 @@ Astro is free, open source software made possible by these wonderful sponsors.
 
 <p align="center">
   <a target="_blank" href="https://opencollective.com/astrodotbuild">
-
-![Astro's sponsors.](https://astro.build/sponsors.png "Sponsor logos
-including the current Astro Sponsors, Gold Sponsors, and Exclusive Partner Sponsors: Netlify, Sentry, and Project IDX.")
-
+    <img src="https://astro.build/sponsors.png" alt="Sponsor logos
+including the current Astro Sponsors, Gold Sponsors, and Exclusive Partner Sponsors: Netlify, Sentry, and Project IDX." />
   </a>
 </p>
