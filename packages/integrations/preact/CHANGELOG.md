@@ -1,5 +1,17 @@
 # @astrojs/preact
 
+## 4.0.4
+
+### Patch Changes
+
+- [#12950](https://github.com/withastro/astro/pull/12950) [`c497491`](https://github.com/withastro/astro/commit/c497491cfe6a03f6a2118392d198ee1738754629) Thanks [@Marabyte](https://github.com/Marabyte)! - Upgrades `@preact/preset-vite`
+
+## 4.0.3
+
+### Patch Changes
+
+- [#13011](https://github.com/withastro/astro/pull/13011) [`cf30880`](https://github.com/withastro/astro/commit/cf3088060d45227dcb48e041c4ed5e0081d71398) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite
+
 ## 4.0.2
 
 ### Patch Changes

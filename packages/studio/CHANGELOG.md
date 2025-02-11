@@ -1,5 +1,11 @@
 # @astrojs/studio
 
+## 0.1.4
+
+### Patch Changes
+
+- [#13011](https://github.com/withastro/astro/pull/13011) [`cf30880`](https://github.com/withastro/astro/commit/cf3088060d45227dcb48e041c4ed5e0081d71398) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite
+
 ## 0.1.3
 
 ### Patch Changes
