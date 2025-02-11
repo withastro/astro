@@ -22,6 +22,7 @@ import { createCache, createStorage, type Cache } from './cache.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ModuleLoader } from '../../core/module-loader/loader.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
+import { LOCAL_PROVIDER_NAME } from './providers/local.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -124,7 +125,8 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 	}
 
 	const providers: Array<FontProvider<string>> = settings.config.experimental.fonts.providers ?? [];
-	const families: Array<FontFamily<string>> = settings.config.experimental.fonts.families;
+	const families: Array<FontFamily<'local' | 'custom'>> = settings.config.experimental.fonts
+		.families as any;
 
 	// We don't need to take the trailing slash and build output configuration options
 	// into account because we only serve (dev) or write (build) static assets (equivalent
@@ -165,16 +167,18 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 		resolvedMap = new Map();
 		hashToUrlMap = new Map();
 		for (const family of families) {
-			const resolvedOptions: unifont.ResolveFontOptions = {
-				weights: family.weights ?? DEFAULTS.weights,
-				styles: family.styles ?? DEFAULTS.styles,
-				subsets: family.subsets ?? DEFAULTS.subsets,
-				fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
-			};
-			// TODO: custom options for local provider
-			const { fonts: fontsData, fallbacks } = await resolveFont(family.name, resolvedOptions, [
-				family.provider,
-			]);
+			const { fonts: fontsData, fallbacks } = await resolveFont(
+				family.name,
+				family.provider === LOCAL_PROVIDER_NAME
+					? ({ src: family.src } as any)
+					: {
+							weights: family.weights ?? DEFAULTS.weights,
+							styles: family.styles ?? DEFAULTS.styles,
+							subsets: family.subsets ?? DEFAULTS.subsets,
+							fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
+						},
+				[family.provider],
+			);
 
 			// TODO: investigate using fontaine for fallbacks
 			const preloadData: PreloadData = [];

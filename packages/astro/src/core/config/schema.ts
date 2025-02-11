@@ -15,6 +15,9 @@ import { EnvSchema } from '../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { BUILTIN_PROVIDERS } from '../../assets/fonts/constants.js';
+import { resolveFontOptionsSchema } from '../../assets/fonts/config.js';
+import { GOOGLE_PROVIDER_NAME } from '../../assets/fonts/providers/google.js';
+import { LOCAL_PROVIDER_NAME } from '../../assets/fonts/providers/local.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
@@ -611,17 +614,38 @@ export const AstroConfigSchema = z.object({
 								.strict(),
 						)
 						.optional(),
-					// TODO: allow string and transform
 					// TODO: dedupe based on name and as
 					families: z.array(
 						z
-							.object({
-								name: z.string(),
-								provider: z.string(),
-								// TODO: discriminated union
-								src: z.string().optional(),
-							})
-							.strict(),
+							.union([
+								z.string(),
+								z
+									.object({
+										provider: z.literal(LOCAL_PROVIDER_NAME),
+										name: z.string(),
+										src: z.array(
+											z
+												.object({
+													paths: z.array(z.string()).nonempty(),
+												})
+												.merge(resolveFontOptionsSchema.partial())
+												.strict(),
+										),
+									})
+									.strict(),
+								z
+									.object({
+										provider: z.string(),
+										name: z.string(),
+									})
+									.merge(resolveFontOptionsSchema.partial())
+									.strict(),
+							])
+							.transform((family) =>
+								typeof family === 'string'
+									? { name: family, provider: GOOGLE_PROVIDER_NAME }
+									: family,
+							),
 					),
 				})
 				.strict()

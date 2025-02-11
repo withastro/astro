@@ -1,5 +1,6 @@
 import * as unifont from 'unifont';
 import { defineFontProvider } from '../helpers.js';
+import type { LocalFontFamily } from '../types.js';
 
 // https://fonts.nuxt.com/get-started/providers#local
 // https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
@@ -20,7 +21,9 @@ export const provider = unifont.defineFontProvider(LOCAL_PROVIDER_NAME, async ({
 
 	return {
 		// TODO: custom options
-		resolveFont: async (family, options) => {
+		resolveFont: async (family, _options) => {
+			const options = (_options as any).src as LocalFontFamily['src'];
+			console.log(options);
 			return {
 				fonts: [],
 			};
