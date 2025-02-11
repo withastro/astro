@@ -82,8 +82,6 @@ jobs:
         run: pnpx pkg-pr-new publish --pnpm --compact ${{ steps.packages.outputs.result }} 
         
       - name: Add comment
-        permissions:
-          pull-requests: write
         if: ${{ steps.packages.outputs.result == '' }}
         uses: peter-evans/create-or-update-comment@v4
         continue-on-error: true
