@@ -175,7 +175,7 @@ class AstroBuilder {
 		this.validateConfig();
 
 		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
-		this.logger.info('build', `ssr: ${blue((this.settings.buildOutput == 'server' ? 'enabled' : 'disabled'))}`);
+		this.logger.info('build', `mode: ${blue((this.settings.buildOutput))}`);
 		this.logger.info('build', `directory: ${blue(fileURLToPath(this.settings.config.outDir))}`);
 		if (this.settings.adapter) {
 			this.logger.info('build', `adapter: ${green(this.settings.adapter.name)}`);
