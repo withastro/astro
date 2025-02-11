@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Changes the data parameter in paginate to readonly
+Allows readonly arrays to be passed to the `paginate()` function
