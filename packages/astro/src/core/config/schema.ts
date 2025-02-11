@@ -614,39 +614,45 @@ export const AstroConfigSchema = z.object({
 								.strict(),
 						)
 						.optional(),
-					// TODO: dedupe based on name and as
-					families: z.array(
-						z
-							.union([
-								z.string(),
-								z
-									.object({
-										provider: z.literal(LOCAL_PROVIDER_NAME),
-										name: z.string(),
-										src: z.array(
-											z
-												.object({
-													paths: z.array(z.string()).nonempty(),
-												})
-												.merge(resolveFontOptionsSchema.partial())
-												.strict(),
-										),
-									})
-									.strict(),
-								z
-									.object({
-										provider: z.string(),
-										name: z.string(),
-									})
-									.merge(resolveFontOptionsSchema.partial())
-									.strict(),
-							])
-							.transform((family) =>
-								typeof family === 'string'
-									? { name: family, provider: GOOGLE_PROVIDER_NAME }
-									: family,
-							),
-					),
+					// TODO: support family.as
+					families: z
+						.array(
+							z
+								.union([
+									z.string(),
+									z
+										.object({
+											provider: z.literal(LOCAL_PROVIDER_NAME),
+											name: z.string(),
+											src: z.array(
+												z
+													.object({
+														paths: z.array(z.string()).nonempty(),
+													})
+													.merge(resolveFontOptionsSchema.partial())
+													.strict(),
+											),
+										})
+										.strict(),
+									z
+										.object({
+											provider: z.string(),
+											name: z.string(),
+										})
+										.merge(resolveFontOptionsSchema.partial())
+										.strict(),
+								])
+								.transform((family) =>
+									typeof family === 'string'
+										? { name: family, provider: GOOGLE_PROVIDER_NAME }
+										: family,
+								),
+						)
+						// We dedupe families
+						.transform((families) => [
+							// TODO: support family.as
+							...new Map(families.map((family) => [family.name, family])).values(),
+						]),
 				})
 				.strict()
 				.optional()
