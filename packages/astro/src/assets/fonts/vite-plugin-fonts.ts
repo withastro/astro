@@ -189,6 +189,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 					// 1. local and has a name
 					// 2. remote and has an url
 					// Once we have the key, it's safe to access the related source property
+					// TODO: we should probably ignore local font sources
 					const key = 'name' in source ? 'name' : 'url';
 					const value = source[key];
 					const hash = h64ToString(value) + extname(value);
@@ -208,6 +209,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 					// Now that we collected the original url, we override it with our proxy
 					source[key] = url;
 				}
+				// TODO: support optional as prop
 				css += generateFontFace(family.name, data);
 			}
 			resolvedMap.set(family.name, { preloadData, css });

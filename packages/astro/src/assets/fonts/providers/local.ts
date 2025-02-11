@@ -30,16 +30,3 @@ export const provider = unifont.defineFontProvider(LOCAL_PROVIDER_NAME, async ({
 		},
 	};
 });
-
-// TODO: requires changes to types
-const exampleLocal = {
-	name: 'Roboto',
-	provider: 'local',
-	src: [
-		{
-			weights: ['400'],
-			styles: ['normal'],
-			path: './src/fonts/Roboto-400.woff',
-		},
-	],
-};
