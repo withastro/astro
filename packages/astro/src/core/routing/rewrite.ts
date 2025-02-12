@@ -45,15 +45,31 @@ export function findRouteToRewrite({
 	} else {
 		newUrl = new URL(payload, new URL(request.url).origin);
 	}
+
 	let pathname = newUrl.pathname;
+
+	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
+
 	if (base !== '/' && newUrl.pathname.startsWith(base)) {
-		pathname = shouldAppendForwardSlash(trailingSlash, buildFormat)
+		pathname = shouldAppendSlash
 			? appendForwardSlash(newUrl.pathname)
 			: removeTrailingForwardSlash(newUrl.pathname);
 		pathname = pathname.slice(base.length);
 	}
 
+	if (pathname === '/' && base !== '/' && !shouldAppendSlash) {
+		// in this case the pattern will look for '/^$/' so '/' will never match
+		pathname = ''
+	}
+
+	if (!pathname.startsWith('/') && shouldAppendSlash) {
+		pathname = '/' + pathname
+	}
+
+	newUrl.pathname = (base + pathname).replace("//", '/');
+
 	const decodedPathname = decodeURI(pathname);
+
 	let foundRoute;
 	for (const route of routes) {
 		if (route.pattern.test(decodedPathname)) {
