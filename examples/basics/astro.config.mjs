@@ -6,8 +6,9 @@ export default defineConfig({
     experimental: {
         fonts: {
             families: [
+                "Roboto",
                 {
-                    name: "Roboto",
+                    name: "Test",
                     provider: "local",
                     src: [
                         {

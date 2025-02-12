@@ -22,7 +22,7 @@ import { createCache, createStorage, type Cache } from './cache.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ModuleLoader } from '../../core/module-loader/loader.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
-import { LOCAL_PROVIDER_NAME } from './providers/local.js';
+import { createLocalProvider, LOCAL_PROVIDER_NAME } from './providers/local.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -162,57 +162,58 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			resolved.map((e) => e.provider(e.config)),
 			{ storage },
 		);
+		const { resolveFont: resolveLocalFont } = createLocalProvider({ root: settings.config.root });
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory
 		resolvedMap = new Map();
 		hashToUrlMap = new Map();
+		// TODO: investigate using fontaine for fallbacks
 		for (const family of families) {
-			const { fonts: fontsData, fallbacks } = await resolveFont(
-				family.name,
-				family.provider === LOCAL_PROVIDER_NAME
-					? ({ src: family.src } as any)
-					: {
-							weights: family.weights ?? DEFAULTS.weights,
-							styles: family.styles ?? DEFAULTS.styles,
-							subsets: family.subsets ?? DEFAULTS.subsets,
-							fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
-						},
-				[family.provider],
-			);
+			if (family.provider === LOCAL_PROVIDER_NAME) {
+				const { fonts: fontsData, fallbacks } = await resolveLocalFont(family);
+				// TODO: handle
+			} else {
+				const { fonts: fontsData, fallbacks } = await resolveFont(
+					family.name,
+					{
+						weights: family.weights ?? DEFAULTS.weights,
+						styles: family.styles ?? DEFAULTS.styles,
+						subsets: family.subsets ?? DEFAULTS.subsets,
+						fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
+					},
+					[family.provider],
+				);
 
-			// TODO: investigate using fontaine for fallbacks
-			const preloadData: PreloadData = [];
-			let css = '';
-			for (const data of fontsData) {
-				for (const source of data.src as unknown as Array<Record<string, string>>) {
-					// Types are wonky but a source is
-					// 1. local and has a name
-					// 2. remote and has an url
-					// Once we have the key, it's safe to access the related source property
-					// TODO: we should probably ignore local font sources
-					const key = 'name' in source ? 'name' : 'url';
-					const value = source[key];
-					const hash = h64ToString(value) + extname(value);
-					const url = baseUrl + hash;
-					if (!hashToUrlMap.has(hash)) {
-						hashToUrlMap.set(hash, value);
-						const segments = hash.split('.');
-						// It's safe, there's at least 1 member in the array
-						const type = segments.at(-1)!;
-						if (segments.length === 1 || !FONT_TYPES.includes(type)) {
-							// TODO: AstroError
-							throw new Error("can't extract type from filename");
+				const preloadData: PreloadData = [];
+				let css = '';
+				for (const data of fontsData) {
+					for (const source of data.src) {
+						if ('name' in source) {
+							continue;
 						}
-						// TODO: investigate if the extension matches the type, see https://github.com/unjs/unifont/blob/fd3828f6f809f54a188a9eb220e7eb99b3ec3960/src/css/parse.ts#L15-L22
-						preloadData.push({ url, type });
+						const value = source.url;
+						const hash = h64ToString(value) + extname(value);
+						const url = baseUrl + hash;
+						if (!hashToUrlMap.has(hash)) {
+							hashToUrlMap.set(hash, value);
+							const segments = hash.split('.');
+							// It's safe, there's at least 1 member in the array
+							const type = segments.at(-1)!;
+							if (segments.length === 1 || !FONT_TYPES.includes(type)) {
+								// TODO: AstroError
+								throw new Error("can't extract type from filename");
+							}
+							// TODO: investigate if the extension matches the type, see https://github.com/unjs/unifont/blob/fd3828f6f809f54a188a9eb220e7eb99b3ec3960/src/css/parse.ts#L15-L22
+							preloadData.push({ url, type });
+						}
+						// Now that we collected the original url, we override it with our proxy
+						source.url = url;
 					}
-					// Now that we collected the original url, we override it with our proxy
-					source[key] = url;
+					// TODO: support optional as prop
+					css += generateFontFace(family.name, data);
 				}
-				// TODO: support optional as prop
-				css += generateFontFace(family.name, data);
+				resolvedMap.set(family.name, { preloadData, css });
 			}
-			resolvedMap.set(family.name, { preloadData, css });
 		}
 		logger.info('assets', 'Fonts initialized');
 	}
