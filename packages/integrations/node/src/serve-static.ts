@@ -2,11 +2,10 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 import url from 'node:url';
+import { hasFileExtension } from '@astrojs/internal-helpers/path';
 import type { NodeApp } from 'astro/app/node';
 import send from 'send';
 import type { Options } from './types.js';
-import { hasFileExtension } from '@astrojs/internal-helpers/path';
-
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.

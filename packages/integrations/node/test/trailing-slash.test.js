@@ -154,7 +154,9 @@ describe('Trailing slash', () => {
 			});
 
 			it('Does not add trailing slash to subresource urls', async () => {
-				const res = await fetch(`http://${server.host}:${server.port}/one.css`, { redirect: 'manual' });
+				const res = await fetch(`http://${server.host}:${server.port}/one.css`, {
+					redirect: 'manual',
+				});
 				const css = await res.text();
 
 				assert.equal(res.status, 200);
