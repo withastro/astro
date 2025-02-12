@@ -152,7 +152,8 @@ export async function createMarkdownProcessor(
 				code: String(result.value),
 				metadata: {
 					headings: result.data.astro?.headings ?? [],
-					imagePaths: result.data.astro?.imagePaths ?? [],
+					localImagePaths: result.data.astro?.localImagePaths ?? [],
+					remoteImagePaths: result.data.astro?.remoteImagePaths ?? [],
 					frontmatter: result.data.astro?.frontmatter ?? {},
 				},
 			};

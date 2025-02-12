@@ -1,35 +1,36 @@
-import type { Image, ImageReference } from 'mdast';
+import type { Root } from 'mdast';
 import { definitions } from 'mdast-util-definitions';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
 
 export function remarkCollectImages() {
-	return function (tree: any, vfile: VFile) {
+	return function (tree: Root, vfile: VFile) {
 		if (typeof vfile?.path !== 'string') return;
 
 		const definition = definitions(tree);
-		const imagePaths = new Set<string>();
-		visit(tree, ['image', 'imageReference'], (node: Image | ImageReference) => {
+		const localImagePaths = new Set<string>();
+		const remoteImagePaths = new Set<string>();
+		visit(tree, (node) => {
+			let url: string | undefined;
 			if (node.type === 'image') {
-				if (shouldOptimizeImage(node.url)) imagePaths.add(decodeURI(node.url));
-			}
-			if (node.type === 'imageReference') {
+				url = decodeURI(node.url);
+			} else if (node.type === 'imageReference') {
 				const imageDefinition = definition(node.identifier);
 				if (imageDefinition) {
-					if (shouldOptimizeImage(imageDefinition.url))
-						imagePaths.add(decodeURI(imageDefinition.url));
+					url = decodeURI(imageDefinition.url);
 				}
 			}
+
+			if (!url) return;
+			else if (isValidUrl(url)) remoteImagePaths.add(url);	
+			// Only optimize local images, not paths to `/public`
+			else if (!url.startsWith("/")) localImagePaths.add(url);
 		});
 
 		vfile.data.astro ??= {};
-		vfile.data.astro.imagePaths = Array.from(imagePaths);
+		vfile.data.astro.localImagePaths = Array.from(localImagePaths);
+		vfile.data.astro.remoteImagePaths = Array.from(remoteImagePaths);
 	};
-}
-
-function shouldOptimizeImage(src: string) {
-	// Optimize anything that is NOT external or an absolute path to `public/`
-	return !isValidUrl(src) && !src.startsWith('/');
 }
 
 function isValidUrl(str: string): boolean {
