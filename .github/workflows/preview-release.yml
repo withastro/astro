@@ -2,8 +2,7 @@ name: Preview release
 
 on:
   pull_request:
-    branches: [main]
-    types: [opened, synchronize, labeled, ready_for_review]
+    types: [labeled]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}
@@ -37,10 +36,9 @@ jobs:
     steps:
       - name: Disable git crlf
         run: git config --global core.autocrlf false
-  
-      - name: Checkout
-        uses: actions/checkout@v4
-  
+
+      - uses: actions/checkout@v4
+      
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
   
@@ -55,6 +53,28 @@ jobs:
   
       - name: Build Packages
         run: pnpm run build
+        
+#      - name: Changesets status
+#        run: pnpm changeset status --output=changesets.json
+#        
+#      - name: Retrieve packages to publish
+#        uses: actions/github-script@v7
+#        id: packages
+#        with:
+#          script: |
+#            const fs = require('fs');
+#            let packages = JSON.parse(fs.readFileSync('changesets.json', 'utf8'));
+#            const releases = packages.releases
+#              .filter(p => {
+#                return p.changesets.length > 0;
+#              })
+#              .map(p => p.name);
+#            if (releases.length > 0) {
+#              return releases.join(' ');
+#            }
+#            return ""
+#          result-encoding: string
   
       - name: Publish packages
-        run: pnpx pkg-pr-new publish --pnpm './packages/*' './packages/integrations/*'
+        run: |
+          pnpx pkg-pr-new publish --pnpm --compact 'packages/astro' 'packages/integrations/node' 'packages/integrations/cloudflare' 'packages/integrations/netlify' 'packages/integrations/vercel' 

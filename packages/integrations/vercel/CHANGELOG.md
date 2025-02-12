@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 8.0.7
+
+### Patch Changes
+
+- [#13224](https://github.com/withastro/astro/pull/13224) [`8e5b89c`](https://github.com/withastro/astro/commit/8e5b89c5eb3e68585c0ab84c2c516d75adcf2997) Thanks [@ascorbic](https://github.com/ascorbic)! - Unpins `@vercel/routing-utils` dependency as bug has been fixed
+
 ## 8.0.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 9.0.3
+
+### Patch Changes
+
+- [#13223](https://github.com/withastro/astro/pull/13223) [`23094a1`](https://github.com/withastro/astro/commit/23094a1f48d0dfb12c5866a3713f52106ef927dd) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused incorrect redirects for static files with numbers in the file extension
+
 ## 9.0.2
 
 ### Patch Changes
