@@ -1,5 +1,3 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
