@@ -76,5 +76,4 @@ jobs:
 #          result-encoding: string
   
       - name: Publish packages
-        run: |
-          pnpx pkg-pr-new publish --pnpm --compact 'packages/astro' 'packages/integrations/node' 'packages/integrations/cloudflare' 'packages/integrations/netlify' 'packages/integrations/vercel' 
+        run: pnpx pkg-pr-new publish --pnpm --compact 'packages/astro' 
