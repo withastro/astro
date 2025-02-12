@@ -31,6 +31,7 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
     "send": "^1.1.0",
     "server-destroy": "^1.0.1"
   },
