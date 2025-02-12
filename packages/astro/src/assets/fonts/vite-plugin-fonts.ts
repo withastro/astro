@@ -18,12 +18,15 @@ import {
 } from './constants.js';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
-import { createCache, createStorage, type Cache } from './cache.js';
+import { createCache, type Cache } from './cache.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ModuleLoader } from '../../core/module-loader/loader.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
 import { createLocalProvider, LOCAL_PROVIDER_NAME } from './providers/local.js';
 import { readFile } from 'node:fs/promises';
+import { createStorage } from 'unstorage';
+import fsLiteDriver from 'unstorage/drivers/fs-lite';
+import { fileURLToPath } from 'node:url';
 
 interface Options {
 	settings: AstroSettings;
@@ -95,14 +98,14 @@ const createLogManager = (logger: Logger) => {
 	};
 };
 
-async function fetchFont(url: string): Promise<string> {
+async function fetchFont(url: string): Promise<Buffer> {
 	try {
 		if (isAbsolute(url)) {
-			return await readFile(url, 'utf-8');
+			return await readFile(url);
 		}
 		const r = await fetch(url);
 		const arr = await r.arrayBuffer();
-		return Buffer.from(arr).toString();
+		return Buffer.from(arr);
 	} catch (e) {
 		// TODO: AstroError
 		throw new Error('Error downloading font file', { cause: e });
@@ -155,11 +158,16 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 		});
 
 		const storage = createStorage({
-			// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
-			base: isBuild
-				? new URL(CACHE_DIR, settings.config.cacheDir)
-				: new URL(CACHE_DIR, settings.dotAstroDir),
+			driver: (fsLiteDriver as unknown as typeof fsLiteDriver.default)({
+				base: fileURLToPath(
+					// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
+					isBuild
+						? new URL(CACHE_DIR, settings.config.cacheDir)
+						: new URL(CACHE_DIR, settings.dotAstroDir),
+				),
+			}),
 		});
+
 		cache = createCache({ storage }).cache;
 
 		const { resolveFont } = await unifont.createUnifont(
