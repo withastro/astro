@@ -21,4 +21,6 @@ defineConfig({
 });
 ```
 
-You do not need to configure the session driver if you are using an adapter that supports automatic session driver configuration. For more information, see the [experimental session docs](https://docs.astro.build/en/reference/experimental-flags/sessions/).
+You no longer need to configure a session driver if you are using an adapter that supports automatic session driver configuration and wish to use its default settings.
+
+However, you can still manually configure additional driver options or choose a non-default driver to use with your adapter with the new top-level `session` config option. For more information, see the [experimental session docs](https://docs.astro.build/en/reference/experimental-flags/sessions/).
