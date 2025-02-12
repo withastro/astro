@@ -2,7 +2,6 @@
 'astro': minor
 ---
 
-Provide default implementation for `HEAD` requests for endpoints which not explicitly implemented it
+Handle `HEAD` requests to an endpoint when a handler is not defined.
 
-If an endpoint defines a `GET` handler but no specific handler for `HEAD`, Astro will now call the `GET` handler and return the headers and status but an empty body. 
-If you would like to have custom handling for `HEAD` requests you can define a handler for it and it will use that instead.
+If an endpoint defines a handler for `GET`, but does not define a handler for `HEAD`, Astro will call the `GET` handler and return the headers and status but an empty body.
