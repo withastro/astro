@@ -37,9 +37,26 @@ jobs:
     steps:
       - name: Disable git crlf
         run: git config --global core.autocrlf false
-  
-      - name: Checkout
-        uses: actions/checkout@v4
+
+
+      - name: resolve pr refs
+        id: refs
+        uses: eficode/resolve-pr-refs@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.refs.outputs.head_ref }}
+          fetch-depth: 0
+
+      - name: Extract base branch from .changeset/config.json
+        id: getBaseBranch
+        run: |
+          baseBranch=$(jq -r '.baseBranch' .changeset/config.json)
+          echo "baseBranch=${baseBranch}" >> $GITHUB_OUTPUT
+
+      - run: git fetch origin ${{ steps.getBaseBranch.outputs.baseBranch }}:${{ steps.getBaseBranch.outputs.baseBranch }}
   
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
@@ -82,8 +99,6 @@ jobs:
         run: pnpx pkg-pr-new publish --pnpm --compact ${{ steps.packages.outputs.result }} 
         
       - name: Add comment
-        permissions:
-          pull-requests: write
         if: ${{ steps.packages.outputs.result == '' }}
         uses: peter-evans/create-or-update-comment@v4
         continue-on-error: true
