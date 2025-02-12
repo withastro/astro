@@ -2,7 +2,6 @@ name: Preview release
 
 on:
   pull_request:
-    branches: [main]
     types: [labeled]
 
 concurrency:
@@ -38,14 +37,8 @@ jobs:
       - name: Disable git crlf
         run: git config --global core.autocrlf false
 
-#      - name: Extract base branch from .changeset/config.json
-#        id: getBaseBranch
-#        run: |
-#          baseBranch=$(jq -r '.baseBranch' .changeset/config.json)
-#          echo "baseBranch=${baseBranch}" >> $GITHUB_OUTPUT
-#
-#      - run: git fetch origin ${{ steps.getBaseBranch.outputs.baseBranch }}:${{ steps.getBaseBranch.outputs.baseBranch }}
-  
+      - uses: actions/checkout@v4
+      
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
   
