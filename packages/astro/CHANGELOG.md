@@ -1,5 +1,17 @@
 # astro
 
+## 5.2.6
+
+### Patch Changes
+
+- [#13188](https://github.com/withastro/astro/pull/13188) [`7bc8256`](https://github.com/withastro/astro/commit/7bc825649bfb790a0206abd31df1676513a03b22) Thanks [@ematipico](https://github.com/ematipico)! - Fixes the wording of the an error message
+
+- [#13205](https://github.com/withastro/astro/pull/13205) [`9d56602`](https://github.com/withastro/astro/commit/9d5660223b46e024b4e8c8eafead8a4e20e28ec5) Thanks [@ematipico](https://github.com/ematipico)! - Fixes and issue where a server island component returns 404 when `base` is configured in i18n project.
+
+- [#13212](https://github.com/withastro/astro/pull/13212) [`fb38840`](https://github.com/withastro/astro/commit/fb3884074f261523cd89fe6e1745a0e9c01198f2) Thanks [@joshmkennedy](https://github.com/joshmkennedy)! - An additional has been added during the build command to add clarity around output and buildOutput.
+
+- [#13213](https://github.com/withastro/astro/pull/13213) [`6bac644`](https://github.com/withastro/astro/commit/6bac644241bc42bb565730955ffd575878a0e41b) Thanks [@joshmkennedy](https://github.com/joshmkennedy)! - Allows readonly arrays to be passed to the `paginate()` function
+
 ## 5.2.5
 
 ### Patch Changes
