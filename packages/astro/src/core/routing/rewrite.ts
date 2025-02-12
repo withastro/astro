@@ -66,7 +66,7 @@ export function findRouteToRewrite({
 		pathname = '/' + pathname
 	}
 
-	newUrl.pathname = (base + pathname).replace("//", '/');
+	newUrl.pathname = (base + pathname).replace(/\/{2,}/g, '/');
 
 	const decodedPathname = decodeURI(pathname);
 
