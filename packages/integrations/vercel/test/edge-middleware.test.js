@@ -31,15 +31,21 @@ describe('Vercel edge middleware', () => {
 	});
 
 	it('edge sets Set-Cookie headers', async () => {
+		console.time('edge');
 		const entry = new URL(
 			'../.vercel/output/functions/_middleware.func/middleware.mjs',
 			build.config.outDir,
 		);
+		console.timeLog('edge', 'importing');
 		const module = await import(entry);
+		console.timeLog('edge', 'imported');
 		const request = new Request('http://example.com/foo');
 		const response = await module.default(request, {});
+		console.timeLog('edge', 'response');
 		assert.equal(response.headers.get('set-cookie'), 'foo=bar');
+
 		assert.ok((await response.text()).length, 'Body is included');
+		console.timeEnd('edge');
 	});
 
 	// TODO: The path here seems to be inconsistent?
