@@ -2,9 +2,9 @@ import * as assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import netlify from '@astrojs/netlify';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
 import * as cheerio from 'cheerio';
 import glob from 'fast-glob';
+import { loadFixture } from '../../../../astro/test/test-utils.js';
 
 describe(
 	'Included vite assets files',
