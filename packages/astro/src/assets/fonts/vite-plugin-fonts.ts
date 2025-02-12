@@ -4,7 +4,7 @@ import { resolveProviders } from './providers.js';
 import * as unifont from 'unifont';
 import type { FontFamily, FontProvider } from './types.js';
 import xxhash from 'xxhash-wasm';
-import { extname } from 'node:path';
+import { extname, isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { generateFontFace } from './utils.js';
@@ -23,6 +23,7 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ModuleLoader } from '../../core/module-loader/loader.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
 import { createLocalProvider, LOCAL_PROVIDER_NAME } from './providers/local.js';
+import { readFile } from 'node:fs/promises';
 
 interface Options {
 	settings: AstroSettings;
@@ -96,6 +97,9 @@ const createLogManager = (logger: Logger) => {
 
 async function fetchFont(url: string): Promise<string> {
 	try {
+		if (isAbsolute(url)) {
+			return await readFile(url, 'utf-8');
+		}
 		const r = await fetch(url);
 		const arr = await r.arrayBuffer();
 		return Buffer.from(arr).toString();
@@ -162,16 +166,42 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			resolved.map((e) => e.provider(e.config)),
 			{ storage },
 		);
-		const { resolveFont: resolveLocalFont } = createLocalProvider({ root: settings.config.root });
+
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory
 		resolvedMap = new Map();
 		hashToUrlMap = new Map();
+
+		const { resolveFont: resolveLocalFont } = createLocalProvider({ root: settings.config.root });
 		// TODO: investigate using fontaine for fallbacks
 		for (const family of families) {
+			const preloadData: PreloadData = [];
+			let css = '';
+
+			function proxySourceURL(value: string) {
+				const hash = h64ToString(value) + extname(value);
+				const url = baseUrl + hash;
+				if (!hashToUrlMap!.has(hash)) {
+					hashToUrlMap!.set(hash, value);
+					const segments = hash.split('.');
+					// It's safe, there's at least 1 member in the array
+					const type = segments.at(-1)!;
+					if (segments.length === 1 || !FONT_TYPES.includes(type)) {
+						// TODO: AstroError
+						throw new Error("can't extract type from filename");
+					}
+					// TODO: investigate if the extension matches the type, see https://github.com/unjs/unifont/blob/fd3828f6f809f54a188a9eb220e7eb99b3ec3960/src/css/parse.ts#L15-L22
+					preloadData.push({ url, type });
+				}
+				// Now that we collected the original url, we override it with our proxy
+				return url;
+			}
+
 			if (family.provider === LOCAL_PROVIDER_NAME) {
-				const { fonts: fontsData, fallbacks } = await resolveLocalFont(family);
-				// TODO: handle
+				const { fonts: fontsData, fallbacks } = await resolveLocalFont(family, { proxySourceURL });
+				for (const data of fontsData) {
+					css += generateFontFace(family.name, data);
+				}
 			} else {
 				const { fonts: fontsData, fallbacks } = await resolveFont(
 					family.name,
@@ -184,36 +214,18 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 					[family.provider],
 				);
 
-				const preloadData: PreloadData = [];
-				let css = '';
 				for (const data of fontsData) {
 					for (const source of data.src) {
 						if ('name' in source) {
 							continue;
 						}
-						const value = source.url;
-						const hash = h64ToString(value) + extname(value);
-						const url = baseUrl + hash;
-						if (!hashToUrlMap.has(hash)) {
-							hashToUrlMap.set(hash, value);
-							const segments = hash.split('.');
-							// It's safe, there's at least 1 member in the array
-							const type = segments.at(-1)!;
-							if (segments.length === 1 || !FONT_TYPES.includes(type)) {
-								// TODO: AstroError
-								throw new Error("can't extract type from filename");
-							}
-							// TODO: investigate if the extension matches the type, see https://github.com/unjs/unifont/blob/fd3828f6f809f54a188a9eb220e7eb99b3ec3960/src/css/parse.ts#L15-L22
-							preloadData.push({ url, type });
-						}
-						// Now that we collected the original url, we override it with our proxy
-						source.url = url;
+						source.url = proxySourceURL(source.url);
 					}
 					// TODO: support optional as prop
 					css += generateFontFace(family.name, data);
 				}
-				resolvedMap.set(family.name, { preloadData, css });
 			}
+			resolvedMap.set(family.name, { preloadData, css });
 		}
 		logger.info('assets', 'Fonts initialized');
 	}
