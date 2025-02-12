@@ -14,6 +14,7 @@ import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.j
 import { mergeConfig } from '../core/config/index.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
+import { validateSessionConfig } from '../core/session.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {
@@ -369,6 +370,11 @@ export async function runHookConfigDone({
 			});
 		}
 	}
+	// Session config is validated after all integrations have had a chance to 
+	// register a default session driver, and we know the output type.
+	// This can't happen in the Zod schema because it that happens before adapters run
+	// and also doesn't know whether it's a server build or static build.
+	validateSessionConfig(settings);
 }
 
 export async function runHookServerSetup({

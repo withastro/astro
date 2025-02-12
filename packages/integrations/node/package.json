@@ -36,7 +36,7 @@
     "server-destroy": "^1.0.1"
   },
   "peerDependencies": {
-    "astro": "^5.0.0"
+    "astro": "^5.3.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
@@ -45,6 +45,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
+    "devalue": "^5.1.1",
     "express": "^4.21.2",
     "node-mocks-http": "^1.16.2"
   },

@@ -3707,9 +3707,6 @@ importers:
 
   packages/astro/test/fixtures/sessions:
     dependencies:
-      '@netlify/blobs':
-        specifier: ^8.1.0
-        version: 8.1.0
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -5176,11 +5173,14 @@ importers:
   packages/integrations/netlify:
     dependencies:
       '@astrojs/internal-helpers':
-        specifier: 0.5.1
+        specifier: workspace:*
         version: link:../../internal-helpers
       '@astrojs/underscore-redirects':
-        specifier: ^0.6.0
+        specifier: workspace:*
         version: link:../../underscore-redirects
+      '@netlify/blobs':
+        specifier: ^8.1.0
+        version: 8.1.0
       '@netlify/functions':
         specifier: ^2.8.0
         version: 2.8.2
@@ -5212,6 +5212,9 @@ importers:
       cheerio:
         specifier: 1.0.0
         version: 1.0.0
+      devalue:
+        specifier: ^5.1.1
+        version: 5.1.1
       execa:
         specifier: ^8.0.1
         version: 8.0.1
@@ -5254,6 +5257,16 @@ importers:
       '@astrojs/netlify':
         specifier: 'workspace:'
         version: link:../../../..
+
+  packages/integrations/netlify/test/functions/fixtures/sessions:
+    dependencies:
+      '@astrojs/netlify':
+        specifier: workspace:*
+        version: link:../../../..
+    devDependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
 
   packages/integrations/netlify/test/hosted/hosted-astro-project:
     dependencies:
@@ -5300,6 +5313,9 @@ importers:
       cheerio:
         specifier: 1.0.0
         version: 1.0.0
+      devalue:
+        specifier: ^5.1.1
+        version: 5.1.1
       express:
         specifier: ^4.21.2
         version: 4.21.2
@@ -5398,6 +5414,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/node/test/fixtures/preview-headers:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/node/test/fixtures/sessions:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*

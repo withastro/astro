@@ -1,8 +1,9 @@
 {
-  "name": "@test/sessions",
+  "name": "@test/node-sessions",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/node": "workspace:*",
     "astro": "workspace:*"
   }
 }

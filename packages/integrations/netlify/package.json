@@ -36,15 +36,16 @@
     "test:hosted": "astro-scripts test \"test/hosted/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "0.5.1",
-    "@astrojs/underscore-redirects": "^0.6.0",
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/underscore-redirects": "workspace:*",
+    "@netlify/blobs": "^8.1.0",
     "@netlify/functions": "^2.8.0",
     "@vercel/nft": "^0.29.0",
     "esbuild": "^0.24.0",
     "vite": "^6.0.7"
   },
   "peerDependencies": {
-    "astro": "^5.0.0"
+    "astro": "^5.3.0"
   },
   "devDependencies": {
     "@netlify/edge-functions": "^2.11.1",
@@ -53,6 +54,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
+    "devalue": "^5.1.1",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.3",
     "strip-ansi": "^7.1.0",
