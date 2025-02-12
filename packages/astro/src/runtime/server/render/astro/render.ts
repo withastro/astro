@@ -318,21 +318,13 @@ export async function renderToAsyncIterable(
 		},
 	};
 
-	let renderPromise = templateResult.render(destination);
+	const renderResult = toPromise(() => templateResult.render(destination));
 
-	if (!isPromise(renderPromise)) {
-		renderPromise = Promise.resolve(renderPromise);
-	}
-
-	renderPromise
-		.then(() => {
-			// Once rendering is complete, calling resolve() allows the iterator to finish running.
-			renderingComplete = true;
-			next?.resolve();
-		})
+	renderResult
 		.catch((err) => {
-			// If an error occurs, save it in the scope so that we throw it when next() is called.
 			error = err;
+		})
+		.finally(() => {
 			renderingComplete = true;
 			next?.resolve();
 		});
@@ -344,4 +336,13 @@ export async function renderToAsyncIterable(
 			return iterator;
 		},
 	};
+}
+
+function toPromise<T>(fn: () => T | Promise<T>): Promise<T> {
+	try {
+		const result = fn();
+		return isPromise(result) ? result : Promise.resolve(result);
+	} catch (err) {
+		return Promise.reject(err);
+	}
 }
