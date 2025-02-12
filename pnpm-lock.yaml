@@ -68,7 +68,7 @@ importers:
         version: link:../packages/integrations/mdx
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../packages/integrations/node
       '@benchmark/adapter':
         specifier: workspace:*
         version: link:packages/adapter
@@ -327,7 +327,7 @@ importers:
     dependencies:
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../packages/integrations/node
       astro:
         specifier: ^5.2.5
         version: link:../../packages/astro
@@ -354,7 +354,7 @@ importers:
     dependencies:
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../packages/integrations/node
       '@astrojs/svelte':
         specifier: ^7.0.4
         version: link:../../packages/integrations/svelte
@@ -799,7 +799,7 @@ importers:
         version: link:../../../../db
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -832,7 +832,7 @@ importers:
         version: link:../../../../db
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -1068,7 +1068,7 @@ importers:
     dependencies:
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -1470,7 +1470,7 @@ importers:
         version: link:../../../../integrations/mdx
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -1488,7 +1488,7 @@ importers:
     dependencies:
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -1583,7 +1583,7 @@ importers:
     dependencies:
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -2439,7 +2439,7 @@ importers:
     dependencies:
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2970,7 +2970,7 @@ importers:
     dependencies:
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3865,7 +3865,7 @@ importers:
     dependencies:
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4077,7 +4077,7 @@ importers:
     dependencies:
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../integrations/node
       '@test/static-build-pkg':
         specifier: workspace:*
         version: link:../static-build/pkg
@@ -4452,7 +4452,7 @@ importers:
         version: link:../../..
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -5263,6 +5263,9 @@ importers:
 
   packages/integrations/node:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:^0.5.1
+        version: link:../../internal-helpers
       send:
         specifier: ^1.1.0
         version: 1.1.0
@@ -5540,7 +5543,7 @@ importers:
     devDependencies:
       '@astrojs/node':
         specifier: ^9.0.0
-        version: 9.0.2(astro@packages+astro)
+        version: link:../node
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6011,7 +6014,7 @@ importers:
         version: link:../../../../../db
       '@astrojs/node':
         specifier: ^9.0.2
-        version: 9.0.2(astro@packages+astro)
+        version: link:../../../../node
       '@astrojs/web-vitals':
         specifier: workspace:*
         version: link:../../..
@@ -6313,11 +6316,6 @@ packages:
         optional: true
       prettier-plugin-astro:
         optional: true
-
-  '@astrojs/node@9.0.2':
-    resolution: {integrity: sha512-MFFYRa5yQEBegKrSUPMeKnjDMB4okTrkVRA40/mU3ADKrKY5VV3af0LS+NYkH9pFOvj/OsPbdeQVxQ0jI3f6aQ==}
-    peerDependencies:
-      astro: ^5.0.0
 
   '@astrojs/yaml2ts@0.2.1':
     resolution: {integrity: sha512-CBaNwDQJz20E5WxzQh4thLVfhB3JEEGz72wRA+oJp6fQR37QLAqXZJU0mHC+yqMOQ6oj0GfRPJrz6hjf+zm6zA==}
@@ -10102,6 +10100,7 @@ packages:
 
   libsql@0.4.5:
     resolution: {integrity: sha512-sorTJV6PNt94Wap27Sai5gtVLIea4Otb2LUiAUyr3p6BPOScGMKGt5F1b5X/XgkNtcsDKeX5qfeBDj+PdShclQ==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lightningcss-darwin-arm64@1.29.1:
@@ -12295,6 +12294,9 @@ packages:
     resolution: {integrity: sha512-M/wqwtOEjgb956/+m5ZrYT/Iq6Hax0OakWbokj8+9PXOnB7b/4AxESHieEtnNEy7ZpjsjYW1/5nK8fATQMmRxw==}
     peerDependencies:
       vue: '>=3.2.13'
+    peerDependenciesMeta:
+      vue:
+        optional: true
 
   vite@6.0.11:
     resolution: {integrity: sha512-4VL9mQPKoHy4+FE0NnRE/kbY51TOfaknxAjt3fJbGJxhIpBZiqVzlZDEesWWsuREXHwNdAoOFZ9MkPEVXczHwg==}
@@ -12814,14 +12816,6 @@ snapshots:
       prettier-plugin-astro: 0.14.1
     transitivePeerDependencies:
       - typescript
-
-  '@astrojs/node@9.0.2(astro@packages+astro)':
-    dependencies:
-      astro: link:packages/astro
-      send: 1.1.0
-      server-destroy: 1.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   '@astrojs/yaml2ts@0.2.1':
     dependencies:
@@ -19463,6 +19457,7 @@ snapshots:
   vite-svg-loader@5.1.0(vue@3.5.13(typescript@5.7.3)):
     dependencies:
       svgo: 3.3.2
+    optionalDependencies:
       vue: 3.5.13(typescript@5.7.3)
 
   vite@6.0.11(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.83.4)(yaml@2.5.1):
