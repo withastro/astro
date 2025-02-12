@@ -11,16 +11,34 @@ defineConfig({
   // ...
   experimental: {
 -    session: {
--      driver: 'fs',
+-      driver: 'upstash',
 -    },
 +    session: true,
   },
 +  session: {
-+    driver: 'fs',
-+  },
++    driver: 'upstash',
++  }, 
 });
 ```
 
 You no longer need to configure a session driver if you are using an adapter that supports automatic session driver configuration and wish to use its default settings.
+
+```diff
+defineConfig({
+  adapter: node({
+    mode: "standalone",
+  }),
+  experimental: {
+-    session: {
+-      driver: 'fs',
+-      cookie: 'astro-cookie',
+-    },
++    session: true,
+  },
++  session: {
++    cookie: 'astro-cookie',
++  }, 
+});
+```
 
 However, you can still manually configure additional driver options or choose a non-default driver to use with your adapter with the new top-level `session` config option. For more information, see the [experimental session docs](https://docs.astro.build/en/reference/experimental-flags/sessions/).
