@@ -5680,8 +5680,8 @@ importers:
         specifier: ^0.29.0
         version: 0.29.1(rollup@4.34.2)
       '@vercel/routing-utils':
-        specifier: 5.0.2
-        version: 5.0.2
+        specifier: 5.0.4
+        version: 5.0.4
       esbuild:
         specifier: ^0.24.0
         version: 0.24.2
@@ -8317,8 +8317,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@vercel/routing-utils@5.0.2':
-    resolution: {integrity: sha512-uJViB3+HEo+kzHYELs7cQWX5k0kCNvq9G/8nJQX8mP5Ta0fG68CBRmOaaG8A+2xbtTp/QuGORIwV8CsI9ebcNg==}
+  '@vercel/routing-utils@5.0.4':
+    resolution: {integrity: sha512-4ke67zkXVi2fRZdoYckABcsSkRC9CnrdadOGxoS/Bk22+ObHjGQWvUHExRSXh339anwu9YY7ZacNSGH4gUnTQA==}
 
   '@vitejs/plugin-react@4.3.4':
     resolution: {integrity: sha512-SCCPBJtYLdE8PX/7ZQAs1QAZ8Jqwih+0VBLum1EGqmCCQal+MIUqLCzj3ZUy8ufbC0cAM4LRlSTm7IQJwWT4ug==}
@@ -10100,6 +10100,7 @@ packages:
 
   libsql@0.4.5:
     resolution: {integrity: sha512-sorTJV6PNt94Wap27Sai5gtVLIea4Otb2LUiAUyr3p6BPOScGMKGt5F1b5X/XgkNtcsDKeX5qfeBDj+PdShclQ==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lightningcss-darwin-arm64@1.29.1:
@@ -12293,6 +12294,9 @@ packages:
     resolution: {integrity: sha512-M/wqwtOEjgb956/+m5ZrYT/Iq6Hax0OakWbokj8+9PXOnB7b/4AxESHieEtnNEy7ZpjsjYW1/5nK8fATQMmRxw==}
     peerDependencies:
       vue: '>=3.2.13'
+    peerDependenciesMeta:
+      vue:
+        optional: true
 
   vite@6.0.11:
     resolution: {integrity: sha512-4VL9mQPKoHy4+FE0NnRE/kbY51TOfaknxAjt3fJbGJxhIpBZiqVzlZDEesWWsuREXHwNdAoOFZ9MkPEVXczHwg==}
@@ -14755,7 +14759,7 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vercel/routing-utils@5.0.2':
+  '@vercel/routing-utils@5.0.4':
     dependencies:
       path-to-regexp: 6.1.0
       path-to-regexp-updated: path-to-regexp@6.3.0
@@ -19453,6 +19457,7 @@ snapshots:
   vite-svg-loader@5.1.0(vue@3.5.13(typescript@5.7.3)):
     dependencies:
       svgo: 3.3.2
+    optionalDependencies:
       vue: 3.5.13(typescript@5.7.3)
 
   vite@6.0.11(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.83.4)(yaml@2.5.1):
