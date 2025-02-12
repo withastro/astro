@@ -394,6 +394,7 @@ export class RenderContext {
 		// calling the render() function will populate the object with scripts, styles, etc.
 		const result: SSRResult = {
 			base: manifest.base,
+			viteBase: manifest.viteBase,
 			cancelled: false,
 			clientDirectives,
 			inlinedScripts,
