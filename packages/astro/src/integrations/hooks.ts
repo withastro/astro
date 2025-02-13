@@ -370,7 +370,7 @@ export async function runHookConfigDone({
 			});
 		}
 	}
-	// Session config is validated after all integrations have had a chance to 
+	// Session config is validated after all integrations have had a chance to
 	// register a default session driver, and we know the output type.
 	// This can't happen in the Zod schema because it that happens before adapters run
 	// and also doesn't know whether it's a server build or static build.

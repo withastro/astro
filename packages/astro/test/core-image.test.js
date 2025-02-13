@@ -1139,7 +1139,9 @@ describe('astro:image', () => {
 			const params = new URLSearchParams();
 			params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
 			params.set('f', 'webp');
-			const response = await fixture.fetch('/some-base/_image?' + String(params), { method: 'HEAD' });
+			const response = await fixture.fetch('/some-base/_image?' + String(params), {
+				method: 'HEAD',
+			});
 			assert.equal(response.status, 200);
 			assert.equal(response.body, null);
 			assert.equal(response.headers.get('content-type'), 'image/webp');

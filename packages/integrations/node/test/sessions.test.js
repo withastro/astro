@@ -21,8 +21,8 @@ describe('Astro.session', () => {
 			});
 		});
 
-	/** @type {import('../../../astro/src/types/public/preview.js').PreviewServer} */
-	let app;
+		/** @type {import('../../../astro/src/types/public/preview.js').PreviewServer} */
+		let app;
 		before(async () => {
 			await fixture.build({});
 			app = await fixture.preview({});
@@ -112,7 +112,6 @@ describe('Astro.session', () => {
 				experimental: {
 					session: true,
 				},
-
 			});
 			devServer = await fixture.startDevServer();
 		});
