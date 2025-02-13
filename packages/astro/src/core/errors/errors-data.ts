@@ -1815,16 +1815,15 @@ export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } sa
 /**
  * @docs
  * @see
- * - [On-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
+ * - [Server output adapter feature](https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter)
  * @description
  * Your project must have a server output to use sessions.
  */
-export const SessionWithoutServerOutputError = {
-	name: 'SessionWithoutServerOutputError',
-	title: 'Sessions are not available in prerendered routes.',
-	message:
-		'A server is required to use sessions. To deploy routes to a server, add an adapter to your Astro config and configure your route for on-demand rendering',
-	hint: 'Add an adapter and enable on-demand rendering: https://docs.astro.build/en/guides/on-demand-rendering/',
+export const SessionWithoutServerStaticOutputError = {
+	name: 'SessionWithoutServerStaticOutputError',
+	title: 'Sessions cannot be used with an adapter that doesn\'t support server output.',
+	message: 'Sessions require an adapter that supports server output. The adapter must set `"server"` in the `buildOutput` adapter feature.',
+	hint: 'Add an adapter that supports `buildOutput: "server"`: https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter',
 } satisfies ErrorData;
 
 /**
