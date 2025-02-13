@@ -56,21 +56,24 @@ export function findRouteToRewrite({
 			? appendForwardSlash(newUrl.pathname)
 			: removeTrailingForwardSlash(newUrl.pathname);
 		pathname = pathname.slice(base.length);
+		console.log(pathname, "before changes")
 	}
 
-	if (!pathname.startsWith('/') && shouldAppendSlash) {
-		// when base is in the rewrite call and trailingSlash is always this is needed or it will 404.
+	if (!pathname.startsWith('/') && shouldAppendSlash && newUrl.pathname.endsWith('/')) {
+		// when base is in the rewrite call and trailingSlash is 'always' this is needed or it will 404.
 		pathname = prependForwardSlash(pathname)
+		console.log(pathname, "after changes")
 	}
 
 	if (pathname === '/' && base !== '/' && !shouldAppendSlash) {
-		// when rewriting to index and trailingSlash is never this is needed or it will 404
+		// when rewriting to index and trailingSlash is 'never' this is needed or it will 404
 		// in this case the pattern will look for '/^$/' so '/' will never match
 		pathname = ''
 	}
 
 	newUrl.pathname = joinPaths(...[base, pathname].filter(Boolean));
 
+	console.log(pathname, "after changes")
 	const decodedPathname = decodeURI(pathname);
 	let foundRoute;
 	for (const route of routes) {
