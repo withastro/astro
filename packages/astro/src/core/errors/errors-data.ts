@@ -27,7 +27,7 @@ export const CantUseAstroConfigModuleError = {
 	name: 'CantUseAstroConfigModuleError',
 	title: 'Cannot use the `astro:config` module without enabling the experimental feature.',
 	message: (moduleName) =>
-		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeManifest\` in your \`astro.config.mjs\` `,
+		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeConfig\` in your \`astro.config.mjs\` `,
 } satisfies ErrorData;
 
 /**
@@ -879,38 +879,6 @@ export const AstroResponseHeadersReassigned = {
 	message:
 		'Individual headers can be added to and removed from `Astro.response.headers`, but it must not be replaced with another instance of `Headers` altogether.',
 	hint: 'Consider using `Astro.response.headers.add()`, and `Astro.response.headers.delete()`.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
- * @see
- * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
- * @description
- * Thrown when the session storage could not be initialized.
- */
-export const SessionStorageInitError = {
-	name: 'SessionStorageInitError',
-	title: 'Session storage could not be initialized.',
-	message: (error: string, driver?: string) =>
-		`Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
-	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @message Error when saving session data with driver `DRIVER`. `ERROR`
- * @see
- * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
- * @description
- * Thrown when the session data could not be saved.
- */
-export const SessionStorageSaveError = {
-	name: 'SessionStorageSaveError',
-	title: 'Session data could not be saved.',
-	message: (error: string, driver?: string) =>
-		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
-	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
 } satisfies ErrorData;
 
 /**
@@ -1837,6 +1805,90 @@ export const ActionCalledFromServerError = {
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
+
+/**
+ * @docs
+ * @kind heading
+ * @name Session Errors
+ */
+// Session Errors
+/**
+ * @docs
+ * @see
+ * - [On-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
+ * @description
+ * Your project must have a server output to use sessions.
+ */
+export const SessionWithoutServerOutputError = {
+	name: 'SessionWithoutServerOutputError',
+	title: 'Sessions must be used with server output.',
+	message:
+		'A server is required to use sessions. To deploy routes to a server, add an adapter to your Astro config and configure your route for on-demand rendering',
+	hint: 'Add an adapter and enable on-demand rendering: https://docs.astro.build/en/guides/on-demand-rendering/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
+ * @see
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * @description
+ * Thrown when the session storage could not be initialized.
+ */
+export const SessionStorageInitError = {
+	name: 'SessionStorageInitError',
+	title: 'Session storage could not be initialized.',
+	message: (error: string, driver?: string) =>
+		`Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Error when saving session data with driver `DRIVER`. `ERROR`
+ * @see
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * @description
+ * Thrown when the session data could not be saved.
+ */
+export const SessionStorageSaveError = {
+	name: 'SessionStorageSaveError',
+	title: 'Session data could not be saved.',
+	message: (error: string, driver?: string) =>
+		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage
+ * @see
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * @description
+ * Thrown when session storage is enabled but not configured.
+ */
+export const SessionConfigMissingError = {
+	name: 'SessionConfigMissingError',
+	title: 'Session storage was enabled but not configured.',
+	message:
+		'The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage',
+	hint: 'See https://docs.astro.build/en/reference/experimental-flags/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Session config was provided without enabling the `experimental.session` flag
+ * @see
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * @description
+ * Thrown when session storage is configured but the `experimental.session` flag is not enabled.
+ */
+export const SessionConfigWithoutFlagError = {
+	name: 'SessionConfigWithoutFlagError',
+	title: 'Session flag not set',
+	message: 'Session config was provided without enabling the `experimental.session` flag',
+	hint: 'See https://docs.astro.build/en/reference/experimental-flags/sessions/',
+} satisfies ErrorData;
 
 /*
  * Adding an error? Follow these steps:

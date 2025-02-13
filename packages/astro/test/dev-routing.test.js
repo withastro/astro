@@ -60,6 +60,22 @@ describe('Development Routing', () => {
 			assert.equal(response.headers.get('Location'), '/');
 		});
 
+		it('does not redirect multiple internal slashes', async () => {
+			const response = await fixture.fetch('/another///here', { redirect: 'manual' });
+			assert.equal(response.status, 404);
+		});
+
+		it('does not redirect slashes on query params', async () => {
+			const response = await fixture.fetch('/another?foo=bar///', { redirect: 'manual' });
+			assert.equal(response.status, 200);
+		});
+
+		it('does redirect multiple trailing slashes with query params', async () => {
+			const response = await fixture.fetch('/another///?foo=bar///', { redirect: 'manual' });
+			assert.equal(response.status, 301);
+			assert.equal(response.headers.get('Location'), '/another/?foo=bar///');
+		});
+
 		it('404 when loading invalid dynamic route', async () => {
 			const response = await fixture.fetch('/2');
 			assert.equal(response.status, 404);

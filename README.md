@@ -95,12 +95,7 @@ Astro is free, open source software made possible by these wonderful sponsors.
 [❤️ Sponsor Astro! ❤️](https://github.com/withastro/.github/blob/main/FUNDING.md)
 
 <p align="center">
-  <a target="_blank" href="https://github.com/sponsors/withastro">
-
-[![Astro's sponsors.](https://astro.build/sponsors.png "Astro's sponsors.
-Platinum sponsors: Vercel, storyblok, Netlify, Ship Shape, Google Chrome
-Gold sponsors: ‹div›RIOTS, DEEPGRAM, Transloadit, CloudCannon
-Sponsors: Monogram, Qoddi, Dimension")](https://github.com/sponsors/withastro)
-
+  <a target="_blank" href="https://opencollective.com/astrodotbuild">
+    <img src="https://astro.build/sponsors.png" alt="Sponsor logos including the current Astro Sponsors, Gold Sponsors, and Exclusive Partner Sponsors: Netlify, Sentry, and Project IDX." />
   </a>
 </p>
