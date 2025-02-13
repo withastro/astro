@@ -1821,8 +1821,9 @@ export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } sa
  */
 export const SessionWithoutSupportedAdapterOutputError = {
 	name: 'SessionWithoutSupportedAdapterOutputError',
-	title: 'Sessions cannot be used with an adapter that doesn\'t support server output.',
-	message: 'Sessions require an adapter that supports server output. The adapter must set `"server"` in the `buildOutput` adapter feature.',
+	title: "Sessions cannot be used with an adapter that doesn't support server output.",
+	message:
+		'Sessions require an adapter that supports server output. The adapter must set `"server"` in the `buildOutput` adapter feature.',
 	hint: 'Ensure your adapter supports `buildOutput: "server"`: https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter',
 } satisfies ErrorData;
 
