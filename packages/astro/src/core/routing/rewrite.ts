@@ -5,7 +5,7 @@ import { shouldAppendForwardSlash } from '../build/util.js';
 import { originPathnameSymbol } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { appendForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { appendForwardSlash, removeTrailingForwardSlash, joinPaths, prependForwardSlash } from '../path.js';
 import { createRequest } from '../request.js';
 import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';
 
@@ -23,6 +23,7 @@ export interface FindRouteToRewriteResult {
 	newUrl: URL;
 	pathname: string;
 }
+
 
 /**
  * Shared logic to retrieve the rewritten route. It returns a tuple that represents:
@@ -45,14 +46,32 @@ export function findRouteToRewrite({
 	} else {
 		newUrl = new URL(payload, new URL(request.url).origin);
 	}
+
 	let pathname = newUrl.pathname;
+
+	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
+
 	if (base !== '/' && newUrl.pathname.startsWith(base)) {
-		pathname = shouldAppendForwardSlash(trailingSlash, buildFormat)
+		pathname = shouldAppendSlash
 			? appendForwardSlash(newUrl.pathname)
 			: removeTrailingForwardSlash(newUrl.pathname);
 		pathname = pathname.slice(base.length);
 	}
 
+	if (!pathname.startsWith('/') && shouldAppendSlash && newUrl.pathname.endsWith('/')) {
+		// when base is in the rewrite call and trailingSlash is 'always' this is needed or it will 404.
+		pathname = prependForwardSlash(pathname)
+	}
+
+	if (pathname === '/' && base !== '/' && !shouldAppendSlash) {
+		// when rewriting to index and trailingSlash is 'never' this is needed or it will 404
+		// in this case the pattern will look for '/^$/' so '/' will never match
+		pathname = ''
+	}
+
+	newUrl.pathname = joinPaths(...[base, pathname].filter(Boolean));
+
+	console.log(pathname, "after changes")
 	const decodedPathname = decodeURI(pathname);
 	let foundRoute;
 	for (const route of routes) {
@@ -133,3 +152,4 @@ export function getOriginPathname(request: Request): string {
 	}
 	return new URL(request.url).pathname;
 }
+
