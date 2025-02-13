@@ -39,10 +39,3 @@ export const OPTIONS = () => {
 		something: 'true',
 	});
 };
-
-
-export const TRACE = () => {
-	return Response.json({
-		something: 'true',
-	});
-};
