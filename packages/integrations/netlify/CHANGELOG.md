@@ -1,5 +1,50 @@
 # @astrojs/netlify
 
+## 6.2.0
+
+### Minor Changes
+
+- [#13194](https://github.com/withastro/astro/pull/13194) [`1b5037b`](https://github.com/withastro/astro/commit/1b5037bd77d77817e5f821aee8ceccb49b00e0d9) Thanks [@dfdez](https://github.com/dfdez)! - Adds `includedFiles` and `excludedFiles` configuration options to customize SSR function bundle contents.
+
+  The `includeFiles` property allows you to explicitly specify additional files that should be bundled with your function. This is useful for files that aren't automatically detected as dependencies, such as:
+
+  - Data files loaded using `fs` operations
+  - Configuration files
+  - Template files
+
+  Similarly, you can use the `excludeFiles` property to prevent specific files from being bundled that would otherwise be included. This is helpful for:
+
+  - Reducing bundle size
+  - Excluding large binaries
+  - Preventing unwanted files from being deployed
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify';
+
+  export default defineConfig({
+    // ...
+    output: 'server',
+    adapter: netlify({
+      includeFiles: ['./my-data.json'],
+      excludeFiles: ['./node_modules/package/**/*', './src/**/*.test.js'],
+    }),
+  });
+  ```
+
+  See the [Netlify adapter documentation](https://docs.astro.build/en/guides/integrations-guide/netlify/#including-or-excluding-files) for detailed usage instructions and examples.
+
+- [#13145](https://github.com/withastro/astro/pull/13145) [`8d4e566`](https://github.com/withastro/astro/commit/8d4e566f5420c8a5406e1e40e8bae1c1f87cbe37) Thanks [@ascorbic](https://github.com/ascorbic)! - Automatically configures Netlify Blobs storage when experimental session enabled
+
+  If the `experimental.session` flag is enabled when using the Netlify adapter, Astro will automatically configure the session storage using the Netlify Blobs driver. You can still manually configure the session storage if you need to use a different driver or want to customize the session storage configuration.
+
+  See [the experimental session docs](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information on configuring session storage.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
 ## 6.1.0
 
 ### Minor Changes
