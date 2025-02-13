@@ -241,7 +241,10 @@ describe('Astro.session', () => {
 			});
 			// Disable actions so we can do a static build
 			await fixture.editFile('src/actions/index.ts', () => '');
-			await assert.rejects(fixture.build({}), /Sessions require an adapter that supports server output/);
+			await assert.rejects(
+				fixture.build({}),
+				/Sessions require an adapter that supports server output/,
+			);
 			await fixture.resetAllFiles();
 		});
 	});
