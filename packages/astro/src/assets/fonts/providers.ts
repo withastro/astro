@@ -1,7 +1,6 @@
 import { createRequire } from 'node:module';
 import type { AstroSettings } from '../../types/astro.js';
 import { google } from './providers/google.js';
-import { local } from './providers/local.js';
 import type { FontProvider, ResolvedFontProvider } from './types.js';
 import { fileURLToPath } from 'node:url';
 import type { ModuleLoader } from '../../core/module-loader/loader.js';
@@ -44,7 +43,7 @@ export async function resolveProviders({
 	providers: Array<FontProvider<any>>;
 	moduleLoader?: ModuleLoader;
 }): Promise<Array<ResolvedFontProvider>> {
-	const providers = [google(), local(), ..._providers];
+	const providers = [google(), ..._providers];
 	const resolvedProviders: Array<ResolvedFontProvider> = [];
 
 	for (const { name, entrypoint, config } of providers) {

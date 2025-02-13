@@ -17,9 +17,12 @@ export function defineConfig<
 	const TLocales extends Locales = never,
 	const TDriver extends SessionDriverName = never,
 	const TFontProviders extends FontProvider<string>[] = never,
-	const TFontFamilies extends FontFamily<
-		(TFontProviders extends never ? [] : TFontProviders)[number]['name'] | BuiltInProvider
-	>[] = never,
+	const TFontFamilies extends (
+		| string
+		| FontFamily<
+				(TFontProviders extends never ? [] : TFontProviders)[number]['name'] | BuiltInProvider
+		  >
+	)[] = never,
 >(config: AstroUserConfig<TLocales, TDriver, TFontProviders, TFontFamilies>) {
 	return config;
 }

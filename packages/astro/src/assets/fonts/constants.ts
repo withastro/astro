@@ -1,10 +1,10 @@
 import { GOOGLE_PROVIDER_NAME } from './providers/google.js';
 import { LOCAL_PROVIDER_NAME } from './providers/local.js';
-import type * as unifont from 'unifont';
+import type { ResolveFontOptions } from './types.js';
 
 export const BUILTIN_PROVIDERS = [GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME] as const;
 
-export const DEFAULTS: unifont.ResolveFontOptions = {
+export const DEFAULTS: ResolveFontOptions = {
 	weights: ['400'],
 	styles: ['normal', 'italic'],
 	subsets: ['cyrillic-ext', 'cyrillic', 'greek-ext', 'greek', 'vietnamese', 'latin-ext', 'latin'],
