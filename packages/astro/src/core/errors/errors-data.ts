@@ -1817,7 +1817,7 @@ export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } sa
  * @see
  * - [Server output adapter feature](https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter)
  * @description
- * Your project must have a server output to use sessions.
+ * Your adapter must support server output to use sessions.
  */
 export const SessionWithoutServerStaticOutputError = {
 	name: 'SessionWithoutServerStaticOutputError',
