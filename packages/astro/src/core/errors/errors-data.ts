@@ -1821,7 +1821,7 @@ export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } sa
  */
 export const SessionWithoutServerOutputError = {
 	name: 'SessionWithoutServerOutputError',
-	title: 'Sessions must be used with server output.',
+	title: 'Sessions are not available in prerendered routes.',
 	message:
 		'A server is required to use sessions. To deploy routes to a server, add an adapter to your Astro config and configure your route for on-demand rendering',
 	hint: 'Add an adapter and enable on-demand rendering: https://docs.astro.build/en/guides/on-demand-rendering/',
