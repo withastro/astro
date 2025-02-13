@@ -554,7 +554,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		checkOrigin?: boolean;
 	};
 
-  /**
+	/**
 	 * @docs
 	 * @name session
 	 * @type {SessionConfig}
@@ -583,7 +583,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```
 	 */
 	session?: SessionConfig<TSession>;
-	
+
 	/**
 	 * @docs
 	 * @name vite
