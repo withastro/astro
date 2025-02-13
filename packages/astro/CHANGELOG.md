@@ -1,5 +1,64 @@
 # astro
 
+## 5.3.0
+
+### Minor Changes
+
+- [#13210](https://github.com/withastro/astro/pull/13210) [`344e9bc`](https://github.com/withastro/astro/commit/344e9bc480a075161a7811b7733593556e7560da) Thanks [@VitaliyR](https://github.com/VitaliyR)! - Handle `HEAD` requests to an endpoint when a handler is not defined.
+
+  If an endpoint defines a handler for `GET`, but does not define a handler for `HEAD`, Astro will call the `GET` handler and return the headers and status but an empty body.
+
+- [#13195](https://github.com/withastro/astro/pull/13195) [`3b66955`](https://github.com/withastro/astro/commit/3b669555d7ab9da5427e7b7037699d4f905d3536) Thanks [@MatthewLymer](https://github.com/MatthewLymer)! - Improves SSR performance for synchronous components by avoiding the use of Promises. With this change, SSR rendering of on-demand pages can be up to 4x faster.
+
+- [#13145](https://github.com/withastro/astro/pull/13145) [`8d4e566`](https://github.com/withastro/astro/commit/8d4e566f5420c8a5406e1e40e8bae1c1f87cbe37) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for adapters auto-configuring experimental session storage drivers.
+
+  Adapters can now configure a default session storage driver when the `experimental.session` flag is enabled. If a hosting platform has a storage primitive that can be used for session storage, the adapter can automatically configure the session storage using that driver. This allows Astro to provide a more seamless experience for users who want to use sessions without needing to manually configure the session storage.
+
+### Patch Changes
+
+- [#13145](https://github.com/withastro/astro/pull/13145) [`8d4e566`](https://github.com/withastro/astro/commit/8d4e566f5420c8a5406e1e40e8bae1c1f87cbe37) Thanks [@ascorbic](https://github.com/ascorbic)! - :warning: **BREAKING CHANGE FOR EXPERIMENTAL SESSIONS ONLY** :warning:
+
+  Changes the `experimental.session` option to a boolean flag and moves session config to a top-level value. This change is to allow the new automatic session driver support. You now need to separately enable the `experimental.session` flag, and then configure the session driver using the top-level `session` key if providing manual configuration.
+
+  ```diff
+  defineConfig({
+    // ...
+    experimental: {
+  -    session: {
+  -      driver: 'upstash',
+  -    },
+  +    session: true,
+    },
+  +  session: {
+  +    driver: 'upstash',
+  +  },
+  });
+  ```
+
+  You no longer need to configure a session driver if you are using an adapter that supports automatic session driver configuration and wish to use its default settings.
+
+  ```diff
+  defineConfig({
+    adapter: node({
+      mode: "standalone",
+    }),
+    experimental: {
+  -    session: {
+  -      driver: 'fs',
+  -      cookie: 'astro-cookie',
+  -    },
+  +    session: true,
+    },
+  +  session: {
+  +    cookie: 'astro-cookie',
+  +  },
+  });
+  ```
+
+  However, you can still manually configure additional driver options or choose a non-default driver to use with your adapter with the new top-level `session` config option. For more information, see the [experimental session docs](https://docs.astro.build/en/reference/experimental-flags/sessions/).
+
+- [#13101](https://github.com/withastro/astro/pull/13101) [`2ed67d5`](https://github.com/withastro/astro/commit/2ed67d5dc5c8056f9ab1e29e539bf086b93c60c2) Thanks [@corneliusroemer](https://github.com/corneliusroemer)! - Fixes a bug where `HEAD` and `OPTIONS` requests for non-prerendered pages were incorrectly rejected with 403 FORBIDDEN
+
 ## 5.2.6
 
 ### Patch Changes

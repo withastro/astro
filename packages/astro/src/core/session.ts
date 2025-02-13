@@ -19,7 +19,7 @@ import {
 	SessionConfigWithoutFlagError,
 	SessionStorageInitError,
 	SessionStorageSaveError,
-	SessionWithoutServerOutputError,
+	SessionWithoutSupportedAdapterOutputError,
 } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 
@@ -495,7 +495,7 @@ export function validateSessionConfig(settings: AstroSettings): void {
 		if (!session?.driver) {
 			error = new AstroError(SessionConfigMissingError);
 		} else if (buildOutput === 'static') {
-			error = new AstroError(SessionWithoutServerOutputError);
+			error = new AstroError(SessionWithoutSupportedAdapterOutputError);
 		}
 	} else if (session?.driver) {
 		error = new AstroError(SessionConfigWithoutFlagError);

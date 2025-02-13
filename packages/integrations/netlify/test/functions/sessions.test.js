@@ -1,11 +1,11 @@
 // @ts-check
 import assert from 'node:assert/strict';
+import { mkdir, rm } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
-import * as devalue from 'devalue';
-import netlify from '../../dist/index.js';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
 import { BlobsServer } from '@netlify/blobs/server';
-import { rm, mkdir } from 'node:fs/promises';
+import * as devalue from 'devalue';
+import { loadFixture } from '../../../../astro/test/test-utils.js';
+import netlify from '../../dist/index.js';
 const token = 'mock';
 const siteID = '1';
 const dataDir = '.netlify/sessions';
