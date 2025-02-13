@@ -556,7 +556,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
   /**
 	 * @docs
-	 * @kind heading
 	 * @name session
 	 * @type {SessionConfig}
 	 * @version 5.3.0
