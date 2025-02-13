@@ -226,7 +226,6 @@ describe('CSRF origin check', () => {
 		assert.equal(response.status, 200);
 	});
 
-
 	it('return 200 when calling POST/PUT/DELETE/PATCH with the correct origin', async () => {
 		let request;
 		let response;
