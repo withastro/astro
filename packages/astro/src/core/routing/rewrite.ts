@@ -56,13 +56,11 @@ export function findRouteToRewrite({
 			? appendForwardSlash(newUrl.pathname)
 			: removeTrailingForwardSlash(newUrl.pathname);
 		pathname = pathname.slice(base.length);
-		console.log(pathname, "before changes")
 	}
 
 	if (!pathname.startsWith('/') && shouldAppendSlash && newUrl.pathname.endsWith('/')) {
 		// when base is in the rewrite call and trailingSlash is 'always' this is needed or it will 404.
 		pathname = prependForwardSlash(pathname)
-		console.log(pathname, "after changes")
 	}
 
 	if (pathname === '/' && base !== '/' && !shouldAppendSlash) {
