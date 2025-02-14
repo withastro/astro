@@ -221,7 +221,7 @@ importers:
         specifier: ^7.0.4
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
-        specifier: ^5.0.6
+        specifier: ^5.0.7
         version: link:../../packages/integrations/vue
       '@types/react':
         specifier: ^18.3.18
@@ -314,7 +314,7 @@ importers:
   examples/framework-vue:
     dependencies:
       '@astrojs/vue':
-        specifier: ^5.0.6
+        specifier: ^5.0.7
         version: link:../../packages/integrations/vue
       astro:
         specifier: ^5.3.0
