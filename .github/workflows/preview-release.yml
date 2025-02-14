@@ -2,7 +2,6 @@ name: Preview release
 
 on:
   pull_request:
-    branches: [main]
     types: [labeled]
 
 concurrency:
@@ -38,26 +37,8 @@ jobs:
       - name: Disable git crlf
         run: git config --global core.autocrlf false
 
-
-      - name: resolve pr refs
-        id: refs
-        uses: eficode/resolve-pr-refs@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.refs.outputs.head_ref }}
-          fetch-depth: 0
-
-      - name: Extract base branch from .changeset/config.json
-        id: getBaseBranch
-        run: |
-          baseBranch=$(jq -r '.baseBranch' .changeset/config.json)
-          echo "baseBranch=${baseBranch}" >> $GITHUB_OUTPUT
-
-      - run: git fetch origin ${{ steps.getBaseBranch.outputs.baseBranch }}:${{ steps.getBaseBranch.outputs.baseBranch }}
-  
+      
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
   
@@ -73,36 +54,27 @@ jobs:
       - name: Build Packages
         run: pnpm run build
         
-      - name: Changesets status
-        run: pnpm changeset status --output=changesets.json
-        
-      - name: Retrieve packages to publish
-        uses: actions/github-script@v7
-        id: packages
-        with:
-          script: |
-            const fs = require('fs');
-            let packages = JSON.parse(fs.readFileSync('changesets.json', 'utf8'));
-            const releases = packages.releases
-              .filter(p => {
-                return p.changesets.length > 0;
-              })
-              .map(p => p.name);
-            if (releases.length > 0) {
-              return releases.join(' ');
-            }
-            return ""
-          result-encoding: string
+#      - name: Changesets status
+#        run: pnpm changeset status --output=changesets.json
+#        
+#      - name: Retrieve packages to publish
+#        uses: actions/github-script@v7
+#        id: packages
+#        with:
+#          script: |
+#            const fs = require('fs');
+#            let packages = JSON.parse(fs.readFileSync('changesets.json', 'utf8'));
+#            const releases = packages.releases
+#              .filter(p => {
+#                return p.changesets.length > 0;
+#              })
+#              .map(p => p.name);
+#            if (releases.length > 0) {
+#              return releases.join(' ');
+#            }
+#            return ""
+#          result-encoding: string
   
       - name: Publish packages
-        if: ${{ steps.packages.outputs.result != '' }}
-        run: pnpx pkg-pr-new publish --pnpm --compact ${{ steps.packages.outputs.result }} 
-        
-      - name: Add comment
-        if: ${{ steps.packages.outputs.result == '' }}
-        uses: peter-evans/create-or-update-comment@v4
-        continue-on-error: true
-        with:
-          issue-number: ${{ github.event.issue.number }}
-          body: "No preview release was published. Make sure the PR contains a changeset."
-          edit-mode: replace
+        run: |
+          pnpx pkg-pr-new publish --pnpm --compact 'packages/astro' 'packages/integrations/node' 'packages/integrations/cloudflare' 'packages/integrations/netlify' 'packages/integrations/vercel' 

@@ -5542,8 +5542,8 @@ importers:
         version: 3.24.1
     devDependencies:
       '@astrojs/node':
-        specifier: ^9.0.0
-        version: 9.0.0(astro@packages+astro)
+        specifier: ^9.1.0
+        version: link:../node
       astro:
         specifier: workspace:*
         version: link:../../astro

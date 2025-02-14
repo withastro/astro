@@ -204,6 +204,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 				onRequest: NOOP_MIDDLEWARE_FN,
 			};
 		},
-		sessionConfig: settings.config.experimental.session,
+		sessionConfig: settings.config.experimental.session ? settings.config.session : undefined,
 	};
 }
