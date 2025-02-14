@@ -1,4 +1,4 @@
-import type { DevToolbarApp } from '../../../../@types/astro.js';
+import type { ResolvedDevToolbarApp } from '../../../../types/public/toolbar.js';
 import { type Settings, settings } from '../settings.js';
 import { isValidPlacement, placements } from '../ui-library/window.js';
 import {
@@ -204,6 +204,8 @@ export default {
 						label.append(astroSelect);
 						break;
 					}
+					case 'number':
+					case 'text':
 					default:
 						break;
 				}
@@ -212,4 +214,4 @@ export default {
 			}
 		}
 	},
-} satisfies DevToolbarApp;
+} satisfies ResolvedDevToolbarApp;

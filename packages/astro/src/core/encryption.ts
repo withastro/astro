@@ -20,6 +20,37 @@ export async function createKey() {
 	return key;
 }
 
+// The environment variable name that can be used to provide the encrypted key.
+const ENVIRONMENT_KEY_NAME = 'ASTRO_KEY' as const;
+
+/**
+ * Get the encoded value of the ASTRO_KEY env var.
+ */
+export function getEncodedEnvironmentKey(): string {
+	return process.env[ENVIRONMENT_KEY_NAME] || '';
+}
+
+/**
+ * See if the environment variable key ASTRO_KEY is set.
+ */
+export function hasEnvironmentKey(): boolean {
+	return getEncodedEnvironmentKey() !== '';
+}
+
+/**
+ * Get the environment variable key and decode it into a CryptoKey.
+ */
+export async function getEnvironmentKey(): Promise<CryptoKey> {
+	// This should never happen, because we always check `hasEnvironmentKey` before this is called.
+	if (!hasEnvironmentKey()) {
+		throw new Error(
+			`There is no environment key defined. If you see this error there is a bug in Astro.`,
+		);
+	}
+	const encodedKey = getEncodedEnvironmentKey();
+	return decodeKey(encodedKey);
+}
+
 /**
  * Takes a key that has been serialized to an array of bytes and returns a CryptoKey
  */

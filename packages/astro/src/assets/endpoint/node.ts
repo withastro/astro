@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-/* eslint-disable no-console */
+
 import os from 'node:os';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { assetsDir, imageConfig, outDir } from 'astro:assets';
 import { isRemotePath, removeQueryString } from '@astrojs/internal-helpers/path';
 import * as mime from 'mrmime';
-import type { APIRoute } from '../../@types/astro.js';
+import type { APIRoute } from '../../types/public/common.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
@@ -24,6 +24,12 @@ async function loadLocalImage(src: string, url: URL) {
 		fileUrl = pathToFileURL(removeQueryString(replaceFileSystemReferences(src)));
 	} else {
 		try {
+			// If the _image segment isn't at the start of the path, we have a base
+			const idx = url.pathname.indexOf('/_image');
+			if (idx > 0) {
+				// Remove the base path
+				src = src.slice(idx);
+			}
 			fileUrl = new URL('.' + src, outDir);
 			const filePath = fileURLToPath(fileUrl);
 

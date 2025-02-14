@@ -1,4 +1,4 @@
-import { getAstroStudioEnv } from '@astrojs/studio';
+import { type ManagedAppToken, getAstroStudioEnv, getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { loadEnv } from 'vite';
 import './types.js';
@@ -35,6 +35,25 @@ export function getRemoteDatabaseInfo(): RemoteDatabaseInfo {
 		type: 'studio',
 		url: 'https://db.services.astro.build',
 	};
+}
+
+export function getManagedRemoteToken(
+	token?: string,
+	dbInfo?: RemoteDatabaseInfo,
+): Promise<ManagedAppToken> {
+	dbInfo ??= getRemoteDatabaseInfo();
+
+	if (dbInfo.type === 'studio') {
+		return getManagedAppTokenOrExit(token);
+	}
+
+	const astroEnv = getAstroEnv();
+
+	return Promise.resolve({
+		token: token ?? astroEnv.ASTRO_DB_APP_TOKEN,
+		renew: () => Promise.resolve(),
+		destroy: () => Promise.resolve(),
+	});
 }
 
 export function getDbDirectoryUrl(root: URL | string) {

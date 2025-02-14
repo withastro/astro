@@ -13,7 +13,7 @@ describe('Aliases with tsconfig.json', () => {
 	function getLinks(html) {
 		let $ = cheerio.load(html);
 		let out = [];
-		$('link[rel=stylesheet]').each((i, el) => {
+		$('link[rel=stylesheet]').each((_i, el) => {
 			out.push($(el).attr('href'));
 		});
 		return out;
@@ -142,6 +142,14 @@ describe('Aliases with tsconfig.json', () => {
 			const $ = cheerio.load(html);
 
 			assert.equal($('#alias').text(), 'foo');
+		});
+
+		it('handles multiple replacements in one alias', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+
+			assert.equal($('#bar').text(), 'bar');
+			assert.equal($('#baz').text(), 'baz');
 		});
 
 		it('works for import.meta.glob', async () => {

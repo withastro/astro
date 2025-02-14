@@ -1,9 +1,3 @@
-import type {
-	AstroComponentMetadata,
-	RouteData,
-	SSRLoadedRenderer,
-	SSRResult,
-} from '../../../@types/astro.js';
 import { createRenderInstruction } from './instruction.js';
 
 import { clsx } from 'clsx';
@@ -17,6 +11,12 @@ import { type AstroComponentFactory, isAstroComponentFactory } from './astro/fac
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
 
+import type {
+	AstroComponentMetadata,
+	RouteData,
+	SSRLoadedRenderer,
+	SSRResult,
+} from '../../../types/public/internal.js';
 import {
 	Fragment,
 	type RenderDestination,
@@ -32,7 +32,7 @@ import { formatList, internalSpreadAttributes, renderElement, voidElementNames }
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
-const clientOnlyValues = new Set(['solid-js', 'react', 'preact', 'vue', 'svelte', 'lit']);
+const clientOnlyValues = new Set(['solid-js', 'react', 'preact', 'vue', 'svelte']);
 
 function guessRenderers(componentUrl?: string): string[] {
 	const extname = componentUrl?.split('.').pop();
@@ -44,6 +44,7 @@ function guessRenderers(componentUrl?: string): string[] {
 		case 'jsx':
 		case 'tsx':
 			return ['@astrojs/react', '@astrojs/preact', '@astrojs/solid-js', '@astrojs/vue (jsx)'];
+		case undefined:
 		default:
 			return [
 				'@astrojs/react',
@@ -51,7 +52,6 @@ function guessRenderers(componentUrl?: string): string[] {
 				'@astrojs/solid-js',
 				'@astrojs/vue',
 				'@astrojs/svelte',
-				'@astrojs/lit',
 			];
 	}
 }
@@ -260,16 +260,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		}
 	} else {
 		if (metadata.hydrate === 'only') {
-			const rendererName = rendererAliases.has(metadata.hydrateArgs)
-				? rendererAliases.get(metadata.hydrateArgs)
-				: metadata.hydrateArgs;
-			if (!clientOnlyValues.has(rendererName)) {
-				// warning if provide incorrect client:only directive but find the renderer by guess
-				// eslint-disable-next-line no-console
-				console.warn(
-					`The client:only directive for ${metadata.displayName} is not recognized. The renderer ${renderer.name} will be used. If you intended to use a different renderer, please provide a valid client:only directive.`,
-				);
-			}
 			html = await renderSlotToString(result, slots?.fallback);
 		} else {
 			const componentRenderStartTime = performance.now();
@@ -283,24 +273,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			if (process.env.NODE_ENV === 'development')
 				componentServerRenderEndTime = performance.now() - componentRenderStartTime;
 		}
-	}
-
-	// HACK! The lit renderer doesn't include a clientEntrypoint for custom elements, allow it
-	// to render here until we find a better way to recognize when a client entrypoint isn't required.
-	if (
-		renderer &&
-		!renderer.clientEntrypoint &&
-		renderer.name !== '@astrojs/lit' &&
-		metadata.hydrate
-	) {
-		throw new AstroError({
-			...AstroErrorData.NoClientEntrypoint,
-			message: AstroErrorData.NoClientEntrypoint.message(
-				displayName,
-				metadata.hydrate,
-				renderer.name,
-			),
-		});
 	}
 
 	// This is a custom element without a renderer. Because of that, render it
@@ -474,29 +446,32 @@ function renderAstroComponent(
 	}
 
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
+
 	return {
-		async render(destination) {
+		render(destination: RenderDestination): Promise<void> | void {
 			// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
 			// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
 			// The slots are initialized eagerly for head propagation.
-			await instance.render(destination);
+			return instance.render(destination);
 		},
 	};
 }
 
-export async function renderComponent(
+export function renderComponent(
 	result: SSRResult,
 	displayName: string,
 	Component: unknown,
 	props: Record<string | number, any>,
 	slots: ComponentSlots = {},
-): Promise<RenderInstance> {
+): RenderInstance | Promise<RenderInstance> {
 	if (isPromise(Component)) {
-		Component = await Component.catch(handleCancellation);
+		return Component.catch(handleCancellation).then((x) => {
+			return renderComponent(result, displayName, x, props, slots);
+		});
 	}
 
 	if (isFragmentComponent(Component)) {
-		return await renderFragmentComponent(result, slots).catch(handleCancellation);
+		return renderFragmentComponent(result, slots).catch(handleCancellation);
 	}
 
 	// Ensure directives (`class:list`) are processed
@@ -504,14 +479,14 @@ export async function renderComponent(
 
 	// .html components
 	if (isHTMLComponent(Component)) {
-		return await renderHTMLComponent(result, Component, props, slots).catch(handleCancellation);
+		return renderHTMLComponent(result, Component, props, slots).catch(handleCancellation);
 	}
 
 	if (isAstroComponentFactory(Component)) {
 		return renderAstroComponent(result, displayName, Component, props, slots);
 	}
 
-	return await renderFrameworkComponent(result, displayName, Component, props, slots).catch(
+	return renderFrameworkComponent(result, displayName, Component, props, slots).catch(
 		handleCancellation,
 	);
 

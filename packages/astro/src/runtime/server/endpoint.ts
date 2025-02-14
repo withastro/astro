@@ -1,28 +1,35 @@
 import { bold } from 'kleur/colors';
-import type { APIContext, EndpointHandler } from '../../@types/astro.js';
 import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/constants.js';
 import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import type { Logger } from '../../core/logger/core.js';
+import type { APIRoute } from '../../types/public/common.js';
+import type { APIContext } from '../../types/public/context.js';
 
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(
-	mod: EndpointHandler,
+	mod: {
+		[method: string]: APIRoute;
+	},
 	context: APIContext,
-	ssr: boolean,
+	isPrerendered: boolean,
 	logger: Logger,
 ) {
 	const { request, url } = context;
 
 	const method = request.method.toUpperCase();
 	// use the exact match on `method`, fallback to ALL
-	const handler = mod[method] ?? mod['ALL'];
-	if (!ssr && ssr === false && method !== 'GET') {
+	let handler = mod[method] ?? mod['ALL'];
+	// use GET handler for HEAD requests
+	if (!handler && method === 'HEAD' && mod['GET']) {
+		handler = mod['GET'];
+	}
+	if (isPrerendered && !['GET', 'HEAD'].includes(method)) {
 		logger.warn(
 			'router',
 			`${url.pathname} ${bold(
 				method,
-			)} requests are not available for a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` to enable.`,
+			)} requests are not available in static endpoints. Mark this page as server-rendered (\`export const prerender = false;\`) or update your config to \`output: 'server'\` to make all your pages server-rendered by default.`,
 		);
 	}
 	if (handler === undefined) {
@@ -50,7 +57,7 @@ export async function renderEndpoint(
 		return new Response(null, { status: 500 });
 	}
 
-	const response = await handler.call(mod, context);
+	let response = await handler.call(mod, context);
 
 	if (!response || response instanceof Response === false) {
 		throw new AstroError(EndpointDidNotReturnAResponse);
@@ -59,10 +66,25 @@ export async function renderEndpoint(
 	// Endpoints explicitly returning 404 or 500 response status should
 	// NOT be subject to rerouting to 404.astro or 500.astro.
 	if (REROUTABLE_STATUS_CODES.includes(response.status)) {
-		// Only `Response.redirect` headers are immutable, therefore a `try..catch` is not necessary.
-		// Note: `Response.redirect` can only be called with HTTP status codes: 301, 302, 303, 307, 308.
-		// Source: https://developer.mozilla.org/en-US/docs/Web/API/Response/redirect_static#parameters
-		response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+		try {
+			response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+		} catch (err) {
+			// In some cases the response may have immutable headers
+			// This is the case if, for example, the user directly returns a `fetch` response
+			// There's no clean way to check if the headers are immutable, so we just catch the error
+			// Note that response.clone() still has immutable headers!
+			if ((err as Error).message?.includes('immutable')) {
+				response = new Response(response.body, response);
+				response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+			} else {
+				throw err;
+			}
+		}
+	}
+
+	if (method === 'HEAD') {
+		// make sure HEAD responses doesnt have body
+		return new Response(null, response);
 	}
 
 	return response;

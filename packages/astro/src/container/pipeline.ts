@@ -1,10 +1,3 @@
-import type {
-	ComponentInstance,
-	RewritePayload,
-	RouteData,
-	SSRElement,
-	SSRResult,
-} from '../@types/astro.js';
 import { type HeadElements, Pipeline, type TryRewriteResult } from '../core/base-pipeline.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
 import {
@@ -12,6 +5,9 @@ import {
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
+import type { ComponentInstance } from '../types/astro.js';
+import type { RewritePayload } from '../types/public/common.js';
+import type { RouteData, SSRElement, SSRResult } from '../types/public/internal.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**
@@ -88,7 +84,7 @@ export class ContainerPipeline extends Pipeline {
 				return Promise.resolve(componentInstance);
 			},
 			renderers: this.manifest.renderers,
-			onRequest: this.manifest.middleware,
+			onRequest: this.resolvedMiddleware,
 		});
 	}
 

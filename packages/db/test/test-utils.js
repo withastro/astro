@@ -1,9 +1,10 @@
 import { createServer } from 'node:http';
-import { LibsqlError, createClient } from '@libsql/client';
+import { createClient } from '@libsql/client';
 import { z } from 'zod';
 import { cli } from '../dist/core/cli/index.js';
 import { resolveDbConfig } from '../dist/core/load-file.js';
 import { getCreateIndexQueries, getCreateTableQuery } from '../dist/core/queries.js';
+import { isDbError } from '../dist/runtime/utils.js';
 
 const singleQuerySchema = z.object({
 	sql: z.string(),
@@ -64,6 +65,35 @@ export async function setupRemoteDbServer(astroConfig) {
 	};
 }
 
+export async function initializeRemoteDb(astroConfig) {
+	await cli({
+		config: astroConfig,
+		flags: {
+			_: [undefined, 'astro', 'db', 'push'],
+			remote: true,
+		},
+	});
+	await cli({
+		config: astroConfig,
+		flags: {
+			_: [undefined, 'astro', 'db', 'execute', 'db/seed.ts'],
+			remote: true,
+		},
+	});
+}
+
+/**
+ * Clears the environment variables related to Astro DB and Astro Studio.
+ */
+export function clearEnvironment() {
+	const keys = Array.from(Object.keys(process.env));
+	for (const key of keys) {
+		if (key.startsWith('ASTRO_DB_') || key.startsWith('ASTRO_STUDIO_')) {
+			delete process.env[key];
+		}
+	}
+}
+
 function createRemoteDbServer() {
 	const dbClient = createClient({
 		url: ':memory:',
@@ -113,7 +143,7 @@ function createRemoteDbServer() {
 					JSON.stringify({
 						success: false,
 						error: {
-							code: e instanceof LibsqlError ? e.code : 'SQLITE_QUERY_FAILED',
+							code: isDbError(e) ? e.code : 'SQLITE_QUERY_FAILED',
 							details: e.message,
 						},
 					}),

@@ -1,12 +1,12 @@
 import type * as vite from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
 
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import { bold } from 'kleur/colors';
 import type { Logger } from '../core/logger/core.js';
-import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
+import { notFoundTemplate, subpathNotUsedTemplate } from '../template/4xx.js';
 import { writeHtmlResponse } from './response.js';
 
 export function baseMiddleware(
@@ -21,12 +21,11 @@ export function baseMiddleware(
 
 	return function devBaseMiddleware(req, res, next) {
 		const url = req.url!;
-
 		let pathname: string;
 		try {
 			pathname = decodeURI(new URL(url, 'http://localhost').pathname);
 		} catch (e) {
-			/* malform uri */
+			/* malformed uri */
 			return next(e);
 		}
 
@@ -41,12 +40,7 @@ export function baseMiddleware(
 		}
 
 		if (req.headers.accept?.includes('text/html')) {
-			const html = notFoundTemplate({
-				statusCode: 404,
-				title: 'Not found',
-				tabTitle: '404: Not Found',
-				pathname,
-			});
+			const html = notFoundTemplate(pathname);
 			return writeHtmlResponse(res, 404, html);
 		}
 

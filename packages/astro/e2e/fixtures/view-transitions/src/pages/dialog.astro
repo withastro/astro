@@ -1,16 +1,17 @@
 ---
-import { ViewTransitions } from "astro:transitions";
+import { ClientRouter } from 'astro:transitions';
 ---
+
 <html>
 	<head>
-    <ViewTransitions />
+		<ClientRouter />
 	</head>
 	<body>
-    <button id="open" onclick="modal.showModal()">Open Modal</button>
-    <dialog id="modal">
-      <form method="dialog">
-        <button id="close">Close</button>
-      </form>
-    </dialog>
+		<button id="open" onclick="modal.showModal()">Open Modal</button>
+		<dialog id="modal">
+			<form method="dialog">
+				<button id="close">Close</button>
+			</form>
+		</dialog>
 	</body>
 </html>

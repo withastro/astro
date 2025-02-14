@@ -1,14 +1,13 @@
+import type { RoutingStrategies } from '../../i18n/utils.js';
+import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
+import type { AstroMiddlewareInstance } from '../../types/public/common.js';
+import type { AstroConfig, Locales, ResolvedSessionConfig } from '../../types/public/config.js';
 import type {
-	ComponentInstance,
-	Locales,
-	MiddlewareHandler,
 	RouteData,
 	SSRComponentMetadata,
 	SSRLoadedRenderer,
 	SSRResult,
-	SerializedRouteData,
-} from '../../@types/astro.js';
-import type { RoutingStrategies } from '../../i18n/utils.js';
+} from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 
 export type ComponentPath = string;
@@ -49,8 +48,8 @@ export type SSRManifest = {
 	routes: RouteInfo[];
 	site?: string;
 	base: string;
-	trailingSlash: 'always' | 'never' | 'ignore';
-	buildFormat: 'file' | 'directory' | 'preserve';
+	trailingSlash: AstroConfig['trailingSlash'];
+	buildFormat: NonNullable<AstroConfig['build']>['format'];
 	compressHTML: boolean;
 	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
@@ -68,10 +67,15 @@ export type SSRManifest = {
 	serverIslandNameMap?: Map<string, string>;
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
-	middleware: MiddlewareHandler;
+	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	checkOrigin: boolean;
-	// TODO: remove experimental prefix
-	experimentalEnvGetSecretEnabled: boolean;
+	sessionConfig?: ResolvedSessionConfig<any>;
+	cacheDir: string | URL;
+	srcDir: string | URL;
+	outDir: string | URL;
+	publicDir: string | URL;
+	buildClientDir: string | URL;
+	buildServerDir: string | URL;
 };
 
 export type SSRManifestI18n = {
@@ -83,6 +87,7 @@ export type SSRManifestI18n = {
 	domainLookupTable: Record<string, string>;
 };
 
+/** Public type exposed through the `astro:build:ssr` integration hook */
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
 	| 'middleware'

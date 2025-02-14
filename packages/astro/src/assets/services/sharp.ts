@@ -1,6 +1,6 @@
-import type { FormatEnum, SharpOptions } from 'sharp';
+import type { FitEnum, FormatEnum, SharpOptions } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
+import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
 	type BaseServiceTransform,
 	type LocalImageService,
@@ -38,6 +38,16 @@ async function loadSharp() {
 	return sharpImport;
 }
 
+const fitMap: Record<ImageFit, keyof FitEnum> = {
+	fill: 'fill',
+	contain: 'inside',
+	cover: 'cover',
+	none: 'outside',
+	'scale-down': 'inside',
+	outside: 'outside',
+	inside: 'inside',
+};
+
 const sharpService: LocalImageService<SharpImageServiceConfig> = {
 	validateOptions: baseService.validateOptions,
 	getURL: baseService.getURL,
@@ -46,7 +56,6 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 	getSrcSet: baseService.getSrcSet,
 	async transform(inputBuffer, transformOptions, config) {
 		if (!sharp) sharp = await loadSharp();
-
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
 		// Return SVGs as-is
@@ -62,11 +71,30 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
 
-		// Never resize using both width and height at the same time, prioritizing width.
-		if (transform.height && !transform.width) {
-			result.resize({ height: Math.round(transform.height) });
+		// If `fit` isn't set then use old behavior:
+		// - Do not use both width and height for resizing, and prioritize width over height
+		// - Allow enlarging images
+
+		const withoutEnlargement = Boolean(transform.fit);
+		if (transform.width && transform.height && transform.fit) {
+			const fit: keyof FitEnum = fitMap[transform.fit] ?? 'inside';
+			result.resize({
+				width: Math.round(transform.width),
+				height: Math.round(transform.height),
+				fit,
+				position: transform.position,
+				withoutEnlargement,
+			});
+		} else if (transform.height && !transform.width) {
+			result.resize({
+				height: Math.round(transform.height),
+				withoutEnlargement,
+			});
 		} else if (transform.width) {
-			result.resize({ width: Math.round(transform.width) });
+			result.resize({
+				width: Math.round(transform.width),
+				withoutEnlargement,
+			});
 		}
 
 		if (transform.format) {

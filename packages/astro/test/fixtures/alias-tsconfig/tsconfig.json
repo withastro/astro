@@ -6,12 +6,24 @@
         "src/components/*"
       ],
       "@styles/*": [
-        "src/styles/*"
+        "src/styles/*",
+        "src/more-styles/*"
+      ],
+      "@short/*": [
+        "src/components/*.astro",
+        "src/components/*/index.astro"
       ],
       // this can really trip up namespaced packages
       "@*": [
         "src/*"
       ]
     }
-  }
+  },
+  "include": [
+    ".astro/types.d.ts",
+    "**/*"
+  ],
+  "exclude": [
+    "dist"
+  ]
 }

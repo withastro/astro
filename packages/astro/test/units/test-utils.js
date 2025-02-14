@@ -1,8 +1,7 @@
 import { EventEmitter } from 'node:events';
 import realFS from 'node:fs';
-import npath from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Volume } from 'memfs';
+import { createFixture as _createFixture } from 'fs-fixture';
 import httpMocks from 'node-mocks-http';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
 import { resolveConfig } from '../../dist/core/config/index.js';
@@ -10,9 +9,9 @@ import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { createContainer } from '../../dist/core/dev/container.js';
 import { Logger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
+import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
-import { unixify } from './correct-path.js';
 
 /** @type {import('../../src/core/logger/core').Logger} */
 export const defaultLogger = new Logger({
@@ -26,106 +25,26 @@ export const silentLogging = {
 	level: 'error',
 };
 
-class VirtualVolume extends Volume {
-	#root = '';
-	constructor(root) {
-		super();
-		this.#root = root;
-	}
-
-	#forcePath(p) {
-		if (p instanceof URL) {
-			p = unixify(fileURLToPath(p));
-		} else {
-			p = unixify(p);
-		}
-		return p;
-	}
-
-	getFullyResolvedPath(pth) {
-		return npath.posix.join(this.#root, pth);
-	}
-
-	readFile(p, ...args) {
-		return super.readFile(this.#forcePath(p), ...args);
-	}
-
-	existsSync(p) {
-		return super.existsSync(this.#forcePath(p));
-	}
-
-	writeFileFromRootSync(pth, ...rest) {
-		return super.writeFileSync(this.getFullyResolvedPath(pth), ...rest);
-	}
-}
-
-class VirtualVolumeWithFallback extends VirtualVolume {
-	// Fallback to the real fs
-	readFile(p, ...args) {
-		const cb = args[args.length - 1];
-		const argsMinusCallback = args.slice(0, args.length - 1);
-		return super.readFile(p, ...argsMinusCallback, function (err, data) {
-			if (err) {
-				realFS.readFile(p, ...argsMinusCallback, function (err2, data2) {
-					if (err2) {
-						cb(err);
-					} else {
-						cb(null, data2);
-					}
-				});
-			} else {
-				cb(null, data);
-			}
-		});
-	}
-
-	readFileSync(p, ...args) {
-		try {
-			return super.readFileSync(p, ...args);
-		} catch {
-			return realFS.readFileSync(p, ...args);
-		}
-	}
-}
-
-export function createFs(json, root, VolumeImpl = VirtualVolume) {
-	if (typeof root !== 'string') {
-		root = unixify(fileURLToPath(root));
-	}
-
-	const structure = {};
-	for (const [key, value] of Object.entries(json)) {
-		const fullpath = npath.posix.join(root, key);
-		structure[fullpath] = value;
-	}
-
-	const fs = new VolumeImpl(root);
-	fs.fromJSON(structure);
-	return fs;
-}
-
-export function createFsWithFallback(json, root) {
-	return createFs(json, root, VirtualVolumeWithFallback);
-}
+const tempFixturesDir = fileURLToPath(new URL('./_temp-fixtures/', import.meta.url));
 
 /**
- *
- * @param {import('../../src/core/dev/container').Container} container
- * @param {typeof import('node:fs')} fs
- * @param {string} shortPath
- * @param {'change'} eventType
+ * @param {import('fs-fixture').FileTree} tree
  */
-export function triggerFSEvent(container, fs, shortPath, eventType) {
-	container.viteServer.watcher.emit(eventType, fs.getFullyResolvedPath(shortPath));
-
-	if (!fileURLToPath(container.settings.config.root).startsWith('/')) {
-		const drive = fileURLToPath(container.settings.config.root).slice(0, 2);
-		container.viteServer.watcher.emit(eventType, drive + fs.getFullyResolvedPath(shortPath));
-	}
+export async function createFixture(tree) {
+	return await _createFixture(
+		{
+			'package.json': '{}',
+			...tree,
+		},
+		{
+			tempDir: tempFixturesDir,
+		},
+	);
 }
 
 export function createRequestAndResponse(reqOptions = {}) {
 	const req = httpMocks.createRequest(reqOptions);
+	req.headers.host ||= 'localhost';
 
 	const res = httpMocks.createResponse({
 		eventEmitter: EventEmitter,
@@ -158,6 +77,9 @@ export function toPromise(res) {
 		res.write = function (data, encoding) {
 			if (ArrayBuffer.isView(data) && !Buffer.isBuffer(data)) {
 				data = Buffer.from(data.buffer);
+			}
+			if (typeof data === 'string') {
+				data = Buffer.from(data);
 			}
 			return write.call(this, data, encoding);
 		};
@@ -207,12 +129,15 @@ export function createBasicPipeline(options = {}) {
 	);
 	pipeline.headElements = () => ({ scripts: new Set(), styles: new Set(), links: new Set() });
 	pipeline.componentMetadata = () => new Map();
+	pipeline.getMiddleware = () => {
+		return NOOP_MIDDLEWARE_FN;
+	};
 	return pipeline;
 }
 
 /**
- * @param {import('../../src/@types/astro.js').AstroInlineConfig} inlineConfig
- * @returns {Promise<import('../../src/@types/astro.js').AstroSettings>}
+ * @param {import('../../src/types/public/config.js').AstroInlineConfig} inlineConfig
+ * @returns {Promise<import('../../src/types/astro.js').AstroSettings>}
  */
 export async function createBasicSettings(inlineConfig = {}) {
 	if (!inlineConfig.root) {
@@ -225,7 +150,7 @@ export async function createBasicSettings(inlineConfig = {}) {
 /**
  * @typedef {{
  * 	fs?: typeof realFS,
- * 	inlineConfig?: import('../../src/@types/astro.js').AstroInlineConfig,
+ * 	inlineConfig?: import('../../src/types/public/config.js').AstroInlineConfig,
  *  logging?: import('../../src/core/logger/core').LogOptions,
  * }} RunInContainerOptions
  */

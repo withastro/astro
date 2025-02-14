@@ -1,5 +1,5 @@
 import type * as vite from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
 
 const virtualModuleId = 'astro:prefetch';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -45,15 +45,25 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 		},
 		transform(code, id) {
 			// NOTE: Handle replacing the specifiers even if prefetch is disabled so View Transitions
-			// can import the internal module as not hit runtime issues.
+			// can import the internal module and not hit runtime issues.
 			if (id.includes(prefetchInternalModuleFsSubpath)) {
-				return code
-					.replace('__PREFETCH_PREFETCH_ALL__', JSON.stringify(prefetch?.prefetchAll))
-					.replace('__PREFETCH_DEFAULT_STRATEGY__', JSON.stringify(prefetch?.defaultStrategy))
+				// We perform a simple replacement with padding so that the code offset is not changed and
+				// we don't have to generate a sourcemap. This has the assumption that the replaced string
+				// will always be shorter than the search string to work.
+				code = code
 					.replace(
-						'__EXPERIMENTAL_CLIENT_PRERENDER__',
-						JSON.stringify(settings.config.experimental.clientPrerender),
+						'__PREFETCH_PREFETCH_ALL__', // length: 25
+						`${JSON.stringify(prefetch?.prefetchAll)}`.padEnd(25),
+					)
+					.replace(
+						'__PREFETCH_DEFAULT_STRATEGY__', // length: 29
+						`${JSON.stringify(prefetch?.defaultStrategy)}`.padEnd(29),
+					)
+					.replace(
+						'__EXPERIMENTAL_CLIENT_PRERENDER__', // length: 33
+						`${JSON.stringify(settings.config.experimental.clientPrerender)}`.padEnd(33),
 					);
+				return { code, map: null };
 			}
 		},
 	};

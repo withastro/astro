@@ -3,6 +3,7 @@ import type { z } from 'zod';
 import { REDIRECT_STATUS_CODES } from '../../../core/constants.js';
 import { ActionsReturnedInvalidDataError } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
+import { appendForwardSlash as _appendForwardSlash } from '../../../core/path.js';
 import { ACTION_QUERY_PARAMS as _ACTION_QUERY_PARAMS } from '../../consts.js';
 import type {
 	ErrorInferenceObject,
@@ -12,6 +13,8 @@ import type {
 
 export type ActionAPIContext = _ActionAPIContext;
 export const ACTION_QUERY_PARAMS = _ACTION_QUERY_PARAMS;
+
+export const appendForwardSlash = _appendForwardSlash;
 
 export const ACTION_ERROR_CODES = [
 	'BAD_REQUEST',
@@ -57,8 +60,7 @@ const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToSt
 
 // T is used for error inference with SafeInput -> isInputError.
 // See: https://github.com/withastro/astro/pull/11173/files#r1622767246
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> extends Error {
+export class ActionError<_T extends ErrorInferenceObject = ErrorInferenceObject> extends Error {
 	type = 'AstroActionError';
 	code: ActionErrorCode = 'INTERNAL_SERVER_ERROR';
 	status = 500;
@@ -204,14 +206,26 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 		if (import.meta.env?.DEV) {
 			actionResultErrorStack.set(res.error.stack);
 		}
+
+		let body: Record<string, any>;
+		if (res.error instanceof ActionInputError) {
+			body = {
+				type: res.error.type,
+				issues: res.error.issues,
+				fields: res.error.fields,
+			};
+		} else {
+			body = {
+				...res.error,
+				message: res.error.message,
+			};
+		}
+
 		return {
 			type: 'error',
 			status: res.error.status,
 			contentType: 'application/json',
-			body: JSON.stringify({
-				...res.error,
-				message: res.error.message,
-			}),
+			body: JSON.stringify(body),
 		};
 	}
 	if (res.data === undefined) {

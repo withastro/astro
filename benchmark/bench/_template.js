@@ -6,7 +6,7 @@ export const defaultProject = 'project-name';
  * Use `console.log` to report the results too. Logs that start with 10 `=`
  * and end with 10 `=` will be extracted by CI to display in the PR comment.
  * Usually after the first 10 `=` you'll want to add a title like `#### Test`.
- * @param {URL} projectDir
- * @param {URL} outputFile
+ * @param {URL} _projectDir
+ * @param {URL} _outputFile
  */
-export async function run(projectDir, outputFile) {}
+export async function run(_projectDir, _outputFile) {}

@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import stripAnsi from 'strip-ansi';
+import { stripVTControlCharacters } from 'node:util';
 import type { LogLevel, Rollup, Logger as ViteLogger } from 'vite';
 import { isAstroError } from '../errors/errors.js';
 import { serverShortcuts as formatServerShortcuts } from '../messages.js';
@@ -34,7 +34,7 @@ export function createViteLogger(
 		info(msg) {
 			if (!isLogLevelEnabled(viteLogLevel, 'info')) return;
 
-			const stripped = stripAnsi(msg);
+			const stripped = stripVTControlCharacters(msg);
 			let m;
 			// Rewrite HMR page reload message
 			if ((m = vitePageReloadMsg.exec(stripped))) {

@@ -117,4 +117,13 @@ describe('SSR manual routing', () => {
 		const $ = cheerio.load(html);
 		assert.equal($('p').text(), '/en/blog/title/');
 	});
+
+	it('should use the fallback', async () => {
+		let request = new Request('http://example.com/it/start');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		assert.equal($('p').text(), '/en/blog/title/');
+	});
 });

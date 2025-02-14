@@ -55,5 +55,34 @@ export const server = {
 				return comment;
 			},
 		}),
+
+		lotsOfStuff: defineAction({
+			accept: 'form',
+			input: z.object({
+				one: z.string().min(3),
+				two: z.string().min(3),
+				three: z.string().min(3),
+				four: z.string().min(3),
+				five: z.string().min(3),
+				six: z.string().min(3),
+				seven: z.string().min(3),
+				eight: z.string().min(3),
+				nine: z.string().min(3),
+				ten: z.string().min(3),
+			}),
+			handler(form) {
+				return form;
+			},
+		}),
 	},
+	sum: defineAction({
+		accept: 'form',
+		input: z.object({
+			a: z.number(),
+			b: z.number(),
+		}),
+		async handler({ a, b }) {
+			return a + b;
+		},
+	}),
 };

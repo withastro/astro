@@ -7,6 +7,29 @@ const passwordSchema = z
 	.max(128, 'Password length exceeded. Max 128 chars.');
 
 export const server = {
+	imageUploadInChunks: defineAction({
+		accept: 'form',
+		input: z.discriminatedUnion('type', [
+			z.object({
+				type: z.literal('first-chunk'),
+				image: z.instanceof(File),
+				alt: z.string(),
+			}),
+			z.object({ type: z.literal('rest-chunk'), image: z.instanceof(File), uploadId: z.string() }),
+		]),
+		handler: async (data) => {
+			if (data.type === 'first-chunk') {
+				const uploadId = Math.random().toString(36).slice(2);
+				return {
+					uploadId,
+				};
+			} else {
+				return {
+					uploadId: data.uploadId,
+				};
+			}
+		},
+	}),
 	subscribe: defineAction({
 		input: z.object({ channel: z.string() }),
 		handler: async ({ channel }) => {
@@ -136,6 +159,35 @@ export const server = {
 				set: new Set(),
 				url: new URL('https://example.com'),
 			};
+		},
+	}),
+	locked: defineAction({
+		handler: async () => {
+			return { safe: true };
+		},
+	}),
+	'with.dot': defineAction({
+		input: z.object({
+			name: z.string(),
+		}),
+		handler: async (input) => {
+			return `Hello, ${input.name}!`;
+		},
+	}),
+	'with space': defineAction({
+		input: z.object({
+			name: z.string(),
+		}),
+		handler: async (input) => {
+			return `Hello, ${input.name}!`;
+		},
+	}),
+	'with/slash': defineAction({
+		input: z.object({
+			name: z.string(),
+		}),
+		handler: async (input) => {
+			return `Hello, ${input.name}!`;
 		},
 	}),
 };

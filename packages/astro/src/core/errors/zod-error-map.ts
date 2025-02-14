@@ -29,30 +29,56 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 				}
 			}
 		}
-		let messages: string[] = [
-			prefix(
-				baseErrorPath,
-				typeOrLiteralErrByPath.size ? 'Did not match union:' : 'Did not match union.',
-			),
-		];
+		const messages: string[] = [prefix(baseErrorPath, 'Did not match union.')];
+		const details: string[] = [...typeOrLiteralErrByPath.entries()]
+			// If type or literal error isn't common to ALL union types,
+			// filter it out. Can lead to confusing noise.
+			.filter(([, error]) => error.expected.length === baseError.unionErrors.length)
+			.map(([key, error]) =>
+				key === baseErrorPath
+					? // Avoid printing the key again if it's a base error
+						`> ${getTypeOrLiteralMsg(error)}`
+					: `> ${prefix(key, getTypeOrLiteralMsg(error))}`,
+			);
+
+		if (details.length === 0) {
+			const expectedShapes: string[] = [];
+			for (const unionError of baseError.unionErrors) {
+				const expectedShape: string[] = [];
+				for (const issue of unionError.issues) {
+					// If the issue is a nested union error, show the associated error message instead of the
+					// base error message.
+					if (issue.code === 'invalid_union') {
+						return errorMap(issue, ctx);
+					}
+					const relativePath = flattenErrorPath(issue.path)
+						.replace(baseErrorPath, '')
+						.replace(leadingPeriod, '');
+					if ('expected' in issue && typeof issue.expected === 'string') {
+						expectedShape.push(
+							relativePath ? `${relativePath}: ${issue.expected}` : issue.expected,
+						);
+					} else {
+						expectedShape.push(relativePath);
+					}
+				}
+				if (expectedShape.length === 1 && !expectedShape[0]?.includes(':')) {
+					// In this case the expected shape is not an object, but probably a literal type, e.g. `['string']`.
+					expectedShapes.push(expectedShape.join(''));
+				} else {
+					expectedShapes.push(`{ ${expectedShape.join('; ')} }`);
+				}
+			}
+			if (expectedShapes.length) {
+				details.push('> Expected type `' + expectedShapes.join(' | ') + '`');
+				details.push('> Received `' + stringify(ctx.data) + '`');
+			}
+		}
+
 		return {
-			message: messages
-				.concat(
-					[...typeOrLiteralErrByPath.entries()]
-						// If type or literal error isn't common to ALL union types,
-						// filter it out. Can lead to confusing noise.
-						.filter(([, error]) => error.expected.length === baseError.unionErrors.length)
-						.map(([key, error]) =>
-							key === baseErrorPath
-								? // Avoid printing the key again if it's a base error
-									`> ${getTypeOrLiteralMsg(error)}`
-								: `> ${prefix(key, getTypeOrLiteralMsg(error))}`,
-						),
-				)
-				.join('\n'),
+			message: messages.concat(details).join('\n'),
 		};
-	}
-	if (baseError.code === 'invalid_literal' || baseError.code === 'invalid_type') {
+	} else if (baseError.code === 'invalid_literal' || baseError.code === 'invalid_type') {
 		return {
 			message: prefix(
 				baseErrorPath,
@@ -71,29 +97,30 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 };
 
 const getTypeOrLiteralMsg = (error: TypeOrLiteralErrByPathEntry): string => {
-	if (error.received === 'undefined') return 'Required';
+	// received could be `undefined` or the string `'undefined'`
+	if (typeof error.received === 'undefined' || error.received === 'undefined') return 'Required';
 	const expectedDeduped = new Set(error.expected);
 	switch (error.code) {
 		case 'invalid_type':
-			return `Expected type \`${unionExpectedVals(expectedDeduped)}\`, received ${JSON.stringify(
+			return `Expected type \`${unionExpectedVals(expectedDeduped)}\`, received \`${stringify(
 				error.received,
-			)}`;
+			)}\``;
 		case 'invalid_literal':
-			return `Expected \`${unionExpectedVals(expectedDeduped)}\`, received ${JSON.stringify(
+			return `Expected \`${unionExpectedVals(expectedDeduped)}\`, received \`${stringify(
 				error.received,
-			)}`;
+			)}\``;
 	}
 };
 
 const prefix = (key: string, msg: string) => (key.length ? `**${key}**: ${msg}` : msg);
 
 const unionExpectedVals = (expectedVals: Set<unknown>) =>
-	[...expectedVals]
-		.map((expectedVal, idx) => {
-			if (idx === 0) return JSON.stringify(expectedVal);
-			const sep = ' | ';
-			return `${sep}${JSON.stringify(expectedVal)}`;
-		})
-		.join('');
+	[...expectedVals].map((expectedVal) => stringify(expectedVal)).join(' | ');
 
 const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');
+
+/** `JSON.stringify()` a value with spaces around object/array entries. */
+const stringify = (val: unknown) =>
+	JSON.stringify(val, null, 1).split(newlinePlusWhitespace).join(' ');
+const newlinePlusWhitespace = /\n\s*/;
+const leadingPeriod = /^\./;

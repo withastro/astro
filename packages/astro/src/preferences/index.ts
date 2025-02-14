@@ -1,11 +1,10 @@
-import type { AstroConfig } from '../@types/astro.js';
-
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 import dget from 'dlv';
+import type { AstroConfig } from '../types/public/config.js';
 import { DEFAULT_PREFERENCES, type Preferences, type PublicPreferences } from './defaults.js';
 import { PreferenceStore } from './store.js';
 
@@ -66,6 +65,7 @@ export function isValidKey(key: string): key is PreferenceKey {
 }
 export function coerce(key: string, value: unknown) {
 	const type = typeof dget(DEFAULT_PREFERENCES, key);
+	// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 	switch (type) {
 		case 'string':
 			return value;
@@ -143,6 +143,7 @@ function getGlobalPreferenceDir() {
 		const { XDG_CONFIG_HOME = path.join(homedir, '.config') } = process.env;
 		return path.join(XDG_CONFIG_HOME, name);
 	};
+	// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 	switch (process.platform) {
 		case 'darwin':
 			return macos();

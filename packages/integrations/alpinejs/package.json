@@ -1,14 +1,14 @@
 {
   "name": "@astrojs/alpinejs",
   "description": "Use Alpine within Astro",
-  "version": "0.4.0",
+  "version": "0.4.3",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/integrations/alpinejs"
   },
   "keywords": [
@@ -38,10 +38,10 @@
     "alpinejs": "^3.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.46.1",
+    "@playwright/test": "1.50.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "vite": "^5.4.2"
+    "vite": "^6.0.11"
   },
   "publishConfig": {
     "provenance": true

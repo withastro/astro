@@ -124,12 +124,13 @@ export function getLocalVirtualModContents({
 	tables: DBTables;
 	root: URL;
 }) {
+	const { ASTRO_DATABASE_FILE } = getAstroEnv();
 	const dbInfo = getRemoteDatabaseInfo();
 	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { asDrizzleTable, createLocalDatabaseClient, normalizeDatabaseUrl } from ${RUNTIME_IMPORT};
 
-const dbUrl = normalizeDatabaseUrl(import.meta.env.ASTRO_DATABASE_FILE, ${JSON.stringify(dbUrl)});
+const dbUrl = normalizeDatabaseUrl(${JSON.stringify(ASTRO_DATABASE_FILE)}, ${JSON.stringify(dbUrl)});
 export const db = createLocalDatabaseClient({ dbUrl, enableTransactions: ${dbInfo.url === 'libsql'} });
 
 export * from ${RUNTIME_VIRTUAL_IMPORT};
@@ -168,10 +169,14 @@ export function getStudioVirtualModContents({
 	function dbUrlArg() {
 		const dbStr = JSON.stringify(dbInfo.url);
 
-		// Allow overriding, mostly for testing
-		return dbInfo.type === 'studio'
-			? `import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${dbStr}`
-			: `import.meta.env.ASTRO_DB_REMOTE_URL ?? ${dbStr}`;
+		if (isBuild) {
+			// Allow overriding, mostly for testing
+			return dbInfo.type === 'studio'
+				? `import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${dbStr}`
+				: `import.meta.env.ASTRO_DB_REMOTE_URL ?? ${dbStr}`;
+		} else {
+			return dbStr;
+		}
 	}
 
 	return `
@@ -206,7 +211,7 @@ async function recreateTables({ tables, root }: { tables: LateTables; root: URL 
 	const dbInfo = getRemoteDatabaseInfo();
 	const { ASTRO_DATABASE_FILE } = getAstroEnv();
 	const dbUrl = normalizeDatabaseUrl(ASTRO_DATABASE_FILE, new URL(DB_PATH, root).href);
-	const db = createLocalDatabaseClient({ dbUrl, enableTransations: dbInfo.type === 'libsql' });
+	const db = createLocalDatabaseClient({ dbUrl, enableTransactions: dbInfo.type === 'libsql' });
 	const setupQueries: SQL[] = [];
 	for (const [name, table] of Object.entries(tables.get() ?? {})) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);

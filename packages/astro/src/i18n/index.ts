@@ -1,15 +1,11 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type {
-	APIContext,
-	AstroConfig,
-	Locales,
-	SSRManifest,
-	ValidRedirectStatus,
-} from '../@types/astro.js';
+import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
 import { MissingLocale, i18nNoLocaleFoundInPath } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
+import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
+import type { APIContext } from '../types/public/context.js';
 import { createI18nMiddleware } from './middleware.js';
 import type { RoutingStrategies } from './utils.js';
 
@@ -17,12 +13,6 @@ export function requestHasLocale(locales: Locales) {
 	return function (context: APIContext): boolean {
 		return pathHasLocale(context.url.pathname, locales);
 	};
-}
-
-export function requestIs404Or500(request: Request, base = '') {
-	const url = new URL(request.url);
-
-	return url.pathname.startsWith(`${base}/404`) || url.pathname.startsWith(`${base}/500`);
 }
 
 // Checks if the pathname has any locale
@@ -108,11 +98,17 @@ export function getLocaleRelativeUrl({
 	}
 	pathsToJoin.push(path);
 
+	let relativePath: string;
 	if (shouldAppendForwardSlash(trailingSlash, format)) {
-		return appendForwardSlash(joinPaths(...pathsToJoin));
+		relativePath = appendForwardSlash(joinPaths(...pathsToJoin));
 	} else {
-		return joinPaths(...pathsToJoin);
+		relativePath = joinPaths(...pathsToJoin);
 	}
+
+	if (relativePath === '') {
+		return '/';
+	}
+	return relativePath;
 }
 
 /**
@@ -126,7 +122,9 @@ export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsolu
 		const base = domains[locale];
 		url = joinPaths(base, localeUrl.replace(`/${rest.locale}`, ''));
 	} else {
-		if (site) {
+		if (localeUrl === '/') {
+			url = site || '/';
+		} else if (site) {
 			url = joinPaths(site, localeUrl);
 		} else {
 			url = localeUrl;
@@ -302,9 +300,14 @@ export function redirectToDefaultLocale({
 }
 
 // NOTE: public function exported to the users via `astro:i18n` module
-export function notFound({ base, locales }: MiddlewarePayload) {
+export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 	return function (context: APIContext, response?: Response): Response | undefined {
-		if (response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no') return response;
+		if (
+			response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no' &&
+			typeof fallback === 'undefined'
+		) {
+			return response;
+		}
 
 		const url = context.url;
 		// We return a 404 if:
@@ -379,9 +382,9 @@ export function redirectToFallback({
 				}
 
 				if (fallbackType === 'rewrite') {
-					return await context.rewrite(newPathname);
+					return await context.rewrite(newPathname + context.url.search);
 				} else {
-					return context.redirect(newPathname);
+					return context.redirect(newPathname + context.url.search);
 				}
 			}
 		}

@@ -3,13 +3,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as colors from 'kleur/colors';
 import { ZodError } from 'zod';
+import { eventConfigError, telemetry } from '../../events/index.js';
 import type {
 	AstroConfig,
 	AstroInlineConfig,
 	AstroInlineOnlyConfig,
 	AstroUserConfig,
-} from '../../@types/astro.js';
-import { eventConfigError, telemetry } from '../../events/index.js';
+} from '../../types/public/config.js';
 import { trackAstroConfigZodError } from '../errors/errors.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { formatConfigErrorMessage } from '../messages.js';
@@ -97,7 +97,6 @@ async function loadConfig(
 	} catch (e) {
 		const configPathText = configFile ? colors.bold(configFile) : 'your Astro config';
 		// Config errors should bypass log level as it breaks startup
-		// eslint-disable-next-line no-console
 		console.error(`${colors.bold(colors.red('[astro]'))} Unable to load ${configPathText}\n`);
 		throw e;
 	}
@@ -158,7 +157,6 @@ export async function resolveConfig(
 			// Mark this error so the callee can decide to suppress Zod's error if needed.
 			// We still want to throw the error to signal an error in validation.
 			trackAstroConfigZodError(e);
-			// eslint-disable-next-line no-console
 			console.error(formatConfigErrorMessage(e) + '\n');
 			telemetry.record(eventConfigError({ cmd: command, err: e, isFatal: true }));
 		}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let id: string;
+	let { id } = $props<{ id: string }>();
 </script>
 
 <div {id}>Framework client:only component</div>

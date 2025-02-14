@@ -1,5 +1,115 @@
 # @astrojs/db
 
+## 0.14.6
+
+### Patch Changes
+
+- [#13011](https://github.com/withastro/astro/pull/13011) [`cf30880`](https://github.com/withastro/astro/commit/cf3088060d45227dcb48e041c4ed5e0081d71398) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite
+
+- Updated dependencies [[`cf30880`](https://github.com/withastro/astro/commit/cf3088060d45227dcb48e041c4ed5e0081d71398)]:
+  - @astrojs/studio@0.1.4
+
+## 0.14.5
+
+### Patch Changes
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
+- Updated dependencies [[`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0)]:
+  - @astrojs/studio@0.1.3
+
+## 0.14.4
+
+### Patch Changes
+
+- [#12416](https://github.com/withastro/astro/pull/12416) [`618de28`](https://github.com/withastro/astro/commit/618de283f57d19397246f69dd476611abd56cf13) Thanks [@abegehr](https://github.com/abegehr)! - Fixes `isDbError()` guard for `LibsqlError`
+
+- [#12719](https://github.com/withastro/astro/pull/12719) [`358eae8`](https://github.com/withastro/astro/commit/358eae83b7cf3d79395eea3824e321b502522547) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes the publishing of the package
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.2
+
+## 0.14.1
+
+### Patch Changes
+
+- [#12628](https://github.com/withastro/astro/pull/12628) [`348c71e`](https://github.com/withastro/astro/commit/348c71ecdc7e2a7afb169c2251692416d5e59fcb) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused an error to be logged about invalid entrypoints
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.2
+
+## 0.14.0
+
+### Minor Changes
+
+- [#12008](https://github.com/withastro/astro/pull/12008) [`5608338`](https://github.com/withastro/astro/commit/560833843c6d3ce2b6c6c473ec4ae70e744bf255) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
+
+  Starting from this release, no breaking changes will be introduced unless absolutely necessary.
+
+  To learn how to upgrade, check out the [Astro v5.0 upgrade guide in our beta docs site](https://5-0-0-beta.docs.astro.build/en/guides/upgrade-to/v5/).
+
+### Patch Changes
+
+- [#12073](https://github.com/withastro/astro/pull/12073) [`acf264d`](https://github.com/withastro/astro/commit/acf264d8c003718cda5a0b9ce5fb7ac1cd6641b6) Thanks [@bluwy](https://github.com/bluwy)! - Replaces `ora` with `yocto-spinner`
+
+- Updated dependencies [[`acf264d`](https://github.com/withastro/astro/commit/acf264d8c003718cda5a0b9ce5fb7ac1cd6641b6)]:
+  - @astrojs/studio@0.1.2
+
+## 0.14.0-beta.2
+
+### Patch Changes
+
+- [#12073](https://github.com/withastro/astro/pull/12073) [`acf264d`](https://github.com/withastro/astro/commit/acf264d8c003718cda5a0b9ce5fb7ac1cd6641b6) Thanks [@bluwy](https://github.com/bluwy)! - Replaces `ora` with `yocto-spinner`
+
+- Updated dependencies [[`acf264d`](https://github.com/withastro/astro/commit/acf264d8c003718cda5a0b9ce5fb7ac1cd6641b6)]:
+  - @astrojs/studio@0.1.2-beta.0
+
+## 0.14.0-beta.1
+
+### Minor Changes
+
+- [#12008](https://github.com/withastro/astro/pull/12008) [`5608338`](https://github.com/withastro/astro/commit/560833843c6d3ce2b6c6c473ec4ae70e744bf255) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
+
+  Starting from this release, no breaking changes will be introduced unless absolutely necessary.
+
+  To learn how to upgrade, check out the [Astro v5.0 upgrade guide in our beta docs site](https://5-0-0-beta.docs.astro.build/en/guides/upgrade-to/v5/).
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.14.3
+
+### Patch Changes
+
+- [#11435](https://github.com/withastro/astro/pull/11435) [`f32a7a8`](https://github.com/withastro/astro/commit/f32a7a83889dd6180b2e4cde9b30286ab6874e49) Thanks [@haivuw](https://github.com/haivuw)! - Fixes a bug where `astro:db:seed` couldn't access to the environment variable `ASTRO_DATABASE_FILE`
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.14.2
+
+### Patch Changes
+
+- [#12118](https://github.com/withastro/astro/pull/12118) [`f47b347`](https://github.com/withastro/astro/commit/f47b347da899c6e1dcd0b2e7887f7fce6ec8e270) Thanks [@Namchee](https://github.com/Namchee)! - Removes the `strip-ansi` dependency in favor of the native Node API
+
+- [#12089](https://github.com/withastro/astro/pull/12089) [`6e06e6e`](https://github.com/withastro/astro/commit/6e06e6ed4f1c983f842527d7e3561a45a4407777) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes initial schema push for local file and in-memory libSQL DB
+
+- [#12089](https://github.com/withastro/astro/pull/12089) [`6e06e6e`](https://github.com/withastro/astro/commit/6e06e6ed4f1c983f842527d7e3561a45a4407777) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes relative local libSQL db URL
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.14.1
+
+### Patch Changes
+
+- [#11894](https://github.com/withastro/astro/pull/11894) [`cc820c5`](https://github.com/withastro/astro/commit/cc820c5d5e176a8d71594d612af75e1c94b9bf02) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes mixed environment variable for app token when using DB commands with libSQL remote.
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
 ## 0.14.0
 
 ### Minor Changes
@@ -126,7 +236,7 @@
 
 - [#11032](https://github.com/withastro/astro/pull/11032) [`b78e83f`](https://github.com/withastro/astro/commit/b78e83f448d142e83be592f6249c4822e7cd5726) Thanks [@itsMapleLeaf](https://github.com/itsMapleLeaf)! - Adds support for multiple Astro Studio workspaces (aka “Teams”) to the Astro DB CLI
 
-  Users who are members of a team workspace in Astro Studio can now choose between those and their personal workspace when runnning `astro db link`.
+  Users who are members of a team workspace in Astro Studio can now choose between those and their personal workspace when running `astro db link`.
 
 - [#11091](https://github.com/withastro/astro/pull/11091) [`e14ce57`](https://github.com/withastro/astro/commit/e14ce5726df73e2988fe1a39e078ef2d66d2f4a8) Thanks [@matthewp](https://github.com/matthewp)! - Fix inconsistent result type using raw SQL
 

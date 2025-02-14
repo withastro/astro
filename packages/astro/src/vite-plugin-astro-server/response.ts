@@ -1,10 +1,12 @@
 import type http from 'node:http';
+import { Http2ServerResponse } from 'node:http2';
 import type { ErrorWithMetadata } from '../core/errors/index.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 
 import { Readable } from 'node:stream';
 import { getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
+import { redirectTemplate } from '../core/routing/3xx.js';
 import notFoundTemplate from '../template/4xx.js';
 
 export async function handle404Response(
@@ -45,7 +47,22 @@ export async function handle500Response(
 
 export function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: string) {
 	res.writeHead(statusCode, {
-		'Content-Type': 'text/html; charset=utf-8',
+		'Content-Type': 'text/html',
+		'Content-Length': Buffer.byteLength(html, 'utf-8'),
+	});
+	res.write(html);
+	res.end();
+}
+
+export function writeRedirectResponse(
+	res: http.ServerResponse,
+	statusCode: number,
+	location: string,
+) {
+	const html = redirectTemplate({ status: statusCode, location });
+	res.writeHead(statusCode, {
+		Location: location,
+		'Content-Type': 'text/html',
 		'Content-Length': Buffer.byteLength(html, 'utf-8'),
 	});
 	res.write(html);
@@ -53,7 +70,7 @@ export function writeHtmlResponse(res: http.ServerResponse, statusCode: number, 
 }
 
 export async function writeWebResponse(res: http.ServerResponse, webResponse: Response) {
-	const { status, headers, body } = webResponse;
+	const { status, headers, body, statusText } = webResponse;
 
 	// Attach any set-cookie headers added via Astro.cookies.set()
 	const setCookieHeaders = Array.from(getSetCookiesFromResponse(webResponse));
@@ -67,7 +84,10 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 	if (headers.has('set-cookie')) {
 		_headers['set-cookie'] = headers.getSetCookie();
 	}
-
+	// HTTP/2 doesn't support statusMessage
+	if (!(res instanceof Http2ServerResponse)) {
+		res.statusMessage = statusText;
+	}
 	res.writeHead(status, _headers);
 	if (body) {
 		if (Symbol.for('astro.responseBody') in webResponse) {

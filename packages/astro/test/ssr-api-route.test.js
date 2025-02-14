@@ -33,6 +33,7 @@ describe('API routes in SSR', () => {
 			const request = new Request('http://example.com/food.json');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
+			assert.equal(response.statusText, 'tasty');
 			const body = await response.json();
 			assert.equal(body.length, 3);
 		});
@@ -76,6 +77,17 @@ describe('API routes in SSR', () => {
 			assert.equal(response.status, 200);
 			const text = await response.text();
 			assert.equal(text, 'ok');
+		});
+
+		it('Can read custom status text from API routes', async () => {
+			const response = await fixture.fetch('/food.json', {
+				method: 'POST',
+				body: `not some data`,
+			});
+			assert.equal(response.status, 400);
+			assert.equal(response.statusText, 'not ok');
+			const text = await response.text();
+			assert.equal(text, 'not ok');
 		});
 
 		it('Can be passed binary data from multipart formdata', async () => {
@@ -125,23 +137,29 @@ describe('API routes in SSR', () => {
 			assert.equal(count, 2, 'Found two separate set-cookie response headers');
 		});
 
+		it('can return an immutable response object', async () => {
+			const response = await fixture.fetch('/fail');
+			const text = await response.text();
+			assert.equal(response.status, 500);
+			assert.equal(text, '500 Internal Server Error');
+		});
+
 		it('Has valid api context', async () => {
 			const response = await fixture.fetch('/context/any');
 			assert.equal(response.status, 200);
 			const data = await response.json();
-			assert.equal(data.cookiesExist, true);
-			assert.equal(data.requestExist, true);
-			assert.equal(data.redirectExist, true);
-			assert.equal(data.propsExist, true);
+			assert.ok(data.cookiesExist);
+			assert.ok(data.requestExist);
+			assert.ok(data.redirectExist);
+			assert.ok(data.propsExist);
 			assert.deepEqual(data.params, { param: 'any' });
 			assert.match(data.generator, /^Astro v/);
-			assert.equal(
+			assert.ok(
 				['http://[::1]:4321/blog/context/any', 'http://127.0.0.1:4321/blog/context/any'].includes(
 					data.url,
 				),
-				true,
 			);
-			assert.equal(['::1', '127.0.0.1'].includes(data.clientAddress), true);
+			assert.ok(['::1', '127.0.0.1'].includes(data.clientAddress));
 			assert.equal(data.site, 'https://mysite.dev/subsite/');
 		});
 	});

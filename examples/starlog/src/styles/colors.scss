@@ -1,11 +1,13 @@
+@use 'sass:map';
+
 @function color($color, $tone) {
-	// @warn map-get($palette,$color);
+	// @warn map.get($palette,$color);
 
-	@if map-has-key($palette, $color) {
-		$color: map-get($palette, $color);
+	@if map.has-key($palette, $color) {
+		$color: map.get($palette, $color);
 
-		@if map-has-key($color, $tone) {
-			$tone: map-get($color, $tone);
+		@if map.has-key($color, $tone) {
+			$tone: map.get($color, $tone);
 			@return $tone;
 		}
 

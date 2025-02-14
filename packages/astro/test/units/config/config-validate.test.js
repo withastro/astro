@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import stripAnsi from 'strip-ansi';
+import { stripVTControlCharacters } from 'node:util';
 import { z } from 'zod';
 import { validateConfig } from '../../../dist/core/config/validate.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
@@ -19,11 +19,12 @@ describe('Config Validation', () => {
 	it('A validation error can be formatted correctly', async () => {
 		const configError = await validateConfig({ site: 42 }, process.cwd()).catch((err) => err);
 		assert.equal(configError instanceof z.ZodError, true);
-		const formattedError = stripAnsi(formatConfigErrorMessage(configError));
+		const formattedError = stripVTControlCharacters(formatConfigErrorMessage(configError));
 		assert.equal(
 			formattedError,
 			`[config] Astro found issue(s) with your configuration:
-  ! site  Expected string, received number.`,
+
+! site: Expected type "string", received "number"`,
 		);
 	});
 
@@ -34,12 +35,15 @@ describe('Config Validation', () => {
 		};
 		const configError = await validateConfig(veryBadConfig, process.cwd()).catch((err) => err);
 		assert.equal(configError instanceof z.ZodError, true);
-		const formattedError = stripAnsi(formatConfigErrorMessage(configError));
+		const formattedError = stripVTControlCharacters(formatConfigErrorMessage(configError));
 		assert.equal(
 			formattedError,
 			`[config] Astro found issue(s) with your configuration:
-  ! integrations.0  Expected object, received number.
-  ! build.format  Invalid input.`,
+
+! integrations.0: Expected type "object", received "number"
+
+! build.format: Did not match union.
+  > Expected "file" | "directory" | "preserve", received "invalid"`,
 		);
 	});
 
@@ -118,7 +122,10 @@ describe('Config Validation', () => {
 				process.cwd(),
 			).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
-			assert.equal(configError.errors[0].message, 'Array must contain at least 1 element(s)');
+			assert.equal(
+				configError.errors[0].message,
+				'**i18n.locales.1.codes**: Array must contain at least 1 element(s)',
+			);
 		});
 
 		it('errors if the default locale is not in path', async () => {
@@ -358,10 +365,8 @@ describe('Config Validation', () => {
 			assert.doesNotThrow(() =>
 				validateConfig(
 					{
-						experimental: {
-							env: {
-								schema: undefined,
-							},
+						env: {
+							schema: undefined,
 						},
 					},
 					process.cwd(),
@@ -373,11 +378,9 @@ describe('Config Validation', () => {
 			assert.doesNotThrow(() =>
 				validateConfig(
 					{
-						experimental: {
-							env: {
-								schema: {
-									ABC123: envField.string({ access: 'public', context: 'server' }),
-								},
+						env: {
+							schema: {
+								ABC123: envField.string({ access: 'public', context: 'server' }),
 							},
 						},
 					},
@@ -389,11 +392,9 @@ describe('Config Validation', () => {
 		it('Should not allow schema variables starting with a number', async () => {
 			const configError = await validateConfig(
 				{
-					experimental: {
-						env: {
-							schema: {
-								'123ABC': envField.string({ access: 'public', context: 'server' }),
-							},
+					env: {
+						schema: {
+							'123ABC': envField.string({ access: 'public', context: 'server' }),
 						},
 					},
 				},
@@ -403,6 +404,26 @@ describe('Config Validation', () => {
 			assert.equal(
 				configError.errors[0].message,
 				'A valid variable name cannot start with a number.',
+			);
+		});
+
+		it('Should provide a useful error for access/context invalid combinations', async () => {
+			const configError = await validateConfig(
+				{
+					env: {
+						schema: {
+							BAR: envField.string({ access: 'secret', context: 'client' }),
+						},
+					},
+				},
+				process.cwd(),
+			).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'**Invalid combination** of "access" and "context" options',
+				),
+				true,
 			);
 		});
 	});

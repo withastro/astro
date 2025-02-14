@@ -87,7 +87,7 @@ Flow:
    - Q: How does `findElementGroups()` work? <br>
      A: For each elements in `allPossibleElements` that are non-static, we're able to take the element metadata from `elementMetadatas` and guess the next sibling node. If the next sibling node is static and is an element in `allPossibleElements`, we group them together for optimization. It continues to guess until it hits a non-static node or an element not in `allPossibleElements`, which it'll finalize the group as part of the returned result.
 
-2. For each elements in `allPossibleElements`, we serailize them as HTML and add it to the `set:html` property of the `hast` node, and remove its children.
+2. For each elements in `allPossibleElements`, we serialize them as HTML and add it to the `set:html` property of the `hast` node, and remove its children.
 3. For each element group in `elementGroups`, we serialize the group children as HTML and add it to a new `<Fragment set:html="..." />` node, and replace the group children with the new `<Fragment />` node.
 4. 🎉 The rest of the MDX pipeline will do its thing and generate the desired JSX like above.
 

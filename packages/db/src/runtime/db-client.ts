@@ -20,7 +20,7 @@ function applyTransactionNotSupported(db: SqliteRemoteDatabase) {
 
 type LocalDbClientOptions = {
 	dbUrl: string;
-	enableTransations: boolean;
+	enableTransactions: boolean;
 };
 
 export function createLocalDatabaseClient(options: LocalDbClientOptions): LibSQLDatabase {
@@ -28,7 +28,7 @@ export function createLocalDatabaseClient(options: LocalDbClientOptions): LibSQL
 	const client = createClient({ url });
 	const db = drizzleLibsql(client);
 
-	if (!options.enableTransations) {
+	if (!options.enableTransactions) {
 		applyTransactionNotSupported(db);
 	}
 	return db;
@@ -53,17 +53,38 @@ export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
 
 	return options.dbType === 'studio'
 		? createStudioDatabaseClient(options.appToken, remoteUrl)
-		: createRemoteLibSQLClient(options.appToken, remoteUrl);
+		: createRemoteLibSQLClient(options.appToken, remoteUrl, options.remoteUrl.toString());
 }
 
-function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL) {
+function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: string) {
 	const options: Partial<LibSQLConfig> = Object.fromEntries(remoteDbURL.searchParams.entries());
 	remoteDbURL.search = '';
+
+	let url = remoteDbURL.toString();
+	if (remoteDbURL.protocol === 'memory:') {
+		// libSQL expects a special string in place of a URL
+		// for in-memory DBs.
+		url = ':memory:';
+	} else if (
+		remoteDbURL.protocol === 'file:' &&
+		remoteDbURL.pathname.startsWith('/') &&
+		!rawUrl.startsWith('file:/')
+	) {
+		// libSQL accepts relative and absolute file URLs
+		// for local DBs. This doesn't match the URL specification.
+		// Parsing `file:some.db` and `file:/some.db` should yield
+		// the same result, but libSQL interprets the former as
+		// a relative path, and the latter as an absolute path.
+		// This detects when such a conversion happened during parsing
+		// and undoes it so that the URL given to libSQL is the
+		// same as given by the user.
+		url = 'file:' + remoteDbURL.pathname.substring(1);
+	}
 
 	const client = createClient({
 		...options,
 		authToken: appToken,
-		url: remoteDbURL.protocol === 'memory:' ? ':memory:' : remoteDbURL.toString(),
+		url,
 	});
 	return drizzleLibsql(client);
 }

@@ -1,17 +1,18 @@
-import type { ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
+import { collapseDuplicateTrailingSlashes, hasFileExtension } from '@astrojs/internal-helpers/path';
 import { normalizeTheLocale } from '../../i18n/index.js';
+import type { RoutesList } from '../../types/astro.js';
+import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import {
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
-	clientLocalsSymbol,
 	responseSentSymbol,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
-import { sequence } from '../middleware/index.js';
+import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -20,9 +21,11 @@ import {
 } from '../path.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
-import { createDefaultRoutes, injectDefaultRoutes } from '../routing/default.js';
+import { redirectTemplate } from '../routing/3xx.js';
+import { ensure404Route } from '../routing/astro-designed-error-pages.js';
+import { createDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
-import { createOriginCheckMiddleware } from './middlewares.js';
+import { type AstroSession, PERSIST_SYMBOL } from '../session.js';
 import { AppPipeline } from './pipeline.js';
 
 export { deserializeManifest } from './common.js';
@@ -72,11 +75,12 @@ export interface RenderErrorOptions {
 	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
 	 */
 	error?: unknown;
+	clientAddress: string | undefined;
 }
 
 export class App {
 	#manifest: SSRManifest;
-	#manifestData: ManifestData;
+	#manifestData: RoutesList;
 	#logger = new Logger({
 		dest: consoleLogDestination,
 		level: 'info',
@@ -88,9 +92,12 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = injectDefaultRoutes(manifest, {
+		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
-		});
+		};
+		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
+		// to return the host 404 if the user doesn't provide a custom 404
+		ensure404Route(this.#manifestData);
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = this.#createPipeline(this.#manifestData, streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
@@ -110,18 +117,11 @@ export class App {
 	 * @param streaming
 	 * @private
 	 */
-	#createPipeline(manifestData: ManifestData, streaming = false) {
-		if (this.#manifest.checkOrigin) {
-			this.#manifest.middleware = sequence(
-				createOriginCheckMiddleware(),
-				this.#manifest.middleware,
-			);
-		}
-
+	#createPipeline(manifestData: RoutesList, streaming = false) {
 		return AppPipeline.create(manifestData, {
 			logger: this.#logger,
 			manifest: this.#manifest,
-			mode: 'production',
+			runtimeMode: 'production',
 			renderers: this.#manifest.renderers,
 			defaultRoutes: createDefaultRoutes(this.#manifest),
 			resolve: async (specifier: string) => {
@@ -129,14 +129,10 @@ export class App {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
 				const bundlePath = this.#manifest.entryModules[specifier];
-				switch (true) {
-					case bundlePath.startsWith('data:'):
-					case bundlePath.length === 0: {
-						return bundlePath;
-					}
-					default: {
-						return createAssetLink(bundlePath, this.#manifest.base, this.#manifest.assetsPrefix);
-					}
+				if (bundlePath.startsWith('data:') || bundlePath.length === 0) {
+					return bundlePath;
+				} else {
+					return createAssetLink(bundlePath, this.#manifest.base, this.#manifest.assetsPrefix);
 				}
 			},
 			serverLike: true,
@@ -144,7 +140,7 @@ export class App {
 		});
 	}
 
-	set setManifestData(newManifestData: ManifestData) {
+	set setManifestData(newManifestData: RoutesList) {
 		this.#manifestData = newManifestData;
 	}
 
@@ -155,10 +151,22 @@ export class App {
 		return pathname;
 	}
 
+	/**
+	 * It removes the base from the request URL, prepends it with a forward slash and attempts to decoded it.
+	 *
+	 * If the decoding fails, it logs the error and return the pathname as is.
+	 * @param request
+	 * @private
+	 */
 	#getPathnameFromRequest(request: Request): string {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
-		return pathname;
+		try {
+			return decodeURI(pathname);
+		} catch (e: any) {
+			this.getAdapterLogger().error(e.toString());
+			return pathname;
+		}
 	}
 
 	match(request: Request): RouteData | undefined {
@@ -244,48 +252,57 @@ export class App {
 		return pathname;
 	}
 
-	async render(request: Request, options?: RenderOptions): Promise<Response>;
-	/**
-	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
-	 * See https://github.com/withastro/astro/pull/9199 for more information.
-	 */
-	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response>;
-	async render(
-		request: Request,
-		routeDataOrOptions?: RouteData | RenderOptions,
-		maybeLocals?: object,
-	): Promise<Response> {
+	#redirectTrailingSlash(pathname: string): string {
+		const { trailingSlash } = this.#manifest;
+
+		// Ignore root and internal paths
+		if (pathname === '/' || pathname.startsWith('/_')) {
+			return pathname;
+		}
+
+		// Redirect multiple trailing slashes to collapsed path
+		const path = collapseDuplicateTrailingSlashes(pathname, trailingSlash !== 'never');
+		if (path !== pathname) {
+			return path;
+		}
+
+		if (trailingSlash === 'ignore') {
+			return pathname;
+		}
+
+		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
+			return appendForwardSlash(pathname);
+		}
+		if (trailingSlash === 'never') {
+			return removeTrailingForwardSlash(pathname);
+		}
+
+		return pathname;
+	}
+
+	async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
 		let routeData: RouteData | undefined;
 		let locals: object | undefined;
 		let clientAddress: string | undefined;
 		let addCookieHeader: boolean | undefined;
+		const url = new URL(request.url);
+		const redirect = this.#redirectTrailingSlash(url.pathname);
 
-		if (
-			routeDataOrOptions &&
-			('addCookieHeader' in routeDataOrOptions ||
-				'clientAddress' in routeDataOrOptions ||
-				'locals' in routeDataOrOptions ||
-				'routeData' in routeDataOrOptions)
-		) {
-			if ('addCookieHeader' in routeDataOrOptions) {
-				addCookieHeader = routeDataOrOptions.addCookieHeader;
-			}
-			if ('clientAddress' in routeDataOrOptions) {
-				clientAddress = routeDataOrOptions.clientAddress;
-			}
-			if ('routeData' in routeDataOrOptions) {
-				routeData = routeDataOrOptions.routeData;
-			}
-			if ('locals' in routeDataOrOptions) {
-				locals = routeDataOrOptions.locals;
-			}
-		} else {
-			routeData = routeDataOrOptions as RouteData | undefined;
-			locals = maybeLocals;
-			if (routeDataOrOptions || locals) {
-				this.#logRenderOptionsDeprecationWarning();
-			}
+		if (redirect !== url.pathname) {
+			const status = request.method === 'GET' ? 301 : 308;
+			return new Response(redirectTemplate({ status, location: redirect, from: request.url }), {
+				status,
+				headers: {
+					location: redirect + url.search,
+				},
+			});
 		}
+
+		addCookieHeader = renderOptions?.addCookieHeader;
+		clientAddress = renderOptions?.clientAddress ?? Reflect.get(request, clientAddressSymbol);
+		routeData = renderOptions?.routeData;
+		locals = renderOptions?.locals;
+
 		if (routeData) {
 			this.#logger.debug(
 				'router',
@@ -298,12 +315,8 @@ export class App {
 			if (typeof locals !== 'object') {
 				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
 				this.#logger.error(null, error.stack!);
-				return this.#renderError(request, { status: 500, error });
+				return this.#renderError(request, { status: 500, error, clientAddress });
 			}
-			Reflect.set(request, clientLocalsSymbol, locals);
-		}
-		if (clientAddress) {
-			Reflect.set(request, clientAddressSymbol, clientAddress);
 		}
 		if (!routeData) {
 			routeData = this.match(request);
@@ -313,28 +326,33 @@ export class App {
 		if (!routeData) {
 			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);
 			this.#logger.debug('router', "Here's the available routes:\n", this.#manifestData);
-			return this.#renderError(request, { locals, status: 404 });
+			return this.#renderError(request, { locals, status: 404, clientAddress });
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 
 		let response;
+		let session: AstroSession | undefined;
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
 			const mod = await this.#pipeline.getModuleForRoute(routeData);
 
-			const renderContext = RenderContext.create({
+			const renderContext = await RenderContext.create({
 				pipeline: this.#pipeline,
 				locals,
 				pathname,
 				request,
 				routeData,
 				status: defaultStatus,
+				clientAddress,
 			});
+			session = renderContext.session;
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
-			return this.#renderError(request, { locals, status: 500, error: err });
+			return this.#renderError(request, { locals, status: 500, error: err, clientAddress });
+		} finally {
+			await session?.[PERSIST_SYMBOL]();
 		}
 
 		if (
@@ -348,6 +366,7 @@ export class App {
 				// We don't have an error to report here. Passing null means we pass nothing intentionally
 				// while undefined means there's no error
 				error: response.status === 500 ? null : undefined,
+				clientAddress,
 			});
 		}
 
@@ -364,15 +383,6 @@ export class App {
 
 		Reflect.set(response, responseSentSymbol, true);
 		return response;
-	}
-
-	#logRenderOptionsDeprecationWarning() {
-		if (this.#renderOptionsDeprecationWarningShown) return;
-		this.#logger.warn(
-			'deprecated',
-			`The adapter ${this.#manifest.adapterName} is using a deprecated signature of the 'app.render()' method. From Astro 4.0, locals and routeData are provided as properties on an optional object to this method. Using the old signature will cause an error in Astro 5.0. See https://github.com/withastro/astro/pull/9199 for more information.`,
-		);
-		this.#renderOptionsDeprecationWarningShown = true;
 	}
 
 	setCookieHeaders(response: Response) {
@@ -404,6 +414,7 @@ export class App {
 			response: originalResponse,
 			skipMiddleware = false,
 			error,
+			clientAddress,
 		}: RenderErrorOptions,
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
@@ -427,17 +438,20 @@ export class App {
 				}
 			}
 			const mod = await this.#pipeline.getModuleForRoute(errorRouteData);
+			let session: AstroSession | undefined;
 			try {
-				const renderContext = RenderContext.create({
+				const renderContext = await RenderContext.create({
 					locals,
 					pipeline: this.#pipeline,
-					middleware: skipMiddleware ? (_, next) => next() : undefined,
+					middleware: skipMiddleware ? NOOP_MIDDLEWARE_FN : undefined,
 					pathname: this.#getPathnameFromRequest(request),
 					request,
 					routeData: errorRouteData,
 					status,
 					props: { error },
+					clientAddress,
 				});
+				session = renderContext.session;
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
@@ -448,8 +462,11 @@ export class App {
 						status,
 						response: originalResponse,
 						skipMiddleware: true,
+						clientAddress,
 					});
 				}
+			} finally {
+				await session?.[PERSIST_SYMBOL]();
 			}
 		}
 
@@ -487,6 +504,15 @@ export class App {
 			// this function could throw an error...
 			originalResponse.headers.delete('Content-type');
 		} catch {}
+		// we use a map to remove duplicates
+		const mergedHeaders = new Map([
+			...Array.from(newResponse.headers),
+			...Array.from(originalResponse.headers),
+		]);
+		const newHeaders = new Headers();
+		for (const [name, value] of mergedHeaders) {
+			newHeaders.set(name, value);
+		}
 		return new Response(newResponse.body, {
 			status,
 			statusText: status === 200 ? newResponse.statusText : originalResponse.statusText,
@@ -495,10 +521,7 @@ export class App {
 			// If users see something weird, it's because they are setting some headers they should not.
 			//
 			// Although, we don't want it to replace the content-type, because the error page must return `text/html`
-			headers: new Headers([
-				...Array.from(newResponse.headers),
-				...Array.from(originalResponse.headers),
-			]),
+			headers: newHeaders,
 		});
 	}
 

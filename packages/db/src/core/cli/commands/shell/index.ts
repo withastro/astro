@@ -1,4 +1,3 @@
-import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { AstroConfig } from 'astro';
 import { sql } from 'drizzle-orm';
 import type { Arguments } from 'yargs-parser';
@@ -10,7 +9,7 @@ import { normalizeDatabaseUrl } from '../../../../runtime/index.js';
 import { DB_PATH } from '../../../consts.js';
 import { SHELL_QUERY_MISSING_ERROR } from '../../../errors.js';
 import type { DBConfigInput } from '../../../types.js';
-import { getAstroEnv, getRemoteDatabaseInfo } from '../../../utils.js';
+import { getAstroEnv, getManagedRemoteToken, getRemoteDatabaseInfo } from '../../../utils.js';
 
 export async function cmd({
 	flags,
@@ -27,7 +26,7 @@ export async function cmd({
 	}
 	const dbInfo = getRemoteDatabaseInfo();
 	if (flags.remote) {
-		const appToken = await getManagedAppTokenOrExit(flags.token);
+		const appToken = await getManagedRemoteToken(flags.token, dbInfo);
 		const db = createRemoteDatabaseClient({
 			dbType: dbInfo.type,
 			remoteUrl: dbInfo.url,
@@ -42,7 +41,7 @@ export async function cmd({
 			ASTRO_DATABASE_FILE,
 			new URL(DB_PATH, astroConfig.root).href,
 		);
-		const db = createLocalDatabaseClient({ dbUrl, enableTransations: dbInfo.type === 'libsql' });
+		const db = createLocalDatabaseClient({ dbUrl, enableTransactions: dbInfo.type === 'libsql' });
 		const result = await db.run(sql.raw(query));
 		console.log(result);
 	}

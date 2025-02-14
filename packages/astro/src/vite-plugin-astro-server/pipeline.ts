@@ -1,15 +1,4 @@
 import { fileURLToPath } from 'node:url';
-import type {
-	AstroSettings,
-	ComponentInstance,
-	DevToolbarMetadata,
-	ManifestData,
-	RewritePayload,
-	RouteData,
-	SSRElement,
-	SSRLoadedRenderer,
-	SSRManifest,
-} from '../@types/astro.js';
 import { getInfoOutput } from '../cli/info/index.js';
 import type { HeadElements, TryRewriteResult } from '../core/base-pipeline.js';
 import { ASTRO_VERSION } from '../core/constants.js';
@@ -20,20 +9,28 @@ import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
 import { createDefaultRoutes } from '../core/routing/default.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
-import { isPage, isServerLikeOutput, viteID } from '../core/util.js';
+import { isPage, viteID } from '../core/util.js';
 import { resolveIdToUrl } from '../core/viteUtils.js';
+import type { AstroSettings, ComponentInstance, RoutesList } from '../types/astro.js';
+import type { RewritePayload } from '../types/public/common.js';
+import type {
+	RouteData,
+	SSRElement,
+	SSRLoadedRenderer,
+	SSRManifest,
+} from '../types/public/internal.js';
+import type { DevToolbarMetadata } from '../types/public/toolbar.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
-import { getScriptsForURL } from './scripts.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
 	// so it needs to be mutable here unlike in other environments
 	override renderers = new Array<SSRLoadedRenderer>();
 
-	manifestData: ManifestData | undefined;
+	routesList: RoutesList | undefined;
 
 	componentInterner: WeakMap<RouteData, ComponentInstance> = new WeakMap<
 		RouteData,
@@ -48,17 +45,16 @@ export class DevPipeline extends Pipeline {
 		readonly config = settings.config,
 		readonly defaultRoutes = createDefaultRoutes(manifest),
 	) {
-		const mode = 'development';
 		const resolve = createResolve(loader, config.root);
-		const serverLike = isServerLikeOutput(config);
+		const serverLike = settings.buildOutput === 'server';
 		const streaming = true;
-		super(logger, manifest, mode, [], resolve, serverLike, streaming);
+		super(logger, manifest, 'development', [], resolve, serverLike, streaming);
 		manifest.serverIslandMap = settings.serverIslandMap;
 		manifest.serverIslandNameMap = settings.serverIslandNameMap;
 	}
 
 	static create(
-		manifestData: ManifestData,
+		manifestData: RoutesList,
 		{
 			loader,
 			logger,
@@ -67,7 +63,7 @@ export class DevPipeline extends Pipeline {
 		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>,
 	) {
 		const pipeline = new DevPipeline(loader, logger, manifest, settings);
-		pipeline.manifestData = manifestData;
+		pipeline.routesList = manifestData;
 		return pipeline;
 	}
 
@@ -75,17 +71,14 @@ export class DevPipeline extends Pipeline {
 		const {
 			config: { root },
 			loader,
-			mode,
+			runtimeMode,
 			settings,
 		} = this;
 		const filePath = new URL(`${routeData.component}`, root);
-		// Add hoisted script tags, skip if direct rendering with `directRenderScript`
-		const { scripts } = settings.config.experimental.directRenderScript
-			? { scripts: new Set<SSRElement>() }
-			: await getScriptsForURL(filePath, settings.config.root, loader);
+		const scripts = new Set<SSRElement>();
 
 		// Inject HMR scripts
-		if (isPage(filePath, settings) && mode === 'development') {
+		if (isPage(filePath, settings) && runtimeMode === 'development') {
 			scripts.add({
 				props: { type: 'module', src: '/@vite/client' },
 				children: '',
@@ -199,18 +192,14 @@ export class DevPipeline extends Pipeline {
 		}
 	}
 
-	async tryRewrite(
-		payload: RewritePayload,
-		request: Request,
-		_sourceRoute: RouteData,
-	): Promise<TryRewriteResult> {
-		if (!this.manifestData) {
+	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
+		if (!this.routesList) {
 			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
 		}
 		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
-			routes: this.manifestData?.routes,
+			routes: this.routesList?.routes,
 			trailingSlash: this.config.trailingSlash,
 			buildFormat: this.config.build.format,
 			base: this.config.base,
@@ -220,12 +209,12 @@ export class DevPipeline extends Pipeline {
 		return { newUrl, pathname, componentInstance, routeData };
 	}
 
-	setManifestData(manifestData: ManifestData) {
-		this.manifestData = manifestData;
+	setManifestData(manifestData: RoutesList) {
+		this.routesList = manifestData;
 	}
 
 	rewriteKnownRoute(route: string, sourceRoute: RouteData): ComponentInstance {
-		if (isServerLikeOutput(this.config) && sourceRoute.prerender) {
+		if (this.serverLike && sourceRoute.prerender) {
 			for (let def of this.defaultRoutes) {
 				if (route === def.route) {
 					return def.instance;
