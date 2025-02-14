@@ -50,7 +50,10 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 
 				updateConfig({
 					image: {
-						endpoint: config.image.endpoint ?? 'astro/assets/endpoint/node',
+						endpoint: {
+							route: config.image.endpoint.route ?? '_image',
+							entrypoint: config.image.endpoint.entrypoint ?? 'astro/assets/endpoint/node',
+						},
 					},
 					session,
 					vite: {
