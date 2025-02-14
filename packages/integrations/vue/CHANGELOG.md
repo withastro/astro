@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 5.0.7
+
+### Patch Changes
+
+- [#13251](https://github.com/withastro/astro/pull/13251) [`3842ce5`](https://github.com/withastro/astro/commit/3842ce5ec9471d358042b3d9ef697cf06c7a91f6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the compiler could not be resolved automatically
+
 ## 5.0.6
 
 ### Patch Changes
