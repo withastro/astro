@@ -292,7 +292,14 @@ export async function createContentTypesGenerator({
 			entry: pathToFileURL(rawEvent.entry),
 			name: rawEvent.name,
 		};
-		if (!event.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
+
+		if (settings.config.legacy.collections) {
+			if (!event.entry.pathname.startsWith(contentPaths.contentDir.pathname)) {
+				return;
+			}
+		} else if (contentPaths.config.url.pathname !== event.entry.pathname) {
+			return;
+		}
 
 		events.push(event);
 

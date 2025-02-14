@@ -642,7 +642,6 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 					}
 
 					const flattenedErrorPath = ctx.path.join('.');
-					const collectionIsInStore = store.hasCollection(collection);
 
 					if (typeof lookup === 'object') {
 						// If these don't match then something is wrong with the reference
@@ -659,22 +658,8 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						return lookup;
 					}
 
-					if (collectionIsInStore) {
-						const entry = store.get(collection, lookup);
-						if (!entry) {
-							ctx.addIssue({
-								code: ZodIssueCode.custom,
-								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Entry ${lookup} does not exist.`,
-							});
-							return;
-						}
-						return { id: lookup, collection };
-					}
-
-					// If the collection is not in the lookup map or store, it may be a content layer collection and the store may not yet be populated.
-					// If the store has 0 or 1 entries it probably means that the entries have not yet been loaded.
-					// The store may have a single entry even if the collections have not loaded, because the top-level metadata collection is generated early.
-					if (!lookupMap[collection] && store.collections().size <= 1) {
+					// If the collection is not in the lookup map it may be a content layer collection and the store may not yet be populated.
+					if (!lookupMap[collection]) {
 						// For now, we can't validate this reference, so we'll optimistically convert it to a reference object which we'll validate
 						// later in the pipeline when we do have access to the store.
 						return { id: lookup, collection };

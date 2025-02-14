@@ -40,6 +40,7 @@ interface AddOptions {
 interface IntegrationInfo {
 	id: string;
 	packageName: string;
+	integrationName: string;
 	dependencies: [name: string, version: string][];
 	type: 'integration' | 'adapter';
 }
@@ -51,14 +52,7 @@ const ALIASES = new Map([
 
 const STUBS = {
 	ASTRO_CONFIG: `import { defineConfig } from 'astro/config';\n// https://astro.build/config\nexport default defineConfig({});`,
-	TAILWIND_CONFIG: `/** @type {import('tailwindcss').Config} */
-export default {
-	content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
-	theme: {
-		extend: {},
-	},
-	plugins: [],
-}\n`,
+	TAILWIND_GLOBAL_CSS: `@import "tailwindcss";`,
 	SVELTE_CONFIG: `\
 import { vitePreprocess } from '@astrojs/svelte';
 
@@ -154,23 +148,28 @@ export async function add(names: string[], { flags }: AddOptions) {
 	switch (installResult) {
 		case UpdateResult.updated: {
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
-				await setupIntegrationConfig({
-					root,
-					logger,
+				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
+				const styles = new URL('./global.css', dir);
+				if (!existsSync(styles)) {
+					logger.info(
+						'SKIP_FORMAT',
+						`\n  ${magenta(`Astro will scaffold ${green('./src/styles/global.css')}.`)}\n`,
+					);
 
-					flags,
-					integrationName: 'Tailwind',
-					possibleConfigFiles: [
-						'./tailwind.config.cjs',
-						'./tailwind.config.mjs',
-						'./tailwind.config.ts',
-						'./tailwind.config.mts',
-						'./tailwind.config.cts',
-						'./tailwind.config.js',
-					],
-					defaultConfigFile: './tailwind.config.mjs',
-					defaultConfigContent: STUBS.TAILWIND_CONFIG,
-				});
+					if (await askToContinue({ flags })) {
+						if (!existsSync(dir)) {
+							await fs.mkdir(dir);
+						}
+						await fs.writeFile(styles, STUBS.TAILWIND_GLOBAL_CSS, 'utf-8');
+					} else {
+						logger.info(
+							'SKIP_FORMAT',
+							`\n  @astrojs/tailwind requires additional configuration. Please refer to https://docs.astro.build/en/guides/integrations-guide/tailwind/`,
+						);
+					}
+				} else {
+					logger.debug('add', `Using existing tailwind configuration`);
+				}
 			}
 			if (integrations.find((integration) => integration.id === 'svelte')) {
 				await setupIntegrationConfig({
@@ -285,11 +284,13 @@ export async function add(names: string[], { flags }: AddOptions) {
 						'SKIP_FORMAT',
 						`\n  ${magenta(
 							`Check our deployment docs for ${bold(
-								integration.packageName,
+								integration.integrationName,
 							)} to update your "adapter" config.`,
 						)}`,
 					);
 				}
+			} else if (integration.id === 'tailwind') {
+				addVitePlugin(mod, 'tailwindcss', '@tailwindcss/vite');
 			} else {
 				addIntegration(mod, integration);
 			}
@@ -349,7 +350,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 		case UpdateResult.failure:
 		case UpdateResult.updated:
 		case undefined: {
-			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
+			const list = integrations
+				.map((integration) => `  - ${integration.integrationName}`)
+				.join('\n');
 			logger.info(
 				'SKIP_FORMAT',
 				msg.success(
@@ -358,6 +361,24 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} to your project:\n${list}`,
 				),
 			);
+			if (integrations.find((integration) => integration.integrationName === 'tailwind')) {
+				const code = boxen(
+					getDiffContent('---\n---', "---\nimport './src/styles/global.css'\n---")!,
+					{
+						margin: 0.5,
+						padding: 0.5,
+						borderStyle: 'round',
+						title: 'src/layouts/Layout.astro',
+					},
+				);
+				logger.warn(
+					'SKIP_FORMAT',
+					msg.actionRequired(
+						'You must import your Tailwind stylesheet, e.g. in a shared layout:\n',
+					),
+				);
+				logger.info('SKIP_FORMAT', code + '\n');
+			}
 		}
 	}
 
@@ -453,6 +474,31 @@ function addIntegration(mod: ProxifiedModule<any>, integration: IntegrationInfo)
 		)
 	) {
 		config.integrations.push(builders.functionCall(integrationId));
+	}
+}
+
+function addVitePlugin(mod: ProxifiedModule<any>, pluginId: string, packageName: string) {
+	const config = getDefaultExportOptions(mod);
+
+	if (!mod.imports.$items.some((imp) => imp.local === pluginId)) {
+		mod.imports.$append({
+			imported: 'default',
+			local: pluginId,
+			from: packageName,
+		});
+	}
+
+	config.vite ??= {};
+	config.vite.plugins ??= [];
+	if (
+		!config.vite.plugins.$ast.elements.some(
+			(el: ASTNode) =>
+				el.type === 'CallExpression' &&
+				el.callee.type === 'Identifier' &&
+				el.callee.name === pluginId,
+		)
+	) {
+		config.vite.plugins.push(builders.functionCall(pluginId));
 	}
 }
 
@@ -592,8 +638,7 @@ async function convertIntegrationsToInstallSpecifiers(
 	integrations: IntegrationInfo[],
 ): Promise<string[]> {
 	const ranges: Record<string, string> = {};
-	for (let { packageName, dependencies } of integrations) {
-		ranges[packageName] = '*';
+	for (let { dependencies } of integrations) {
 		for (const [name, range] of dependencies) {
 			ranges[name] = range;
 		}
@@ -764,7 +809,7 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 
 				const resolvedScope = pkgType === 'first-party' ? '@astrojs' : scope;
 				const packageName = `${resolvedScope ? `${resolvedScope}/` : ''}${name}`;
-
+				let integrationName = packageName;
 				let dependencies: IntegrationInfo['dependencies'] = [
 					[pkgJson['name'], `^${pkgJson['version']}`],
 				];
@@ -796,7 +841,20 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 					);
 				}
 
-				return { id: integration, packageName, dependencies, type: integrationType };
+				if (integration === 'tailwind') {
+					integrationName = 'tailwind';
+					dependencies = [
+						['@tailwindcss/vite', '^4.0.0'],
+						['tailwindcss', '^4.0.0'],
+					];
+				}
+				return {
+					id: integration,
+					packageName,
+					dependencies,
+					type: integrationType,
+					integrationName,
+				};
 			}),
 		);
 		spinner.success();

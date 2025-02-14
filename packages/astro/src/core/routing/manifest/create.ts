@@ -1,4 +1,4 @@
-import type { AstroSettings, ManifestData } from '../../../types/astro.js';
+import type { AstroSettings, RoutesList } from '../../../types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
 import nodeFs from 'node:fs';
@@ -14,9 +14,12 @@ import { getPrerenderDefault } from '../../../prerender/utils.js';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RouteData, RoutePart } from '../../../types/public/internal.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
-import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
+import {
+	MissingIndexForInternationalization,
+	UnsupportedExternalRedirect,
+} from '../../errors/errors-data.js';
 import { AstroError } from '../../errors/index.js';
-import { removeLeadingForwardSlash, slash } from '../../path.js';
+import { hasFileExtension, removeLeadingForwardSlash, slash } from '../../path.js';
 import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 import { resolvePages } from '../../util.js';
 import { ensure404Route } from '../astro-designed-error-pages.js';
@@ -215,12 +218,12 @@ function createFileBasedRoutes(
 			} else {
 				components.push(item.file);
 				const component = item.file;
-				const { trailingSlash } = settings.config;
-				const pattern = getPattern(segments, settings.config.base, trailingSlash);
-				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
+				const trailingSlash = trailingSlashForPath(pathname, settings.config);
+				const pattern = getPattern(segments, settings.config.base, trailingSlash);
+				const generate = getRouteGenerator(segments, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
 					route,
@@ -254,6 +257,14 @@ function createFileBasedRoutes(
 	return routes;
 }
 
+// Get trailing slash rule for a path, based on the config and whether the path has an extension.
+// TODO: in Astro 6, change endpoints with extentions to use 'never'
+const trailingSlashForPath = (
+	pathname: string | null,
+	config: AstroConfig,
+): AstroConfig['trailingSlash'] =>
+	pathname && hasFileExtension(pathname) ? 'ignore' : config.trailingSlash;
+
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
 	const prerender = getPrerenderDefault(config);
@@ -273,14 +284,13 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			});
 
 		const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
-		const isPage = type === 'page';
-		const trailingSlash = isPage ? config.trailingSlash : 'never';
-
-		const pattern = getPattern(segments, settings.config.base, trailingSlash);
-		const generate = getRouteGenerator(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
+
+		const trailingSlash = trailingSlashForPath(pathname, config);
+		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const generate = getRouteGenerator(segments, trailingSlash);
 		const params = segments
 			.flat()
 			.filter((p) => p.dynamic)
@@ -314,7 +324,6 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 function createRedirectRoutes(
 	{ settings }: CreateRouteManifestParams,
 	routeMap: Map<string, RouteData>,
-	logger: Logger,
 ): RouteData[] {
 	const { config } = settings;
 	const trailingSlash = config.trailingSlash;
@@ -348,11 +357,12 @@ function createRedirectRoutes(
 			destination = to.destination;
 		}
 
-		if (/^https?:\/\//.test(destination)) {
-			logger.warn(
-				'redirects',
-				`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`,
-			);
+		// URLs that don't start with leading slash should be considered external
+		if (!destination.startsWith('/')) {
+			// check if the link starts with http or https; if not, log a warning
+			if (!/^https?:\/\//.test(destination) && !URL.canParse(destination)) {
+				throw new AstroError(UnsupportedExternalRedirect);
+			}
 		}
 
 		routes.push({
@@ -460,11 +470,11 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 }
 
 /** Create manifest of all static routes */
-export async function createRouteManifest(
+export async function createRoutesList(
 	params: CreateRouteManifestParams,
 	logger: Logger,
 	{ dev = false }: { dev?: boolean } = {},
-): Promise<ManifestData> {
+): Promise<RoutesList> {
 	const { settings } = params;
 	const { config } = settings;
 	// Create a map of all routes so redirects can refer to any route
@@ -480,7 +490,7 @@ export async function createRouteManifest(
 		routeMap.set(route.route, route);
 	}
 
-	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
+	const redirectRoutes = createRedirectRoutes(params, routeMap);
 
 	// we remove the file based routes that were deemed redirects
 	const filteredFiledBasedRoutes = fileBasedRoutes.filter((fileBasedRoute) => {
@@ -718,12 +728,13 @@ export async function createRouteManifest(
 	}
 	if (dev || settings.buildOutput === 'server') {
 		injectImageEndpoint(settings, { routes }, dev ? 'dev' : 'build');
-		// Ideally we would only inject the server islands route if server islands are used in the project.
-		// Unfortunately, there is a "circular dependency": to know if server islands are used, we need to run
-		// the build but the build relies on the routes manifest.
-		// This situation also means we cannot update the buildOutput based on whether or not server islands
-		// are used in the project. If server islands are detected after the build but the buildOutput is
-		// static, we fail the build.
+	}
+
+	// If an adapter is added, we unconditionally inject the server islands route.
+	// Ideally we would only inject the server islands route if server islands are used in the project.
+	// Unfortunately, there is a "circular dependency": to know if server islands are used, we need to run
+	// the build but the build relies on the routes manifest.
+	if (dev || settings.config.adapter) {
 		injectServerIslandRoute(settings.config, { routes });
 	}
 	await runHookRoutesResolved({ routes, settings, logger });

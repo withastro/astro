@@ -318,6 +318,8 @@ export function glob(globOptions: GlobOptions): Loader {
 				return;
 			}
 
+			watcher.add(filePath);
+
 			const matchesGlob = (entry: string) =>
 				!entry.startsWith('../') && micromatch.isMatch(entry, globOptions.pattern);
 
