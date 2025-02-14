@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { IncomingMessage } from 'node:http';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { emptyDir } from '@astrojs/internal-helpers/fs';
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
@@ -13,6 +13,7 @@ import type {
 	IntegrationResolvedRoute,
 } from 'astro';
 import { build } from 'esbuild';
+import glob from 'fast-glob';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import type { Args } from './ssr-function.js';
 
@@ -140,6 +141,32 @@ async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroInt
 
 export interface NetlifyIntegrationConfig {
 	/**
+	 * Force files to be bundled with your SSR function.
+	 * This is useful for including any type of file that is not directly detected by the bundler,
+	 * like configuration files or assets that are dynamically imported at runtime.
+	 *
+	 * Note: File paths are resolved relative to your project's `root`. Absolute paths may not work as expected.
+	 *
+	 * @example
+	 * ```js
+	 * includeFiles: ['./src/data/*.json', './src/locales/*.yml', './src/config/*.yaml']
+	 * ```
+	 */
+	includeFiles?: string[];
+
+	/**
+	 * Exclude files from the bundling process.
+	 * This is useful for excluding any type of file that is not intended to be bundled with your SSR function,
+	 * such as large assets, temporary files, or sensitive local configuration files.
+	 *
+	 * @example
+	 * ```js
+	 * excludeFiles: ['./src/secret/*.json', './src/temp/*.txt']
+	 * ```
+	 */
+	excludeFiles?: string[];
+
+	/**
 	 * If enabled, On-Demand-Rendered pages are cached for up to a year.
 	 * This is useful for pages that are not updated often, like a blog post,
 	 * but that you have too many of to pre-render at build time.
@@ -191,6 +218,8 @@ export default function netlifyIntegration(
 	let outDir: URL;
 	let rootDir: URL;
 	let astroMiddlewareEntryPoint: URL | undefined = undefined;
+	// Extra files to be merged with `includeFiles` during build
+	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
 	const middlewareSecret = randomUUID();
 
@@ -246,6 +275,18 @@ export default function netlifyIntegration(
 		}
 	}
 
+	async function getFilesByGlob(
+		include: Array<string> = [],
+		exclude: Array<string> = [],
+	): Promise<Array<URL>> {
+		const files = await glob(include, {
+			cwd: fileURLToPath(rootDir),
+			absolute: true,
+			ignore: exclude,
+		});
+		return files.map((file) => pathToFileURL(file));
+	}
+
 	async function writeSSRFunction({
 		notFoundContent,
 		logger,
@@ -257,12 +298,38 @@ export default function netlifyIntegration(
 	}) {
 		const entry = new URL('./entry.mjs', ssrBuildDir());
 
+		const _includeFiles = integrationConfig?.includeFiles || [];
+		const _excludeFiles = integrationConfig?.excludeFiles || [];
+
+		if (finalBuildOutput === 'server') {
+			// Merge any includes from `vite.assetsInclude
+			if (_config.vite.assetsInclude) {
+				const mergeGlobbedIncludes = (globPattern: unknown) => {
+					if (typeof globPattern === 'string') {
+						const entries = glob.sync(globPattern).map((p) => pathToFileURL(p));
+						extraFilesToInclude.push(...entries);
+					} else if (Array.isArray(globPattern)) {
+						for (const pattern of globPattern) {
+							mergeGlobbedIncludes(pattern);
+						}
+					}
+				};
+
+				mergeGlobbedIncludes(_config.vite.assetsInclude);
+			}
+		}
+
+		const includeFiles = (await getFilesByGlob(_includeFiles, _excludeFiles)).concat(
+			extraFilesToInclude,
+		);
+		const excludeFiles = await getFilesByGlob(_excludeFiles);
+
 		const { handler } = await copyDependenciesToFunction(
 			{
 				entry,
 				outDir: ssrOutputDir(),
-				includeFiles: [],
-				excludeFiles: [],
+				includeFiles: includeFiles,
+				excludeFiles: excludeFiles,
 				logger,
 				root,
 			},
@@ -443,13 +510,39 @@ export default function netlifyIntegration(
 	return {
 		name: '@astrojs/netlify',
 		hooks: {
-			'astro:config:setup': async ({ config, updateConfig }) => {
+			'astro:config:setup': async ({ config, updateConfig, logger }) => {
 				rootDir = config.root;
 				await cleanFunctions();
 
 				outDir = new URL('./dist/', rootDir);
 
 				const enableImageCDN = isRunningInNetlify && (integrationConfig?.imageCDN ?? true);
+
+				let session = config.session;
+
+				if (config.experimental.session && !session?.driver) {
+					logger.info(
+						`Configuring experimental session support using ${isRunningInNetlify ? 'Netlify Blobs' : 'filesystem storage'}`,
+					);
+					session = isRunningInNetlify
+						? {
+								...session,
+								driver: 'netlify-blobs',
+								options: {
+									name: 'astro-sessions',
+									consistency: 'strong',
+									...session?.options,
+								},
+							}
+						: {
+								...session,
+								driver: 'fs-lite',
+								options: {
+									base: fileURLToPath(new URL('sessions', config.cacheDir)),
+									...session?.options,
+								},
+							};
+				}
 
 				updateConfig({
 					outDir,
@@ -458,6 +551,7 @@ export default function netlifyIntegration(
 						client: outDir,
 						server: ssrBuildDir(),
 					},
+					session,
 					vite: {
 						server: {
 							watch: {
