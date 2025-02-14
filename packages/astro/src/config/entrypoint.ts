@@ -5,6 +5,8 @@ import type { ImageServiceConfig } from '../types/public/index.js';
 
 export { defineConfig, getViteConfig } from './index.js';
 export { envField } from '../env/config.js';
+export { mergeConfig } from '../core/config/merge.js';
+export { validateConfig } from '../core/config/validate.js';
 
 /**
  * Return the configuration needed to use the Sharp-based image service
