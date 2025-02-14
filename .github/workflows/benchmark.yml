@@ -20,6 +20,13 @@ jobs:
       PR-BENCH: ${{ steps.benchmark-pr.outputs.BENCH_RESULT }}
       MAIN-BENCH: ${{ steps.benchmark-main.outputs.BENCH_RESULT }}
     steps:
+      - name: Check if user has write access
+        uses: lannonbr/repo-permission-check-action@2.0.2
+        with:
+          permission: write
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # https://github.com/actions/checkout/issues/331#issuecomment-1438220926
       - uses: actions/checkout@v4
         with:
@@ -32,7 +39,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: "pnpm"
 
       - name: Install dependencies

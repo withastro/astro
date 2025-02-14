@@ -1,19 +1,21 @@
 {
   "name": "@astrojs/tailwind",
   "description": "Use Tailwind CSS to style your Astro site",
-  "version": "5.1.1",
+  "version": "6.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/integrations/tailwind"
   },
   "keywords": [
     "astro-integration",
-    "astro-component"
+    "withastro",
+    "css",
+    "tailwindcss"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/tailwind/",
@@ -34,17 +36,17 @@
   },
   "dependencies": {
     "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.47",
+    "postcss": "^8.5.1",
     "postcss-load-config": "^4.0.2"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "tailwindcss": "^3.4.13",
-    "vite": "^5.4.8"
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.0.11"
   },
   "peerDependencies": {
-    "astro": "^3.0.0 || ^4.0.0 || ^5.0.0-beta.0",
+    "astro": "^3.0.0 || ^4.0.0 || ^5.0.0",
     "tailwindcss": "^3.0.24"
   },
   "publishConfig": {

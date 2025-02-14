@@ -4,13 +4,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import glob from 'fast-glob';
 import pLimit from 'p-limit';
-import type { Plugin } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
-import { encodeName } from '../core/build/util.js';
+import type { Plugin, ViteDevServer } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { appendForwardSlash, removeFileExtension } from '../core/path.js';
-import { isServerLikeOutput } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
+import type { AstroSettings } from '../types/astro.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import {
@@ -40,6 +37,7 @@ import {
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,
+	globWithUnderscoresIgnored,
 	isDeferredModule,
 } from './utils.js';
 
@@ -48,31 +46,40 @@ interface AstroContentVirtualModPluginParams {
 	fs: typeof nodeFs;
 }
 
+function invalidateDataStore(server: ViteDevServer) {
+	const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+	if (module) {
+		server.moduleGraph.invalidateModule(module);
+	}
+	server.ws.send({
+		type: 'full-reload',
+		path: '*',
+	});
+}
+
 export function astroContentVirtualModPlugin({
 	settings,
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
-	let IS_DEV = false;
-	const IS_SERVER = isServerLikeOutput(settings.config);
 	let dataStoreFile: URL;
+	let devServer: ViteDevServer;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
-		configResolved(config) {
-			IS_DEV = config.mode === 'development';
-			dataStoreFile = getDataStoreFile(settings, IS_DEV);
+		config(_, env) {
+			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+		},
+		buildStart() {
+			if (devServer) {
+				// We defer adding the data store file to the watcher until the server is ready
+				devServer.watcher.add(fileURLToPath(dataStoreFile));
+				// Manually invalidate the data store to avoid a race condition in file watching
+				invalidateDataStore(devServer);
+			}
 		},
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
-				if (!settings.config.experimental.contentCollectionCache) {
-					return RESOLVED_VIRTUAL_MODULE_ID;
-				}
-				if (IS_DEV || IS_SERVER) {
-					return RESOLVED_VIRTUAL_MODULE_ID;
-				} else {
-					// For SSG (production), we will build this file ourselves
-					return { id: RESOLVED_VIRTUAL_MODULE_ID, external: true };
-				}
+				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
 			if (id === DATA_STORE_VIRTUAL_ID) {
 				return RESOLVED_DATA_STORE_VIRTUAL_ID;
@@ -109,17 +116,17 @@ export function astroContentVirtualModPlugin({
 		},
 		async load(id, args) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				const lookupMap = await generateLookupMap({
-					settings,
-					fs,
-				});
+				const lookupMap = settings.config.legacy.collections
+					? await generateLookupMap({
+							settings,
+							fs,
+						})
+					: {};
 				const isClient = !args?.ssr;
 				const code = await generateContentEntryFile({
 					settings,
 					fs,
 					lookupMap,
-					IS_DEV,
-					IS_SERVER,
 					isClient,
 				});
 
@@ -168,44 +175,21 @@ export function astroContentVirtualModPlugin({
 				return fs.readFileSync(modules, 'utf-8');
 			}
 		},
-		renderChunk(code, chunk) {
-			if (!settings.config.experimental.contentCollectionCache) {
-				return;
-			}
-			if (code.includes(RESOLVED_VIRTUAL_MODULE_ID)) {
-				const depth = chunk.fileName.split('/').length - 1;
-				const prefix = depth > 0 ? '../'.repeat(depth) : './';
-				return code.replaceAll(RESOLVED_VIRTUAL_MODULE_ID, `${prefix}content/entry.mjs`);
-			}
-		},
 
 		configureServer(server) {
+			devServer = server;
 			const dataStorePath = fileURLToPath(dataStoreFile);
-
-			server.watcher.add(dataStorePath);
-
-			function invalidateDataStore() {
-				const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
-				if (module) {
-					server.moduleGraph.invalidateModule(module);
-				}
-				server.ws.send({
-					type: 'full-reload',
-					path: '*',
-				});
-			}
-
 			// If the datastore file changes, invalidate the virtual module
 
 			server.watcher.on('add', (addedPath) => {
 				if (addedPath === dataStorePath) {
-					invalidateDataStore();
+					invalidateDataStore(server);
 				}
 			});
 
 			server.watcher.on('change', (changedPath) => {
 				if (changedPath === dataStorePath) {
-					invalidateDataStore();
+					invalidateDataStore(server);
 				}
 			});
 		},
@@ -215,24 +199,20 @@ export function astroContentVirtualModPlugin({
 export async function generateContentEntryFile({
 	settings,
 	lookupMap,
-	IS_DEV,
-	IS_SERVER,
 	isClient,
 }: {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
 	lookupMap: ContentLookupMap;
-	IS_DEV: boolean;
-	IS_SERVER: boolean;
 	isClient: boolean;
 }) {
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
 
-	let contentEntryGlobResult: string;
-	let dataEntryGlobResult: string;
-	let renderEntryGlobResult: string;
-	if (IS_DEV || IS_SERVER || !settings.config.experimental.contentCollectionCache) {
+	let contentEntryGlobResult = '""';
+	let dataEntryGlobResult = '""';
+	let renderEntryGlobResult = '""';
+	if (settings.config.legacy.collections) {
 		const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 		const contentEntryExts = [...contentEntryConfigByExt.keys()];
 		const dataEntryExts = getDataEntryExts(settings);
@@ -250,61 +230,25 @@ export async function generateContentEntryFile({
 			globWithUnderscoresIgnored(relContentDir, contentEntryExts),
 			CONTENT_RENDER_FLAG,
 		);
-	} else {
-		contentEntryGlobResult = getStringifiedCollectionFromLookup(
-			'content',
-			relContentDir,
-			lookupMap,
-		);
-		dataEntryGlobResult = getStringifiedCollectionFromLookup('data', relContentDir, lookupMap);
-		renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
 	}
 
-	let virtualModContents =
-		nodeFs
+	let virtualModContents: string;
+	if (isClient) {
+		throw new AstroError({
+			...AstroErrorData.ServerOnlyModule,
+			message: AstroErrorData.ServerOnlyModule.message('astro:content'),
+		});
+	} else {
+		virtualModContents = nodeFs
 			.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 			.replace('@@CONTENT_DIR@@', relContentDir)
 			.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
 			.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
 			.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
-			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`) +
-		(isClient
-			? `
-console.warn('astro:content is only supported running server-side. Using it in the browser will lead to bloated bundles and slow down page load. In the future it will not be supported.');`
-			: '');
+			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`);
+	}
 
 	return virtualModContents;
-}
-
-function getStringifiedCollectionFromLookup(
-	wantedType: 'content' | 'data' | 'render',
-	relContentDir: string,
-	lookupMap: ContentLookupMap,
-) {
-	let str = '{';
-	// In dev, we don't need to normalize the import specifier at all. Vite handles it.
-	let normalize = (slug: string) => slug;
-	// For prod builds, we need to transform from `/src/content/**/*.{md,mdx,json,yaml}` to a relative `./**/*.mjs` import
-	if (process.env.NODE_ENV === 'production') {
-		const suffix = wantedType === 'render' ? '.entry.mjs' : '.mjs';
-		normalize = (slug: string) =>
-			`${removeFileExtension(encodeName(slug)).replace(relContentDir, './')}${suffix}`;
-	} else {
-		let suffix = '';
-		if (wantedType === 'content') suffix = CONTENT_FLAG;
-		else if (wantedType === 'data') suffix = DATA_FLAG;
-		else if (wantedType === 'render') suffix = CONTENT_RENDER_FLAG;
-		normalize = (slug: string) => `${slug}?${suffix}`;
-	}
-	for (const { type, entries } of Object.values(lookupMap)) {
-		if (type === wantedType || (wantedType === 'render' && type === 'content')) {
-			for (const slug of Object.values(entries)) {
-				str += `\n  "${slug}": () => import("${normalize(slug)}"),`;
-			}
-		}
-	}
-	str += '\n}';
-	return str;
 }
 
 /**
@@ -367,7 +311,7 @@ export async function generateLookupMap({
 					const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
 					if (!contentEntryType) throw UnexpectedLookupMapError;
 
-					const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
+					const { id, slug: generatedSlug } = getContentEntryIdAndSlug({
 						entry: pathToFileURL(filePath),
 						contentDir,
 						collection,
@@ -418,16 +362,6 @@ export async function generateLookupMap({
 
 	await Promise.all(promises);
 	return lookupMap;
-}
-
-function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
-	const extGlob = getExtGlob(exts);
-	const contentDir = appendForwardSlash(relContentDir);
-	return [
-		`${contentDir}**/*${extGlob}`,
-		`!${contentDir}**/_*/**/*${extGlob}`,
-		`!${contentDir}**/_*${extGlob}`,
-	];
 }
 
 const UnexpectedLookupMapError = new AstroError({

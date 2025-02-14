@@ -9,6 +9,9 @@ export default defineConfig({
 				codes: ["es", "es-ar"]
 			}
 		],
-		routing: "manual"
+		routing: "manual",
+		fallback: {
+			it: 'en'
+		}
 	}
 })

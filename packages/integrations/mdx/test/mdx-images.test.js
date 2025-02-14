@@ -65,4 +65,18 @@ describe('MDX Page', () => {
 			});
 		}
 	});
+
+	describe('build', () => {
+		before(async () => {
+			await fixture.build();
+		});
+		it('includes responsive styles', async () => {
+			const code = await fixture.readFile('/index.html');
+			assert.ok(code.includes('[data-astro-image]'));
+		});
+		it("doesn't include styles on pages without images", async () => {
+			const code = await fixture.readFile('/no-image/index.html');
+			assert.ok(!code.includes('[data-astro-image]'));
+		});
+	});
 });

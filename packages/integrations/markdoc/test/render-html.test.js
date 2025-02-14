@@ -123,6 +123,11 @@ function renderSimpleChecks(html) {
 	const p3 = document.querySelector('article > p:nth-of-type(3)');
 	assert.equal(p3.children.length, 1);
 	assert.equal(p3.textContent, 'This is a span inside a paragraph!');
+
+	const video = document.querySelector('video');
+	assert.ok(video, 'A video element should exist');
+	assert.ok(video.hasAttribute('autoplay'), 'The video element should have the autoplay attribute');
+	assert.ok(video.hasAttribute('muted'), 'The video element should have the muted attribute');
 }
 
 /** @param {string} html */

@@ -13,11 +13,13 @@ const routes = [
 		description: 'matches /injected-a to to-inject.astro',
 		url: '/injected-a',
 		h1: 'to-inject.astro',
+		scriptContent: 'console.log("to-inject.astro");',
 	},
 	{
 		description: 'matches /injected-b to to-inject.astro',
 		url: '/injected-b',
 		h1: 'to-inject.astro',
+		scriptContent: 'console.log("to-inject.astro");',
 	},
 	{
 		description: 'matches /dynamic-a/id-1 to [id].astro',
@@ -43,6 +45,12 @@ const routes = [
 		h1: '[id].astro',
 		p: 'id-2',
 	},
+	{
+		description: 'matches /dynamic-c/id-2 to [id].astro when the route is injected with a URL',
+		url: '/dynamic-c/id-2',
+		h1: '[id].astro',
+		p: 'id-2',
+	},
 ];
 
 function appendForwardSlash(path) {
@@ -60,7 +68,7 @@ describe('Reuse injected entrypoint', () => {
 			await fixture.build();
 		});
 
-		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch }) => {
+		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch, scriptContent }) => {
 			const isEndpoint = htmlMatch && !h1 && !p;
 
 			it(description, async () => {
@@ -85,6 +93,15 @@ describe('Reuse injected entrypoint', () => {
 				if (htmlMatch) {
 					assert.equal(html, htmlMatch);
 				}
+
+				if (scriptContent) {
+					const scriptTags = $('script[type="module"]').toArray();
+					const scriptFound = scriptTags.some((script) => {
+						const scriptText = $(script).text();
+						return scriptText.includes(scriptContent.trim());
+					});
+					assert(scriptFound, `Expected script content to be injected in SSG ${url}`);
+				}
 			});
 		});
 	});
@@ -105,7 +122,7 @@ describe('Reuse injected entrypoint', () => {
 			await devServer.stop();
 		});
 
-		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch }) => {
+		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch, scriptContent }) => {
 			// checks URLs as written above
 			it(description, async () => {
 				const html = await fixture.fetch(url).then((res) => res.text());
@@ -126,6 +143,17 @@ describe('Reuse injected entrypoint', () => {
 
 				if (htmlMatch) {
 					assert.equal(html, htmlMatch);
+				}
+
+				if (scriptContent) {
+					const scriptTags = $('script[type="module"]').toArray();
+					const scriptFound = scriptTags.some((script) => {
+						const scriptSrc = $(script).attr('src');
+						return (
+							scriptSrc && scriptSrc.includes('/to-inject.astro?astro&type=script&index=0&lang.ts')
+						);
+					});
+					assert(scriptFound, `Expected script content to be injected in dev ${url}`);
 				}
 			});
 		});

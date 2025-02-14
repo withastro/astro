@@ -6,11 +6,10 @@ import { diffWords } from 'diff';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
 import { type ASTNode, type ProxifiedModule, builders, generateCode, loadFile } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
-import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
-import { exec } from 'tinyexec';
+import yoctoSpinner from 'yocto-spinner';
 import {
 	loadTSConfig,
 	resolveConfig,
@@ -30,6 +29,7 @@ import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
+import { exec } from '../exec.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
 
@@ -40,6 +40,7 @@ interface AddOptions {
 interface IntegrationInfo {
 	id: string;
 	packageName: string;
+	integrationName: string;
 	dependencies: [name: string, version: string][];
 	type: 'integration' | 'adapter';
 }
@@ -51,14 +52,7 @@ const ALIASES = new Map([
 
 const STUBS = {
 	ASTRO_CONFIG: `import { defineConfig } from 'astro/config';\n// https://astro.build/config\nexport default defineConfig({});`,
-	TAILWIND_CONFIG: `/** @type {import('tailwindcss').Config} */
-export default {
-	content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
-	theme: {
-		extend: {},
-	},
-	plugins: [],
-}\n`,
+	TAILWIND_GLOBAL_CSS: `@import "tailwindcss";`,
 	SVELTE_CONFIG: `\
 import { vitePreprocess } from '@astrojs/svelte';
 
@@ -89,7 +83,7 @@ export default async function seed() {
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	netlify: '@astrojs/netlify',
-	vercel: '@astrojs/vercel/serverless',
+	vercel: '@astrojs/vercel',
 	cloudflare: '@astrojs/cloudflare',
 	node: '@astrojs/node',
 };
@@ -154,23 +148,28 @@ export async function add(names: string[], { flags }: AddOptions) {
 	switch (installResult) {
 		case UpdateResult.updated: {
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
-				await setupIntegrationConfig({
-					root,
-					logger,
+				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
+				const styles = new URL('./global.css', dir);
+				if (!existsSync(styles)) {
+					logger.info(
+						'SKIP_FORMAT',
+						`\n  ${magenta(`Astro will scaffold ${green('./src/styles/global.css')}.`)}\n`,
+					);
 
-					flags,
-					integrationName: 'Tailwind',
-					possibleConfigFiles: [
-						'./tailwind.config.cjs',
-						'./tailwind.config.mjs',
-						'./tailwind.config.ts',
-						'./tailwind.config.mts',
-						'./tailwind.config.cts',
-						'./tailwind.config.js',
-					],
-					defaultConfigFile: './tailwind.config.mjs',
-					defaultConfigContent: STUBS.TAILWIND_CONFIG,
-				});
+					if (await askToContinue({ flags })) {
+						if (!existsSync(dir)) {
+							await fs.mkdir(dir);
+						}
+						await fs.writeFile(styles, STUBS.TAILWIND_GLOBAL_CSS, 'utf-8');
+					} else {
+						logger.info(
+							'SKIP_FORMAT',
+							`\n  @astrojs/tailwind requires additional configuration. Please refer to https://docs.astro.build/en/guides/integrations-guide/tailwind/`,
+						);
+					}
+				} else {
+					logger.debug('add', `Using existing tailwind configuration`);
+				}
 			}
 			if (integrations.find((integration) => integration.id === 'svelte')) {
 				await setupIntegrationConfig({
@@ -285,11 +284,13 @@ export async function add(names: string[], { flags }: AddOptions) {
 						'SKIP_FORMAT',
 						`\n  ${magenta(
 							`Check our deployment docs for ${bold(
-								integration.packageName,
+								integration.integrationName,
 							)} to update your "adapter" config.`,
 						)}`,
 					);
 				}
+			} else if (integration.id === 'tailwind') {
+				addVitePlugin(mod, 'tailwindcss', '@tailwindcss/vite');
 			} else {
 				addIntegration(mod, integration);
 			}
@@ -344,8 +345,14 @@ export async function add(names: string[], { flags }: AddOptions) {
 			logger.info('SKIP_FORMAT', msg.success(`Configuration up-to-date.`));
 			break;
 		}
-		default: {
-			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
+		// NOTE: failure shouldn't happen in practice because `updateAstroConfig` doesn't return that.
+		// Pipe this to the same handling as `UpdateResult.updated` for now.
+		case UpdateResult.failure:
+		case UpdateResult.updated:
+		case undefined: {
+			const list = integrations
+				.map((integration) => `  - ${integration.integrationName}`)
+				.join('\n');
 			logger.info(
 				'SKIP_FORMAT',
 				msg.success(
@@ -354,6 +361,24 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} to your project:\n${list}`,
 				),
 			);
+			if (integrations.find((integration) => integration.integrationName === 'tailwind')) {
+				const code = boxen(
+					getDiffContent('---\n---', "---\nimport './src/styles/global.css'\n---")!,
+					{
+						margin: 0.5,
+						padding: 0.5,
+						borderStyle: 'round',
+						title: 'src/layouts/Layout.astro',
+					},
+				);
+				logger.warn(
+					'SKIP_FORMAT',
+					msg.actionRequired(
+						'You must import your Tailwind stylesheet, e.g. in a shared layout:\n',
+					),
+				);
+				logger.info('SKIP_FORMAT', code + '\n');
+			}
 		}
 	}
 
@@ -375,7 +400,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 				`Unknown error parsing tsconfig.json or jsconfig.json. Could not update TypeScript settings.`,
 			);
 		}
-		default:
+		case UpdateResult.updated:
 			logger.info('SKIP_FORMAT', msg.success(`Successfully updated TypeScript settings`));
 	}
 }
@@ -390,13 +415,16 @@ function isAdapter(
 // Some examples:
 //  - @astrojs/image => image
 //  - @astrojs/markdown-component => markdownComponent
+//  - @astrojs/image@beta => image
 //  - astro-cast => cast
+//  - astro-cast@next => cast
 //  - markdown-astro => markdown
 //  - some-package => somePackage
 //  - example.com => exampleCom
 //  - under_score => underScore
 //  - 123numeric => numeric
 //  - @npm/thingy => npmThingy
+//  - @npm/thingy@1.2.3 => npmThingy
 //  - @jane/foo.js => janeFoo
 //  - @tokencss/astro => tokencss
 const toIdent = (name: string) => {
@@ -409,7 +437,9 @@ const toIdent = (name: string) => {
 		// convert to camel case
 		.replace(/[.\-_/]+([a-zA-Z])/g, (_, w) => w.toUpperCase())
 		// drop invalid first characters
-		.replace(/^[^a-zA-Z$_]+/, '');
+		.replace(/^[^a-zA-Z$_]+/, '')
+		// drop version or tag
+		.replace(/@.*$/, '');
 	return `${ident[0].toLowerCase()}${ident.slice(1)}`;
 };
 
@@ -447,6 +477,31 @@ function addIntegration(mod: ProxifiedModule<any>, integration: IntegrationInfo)
 	}
 }
 
+function addVitePlugin(mod: ProxifiedModule<any>, pluginId: string, packageName: string) {
+	const config = getDefaultExportOptions(mod);
+
+	if (!mod.imports.$items.some((imp) => imp.local === pluginId)) {
+		mod.imports.$append({
+			imported: 'default',
+			local: pluginId,
+			from: packageName,
+		});
+	}
+
+	config.vite ??= {};
+	config.vite.plugins ??= [];
+	if (
+		!config.vite.plugins.$ast.elements.some(
+			(el: ASTNode) =>
+				el.type === 'CallExpression' &&
+				el.callee.type === 'Identifier' &&
+				el.callee.name === pluginId,
+		)
+	) {
+		config.vite.plugins.push(builders.functionCall(pluginId));
+	}
+}
+
 export function setAdapter(
 	mod: ProxifiedModule<any>,
 	adapter: IntegrationInfo,
@@ -461,10 +516,6 @@ export function setAdapter(
 			local: adapterId,
 			from: exportName,
 		});
-	}
-
-	if (!config.output) {
-		config.output = 'server';
 	}
 
 	switch (adapter.id) {
@@ -587,8 +638,7 @@ async function convertIntegrationsToInstallSpecifiers(
 	integrations: IntegrationInfo[],
 ): Promise<string[]> {
 	const ranges: Record<string, string> = {};
-	for (let { packageName, dependencies } of integrations) {
-		ranges[packageName] = '*';
+	for (let { dependencies } of integrations) {
 		for (const [name, range] of dependencies) {
 			ranges[name] = range;
 		}
@@ -670,7 +720,7 @@ async function tryToInstallIntegrations({
 		);
 
 		if (await askToContinue({ flags })) {
-			const spinner = ora('Installing dependencies...').start();
+			const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
 			try {
 				await exec(
 					installCommand.pm,
@@ -688,10 +738,10 @@ async function tryToInstallIntegrations({
 						},
 					},
 				);
-				spinner.succeed();
+				spinner.success();
 				return UpdateResult.updated;
 			} catch (err: any) {
-				spinner.fail();
+				spinner.error();
 				logger.debug('add', 'Error installing dependencies', err);
 				// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
 				console.error('\n', err.stdout || err.message, '\n');
@@ -704,7 +754,7 @@ async function tryToInstallIntegrations({
 }
 
 async function validateIntegrations(integrations: string[]): Promise<IntegrationInfo[]> {
-	const spinner = ora('Resolving packages...').start();
+	const spinner = yoctoSpinner({ text: 'Resolving packages...' }).start();
 	try {
 		const integrationEntries = await Promise.all(
 			integrations.map(async (integration): Promise<IntegrationInfo> => {
@@ -722,9 +772,9 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 					const firstPartyPkgCheck = await fetchPackageJson('@astrojs', name, tag);
 					if (firstPartyPkgCheck instanceof Error) {
 						if (firstPartyPkgCheck.message) {
-							spinner.warn(yellow(firstPartyPkgCheck.message));
+							spinner.warning(yellow(firstPartyPkgCheck.message));
 						}
-						spinner.warn(yellow(`${bold(integration)} is not an official Astro package.`));
+						spinner.warning(yellow(`${bold(integration)} is not an official Astro package.`));
 						const response = await prompts({
 							type: 'confirm',
 							name: 'askToContinue',
@@ -749,7 +799,7 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 					const thirdPartyPkgCheck = await fetchPackageJson(scope, name, tag);
 					if (thirdPartyPkgCheck instanceof Error) {
 						if (thirdPartyPkgCheck.message) {
-							spinner.warn(yellow(thirdPartyPkgCheck.message));
+							spinner.warning(yellow(thirdPartyPkgCheck.message));
 						}
 						throw new Error(`Unable to fetch ${bold(integration)}. Does the package exist?`);
 					} else {
@@ -759,7 +809,7 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 
 				const resolvedScope = pkgType === 'first-party' ? '@astrojs' : scope;
 				const packageName = `${resolvedScope ? `${resolvedScope}/` : ''}${name}`;
-
+				let integrationName = packageName;
 				let dependencies: IntegrationInfo['dependencies'] = [
 					[pkgJson['name'], `^${pkgJson['version']}`],
 				];
@@ -791,14 +841,27 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 					);
 				}
 
-				return { id: integration, packageName, dependencies, type: integrationType };
+				if (integration === 'tailwind') {
+					integrationName = 'tailwind';
+					dependencies = [
+						['@tailwindcss/vite', '^4.0.0'],
+						['tailwindcss', '^4.0.0'],
+					];
+				}
+				return {
+					id: integration,
+					packageName,
+					dependencies,
+					type: integrationType,
+					integrationName,
+				};
 			}),
 		);
-		spinner.succeed();
+		spinner.success();
 		return integrationEntries;
 	} catch (e) {
 		if (e instanceof Error) {
-			spinner.fail(e.message);
+			spinner.error(e.message);
 			process.exit(1);
 		} else {
 			throw e;

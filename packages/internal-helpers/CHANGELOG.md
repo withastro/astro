@@ -1,5 +1,23 @@
 # @astrojs/internal-helpers
 
+## 0.5.1
+
+### Patch Changes
+
+- [#13130](https://github.com/withastro/astro/pull/13130) [`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that meant that internal as well as trailing duplicate slashes were collapsed
+
+## 0.5.0
+
+### Minor Changes
+
+- [#12994](https://github.com/withastro/astro/pull/12994) [`5361755`](https://github.com/withastro/astro/commit/536175528dbbe75aa978d615ba2517b64bad7879) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds `collapseDuplicateTrailingSlashes` function
+
+## 0.4.2
+
+### Patch Changes
+
+- [#12559](https://github.com/withastro/astro/pull/12559) [`1dc8f5e`](https://github.com/withastro/astro/commit/1dc8f5eb7c515c89aadc85cfa0a300d4f65e8671) Thanks [@delucis](https://github.com/delucis)! - Fixes usage of `fileURLToPath()` to anticipate the changed signature of this method in Node 22.1.0
+
 ## 0.4.1
 
 ### Patch Changes

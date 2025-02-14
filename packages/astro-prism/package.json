@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/prism",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Add Prism syntax highlighting support to your Astro site",
   "author": "withastro",
   "type": "module",
@@ -8,7 +8,7 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/astro-prism"
   },
   "homepage": "https://docs.astro.build/en/reference/api-reference/#prism-",
@@ -35,10 +35,10 @@
     "prismjs": "^1.29.0"
   },
   "devDependencies": {
-    "@types/prismjs": "1.26.4",
+    "@types/prismjs": "1.26.5",
     "astro-scripts": "workspace:*"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
+    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
   }
 }

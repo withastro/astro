@@ -1,6 +1,6 @@
 import type http from 'node:http';
-import type { ManifestData } from '../@types/astro.js';
 import { removeTrailingForwardSlash } from '../core/path.js';
+import type { RoutesList } from '../types/astro.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
 import { recordServerError } from './error.js';
@@ -10,7 +10,7 @@ import { handleRoute, matchRoute } from './route.js';
 
 type HandleRequest = {
 	pipeline: DevPipeline;
-	manifestData: ManifestData;
+	routesList: RoutesList;
 	controller: DevServerController;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
@@ -19,7 +19,7 @@ type HandleRequest = {
 /** The main logic to route dev server requests to pages in Astro. */
 export async function handleRequest({
 	pipeline,
-	manifestData,
+	routesList,
 	controller,
 	incomingRequest,
 	incomingResponse,
@@ -34,7 +34,9 @@ export async function handleRequest({
 	if (config.trailingSlash === 'never' && !incomingRequest.url) {
 		pathname = '';
 	} else {
-		pathname = url.pathname;
+		// We already have a middleware that checks if there's an incoming URL that has invalid URI, so it's safe
+		// to not handle the error: packages/astro/src/vite-plugin-astro-server/base.ts
+		pathname = decodeURI(url.pathname);
 	}
 
 	// Add config.base back to url before passing it to SSR
@@ -56,16 +58,15 @@ export async function handleRequest({
 		controller,
 		pathname,
 		async run() {
-			const matchedRoute = await matchRoute(pathname, manifestData, pipeline);
+			const matchedRoute = await matchRoute(pathname, routesList, pipeline);
 			const resolvedPathname = matchedRoute?.resolvedPathname ?? pathname;
 			return await handleRoute({
 				matchedRoute,
 				url,
 				pathname: resolvedPathname,
 				body,
-				origin,
 				pipeline,
-				manifestData,
+				routesList,
 				incomingRequest: incomingRequest,
 				incomingResponse: incomingResponse,
 			});

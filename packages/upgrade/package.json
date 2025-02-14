@@ -1,12 +1,12 @@
 {
   "name": "@astrojs/upgrade",
-  "version": "0.3.4",
+  "version": "0.4.3",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/upgrade"
   },
   "bugs": "https://github.com/withastro/astro/issues",
@@ -30,8 +30,8 @@
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
     "@astrojs/cli-kit": "^0.4.1",
-    "preferred-pm": "^4.0.0",
-    "semver": "^7.6.3",
+    "preferred-pm": "^4.1.1",
+    "semver": "^7.7.1",
     "terminal-link": "^3.0.0"
   },
   "devDependencies": {
@@ -40,6 +40,6 @@
     "astro-scripts": "workspace:*"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
+    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
   }
 }

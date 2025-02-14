@@ -1,16 +1,14 @@
-import type { SSRElement } from '../../../@types/astro.js';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 import { clsx } from 'clsx';
+import type { SSRElement } from '../../../types/public/internal.js';
 import { HTMLString, markHTMLString } from '../escape.js';
+import { isPromise } from '../util.js';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
-	/^(?:allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|selected|itemscope)$/i;
-const htmlEnumAttributes = /^(?:contenteditable|draggable|spellcheck|value)$/i;
-// Note: SVG is case-sensitive!
-const svgEnumAttributes = /^(?:autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
+	/^(?:allowfullscreen|async|autofocus|autoplay|checked|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|inert|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|selected|itemscope)$/i;
 
 const AMPERSAND_REGEX = /&/g;
 const DOUBLE_QUOTE_REGEX = /"/g;
@@ -31,7 +29,8 @@ export const toAttributeString = (value: any, shouldEscape = true) =>
 
 const kebab = (k: string) =>
 	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
-const toStyleString = (obj: Record<string, any>) =>
+
+export const toStyleString = (obj: Record<string, any>) =>
 	Object.entries(obj)
 		.filter(([_, v]) => (typeof v === 'string' && v.trim()) || typeof v === 'number')
 		.map(([k, v]) => {
@@ -64,13 +63,6 @@ export function formatList(values: string[]): string {
 // A helper used to turn expressions into attribute key/value
 export function addAttribute(value: any, key: string, shouldEscape = true) {
 	if (value == null) {
-		return '';
-	}
-
-	if (value === false) {
-		if (htmlEnumAttributes.test(key) || svgEnumAttributes.test(key)) {
-			return markHTMLString(` ${key}="false"`);
-		}
 		return '';
 	}
 
@@ -114,11 +106,16 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	}
 
 	// Boolean values only need the key
-	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
-		return markHTMLString(` ${key}`);
-	} else {
-		return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
+	if (htmlBooleanAttributes.test(key)) {
+		return markHTMLString(value ? ` ${key}` : '');
 	}
+
+	// Other attributes with an empty string value can omit rendering the value
+	if (value === '') {
+		return markHTMLString(` ${key}`);
+	}
+
+	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
 }
 
 // Adds support for `<Component {...value} />
@@ -156,33 +153,54 @@ export function renderElement(
 const noop = () => {};
 
 /**
- * Renders into a buffer until `renderToFinalDestination` is called (which
+ * Renders into a buffer until `flush` is called (which
  * flushes the buffer)
  */
-class BufferedRenderer implements RenderDestination {
+class BufferedRenderer implements RenderDestination, RendererFlusher {
 	private chunks: RenderDestinationChunk[] = [];
 	private renderPromise: Promise<void> | void;
-	private destination?: RenderDestination;
+	private destination: RenderDestination;
 
-	public constructor(bufferRenderFunction: RenderFunction) {
-		this.renderPromise = bufferRenderFunction(this);
-		// Catch here in case it throws before `renderToFinalDestination` is called,
-		// to prevent an unhandled rejection.
-		Promise.resolve(this.renderPromise).catch(noop);
+	/**
+	 * Determines whether buffer has been flushed
+	 * to the final destination.
+	 */
+	private flushed = false;
+
+	public constructor(destination: RenderDestination, renderFunction: RenderFunction) {
+		this.destination = destination;
+		this.renderPromise = renderFunction(this);
+
+		if (isPromise(this.renderPromise)) {
+			// Catch here in case it throws before `flush` is called,
+			// to prevent an unhandled rejection.
+			Promise.resolve(this.renderPromise).catch(noop);
+		}
 	}
 
 	public write(chunk: RenderDestinationChunk): void {
-		if (this.destination) {
+		// Before the buffer has been flushed, we want to
+		// append to the buffer, afterwards we'll write
+		// to the underlying destination if subsequent
+		// writes arrive.
+
+		if (this.flushed) {
 			this.destination.write(chunk);
 		} else {
 			this.chunks.push(chunk);
 		}
 	}
 
-	public async renderToFinalDestination(destination: RenderDestination) {
+	public flush(): void | Promise<void> {
+		if (this.flushed) {
+			throw new Error('The render buffer has already been flushed.');
+		}
+
+		this.flushed = true;
+
 		// Write the buffered chunks to the real destination
 		for (const chunk of this.chunks) {
-			destination.write(chunk);
+			this.destination.write(chunk);
 		}
 
 		// NOTE: We don't empty `this.chunks` after it's written as benchmarks show
@@ -190,38 +208,43 @@ class BufferedRenderer implements RenderDestination {
 		// instead of letting the garbage collector handle it automatically.
 		// (Unsure how this affects on limited memory machines)
 
-		// Re-assign the real destination so `instance.render` will continue and write to the new destination
-		this.destination = destination;
-
-		// Wait for render to finish entirely
-		await this.renderPromise;
+		return this.renderPromise;
 	}
 }
 
 /**
  * Executes the `bufferRenderFunction` to prerender it into a buffer destination, and return a promise
- * with an object containing the `renderToFinalDestination` function to flush the buffer to the final
+ * with an object containing the `flush` function to flush the buffer to the final
  * destination.
  *
  * @example
  * ```ts
  * // Render components in parallel ahead of time
  * const finalRenders = [ComponentA, ComponentB].map((comp) => {
- *   return renderToBufferDestination(async (bufferDestination) => {
+ *   return createBufferedRenderer(finalDestination, async (bufferDestination) => {
  *     await renderComponentToDestination(bufferDestination);
  *   });
  * });
  * // Render array of components serially
  * for (const finalRender of finalRenders) {
- *   await finalRender.renderToFinalDestination(finalDestination);
+ *   await finalRender.flush();
  * }
  * ```
  */
-export function renderToBufferDestination(bufferRenderFunction: RenderFunction): {
-	renderToFinalDestination: RenderFunction;
-} {
-	const renderer = new BufferedRenderer(bufferRenderFunction);
-	return renderer;
+export function createBufferedRenderer(
+	destination: RenderDestination,
+	renderFunction: RenderFunction,
+): RendererFlusher {
+	return new BufferedRenderer(destination, renderFunction);
+}
+
+export interface RendererFlusher {
+	/**
+	 * Flushes the current renderer to the underlying renderer.
+	 *
+	 * See example of `createBufferedRenderer` for usage.
+	 */
+	flush(): void | Promise<void>;
 }
 
 export const isNode =

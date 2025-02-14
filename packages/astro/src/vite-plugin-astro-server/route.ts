@@ -1,7 +1,7 @@
 import type http from 'node:http';
-import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro.js';
 import {
 	DEFAULT_404_COMPONENT,
+	NOOP_MIDDLEWARE_HEADER,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	clientLocalsSymbol,
@@ -9,11 +9,17 @@ import {
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
+import { routeIsRedirect } from '../core/redirects/index.js';
 import { RenderContext } from '../core/render-context.js';
-import { type SSROptions, getProps } from '../core/render/index.js';
+import { getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
+import { redirectTemplate } from '../core/routing/3xx.js';
 import { matchAllRoutes } from '../core/routing/index.js';
+import { isRoute404, isRoute500 } from '../core/routing/match.js';
+import { PERSIST_SYMBOL } from '../core/session.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
+import type { ComponentInstance, RoutesList } from '../types/astro.js';
+import type { RouteData } from '../types/public/internal.js';
 import type { DevPipeline } from './pipeline.js';
 import { writeSSRResult, writeWebResponse } from './response.js';
 
@@ -35,23 +41,21 @@ function isLoggedRequest(url: string) {
 	return url !== '/favicon.ico';
 }
 
-function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
-	const route404 = /^\/404\/?$/;
-	return manifestData.routes.find((r) => route404.test(r.route));
+function getCustom404Route(manifestData: RoutesList): RouteData | undefined {
+	return manifestData.routes.find((r) => isRoute404(r.route));
 }
 
-function getCustom500Route(manifestData: ManifestData): RouteData | undefined {
-	const route500 = /^\/500\/?$/;
-	return manifestData.routes.find((r) => route500.test(r.route));
+function getCustom500Route(manifestData: RoutesList): RouteData | undefined {
+	return manifestData.routes.find((r) => isRoute500(r.route));
 }
 
 export async function matchRoute(
 	pathname: string,
-	manifestData: ManifestData,
+	routesList: RoutesList,
 	pipeline: DevPipeline,
 ): Promise<MatchedRoute | undefined> {
 	const { config, logger, routeCache, serverLike, settings } = pipeline;
-	const matches = matchAllRoutes(pathname, manifestData);
+	const matches = matchAllRoutes(pathname, routesList);
 
 	const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
 
@@ -66,6 +70,7 @@ export async function matchRoute(
 				pathname: pathname,
 				logger,
 				serverLike,
+				base: config.base,
 			});
 			return {
 				route: maybeRoute,
@@ -89,7 +94,7 @@ export async function matchRoute(
 	const altPathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, manifestData, pipeline);
+		return await matchRoute(altPathname, routesList, pipeline);
 	}
 
 	if (matches.length) {
@@ -103,7 +108,7 @@ export async function matchRoute(
 		);
 	}
 
-	const custom404 = getCustom404Route(manifestData);
+	const custom404 = getCustom404Route(routesList);
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, config.root);
@@ -126,11 +131,9 @@ type HandleRoute = {
 	url: URL;
 	pathname: string;
 	body: ArrayBuffer | undefined;
-	origin: string;
-	manifestData: ManifestData;
+	routesList: RoutesList;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
-	status?: 404 | 500 | 200;
 	pipeline: DevPipeline;
 };
 
@@ -138,11 +141,9 @@ export async function handleRoute({
 	matchedRoute,
 	url,
 	pathname,
-	status = getStatus(matchedRoute),
 	body,
-	origin,
 	pipeline,
-	manifestData,
+	routesList,
 	incomingRequest,
 	incomingResponse,
 }: HandleRoute): Promise<void> {
@@ -157,24 +158,23 @@ export async function handleRoute({
 	let request: Request;
 	let renderContext: RenderContext;
 	let mod: ComponentInstance | undefined = undefined;
-	let options: SSROptions | undefined = undefined;
 	let route: RouteData;
 	const middleware = (await loadMiddleware(loader)).onRequest;
+	// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
 	const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 
-	const filePath: URL | undefined = matchedRoute.filePath;
 	const { preloadedComponent } = matchedRoute;
 	route = matchedRoute.route;
+
 	// Allows adapters to pass in locals in dev mode.
 	request = createRequest({
-		base: config.base,
 		url,
 		headers: incomingRequest.headers,
 		method: incomingRequest.method,
 		body,
 		logger,
-		clientAddress: incomingRequest.socket.remoteAddress,
-		staticLike: config.output === 'static' || route.prerender,
+		isPrerendered: route.prerender,
+		routePattern: route.component,
 	});
 
 	// Set user specified headers to response object.
@@ -182,40 +182,37 @@ export async function handleRoute({
 		if (value) incomingResponse.setHeader(name, value);
 	}
 
-	options = {
-		pipeline,
-		filePath,
-		preload: preloadedComponent,
-		pathname,
-		request,
-		route,
-	};
-
 	mod = preloadedComponent;
-
-	const isDefaultPrerendered404 =
-		matchedRoute.route.route === '/404' &&
-		matchedRoute.route.prerender &&
-		matchedRoute.route.component === DEFAULT_404_COMPONENT;
 
 	renderContext = await RenderContext.create({
 		locals,
 		pipeline,
 		pathname,
-		middleware: isDefaultPrerendered404 ? undefined : middleware,
+		middleware: isDefaultPrerendered404(matchedRoute.route) ? undefined : middleware,
 		request,
 		routeData: route,
+		clientAddress: incomingRequest.socket.remoteAddress,
 	});
 
 	let response;
+	let statusCode = 200;
 	let isReroute = false;
 	let isRewrite = false;
 	try {
 		response = await renderContext.render(mod);
 		isReroute = response.headers.has(REROUTE_DIRECTIVE_HEADER);
 		isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
+		const statusCodedMatched = getStatusByMatchedRoute(matchedRoute);
+		statusCode = isRewrite
+			? // Ignore `matchedRoute` status for rewrites
+				response.status
+			: // Our internal noop middleware sets a particular header. If the header isn't present, it means that the user have
+				// their own middleware, so we need to return what the user returns.
+				!response.headers.has(NOOP_MIDDLEWARE_HEADER) && !isReroute
+				? response.status
+				: (statusCodedMatched ?? response.status);
 	} catch (err: any) {
-		const custom500 = getCustom500Route(manifestData);
+		const custom500 = getCustom500Route(routesList);
 		if (!custom500) {
 			throw err;
 		}
@@ -225,7 +222,9 @@ export async function handleRoute({
 		const preloaded500Component = await pipeline.preload(custom500, filePath500);
 		renderContext.props.error = err;
 		response = await renderContext.render(preloaded500Component);
-		status = 500;
+		statusCode = 500;
+	} finally {
+		renderContext.session?.[PERSIST_SYMBOL]();
 	}
 
 	if (isLoggedRequest(pathname)) {
@@ -235,27 +234,33 @@ export async function handleRoute({
 			req({
 				url: pathname,
 				method: incomingRequest.method,
-				statusCode: isRewrite ? response.status : (status ?? response.status),
+				statusCode,
 				isRewrite,
 				reqTime: timeEnd - timeStart,
 			}),
 		);
 	}
-	if (response.status === 404 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {
-		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
-		if (options && options.route !== fourOhFourRoute?.route)
-			return handleRoute({
-				...options,
-				matchedRoute: fourOhFourRoute,
-				url: new URL(pathname, url),
-				status: 404,
-				body,
-				origin,
+
+	if (
+		statusCode === 404 &&
+		// If the body isn't null, that means the user sets the 404 status
+		// but uses the current route to handle the 404
+		response.body === null &&
+		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
+	) {
+		const fourOhFourRoute = await matchRoute('/404', routesList, pipeline);
+		if (fourOhFourRoute) {
+			renderContext = await RenderContext.create({
+				locals,
 				pipeline,
-				manifestData,
-				incomingRequest,
-				incomingResponse,
+				pathname,
+				middleware: isDefaultPrerendered404(fourOhFourRoute.route) ? undefined : middleware,
+				request,
+				routeData: fourOhFourRoute.route,
+				clientAddress: incomingRequest.socket.remoteAddress,
 			});
+			response = await renderContext.render(fourOhFourRoute.preloadedComponent);
+		}
 	}
 
 	// We remove the internally-used header before we send the response to the user agent.
@@ -284,24 +289,52 @@ export async function handleRoute({
 	// By default, we should give priority to the status code passed, although it's possible that
 	// the `Response` emitted by the user is a redirect. If so, then return the returned response.
 	if (response.status < 400 && response.status >= 300) {
+		if (
+			response.status >= 300 &&
+			response.status < 400 &&
+			routeIsRedirect(route) &&
+			!config.build.redirects &&
+			pipeline.settings.buildOutput === 'static'
+		) {
+			// If we're here, it means that the calling static redirect that was configured by the user
+			// We try to replicate the same behaviour that we provide during a static build
+			response = new Response(
+				redirectTemplate({
+					status: response.status,
+					location: response.headers.get('location')!,
+					from: pathname,
+				}),
+				{
+					status: 200,
+					headers: {
+						...response.headers,
+						'content-type': 'text/html',
+					},
+				},
+			);
+		}
 		await writeSSRResult(request, response, incomingResponse);
 		return;
 	}
 
 	// Apply the `status` override to the response object before responding.
 	// Response.status is read-only, so a clone is required to override.
-	if (status && response.status !== status && (status === 404 || status === 500)) {
+	if (response.status !== statusCode) {
 		response = new Response(response.body, {
-			status: status,
+			status: statusCode,
 			headers: response.headers,
 		});
 	}
 	await writeSSRResult(request, response, incomingResponse);
 }
 
-function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | 200 {
-	if (!matchedRoute) return 404;
-	if (matchedRoute.route.route === '/404') return 404;
-	if (matchedRoute.route.route === '/500') return 500;
-	return 200;
+/** Check for /404 and /500 custom routes to compute status code */
+function getStatusByMatchedRoute(matchedRoute?: MatchedRoute) {
+	if (matchedRoute?.route.route === '/404') return 404;
+	if (matchedRoute?.route.route === '/500') return 500;
+	return undefined;
+}
+
+function isDefaultPrerendered404(route: RouteData) {
+	return route.route === '/404' && route.prerender && route.component === DEFAULT_404_COMPONENT;
 }

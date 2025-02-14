@@ -122,7 +122,8 @@ export const JPG: IImage = {
 
       // Every JPEG block must begin with a 0xFF
       if (input[i] !== 0xff) {
-        input = input.slice(1)
+        // Change from upstream: fix non-0xFF blocks skipping
+        input = input.slice(i)
         continue
       }
 

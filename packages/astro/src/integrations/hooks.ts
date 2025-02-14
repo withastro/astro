@@ -4,26 +4,35 @@ import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
-import type {
-	AstroAdapter,
-	AstroConfig,
-	AstroIntegration,
-	AstroRenderer,
-	AstroSettings,
-	ContentEntryType,
-	DataEntryType,
-	HookParameters,
-	RouteData,
-	RouteOptions,
-} from '../@types/astro.js';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 import { isActionsFilePresent } from '../actions/utils.js';
+import { CONTENT_LAYER_TYPE } from '../content/consts.js';
+import { globalContentLayer } from '../content/content-layer.js';
+import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
+import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
-import { isServerLikeOutput } from '../core/util.js';
+import { validateSessionConfig } from '../core/session.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroConfig } from '../types/public/config.js';
+import type {
+	ContentEntryType,
+	DataEntryType,
+	RefreshContentOptions,
+} from '../types/public/content.js';
+import type {
+	AstroIntegration,
+	AstroRenderer,
+	BaseIntegrationHooks,
+	HookParameters,
+	IntegrationResolvedRoute,
+	IntegrationRouteData,
+	RouteOptions,
+} from '../types/public/integrations.js';
+import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
 
 async function withTakingALongTimeMsg<T>({
@@ -34,7 +43,7 @@ async function withTakingALongTimeMsg<T>({
 	logger,
 }: {
 	name: string;
-	hookName: string;
+	hookName: keyof BaseIntegrationHooks;
 	hookResult: T | Promise<T>;
 	timeoutMs?: number;
 	logger: Logger;
@@ -107,13 +116,17 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 // Will match any invalid characters (will be converted to _). We only allow a-zA-Z0-9.-_
 const SAFE_CHARS_RE = /[^\w.-]/g;
 
+export function normalizeCodegenDir(integrationName: string): string {
+	return `./integrations/${integrationName.replace(SAFE_CHARS_RE, '_')}/`;
+}
+
 export function normalizeInjectedTypeFilename(filename: string, integrationName: string): string {
 	if (!filename.endsWith('.d.ts')) {
 		throw new Error(
 			`Integration ${bold(integrationName)} is injecting a type that does not end with "${bold('.d.ts')}"`,
 		);
 	}
-	return `./integrations/${integrationName.replace(SAFE_CHARS_RE, '_')}/${filename.replace(SAFE_CHARS_RE, '_')}`;
+	return `${normalizeCodegenDir(integrationName)}${filename.replace(SAFE_CHARS_RE, '_')}`;
 }
 
 export async function runHookConfigSetup({
@@ -129,9 +142,9 @@ export async function runHookConfigSetup({
 	isRestart?: boolean;
 	fs?: typeof fsMod;
 }): Promise<AstroSettings> {
-	// An adapter is an integration, so if one is provided push it.
+	// An adapter is an integration, so if one is provided add it to the list of integrations.
 	if (settings.config.adapter) {
-		settings.config.integrations.push(settings.config.adapter);
+		settings.config.integrations.unshift(settings.config.adapter);
 	}
 	if (await isActionsFilePresent(fs, settings.config.srcDir)) {
 		settings.config.integrations.push(astroIntegrationActionsRouteHandler({ settings }));
@@ -195,14 +208,10 @@ export async function runHookConfigSetup({
 						);
 						injectRoute.entrypoint = injectRoute.entryPoint as string;
 					}
-					updatedSettings.injectedRoutes.push(injectRoute);
+					updatedSettings.injectedRoutes.push({ ...injectRoute, origin: 'external' });
 				},
 				addWatchFile: (path) => {
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
-				},
-				addDevOverlayPlugin: (entrypoint) => {
-					// TODO add a deprecation warning in Astro 5.
-					hooks.addDevToolbarApp(entrypoint);
 				},
 				addDevToolbarApp: (entrypoint) => {
 					updatedSettings.devToolbarApps.push(entrypoint);
@@ -227,11 +236,17 @@ export async function runHookConfigSetup({
 					}
 					logger.debug(
 						'middleware',
-						`The integration ${integration.name} has added middleware that runs ${
-							order === 'pre' ? 'before' : 'after'
+						`The integration ${integration.name} has added middleware that runs ${order === 'pre' ? 'before' : 'after'
 						} any application middleware you define.`,
 					);
-					updatedSettings.middlewares[order].push(entrypoint);
+					updatedSettings.middlewares[order].push(
+						typeof entrypoint === 'string' ? entrypoint : fileURLToPath(entrypoint),
+					);
+				},
+				createCodegenDir: () => {
+					const codegenDir = new URL(normalizeCodegenDir(integration.name), settings.dotAstroDir);
+					fs.mkdirSync(codegenDir, { recursive: true });
+					return codegenDir;
 				},
 				logger: integrationLogger,
 			};
@@ -297,9 +312,11 @@ export async function runHookConfigSetup({
 export async function runHookConfigDone({
 	settings,
 	logger,
+	command,
 }: {
 	settings: AstroSettings;
 	logger: Logger;
+	command?: 'dev' | 'build' | 'preview' | 'sync';
 }) {
 	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:config:done']) {
@@ -309,36 +326,23 @@ export async function runHookConfigDone({
 				hookResult: integration.hooks['astro:config:done']({
 					config: settings.config,
 					setAdapter(adapter) {
-						if (settings.adapter && settings.adapter.name !== adapter.name) {
-							throw new Error(
-								`Integration "${integration.name}" conflicts with "${settings.adapter.name}". You can only configure one deployment integration.`,
-							);
+						validateSetAdapter(logger, settings, adapter, integration.name, command);
+
+						if (adapter.adapterFeatures?.buildOutput !== 'static') {
+							settings.buildOutput = 'server';
 						}
+
 						if (!adapter.supportedAstroFeatures) {
 							throw new Error(
 								`The adapter ${adapter.name} doesn't provide a feature map. It is required in Astro 4.0.`,
 							);
 						} else {
-							const validationResult = validateSupportedFeatures(
+							validateSupportedFeatures(
 								adapter.name,
 								adapter.supportedAstroFeatures,
-								settings.config,
-								// SAFETY: we checked before if it's not present, and we throw an error
-								adapter.adapterFeatures,
+								settings,
 								logger,
 							);
-							for (const [featureName, supported] of Object.entries(validationResult)) {
-								// If `supported` / `validationResult[featureName]` only allows boolean,
-								// in theory 'assets' false, doesn't mean that the feature is not supported, but rather that the chosen image service is unsupported
-								// in this case we should not show an error, that the featrue is not supported
-								// if we would refactor the validation to support more than boolean, we could still be able to differentiate between the two cases
-								if (!supported && featureName !== 'assets') {
-									logger.error(
-										null,
-										`The adapter ${adapter.name} doesn't support the feature ${featureName}. Your project won't be built. You should not use it.`,
-									);
-								}
-							}
 						}
 						settings.adapter = adapter;
 					},
@@ -358,11 +362,19 @@ export async function runHookConfigDone({
 						return new URL(normalizedFilename, settings.dotAstroDir);
 					},
 					logger: getLogger(integration, logger),
+					get buildOutput() {
+						return settings.buildOutput!; // settings.buildOutput is always set at this point
+					},
 				}),
 				logger,
 			});
 		}
 	}
+	// Session config is validated after all integrations have had a chance to
+	// register a default session driver, and we know the output type.
+	// This can't happen in the Zod schema because it that happens before adapters run
+	// and also doesn't know whether it's a server build or static build.
+	validateSessionConfig(settings);
 }
 
 export async function runHookServerSetup({
@@ -374,6 +386,22 @@ export async function runHookServerSetup({
 	server: ViteDevServer;
 	logger: Logger;
 }) {
+	let refreshContent: undefined | ((options: RefreshContentOptions) => Promise<void>);
+	refreshContent = async (options: RefreshContentOptions) => {
+		const contentConfig = globalContentConfigObserver.get();
+		if (
+			contentConfig.status !== 'loaded' ||
+			!Object.values(contentConfig.config.collections).some(
+				(collection) => collection.type === CONTENT_LAYER_TYPE,
+			)
+		) {
+			return;
+		}
+
+		const contentLayer = await globalContentLayer.get();
+		await contentLayer?.sync(options);
+	};
+
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:setup']) {
 			await withTakingALongTimeMsg({
@@ -383,6 +411,7 @@ export async function runHookServerSetup({
 					server,
 					logger: getLogger(integration, logger),
 					toolbar: getToolbarServerCommunicationHelpers(server),
+					refreshContent,
 				}),
 				logger,
 			});
@@ -509,6 +538,10 @@ export async function runHookBuildSsr({
 	entryPoints,
 	middlewareEntryPoint,
 }: RunHookBuildSsr) {
+	const entryPointsMap = new Map();
+	for (const [key, value] of entryPoints) {
+		entryPointsMap.set(toIntegrationRouteData(key), value);
+	}
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:ssr']) {
 			await withTakingALongTimeMsg({
@@ -516,7 +549,7 @@ export async function runHookBuildSsr({
 				hookName: 'astro:build:ssr',
 				hookResult: integration.hooks['astro:build:ssr']({
 					manifest,
-					entryPoints,
+					entryPoints: entryPointsMap,
 					middlewareEntryPoint,
 					logger: getLogger(integration, logger),
 				}),
@@ -527,15 +560,16 @@ export async function runHookBuildSsr({
 }
 
 export async function runHookBuildGenerated({
-	config,
+	settings,
 	logger,
 }: {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logger: Logger;
 }) {
-	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
+	const dir =
+		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
 
-	for (const integration of config.integrations) {
+	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:build:generated']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
@@ -551,24 +585,18 @@ export async function runHookBuildGenerated({
 }
 
 type RunHookBuildDone = {
-	config: AstroConfig;
+	settings: AstroSettings;
 	pages: string[];
 	routes: RouteData[];
 	logging: Logger;
-	cacheManifest: boolean;
 };
 
-export async function runHookBuildDone({
-	config,
-	pages,
-	routes,
-	logging,
-	cacheManifest,
-}: RunHookBuildDone) {
-	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
+export async function runHookBuildDone({ settings, pages, routes, logging }: RunHookBuildDone) {
+	const dir =
+		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
 	await fsMod.promises.mkdir(dir, { recursive: true });
-
-	for (const integration of config.integrations) {
+	const integrationRoutes = routes.map(toIntegrationRouteData);
+	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {
 			const logger = getLogger(integration, logging);
 
@@ -578,9 +606,11 @@ export async function runHookBuildDone({
 				hookResult: integration.hooks['astro:build:done']({
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,
-					routes,
+					routes: integrationRoutes,
+					assets: new Map(
+						routes.filter((r) => r.distURL !== undefined).map((r) => [r.route, r.distURL!]),
+					),
 					logger,
-					cacheManifest,
 				}),
 				logger: logging,
 			});
@@ -624,15 +654,65 @@ export async function runHookRouteSetup({
 		logger.debug(
 			'router',
 			`The ${route.component} route's prerender option has been changed multiple times by integrations:\n` +
-				prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
+			prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
 		);
 	}
 }
 
-export function isFunctionPerRouteEnabled(adapter: AstroAdapter | undefined): boolean {
-	if (adapter?.adapterFeatures?.functionPerRoute === true) {
-		return true;
-	} else {
-		return false;
+export async function runHookRoutesResolved({
+	routes,
+	settings,
+	logger,
+}: { routes: Array<RouteData>; settings: AstroSettings; logger: Logger }) {
+	for (const integration of settings.config.integrations) {
+		if (integration?.hooks?.['astro:routes:resolved']) {
+			const integrationLogger = getLogger(integration, logger);
+
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookName: 'astro:routes:resolved',
+				hookResult: integration.hooks['astro:routes:resolved']({
+					routes: routes.map((route) => toIntegrationResolvedRoute(route)),
+					logger: integrationLogger,
+				}),
+				logger,
+			});
+		}
 	}
+}
+
+function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute {
+	return {
+		isPrerendered: route.prerender,
+		entrypoint: route.component,
+		pattern: route.route,
+		params: route.params,
+		origin: route.origin,
+		generate: route.generate,
+		patternRegex: route.pattern,
+		segments: route.segments,
+		type: route.type,
+		pathname: route.pathname,
+		redirect: route.redirect,
+		redirectRoute: route.redirectRoute
+			? toIntegrationResolvedRoute(route.redirectRoute)
+			: undefined,
+	};
+}
+
+function toIntegrationRouteData(route: RouteData): IntegrationRouteData {
+	return {
+		route: route.route,
+		component: route.component,
+		generate: route.generate,
+		params: route.params,
+		pathname: route.pathname,
+		segments: route.segments,
+		prerender: route.prerender,
+		redirect: route.redirect,
+		redirectRoute: route.redirectRoute ? toIntegrationRouteData(route.redirectRoute) : undefined,
+		type: route.type,
+		pattern: route.pattern,
+		distURL: route.distURL,
+	};
 }

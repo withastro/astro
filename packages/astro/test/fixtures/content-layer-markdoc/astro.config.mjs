@@ -4,6 +4,5 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [markdoc(), preact()],
-	experimental: { contentLayer: true }
+	integrations: [markdoc(), preact()]
 });

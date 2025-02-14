@@ -1,2 +1,2 @@
-export type * from './dist/@types/astro.js';
+export type * from './dist/types/public/index.js';
 export * from './dist/core/index.js';

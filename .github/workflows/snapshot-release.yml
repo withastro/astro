@@ -25,10 +25,10 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - name: "Check if user has write access"
-        uses: "lannonbr/repo-permission-check-action@2.0.2"
+      - name: Check if user has write access
+        uses: lannonbr/repo-permission-check-action@2.0.2
         with:
-          permission: "write"
+          permission: write
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -63,7 +63,13 @@ jobs:
           ref: ${{ steps.refs.outputs.head_ref }}
           fetch-depth: 0
 
-      - run: git fetch origin main:main
+      - name: Extract base branch from .changeset/config.json
+        id: getBaseBranch
+        run: |
+          baseBranch=$(jq -r '.baseBranch' .changeset/config.json)
+          echo "baseBranch=${baseBranch}" >> $GITHUB_OUTPUT
+
+      - run: git fetch origin ${{ steps.getBaseBranch.outputs.baseBranch }}:${{ steps.getBaseBranch.outputs.baseBranch }}
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
@@ -71,7 +77,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
 
@@ -85,6 +91,8 @@ jobs:
         id: changesets
         run: |
           pnpm exec changeset status --output status.output.json 2>&1
+          # Snapshots don't work in pre mode. See https://github.com/changesets/changesets/issues/1195
+          pnpm exec changeset pre exit || true
           pnpm exec changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }}
 
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -101,20 +109,39 @@ jobs:
       - name: Publish Release
         id: publish
         run: |
-          GITHUB_ACTIONS=0 pnpm run build > build.output.txt 2>&1
-          pnpm exec changeset publish --tag experimental--${{ steps.getSnapshotName.outputs.result }} > publish.output.txt 2>&1
+          set -o pipefail
+          GITHUB_ACTIONS=0 pnpm run build 2>&1 | tee build.output.txt
+          BUILD_EXIT_CODE=$?
+          
+          if [ $BUILD_EXIT_CODE -ne 0 ]; then
+            echo "::error::Build failed. See output above."
+            # Store the build output for the notification step before exiting
+            EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+            echo "build<<$EOF" >> $GITHUB_OUTPUT
+            echo "$(cat build.output.txt)" >> $GITHUB_OUTPUT
+            echo "$EOF" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          pnpm exec changeset publish --tag experimental--${{ steps.getSnapshotName.outputs.result }} 2>&1 | tee publish.output.txt
+          PUBLISH_EXIT_CODE=$?
+          
+          if [ $PUBLISH_EXIT_CODE -ne 0 ]; then
+            echo "::error::Publish failed. See output above."
+          fi
 
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
 
           echo "build<<$EOF" >> $GITHUB_OUTPUT
           echo "$(cat build.output.txt)" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
-          cat build.output.txt
 
           echo "publish<<$EOF" >> $GITHUB_OUTPUT
           echo "$(cat publish.output.txt)" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
-          cat publish.output.txt
+
+          # Exit with error if publish failed
+          exit $PUBLISH_EXIT_CODE
         env:
           # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -125,33 +152,51 @@ jobs:
 
       - name: Pull Request Notification
         uses: actions/github-script@v7
+        if: always()
         env:
           TAG: ${{ steps.getSnapshotName.outputs.result }}
           STATUS_DATA: ${{ steps.changesets.outputs.status }}
           BUILD_LOG: ${{ steps.publish.outputs.build }}
           PUBLISH_LOG: ${{ steps.publish.outputs.publish }}
+          JOB_STATUS: ${{ job.status }}
         with:
           script: |
             let changeset = { releases: [] };
             try {
               changeset = JSON.parse(process.env.STATUS_DATA);
             } catch (e) {}
-            let message = 'Snapshots have been released for the following packages:'
-            for (const release of changeset.releases) {
-              if (release.type === 'none') continue;
-              message += `\n- \`${release.name}@experimental--${process.env.TAG}\``;
+
+            let message = '';
+            
+            if (process.env.JOB_STATUS === 'success') {
+              message = 'Snapshots have been released for the following packages:';
+              for (const release of changeset.releases) {
+                if (release.type === 'none') continue;
+                message += `\n- \`${release.name}@experimental--${process.env.TAG}\``;
+              }
+            } else {
+              message = '❌ Snapshot release failed.';
             }
 
-            function details(title, body) {
+            function details(title, body, failed = false) {
+              if (!body) return;
               message += '\n';
-              message += `<details><summary><strong>${title}</strong></summary>`
+              const icon = failed ? '❌ ' : '';
+              message += `<details><summary><strong>${icon}${title}</strong></summary>`;
               message += '\n\n```\n';
               message += body;
               message += '\n```\n\n</details>';
             }
 
-            details('Publish Log', process.env.PUBLISH_LOG);
-            details('Build Log', process.env.BUILD_LOG);
+            // Show build log first if it exists
+            if (process.env.BUILD_LOG) {
+              details('Build Log', process.env.BUILD_LOG, process.env.JOB_STATUS !== 'success');
+            }
+            
+            // Only show publish log if it exists (might not if build failed)
+            if (process.env.PUBLISH_LOG) {
+              details('Publish Log', process.env.PUBLISH_LOG, process.env.JOB_STATUS !== 'success');
+            }
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,

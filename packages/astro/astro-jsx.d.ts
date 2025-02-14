@@ -16,23 +16,21 @@ declare namespace astroHTML.JSX {
 		children: {};
 	}
 
-	interface IntrinsicAttributes
-		extends AstroBuiltinProps,
-			AstroBuiltinAttributes,
-			AstroClientDirectives {
+	interface IntrinsicAttributes extends AstroComponentDirectives, AstroBuiltinAttributes {
 		slot?: string | undefined | null;
 		children?: Children;
 	}
 
-	type AstroBuiltinProps = import('./dist/@types/astro.js').AstroBuiltinProps;
-	type AstroClientDirectives = import('./dist/@types/astro.js').AstroClientDirectives;
-	type AstroBuiltinAttributes = import('./dist/@types/astro.js').AstroBuiltinAttributes;
-	type AstroDefineVarsAttribute = import('./dist/@types/astro.js').AstroDefineVarsAttribute;
-	type AstroScriptAttributes = import('./dist/@types/astro.js').AstroScriptAttributes &
+	// biome-ignore format: bug
+	type AstroComponentDirectives = import('./dist/types/public/elements.js').AstroComponentDirectives;
+	type AstroBuiltinAttributes = import('./dist/types/public/elements.js').AstroBuiltinAttributes;
+	// biome-ignore format: bug
+	type AstroDefineVarsAttribute = import('./dist/types/public/elements.js').AstroDefineVarsAttribute;
+	type AstroScriptAttributes = import('./dist/types/public/elements.js').AstroScriptAttributes &
 		AstroDefineVarsAttribute;
-	type AstroStyleAttributes = import('./dist/@types/astro.js').AstroStyleAttributes &
+	type AstroStyleAttributes = import('./dist/types/public/elements.js').AstroStyleAttributes &
 		AstroDefineVarsAttribute;
-	type AstroSlotAttributes = import('./dist/@types/astro.js').AstroSlotAttributes;
+	type AstroSlotAttributes = import('./dist/types/public/elements.js').AstroSlotAttributes;
 
 	// This is an unfortunate use of `any`, but unfortunately we can't make a type that works for every framework
 	// without importing every single framework's types (which comes with its own set of problems).
@@ -176,15 +174,15 @@ declare namespace astroHTML.JSX {
 		onfullscreenerror?: string | undefined | null;
 	}
 
-	// All the WAI-ARIA 1.1 attributes from https://www.w3.org/TR/wai-aria-1.1/
+	// All the WAI-ARIA 1.2 attributes from https://www.w3.org/TR/wai-aria-1.2/#state_prop_def
 	interface AriaAttributes {
-		/** Identifies the currently active element when DOM focus is on a composite widget, textbox, group, or application. */
+		/** Identifies the currently active element when DOM focus is on a composite widget, combobox, textbox, group, or application. */
 		'aria-activedescendant'?: string | undefined | null;
 		/** Indicates whether assistive technologies will present all, or only parts of, the changed region based on the change notifications defined by the aria-relevant attribute. */
 		'aria-atomic'?: boolean | 'false' | 'true' | undefined | null;
 		/**
-		 * Indicates whether inputting text could trigger display of one or more predictions of the user's intended value for an input and specifies how predictions would be
-		 * presented if they are made.
+		 * Indicates whether inputting text could trigger display of one or more predictions of the user's intended value for a combobox, searchbox, or textbox and specifies
+		 * how predictions would be presented if they were made.
 		 */
 		'aria-autocomplete'?: 'none' | 'inline' | 'list' | 'both' | undefined | null;
 		/** Indicates an element is being modified and that assistive technologies MAY want to wait until the modifications are complete before exposing them to the user. */
@@ -247,11 +245,11 @@ declare namespace astroHTML.JSX {
 		 */
 		'aria-dropeffect'?: 'none' | 'copy' | 'execute' | 'link' | 'move' | 'popup' | undefined | null;
 		/**
-		 * Identifies the element that provides an error message for the object.
+		 * Identifies the element that provides an error message for an object.
 		 * @see aria-invalid @see aria-describedby.
 		 */
 		'aria-errormessage'?: string | undefined | null;
-		/** Indicates whether the element, or another grouping element it controls, is currently expanded or collapsed. */
+		/** Indicates whether a grouping element owned or controlled by this element is expanded or collapsed. */
 		'aria-expanded'?: boolean | 'false' | 'true' | undefined | null;
 		/**
 		 * Identifies the next element (or elements) in an alternate reading order of content which, at the user's discretion,
@@ -396,32 +394,43 @@ declare namespace astroHTML.JSX {
 		'aria-valuetext'?: string | undefined | null;
 	}
 
-	// All the WAI-ARIA 1.1 role attribute values from https://www.w3.org/TR/wai-aria-1.1/#role_definitions
+	// All the WAI-ARIA 1.2 role attribute values from https://www.w3.org/TR/wai-aria-1.2/#role_definitions
 	type AriaRole =
 		| 'alert'
 		| 'alertdialog'
 		| 'application'
 		| 'article'
 		| 'banner'
+		| 'blockquote'
 		| 'button'
+		| 'caption'
 		| 'cell'
 		| 'checkbox'
+		| 'code'
 		| 'columnheader'
 		| 'combobox'
+		| 'command'
 		| 'complementary'
+		| 'composite'
 		| 'contentinfo'
 		| 'definition'
+		| 'deletion'
 		| 'dialog'
 		| 'directory'
 		| 'document'
+		| 'emphasis'
 		| 'feed'
 		| 'figure'
 		| 'form'
+		| 'generic'
 		| 'grid'
 		| 'gridcell'
 		| 'group'
 		| 'heading'
 		| 'img'
+		| 'input'
+		| 'insertion'
+		| 'landmark'
 		| 'link'
 		| 'list'
 		| 'listbox'
@@ -430,6 +439,7 @@ declare namespace astroHTML.JSX {
 		| 'main'
 		| 'marquee'
 		| 'math'
+		| 'meter'
 		| 'menu'
 		| 'menubar'
 		| 'menuitem'
@@ -439,21 +449,31 @@ declare namespace astroHTML.JSX {
 		| 'none'
 		| 'note'
 		| 'option'
+		| 'paragraph'
 		| 'presentation'
 		| 'progressbar'
 		| 'radio'
 		| 'radiogroup'
+		| 'range'
 		| 'region'
+		| 'roletype'
 		| 'row'
 		| 'rowgroup'
 		| 'rowheader'
 		| 'scrollbar'
 		| 'search'
 		| 'searchbox'
+		| 'section'
+		| 'sectionhead'
+		| 'select'
 		| 'separator'
 		| 'slider'
 		| 'spinbutton'
 		| 'status'
+		| 'strong'
+		| 'structure'
+		| 'subscript'
+		| 'superscript'
 		| 'switch'
 		| 'tab'
 		| 'table'
@@ -461,12 +481,15 @@ declare namespace astroHTML.JSX {
 		| 'tabpanel'
 		| 'term'
 		| 'textbox'
+		| 'time'
 		| 'timer'
 		| 'toolbar'
 		| 'tooltip'
 		| 'tree'
 		| 'treegrid'
-		| 'treeitem';
+		| 'treeitem'
+		| 'widget'
+		| 'window';
 
 	type CssProperty = keyof Omit<
 		CSSStyleDeclaration,
@@ -681,6 +704,7 @@ declare namespace astroHTML.JSX {
 
 	interface DialogHTMLAttributes extends HTMLAttributes {
 		open?: boolean | string | undefined | null;
+		closedby?: 'none' | 'closerequest' | 'any' | undefined | null;
 	}
 
 	interface EmbedHTMLAttributes extends HTMLAttributes {
@@ -838,10 +862,12 @@ declare namespace astroHTML.JSX {
 
 	interface LinkHTMLAttributes extends HTMLAttributes {
 		as?: string | undefined | null;
+		blocking?: 'render' | undefined | null;
 		crossorigin?: boolean | string | undefined | null;
+		disabled?: boolean | undefined | null;
+		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
 		href?: string | URL | undefined | null;
 		hreflang?: string | undefined | null;
-		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
 		integrity?: string | undefined | null;
 		media?: string | undefined | null;
 		imagesrcset?: string | undefined | null;

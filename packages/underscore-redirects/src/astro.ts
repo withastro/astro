@@ -1,10 +1,15 @@
 import { posix } from 'node:path';
-import type { AstroConfig, RouteData, ValidRedirectStatus } from 'astro';
+import type {
+	AstroConfig,
+	HookParameters,
+	IntegrationResolvedRoute,
+	ValidRedirectStatus,
+} from 'astro';
 import { Redirects } from './redirects.js';
 
 const pathJoin = posix.join;
 
-function getRedirectStatus(route: RouteData): ValidRedirectStatus {
+function getRedirectStatus(route: IntegrationResolvedRoute): ValidRedirectStatus {
 	if (typeof route.redirect === 'object') {
 		return route.redirect.status;
 	}
@@ -16,8 +21,10 @@ interface CreateRedirectsFromAstroRoutesParams {
 	/**
 	 * Maps a `RouteData` to a dynamic target
 	 */
-	routeToDynamicTargetMap: Map<RouteData, string>;
+	routeToDynamicTargetMap: Map<IntegrationResolvedRoute, string>;
 	dir: URL;
+	buildOutput: 'static' | 'server';
+	assets: HookParameters<'astro:build:done'>['assets'];
 }
 
 /**
@@ -27,23 +34,25 @@ export function createRedirectsFromAstroRoutes({
 	config,
 	routeToDynamicTargetMap,
 	dir,
-}: CreateRedirectsFromAstroRoutesParams) {
+	buildOutput,
+	assets,
+}: CreateRedirectsFromAstroRoutesParams): Redirects {
 	const base =
 		config.base && config.base !== '/'
 			? config.base.endsWith('/')
 				? config.base.slice(0, -1)
 				: config.base
 			: '';
-	const output = config.output;
-	const _redirects = new Redirects();
+	const redirects = new Redirects();
 
 	for (const [route, dynamicTarget = ''] of routeToDynamicTargetMap) {
+		const distURL = assets.get(route.pattern);
 		// A route with a `pathname` is as static route.
 		if (route.pathname) {
 			if (route.redirect) {
-				// A redirect route without dynami§c parts. Get the redirect status
+				// A redirect route without dynamic parts. Get the redirect status
 				// from the user if provided.
-				_redirects.add({
+				redirects.add({
 					dynamic: false,
 					input: `${base}${route.pathname}`,
 					target: typeof route.redirect === 'object' ? route.redirect.destination : route.redirect,
@@ -54,18 +63,20 @@ export function createRedirectsFromAstroRoutes({
 			}
 
 			// If this is a static build we don't want to add redirects to the HTML file.
-			if (output === 'static') {
+			if (buildOutput === 'static') {
 				continue;
-			} else if (route.distURL) {
-				_redirects.add({
+			}
+
+			if (distURL) {
+				redirects.add({
 					dynamic: false,
 					input: `${base}${route.pathname}`,
-					target: prependForwardSlash(route.distURL.toString().replace(dir.toString(), '')),
+					target: prependForwardSlash(distURL.toString().replace(dir.toString(), '')),
 					status: 200,
 					weight: 2,
 				});
 			} else {
-				_redirects.add({
+				redirects.add({
 					dynamic: false,
 					input: `${base}${route.pathname}`,
 					target: dynamicTarget,
@@ -73,8 +84,8 @@ export function createRedirectsFromAstroRoutes({
 					weight: 2,
 				});
 
-				if (route.route === '/404') {
-					_redirects.add({
+				if (route.pattern === '/404') {
+					redirects.add({
 						dynamic: true,
 						input: '/*',
 						target: dynamicTarget,
@@ -89,16 +100,15 @@ export function createRedirectsFromAstroRoutes({
 			const pattern = generateDynamicPattern(route);
 
 			// This route was prerendered and should be forwarded to the HTML file.
-			if (route.distURL) {
+			if (distURL) {
 				const targetRoute = route.redirectRoute ?? route;
-				const targetPattern = generateDynamicPattern(targetRoute);
-				let target = targetPattern;
+				let target = generateDynamicPattern(targetRoute);
 				if (config.build.format === 'directory') {
 					target = pathJoin(target, 'index.html');
 				} else {
 					target += '.html';
 				}
-				_redirects.add({
+				redirects.add({
 					dynamic: true,
 					input: `${base}${pattern}`,
 					target,
@@ -106,7 +116,7 @@ export function createRedirectsFromAstroRoutes({
 					weight: 1,
 				});
 			} else {
-				_redirects.add({
+				redirects.add({
 					dynamic: true,
 					input: `${base}${pattern}`,
 					target: dynamicTarget,
@@ -117,7 +127,7 @@ export function createRedirectsFromAstroRoutes({
 		}
 	}
 
-	return _redirects;
+	return redirects;
 }
 
 /**
@@ -125,8 +135,8 @@ export function createRedirectsFromAstroRoutes({
  * /team/articles/*
  * With stars replacing spread and :id syntax replacing [id]
  */
-function generateDynamicPattern(route: RouteData) {
-	const pattern =
+function generateDynamicPattern(route: IntegrationResolvedRoute) {
+	return (
 		'/' +
 		route.segments
 			.map(([part]) => {
@@ -141,8 +151,8 @@ function generateDynamicPattern(route: RouteData) {
 					return part.content;
 				}
 			})
-			.join('/');
-	return pattern;
+			.join('/')
+	);
 }
 
 function prependForwardSlash(str: string) {

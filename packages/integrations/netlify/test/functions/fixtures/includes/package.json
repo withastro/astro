@@ -1,0 +1,9 @@
+{
+  "name": "@test/netlify-includes",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/netlify": "workspace:",
+    "cowsay": "1.6.0"
+  }
+}

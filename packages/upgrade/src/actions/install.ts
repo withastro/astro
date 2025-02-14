@@ -48,7 +48,7 @@ export async function install(
 	const majors: PackageInfo[] = [];
 	for (const packageInfo of toInstall) {
 		const word = ctx.dryRun ? 'can' : 'will';
-		await upgrade(packageInfo, `${word} be updated to`);
+		await upgrade(packageInfo, `${word} be updated`);
 		if (packageInfo.isMajor) {
 			majors.push(packageInfo);
 		}
@@ -90,8 +90,8 @@ function filterPackages(ctx: Pick<Context, 'packages'>) {
 	const devDependencies: PackageInfo[] = [];
 	for (const packageInfo of ctx.packages) {
 		const { currentVersion, targetVersion, isDevDependency } = packageInfo;
-		// Remove prefix from `currentVersion` before comparing
-		if (currentVersion.replace(/^\D+/, '') === targetVersion) {
+		// Remove prefix from version before comparing
+		if (currentVersion.replace(/^\D+/, '') === targetVersion.replace(/^\D+/, '')) {
 			current.push(packageInfo);
 		} else {
 			const arr = isDevDependency ? devDependencies : dependencies;
