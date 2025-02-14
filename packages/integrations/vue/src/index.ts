@@ -114,7 +114,7 @@ async function getViteConfiguration(
 		},
 	} satisfies VueOptions;
 
-	// The vue vite plugin doesn't manage to resolve it automatically
+	// The vue vite plugin may not manage to resolve it automatically
 	vueOptions.compiler ??= await import('vue/compiler-sfc');
 
 	const config: UserConfig = {
