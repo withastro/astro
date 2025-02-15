@@ -28,7 +28,10 @@ export const markdownContentEntryType: ContentEntryType = {
 			});
 			return {
 				html: result.code,
-				metadata: result.metadata,
+				metadata: {
+					...result.metadata,
+					imagePaths: result.metadata.localImagePaths.concat(result.metadata.remoteImagePaths),
+				},
 			};
 		};
 	},

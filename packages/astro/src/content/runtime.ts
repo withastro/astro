@@ -414,13 +414,20 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
 		try {
 			const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
-			const id = imageSrcToImportId(decodedImagePath.src, fileName);
 
-			const imported = imageAssetMap.get(id);
-			if (!id || imageObjects.has(id) || !imported) {
-				continue;
+			let image: GetImageResult;
+			if (validURL(decodedImagePath.src)) {
+				// Remote image, pass through without resolving import
+				image = await getImage(decodedImagePath);
+			} else {
+				const id = imageSrcToImportId(decodedImagePath.src, fileName);
+
+				const imported = imageAssetMap.get(id);
+				if (!id || imageObjects.has(id) || !imported) {
+					continue;
+				}
+				image = await getImage({ ...decodedImagePath, src: imported });
 			}
-			const image: GetImageResult = await getImage({ ...decodedImagePath, src: imported });
 			imageObjects.set(imagePath, image);
 		} catch {
 			throw new Error(`Failed to parse image reference: ${imagePath}`);
@@ -444,6 +451,15 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			.map(([key, value]) => (value ? `${key}=${JSON.stringify(String(value))}` : ''))
 			.join(' ');
 	});
+}
+
+function validURL(src: string): boolean {
+	try {
+		new URL(src);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 function updateImageReferencesInData<T extends Record<string, unknown>>(
