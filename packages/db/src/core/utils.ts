@@ -78,3 +78,7 @@ export function mapObject<T, U = T>(
 		Object.entries(item).map(([key, value]) => [key, callback(key, value)]),
 	);
 }
+
+export function asArray<T>(value: T | T[]): T[] {
+	return Array.isArray(value) ? value : [value];
+}
