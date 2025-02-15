@@ -22,13 +22,11 @@ import type {
 
 const sqlite = new SQLiteAsyncDialect();
 
-export const SEED_DEV_FILE_NAME = ['seed.ts', 'seed.js', 'seed.mjs', 'seed.mts'];
-
-export function getDropTableIfExistsQuery(tableName: string) {
+function getDropTableIfExistsQuery(tableName: string) {
 	return `DROP TABLE IF EXISTS ${sqlite.escapeName(tableName)}`;
 }
 
-export function getCreateTableQuery(tableName: string, table: DBTable) {
+function getCreateTableQuery(tableName: string, table: DBTable) {
 	let query = `CREATE TABLE ${sqlite.escapeName(tableName)} (`;
 
 	const colQueries = [];
@@ -51,7 +49,7 @@ export function getCreateTableQuery(tableName: string, table: DBTable) {
 	return query;
 }
 
-export function getCreateIndexQueries(tableName: string, table: Pick<DBTable, 'indexes'>) {
+function getCreateIndexQueries(tableName: string, table: Pick<DBTable, 'indexes'>) {
 	let queries: string[] = [];
 	for (const [indexName, indexProps] of Object.entries(table.indexes ?? {})) {
 		const onColNames = asArray(indexProps.on);
@@ -66,7 +64,7 @@ export function getCreateIndexQueries(tableName: string, table: Pick<DBTable, 'i
 	return queries;
 }
 
-export function getCreateForeignKeyQueries(tableName: string, table: DBTable) {
+function getCreateForeignKeyQueries(tableName: string, table: DBTable) {
 	let queries: string[] = [];
 	for (const foreignKey of table.foreignKeys ?? []) {
 		const columns = asArray(foreignKey.columns);
@@ -86,8 +84,8 @@ export function getCreateForeignKeyQueries(tableName: string, table: DBTable) {
 		const query = `FOREIGN KEY (${columns
 			.map((f) => sqlite.escapeName(f))
 			.join(', ')}) REFERENCES ${sqlite.escapeName(referencedTable)}(${references
-			.map((r) => sqlite.escapeName(r.schema.name!))
-			.join(', ')})`;
+				.map((r) => sqlite.escapeName(r.schema.name!))
+				.join(', ')})`;
 		queries.push(query);
 	}
 	return queries;
@@ -97,7 +95,7 @@ function asArray<T>(value: T | T[]) {
 	return Array.isArray(value) ? value : [value];
 }
 
-export function schemaTypeToSqlType(type: ColumnType): 'text' | 'integer' {
+function schemaTypeToSqlType(type: ColumnType): 'text' | 'integer' {
 	switch (type) {
 		case 'date':
 		case 'text':
@@ -109,7 +107,7 @@ export function schemaTypeToSqlType(type: ColumnType): 'text' | 'integer' {
 	}
 }
 
-export function getModifiers(columnName: string, column: DBColumn) {
+function getModifiers(columnName: string, column: DBColumn) {
 	let modifiers = '';
 	if (hasPrimaryKey(column)) {
 		return ' PRIMARY KEY';
@@ -135,7 +133,7 @@ export function getModifiers(columnName: string, column: DBColumn) {
 	return modifiers;
 }
 
-export function getReferencesConfig(column: DBColumn) {
+function getReferencesConfig(column: DBColumn) {
 	const canHaveReferences = column.type === 'number' || column.type === 'text';
 	if (!canHaveReferences) return undefined;
 	return column.schema.references;
@@ -154,7 +152,7 @@ type DBColumnWithDefault =
 	| WithDefaultDefined<JsonColumn>;
 
 // Type narrowing the default fails on union types, so use a type guard
-export function hasDefault(column: DBColumn): column is DBColumnWithDefault {
+function hasDefault(column: DBColumn): column is DBColumnWithDefault {
 	if (column.schema.default !== undefined) {
 		return true;
 	}

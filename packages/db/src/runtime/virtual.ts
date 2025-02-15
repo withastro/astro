@@ -10,7 +10,7 @@ import type {
 	TextColumnOpts,
 } from '../core/types.js';
 
-function createColumn<S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
+function createColumn<const S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
 	return {
 		type,
 		/**
@@ -22,19 +22,19 @@ function createColumn<S extends string, T extends Record<string, unknown>>(type:
 
 export const column = {
 	number: <T extends NumberColumnOpts>(opts: T = {} as T) => {
-		return createColumn('number', opts) satisfies { type: 'number' };
+		return createColumn('number', opts);
 	},
 	boolean: <T extends BooleanColumnInput['schema']>(opts: T = {} as T) => {
-		return createColumn('boolean', opts) satisfies { type: 'boolean' };
+		return createColumn('boolean', opts);
 	},
 	text: <T extends TextColumnOpts>(opts: T = {} as T) => {
-		return createColumn('text', opts) satisfies { type: 'text' };
+		return createColumn('text', opts);
 	},
 	date<T extends DateColumnInput['schema']>(opts: T = {} as T) {
-		return createColumn('date', opts) satisfies { type: 'date' };
+		return createColumn('date', opts);
 	},
 	json<T extends JsonColumnInput['schema']>(opts: T = {} as T) {
-		return createColumn('json', opts) satisfies { type: 'json' };
+		return createColumn('json', opts);
 	},
 };
 

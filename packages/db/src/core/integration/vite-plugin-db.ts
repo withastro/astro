@@ -7,7 +7,6 @@ import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { normalizeDatabaseUrl } from '../../runtime/index.js';
 import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import { getResolvedFileUrl } from '../load-file.js';
-import { SEED_DEV_FILE_NAME, getCreateIndexQueries, getCreateTableQuery } from '../queries.js';
 import type { DBTables } from '../types.js';
 import {
 	type VitePlugin,
@@ -15,6 +14,7 @@ import {
 	getDbDirectoryUrl,
 	getRemoteDatabaseInfo,
 } from '../utils.js';
+import type { DatabaseBackend } from '../backend/types.js';
 
 export const resolved = {
 	module: '\0' + VIRTUAL_MODULE_ID,
@@ -32,27 +32,17 @@ export type SeedHandler = {
 	execute: (fileUrl: URL) => Promise<void>;
 };
 
-type VitePluginDBParams =
-	| {
-		connectToRemote: false;
-		tables: LateTables;
-		seedFiles: LateSeedFiles;
-		srcDir: URL;
-		root: URL;
-		logger?: AstroIntegrationLogger;
-		output: AstroConfig['output'];
-		seedHandler: SeedHandler;
-	}
-	| {
-		connectToRemote: true;
-		tables: LateTables;
-		appToken: string;
-		srcDir: URL;
-		root: URL;
-		output: AstroConfig['output'];
-		seedHandler: SeedHandler;
-		remoteClientMode: 'native' | 'web';
-	};
+type VitePluginDBParams = {
+	connectToRemote: boolean;
+	tables: LateTables;
+	seedFiles: LateSeedFiles;
+	srcDir: URL;
+	root: URL;
+	logger?: AstroIntegrationLogger;
+	output: AstroConfig['output'];
+	seedHandler: SeedHandler;
+	backend: DatabaseBackend;
+};
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 	let command: 'build' | 'serve' = 'build';
@@ -74,11 +64,10 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 
 			if (params.connectToRemote) {
 				return getRemoteVirtualModContents({
-					appToken: params.appToken,
 					tables: params.tables.get(),
 					isBuild: command === 'build',
 					output: params.output,
-					remoteClientMode: params.remoteClientMode,
+					backend: params.backend,
 				});
 			}
 
@@ -145,13 +134,13 @@ export function getRemoteVirtualModContents({
 	appToken,
 	isBuild,
 	output,
-	remoteClientMode,
+	backend,
 }: {
 	tables: DBTables;
 	appToken: string;
 	isBuild: boolean;
 	output: AstroConfig['output'];
-	remoteClientMode?: 'native' | 'web';
+	backend: DatabaseBackend;
 }) {
 	const dbInfo = getRemoteDatabaseInfo();
 
@@ -184,7 +173,7 @@ export function getRemoteVirtualModContents({
 	}
 
 	return `
-import {asDrizzleTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
+import {asDrizzleTable, } from ${RUNTIME_IMPORT};
 
 export const db = await createRemoteDatabaseClient({
   dbType: ${JSON.stringify(dbInfo.type)},

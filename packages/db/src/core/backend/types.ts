@@ -1,6 +1,6 @@
 import type { DBColumn, DBColumns, DBTable, ResolvedDBTable, ResolvedIndexes } from "../types.js";
 
-export interface DatabaseBackend<Op> {
+export interface DatabaseBackend<Op = unknown> {
 	getDropIfExistsOps(tableName: string): Op[];
 	getCreateOps(tableName: string, table: DBTable): Op[];
 	getCreateIndexOps(tableName: string, table: Pick<DBTable, 'indexes'>): Op[];
@@ -25,6 +25,6 @@ export interface DatabaseBackend<Op> {
 
 	executeOps(ops: Op[]): Promise<void>;
 
-	getClientImportStatement(): string;
-	getTypesModule(): string;
+	getDbExportModule(target: 'local' | 'remote'): string;
+	getTypeDeclarations(): string;
 }

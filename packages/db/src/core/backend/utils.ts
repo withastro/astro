@@ -1,4 +1,5 @@
 import deepDiff from "deep-diff";
+import type { DBColumn } from "../types.js";
 
 export function getAdded<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
 	const added: Record<string, T> = {};
@@ -24,4 +25,10 @@ export function getUpdated<T>(oldObj: Record<string, T>, newObj: Record<string, 
 		if (deepDiff(oldValue, value)) updated[key] = value;
 	}
 	return updated;
+}
+
+export function getReferencesConfig(column: DBColumn) {
+	const canHaveReferences = column.type === 'number' || column.type === 'text';
+	if (!canHaveReferences) return undefined;
+	return column.schema.references;
 }

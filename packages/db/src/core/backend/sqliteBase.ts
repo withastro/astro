@@ -1,13 +1,30 @@
 import type { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from "drizzle-orm/sqlite-core";
-import type { BooleanColumn, ColumnType, DateColumn, DBColumn, DBColumns, DBTable, JsonColumn, NumberColumn, ResolvedDBTable, ResolvedIndexes, TextColumn } from "../types.js";
+import type {
+	BooleanColumn,
+	ColumnType,
+	DateColumn,
+	DBColumn,
+	DBColumns,
+	DBTable,
+	JsonColumn,
+	NumberColumn,
+	ResolvedDBTable,
+	ResolvedIndexes,
+	TextColumn
+} from "../types.js";
 import type { DatabaseBackend } from "./types.js";
 import { hasPrimaryKey } from "../../runtime/index.js";
 import { bold } from "kleur/colors";
 import { isSerializedSQL } from '../../runtime/types.js';
 import { asArray } from '../utils.js';
-import { FOREIGN_KEY_DNE_ERROR, FOREIGN_KEY_REFERENCES_EMPTY_ERROR, FOREIGN_KEY_REFERENCES_LENGTH_ERROR } from '../../runtime/errors.js';
-import { getAdded, getDropped, getUpdated } from './utils.js';
+import {
+	FOREIGN_KEY_DNE_ERROR,
+	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
+	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
+	REFERENCE_DNE_ERROR
+} from '../../runtime/errors.js';
+import { getAdded, getDropped, getReferencesConfig, getUpdated } from './utils.js';
 import { customAlphabet } from 'nanoid';
 
 // Using `DBColumn` will not narrow `default` based on the column `type`
@@ -24,8 +41,12 @@ type DBColumnWithDefault =
 
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
 
-export class SqliteBackendBase implements DatabaseBackend<string> {
+export abstract class SqliteBackendBase implements DatabaseBackend {
 	private readonly dialect = new SQLiteAsyncDialect();
+
+	abstract executeOps(ops: string[]): Promise<void>;
+	abstract getDbExportModule(target: 'local' | 'remote'): string;
+	abstract getTypeDeclarations(): string;
 
 	getDropIfExistsOps(tableName: string): string[] {
 		return [`DROP TABLE IF EXISTS ${this.dialect.escapeName(tableName)}`];
@@ -126,6 +147,7 @@ export class SqliteBackendBase implements DatabaseBackend<string> {
 			`ALTER TABLE ${tempName} RENAME TO ${tableName}`,
 		];
 	}
+
 	getAlterTableQueries(
 		unescTableName: string,
 		added: DBColumns,
@@ -151,17 +173,6 @@ export class SqliteBackendBase implements DatabaseBackend<string> {
 		}
 
 		return queries;
-	}
-
-	executeOps(ops: string[]): Promise<void> {
-
-	}
-
-	getClientImportStatement(): string {
-		throw new Error("Method not implemented.");
-	}
-	getTypesModule(): string {
-		throw new Error("Method not implemented.");
 	}
 
 	private getCreateForeignKeyOps(tableName: string, table: DBTable): string[] {
@@ -216,7 +227,7 @@ export class SqliteBackendBase implements DatabaseBackend<string> {
 			modifiers += ' UNIQUE';
 		}
 		if (this.hasDefault(column)) {
-			modifiers += ` DEFAULT ${getDefaultValueSql(columnName, column)}`;
+			modifiers += ` DEFAULT ${this.getDefaultValueSql(columnName, column)}`;
 		}
 		const references = getReferencesConfig(column);
 		if (references) {
@@ -225,7 +236,7 @@ export class SqliteBackendBase implements DatabaseBackend<string> {
 				throw new Error(REFERENCE_DNE_ERROR(columnName));
 			}
 
-			modifiers += ` REFERENCES ${sqlite.escapeName(tableName)} (${sqlite.escapeName(name)})`;
+			modifiers += ` REFERENCES ${this.dialect.escapeName(tableName)} (${this.dialect.escapeName(name)})`;
 		}
 		return modifiers;
 	}

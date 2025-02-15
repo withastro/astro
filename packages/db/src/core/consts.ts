@@ -12,8 +12,12 @@ export const DB_TYPES_FILE = 'db-types.d.ts';
 
 export const VIRTUAL_MODULE_ID = 'astro:db';
 
+export const BACKEND_MODULE_ID = 'astro:db/backend';
+
 export const DB_PATH = '.astro/content.db';
 
 export const CONFIG_FILE_NAMES = ['config.ts', 'config.js', 'config.mts', 'config.mjs'];
+
+export const SEED_DEV_FILE_NAME = ['seed.ts', 'seed.js', 'seed.mjs', 'seed.mts'];
 
 export const MIGRATION_VERSION = '2024-03-12';
