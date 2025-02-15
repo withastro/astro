@@ -46,6 +46,25 @@ describe('CSRF origin check', () => {
 		});
 		response = await app.render(request);
 		assert.equal(response.status, 403);
+
+		request = new Request('http://example.com/api/', {
+			headers: {
+				origin: 'http://loreum.com',
+				'content-type': 'application/x-www-form-urlencoded; some-other-value',
+			},
+			method: 'POST',
+		});
+		response = await app.render(request);
+		assert.equal(response.status, 403);
+
+		request = new Request('http://example.com/api/', {
+			headers: { origin: 'http://loreum.com' },
+			method: 'POST',
+			credentials: 'include',
+			body: new Blob(['a=b'], {}),
+		});
+		response = await app.render(request);
+		assert.equal(response.status, 403);
 	});
 
 	it("return 403 when the origin doesn't match and calling a PUT", async () => {
@@ -155,6 +174,56 @@ describe('CSRF origin check', () => {
 		assert.deepEqual(await response.json(), {
 			something: 'true',
 		});
+	});
+
+	it("return a 200 when the origin doesn't match but calling HEAD", async () => {
+		let request;
+		let response;
+		request = new Request('http://example.com/api/', {
+			headers: { origin: 'http://loreum.com', 'content-type': 'multipart/form-data' },
+			method: 'HEAD',
+		});
+		response = await app.render(request);
+		assert.equal(response.status, 200);
+
+		request = new Request('http://example.com/api/', {
+			headers: { origin: 'http://loreum.com', 'content-type': 'application/x-www-form-urlencoded' },
+			method: 'HEAD',
+		});
+		response = await app.render(request);
+		assert.equal(response.status, 200);
+
+		request = new Request('http://example.com/api/', {
+			headers: { origin: 'http://loreum.com', 'content-type': 'text/plain' },
+			method: 'HEAD',
+		});
+		response = await app.render(request);
+		assert.equal(response.status, 200);
+	});
+
+	it("return a 200 when the origin doesn't match but calling OPTIONS", async () => {
+		let request;
+		let response;
+		request = new Request('http://example.com/api/', {
+			headers: { origin: 'http://loreum.com', 'content-type': 'multipart/form-data' },
+			method: 'OPTIONS',
+		});
+		response = await app.render(request);
+		assert.equal(response.status, 200);
+
+		request = new Request('http://example.com/api/', {
+			headers: { origin: 'http://loreum.com', 'content-type': 'application/x-www-form-urlencoded' },
+			method: 'OPTIONS',
+		});
+		response = await app.render(request);
+		assert.equal(response.status, 200);
+
+		request = new Request('http://example.com/api/', {
+			headers: { origin: 'http://loreum.com', 'content-type': 'text/plain' },
+			method: 'OPTIONS',
+		});
+		response = await app.render(request);
+		assert.equal(response.status, 200);
 	});
 
 	it('return 200 when calling POST/PUT/DELETE/PATCH with the correct origin', async () => {

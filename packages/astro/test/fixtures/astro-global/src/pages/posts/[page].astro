@@ -1,4 +1,6 @@
 ---
+import Route from "../../components/Route.astro";
+
 export async function getStaticPaths({paginate}) {
   const data = await Astro.glob('../post/*.md');
   return paginate(data, {pageSize: 1});
@@ -19,5 +21,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? `http://example.c
         <a class="post-url" href={data.url}>Read</a>
       </div>
     ))}
+		<Route />
   </body>
 </html>

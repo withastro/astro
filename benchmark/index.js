@@ -1,7 +1,8 @@
-import mri from 'mri';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import mri from 'mri';
+import { makeProject } from './bench/_util.js';
 
 const args = mri(process.argv.slice(2));
 
@@ -54,21 +55,10 @@ if (commandName) {
 	}
 }
 
-async function makeProject(name) {
-	console.log('Making project:', name);
-	const projectDir = new URL(`./projects/${name}/`, import.meta.url);
-
-	const makeProjectMod = await import(`./make-project/${name}.js`);
-	await makeProjectMod.run(projectDir);
-
-	console.log('Finished making project:', name);
-	return projectDir;
-}
-
 /**
  * @param {string} benchmarkName
  */
-async function getOutputFile(benchmarkName) {
+export async function getOutputFile(benchmarkName) {
 	let file;
 	if (args.output) {
 		file = pathToFileURL(path.resolve(args.output));
@@ -78,6 +68,5 @@ async function getOutputFile(benchmarkName) {
 
 	// Prepare output file directory
 	await fs.mkdir(new URL('./', file), { recursive: true });
-
 	return file;
 }

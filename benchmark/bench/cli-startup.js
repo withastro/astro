@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import { exec } from 'tinyexec';
 import { markdownTable } from 'markdown-table';
+import { exec } from 'tinyexec';
 import { astroBin, calculateStat } from './_util.js';
 
 /** Default project to run for this benchmark if not specified */
@@ -8,9 +8,8 @@ export const defaultProject = 'render-default';
 
 /**
  * @param {URL} projectDir
- * @param {URL} outputFile
  */
-export async function run(projectDir, outputFile) {
+export async function run(projectDir) {
 	const root = fileURLToPath(projectDir);
 
 	console.log('Benchmarking `astro --help`...');
@@ -28,7 +27,7 @@ export async function run(projectDir, outputFile) {
 		printResult({
 			'astro --help': helpStat,
 			'astro info': infoStat,
-		})
+		}),
 	);
 	console.log('='.repeat(10));
 }
@@ -45,7 +44,7 @@ async function benchmarkCommand(command, args, root) {
 
 	for (let i = 0; i < 10; i++) {
 		const start = performance.now();
-		await exec(command, args, { nodeOptions: { cwd: root } });
+		await exec(command, args, { nodeOptions: { cwd: root }, throwOnError: true });
 		durations.push(performance.now() - start);
 	}
 
@@ -69,6 +68,6 @@ function printResult(result) {
 		],
 		{
 			align: ['l', 'r', 'r', 'r'],
-		}
+		},
 	);
 }

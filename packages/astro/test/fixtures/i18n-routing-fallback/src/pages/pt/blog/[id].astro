@@ -1,4 +1,12 @@
 ---
+const blogs = {
+	1: { content: "Hola mundo" },
+	2: { content: "Eat Something" },
+	3: { content: "How are you?" },
+}
+const id = Astro.params?.id;
+const ssrContent = id && blogs[id]?.content;
+	
 export function getStaticPaths() {
     return [
         {params: {id: '1'}, props: { content: "Hola mundo" }},
@@ -13,6 +21,6 @@ const { content } = Astro.props;
     <title>Astro</title>
 </head>
 <body>
-{content}
+{content || ssrContent}
 </body>
 </html>

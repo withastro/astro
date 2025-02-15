@@ -4,16 +4,18 @@ import { Traverse } from 'neotraverse/modern';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { IMAGE_IMPORT_PREFIX } from './consts.js';
-import { type DataEntry, DataStore, type RenderedContent } from './data-store.js';
+import { type DataEntry, ImmutableDataStore } from './data-store.js';
 import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
+
+const MAX_DEPTH = 10;
 
 /**
  * Extends the DataStore with the ability to change entries and write them to disk.
  * This is kept as a separate class to avoid needing node builtins at runtime, when read-only access is all that is needed.
  */
-export class MutableDataStore extends DataStore {
+export class MutableDataStore extends ImmutableDataStore {
 	#file?: PathLike;
 
 	#assetsFile?: PathLike;
@@ -86,7 +88,7 @@ export class MutableDataStore extends DataStore {
 
 		if (this.#assetImports.size === 0) {
 			try {
-				await fs.writeFile(filePath, 'export default new Map();');
+				await this.#writeFileAtomic(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
@@ -102,7 +104,7 @@ export class MutableDataStore extends DataStore {
 		const exports: Array<string> = [];
 		this.#assetImports.forEach((id) => {
 			const symbol = importIdToSymbolName(id);
-			imports.push(`import ${symbol} from '${id}';`);
+			imports.push(`import ${symbol} from ${JSON.stringify(id)};`);
 			exports.push(`[${JSON.stringify(id)}, ${symbol}]`);
 		});
 		const code = /* js */ `
@@ -110,7 +112,7 @@ ${imports.join('\n')}
 export default new Map([${exports.join(', ')}]);
 		`;
 		try {
-			await fs.writeFile(filePath, code);
+			await this.#writeFileAtomic(filePath, code);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -122,7 +124,7 @@ export default new Map([${exports.join(', ')}]);
 
 		if (this.#moduleImports.size === 0) {
 			try {
-				await fs.writeFile(filePath, 'export default new Map();');
+				await this.#writeFileAtomic(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
@@ -137,13 +139,13 @@ export default new Map([${exports.join(', ')}]);
 		// We then export them all, mapped by the import id, so we can find them again in the build.
 		const lines: Array<string> = [];
 		for (const [fileName, specifier] of this.#moduleImports) {
-			lines.push(`['${fileName}', () => import('${specifier}')]`);
+			lines.push(`[${JSON.stringify(fileName)}, () => import(${JSON.stringify(specifier)})]`);
 		}
 		const code = `
 export default new Map([\n${lines.join(',\n')}]);
 		`;
 		try {
-			await fs.writeFile(filePath, code);
+			await this.#writeFileAtomic(filePath, code);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -178,26 +180,76 @@ export default new Map([\n${lines.join(',\n')}]);
 
 	#saveToDiskDebounced() {
 		this.#dirty = true;
-		// Only save to disk if it has already been saved once
-		if (this.#file) {
-			if (this.#saveTimeout) {
-				clearTimeout(this.#saveTimeout);
+		if (this.#saveTimeout) {
+			clearTimeout(this.#saveTimeout);
+		}
+		this.#saveTimeout = setTimeout(() => {
+			this.#saveTimeout = undefined;
+			if (this.#file) {
+				this.writeToDisk();
 			}
-			this.#saveTimeout = setTimeout(() => {
-				this.#saveTimeout = undefined;
-				this.writeToDisk(this.#file!);
-			}, SAVE_DEBOUNCE_MS);
+		}, SAVE_DEBOUNCE_MS);
+	}
+
+	#writing = new Set<string>();
+	#pending = new Set<string>();
+
+	async #writeFileAtomic(filePath: PathLike, data: string, depth = 0) {
+		if (depth > MAX_DEPTH) {
+			// If we hit the max depth, we skip a write to prevent the stack from growing too large
+			// In theory this means we may miss the latest data, but in practice this will only happen when the file is being written to very frequently
+			// so it will be saved on the next write. This is unlikely to ever happen in practice, as the writes are debounced. It requires lots of writes to very large files.
+			return;
+		}
+		const fileKey = filePath.toString();
+		// If we are already writing this file, instead of writing now, flag it as pending and write it when we're done.
+		if (this.#writing.has(fileKey)) {
+			this.#pending.add(fileKey);
+			return;
+		}
+		// Prevent concurrent writes to this file by flagging it as being written
+		this.#writing.add(fileKey);
+
+		const tempFile = filePath instanceof URL ? new URL(`${filePath.href}.tmp`) : `${filePath}.tmp`;
+		try {
+			const oldData = await fs.readFile(filePath, 'utf-8').catch(() => '');
+			if (oldData === data) {
+				// If the data hasn't changed, we can skip the write
+				return;
+			}
+			// Write it to a temporary file first and then move it to prevent partial reads.
+			await fs.writeFile(tempFile, data);
+			await fs.rename(tempFile, filePath);
+		} finally {
+			// We're done writing. Unflag the file and check if there are any pending writes for this file.
+			this.#writing.delete(fileKey);
+			// If there are pending writes, we need to write again to ensure we flush the latest data.
+			if (this.#pending.has(fileKey)) {
+				this.#pending.delete(fileKey);
+				// Call ourself recursively to write the file again
+				await this.#writeFileAtomic(filePath, data, depth + 1);
+			}
 		}
 	}
 
-	scopedStore(collectionName: string): ScopedDataStore {
+	scopedStore(collectionName: string): DataStore {
 		return {
 			get: <TData extends Record<string, unknown> = Record<string, unknown>>(key: string) =>
 				this.get<DataEntry<TData>>(collectionName, key),
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({ id: key, data, body, filePath, deferredRender, digest, rendered, assetImports }) => {
+			set: ({
+				id: key,
+				data,
+				body,
+				filePath,
+				deferredRender,
+				digest,
+				rendered,
+				assetImports,
+				legacyId,
+			}) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
 				}
@@ -244,6 +296,9 @@ export default new Map([\n${lines.join(',\n')}]);
 				if (rendered) {
 					entry.rendered = rendered;
 				}
+				if (legacyId) {
+					entry.legacyId = legacyId;
+				}
 				if (deferredRender) {
 					entry.deferredRender = deferredRender;
 					if (filePath) {
@@ -280,13 +335,15 @@ export default new Map([\n${lines.join(',\n')}]);
 		return devalue.stringify(this._collections);
 	}
 
-	async writeToDisk(filePath: PathLike) {
+	async writeToDisk() {
 		if (!this.#dirty) {
 			return;
 		}
+		if (!this.#file) {
+			throw new AstroError(AstroErrorData.UnknownFilesystemError);
+		}
 		try {
-			await fs.writeFile(filePath, this.toString());
-			this.#file = filePath;
+			await this.#writeFileAtomic(this.#file, this.toString());
 			this.#dirty = false;
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
@@ -322,42 +379,26 @@ export default new Map([\n${lines.join(',\n')}]);
 		try {
 			if (existsSync(filePath)) {
 				const data = await fs.readFile(filePath, 'utf-8');
-				return MutableDataStore.fromString(data);
+				const store = await MutableDataStore.fromString(data);
+				store.#file = filePath;
+				return store;
+			} else {
+				await fs.mkdir(new URL('./', filePath), { recursive: true });
 			}
 		} catch {}
-		return new MutableDataStore();
+		const store = new MutableDataStore();
+		store.#file = filePath;
+		return store;
 	}
 }
 
-export interface ScopedDataStore {
+// This is the scoped store for a single collection. It's a subset of the MutableDataStore API, and is the only public type.
+export interface DataStore {
 	get: <TData extends Record<string, unknown> = Record<string, unknown>>(
 		key: string,
 	) => DataEntry<TData> | undefined;
 	entries: () => Array<[id: string, DataEntry]>;
-	set: <TData extends Record<string, unknown>>(opts: {
-		/** The ID of the entry. Must be unique per collection. */
-		id: string;
-		/** The data to store. */
-		data: TData;
-		/** The raw body of the content, if applicable. */
-		body?: string;
-		/** The file path of the content, if applicable. Relative to the site root. */
-		filePath?: string;
-		/** A content digest, to check if the content has changed. */
-		digest?: number | string;
-		/** The rendered content, if applicable. */
-		rendered?: RenderedContent;
-		/**
-		 * If an entry is a deferred, its rendering phase is delegated to a virtual module during the runtime phase.
-		 */
-		deferredRender?: boolean;
-		/**
-		 * Assets such as images to process during the build. These should be files on disk, with a path relative to filePath.
-		 * Any values that use image() in the schema will already be added automatically.
-		 * @internal
-		 */
-		assetImports?: Array<string>;
-	}) => boolean;
+	set: <TData extends Record<string, unknown>>(opts: DataEntry<TData>) => boolean;
 	values: () => Array<DataEntry>;
 	keys: () => Array<string>;
 	delete: (key: string) => void;

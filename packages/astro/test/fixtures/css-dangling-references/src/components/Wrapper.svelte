@@ -1,6 +1,5 @@
 <script>
-
-  export let path
+	let { path } = $props();
   
   const allAppModules = import.meta.glob('./*.svelte')  
   

@@ -1,4 +1,5 @@
-import type { AstroConfig, Locales } from '../@types/astro.js';
+import type { SSRManifest } from '../core/app/types.js';
+import type { AstroConfig, Locales } from '../types/public/config.js';
 import { normalizeTheLocale, toCodes } from './index.js';
 
 type BrowserLocale = {
@@ -157,7 +158,6 @@ export function computeCurrentLocale(
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
 				// we skip ta locale that isn't present in the current segment
-
 				if (!segment.includes(locale)) continue;
 				if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
 					return locale;
@@ -231,6 +231,35 @@ export function toRoutingStrategy(
 	}
 
 	return strategy;
+}
+
+const PREFIX_DEFAULT_LOCALE = new Set([
+	'pathname-prefix-always',
+	'domains-prefix-always',
+	'pathname-prefix-always-no-redirect',
+	'domains-prefix-always-no-redirect',
+]);
+
+const REDIRECT_TO_DEFAULT_LOCALE = new Set([
+	'pathname-prefix-always-no-redirect',
+	'domains-prefix-always-no-redirect',
+]);
+
+export function fromRoutingStrategy(
+	strategy: RoutingStrategies,
+	fallbackType: NonNullable<SSRManifest['i18n']>['fallbackType'],
+): NonNullable<AstroConfig['i18n']>['routing'] {
+	let routing: NonNullable<AstroConfig['i18n']>['routing'];
+	if (strategy === 'manual') {
+		routing = 'manual';
+	} else {
+		routing = {
+			prefixDefaultLocale: PREFIX_DEFAULT_LOCALE.has(strategy),
+			redirectToDefaultLocale: !REDIRECT_TO_DEFAULT_LOCALE.has(strategy),
+			fallbackType,
+		};
+	}
+	return routing;
 }
 
 export function toFallbackType(

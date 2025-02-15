@@ -21,7 +21,7 @@ function applyTransactionNotSupported(db: SqliteRemoteDatabase) {
 
 type LocalDbClientOptions = {
 	dbUrl: string;
-	enableTransations: boolean;
+	enableTransactions: boolean;
 };
 
 export function createLocalDatabaseClient(options: LocalDbClientOptions): LibSQLDatabase {
@@ -29,7 +29,7 @@ export function createLocalDatabaseClient(options: LocalDbClientOptions): LibSQL
 	const client = createClient({ url });
 	const db = drizzleLibsql(client);
 
-	if (!options.enableTransations) {
+	if (!options.enableTransactions) {
 		applyTransactionNotSupported(db);
 	}
 	return db;

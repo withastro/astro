@@ -1,5 +1,23 @@
 # @astrojs/alpinejs
 
+## 0.4.3
+
+### Patch Changes
+
+- [#13014](https://github.com/withastro/astro/pull/13014) [`820eee3`](https://github.com/withastro/astro/commit/820eee334b66e40d9e794daab04d0d1cf48f0185) Thanks [@jasonlav](https://github.com/jasonlav)! - Fixes an issue with user scripts running after `Alpine.start()`
+
+## 0.4.2
+
+### Patch Changes
+
+- [#13011](https://github.com/withastro/astro/pull/13011) [`cf30880`](https://github.com/withastro/astro/commit/cf3088060d45227dcb48e041c4ed5e0081d71398) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite
+
+## 0.4.1
+
+### Patch Changes
+
+- [#12799](https://github.com/withastro/astro/pull/12799) [`739dbfb`](https://github.com/withastro/astro/commit/739dbfba4214107cf8fc40c702834dad33eed3b0) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite to pin esbuild
+
 ## 0.4.0
 
 ### Minor Changes

@@ -14,7 +14,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 	return {
 		name: '@astro/plugin-build-pages',
 		options(options) {
-			if (opts.settings.config.output === 'static') {
+			if (opts.settings.buildOutput === 'static') {
 				const inputs = new Set<string>();
 
 				for (const pageData of Object.values(opts.allPages)) {

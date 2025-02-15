@@ -1,29 +1,24 @@
+import { getOutputDirectory } from '../../prerender/utils.js';
+import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
+import type { RewritePayload } from '../../types/public/common.js';
 import type {
-	ComponentInstance,
-	RewritePayload,
 	RouteData,
+	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../@types/astro.js';
-import { getOutputDirectory } from '../../prerender/utils.js';
+} from '../../types/public/internal.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { TryRewriteResult } from '../base-pipeline.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
-import {
-	createAssetLink,
-	createModuleScriptsSet,
-	createStylesheetElementSet,
-} from '../render/ssr-element.js';
+import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
-import { isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
 import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
-import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
@@ -43,8 +38,7 @@ export class BuildPipeline extends Pipeline {
 	#routesByFilePath: WeakMap<RouteData, string> = new WeakMap<RouteData, string>();
 
 	get outFolder() {
-		const ssr = isServerLikeOutput(this.settings.config);
-		return ssr
+		return this.settings.buildOutput === 'server'
 			? this.settings.config.build.server
 			: getOutDirWithinCwd(this.settings.config.outDir);
 	}
@@ -78,13 +72,13 @@ export class BuildPipeline extends Pipeline {
 			return assetLink;
 		}
 
-		const serverLike = isServerLikeOutput(config);
+		const serverLike = settings.buildOutput === 'server';
 		// We can skip streaming in SSG for performance as writing as strings are faster
 		const streaming = serverLike;
 		super(
 			options.logger,
 			manifest,
-			options.mode,
+			options.runtimeMode,
 			manifest.renderers,
 			resolve,
 			serverLike,
@@ -93,7 +87,7 @@ export class BuildPipeline extends Pipeline {
 	}
 
 	getRoutes(): RouteData[] {
-		return this.options.manifest.routes;
+		return this.options.routesList.routes;
 	}
 
 	static create({
@@ -118,11 +112,10 @@ export class BuildPipeline extends Pipeline {
 	 * @param staticBuildOptions
 	 */
 	static async retrieveManifest(
-		staticBuildOptions: StaticBuildOptions,
+		settings: AstroSettings,
 		internals: BuildInternals,
 	): Promise<SSRManifest> {
-		const config = staticBuildOptions.settings.config;
-		const baseDirectory = getOutputDirectory(config);
+		const baseDirectory = getOutputDirectory(settings);
 		const manifestEntryUrl = new URL(
 			`${internals.manifestFileName}?time=${Date.now()}`,
 			baseDirectory,
@@ -137,15 +130,13 @@ export class BuildPipeline extends Pipeline {
 		const renderersEntryUrl = new URL(`renderers.mjs?time=${Date.now()}`, baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
 
-		const middleware = await import(new URL('middleware.mjs', baseDirectory).toString())
-			.then((mod) => {
-				return function () {
+		const middleware = internals.middlewareEntryPoint
+			? async function () {
+					// @ts-expect-error: the compiler can't understand the previous check
+					const mod = await import(internals.middlewareEntryPoint.toString());
 					return { onRequest: mod.onRequest };
-				};
-			})
-			// middleware.mjs is not emitted if there is no user middleware
-			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
-			.catch(() => manifest.middleware);
+				}
+			: manifest.middleware;
 
 		if (!renderers) {
 			throw new Error(
@@ -167,11 +158,7 @@ export class BuildPipeline extends Pipeline {
 		} = this;
 		const links = new Set<never>();
 		const pageBuildData = getPageData(internals, routeData.route, routeData.component);
-		const scripts = createModuleScriptsSet(
-			pageBuildData?.hoistedScript ? [pageBuildData.hoistedScript] : [],
-			base,
-			assetsPrefix,
-		);
+		const scripts = new Set<SSRElement>();
 		const sortedCssAssets = pageBuildData?.styles
 			.sort(cssOrder)
 			.map(({ sheet }) => sheet)
@@ -212,32 +199,16 @@ export class BuildPipeline extends Pipeline {
 		const pages = new Map<PageBuildData, string>();
 
 		for (const [virtualModulePageName, filePath] of this.internals.entrySpecifierToBundleMap) {
-			// virtual pages can be emitted with different prefixes:
-			// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
-			// - pages emitted using `functionPerRoute`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
-			if (
-				virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
-				virtualModulePageName.includes(RESOLVED_SPLIT_MODULE_ID)
-			) {
+			// virtual pages are emitted with the 'plugin-pages' prefix
+			if (virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 				let pageDatas: PageBuildData[] = [];
-				if (virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
-					pageDatas.push(
-						...getPagesFromVirtualModulePageName(
-							this.internals,
-							ASTRO_PAGE_RESOLVED_MODULE_ID,
-							virtualModulePageName,
-						),
-					);
-				}
-				if (virtualModulePageName.includes(RESOLVED_SPLIT_MODULE_ID)) {
-					pageDatas.push(
-						...getPagesFromVirtualModulePageName(
-							this.internals,
-							RESOLVED_SPLIT_MODULE_ID,
-							virtualModulePageName,
-						),
-					);
-				}
+				pageDatas.push(
+					...getPagesFromVirtualModulePageName(
+						this.internals,
+						ASTRO_PAGE_RESOLVED_MODULE_ID,
+						virtualModulePageName,
+					),
+				);
 				for (const pageData of pageDatas) {
 					pages.set(pageData, filePath);
 				}
@@ -298,7 +269,7 @@ export class BuildPipeline extends Pipeline {
 		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
-			routes: this.options.manifest.routes,
+			routes: this.options.routesList.routes,
 			trailingSlash: this.config.trailingSlash,
 			buildFormat: this.config.build.format,
 			base: this.config.base,
@@ -315,9 +286,9 @@ export class BuildPipeline extends Pipeline {
 		}
 		let entry;
 		if (routeIsRedirect(route)) {
-			entry = await this.#getEntryForRedirectRoute(route, this.internals, this.outFolder);
+			entry = await this.#getEntryForRedirectRoute(route, this.outFolder);
 		} else if (routeIsFallback(route)) {
-			entry = await this.#getEntryForFallbackRoute(route, this.internals, this.outFolder);
+			entry = await this.#getEntryForFallbackRoute(route, this.outFolder);
 		} else {
 			const ssrEntryURLPage = createEntryURL(filePath, this.outFolder);
 			entry = await import(ssrEntryURLPage.toString());
@@ -328,7 +299,6 @@ export class BuildPipeline extends Pipeline {
 
 	async #getEntryForFallbackRoute(
 		route: RouteData,
-		_internals: BuildInternals,
 		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
 		if (route.type !== 'fallback') {
@@ -348,7 +318,6 @@ export class BuildPipeline extends Pipeline {
 
 	async #getEntryForRedirectRoute(
 		route: RouteData,
-		_internals: BuildInternals,
 		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
 		if (route.type !== 'redirect') {

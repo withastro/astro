@@ -6,6 +6,7 @@ import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Readable } from 'node:stream';
 import { getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
+import { redirectTemplate } from '../core/routing/3xx.js';
 import notFoundTemplate from '../template/4xx.js';
 
 export async function handle404Response(
@@ -46,7 +47,22 @@ export async function handle500Response(
 
 export function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: string) {
 	res.writeHead(statusCode, {
-		'Content-Type': 'text/html; charset=utf-8',
+		'Content-Type': 'text/html',
+		'Content-Length': Buffer.byteLength(html, 'utf-8'),
+	});
+	res.write(html);
+	res.end();
+}
+
+export function writeRedirectResponse(
+	res: http.ServerResponse,
+	statusCode: number,
+	location: string,
+) {
+	const html = redirectTemplate({ status: statusCode, location });
+	res.writeHead(statusCode, {
+		Location: location,
+		'Content-Type': 'text/html',
 		'Content-Length': Buffer.byteLength(html, 'utf-8'),
 	});
 	res.write(html);

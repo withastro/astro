@@ -1,15 +1,17 @@
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { AstroInlineConfig, PreviewModule, PreviewServer } from '../../@types/astro.js';
 import { AstroIntegrationLogger } from '../../core/logger/core.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
+import type { AstroInlineConfig } from '../../types/public/config.js';
+import type { PreviewModule, PreviewServer } from '../../types/public/preview.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { apply as applyPolyfills } from '../polyfill.js';
+import { createRoutesList } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
@@ -34,9 +36,13 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		command: 'preview',
 		logger: logger,
 	});
-	await runHookConfigDone({ settings: settings, logger: logger });
 
-	if (settings.config.output === 'static') {
+	// Create a route manifest so we can know if the build output is a static site or not
+	await createRoutesList({ settings: settings, cwd: inlineConfig.root }, logger);
+
+	await runHookConfigDone({ settings: settings, logger: logger, command: 'preview' });
+
+	if (settings.buildOutput === 'static') {
 		if (!fs.existsSync(settings.config.outDir)) {
 			const outDirPath = fileURLToPath(settings.config.outDir);
 			throw new Error(
@@ -46,9 +52,11 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		const server = await createStaticPreviewServer(settings, logger);
 		return server;
 	}
+
 	if (!settings.adapter) {
 		throw new Error(`[preview] No adapter found.`);
 	}
+
 	if (!settings.adapter.previewEntrypoint) {
 		throw new Error(
 			`[preview] The ${settings.adapter.name} adapter does not support the preview command.`,
@@ -59,7 +67,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	// preview entrypoint of the integration package, relative to the user's project root.
 	const require = createRequire(settings.config.root);
 	const previewEntrypointUrl = pathToFileURL(
-		require.resolve(settings.adapter.previewEntrypoint),
+		require.resolve(settings.adapter.previewEntrypoint.toString()),
 	).href;
 
 	const previewModule = (await import(previewEntrypointUrl)) as Partial<PreviewModule>;

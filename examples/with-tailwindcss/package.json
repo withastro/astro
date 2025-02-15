@@ -5,19 +5,16 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^3.1.7",
-    "@astrojs/tailwind": "^5.1.1",
-    "@types/canvas-confetti": "^1.6.4",
-    "astro": "^4.15.12",
-    "autoprefixer": "^10.4.20",
+    "@astrojs/mdx": "^4.0.8",
+    "@tailwindcss/vite": "^4.0.3",
+    "@types/canvas-confetti": "^1.9.0",
+    "astro": "^5.3.0",
     "canvas-confetti": "^1.9.3",
-    "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.13"
+    "tailwindcss": "^4.0.3"
   }
 }

@@ -3,10 +3,10 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, cyan, underline } from 'kleur/colors';
 import type { ViteDevServer } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
 import { loadTSConfig } from '../core/config/tsconfig.js';
 import type { Logger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
+import type { AstroSettings } from '../types/astro.js';
 import { createContentTypesGenerator } from './types-generator.js';
 import { type ContentPaths, getContentPaths, globalContentConfigObserver } from './utils.js';
 
@@ -24,8 +24,9 @@ export async function attachContentServerListeners({
 	settings,
 }: ContentServerListenerParams) {
 	const contentPaths = getContentPaths(settings.config, fs);
-
-	if (fs.existsSync(contentPaths.contentDir)) {
+	if (!settings.config.legacy?.collections) {
+		await attachListeners();
+	} else if (fs.existsSync(contentPaths.contentDir)) {
 		logger.debug(
 			'content',
 			`Watching ${cyan(
@@ -63,9 +64,9 @@ export async function attachContentServerListeners({
 		viteServer.watcher.on('addDir', (entry) =>
 			contentGenerator.queueEvent({ name: 'addDir', entry }),
 		);
-		viteServer.watcher.on('change', (entry) =>
-			contentGenerator.queueEvent({ name: 'change', entry }),
-		);
+		viteServer.watcher.on('change', (entry) => {
+			contentGenerator.queueEvent({ name: 'change', entry });
+		});
 		viteServer.watcher.on('unlink', (entry) => {
 			contentGenerator.queueEvent({ name: 'unlink', entry });
 		});

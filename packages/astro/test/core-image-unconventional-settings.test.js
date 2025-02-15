@@ -6,7 +6,7 @@ import { testImageService } from './test-image-service.js';
 import { loadFixture } from './test-utils.js';
 
 /**
- ** @typedef {import('../src/@types/astro').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
+ ** @typedef {import('../src/types/public/config.js').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
  */
 
 /** @type {AstroInlineConfig} */

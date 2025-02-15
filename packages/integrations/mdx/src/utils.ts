@@ -1,7 +1,7 @@
+import { parseFrontmatter } from '@astrojs/markdown-remark';
 import type { Options as AcornOpts } from 'acorn';
 import { parse } from 'acorn';
 import type { AstroConfig, AstroIntegrationLogger, SSRError } from 'astro';
-import matter from 'gray-matter';
 import { bold } from 'kleur/colors';
 import type { MdxjsEsm } from 'mdast-util-mdx';
 import type { PluggableList } from 'unified';
@@ -48,9 +48,9 @@ export function getFileInfo(id: string, config: AstroConfig): FileInfo {
  * Match YAML exception handling from Astro core errors
  * @see 'astro/src/core/errors.ts'
  */
-export function parseFrontmatter(code: string, id: string) {
+export function safeParseFrontmatter(code: string, id: string) {
 	try {
-		return matter(code);
+		return parseFrontmatter(code, { frontmatter: 'empty-with-spaces' });
 	} catch (e: any) {
 		if (e.name === 'YAMLException') {
 			const err: SSRError = e;

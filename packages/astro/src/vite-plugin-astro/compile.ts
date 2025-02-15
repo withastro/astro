@@ -1,7 +1,7 @@
 import { type ESBuildTransformResult, transformWithEsbuild } from 'vite';
-import type { AstroConfig } from '../@types/astro.js';
 import { type CompileProps, type CompileResult, compile } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
+import type { AstroConfig } from '../types/public/config.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
@@ -37,8 +37,8 @@ export async function compileAstro({
 		// Compile all TypeScript to JavaScript.
 		// Also, catches invalid JS/TS in the compiled output before returning.
 		esbuildResult = await transformWithEsbuild(transformResult.code, compileProps.filename, {
+			...compileProps.viteConfig.esbuild,
 			loader: 'ts',
-			target: 'esnext',
 			sourcemap: 'external',
 			tsconfigRaw: {
 				compilerOptions: {
