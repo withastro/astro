@@ -18,7 +18,10 @@ export const markdownContentEntryType: ContentEntryType = {
 	handlePropagation: true,
 
 	async getRenderFunction(config) {
-		const processor = await createMarkdownProcessor(config.markdown);
+		const processor = await createMarkdownProcessor({
+			allowedRemoteDomains: config.image.domains,
+			...config.markdown,
+		});
 		return async function renderToString(entry) {
 			// Process markdown even if it's empty as remark/rehype plugins may add content or frontmatter dynamically
 			const result = await processor.render(entry.body ?? '', {

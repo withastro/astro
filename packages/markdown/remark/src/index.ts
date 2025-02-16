@@ -59,7 +59,7 @@ const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
  * Create a markdown preprocessor to render multiple markdown files
  */
 export async function createMarkdownProcessor(
-	opts?: AstroMarkdownOptions,
+	opts?: AstroMarkdownOptions & { allowedRemoteDomains: string[] },
 ): Promise<MarkdownProcessor> {
 	const {
 		syntaxHighlight = markdownConfigDefaults.syntaxHighlight,
@@ -93,7 +93,7 @@ export async function createMarkdownProcessor(
 
 	if (!isPerformanceBenchmark) {
 		// Apply later in case user plugins resolve relative image paths
-		parser.use(remarkCollectImages);
+		parser.use(remarkCollectImages, { allowedRemoteDomains: opts?.allowedRemoteDomains });
 	}
 
 	// Remark -> Rehype
