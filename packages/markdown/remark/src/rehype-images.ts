@@ -13,7 +13,7 @@ export function rehypeImages() {
 				if (node.properties?.src) {
 					node.properties.src = decodeURI(node.properties.src);
 
-					if (file.data.astro?.imagePaths?.includes(node.properties.src)) {
+					if (file.data.astro?.localImagePaths?.includes(node.properties.src)) {
 						const { ...props } = node.properties;
 
 						// Initialize or increment occurrence count for this image
@@ -21,6 +21,21 @@ export function rehypeImages() {
 						imageOccurrenceMap.set(node.properties.src, index + 1);
 
 						node.properties['__ASTRO_IMAGE_'] = JSON.stringify({ ...props, index });
+
+						Object.keys(props).forEach((prop) => {
+							delete node.properties[prop];
+						});
+					} else if (file.data.astro?.remoteImagePaths?.includes(node.properties.src)) {
+						const { ...props } = node.properties;
+
+						const index = imageOccurrenceMap.get(node.properties.src) || 0;
+						imageOccurrenceMap.set(node.properties.src, index + 1);
+
+						node.properties['__ASTRO_IMAGE_'] = JSON.stringify({
+							inferSize: 'width' in props && 'height' in props ? undefined : true,
+							...props,
+							index,
+						});
 
 						Object.keys(props).forEach((prop) => {
 							delete node.properties[prop];

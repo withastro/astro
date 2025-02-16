@@ -11,7 +11,8 @@ declare module 'vfile' {
 	interface DataMap {
 		astro: {
 			headings?: MarkdownHeading[];
-			imagePaths?: string[];
+			localImagePaths?: string[];
+			remoteImagePaths?: string[];
 			frontmatter?: Record<string, any>;
 		};
 	}
@@ -67,7 +68,8 @@ export interface MarkdownProcessorRenderResult {
 	code: string;
 	metadata: {
 		headings: MarkdownHeading[];
-		imagePaths: string[];
+		localImagePaths: string[];
+		remoteImagePaths: string[];
 		frontmatter: Record<string, any>;
 	};
 }
