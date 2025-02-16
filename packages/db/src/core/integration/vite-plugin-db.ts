@@ -1,24 +1,19 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { AstroConfig, AstroIntegrationLogger } from 'astro';
-import { type SQL, sql } from 'drizzle-orm';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
-import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import { normalizeDatabaseUrl } from '../../runtime/index.js';
-import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
+import { BACKEND_MODULE_ID, RUNTIME_VIRTUAL_IMPORT, SEED_DEV_FILE_NAME, VIRTUAL_MODULE_ID } from '../consts.js';
 import { getResolvedFileUrl } from '../load-file.js';
 import type { DBTables } from '../types.js';
 import {
 	type VitePlugin,
-	getAstroEnv,
 	getDbDirectoryUrl,
-	getRemoteDatabaseInfo,
 } from '../utils.js';
 import type { DatabaseBackend } from '../backend/types.js';
 
 export const resolved = {
 	module: '\0' + VIRTUAL_MODULE_ID,
 	importedFromSeedFile: '\0' + VIRTUAL_MODULE_ID + ':seed',
+	backendModule: '\0' + BACKEND_MODULE_ID,
 };
 
 export type LateTables = {
@@ -27,58 +22,65 @@ export type LateTables = {
 export type LateSeedFiles = {
 	get: () => Array<string | URL>;
 };
+export type LateBackend<Op = any> = {
+	get: () => DatabaseBackend<Op>;
+};
 export type SeedHandler = {
 	inProgress: boolean;
 	execute: (fileUrl: URL) => Promise<void>;
 };
 
-type VitePluginDBParams = {
-	connectToRemote: boolean;
-	tables: LateTables;
-	seedFiles: LateSeedFiles;
-	srcDir: URL;
-	root: URL;
-	logger?: AstroIntegrationLogger;
-	output: AstroConfig['output'];
-	seedHandler: SeedHandler;
-	backend: DatabaseBackend;
-};
+type VitePluginDBParams =
+	(
+		| {
+			connectToRemote: false;
+			seedFiles: LateSeedFiles;
+		}
+		| { connectToRemote: true; seedFiles?: never; }
+	)
+	& {
+		tables: LateTables;
+		srcDir: URL;
+		root: URL;
+		logger?: AstroIntegrationLogger;
+		output: AstroConfig['output'];
+		seedHandler: SeedHandler;
+		backend: LateBackend;
+	};
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
-	let command: 'build' | 'serve' = 'build';
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
-		configResolved(resolvedConfig) {
-			command = resolvedConfig.command;
-		},
 		async resolveId(id) {
-			if (id !== VIRTUAL_MODULE_ID) return;
-			if (params.seedHandler.inProgress) {
-				return resolved.importedFromSeedFile;
+			switch (id) {
+				case VIRTUAL_MODULE_ID: {
+					if (params.seedHandler.inProgress) {
+						return resolved.importedFromSeedFile;
+					}
+					return resolved.module;
+				}
+				case BACKEND_MODULE_ID:
+					return resolved.backendModule;
 			}
-			return resolved.module;
 		},
 		async load(id) {
+			if (id === resolved.backendModule) {
+				return params.backend.get()
+					.getDbExportModule(params.connectToRemote ? 'remote' : 'local');
+			}
+
 			if (id !== resolved.module && id !== resolved.importedFromSeedFile) return;
 
 			if (params.connectToRemote) {
-				return getRemoteVirtualModContents({
-					tables: params.tables.get(),
-					isBuild: command === 'build',
-					output: params.output,
-					backend: params.backend,
-				});
+				return getVirtualModContents({ tables: params.tables.get() })
 			}
 
 			// When seeding, we resolved to a different virtual module.
 			// this prevents an infinite loop attempting to rerun seed files.
 			// Short circuit with the module contents in this case.
 			if (id === resolved.importedFromSeedFile) {
-				return getLocalVirtualModContents({
-					root: params.root,
-					tables: params.tables.get(),
-				});
+				return getVirtualModContents({ tables: params.tables.get() });
 			}
 
 			await recreateTables(params);
@@ -96,10 +98,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 				(params.logger ?? console).info('Seeded database.');
 				params.seedHandler.inProgress = false;
 			}
-			return getLocalVirtualModContents({
-				root: params.root,
-				tables: params.tables.get(),
-			});
+			return getVirtualModContents({ tables: params.tables.get() });
 		},
 	};
 }
@@ -108,84 +107,17 @@ export function getConfigVirtualModContents() {
 	return `export * from ${RUNTIME_VIRTUAL_IMPORT}`;
 }
 
-export function getLocalVirtualModContents({
-	tables,
-	root,
-}: {
+export function getVirtualModContents({ tables }: {
 	tables: DBTables;
-	root: URL;
 }) {
-	const { ASTRO_DATABASE_FILE } = getAstroEnv();
-	const dbInfo = getRemoteDatabaseInfo();
-	const dbUrl = new URL(DB_PATH, root);
 	return `
-import { asDrizzleTable, createLocalDatabaseClient, normalizeDatabaseUrl } from ${RUNTIME_IMPORT};
+import { asDrizzleTable, createDb } from ${JSON.stringify(BACKEND_MODULE_ID)};
 
-const dbUrl = normalizeDatabaseUrl(${JSON.stringify(ASTRO_DATABASE_FILE)}, ${JSON.stringify(dbUrl)});
-export const db = createLocalDatabaseClient({ dbUrl, enableTransactions: ${dbInfo.url === 'libsql'} });
+export { db };
 
 export * from ${RUNTIME_VIRTUAL_IMPORT};
 
-${getStringifiedTableExports(tables)}`;
-}
-
-export function getRemoteVirtualModContents({
-	tables,
-	appToken,
-	isBuild,
-	output,
-	backend,
-}: {
-	tables: DBTables;
-	appToken: string;
-	isBuild: boolean;
-	output: AstroConfig['output'];
-	backend: DatabaseBackend;
-}) {
-	const dbInfo = getRemoteDatabaseInfo();
-
-	function appTokenArg() {
-		if (isBuild) {
-			const envPrefix = dbInfo.type === 'studio' ? 'ASTRO_STUDIO' : 'ASTRO_DB';
-			if (output === 'server') {
-				// In production build, always read the runtime environment variable.
-				return `process.env.${envPrefix}_APP_TOKEN`;
-			} else {
-				// Static mode or prerendering needs the local app token.
-				return `process.env.${envPrefix}_APP_TOKEN ?? ${JSON.stringify(appToken)}`;
-			}
-		} else {
-			return JSON.stringify(appToken);
-		}
-	}
-
-	function dbUrlArg() {
-		const dbStr = JSON.stringify(dbInfo.url);
-
-		if (isBuild) {
-			// Allow overriding, mostly for testing
-			return dbInfo.type === 'studio'
-				? `import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${dbStr}`
-				: `import.meta.env.ASTRO_DB_REMOTE_URL ?? ${dbStr}`;
-		} else {
-			return dbStr;
-		}
-	}
-
-	return `
-import {asDrizzleTable, } from ${RUNTIME_IMPORT};
-
-export const db = await createRemoteDatabaseClient({
-  dbType: ${JSON.stringify(dbInfo.type)},
-  remoteUrl: ${dbUrlArg()},
-  appToken: ${appTokenArg()},
-	remoteClientMode: ${JSON.stringify(remoteClientMode)},
-});
-
-export * from ${RUNTIME_VIRTUAL_IMPORT};
-
-${getStringifiedTableExports(tables)}
-	`;
+${getStringifiedTableExports(tables)}`
 }
 
 function getStringifiedTableExports(tables: DBTables) {
@@ -199,24 +131,21 @@ function getStringifiedTableExports(tables: DBTables) {
 		.join('\n');
 }
 
-const sqlite = new SQLiteAsyncDialect();
-
-async function recreateTables({ tables, root }: { tables: LateTables; root: URL }) {
-	const dbInfo = getRemoteDatabaseInfo();
-	const { ASTRO_DATABASE_FILE } = getAstroEnv();
-	const dbUrl = normalizeDatabaseUrl(ASTRO_DATABASE_FILE, new URL(DB_PATH, root).href);
-	const db = createLocalDatabaseClient({ dbUrl, enableTransactions: dbInfo.type === 'libsql' });
-	const setupQueries: SQL[] = [];
+async function recreateTables<Op>({ tables, backend: lateBackend }: {
+	tables: LateTables;
+	backend: LateBackend<Op>;
+}) {
+	const backend = lateBackend.get();
+	const setupQueries: Op[] = [];
 	for (const [name, table] of Object.entries(tables.get() ?? {})) {
-		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
-		const createQuery = sql.raw(getCreateTableQuery(name, table));
-		const indexQueries = getCreateIndexQueries(name, table);
-		setupQueries.push(dropQuery, createQuery, ...indexQueries.map((s) => sql.raw(s)));
+		setupQueries.push(
+			...backend.getDropTableIfExistsOps(name),
+			...backend.getCreateTableOps(name, table),
+			...backend.getCreateIndexOps(name, table),
+		);
 	}
-	await db.batch([
-		db.run(sql`pragma defer_foreign_keys=true;`),
-		...setupQueries.map((q) => db.run(q)),
-	]);
+
+	await backend.executeOps(setupQueries);
 }
 
 function getResolvedSeedFiles({

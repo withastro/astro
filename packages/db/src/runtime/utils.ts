@@ -1,5 +1,6 @@
 import { LibsqlError } from '@libsql/client';
 import { AstroError } from 'astro/errors';
+import type { DBColumn } from '../core/types.js';
 
 const isWindows = process?.platform === 'win32';
 
@@ -40,6 +41,10 @@ export class DetailedLibsqlError extends LibsqlError {
 		super(message, code, rawCode, cause);
 		this.hint = hint;
 	}
+}
+
+export function hasPrimaryKey(column: DBColumn) {
+	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
 }
 
 export function isDbError(err: unknown): err is LibsqlError {

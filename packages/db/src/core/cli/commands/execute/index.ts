@@ -9,21 +9,21 @@ import {
 	FILE_NOT_FOUND_ERROR,
 	MISSING_EXECUTE_PATH_ERROR,
 } from '../../../errors.js';
-import {
-	getLocalVirtualModContents,
-	getRemoteVirtualModContents,
-} from '../../../integration/vite-plugin-db.js';
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import type { DBConfig } from '../../../types.js';
 import { getManagedRemoteToken } from '../../../utils.js';
+import type { DatabaseBackend } from '../../../backend/types.js';
+import { getVirtualModContents } from '../../../integration/vite-plugin-db.js';
 
 export async function cmd({
 	astroConfig,
 	dbConfig,
+	backend,
 	flags,
 }: {
 	astroConfig: AstroConfig;
 	dbConfig: DBConfig;
+	backend: DatabaseBackend<any>;
 	flags: Arguments;
 }) {
 	const filePath = flags._[4];
@@ -38,21 +38,8 @@ export async function cmd({
 		process.exit(1);
 	}
 
-	let virtualModContents: string;
-	if (flags.remote) {
-		const appToken = await getManagedRemoteToken(flags.token);
-		virtualModContents = getRemoteVirtualModContents({
-			tables: dbConfig.tables ?? {},
-			appToken: appToken.token,
-			isBuild: false,
-			output: 'server',
-		});
-	} else {
-		virtualModContents = getLocalVirtualModContents({
-			tables: dbConfig.tables ?? {},
-			root: astroConfig.root,
-		});
-	}
+	const virtualModContents = getVirtualModContents({ tables: dbConfig.tables ?? {} });
+
 	const { code } = await bundleFile({ virtualModContents, root: astroConfig.root, fileUrl });
 
 	const mod = await importBundledFile({ code, root: astroConfig.root });

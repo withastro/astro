@@ -16,16 +16,19 @@ import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
 	formatDataLossMessage,
-	getMigrationQueries,
+	getMigrationOps,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
+import type { DatabaseBackend } from '../../../backend/types.js';
 
 export async function cmd({
 	dbConfig,
+	backend,
 	flags,
 }: {
 	astroConfig: AstroConfig;
 	dbConfig: DBConfig;
+	backend: DatabaseBackend<any>;
 	flags: Arguments;
 }) {
 	const isDryRun = flags.dryRun;
@@ -37,11 +40,11 @@ export async function cmd({
 		appToken: appToken.token,
 	});
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
-	const isFromScratch = !productionSnapshot;
-	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
-		oldSnapshot: isFromScratch ? createEmptySnapshot() : productionSnapshot,
+	const { queries: migrationQueries, confirmations } = await getMigrationOps({
+		oldSnapshot: productionSnapshot ?? createEmptySnapshot(),
 		newSnapshot: currentSnapshot,
 		reset: isForceReset,
+		backend,
 	});
 
 	// // push the database schema
@@ -75,99 +78,44 @@ export async function cmd({
 	} else {
 		console.log(`Pushing database schema updates...`);
 		await pushSchema({
-			statements: migrationQueries,
-			dbInfo,
-			appToken: appToken.token,
+			operations: migrationQueries,
 			isDryRun,
 			currentSnapshot: currentSnapshot,
+			backend,
 		});
 	}
+
 	// cleanup and exit
 	await appToken.destroy();
 	console.info('Push complete!');
 }
 
-async function pushSchema({
-	statements,
-	dbInfo,
-	appToken,
+async function pushSchema<Op>({
+	operations,
 	isDryRun,
 	currentSnapshot,
+	backend,
 }: {
-	statements: string[];
-	dbInfo: RemoteDatabaseInfo;
-	appToken: string;
+	operations: Op[];
 	isDryRun: boolean;
 	currentSnapshot: DBSnapshot;
+	backend: DatabaseBackend<any>;
 }) {
-	const requestBody: RequestBody = {
-		snapshot: currentSnapshot,
-		sql: statements,
-		version: MIGRATION_VERSION,
-	};
 	if (isDryRun) {
+		const requestBody = {
+			snapshot: currentSnapshot,
+			operations,
+			version: MIGRATION_VERSION,
+		};
+
 		console.info('[DRY RUN] Batch query:', JSON.stringify(requestBody, null, 2));
-		return new Response(null, { status: 200 });
+		return;
 	}
 
-	return dbInfo.type === 'studio'
-		? pushToStudio(requestBody, appToken, dbInfo.url)
-		: pushToDb(requestBody, appToken, dbInfo.url);
-}
+	await backend.executeOps('remote', backend.getCreateSnapshotRegistryOps());
 
-type RequestBody = {
-	snapshot: DBSnapshot;
-	sql: string[];
-	version: string;
-};
-
-async function pushToDb(requestBody: RequestBody, appToken: string, remoteUrl: string) {
-	const client = createRemoteDatabaseClient({
-		dbType: 'libsql',
-		appToken,
-		remoteUrl,
-	});
-
-	await client.run(sql`create table if not exists _astro_db_snapshot (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		version TEXT,
-		snapshot BLOB
-	);`);
-
-	await client.transaction(async (tx) => {
-		for (const stmt of requestBody.sql) {
-			await tx.run(sql.raw(stmt));
-		}
-
-		await tx.run(sql`insert into _astro_db_snapshot (version, snapshot) values (
-			${requestBody.version},
-			${JSON.stringify(requestBody.snapshot)}
-		)`);
-	});
-}
-
-async function pushToStudio(requestBody: RequestBody, appToken: string, remoteUrl: string) {
-	const url = new URL('/db/push', remoteUrl);
-	const response = await safeFetch(
-		url,
-		{
-			method: 'POST',
-			headers: new Headers({
-				Authorization: `Bearer ${appToken}`,
-			}),
-			body: JSON.stringify(requestBody),
-		},
-		async (res) => {
-			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
-			console.error(await res.text());
-			throw new Error(`/db/push fetch failed: ${res.status} ${res.statusText}`);
-		},
-	);
-
-	const result = (await response.json()) as Result<never>;
-	if (!result.success) {
-		console.error(`${url.toString()} unsuccessful`);
-		console.error(await response.text());
-		throw new Error(`/db/push fetch unsuccessful`);
-	}
+	await backend.executeOps('remote', [
+		...operations,
+		...backend.getStoreSnapshotOps(MIGRATION_VERSION, currentSnapshot)
+	]);
 }

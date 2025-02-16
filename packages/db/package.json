@@ -23,10 +23,7 @@
       "types": "./dist/utils.d.ts",
       "default": "./dist/utils.js"
     },
-    "./runtime": {
-      "types": "./dist/runtime/index.d.ts",
-      "default": "./dist/runtime/index.js"
-    },
+    "./runtime/*": "./dist/runtime/backend/*",
     "./dist/runtime/virtual.js": {
       "default": "./dist/runtime/virtual.js"
     },
@@ -73,7 +70,7 @@
     "@libsql/client": "^0.14.0",
     "async-listen": "^3.0.1",
     "deep-diff": "^1.0.2",
-    "drizzle-orm": "^0.31.2",
+    "drizzle-orm": "^0.39.3",
     "github-slugger": "^2.0.0",
     "kleur": "^4.1.5",
     "nanoid": "^5.0.9",

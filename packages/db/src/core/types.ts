@@ -16,6 +16,7 @@ import type {
 	textColumnOptsSchema,
 	textColumnSchema,
 } from './schemas.js';
+import type { DatabaseBackend } from './backend/types.js';
 
 export type ResolvedIndexes = z.output<typeof dbConfigSchema>['tables'][string]['indexes'];
 export type BooleanColumn = z.infer<typeof booleanColumnSchema>;
@@ -92,6 +93,7 @@ declare global {
 	namespace Astro {
 		export interface IntegrationHooks {
 			'astro:db:setup'?: (options: {
+				setBackend(backend: DatabaseBackend<any>): void;
 				extendDb: (options: {
 					configEntrypoint?: URL | string;
 					seedEntrypoint?: URL | string;

@@ -1,55 +1,37 @@
 import { stripVTControlCharacters } from 'node:util';
 import deepDiff from 'deep-diff';
 import { sql } from 'drizzle-orm';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import * as color from 'kleur/colors';
-import { customAlphabet } from 'nanoid';
-import { hasPrimaryKey } from '../../runtime/index.js';
 import { createRemoteDatabaseClient } from '../../runtime/index.js';
-import { isSerializedSQL } from '../../runtime/types.js';
-import { isDbError, safeFetch } from '../../runtime/utils.js';
+import { hasPrimaryKey, isDbError, safeFetch } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
-import {
-	getCreateIndexQueries,
-	getCreateTableQuery,
-	getDropTableIfExistsQuery,
-	getModifiers,
-	getReferencesConfig,
-	hasDefault,
-	schemaTypeToSqlType,
-} from '../queries.js';
 import { columnSchema } from '../schemas.js';
 import type {
-	BooleanColumn,
 	ColumnType,
 	DBColumn,
 	DBColumns,
 	DBConfig,
 	DBSnapshot,
-	DateColumn,
-	JsonColumn,
-	NumberColumn,
 	ResolvedDBTable,
 	ResolvedDBTables,
-	ResolvedIndexes,
-	TextColumn,
 } from '../types.js';
 import type { RemoteDatabaseInfo, Result } from '../utils.js';
+import type { DatabaseBackend } from '../backend/types.js';
+import { getAdded, getDropped, hasDefault } from '../backend/utils.js';
 
-const sqlite = new SQLiteAsyncDialect();
-const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
-
-export async function getMigrationQueries({
+export async function getMigrationOps<Op>({
 	oldSnapshot,
 	newSnapshot,
+	backend,
 	reset = false,
 }: {
 	oldSnapshot: DBSnapshot;
 	newSnapshot: DBSnapshot;
+	backend: DatabaseBackend<Op>;
 	reset?: boolean;
-}): Promise<{ queries: string[]; confirmations: string[] }> {
-	const queries: string[] = [];
+}): Promise<{ queries: Op[]; confirmations: string[] }> {
+	const queries: Op[] = [];
 	const confirmations: string[] = [];
 
 	// When doing a reset, first create DROP TABLE statements, then treat everything
@@ -57,7 +39,7 @@ export async function getMigrationQueries({
 	if (reset) {
 		const currentSnapshot = oldSnapshot;
 		oldSnapshot = createEmptySnapshot();
-		queries.push(...getDropTableQueriesForSnapshot(currentSnapshot));
+		queries.push(...getDropTableOpsForSnapshot(backend, currentSnapshot));
 	}
 
 	const addedTables = getAddedTables(oldSnapshot, newSnapshot);
@@ -72,13 +54,14 @@ export async function getMigrationQueries({
 	}
 
 	for (const [tableName, table] of Object.entries(addedTables)) {
-		queries.push(getCreateTableQuery(tableName, table));
-		queries.push(...getCreateIndexQueries(tableName, table));
+		queries.push(
+			...backend.getCreateTableOps(tableName, table),
+			...backend.getCreateIndexOps(tableName, table),
+		);
 	}
 
 	for (const [tableName] of Object.entries(droppedTables)) {
-		const dropQuery = `DROP TABLE ${sqlite.escapeName(tableName)}`;
-		queries.push(dropQuery);
+		queries.push(...backend.getDropTableIfExistsOps(tableName));
 	}
 
 	for (const [tableName, newTable] of Object.entries(newSnapshot.schema)) {
@@ -101,6 +84,7 @@ export async function getMigrationQueries({
 			tableName,
 			oldTable,
 			newTable,
+			backend,
 		});
 		queries.push(...result.queries);
 		confirmations.push(...result.confirmations);
@@ -108,16 +92,18 @@ export async function getMigrationQueries({
 	return { queries, confirmations };
 }
 
-export async function getTableChangeQueries({
+export async function getTableChangeQueries<Op>({
 	tableName,
 	oldTable,
 	newTable,
+	backend,
 }: {
 	tableName: string;
 	oldTable: ResolvedDBTable;
 	newTable: ResolvedDBTable;
-}): Promise<{ queries: string[]; confirmations: string[] }> {
-	const queries: string[] = [];
+	backend: DatabaseBackend<Op>
+}): Promise<{ queries: Op[]; confirmations: string[] }> {
+	const queries: Op[] = [];
 	const confirmations: string[] = [];
 	const updated = getUpdatedColumns(oldTable.columns, newTable.columns);
 	const added = getAdded(oldTable.columns, newTable.columns);
@@ -127,7 +113,7 @@ export async function getTableChangeQueries({
 
 	if (!hasForeignKeyChanges && isEmpty(updated) && isEmpty(added) && isEmpty(dropped)) {
 		return {
-			queries: getChangeIndexQueries({
+			queries: backend.getChangeIndexOps({
 				tableName,
 				oldIndexes: oldTable.indexes,
 				newIndexes: newTable.indexes,
@@ -139,12 +125,12 @@ export async function getTableChangeQueries({
 	if (
 		!hasForeignKeyChanges &&
 		isEmpty(updated) &&
-		Object.values(dropped).every(canAlterTableDropColumn) &&
-		Object.values(added).every(canAlterTableAddColumn)
+		Object.values(dropped).every(column => backend.canAlterTableDropColumn(column)) &&
+		Object.values(added).every(column => backend.canAlterTableAddColumn(column))
 	) {
 		queries.push(
-			...getAlterTableQueries(tableName, added, dropped),
-			...getChangeIndexQueries({
+			...backend.getAlterTableOps(tableName, added, dropped),
+			...backend.getChangeIndexOps({
 				tableName,
 				oldIndexes: oldTable.indexes,
 				newIndexes: newTable.indexes,
@@ -172,40 +158,15 @@ export async function getTableChangeQueries({
 	);
 	const droppedPrimaryKey = Object.entries(dropped).find(([, column]) => hasPrimaryKey(column));
 
-	const recreateTableQueries = getRecreateTableQueries({
+	const recreateTableQueries = backend.getRecreateTableOps({
 		tableName,
 		newTable,
 		added,
 		hasDataLoss: dataLossCheck.dataLoss,
 		migrateHiddenPrimaryKey: !primaryKeyExists && !droppedPrimaryKey,
 	});
-	queries.push(...recreateTableQueries, ...getCreateIndexQueries(tableName, newTable));
+	queries.push(...recreateTableQueries, ...backend.getCreateIndexOps(tableName, newTable));
 	return { queries, confirmations };
-}
-
-function getChangeIndexQueries({
-	tableName,
-	oldIndexes = {},
-	newIndexes = {},
-}: {
-	tableName: string;
-	oldIndexes?: ResolvedIndexes;
-	newIndexes?: ResolvedIndexes;
-}) {
-	const added = getAdded(oldIndexes, newIndexes);
-	const dropped = getDropped(oldIndexes, newIndexes);
-	const updated = getUpdated(oldIndexes, newIndexes);
-
-	Object.assign(dropped, updated);
-	Object.assign(added, updated);
-
-	const queries: string[] = [];
-	for (const indexName of Object.keys(dropped)) {
-		const dropQuery = `DROP INDEX ${sqlite.escapeName(indexName)}`;
-		queries.push(dropQuery);
-	}
-	queries.push(...getCreateIndexQueries(tableName, { indexes: added }));
-	return queries;
 }
 
 function getAddedTables(oldTables: DBSnapshot, newTables: DBSnapshot): ResolvedDBTables {
@@ -224,97 +185,8 @@ function getDroppedTables(oldTables: DBSnapshot, newTables: DBSnapshot): Resolve
 	return dropped;
 }
 
-/**
- * Get ALTER TABLE queries to update the table schema. Assumes all added and dropped columns pass
- * `canUseAlterTableAddColumn` and `canAlterTableDropColumn` checks!
- */
-function getAlterTableQueries(
-	unescTableName: string,
-	added: DBColumns,
-	dropped: DBColumns,
-): string[] {
-	const queries: string[] = [];
-	const tableName = sqlite.escapeName(unescTableName);
-
-	for (const [unescColumnName, column] of Object.entries(added)) {
-		const columnName = sqlite.escapeName(unescColumnName);
-		const type = schemaTypeToSqlType(column.type);
-		const q = `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${type}${getModifiers(
-			columnName,
-			column,
-		)}`;
-		queries.push(q);
-	}
-
-	for (const unescColumnName of Object.keys(dropped)) {
-		const columnName = sqlite.escapeName(unescColumnName);
-		const q = `ALTER TABLE ${tableName} DROP COLUMN ${columnName}`;
-		queries.push(q);
-	}
-
-	return queries;
-}
-
-function getRecreateTableQueries({
-	tableName: unescTableName,
-	newTable,
-	added,
-	hasDataLoss,
-	migrateHiddenPrimaryKey,
-}: {
-	tableName: string;
-	newTable: ResolvedDBTable;
-	added: Record<string, DBColumn>;
-	hasDataLoss: boolean;
-	migrateHiddenPrimaryKey: boolean;
-}): string[] {
-	const unescTempName = `${unescTableName}_${genTempTableName()}`;
-	const tempName = sqlite.escapeName(unescTempName);
-	const tableName = sqlite.escapeName(unescTableName);
-
-	if (hasDataLoss) {
-		return [`DROP TABLE ${tableName}`, getCreateTableQuery(unescTableName, newTable)];
-	}
-	const newColumns = [...Object.keys(newTable.columns)];
-	if (migrateHiddenPrimaryKey) {
-		newColumns.unshift('_id');
-	}
-	const escapedColumns = newColumns
-		.filter((i) => !(i in added))
-		.map((c) => sqlite.escapeName(c))
-		.join(', ');
-
-	return [
-		getCreateTableQuery(unescTempName, newTable),
-		`INSERT INTO ${tempName} (${escapedColumns}) SELECT ${escapedColumns} FROM ${tableName}`,
-		`DROP TABLE ${tableName}`,
-		`ALTER TABLE ${tempName} RENAME TO ${tableName}`,
-	];
-}
-
 function isEmpty(obj: Record<string, unknown>) {
 	return Object.keys(obj).length === 0;
-}
-
-/**
- * ADD COLUMN is preferred for O(1) table updates, but is only supported for _some_ column
- * definitions.
- *
- * @see https://www.sqlite.org/lang_altertable.html#alter_table_add_column
- */
-function canAlterTableAddColumn(column: DBColumn) {
-	if (column.schema.unique) return false;
-	if (hasRuntimeDefault(column)) return false;
-	if (!column.schema.optional && !hasDefault(column)) return false;
-	if (hasPrimaryKey(column)) return false;
-	if (getReferencesConfig(column)) return false;
-	return true;
-}
-
-function canAlterTableDropColumn(column: DBColumn) {
-	if (column.schema.unique) return false;
-	if (hasPrimaryKey(column)) return false;
-	return true;
 }
 
 type DataLossReason = 'added-required' | 'updated-type';
@@ -340,32 +212,6 @@ function canRecreateTableWithoutDataLoss(
 		}
 	}
 	return { dataLoss: false };
-}
-
-function getAdded<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
-	const added: Record<string, T> = {};
-	for (const [key, value] of Object.entries(newObj)) {
-		if (!(key in oldObj)) added[key] = value;
-	}
-	return added;
-}
-
-function getDropped<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
-	const dropped: Record<string, T> = {};
-	for (const [key, value] of Object.entries(oldObj)) {
-		if (!(key in newObj)) dropped[key] = value;
-	}
-	return dropped;
-}
-
-function getUpdated<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
-	const updated: Record<string, T> = {};
-	for (const [key, value] of Object.entries(newObj)) {
-		const oldValue = oldObj[key];
-		if (!oldValue) continue;
-		if (deepDiff(oldValue, value)) updated[key] = value;
-	}
-	return updated;
 }
 
 type UpdatedColumns = Record<string, { old: DBColumn; new: DBColumn }>;
@@ -408,20 +254,6 @@ function canChangeTypeWithoutQuery(oldColumn: DBColumn, newColumn: DBColumn) {
 	return typeChangesWithoutQuery.some(
 		({ from, to }) => oldColumn.type === from && newColumn.type === to,
 	);
-}
-
-// Using `DBColumn` will not narrow `default` based on the column `type`
-// Handle each column separately
-type WithDefaultDefined<T extends DBColumn> = T & Required<Pick<T['schema'], 'default'>>;
-type DBColumnWithDefault =
-	| WithDefaultDefined<TextColumn>
-	| WithDefaultDefined<DateColumn>
-	| WithDefaultDefined<NumberColumn>
-	| WithDefaultDefined<BooleanColumn>
-	| WithDefaultDefined<JsonColumn>;
-
-function hasRuntimeDefault(column: DBColumn): column is DBColumnWithDefault {
-	return !!(column.schema.default && isSerializedSQL(column.schema.default));
 }
 
 export function getProductionCurrentSnapshot(options: {
@@ -503,11 +335,11 @@ async function getStudioCurrentSnapshot(
 	return result.data;
 }
 
-function getDropTableQueriesForSnapshot(snapshot: DBSnapshot) {
-	const queries = [];
+function getDropTableOpsForSnapshot<Op>(backend: DatabaseBackend<Op>, snapshot: DBSnapshot): Op[] {
+	const queries: Op[] = [];
 	for (const tableName of Object.keys(snapshot.schema)) {
-		const dropQuery = getDropTableIfExistsQuery(tableName);
-		queries.unshift(dropQuery);
+		const dropQuery = backend.getDropTableIfExistsOps(tableName);
+		queries.unshift(...dropQuery);
 	}
 	return queries;
 }

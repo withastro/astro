@@ -14,12 +14,24 @@ export async function cli({
 	// Most commands are `astro db foo`, but for now login/logout
 	// are also handled by this package, so first check if this is a db command.
 	const command = args[2] === 'db' ? args[3] : args[2];
-	const { dbConfig } = await resolveDbConfig(astroConfig);
+	const { dbConfig, backend } = await resolveDbConfig(astroConfig);
 
 	switch (command) {
 		case 'shell': {
 			const { cmd } = await import('./commands/shell/index.js');
-			return await cmd({ astroConfig, dbConfig, flags });
+			return await cmd({ astroConfig, dbConfig, backend, flags });
+		}
+		case 'push': {
+			const { cmd } = await import('./commands/push/index.js');
+			return await cmd({ astroConfig, dbConfig, backend, flags });
+		}
+		case 'verify': {
+			const { cmd } = await import('./commands/verify/index.js');
+			return await cmd({ astroConfig, dbConfig, backend, flags });
+		}
+		case 'execute': {
+			const { cmd } = await import('./commands/execute/index.js');
+			return await cmd({ astroConfig, dbConfig, backend, flags });
 		}
 		case 'gen': {
 			console.log('"astro db gen" is no longer needed! Visit the docs for more information.');
@@ -29,30 +41,11 @@ export async function cli({
 			console.log('"astro db sync" is no longer needed! Visit the docs for more information.');
 			return;
 		}
-		case 'push': {
-			const { cmd } = await import('./commands/push/index.js');
-			return await cmd({ astroConfig, dbConfig, flags });
-		}
-		case 'verify': {
-			const { cmd } = await import('./commands/verify/index.js');
-			return await cmd({ astroConfig, dbConfig, flags });
-		}
-		case 'execute': {
-			const { cmd } = await import('./commands/execute/index.js');
-			return await cmd({ astroConfig, dbConfig, flags });
-		}
-		case 'login': {
-			const { cmd } = await import('./commands/login/index.js');
-			return await cmd({ astroConfig, dbConfig, flags });
-		}
-		case 'logout': {
-			const { cmd } = await import('./commands/logout/index.js');
-			return await cmd();
-		}
-		case 'link': {
-			const { cmd } = await import('./commands/link/index.js');
-			return await cmd();
-		}
+		case 'login':
+		case 'logout':
+		case 'link':
+			console.log('Astro Studio has been deprecated. All Studio commands no longer have any effect.');
+			return;
 		default: {
 			if (command != null) {
 				console.error(`Unknown command: ${command}`);

@@ -48,3 +48,9 @@ export const INTEGRATION_TABLE_CONFLICT_ERROR = (
 		? `\n  A user-defined table named ${bold(tableName)} already exists`
 		: `\n  Another integration already added a table named ${bold(tableName)}`;
 };
+
+export const MULTIPLE_BACKENDS_CONFIGURED_ERROR = (
+	firstIntegrationName: string,
+	secondIntegrationName: string,
+) => red('▶ Multiple database backends configured. Reconfigure or remove the following integrations:')
+	+ `\n  * ${bold(firstIntegrationName)}\n  * ${bold(secondIntegrationName)}`;

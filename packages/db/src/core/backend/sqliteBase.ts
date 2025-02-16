@@ -1,20 +1,15 @@
-import type { SQL } from 'drizzle-orm';
+import { sql, type SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from "drizzle-orm/sqlite-core";
 import type {
-	BooleanColumn,
 	ColumnType,
-	DateColumn,
 	DBColumn,
 	DBColumns,
+	DBSnapshot,
 	DBTable,
-	JsonColumn,
-	NumberColumn,
 	ResolvedDBTable,
 	ResolvedIndexes,
-	TextColumn
 } from "../types.js";
 import type { DatabaseBackend } from "./types.js";
-import { hasPrimaryKey } from "../../runtime/index.js";
 import { bold } from "kleur/colors";
 import { isSerializedSQL } from '../../runtime/types.js';
 import { asArray } from '../utils.js';
@@ -24,35 +19,41 @@ import {
 	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
 	REFERENCE_DNE_ERROR
 } from '../../runtime/errors.js';
-import { getAdded, getDropped, getReferencesConfig, getUpdated } from './utils.js';
+import { getAdded, getDropped, getReferencesConfig, getUpdated, hasDefault, hasRuntimeDefault, type DBColumnWithDefault } from './utils.js';
 import { customAlphabet } from 'nanoid';
-
-// Using `DBColumn` will not narrow `default` based on the column `type`
-// Handle each column separately
-type WithDefaultDefined<T extends DBColumn> = T & {
-	schema: Required<Pick<T['schema'], 'default'>>;
-};
-type DBColumnWithDefault =
-	| WithDefaultDefined<TextColumn>
-	| WithDefaultDefined<DateColumn>
-	| WithDefaultDefined<NumberColumn>
-	| WithDefaultDefined<BooleanColumn>
-	| WithDefaultDefined<JsonColumn>;
+import { hasPrimaryKey } from '../../runtime/utils.js';
 
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
 
-export abstract class SqliteBackendBase implements DatabaseBackend {
+export abstract class SqliteBackendBase implements DatabaseBackend<string | SQL> {
 	private readonly dialect = new SQLiteAsyncDialect();
 
-	abstract executeOps(ops: string[]): Promise<void>;
 	abstract getDbExportModule(target: 'local' | 'remote'): string;
 	abstract getTypeDeclarations(): string;
 
-	getDropIfExistsOps(tableName: string): string[] {
+	protected abstract runInTransaction(
+		target: 'local' | 'remote',
+		callback: (tx: { run: (sql: string | SQL) => Promise<void> }) => Promise<void>,
+	): Promise<void>;
+
+	executeOps(target: 'local' | 'remote', ops: string[]): Promise<void> {
+		return this.runInTransaction(target, async (tx) => {
+			for (const op of ops) {
+				await tx.run(op);
+			}
+		});
+	}
+	executeSql(target: 'local' | 'remote', statement: string | SQL): Promise<any> {
+		return this.runInTransaction(target, async (tx) => {
+			return tx.run(statement);
+		});
+	}
+
+	getDropTableIfExistsOps(tableName: string): string[] {
 		return [`DROP TABLE IF EXISTS ${this.dialect.escapeName(tableName)}`];
 	}
 
-	getCreateOps(tableName: string, table: DBTable): string[] {
+	getCreateTableOps(tableName: string, table: DBTable): string[] {
 		let query = `CREATE TABLE ${this.dialect.escapeName(tableName)} (`;
 
 		const colQueries = [];
@@ -111,7 +112,7 @@ export abstract class SqliteBackendBase implements DatabaseBackend {
 		return queries;
 	}
 
-	getRecreateTableQueries({
+	getRecreateTableOps({
 		tableName: unescTableName,
 		newTable,
 		added,
@@ -129,7 +130,7 @@ export abstract class SqliteBackendBase implements DatabaseBackend {
 		const tableName = this.dialect.escapeName(unescTableName);
 
 		if (hasDataLoss) {
-			return [`DROP TABLE ${tableName}`, ...this.getCreateOps(unescTableName, newTable)];
+			return [`DROP TABLE ${tableName}`, ...this.getCreateTableOps(unescTableName, newTable)];
 		}
 		const newColumns = [...Object.keys(newTable.columns)];
 		if (migrateHiddenPrimaryKey) {
@@ -141,14 +142,14 @@ export abstract class SqliteBackendBase implements DatabaseBackend {
 			.join(', ');
 
 		return [
-			...this.getCreateOps(unescTempName, newTable),
+			...this.getCreateTableOps(unescTempName, newTable),
 			`INSERT INTO ${tempName} (${escapedColumns}) SELECT ${escapedColumns} FROM ${tableName}`,
 			`DROP TABLE ${tableName}`,
 			`ALTER TABLE ${tempName} RENAME TO ${tableName}`,
 		];
 	}
 
-	getAlterTableQueries(
+	getAlterTableOps(
 		unescTableName: string,
 		added: DBColumns,
 		dropped: DBColumns,
@@ -173,6 +174,41 @@ export abstract class SqliteBackendBase implements DatabaseBackend {
 		}
 
 		return queries;
+	}
+
+	/**
+	 * ADD COLUMN is preferred for O(1) table updates, but is only supported for _some_ column
+	 * definitions.
+	 *
+	 * @see https://www.sqlite.org/lang_altertable.html#alter_table_add_column
+	 */
+	canAlterTableAddColumn(column: DBColumn): boolean {
+		if (column.schema.unique) return false;
+		if (hasRuntimeDefault(column)) return false;
+		if (!column.schema.optional && !hasDefault(column)) return false;
+		if (hasPrimaryKey(column)) return false;
+		if (getReferencesConfig(column)) return false;
+		return true;
+	}
+
+	canAlterTableDropColumn(column: DBColumn): boolean {
+		if (column.schema.unique) return false;
+		if (hasPrimaryKey(column)) return false;
+		return true;
+	}
+
+	getCreateSnapshotRegistryOps(): SQL[] {
+		return [sql`create table if not exists _astro_db_snapshot (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		version TEXT,
+		snapshot BLOB
+	);`];
+	}
+
+	getStoreSnapshotOps(version: string, snapshot: DBSnapshot): SQL[] {
+		return [sql`insert into _astro_db_snapshot (version, snapshot) values (
+			${version}, ${JSON.stringify(snapshot)}
+		)`];
 	}
 
 	private getCreateForeignKeyOps(tableName: string, table: DBTable): string[] {
@@ -202,7 +238,6 @@ export abstract class SqliteBackendBase implements DatabaseBackend {
 		return queries;
 	}
 
-
 	private schemaTypeToSqlType(type: ColumnType): 'text' | 'integer' {
 		switch (type) {
 			case 'date':
@@ -226,7 +261,7 @@ export abstract class SqliteBackendBase implements DatabaseBackend {
 		if (column.schema.unique) {
 			modifiers += ' UNIQUE';
 		}
-		if (this.hasDefault(column)) {
+		if (hasDefault(column)) {
 			modifiers += ` DEFAULT ${this.getDefaultValueSql(columnName, column)}`;
 		}
 		const references = getReferencesConfig(column);
@@ -239,16 +274,6 @@ export abstract class SqliteBackendBase implements DatabaseBackend {
 			modifiers += ` REFERENCES ${this.dialect.escapeName(tableName)} (${this.dialect.escapeName(name)})`;
 		}
 		return modifiers;
-	}
-
-	private hasDefault(column: DBColumn): column is DBColumnWithDefault {
-		if (column.schema.default !== undefined) {
-			return true;
-		}
-		if (hasPrimaryKey(column) && column.type === 'number') {
-			return true;
-		}
-		return false;
 	}
 
 	private toDefault<T>(def: T | SQL<any>): string {

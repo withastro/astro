@@ -6,7 +6,7 @@ import type { ManagedAppToken } from '@astrojs/studio';
 import type { AstroIntegration } from 'astro';
 import { blue, yellow } from 'kleur/colors';
 import {
-	type HMRPayload,
+	type HotPayload,
 	type UserConfig,
 	type ViteDevServer,
 	createServer,
@@ -15,26 +15,32 @@ import {
 } from 'vite';
 import parseArgs from 'yargs-parser';
 import { AstroDbError, isDbError } from '../../runtime/utils.js';
-import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
+import { CONFIG_FILE_NAMES, DB_PATH, SEED_DEV_FILE_NAME, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
-import { SEED_DEV_FILE_NAME } from '../queries.js';
 import { type VitePlugin, getDbDirectoryUrl, getManagedRemoteToken } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
 import { getDtsContent } from './typegen.js';
 import {
+	type LateBackend,
 	type LateSeedFiles,
 	type LateTables,
 	type SeedHandler,
 	vitePluginDb,
 } from './vite-plugin-db.js';
+import { LibsqlBackend } from '../backend/libsql.js';
+import type { DatabaseBackend } from '../backend/types.js';
+
+type BackendTypeMap = {
+	libsql: typeof LibsqlBackend,
+}
 
 type DBOptions = {
-	remoteClient?: 'native' | 'web';
-};
+	[K in keyof BackendTypeMap]: { backend: K }
+	& ConstructorParameters<BackendTypeMap[K]>[0]
+}[keyof BackendTypeMap];
 
 function astroDBIntegration(options?: DBOptions): AstroIntegration {
-	const { remoteClient = 'native' } = options || {};
 	let connectToRemote = false;
 	let configFileDependencies: string[] = [];
 	let root: URL;
@@ -49,6 +55,11 @@ function astroDBIntegration(options?: DBOptions): AstroIntegration {
 			throw new Error('[astro:db] INTERNAL Tables not loaded yet');
 		},
 	};
+	let backend: LateBackend = {
+		get() {
+			throw new Error('[astro:db] INTERNAL Backend not loaded yet');
+		}
+	}
 	let seedFiles: LateSeedFiles = {
 		get() {
 			throw new Error('[astro:db] INTERNAL Seed files not loaded yet');
@@ -66,6 +77,12 @@ function astroDBIntegration(options?: DBOptions): AstroIntegration {
 	return {
 		name: 'astro:db',
 		hooks: {
+			'astro:db:setup': ({ setBackend }) => {
+				const builtInBackend = createBackend(options);
+				if (builtInBackend) {
+					setBackend(builtInBackend);
+				}
+			},
 			'astro:config:setup': async ({ updateConfig, config, command: _command, logger }) => {
 				command = _command;
 				root = config.root;
@@ -80,17 +97,12 @@ function astroDBIntegration(options?: DBOptions): AstroIntegration {
 					appToken = await getManagedRemoteToken();
 					dbPlugin = vitePluginDb({
 						connectToRemote: true,
-						appToken: appToken.token,
 						tables,
 						root: config.root,
 						srcDir: config.srcDir,
 						output: config.output,
 						seedHandler,
-						// The web remote client is only used for production builds
-						// in order to be compatible with non-Node server runtimes.
-						// For local development and CLI commands, the native client
-						// is used for greater flexibility.
-						remoteClientMode: command === 'build' ? remoteClient : 'native',
+						backend,
 					});
 				} else {
 					dbPlugin = vitePluginDb({
@@ -102,6 +114,7 @@ function astroDBIntegration(options?: DBOptions): AstroIntegration {
 						output: config.output,
 						logger,
 						seedHandler,
+						backend,
 					});
 				}
 
@@ -119,7 +132,13 @@ function astroDBIntegration(options?: DBOptions): AstroIntegration {
 
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
-				const { dbConfig, dependencies, integrationSeedPaths } = await resolveDbConfig(config);
+				const {
+					dbConfig,
+					backend: _backend,
+					dependencies,
+					integrationSeedPaths,
+				} = await resolveDbConfig(config);
+				backend.get = () => _backend;
 				tables.get = () => dbConfig.tables;
 				seedFiles.get = () => integrationSeedPaths;
 				configFileDependencies = dependencies;
@@ -183,7 +202,7 @@ function astroDBIntegration(options?: DBOptions): AstroIntegration {
 					await executeSeedFile({ fileUrl, viteServer: tempViteServer! });
 				};
 			},
-			'astro:build:done': async ({}) => {
+			'astro:build:done': async ({ }) => {
 				await appToken?.destroy();
 				await tempViteServer?.close();
 			},
@@ -235,7 +254,7 @@ async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
 	);
 
 	const hotSend = tempViteServer.hot.send;
-	tempViteServer.hot.send = (payload: HMRPayload) => {
+	tempViteServer.hot.send = (payload: HotPayload) => {
 		if (payload.type === 'error') {
 			throw payload.err;
 		}
@@ -243,4 +262,13 @@ async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
 	};
 
 	return tempViteServer;
+}
+
+function createBackend(options?: DBOptions): DatabaseBackend<any> | null {
+	switch (options?.backend) {
+		case 'libsql':
+			return new LibsqlBackend(options);
+		case undefined:
+			return null;
+	}
 }

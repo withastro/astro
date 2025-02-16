@@ -5,12 +5,15 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroConfig } from 'astro';
 import { build as esbuild } from 'esbuild';
 import { CONFIG_FILE_NAMES, VIRTUAL_MODULE_ID } from './consts.js';
-import { INTEGRATION_TABLE_CONFLICT_ERROR } from './errors.js';
+import { INTEGRATION_TABLE_CONFLICT_ERROR, MULTIPLE_BACKENDS_CONFIGURED_ERROR } from './errors.js';
 import { errorMap } from './integration/error-map.js';
 import { getConfigVirtualModContents } from './integration/vite-plugin-db.js';
 import { dbConfigSchema } from './schemas.js';
 import './types.js';
 import { getAstroEnv, getDbDirectoryUrl } from './utils.js';
+import type { DBConfig } from './types.js';
+import type { DatabaseBackend } from './backend/types.js';
+import { LibsqlBackend } from './backend/libsql.js';
 
 /**
  * Load a user’s `astro:db` configuration file and additional configuration files provided by integrations.
@@ -18,11 +21,23 @@ import { getAstroEnv, getDbDirectoryUrl } from './utils.js';
 export async function resolveDbConfig({
 	root,
 	integrations,
-}: Pick<AstroConfig, 'root' | 'integrations'>) {
+}: Pick<AstroConfig, 'root' | 'integrations'>): Promise<{
+	/** Resolved `astro:db` config, including tables added by integrations. */
+	dbConfig: DBConfig;
+	/** Resolved database backend. */
+	backend: DatabaseBackend<any>;
+	/** Dependencies imported into the user config file. */
+	dependencies: string[];
+	/** Additional `astro:db` seed file paths provided by integrations. */
+	integrationSeedPaths: Array<string | URL>;
+}> {
 	const { mod, dependencies } = await loadUserConfigFile(root);
 	const userDbConfig = dbConfigSchema.parse(mod?.default ?? {}, { errorMap });
 	/** Resolved `astro:db` config including tables provided by integrations. */
 	const dbConfig = { tables: userDbConfig.tables ?? {} };
+	const selectedBackend: { integration: string, backend?: DatabaseBackend<any> } = {
+		integration: '',
+	}
 
 	// Collect additional config and seed files from integrations.
 	const integrationDbConfigPaths: Array<{ name: string; configEntrypoint: string | URL }> = [];
@@ -31,6 +46,17 @@ export async function resolveDbConfig({
 		const { name, hooks } = integration;
 		if (hooks['astro:db:setup']) {
 			hooks['astro:db:setup']({
+				setBackend(_backend: DatabaseBackend<any>) {
+					if (selectedBackend.backend) {
+						throw new Error(MULTIPLE_BACKENDS_CONFIGURED_ERROR(
+							selectedBackend.integration,
+							name,
+						));
+					}
+
+					selectedBackend.integration = name;
+					selectedBackend.backend = _backend;
+				},
 				extendDb({ configEntrypoint, seedEntrypoint }) {
 					if (configEntrypoint) {
 						integrationDbConfigPaths.push({ name, configEntrypoint });
@@ -42,6 +68,7 @@ export async function resolveDbConfig({
 			});
 		}
 	}
+
 	for (const { name, configEntrypoint } of integrationDbConfigPaths) {
 		// TODO: config file dependencies are not tracked for integrations for now.
 		const loadedConfig = await loadIntegrationConfigFile(root, configEntrypoint);
@@ -58,13 +85,20 @@ export async function resolveDbConfig({
 		}
 	}
 
+	const env = getAstroEnv();
+
 	return {
-		/** Resolved `astro:db` config, including tables added by integrations. */
 		dbConfig,
-		/** Dependencies imported into the user config file. */
 		dependencies,
-		/** Additional `astro:db` seed file paths provided by integrations. */
 		integrationSeedPaths,
+		backend: selectedBackend?.backend ?? new LibsqlBackend({
+			// TODO: Add a default for this to `.astro/db.sqlite`
+			localFile: env.ASTRO_DATABASE_FILE,
+			remoteUrl: env.ASTRO_DB_REMOTE_DB_URL,
+			options: {
+				authToken: env.ASTRO_DB_AUTH_TOKEN,
+			}
+		}),
 	};
 }
 

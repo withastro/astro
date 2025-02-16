@@ -6,16 +6,19 @@ import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
 	formatDataLossMessage,
-	getMigrationQueries,
+	getMigrationOps,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
+import type { DatabaseBackend } from '../../../backend/types.js';
 
 export async function cmd({
 	dbConfig,
+	backend,
 	flags,
 }: {
 	astroConfig: AstroConfig;
 	dbConfig: DBConfig;
+	backend: DatabaseBackend<any>;
 	flags: Arguments;
 }) {
 	const isJson = flags.json;
@@ -26,9 +29,10 @@ export async function cmd({
 		appToken: appToken.token,
 	});
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
-	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
+	const { queries: migrationQueries, confirmations } = await getMigrationOps({
 		oldSnapshot: productionSnapshot || createEmptySnapshot(),
 		newSnapshot: currentSnapshot,
+		backend,
 	});
 
 	const result = { exitCode: 0, message: '', code: '', data: undefined as unknown };
