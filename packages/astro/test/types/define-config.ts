@@ -67,7 +67,7 @@ describe('defineConfig()', () => {
 			expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, never, never>>();
 			expectTypeOf(config.experimental!.fonts!.providers!).toEqualTypeOf<FontProvider<string>[]>();
 			expectTypeOf(config.experimental!.fonts!.families).toEqualTypeOf<
-				FontFamily<'google' | 'local'>[]
+				(string | FontFamily<'google' | 'local'>)[]
 			>();
 		});
 
@@ -94,7 +94,7 @@ describe('defineConfig()', () => {
 					fonts: {
 						families: [
 							{ name: 'foo', provider: 'google' },
-							{ name: 'bar', provider: 'local', src: 'test' },
+							{ name: 'bar', provider: 'local', src: [] },
 						],
 					},
 				},
@@ -110,7 +110,7 @@ describe('defineConfig()', () => {
 							{
 								readonly name: 'bar';
 								readonly provider: 'local';
-								readonly src: 'test';
+								readonly src: [];
 							},
 						]
 					>
@@ -121,7 +121,7 @@ describe('defineConfig()', () => {
 				expectTypeOf(config.experimental!.fonts!.families).toEqualTypeOf<
 					[
 						{ readonly name: 'foo'; readonly provider: 'google' },
-						{ readonly name: 'bar'; readonly provider: 'local'; readonly src: 'test' },
+						{ readonly name: 'bar'; readonly provider: 'local'; readonly src: [] },
 					]
 				>();
 			},
@@ -185,7 +185,7 @@ describe('defineConfig()', () => {
 						providers: [{ name: 'adobe', entrypoint: '' }],
 						families: [
 							{ name: 'foo', provider: 'google' },
-							{ name: 'bar', provider: 'local', src: 'test' },
+							{ name: 'bar', provider: 'local', src: [] },
 							{ name: 'baz', provider: 'adobe' },
 						],
 					},
@@ -210,7 +210,7 @@ describe('defineConfig()', () => {
 							{
 								readonly name: 'bar';
 								readonly provider: 'local';
-								readonly src: 'test';
+								readonly src: [];
 							},
 							{
 								readonly name: 'baz';
@@ -236,7 +236,7 @@ describe('defineConfig()', () => {
 						{
 							readonly name: 'bar';
 							readonly provider: 'local';
-							readonly src: 'test';
+							readonly src: [];
 						},
 						{
 							readonly name: 'baz';

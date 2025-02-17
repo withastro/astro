@@ -169,9 +169,12 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
 	TFontProviders extends FontProvider<string>[] = never,
-	TFontFamilies extends FontFamily<
-		(TFontProviders extends never ? [] : TFontProviders)[number]['name'] | BuiltInProvider
-	>[] = never,
+	TFontFamilies extends (
+		| string
+		| FontFamily<
+				(TFontProviders extends never ? [] : TFontProviders)[number]['name'] | BuiltInProvider
+		  >
+	)[] = never,
 > {
 	/**
 	 * @docs
@@ -2106,10 +2109,13 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * TODO:
 			 */
 			families: [TFontFamilies] extends [never]
-				? FontFamily<
-						| ([TFontProviders] extends [never] ? [] : TFontProviders)[number]['name']
-						| BuiltInProvider
-					>[]
+				? (
+						| string
+						| FontFamily<
+								| ([TFontProviders] extends [never] ? [] : TFontProviders)[number]['name']
+								| BuiltInProvider
+						  >
+					)[]
 				: TFontFamilies;
 		};
 		/*
