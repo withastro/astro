@@ -32,6 +32,7 @@ import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
+import {getActionContext} from "../actions/runtime/virtual/server.js";
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -192,6 +193,16 @@ export class RenderContext {
 			}
 			let response: Response;
 
+			if 	(!ctx.isPrerendered) {
+
+				const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
+
+				if (action?.calledFrom === 'form') {
+					const actionResult = await action.handler();
+					setActionResult(action.name, serializeActionResult(actionResult));
+				}
+			}
+			
 			switch (this.routeData.type) {
 				case 'endpoint': {
 					response = await renderEndpoint(

@@ -239,7 +239,7 @@ function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 	return schema;
 }
 
-export type ActionMiddlewareContext = {
+export type AstroActionContext = {
 	/** Information about an incoming action request. */
 	action?: {
 		/** Whether an action was called using an RPC function or by using an HTML form action. */
@@ -268,7 +268,7 @@ export type ActionMiddlewareContext = {
 /**
  * Access information about Action requests from middleware.
  */
-export function getActionContext(context: APIContext): ActionMiddlewareContext {
+export function getActionContext(context: APIContext): AstroActionContext {
 	const callerInfo = getCallerInfo(context);
 
 	// Prevents action results from being handled on a rewrite.
@@ -276,7 +276,7 @@ export function getActionContext(context: APIContext): ActionMiddlewareContext {
 	// if the user's middleware has already handled the result.
 	const actionResultAlreadySet = Boolean((context.locals as Locals)._actionPayload);
 
-	let action: ActionMiddlewareContext['action'] = undefined;
+	let action: AstroActionContext['action'] = undefined;
 
 	if (callerInfo && context.request.method === 'POST' && !actionResultAlreadySet) {
 		action = {
