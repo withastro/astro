@@ -2,12 +2,10 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 import url from 'node:url';
+import { hasFileExtension } from '@astrojs/internal-helpers/path';
 import type { NodeApp } from 'astro/app/node';
 import send from 'send';
 import type { Options } from './types.js';
-
-// check for a dot followed by a extension made up of lowercase characters
-const isSubresourceRegex = /.+\.[a-z]+$/i;
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.
@@ -56,7 +54,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 				}
 				case 'always': {
 					// trailing slash is not added to "subresources"
-					if (!hasSlash && !isSubresourceRegex.test(urlPath)) {
+					if (!hasSlash && !hasFileExtension(urlPath)) {
 						pathname = urlPath + '/' + (urlQuery ? '?' + urlQuery : '');
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
