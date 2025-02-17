@@ -7,10 +7,11 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
-import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { getVirtualModulePageName } from './util.js';
+import { ASTRO_ACTIONS_INTERNAL_MODULE_ID } from '../../../actions/consts.js';
+import { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
@@ -167,6 +168,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 
 	const imports = [
 		`import { renderers } from '${RENDERERS_MODULE_ID}';`,
+		`import * as actions from '${ASTRO_ACTIONS_INTERNAL_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		`import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`,
@@ -178,6 +180,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`    pageMap,`,
 		`    serverIslandMap,`,
 		`    renderers,`,
+		`    actions,`,
 		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${middlewareId}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,

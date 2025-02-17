@@ -32,6 +32,7 @@ import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
+import { getActionContext } from '../actions/runtime/virtual/server.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -132,7 +133,8 @@ export class RenderContext {
 						serverLike,
 						base: manifest.base,
 					});
-		const apiContext = this.createAPIContext(props);
+		const actionApiContext = this.createActionAPIContext();
+		const apiContext = this.createAPIContext(props, actionApiContext);
 
 		this.counter++;
 		if (this.counter === 4) {
@@ -192,6 +194,15 @@ export class RenderContext {
 			}
 			let response: Response;
 
+			if (!ctx.isPrerendered) {
+				const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
+
+				if (action?.calledFrom === 'form') {
+					const actionResult = await action.handler();
+					setActionResult(action.name, serializeActionResult(actionResult));
+				}
+			}
+
 			switch (this.routeData.type) {
 				case 'endpoint': {
 					response = await renderEndpoint(
@@ -205,7 +216,7 @@ export class RenderContext {
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
-					const result = await this.createResult(componentInstance!);
+					const result = await this.createResult(componentInstance!, actionApiContext);
 					try {
 						response = await renderPage(
 							result,
@@ -263,8 +274,7 @@ export class RenderContext {
 		return response;
 	}
 
-	createAPIContext(props: APIContext['props']): APIContext {
-		const context = this.createActionAPIContext();
+	createAPIContext(props: APIContext['props'], context: ActionAPIContext): APIContext {
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
 		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
@@ -365,7 +375,7 @@ export class RenderContext {
 		};
 	}
 
-	async createResult(mod: ComponentInstance) {
+	async createResult(mod: ComponentInstance, ctx: ActionAPIContext): Promise<SSRResult> {
 		const { cookies, pathname, pipeline, routeData, status } = this;
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
@@ -403,7 +413,7 @@ export class RenderContext {
 			cookies,
 			/** This function returns the `Astro` faux-global */
 			createAstro: (astroGlobal, props, slots) =>
-				this.createAstro(result, astroGlobal, props, slots),
+				this.createAstro(result, astroGlobal, props, slots, ctx),
 			links,
 			params: this.params,
 			partial,
@@ -448,6 +458,7 @@ export class RenderContext {
 		astroStaticPartial: AstroGlobalPartial,
 		props: Record<string, any>,
 		slotValues: Record<string, any> | null,
+		apiContext: ActionAPIContext,
 	): AstroGlobal {
 		let astroPagePartial;
 		// During rewriting, we must recompute the Astro global, because we need to purge the previous params/props/etc.
@@ -455,12 +466,14 @@ export class RenderContext {
 			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(
 				result,
 				astroStaticPartial,
+				apiContext,
 			);
 		} else {
 			// Create page partial with static partial so they can be cached together.
 			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(
 				result,
 				astroStaticPartial,
+				apiContext,
 			);
 		}
 		// Create component-level partials. `Astro.self` is added by the compiler.
@@ -493,6 +506,7 @@ export class RenderContext {
 	createAstroPagePartial(
 		result: SSRResult,
 		astroStaticPartial: AstroGlobalPartial,
+		apiContext: ActionAPIContext,
 	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const renderContext = this;
 		const { cookies, locals, params, pipeline, url, session } = this;
@@ -510,6 +524,8 @@ export class RenderContext {
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			return await this.#executeRewrite(reroutePayload);
 		};
+
+		const callAction = createCallAction(apiContext);
 
 		return {
 			generator: astroStaticPartial.generator,
@@ -539,7 +555,7 @@ export class RenderContext {
 			site: pipeline.site,
 			getActionResult: createGetActionResult(locals),
 			get callAction() {
-				return createCallAction(this);
+				return callAction;
 			},
 			url,
 			get originPathname() {

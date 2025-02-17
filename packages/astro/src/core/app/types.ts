@@ -9,6 +9,8 @@ import type {
 	SSRResult,
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
+import type { ActionAccept, ActionClient } from '../../actions/runtime/virtual/server.js';
+import type { ZodType } from 'zod';
 
 export type ComponentPath = string;
 
@@ -75,6 +77,7 @@ export type SSRManifest = {
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
+	actions?: SSRAstroActions;
 	checkOrigin: boolean;
 	sessionConfig?: ResolvedSessionConfig<any>;
 	cacheDir: string | URL;
@@ -83,6 +86,10 @@ export type SSRManifest = {
 	publicDir: string | URL;
 	buildClientDir: string | URL;
 	buildServerDir: string | URL;
+};
+
+export type SSRAstroActions = {
+	server: Record<string, ActionClient<unknown, ActionAccept, ZodType>>;
 };
 
 export type SSRManifestI18n = {

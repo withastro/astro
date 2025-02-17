@@ -25,6 +25,7 @@ import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
+import { loadActions } from '../actions/loadActions.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -43,13 +44,15 @@ export default function createVitePluginAstroServer({
 }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
-		configureServer(viteServer) {
+		async configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
+			const actions = await loadActions(loader);
 			const pipeline = DevPipeline.create(routesList, {
 				loader,
 				logger,
 				manifest,
 				settings,
+				actions,
 			});
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();

@@ -4,12 +4,16 @@ import { shouldAppendForwardSlash } from '../core/build/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
 	NOOP_ACTIONS,
-	RESOLVED_VIRTUAL_INTERNAL_MODULE_ID,
+	RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
-	VIRTUAL_INTERNAL_MODULE_ID,
+	ASTRO_ACTIONS_INTERNAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import { isActionsFilePresent } from './utils.js';
+import { getOutputDirectory } from '../prerender/utils.js';
+import type { StaticBuildOptions } from '../core/build/types.js';
+import type { BuildInternals } from '../core/build/internal.js';
+import { addRollupInput } from '../core/build/add-rollup-input.js';
 
 /**
  * This plugin is responsible to load the known file `actions/index.js` / `actions.js`
@@ -24,7 +28,7 @@ export function vitePluginUserActions({ settings }: { settings: AstroSettings })
 			if (id === NOOP_ACTIONS) {
 				return NOOP_ACTIONS;
 			}
-			if (id === VIRTUAL_INTERNAL_MODULE_ID) {
+			if (id === ASTRO_ACTIONS_INTERNAL_MODULE_ID) {
 				const resolvedModule = await this.resolve(
 					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`,
 				);
@@ -33,15 +37,45 @@ export function vitePluginUserActions({ settings }: { settings: AstroSettings })
 					return NOOP_ACTIONS;
 				}
 				resolvedActionsId = resolvedModule.id;
-				return RESOLVED_VIRTUAL_INTERNAL_MODULE_ID;
+				return RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID;
 			}
 		},
 
 		load(id) {
 			if (id === NOOP_ACTIONS) {
 				return 'export const server = {}';
-			} else if (id === RESOLVED_VIRTUAL_INTERNAL_MODULE_ID) {
+			} else if (id === RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID) {
 				return `export { server } from '${resolvedActionsId}';`;
+			}
+		},
+	};
+}
+
+/**
+ * This plugin is used to retrieve the final entry point of the bundled actions.ts file
+ * @param opts
+ * @param internals
+ */
+export function vitePluginActionsBuild(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+): VitePlugin {
+	return {
+		name: '@astro/plugin-actions-build',
+
+		options(options) {
+			return addRollupInput(options, [ASTRO_ACTIONS_INTERNAL_MODULE_ID]);
+		},
+
+		writeBundle(_, bundle) {
+			for (const [chunkName, chunk] of Object.entries(bundle)) {
+				if (
+					chunk.type !== 'asset' &&
+					chunk.facadeModuleId === RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID
+				) {
+					const outputDirectory = getOutputDirectory(opts.settings);
+					internals.astroActionsEntryPoint = new URL(chunkName, outputDirectory);
+				}
 			}
 		},
 	};
