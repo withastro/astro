@@ -578,7 +578,6 @@ it('Should support trailing slash', async () => {
 		method: 'POST',
 		body: formData,
 	});
-
 	assert.equal(res.ok, true);
 	assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
 
