@@ -798,7 +798,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../db
       '@astrojs/node':
-        specifier: ^9.0.2
+        specifier: workspace:*
         version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
