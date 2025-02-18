@@ -151,7 +151,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 		const { h64ToString } = await xxhash();
 
 		const resolved = await resolveProviders({
-			settings,
+			root: settings.config.root,
 			providers,
 			resolveMod,
 		});

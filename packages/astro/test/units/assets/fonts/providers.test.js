@@ -7,6 +7,7 @@ import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entryp
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
 import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
 import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontsource.js';
+import { resolveEntrypoint, validateMod } from '../../../../dist/assets/fonts/providers/utils.js';
 
 describe('fonts providers', () => {
 	describe('config objects', () => {
@@ -53,4 +54,32 @@ describe('fonts providers', () => {
 	});
 
 	// TODO: test local provider
+	describe('utils', () => {
+		it('resolveEntrypoint()', () => {
+			const root = new URL('file:///foo/');
+
+			assert.equal(
+				resolveEntrypoint(root, 'astro/assets/fonts/providers/adobe'),
+				'/foo/astro/assets/fonts/providers/adobe',
+			);
+			assert.equal(resolveEntrypoint(root, './my-provider'), '/foo/my-provider');
+		});
+
+		it('validateMod()', () => {
+			const provider = () => {};
+
+			assert.deepStrictEqual(validateMod({ provider }), { provider });
+
+			const invalidMods = [{}, null, () => {}, { provider: {} }, { provider: null }];
+
+			for (const invalidMod of invalidMods) {
+				try {
+					validateMod(invalidMod);
+					assert.fail('This mod should not pass');
+				} catch (err) {
+					assert.equal(err instanceof Error, true);
+				}
+			}
+		});
+	});
 });

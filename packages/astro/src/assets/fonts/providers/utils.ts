@@ -1,16 +1,15 @@
 import { createRequire } from 'node:module';
-import type { AstroSettings } from '../../../types/astro.js';
 import { google } from './google.js';
 import type { FontProvider, ResolvedFontProvider } from '../types.js';
 import { fileURLToPath } from 'node:url';
 
-export function resolveEntrypoint(settings: AstroSettings, entrypoint: string): string {
-	const require = createRequire(settings.config.root);
+export function resolveEntrypoint(root: URL, entrypoint: string): string {
+	const require = createRequire(root);
 
 	try {
 		return require.resolve(entrypoint);
 	} catch {
-		return fileURLToPath(new URL(entrypoint, settings.config.root));
+		return fileURLToPath(new URL(entrypoint, root));
 	}
 }
 
@@ -32,11 +31,11 @@ export function validateMod(mod: any): Pick<ResolvedFontProvider, 'provider'> {
 export type ResolveMod = (id: string) => Promise<any>;
 
 export async function resolveProviders({
-	settings,
+	root,
 	providers: _providers,
 	resolveMod,
 }: {
-	settings: AstroSettings;
+	root: URL;
 	providers: Array<FontProvider<any>>;
 	resolveMod: ResolveMod;
 }): Promise<Array<ResolvedFontProvider>> {
@@ -44,7 +43,7 @@ export async function resolveProviders({
 	const resolvedProviders: Array<ResolvedFontProvider> = [];
 
 	for (const { name, entrypoint, config } of providers) {
-		const id = resolveEntrypoint(settings, entrypoint.toString());
+		const id = resolveEntrypoint(root, entrypoint.toString());
 		const mod = await resolveMod(id);
 		const { provider } = validateMod(mod);
 		resolvedProviders.push({ name, config, provider });
