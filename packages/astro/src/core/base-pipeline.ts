@@ -134,7 +134,7 @@ export abstract class Pipeline {
 
 	async getAction(path: string): Promise<ActionClient<unknown, ActionAccept, ZodType>> {
 		const pathKeys = path.split('.').map((key) => decodeURIComponent(key));
-		const { server } = await this.getAstroActions();
+		let { server } = await this.getAstroActions();
 
 		if (!server || !(typeof server === 'object')) {
 			throw new TypeError(
@@ -142,7 +142,6 @@ export abstract class Pipeline {
 			);
 		}
 
-		let maybeFunction = undefined;
 		for (const key of pathKeys) {
 			if (!(key in server)) {
 				throw new AstroError({
@@ -150,14 +149,15 @@ export abstract class Pipeline {
 					message: ActionNotFoundError.message(pathKeys.join('.')),
 				});
 			}
-			maybeFunction = server[key];
+			// @ts-expect-error we are doing a recursion... it's ugly
+			server = server[key];
 		}
-		if (typeof maybeFunction !== 'function') {
+		if (typeof server !== 'function') {
 			throw new TypeError(
-				`Expected handler for action ${pathKeys.join('.')} to be a function. Received ${typeof maybeFunction}.`,
+				`Expected handler for action ${pathKeys.join('.')} to be a function. Received ${typeof server}.`,
 			);
 		}
-		return maybeFunction;
+		return server;
 	}
 }
 

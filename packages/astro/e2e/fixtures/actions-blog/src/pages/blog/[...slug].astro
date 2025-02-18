@@ -1,5 +1,5 @@
 ---
-import { type CollectionEntry, getEntry } from 'astro:content';
+import { type CollectionEntry, getEntry, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 import { Logout } from '../../components/Logout';
 import { db, eq, Comment, Likes } from 'astro:db';
@@ -11,7 +11,7 @@ import { isInputError } from 'astro:actions';
 type Props = CollectionEntry<'blog'>;
 
 const post = await getEntry('blog', Astro.params.slug)!;
-const { Content } = await post.render();
+const { Content } = await render(post);
 
 if (Astro.url.searchParams.has('like')) {
 	await Astro.callAction(actions.blog.like.orThrow, { postId: post.id });
