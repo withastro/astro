@@ -73,7 +73,7 @@ describe('fonts providers', () => {
 		});
 
 		it('resolveProviders()', async () => {
-			const root = new URL('file:///foo/');
+			const root = new URL(import.meta.url);
 			const provider = () => {};
 
 			assert.deepStrictEqual(
