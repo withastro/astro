@@ -131,7 +131,7 @@ export async function createMarkdownProcessor(
 	}
 
 	// Images / Assets support
-	parser.use(rehypeImages());
+	parser.use(rehypeImages);
 
 	// Headings
 	if (!isPerformanceBenchmark) {
