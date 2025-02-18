@@ -6,7 +6,7 @@ describe('collect images', async () => {
 	let processor;
 
 	before(async () => {
-		processor = await createMarkdownProcessor({ allowedRemoteDomains: ['example.com'] });
+		processor = await createMarkdownProcessor({ image: { domains: ['example.com'] } });
 	});
 
 	it('should collect inline image paths', async () => {

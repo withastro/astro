@@ -1,4 +1,8 @@
-import type { AstroMarkdownOptions, MarkdownProcessor } from './types.js';
+import type {
+	AstroMarkdownOptions,
+	AstroMarkdownProcessorOptions,
+	MarkdownProcessor,
+} from './types.js';
 
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
@@ -27,6 +31,15 @@ export {
 	type ParseFrontmatterOptions,
 	type ParseFrontmatterResult,
 } from './frontmatter.js';
+export {
+	matchPattern,
+	matchPort,
+	matchProtocol,
+	matchHostname,
+	matchPathname,
+	isRemoteAllowed,
+	type RemotePattern,
+} from './remote-pattern.js';
 export {
 	createShikiHighlighter,
 	type ShikiHighlighter,
@@ -59,7 +72,7 @@ const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
  * Create a markdown preprocessor to render multiple markdown files
  */
 export async function createMarkdownProcessor(
-	opts?: AstroMarkdownOptions & { allowedRemoteDomains: string[] },
+	opts?: AstroMarkdownProcessorOptions,
 ): Promise<MarkdownProcessor> {
 	const {
 		syntaxHighlight = markdownConfigDefaults.syntaxHighlight,
@@ -93,7 +106,7 @@ export async function createMarkdownProcessor(
 
 	if (!isPerformanceBenchmark) {
 		// Apply later in case user plugins resolve relative image paths
-		parser.use(remarkCollectImages, { allowedRemoteDomains: opts?.allowedRemoteDomains });
+		parser.use(remarkCollectImages, opts?.image);
 	}
 
 	// Remark -> Rehype

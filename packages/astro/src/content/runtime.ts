@@ -416,8 +416,11 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
 
 			let image: GetImageResult;
-			if (validURL(decodedImagePath.src)) {
+			if (URL.canParse(decodedImagePath.src)) {
 				// Remote image, pass through without resolving import
+				// We know we should resolve this remote image because either:
+				// 1. It was collected with the remark-collect-images plugin, which respects the astro image configuration,
+				// 2. OR it was manually injected by another plugin, and we should respect that.
 				image = await getImage(decodedImagePath);
 			} else {
 				const id = imageSrcToImportId(decodedImagePath.src, fileName);
@@ -451,15 +454,6 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			.map(([key, value]) => (value ? `${key}=${JSON.stringify(String(value))}` : ''))
 			.join(' ');
 	});
-}
-
-function validURL(src: string): boolean {
-	try {
-		new URL(src);
-		return true;
-	} catch {
-		return false;
-	}
 }
 
 function updateImageReferencesInData<T extends Record<string, unknown>>(

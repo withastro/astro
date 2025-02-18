@@ -1,3 +1,4 @@
+import { isRemoteAllowed } from '@astrojs/markdown-remark';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
 import type { AstroConfig } from '../../types/public/config.js';
@@ -9,7 +10,6 @@ import type {
 	UnresolvedSrcSetValue,
 } from '../types.js';
 import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
-import { isRemoteAllowed } from '../utils/remotePattern.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 

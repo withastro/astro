@@ -2,13 +2,12 @@ import type { Root } from 'mdast';
 import { definitions } from 'mdast-util-definitions';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
+import { isRemoteAllowed } from './remote-pattern.js';
+import type { AstroMarkdownProcessorOptions } from './types.js';
 
-interface Opts {
-	allowedRemoteDomains?: string[];
-}
-
-export function remarkCollectImages(opts?: Opts) {
-	const allowedRemoteDomains = new Set(opts?.allowedRemoteDomains ?? []);
+export function remarkCollectImages(opts: AstroMarkdownProcessorOptions['image']) {
+	const domains = opts?.domains ?? [];
+	const remotePatterns = opts?.remotePatterns ?? [];
 
 	return function (tree: Root, vfile: VFile) {
 		if (typeof vfile?.path !== 'string') return;
@@ -29,12 +28,16 @@ export function remarkCollectImages(opts?: Opts) {
 
 			if (!url) return;
 
-			try {
-				const domain = new URL(url).host;
-				if (allowedRemoteDomains.has(domain)) remoteImagePaths.add(url);
-			} catch {
-				// Not a valid remote URL. Check if it's a local image. If it's an absolute path, then it's not.
-				if (!url.startsWith('/')) localImagePaths.add(url);
+			if (URL.canParse(url)) {
+				if (isRemoteAllowed(url, { domains, remotePatterns })) {
+					remoteImagePaths.add(url);
+				}
+			} else if (!url.startsWith('/')) {
+				// If:
+				// + not a valid URL
+				// + AND not an absolute path
+				// Then it's a local image.
+				localImagePaths.add(url);
 			}
 		});
 

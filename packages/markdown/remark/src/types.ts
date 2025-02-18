@@ -40,6 +40,9 @@ export interface ShikiConfig
 	extends Pick<CreateShikiHighlighterOptions, 'langs' | 'theme' | 'themes' | 'langAlias'>,
 		Pick<ShikiHighlighterHighlightOptions, 'defaultColor' | 'wrap' | 'transformers'> {}
 
+/**
+ * Configuration options that end up in the markdown section of AstroConfig
+ */
 export interface AstroMarkdownOptions {
 	syntaxHighlight?: 'shiki' | 'prism' | false;
 	shikiConfig?: ShikiConfig;
@@ -48,6 +51,21 @@ export interface AstroMarkdownOptions {
 	remarkRehype?: RemarkRehype;
 	gfm?: boolean;
 	smartypants?: boolean;
+}
+
+/**
+ * Extra configuration options from other parts of AstroConfig that get injected into this plugin
+ */
+export interface AstroMarkdownProcessorOptions extends AstroMarkdownOptions {
+	image?: {
+		domains?: string[];
+		remotePatterns?: Array<{
+			protocol?: string;
+			hostname?: string;
+			port?: string;
+			pathname?: string;
+		}>;
+	};
 }
 
 export interface MarkdownProcessor {

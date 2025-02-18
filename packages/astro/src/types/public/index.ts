@@ -18,6 +18,7 @@ export type {
 	MarkdownHeading,
 	RehypePlugins,
 	RemarkPlugins,
+	RemotePattern,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 export type {
@@ -35,7 +36,6 @@ export type {
 	ImageTransform,
 	UnresolvedImageTransform,
 } from '../../assets/types.js';
-export type { RemotePattern } from '../../assets/utils/remotePattern.js';
 export type { AssetsPrefix, SSRManifest } from '../../core/app/types.js';
 export type {
 	AstroCookieGetOptions,

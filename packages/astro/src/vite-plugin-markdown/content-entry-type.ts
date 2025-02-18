@@ -19,7 +19,7 @@ export const markdownContentEntryType: ContentEntryType = {
 
 	async getRenderFunction(config) {
 		const processor = await createMarkdownProcessor({
-			allowedRemoteDomains: config.image.domains,
+			image: config.image,
 			...config.markdown,
 		});
 		return async function renderToString(entry) {

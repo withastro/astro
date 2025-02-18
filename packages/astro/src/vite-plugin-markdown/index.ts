@@ -61,7 +61,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				// Lazily initialize the Markdown processor
 				if (!processor) {
 					processor = createMarkdownProcessor({
-						allowedRemoteDomains: settings.config.image.domains,
+						image: settings.config.image,
 						...settings.config.markdown,
 					});
 				}
