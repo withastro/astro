@@ -4,8 +4,6 @@ import { DEFAULTS } from '../constants.js';
 import { fileURLToPath } from 'node:url';
 import { extname } from 'node:path';
 
-// TODO: move this file so it's not publicly exported
-
 // https://fonts.nuxt.com/get-started/providers#local
 // https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
 // https://github.com/unjs/unifont/blob/main/src/providers/google.ts
