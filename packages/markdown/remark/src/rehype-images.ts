@@ -38,7 +38,7 @@ export function rehypeImages() {
 			imageOccurrenceMap.set(node.properties.src, index + 1);
 
 			// Set a special property on the image so later Astro code knows to process this image.
-			node.properties['__ASTRO_IMAGE_'] = JSON.stringify({ ...newProperties, index });
+			node.properties = { __ASTRO_IMAGE_: JSON.stringify({ ...newProperties, index }) };
 		});
 	};
 }
