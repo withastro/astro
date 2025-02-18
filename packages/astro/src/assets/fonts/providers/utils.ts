@@ -4,7 +4,7 @@ import { google } from './google.js';
 import type { FontProvider, ResolvedFontProvider } from '../types.js';
 import { fileURLToPath } from 'node:url';
 
-function resolveEntrypoint(settings: AstroSettings, entrypoint: string): string {
+export function resolveEntrypoint(settings: AstroSettings, entrypoint: string): string {
 	const require = createRequire(settings.config.root);
 
 	try {
@@ -14,7 +14,7 @@ function resolveEntrypoint(settings: AstroSettings, entrypoint: string): string 
 	}
 }
 
-function validateMod(mod: any): Pick<ResolvedFontProvider, 'provider'> {
+export function validateMod(mod: any): Pick<ResolvedFontProvider, 'provider'> {
 	try {
 		if (!mod.provider && typeof mod.provider !== 'function') {
 			// TODO: improve
