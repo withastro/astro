@@ -1,9 +1,9 @@
-import type { Properties } from 'hast';
+import type { Properties, Root } from 'hast';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
 
 export function rehypeImages() {
-	return function (tree: any, file: VFile) {
+	return function (tree: Root, file: VFile) {
 		if (!file.data.astro?.localImagePaths?.length && !file.data.astro?.remoteImagePaths?.length) {
 			// No images to transform, nothing to do.
 			return;
@@ -13,7 +13,7 @@ export function rehypeImages() {
 
 		visit(tree, 'element', (node) => {
 			if (node.tagName !== 'img') return;
-			if (!node.properties?.src) return;
+			if (typeof node.properties?.src !== 'string') return;
 
 			const src = decodeURI(node.properties.src);
 			let newProperties: Properties;
