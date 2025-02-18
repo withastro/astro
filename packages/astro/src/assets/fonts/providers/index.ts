@@ -38,6 +38,7 @@ export const fontProviders = {
 	fontsource,
 };
 
+/** TODO: jsdoc */
 export function defineFontProvider<TName extends string>(provider: FontProvider<TName>) {
 	return provider;
 }
