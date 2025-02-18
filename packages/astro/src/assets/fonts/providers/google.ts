@@ -1,7 +1,4 @@
-import { defineFontProvider } from '../helpers.js';
-import { providers } from 'unifont';
-
-type Provider = typeof providers.google;
+import { defineFontProvider } from './index.js';
 
 export const GOOGLE_PROVIDER_NAME = 'google';
 
@@ -14,5 +11,3 @@ export function google() {
 		entrypoint: 'astro/assets/fonts/providers/google',
 	});
 }
-
-export const provider: Provider = providers.google;

@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
-import { resolveProviders } from './providers.js';
+import { resolveProviders, type ResolveMod } from './providers/utils.js';
 import * as unifont from 'unifont';
 import type { FontFamily, FontProvider } from './types.js';
 import xxhash from 'xxhash-wasm';
@@ -20,7 +20,6 @@ import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
 import { createCache, type Cache } from './cache.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import type { ModuleLoader } from '../../core/module-loader/loader.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
 import { createLocalProvider, LOCAL_PROVIDER_NAME } from './providers/local.js';
 import { readFile } from 'node:fs/promises';
@@ -148,13 +147,13 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 	let isBuild: boolean;
 	let cache: Cache['cache'] | null = null;
 
-	async function initialize(moduleLoader?: ModuleLoader) {
+	async function initialize({ resolveMod }: { resolveMod: ResolveMod }) {
 		const { h64ToString } = await xxhash();
 
 		const resolved = await resolveProviders({
 			settings,
 			providers,
-			moduleLoader,
+			resolveMod,
 		});
 
 		const storage = createStorage({
@@ -245,12 +244,16 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 		},
 		async buildStart() {
 			if (isBuild) {
-				await initialize();
+				await initialize({
+					resolveMod: (id) => import(id),
+				});
 			}
 		},
 		async configureServer(server) {
 			const moduleLoader = createViteLoader(server);
-			await initialize(moduleLoader);
+			await initialize({
+				resolveMod: (id) => moduleLoader.import(id),
+			});
 
 			const logManager = createLogManager(logger);
 			// Base is taken into account by default. The prefix contains a traling slash,

@@ -1,9 +1,8 @@
 import { createRequire } from 'node:module';
-import type { AstroSettings } from '../../types/astro.js';
-import { google } from './providers/google.js';
-import type { FontProvider, ResolvedFontProvider } from './types.js';
+import type { AstroSettings } from '../../../types/astro.js';
+import { google } from './google.js';
+import type { FontProvider, ResolvedFontProvider } from '../types.js';
 import { fileURLToPath } from 'node:url';
-import type { ModuleLoader } from '../../core/module-loader/loader.js';
 
 function resolveEntrypoint(settings: AstroSettings, entrypoint: string): string {
 	const require = createRequire(settings.config.root);
@@ -15,12 +14,8 @@ function resolveEntrypoint(settings: AstroSettings, entrypoint: string): string 
 	}
 }
 
-async function resolveMod(
-	id: string,
-	moduleLoader?: ModuleLoader,
-): Promise<Pick<ResolvedFontProvider, 'provider'>> {
+function validateMod(mod: any): Pick<ResolvedFontProvider, 'provider'> {
 	try {
-		const mod = await (moduleLoader ? moduleLoader.import(id) : import(id));
 		if (!mod.provider && typeof mod.provider !== 'function') {
 			// TODO: improve
 			throw new Error('Not a function');
@@ -34,21 +29,24 @@ async function resolveMod(
 	}
 }
 
+export type ResolveMod = (id: string) => Promise<any>;
+
 export async function resolveProviders({
 	settings,
 	providers: _providers,
-	moduleLoader,
+	resolveMod,
 }: {
 	settings: AstroSettings;
 	providers: Array<FontProvider<any>>;
-	moduleLoader?: ModuleLoader;
+	resolveMod: ResolveMod;
 }): Promise<Array<ResolvedFontProvider>> {
 	const providers = [google(), ..._providers];
 	const resolvedProviders: Array<ResolvedFontProvider> = [];
 
 	for (const { name, entrypoint, config } of providers) {
 		const id = resolveEntrypoint(settings, entrypoint.toString());
-		const { provider } = await resolveMod(id, moduleLoader);
+		const mod = await resolveMod(id);
+		const { provider } = validateMod(mod);
 		resolvedProviders.push({ name, config, provider });
 	}
 
