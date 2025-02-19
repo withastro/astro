@@ -2,19 +2,18 @@ import type { Plugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import { resolveProviders, type ResolveMod } from './providers/utils.js';
 import * as unifont from 'unifont';
-import type { FontFamily, FontProvider } from './types.js';
+import type { FontFamily, FontProvider, FontType } from './types.js';
 import xxhash from 'xxhash-wasm';
 import { extname, isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { generateFontFace } from './utils.js';
+import { extractFontType, generateFontFace } from './utils.js';
 import {
 	DEFAULTS,
 	VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	URL_PREFIX,
 	CACHE_DIR,
-	FONT_TYPES,
 } from './constants.js';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
@@ -44,7 +43,7 @@ type PreloadData = Array<{
 	/**
 	 * A font type, eg. woff2, woff, ttf...
 	 */
-	type: string;
+	type: FontType;
 }>;
 
 /**
@@ -190,15 +189,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 				const url = baseUrl + hash;
 				if (!hashToUrlMap!.has(hash)) {
 					hashToUrlMap!.set(hash, value);
-					const segments = hash.split('.');
-					// It's safe, there's at least 1 member in the array
-					const type = segments.at(-1)!;
-					if (segments.length === 1 || !FONT_TYPES.includes(type)) {
-						// TODO: AstroError
-						throw new Error("can't extract type from filename");
-					}
-					// TODO: investigate if the extension matches the type, see https://github.com/unjs/unifont/blob/fd3828f6f809f54a188a9eb220e7eb99b3ec3960/src/css/parse.ts#L15-L22
-					preloadData.push({ url, type });
+					preloadData.push({ url, type: extractFontType(hash) });
 				}
 				// Now that we collected the original url, we override it with our proxy
 				return url;
