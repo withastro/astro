@@ -15,10 +15,12 @@ export type { AstroIntegrationLogger } from '../../core/logger/core.js';
 export type { ToolbarServerHelpers } from '../../runtime/client/dev-toolbar/helpers.js';
 
 export type {
+	RemotePattern,
+} from '@astrojs/internal-helpers/remote';
+export type {
 	MarkdownHeading,
 	RehypePlugins,
 	RemarkPlugins,
-	RemotePattern,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 export type {

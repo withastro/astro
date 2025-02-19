@@ -3,6 +3,7 @@ import type * as mdast from 'mdast';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { BuiltinTheme } from 'shiki';
 import type * as unified from 'unified';
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type { CreateShikiHighlighterOptions, ShikiHighlighterHighlightOptions } from './shiki.js';
 
 export type { Node } from 'unist';
@@ -59,12 +60,7 @@ export interface AstroMarkdownOptions {
 export interface AstroMarkdownProcessorOptions extends AstroMarkdownOptions {
 	image?: {
 		domains?: string[];
-		remotePatterns?: Array<{
-			protocol?: string;
-			hostname?: string;
-			port?: string;
-			pathname?: string;
-		}>;
+		remotePatterns?: RemotePattern[];
 	};
 }
 

@@ -1,4 +1,4 @@
-import { isRemoteAllowed } from '@astrojs/markdown-remark';
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
 import type { AstroConfig } from '../../types/public/config.js';

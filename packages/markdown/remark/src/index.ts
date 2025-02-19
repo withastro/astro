@@ -32,15 +32,6 @@ export {
 	type ParseFrontmatterResult,
 } from './frontmatter.js';
 export {
-	matchPattern,
-	matchPort,
-	matchProtocol,
-	matchHostname,
-	matchPathname,
-	isRemoteAllowed,
-	type RemotePattern,
-} from './remote-pattern.js';
-export {
 	createShikiHighlighter,
 	type ShikiHighlighter,
 	type CreateShikiHighlighterOptions,

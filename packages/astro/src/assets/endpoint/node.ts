@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 // @ts-expect-error
 import { assetsDir, imageConfig, outDir } from 'astro:assets';
 import { isRemotePath, removeQueryString } from '@astrojs/internal-helpers/path';
-import { isRemoteAllowed } from '@astrojs/markdown-remark';
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import * as mime from 'mrmime';
 import type { APIRoute } from '../../types/public/common.js';
 import { getConfiguredImageService } from '../internal.js';

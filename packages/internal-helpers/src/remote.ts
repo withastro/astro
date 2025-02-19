@@ -1,5 +1,3 @@
-import type { AstroMarkdownProcessorOptions } from './types.js';
-
 export type RemotePattern = {
 	hostname?: string;
 	pathname?: string;
@@ -24,19 +22,25 @@ export function matchProtocol(url: URL, protocol?: string) {
 	return !protocol || protocol === url.protocol.slice(0, -1);
 }
 
-export function matchHostname(url: URL, hostname?: string, allowWildcard?: boolean) {
+export function matchHostname(
+	url: URL,
+	hostname?: string,
+	allowWildcard?: boolean,
+) {
 	if (!hostname) {
 		return true;
-	} else if (!allowWildcard || !hostname.startsWith('*')) {
+	} else if (!allowWildcard || !hostname.startsWith("*")) {
 		return hostname === url.hostname;
-	} else if (hostname.startsWith('**.')) {
+	} else if (hostname.startsWith("**.")) {
 		const slicedHostname = hostname.slice(2); // ** length
-		return slicedHostname !== url.hostname && url.hostname.endsWith(slicedHostname);
-	} else if (hostname.startsWith('*.')) {
+		return (
+			slicedHostname !== url.hostname && url.hostname.endsWith(slicedHostname)
+		);
+	} else if (hostname.startsWith("*.")) {
 		const slicedHostname = hostname.slice(1); // * length
 		const additionalSubdomains = url.hostname
-			.replace(slicedHostname, '')
-			.split('.')
+			.replace(slicedHostname, "")
+			.split(".")
 			.filter(Boolean);
 		return additionalSubdomains.length === 1;
 	}
@@ -44,19 +48,25 @@ export function matchHostname(url: URL, hostname?: string, allowWildcard?: boole
 	return false;
 }
 
-export function matchPathname(url: URL, pathname?: string, allowWildcard?: boolean) {
+export function matchPathname(
+	url: URL,
+	pathname?: string,
+	allowWildcard?: boolean,
+) {
 	if (!pathname) {
 		return true;
-	} else if (!allowWildcard || !pathname.endsWith('*')) {
+	} else if (!allowWildcard || !pathname.endsWith("*")) {
 		return pathname === url.pathname;
-	} else if (pathname.endsWith('/**')) {
+	} else if (pathname.endsWith("/**")) {
 		const slicedPathname = pathname.slice(0, -2); // ** length
-		return slicedPathname !== url.pathname && url.pathname.startsWith(slicedPathname);
-	} else if (pathname.endsWith('/*')) {
+		return (
+			slicedPathname !== url.pathname && url.pathname.startsWith(slicedPathname)
+		);
+	} else if (pathname.endsWith("/*")) {
 		const slicedPathname = pathname.slice(0, -1); // * length
 		const additionalPathChunks = url.pathname
-			.replace(slicedPathname, '')
-			.split('/')
+			.replace(slicedPathname, "")
+			.split("/")
 			.filter(Boolean);
 		return additionalPathChunks.length === 1;
 	}
@@ -69,8 +79,15 @@ export function isRemoteAllowed(
 	{
 		domains,
 		remotePatterns,
-	}: Required<Pick<Required<AstroMarkdownProcessorOptions>['image'], 'domains' | 'remotePatterns'>>,
+	}: {
+		domains: string[];
+		remotePatterns: RemotePattern[];
+	},
 ): boolean {
+	if (!URL.canParse(src)) {
+		return false;
+	}
+
 	const url = new URL(src);
 	return (
 		domains.some((domain) => matchHostname(url, domain)) ||
