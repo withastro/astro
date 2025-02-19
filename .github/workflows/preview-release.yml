@@ -2,6 +2,7 @@ name: Preview release
 
 on:
   pull_request:
+    branches: [main]
     types: [labeled]
 
 concurrency:
@@ -24,7 +25,7 @@ env:
 jobs:
   preview:
     if: |
-      ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && contains(github.event.pull_request.labels.*.name, 'pr: preview') }}
+      ${{ github.repository_owner == 'withastro' && contains(github.event.pull_request.labels.*.name, 'pr: preview') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -77,4 +78,4 @@ jobs:
   
       - name: Publish packages
         run: |
-          pnpx pkg-pr-new publish --pnpm --compact 'packages/astro' 'packages/integrations/node' 'packages/integrations/cloudflare' 'packages/integrations/netlify' 'packages/integrations/vercel' 
+          pnpx pkg-pr-new publish --pnpm --compact --no-template 'packages/astro' 'packages/integrations/node' 'packages/integrations/cloudflare' 'packages/integrations/netlify' 'packages/integrations/vercel' 
