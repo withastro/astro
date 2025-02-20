@@ -2,4 +2,4 @@
 '@astrojs/upgrade': minor
 ---
 
-The library is now able to identify `bun` as preferred package manager.
+Adds the ability to identify `bun` as the preferred package manager.
