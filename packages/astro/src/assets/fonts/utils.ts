@@ -1,4 +1,7 @@
 import type * as unifont from 'unifont';
+import type { FontType } from './types.js';
+import { extname } from 'node:path';
+import { FONT_TYPES } from './constants.js';
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
@@ -36,4 +39,18 @@ function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], str
 			return `local("${src.name}")`;
 		})
 		.join(', ');
+}
+
+export function extractFontType(str: string): FontType {
+	// Extname includes a leading dot
+	const extension = extname(str).slice(1);
+	if (!isFontType(extension)) {
+		// TODO: AstroError
+		throw new Error("Can't extract font type");
+	}
+	return extension;
+}
+
+export function isFontType(str: string): str is FontType {
+	return (FONT_TYPES as Readonly<Array<string>>).includes(str);
 }

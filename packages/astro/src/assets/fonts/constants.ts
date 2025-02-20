@@ -18,4 +18,4 @@ export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 export const URL_PREFIX = '/_astro/fonts/';
 export const CACHE_DIR = './fonts/';
 
-export const FONT_TYPES = ['woff2', 'woff', 'otf', 'ttf', 'eot'];
+export const FONT_TYPES = ['woff2', 'woff', 'otf', 'ttf', 'eot'] as const;

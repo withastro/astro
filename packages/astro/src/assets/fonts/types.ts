@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { BUILTIN_PROVIDERS } from './constants.js';
+import type { BUILTIN_PROVIDERS, FONT_TYPES } from './constants.js';
 import type { GOOGLE_PROVIDER_NAME } from './providers/google.js';
 import type { LOCAL_PROVIDER_NAME } from './providers/local.js';
 import type * as unifont from 'unifont';
@@ -42,3 +42,5 @@ export type FontFamily<TProvider extends string> = TProvider extends LocalProvid
 export type LocalProviderName = typeof LOCAL_PROVIDER_NAME;
 export type GoogleProviderName = typeof GOOGLE_PROVIDER_NAME;
 export type BuiltInProvider = (typeof BUILTIN_PROVIDERS)[number];
+
+export type FontType = (typeof FONT_TYPES)[number];
