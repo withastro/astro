@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Ensures consistent behaviour of Astro.rewrite when using base and trailingSlash options.
+Ensures consistent behaviour of `Astro.rewrite`/`ctx.rewrite` when using `base` and `trailingSlash` options.
