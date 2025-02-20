@@ -26,7 +26,7 @@ import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
-import { resolveLocalFont, LOCAL_PROVIDER_NAME } from './providers/local.js';
+import { resolveLocalFont, LOCAL_PROVIDER_NAME, LocalFontsWatcher } from './providers/local.js';
 import { readFile } from 'node:fs/promises';
 import { createStorage } from 'unstorage';
 import fsLiteDriver from 'unstorage/drivers/fs-lite';
@@ -153,7 +153,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let isBuild: boolean;
 	let cache: CacheHandler | null = null;
 
-	async function initialize({ resolveMod }: { resolveMod: ResolveMod }) {
+	async function initialize({ resolveMod, base }: { resolveMod: ResolveMod; base: URL }) {
 		const { h64ToString } = await xxhash();
 
 		const resolved = await resolveProviders({
@@ -164,12 +164,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 		const storage = createStorage({
 			driver: (fsLiteDriver as unknown as typeof fsLiteDriver.default)({
-				base: fileURLToPath(
-					// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
-					isBuild
-						? new URL(CACHE_DIR, settings.config.cacheDir)
-						: new URL(CACHE_DIR, settings.dotAstroDir),
-				),
+				base: fileURLToPath(base),
 			}),
 		});
 
@@ -266,14 +261,28 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			if (isBuild) {
 				await initialize({
 					resolveMod: (id) => import(id),
+					base: new URL(CACHE_DIR, settings.config.cacheDir),
 				});
 			}
 		},
 		async configureServer(server) {
+			const localFontsWatcher = new LocalFontsWatcher();
+			localFontsWatcher.update = () => {
+				logger.info('assets', 'Font file updated');
+				server.restart();
+			};
 			const moduleLoader = createViteLoader(server);
 			await initialize({
 				resolveMod: (id) => moduleLoader.import(id),
+				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
+				base: new URL(CACHE_DIR, settings.dotAstroDir),
 			});
+			if (hashToUrlMap) {
+				localFontsWatcher.getPaths = () =>
+					[...hashToUrlMap!.values()].filter((url) => isAbsolute(url));
+			}
+			server.watcher.on('change', (path) => localFontsWatcher.onUpdate(path));
+			server.watcher.on('unlink', (path) => localFontsWatcher.onUnlink(path));
 
 			const logManager = createLogManager(logger);
 			// Base is taken into account by default. The prefix contains a traling slash,

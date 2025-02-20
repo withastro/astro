@@ -50,3 +50,26 @@ export function resolveLocalFont(
 		fonts,
 	};
 }
+
+export class LocalFontsWatcher {
+	getPaths: (() => Array<string>) | null = null;
+	update: (() => void) | null = null;
+
+	#matches(path: string): boolean {
+		return this.getPaths?.().includes(path) ?? false;
+	}
+
+	onUpdate(path: string) {
+		if (!this.#matches(path)) {
+			return;
+		}
+		this.update?.();
+	}
+	onUnlink(path: string) {
+		if (!this.#matches(path)) {
+			return;
+		}
+		// TODO: improve
+		throw new Error('File used for font deleted. Restore it or update your config');
+	}
+}
