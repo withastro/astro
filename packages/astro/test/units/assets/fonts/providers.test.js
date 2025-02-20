@@ -9,7 +9,7 @@ import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entryp
 import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
 import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontsource.js';
 import { validateMod, resolveProviders } from '../../../../dist/assets/fonts/providers/utils.js';
-import { createURLProxy } from '../../../../dist/assets/fonts/utils.js';
+import { proxyURL } from '../../../../dist/assets/fonts/utils.js';
 import { basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -21,15 +21,17 @@ function resolveLocalFontSpy(family, root) {
 	/** @type {Array<string>} */
 	const values = [];
 
-	const proxyURL = createURLProxy({
-		hashString: (value) => basename(value, extname(value)),
-		collect: ({ hash, value }) => {
-			values.push(value);
-			return `/_astro/fonts/${hash}`;
-		},
+	const { fonts } = resolveLocalFont(family, {
+		proxyURL: (v) =>
+			proxyURL(v, {
+				hashString: (value) => basename(value, extname(value)),
+				collect: ({ hash, value }) => {
+					values.push(value);
+					return `/_astro/fonts/${hash}`;
+				},
+			}),
+		root,
 	});
-
-	const { fonts } = resolveLocalFont(family, { proxyURL, root });
 
 	return {
 		fonts,

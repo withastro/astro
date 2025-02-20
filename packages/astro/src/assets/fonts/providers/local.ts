@@ -2,7 +2,7 @@ import type * as unifont from 'unifont';
 import type { LocalFontFamily } from '../types.js';
 import { DEFAULTS } from '../constants.js';
 import { fileURLToPath } from 'node:url';
-import { extractFontType, type URLProxy } from '../utils.js';
+import { extractFontType } from '../utils.js';
 
 // https://fonts.nuxt.com/get-started/providers#local
 // https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
@@ -16,7 +16,7 @@ type ResolveFontResult = NonNullable<Awaited<ReturnType<InitializedProvider['res
 
 interface ResolveOptions {
 	root: URL;
-	proxyURL: URLProxy;
+	proxyURL: (value: string) => string;
 }
 
 // TODO: dev watcher and ways to update during dev

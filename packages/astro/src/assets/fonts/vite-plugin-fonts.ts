@@ -6,13 +6,14 @@ import type { FontFamily, FontProvider, FontType } from './types.js';
 import xxhash from 'xxhash-wasm';
 import { isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import {
 	generateFontFace,
 	createCache,
 	type CacheHandler,
-	createURLProxy,
+	proxyURL,
 	extractFontType,
+	type ProxyURLOptions,
 } from './utils.js';
 import {
 	DEFAULTS,
@@ -186,17 +187,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const preloadData: PreloadData = [];
 		let css = '';
 
-		const proxyURL = createURLProxy({
-			hashString: h64ToString,
-			collect: ({ hash, type, value }) => {
-				const url = baseUrl + hash;
-				if (!hashToUrlMap!.has(hash)) {
-					hashToUrlMap!.set(hash, value);
-					preloadData.push({ url, type });
-				}
-				return url;
-			},
-		});
+		const collect: ProxyURLOptions['collect'] = ({ hash, type, value }) => {
+			const url = baseUrl + hash;
+			if (!hashToUrlMap!.has(hash)) {
+				hashToUrlMap!.set(hash, value);
+				preloadData.push({ url, type });
+			}
+			return url;
+		};
 
 		// TODO: investigate using fontaine for fallbacks
 		for (const family of families) {
@@ -206,7 +204,20 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 			if (family.provider === LOCAL_PROVIDER_NAME) {
 				const { fonts, fallbacks } = resolveLocalFont(family, {
-					proxyURL,
+					proxyURL: (value) => {
+						return proxyURL(value, {
+							hashString: (v) => {
+								let content: string;
+								try {
+									content = readFileSync(value, 'utf-8');
+								} catch (e) {
+									throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+								}
+								return h64ToString(v + content);
+							},
+							collect,
+						});
+					},
 					root: settings.config.root,
 				});
 				for (const data of fonts) {
@@ -232,7 +243,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						if ('name' in source) {
 							continue;
 						}
-						source.url = proxyURL(source.url);
+						source.url = proxyURL(source.url, {
+							hashString: h64ToString,
+							collect,
+						});
 					}
 					// TODO: support optional as prop
 					css += generateFontFace(family.name, data);
