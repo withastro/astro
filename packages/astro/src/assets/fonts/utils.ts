@@ -77,7 +77,11 @@ export type CacheHandler = ReturnType<typeof createCache>;
 /**
  * The fonts data we receive contains urls or file paths we do no control.
  * However, we will emit font files ourselves so we store the original value
- * and replace it with a url we control
+ * and replace it with a url we control. For example with the value "https://foo.bar/file.woff2":
+ * - font type is woff2
+ * - hash will be "<hash>.woff2"
+ * - `collect` will save the association of the original url and the new hash for later use
+ * - the returned url will be `/_astro/fonts/<hash>.woff2`
  */
 export function createURLProxy({
 	hashString,
