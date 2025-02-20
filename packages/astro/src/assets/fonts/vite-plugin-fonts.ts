@@ -7,7 +7,13 @@ import xxhash from 'xxhash-wasm';
 import { isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { generateFontFace, createCache, type CacheHandler, createURLProxy } from './utils.js';
+import {
+	generateFontFace,
+	createCache,
+	type CacheHandler,
+	createURLProxy,
+	extractFontType,
+} from './utils.js';
 import {
 	DEFAULTS,
 	VIRTUAL_MODULE_ID,
@@ -274,16 +280,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				const { cached, data } = await cache!(hash, () => fetchFont(url));
 				logManager.remove(hash, cached);
 
-				// TODO: add cache control back
-				// TODO: set content type and cache control manually
-				// const keys = ['cache-control', 'content-type', 'content-length'];
-				// const keys = ['content-type', 'content-length'];
-				// for (const key of keys) {
-				// 	const value = response.headers.get(key);
-				// 	if (value) {
-				// 		res.setHeader(key, value);
-				// 	}
-				// }
+				res.setHeader('Content-Length', data.length);
+				res.setHeader('Content-Type', `font/${extractFontType(hash)}`);
+				// We don't want the request to be cached in dev because we cache it already internally,
+				// and it makes it easier to debug without needing hard refreshes
+				res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+				res.setHeader('Pragma', 'no-cache');
+				res.setHeader('Expires', 0);
+
 				res.end(data);
 			});
 		},
