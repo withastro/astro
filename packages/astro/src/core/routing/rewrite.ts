@@ -5,7 +5,12 @@ import { shouldAppendForwardSlash } from '../build/util.js';
 import { originPathnameSymbol } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { appendForwardSlash, removeTrailingForwardSlash, joinPaths, prependForwardSlash } from '../path.js';
+import {
+	appendForwardSlash,
+	joinPaths,
+	prependForwardSlash,
+	removeTrailingForwardSlash,
+} from '../path.js';
 import { createRequest } from '../request.js';
 import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';
 
@@ -23,7 +28,6 @@ export interface FindRouteToRewriteResult {
 	newUrl: URL;
 	pathname: string;
 }
-
 
 /**
  * Shared logic to retrieve the rewritten route. It returns a tuple that represents:
@@ -60,13 +64,13 @@ export function findRouteToRewrite({
 
 	if (!pathname.startsWith('/') && shouldAppendSlash && newUrl.pathname.endsWith('/')) {
 		// when base is in the rewrite call and trailingSlash is 'always' this is needed or it will 404.
-		pathname = prependForwardSlash(pathname)
+		pathname = prependForwardSlash(pathname);
 	}
 
 	if (pathname === '/' && base !== '/' && !shouldAppendSlash) {
 		// when rewriting to index and trailingSlash is 'never' this is needed or it will 404
 		// in this case the pattern will look for '/^$/' so '/' will never match
-		pathname = ''
+		pathname = '';
 	}
 
 	newUrl.pathname = joinPaths(...[base, pathname].filter(Boolean));
@@ -151,4 +155,3 @@ export function getOriginPathname(request: Request): string {
 	}
 	return new URL(request.url).pathname;
 }
-

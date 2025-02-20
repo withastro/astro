@@ -103,7 +103,6 @@ describe('Dev rewrite, trailing slash -> never, with base', () => {
 		await devServer.stop();
 	});
 
-
 	it('should rewrite to the homepage', async () => {
 		const html = await fixture.fetch('/base/foo').then((res) => res.text());
 		const $ = cheerioLoad(html);
@@ -208,7 +207,7 @@ describe('Dev rewrite URL contains base and has no trailing slash', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/rewrite-with-base/',
-			trailingSlash: 'never'
+			trailingSlash: 'never',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -217,40 +216,40 @@ describe('Dev rewrite URL contains base and has no trailing slash', () => {
 		await devServer.stop();
 	});
 
-	it("should rewrite to homepage & url contains base", async () => {
-		const html = await fixture.fetch('/base/rewrite-to-index').then(res => res.text())
-		const $ = cheerioLoad(html)
+	it('should rewrite to homepage & url contains base', async () => {
+		const html = await fixture.fetch('/base/rewrite-to-index').then((res) => res.text());
+		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 		assert.equal($('p').text(), '/base');
-	})
+	});
 
-	it("should rewrite to homepage & url contains base when base is in the rewrite call", async () => {
-		const html = await fixture.fetch('/base/rewrite-with-base-to-index').then(res => res.text())
-		const $ = cheerioLoad(html)
+	it('should rewrite to homepage & url contains base when base is in the rewrite call', async () => {
+		const html = await fixture.fetch('/base/rewrite-with-base-to-index').then((res) => res.text());
+		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 		assert.equal($('p').text(), '/base');
-	})
+	});
 
-	it("should rewrite to subpage & url contains base", async () => {
-		const html = await fixture.fetch('/base/rewrite-to-subpage').then(res => res.text())
-		const $ = cheerioLoad(html)
-
-		assert.equal($('h1').text(), 'Page');
-		assert.equal($('p').text(), '/base/page');
-	})
-
-
-	it("should rewrite to page & url contains base when base is in the rewrite call", async () => {
-		const html = await fixture.fetch('/base/rewrite-with-base-to-subpage').then(res => res.text())
-		const $ = cheerioLoad(html)
+	it('should rewrite to subpage & url contains base', async () => {
+		const html = await fixture.fetch('/base/rewrite-to-subpage').then((res) => res.text());
+		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Page');
 		assert.equal($('p').text(), '/base/page');
-	})
+	});
 
-})
+	it('should rewrite to page & url contains base when base is in the rewrite call', async () => {
+		const html = await fixture
+			.fetch('/base/rewrite-with-base-to-subpage')
+			.then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Page');
+		assert.equal($('p').text(), '/base/page');
+	});
+});
 describe('Dev rewrite URL contains base and has trailing slash', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -259,7 +258,7 @@ describe('Dev rewrite URL contains base and has trailing slash', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/rewrite-with-base/',
-			trailingSlash: 'always'
+			trailingSlash: 'always',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -268,33 +267,36 @@ describe('Dev rewrite URL contains base and has trailing slash', () => {
 		await devServer.stop();
 	});
 
-	it("should rewrite to homepage & url contains base when base is in the rewrite call", async () => {
-		const html = await fixture.fetch('/base/rewrite-with-base-to-index-with-slash/').then(res => res.text())
-		const $ = cheerioLoad(html)
+	it('should rewrite to homepage & url contains base when base is in the rewrite call', async () => {
+		const html = await fixture
+			.fetch('/base/rewrite-with-base-to-index-with-slash/')
+			.then((res) => res.text());
+		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 		assert.equal($('p').text(), '/base/');
-	})
+	});
 
-	it("should rewrite to subpage & url contains base", async () => {
-		const html = await fixture.fetch('/base/rewrite-to-subpage-with-slash/').then(res => res.text())
-		const $ = cheerioLoad(html)
-
-		assert.equal($('h1').text(), 'Page');
-		assert.equal($('p').text(), '/base/page/');
-	})
-
-
-	it("should rewrite to page & url contains base when base is in the rewrite call", async () => {
-		const html = await fixture.fetch('/base/rewrite-with-base-to-subpage-with-slash/').then(res => res.text())
-		const $ = cheerioLoad(html)
+	it('should rewrite to subpage & url contains base', async () => {
+		const html = await fixture
+			.fetch('/base/rewrite-to-subpage-with-slash/')
+			.then((res) => res.text());
+		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Page');
 		assert.equal($('p').text(), '/base/page/');
-	})
+	});
 
-})
+	it('should rewrite to page & url contains base when base is in the rewrite call', async () => {
+		const html = await fixture
+			.fetch('/base/rewrite-with-base-to-subpage-with-slash/')
+			.then((res) => res.text());
+		const $ = cheerioLoad(html);
 
+		assert.equal($('h1').text(), 'Page');
+		assert.equal($('p').text(), '/base/page/');
+	});
+});
 
 describe('Build reroute', () => {
 	/** @type {import('./test-utils').Fixture} */
