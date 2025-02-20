@@ -1,7 +1,12 @@
 // @ts-check
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { isFontType, extractFontType, createCache } from '../../../../dist/assets/fonts/utils.js';
+import {
+	isFontType,
+	extractFontType,
+	createCache,
+	createURLProxy,
+} from '../../../../dist/assets/fonts/utils.js';
 
 function createSpyCache() {
 	/** @type {Map<string, Buffer>} */
@@ -30,6 +35,29 @@ function createSpyCache() {
 	);
 
 	return { cache, getKeys: () => Array.from(store.keys()) };
+}
+
+/**
+ *
+ * @param {string} id
+ * @param {string} value
+ */
+function proxyURLSpy(id, value) {
+	/** @type {Parameters<Parameters<typeof createURLProxy>[0]['collect']>[0]} */
+	let collected = /** @type {any} */ (undefined);
+	const proxyURL = createURLProxy({
+		hashString: () => id,
+		collect: (data) => {
+			collected = data;
+			return 'base/' + data.hash;
+		},
+	});
+	const url = proxyURL(value);
+
+	return {
+		url,
+		collected,
+	};
 }
 
 describe('fonts utils', () => {
@@ -92,5 +120,27 @@ describe('fonts utils', () => {
 		assert.equal(res.data, buffer);
 
 		assert.deepStrictEqual(getKeys(), ['foo']);
+	});
+
+	it('createURLProxy()', () => {
+		let { url, collected } = proxyURLSpy(
+			'foo',
+			'https://fonts.gstatic.com/s/roboto/v47/KFO5CnqEu92Fr1Mu53ZEC9_Vu3r1gIhOszmkC3kaSTbQWt4N.woff2',
+		);
+		assert.equal(url, 'base/foo.woff2');
+		assert.deepStrictEqual(collected, {
+			hash: 'foo.woff2',
+			type: 'woff2',
+			value:
+				'https://fonts.gstatic.com/s/roboto/v47/KFO5CnqEu92Fr1Mu53ZEC9_Vu3r1gIhOszmkC3kaSTbQWt4N.woff2',
+		});
+
+		({ url, collected } = proxyURLSpy('bar', '/home/documents/project/font.ttf'));
+		assert.equal(url, 'base/bar.ttf');
+		assert.deepStrictEqual(collected, {
+			hash: 'bar.ttf',
+			type: 'ttf',
+			value: '/home/documents/project/font.ttf',
+		});
 	});
 });

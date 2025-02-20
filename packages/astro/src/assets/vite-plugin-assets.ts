@@ -19,7 +19,7 @@ import { emitESMImage } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
-import { fonts } from './fonts/vite-plugin-fonts.js';
+import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
 import type { Logger } from '../core/logger/core.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -252,6 +252,6 @@ export default function assets({ settings, sync, logger }: Options): vite.Plugin
 				}
 			},
 		},
-		fonts({ settings, sync, logger }),
+		fontsPlugin({ settings, sync, logger }),
 	];
 }

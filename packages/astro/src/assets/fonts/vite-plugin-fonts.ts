@@ -4,10 +4,10 @@ import { resolveProviders, type ResolveMod } from './providers/utils.js';
 import * as unifont from 'unifont';
 import type { FontFamily, FontProvider, FontType } from './types.js';
 import xxhash from 'xxhash-wasm';
-import { extname, isAbsolute } from 'node:path';
+import { isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { extractFontType, generateFontFace, createCache, type CacheHandler } from './utils.js';
+import { generateFontFace, createCache, type CacheHandler, createURLProxy } from './utils.js';
 import {
 	DEFAULTS,
 	VIRTUAL_MODULE_ID,
@@ -110,7 +110,7 @@ async function fetchFont(url: string): Promise<Buffer> {
 	}
 }
 
-export function fonts({ settings, sync, logger }: Options): Plugin {
+export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	if (!settings.config.experimental.fonts) {
 		// this is required because the virtual module does not exist
 		// when fonts are not enabled, and that prevents rollup from building
@@ -172,58 +172,65 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			resolved.map((e) => e.provider(e.config)),
 			{ storage },
 		);
+		const { resolveFont: resolveLocalFont } = createLocalProvider({ root: settings.config.root });
 
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory
 		resolvedMap = new Map();
 		hashToUrlMap = new Map();
+		const preloadData: PreloadData = [];
+		let css = '';
 
-		const { resolveFont: resolveLocalFont } = createLocalProvider({ root: settings.config.root });
-		// TODO: investigate using fontaine for fallbacks
-		for (const family of families) {
-			const preloadData: PreloadData = [];
-			let css = '';
-
-			function proxySourceURL(value: string) {
-				const hash = h64ToString(value) + extname(value);
+		const proxyURL = createURLProxy({
+			hashString: h64ToString,
+			collect: ({ hash, type, value }) => {
 				const url = baseUrl + hash;
 				if (!hashToUrlMap!.has(hash)) {
 					hashToUrlMap!.set(hash, value);
-					preloadData.push({ url, type: extractFontType(hash) });
+					preloadData.push({ url, type });
 				}
-				// Now that we collected the original url, we override it with our proxy
 				return url;
-			}
+			},
+		});
+
+		// TODO: investigate using fontaine for fallbacks
+		for (const family of families) {
+			// Reset
+			preloadData.length = 0;
+			css = '';
 
 			if (family.provider === LOCAL_PROVIDER_NAME) {
-				const { fonts: fontsData, fallbacks } = await resolveLocalFont(family, { proxySourceURL });
-				for (const data of fontsData) {
+				const { fonts, fallbacks } = await resolveLocalFont(family, { proxyURL });
+				for (const data of fonts) {
 					css += generateFontFace(family.name, data);
 				}
 			} else {
-				const { fonts: fontsData, fallbacks } = await resolveFont(
+				const { fonts, fallbacks } = await resolveFont(
 					family.name,
+					// We do not merge the defaults, we only provide defaults as a fallback
 					{
 						weights: family.weights ?? DEFAULTS.weights,
 						styles: family.styles ?? DEFAULTS.styles,
 						subsets: family.subsets ?? DEFAULTS.subsets,
 						fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
 					},
+					// By default, fontaine goes through all providers. We use a different approach
+					// where we specify a provider per font (default to google)
 					[family.provider],
 				);
 
-				for (const data of fontsData) {
+				for (const data of fonts) {
 					for (const source of data.src) {
 						if ('name' in source) {
 							continue;
 						}
-						source.url = proxySourceURL(source.url);
+						source.url = proxyURL(source.url);
 					}
 					// TODO: support optional as prop
 					css += generateFontFace(family.name, data);
 				}
 			}
-			resolvedMap.set(family.name, { preloadData, css });
+			resolvedMap.set(family.name, { preloadData: [...preloadData], css });
 		}
 		logger.info('assets', 'Fonts initialized');
 	}
@@ -298,6 +305,8 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 				cache = null;
 				return;
 			}
+
+			// TODO: properly cleanup in case of failure
 
 			const logManager = createLogManager(logger);
 			const dir = getClientOutputDirectory(settings);

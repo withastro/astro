@@ -73,3 +73,34 @@ export function createCache(storage: Storage) {
 }
 
 export type CacheHandler = ReturnType<typeof createCache>;
+
+/**
+ * The fonts data we receive contains urls or file paths we do no control.
+ * However, we will emit font files ourselves so we store the original value
+ * and replace it with a url we control. For example with the value "https://foo.bar/file.woff2":
+ * - font type is woff2
+ * - hash will be "<hash>.woff2"
+ * - `collect` will save the association of the original url and the new hash for later use
+ * - the returned url will be `/_astro/fonts/<hash>.woff2`
+ */
+export function createURLProxy({
+	hashString,
+	collect,
+}: {
+	hashString: (value: string) => string;
+	collect: (data: {
+		hash: string;
+		type: FontType;
+		value: string;
+	}) => string;
+}) {
+	return function proxyURL(value: string): string {
+		const type = extractFontType(value);
+		const hash = `${hashString(value)}.${type}`;
+		const url = collect({ hash, type, value });
+		// Now that we collected the original url, we return our proxy so the consumer can override it
+		return url;
+	};
+}
+
+export type URLProxy = ReturnType<typeof createURLProxy>;
