@@ -95,6 +95,26 @@ export type ServerConfig = {
 	 * ```
 	 */
 	open?: string | boolean;
+
+	/**
+	 * @name server.allowedHosts
+	 * @type {string[] | true}
+	 * @default `false`
+	 * @version 5.4.0
+	 * @description
+	 * 
+	 * A list of hostnames that Astro is allowed to respond to. When the value is set to `true`, any 
+	 * hostname is allowed. 
+	 *
+	 * ```js
+	 * {
+	 *   server: { 
+	 *   	allowedHosts: ['staging.example.com', 'qa.example.com']
+	 *   }
+	 * }
+	 * ```
+	 */
+	allowedHosts?: string[] | boolean;
 };
 
 export type SessionDriverName = BuiltinDriverName | 'custom' | 'test';
