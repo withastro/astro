@@ -2,7 +2,7 @@ import type * as unifont from 'unifont';
 import type { LocalFontFamily } from '../types.js';
 import { DEFAULTS } from '../constants.js';
 import { fileURLToPath } from 'node:url';
-import { extractFontType } from '../utils.js';
+import { extractFontType, type URLProxy } from '../utils.js';
 
 // https://fonts.nuxt.com/get-started/providers#local
 // https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
@@ -19,7 +19,7 @@ interface Options {
 }
 
 interface ResolveOptions {
-	proxySourceURL: (value: string) => string;
+	proxyURL: URLProxy;
 }
 
 // TODO: dev watcher and ways to update during dev
@@ -27,7 +27,7 @@ export function createLocalProvider({ root }: Options) {
 	return {
 		resolveFont: async (
 			family: LocalFontFamily,
-			{ proxySourceURL }: ResolveOptions,
+			{ proxyURL }: ResolveOptions,
 		): Promise<ResolveFontResult> => {
 			const fonts: ResolveFontResult['fonts'] = [];
 
@@ -40,7 +40,7 @@ export function createLocalProvider({ root }: Options) {
 							weight,
 							style,
 							src: src.paths.map((path) => ({
-								url: proxySourceURL(fileURLToPath(new URL(path, root))),
+								url: proxyURL(fileURLToPath(new URL(path, root))),
 								format: extractFontType(path),
 							})),
 						});
