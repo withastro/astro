@@ -11,7 +11,7 @@
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/db": "workspace:*",
-    "@astrojs/node": "^9.1.0",
+    "@astrojs/node": "workspace:*",
     "@astrojs/react": "workspace:*",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
@@ -21,6 +21,6 @@
     "react-dom": "^18.3.1",
     "simple-stack-form": "^0.1.12",
     "typescript": "^5.7.3",
-    "zod": "^3.24.2"
+    "zod": "^3.24.1"
   }
 }

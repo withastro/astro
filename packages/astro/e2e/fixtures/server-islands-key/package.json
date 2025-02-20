@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "astro": "workspace:*",
-    "@astrojs/node": "^9.1.0"
+    "@astrojs/node": "workspace:*"
   }
 }

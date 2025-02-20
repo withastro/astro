@@ -67,7 +67,7 @@ importers:
         specifier: workspace:*
         version: link:../packages/integrations/mdx
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../packages/integrations/node
       '@benchmark/adapter':
         specifier: workspace:*
@@ -798,7 +798,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../db
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
@@ -831,7 +831,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../db
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
@@ -1067,7 +1067,7 @@ importers:
   packages/astro/e2e/fixtures/i18n:
     dependencies:
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
@@ -1469,7 +1469,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../integrations/mdx
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
@@ -1487,7 +1487,7 @@ importers:
   packages/astro/e2e/fixtures/server-islands-key:
     dependencies:
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
@@ -1582,7 +1582,7 @@ importers:
   packages/astro/e2e/fixtures/view-transitions:
     dependencies:
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
@@ -1609,7 +1609,7 @@ importers:
         specifier: ^1.9.4
         version: 1.9.4
       svelte:
-        specifier: ^5.20.2
+        specifier: ^5.19.7
         version: 5.20.2
       vue:
         specifier: ^3.5.13
@@ -2438,7 +2438,7 @@ importers:
   packages/astro/test/fixtures/client-address-node:
     dependencies:
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
@@ -2969,7 +2969,7 @@ importers:
   packages/astro/test/fixtures/custom-assets-name:
     dependencies:
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
@@ -3657,6 +3657,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/rewrite-with-base:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/root-srcdir-css:
     dependencies:
       astro:
@@ -3861,7 +3867,7 @@ importers:
   packages/astro/test/fixtures/ssr-api-route:
     dependencies:
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
@@ -4073,7 +4079,7 @@ importers:
   packages/astro/test/fixtures/static-build-ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       '@test/static-build-pkg':
         specifier: workspace:*
@@ -4448,7 +4454,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
@@ -4478,7 +4484,7 @@ importers:
         specifier: ^5.7.3
         version: 5.7.3
       zod:
-        specifier: ^3.24.2
+        specifier: ^3.24.1
         version: 3.24.2
 
   packages/integrations/alpinejs:
@@ -5576,7 +5582,7 @@ importers:
         version: 3.24.2
     devDependencies:
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../node
       astro:
         specifier: workspace:*
@@ -6047,7 +6053,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../db
       '@astrojs/node':
-        specifier: ^9.1.0
+        specifier: workspace:*
         version: link:../../../../node
       '@astrojs/web-vitals':
         specifier: workspace:*
@@ -10054,7 +10060,6 @@ packages:
 
   libsql@0.4.5:
     resolution: {integrity: sha512-sorTJV6PNt94Wap27Sai5gtVLIea4Otb2LUiAUyr3p6BPOScGMKGt5F1b5X/XgkNtcsDKeX5qfeBDj+PdShclQ==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lightningcss-darwin-arm64@1.29.1:
