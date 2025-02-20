@@ -7,7 +7,7 @@ import xxhash from 'xxhash-wasm';
 import { extname, isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { extractFontType, generateFontFace } from './utils.js';
+import { extractFontType, generateFontFace, createCache, type CacheHandler } from './utils.js';
 import {
 	DEFAULTS,
 	VIRTUAL_MODULE_ID,
@@ -17,7 +17,6 @@ import {
 } from './constants.js';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
-import { createCache, type Cache } from './cache.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
 import { createLocalProvider, LOCAL_PROVIDER_NAME } from './providers/local.js';
@@ -54,6 +53,7 @@ type PreloadData = Array<{
  * - If there are many downloads started at once, only one log is shown for start and end
  * - If a given file has already been logged, it won't show up anymore (useful in dev)
  */
+// TODO: test
 const createLogManager = (logger: Logger) => {
 	const done = new Set<string>();
 	const items = new Set<string>();
@@ -144,7 +144,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 	// to download the original file, or retrieve it from cache
 	let hashToUrlMap: Map<string, string> | null = null;
 	let isBuild: boolean;
-	let cache: Cache['cache'] | null = null;
+	let cache: CacheHandler | null = null;
 
 	async function initialize({ resolveMod }: { resolveMod: ResolveMod }) {
 		const { h64ToString } = await xxhash();
@@ -166,7 +166,7 @@ export function fonts({ settings, sync, logger }: Options): Plugin {
 			}),
 		});
 
-		cache = createCache({ storage }).cache;
+		cache = createCache(storage);
 
 		const { resolveFont } = await unifont.createUnifont(
 			resolved.map((e) => e.provider(e.config)),

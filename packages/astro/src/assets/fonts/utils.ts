@@ -2,7 +2,9 @@ import type * as unifont from 'unifont';
 import type { FontType } from './types.js';
 import { extname } from 'node:path';
 import { FONT_TYPES } from './constants.js';
+import type { Storage } from 'unstorage';
 
+// TODO: expose all relevant options in config
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
 	return [
@@ -54,3 +56,20 @@ export function extractFontType(str: string): FontType {
 export function isFontType(str: string): str is FontType {
 	return (FONT_TYPES as Readonly<Array<string>>).includes(str);
 }
+
+export function createCache(storage: Storage) {
+	return async function cache(
+		key: string,
+		cb: () => Promise<Buffer>,
+	): Promise<{ cached: boolean; data: Buffer }> {
+		const existing = await storage.getItemRaw(key);
+		if (existing) {
+			return { cached: true, data: existing };
+		}
+		const data = await cb();
+		await storage.setItemRaw(key, data);
+		return { cached: false, data };
+	};
+}
+
+export type CacheHandler = ReturnType<typeof createCache>;
