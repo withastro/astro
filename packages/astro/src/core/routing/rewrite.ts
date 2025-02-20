@@ -71,7 +71,6 @@ export function findRouteToRewrite({
 
 	newUrl.pathname = joinPaths(...[base, pathname].filter(Boolean));
 
-	console.log(pathname, "after changes")
 	const decodedPathname = decodeURI(pathname);
 	let foundRoute;
 	for (const route of routes) {
