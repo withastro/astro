@@ -3,11 +3,39 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
 import { google } from '../../../../dist/assets/fonts/providers/google.js';
+import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
 import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
 import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
 import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontsource.js';
 import { validateMod, resolveProviders } from '../../../../dist/assets/fonts/providers/utils.js';
+import { createURLProxy } from '../../../../dist/assets/fonts/utils.js';
+import { basename, extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+/**
+ * @param {Parameters<typeof resolveLocalFont>[0]} family
+ * @param {URL} root
+ */
+function resolveLocalFontSpy(family, root) {
+	/** @type {Array<string>} */
+	const values = [];
+
+	const proxyURL = createURLProxy({
+		hashString: (value) => basename(value, extname(value)),
+		collect: ({ hash, value }) => {
+			values.push(value);
+			return `/_astro/fonts/${hash}`;
+		},
+	});
+
+	const { fonts } = resolveLocalFont(family, { proxyURL, root });
+
+	return {
+		fonts,
+		values: [...new Set(values)],
+	};
+}
 
 describe('fonts providers', () => {
 	describe('config objects', () => {
@@ -53,7 +81,77 @@ describe('fonts providers', () => {
 		});
 	});
 
-	// TODO: test local provider
+	describe('resolveLocalFont()', () => {
+		const root = new URL(import.meta.url);
+
+		let { fonts, values } = resolveLocalFontSpy(
+			{
+				name: 'Custom',
+				provider: 'local',
+				src: [
+					{
+						paths: ['./src/fonts/foo.woff2', './src/fonts/foo.ttf'],
+					},
+				],
+			},
+			root,
+		);
+
+		assert.deepStrictEqual(fonts, [
+			{
+				weight: '400',
+				style: 'normal',
+				src: [
+					{ url: '/_astro/fonts/foo.woff2', format: 'woff2' },
+					{ url: '/_astro/fonts/foo.ttf', format: 'ttf' },
+				],
+			},
+			{
+				weight: '400',
+				style: 'italic',
+				src: [
+					{ url: '/_astro/fonts/foo.woff2', format: 'woff2' },
+					{ url: '/_astro/fonts/foo.ttf', format: 'ttf' },
+				],
+			},
+		]);
+		assert.deepStrictEqual(values, [
+			fileURLToPath(new URL('./src/fonts/foo.woff2', root)),
+			fileURLToPath(new URL('./src/fonts/foo.ttf', root)),
+		]);
+
+		({ fonts, values } = resolveLocalFontSpy(
+			{
+				name: 'Custom',
+				provider: 'local',
+				src: [
+					{
+						weights: ['600', '700'],
+						styles: ['oblique'],
+						paths: ['./src/fonts/bar.eot'],
+					},
+				],
+			},
+			root,
+		));
+
+		console.dir(fonts, { depth: null });
+
+		assert.deepStrictEqual(fonts, [
+			{
+				weight: '600',
+				style: 'oblique',
+				src: [{ url: '/_astro/fonts/bar.eot', format: 'eot' }],
+			},
+			{
+				weight: '700',
+				style: 'oblique',
+				src: [{ url: '/_astro/fonts/bar.eot', format: 'eot' }],
+			},
+		]);
+		assert.deepStrictEqual(values, [fileURLToPath(new URL('./src/fonts/bar.eot', root))]);
+	});
+
 	describe('utils', () => {
 		it('validateMod()', () => {
 			const provider = () => {};

@@ -19,7 +19,7 @@ import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
-import { createLocalProvider, LOCAL_PROVIDER_NAME } from './providers/local.js';
+import { resolveLocalFont, LOCAL_PROVIDER_NAME } from './providers/local.js';
 import { readFile } from 'node:fs/promises';
 import { createStorage } from 'unstorage';
 import fsLiteDriver from 'unstorage/drivers/fs-lite';
@@ -172,7 +172,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			resolved.map((e) => e.provider(e.config)),
 			{ storage },
 		);
-		const { resolveFont: resolveLocalFont } = createLocalProvider({ root: settings.config.root });
 
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory
@@ -200,7 +199,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			css = '';
 
 			if (family.provider === LOCAL_PROVIDER_NAME) {
-				const { fonts, fallbacks } = await resolveLocalFont(family, { proxyURL });
+				const { fonts, fallbacks } = resolveLocalFont(family, {
+					proxyURL,
+					root: settings.config.root,
+				});
 				for (const data of fonts) {
 					css += generateFontFace(family.name, data);
 				}

@@ -14,43 +14,39 @@ type InitializedProvider = NonNullable<Awaited<ReturnType<unifont.Provider>>>;
 
 type ResolveFontResult = NonNullable<Awaited<ReturnType<InitializedProvider['resolveFont']>>>;
 
-interface Options {
-	root: URL;
-}
-
 interface ResolveOptions {
+	root: URL;
 	proxyURL: URLProxy;
 }
 
 // TODO: dev watcher and ways to update during dev
-export function createLocalProvider({ root }: Options) {
-	return {
-		resolveFont: async (
-			family: LocalFontFamily,
-			{ proxyURL }: ResolveOptions,
-		): Promise<ResolveFontResult> => {
-			const fonts: ResolveFontResult['fonts'] = [];
+// change: update hashToUrlMap
+// unlink: throw error
+export function resolveLocalFont(
+	family: LocalFontFamily,
+	{ proxyURL, root }: ResolveOptions,
+): ResolveFontResult {
+	const fonts: ResolveFontResult['fonts'] = [];
 
-			for (const src of family.src) {
-				for (const weight of src.weights ?? DEFAULTS.weights) {
-					for (const style of src.styles ?? DEFAULTS.styles) {
-						// TODO: handle fallbacks?
-						// TODO: handle subset
-						fonts.push({
-							weight,
-							style,
-							src: src.paths.map((path) => ({
-								url: proxyURL(fileURLToPath(new URL(path, root))),
-								format: extractFontType(path),
-							})),
-						});
-					}
-				}
+	for (const src of family.src) {
+		for (const weight of src.weights ?? DEFAULTS.weights) {
+			for (const style of src.styles ?? DEFAULTS.styles) {
+				// TODO: handle fallbacks?
+				// TODO: handle subset
+				fonts.push({
+					weight,
+					style,
+					src: src.paths.map((path) => ({
+						// TODO: check files exist or throw
+						url: proxyURL(fileURLToPath(new URL(path, root))),
+						format: extractFontType(path),
+					})),
+				});
 			}
+		}
+	}
 
-			return {
-				fonts,
-			};
-		},
+	return {
+		fonts,
 	};
 }
