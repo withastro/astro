@@ -3,7 +3,10 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
 import { google } from '../../../../dist/assets/fonts/providers/google.js';
-import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
+import {
+	LocalFontsWatcher,
+	resolveLocalFont,
+} from '../../../../dist/assets/fonts/providers/local.js';
 import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
 import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
@@ -62,28 +65,26 @@ describe('fonts providers', () => {
 		});
 	});
 
-	describe('entrypoints', () => {
-		it('providers are correctly exported', () => {
-			assert.equal(
-				'provider' in adobeEntrypoint && typeof adobeEntrypoint.provider === 'function',
-				true,
-			);
-			assert.equal(
-				'provider' in bunnyEntrypoint && typeof bunnyEntrypoint.provider === 'function',
-				true,
-			);
-			assert.equal(
-				'provider' in fontshareEntrypoint && typeof fontshareEntrypoint.provider === 'function',
-				true,
-			);
-			assert.equal(
-				'provider' in fontsourceEntrypoint && typeof fontsourceEntrypoint.provider === 'function',
-				true,
-			);
-		});
+	it('providers are correctly exported', () => {
+		assert.equal(
+			'provider' in adobeEntrypoint && typeof adobeEntrypoint.provider === 'function',
+			true,
+		);
+		assert.equal(
+			'provider' in bunnyEntrypoint && typeof bunnyEntrypoint.provider === 'function',
+			true,
+		);
+		assert.equal(
+			'provider' in fontshareEntrypoint && typeof fontshareEntrypoint.provider === 'function',
+			true,
+		);
+		assert.equal(
+			'provider' in fontsourceEntrypoint && typeof fontsourceEntrypoint.provider === 'function',
+			true,
+		);
 	});
 
-	describe('resolveLocalFont()', () => {
+	it('resolveLocalFont()', () => {
 		const root = new URL(import.meta.url);
 
 		let { fonts, values } = resolveLocalFontSpy(
@@ -137,8 +138,6 @@ describe('fonts providers', () => {
 			root,
 		));
 
-		console.dir(fonts, { depth: null });
-
 		assert.deepStrictEqual(fonts, [
 			{
 				weight: '600',
@@ -152,6 +151,31 @@ describe('fonts providers', () => {
 			},
 		]);
 		assert.deepStrictEqual(values, [fileURLToPath(new URL('./src/fonts/bar.eot', root))]);
+	});
+
+	it('LocalFontsWatcher', () => {
+		const watcher = new LocalFontsWatcher();
+		let updated = 0;
+		watcher.update = () => {
+			updated++;
+		};
+		watcher.getPaths = () => ['foo', 'bar']
+
+		watcher.onUpdate('baz')
+		assert.equal(updated, 0)
+		
+		watcher.onUpdate('foo')
+		watcher.onUpdate('bar')
+		assert.equal(updated, 2)
+
+		assert.doesNotThrow(() => watcher.onUnlink('baz'))
+		try {
+			watcher.onUnlink('foo')
+			assert.fail()
+		} catch (err) {
+			assert.equal(err instanceof Error, true)
+			assert.equal(err.message, 'File used for font deleted. Restore it or update your config');
+		}
 	});
 
 	describe('utils', () => {

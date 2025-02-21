@@ -19,9 +19,6 @@ interface ResolveOptions {
 	proxyURL: (value: string) => string;
 }
 
-// TODO: dev watcher and ways to update during dev
-// change: update hashToUrlMap
-// unlink: throw error
 export function resolveLocalFont(
 	family: LocalFontFamily,
 	{ proxyURL, root }: ResolveOptions,
@@ -37,7 +34,6 @@ export function resolveLocalFont(
 					weight,
 					style,
 					src: src.paths.map((path) => ({
-						// TODO: check files exist or throw
 						url: proxyURL(fileURLToPath(new URL(path, root))),
 						format: extractFontType(path),
 					})),
