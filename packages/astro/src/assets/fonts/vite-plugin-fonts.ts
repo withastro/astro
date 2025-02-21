@@ -6,13 +6,14 @@ import type { FontFamily, FontProvider, FontType } from './types.js';
 import xxhash from 'xxhash-wasm';
 import { isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import {
 	generateFontFace,
 	createCache,
 	type CacheHandler,
-	createURLProxy,
+	proxyURL,
 	extractFontType,
+	type ProxyURLOptions,
 } from './utils.js';
 import {
 	DEFAULTS,
@@ -25,7 +26,7 @@ import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
-import { createLocalProvider, LOCAL_PROVIDER_NAME } from './providers/local.js';
+import { resolveLocalFont, LOCAL_PROVIDER_NAME, LocalFontsWatcher } from './providers/local.js';
 import { readFile } from 'node:fs/promises';
 import { createStorage } from 'unstorage';
 import fsLiteDriver from 'unstorage/drivers/fs-lite';
@@ -152,7 +153,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let isBuild: boolean;
 	let cache: CacheHandler | null = null;
 
-	async function initialize({ resolveMod }: { resolveMod: ResolveMod }) {
+	async function initialize({ resolveMod, base }: { resolveMod: ResolveMod; base: URL }) {
 		const { h64ToString } = await xxhash();
 
 		const resolved = await resolveProviders({
@@ -163,12 +164,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 		const storage = createStorage({
 			driver: (fsLiteDriver as unknown as typeof fsLiteDriver.default)({
-				base: fileURLToPath(
-					// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
-					isBuild
-						? new URL(CACHE_DIR, settings.config.cacheDir)
-						: new URL(CACHE_DIR, settings.dotAstroDir),
-				),
+				base: fileURLToPath(base),
 			}),
 		});
 
@@ -178,7 +174,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			resolved.map((e) => e.provider(e.config)),
 			{ storage },
 		);
-		const { resolveFont: resolveLocalFont } = createLocalProvider({ root: settings.config.root });
 
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory
@@ -187,17 +182,17 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const preloadData: PreloadData = [];
 		let css = '';
 
-		const proxyURL = createURLProxy({
-			hashString: h64ToString,
-			collect: ({ hash, type, value }) => {
-				const url = baseUrl + hash;
-				if (!hashToUrlMap!.has(hash)) {
-					hashToUrlMap!.set(hash, value);
-					preloadData.push({ url, type });
-				}
-				return url;
-			},
-		});
+		// When going through the urls/filepaths returned by providers,
+		// We save the hash and the associated original value so we can use
+		// it in the vite middleware during development
+		const collect: ProxyURLOptions['collect'] = ({ hash, type, value }) => {
+			const url = baseUrl + hash;
+			if (!hashToUrlMap!.has(hash)) {
+				hashToUrlMap!.set(hash, value);
+				preloadData.push({ url, type });
+			}
+			return url;
+		};
 
 		// TODO: investigate using fontaine for fallbacks
 		for (const family of families) {
@@ -206,7 +201,26 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			css = '';
 
 			if (family.provider === LOCAL_PROVIDER_NAME) {
-				const { fonts, fallbacks } = await resolveLocalFont(family, { proxyURL });
+				const { fonts, fallbacks } = resolveLocalFont(family, {
+					proxyURL: (value) => {
+						return proxyURL({
+							value,
+							// We hash based on the filepath and the contents, since the user could replace
+							// a given font file with completely different contents. 
+							hashString: (v) => {
+								let content: string;
+								try {
+									content = readFileSync(value, 'utf-8');
+								} catch (e) {
+									throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+								}
+								return h64ToString(v + content);
+							},
+							collect,
+						});
+					},
+					root: settings.config.root,
+				});
 				for (const data of fonts) {
 					css += generateFontFace(family.name, data);
 				}
@@ -230,7 +244,12 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						if ('name' in source) {
 							continue;
 						}
-						source.url = proxyURL(source.url);
+						source.url = proxyURL({
+							value: source.url,
+							// We only use the url for hashing since the service returns urls with a hash already
+							hashString: h64ToString,
+							collect,
+						});
 					}
 					// TODO: support optional as prop
 					css += generateFontFace(family.name, data);
@@ -250,6 +269,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			if (isBuild) {
 				await initialize({
 					resolveMod: (id) => import(id),
+					base: new URL(CACHE_DIR, settings.config.cacheDir),
 				});
 			}
 		},
@@ -257,7 +277,23 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			const moduleLoader = createViteLoader(server);
 			await initialize({
 				resolveMod: (id) => moduleLoader.import(id),
+				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
+				base: new URL(CACHE_DIR, settings.dotAstroDir),
 			});
+			const localFontsWatcher = new LocalFontsWatcher({
+				// The map is always defined at this point. Its values contains urls from remote providers
+				// as well as local paths for the local provider. We filter them to only keep the filepaths
+				paths: [...hashToUrlMap!.values()].filter((url) => isAbsolute(url)),
+				// Whenever a local font file is updated, we restart the server so the user always has an up to date
+				// version of the font file 
+				update: () => {
+					logger.info('assets', 'Font file updated');
+					server.restart();
+				},
+			});
+			server.watcher.on('change', (path) => localFontsWatcher.onUpdate(path));
+			// We do not purge the cache in case the user wants to re-use the file later on
+			server.watcher.on('unlink', (path) => localFontsWatcher.onUnlink(path));
 
 			const logManager = createLogManager(logger);
 			// Base is taken into account by default. The prefix contains a traling slash,

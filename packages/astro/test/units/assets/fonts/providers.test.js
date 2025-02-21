@@ -3,11 +3,45 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
 import { google } from '../../../../dist/assets/fonts/providers/google.js';
+import {
+	LocalFontsWatcher,
+	resolveLocalFont,
+} from '../../../../dist/assets/fonts/providers/local.js';
 import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
 import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
 import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontsource.js';
 import { validateMod, resolveProviders } from '../../../../dist/assets/fonts/providers/utils.js';
+import { proxyURL } from '../../../../dist/assets/fonts/utils.js';
+import { basename, extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+/**
+ * @param {Parameters<typeof resolveLocalFont>[0]} family
+ * @param {URL} root
+ */
+function resolveLocalFontSpy(family, root) {
+	/** @type {Array<string>} */
+	const values = [];
+
+	const { fonts } = resolveLocalFont(family, {
+		proxyURL: (v) =>
+			proxyURL({
+				value: v,
+				hashString: (value) => basename(value, extname(value)),
+				collect: ({ hash, value }) => {
+					values.push(value);
+					return `/_astro/fonts/${hash}`;
+				},
+			}),
+		root,
+	});
+
+	return {
+		fonts,
+		values: [...new Set(values)],
+	};
+}
 
 describe('fonts providers', () => {
 	describe('config objects', () => {
@@ -32,28 +66,120 @@ describe('fonts providers', () => {
 		});
 	});
 
-	describe('entrypoints', () => {
-		it('providers are correctly exported', () => {
-			assert.equal(
-				'provider' in adobeEntrypoint && typeof adobeEntrypoint.provider === 'function',
-				true,
-			);
-			assert.equal(
-				'provider' in bunnyEntrypoint && typeof bunnyEntrypoint.provider === 'function',
-				true,
-			);
-			assert.equal(
-				'provider' in fontshareEntrypoint && typeof fontshareEntrypoint.provider === 'function',
-				true,
-			);
-			assert.equal(
-				'provider' in fontsourceEntrypoint && typeof fontsourceEntrypoint.provider === 'function',
-				true,
-			);
-		});
+	it('providers are correctly exported', () => {
+		assert.equal(
+			'provider' in adobeEntrypoint && typeof adobeEntrypoint.provider === 'function',
+			true,
+		);
+		assert.equal(
+			'provider' in bunnyEntrypoint && typeof bunnyEntrypoint.provider === 'function',
+			true,
+		);
+		assert.equal(
+			'provider' in fontshareEntrypoint && typeof fontshareEntrypoint.provider === 'function',
+			true,
+		);
+		assert.equal(
+			'provider' in fontsourceEntrypoint && typeof fontsourceEntrypoint.provider === 'function',
+			true,
+		);
 	});
 
-	// TODO: test local provider
+	it('resolveLocalFont()', () => {
+		const root = new URL(import.meta.url);
+
+		let { fonts, values } = resolveLocalFontSpy(
+			{
+				name: 'Custom',
+				provider: 'local',
+				src: [
+					{
+						paths: ['./src/fonts/foo.woff2', './src/fonts/foo.ttf'],
+					},
+				],
+			},
+			root,
+		);
+
+		assert.deepStrictEqual(fonts, [
+			{
+				weight: '400',
+				style: 'normal',
+				src: [
+					{ url: '/_astro/fonts/foo.woff2', format: 'woff2' },
+					{ url: '/_astro/fonts/foo.ttf', format: 'ttf' },
+				],
+			},
+			{
+				weight: '400',
+				style: 'italic',
+				src: [
+					{ url: '/_astro/fonts/foo.woff2', format: 'woff2' },
+					{ url: '/_astro/fonts/foo.ttf', format: 'ttf' },
+				],
+			},
+		]);
+		assert.deepStrictEqual(values, [
+			fileURLToPath(new URL('./src/fonts/foo.woff2', root)),
+			fileURLToPath(new URL('./src/fonts/foo.ttf', root)),
+		]);
+
+		({ fonts, values } = resolveLocalFontSpy(
+			{
+				name: 'Custom',
+				provider: 'local',
+				src: [
+					{
+						weights: ['600', '700'],
+						styles: ['oblique'],
+						paths: ['./src/fonts/bar.eot'],
+					},
+				],
+			},
+			root,
+		));
+
+		assert.deepStrictEqual(fonts, [
+			{
+				weight: '600',
+				style: 'oblique',
+				src: [{ url: '/_astro/fonts/bar.eot', format: 'eot' }],
+			},
+			{
+				weight: '700',
+				style: 'oblique',
+				src: [{ url: '/_astro/fonts/bar.eot', format: 'eot' }],
+			},
+		]);
+		assert.deepStrictEqual(values, [fileURLToPath(new URL('./src/fonts/bar.eot', root))]);
+	});
+
+	it('LocalFontsWatcher', () => {
+		let updated = 0;
+		const watcher = new LocalFontsWatcher({
+			paths: ['foo', 'bar'],
+			update: () => {
+				updated++;
+			},
+		});
+
+		watcher.onUpdate('baz');
+		assert.equal(updated, 0);
+
+		watcher.onUpdate('foo');
+		watcher.onUpdate('bar');
+		assert.equal(updated, 2);
+
+		assert.doesNotThrow(() => watcher.onUnlink('baz'));
+		try {
+			watcher.onUnlink('foo');
+			assert.fail();
+		} catch (err) {
+			assert.equal(err instanceof Error, true);
+			assert.equal(err.message, 'File used for font deleted. Restore it or update your config');
+		}
+	});
+
 	describe('utils', () => {
 		it('validateMod()', () => {
 			const provider = () => {};

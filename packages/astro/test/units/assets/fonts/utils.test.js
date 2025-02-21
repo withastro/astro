@@ -5,7 +5,7 @@ import {
 	isFontType,
 	extractFontType,
 	createCache,
-	createURLProxy,
+	proxyURL,
 } from '../../../../dist/assets/fonts/utils.js';
 
 function createSpyCache() {
@@ -43,16 +43,16 @@ function createSpyCache() {
  * @param {string} value
  */
 function proxyURLSpy(id, value) {
-	/** @type {Parameters<Parameters<typeof createURLProxy>[0]['collect']>[0]} */
+	/** @type {Parameters<import('../../../../dist/assets/fonts/utils.js').ProxyURLOptions['collect']>[0]} */
 	let collected = /** @type {any} */ (undefined);
-	const proxyURL = createURLProxy({
+	const url = proxyURL({
+		value,
 		hashString: () => id,
 		collect: (data) => {
 			collected = data;
 			return 'base/' + data.hash;
 		},
 	});
-	const url = proxyURL(value);
 
 	return {
 		url,
@@ -122,7 +122,7 @@ describe('fonts utils', () => {
 		assert.deepStrictEqual(getKeys(), ['foo']);
 	});
 
-	it('createURLProxy()', () => {
+	it('proxyURL()', () => {
 		let { url, collected } = proxyURLSpy(
 			'foo',
 			'https://fonts.gstatic.com/s/roboto/v47/KFO5CnqEu92Fr1Mu53ZEC9_Vu3r1gIhOszmkC3kaSTbQWt4N.woff2',

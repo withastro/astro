@@ -74,6 +74,27 @@ export function createCache(storage: Storage) {
 
 export type CacheHandler = ReturnType<typeof createCache>;
 
+export interface ProxyURLOptions {
+	/**
+	 * The original URL
+	 */
+	value: string;
+	/**
+	 * Specifies how the hash is computed. Can be based on the value,
+	 * a specific string for testing etc 
+	 */
+	hashString: (value: string) => string;
+	/**
+	 * Use the hook to save the associated value and hash, and possibly
+	 * transform it (eg. apply a base)
+	 */
+	collect: (data: {
+		hash: string;
+		type: FontType;
+		value: string;
+	}) => string;
+}
+
 /**
  * The fonts data we receive contains urls or file paths we do no control.
  * However, we will emit font files ourselves so we store the original value
@@ -83,24 +104,10 @@ export type CacheHandler = ReturnType<typeof createCache>;
  * - `collect` will save the association of the original url and the new hash for later use
  * - the returned url will be `/_astro/fonts/<hash>.woff2`
  */
-export function createURLProxy({
-	hashString,
-	collect,
-}: {
-	hashString: (value: string) => string;
-	collect: (data: {
-		hash: string;
-		type: FontType;
-		value: string;
-	}) => string;
-}) {
-	return function proxyURL(value: string): string {
-		const type = extractFontType(value);
-		const hash = `${hashString(value)}.${type}`;
-		const url = collect({ hash, type, value });
-		// Now that we collected the original url, we return our proxy so the consumer can override it
-		return url;
-	};
+export function proxyURL({ value, hashString, collect }: ProxyURLOptions): string {
+	const type = extractFontType(value);
+	const hash = `${hashString(value)}.${type}`;
+	const url = collect({ hash, type, value });
+	// Now that we collected the original url, we return our proxy so the consumer can override it
+	return url;
 }
-
-export type URLProxy = ReturnType<typeof createURLProxy>;
