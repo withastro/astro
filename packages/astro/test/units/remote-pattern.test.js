@@ -6,9 +6,9 @@ import {
 	matchPattern,
 	matchPort,
 	matchProtocol,
-} from '../../../dist/assets/utils/remotePattern.js';
+} from '@astrojs/internal-helpers/remote';
 
-describe('astro/src/assets/utils/remotePattern', () => {
+describe('remote-pattern', () => {
 	const url1 = new URL('https://docs.astro.build/en/getting-started');
 	const url2 = new URL('http://preview.docs.astro.build:8080/');
 	const url3 = new URL('https://astro.build/');
