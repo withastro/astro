@@ -1,9 +1,8 @@
 {
-  "name": "@test/client-address-node",
+  "name": "@test/rewrite-with-base",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/node": "workspace:*",
     "astro": "workspace:*"
   }
 }
