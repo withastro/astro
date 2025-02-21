@@ -3,6 +3,7 @@ import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import type { InlineConfig, ViteDevServer } from 'vite';
+import { mergeConfig as mergeViteConfig } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 import { isActionsFilePresent } from '../actions/utils.js';
 import { CONTENT_LAYER_TYPE } from '../content/consts.js';
@@ -196,7 +197,7 @@ export async function runHookConfigSetup({
 					updatedSettings.scripts.push({ stage, content });
 				},
 				updateConfig: (newConfig) => {
-					updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
+					updatedConfig = mergeConfig(updatedConfig, newConfig);
 					return { ...updatedConfig };
 				},
 				injectRoute: (injectRoute) => {
@@ -235,8 +236,7 @@ export async function runHookConfigSetup({
 					}
 					logger.debug(
 						'middleware',
-						`The integration ${integration.name} has added middleware that runs ${
-							order === 'pre' ? 'before' : 'after'
+						`The integration ${integration.name} has added middleware that runs ${order === 'pre' ? 'before' : 'after'
 						} any application middleware you define.`,
 					);
 					updatedSettings.middlewares[order].push(
@@ -510,7 +510,7 @@ export async function runHookBuildSetup({
 					pages,
 					target,
 					updateConfig: (newConfig) => {
-						updatedConfig = mergeConfig(updatedConfig, newConfig);
+						updatedConfig = mergeViteConfig(updatedConfig, newConfig);
 						return { ...updatedConfig };
 					},
 					logger: getLogger(integration, logger),
@@ -654,7 +654,7 @@ export async function runHookRouteSetup({
 		logger.debug(
 			'router',
 			`The ${route.component} route's prerender option has been changed multiple times by integrations:\n` +
-				prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
+			prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
 		);
 	}
 }
