@@ -48,6 +48,7 @@ export type SSRManifest = {
 	routes: RouteInfo[];
 	site?: string;
 	base: string;
+	viteBase: AstroConfig['vite']['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
 	compressHTML: boolean;
