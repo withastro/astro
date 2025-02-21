@@ -2,4 +2,4 @@
 '@astrojs/node': patch
 ---
 
-Update @astrojs/node image.endpoint config structure to match v5
+Fixes the image endpoint entrypoint
