@@ -4,7 +4,7 @@
 
 Adds a new option in the config called `server.allowedHosts` and CLI option called `--allowed-hosts`.
 
-This new options allows to specify the hostnames that the dev server and preview server are allowed to respond to
+This new option allows to specify the hostnames that the dev server and preview server are allowed to respond to.
 
 ```shell
 astro dev --allowed-hosts=foo.bar.example.com,bar.example.com
@@ -25,4 +25,4 @@ export default defineConfig({
 })
 ```
 
-More information are available in the [vite documentation](https://vite.dev/config/server-options.html#server-allowedhosts).
+More information are available in the [Vite documentation](https://vite.dev/config/server-options.html#server-allowedhosts).

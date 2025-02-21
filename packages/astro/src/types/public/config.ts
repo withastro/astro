@@ -99,7 +99,7 @@ export type ServerConfig = {
 	/**
 	 * @name server.allowedHosts
 	 * @type {string[] | true}
-	 * @default `false`
+	 * @default `[]`
 	 * @version 5.4.0
 	 * @description
 	 * 
@@ -114,7 +114,7 @@ export type ServerConfig = {
 	 * }
 	 * ```
 	 */
-	allowedHosts?: string[] | boolean;
+	allowedHosts?: string[] | true;
 };
 
 export type SessionDriverName = BuiltinDriverName | 'custom' | 'test';
