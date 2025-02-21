@@ -283,6 +283,12 @@ Assigning labels isn't always easy and many times the distinction between the di
 - In case the number of reactions of an issue grows, the number of users affected grows, or a discussion uncovers some insights that weren't clear before, it's OK to change the priority of the issue. The maintainer **should** provide an explanation when assigning a different label.
   As with any other contribution, triaging is voluntary and best-efforts. We welcome and appreciate all the help you're happy to give (including reading this!) and nothing more. If you are not confident about an issue, you are welcome to leave an issue untriaged for someone who would have more context, or to bring it to their attention.
 
+### Preview releases
+
+You can trigger a preview release **from a PR** anytime by using the label `pr: preview`. Add this label, and a workflow will trigger, which at the end will add a comment with the instructions of how to install the preview release.
+
+If you're in need to trigger multiple preview releases from the same PR, remove the label and add it again.
+
 ## Code Structure
 
 Server-side rendering (SSR) can be complicated. The Astro package (`packages/astro`) is structured in a way to help think about the different systems.

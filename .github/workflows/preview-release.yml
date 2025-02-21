@@ -55,27 +55,6 @@ jobs:
       - name: Build Packages
         run: pnpm run build
         
-#      - name: Changesets status
-#        run: pnpm changeset status --output=changesets.json
-#        
-#      - name: Retrieve packages to publish
-#        uses: actions/github-script@v7
-#        id: packages
-#        with:
-#          script: |
-#            const fs = require('fs');
-#            let packages = JSON.parse(fs.readFileSync('changesets.json', 'utf8'));
-#            const releases = packages.releases
-#              .filter(p => {
-#                return p.changesets.length > 0;
-#              })
-#              .map(p => p.name);
-#            if (releases.length > 0) {
-#              return releases.join(' ');
-#            }
-#            return ""
-#          result-encoding: string
-  
       - name: Publish packages
         run: |
           pnpm dlx pkg-pr-new publish --pnpm --compact --no-template 'packages/astro' 'packages/integrations/node' 'packages/integrations/cloudflare' 'packages/integrations/netlify' 'packages/integrations/vercel' 
