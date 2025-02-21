@@ -182,6 +182,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const preloadData: PreloadData = [];
 		let css = '';
 
+		// When going through the urls/filepaths returned by providers,
+		// We save the hash and the associated original value so we can use
+		// it in the vite middleware during development
 		const collect: ProxyURLOptions['collect'] = ({ hash, type, value }) => {
 			const url = baseUrl + hash;
 			if (!hashToUrlMap!.has(hash)) {
@@ -200,7 +203,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			if (family.provider === LOCAL_PROVIDER_NAME) {
 				const { fonts, fallbacks } = resolveLocalFont(family, {
 					proxyURL: (value) => {
-						return proxyURL(value, {
+						return proxyURL({
+							value,
+							// We hash based on the filepath and the contents, since the user could replace
+							// a given font file with completely different contents. 
 							hashString: (v) => {
 								let content: string;
 								try {
@@ -238,7 +244,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						if ('name' in source) {
 							continue;
 						}
-						source.url = proxyURL(source.url, {
+						source.url = proxyURL({
+							value: source.url,
+							// We only use the url for hashing since the service returns urls with a hash already
 							hashString: h64ToString,
 							collect,
 						});
@@ -266,22 +274,25 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async configureServer(server) {
-			const localFontsWatcher = new LocalFontsWatcher();
-			localFontsWatcher.update = () => {
-				logger.info('assets', 'Font file updated');
-				server.restart();
-			};
 			const moduleLoader = createViteLoader(server);
 			await initialize({
 				resolveMod: (id) => moduleLoader.import(id),
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				base: new URL(CACHE_DIR, settings.dotAstroDir),
 			});
-			if (hashToUrlMap) {
-				localFontsWatcher.getPaths = () =>
-					[...hashToUrlMap!.values()].filter((url) => isAbsolute(url));
-			}
+			const localFontsWatcher = new LocalFontsWatcher({
+				// The map is always defined at this point. Its values contains urls from remote providers
+				// as well as local paths for the local provider. We filter them to only keep the filepaths
+				paths: [...hashToUrlMap!.values()].filter((url) => isAbsolute(url)),
+				// Whenever a local font file is updated, we restart the server so the user always has an up to date
+				// version of the font file 
+				update: () => {
+					logger.info('assets', 'Font file updated');
+					server.restart();
+				},
+			});
 			server.watcher.on('change', (path) => localFontsWatcher.onUpdate(path));
+			// We do not purge the cache in case the user wants to re-use the file later on
 			server.watcher.on('unlink', (path) => localFontsWatcher.onUnlink(path));
 
 			const logManager = createLogManager(logger);

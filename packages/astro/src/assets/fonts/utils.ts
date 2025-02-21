@@ -75,7 +75,19 @@ export function createCache(storage: Storage) {
 export type CacheHandler = ReturnType<typeof createCache>;
 
 export interface ProxyURLOptions {
+	/**
+	 * The original URL
+	 */
+	value: string;
+	/**
+	 * Specifies how the hash is computed. Can be based on the value,
+	 * a specific string for testing etc 
+	 */
 	hashString: (value: string) => string;
+	/**
+	 * Use the hook to save the associated value and hash, and possibly
+	 * transform it (eg. apply a base)
+	 */
 	collect: (data: {
 		hash: string;
 		type: FontType;
@@ -92,7 +104,7 @@ export interface ProxyURLOptions {
  * - `collect` will save the association of the original url and the new hash for later use
  * - the returned url will be `/_astro/fonts/<hash>.woff2`
  */
-export function proxyURL(value: string, { hashString, collect }: ProxyURLOptions): string {
+export function proxyURL({ value, hashString, collect }: ProxyURLOptions): string {
 	const type = extractFontType(value);
 	const hash = `${hashString(value)}.${type}`;
 	const url = collect({ hash, type, value });

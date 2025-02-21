@@ -45,7 +45,8 @@ function createSpyCache() {
 function proxyURLSpy(id, value) {
 	/** @type {Parameters<import('../../../../dist/assets/fonts/utils.js').ProxyURLOptions['collect']>[0]} */
 	let collected = /** @type {any} */ (undefined);
-	const url = proxyURL(value, {
+	const url = proxyURL({
+		value,
 		hashString: () => id,
 		collect: (data) => {
 			collected = data;

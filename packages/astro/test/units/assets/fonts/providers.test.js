@@ -26,7 +26,8 @@ function resolveLocalFontSpy(family, root) {
 
 	const { fonts } = resolveLocalFont(family, {
 		proxyURL: (v) =>
-			proxyURL(v, {
+			proxyURL({
+				value: v,
 				hashString: (value) => basename(value, extname(value)),
 				collect: ({ hash, value }) => {
 					values.push(value);
@@ -154,26 +155,27 @@ describe('fonts providers', () => {
 	});
 
 	it('LocalFontsWatcher', () => {
-		const watcher = new LocalFontsWatcher();
 		let updated = 0;
-		watcher.update = () => {
-			updated++;
-		};
-		watcher.getPaths = () => ['foo', 'bar']
+		const watcher = new LocalFontsWatcher({
+			paths: ['foo', 'bar'],
+			update: () => {
+				updated++;
+			},
+		});
 
-		watcher.onUpdate('baz')
-		assert.equal(updated, 0)
-		
-		watcher.onUpdate('foo')
-		watcher.onUpdate('bar')
-		assert.equal(updated, 2)
+		watcher.onUpdate('baz');
+		assert.equal(updated, 0);
 
-		assert.doesNotThrow(() => watcher.onUnlink('baz'))
+		watcher.onUpdate('foo');
+		watcher.onUpdate('bar');
+		assert.equal(updated, 2);
+
+		assert.doesNotThrow(() => watcher.onUnlink('baz'));
 		try {
-			watcher.onUnlink('foo')
-			assert.fail()
+			watcher.onUnlink('foo');
+			assert.fail();
 		} catch (err) {
-			assert.equal(err instanceof Error, true)
+			assert.equal(err instanceof Error, true);
 			assert.equal(err.message, 'File used for font deleted. Restore it or update your config');
 		}
 	});

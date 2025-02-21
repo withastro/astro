@@ -47,21 +47,42 @@ export function resolveLocalFont(
 	};
 }
 
+/**
+ * Orchestrates local font updates and deletions during development
+ */
 export class LocalFontsWatcher {
-	getPaths: (() => Array<string>) | null = null;
-	update: (() => void) | null = null;
+	/**
+	 * Watched fonts files
+	 */
+	#paths: Array<string>;
+	/**
+	 * Action performed when a font file is updated
+	 */
+	#update: () => void;
 
-	#matches(path: string): boolean {
-		return this.getPaths?.().includes(path) ?? false;
+	constructor({ paths, update }: { paths: Array<string>; update: () => void }) {
+		this.#paths = paths;
+		this.#update = update;
 	}
 
-	onUpdate(path: string) {
+	#matches(path: string): boolean {
+		return this.#paths.includes(path);
+	}
+
+	/**
+	 * Callback to call whenever a file is updated
+	 */
+	onUpdate(path: string): void {
 		if (!this.#matches(path)) {
 			return;
 		}
-		this.update?.();
+		this.#update();
 	}
-	onUnlink(path: string) {
+
+	/**
+	 * Callback to call whenever a file is unlinked
+	 */
+	onUnlink(path: string): void {
 		if (!this.#matches(path)) {
 			return;
 		}
