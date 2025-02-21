@@ -120,5 +120,14 @@ describe('Environment Variables', () => {
 			let $ = cheerio.load(indexHtml);
 			assert.equal($('#base-url').text(), '/blog');
 		});
+
+		it('does not inject env into imported asset files', async () => {
+			let res = await fixture.fetch('/blog/');
+			assert.equal(res.status, 200);
+			let indexHtml = await res.text();
+			let $ = cheerio.load(indexHtml);
+			assert.equal($('#env').text(), 'A MYSTERY');
+			assert.equal($('#css').text(), 'good');
+		});
 	});
 });

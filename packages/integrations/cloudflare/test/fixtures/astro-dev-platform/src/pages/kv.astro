@@ -1,0 +1,20 @@
+---
+const runtime = Astro.locals.runtime;
+const kv = runtime.env?.KV;
+await kv.put("test", "true");
+const result = await kv.get("test")
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KV</title>
+</head>
+<body>
+  <pre id="hasKV">{!!runtime.env?.KV}</pre>
+  <pre id="hasPRODKV">{!!runtime.env?.KV_PROD}</pre>
+  <pre id="hasACCESS">{!!result}</pre>
+</body>
+</html>

@@ -17,6 +17,19 @@ export interface ErrorData {
  * @name Astro Errors
  */
 // Astro Errors, most errors will go here!
+
+/**
+ * @docs
+ * @description
+ * Cannot use the module `astro:config` without enabling the experimental feature.
+ */
+export const CantUseAstroConfigModuleError = {
+	name: 'CantUseAstroConfigModuleError',
+	title: 'Cannot use the `astro:config` module without enabling the experimental feature.',
+	message: (moduleName) =>
+		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeConfig\` in your \`astro.config.mjs\` `,
+} satisfies ErrorData;
+
 /**
  * @docs
  * @message
@@ -870,38 +883,6 @@ export const AstroResponseHeadersReassigned = {
 
 /**
  * @docs
- * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
- * @see
- * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
- * @description
- * Thrown when the session storage could not be initialized.
- */
-export const SessionStorageInitError = {
-	name: 'SessionStorageInitError',
-	title: 'Session storage could not be initialized.',
-	message: (error: string, driver?: string) =>
-		`Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
-	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @message Error when saving session data with driver `DRIVER`. `ERROR`
- * @see
- * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
- * @description
- * Thrown when the session data could not be saved.
- */
-export const SessionStorageSaveError = {
-	name: 'SessionStorageSaveError',
-	title: 'Session data could not be saved.',
-	message: (error: string, driver?: string) =>
-		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
-	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
-} satisfies ErrorData;
-
-/**
- * @docs
  * @description
  * Thrown in development mode when middleware throws an error while attempting to loading it.
  *
@@ -995,6 +976,20 @@ export const RedirectWithNoLocation = {
 	name: 'RedirectWithNoLocation',
 	title: 'A redirect must be given a location with the `Location` header.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#redirect)
+ * @description
+ * An external redirect must start with http or https, and must be a valid URL.
+ */
+export const UnsupportedExternalRedirect = {
+	name: 'UnsupportedExternalRedirect',
+	title: 'Unsupported or malformed URL.',
+	message: 'An external redirect must start with http or https, and must be a valid URL.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @see
@@ -1569,6 +1564,32 @@ export const InvalidContentEntryDataError = {
  * @docs
  * @message
  * **Example error message:**<br/>
+ * The content loader for the collection **blog** returned an entry with an invalid `id`:<br/>
+ * &#123;<br/>
+ *   "id": 1,<br/>
+ *   "title": "Hello, World!"<br/>
+ * &#125;
+ * @description
+ * A content loader returned an invalid `id`.
+ * Make sure that the `id` of the entry is a string.
+ * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ */
+export const ContentLoaderReturnsInvalidId = {
+	name: 'ContentLoaderReturnsInvalidId',
+	title: 'Content loader returned an entry with an invalid `id`.',
+	message(collection: string, entry: any) {
+		return [
+			`The content loader for the collection **${String(collection)}** returned an entry with an invalid \`id\`:`,
+			JSON.stringify(entry, null, 2),
+		].join('\n');
+	},
+	hint: 'Make sure that the `id` of the entry is a string. See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
  * **blog** → **post** data does not match collection schema.<br/>
  * "title" is required.<br/>
  * "date" must be a valid date.
@@ -1784,6 +1805,90 @@ export const ActionCalledFromServerError = {
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
+
+/**
+ * @docs
+ * @kind heading
+ * @name Session Errors
+ */
+// Session Errors
+/**
+ * @docs
+ * @see
+ * - [Server output adapter feature](https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter)
+ * @description
+ * Your adapter must support server output to use sessions.
+ */
+export const SessionWithoutSupportedAdapterOutputError = {
+	name: 'SessionWithoutSupportedAdapterOutputError',
+	title: "Sessions cannot be used with an adapter that doesn't support server output.",
+	message:
+		'Sessions require an adapter that supports server output. The adapter must set `"server"` in the `buildOutput` adapter feature.',
+	hint: 'Ensure your adapter supports `buildOutput: "server"`: https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
+ * @see
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * @description
+ * Thrown when the session storage could not be initialized.
+ */
+export const SessionStorageInitError = {
+	name: 'SessionStorageInitError',
+	title: 'Session storage could not be initialized.',
+	message: (error: string, driver?: string) =>
+		`Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Error when saving session data with driver `DRIVER`. `ERROR`
+ * @see
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * @description
+ * Thrown when the session data could not be saved.
+ */
+export const SessionStorageSaveError = {
+	name: 'SessionStorageSaveError',
+	title: 'Session data could not be saved.',
+	message: (error: string, driver?: string) =>
+		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage
+ * @see
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * @description
+ * Thrown when session storage is enabled but not configured.
+ */
+export const SessionConfigMissingError = {
+	name: 'SessionConfigMissingError',
+	title: 'Session storage was enabled but not configured.',
+	message:
+		'The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage',
+	hint: 'See https://docs.astro.build/en/reference/experimental-flags/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Session config was provided without enabling the `experimental.session` flag
+ * @see
+ * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * @description
+ * Thrown when session storage is configured but the `experimental.session` flag is not enabled.
+ */
+export const SessionConfigWithoutFlagError = {
+	name: 'SessionConfigWithoutFlagError',
+	title: 'Session flag not set',
+	message: 'Session config was provided without enabling the `experimental.session` flag',
+	hint: 'See https://docs.astro.build/en/reference/experimental-flags/sessions/',
+} satisfies ErrorData;
 
 /*
  * Adding an error? Follow these steps:

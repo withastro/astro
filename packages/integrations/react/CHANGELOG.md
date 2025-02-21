@@ -1,5 +1,47 @@
 # @astrojs/react
 
+## 4.2.0
+
+### Minor Changes
+
+- [#13036](https://github.com/withastro/astro/pull/13036) [`3c90d8f`](https://github.com/withastro/astro/commit/3c90d8f3e0baba1463a9022c2e8c777204ad2250) Thanks [@artmsilva](https://github.com/artmsilva)! - Adds experimental support for disabling streaming
+
+  This is useful to support libraries that are not compatible with streaming such as some CSS-in-JS libraries. To disable streaming for all React components in your project, set `experimentalDisableStreaming: true` as a configuration option for `@astrojs/react`:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import react from '@astrojs/react';
+
+  export default defineConfig({
+    integrations: [
+      react({
+  +      experimentalDisableStreaming: true,
+      }),
+    ],
+  });
+  ```
+
+## 4.1.6
+
+### Patch Changes
+
+- [#12996](https://github.com/withastro/astro/pull/12996) [`80c6801`](https://github.com/withastro/astro/commit/80c6801b4f2b9da44ed69d6da7e4dbd4d65aae69) Thanks [@bluwy](https://github.com/bluwy)! - Removes hardcoded `ssr.external: ['react-dom/server', 'react-dom/client']` config that causes issues with adapters that bundle all dependencies (e.g. Cloudflare). These externals should already be inferred by default by Vite when deploying to a server environment.
+
+- [#13011](https://github.com/withastro/astro/pull/13011) [`cf30880`](https://github.com/withastro/astro/commit/cf3088060d45227dcb48e041c4ed5e0081d71398) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite
+
+## 4.1.5
+
+### Patch Changes
+
+- [#12887](https://github.com/withastro/astro/pull/12887) [`ea603ae`](https://github.com/withastro/astro/commit/ea603aec80531205d38fed11c525b3faa0271903) Thanks [@louisescher](https://github.com/louisescher)! - Adds a warning message when multiple JSX-based UI frameworks are being used without either the `include` or `exclude` property being set on the integration.
+
+## 4.1.4
+
+### Patch Changes
+
+- [#12923](https://github.com/withastro/astro/pull/12923) [`c7642fb`](https://github.com/withastro/astro/commit/c7642fb80b2a2b4d1ec18369b37700ff28b4c041) Thanks [@bluwy](https://github.com/bluwy)! - Removes react-specific entrypoints in `optimizeDeps.include` and rely on `@vitejs/plugin-react` to add
+
 ## 4.1.3
 
 ### Patch Changes

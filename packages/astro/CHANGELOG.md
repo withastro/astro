@@ -1,5 +1,271 @@
 # astro
 
+## 5.3.0
+
+### Minor Changes
+
+- [#13210](https://github.com/withastro/astro/pull/13210) [`344e9bc`](https://github.com/withastro/astro/commit/344e9bc480a075161a7811b7733593556e7560da) Thanks [@VitaliyR](https://github.com/VitaliyR)! - Handle `HEAD` requests to an endpoint when a handler is not defined.
+
+  If an endpoint defines a handler for `GET`, but does not define a handler for `HEAD`, Astro will call the `GET` handler and return the headers and status but an empty body.
+
+- [#13195](https://github.com/withastro/astro/pull/13195) [`3b66955`](https://github.com/withastro/astro/commit/3b669555d7ab9da5427e7b7037699d4f905d3536) Thanks [@MatthewLymer](https://github.com/MatthewLymer)! - Improves SSR performance for synchronous components by avoiding the use of Promises. With this change, SSR rendering of on-demand pages can be up to 4x faster.
+
+- [#13145](https://github.com/withastro/astro/pull/13145) [`8d4e566`](https://github.com/withastro/astro/commit/8d4e566f5420c8a5406e1e40e8bae1c1f87cbe37) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for adapters auto-configuring experimental session storage drivers.
+
+  Adapters can now configure a default session storage driver when the `experimental.session` flag is enabled. If a hosting platform has a storage primitive that can be used for session storage, the adapter can automatically configure the session storage using that driver. This allows Astro to provide a more seamless experience for users who want to use sessions without needing to manually configure the session storage.
+
+### Patch Changes
+
+- [#13145](https://github.com/withastro/astro/pull/13145) [`8d4e566`](https://github.com/withastro/astro/commit/8d4e566f5420c8a5406e1e40e8bae1c1f87cbe37) Thanks [@ascorbic](https://github.com/ascorbic)! - :warning: **BREAKING CHANGE FOR EXPERIMENTAL SESSIONS ONLY** :warning:
+
+  Changes the `experimental.session` option to a boolean flag and moves session config to a top-level value. This change is to allow the new automatic session driver support. You now need to separately enable the `experimental.session` flag, and then configure the session driver using the top-level `session` key if providing manual configuration.
+
+  ```diff
+  defineConfig({
+    // ...
+    experimental: {
+  -    session: {
+  -      driver: 'upstash',
+  -    },
+  +    session: true,
+    },
+  +  session: {
+  +    driver: 'upstash',
+  +  },
+  });
+  ```
+
+  You no longer need to configure a session driver if you are using an adapter that supports automatic session driver configuration and wish to use its default settings.
+
+  ```diff
+  defineConfig({
+    adapter: node({
+      mode: "standalone",
+    }),
+    experimental: {
+  -    session: {
+  -      driver: 'fs',
+  -      cookie: 'astro-cookie',
+  -    },
+  +    session: true,
+    },
+  +  session: {
+  +    cookie: 'astro-cookie',
+  +  },
+  });
+  ```
+
+  However, you can still manually configure additional driver options or choose a non-default driver to use with your adapter with the new top-level `session` config option. For more information, see the [experimental session docs](https://docs.astro.build/en/reference/experimental-flags/sessions/).
+
+- [#13101](https://github.com/withastro/astro/pull/13101) [`2ed67d5`](https://github.com/withastro/astro/commit/2ed67d5dc5c8056f9ab1e29e539bf086b93c60c2) Thanks [@corneliusroemer](https://github.com/corneliusroemer)! - Fixes a bug where `HEAD` and `OPTIONS` requests for non-prerendered pages were incorrectly rejected with 403 FORBIDDEN
+
+## 5.2.6
+
+### Patch Changes
+
+- [#13188](https://github.com/withastro/astro/pull/13188) [`7bc8256`](https://github.com/withastro/astro/commit/7bc825649bfb790a0206abd31df1676513a03b22) Thanks [@ematipico](https://github.com/ematipico)! - Fixes the wording of the an error message
+
+- [#13205](https://github.com/withastro/astro/pull/13205) [`9d56602`](https://github.com/withastro/astro/commit/9d5660223b46e024b4e8c8eafead8a4e20e28ec5) Thanks [@ematipico](https://github.com/ematipico)! - Fixes and issue where a server island component returns 404 when `base` is configured in i18n project.
+
+- [#13212](https://github.com/withastro/astro/pull/13212) [`fb38840`](https://github.com/withastro/astro/commit/fb3884074f261523cd89fe6e1745a0e9c01198f2) Thanks [@joshmkennedy](https://github.com/joshmkennedy)! - An additional has been added during the build command to add clarity around output and buildOutput.
+
+- [#13213](https://github.com/withastro/astro/pull/13213) [`6bac644`](https://github.com/withastro/astro/commit/6bac644241bc42bb565730955ffd575878a0e41b) Thanks [@joshmkennedy](https://github.com/joshmkennedy)! - Allows readonly arrays to be passed to the `paginate()` function
+
+## 5.2.5
+
+### Patch Changes
+
+- [#13133](https://github.com/withastro/astro/pull/13133) [`e76aa83`](https://github.com/withastro/astro/commit/e76aa8391eb9d81c1a52fb2f9f21ede4790bd793) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Astro was failing to build an external redirect when the middleware was triggered
+
+- [#13119](https://github.com/withastro/astro/pull/13119) [`ac43580`](https://github.com/withastro/astro/commit/ac4358052af2c1817dec999598bc4e3d8fd0bdaf) Thanks [@Hacksore](https://github.com/Hacksore)! - Adds extra guidance in the terminal when using the `astro add tailwind` CLI command
+
+  Now, users are given a friendly reminder to import the stylesheet containing their Tailwind classes into any pages where they want to use Tailwind. Commonly, this is a shared layout component so that Tailwind styling can be used on multiple pages.
+
+## 5.2.4
+
+### Patch Changes
+
+- [#13130](https://github.com/withastro/astro/pull/13130) [`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused duplicate slashes inside query params to be collapsed
+
+- [#13131](https://github.com/withastro/astro/pull/13131) [`d60c742`](https://github.com/withastro/astro/commit/d60c74243f639761ad735d66d814e627f8f847a2) Thanks [@ascorbic](https://github.com/ascorbic)! - Ignores trailing slashes for endpoints with file extensions in the route
+
+- Updated dependencies [[`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091)]:
+  - @astrojs/internal-helpers@0.5.1
+
+## 5.2.3
+
+### Patch Changes
+
+- [#13113](https://github.com/withastro/astro/pull/13113) [`3a26e45`](https://github.com/withastro/astro/commit/3a26e4541764085faa499bc63549b24d194146a6) Thanks [@unprintable123](https://github.com/unprintable123)! - Fixes the bug that rewrite will pass encoded url to the dynamic routing and cause params mismatch.
+
+- [#13111](https://github.com/withastro/astro/pull/13111) [`23978dd`](https://github.com/withastro/astro/commit/23978ddfe127bbc3762b6209b42d049588e52a14) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused injected endpoint routes to return not found when trailingSlash was set to always
+
+- [#13112](https://github.com/withastro/astro/pull/13112) [`0fa5c82`](https://github.com/withastro/astro/commit/0fa5c82977de73872ddeffffea48fddafba47398) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the i18n middleware was blocking a server island request when the `prefixDefaultLocale` option is set to `true`
+
+## 5.2.2
+
+### Patch Changes
+
+- [#13106](https://github.com/withastro/astro/pull/13106) [`187c4d3`](https://github.com/withastro/astro/commit/187c4d3244a27c9b4e7e3cbe6307b01161140ca1) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused peer dependency errors when running `astro add tailwind`
+
+## 5.2.1
+
+### Patch Changes
+
+- [#13095](https://github.com/withastro/astro/pull/13095) [`740eb60`](https://github.com/withastro/astro/commit/740eb6019f405781a3918941d3bfb34a7bda1a3d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused some dev server asset requests to return 404 when trailingSlash was set to "always"
+
+## 5.2.0
+
+### Minor Changes
+
+- [#12994](https://github.com/withastro/astro/pull/12994) [`5361755`](https://github.com/withastro/astro/commit/536175528dbbe75aa978d615ba2517b64bad7879) Thanks [@ascorbic](https://github.com/ascorbic)! - Redirects trailing slashes for on-demand pages
+
+  When the `trailingSlash` option is set to `always` or `never`, on-demand rendered pages will now redirect to the correct URL when the trailing slash doesn't match the configuration option. This was previously the case for static pages, but now works for on-demand pages as well.
+
+  Now, it doesn't matter whether your visitor navigates to `/about/`, `/about`, or even `/about///`. In production, they'll always end up on the correct page. For GET requests, the redirect will be a 301 (permanent) redirect, and for all other request methods, it will be a 308 (permanent, and preserve the request method) redirect.
+
+  In development, you'll see a helpful 404 page to alert you of a trailing slash mismatch so you can troubleshoot routes.
+
+- [#12979](https://github.com/withastro/astro/pull/12979) [`e621712`](https://github.com/withastro/astro/commit/e621712109b79313b24924ec4f0ba4f8ab6201c2) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for redirecting to external sites with the [`redirects`](https://docs.astro.build/en/reference/configuration-reference/#redirects) configuration option.
+
+  Now, you can redirect routes either internally to another path or externally by providing a URL beginning with `http` or `https`:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    redirects: {
+      '/blog': 'https://example.com/blog',
+      '/news': {
+        status: 302,
+        destination: 'https://example.com/news',
+      },
+    },
+  });
+  ```
+
+- [#13084](https://github.com/withastro/astro/pull/13084) [`0f3be31`](https://github.com/withastro/astro/commit/0f3be3104e62d5b50dabfb15023f97954a160b8e) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new experimental virtual module `astro:config` that exposes a type-safe subset of your `astro.config.mjs` configuration
+
+  The virtual module exposes two sub-paths for controlled access to your configuration:
+
+  - `astro:config/client`: exposes config information that is safe to expose to the client.
+  - `astro:config/server`: exposes additional information that is safe to expose to the server, such as file/dir paths.
+
+  To enable this new virtual module, add the `experimental.serializeManifest` feature flag to your Astro config:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  export default defineConfig({
+    experimental: {
+      serializeManifest: true,
+    },
+  });
+  ```
+
+  Then, you can access the module in any file inside your project to import and use values from your Astro config:
+
+  ```js
+  // src/utils.js
+  import { trailingSlash } from 'astro:config/client';
+
+  function addForwardSlash(path) {
+    if (trailingSlash === 'always') {
+      return path.endsWith('/') ? path : path + '/';
+    } else {
+      return path;
+    }
+  }
+  ```
+
+  For a complete overview, and to give feedback on this experimental API, see the [Serialized Manifest RFC](https://github.com/withastro/roadmap/blob/feat/serialised-config/proposals/0051-serialized-manifest.md).
+
+### Patch Changes
+
+- [#13049](https://github.com/withastro/astro/pull/13049) [`2ed4bd9`](https://github.com/withastro/astro/commit/2ed4bd90f25a3e5a183d0bc862e3b359b8289b93) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `astro add tailwind` to add the `@tailwindcss/vite` plugin instead of the `@astrojs/tailwind` integration
+
+- [#12994](https://github.com/withastro/astro/pull/12994) [`5361755`](https://github.com/withastro/astro/commit/536175528dbbe75aa978d615ba2517b64bad7879) Thanks [@ascorbic](https://github.com/ascorbic)! - Returns a more helpful 404 page in dev if there is a trailing slash mismatch between the route requested and the `trailingSlash` configuration
+
+- [#12666](https://github.com/withastro/astro/pull/12666) [`037495d`](https://github.com/withastro/astro/commit/037495d437d2328bf10ffadc22cc114ccf474c65) Thanks [@Thodor12](https://github.com/Thodor12)! - Added additional generated typings for the content layer
+
+- Updated dependencies [[`5361755`](https://github.com/withastro/astro/commit/536175528dbbe75aa978d615ba2517b64bad7879), [`db252e0`](https://github.com/withastro/astro/commit/db252e0692a0addf7239bfefc0220c525d63337d)]:
+  - @astrojs/internal-helpers@0.5.0
+  - @astrojs/markdown-remark@6.1.0
+
+## 5.1.10
+
+### Patch Changes
+
+- [#13058](https://github.com/withastro/astro/pull/13058) [`1a14b53`](https://github.com/withastro/astro/commit/1a14b53678525379211c4a7cbcbc34a04c0e4f8d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes broken type declaration
+
+- [#13059](https://github.com/withastro/astro/pull/13059) [`e36837f`](https://github.com/withastro/astro/commit/e36837f91437a66d5c50eb1c399b3d812743251d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused tsconfig path aliases to break if there was more than one wildcard pattern
+
+- [#13045](https://github.com/withastro/astro/pull/13045) [`c7f1366`](https://github.com/withastro/astro/commit/c7f1366413692091bb8d62d901745a77fa663b18) Thanks [@mtwilliams-code](https://github.com/mtwilliams-code)! - Fixes a bug where the some utility functions of the `astro:i18n` virtual module would return an incorrect result when `trailingSlash` is set to `never`
+
+## 5.1.9
+
+### Patch Changes
+
+- [#12986](https://github.com/withastro/astro/pull/12986) [`8911bda`](https://github.com/withastro/astro/commit/8911bdacabb7fffb82bb3b3628467731ea233187) Thanks [@wetheredge](https://github.com/wetheredge)! - Updates types and dev toolbar for ARIA 1.2 attributes and roles
+
+- [#12892](https://github.com/withastro/astro/pull/12892) [`8f520f1`](https://github.com/withastro/astro/commit/8f520f1cc67db51feb966c710e72490a05b88954) Thanks [@louisescher](https://github.com/louisescher)! - Adds a more descriptive error when a content collection entry has an invalid ID.
+
+- [#13031](https://github.com/withastro/astro/pull/13031) [`f576519`](https://github.com/withastro/astro/commit/f5765196e9cd5c582da04ae3bceb4ee1d62b7eae) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the server islands encoding logic to only escape the script end tag open delimiter and opening HTML comment syntax
+
+- [#13026](https://github.com/withastro/astro/pull/13026) [`1d272f6`](https://github.com/withastro/astro/commit/1d272f6a5a3af16ad2ab9af41b7193ce67964b69) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a regression that prevented the import of Markdown files as raw text or URLs.
+
+## 5.1.8
+
+### Patch Changes
+
+- [#12998](https://github.com/withastro/astro/pull/12998) [`9ce0038`](https://github.com/withastro/astro/commit/9ce003802109f704cc1f081759f3d2af2c1ea2c2) Thanks [@Kynson](https://github.com/Kynson)! - Fixes the issue that audit incorrectly flag images as above the fold when the scrolling container is not body
+
+- [#12990](https://github.com/withastro/astro/pull/12990) [`2e12f1d`](https://github.com/withastro/astro/commit/2e12f1d7526f12fa0e1e63482f100bbb81a8b36e) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused references to be incorrectly reported as invalid
+
+- [#12984](https://github.com/withastro/astro/pull/12984) [`2d259cf`](https://github.com/withastro/astro/commit/2d259cf4abf27a4f0a067bedb32d0459c4fce507) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug in dev where files would stop being watched if the Astro config file was edited
+
+- [#12984](https://github.com/withastro/astro/pull/12984) [`2d259cf`](https://github.com/withastro/astro/commit/2d259cf4abf27a4f0a067bedb32d0459c4fce507) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug where the content layer would use an outdated version of the Astro config if it was edited in dev
+
+- [#12982](https://github.com/withastro/astro/pull/12982) [`429aa75`](https://github.com/withastro/astro/commit/429aa7547572915b5f7f9a4146529e704069128b) Thanks [@bluwy](https://github.com/bluwy)! - Fixes an issue where server islands do not work in projects that use an adapter but only have prerendered pages. If an adapter is added, the server island endpoint will now be added by default.
+
+- [#12995](https://github.com/withastro/astro/pull/12995) [`78fd73a`](https://github.com/withastro/astro/commit/78fd73a0dfbfab120111d5f1d1eaecd563bc82a6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `astro:actions` types would not work when using `src/actions.ts`
+
+- [#13011](https://github.com/withastro/astro/pull/13011) [`cf30880`](https://github.com/withastro/astro/commit/cf3088060d45227dcb48e041c4ed5e0081d71398) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Vite
+
+- [#12733](https://github.com/withastro/astro/pull/12733) [`bbf1d88`](https://github.com/withastro/astro/commit/bbf1d8894e6ce5d2ebe45452a27072b9929053a8) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused the dev server to return an error if requesting "//"
+
+- [#13001](https://github.com/withastro/astro/pull/13001) [`627aec3`](https://github.com/withastro/astro/commit/627aec3f04de424ec144cefac4a5a3b70d9ba0fb) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused Astro to attempt to inject environment variables into non-source files, causing performance problems and broken builds
+
+## 5.1.7
+
+### Patch Changes
+
+- [#12361](https://github.com/withastro/astro/pull/12361) [`3d89e62`](https://github.com/withastro/astro/commit/3d89e6282235a8da45d9ddfe02bcf7ec78056941) Thanks [@LunaticMuch](https://github.com/LunaticMuch)! - Upgrades the `esbuild` version to match `vite`
+
+- [#12980](https://github.com/withastro/astro/pull/12980) [`1a026af`](https://github.com/withastro/astro/commit/1a026afb427cd4b472c8f1174a08f10086f4fb89) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where setting the status of a page to `404` in development would show the default 404 page (or custom one if provided) instead of using the current page
+
+- [#12182](https://github.com/withastro/astro/pull/12182) [`c30070b`](https://github.com/withastro/astro/commit/c30070b9271e4c494e7cbf3a1c45515782034911) Thanks [@braden-w](https://github.com/braden-w)! - Improves matching of 404 and 500 routes
+
+- Updated dependencies [[`3d89e62`](https://github.com/withastro/astro/commit/3d89e6282235a8da45d9ddfe02bcf7ec78056941)]:
+  - @astrojs/markdown-remark@6.0.2
+
+## 5.1.6
+
+### Patch Changes
+
+- [#12956](https://github.com/withastro/astro/pull/12956) [`3aff68a`](https://github.com/withastro/astro/commit/3aff68a4195a608e92dc6299610a4b06e7bb96f1) Thanks [@kaytwo](https://github.com/kaytwo)! - Removes encryption of empty props to allow server island cacheability
+
+- [#12977](https://github.com/withastro/astro/pull/12977) [`80067c0`](https://github.com/withastro/astro/commit/80067c032f9ce5852f3315d1046b2d0c220ddcd5) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where accessing `astro:env` APIs or `import.meta.env` inside the content config file would not work
+
+- [#12839](https://github.com/withastro/astro/pull/12839) [`57be349`](https://github.com/withastro/astro/commit/57be3494e2bdc178d073243c8cbfa10edb85b049) Thanks [@mtwilliams-code](https://github.com/mtwilliams-code)! - Fix Astro.currentLocale returning the incorrect locale when using fallback rewrites in SSR mode
+
+- [#12962](https://github.com/withastro/astro/pull/12962) [`4b7a2ce`](https://github.com/withastro/astro/commit/4b7a2ce9e743a5624617563022635678a5ba6051) Thanks [@ascorbic](https://github.com/ascorbic)! - Skips updating content layer files if content is unchanged
+
+- [#12942](https://github.com/withastro/astro/pull/12942) [`f00c2dd`](https://github.com/withastro/astro/commit/f00c2ddc31b5285d14c2f0808c01eafaaf31f5c9) Thanks [@liruifengv](https://github.com/liruifengv)! - Improves the session error messages
+
+- [#12966](https://github.com/withastro/astro/pull/12966) [`d864e09`](https://github.com/withastro/astro/commit/d864e0991e05438d4bdb5e14fab4f7f75efe2a1f) Thanks [@ascorbic](https://github.com/ascorbic)! - Ensures old content collection entry is deleted if a markdown frontmatter slug is changed in dev
+
 ## 5.1.5
 
 ### Patch Changes

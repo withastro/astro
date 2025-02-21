@@ -40,7 +40,11 @@ export type TreeNode =
 
 function renderTreeNodeToFactoryResult(result: SSRResult, treeNode: TreeNode) {
 	if (Array.isArray(treeNode)) {
-		return Promise.all(treeNode.map((node) => renderTreeNodeToFactoryResult(result, node)));
+		return Promise.all(
+			treeNode.map((node) =>
+				renderComponent(result, 'ComponentNode', ComponentNode, { treeNode: node }),
+			),
+		);
 	}
 
 	if (treeNode.type === 'text') return render`${treeNode.content}`;

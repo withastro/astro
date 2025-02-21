@@ -137,6 +137,8 @@ function renderNullChecks(html) {
 	const h2 = document.querySelector('h2');
 	assert.equal(h2.textContent, 'Post with render null');
 	assert.equal(h2.parentElement?.tagName, 'BODY');
+	const divWrapper = document.querySelector('.div-wrapper');
+	assert.equal(divWrapper.textContent, "I'm inside a div wrapper");
 }
 
 /** @param {string} html */

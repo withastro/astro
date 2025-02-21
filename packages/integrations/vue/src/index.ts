@@ -106,13 +106,16 @@ async function getViteConfiguration(
 	command: HookParameters<'astro:config:setup'>['command'],
 	options?: Options,
 ): Promise<UserConfig> {
-	let vueOptions = {
+	const vueOptions = {
 		...options,
 		template: {
 			...options?.template,
 			transformAssetUrls: false,
 		},
 	} satisfies VueOptions;
+
+	// The vue vite plugin may not manage to resolve it automatically
+	vueOptions.compiler ??= await import('vue/compiler-sfc');
 
 	const config: UserConfig = {
 		optimizeDeps: {
@@ -157,6 +160,21 @@ export default function (options?: Options): AstroIntegration {
 					addRenderer(getJsxRenderer());
 				}
 				updateConfig({ vite: await getViteConfiguration(command, options) });
+			},
+			'astro:config:done': ({ logger, config }) => {
+				if (!options?.jsx) return;
+
+				const knownJsxRenderers = ['@astrojs/react', '@astrojs/preact', '@astrojs/solid-js'];
+				const enabledKnownJsxRenderers = config.integrations.filter((renderer) =>
+					knownJsxRenderers.includes(renderer.name),
+				);
+
+				// This error can only be thrown from here since Vue is an optional JSX renderer
+				if (enabledKnownJsxRenderers.length > 1 && !options?.include && !options?.exclude) {
+					logger.warn(
+						'More than one JSX renderer is enabled. This will lead to unexpected behavior unless you set the `include` or `exclude` option. See https://docs.astro.build/en/guides/integrations-guide/solid-js/#combining-multiple-jsx-frameworks for more information.',
+					);
+				}
 			},
 		},
 	};

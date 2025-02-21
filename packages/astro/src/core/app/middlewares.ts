@@ -13,6 +13,9 @@ const FORM_CONTENT_TYPES = [
 	'text/plain',
 ];
 
+// Note: TRACE is unsupported by undici/Node.js
+const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
+
 /**
  * Returns a middleware function in charge to check the `origin` header.
  *
@@ -25,26 +28,22 @@ export function createOriginCheckMiddleware(): MiddlewareHandler {
 		if (isPrerendered) {
 			return next();
 		}
-		if (request.method === 'GET') {
+		// Safe methods don't require origin check
+		if (SAFE_METHODS.includes(request.method)) {
 			return next();
 		}
-		const sameOrigin =
-			(request.method === 'POST' ||
-				request.method === 'PUT' ||
-				request.method === 'PATCH' ||
-				request.method === 'DELETE') &&
-			request.headers.get('origin') === url.origin;
+		const isSameOrigin = request.headers.get('origin') === url.origin;
 
 		const hasContentType = request.headers.has('content-type');
 		if (hasContentType) {
 			const formLikeHeader = hasFormLikeHeader(request.headers.get('content-type'));
-			if (formLikeHeader && !sameOrigin) {
+			if (formLikeHeader && !isSameOrigin) {
 				return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
 					status: 403,
 				});
 			}
 		} else {
-			if (!sameOrigin) {
+			if (!isSameOrigin) {
 				return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
 					status: 403,
 				});
