@@ -78,4 +78,4 @@ jobs:
   
       - name: Publish packages
         run: |
-          pnpx pkg-pr-new publish --pnpm --compact --no-template 'packages/astro' 'packages/integrations/node' 'packages/integrations/cloudflare' 'packages/integrations/netlify' 'packages/integrations/vercel' 
+          pnpm dlx pkg-pr-new publish --pnpm --compact --no-template 'packages/astro' 'packages/integrations/node' 'packages/integrations/cloudflare' 'packages/integrations/netlify' 'packages/integrations/vercel' 
