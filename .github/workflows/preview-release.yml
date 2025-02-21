@@ -24,8 +24,7 @@ env:
 
 jobs:
   preview:
-    if: |
-      ${{ github.repository_owner == 'withastro' && github.event.label.name == 'pr: preview' }}
+    if: ${{ github.repository_owner == 'withastro' && github.event.label.name == 'pr preview' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
