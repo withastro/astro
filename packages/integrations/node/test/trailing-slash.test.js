@@ -81,6 +81,17 @@ describe('Trailing slash', () => {
 				assert.equal(res.status, 200);
 				assert.equal(css, 'h1 { color: red; }\n');
 			});
+
+			it('Does not redirect requests for static assets with unusual filenames', async () => {
+				const res = await fetch(
+					`http://${server.host}:${server.port}/some-base/_astro/bitgeneva12.NY2V_gnX.woff2`,
+					{
+						redirect: 'manual',
+					},
+				);
+
+				assert.equal(res.status, 200);
+			});
 		});
 		describe('Without base', async () => {
 			before(async () => {
@@ -143,11 +154,24 @@ describe('Trailing slash', () => {
 			});
 
 			it('Does not add trailing slash to subresource urls', async () => {
-				const res = await fetch(`http://${server.host}:${server.port}/one.css`);
+				const res = await fetch(`http://${server.host}:${server.port}/one.css`, {
+					redirect: 'manual',
+				});
 				const css = await res.text();
 
 				assert.equal(res.status, 200);
 				assert.equal(css, 'h1 { color: red; }\n');
+			});
+
+			it('Does not redirect requests for static assets with unusual filenames', async () => {
+				const res = await fetch(
+					`http://${server.host}:${server.port}/_astro/bitgeneva12.NY2V_gnX.woff2`,
+					{
+						redirect: 'manual',
+					},
+				);
+
+				assert.equal(res.status, 200);
 			});
 		});
 	});

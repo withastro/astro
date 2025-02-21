@@ -1,5 +1,21 @@
 # @astrojs/node
 
+## 9.1.0
+
+### Minor Changes
+
+- [#13145](https://github.com/withastro/astro/pull/13145) [`8d4e566`](https://github.com/withastro/astro/commit/8d4e566f5420c8a5406e1e40e8bae1c1f87cbe37) Thanks [@ascorbic](https://github.com/ascorbic)! - Automatically configures filesystem storage when experimental session enabled
+
+  If the `experimental.session` flag is enabled when using the Node adapter, Astro will automatically configure session storage using the filesystem driver. You can still manually configure session storage if you need to use a different driver or want to customize the session storage configuration.
+
+  See [the experimental session docs](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information on configuring session storage.
+
+## 9.0.3
+
+### Patch Changes
+
+- [#13223](https://github.com/withastro/astro/pull/13223) [`23094a1`](https://github.com/withastro/astro/commit/23094a1f48d0dfb12c5866a3713f52106ef927dd) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused incorrect redirects for static files with numbers in the file extension
+
 ## 9.0.2
 
 ### Patch Changes

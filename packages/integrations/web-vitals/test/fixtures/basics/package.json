@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@astrojs/db": "workspace:*",
-    "@astrojs/node": "^9.0.2",
+    "@astrojs/node": "workspace:*",
     "@astrojs/web-vitals": "workspace:*",
     "astro": "workspace:*"
   }
