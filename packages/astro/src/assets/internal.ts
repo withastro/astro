@@ -18,6 +18,7 @@ import {
 } from './types.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
+import { addCSSVarsToStyle, cssFitValues } from './utils/imageAttributes.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -151,6 +152,19 @@ export async function getImage(
 		}
 		delete resolvedOptions.priority;
 		delete resolvedOptions.densities;
+
+		if (layout !== 'none') {
+			resolvedOptions.style = addCSSVarsToStyle(
+				{
+					w: String(resolvedOptions.width),
+					h: String(resolvedOptions.height),
+					fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
+					pos: resolvedOptions.position,
+				},
+				resolvedOptions.style,
+			);
+			resolvedOptions['data-astro-image'] = layout;
+		}
 	}
 
 	const validatedOptions = service.validateOptions
