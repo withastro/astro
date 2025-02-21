@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 12.2.2
+
+### Patch Changes
+
+- [#13201](https://github.com/withastro/astro/pull/13201) [`065157c`](https://github.com/withastro/astro/commit/065157cac73e176cd6da9b8b0a157359a20ebebd) Thanks [@ekwoka](https://github.com/ekwoka)! - Includes onerror passthrough param for Cloudflare Image Service
+
 ## 12.2.1
 
 ### Patch Changes
