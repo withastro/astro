@@ -54,6 +54,11 @@ jobs:
   
       - name: Build Packages
         run: pnpm run build
+
+      - name: Remove Preview Label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          labels: "pr: preview"
         
       - name: Publish packages
         run: |
