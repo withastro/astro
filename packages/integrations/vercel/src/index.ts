@@ -12,7 +12,7 @@ import type {
 	IntegrationResolvedRoute,
 } from 'astro';
 import { AstroError } from 'astro/errors';
-import glob from 'fast-glob';
+import { globSync } from 'tinyglobby';
 import {
 	type DevImageService,
 	type VercelImageConfig,
@@ -353,7 +353,7 @@ export default function vercelAdapter({
 					if (_config.vite.assetsInclude) {
 						const mergeGlobbedIncludes = (globPattern: unknown) => {
 							if (typeof globPattern === 'string') {
-								const entries = glob.sync(globPattern).map((p) => pathToFileURL(p));
+								const entries = globSync(globPattern).map((p) => pathToFileURL(p));
 								extraFilesToInclude.push(...entries);
 							} else if (Array.isArray(globPattern)) {
 								for (const pattern of globPattern) {

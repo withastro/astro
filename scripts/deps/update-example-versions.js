@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { globby as glob } from 'globby';
+import { glob } from 'tinyglobby';
 
 /*
   This file updates the dependencies' versions in `examples/*` to match the workspace packages' versions.
