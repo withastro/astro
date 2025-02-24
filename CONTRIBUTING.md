@@ -285,7 +285,7 @@ Assigning labels isn't always easy and many times the distinction between the di
 
 ### Preview releases
 
-You can trigger a preview release **from a PR** anytime by using the label `pr: preview`. Add this label, and a workflow will trigger, which at the end will add a comment with the instructions of how to install the preview release.
+You can trigger a preview release **from a PR** anytime by using the label `pr preview`. Add this label, and a workflow will trigger, which at the end will add a comment with the instructions of how to install the preview release.
 
 If you're in need to trigger multiple preview releases from the same PR, remove the label and add it again.
 
