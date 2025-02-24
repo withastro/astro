@@ -54,8 +54,8 @@ describe('Astro dev with vite.base path', () => {
 				headers,
 			},
 			vite: {
-				base: '/hello'
-			}
+				base: '/hello',
+			},
 		});
 		await fixture.build();
 		devServer = await fixture.startDevServer();
