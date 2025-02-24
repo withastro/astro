@@ -121,9 +121,10 @@ describe('Astro.params in  dev mode', () => {
 					"/d/_'%22()&%25%3Czzz%3E%3CScRiPt%20%3EjEUh(9725)%3C%2fScRiPt%3E_4pGyF4moGuWlju5fyPal9rk6Zu7C8E77dNJetF_tSY0",
 				)
 				.then((res) => res.text());
-			assert.ok();
-		} catch {
-			assert.fail('Should not throw an error');
+			assert.ok(true);
+		} catch (e) {
+			console.log(e);
+			assert.fail('Should not throw an error: ' + e.message);
 		}
 	});
 });
