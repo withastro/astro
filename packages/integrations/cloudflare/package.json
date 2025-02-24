@@ -33,8 +33,8 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "0.4.2",
-    "@astrojs/underscore-redirects": "^0.6.0",
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/workers-types": "^4.20250109.0",
     "esbuild": "^0.24.0",
     "estree-walker": "^3.0.3",

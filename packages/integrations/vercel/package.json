@@ -46,7 +46,7 @@
     "test:hosted": "astro-scripts test --timeout 30000 \"test/hosted/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "^0.5.1",
+    "@astrojs/internal-helpers": "workspace:*",
     "@vercel/analytics": "^1.4.1",
     "@vercel/edge": "^1.2.1",
     "@vercel/nft": "^0.29.0",
