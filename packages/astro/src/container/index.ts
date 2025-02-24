@@ -157,7 +157,7 @@ function createManifest(
 		clientDirectives: manifest?.clientDirectives ?? getDefaultClientDirectives(),
 		renderers: renderers ?? manifest?.renderers ?? [],
 		base: manifest?.base ?? ASTRO_CONFIG_DEFAULTS.base,
-		viteBase: manifest?.viteBase ?? '',
+		userAssetsBase: manifest?.userAssetsBase ?? '',
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
@@ -235,7 +235,7 @@ type AstroContainerManifest = Pick<
 	| 'renderers'
 	| 'assetsPrefix'
 	| 'base'
-	| 'viteBase'
+	| 'userAssetsBase'
 	| 'routes'
 	| 'assets'
 	| 'entryModules'

@@ -27,8 +27,8 @@ export function renderAllHeadContent(result: SSRResult) {
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
 		.map((script) => {
-			if(result.viteBase){
-				script.props.src = (result.base === '/' ? '' : result.base) + result.viteBase + script.props.src;
+			if(result.userAssetsBase){
+				script.props.src = (result.base === '/' ? '' : result.base) + result.userAssetsBase + script.props.src;
 			}
 			return renderElement('script', script, false);
 		});

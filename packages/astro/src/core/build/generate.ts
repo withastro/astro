@@ -630,7 +630,7 @@ function createBuildManifest(
 		compressHTML: settings.config.compressHTML,
 		renderers,
 		base: settings.config.base,
-		viteBase: settings.config?.vite?.base,
+		userAssetsBase: settings.config?.vite?.base,
 		assetsPrefix: settings.config.build.assetsPrefix,
 		site: settings.config.site,
 		componentMetadata: internals.componentMetadata,
