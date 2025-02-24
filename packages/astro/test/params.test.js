@@ -113,6 +113,19 @@ describe('Astro.params in  dev mode', () => {
 		const $ = cheerio.load(html);
 		assert.equal($('.category').text(), '你好');
 	});
+
+	it('should not decode twice', async () => {
+		try {
+			await fixture
+				.fetch(
+					"/d/_'%22()&%25%3Czzz%3E%3CScRiPt%20%3EjEUh(9725)%3C%2fScRiPt%3E_4pGyF4moGuWlju5fyPal9rk6Zu7C8E77dNJetF_tSY0",
+				)
+				.then((res) => res.text());
+			assert.ok();
+		} catch {
+			assert.fail('Should not throw an error');
+		}
+	});
 });
 
 describe('Astro.params in static mode', () => {
