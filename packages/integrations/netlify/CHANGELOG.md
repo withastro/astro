@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 6.2.1
+
+### Patch Changes
+
+- [#13299](https://github.com/withastro/astro/pull/13299) [`2e1321e`](https://github.com/withastro/astro/commit/2e1321e9d5b27da3e86bc4021e4136661a8055aa) Thanks [@bluwy](https://github.com/bluwy)! - Uses `tinyglobby` for globbing files
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
 ## 6.2.0
 
 ### Minor Changes
