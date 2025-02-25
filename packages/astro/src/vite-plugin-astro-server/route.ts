@@ -22,6 +22,7 @@ import type { ComponentInstance, RoutesList } from '../types/astro.js';
 import type { RouteData } from '../types/public/internal.js';
 import type { DevPipeline } from './pipeline.js';
 import { writeSSRResult, writeWebResponse } from './response.js';
+import {loadActions} from "../actions/loadActions.js";
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -159,6 +160,8 @@ export async function handleRoute({
 	let renderContext: RenderContext;
 	let mod: ComponentInstance | undefined = undefined;
 	let route: RouteData;
+	const actions = await loadActions(loader);
+	pipeline.setAstroActions(actions);
 	const middleware = (await loadMiddleware(loader)).onRequest;
 	// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
 	const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
@@ -192,6 +195,7 @@ export async function handleRoute({
 		request,
 		routeData: route,
 		clientAddress: incomingRequest.socket.remoteAddress,
+		actions
 	});
 
 	let response;

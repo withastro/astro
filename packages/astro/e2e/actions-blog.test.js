@@ -18,7 +18,7 @@ test.afterEach(async ({ astro }) => {
 	await astro.editFile('./db/seed.ts', (original) => original, false);
 });
 
-test.describe.skip('Astro Actions - Blog', () => {
+test.describe('Astro Actions - Blog', () => {
 	test('Like action', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
 		const likeButton = page.getByLabel('Like');

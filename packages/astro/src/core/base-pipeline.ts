@@ -122,6 +122,10 @@ export abstract class Pipeline {
 			return this.resolvedMiddleware;
 		}
 	}
+	
+	setAstroActions(actions: SSRAstroActions) {
+		this.resolvedActions = actions;
+	}
 
 	async getAstroActions(): Promise<SSRAstroActions> {
 		if (this.resolvedActions) {

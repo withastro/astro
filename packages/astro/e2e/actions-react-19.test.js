@@ -18,7 +18,7 @@ test.afterAll(async () => {
 	await devServer.stop();
 });
 
-test.describe.skip('Astro Actions - React 19', () => {
+test.describe('Astro Actions - React 19', () => {
 	test('Like action - client pending state', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
 		const likeButton = page.getByLabel('likes-client');

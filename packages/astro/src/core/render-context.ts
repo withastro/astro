@@ -33,6 +33,7 @@ import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from '.
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
 import { getActionContext } from '../actions/runtime/virtual/server.js';
+import type {SSRAstroActions} from "./app/types.js";
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -45,6 +46,7 @@ export class RenderContext {
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
+		readonly actions: SSRAstroActions,
 		// It must be a DECODED pathname
 		public pathname: string,
 		public request: Request,
@@ -81,16 +83,19 @@ export class RenderContext {
 		status = 200,
 		props,
 		partial = undefined,
+		actions
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'> &
 		Partial<
-			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial'>
+			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial' | 'actions'>
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
+		const pipelineActions = actions ?? await pipeline.getAstroActions();
 		setOriginPathname(request, pathname);
 		return new RenderContext(
 			pipeline,
 			locals,
 			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
+			pipelineActions,
 			pathname,
 			request,
 			routeData,

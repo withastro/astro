@@ -46,13 +46,11 @@ export default function createVitePluginAstroServer({
 		name: 'astro:server',
 		async configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
-			const actions = await loadActions(loader);
 			const pipeline = DevPipeline.create(routesList, {
 				loader,
 				logger,
 				manifest,
 				settings,
-				actions,
 			});
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();

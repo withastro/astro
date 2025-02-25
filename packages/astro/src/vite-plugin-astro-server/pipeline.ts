@@ -61,10 +61,8 @@ export class DevPipeline extends Pipeline {
 			logger,
 			manifest,
 			settings,
-			actions,
-		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings' | 'actions'>,
+		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>,
 	) {
-		manifest.actions = actions;
 		const pipeline = new DevPipeline(loader, logger, manifest, settings);
 		pipeline.routesList = manifestData;
 		return pipeline;
