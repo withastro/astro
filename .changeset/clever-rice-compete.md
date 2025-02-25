@@ -2,6 +2,22 @@
 'astro': patch
 ---
 
-Add CSS variables in `getImage` for `experimental.responsiveImages`
+Adds experimental responsive image support in Markdown
 
-Previously, the responsive images experiment only applied to the `<Image />` and `<Picture />` components. However, images included through Markdown would not have the same styling applied to them, unless using MDX. This change consolidates more styling into `getImage` so it is accessible in more places.
+Previously, the `experimental.responsiveImages` could only provide responsive images when using the `<Image />` and `<Picture />` components.
+
+Now, images written with the `![]()` Markdown syntax in Markdown and MDX files will generate responsive images by default when using this experimental feature.
+
+To try this experimental feature, set `experimental.responsiveImages` to true in your `astro.config.mjs` file:
+
+```js
+{
+   experimental: {
+      responsiveImages: true,
+   },
+}
+```
+
+Learn more about using this feature in the [Experimental responsive images feature reference](https://docs.astro.build/en/reference/experimental-flags/responsive-images/).
+
+For a complete overview, and to give feedback on this experimental API, see the [Responsive Images RFC](https://github.com/withastro/roadmap/blob/responsive-images/proposals/0053-responsive-images.md).
