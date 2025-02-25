@@ -23,6 +23,8 @@ export const rehypeShiki: Plugin<[ShikiConfig?], Root> = (config) => {
 				defaultColor: config?.defaultColor,
 				transformers: config?.transformers,
 			});
+		}, {
+			excludeLanguages: config?.excludeLangs,
 		});
 	};
 };

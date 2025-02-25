@@ -21,7 +21,13 @@ const languagePattern = /\blanguage-(\S+)\b/;
  *   A function which receives the code and language, and returns the HTML of a syntax
  *   highlighted `<pre>` element.
  */
-export async function highlightCodeBlocks(tree: Root, highlighter: Highlighter) {
+export async function highlightCodeBlocks(
+	tree: Root,
+	highlighter: Highlighter,
+	{ excludeLanguages }: { excludeLanguages?: string[] } = {},
+) {
+	// Don’t highlight math code blocks by default.
+	excludeLanguages ??= ['math'];
 	const nodes: Array<{
 		node: Element;
 		language: string;
@@ -61,8 +67,7 @@ export async function highlightCodeBlocks(tree: Root, highlighter: Highlighter) 
 			}
 		}
 
-		// Don’t mighlight math code blocks.
-		if (languageMatch?.[1] === 'math') {
+		if (excludeLanguages.includes(languageMatch?.[1] ?? '')) {
 			return;
 		}
 

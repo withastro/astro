@@ -37,7 +37,9 @@ export type ThemePresets = BuiltinTheme | 'css-variables';
 
 export interface ShikiConfig
 	extends Pick<CreateShikiHighlighterOptions, 'langs' | 'theme' | 'themes' | 'langAlias'>,
-		Pick<ShikiHighlighterHighlightOptions, 'defaultColor' | 'wrap' | 'transformers'> {}
+		Pick<ShikiHighlighterHighlightOptions, 'defaultColor' | 'wrap' | 'transformers'> {
+	excludeLangs?: string[];
+}
 
 export interface AstroMarkdownOptions {
 	syntaxHighlight?: 'shiki' | 'prism' | false;
