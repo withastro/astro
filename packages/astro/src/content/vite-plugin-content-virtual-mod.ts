@@ -2,8 +2,8 @@ import nodeFs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
-import glob from 'fast-glob';
 import pLimit from 'p-limit';
+import { glob } from 'tinyglobby';
 import type { Plugin, ViteDevServer } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
@@ -280,7 +280,7 @@ export async function generateLookupMap({
 		{
 			absolute: true,
 			cwd: fileURLToPath(root),
-			fs,
+			expandDirectories: false,
 		},
 	);
 

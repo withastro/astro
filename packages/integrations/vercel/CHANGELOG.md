@@ -1,5 +1,13 @@
 # @astrojs/vercel
 
+## 8.0.8
+
+### Patch Changes
+
+- [#13304](https://github.com/withastro/astro/pull/13304) [`6efd57d`](https://github.com/withastro/astro/commit/6efd57d1747052e9a61d8867dd5941d0bf65ff22) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a small issue where the package was pulling an outdated version of its internal dependencies.
+
+- [#13299](https://github.com/withastro/astro/pull/13299) [`2e1321e`](https://github.com/withastro/astro/commit/2e1321e9d5b27da3e86bc4021e4136661a8055aa) Thanks [@bluwy](https://github.com/bluwy)! - Uses `tinyglobby` for globbing files
+
 ## 8.0.7
 
 ### Patch Changes

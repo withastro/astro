@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import glob from 'fast-glob';
 import type { OutputChunk } from 'rollup';
+import { glob } from 'tinyglobby';
 import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
@@ -287,6 +287,7 @@ function buildManifest(
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,
+		userAssetsBase: settings.config?.vite?.base,
 		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,

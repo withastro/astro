@@ -1,5 +1,23 @@
 # astro
 
+## 5.3.1
+
+### Patch Changes
+
+- [#13233](https://github.com/withastro/astro/pull/13233) [`32fafeb`](https://github.com/withastro/astro/commit/32fafeb874cc4b6312eb50d54d9f0ca6b83aedbc) Thanks [@joshmkennedy](https://github.com/joshmkennedy)! - Ensures consistent behaviour of `Astro.rewrite`/`ctx.rewrite` when using `base` and `trailingSlash` options.
+
+- [#13003](https://github.com/withastro/astro/pull/13003) [`ea79054`](https://github.com/withastro/astro/commit/ea790542e186b0d2d2e828cb3ebd23bde4d04879) Thanks [@chaegumi](https://github.com/chaegumi)! - Fixes a bug that caused the `vite.base` value to be ignored when running `astro dev`
+
+- [#13299](https://github.com/withastro/astro/pull/13299) [`2e1321e`](https://github.com/withastro/astro/commit/2e1321e9d5b27da3e86bc4021e4136661a8055aa) Thanks [@bluwy](https://github.com/bluwy)! - Uses `tinyglobby` for globbing files
+
+- [#13233](https://github.com/withastro/astro/pull/13233) [`32fafeb`](https://github.com/withastro/astro/commit/32fafeb874cc4b6312eb50d54d9f0ca6b83aedbc) Thanks [@joshmkennedy](https://github.com/joshmkennedy)! - Ensures that `Astro.url`/`ctx.url` is correctly updated with the `base` path after rewrites.
+
+  This change fixes an issue where `Astro.url`/`ctx.url` did not include the configured base path after Astro.rewrite was called. Now, the base path is correctly reflected in Astro.url.
+
+  Previously, any rewrites performed through `Astro.rewrite`/`ctx.rewrite` failed to append the base path to `Astro.url`/`ctx.rewrite`, which could lead to incorrect URL handling in downstream logic. By fixing this, we ensure that all routes remain consistent and predictable after a rewrite.
+
+  If you were relying on the work around of including the base path in astro.rewrite you can now remove it from the path.
+
 ## 5.3.0
 
 ### Minor Changes

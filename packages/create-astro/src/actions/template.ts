@@ -103,6 +103,19 @@ export default async function copyTemplate(tmpl: string, ctx: Context) {
 				cwd: ctx.cwd,
 				dir: '.',
 			});
+
+			// Modify the README file to reflect the correct package manager
+			if (ctx.packageManager !== 'npm') {
+				const readmePath = path.resolve(ctx.cwd, 'README.md');
+				const readme = fs.readFileSync(readmePath, 'utf8');
+
+				// `run` is removed since it's optional in other package managers
+				const updatedReadme = readme
+					.replace(/\bnpm run\b/g, ctx.packageManager)
+					.replace(/\bnpm\b/g, ctx.packageManager);
+
+				fs.writeFileSync(readmePath, updatedReadme);
+			}
 		} catch (err: any) {
 			// Only remove the directory if it's most likely created by us.
 			if (ctx.cwd !== '.' && ctx.cwd !== './' && !ctx.cwd.startsWith('../')) {
