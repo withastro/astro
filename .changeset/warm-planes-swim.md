@@ -2,13 +2,10 @@
 '@astrojs/markdown-remark': minor
 ---
 
-Transform remote images in addition to local images
+Adds remote image optimization in Markdown
 
-Previously, an internal remark plugin only looked for images in `![]()` syntax
-that referred to a relative path, passing through to an internal rehype plugin
-that would transform them for later processing by Astro's image service.
+Previously, an internal remark plugin only looked for images in `![]()` syntax that referred to a relative file path. This meant that only local images stored in `src/` were passed through to an internal rehype plugin that would transform them for later processing by Astro's image service.
 
-Now, the plugins transform both local and remote images, outputting them into
-`localImagePaths` and `remoteImagePaths` metadata fields. A new configuration
-option, mirroring the one used by Astro, can be provided to control which
-remote images get processed this way.
+Now, the plugins recognize and transform both local and remote images using this syntax.
+
+While not configurable at this time, this process outputs two separate metadata fields (`localImagePaths` and `remoteImagePaths`) which allow for the possibility of controlling the behavior of each type of image separately in the future.
