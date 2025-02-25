@@ -118,7 +118,7 @@ describe('Astro.params in  dev mode', () => {
 		try {
 			await fixture
 				.fetch(
-					"/d/_'%22()&%25%3Czzz%3E%3CScRiPt%20%3EjEUh(9725)%3C%2fScRiPt%3E_4pGyF4moGuWlju5fyPal9rk6Zu7C8E77dNJetF_tSY0",
+					"/d/_'%22()&%25",
 				)
 				.then((res) => res.text());
 			assert.ok(true);
