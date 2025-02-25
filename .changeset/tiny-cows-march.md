@@ -8,4 +8,4 @@ Previously, Astro only allowed local images to be optimized when included using 
 
 Now, Astro's image service can also optimize remote images written in standard Markdown syntax. This allows you to enjoy the benefits of Astro's image processing when your images are stored externally, for example in a CMS or digital asset manager.
 
-No additional configuration is required to use this feature! Any existing remote images written in Markdown will now automatically be optimized. To opt-out of this processing, write your images in Markdown using the HTML `<img>` tag instead. Note that images located in your `public/` folder are still never processed.
+No additional configuration is required to use this feature! Any existing remote images written in Markdown will now automatically be optimized. To opt-out of this processing, write your images in Markdown using the JSX `<img/>` tag instead. Note that images located in your `public/` folder are still never processed.
