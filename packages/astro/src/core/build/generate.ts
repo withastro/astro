@@ -27,7 +27,7 @@ import type {
 	SSRError,
 	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
-import type { SSRAstroActions, SSRManifest, SSRManifestI18n } from '../app/types.js';
+import type { SSRActions, SSRManifest, SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
@@ -64,7 +64,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			? await import(internals.middlewareEntryPoint.toString()).then((mod) => mod.onRequest)
 			: NOOP_MIDDLEWARE_FN;
 
-		const actions: SSRAstroActions = internals.astroActionsEntryPoint
+		const actions: SSRActions = internals.astroActionsEntryPoint
 			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
 			: { server: {} };
 		manifest = createBuildManifest(
@@ -603,7 +603,7 @@ function createBuildManifest(
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[],
 	middleware: MiddlewareHandler,
-	actions: SSRAstroActions,
+	actions: SSRActions,
 	key: Promise<CryptoKey>,
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;

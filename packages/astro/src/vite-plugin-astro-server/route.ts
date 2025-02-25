@@ -161,7 +161,7 @@ export async function handleRoute({
 	let mod: ComponentInstance | undefined = undefined;
 	let route: RouteData;
 	const actions = await loadActions(loader);
-	pipeline.setAstroActions(actions);
+	pipeline.setActions(actions);
 	const middleware = (await loadMiddleware(loader)).onRequest;
 	// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
 	const locals = Reflect.get(incomingRequest, clientLocalsSymbol);

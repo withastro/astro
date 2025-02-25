@@ -77,7 +77,7 @@ export type SSRManifest = {
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
-	actions?: SSRAstroActions;
+	actions?: SSRActions;
 	checkOrigin: boolean;
 	sessionConfig?: ResolvedSessionConfig<any>;
 	cacheDir: string | URL;
@@ -88,7 +88,7 @@ export type SSRManifest = {
 	buildServerDir: string | URL;
 };
 
-export type SSRAstroActions = {
+export type SSRActions = {
 	server: Record<string, ActionClient<unknown, ActionAccept, ZodType>>;
 };
 

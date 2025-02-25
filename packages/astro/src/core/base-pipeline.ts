@@ -14,7 +14,7 @@ import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
-import type { SSRAstroActions } from './app/types.js';
+import type { SSRActions } from './app/types.js';
 import type { ActionAccept, ActionClient } from '../actions/runtime/virtual/server.js';
 import type { ZodType } from 'zod';
 import { AstroError } from './errors/index.js';
@@ -29,7 +29,7 @@ import { ActionNotFoundError } from './errors/errors-data.js';
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
-	resolvedActions: SSRAstroActions | undefined = undefined;
+	resolvedActions: SSRActions | undefined = undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -123,11 +123,11 @@ export abstract class Pipeline {
 		}
 	}
 	
-	setAstroActions(actions: SSRAstroActions) {
+	setActions(actions: SSRActions) {
 		this.resolvedActions = actions;
 	}
 
-	async getAstroActions(): Promise<SSRAstroActions> {
+	async getActions(): Promise<SSRActions> {
 		if (this.resolvedActions) {
 			return this.resolvedActions;
 		} else if (this.actions) {
@@ -138,7 +138,7 @@ export abstract class Pipeline {
 
 	async getAction(path: string): Promise<ActionClient<unknown, ActionAccept, ZodType>> {
 		const pathKeys = path.split('.').map((key) => decodeURIComponent(key));
-		let { server } = await this.getAstroActions();
+		let { server } = await this.getActions();
 
 		if (!server || !(typeof server === 'object')) {
 			throw new TypeError(
