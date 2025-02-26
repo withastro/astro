@@ -68,7 +68,6 @@ export type ServerConfig = {
 	 */
 	port?: number;
 
-
 	/**
 	 * @name server.allowedHosts
 	 * @type {string[] | true}
@@ -81,7 +80,7 @@ export type ServerConfig = {
 	 *
 	 * ```js
 	 * {
-	 *   server: { 
+	 *   server: {
 	 *   	allowedHosts: ['staging.example.com', 'qa.example.com']
 	 *   }
 	 * }
