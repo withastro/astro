@@ -1,9 +1,9 @@
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { BuiltinTheme } from 'shiki';
 import type * as unified from 'unified';
-import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type { CreateShikiHighlighterOptions, ShikiHighlighterHighlightOptions } from './shiki.js';
 
 export type { Node } from 'unist';

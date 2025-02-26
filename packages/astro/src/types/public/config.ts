@@ -1,7 +1,5 @@
 import type { OutgoingHttpHeaders } from 'node:http';
-import type {
-	RemotePattern
-} from '@astrojs/internal-helpers/remote';
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
 	RehypePlugins,
 	RemarkPlugins,

@@ -1,8 +1,8 @@
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import type { Root } from 'mdast';
 import { definitions } from 'mdast-util-definitions';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
-import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import type { AstroMarkdownProcessorOptions } from './types.js';
 
 export function remarkCollectImages(opts: AstroMarkdownProcessorOptions['image']) {

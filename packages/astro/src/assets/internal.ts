@@ -16,9 +16,9 @@ import {
 	type UnresolvedImageTransform,
 	isImageMetadata,
 } from './types.js';
+import { addCSSVarsToStyle, cssFitValues } from './utils/imageAttributes.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
-import { addCSSVarsToStyle, cssFitValues } from './utils/imageAttributes.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
