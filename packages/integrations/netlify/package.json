@@ -42,7 +42,7 @@
     "@netlify/functions": "^2.8.0",
     "@vercel/nft": "^0.29.0",
     "esbuild": "^0.24.0",
-    "tinyglobby": "^0.2.12",
+    "tinyglobby": "catalog:",
     "vite": "^6.0.7"
   },
   "peerDependencies": {

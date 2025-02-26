@@ -4,6 +4,36 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    p-limit:
+      specifier: ^6.2.0
+      version: 6.2.0
+    preferred-pm:
+      specifier: ^4.1.1
+      version: 4.1.1
+    rehype-raw:
+      specifier: ^7.0.0
+      version: 7.0.0
+    shiki:
+      specifier: ^1.29.2
+      version: 1.29.2
+    tinyexec:
+      specifier: ^0.3.2
+      version: 0.3.2
+    tinyglobby:
+      specifier: ^0.2.12
+      version: 0.2.12
+    tsconfck:
+      specifier: ^3.1.4
+      version: 3.1.4
+    vite:
+      specifier: ^6.0.11
+      version: 6.1.0
+    zod:
+      specifier: ^3.24.1
+      version: 3.24.1
+
 importers:
 
   .:
@@ -49,7 +79,7 @@ importers:
         specifier: ^0.3.2
         version: 0.3.2
       tinyglobby:
-        specifier: ^0.2.12
+        specifier: 'catalog:'
         version: 0.2.12
       turbo:
         specifier: ^2.4.0
@@ -97,7 +127,7 @@ importers:
         specifier: ^0.33.3
         version: 0.33.3
       tinyexec:
-        specifier: ^0.3.2
+        specifier: 'catalog:'
         version: 0.3.2
     devDependencies:
       '@codspeed/vitest-plugin':
@@ -566,7 +596,7 @@ importers:
         specifier: ^0.6.18
         version: 0.6.18
       p-limit:
-        specifier: ^6.2.0
+        specifier: 'catalog:'
         version: 6.2.0
       p-queue:
         specifier: ^8.1.0
@@ -575,7 +605,7 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       preferred-pm:
-        specifier: ^4.1.1
+        specifier: 'catalog:'
         version: 4.1.1
       prompts:
         specifier: ^2.4.2
@@ -587,16 +617,16 @@ importers:
         specifier: ^7.7.1
         version: 7.7.1
       shiki:
-        specifier: ^1.29.2
+        specifier: 'catalog:'
         version: 1.29.2
       tinyexec:
-        specifier: ^0.3.2
+        specifier: 'catalog:'
         version: 0.3.2
       tinyglobby:
-        specifier: ^0.2.12
+        specifier: 'catalog:'
         version: 0.2.12
       tsconfck:
-        specifier: ^3.1.4
+        specifier: 'catalog:'
         version: 3.1.4(typescript@5.7.3)
       ultrahtml:
         specifier: ^1.5.3
@@ -611,7 +641,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
       vitefu:
         specifier: ^1.0.5
@@ -629,7 +659,7 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0
       zod:
-        specifier: ^3.24.1
+        specifier: 'catalog:'
         version: 3.24.1
       zod-to-json-schema:
         specifier: ^3.24.1
@@ -637,10 +667,6 @@ importers:
       zod-to-ts:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.7.3)(zod@3.24.1)
-    optionalDependencies:
-      sharp:
-        specifier: ^0.33.3
-        version: 0.33.3
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.4
@@ -747,6 +773,10 @@ importers:
       vitest:
         specifier: ^3.0.5
         version: 3.0.5(@types/debug@4.1.12)(@types/node@22.13.1)(jiti@2.4.2)(jsdom@23.2.0)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
+    optionalDependencies:
+      sharp:
+        specifier: ^0.33.3
+        version: 0.33.3
 
   packages/astro-prism:
     dependencies:
@@ -4318,7 +4348,7 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0
       zod:
-        specifier: ^3.24.1
+        specifier: 'catalog:'
         version: 3.24.1
     devDependencies:
       '@types/deep-diff':
@@ -4343,7 +4373,7 @@ importers:
         specifier: ^5.7.3
         version: 5.7.3
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/db/test/fixtures/basics:
@@ -4484,7 +4514,7 @@ importers:
         specifier: ^5.7.3
         version: 5.7.3
       zod:
-        specifier: ^3.24.1
+        specifier: 'catalog:'
         version: 3.24.1
 
   packages/integrations/alpinejs:
@@ -4499,7 +4529,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/integrations/alpinejs/test/fixtures/basics:
@@ -4571,10 +4601,10 @@ importers:
         specifier: ^3.20241230.1
         version: 3.20250129.0
       tinyglobby:
-        specifier: ^0.2.12
+        specifier: 'catalog:'
         version: 0.2.12
       vite:
-        specifier: ^6.0.7
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
       wrangler:
         specifier: ^3.101.0
@@ -4764,7 +4794,7 @@ importers:
         specifier: ^0.18.7
         version: 0.18.9
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/integrations/markdoc/test/fixtures/content-collections:
@@ -4941,7 +4971,7 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5
       rehype-raw:
-        specifier: ^7.0.0
+        specifier: 'catalog:'
         version: 7.0.0
       remark-gfm:
         specifier: ^4.0.0
@@ -5008,13 +5038,13 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       shiki:
-        specifier: ^1.29.2
+        specifier: 'catalog:'
         version: 1.29.2
       unified:
         specifier: ^11.0.5
         version: 11.0.5
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/integrations/mdx/test/fixtures/css-head-mdx:
@@ -5194,7 +5224,7 @@ importers:
         specifier: ^0.24.0
         version: 0.24.2
       tinyglobby:
-        specifier: ^0.2.12
+        specifier: 'catalog:'
         version: 0.2.12
       vite:
         specifier: ^6.0.7
@@ -5498,7 +5528,7 @@ importers:
         specifier: ^6.5.13
         version: 6.5.13(preact@10.25.4)
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
     devDependencies:
       astro:
@@ -5520,7 +5550,7 @@ importers:
         specifier: ^1.5.3
         version: 1.5.3
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
     devDependencies:
       '@types/react':
@@ -5575,7 +5605,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       zod:
-        specifier: ^3.24.1
+        specifier: 'catalog:'
         version: 3.24.1
     devDependencies:
       '@astrojs/node':
@@ -5630,7 +5660,7 @@ importers:
   packages/integrations/solid:
     dependencies:
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
       vite-plugin-solid:
         specifier: ^2.11.1
@@ -5655,7 +5685,7 @@ importers:
         specifier: ^0.7.34
         version: 0.7.34(svelte@5.19.9)(typescript@5.7.3)
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
     devDependencies:
       astro:
@@ -5690,7 +5720,7 @@ importers:
         specifier: ^3.4.17
         version: 3.4.17
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/integrations/tailwind/test/fixtures/basic:
@@ -5922,7 +5952,7 @@ importers:
         specifier: ^3.5.13
         version: 3.5.13
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
       vite-plugin-vue-devtools:
         specifier: ^7.7.1
@@ -6092,7 +6122,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       rehype-raw:
-        specifier: ^7.0.0
+        specifier: 'catalog:'
         version: 7.0.0
       rehype-stringify:
         specifier: ^10.0.1
@@ -6110,7 +6140,7 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       shiki:
-        specifier: ^1.29.2
+        specifier: 'catalog:'
         version: 1.29.2
       smol-toml:
         specifier: ^1.3.1
@@ -6178,7 +6208,7 @@ importers:
         specifier: ^5.7.3
         version: 5.7.3
       vite:
-        specifier: ^6.0.11
+        specifier: 'catalog:'
         version: 6.1.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/telemetry:
@@ -6236,7 +6266,7 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1
       preferred-pm:
-        specifier: ^4.1.1
+        specifier: 'catalog:'
         version: 4.1.1
       semver:
         specifier: ^7.7.1
@@ -6264,16 +6294,16 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5
       p-limit:
-        specifier: ^6.2.0
+        specifier: 'catalog:'
         version: 6.2.0
       tinyexec:
-        specifier: ^0.3.2
+        specifier: 'catalog:'
         version: 0.3.2
       tinyglobby:
-        specifier: ^0.2.12
+        specifier: 'catalog:'
         version: 0.2.12
       tsconfck:
-        specifier: ^3.1.4
+        specifier: 'catalog:'
         version: 3.1.4(typescript@5.7.3)
 
 packages:
