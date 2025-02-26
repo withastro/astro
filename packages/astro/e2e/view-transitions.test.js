@@ -1603,4 +1603,20 @@ test.describe('View Transitions', () => {
 		await page.click('#click-two');
 		expect(lines.join('\n')).toBe(expected);
 	});
+
+	test.skip('astro-data-rerun reruns known scripts', async ({ page, astro }) => {
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
+		});
+		await page.goto(astro.resolveUrl('/page1-with-scripts'));
+		await expect(page).toHaveTitle('Page 1');
+		await page.click('#link');
+		await expect(page).toHaveTitle('Page 2');
+		await page.click('#link');
+		await expect(page).toHaveTitle('Page 3');
+		await page.click('#link');
+		await expect(page).toHaveTitle('Page 1');
+		expect(lines.join("")).toBe('312233');
+	});
 });
