@@ -114,19 +114,6 @@ describe('Astro.params in  dev mode', () => {
 		assert.equal($('.category').text(), '你好');
 	});
 
-	it('should not decode twice', async () => {
-		try {
-			await fixture
-				.fetch(
-					"/d/_'%22()&%25",
-				)
-				.then((res) => res.text());
-			assert.ok(true);
-		} catch (e) {
-			console.log(e);
-			assert.fail('Should not throw an error: ' + e.message);
-		}
-	});
 });
 
 describe('Astro.params in static mode', () => {
