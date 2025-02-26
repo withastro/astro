@@ -113,7 +113,6 @@ describe('Astro.params in  dev mode', () => {
 		const $ = cheerio.load(html);
 		assert.equal($('.category').text(), '你好');
 	});
-
 });
 
 describe('Astro.params in static mode', () => {
