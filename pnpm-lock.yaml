@@ -6067,6 +6067,9 @@ importers:
 
   packages/markdown/remark:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
       '@astrojs/prism':
         specifier: workspace:*
         version: link:../../astro-prism

@@ -13,12 +13,16 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "exports": {
     "./path": "./dist/path.js",
+    "./remote": "./dist/remote.js",
     "./fs": "./dist/fs.js"
   },
   "typesVersions": {
     "*": {
       "path": [
         "./dist/path.d.ts"
+      ],
+      "remote": [
+        "./dist/remote.d.ts"
       ],
       "fs": [
         "./dist/fs.d.ts"

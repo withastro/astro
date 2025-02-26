@@ -15,6 +15,9 @@ export type { AstroIntegrationLogger } from '../../core/logger/core.js';
 export type { ToolbarServerHelpers } from '../../runtime/client/dev-toolbar/helpers.js';
 
 export type {
+	RemotePattern,
+} from '@astrojs/internal-helpers/remote';
+export type {
 	MarkdownHeading,
 	RehypePlugins,
 	RemarkPlugins,
@@ -35,7 +38,6 @@ export type {
 	ImageTransform,
 	UnresolvedImageTransform,
 } from '../../assets/types.js';
-export type { RemotePattern } from '../../assets/utils/remotePattern.js';
 export type { AssetsPrefix, SSRManifest } from '../../core/app/types.js';
 export type {
 	AstroCookieGetOptions,

@@ -1,5 +1,8 @@
 import type { OutgoingHttpHeaders } from 'node:http';
 import type {
+	RemotePattern
+} from '@astrojs/internal-helpers/remote';
+import type {
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
@@ -8,7 +11,6 @@ import type {
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
-import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
