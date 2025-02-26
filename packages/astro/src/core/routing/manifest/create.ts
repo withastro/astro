@@ -123,6 +123,7 @@ function createFileBasedRoutes(
 		...settings.pageExtensions,
 	]);
 	const validEndpointExtensions = new Set<string>(['.js', '.ts']);
+	const validAssetExtensions = new Set<string>(settings.assetExtensions);
 	const localFs = fsMod ?? nodeFs;
 	const prerender = getPrerenderDefault(settings.config);
 
@@ -149,12 +150,14 @@ function createFileBasedRoutes(
 			}
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
-				logger.warn(
-					null,
-					`Unsupported file type ${bold(
-						resolved,
-					)} found. Prefix filename with an underscore (\`_\`) to ignore.`,
-				);
+				if (!validAssetExtensions.has(ext.toLowerCase())) {
+					logger.warn(
+						null,
+						`Unsupported file type ${bold(
+							resolved,
+						)} found. Prefix filename with an underscore (\`_\`) to ignore.`,
+					);
+				}
 
 				continue;
 			}

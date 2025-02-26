@@ -261,6 +261,11 @@ export async function runHookConfigSetup({
 				updatedSettings.pageExtensions.push(...exts);
 			}
 
+			function addAssetExtension(...input: (string | string[])[]) {
+				const exts = (input.flat(Infinity) as string[]).map((ext) => `.${ext.replace(/^\./, '')}`);
+				updatedSettings.assetExtensions.push(...exts);
+			}
+
 			function addContentEntryType(contentEntryType: ContentEntryType) {
 				updatedSettings.contentEntryTypes.push(contentEntryType);
 			}
@@ -271,6 +276,11 @@ export async function runHookConfigSetup({
 
 			Object.defineProperty(hooks, 'addPageExtension', {
 				value: addPageExtension,
+				writable: false,
+				enumerable: false,
+			});
+			Object.defineProperty(hooks, 'addAssetExtension', {
+				value: addAssetExtension,
 				writable: false,
 				enumerable: false,
 			});

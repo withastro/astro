@@ -36,6 +36,7 @@ export interface AstroSettings {
 	injectedRoutes: InternalInjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];
 	pageExtensions: string[];
+	assetExtensions: string[];
 	contentEntryTypes: ContentEntryType[];
 	dataEntryTypes: DataEntryType[];
 	renderers: AstroRenderer[];

@@ -12,6 +12,7 @@ import { formatYAMLException, isYAMLException } from '../errors/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
+import { VALID_INPUT_FORMATS } from '../../assets/consts.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
@@ -28,6 +29,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		serverIslandMap: new Map(),
 		serverIslandNameMap: new Map(),
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
+		assetExtensions: [...VALID_INPUT_FORMATS.map((f)=> `.${f}`)],
 		contentEntryTypes: [markdownContentEntryType],
 		dataEntryTypes: [
 			{
