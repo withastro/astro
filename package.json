@@ -49,7 +49,7 @@
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
   },
-  "packageManager": "pnpm@9.12.1",
+  "packageManager": "pnpm@10.5.1",
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
@@ -66,7 +66,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-astro": "^0.14.1",
     "publint": "^0.3.2",
-    "tinyglobby": "^0.2.12",
+    "tinyglobby": "catalog:",
     "turbo": "^2.4.0",
     "typescript": "~5.7.3",
     "typescript-eslint": "^8.23.0"

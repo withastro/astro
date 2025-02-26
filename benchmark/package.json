@@ -21,7 +21,7 @@
     "port-authority": "^2.0.1",
     "pretty-bytes": "^6.1.1",
     "sharp": "^0.33.3",
-    "tinyexec": "^0.3.2"
+    "tinyexec": "catalog:"
   },
   "devDependencies": {
     "@codspeed/vitest-plugin": "4.0.0",

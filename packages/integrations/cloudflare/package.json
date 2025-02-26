@@ -40,8 +40,8 @@
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.17",
     "miniflare": "^3.20241230.1",
-    "tinyglobby": "^0.2.12",
-    "vite": "^6.0.7",
+    "tinyglobby": "catalog:",
+    "vite": "catalog:",
     "wrangler": "^3.101.0"
   },
   "peerDependencies": {
