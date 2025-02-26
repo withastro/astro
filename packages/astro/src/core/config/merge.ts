@@ -1,7 +1,7 @@
 import { mergeConfig as mergeViteConfig } from 'vite';
-import { arraify, isObject, isURL } from '../util.js';
 import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig, AstroInlineConfig } from '../../types/public/index.js';
+import { arraify, isObject, isURL } from '../util.js';
 
 function mergeConfigRecursively(
 	defaults: Record<string, any>,

@@ -236,7 +236,8 @@ export async function runHookConfigSetup({
 					}
 					logger.debug(
 						'middleware',
-						`The integration ${integration.name} has added middleware that runs ${order === 'pre' ? 'before' : 'after'
+						`The integration ${integration.name} has added middleware that runs ${
+							order === 'pre' ? 'before' : 'after'
 						} any application middleware you define.`,
 					);
 					updatedSettings.middlewares[order].push(
@@ -654,7 +655,7 @@ export async function runHookRouteSetup({
 		logger.debug(
 			'router',
 			`The ${route.component} route's prerender option has been changed multiple times by integrations:\n` +
-			prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
+				prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
 		);
 	}
 }
