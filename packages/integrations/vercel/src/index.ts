@@ -408,15 +408,17 @@ export default function vercelAdapter({
 							await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 							if (isrConfig.exclude?.length) {
 								const expandedExclusions = isrConfig.exclude.reduce<string[]>((acc, exclusion) => {
-										if (exclusion instanceof RegExp) {
-											return [
-												...acc,
-												...routes.filter(route => exclusion.test(route.pattern)).map(route => route.pattern)
-											]
-										}
-		
-										return [...acc, exclusion];
-									}, []);
+									if (exclusion instanceof RegExp) {
+										return [
+											...acc,
+											...routes
+												.filter((route) => exclusion.test(route.pattern))
+												.map((route) => route.pattern),
+										];
+									}
+
+									return [...acc, exclusion];
+								}, []);
 
 								const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 								for (const route of expandedExclusions) {
@@ -427,14 +429,14 @@ export default function vercelAdapter({
 							await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
 							for (const route of routes) {
 								// Do not create _isr route entries for excluded routes
-								const excludeRouteFromIsr = isrConfig.exclude?.some(exclusion => {
+								const excludeRouteFromIsr = isrConfig.exclude?.some((exclusion) => {
 									if (exclusion instanceof RegExp) {
 										return exclusion.test(route.pattern);
 									}
 
 									return exclusion === route.pattern;
 								});
-	
+
 								if (!excludeRouteFromIsr) {
 									const src = route.patternRegex.source;
 									const dest =

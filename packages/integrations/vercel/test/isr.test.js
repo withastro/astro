@@ -42,12 +42,12 @@ describe('ISR', () => {
 				dest: '_render',
 			},
 			{
-				src: "^/api/([^/]+?)$",
-				dest: "_render"
+				src: '^/api/([^/]+?)$',
+				dest: '_render',
 			},
 			{
-				src: "^/api$",
-				dest: "_render"
+				src: '^/api$',
+				dest: '_render',
 			},
 			{
 				src: '^/_server-islands/([^/]+?)/?$',
@@ -60,7 +60,7 @@ describe('ISR', () => {
 			{
 				src: '^/one/?$',
 				dest: '/_isr?x_astro_path=$0',
-			}
+			},
 		]);
 	});
 });
