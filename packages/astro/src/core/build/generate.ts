@@ -360,7 +360,7 @@ async function getPathsForRoute(
 				// NOTE: The same URL may match multiple routes in the manifest.
 				// Routing priority needs to be verified here for any duplicate
 				// paths to ensure routing priority rules are enforced in the final build.
-				const matchedRoute = matchRoute(staticPath, options.routesList);
+				const matchedRoute = matchRoute(decodeURI(staticPath), options.routesList);
 				return matchedRoute === route;
 			});
 
