@@ -68,6 +68,7 @@ export {
 	between,
 	notBetween,
 	like,
+	ilike,
 	notIlike,
 	not,
 	asc,
