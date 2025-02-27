@@ -1,5 +1,100 @@
 # astro
 
+## 5.4.0
+
+### Minor Changes
+
+- [#12052](https://github.com/withastro/astro/pull/12052) [`5be12b2`](https://github.com/withastro/astro/commit/5be12b2bc9f359d3ecfa29b766f13ed2aabd119f) Thanks [@Fryuni](https://github.com/Fryuni)! - Exposes extra APIs for scripting and testing.
+
+  ### Config helpers
+
+  Two new helper functions exported from `astro/config`:
+
+  - `mergeConfig()` allows users to merge partially defined Astro configurations on top of a base config while following the merge rules of `updateConfig()` available for integrations.
+  - `validateConfig()` allows users to validate that a given value is a valid Astro configuration and fills in default values as necessary.
+
+  These helpers are particularly useful for integration authors and for developers writing scripts that need to manipulate Astro configurations programmatically.
+
+  ### Programmatic build
+
+  The `build` API now receives a second optional `BuildOptions` argument where users can specify:
+
+  - `devOutput` (default `false`): output a development-based build similar to code transformed in `astro dev`.
+  - `teardownCompiler` (default `true`): teardown the compiler WASM instance after build.
+
+  These options provide more control when running Astro builds programmatically, especially for testing scenarios or custom build pipelines.
+
+- [#13278](https://github.com/withastro/astro/pull/13278) [`4a43c4b`](https://github.com/withastro/astro/commit/4a43c4b743affb78b1502801c797157b626c77a1) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new configuration option `server.allowedHosts` and CLI option `--allowed-hosts`.
+
+  Now you can specify the hostnames that the dev and preview servers are allowed to respond to. This is useful for allowing additional subdomains, or running the dev server in a web container.
+
+  `allowedHosts` checks the Host header on HTTP requests from browsers and if it doesn't match, it will reject the request to prevent CSRF and XSS attacks.
+
+  ```shell
+  astro dev --allowed-hosts=foo.bar.example.com,bar.example.com
+  ```
+
+  ```shell
+  astro preview --allowed-hosts=foo.bar.example.com,bar.example.com
+  ```
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    server: {
+      allowedHosts: ['foo.bar.example.com', 'bar.example.com'],
+    },
+  });
+  ```
+
+  This feature is the same as [Vite's `server.allowHosts` configuration](https://vite.dev/config/server-options.html#server-allowedhosts).
+
+- [#13254](https://github.com/withastro/astro/pull/13254) [`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b) Thanks [@p0lyw0lf](https://github.com/p0lyw0lf)! - Adds the ability to process and optimize remote images in Markdown files
+
+  Previously, Astro only allowed local images to be optimized when included using `![]()` syntax in plain Markdown files. Astro's image service could only display remote images without any processing.
+
+  Now, Astro's image service can also optimize remote images written in standard Markdown syntax. This allows you to enjoy the benefits of Astro's image processing when your images are stored externally, for example in a CMS or digital asset manager.
+
+  No additional configuration is required to use this feature! Any existing remote images written in Markdown will now automatically be optimized. To opt-out of this processing, write your images in Markdown using the HTML `<img>` tag instead. Note that images located in your `public/` folder are still never processed.
+
+### Patch Changes
+
+- [#13256](https://github.com/withastro/astro/pull/13256) [`509fa67`](https://github.com/withastro/astro/commit/509fa671a137515bd1818c81ee78de439a27e5dc) Thanks [@p0lyw0lf](https://github.com/p0lyw0lf)! - Adds experimental responsive image support in Markdown
+
+  Previously, the `experimental.responsiveImages` feature could only provide responsive images when using the `<Image />` and `<Picture />` components.
+
+  Now, images written with the `![]()` Markdown syntax in Markdown and MDX files will generate responsive images by default when using this experimental feature.
+
+  To try this experimental feature, set `experimental.responsiveImages` to true in your `astro.config.mjs` file:
+
+  ```js
+  {
+     experimental: {
+        responsiveImages: true,
+     },
+  }
+  ```
+
+  Learn more about using this feature in the [experimental responsive images feature reference](https://docs.astro.build/en/reference/experimental-flags/responsive-images/).
+
+  For a complete overview, and to give feedback on this experimental API, see the [Responsive Images RFC](https://github.com/withastro/roadmap/blob/responsive-images/proposals/0053-responsive-images.md).
+
+- [#13323](https://github.com/withastro/astro/pull/13323) [`80926fa`](https://github.com/withastro/astro/commit/80926fadc06492fcae55f105582b9dc8279da6b3) Thanks [@ematipico](https://github.com/ematipico)! - Updates `esbuild` and `vite` to the latest to avoid false positives audits warnings caused by `esbuild`.
+
+- [#13313](https://github.com/withastro/astro/pull/13313) [`9e7c71d`](https://github.com/withastro/astro/commit/9e7c71d19c89407d9b27ded85d8c0fde238ce16c) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue where a form field named "attributes" shadows the form.attributes property.
+
+- [#12052](https://github.com/withastro/astro/pull/12052) [`5be12b2`](https://github.com/withastro/astro/commit/5be12b2bc9f359d3ecfa29b766f13ed2aabd119f) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes incorrect config update when calling `updateConfig` from `astro:build:setup` hook.
+
+  The function previously called a custom update config function made for merging an Astro config. Now it calls the appropriate `mergeConfig()` utility exported by Vite that updates functional options correctly.
+
+- [#13303](https://github.com/withastro/astro/pull/13303) [`5f72a58`](https://github.com/withastro/astro/commit/5f72a58935d9bdd5237bdf86d2e94bcdc544c7b3) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the dev server was applying second decoding of the URL of the incoming request, causing issues for certain URLs.
+
+- Updated dependencies [[`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b), [`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b)]:
+  - @astrojs/internal-helpers@0.6.0
+  - @astrojs/markdown-remark@6.2.0
+
 ## 5.3.1
 
 ### Patch Changes
