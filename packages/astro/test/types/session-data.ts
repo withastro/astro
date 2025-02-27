@@ -1,7 +1,7 @@
 import "./session-env";
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import type { AstroCookies, AstroUserConfig } from '../../dist/types/public/index.js';
+import type { AstroCookies, AstroUserConfig, ResolvedSessionConfig } from '../../dist/types/public/index.js';
 import { AstroSession } from '../../dist/core/session.js';
 
 const defaultMockCookies = {
@@ -11,7 +11,7 @@ const defaultMockCookies = {
 };
 
 
-const defaultConfig: AstroUserConfig<never, 'memory'>['session'] = {
+const defaultConfig: ResolvedSessionConfig<'memory'> = {
 	driver: 'memory',
 	cookie: 'test-session',
 	ttl: 60,
@@ -19,19 +19,19 @@ const defaultConfig: AstroUserConfig<never, 'memory'>['session'] = {
 };
 
 // Helper to create a new session instance with mocked dependencies
-function createSession(config = defaultConfig, cookies = defaultMockCookies) {
-	return new AstroSession(cookies as unknown as AstroCookies, config);
+function createSession() {
+	return new AstroSession(defaultMockCookies as unknown as AstroCookies, defaultConfig);
 }
 
 describe('Session', () => {
 	it('Types session.get return values', () => {
 		const session = createSession();
 		
-		expectTypeOf(session.get('value')).toEqualTypeOf<Promise<string>>();
+		expectTypeOf(session.get('value')).resolves.toEqualTypeOf<string | undefined>();
 
-		expectTypeOf(session.get('cart')).toEqualTypeOf<Promise<Array<string>>>();
+		expectTypeOf(session.get('cart')).resolves.toEqualTypeOf<Array<string> | undefined>();
 
-		expectTypeOf(session.get('unknown')).toEqualTypeOf<Promise<any>>();
+		expectTypeOf(session.get('unknown')).resolves.toEqualTypeOf<any>();
 		
 	});
 
