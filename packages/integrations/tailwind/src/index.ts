@@ -42,7 +42,7 @@ async function getViteConfiguration(
 
 	postcssPlugins.push(tailwindPlugin(tailwindConfigPath));
 	postcssPlugins.push(autoprefixerPlugin());
-	
+
 	return {
 		css: {
 			postcss: {
