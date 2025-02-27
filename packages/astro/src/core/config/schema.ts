@@ -600,6 +600,8 @@ export const AstroConfigSchema = z.object({
 					}
 					return svgConfig;
 				}),
+
+			// TODO: properly test everything
 			fonts: z
 				.object({
 					providers: z
@@ -635,10 +637,11 @@ export const AstroConfigSchema = z.object({
 													.object({
 														paths: z.array(z.string()).nonempty(),
 													})
-													.merge(resolveFontOptionsSchema.partial())
+													.merge(resolveFontOptionsSchema.omit({ fallbacks: true }).partial())
 													.strict(),
 											),
 										})
+										.merge(resolveFontOptionsSchema.pick({ fallbacks: true }).partial())
 										.strict(),
 									z
 										.object({

@@ -28,15 +28,18 @@ export function resolveLocalFont(
 	for (const src of family.src) {
 		for (const weight of src.weights ?? DEFAULTS.weights) {
 			for (const style of src.styles ?? DEFAULTS.styles) {
-				// TODO: handle fallbacks?
 				// TODO: handle subset
 				fonts.push({
 					weight,
 					style,
-					src: src.paths.map((path) => ({
-						url: proxyURL(fileURLToPath(new URL(path, root))),
-						format: extractFontType(path),
-					})),
+					src: src.paths.map((path) => {
+						const originalURL = fileURLToPath(new URL(path, root));
+						return {
+							originalURL,
+							url: proxyURL(originalURL),
+							format: extractFontType(path),
+						};
+					}),
 				});
 			}
 		}

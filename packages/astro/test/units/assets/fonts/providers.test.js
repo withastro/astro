@@ -106,16 +106,32 @@ describe('fonts providers', () => {
 				weight: '400',
 				style: 'normal',
 				src: [
-					{ url: '/_astro/fonts/foo.woff2', format: 'woff2' },
-					{ url: '/_astro/fonts/foo.ttf', format: 'ttf' },
+					{
+						originalURL: fileURLToPath(new URL('./src/fonts/foo.woff2', import.meta.url)),
+						url: '/_astro/fonts/foo.woff2',
+						format: 'woff2',
+					},
+					{
+						originalURL: fileURLToPath(new URL('./src/fonts/foo.ttf', import.meta.url)),
+						url: '/_astro/fonts/foo.ttf',
+						format: 'ttf',
+					},
 				],
 			},
 			{
 				weight: '400',
 				style: 'italic',
 				src: [
-					{ url: '/_astro/fonts/foo.woff2', format: 'woff2' },
-					{ url: '/_astro/fonts/foo.ttf', format: 'ttf' },
+					{
+						originalURL: fileURLToPath(new URL('./src/fonts/foo.woff2', import.meta.url)),
+						url: '/_astro/fonts/foo.woff2',
+						format: 'woff2',
+					},
+					{
+						originalURL: fileURLToPath(new URL('./src/fonts/foo.ttf', import.meta.url)),
+						url: '/_astro/fonts/foo.ttf',
+						format: 'ttf',
+					},
 				],
 			},
 		]);
@@ -143,12 +159,24 @@ describe('fonts providers', () => {
 			{
 				weight: '600',
 				style: 'oblique',
-				src: [{ url: '/_astro/fonts/bar.eot', format: 'eot' }],
+				src: [
+					{
+						originalURL: fileURLToPath(new URL('./src/fonts/bar.eot', import.meta.url)),
+						url: '/_astro/fonts/bar.eot',
+						format: 'eot',
+					},
+				],
 			},
 			{
 				weight: '700',
 				style: 'oblique',
-				src: [{ url: '/_astro/fonts/bar.eot', format: 'eot' }],
+				src: [
+					{
+						originalURL: fileURLToPath(new URL('./src/fonts/bar.eot', import.meta.url)),
+						url: '/_astro/fonts/bar.eot',
+						format: 'eot',
+					},
+				],
 			},
 		]);
 		assert.deepStrictEqual(values, [fileURLToPath(new URL('./src/fonts/bar.eot', root))]);
