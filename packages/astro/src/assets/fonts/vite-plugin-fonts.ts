@@ -154,6 +154,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let isBuild: boolean;
 	let cache: CacheHandler | null = null;
 
+	// TODO: refactor to allow testing
 	async function initialize({ resolveMod, base }: { resolveMod: ResolveMod; base: URL }) {
 		const { h64ToString } = await xxhash();
 
@@ -195,14 +196,13 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			return url;
 		};
 
-		// TODO: investigate using fontaine for fallbacks
+		// TODO: refactor to avoid repetition
 		for (const family of families) {
 			// Reset
 			preloadData.length = 0;
 			css = '';
 
 			if (family.provider === LOCAL_PROVIDER_NAME) {
-				// TODO: fallbacks
 				const { fonts } = resolveLocalFont(family, {
 					proxyURL: (value) => {
 						return proxyURL({
@@ -225,6 +225,21 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				});
 				for (const data of fonts) {
 					css += generateFontFace(family.name, data);
+				}
+				const urls = fonts
+					.map((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))
+					.flat()
+					.filter((url) => typeof url === 'string');
+
+				const fallbackData = await generateFallbacksCSS({
+					family: family.name,
+					fallbacks: family.fallbacks ?? [],
+					fontURL: urls.at(0) ?? null,
+				});
+
+				if (fallbackData) {
+					css += fallbackData.css;
+					// TODO: generate css var
 				}
 			} else {
 				const { fonts } = await resolveFont(
@@ -269,8 +284,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					fallbacks: family.fallbacks ?? [],
 					fontURL: urls.at(0) ?? null,
 				});
-
-				console.log(fallbackData);
 
 				if (fallbackData) {
 					css += fallbackData.css;

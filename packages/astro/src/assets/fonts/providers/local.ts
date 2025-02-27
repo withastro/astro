@@ -28,7 +28,6 @@ export function resolveLocalFont(
 	for (const src of family.src) {
 		for (const weight of src.weights ?? DEFAULTS.weights) {
 			for (const style of src.styles ?? DEFAULTS.styles) {
-				// TODO: handle fallbacks?
 				// TODO: handle subset
 				fonts.push({
 					weight,

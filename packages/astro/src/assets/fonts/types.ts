@@ -25,9 +25,9 @@ interface FontFamilyAttributes extends Partial<ResolveFontOptions> {
 	provider: string;
 }
 
-export interface LocalFontFamily extends Pick<FontFamilyAttributes, 'name'> {
+export interface LocalFontFamily extends Pick<FontFamilyAttributes, 'name' | 'fallbacks'> {
 	provider: LocalProviderName;
-	src: Array<Partial<ResolveFontOptions> & { paths: Array<string> }>;
+	src: Array<Partial<Omit<ResolveFontOptions, 'fallbacks'>> & { paths: Array<string> }>;
 }
 
 interface CommonFontFamily<TProvider extends string>
