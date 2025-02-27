@@ -128,7 +128,7 @@ type FontFaceMetrics = Parameters<typeof fontaine.generateFontFace>[0];
  */
 export async function generateFallbacksCSS({
 	family,
-	fallbacks,
+	fallbacks: _fallbacks,
 	fontURL,
 	getMetricsForFamily,
 	// eslint-disable-next-line @typescript-eslint/no-shadow
@@ -143,45 +143,38 @@ export async function generateFallbacksCSS({
 	getMetricsForFamily: (family: string, fontURL: string | null) => Promise<null | FontFaceMetrics>;
 	generateFontFace: typeof fontaine.generateFontFace;
 }): Promise<null | { css: string; fallbacks: Array<string> }> {
+	// We avoid mutating the original array
+	let fallbacks = [..._fallbacks];
 	if (fallbacks.length === 0) {
 		return null;
 	}
 
-	const metrics = await getMetricsForFamily(family, fontURL);
-
-	if (!metrics) {
-		return {
-			css: '',
-			fallbacks,
-		};
-	}
-
-	// We avoid mutating the original array
-	let resolvedFallbacks = [...fallbacks];
-	// TODO: to be documented
-	// The last element of the fallbacks is usually a generic family name (eg. serif).
-	const lastFallback = resolvedFallbacks.at(-1)!;
-	let shouldGenerateCss: (fallback: string) => boolean = () => false;
-	if (isGenericFontFamily(lastFallback)) {
-		// If it's a generic family name, we get the associated local fonts (eg. Arial)
-		const values = DEFAULT_FALLBACKS[lastFallback];
-		if (values.length > 0) {
-			// We prepend the fallbacks with the local fonts
-			resolvedFallbacks.unshift(...values);
-			// We dedupe in case a local font is already provided
-			resolvedFallbacks = [...new Set(resolvedFallbacks)];
-			// Later on, we only want to generate CSS for the local fonts we added
-			shouldGenerateCss = (fallback) => values.includes(fallback);
-		}
-	}
-
 	let css = '';
-	for (const fallback of resolvedFallbacks) {
-		// If we didn't find any local font, we don't go through any fallback
-		// Otherwise, we make sure to only go through the local fonts we found
-		if (!shouldGenerateCss(fallback)) {
-			continue;
-		}
+	const metrics = await getMetricsForFamily(family, fontURL);
+	// If there are no metrics, we can't generate useful fallbacks
+	if (!metrics) {
+		return { css, fallbacks };
+	}
+
+	// TODO: to be documented
+	// The last element of the fallbacks is usually a generic family name (eg. serif)
+	const lastFallback = fallbacks[fallbacks.length - 1];
+	// If it's not a generic family name, we can't infer local fonts to be used as fallbacks
+	if (!isGenericFontFamily(lastFallback)) {
+		return { css, fallbacks };
+	}
+
+	// If it's a generic family name, we get the associated local fonts (eg. Arial)
+	const localFonts = DEFAULT_FALLBACKS[lastFallback];
+	// Some generic families do not have associated local fonts so we abort early
+	if (localFonts.length === 0) {
+		return { css, fallbacks };
+	}
+
+	// We prepend the fallbacks with the local fonts and we dedupe in case a local font is already provided
+	fallbacks = [...new Set([...localFonts, ...fallbacks])];
+
+	for (const fallback of localFonts) {
 		css += generateFontFace(metrics, {
 			font: fallback,
 			// TODO: support family.as
@@ -190,5 +183,5 @@ export async function generateFallbacksCSS({
 		});
 	}
 
-	return { css, fallbacks: resolvedFallbacks };
+	return { css, fallbacks };
 }

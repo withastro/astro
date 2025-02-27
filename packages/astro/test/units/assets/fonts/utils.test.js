@@ -175,25 +175,9 @@ describe('fonts utils', () => {
 				}),
 				null,
 			);
-			assert.equal(
-				await generateFallbacksCSS({
-					family: 'Roboto',
-					fallbacks: [],
-					fontURL: null,
-					getMetricsForFamily: async () => ({
-						ascent: 0,
-						descent: 0,
-						lineGap: 0,
-						unitsPerEm: 0,
-						xWidthAvg: 0,
-					}),
-					generateFontFace: () => '',
-				}),
-				null,
-			);
 		});
 
-		it('should return fallbacks even without metrics', async () => {
+		it('should return fallbacks if there are no metrics', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
 					family: 'Roboto',
@@ -207,6 +191,9 @@ describe('fonts utils', () => {
 					fallbacks: ['foo'],
 				},
 			);
+		});
+
+		it('should return fallbacks if there are metrics but no generic font family', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
 					family: 'Roboto',
@@ -224,6 +211,28 @@ describe('fonts utils', () => {
 				{
 					css: '',
 					fallbacks: ['foo'],
+				},
+			);
+		});
+
+		it('shold return fallbacks if the generic font family does not have fonts associated', async () => {
+			assert.deepStrictEqual(
+				await generateFallbacksCSS({
+					family: 'Roboto',
+					fallbacks: ['emoji'],
+					fontURL: null,
+					getMetricsForFamily: async () => ({
+						ascent: 0,
+						descent: 0,
+						lineGap: 0,
+						unitsPerEm: 0,
+						xWidthAvg: 0,
+					}),
+					generateFontFace: () => '',
+				}),
+				{
+					css: '',
+					fallbacks: ['emoji'],
 				},
 			);
 		});
