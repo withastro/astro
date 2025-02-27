@@ -164,21 +164,11 @@ describe('fonts utils', () => {
 	});
 
 	describe('generateFallbacksCSS()', () => {
-		it('should return null if there are no fallbacks or metrics', async () => {
+		it('should return null if there are no fallbacks', async () => {
 			assert.equal(
 				await generateFallbacksCSS({
 					family: 'Roboto',
 					fallbacks: [],
-					fontURL: null,
-					getMetricsForFamily: async () => null,
-					generateFontFace: () => '',
-				}),
-				null,
-			);
-			assert.equal(
-				await generateFallbacksCSS({
-					family: 'Roboto',
-					fallbacks: ['foo'],
 					fontURL: null,
 					getMetricsForFamily: async () => null,
 					generateFontFace: () => '',
@@ -200,6 +190,22 @@ describe('fonts utils', () => {
 					generateFontFace: () => '',
 				}),
 				null,
+			);
+		});
+
+		it('should return fallbacks even without metrics', async () => {
+			assert.deepStrictEqual(
+				await generateFallbacksCSS({
+					family: 'Roboto',
+					fallbacks: ['foo'],
+					fontURL: null,
+					getMetricsForFamily: async () => null,
+					generateFontFace: () => '',
+				}),
+				{
+					css: '',
+					fallbacks: ['foo'],
+				},
 			);
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
