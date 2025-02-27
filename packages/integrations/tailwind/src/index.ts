@@ -42,11 +42,13 @@ async function getViteConfiguration(
 
 	postcssPlugins.push(tailwindPlugin(tailwindConfigPath));
 	postcssPlugins.push(autoprefixerPlugin());
-
+	
+	// @ts-expect-error Error starts to appear when vite was upgraded to v6.2.0
 	return {
 		css: {
 			postcss: {
 				...postcssOptions,
+				// @ts-expect-error Error starts to appear when vite was upgraded to v6.2.0
 				plugins: postcssPlugins,
 			},
 		},

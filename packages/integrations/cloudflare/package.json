@@ -36,12 +36,12 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/workers-types": "^4.20250109.0",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.24.2",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.17",
     "miniflare": "^3.20241230.1",
     "tinyglobby": "^0.2.12",
-    "vite": "^6.0.7",
+    "vite": "^6.2.0",
     "wrangler": "^3.101.0"
   },
   "peerDependencies": {
