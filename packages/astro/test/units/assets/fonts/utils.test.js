@@ -6,6 +6,7 @@ import {
 	extractFontType,
 	createCache,
 	proxyURL,
+	isGenericFontFamily,
 } from '../../../../dist/assets/fonts/utils.js';
 
 function createSpyCache() {
@@ -142,5 +143,22 @@ describe('fonts utils', () => {
 			type: 'ttf',
 			value: '/home/documents/project/font.ttf',
 		});
+	});
+
+	it('isGenericFontFamily()', () => {
+		assert.equal(isGenericFontFamily('serif'), true);
+		assert.equal(isGenericFontFamily('sans-serif'), true);
+		assert.equal(isGenericFontFamily('monospace'), true);
+		assert.equal(isGenericFontFamily('cursive'), true);
+		assert.equal(isGenericFontFamily('fantasy'), true);
+		assert.equal(isGenericFontFamily('system-ui'), true);
+		assert.equal(isGenericFontFamily('ui-serif'), true);
+		assert.equal(isGenericFontFamily('ui-sans-serif'), true);
+		assert.equal(isGenericFontFamily('ui-monospace'), true);
+		assert.equal(isGenericFontFamily('ui-rounded'), true);
+		assert.equal(isGenericFontFamily('emoji'), true);
+		assert.equal(isGenericFontFamily('math'), true);
+		assert.equal(isGenericFontFamily('fangsong'), true);
+		assert.equal(isGenericFontFamily(''), false);
 	});
 });

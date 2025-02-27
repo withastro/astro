@@ -113,7 +113,6 @@ export function proxyURL({ value, hashString, collect }: ProxyURLOptions): strin
 	return url;
 }
 
-// TODO: test
 export function isGenericFontFamily(str: string): str is keyof typeof DEFAULT_FALLBACKS {
 	return Object.keys(DEFAULT_FALLBACKS).includes(str);
 }
