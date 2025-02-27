@@ -3,7 +3,7 @@ import type { FontType } from './types.js';
 import { extname } from 'node:path';
 import { DEFAULT_FALLBACKS, FONT_TYPES } from './constants.js';
 import type { Storage } from 'unstorage';
-import * as fontaine from 'fontaine';
+import type * as fontaine from 'fontaine';
 
 // TODO: expose all relevant options in config
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
@@ -117,25 +117,28 @@ export function isGenericFontFamily(str: string): str is keyof typeof DEFAULT_FA
 	return Object.keys(DEFAULT_FALLBACKS).includes(str);
 }
 
-// TODO: test
+type FontFaceMetrics = Parameters<typeof fontaine.generateFontFace>[0];
+
 // TODO: jsdoc
 export async function generateFallbacksCSS({
 	family,
 	fallbacks,
 	fontURL,
+	getMetricsForFamily,
+	// eslint-disable-next-line @typescript-eslint/no-shadow
+	generateFontFace,
 }: {
 	family: string;
 	fallbacks: Array<string>;
 	fontURL: string | null;
+	getMetricsForFamily: (family: string, fontURL: string | null) => Promise<null | FontFaceMetrics>;
+	generateFontFace: typeof fontaine.generateFontFace;
 }): Promise<null | { css: string; fallbacks: Array<string> }> {
 	if (fallbacks.length === 0) {
 		return null;
 	}
 
-	let metrics = await fontaine.getMetricsForFamily(family);
-	if (fontURL && !metrics) {
-		metrics = await fontaine.readMetrics(fontURL);
-	}
+	const metrics = await getMetricsForFamily(family, fontURL);
 
 	if (!metrics) {
 		return null;
@@ -157,11 +160,11 @@ export async function generateFallbacksCSS({
 		if (!shouldGenerateCss(fallback)) {
 			continue;
 		}
-		css += fontaine.generateFontFace(metrics, {
+		css += generateFontFace(metrics, {
 			font: fallback,
 			// TODO: family.as
 			name: `${family} fallback: ${fallback}`,
-			metrics: (await fontaine.getMetricsForFamily(fallback)) ?? undefined,
+			metrics: (await getMetricsForFamily(fallback, null)) ?? undefined,
 		});
 	}
 

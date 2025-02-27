@@ -32,6 +32,7 @@ import { readFile } from 'node:fs/promises';
 import { createStorage } from 'unstorage';
 import fsLiteDriver from 'unstorage/drivers/fs-lite';
 import { fileURLToPath } from 'node:url';
+import * as fontaine from 'fontaine';
 
 interface Options {
 	settings: AstroSettings;
@@ -235,6 +236,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					family: family.name,
 					fallbacks: family.fallbacks ?? [],
 					fontURL: urls.at(0) ?? null,
+					getMetricsForFamily: async (name, fontURL) => {
+						let metrics = await fontaine.getMetricsForFamily(name);
+						if (fontURL && !metrics) {
+							metrics = await fontaine.readMetrics(fontURL);
+						}
+						return metrics;
+					},
+					generateFontFace: fontaine.generateFontFace,
 				});
 
 				if (fallbackData) {
@@ -283,6 +292,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					family: family.name,
 					fallbacks: family.fallbacks ?? [],
 					fontURL: urls.at(0) ?? null,
+					getMetricsForFamily: async (name, fontURL) => {
+						let metrics = await fontaine.getMetricsForFamily(name);
+						if (fontURL && !metrics) {
+							metrics = await fontaine.readMetrics(fontURL);
+						}
+						return metrics;
+					},
+					generateFontFace: fontaine.generateFontFace,
 				});
 
 				if (fallbackData) {

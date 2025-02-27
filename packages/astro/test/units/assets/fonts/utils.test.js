@@ -7,6 +7,7 @@ import {
 	createCache,
 	proxyURL,
 	isGenericFontFamily,
+	generateFallbacksCSS,
 } from '../../../../dist/assets/fonts/utils.js';
 
 function createSpyCache() {
@@ -160,5 +161,125 @@ describe('fonts utils', () => {
 		assert.equal(isGenericFontFamily('math'), true);
 		assert.equal(isGenericFontFamily('fangsong'), true);
 		assert.equal(isGenericFontFamily(''), false);
+	});
+
+	describe('generateFallbacksCSS()', () => {
+		it('should return null if there are no fallbacks or metrics', async () => {
+			assert.equal(
+				await generateFallbacksCSS({
+					family: 'Roboto',
+					fallbacks: [],
+					fontURL: null,
+					getMetricsForFamily: async () => null,
+					generateFontFace: () => '',
+				}),
+				null,
+			);
+			assert.equal(
+				await generateFallbacksCSS({
+					family: 'Roboto',
+					fallbacks: ['foo'],
+					fontURL: null,
+					getMetricsForFamily: async () => null,
+					generateFontFace: () => '',
+				}),
+				null,
+			);
+			assert.equal(
+				await generateFallbacksCSS({
+					family: 'Roboto',
+					fallbacks: [],
+					fontURL: null,
+					getMetricsForFamily: async () => ({
+						ascent: 0,
+						descent: 0,
+						lineGap: 0,
+						unitsPerEm: 0,
+						xWidthAvg: 0,
+					}),
+					generateFontFace: () => '',
+				}),
+				null,
+			);
+			assert.deepStrictEqual(
+				await generateFallbacksCSS({
+					family: 'Roboto',
+					fallbacks: ['foo'],
+					fontURL: null,
+					getMetricsForFamily: async () => ({
+						ascent: 0,
+						descent: 0,
+						lineGap: 0,
+						unitsPerEm: 0,
+						xWidthAvg: 0,
+					}),
+					generateFontFace: () => '',
+				}),
+				{
+					css: '',
+					fallbacks: ['foo'],
+				},
+			);
+		});
+
+		it('resolves fallbacks correctly', async () => {
+			assert.deepStrictEqual(
+				await generateFallbacksCSS({
+					family: 'Roboto',
+					fallbacks: ['foo', 'bar'],
+					fontURL: null,
+					getMetricsForFamily: async () => ({
+						ascent: 0,
+						descent: 0,
+						lineGap: 0,
+						unitsPerEm: 0,
+						xWidthAvg: 0,
+					}),
+					generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
+				}),
+				{
+					css: '',
+					fallbacks: ['foo', 'bar'],
+				},
+			);
+			assert.deepStrictEqual(
+				await generateFallbacksCSS({
+					family: 'Roboto',
+					fallbacks: ['sans-serif', 'foo'],
+					fontURL: null,
+					getMetricsForFamily: async () => ({
+						ascent: 0,
+						descent: 0,
+						lineGap: 0,
+						unitsPerEm: 0,
+						xWidthAvg: 0,
+					}),
+					generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
+				}),
+				{
+					css: '',
+					fallbacks: ['sans-serif', 'foo'],
+				},
+			);
+			assert.deepStrictEqual(
+				await generateFallbacksCSS({
+					family: 'Roboto',
+					fallbacks: ['foo', 'sans-serif'],
+					fontURL: null,
+					getMetricsForFamily: async () => ({
+						ascent: 0,
+						descent: 0,
+						lineGap: 0,
+						unitsPerEm: 0,
+						xWidthAvg: 0,
+					}),
+					generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
+				}),
+				{
+					css: `[Arial,Roboto fallback: Arial]`,
+					fallbacks: ['Arial', 'foo', 'sans-serif'],
+				},
+			);
+		});
 	});
 });
