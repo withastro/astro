@@ -36,7 +36,7 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/workers-types": "^4.20250109.0",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.25.0",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.17",
     "miniflare": "^3.20241230.1",
