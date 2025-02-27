@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 9.1.1
+
+### Patch Changes
+
+- [#13190](https://github.com/withastro/astro/pull/13190) [`c6bf6b3`](https://github.com/withastro/astro/commit/c6bf6b3b210d3cfd7a23d42815b1b5c58099736f) Thanks [@lee-arnold](https://github.com/lee-arnold)! - Fixes the image endpoint entrypoint
+
 ## 9.1.0
 
 ### Minor Changes

@@ -48,6 +48,13 @@ export type SSRManifest = {
 	routes: RouteInfo[];
 	site?: string;
 	base: string;
+	/**
+	 * The base of the assets generated **by the user**. For example, scripts created by the user falls under this category.
+	 *
+	 * The value of this field comes from `vite.base`. We aren't usually this tight to vite in our code base, so probably
+	 * this should be refactored somehow.
+	 */
+	userAssetsBase: string | undefined;
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
 	compressHTML: boolean;

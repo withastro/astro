@@ -1,6 +1,8 @@
+// @ts-check
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { globby as glob } from 'globby';
+import { fileURLToPath } from 'node:url';
+import { glob } from 'tinyglobby';
 
 /*
   This file updates the dependencies' versions in `examples/*` to match the workspace packages' versions.
@@ -19,7 +21,7 @@ const packageToVersions = new Map();
 // published through this field, so this file also respects this field when updating the versions.
 const workspaceDirs = await glob(rootPackageJson.workspaces, {
 	onlyDirectories: true,
-	cwd: rootUrl,
+	cwd: fileURLToPath(rootUrl),
 });
 for (const workspaceDir of workspaceDirs) {
 	const packageJsonPath = path.join(workspaceDir, './package.json');
@@ -41,7 +43,7 @@ for (const workspaceDir of workspaceDirs) {
 // Update all examples' package.json
 const exampleDirs = await glob('examples/*', {
 	onlyDirectories: true,
-	cwd: rootUrl,
+	cwd: fileURLToPath(rootUrl),
 });
 for (const exampleDir of exampleDirs) {
 	const packageJsonPath = path.join(exampleDir, './package.json');

@@ -1,5 +1,18 @@
 # @astrojs/cloudflare
 
+## 12.2.2
+
+### Patch Changes
+
+- [#13304](https://github.com/withastro/astro/pull/13304) [`6efd57d`](https://github.com/withastro/astro/commit/6efd57d1747052e9a61d8867dd5941d0bf65ff22) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a small issue where the package was pulling an outdated version of its internal dependencies.
+
+- [#13201](https://github.com/withastro/astro/pull/13201) [`065157c`](https://github.com/withastro/astro/commit/065157cac73e176cd6da9b8b0a157359a20ebebd) Thanks [@ekwoka](https://github.com/ekwoka)! - Includes onerror passthrough param for Cloudflare Image Service
+
+- [#13299](https://github.com/withastro/astro/pull/13299) [`2e1321e`](https://github.com/withastro/astro/commit/2e1321e9d5b27da3e86bc4021e4136661a8055aa) Thanks [@bluwy](https://github.com/bluwy)! - Uses `tinyglobby` for globbing files
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
 ## 12.2.1
 
 ### Patch Changes

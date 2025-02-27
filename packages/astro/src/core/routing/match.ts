@@ -5,18 +5,17 @@ import { SERVER_ISLAND_BASE_PREFIX, SERVER_ISLAND_COMPONENT } from '../server-is
 
 /** Find matching route from pathname */
 export function matchRoute(pathname: string, manifest: RoutesList): RouteData | undefined {
-	const decodedPathname = decodeURI(pathname);
 	return manifest.routes.find((route) => {
 		return (
-			route.pattern.test(decodedPathname) ||
-			route.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(decodedPathname))
+			route.pattern.test(pathname) ||
+			route.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(pathname))
 		);
 	});
 }
 
 /** Finds all matching routes from pathname */
 export function matchAllRoutes(pathname: string, manifest: RoutesList): RouteData[] {
-	return manifest.routes.filter((route) => route.pattern.test(decodeURI(pathname)));
+	return manifest.routes.filter((route) => route.pattern.test(pathname));
 }
 
 const ROUTE404_RE = /^\/404\/?$/;

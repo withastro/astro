@@ -1,4 +1,5 @@
 import type { OutgoingHttpHeaders } from 'node:http';
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
 	RehypePlugins,
 	RemarkPlugins,
@@ -8,7 +9,6 @@ import type {
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
-import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
@@ -71,6 +71,26 @@ export type ServerConfig = {
 	 * If the given port is already in use, Astro will automatically try the next available port.
 	 */
 	port?: number;
+
+	/**
+	 * @name server.allowedHosts
+	 * @type {string[] | true}
+	 * @default `[]`
+	 * @version 5.4.0
+	 * @description
+	 *
+	 * A list of hostnames that Astro is allowed to respond to. When the value is set to `true`, any
+	 * hostname is allowed.
+	 *
+	 * ```js
+	 * {
+	 *   server: {
+	 *   	allowedHosts: ['staging.example.com', 'qa.example.com']
+	 *   }
+	 * }
+	 * ```
+	 */
+	allowedHosts?: string[] | true;
 
 	/**
 	 * @name server.headers

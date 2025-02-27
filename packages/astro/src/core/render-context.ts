@@ -394,6 +394,7 @@ export class RenderContext {
 		// calling the render() function will populate the object with scripts, styles, etc.
 		const result: SSRResult = {
 			base: manifest.base,
+			userAssetsBase: manifest.userAssetsBase,
 			cancelled: false,
 			clientDirectives,
 			inlinedScripts,
