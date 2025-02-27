@@ -1,7 +1,7 @@
 import "./session-env";
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import type { AstroCookies, AstroUserConfig, ResolvedSessionConfig } from '../../dist/types/public/index.js';
+import type { AstroCookies, ResolvedSessionConfig } from '../../dist/types/public/index.js';
 import { AstroSession } from '../../dist/core/session.js';
 
 const defaultMockCookies = {
