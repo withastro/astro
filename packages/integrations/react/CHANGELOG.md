@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 4.2.1
+
+### Patch Changes
+
+- [#13323](https://github.com/withastro/astro/pull/13323) [`80926fa`](https://github.com/withastro/astro/commit/80926fadc06492fcae55f105582b9dc8279da6b3) Thanks [@ematipico](https://github.com/ematipico)! - Updates `esbuild` and `vite` to the latest to avoid false positives audits warnings caused by `esbuild`.
+
 ## 4.2.0
 
 ### Minor Changes
