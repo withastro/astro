@@ -409,7 +409,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
 			}
 			await Promise.all(
-				Array.from(hashToUrlMap!.entries()).map(async ([hash, url]) => {
+				Array.from(hashToUrlMap?.entries() ?? []).map(async ([hash, url]) => {
 					logManager.add(hash);
 					const { cached, data } = await cache!(hash, () => fetchFont(url));
 					logManager.remove(hash, cached);
