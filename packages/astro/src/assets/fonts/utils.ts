@@ -1,8 +1,9 @@
 import type * as unifont from 'unifont';
 import type { FontType } from './types.js';
 import { extname } from 'node:path';
-import { FONT_TYPES } from './constants.js';
+import { DEFAULT_FALLBACKS, FONT_TYPES } from './constants.js';
 import type { Storage } from 'unstorage';
+import * as fontaine from 'fontaine';
 
 // TODO: expose all relevant options in config
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
@@ -81,7 +82,7 @@ export interface ProxyURLOptions {
 	value: string;
 	/**
 	 * Specifies how the hash is computed. Can be based on the value,
-	 * a specific string for testing etc 
+	 * a specific string for testing etc
 	 */
 	hashString: (value: string) => string;
 	/**
@@ -110,4 +111,60 @@ export function proxyURL({ value, hashString, collect }: ProxyURLOptions): strin
 	const url = collect({ hash, type, value });
 	// Now that we collected the original url, we return our proxy so the consumer can override it
 	return url;
+}
+
+// TODO: test
+export function isGenericFontFamily(str: string): str is keyof typeof DEFAULT_FALLBACKS {
+	return Object.keys(DEFAULT_FALLBACKS).includes(str);
+}
+
+// TODO: test
+// TODO: jsdoc
+export async function generateFallbacksCSS({
+	family,
+	fallbacks,
+	fontURL,
+}: {
+	family: string;
+	fallbacks: Array<string>;
+	fontURL: string | null;
+}): Promise<null | { css: string; fallbacks: Array<string> }> {
+	if (fallbacks.length === 0) {
+		return null;
+	}
+
+	let metrics = await fontaine.getMetricsForFamily(family);
+	if (fontURL && !metrics) {
+		metrics = await fontaine.readMetrics(fontURL);
+	}
+
+	if (!metrics) {
+		return null;
+	}
+
+	// TODO: explain what's going on here
+	let resolvedFallbacks = [...fallbacks];
+	const lastFallback = resolvedFallbacks.at(-1)!;
+	let shouldGenerateCss: (fallback: string) => boolean = () => false;
+	if (isGenericFontFamily(lastFallback)) {
+		const values = DEFAULT_FALLBACKS[lastFallback];
+		resolvedFallbacks.unshift(...values);
+		shouldGenerateCss = (fallback) => values.includes(fallback);
+	}
+	resolvedFallbacks = [...new Set(resolvedFallbacks)];
+
+	let css = '';
+	for (const fallback of resolvedFallbacks) {
+		if (!shouldGenerateCss(fallback)) {
+			continue;
+		}
+		css += fontaine.generateFontFace(metrics, {
+			font: fallback,
+			// TODO: family.as
+			name: `${family} fallback: ${fallback}`,
+			metrics: (await fontaine.getMetricsForFamily(fallback)) ?? undefined,
+		});
+	}
+
+	return { css, fallbacks: resolvedFallbacks };
 }
