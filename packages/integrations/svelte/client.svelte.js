@@ -61,7 +61,11 @@ export default (element) => {
 function createComponent(Component, target, props, shouldHydrate) {
 	let propsState = $state(props);
 	const bootstrap = shouldHydrate ? hydrate : mount;
-	const component = bootstrap(Component, { target, props: propsState });
+	const component = bootstrap(Component, {
+		target,
+		props: propsState,
+		uidPrefix: target.getAttribute('prefix'),
+	});
 	return {
 		setProps(newProps) {
 			Object.assign(propsState, newProps);
