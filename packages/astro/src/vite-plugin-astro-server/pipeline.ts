@@ -29,6 +29,7 @@ export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
 	// so it needs to be mutable here unlike in other environments
 	override renderers = new Array<SSRLoadedRenderer>();
+	// override actions = undefined;
 
 	routesList: RoutesList | undefined;
 
@@ -211,17 +212,5 @@ export class DevPipeline extends Pipeline {
 
 	setManifestData(manifestData: RoutesList) {
 		this.routesList = manifestData;
-	}
-
-	rewriteKnownRoute(route: string, sourceRoute: RouteData): ComponentInstance {
-		if (this.serverLike && sourceRoute.prerender) {
-			for (let def of this.defaultRoutes) {
-				if (route === def.route) {
-					return def.instance;
-				}
-			}
-		}
-
-		throw new Error('Unknown route');
 	}
 }
