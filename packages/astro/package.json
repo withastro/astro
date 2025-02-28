@@ -160,7 +160,7 @@
     "prompts": "^2.4.2",
     "rehype": "^13.0.2",
     "semver": "^7.7.1",
-    "shiki": "^1.29.2",
+    "shiki": "^3.0.0",
     "tinyexec": "^0.3.2",
     "tinyglobby": "^0.2.12",
     "tsconfck": "^3.1.4",
