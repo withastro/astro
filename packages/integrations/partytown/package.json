@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@qwik.dev/partytown": "^0.11.0",
-    "mrmime": "^2.0.0"
+    "mrmime": "^2.0.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
