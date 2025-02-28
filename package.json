@@ -49,7 +49,7 @@
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
   },
-  "packageManager": "pnpm@9.12.1",
+  "packageManager": "pnpm@10.5.1",
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
@@ -77,6 +77,7 @@
         "astro",
         "vite"
       ]
-    }
+    },
+    "onlyBuiltDependencies": ["esbuild"]
   }
 }
