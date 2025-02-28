@@ -39,7 +39,7 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
     "@netlify/blobs": "^8.1.0",
-    "@netlify/functions": "^2.8.0",
+    "@netlify/functions": "^3.0.0",
     "@vercel/nft": "^0.29.0",
     "esbuild": "^0.25.0",
     "tinyglobby": "^0.2.12",
