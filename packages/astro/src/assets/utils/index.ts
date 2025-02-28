@@ -5,3 +5,12 @@ export { getOrigQueryParams } from './queryParams.js';
 export { hashTransform, propsToFilename } from './transformToPath.js';
 export { inferRemoteSize } from './remoteProbe.js';
 export { makeSvgComponent } from './svg.js';
+export {
+	isRemoteAllowed,
+	matchHostname,
+	matchPathname,
+	matchPattern,
+	matchPort,
+	matchProtocol,
+	type RemotePattern,
+} from './remotePattern.js';
