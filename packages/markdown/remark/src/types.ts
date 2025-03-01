@@ -39,7 +39,9 @@ export type ThemePresets = BuiltinTheme | 'css-variables';
 
 export interface ShikiConfig
 	extends Pick<CreateShikiHighlighterOptions, 'langs' | 'theme' | 'themes' | 'langAlias'>,
-		Pick<ShikiHighlighterHighlightOptions, 'defaultColor' | 'wrap' | 'transformers'> {}
+		Pick<ShikiHighlighterHighlightOptions, 'defaultColor' | 'wrap' | 'transformers'> {
+	excludeLangs?: string[];
+}
 
 /**
  * Configuration options that end up in the markdown section of AstroConfig

@@ -30,6 +30,24 @@ describe('shiki syntax highlighting', () => {
 		assert.match(code, /github-dark/);
 	});
 
+	it('does not highlight math code blocks by default', async () => {
+		const processor = await createMarkdownProcessor();
+		const { code } = await processor.render('```math\n\\frac{1}{2}\n```');
+
+		assert.ok(!code.includes('background-color:'));
+	});
+
+	it('supports excludeLangs', async () => {
+		const processor = await createMarkdownProcessor({
+			shikiConfig: {
+				excludeLangs: ['mermaid'],
+			},
+		});
+		const { code } = await processor.render('```mermaid\ngraph TD\nA --> B\n```');
+
+		assert.ok(!code.includes('background-color:'));
+	});
+
 	it('createShikiHighlighter works', async () => {
 		const highlighter = await createShikiHighlighter();
 
