@@ -1617,6 +1617,6 @@ test.describe('View Transitions', () => {
 		await expect(page).toHaveTitle('Page 3');
 		await page.click('#link');
 		await expect(page).toHaveTitle('Page 1');
-		expect(lines.join("")).toBe('312233');
+		expect(lines.join('')).toBe('312233');
 	});
 });
