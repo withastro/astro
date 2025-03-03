@@ -41,8 +41,10 @@ function* render(Component, attrs, slots) {
 
 	if (attrs) {
 		for (let [name, value] of Object.entries(attrs)) {
-			const isReactiveProperty = name in Ctr.prototype;
-			const isReflectedReactiveProperty = Ctr.elementProperties.get(name)?.reflect;
+			// Check if Ctr exists and has prototype and elementProperties
+			const isReactiveProperty = Ctr && Ctr.prototype && name in Ctr.prototype;
+			const isReflectedReactiveProperty = Ctr && Ctr.elementProperties && 
+				Ctr.elementProperties.get(name)?.reflect;
 
 			// Only defer hydration if we are setting a reactive property that cannot
 			// be reflected / serialized as a property.
@@ -61,12 +63,18 @@ function* render(Component, attrs, slots) {
 	yield `<${tagName}${shouldDeferHydration ? ' defer-hydration' : ''}`;
 	yield* instance.renderAttributes();
 	yield `>`;
-	const shadowContents = instance.renderShadow({
+	
+	// Ensure all required stacks are initialized
+	const renderInfo = {
 		elementRenderers: [LitElementRenderer],
 		customElementInstanceStack: [instance],
 		customElementHostStack: [instance],
 		deferHydration: false,
-	});
+		eventTargetStack: [],
+		slotStack: []
+	};
+	
+	const shadowContents = instance.renderShadow(renderInfo);
 	if (shadowContents !== undefined) {
 		const { mode = 'open', delegatesFocus } = instance.shadowRootOptions ?? {};
 		// `delegatesFocus` is intentionally allowed to coerce to boolean to

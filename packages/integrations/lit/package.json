@@ -57,8 +57,6 @@
     }
   },
   "devDependencies": {
-    "astro": "workspace:*",
-    "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "lit": "^3.2.1",
     "sass": "^1.85.1"

@@ -33,3 +33,14 @@ customElements.define = function (tagName, Ctr) {
 	Ctr[Symbol.for('tagName')] = tagName;
 	return litCeDefine.call(this, tagName, Ctr);
 };
+
+// Ensure required arrays for SSR rendering are initialized
+// This helps prevent "Cannot read properties of undefined (reading 'length')" errors
+if (typeof window === 'undefined') {
+	globalThis._litSSRRenderInfo = globalThis._litSSRRenderInfo || {
+		customElementInstanceStack: [],
+		customElementHostStack: [],
+		eventTargetStack: [],
+		slotStack: []
+	};
+}
