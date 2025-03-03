@@ -241,6 +241,7 @@ export default function vercelAdapter({
 						command,
 						devImageService,
 						config.image,
+						config.experimental.responsiveImages,
 					),
 				});
 			},
