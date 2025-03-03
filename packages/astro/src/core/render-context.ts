@@ -29,9 +29,8 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
-import { isRoute404or500 } from './routing/match.js';
+import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
-import { SERVER_ISLAND_COMPONENT } from './server-islands/endpoint.js';
 import { AstroSession } from './session.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
@@ -247,6 +246,12 @@ export class RenderContext {
 			return response;
 		};
 
+		// If we are rendering an extrnal redirect, we don't need go through the middleware,
+		// otherwise Astro will attempt to render the external website
+		if (isRouteExternalRedirect(this.routeData)) {
+			return renderRedirect(this);
+		}
+
 		const response = await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
@@ -389,6 +394,7 @@ export class RenderContext {
 		// calling the render() function will populate the object with scripts, styles, etc.
 		const result: SSRResult = {
 			base: manifest.base,
+			userAssetsBase: manifest.userAssetsBase,
 			cancelled: false,
 			clientDirectives,
 			inlinedScripts,
@@ -596,7 +602,7 @@ export class RenderContext {
 		}
 
 		let computedLocale;
-		if (routeData.component === SERVER_ISLAND_COMPONENT) {
+		if (isRouteServerIsland(routeData)) {
 			let referer = this.request.headers.get('referer');
 			if (referer) {
 				if (URL.canParse(referer)) {

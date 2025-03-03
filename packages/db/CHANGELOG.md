@@ -1,5 +1,14 @@
 # @astrojs/db
 
+## 0.14.7
+
+### Patch Changes
+
+- [#13314](https://github.com/withastro/astro/pull/13314) [`797a948`](https://github.com/withastro/astro/commit/797a9480b23303329dd618633194cbfb3dccb459) Thanks [@jlebras](https://github.com/jlebras)! - Expose `ilike` function from `drizzle-orm`
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.4
+
 ## 0.14.6
 
 ### Patch Changes

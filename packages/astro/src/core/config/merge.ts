@@ -1,4 +1,6 @@
 import { mergeConfig as mergeViteConfig } from 'vite';
+import type { DeepPartial } from '../../type-utils.js';
+import type { AstroConfig, AstroInlineConfig } from '../../types/public/index.js';
 import { arraify, isObject, isURL } from '../util.js';
 
 function mergeConfigRecursively(
@@ -64,10 +66,9 @@ function mergeConfigRecursively(
 	return merged;
 }
 
-export function mergeConfig(
-	defaults: Record<string, any>,
-	overrides: Record<string, any>,
-	isRoot = true,
-): Record<string, any> {
-	return mergeConfigRecursively(defaults, overrides, isRoot ? '' : '.');
+export function mergeConfig<C extends AstroConfig | AstroInlineConfig>(
+	defaults: C,
+	overrides: DeepPartial<C>,
+): C {
+	return mergeConfigRecursively(defaults, overrides, '') as C;
 }

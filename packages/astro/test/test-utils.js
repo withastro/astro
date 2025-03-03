@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { execa } from 'execa';
-import fastGlob from 'fast-glob';
+import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/content-layer.js';
@@ -49,6 +49,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {typeof check} check
  * @property {typeof sync} sync
  * @property {AstroConfig} config
+ * @property {() => void} resetAllFiles
  *
  * This function returns an instance of the Check
  *
@@ -251,8 +252,9 @@ export async function loadFixture(inlineConfig) {
 			),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
 		glob: (p) =>
-			fastGlob(p, {
+			glob(p, {
 				cwd: fileURLToPath(config.outDir),
+				expandDirectories: false,
 			}),
 		clean: async () => {
 			await fs.promises.rm(config.outDir, {

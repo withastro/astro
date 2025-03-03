@@ -1,5 +1,17 @@
 # @astrojs/preact
 
+## 4.0.5
+
+### Patch Changes
+
+- [#13323](https://github.com/withastro/astro/pull/13323) [`80926fa`](https://github.com/withastro/astro/commit/80926fadc06492fcae55f105582b9dc8279da6b3) Thanks [@ematipico](https://github.com/ematipico)! - Updates `esbuild` and `vite` to the latest to avoid false positives audits warnings caused by `esbuild`.
+
+## 4.0.4
+
+### Patch Changes
+
+- [#12950](https://github.com/withastro/astro/pull/12950) [`c497491`](https://github.com/withastro/astro/commit/c497491cfe6a03f6a2118392d198ee1738754629) Thanks [@Marabyte](https://github.com/Marabyte)! - Upgrades `@preact/preset-vite`
+
 ## 4.0.3
 
 ### Patch Changes

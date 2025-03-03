@@ -1,5 +1,19 @@
 # @astrojs/internal-helpers
 
+## 0.6.0
+
+### Minor Changes
+
+- [#13254](https://github.com/withastro/astro/pull/13254) [`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b) Thanks [@p0lyw0lf](https://github.com/p0lyw0lf)! - Adds remote URL filtering utilities
+
+  This adds logic to filter remote URLs so that it can be used by both `astro` and `@astrojs/markdown-remark`.
+
+## 0.5.1
+
+### Patch Changes
+
+- [#13130](https://github.com/withastro/astro/pull/13130) [`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that meant that internal as well as trailing duplicate slashes were collapsed
+
 ## 0.5.0
 
 ### Minor Changes

@@ -19,7 +19,7 @@ import {
 	UnsupportedExternalRedirect,
 } from '../../errors/errors-data.js';
 import { AstroError } from '../../errors/index.js';
-import { removeLeadingForwardSlash, slash } from '../../path.js';
+import { hasFileExtension, removeLeadingForwardSlash, slash } from '../../path.js';
 import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 import { resolvePages } from '../../util.js';
 import { ensure404Route } from '../astro-designed-error-pages.js';
@@ -218,12 +218,12 @@ function createFileBasedRoutes(
 			} else {
 				components.push(item.file);
 				const component = item.file;
-				const { trailingSlash } = settings.config;
-				const pattern = getPattern(segments, settings.config.base, trailingSlash);
-				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
+				const trailingSlash = trailingSlashForPath(pathname, settings.config);
+				const pattern = getPattern(segments, settings.config.base, trailingSlash);
+				const generate = getRouteGenerator(segments, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
 					route,
@@ -257,6 +257,14 @@ function createFileBasedRoutes(
 	return routes;
 }
 
+// Get trailing slash rule for a path, based on the config and whether the path has an extension.
+// TODO: in Astro 6, change endpoints with extentions to use 'never'
+const trailingSlashForPath = (
+	pathname: string | null,
+	config: AstroConfig,
+): AstroConfig['trailingSlash'] =>
+	pathname && hasFileExtension(pathname) ? 'ignore' : config.trailingSlash;
+
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
 	const prerender = getPrerenderDefault(config);
@@ -276,14 +284,13 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			});
 
 		const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
-		const isPage = type === 'page';
-		const trailingSlash = isPage ? config.trailingSlash : 'never';
-
-		const pattern = getPattern(segments, settings.config.base, trailingSlash);
-		const generate = getRouteGenerator(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
+
+		const trailingSlash = trailingSlashForPath(pathname, config);
+		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const generate = getRouteGenerator(segments, trailingSlash);
 		const params = segments
 			.flat()
 			.filter((p) => p.dynamic)

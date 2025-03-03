@@ -190,6 +190,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		clientDirectives: settings.clientDirectives,
 		renderers: [],
 		base: settings.config.base,
+		userAssetsBase: settings.config?.vite?.base,
 		assetsPrefix: settings.config.build.assetsPrefix,
 		site: settings.config.site,
 		componentMetadata: new Map(),
@@ -203,6 +204,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 				onRequest: NOOP_MIDDLEWARE_FN,
 			};
 		},
-		sessionConfig: settings.config.experimental.session,
+		sessionConfig: settings.config.experimental.session ? settings.config.session : undefined,
 	};
 }

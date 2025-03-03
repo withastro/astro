@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.5.0
+
+### Minor Changes
+
+- [#13330](https://github.com/withastro/astro/pull/13330) [`5e7646e`](https://github.com/withastro/astro/commit/5e7646efc12d47bbb65d8c80a160f4f27329903c) Thanks [@ematipico](https://github.com/ematipico)! - Adds the ability to identify `bun` as the preferred package manager.
+
 ## 0.4.3
 
 ### Patch Changes

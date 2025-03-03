@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import glob from 'fast-glob';
 import type { OutputChunk } from 'rollup';
+import { glob } from 'tinyglobby';
 import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
@@ -54,9 +54,7 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
 				];
 
-				const resolvedDriver = await resolveSessionDriver(
-					options.settings.config.experimental?.session?.driver,
-				);
+				const resolvedDriver = await resolveSessionDriver(options.settings.config.session?.driver);
 
 				const contents = [
 					`const manifest = _deserializeManifest('${manifestReplace}');`,
@@ -289,6 +287,7 @@ function buildManifest(
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,
+		userAssetsBase: settings.config?.vite?.base,
 		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
@@ -304,6 +303,6 @@ function buildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
-		sessionConfig: settings.config.experimental.session,
+		sessionConfig: settings.config.session,
 	};
 }

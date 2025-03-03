@@ -45,7 +45,9 @@ export interface BuildOptions {
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.
 	 *
-	 * @internal only used for testing
+	 * When building multiple projects in the same execution (e.g. during tests), disabling
+	 * this option can greatly improve performance at the cost of some extra memory usage.
+	 *
 	 * @default true
 	 */
 	teardownCompiler?: boolean;
@@ -174,7 +176,8 @@ class AstroBuilder {
 		await runHookBuildStart({ config: this.settings.config, logging: this.logger });
 		this.validateConfig();
 
-		this.logger.info('build', `output: ${blue('"' + this.settings.buildOutput + '"')}`);
+		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
+		this.logger.info('build', `mode: ${blue('"' + this.settings.buildOutput + '"')}`);
 		this.logger.info('build', `directory: ${blue(fileURLToPath(this.settings.config.outDir))}`);
 		if (this.settings.adapter) {
 			this.logger.info('build', `adapter: ${green(this.settings.adapter.name)}`);
