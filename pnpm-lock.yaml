@@ -4343,7 +4343,7 @@ importers:
         specifier: ^5.7.3
         version: 5.7.3
       vite:
-        specifier: ^6.0.11
+        specifier: ^6.2.0
         version: 6.2.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/db/test/fixtures/basics:
@@ -4499,7 +4499,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       vite:
-        specifier: ^6.0.11
+        specifier: ^6.2.0
         version: 6.2.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/integrations/alpinejs/test/fixtures/basics:
@@ -4764,7 +4764,7 @@ importers:
         specifier: ^0.18.7
         version: 0.18.9
       vite:
-        specifier: ^6.0.11
+        specifier: ^6.2.0
         version: 6.2.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/integrations/markdoc/test/fixtures/content-collections:
@@ -5014,7 +5014,7 @@ importers:
         specifier: ^11.0.5
         version: 11.0.5
       vite:
-        specifier: ^6.0.11
+        specifier: ^6.2.0
         version: 6.2.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/integrations/mdx/test/fixtures/css-head-mdx:
@@ -5690,7 +5690,7 @@ importers:
         specifier: ^3.4.17
         version: 3.4.17
       vite:
-        specifier: ^6.0.11
+        specifier: ^6.2.0
         version: 6.2.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/integrations/tailwind/test/fixtures/basic:
@@ -6178,7 +6178,7 @@ importers:
         specifier: ^5.7.3
         version: 5.7.3
       vite:
-        specifier: ^6.0.11
+        specifier: ^6.2.0
         version: 6.2.0(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.84.0)(yaml@2.5.1)
 
   packages/telemetry:
