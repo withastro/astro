@@ -28,7 +28,6 @@ export function deselectScripts(doc: Document) {
 			// the old script is in the new document and doesn't have the rerun attribute
 			// we mark it as executed to prevent re-execution
 			s2.dataset.astroExec = '';
-			break;
 		}
 	}
 }

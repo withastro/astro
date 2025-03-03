@@ -1604,7 +1604,7 @@ test.describe('View Transitions', () => {
 		expect(lines.join('\n')).toBe(expected);
 	});
 
-	test.skip('astro-data-rerun reruns known scripts', async ({ page, astro }) => {
+	test('astro-data-rerun reruns known scripts', async ({ page, astro }) => {
 		let lines = [];
 		page.on('console', (msg) => {
 			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));

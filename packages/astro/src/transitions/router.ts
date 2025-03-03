@@ -139,7 +139,6 @@ function runScripts() {
 		if (script.dataset.astroExec === '') continue;
 		const type = script.getAttribute('type');
 		if (type && type !== 'module' && type !== 'text/javascript') continue;
-		if (detectScriptExecuted(script)) continue;
 		const newScript = document.createElement('script');
 		newScript.innerHTML = script.innerHTML;
 		for (const attr of script.attributes) {
