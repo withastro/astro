@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {
 	isFontType,
 	extractFontType,
-	createCache,
+	cache,
 	proxyURL,
 	isGenericFontFamily,
 	generateFallbacksCSS,
@@ -31,12 +31,23 @@ function createSpyCache() {
 			store.set(key, value);
 		},
 	};
-	const cache = createCache(
-		// @ts-expect-error we only mock the required hooks
-		storage,
-	);
 
-	return { cache, getKeys: () => Array.from(store.keys()) };
+	return {
+		/**
+		 *
+		 * @param {Parameters<typeof cache>[1]} key
+		 * @param {Parameters<typeof cache>[2]} cb
+		 * @returns
+		 */
+		cache: (key, cb) =>
+			cache(
+				// @ts-expect-error we only mock the required hooks
+				storage,
+				key,
+				cb,
+			),
+		getKeys: () => Array.from(store.keys()),
+	};
 }
 
 /**
@@ -105,7 +116,8 @@ describe('fonts utils', () => {
 		}
 	});
 
-	it('createCache()', async () => {
+	it('cache()', async () => {
+		// eslint-disable-next-line @typescript-eslint/no-shadow
 		const { cache, getKeys } = createSpyCache();
 
 		assert.deepStrictEqual(getKeys(), []);

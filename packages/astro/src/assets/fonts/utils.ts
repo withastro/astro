@@ -58,22 +58,19 @@ export function isFontType(str: string): str is FontType {
 	return (FONT_TYPES as Readonly<Array<string>>).includes(str);
 }
 
-export function createCache(storage: Storage) {
-	return async function cache(
-		key: string,
-		cb: () => Promise<Buffer>,
-	): Promise<{ cached: boolean; data: Buffer }> {
-		const existing = await storage.getItemRaw(key);
-		if (existing) {
-			return { cached: true, data: existing };
-		}
-		const data = await cb();
-		await storage.setItemRaw(key, data);
-		return { cached: false, data };
-	};
+export async function cache(
+	storage: Storage,
+	key: string,
+	cb: () => Promise<Buffer>,
+): Promise<{ cached: boolean; data: Buffer }> {
+	const existing = await storage.getItemRaw(key);
+	if (existing) {
+		return { cached: true, data: existing };
+	}
+	const data = await cb();
+	await storage.setItemRaw(key, data);
+	return { cached: false, data };
 }
-
-export type CacheHandler = ReturnType<typeof createCache>;
 
 export interface ProxyURLOptions {
 	/**

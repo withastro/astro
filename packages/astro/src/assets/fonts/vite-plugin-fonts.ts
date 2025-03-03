@@ -9,8 +9,7 @@ import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import {
 	generateFontFace,
-	createCache,
-	type CacheHandler,
+	cache,
 	proxyURL,
 	extractFontType,
 	type ProxyURLOptions,
@@ -29,7 +28,7 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
 import { resolveLocalFont, LOCAL_PROVIDER_NAME, LocalFontsWatcher } from './providers/local.js';
 import { readFile } from 'node:fs/promises';
-import { createStorage } from 'unstorage';
+import { createStorage, type Storage } from 'unstorage';
 import fsLiteDriver from 'unstorage/drivers/fs-lite';
 import { fileURLToPath } from 'node:url';
 import * as fontaine from 'fontaine';
@@ -153,7 +152,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	// to download the original file, or retrieve it from cache
 	let hashToUrlMap: Map<string, string> | null = null;
 	let isBuild: boolean;
-	let cache: CacheHandler | null = null;
+	let storage: Storage | null = null;
 
 	// TODO: refactor to allow testing
 	async function initialize({ resolveMod, base }: { resolveMod: ResolveMod; base: URL }) {
@@ -165,13 +164,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			resolveMod,
 		});
 
-		const storage = createStorage({
+		storage = createStorage({
 			driver: (fsLiteDriver as unknown as typeof fsLiteDriver.default)({
 				base: fileURLToPath(base),
 			}),
 		});
-
-		cache = createCache(storage);
 
 		const { resolveFont } = await unifont.createUnifont(
 			resolved.map((e) => e.provider(e.config)),
@@ -337,10 +334,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					return next();
 				}
 				logManager.add(hash);
-				// Cache should be defined at this point since initialize it called before registering
+				// Storage should be defined at this point since initialize it called before registering
 				// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
 				// no url will be matched and this line will not be reached.
-				const { cached, data } = await cache!(hash, () => fetchFont(url));
+				const { cached, data } = await cache(storage!, hash, () => fetchFont(url));
 				logManager.remove(hash, cached);
 
 				res.setHeader('Content-Length', data.length);
@@ -371,7 +368,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 			if (sync) {
 				hashToUrlMap = null;
-				cache = null;
+				storage = null;
 				return;
 			}
 
@@ -389,7 +386,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				await Promise.all(
 					Array.from(hashToUrlMap.entries()).map(async ([hash, url]) => {
 						logManager.add(hash);
-						const { cached, data } = await cache!(hash, () => fetchFont(url));
+						const { cached, data } = await cache(storage!, hash, () => fetchFont(url));
 						logManager.remove(hash, cached);
 						try {
 							writeFileSync(new URL(hash, fontsDir), data);
@@ -401,7 +398,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 
 			hashToUrlMap = null;
-			cache = null;
+			storage = null;
 		},
 	};
 }
