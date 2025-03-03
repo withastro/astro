@@ -150,13 +150,7 @@ export async function generateFallbacksCSS({
 	}
 
 	let css = '';
-	const metrics = await getMetricsForFamily(family, fontURL);
-	// If there are no metrics, we can't generate useful fallbacks
-	if (!metrics) {
-		return { css, fallbacks };
-	}
 
-	// TODO: to be documented
 	// The last element of the fallbacks is usually a generic family name (eg. serif)
 	const lastFallback = fallbacks[fallbacks.length - 1];
 	// If it's not a generic family name, we can't infer local fonts to be used as fallbacks
@@ -168,6 +162,12 @@ export async function generateFallbacksCSS({
 	const localFonts = DEFAULT_FALLBACKS[lastFallback];
 	// Some generic families do not have associated local fonts so we abort early
 	if (localFonts.length === 0) {
+		return { css, fallbacks };
+	}
+
+	const metrics = await getMetricsForFamily(family, fontURL);
+	if (!metrics) {
+		// If there are no metrics, we can't generate useful fallbacks
 		return { css, fallbacks };
 	}
 

@@ -228,9 +228,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					css += generateFontFace(family.name, data);
 				}
 				const urls = fonts
-					.map((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))
-					.flat()
-					.filter((url) => typeof url === 'string');
+					.flatMap((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))
+					.filter(Boolean);
 
 				const fallbackData = await generateFallbacksCSS({
 					family: family.name,
@@ -239,6 +238,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					getMetricsForFamily: async (name, fontURL) => {
 						let metrics = await fontaine.getMetricsForFamily(name);
 						if (fontURL && !metrics) {
+							// TODO: investigate in using capsize directly (fromBlob) to be able to cache
 							metrics = await fontaine.readMetrics(fontURL);
 						}
 						return metrics;
@@ -408,18 +408,20 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			} catch (e) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
 			}
-			await Promise.all(
-				Array.from(hashToUrlMap?.entries() ?? []).map(async ([hash, url]) => {
-					logManager.add(hash);
-					const { cached, data } = await cache!(hash, () => fetchFont(url));
-					logManager.remove(hash, cached);
-					try {
-						writeFileSync(new URL(hash, fontsDir), data);
-					} catch (e) {
-						throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
-					}
-				}),
-			);
+			if (hashToUrlMap) {
+				await Promise.all(
+					Array.from(hashToUrlMap.entries()).map(async ([hash, url]) => {
+						logManager.add(hash);
+						const { cached, data } = await cache!(hash, () => fetchFont(url));
+						logManager.remove(hash, cached);
+						try {
+							writeFileSync(new URL(hash, fontsDir), data);
+						} catch (e) {
+							throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+						}
+					}),
+				);
+			}
 
 			hashToUrlMap = null;
 			cache = null;
