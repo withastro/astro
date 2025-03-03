@@ -2121,7 +2121,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * Enables full compatibility of Markdown headings IDs with common platforms such as GitHub and npm.
 		 *
-		 * When enabled, IDs for headings with non-alphanumeric characters, e.g. `<Picture />`, will
+		 * When enabled, IDs for headings ending with non-alphanumeric characters, e.g. `<Picture />`, will
 		 * include a trailing `-`, matching standard behavior in other Markdown tooling.
 		 */
 		headingIdCompat?: boolean;
