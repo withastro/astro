@@ -1,6 +1,7 @@
 import type { TransitionBeforePreparationEvent } from './events.js';
 import { TRANSITION_AFTER_SWAP, doPreparation, doSwap } from './events.js';
 import type { Direction, Fallback, Options } from './types.js';
+import { detectScriptExecuted } from './swap-functions.js';
 
 type State = {
 	index: number;
@@ -646,7 +647,7 @@ if (inBrowser) {
 		}
 	}
 	for (const script of document.getElementsByTagName('script')) {
-		script.dataset.astroExec = '';
+		detectScriptExecuted(script);
 	}
 }
 
