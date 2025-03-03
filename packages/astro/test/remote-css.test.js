@@ -3,6 +3,15 @@ import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
+async function getCssContent($, fixture) {
+	const contents = await Promise.all(
+		$('link[rel=stylesheet][href^=/_astro/]').map((_, el) =>
+			fixture.readFile(el.attribs.href.replace(/^\/?/, '/')),
+		),
+	);
+	return contents.join('').replace(/\s/g, '').replace('/n', '');
+}
+
 describe('Remote CSS', () => {
 	let fixture;
 
@@ -19,8 +28,7 @@ describe('Remote CSS', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
-		const relPath = $('link').attr('href');
-		const css = await fixture.readFile(relPath);
+		const css = await getCssContent($, fixture);
 
 		assert.match(css, /https:\/\/unpkg.com\/open-props/);
 		assert.match(css, /body/);

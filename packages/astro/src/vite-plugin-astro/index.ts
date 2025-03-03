@@ -135,7 +135,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					return {
 						code: result.code,
 						// `vite.cssScopeTo` is a Vite feature that allows this CSS to be treeshaken
-						// if the Astro component's defualt export is not used
+						// if the Astro component's default export is not used
 						meta: result.isGlobal ? undefined : { vite: { cssScopeTo: [filename, 'default'] } },
 					};
 				}
