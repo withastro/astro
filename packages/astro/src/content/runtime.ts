@@ -1,4 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
 import { ZodIssueCode, z } from 'zod';
@@ -6,7 +7,6 @@ import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
-import { escape } from 'html-escaper';
 
 import {
 	type AstroComponentFactory,
