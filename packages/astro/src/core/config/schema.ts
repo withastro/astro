@@ -77,6 +77,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		host: false,
 		port: 4321,
 		open: false,
+		allowedHosts: [],
 	},
 	integrations: [],
 	markdown: markdownConfigDefaults,
@@ -92,12 +93,14 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		schema: {},
 		validateSecrets: false,
 	},
+	session: undefined,
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
 		responsiveImages: false,
 		svg: false,
 		serializeConfig: false,
+		session: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -212,6 +215,10 @@ export const AstroConfigSchema = z.object({
 					.default(ASTRO_CONFIG_DEFAULTS.server.host),
 				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 				headers: z.custom<OutgoingHttpHeaders>().optional(),
+				allowedHosts: z
+					.union([z.array(z.string()), z.literal(true)])
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
 			})
 			.default({}),
 	),
@@ -522,6 +529,30 @@ export const AstroConfigSchema = z.object({
 		.strict()
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.env),
+	session: z
+		.object({
+			driver: z.string(),
+			options: z.record(z.any()).optional(),
+			cookie: z
+				.object({
+					name: z.string().optional(),
+					domain: z.string().optional(),
+					path: z.string().optional(),
+					maxAge: z.number().optional(),
+					sameSite: z.union([z.enum(['strict', 'lax', 'none']), z.boolean()]).optional(),
+					secure: z.boolean().optional(),
+				})
+				.or(z.string())
+				.transform((val) => {
+					if (typeof val === 'string') {
+						return { name: val };
+					}
+					return val;
+				})
+				.optional(),
+			ttl: z.number().optional(),
+		})
+		.optional(),
 	experimental: z
 		.object({
 			clientPrerender: z
@@ -536,32 +567,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
-			session: z
-				.object({
-					driver: z.string(),
-					options: z.record(z.any()).optional(),
-					cookie: z
-						.union([
-							z.object({
-								name: z.string().optional(),
-								domain: z.string().optional(),
-								path: z.string().optional(),
-								maxAge: z.number().optional(),
-								sameSite: z.union([z.enum(['strict', 'lax', 'none']), z.boolean()]).optional(),
-								secure: z.boolean().optional(),
-							}),
-							z.string(),
-						])
-						.transform((val) => {
-							if (typeof val === 'string') {
-								return { name: val };
-							}
-							return val;
-						})
-						.optional(),
-					ttl: z.number().optional(),
-				})
-				.optional(),
+			session: z.boolean().optional(),
 			svg: z
 				.union([
 					z.boolean(),
@@ -717,6 +723,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 					headers: z.custom<OutgoingHttpHeaders>().optional(),
 					streaming: z.boolean().optional().default(true),
+					allowedHosts: z
+						.union([z.array(z.string()), z.literal(true)])
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
 				})
 				.optional()
 				.default({}),

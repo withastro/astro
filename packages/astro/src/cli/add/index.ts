@@ -40,6 +40,7 @@ interface AddOptions {
 interface IntegrationInfo {
 	id: string;
 	packageName: string;
+	integrationName: string;
 	dependencies: [name: string, version: string][];
 	type: 'integration' | 'adapter';
 }
@@ -283,7 +284,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 						'SKIP_FORMAT',
 						`\n  ${magenta(
 							`Check our deployment docs for ${bold(
-								integration.packageName,
+								integration.integrationName,
 							)} to update your "adapter" config.`,
 						)}`,
 					);
@@ -349,7 +350,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 		case UpdateResult.failure:
 		case UpdateResult.updated:
 		case undefined: {
-			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
+			const list = integrations
+				.map((integration) => `  - ${integration.integrationName}`)
+				.join('\n');
 			logger.info(
 				'SKIP_FORMAT',
 				msg.success(
@@ -358,7 +361,24 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} to your project:\n${list}`,
 				),
 			);
-			logger.info('SKIP_FORMAT', msg.success("Import './src/styles/global.css' in a layout"));
+			if (integrations.find((integration) => integration.integrationName === 'tailwind')) {
+				const code = boxen(
+					getDiffContent('---\n---', "---\nimport './src/styles/global.css'\n---")!,
+					{
+						margin: 0.5,
+						padding: 0.5,
+						borderStyle: 'round',
+						title: 'src/layouts/Layout.astro',
+					},
+				);
+				logger.warn(
+					'SKIP_FORMAT',
+					msg.actionRequired(
+						'You must import your Tailwind stylesheet, e.g. in a shared layout:\n',
+					),
+				);
+				logger.info('SKIP_FORMAT', code + '\n');
+			}
 		}
 	}
 
@@ -618,8 +638,7 @@ async function convertIntegrationsToInstallSpecifiers(
 	integrations: IntegrationInfo[],
 ): Promise<string[]> {
 	const ranges: Record<string, string> = {};
-	for (let { packageName, dependencies } of integrations) {
-		ranges[packageName] = '*';
+	for (let { dependencies } of integrations) {
 		for (const [name, range] of dependencies) {
 			ranges[name] = range;
 		}
@@ -790,7 +809,7 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 
 				const resolvedScope = pkgType === 'first-party' ? '@astrojs' : scope;
 				const packageName = `${resolvedScope ? `${resolvedScope}/` : ''}${name}`;
-
+				let integrationName = packageName;
 				let dependencies: IntegrationInfo['dependencies'] = [
 					[pkgJson['name'], `^${pkgJson['version']}`],
 				];
@@ -823,13 +842,19 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 				}
 
 				if (integration === 'tailwind') {
+					integrationName = 'tailwind';
 					dependencies = [
 						['@tailwindcss/vite', '^4.0.0'],
 						['tailwindcss', '^4.0.0'],
 					];
 				}
-
-				return { id: integration, packageName, dependencies, type: integrationType };
+				return {
+					id: integration,
+					packageName,
+					dependencies,
+					type: integrationType,
+					integrationName,
+				};
 			}),
 		);
 		spinner.success();

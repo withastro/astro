@@ -1,4 +1,5 @@
 import type { OutgoingHttpHeaders } from 'node:http';
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
 	RehypePlugins,
 	RemarkPlugins,
@@ -8,7 +9,6 @@ import type {
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
-import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
@@ -67,6 +67,26 @@ export type ServerConfig = {
 	 * If the given port is already in use, Astro will automatically try the next available port.
 	 */
 	port?: number;
+
+	/**
+	 * @name server.allowedHosts
+	 * @type {string[] | true}
+	 * @default `[]`
+	 * @version 5.4.0
+	 * @description
+	 *
+	 * A list of hostnames that Astro is allowed to respond to. When the value is set to `true`, any
+	 * hostname is allowed.
+	 *
+	 * ```js
+	 * {
+	 *   server: {
+	 *   	allowedHosts: ['staging.example.com', 'qa.example.com']
+	 *   }
+	 * }
+	 * ```
+	 */
+	allowedHosts?: string[] | true;
 
 	/**
 	 * @name server.headers
@@ -553,6 +573,36 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		checkOrigin?: boolean;
 	};
+
+	/**
+	 * @docs
+	 * @name session
+	 * @type {SessionConfig}
+	 * @version 5.3.0
+	 * @description
+	 *
+	 * Configures experimental session support by specifying a storage `driver` as well as any associated `options`.
+	 * You must enable the `experimental.session` flag to use this feature.
+	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
+	 *
+	 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
+	 *
+	 * See [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information.
+	 *
+	 * ```js title="astro.config.mjs"
+	 *   {
+	 *     session: {
+	 *       // Required: the name of the Unstorage driver
+	 *       driver: 'redis',
+	 *       // The required options depend on the driver
+	 *       options: {
+	 *         url: process.env.REDIS_URL,
+	 *       },
+	 *     }
+	 *   }
+	 * ```
+	 */
+	session?: SessionConfig<TSession>;
 
 	/**
 	 * @docs
@@ -1966,7 +2016,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 *
 		 * @name experimental.session
-		 * @type {SessionConfig}
+		 * @type {boolean}
+		 * @default `false`
 		 * @version 5.0.0
 		 * @description
 		 *
@@ -1983,30 +2034,12 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
 		 *
 		 * ```
-		 * The object configures session management for your Astro site by specifying a `driver` as well as any `options` for your data storage.
 		 *
-		 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
-		 *
-		 * ```js title="astro.config.mjs"
-		 * 	{
-		 * 		experimental: {
-		 *  		session: {
-		 *    		// Required: the name of the Unstorage driver
-		 *    		driver: "redis",
-		 *   			// The required options depend on the driver
-		 *   			options: {
-		 *     			url: process.env.REDIS_URL,
-		 * 				}
-		 * 			}
-		 *   	},
-		 * 	}
-		 * ```
-		 *
-		 * For more details, see [the Sessions RFC](https://github.com/withastro/roadmap/blob/sessions/proposals/0054-sessions.md).
+		 * For more details, see [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/).
 		 *
 		 */
 
-		session?: SessionConfig<TSession>;
+		session?: boolean;
 		/**
 		 *
 		 * @name experimental.svg

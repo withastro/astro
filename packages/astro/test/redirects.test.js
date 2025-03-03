@@ -269,6 +269,22 @@ describe('Astro.redirect', () => {
 				assert.equal(response.headers.get('Location'), '/more/new/welcome/world');
 			});
 		});
+
+		describe('with i18n, build step', () => {
+			before(async () => {
+				process.env.STATIC_MODE = true;
+				fixture = await loadFixture({
+					root: './fixtures/redirects-i18n/',
+				});
+				await fixture.build();
+			});
+
+			it('should render the external redirect', async () => {
+				const html = await fixture.readFile('/mytest/index.html');
+				assert.equal(html.includes('http-equiv="refresh'), true);
+				assert.equal(html.includes('url=https://example.com/about'), true);
+			});
+		});
 	});
 
 	describe('config.build.redirects = false', () => {

@@ -1,5 +1,22 @@
 # @astrojs/markdoc
 
+## 0.12.10
+
+### Patch Changes
+
+- [#13323](https://github.com/withastro/astro/pull/13323) [`80926fa`](https://github.com/withastro/astro/commit/80926fadc06492fcae55f105582b9dc8279da6b3) Thanks [@ematipico](https://github.com/ematipico)! - Updates `esbuild` and `vite` to the latest to avoid false positives audits warnings caused by `esbuild`.
+
+- Updated dependencies [[`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b), [`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b)]:
+  - @astrojs/internal-helpers@0.6.0
+  - @astrojs/markdown-remark@6.2.0
+
+## 0.12.9
+
+### Patch Changes
+
+- Updated dependencies [[`b71bd10`](https://github.com/withastro/astro/commit/b71bd10989c0070847cecb101afb8278d5ef7091)]:
+  - @astrojs/internal-helpers@0.5.1
+
 ## 0.12.8
 
 ### Patch Changes

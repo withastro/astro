@@ -28,6 +28,7 @@ declare module 'astro:db' {
 	export const between: RuntimeConfig['between'];
 	export const notBetween: RuntimeConfig['notBetween'];
 	export const like: RuntimeConfig['like'];
+	export const ilike: RuntimeConfig['ilike'];
 	export const notIlike: RuntimeConfig['notIlike'];
 	export const not: RuntimeConfig['not'];
 	export const asc: RuntimeConfig['asc'];
