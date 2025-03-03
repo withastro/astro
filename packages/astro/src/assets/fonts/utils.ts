@@ -1,8 +1,9 @@
 import type * as unifont from 'unifont';
 import type { FontType } from './types.js';
 import { extname } from 'node:path';
-import { FONT_TYPES } from './constants.js';
+import { DEFAULT_FALLBACKS, FONT_TYPES } from './constants.js';
 import type { Storage } from 'unstorage';
+import type * as fontaine from 'fontaine';
 
 // TODO: expose all relevant options in config
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
@@ -81,7 +82,7 @@ export interface ProxyURLOptions {
 	value: string;
 	/**
 	 * Specifies how the hash is computed. Can be based on the value,
-	 * a specific string for testing etc 
+	 * a specific string for testing etc
 	 */
 	hashString: (value: string) => string;
 	/**
@@ -110,4 +111,77 @@ export function proxyURL({ value, hashString, collect }: ProxyURLOptions): strin
 	const url = collect({ hash, type, value });
 	// Now that we collected the original url, we return our proxy so the consumer can override it
 	return url;
+}
+
+export function isGenericFontFamily(str: string): str is keyof typeof DEFAULT_FALLBACKS {
+	return Object.keys(DEFAULT_FALLBACKS).includes(str);
+}
+
+type FontFaceMetrics = Parameters<typeof fontaine.generateFontFace>[0];
+
+/**
+ * Generates CSS for a given family fallbacks if possible.
+ *
+ * It works by trying to get metrics (using fontaine) of the provided font family.
+ * If some can be computed, they will be applied to the eligible fallbacks to match
+ * the original font shape as close as possible.
+ */
+export async function generateFallbacksCSS({
+	family,
+	fallbacks: _fallbacks,
+	fontURL,
+	getMetricsForFamily,
+	// eslint-disable-next-line @typescript-eslint/no-shadow
+	generateFontFace,
+}: {
+	/** The family name */
+	family: string;
+	/** The family fallbacks */
+	fallbacks: Array<string>;
+	/** A remote url or local filepath to a font file. Used if metrics can't be resolved purely from the family name */
+	fontURL: string | null;
+	getMetricsForFamily: (family: string, fontURL: string | null) => Promise<null | FontFaceMetrics>;
+	generateFontFace: typeof fontaine.generateFontFace;
+}): Promise<null | { css: string; fallbacks: Array<string> }> {
+	// We avoid mutating the original array
+	let fallbacks = [..._fallbacks];
+	if (fallbacks.length === 0) {
+		return null;
+	}
+
+	let css = '';
+
+	// The last element of the fallbacks is usually a generic family name (eg. serif)
+	const lastFallback = fallbacks[fallbacks.length - 1];
+	// If it's not a generic family name, we can't infer local fonts to be used as fallbacks
+	if (!isGenericFontFamily(lastFallback)) {
+		return { css, fallbacks };
+	}
+
+	// If it's a generic family name, we get the associated local fonts (eg. Arial)
+	const localFonts = DEFAULT_FALLBACKS[lastFallback];
+	// Some generic families do not have associated local fonts so we abort early
+	if (localFonts.length === 0) {
+		return { css, fallbacks };
+	}
+
+	const metrics = await getMetricsForFamily(family, fontURL);
+	if (!metrics) {
+		// If there are no metrics, we can't generate useful fallbacks
+		return { css, fallbacks };
+	}
+
+	// We prepend the fallbacks with the local fonts and we dedupe in case a local font is already provided
+	fallbacks = [...new Set([...localFonts, ...fallbacks])];
+
+	for (const fallback of localFonts) {
+		css += generateFontFace(metrics, {
+			font: fallback,
+			// TODO: support family.as
+			name: `${family} fallback: ${fallback}`,
+			metrics: (await getMetricsForFamily(fallback, null)) ?? undefined,
+		});
+	}
+
+	return { css, fallbacks };
 }

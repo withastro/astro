@@ -14,6 +14,7 @@ import {
 	proxyURL,
 	extractFontType,
 	type ProxyURLOptions,
+	generateFallbacksCSS,
 } from './utils.js';
 import {
 	DEFAULTS,
@@ -31,6 +32,7 @@ import { readFile } from 'node:fs/promises';
 import { createStorage } from 'unstorage';
 import fsLiteDriver from 'unstorage/drivers/fs-lite';
 import { fileURLToPath } from 'node:url';
+import * as fontaine from 'fontaine';
 
 interface Options {
 	settings: AstroSettings;
@@ -153,6 +155,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let isBuild: boolean;
 	let cache: CacheHandler | null = null;
 
+	// TODO: refactor to allow testing
 	async function initialize({ resolveMod, base }: { resolveMod: ResolveMod; base: URL }) {
 		const { h64ToString } = await xxhash();
 
@@ -194,19 +197,19 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			return url;
 		};
 
-		// TODO: investigate using fontaine for fallbacks
+		// TODO: refactor to avoid repetition
 		for (const family of families) {
 			// Reset
 			preloadData.length = 0;
 			css = '';
 
 			if (family.provider === LOCAL_PROVIDER_NAME) {
-				const { fonts, fallbacks } = resolveLocalFont(family, {
+				const { fonts } = resolveLocalFont(family, {
 					proxyURL: (value) => {
 						return proxyURL({
 							value,
 							// We hash based on the filepath and the contents, since the user could replace
-							// a given font file with completely different contents. 
+							// a given font file with completely different contents.
 							hashString: (v) => {
 								let content: string;
 								try {
@@ -224,15 +227,39 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				for (const data of fonts) {
 					css += generateFontFace(family.name, data);
 				}
+				const urls = fonts
+					.flatMap((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))
+					.filter(Boolean);
+
+				const fallbackData = await generateFallbacksCSS({
+					family: family.name,
+					fallbacks: family.fallbacks ?? [],
+					fontURL: urls.at(0) ?? null,
+					getMetricsForFamily: async (name, fontURL) => {
+						let metrics = await fontaine.getMetricsForFamily(name);
+						if (fontURL && !metrics) {
+							// TODO: investigate in using capsize directly (fromBlob) to be able to cache
+							metrics = await fontaine.readMetrics(fontURL);
+						}
+						return metrics;
+					},
+					generateFontFace: fontaine.generateFontFace,
+				});
+
+				if (fallbackData) {
+					css += fallbackData.css;
+					// TODO: generate css var
+				}
 			} else {
-				const { fonts, fallbacks } = await resolveFont(
+				const { fonts } = await resolveFont(
 					family.name,
 					// We do not merge the defaults, we only provide defaults as a fallback
 					{
 						weights: family.weights ?? DEFAULTS.weights,
 						styles: family.styles ?? DEFAULTS.styles,
 						subsets: family.subsets ?? DEFAULTS.subsets,
-						fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
+						// No default fallback to be used here
+						fallbacks: family.fallbacks,
 					},
 					// By default, fontaine goes through all providers. We use a different approach
 					// where we specify a provider per font (default to google)
@@ -244,6 +271,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						if ('name' in source) {
 							continue;
 						}
+						source.originalURL = source.url;
 						source.url = proxyURL({
 							value: source.url,
 							// We only use the url for hashing since the service returns urls with a hash already
@@ -253,6 +281,30 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					}
 					// TODO: support optional as prop
 					css += generateFontFace(family.name, data);
+				}
+
+				const urls = fonts
+					.map((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))
+					.flat()
+					.filter((url) => typeof url === 'string');
+
+				const fallbackData = await generateFallbacksCSS({
+					family: family.name,
+					fallbacks: family.fallbacks ?? [],
+					fontURL: urls.at(0) ?? null,
+					getMetricsForFamily: async (name, fontURL) => {
+						let metrics = await fontaine.getMetricsForFamily(name);
+						if (fontURL && !metrics) {
+							metrics = await fontaine.readMetrics(fontURL);
+						}
+						return metrics;
+					},
+					generateFontFace: fontaine.generateFontFace,
+				});
+
+				if (fallbackData) {
+					css += fallbackData.css;
+					// TODO: generate css var
 				}
 			}
 			resolvedMap.set(family.name, { preloadData: [...preloadData], css });
@@ -285,7 +337,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				// as well as local paths for the local provider. We filter them to only keep the filepaths
 				paths: [...hashToUrlMap!.values()].filter((url) => isAbsolute(url)),
 				// Whenever a local font file is updated, we restart the server so the user always has an up to date
-				// version of the font file 
+				// version of the font file
 				update: () => {
 					logger.info('assets', 'Font file updated');
 					server.restart();
@@ -356,18 +408,20 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			} catch (e) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
 			}
-			await Promise.all(
-				Array.from(hashToUrlMap!.entries()).map(async ([hash, url]) => {
-					logManager.add(hash);
-					const { cached, data } = await cache!(hash, () => fetchFont(url));
-					logManager.remove(hash, cached);
-					try {
-						writeFileSync(new URL(hash, fontsDir), data);
-					} catch (e) {
-						throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
-					}
-				}),
-			);
+			if (hashToUrlMap) {
+				await Promise.all(
+					Array.from(hashToUrlMap.entries()).map(async ([hash, url]) => {
+						logManager.add(hash);
+						const { cached, data } = await cache!(hash, () => fetchFont(url));
+						logManager.remove(hash, cached);
+						try {
+							writeFileSync(new URL(hash, fontsDir), data);
+						} catch (e) {
+							throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+						}
+					}),
+				);
+			}
 
 			hashToUrlMap = null;
 			cache = null;
