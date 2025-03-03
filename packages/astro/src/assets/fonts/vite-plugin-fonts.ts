@@ -182,29 +182,27 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		// to avoid locking memory
 		resolvedMap = new Map();
 		hashToUrlMap = new Map();
-		const preloadData: PreloadData = [];
-		let css = '';
 
-		// When going through the urls/filepaths returned by providers,
-		// We save the hash and the associated original value so we can use
-		// it in the vite middleware during development
-		const collect: ProxyURLOptions['collect'] = ({ hash, type, value }) => {
-			const url = baseUrl + hash;
-			if (!hashToUrlMap!.has(hash)) {
-				hashToUrlMap!.set(hash, value);
-				preloadData.push({ url, type });
-			}
-			return url;
-		};
-
-		// TODO: refactor to avoid repetition
 		for (const family of families) {
-			// Reset
-			preloadData.length = 0;
-			css = '';
+			const preloadData: PreloadData = [];
+			let css = '';
+
+			// When going through the urls/filepaths returned by providers,
+			// We save the hash and the associated original value so we can use
+			// it in the vite middleware during development
+			const collect: ProxyURLOptions['collect'] = ({ hash, type, value }) => {
+				const url = baseUrl + hash;
+				if (!hashToUrlMap!.has(hash)) {
+					hashToUrlMap!.set(hash, value);
+					preloadData.push({ url, type });
+				}
+				return url;
+			};
+
+			let fonts: Array<unifont.FontFaceData>;
 
 			if (family.provider === LOCAL_PROVIDER_NAME) {
-				const { fonts } = resolveLocalFont(family, {
+				const result = resolveLocalFont(family, {
 					proxyURL: (value) => {
 						return proxyURL({
 							value,
@@ -224,34 +222,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					},
 					root: settings.config.root,
 				});
-				for (const data of fonts) {
-					css += generateFontFace(family.name, data);
-				}
-				const urls = fonts
-					.flatMap((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))
-					.filter(Boolean);
-
-				const fallbackData = await generateFallbacksCSS({
-					family: family.name,
-					fallbacks: family.fallbacks ?? [],
-					fontURL: urls.at(0) ?? null,
-					getMetricsForFamily: async (name, fontURL) => {
-						let metrics = await fontaine.getMetricsForFamily(name);
-						if (fontURL && !metrics) {
-							// TODO: investigate in using capsize directly (fromBlob) to be able to cache
-							metrics = await fontaine.readMetrics(fontURL);
-						}
-						return metrics;
-					},
-					generateFontFace: fontaine.generateFontFace,
-				});
-
-				if (fallbackData) {
-					css += fallbackData.css;
-					// TODO: generate css var
-				}
+				fonts = result.fonts;
 			} else {
-				const { fonts } = await resolveFont(
+				const result = await resolveFont(
 					family.name,
 					// We do not merge the defaults, we only provide defaults as a fallback
 					{
@@ -266,7 +239,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					[family.provider],
 				);
 
-				for (const data of fonts) {
+				for (const data of result.fonts) {
 					for (const source of data.src) {
 						if ('name' in source) {
 							continue;
@@ -279,35 +252,39 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 							collect,
 						});
 					}
-					// TODO: support optional as prop
-					css += generateFontFace(family.name, data);
 				}
 
-				const urls = fonts
-					.map((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))
-					.flat()
-					.filter((url) => typeof url === 'string');
-
-				const fallbackData = await generateFallbacksCSS({
-					family: family.name,
-					fallbacks: family.fallbacks ?? [],
-					fontURL: urls.at(0) ?? null,
-					getMetricsForFamily: async (name, fontURL) => {
-						let metrics = await fontaine.getMetricsForFamily(name);
-						if (fontURL && !metrics) {
-							metrics = await fontaine.readMetrics(fontURL);
-						}
-						return metrics;
-					},
-					generateFontFace: fontaine.generateFontFace,
-				});
-
-				if (fallbackData) {
-					css += fallbackData.css;
-					// TODO: generate css var
-				}
+				fonts = result.fonts;
 			}
-			resolvedMap.set(family.name, { preloadData: [...preloadData], css });
+
+			for (const data of fonts) {
+				css += generateFontFace(family.name, data);
+			}
+			const urls = fonts
+				.flatMap((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))
+				.filter(Boolean);
+
+			const fallbackData = await generateFallbacksCSS({
+				family: family.name,
+				fallbacks: family.fallbacks ?? [],
+				fontURL: urls.at(0) ?? null,
+				getMetricsForFamily: async (name, fontURL) => {
+					let metrics = await fontaine.getMetricsForFamily(name);
+					if (fontURL && !metrics) {
+						// TODO: investigate in using capsize directly (fromBlob) to be able to cache
+						metrics = await fontaine.readMetrics(fontURL);
+					}
+					return metrics;
+				},
+				generateFontFace: fontaine.generateFontFace,
+			});
+
+			if (fallbackData) {
+				css += fallbackData.css;
+				// TODO: generate css var
+			}
+
+			resolvedMap.set(family.name, { preloadData, css });
 		}
 		logger.info('assets', 'Fonts initialized');
 	}
