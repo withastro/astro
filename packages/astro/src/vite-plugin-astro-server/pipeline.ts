@@ -29,7 +29,6 @@ export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
 	// so it needs to be mutable here unlike in other environments
 	override renderers = new Array<SSRLoadedRenderer>();
-	// override actions = undefined;
 
 	routesList: RoutesList | undefined;
 

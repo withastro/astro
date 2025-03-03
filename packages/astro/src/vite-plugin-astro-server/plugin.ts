@@ -25,7 +25,6 @@ import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
-import { loadActions } from '../actions/loadActions.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
