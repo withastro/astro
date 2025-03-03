@@ -15,7 +15,6 @@ export async function loadActions(moduleLoader: ModuleLoader) {
 			ASTRO_ACTIONS_INTERNAL_MODULE_ID,
 		)) as SSRActions;
 	} catch (error: any) {
-		// TODO create astro error
 		throw new AstroError(ActionsCantBeLoaded, {cause: error});
 	}
 }
