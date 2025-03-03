@@ -2,6 +2,8 @@
 
 This **[Astro integration][astro-integration]** enables server-side rendering and client-side hydration for your [Lit](https://lit.dev/) custom elements.
 
+Compatible with Astro 5.0 and above.
+
 ## Documentation
 
 Read the [`@astrojs/lit` docs][docs]
@@ -26,7 +28,7 @@ This package is maintained by Astro's Core team. You're welcome to submit an iss
 
 MIT
 
-Copyright (c) 2023–present [Astro][astro]
+Copyright (c) 2023–2024 [Astro][astro]
 
 [astro]: https://astro.build/
 [docs]: https://docs.astro.build/en/guides/integrations-guide/lit/

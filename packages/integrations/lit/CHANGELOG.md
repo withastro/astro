@@ -1,5 +1,17 @@
 # @astrojs/lit
 
+## 5.0.0
+
+### Major Changes
+
+- Updated for compatibility with Astro 5.0. This version requires Astro 5.0 or later.
+- Updated dependencies:
+  - `@lit-labs/ssr` to ^3.3.1
+  - `@lit-labs/ssr-dom-shim` to ^1.3.0
+  - `lit` to ^3.2.1
+  - `parse5` to ^7.2.1
+- Updated peer dependency requirement for `lit` to ^3.2.0
+
 ## 4.3.0
 
 ### Minor Changes
