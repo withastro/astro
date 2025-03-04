@@ -103,6 +103,8 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
+const highlighterTypesSchema = z.union([z.literal('shiki'), z.literal('prism')]);
+
 export const AstroConfigSchema = z.object({
 	root: z
 		.string()
@@ -303,7 +305,14 @@ export const AstroConfigSchema = z.object({
 	markdown: z
 		.object({
 			syntaxHighlight: z
-				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
+				.union([
+					z.object({
+						type: highlighterTypesSchema,
+						excludeLangs: z.array(z.string()).optional(),
+					}),
+					highlighterTypesSchema,
+					z.literal(false),
+				])
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight),
 			shikiConfig: z
 				.object({

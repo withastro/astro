@@ -104,11 +104,13 @@ export async function createMarkdownProcessor(
 	});
 
 	if (!isPerformanceBenchmark) {
+		const syntaxHighlightType = typeof syntaxHighlight === 'string' ? syntaxHighlight : syntaxHighlight && syntaxHighlight?.type;
+		const excludeLangs = typeof syntaxHighlight === 'object' && syntaxHighlight?.excludeLangs || undefined;
 		// Syntax highlighting
-		if (syntaxHighlight === 'shiki') {
-			parser.use(rehypeShiki, shikiConfig);
-		} else if (syntaxHighlight === 'prism') {
-			parser.use(rehypePrism);
+		if (syntaxHighlightType === 'shiki') {
+			parser.use(rehypeShiki, shikiConfig, excludeLangs);
+		} else if (syntaxHighlightType === 'prism') {
+			parser.use(rehypePrism, excludeLangs);
 		}
 	}
 

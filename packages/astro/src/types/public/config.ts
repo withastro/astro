@@ -4,6 +4,7 @@ import type {
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
+	SyntaxHighlightConfig,
 } from '@astrojs/markdown-remark';
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
@@ -1285,7 +1286,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * }
 		 * ```
 		 */
-		syntaxHighlight?: 'shiki' | 'prism' | false;
+		syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfig['type'] | false;
 
 		/**
 		 * @docs

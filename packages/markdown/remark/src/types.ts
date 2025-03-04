@@ -35,14 +35,17 @@ export type RemarkRehype = RemarkRehypeOptions;
 
 export type ThemePresets = BuiltinTheme | 'css-variables';
 
-export interface ShikiConfig
-	extends Pick<CreateShikiHighlighterOptions, 'langs' | 'theme' | 'themes' | 'langAlias'>,
-		Pick<ShikiHighlighterHighlightOptions, 'defaultColor' | 'wrap' | 'transformers'> {
+export interface SyntaxHighlightConfig {
+	type: 'shiki' | 'prism';
 	excludeLangs?: string[];
 }
 
+export interface ShikiConfig
+	extends Pick<CreateShikiHighlighterOptions, 'langs' | 'theme' | 'themes' | 'langAlias'>,
+		Pick<ShikiHighlighterHighlightOptions, 'defaultColor' | 'wrap' | 'transformers'> {}
+
 export interface AstroMarkdownOptions {
-	syntaxHighlight?: 'shiki' | 'prism' | false;
+	syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfig['type'] | false;
 	shikiConfig?: ShikiConfig;
 	remarkPlugins?: RemarkPlugins;
 	rehypePlugins?: RehypePlugins;
