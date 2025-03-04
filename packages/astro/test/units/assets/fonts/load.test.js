@@ -54,7 +54,7 @@ it('loadFonts()', async () => {
 		families: [
 			{
 				name: 'Roboto',
-				// @ts-expect-error
+				// @ts-expect-error we do weird typings internally for "reasons" (provider is typed as "local" | "custom") but this is valid
 				provider: 'google',
 			},
 		],

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {
 	isFontType,
 	extractFontType,
-	cache,
+	cache as internalCache,
 	proxyURL,
 	isGenericFontFamily,
 	generateFallbacksCSS,
@@ -35,12 +35,12 @@ function createSpyCache() {
 	return {
 		/**
 		 *
-		 * @param {Parameters<typeof cache>[1]} key
-		 * @param {Parameters<typeof cache>[2]} cb
+		 * @param {Parameters<typeof internalCache>[1]} key
+		 * @param {Parameters<typeof internalCache>[2]} cb
 		 * @returns
 		 */
 		cache: (key, cb) =>
-			cache(
+			internalCache(
 				// @ts-expect-error we only mock the required hooks
 				storage,
 				key,
@@ -117,7 +117,6 @@ describe('fonts utils', () => {
 	});
 
 	it('cache()', async () => {
-		// eslint-disable-next-line @typescript-eslint/no-shadow
 		const { cache, getKeys } = createSpyCache();
 
 		assert.deepStrictEqual(getKeys(), []);

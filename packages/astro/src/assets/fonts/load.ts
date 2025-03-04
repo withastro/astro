@@ -103,22 +103,23 @@ export async function loadFonts({
 				[family.provider],
 			);
 
-			for (const data of result.fonts) {
-				for (const source of data.src) {
-					if ('name' in source) {
-						continue;
-					}
-					source.originalURL = source.url;
-					source.url = proxyURL({
-						value: source.url,
-						// We only use the url for hashing since the service returns urls with a hash already
-						hashString,
-						collect,
-					});
-				}
-			}
-
-			fonts = result.fonts;
+			fonts = result.fonts.map((font) => ({
+				...font,
+				src: font.src.map((source) =>
+					'name' in source
+						? source
+						: {
+								...source,
+								originalURL: source.url,
+								url: proxyURL({
+									value: source.url,
+									// We only use the url for hashing since the service returns urls with a hash already
+									hashString,
+									collect,
+								}),
+							},
+				),
+			}));
 		}
 
 		for (const data of fonts) {
