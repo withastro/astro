@@ -39,7 +39,8 @@ describe('shiki syntax highlighting', () => {
 
 	it('supports excludeLangs', async () => {
 		const processor = await createMarkdownProcessor({
-			shikiConfig: {
+			syntaxHighlight: {
+				type: 'shiki',
 				excludeLangs: ['mermaid'],
 			},
 		});
