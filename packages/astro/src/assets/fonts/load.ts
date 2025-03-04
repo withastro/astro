@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs';
-import { LOCAL_PROVIDER_NAME, resolveLocalFont } from './providers/local.js';
+import { resolveLocalFont } from './providers/local.js';
 import { resolveProviders, type ResolveMod } from './providers/utils.js';
 import { generateFallbacksCSS, generateFontFace, proxyURL, type ProxyURLOptions } from './utils.js';
 import * as unifont from 'unifont';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { DEFAULTS } from './constants.js';
+import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
 import type { FontFamily, FontProvider, PreloadData } from './types.js';
 import type { Storage } from 'unstorage';
 

@@ -1,6 +1,7 @@
-import { GOOGLE_PROVIDER_NAME } from './providers/google.js';
-import { LOCAL_PROVIDER_NAME } from './providers/local.js';
 import type { ResolveFontOptions } from './types.js';
+
+export const GOOGLE_PROVIDER_NAME = 'google';
+export const LOCAL_PROVIDER_NAME = 'local';
 
 export const BUILTIN_PROVIDERS = [GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME] as const;
 

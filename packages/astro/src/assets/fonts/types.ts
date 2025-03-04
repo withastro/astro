@@ -1,7 +1,10 @@
 import type { z } from 'zod';
-import type { BUILTIN_PROVIDERS, FONT_TYPES } from './constants.js';
-import type { GOOGLE_PROVIDER_NAME } from './providers/google.js';
-import type { LOCAL_PROVIDER_NAME } from './providers/local.js';
+import type {
+	GOOGLE_PROVIDER_NAME,
+	LOCAL_PROVIDER_NAME,
+	BUILTIN_PROVIDERS,
+	FONT_TYPES,
+} from './constants.js';
 import type * as unifont from 'unifont';
 import type { resolveFontOptionsSchema } from './config.js';
 
