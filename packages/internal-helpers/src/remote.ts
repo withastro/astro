@@ -22,7 +22,7 @@ export function matchPattern(url: URL, remotePattern: RemotePattern): boolean {
 }
 
 /**
- * Checks if the given URL's port matches the specified port. If no port is provided, it returns true.
+ * Checks if the given URL's port matches the specified port. If no port is provided, it returns `true`.
  *
  * @param {URL} url - The URL object whose port will be checked.
  * @param {string} [port] - The port to match against the URL's port. Optional.
@@ -36,7 +36,7 @@ export function matchPort(url: URL, port?: string): boolean {
  * Compares the protocol of the provided URL with a specified protocol.
  *
  * @param {URL} url - The URL object whose protocol needs to be checked.
- * @param {string} [protocol] - The protocol to compare against, without the trailing colon. If not provided, the method will always return true.
+ * @param {string} [protocol] - The protocol to compare against, without the trailing colon. If not provided, the method will always return `true`.
  * @return {boolean} Returns `true` if the protocol matches or if no protocol is specified; otherwise, `false`.
  */
 export function matchProtocol(url: URL, protocol?: string): boolean {
@@ -47,7 +47,7 @@ export function matchProtocol(url: URL, protocol?: string): boolean {
  * Matches a given URL's hostname against a specified hostname, with optional support for wildcard patterns.
  *
  * @param {URL} url - The URL object whose hostname is to be matched.
- * @param {string} [hostname] - The hostname to match against. Supports wildcard patterns if `allowWildcard` is true.
+ * @param {string} [hostname] - The hostname to match against. Supports wildcard patterns if `allowWildcard` is `true`.
  * @param {boolean} [allowWildcard] - Indicates whether wildcard patterns in the `hostname` parameter are allowed.
  * @return {boolean} - Returns `true` if the URL's hostname matches the given hostname criteria; otherwise, `false`.
  */
