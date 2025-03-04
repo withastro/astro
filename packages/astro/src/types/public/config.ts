@@ -1255,8 +1255,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *       // Add custom transformers: https://shiki.style/guide/transformers
 		 *       // Find common transformers: https://shiki.style/packages/transformers
 		 *       transformers: [],
-		 *       // Excluded languages from syntax highlighting
-		 *       excludeLangs: [],
 		 *     },
 		 *   },
 		 * });
