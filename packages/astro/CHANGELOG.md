@@ -1,5 +1,15 @@
 # astro
 
+## 5.4.2
+
+### Patch Changes
+
+- [#12985](https://github.com/withastro/astro/pull/12985) [`84e94cc`](https://github.com/withastro/astro/commit/84e94cc85cc0f4ea9b5dba2009dc89e83a798f59) Thanks [@matthewp](https://github.com/matthewp)! - Prevent re-executing scripts in client router
+
+- [#13349](https://github.com/withastro/astro/pull/13349) [`50e2e0b`](https://github.com/withastro/astro/commit/50e2e0b3749d6dba3d301ea1a0a3a33a273e7a81) Thanks [@ascorbic](https://github.com/ascorbic)! - Correctly escapes attributes in Markdown images
+
+- [#13262](https://github.com/withastro/astro/pull/13262) [`0025df3`](https://github.com/withastro/astro/commit/0025df37af4dcd390d41c9b175fbdb3edd87edf7) Thanks [@ematipico](https://github.com/ematipico)! - Refactor Astro Actions to not use a middleware. Doing so should avoid unexpected issues when using the Astro middleware at the edge.
+
 ## 5.4.1
 
 ### Patch Changes
