@@ -14,10 +14,12 @@ import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import { EnvSchema } from '../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
-import { BUILTIN_PROVIDERS } from '../../assets/fonts/constants.js';
+import {
+	BUILTIN_PROVIDERS,
+	GOOGLE_PROVIDER_NAME,
+	LOCAL_PROVIDER_NAME,
+} from '../../assets/fonts/constants.js';
 import { resolveFontOptionsSchema } from '../../assets/fonts/config.js';
-import { GOOGLE_PROVIDER_NAME } from '../../assets/fonts/providers/google.js';
-import { LOCAL_PROVIDER_NAME } from '../../assets/fonts/providers/local.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
