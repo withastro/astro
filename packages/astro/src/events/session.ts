@@ -107,10 +107,9 @@ function createAnonymousConfigInfo(userConfig: AstroUserConfig) {
 	};
 	// Measure string literal/enum configuration values
 	configInfo.build.format = measureStringLiteral(userConfig.build?.format);
+	const syntaxHighlight = userConfig.markdown?.syntaxHighlight;
 	const syntaxHighlightType =
-		typeof userConfig.markdown?.syntaxHighlight === 'object'
-			? userConfig.markdown?.syntaxHighlight.type
-			: userConfig.markdown?.syntaxHighlight;
+		typeof syntaxHighlight === 'object' ? syntaxHighlight.type : syntaxHighlight;
 	configInfo.markdown.syntaxHighlight = measureStringLiteral(syntaxHighlightType);
 	configInfo.output = measureStringLiteral(userConfig.output);
 	configInfo.scopedStyleStrategy = measureStringLiteral(userConfig.scopedStyleStrategy);

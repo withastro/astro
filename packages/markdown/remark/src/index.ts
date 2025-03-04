@@ -103,13 +103,11 @@ export async function createMarkdownProcessor(
 		...remarkRehypeOptions,
 	});
 
-	if (!isPerformanceBenchmark) {
+	if (syntaxHighlight && !isPerformanceBenchmark) {
 		const syntaxHighlightType =
-			typeof syntaxHighlight === 'string'
-				? syntaxHighlight
-				: syntaxHighlight && syntaxHighlight?.type;
+			typeof syntaxHighlight === 'string' ? syntaxHighlight : syntaxHighlight?.type;
 		const excludeLangs =
-			(typeof syntaxHighlight === 'object' && syntaxHighlight?.excludeLangs) || undefined;
+			typeof syntaxHighlight === 'object' ? syntaxHighlight?.excludeLangs : undefined;
 		// Syntax highlighting
 		if (syntaxHighlightType === 'shiki') {
 			parser.use(rehypeShiki, shikiConfig, excludeLangs);
