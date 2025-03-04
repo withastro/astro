@@ -16,13 +16,17 @@ export const rehypeShiki: Plugin<[ShikiConfig, string[]?], Root> = (config, excl
 		});
 		const highlighter = await highlighterAsync;
 
-		await highlightCodeBlocks(tree, (code, language, options) => {
-			return highlighter.codeToHast(code, language, {
-				meta: options?.meta,
-				wrap: config?.wrap,
-				defaultColor: config?.defaultColor,
-				transformers: config?.transformers,
-			});
-		}, excludeLangs);
+		await highlightCodeBlocks(
+			tree,
+			(code, language, options) => {
+				return highlighter.codeToHast(code, language, {
+					meta: options?.meta,
+					wrap: config?.wrap,
+					defaultColor: config?.defaultColor,
+					transformers: config?.transformers,
+				});
+			},
+			excludeLangs,
+		);
 	};
 };
