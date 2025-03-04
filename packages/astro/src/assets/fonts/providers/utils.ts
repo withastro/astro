@@ -39,15 +39,11 @@ export async function resolveProviders({
 	providers: Array<FontProvider<any>>;
 	resolveMod: ResolveMod;
 }): Promise<Array<ResolvedFontProvider>> {
-	console.log('TEST FONTS - START resolveProviders');
-	console.log(root);
 	const providers = [google(), ..._providers];
 	const resolvedProviders: Array<ResolvedFontProvider> = [];
 
 	for (const { name, entrypoint, config } of providers) {
-		console.log({ entrypoint });
 		const id = pathToFileURL(resolveEntrypoint(root, entrypoint.toString())).href;
-		console.log({ id });
 		const mod = await resolveMod(id);
 		const { provider } = validateMod(mod);
 		resolvedProviders.push({ name, config, provider });

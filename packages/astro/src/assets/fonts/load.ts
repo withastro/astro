@@ -36,7 +36,6 @@ export async function loadFonts({
 	getMetricsForFamily,
 	log,
 }: Options): Promise<void> {
-	console.log('TEST FONTS - START loadFonts');
 	const resolved = await resolveProviders({
 		root,
 		providers,
