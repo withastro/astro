@@ -1,4 +1,5 @@
 import type http from 'node:http';
+import { loadActions } from '../actions/loadActions.js';
 import {
 	DEFAULT_404_COMPONENT,
 	NOOP_MIDDLEWARE_HEADER,
@@ -22,7 +23,6 @@ import type { ComponentInstance, RoutesList } from '../types/astro.js';
 import type { RouteData } from '../types/public/internal.js';
 import type { DevPipeline } from './pipeline.js';
 import { writeSSRResult, writeWebResponse } from './response.js';
-import {loadActions} from "../actions/loadActions.js";
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -195,7 +195,7 @@ export async function handleRoute({
 		request,
 		routeData: route,
 		clientAddress: incomingRequest.socket.remoteAddress,
-		actions
+		actions,
 	});
 
 	let response;

@@ -1,3 +1,5 @@
+import type { ZodType } from 'zod';
+import type { ActionAccept, ActionClient } from '../actions/runtime/virtual/server.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
@@ -9,16 +11,14 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
+import type { SSRActions } from './app/types.js';
+import { ActionNotFoundError } from './errors/errors-data.js';
+import { AstroError } from './errors/index.js';
 import type { Logger } from './logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
-import type { SSRActions } from './app/types.js';
-import type { ActionAccept, ActionClient } from '../actions/runtime/virtual/server.js';
-import type { ZodType } from 'zod';
-import { AstroError } from './errors/index.js';
-import { ActionNotFoundError } from './errors/errors-data.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -122,7 +122,7 @@ export abstract class Pipeline {
 			return this.resolvedMiddleware;
 		}
 	}
-	
+
 	setActions(actions: SSRActions) {
 		this.resolvedActions = actions;
 	}

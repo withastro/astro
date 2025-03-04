@@ -1,4 +1,5 @@
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
+import { getActionContext } from '../actions/runtime/virtual/server.js';
 import { deserializeActionResult } from '../actions/runtime/virtual/shared.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
@@ -12,6 +13,7 @@ import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal, AstroGlobalPartial } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
+import type { SSRActions } from './app/types.js';
 import {
 	ASTRO_VERSION,
 	REROUTE_DIRECTIVE_HEADER,
@@ -32,8 +34,6 @@ import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
-import { getActionContext } from '../actions/runtime/virtual/server.js';
-import type {SSRActions} from "./app/types.js";
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -83,13 +83,13 @@ export class RenderContext {
 		status = 200,
 		props,
 		partial = undefined,
-		actions
+		actions,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'> &
 		Partial<
 			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial' | 'actions'>
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
-		const pipelineActions = actions ?? await pipeline.getActions();
+		const pipelineActions = actions ?? (await pipeline.getActions());
 		setOriginPathname(request, pathname);
 		return new RenderContext(
 			pipeline,

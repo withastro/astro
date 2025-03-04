@@ -1,19 +1,19 @@
 import type fsMod from 'node:fs';
 import type { Plugin as VitePlugin } from 'vite';
+import { addRollupInput } from '../core/build/add-rollup-input.js';
+import type { BuildInternals } from '../core/build/internal.js';
+import type { StaticBuildOptions } from '../core/build/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
+import { getOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
+	ASTRO_ACTIONS_INTERNAL_MODULE_ID,
 	NOOP_ACTIONS,
 	RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
-	ASTRO_ACTIONS_INTERNAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import { isActionsFilePresent } from './utils.js';
-import { getOutputDirectory } from '../prerender/utils.js';
-import type { StaticBuildOptions } from '../core/build/types.js';
-import type { BuildInternals } from '../core/build/internal.js';
-import { addRollupInput } from '../core/build/add-rollup-input.js';
 
 /**
  * This plugin is responsible to load the known file `actions/index.js` / `actions.js`

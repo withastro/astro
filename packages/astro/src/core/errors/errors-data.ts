@@ -901,7 +901,6 @@ export const MiddlewareCantBeLoaded = {
 	message: 'An unknown error was thrown while loading your middleware.',
 } satisfies ErrorData;
 
-
 /**
  * @docs
  * @description
