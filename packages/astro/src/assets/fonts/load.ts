@@ -22,7 +22,6 @@ interface Options
 	log: (message: string) => void;
 }
 
-// TODO: test
 export async function loadFonts({
 	root,
 	base,
