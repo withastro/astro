@@ -24,7 +24,6 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 	if (this && this.result) {
 		prefix = incrementId(this.result);
 	}
-	const attrs = { prefix };
 	const renderProps = {};
 	for (const [key, value] of Object.entries(slotted)) {
 		// Legacy slot support
@@ -53,10 +52,10 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 			$$slots,
 			...renderProps,
 		},
-		uidPrefix: prefix,
+		idPrefix: prefix,
 	});
 	const html = result.body;
-	return { html, attrs };
+	return { html };
 }
 
 export default {

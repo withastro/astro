@@ -64,7 +64,6 @@ function createComponent(Component, target, props, shouldHydrate) {
 	const component = bootstrap(Component, {
 		target,
 		props: propsState,
-		uidPrefix: target.getAttribute('prefix'),
 	});
 	return {
 		setProps(newProps) {
