@@ -38,9 +38,9 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@netlify/blobs": "^8.1.0",
+    "@netlify/blobs": "^8.1.1",
     "@netlify/functions": "^3.0.0",
-    "@vercel/nft": "^0.29.0",
+    "@vercel/nft": "^0.29.2",
     "esbuild": "^0.25.0",
     "tinyglobby": "^0.2.12",
     "vite": "^6.2.0"
@@ -58,7 +58,7 @@
     "devalue": "^5.1.1",
     "execa": "^8.0.1",
     "strip-ansi": "^7.1.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.8.2"
   },
   "astro": {
     "external": true
