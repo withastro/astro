@@ -18,7 +18,7 @@ export function PostComment({
 			<form
 				method="POST"
 				data-testid="client"
-				action={actions.blog.comment.toString()}
+				action={actions.blog.comment}
 				onSubmit={async (e) => {
 					e.preventDefault();
 					const form = e.target as HTMLFormElement;
