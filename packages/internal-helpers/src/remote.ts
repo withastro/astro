@@ -25,7 +25,7 @@ export function matchPattern(url: URL, remotePattern: RemotePattern): boolean {
  * Checks if the given URL's port matches the specified port. If no port is provided, it returns `true`.
  *
  * @param {URL} url - The URL object whose port will be checked.
- * @param {string} [port] - The port to match against the URL's port. Optional.
+ * @param {string} [port=] - The port to match against the URL's port. Optional.
  * @return {boolean} Returns `true` if the URL's port matches the specified port or if no port is provided; otherwise, `false`.
  */
 export function matchPort(url: URL, port?: string): boolean {
@@ -48,10 +48,10 @@ export function matchProtocol(url: URL, protocol?: string): boolean {
  *
  * @param {URL} url - The URL object whose hostname is to be matched.
  * @param {string} [hostname] - The hostname to match against. Supports wildcard patterns if `allowWildcard` is `true`.
- * @param {boolean} [allowWildcard] - Indicates whether wildcard patterns in the `hostname` parameter are allowed.
+ * @param {boolean} [allowWildcard=false] - Indicates whether wildcard patterns in the `hostname` parameter are allowed.
  * @return {boolean} - Returns `true` if the URL's hostname matches the given hostname criteria; otherwise, `false`.
  */
-export function matchHostname(url: URL, hostname?: string, allowWildcard?: boolean): boolean {
+export function matchHostname(url: URL, hostname?: string, allowWildcard = false): boolean {
 	if (!hostname) {
 		return true;
 	} else if (!allowWildcard || !hostname.startsWith('*')) {
@@ -76,10 +76,10 @@ export function matchHostname(url: URL, hostname?: string, allowWildcard?: boole
  *
  * @param {URL} url - The URL object containing the pathname to be matched.
  * @param {string} [pathname] - The pathname pattern to match the URL against.
- * @param {boolean} [allowWildcard] - Determines whether wildcard matching is allowed.
+ * @param {boolean} [allowWildcard=false] - Determines whether wildcard matching is allowed.
  * @return {boolean} - Returns `true` if the URL's pathname matches the specified pattern; otherwise, `false`.
  */
-export function matchPathname(url: URL, pathname?: string, allowWildcard?: boolean): boolean {
+export function matchPathname(url: URL, pathname?: string, allowWildcard = false): boolean {
 	if (!pathname) {
 		return true;
 	} else if (!allowWildcard || !pathname.endsWith('*')) {
