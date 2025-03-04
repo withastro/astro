@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module';
 import { google } from './google.js';
 import type { FontProvider, ResolvedFontProvider } from '../types.js';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export function resolveEntrypoint(root: URL, entrypoint: string): string {
 	const require = createRequire(root);
@@ -43,7 +43,7 @@ export async function resolveProviders({
 	const resolvedProviders: Array<ResolvedFontProvider> = [];
 
 	for (const { name, entrypoint, config } of providers) {
-		const id = resolveEntrypoint(root, entrypoint.toString());
+		const id = pathToFileURL(resolveEntrypoint(root, entrypoint.toString())).href;
 		const mod = await resolveMod(id);
 		const { provider } = validateMod(mod);
 		resolvedProviders.push({ name, config, provider });

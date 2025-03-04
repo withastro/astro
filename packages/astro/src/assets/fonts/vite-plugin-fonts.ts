@@ -1,23 +1,13 @@
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
-import { resolveProviders, type ResolveMod } from './providers/utils.js';
-import * as unifont from 'unifont';
-import type { FontFamily, FontProvider, FontType } from './types.js';
+import type { ResolveMod } from './providers/utils.js';
+import type { PreloadData } from './types.js';
 import xxhash from 'xxhash-wasm';
 import { isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { cache, createLogManager, extractFontType } from './utils.js';
 import {
-	generateFontFace,
-	createCache,
-	type CacheHandler,
-	proxyURL,
-	extractFontType,
-	type ProxyURLOptions,
-	generateFallbacksCSS,
-} from './utils.js';
-import {
-	DEFAULTS,
 	VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	URL_PREFIX,
@@ -27,83 +17,19 @@ import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
-import { resolveLocalFont, LOCAL_PROVIDER_NAME, LocalFontsWatcher } from './providers/local.js';
+import { LocalFontsWatcher } from './providers/local.js';
 import { readFile } from 'node:fs/promises';
-import { createStorage } from 'unstorage';
+import { createStorage, type Storage } from 'unstorage';
 import fsLiteDriver from 'unstorage/drivers/fs-lite';
 import { fileURLToPath } from 'node:url';
 import * as fontaine from 'fontaine';
+import { loadFonts } from './load.js';
 
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
 	logger: Logger;
 }
-
-/**
- * Preload data is used for links generation inside the <Font /> component
- */
-type PreloadData = Array<{
-	/**
-	 * Absolute link to a font file, eg. /_astro/fonts/abc.woff
-	 */
-	url: string;
-	/**
-	 * A font type, eg. woff2, woff, ttf...
-	 */
-	type: FontType;
-}>;
-
-/**
- * We want to show logs related to font downloading (fresh or from cache)
- * However if we just use the logger as is, there are too many logs, and not
- * so useful.
- * This log manager allows avoiding repetitive logs:
- * - If there are many downloads started at once, only one log is shown for start and end
- * - If a given file has already been logged, it won't show up anymore (useful in dev)
- */
-// TODO: test
-const createLogManager = (logger: Logger) => {
-	const done = new Set<string>();
-	const items = new Set<string>();
-	let id: NodeJS.Timeout | null = null;
-
-	return {
-		add: (value: string) => {
-			if (done.has(value)) {
-				return;
-			}
-
-			if (items.size === 0 && id === null) {
-				logger.info('assets', 'Downloading fonts...');
-			}
-			items.add(value);
-			if (id) {
-				clearTimeout(id);
-				id = null;
-			}
-		},
-		remove: (value: string, cached: boolean) => {
-			if (done.has(value)) {
-				return;
-			}
-
-			items.delete(value);
-			done.add(value);
-			if (id) {
-				clearTimeout(id);
-				id = null;
-			}
-			id = setTimeout(() => {
-				let msg = 'Done';
-				if (cached) {
-					msg += ' (loaded from cache)';
-				}
-				logger.info('assets', msg);
-			}, 50);
-		},
-	};
-};
 
 async function fetchFont(url: string): Promise<Buffer> {
 	try {
@@ -138,10 +64,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		};
 	}
 
-	const providers: Array<FontProvider<string>> = settings.config.experimental.fonts.providers ?? [];
-	const families: Array<FontFamily<'local' | 'custom'>> = settings.config.experimental.fonts
-		.families as any;
-
 	// We don't need to take the trailing slash and build output configuration options
 	// into account because we only serve (dev) or write (build) static assets (equivalent
 	// to trailingSlash: never)
@@ -153,163 +75,45 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	// to download the original file, or retrieve it from cache
 	let hashToUrlMap: Map<string, string> | null = null;
 	let isBuild: boolean;
-	let cache: CacheHandler | null = null;
+	let storage: Storage | null = null;
 
-	// TODO: refactor to allow testing
 	async function initialize({ resolveMod, base }: { resolveMod: ResolveMod; base: URL }) {
 		const { h64ToString } = await xxhash();
 
-		const resolved = await resolveProviders({
-			root: settings.config.root,
-			providers,
-			resolveMod,
-		});
-
-		const storage = createStorage({
+		storage = createStorage({
+			// Types are weirly exported
 			driver: (fsLiteDriver as unknown as typeof fsLiteDriver.default)({
 				base: fileURLToPath(base),
 			}),
 		});
 
-		cache = createCache(storage);
-
-		const { resolveFont } = await unifont.createUnifont(
-			resolved.map((e) => e.provider(e.config)),
-			{ storage },
-		);
-
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory
-		resolvedMap = new Map();
 		hashToUrlMap = new Map();
-		const preloadData: PreloadData = [];
-		let css = '';
+		resolvedMap = new Map();
 
-		// When going through the urls/filepaths returned by providers,
-		// We save the hash and the associated original value so we can use
-		// it in the vite middleware during development
-		const collect: ProxyURLOptions['collect'] = ({ hash, type, value }) => {
-			const url = baseUrl + hash;
-			if (!hashToUrlMap!.has(hash)) {
-				hashToUrlMap!.set(hash, value);
-				preloadData.push({ url, type });
-			}
-			return url;
-		};
-
-		// TODO: refactor to avoid repetition
-		for (const family of families) {
-			// Reset
-			preloadData.length = 0;
-			css = '';
-
-			if (family.provider === LOCAL_PROVIDER_NAME) {
-				const { fonts } = resolveLocalFont(family, {
-					proxyURL: (value) => {
-						return proxyURL({
-							value,
-							// We hash based on the filepath and the contents, since the user could replace
-							// a given font file with completely different contents.
-							hashString: (v) => {
-								let content: string;
-								try {
-									content = readFileSync(value, 'utf-8');
-								} catch (e) {
-									throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
-								}
-								return h64ToString(v + content);
-							},
-							collect,
-						});
-					},
-					root: settings.config.root,
-				});
-				for (const data of fonts) {
-					css += generateFontFace(family.name, data);
+		await loadFonts({
+			root: settings.config.root,
+			base: baseUrl,
+			providers: settings.config.experimental.fonts!.providers ?? [],
+			// TS is not smart enough
+			families: settings.config.experimental.fonts!.families as any,
+			storage,
+			hashToUrlMap,
+			resolvedMap,
+			resolveMod,
+			hashString: h64ToString,
+			getMetricsForFamily: async (name, fontURL) => {
+				let metrics = await fontaine.getMetricsForFamily(name);
+				if (fontURL && !metrics) {
+					// TODO: investigate in using capsize directly (fromBlob) to be able to cache
+					metrics = await fontaine.readMetrics(fontURL);
 				}
-				const urls = fonts
-					.flatMap((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))
-					.filter(Boolean);
-
-				const fallbackData = await generateFallbacksCSS({
-					family: family.name,
-					fallbacks: family.fallbacks ?? [],
-					fontURL: urls.at(0) ?? null,
-					getMetricsForFamily: async (name, fontURL) => {
-						let metrics = await fontaine.getMetricsForFamily(name);
-						if (fontURL && !metrics) {
-							// TODO: investigate in using capsize directly (fromBlob) to be able to cache
-							metrics = await fontaine.readMetrics(fontURL);
-						}
-						return metrics;
-					},
-					generateFontFace: fontaine.generateFontFace,
-				});
-
-				if (fallbackData) {
-					css += fallbackData.css;
-					// TODO: generate css var
-				}
-			} else {
-				const { fonts } = await resolveFont(
-					family.name,
-					// We do not merge the defaults, we only provide defaults as a fallback
-					{
-						weights: family.weights ?? DEFAULTS.weights,
-						styles: family.styles ?? DEFAULTS.styles,
-						subsets: family.subsets ?? DEFAULTS.subsets,
-						// No default fallback to be used here
-						fallbacks: family.fallbacks,
-					},
-					// By default, fontaine goes through all providers. We use a different approach
-					// where we specify a provider per font (default to google)
-					[family.provider],
-				);
-
-				for (const data of fonts) {
-					for (const source of data.src) {
-						if ('name' in source) {
-							continue;
-						}
-						source.originalURL = source.url;
-						source.url = proxyURL({
-							value: source.url,
-							// We only use the url for hashing since the service returns urls with a hash already
-							hashString: h64ToString,
-							collect,
-						});
-					}
-					// TODO: support optional as prop
-					css += generateFontFace(family.name, data);
-				}
-
-				const urls = fonts
-					.map((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))
-					.flat()
-					.filter((url) => typeof url === 'string');
-
-				const fallbackData = await generateFallbacksCSS({
-					family: family.name,
-					fallbacks: family.fallbacks ?? [],
-					fontURL: urls.at(0) ?? null,
-					getMetricsForFamily: async (name, fontURL) => {
-						let metrics = await fontaine.getMetricsForFamily(name);
-						if (fontURL && !metrics) {
-							metrics = await fontaine.readMetrics(fontURL);
-						}
-						return metrics;
-					},
-					generateFontFace: fontaine.generateFontFace,
-				});
-
-				if (fallbackData) {
-					css += fallbackData.css;
-					// TODO: generate css var
-				}
-			}
-			resolvedMap.set(family.name, { preloadData: [...preloadData], css });
-		}
-		logger.info('assets', 'Fonts initialized');
+				return metrics;
+			},
+			generateFontFace: fontaine.generateFontFace,
+			log: (message) => logger.info('assets', message),
+		});
 	}
 
 	return {
@@ -360,10 +164,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					return next();
 				}
 				logManager.add(hash);
-				// Cache should be defined at this point since initialize it called before registering
+				// Storage should be defined at this point since initialize it called before registering
 				// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
 				// no url will be matched and this line will not be reached.
-				const { cached, data } = await cache!(hash, () => fetchFont(url));
+				const { cached, data } = await cache(storage!, hash, () => fetchFont(url));
 				logManager.remove(hash, cached);
 
 				res.setHeader('Content-Length', data.length);
@@ -394,7 +198,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 			if (sync) {
 				hashToUrlMap = null;
-				cache = null;
+				storage = null;
 				return;
 			}
 
@@ -412,7 +216,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				await Promise.all(
 					Array.from(hashToUrlMap.entries()).map(async ([hash, url]) => {
 						logManager.add(hash);
-						const { cached, data } = await cache!(hash, () => fetchFont(url));
+						const { cached, data } = await cache(storage!, hash, () => fetchFont(url));
 						logManager.remove(hash, cached);
 						try {
 							writeFileSync(new URL(hash, fontsDir), data);
@@ -424,7 +228,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 
 			hashToUrlMap = null;
-			cache = null;
+			storage = null;
 		},
 	};
 }

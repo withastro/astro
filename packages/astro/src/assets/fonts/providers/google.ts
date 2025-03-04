@@ -1,6 +1,5 @@
+import { GOOGLE_PROVIDER_NAME } from '../constants.js';
 import { defineFontProvider } from './index.js';
-
-export const GOOGLE_PROVIDER_NAME = 'google';
 
 // TODO: https://github.com/unjs/unifont/issues/108
 // This provider downloads too many files when there's a variable font

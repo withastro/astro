@@ -1,7 +1,10 @@
 import type { z } from 'zod';
-import type { BUILTIN_PROVIDERS, FONT_TYPES } from './constants.js';
-import type { GOOGLE_PROVIDER_NAME } from './providers/google.js';
-import type { LOCAL_PROVIDER_NAME } from './providers/local.js';
+import type {
+	GOOGLE_PROVIDER_NAME,
+	LOCAL_PROVIDER_NAME,
+	BUILTIN_PROVIDERS,
+	FONT_TYPES,
+} from './constants.js';
 import type * as unifont from 'unifont';
 import type { resolveFontOptionsSchema } from './config.js';
 
@@ -44,3 +47,17 @@ export type GoogleProviderName = typeof GOOGLE_PROVIDER_NAME;
 export type BuiltInProvider = (typeof BUILTIN_PROVIDERS)[number];
 
 export type FontType = (typeof FONT_TYPES)[number];
+
+/**
+ * Preload data is used for links generation inside the <Font /> component
+ */
+export type PreloadData = Array<{
+	/**
+	 * Absolute link to a font file, eg. /_astro/fonts/abc.woff
+	 */
+	url: string;
+	/**
+	 * A font type, eg. woff2, woff, ttf...
+	 */
+	type: FontType;
+}>;

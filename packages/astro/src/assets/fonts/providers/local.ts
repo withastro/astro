@@ -8,8 +8,6 @@ import { extractFontType } from '../utils.js';
 // https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
 // https://github.com/unjs/unifont/blob/main/src/providers/google.ts
 
-export const LOCAL_PROVIDER_NAME = 'local';
-
 type InitializedProvider = NonNullable<Awaited<ReturnType<unifont.Provider>>>;
 
 type ResolveFontResult = NonNullable<Awaited<ReturnType<InitializedProvider['resolveFont']>>>;
