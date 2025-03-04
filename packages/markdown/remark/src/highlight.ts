@@ -67,13 +67,14 @@ export async function highlightCodeBlocks(
 			}
 		}
 
-		if (excludeLanguages.includes(languageMatch?.[1] ?? '')) {
+		const language = languageMatch?.[1] || 'plaintext';
+		if (excludeLanguages.includes(language)) {
 			return;
 		}
 
 		nodes.push({
 			node,
-			language: languageMatch?.[1] || 'plaintext',
+			language,
 			parent,
 			grandParent: ancestors.at(-2)!,
 		});
