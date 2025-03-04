@@ -1,7 +1,7 @@
 import { parse as devalueParse, stringify as devalueStringify } from 'devalue';
 import type { z } from 'zod';
 import { REDIRECT_STATUS_CODES } from '../../../core/constants.js';
-import { ActionsReturnedInvalidDataError } from '../../../core/errors/errors-data.js';
+import {ActionCalledFromServerError, ActionsReturnedInvalidDataError} from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
 import { appendForwardSlash as _appendForwardSlash } from '../../../core/path.js';
 import { ACTION_QUERY_PARAMS as _ACTION_QUERY_PARAMS } from '../../consts.js';
@@ -309,3 +309,7 @@ const actionResultErrorStack = (function actionResultErrorStackFn() {
 		},
 	};
 })();
+
+export function astroCalledServerError(): AstroError {
+	return new AstroError(ActionCalledFromServerError);
+}
