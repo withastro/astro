@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { google } from './google.js';
 import type { FontProvider, ResolvedFontProvider } from '../types.js';
 import { fileURLToPath } from 'node:url';
+import { normalizePath } from '../../../core/viteUtils.js';
 
 export function resolveEntrypoint(root: URL, entrypoint: string): string {
 	const require = createRequire(root);
@@ -46,7 +47,7 @@ export async function resolveProviders({
 
 	for (const { name, entrypoint, config } of providers) {
 		console.log({ entrypoint });
-		const id = resolveEntrypoint(root, entrypoint.toString());
+		const id = normalizePath(resolveEntrypoint(root, entrypoint.toString()));
 		console.log({ id });
 		const mod = await resolveMod(id);
 		const { provider } = validateMod(mod);
