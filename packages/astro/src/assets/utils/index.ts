@@ -1,7 +1,7 @@
 /**
- * NOTE: this is a public module exposed to the user, so all functions exposed 
+ * NOTE: this is a public module exposed to the user, so all functions exposed
  * here must be documented via JsDoc and in the docs website.
- * 
+ *
  * If some functions don't need to be exposed, just import the file that contains the functions.
  */
 
