@@ -21,9 +21,9 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 
 	let children = undefined;
 	let $$slots = undefined;
-	let prefix = undefined;
+	let idPrefix;
 	if (this && this.result) {
-		prefix = incrementId(this.result);
+		idPrefix = incrementId(this.result);
 	}
 	const renderProps = {};
 	for (const [key, value] of Object.entries(slotted)) {
@@ -53,7 +53,7 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 			$$slots,
 			...renderProps,
 		},
-		idPrefix: prefix,
+		idPrefix,
 	});
 	return { html: result.body };
 }
