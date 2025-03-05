@@ -10,11 +10,9 @@ export function getPrerenderDefault(config: AstroConfig) {
  * Returns the correct output directory of the SSR build based on the configuration
  */
 export function getServerOutputDirectory(settings: AstroSettings): URL {
-	if (settings.buildOutput === 'server') {
-		return settings.config.build.server;
-	} else {
-		return getOutDirWithinCwd(settings.config.outDir);
-	}
+	return settings.buildOutput === 'server'
+		? settings.config.build.server
+		: getOutDirWithinCwd(settings.config.outDir);
 }
 
 /**

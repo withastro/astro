@@ -1,9 +1,9 @@
-import { vitePluginMiddlewareBuild } from '../../middleware/vite-plugin.js';
+import { vitePluginActionsBuild } from '../../../actions/plugins.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 
-export function pluginMiddleware(
+export function pluginActions(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 ): AstroBuildPlugin {
@@ -12,7 +12,7 @@ export function pluginMiddleware(
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginMiddlewareBuild(opts, internals),
+					vitePlugin: vitePluginActionsBuild(opts, internals),
 				};
 			},
 		},

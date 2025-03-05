@@ -60,8 +60,8 @@ describe('Astro Actions', () => {
 
 			assert.equal(res.ok, true);
 			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
 			const data = devalue.parse(await res.text());
+
 			assert.equal(data.channel, 'bholmesdev');
 			assert.equal(data.subscribeButtonState, 'smashed');
 		});
@@ -578,7 +578,6 @@ it('Should support trailing slash', async () => {
 		method: 'POST',
 		body: formData,
 	});
-
 	assert.equal(res.ok, true);
 	assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
 

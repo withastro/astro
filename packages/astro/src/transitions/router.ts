@@ -508,6 +508,7 @@ async function transition(
 		//
 		// "finished" resolves after all animations are done.
 
+		// @ts-expect-error the internal type `types` isn't provided and not even documented on MDN
 		currentTransition.viewTransition = {
 			updateCallbackDone: updateDone, // this is about correct
 			ready: updateDone, // good enough

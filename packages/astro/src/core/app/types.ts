@@ -1,3 +1,5 @@
+import type { ZodType } from 'zod';
+import type { ActionAccept, ActionClient } from '../../actions/runtime/virtual/server.js';
 import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
@@ -75,6 +77,7 @@ export type SSRManifest = {
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
+	actions?: SSRActions;
 	checkOrigin: boolean;
 	sessionConfig?: ResolvedSessionConfig<any>;
 	cacheDir: string | URL;
@@ -83,6 +86,10 @@ export type SSRManifest = {
 	publicDir: string | URL;
 	buildClientDir: string | URL;
 	buildServerDir: string | URL;
+};
+
+export type SSRActions = {
+	server: Record<string, ActionClient<unknown, ActionAccept, ZodType>>;
 };
 
 export type SSRManifestI18n = {
