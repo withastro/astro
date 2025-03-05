@@ -55,8 +55,7 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 		},
 		idPrefix: prefix,
 	});
-	const html = result.body;
-	return { html };
+	return { html: result.body };
 }
 
 export default {
