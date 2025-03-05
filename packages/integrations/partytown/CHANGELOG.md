@@ -1,5 +1,21 @@
 # @astrojs/partytown
 
+## 2.1.4
+
+### Patch Changes
+
+- [#13109](https://github.com/withastro/astro/pull/13109) [`5c0e0ea`](https://github.com/withastro/astro/commit/5c0e0eaa908bbfd6705eb950713c26c9ee0bd32d) Thanks [@arnottferels](https://github.com/arnottferels)! - Adds support for `config.lib`, which allows changing the destination of the files:
+
+  ```diff
+  export default defineConfig({
+  	integrations: [partytown({
+  		config: {
+  +			lib: '/assets/lib/~partytown/';
+  		}
+  	})]
+  })
+  ```
+
 ## 2.1.3
 
 ### Patch Changes

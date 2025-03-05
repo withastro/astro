@@ -1,4 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
 import { ZodIssueCode, z } from 'zod';
@@ -6,6 +7,7 @@ import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
+
 import {
 	type AstroComponentFactory,
 	createComponent,
@@ -451,7 +453,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			src: image.src,
 			srcset: image.srcSet.attribute,
 		})
-			.map(([key, value]) => (value ? `${key}=${JSON.stringify(String(value))}` : ''))
+			.map(([key, value]) => (value ? `${key}="${escape(value)}"` : ''))
 			.join(' ');
 	});
 }

@@ -1,6 +1,7 @@
 import { astroConfigBuildPlugin } from '../../../content/vite-plugin-content-assets.js';
 import { astroHeadBuildPlugin } from '../../../vite-plugin-head/index.js';
 import type { AstroBuildPluginContainer } from '../plugin.js';
+import { pluginActions } from './plugin-actions.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginChunks } from './plugin-chunks.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
@@ -21,6 +22,7 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginManifest(options, internals));
 	register(pluginRenderers(options));
 	register(pluginMiddleware(options, internals));
+	register(pluginActions(options, internals));
 	register(pluginPages(options, internals));
 	register(pluginCSS(options, internals));
 	register(astroHeadBuildPlugin(internals));

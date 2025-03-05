@@ -1,5 +1,62 @@
 # astro
 
+## 5.4.2
+
+### Patch Changes
+
+- [#12985](https://github.com/withastro/astro/pull/12985) [`84e94cc`](https://github.com/withastro/astro/commit/84e94cc85cc0f4ea9b5dba2009dc89e83a798f59) Thanks [@matthewp](https://github.com/matthewp)! - Prevent re-executing scripts in client router
+
+- [#13349](https://github.com/withastro/astro/pull/13349) [`50e2e0b`](https://github.com/withastro/astro/commit/50e2e0b3749d6dba3d301ea1a0a3a33a273e7a81) Thanks [@ascorbic](https://github.com/ascorbic)! - Correctly escapes attributes in Markdown images
+
+- [#13262](https://github.com/withastro/astro/pull/13262) [`0025df3`](https://github.com/withastro/astro/commit/0025df37af4dcd390d41c9b175fbdb3edd87edf7) Thanks [@ematipico](https://github.com/ematipico)! - Refactor Astro Actions to not use a middleware. Doing so should avoid unexpected issues when using the Astro middleware at the edge.
+
+## 5.4.1
+
+### Patch Changes
+
+- [#13336](https://github.com/withastro/astro/pull/13336) [`8f632ef`](https://github.com/withastro/astro/commit/8f632efe9934fbe7547d890fd01b3892d14c8189) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where some asset utilities were move across monorepo, and not re-exported anymore.
+
+- [#13320](https://github.com/withastro/astro/pull/13320) [`b5dabe9`](https://github.com/withastro/astro/commit/b5dabe9878510237ceb603ebd3e004da6e965a26) Thanks [@{](https://github.com/{)! - Adds support for typing experimental session data
+
+  You can add optional types to your session data by creating a `src/env.d.ts` file in your project that extends the global `App.SessionData` interface. For example:
+
+  ```ts
+  declare namespace App {
+    interface SessionData {
+
+        id: string;
+        email: string;
+      };
+      lastLogin: Date;
+    }
+  }
+  ```
+
+  Any keys not defined in this interface will be treated as `any`.
+
+  Then when you access `Astro.session` in your components, any defined keys will be typed correctly:
+
+  ```astro
+  ---
+  const user = await Astro.session.get('user');
+  //    ^? const: user: { id: string; email: string; } | undefined
+
+  const something = await Astro.session.get('something');
+  //    ^? const: something: any
+
+  Astro.session.set('user', 1);
+  //    ^? Argument of type 'number' is not assignable to parameter of type '{ id: string; email: string; }'.
+  ---
+  ```
+
+  See [the experimental session docs](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information.
+
+- [#13330](https://github.com/withastro/astro/pull/13330) [`5e7646e`](https://github.com/withastro/astro/commit/5e7646efc12d47bbb65d8c80a160f4f27329903c) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue with the conditional rendering of scripts.
+
+  **This change updates a v5.0 breaking change when `experimental.directRenderScript` became the default script handling behavior**.
+
+  If you have already successfully upgraded to Astro v5, you may need to review your script tags again and make sure they still behave as desired after this release. [See the v5 Upgrade Guide for more details](https://docs.astro.build/en/guides/upgrade-to/v5/#script-tags-are-rendered-directly-as-declared).
+
 ## 5.4.0
 
 ### Minor Changes
