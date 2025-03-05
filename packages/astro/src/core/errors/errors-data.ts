@@ -903,18 +903,6 @@ export const MiddlewareCantBeLoaded = {
 
 /**
  * @docs
- * @description
- * Thrown in development mode when the actions file can't be loaded.
- *
- */
-export const ActionsCantBeLoaded = {
-	name: 'ActionsCantBeLoaded',
-	title: "Can't load the Astro actions.",
-	message: 'An unknown error was thrown while loading the Astro actions file.',
-} satisfies ErrorData;
-
-/**
- * @docs
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
@@ -1817,6 +1805,18 @@ export const ActionCalledFromServerError = {
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Thrown in development mode when the actions file can't be loaded.
+ *
+ */
+export const ActionsCantBeLoaded = {
+	name: 'ActionsCantBeLoaded',
+	title: "Can't load the Astro actions.",
+	message: 'An unknown error was thrown while loading the Astro actions file.',
+} satisfies ErrorData;
 
 /**
  * @docs
