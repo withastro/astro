@@ -662,6 +662,7 @@ export const AstroConfigSchema = z.object({
 						// We dedupe families
 						.transform((families) => [
 							// TODO: support family.as
+							// TODO: warn if some families are being overriden and how to resolve the issue
 							...new Map(families.map((family) => [family.name, family])).values(),
 						]),
 				})

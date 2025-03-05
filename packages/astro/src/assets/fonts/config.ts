@@ -6,6 +6,7 @@ function dedupe<T>(arr: Array<T>): Array<T> {
 
 export const resolveFontOptionsSchema = z.object({
 	weights: z
+		// TODO: support numbers
 		.array(z.string())
 		.nonempty()
 		.transform((arr) => dedupe(arr)),
