@@ -31,7 +31,8 @@
     "dist",
     "client.svelte.js",
     "server.js",
-    "server.d.ts"
+    "server.d.ts",
+    "context.js"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",

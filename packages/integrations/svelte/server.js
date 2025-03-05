@@ -1,5 +1,6 @@
 import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
+import { incrementId } from './context.js';
 
 function check(Component) {
 	if (typeof Component !== 'function') return false;
