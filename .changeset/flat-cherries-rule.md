@@ -2,4 +2,4 @@
 '@astrojs/svelte': patch
 ---
 
-bugfix: Avoid colliding `$props.id` when rendering multiple islands
+Fixes a case where `$props.id()` would not be unique across multiple islands
