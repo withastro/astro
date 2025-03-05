@@ -169,15 +169,17 @@ export async function generateFallbacksCSS({
 		return { css, fallbacks };
 	}
 
-	// We prepend the fallbacks with the local fonts and we dedupe in case a local font is already provided
-	fallbacks = [...new Set([...localFonts, ...fallbacks])];
+	const localFontsMappings = localFonts.map((font) => ({
+		font,
+		// TODO: support family.as
+		name: `"${family} fallback: ${font}"`,
+	}));
 
-	for (const fallback of localFonts) {
-		css += generateFontFace(metrics, {
-			font: fallback,
-			// TODO: support family.as
-			name: `${family} fallback: ${fallback}`,
-		});
+	// We prepend the fallbacks with the local fonts and we dedupe in case a local font is already provided
+	fallbacks = [...new Set([...localFontsMappings.map((m) => m.name), ...fallbacks])];
+
+	for (const { font, name } of localFontsMappings) {
+		css += generateFontFace(metrics, { font, name });
 	}
 
 	return { css, fallbacks };
@@ -232,4 +234,16 @@ export function createLogManager(logger: Logger) {
 			}, 50);
 		},
 	};
+}
+
+const CAMEL_CASE_REGEX = /([a-z])([A-Z])/g;
+const NON_ALPHANUMERIC_REGEX = /[^a-zA-Z0-9]+/g;
+const TRIM_DASHES_REGEX = /^-+|-+$/g;
+
+export function kebab(value: string) {
+	return value
+		.replace(CAMEL_CASE_REGEX, '$1-$2') // Handle camelCase
+		.replace(NON_ALPHANUMERIC_REGEX, '-') // Replace non-alphanumeric characters with dashes
+		.replace(TRIM_DASHES_REGEX, '') // Trim leading/trailing dashes
+		.toLowerCase();
 }

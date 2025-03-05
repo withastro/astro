@@ -20,6 +20,7 @@ interface Options
 	resolvedMap: Map<string, { preloadData: PreloadData; css: string }>;
 	resolveMod: ResolveMod;
 	log: (message: string) => void;
+	generateCSSVariableName: (name: string) => string;
 }
 
 export async function loadFonts({
@@ -35,6 +36,7 @@ export async function loadFonts({
 	generateFontFace: generateFallbackFontFace,
 	getMetricsForFamily,
 	log,
+	generateCSSVariableName,
 }: Options): Promise<void> {
 	const resolved = await resolveProviders({
 		root,
@@ -137,10 +139,16 @@ export async function loadFonts({
 			generateFontFace: generateFallbackFontFace,
 		});
 
+		// TODO: support family.as
+		const cssVarValues = [family.name];
+
 		if (fallbackData) {
 			css += fallbackData.css;
-			// TODO: generate css var
+			cssVarValues.push(...fallbackData.fallbacks);
 		}
+
+		// TODO: support family.as
+		css += `:root { --astro-font-${generateCSSVariableName(family.name)}: ${cssVarValues.join(', ')}; }`;
 
 		resolvedMap.set(family.name, { preloadData, css });
 	}
