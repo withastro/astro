@@ -54,8 +54,9 @@ it('loadFonts()', async () => {
 		families: [
 			{
 				name: 'Roboto',
-				// @ts-expect-error we do weird typings internally for "reasons" (provider is typed as "local" | "custom") but this is valid
-				provider: 'google',
+				// we do weird typings internally for "reasons" (provider is typed as "local" | "custom") but this is valid
+				provider: /** @type {any} */ ('google'),
+				fallbacks: ['sans-serif'],
 			},
 		],
 		storage,
@@ -68,11 +69,18 @@ it('loadFonts()', async () => {
 			return await import(id);
 		},
 		hashString: (v) => Buffer.from(v).toString('base64'),
-		getMetricsForFamily: async () => null,
+		getMetricsForFamily: async () => ({
+			ascent: 0,
+			descent: 0,
+			lineGap: 0,
+			unitsPerEm: 0,
+			xWidthAvg: 0,
+		}),
 		generateFontFace: () => '',
 		log: (message) => {
 			logs.push(message);
 		},
+		generateCSSVariableName: (name) => name,
 	});
 
 	assert.equal(
@@ -82,4 +90,10 @@ it('loadFonts()', async () => {
 	assert.equal(Array.from(hashToUrlMap.keys()).length > 0, true);
 	assert.deepStrictEqual(Array.from(resolvedMap.keys()), ['Roboto']);
 	assert.deepStrictEqual(logs, ['Fonts initialized']);
+	assert.equal(
+		resolvedMap
+			.get('Roboto')
+			.css.includes(':root { --astro-font-Roboto: Roboto, "Roboto fallback: Arial", sans-serif; }'),
+		true,
+	);
 });

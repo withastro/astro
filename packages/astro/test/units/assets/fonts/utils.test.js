@@ -8,6 +8,7 @@ import {
 	proxyURL,
 	isGenericFontFamily,
 	generateFallbacksCSS,
+	kebab,
 } from '../../../../dist/assets/fonts/utils.js';
 
 function createSpyCache() {
@@ -302,10 +303,19 @@ describe('fonts utils', () => {
 					generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
 				}),
 				{
-					css: `[Arial,Roboto fallback: Arial]`,
-					fallbacks: ['Arial', 'foo', 'sans-serif'],
+					css: `[Arial,"Roboto fallback: Arial"]`,
+					fallbacks: ['"Roboto fallback: Arial"', 'foo', 'sans-serif'],
 				},
 			);
 		});
 	});
+
+	it('kebab()', () => {
+		assert.equal(kebab('valid'), 'valid')
+		assert.equal(kebab('camelCase'), 'camel-case')
+		assert.equal(kebab('PascalCase'), 'pascal-case')
+		assert.equal(kebab('snake_case'), 'snake-case')
+		assert.equal(kebab('  trim- '), 'trim')
+		assert.equal(kebab('de--dupe'), 'de-dupe')
+	})
 });
