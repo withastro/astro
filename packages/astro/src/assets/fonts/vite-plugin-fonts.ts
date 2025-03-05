@@ -6,7 +6,7 @@ import xxhash from 'xxhash-wasm';
 import { isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { cache, createLogManager, extractFontType } from './utils.js';
+import { cache, createLogManager, extractFontType, kebab } from './utils.js';
 import {
 	VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
@@ -113,6 +113,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			},
 			generateFontFace: fontaine.generateFontFace,
 			log: (message) => logger.info('assets', message),
+			generateCSSVariableName: (name) => kebab(name),
 		});
 	}
 

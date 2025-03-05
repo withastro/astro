@@ -233,3 +233,12 @@ export function createLogManager(logger: Logger) {
 		},
 	};
 }
+
+// TODO: test
+export function kebab(value: string) {
+	return value
+		.replace(/([a-z])([A-Z])/g, '$1-$2') // Handle camelCase
+		.replace(/[^a-zA-Z0-9]+/g, '-') // Replace non-alphanumeric characters with dashes
+		.replace(/^-+|-+$/g, '') // Trim leading/trailing dashes
+		.toLowerCase();
+}
