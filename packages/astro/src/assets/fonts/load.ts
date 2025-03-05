@@ -1,7 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { resolveLocalFont } from './providers/local.js';
 import { resolveProviders, type ResolveMod } from './providers/utils.js';
-import { generateFallbacksCSS, generateFontFace, proxyURL, type ProxyURLOptions } from './utils.js';
+import {
+	generateFallbacksCSS,
+	generateFontFace,
+	getFamilyName,
+	proxyURL,
+	type ProxyURLOptions,
+} from './utils.js';
 import * as unifont from 'unifont';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
@@ -132,23 +138,21 @@ export async function loadFonts({
 			.filter(Boolean);
 
 		const fallbackData = await generateFallbacksCSS({
-			family: family.name,
+			family,
 			fallbacks: family.fallbacks ?? [],
 			fontURL: urls.at(0) ?? null,
 			getMetricsForFamily,
 			generateFontFace: generateFallbackFontFace,
 		});
 
-		// TODO: support family.as
-		const cssVarValues = [family.name];
+		const cssVarValues = [getFamilyName(family)];
 
 		if (fallbackData) {
 			css += fallbackData.css;
 			cssVarValues.push(...fallbackData.fallbacks);
 		}
 
-		// TODO: support family.as
-		css += `:root { --astro-font-${generateCSSVariableName(family.name)}: ${cssVarValues.join(', ')}; }`;
+		css += `:root { --astro-font-${generateCSSVariableName(getFamilyName(family))}: ${cssVarValues.join(', ')}; }`;
 
 		resolvedMap.set(family.name, { preloadData, css });
 	}

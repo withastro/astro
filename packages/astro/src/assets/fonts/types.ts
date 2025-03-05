@@ -6,7 +6,9 @@ import type {
 	FONT_TYPES,
 } from './constants.js';
 import type * as unifont from 'unifont';
-import type { resolveFontOptionsSchema } from './config.js';
+import type { fontFamilyAttributesSchema, resolveFontOptionsSchema } from './config.js';
+
+// TODO: jsdoc for everything, most of those end up in the public AstroConfig type
 
 export interface FontProvider<TName extends string> {
 	name: TName;
@@ -22,13 +24,11 @@ export interface ResolvedFontProvider {
 
 export type ResolveFontOptions = z.output<typeof resolveFontOptionsSchema>;
 
-// TODO: support optional as prop
-interface FontFamilyAttributes extends Partial<ResolveFontOptions> {
-	name: string;
-	provider: string;
-}
+export interface FontFamilyAttributes
+	extends z.infer<typeof fontFamilyAttributesSchema>,
+		Partial<ResolveFontOptions> {}
 
-export interface LocalFontFamily extends Pick<FontFamilyAttributes, 'name' | 'fallbacks'> {
+export interface LocalFontFamily extends Pick<FontFamilyAttributes, 'name' | 'fallbacks' | 'as'> {
 	provider: LocalProviderName;
 	src: Array<Partial<Omit<ResolveFontOptions, 'fallbacks'>> & { paths: Array<string> }>;
 }

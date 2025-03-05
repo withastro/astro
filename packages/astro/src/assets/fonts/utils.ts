@@ -1,5 +1,5 @@
 import type * as unifont from 'unifont';
-import type { FontType } from './types.js';
+import type { FontFamilyAttributes, FontType } from './types.js';
 import { extname } from 'node:path';
 import { DEFAULT_FALLBACKS, FONT_TYPES } from './constants.js';
 import type { Storage } from 'unstorage';
@@ -132,8 +132,10 @@ export async function generateFallbacksCSS({
 	// eslint-disable-next-line @typescript-eslint/no-shadow
 	generateFontFace,
 }: {
-	/** The family name */
-	family: string;
+	family: {
+		name: string;
+		as?: string;
+	};
 	/** The family fallbacks */
 	fallbacks: Array<string>;
 	/** A remote url or local filepath to a font file. Used if metrics can't be resolved purely from the family name */
@@ -163,7 +165,7 @@ export async function generateFallbacksCSS({
 		return { css, fallbacks };
 	}
 
-	const metrics = await getMetricsForFamily(family, fontURL);
+	const metrics = await getMetricsForFamily(family.name, fontURL);
 	if (!metrics) {
 		// If there are no metrics, we can't generate useful fallbacks
 		return { css, fallbacks };
@@ -171,8 +173,7 @@ export async function generateFallbacksCSS({
 
 	const localFontsMappings = localFonts.map((font) => ({
 		font,
-		// TODO: support family.as
-		name: `"${family} fallback: ${font}"`,
+		name: `"${getFamilyName(family)} fallback: ${font}"`,
 	}));
 
 	// We prepend the fallbacks with the local fonts and we dedupe in case a local font is already provided
@@ -246,4 +247,8 @@ export function kebab(value: string) {
 		.replace(NON_ALPHANUMERIC_REGEX, '-') // Replace non-alphanumeric characters with dashes
 		.replace(TRIM_DASHES_REGEX, '') // Trim leading/trailing dashes
 		.toLowerCase();
+}
+
+export function getFamilyName(family: Pick<FontFamilyAttributes, 'name' | 'as'>): string {
+	return family.as ?? family.name;
 }

@@ -19,7 +19,8 @@ import {
 	GOOGLE_PROVIDER_NAME,
 	LOCAL_PROVIDER_NAME,
 } from '../../assets/fonts/constants.js';
-import { resolveFontOptionsSchema } from '../../assets/fonts/config.js';
+import { fontFamilyAttributesSchema, resolveFontOptionsSchema } from '../../assets/fonts/config.js';
+import { getFamilyName } from '../../assets/fonts/utils.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
@@ -624,7 +625,6 @@ export const AstroConfigSchema = z.object({
 								.strict(),
 						)
 						.optional(),
-					// TODO: support family.as
 					families: z
 						.array(
 							z
@@ -633,7 +633,6 @@ export const AstroConfigSchema = z.object({
 									z
 										.object({
 											provider: z.literal(LOCAL_PROVIDER_NAME),
-											name: z.string(),
 											src: z.array(
 												z
 													.object({
@@ -643,13 +642,14 @@ export const AstroConfigSchema = z.object({
 													.strict(),
 											),
 										})
+										.merge(fontFamilyAttributesSchema.omit({ provider: true }))
 										.merge(resolveFontOptionsSchema.pick({ fallbacks: true }).partial())
 										.strict(),
 									z
 										.object({
 											provider: z.string().optional().default(GOOGLE_PROVIDER_NAME),
-											name: z.string(),
 										})
+										.merge(fontFamilyAttributesSchema.omit({ provider: true }))
 										.merge(resolveFontOptionsSchema.partial())
 										.strict(),
 								])
@@ -661,9 +661,8 @@ export const AstroConfigSchema = z.object({
 						)
 						// We dedupe families
 						.transform((families) => [
-							// TODO: support family.as
 							// TODO: warn if some families are being overriden and how to resolve the issue
-							...new Map(families.map((family) => [family.name, family])).values(),
+							...new Map(families.map((family) => [getFamilyName(family), family])).values(),
 						]),
 				})
 				.strict()

@@ -179,7 +179,7 @@ describe('fonts utils', () => {
 		it('should return null if there are no fallbacks', async () => {
 			assert.equal(
 				await generateFallbacksCSS({
-					family: 'Roboto',
+					family: { name: 'Roboto' },
 					fallbacks: [],
 					fontURL: null,
 					getMetricsForFamily: async () => null,
@@ -192,7 +192,7 @@ describe('fonts utils', () => {
 		it('should return fallbacks if there are no metrics', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: 'Roboto',
+					family: { name: 'Roboto' },
 					fallbacks: ['foo'],
 					fontURL: null,
 					getMetricsForFamily: async () => null,
@@ -208,7 +208,7 @@ describe('fonts utils', () => {
 		it('should return fallbacks if there are metrics but no generic font family', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: 'Roboto',
+					family: { name: 'Roboto' },
 					fallbacks: ['foo'],
 					fontURL: null,
 					getMetricsForFamily: async () => ({
@@ -230,7 +230,7 @@ describe('fonts utils', () => {
 		it('shold return fallbacks if the generic font family does not have fonts associated', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: 'Roboto',
+					family: { name: 'Roboto' },
 					fallbacks: ['emoji'],
 					fontURL: null,
 					getMetricsForFamily: async () => ({
@@ -252,7 +252,7 @@ describe('fonts utils', () => {
 		it('resolves fallbacks correctly', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: 'Roboto',
+					family: { name: 'Roboto' },
 					fallbacks: ['foo', 'bar'],
 					fontURL: null,
 					getMetricsForFamily: async () => ({
@@ -271,7 +271,7 @@ describe('fonts utils', () => {
 			);
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: 'Roboto',
+					family: { name: 'Roboto' },
 					fallbacks: ['sans-serif', 'foo'],
 					fontURL: null,
 					getMetricsForFamily: async () => ({
@@ -290,7 +290,7 @@ describe('fonts utils', () => {
 			);
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: 'Roboto',
+					family: { name: 'Roboto', as: 'Custom' },
 					fallbacks: ['foo', 'sans-serif'],
 					fontURL: null,
 					getMetricsForFamily: async () => ({
@@ -303,19 +303,19 @@ describe('fonts utils', () => {
 					generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
 				}),
 				{
-					css: `[Arial,"Roboto fallback: Arial"]`,
-					fallbacks: ['"Roboto fallback: Arial"', 'foo', 'sans-serif'],
+					css: `[Arial,"Custom fallback: Arial"]`,
+					fallbacks: ['"Custom fallback: Arial"', 'foo', 'sans-serif'],
 				},
 			);
 		});
 	});
 
 	it('kebab()', () => {
-		assert.equal(kebab('valid'), 'valid')
-		assert.equal(kebab('camelCase'), 'camel-case')
-		assert.equal(kebab('PascalCase'), 'pascal-case')
-		assert.equal(kebab('snake_case'), 'snake-case')
-		assert.equal(kebab('  trim- '), 'trim')
-		assert.equal(kebab('de--dupe'), 'de-dupe')
-	})
+		assert.equal(kebab('valid'), 'valid');
+		assert.equal(kebab('camelCase'), 'camel-case');
+		assert.equal(kebab('PascalCase'), 'pascal-case');
+		assert.equal(kebab('snake_case'), 'snake-case');
+		assert.equal(kebab('  trim- '), 'trim');
+		assert.equal(kebab('de--dupe'), 'de-dupe');
+	});
 });

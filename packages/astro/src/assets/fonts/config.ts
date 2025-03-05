@@ -24,3 +24,9 @@ export const resolveFontOptionsSchema = z.object({
 		.transform((arr) => dedupe(arr))
 		.optional(),
 });
+
+export const fontFamilyAttributesSchema = z.object({
+	name: z.string(),
+	provider: z.string(),
+	as: z.string().optional(),
+});
