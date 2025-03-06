@@ -197,7 +197,10 @@ async function executeSeedFile({
 	fileUrl: URL;
 	viteServer: ViteDevServer;
 }) {
-	const mod = await viteServer.ssrLoadModule(fileUrl.pathname);
+	// Use decodeURIComponent to handle paths with spaces correctly
+	// This ensures that %20 in the pathname is properly handled
+	const pathname = decodeURIComponent(fileUrl.pathname);
+	const mod = await viteServer.ssrLoadModule(pathname);
 	if (typeof mod.default !== 'function') {
 		throw new AstroDbError(EXEC_DEFAULT_EXPORT_ERROR(fileURLToPath(fileUrl)));
 	}

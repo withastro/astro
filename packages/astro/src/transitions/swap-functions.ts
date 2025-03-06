@@ -6,25 +6,28 @@ export type SavedFocus = {
 
 const PERSIST_ATTR = 'data-astro-transition-persist';
 
+const scriptsAlreadyRan = new Set<string>();
+export function detectScriptExecuted(script: HTMLScriptElement) {
+	const key = script.src ? new URL(script.src, location.href).href : script.textContent!;
+	if (scriptsAlreadyRan.has(key)) return true;
+	scriptsAlreadyRan.add(key);
+	return false;
+}
+
 /*
  * 	Mark new scripts that should not execute
  */
 export function deselectScripts(doc: Document) {
-	for (const s1 of document.scripts) {
-		for (const s2 of doc.scripts) {
-			if (
-				// Check if the script should be rerun regardless of it being the same
-				!s2.hasAttribute('data-astro-rerun') &&
-				// Inline
-				((!s1.src && s1.textContent === s2.textContent) ||
-					// External
-					(s1.src && s1.type === s2.type && s1.src === s2.src))
-			) {
-				// the old script is in the new document and doesn't have the rerun attribute
-				// we mark it as executed to prevent re-execution
-				s2.dataset.astroExec = '';
-				break;
-			}
+	for (const s2 of doc.scripts) {
+		if (
+			// Check if the script should be rerun regardless of it being the same
+			!s2.hasAttribute('data-astro-rerun') &&
+			// Check if the script has already been executed
+			detectScriptExecuted(s2)
+		) {
+			// the old script is in the new document and doesn't have the rerun attribute
+			// we mark it as executed to prevent re-execution
+			s2.dataset.astroExec = '';
 		}
 	}
 }
