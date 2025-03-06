@@ -1,5 +1,19 @@
 # astro
 
+## 5.4.3
+
+### Patch Changes
+
+- [#13347](https://github.com/withastro/astro/pull/13347) [`d83f92a`](https://github.com/withastro/astro/commit/d83f92a20403ffc8d088cfd13d2806e0f4f1a11e) Thanks [@bluwy](https://github.com/bluwy)! - Updates internal CSS chunking behavior for Astro components' scoped styles. This may result in slightly more CSS chunks created, but should allow the scoped styles to only be included on pages that use them.
+
+- [#13355](https://github.com/withastro/astro/pull/13355) [`042d1de`](https://github.com/withastro/astro/commit/042d1de901fd9aa66157ce078b28bcd9786e1373) Thanks [@ematipico](https://github.com/ematipico)! - Adds documentation to the assets utilities for remote service images.
+
+- [#13363](https://github.com/withastro/astro/pull/13363) [`a793636`](https://github.com/withastro/astro/commit/a793636928d0014a7faa4431afdfb9404e9ea819) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the internal function `makeSvgComponent` was incorrectly exposed as a public API.
+
+- Updated dependencies [[`042d1de`](https://github.com/withastro/astro/commit/042d1de901fd9aa66157ce078b28bcd9786e1373)]:
+  - @astrojs/internal-helpers@0.6.1
+  - @astrojs/markdown-remark@6.2.1
+
 ## 5.4.2
 
 ### Patch Changes
