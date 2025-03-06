@@ -296,11 +296,12 @@ export class ContentLayer {
 		);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
-		await this.#store.writeToDisk();
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeAssetImports(assetImportsFile);
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeModuleImports(modulesImportsFile);
+		await this.#store.waitUntilSaveComplete();
+
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
