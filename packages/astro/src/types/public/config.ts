@@ -1475,11 +1475,38 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 * @docs
 		 * @name i18n.routing
-		 * @type {Routing}
+		 * @type {object | "manual"}
+		 * @default `object`
 		 * @version 3.7.0
 		 * @description
 		 *
 		 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
+		 *
+		 * ```js
+		 * export default defineConfig({
+		 * 	i18n: {
+		 * 		defaultLocale: "en",
+		 * 		locales: ["en", "fr"],
+		 * 		routing: {
+		 * 			prefixDefaultLocale: false,
+		 * 			redirectToDefaultLocale: true,
+		 * 			fallbackType: "redirect",
+		 * 		}
+		 * 	}
+		 * })
+		 * ```
+		 *
+		 * Since 4.6.0, this option can also be set to `manual`. When this routing strategy is enabled, Astro will **disable** its i18n middleware and no other `routing` options (e.g. `prefixDefaultLocale`) may be configured. You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
+		 *
+		 * ```js
+		 * export default defineConfig({
+		 * 	i18n: {
+		 * 		defaultLocale: "en",
+		 * 		locales: ["en", "fr"],
+		 * 		routing: "manual"
+		 * 	}
+		 * })
+		 * ```
 		 *
 		 */
 		routing?:
@@ -1581,30 +1608,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 */
 					fallbackType?: 'redirect' | 'rewrite';
 			  }
-			/**
-			 *
-			 * @docs
-			 * @name i18n.routing.manual
-			 * @kind h4
-			 * @type {string}
-			 * @version 4.6.0
-			 * @description
-			 * When this option is enabled, Astro will **disable** its i18n middleware so that you can implement your own custom logic. No other `routing` options (e.g. `prefixDefaultLocale`) may be configured with `routing: "manual"`.
-			 *
-			 * You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
-			 *
-			 * ```js
-			 * export default defineConfig({
-			 * 	i18n: {
-			 * 		defaultLocale: "en",
-			 * 		locales: ["en", "fr", "pt-br", "es"],
-			 * 		routing: {
-			 * 			prefixDefaultLocale: true,
-			 * 		}
-			 * 	}
-			 * })
-			 * ```
-			 */
 			| 'manual';
 
 		/**
