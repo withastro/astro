@@ -1611,9 +1611,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			| 'manual';
 
 		/**
+		 * @docs
 		 * @name i18n.domains
 		 * @type {Record<string, string> }
-		 * @default '{}'
+		 * @default `{}`
 		 * @version 4.3.0
 		 * @description
 		 *
@@ -1644,7 +1645,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * })
 		 * ```
 		 *
-		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
+		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/reference/modules/astro-i18n/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/reference/modules/astro-i18n/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
 		 *
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
 		 */
