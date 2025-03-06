@@ -1580,17 +1580,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * ```
 					 */
 					fallbackType?: 'redirect' | 'rewrite';
-
-					/**
-					 * @name i18n.routing.strategy
-					 * @type {"pathname"}
-					 * @default `"pathname"`
-					 * @version 3.7.0
-					 * @description
-					 *
-					 * - `"pathname": The strategy is applied to the pathname of the URLs
-					 */
-					strategy?: 'pathname';
 			  }
 			/**
 			 *
