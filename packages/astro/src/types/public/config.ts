@@ -17,7 +17,11 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { BuiltInProvider, FontFamily, FontProvider } from '../../assets/fonts/types.js';
+
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
+
+export type { FontProvider };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -184,6 +188,13 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */ export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
+	TFontProviders extends FontProvider<string>[] = never,
+	TFontFamilies extends (
+		| string
+		| FontFamily<
+				(TFontProviders extends never ? [] : TFontProviders)[number]['name'] | BuiltInProvider
+		  >
+	)[] = never,
 > {
 	/**
 	 * @docs
@@ -2100,6 +2111,47 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			  };
 
 		/**
+		 *
+		 * @name experimental.fonts
+		 * @type {object}
+		 * @default `undefined`
+		 * @version 5.x
+		 * @description
+		 *
+		 * TODO:
+		 */
+		fonts?: {
+			/**
+			 *
+			 * @name experimental.fonts.providers
+			 * @type {FontProvider[]}
+			 * @version 5.x
+			 * @description
+			 *
+			 * TODO:
+			 */
+			providers?: [TFontProviders] extends [never] ? FontProvider<string>[] : TFontProviders;
+
+			/**
+			 *
+			 * @name experimental.fonts.families
+			 * @type {FontFamily[]}
+			 * @version 5.x
+			 * @description
+			 *
+			 * TODO:
+			 */
+			families: [TFontFamilies] extends [never]
+				? (
+						| string
+						| FontFamily<
+								| ([TFontProviders] extends [never] ? [] : TFontProviders)[number]['name']
+								| BuiltInProvider
+						  >
+					)[]
+				: TFontFamilies;
+		};
+		/*
 		 * @name experimental.serializeConfig
 		 * @type {boolean}
 		 * @default `false`

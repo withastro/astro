@@ -14,6 +14,12 @@ import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import { EnvSchema } from '../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import {
+	BUILTIN_PROVIDERS,
+	GOOGLE_PROVIDER_NAME,
+	LOCAL_PROVIDER_NAME,
+} from '../../assets/fonts/constants.js';
+import { resolveFontOptionsSchema } from '../../assets/fonts/config.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
@@ -595,6 +601,89 @@ export const AstroConfigSchema = z.object({
 						}
 					}
 					return svgConfig;
+				}),
+
+			// TODO: properly test everything
+			fonts: z
+				.object({
+					providers: z
+						.array(
+							z
+								.object({
+									name: z.string().superRefine((name, ctx) => {
+										if (BUILTIN_PROVIDERS.includes(name as any)) {
+											ctx.addIssue({
+												code: z.ZodIssueCode.custom,
+												message: `"${name}" is a reserved provider name`,
+											});
+										}
+									}),
+									entrypoint: z.string(),
+									config: z.record(z.string(), z.any()).optional(),
+								})
+								.strict(),
+						)
+						.optional(),
+					// TODO: support family.as
+					families: z
+						.array(
+							z
+								.union([
+									z.string(),
+									z
+										.object({
+											provider: z.literal(LOCAL_PROVIDER_NAME),
+											name: z.string(),
+											src: z.array(
+												z
+													.object({
+														paths: z.array(z.string()).nonempty(),
+													})
+													.merge(resolveFontOptionsSchema.omit({ fallbacks: true }).partial())
+													.strict(),
+											),
+										})
+										.merge(resolveFontOptionsSchema.pick({ fallbacks: true }).partial())
+										.strict(),
+									z
+										.object({
+											provider: z.string().optional().default(GOOGLE_PROVIDER_NAME),
+											name: z.string(),
+										})
+										.merge(resolveFontOptionsSchema.partial())
+										.strict(),
+								])
+								.transform((family) =>
+									typeof family === 'string'
+										? { name: family, provider: GOOGLE_PROVIDER_NAME }
+										: family,
+								),
+						)
+						// We dedupe families
+						.transform((families) => [
+							// TODO: support family.as
+							// TODO: warn if some families are being overriden and how to resolve the issue
+							...new Map(families.map((family) => [family.name, family])).values(),
+						]),
+				})
+				.strict()
+				.optional()
+				.superRefine((fonts, ctx) => {
+					if (!fonts) {
+						return;
+					}
+					const providersNames = [
+						...BUILTIN_PROVIDERS,
+						...(fonts.providers ?? []).map((provider) => provider.name),
+					];
+					for (const family of fonts.families) {
+						if (!providersNames.includes(family.provider)) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message: `Invalid provider "${family.provider}". Please use of the following: ${providersNames.map((name) => `"${name}"`).join(', ')}`,
+							});
+						}
+					}
 				}),
 			serializeConfig: z
 				.boolean()
