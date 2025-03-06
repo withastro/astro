@@ -1400,7 +1400,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @name i18n
 	 * @type {object}
 	 * @version 3.5.0
-	 * @type {object}
 	 * @description
 	 *
 	 * Configures i18n routing and allows you to specify some customization options.
