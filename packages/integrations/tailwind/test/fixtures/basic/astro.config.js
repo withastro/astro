@@ -8,5 +8,8 @@ export default defineConfig({
       configFile: fileURLToPath(new URL('./tailwind.config.js', import.meta.url)),
       nesting: true
     }),
-  ]
+  ],
+  build: {
+    inlineStylesheets: 'never'
+  }
 });
