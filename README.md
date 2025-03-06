@@ -1,11 +1,9 @@
-![Build the web you want](.github/assets/banner.jpg 'Build the web you want')
+![Build the Web You Want](.github/assets/banner.jpg 'Build the Web You Want')
+
+<h1 align="center">🚀 Astro – Build the Web You Want</h1>
 
 <p align="center">
-  <br/>
-  <a href="https://astro.build">Astro</a> is a website build tool for the modern web &mdash;
-  <br/>
-  powerful developer experience meets lightweight output.
-  <br/><br/>
+  <a href="https://astro.build"><b>Astro</b></a> is a modern website build tool — combining a powerful developer experience with a lightweight output.
 </p>
 
 <div align="center">
@@ -16,39 +14,55 @@
 
 </div>
 
-## Install
 
-The **recommended** way to install the latest version of Astro is by running the command below:
+---
+
+## 🌟 Features
+
+- **Fast & Lightweight** – No JavaScript by default  
+- **Component-Friendly** – Works with React, Vue, Svelte, and more  
+- **Server & Static Rendering** – Choose what works for you  
+- **Content-Driven** – Markdown & MDX support built-in  
+- **Extensible** – Use integrations for Tailwind, Sitemap, and more  
+
+---
+
+## 🚀 Installation
+
+The **recommended** way to install Astro:
 
 ```bash
 npm create astro@latest
 ```
 
-You can also install Astro **manually** by running this command instead:
+For a manual installation:
 
 ```bash
 npm install --save-dev astro
 ```
 
-Looking for help? Start with our [Getting Started](https://docs.astro.build/en/getting-started/) guide.
+- **[Getting Started Guide](https://docs.astro.build/en/getting-started/)**
+- **[Try a Starter Project](https://astro.new/)**  
 
-Looking for quick examples? [Open a starter project](https://astro.new/) right in your browser.
+---
 
-## Documentation
+## 📖 Documentation
 
-Visit our [official documentation](https://docs.astro.build/).
+- 📚 **Official Docs:** [docs.astro.build](https://docs.astro.build/)  
+- 💬 **Community Help:** Join the **[Astro Discord](https://astro.build/chat)**  
 
-## Support
+---
 
-Having trouble? Get help in the official [Astro Discord](https://astro.build/chat).
+## 💡 Contributing
 
-## Contributing
+New contributors are always welcome! 🚀  
 
-**New contributors welcome!** Check out our [Contributors Guide](CONTRIBUTING.md) for help getting started.
+- Read our **[Contributors Guide](CONTRIBUTING.md)** to get started.  
+- Join the **[Astro Discord](https://astro.build/chat)** for support and discussion.  
 
-Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll help you get your first contribution in no time!
+---
 
-## Directory
+## 📂 Project Directory
 
 | Package                                                                                    | Release Notes                                                                                                                                                                      |
 | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -79,16 +93,19 @@ Several official projects are maintained outside of this repo:
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | [@astrojs/compiler](https://github.com/withastro/compiler)          | [withastro/compiler](https://github.com/withastro/compiler)             |
 | [Astro Language Tools](https://github.com/withastro/language-tools) | [withastro/language-tools](https://github.com/withastro/language-tools) |
+---
 
-## Links
+## 🔗 Useful Links
 
-- [License (MIT)](LICENSE)
-- [Code of Conduct](https://github.com/withastro/.github/blob/main/CODE_OF_CONDUCT.md)
-- [Open Governance & Voting](https://github.com/withastro/.github/blob/main/GOVERNANCE.md)
-- [Project Funding](https://github.com/withastro/.github/blob/main/FUNDING.md)
-- [Website](https://astro.build/)
+- 📜 [License (MIT)](LICENSE)  
+- 👥 [Code of Conduct](https://github.com/withastro/.github/blob/main/CODE_OF_CONDUCT.md)  
+- 🎯 [Governance & Voting](https://github.com/withastro/.github/blob/main/GOVERNANCE.md)  
+- 💰 [Project Funding](https://github.com/withastro/.github/blob/main/FUNDING.md)  
+- 🌎 [Official Website](https://astro.build/)  
 
-## Sponsors
+---
+
+## ❤️ Sponsors
 
 Astro is free, open source software made possible by these wonderful sponsors.
 
@@ -99,3 +116,5 @@ Astro is free, open source software made possible by these wonderful sponsors.
     <img src="https://astro.build/sponsors.png" alt="Sponsor logos including the current Astro Sponsors, Gold Sponsors, and Exclusive Partner Sponsors: Netlify, Sentry, and Project IDX." />
   </a>
 </p>
+
+---
