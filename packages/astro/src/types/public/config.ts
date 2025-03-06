@@ -1122,7 +1122,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @docs
 		 * @name image.domains
 		 * @type {string[]}
-		 * @default `{domains: []}`
+		 * @default `[]`
 		 * @version 2.10.10
 		 * @description
 		 * Defines a list of permitted image source domains for remote image optimization. No other remote images will be optimized by Astro.
@@ -1145,7 +1145,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @docs
 		 * @name image.remotePatterns
 		 * @type {RemotePattern[]}
-		 * @default `{remotePatterns: []}`
+		 * @default `[]`
 		 * @version 2.10.10
 		 * @description
 		 * Defines a list of permitted image source URL patterns for remote image optimization.
