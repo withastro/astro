@@ -210,6 +210,18 @@ export default new Map([\n${lines.join(',\n')}]);
 		}
 	}
 
+	// Skips the debounce and writes to disk immediately
+	async #saveToDiskNow() {
+		if (this.#saveTimeout) {
+			clearTimeout(this.#saveTimeout);
+		}
+		this.#saveTimeout = undefined;
+		if (this.#file) {
+			await this.writeToDisk();
+		}
+		this.#maybeResolveSavePromise();
+	}
+
 	#saveToDiskDebounced() {
 		this.#dirty = true;
 		if (this.#saveTimeout) {
@@ -375,11 +387,12 @@ export default new Map([\n${lines.join(',\n')}]);
 	 * Returns a promise that resolves when all pending saves are complete.
 	 * This includes any in-progress debounced saves for the data store, asset imports, and module imports.
 	 */
-	waitUntilSaveComplete(): Promise<void> {
+	async waitUntilSaveComplete(): Promise<void> {
 		// If there's no save promise, all saves are complete
 		if (!this.#savePromise) {
 			return Promise.resolve();
 		}
+		await this.#saveToDiskNow();
 		return this.#savePromise;
 	}
 
