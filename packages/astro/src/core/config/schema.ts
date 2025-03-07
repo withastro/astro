@@ -7,7 +7,7 @@ import type {
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
 } from '@astrojs/markdown-remark';
-import { markdownConfigDefaults } from '@astrojs/markdown-remark';
+import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import { z } from 'zod';
 import type { SvgRenderMode } from '../../assets/utils/svg.js';
@@ -306,10 +306,12 @@ export const AstroConfigSchema = z.object({
 		.object({
 			syntaxHighlight: z
 				.union([
-					z.object({
-						type: highlighterTypesSchema,
-						excludeLangs: z.array(z.string()).optional(),
-					}),
+					z
+						.object({
+							type: highlighterTypesSchema,
+							excludeLangs: z.array(z.string()).optional(),
+						})
+						.default(syntaxHighlightDefaults),
 					highlighterTypesSchema,
 					z.literal(false),
 				])

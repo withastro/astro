@@ -12,7 +12,7 @@ type Highlighter = (
 
 const languagePattern = /\blanguage-(\S+)\b/;
 // Don’t highlight math code blocks by default.
-const defaultExcludeLanguages = ['math'];
+export const defaultExcludeLanguages = ['math'];
 
 /**
  * A hast utility to syntax highlight code blocks with a given syntax highlighter.

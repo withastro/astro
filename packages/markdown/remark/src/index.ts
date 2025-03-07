@@ -1,4 +1,4 @@
-import type { AstroMarkdownOptions, MarkdownProcessor } from './types.js';
+import type { AstroMarkdownOptions, MarkdownProcessor, SyntaxHighlightConfig } from './types.js';
 
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
@@ -14,8 +14,8 @@ import remarkRehype from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
+import { defaultExcludeLanguages } from './highlight.js';
 import { rehypeImages } from './rehype-images.js';
-
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export { rehypePrism } from './rehype-prism.js';
@@ -35,8 +35,13 @@ export {
 } from './shiki.js';
 export * from './types.js';
 
+export const syntaxHighlightDefaults: Required<SyntaxHighlightConfig> = {
+	type: 'shiki',
+	excludeLangs: defaultExcludeLanguages,
+};
+
 export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
-	syntaxHighlight: 'shiki',
+	syntaxHighlight: syntaxHighlightDefaults,
 	shikiConfig: {
 		langs: [],
 		theme: 'github-dark',
