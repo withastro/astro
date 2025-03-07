@@ -300,9 +300,7 @@ export class ContentLayer {
 		await this.#store.writeAssetImports(assetImportsFile);
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeModuleImports(modulesImportsFile);
-		console.time('waitUntilSaveComplete');
 		await this.#store.waitUntilSaveComplete();
-		console.timeEnd('waitUntilSaveComplete');
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
