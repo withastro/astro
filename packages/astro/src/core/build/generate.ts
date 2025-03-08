@@ -27,7 +27,7 @@ import type {
 	SSRError,
 	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
-import type { SSRManifest, SSRManifestI18n } from '../app/types.js';
+import type { SSRActions, SSRManifest, SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
@@ -63,11 +63,16 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		const middleware: MiddlewareHandler = internals.middlewareEntryPoint
 			? await import(internals.middlewareEntryPoint.toString()).then((mod) => mod.onRequest)
 			: NOOP_MIDDLEWARE_FN;
+
+		const actions: SSRActions = internals.astroActionsEntryPoint
+			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
+			: { server: {} };
 		manifest = createBuildManifest(
 			options.settings,
 			internals,
 			renderers.renderers as SSRLoadedRenderer[],
 			middleware,
+			actions,
 			options.key,
 		);
 	}
@@ -360,7 +365,7 @@ async function getPathsForRoute(
 				// NOTE: The same URL may match multiple routes in the manifest.
 				// Routing priority needs to be verified here for any duplicate
 				// paths to ensure routing priority rules are enforced in the final build.
-				const matchedRoute = matchRoute(staticPath, options.routesList);
+				const matchedRoute = matchRoute(decodeURI(staticPath), options.routesList);
 				return matchedRoute === route;
 			});
 
@@ -451,8 +456,7 @@ function getUrlForPath(
 			removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
 		buildPathname = joinPaths(base, buildPathRelative);
 	}
-	const url = new URL(buildPathname, origin);
-	return url;
+	return new URL(buildPathname, origin);
 }
 
 interface GeneratePathOptions {
@@ -599,6 +603,7 @@ function createBuildManifest(
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[],
 	middleware: MiddlewareHandler,
+	actions: SSRActions,
 	key: Promise<CryptoKey>,
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
@@ -641,6 +646,7 @@ function createBuildManifest(
 				onRequest: middleware,
 			};
 		},
+		actions,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,

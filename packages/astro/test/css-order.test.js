@@ -90,7 +90,7 @@ describe('CSS production ordering', () => {
 			);
 
 			assert.ok(content.length, 3, 'there are 3 stylesheets');
-			const [, sharedStyles, pageStyles] = content;
+			const [, pageStyles, sharedStyles] = content;
 
 			assert.ok(/red/.exec(sharedStyles.css));
 			assert.ok(/#00f/.exec(pageStyles.css));

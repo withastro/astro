@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -32,6 +32,7 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/prism": "workspace:*",
     "github-slugger": "^2.0.0",
     "hast-util-from-html": "^2.0.3",
@@ -41,7 +42,7 @@
     "mdast-util-definitions": "^6.0.0",
     "rehype-raw": "^7.0.0",
     "rehype-stringify": "^10.0.1",
-    "remark-gfm": "^4.0.0",
+    "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.1",
     "remark-smartypants": "^3.0.2",

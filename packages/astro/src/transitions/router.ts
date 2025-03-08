@@ -1,5 +1,6 @@
 import type { TransitionBeforePreparationEvent } from './events.js';
 import { TRANSITION_AFTER_SWAP, doPreparation, doSwap } from './events.js';
+import { detectScriptExecuted } from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
 
 type State = {
@@ -398,7 +399,9 @@ async function transition(
 			// Note: getNamedItem can return null in real life, even if TypeScript doesn't think so, hence
 			// the ?.
 			init.body =
-				form?.attributes.getNamedItem('enctype')?.value === 'application/x-www-form-urlencoded'
+				from !== undefined &&
+				Reflect.get(HTMLFormElement.prototype, 'attributes', form).getNamedItem('enctype')
+					?.value === 'application/x-www-form-urlencoded'
 					? new URLSearchParams(preparationEvent.formData as any)
 					: preparationEvent.formData;
 		}
@@ -505,6 +508,7 @@ async function transition(
 		//
 		// "finished" resolves after all animations are done.
 
+		// @ts-expect-error the internal type `types` isn't provided and not even documented on MDN
 		currentTransition.viewTransition = {
 			updateCallbackDone: updateDone, // this is about correct
 			ready: updateDone, // good enough
@@ -644,7 +648,7 @@ if (inBrowser) {
 		}
 	}
 	for (const script of document.getElementsByTagName('script')) {
-		script.dataset.astroExec = '';
+		detectScriptExecuted(script);
 	}
 }
 

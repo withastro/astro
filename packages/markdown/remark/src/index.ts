@@ -1,4 +1,9 @@
-import type { AstroMarkdownOptions, MarkdownProcessor, SyntaxHighlightConfig } from './types.js';
+import type {
+	AstroMarkdownOptions,
+	AstroMarkdownProcessorOptions,
+	MarkdownProcessor,
+  SyntaxHighlightConfig,
+} from './types.js';
 
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
@@ -64,7 +69,7 @@ const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
  * Create a markdown preprocessor to render multiple markdown files
  */
 export async function createMarkdownProcessor(
-	opts?: AstroMarkdownOptions,
+	opts?: AstroMarkdownProcessorOptions,
 ): Promise<MarkdownProcessor> {
 	const {
 		syntaxHighlight = markdownConfigDefaults.syntaxHighlight,
@@ -98,7 +103,7 @@ export async function createMarkdownProcessor(
 
 	if (!isPerformanceBenchmark) {
 		// Apply later in case user plugins resolve relative image paths
-		parser.use(remarkCollectImages);
+		parser.use(remarkCollectImages, opts?.image);
 	}
 
 	// Remark -> Rehype
@@ -127,7 +132,7 @@ export async function createMarkdownProcessor(
 	}
 
 	// Images / Assets support
-	parser.use(rehypeImages());
+	parser.use(rehypeImages);
 
 	// Headings
 	if (!isPerformanceBenchmark) {
@@ -161,7 +166,8 @@ export async function createMarkdownProcessor(
 				code: String(result.value),
 				metadata: {
 					headings: result.data.astro?.headings ?? [],
-					imagePaths: result.data.astro?.imagePaths ?? [],
+					localImagePaths: result.data.astro?.localImagePaths ?? [],
+					remoteImagePaths: result.data.astro?.remoteImagePaths ?? [],
 					frontmatter: result.data.astro?.frontmatter ?? {},
 				},
 			};
