@@ -2,7 +2,7 @@ import type {
 	AstroMarkdownOptions,
 	AstroMarkdownProcessorOptions,
 	MarkdownProcessor,
-  SyntaxHighlightConfig,
+	SyntaxHighlightConfig,
 } from './types.js';
 
 import { loadPlugins } from './load-plugins.js';

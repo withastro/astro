@@ -6,6 +6,7 @@ import type {
 	RemarkRehype,
 	ShikiConfig,
 	SyntaxHighlightConfig,
+	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
@@ -1287,8 +1288,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 * @docs
 		 * @name markdown.syntaxHighlight
-		 * @type {SyntaxHighlightConfig | SyntaxHighlightConfig['type'] | false}
-		 * @default `shiki`
+		 * @type {SyntaxHighlightConfig | SyntaxHighlightConfigType | false}
+		 * @default `{ type: 'shiki', excludeLangs: ['math'] }`
 		 * @description
 		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
 		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
@@ -1315,7 +1316,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *   }
 		 * }
 		 */
-		syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfig['type'] | false;
+		syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfigType | false;
 
 		/**
 		 * @docs
