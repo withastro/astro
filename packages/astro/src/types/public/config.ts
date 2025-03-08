@@ -1267,14 +1267,14 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 * @docs
 		 * @name markdown.syntaxHighlight
-		 * @type {'shiki' | 'prism' | false}
+		 * @type {SyntaxHighlightConfig | SyntaxHighlightConfig['type'] | false}
 		 * @default `shiki`
 		 * @description
 		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
 		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
 		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
-		 *
+
 		 * ```js
 		 * {
 		 *   markdown: {
@@ -1283,6 +1283,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *   }
 		 * }
 		 * ```
+		 *
+		 * In addition to the above, you can also pass a custom configuration object to the syntax highlighter.
+		 * - `type` - the type of syntax highlighter to use, see above.
+		 * - `excludeLangs` - an array of languages to exclude from syntax highlighting.
+		 *
+		 * ```js
+		 * {
+		 *   markdown: {
+		 *     syntaxHighlight: { type: 'shiki', excludeLangs: ['math', 'mermaid'] },
+		 *   }
+		 * }
 		 */
 		syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfig['type'] | false;
 
