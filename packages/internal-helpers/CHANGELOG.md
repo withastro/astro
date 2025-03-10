@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.6.1
+
+### Patch Changes
+
+- [#13355](https://github.com/withastro/astro/pull/13355) [`042d1de`](https://github.com/withastro/astro/commit/042d1de901fd9aa66157ce078b28bcd9786e1373) Thanks [@ematipico](https://github.com/ematipico)! - Adds documentation to the assets utilities for remote service images.
+
 ## 0.6.0
 
 ### Minor Changes
