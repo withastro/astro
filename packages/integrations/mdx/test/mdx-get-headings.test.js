@@ -43,6 +43,8 @@ describe('MDX getHeadings', () => {
 				{ depth: 3, slug: 'subsection-1', text: 'Subsection 1' },
 				{ depth: 3, slug: 'subsection-2', text: 'Subsection 2' },
 				{ depth: 2, slug: 'section-2', text: 'Section 2' },
+				{ depth: 2, slug: 'picture', text: '<Picture />' },
+				{ depth: 3, slug: '-sacrebleu-', text: '« Sacrebleu ! »' },
 			]),
 		);
 	});
@@ -114,6 +116,8 @@ describe('MDX heading IDs can be customized by user plugins', () => {
 				{ depth: 3, slug: '2', text: 'Subsection 1' },
 				{ depth: 3, slug: '3', text: 'Subsection 2' },
 				{ depth: 2, slug: '4', text: 'Section 2' },
+				{ depth: 2, slug: '5', text: '<Picture />' },
+				{ depth: 3, slug: '6', text: '« Sacrebleu ! »' },
 			]),
 		);
 	});
@@ -196,5 +200,52 @@ describe('MDX headings with frontmatter', () => {
 				{ depth: 6, slug: 'frontmatterunknown', text: 'frontmatter.unknown' },
 			]),
 		);
+	});
+});
+
+describe('experimental.headingIdCompat', () => {
+	describe('MDX getHeadings', () => {
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: new URL('./fixtures/mdx-get-headings/', import.meta.url),
+				integrations: [mdx()],
+				experimental: { headingIdCompat: true },
+			});
+
+			await fixture.build();
+		});
+
+		it('adds anchor IDs to headings', async () => {
+			const html = await fixture.readFile('/test/index.html');
+			const { document } = parseHTML(html);
+
+			const h2Ids = document.querySelectorAll('h2').map((el) => el?.id);
+			const h3Ids = document.querySelectorAll('h3').map((el) => el?.id);
+			assert.equal(document.querySelector('h1').id, 'heading-test');
+			assert.equal(h2Ids.includes('section-1'), true);
+			assert.equal(h2Ids.includes('section-2'), true);
+			assert.equal(h2Ids.includes('picture-'), true);
+			assert.equal(h3Ids.includes('subsection-1'), true);
+			assert.equal(h3Ids.includes('subsection-2'), true);
+			assert.equal(h3Ids.includes('-sacrebleu--'), true);
+		});
+
+		it('generates correct getHeadings() export', async () => {
+			const { headingsByPage } = JSON.parse(await fixture.readFile('/pages.json'));
+			assert.equal(
+				JSON.stringify(headingsByPage['./test.mdx']),
+				JSON.stringify([
+					{ depth: 1, slug: 'heading-test', text: 'Heading test' },
+					{ depth: 2, slug: 'section-1', text: 'Section 1' },
+					{ depth: 3, slug: 'subsection-1', text: 'Subsection 1' },
+					{ depth: 3, slug: 'subsection-2', text: 'Subsection 2' },
+					{ depth: 2, slug: 'section-2', text: 'Section 2' },
+					{ depth: 2, slug: 'picture-', text: '<Picture />' },
+					{ depth: 3, slug: '-sacrebleu--', text: '« Sacrebleu ! »' },
+				]),
+			);
+		});
 	});
 });

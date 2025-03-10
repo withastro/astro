@@ -7,6 +7,10 @@ import Slugger from 'github-slugger';
 import { getTextContent } from './runtime.js';
 import { MarkdocError } from './utils.js';
 
+const sluggerContext = {
+	experimentalHeadingIdCompat: false,
+};
+
 function getSlug(
 	attributes: Record<string, any>,
 	children: RenderableTreeNode[],
@@ -18,7 +22,9 @@ function getSlug(
 	const textContent = attributes.content ?? getTextContent(children);
 	let slug = headingSlugger.slug(textContent);
 
-	if (slug.endsWith('-')) slug = slug.slice(0, -1);
+	if (!sluggerContext.experimentalHeadingIdCompat) {
+		if (slug.endsWith('-')) slug = slug.slice(0, -1);
+	}
 	return slug;
 }
 
@@ -64,7 +70,8 @@ export const heading: Schema = {
 };
 
 // Called internally to ensure `ctx` is generated per-file, instead of per-build.
-export function setupHeadingConfig(): HeadingIdConfig {
+export function setupHeadingConfig(experimentalHeadingIdCompat: boolean): HeadingIdConfig {
+	sluggerContext.experimentalHeadingIdCompat = experimentalHeadingIdCompat;
 	const headingSlugger = new Slugger();
 	return {
 		ctx: {

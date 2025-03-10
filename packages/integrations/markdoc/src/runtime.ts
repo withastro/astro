@@ -19,8 +19,9 @@ import type { MarkdocIntegrationOptions } from './options.js';
 export async function setupConfig(
 	userConfig: AstroMarkdocConfig = {},
 	options: MarkdocIntegrationOptions | undefined,
+	experimentalHeadingIdCompat: boolean,
 ): Promise<MergedConfig> {
-	let defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
+	let defaultConfig: AstroMarkdocConfig = setupHeadingConfig(experimentalHeadingIdCompat);
 
 	if (userConfig.extends) {
 		for (let extension of userConfig.extends) {
@@ -45,8 +46,9 @@ export async function setupConfig(
 export function setupConfigSync(
 	userConfig: AstroMarkdocConfig = {},
 	options: MarkdocIntegrationOptions | undefined,
+	experimentalHeadingIdCompat: boolean,
 ): MergedConfig {
-	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
+	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig(experimentalHeadingIdCompat);
 
 	let merged = mergeConfig(defaultConfig, userConfig);
 
@@ -168,12 +170,13 @@ export function createGetHeadings(
 	stringifiedAst: string,
 	userConfig: AstroMarkdocConfig,
 	options: MarkdocIntegrationOptions | undefined,
+	experimentalHeadingIdCompat: boolean,
 ) {
 	return function getHeadings() {
 		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
 			TODO: propose new `render()` API to allow Markdoc variable passing to `render()` itself,
 			instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
-		const config = setupConfigSync(userConfig, options);
+		const config = setupConfigSync(userConfig, options, experimentalHeadingIdCompat);
 		const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 		const content = Markdoc.transform(ast as Node, config as ConfigType);
 		let collectedHeadings: MarkdownHeading[] = [];
@@ -189,12 +192,13 @@ export function createContentComponent(
 	options: MarkdocIntegrationOptions | undefined,
 	tagComponentMap: Record<string, AstroInstance['default']>,
 	nodeComponentMap: Record<NodeType, AstroInstance['default']>,
+	experimentalHeadingIdCompat: boolean,
 ) {
 	return createComponent({
 		async factory(result: any, props: Record<string, any>) {
 			const withVariables = mergeConfig(userConfig, { variables: props });
 			const config = resolveComponentImports(
-				await setupConfig(withVariables, options),
+				await setupConfig(withVariables, options, experimentalHeadingIdCompat),
 				tagComponentMap,
 				nodeComponentMap,
 			);

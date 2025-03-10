@@ -9,7 +9,9 @@ import type { MarkdownHeading, RehypePlugin } from './types.js';
 const rawNodeTypes = new Set(['text', 'raw', 'mdxTextExpression']);
 const codeTagNames = new Set(['code', 'pre']);
 
-export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
+export function rehypeHeadingIds({
+	experimentalHeadingIdCompat,
+}: { experimentalHeadingIdCompat: boolean }): ReturnType<RehypePlugin> {
 	return function (tree, file) {
 		const headings: MarkdownHeading[] = [];
 		const frontmatter = file.data.astro?.frontmatter;
@@ -59,7 +61,9 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 			if (typeof node.properties.id !== 'string') {
 				let slug = slugger.slug(text);
 
-				if (slug.endsWith('-')) slug = slug.slice(0, -1);
+				if (!experimentalHeadingIdCompat) {
+					if (slug.endsWith('-')) slug = slug.slice(0, -1);
+				}
 
 				node.properties.id = slug;
 			}
