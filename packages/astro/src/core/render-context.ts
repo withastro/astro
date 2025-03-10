@@ -349,6 +349,7 @@ export class RenderContext {
 			cookies,
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
+			isRedirect: this.routeData.type === "redirect",
 			get clientAddress() {
 				return renderContext.getClientAddress();
 			},
@@ -537,6 +538,7 @@ export class RenderContext {
 			glob: astroStaticPartial.glob,
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
+			isRedirect: this.routeData.type === "redirect",
 			cookies,
 			session,
 			get clientAddress() {
