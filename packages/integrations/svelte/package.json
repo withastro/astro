@@ -31,7 +31,8 @@
     "dist",
     "client.svelte.js",
     "server.js",
-    "server.d.ts"
+    "server.d.ts",
+    "context.js"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
@@ -46,7 +47,7 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^5.21.0"
+    "svelte": "^5.22.1"
   },
   "peerDependencies": {
     "astro": "^5.0.0",

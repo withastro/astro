@@ -63,9 +63,9 @@ describe('CSS Bundling', function () {
 			}
 		});
 
-		it('there are 4 css files', async () => {
+		it('there are 5 css files', async () => {
 			const dir = await fixture.readdir('/_astro');
-			assert.equal(dir.length, 4);
+			assert.equal(dir.length, 5);
 		});
 
 		it('CSS includes hashes', async () => {
@@ -96,9 +96,9 @@ describe('CSS Bundling', function () {
 			await fixture.build({ mode: 'production' });
 		});
 
-		it('there are 4 css files', async () => {
+		it('there are 5 css files', async () => {
 			const dir = await fixture.readdir('/assets');
-			assert.equal(dir.length, 4);
+			assert.equal(dir.length, 5);
 		});
 
 		it('CSS does not include hashes', async () => {
