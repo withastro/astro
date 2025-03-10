@@ -57,6 +57,7 @@ it('loadFonts()', async () => {
 				// we do weird typings internally for "reasons" (provider is typed as "local" | "custom") but this is valid
 				provider: /** @type {any} */ ('google'),
 				fallbacks: ['sans-serif'],
+				as: 'Custom'
 			},
 		],
 		storage,
@@ -93,7 +94,7 @@ it('loadFonts()', async () => {
 	assert.equal(
 		resolvedMap
 			.get('Roboto')
-			.css.includes(':root { --astro-font-Roboto: Roboto, "Roboto fallback: Arial", sans-serif; }'),
+			.css.includes(':root { --astro-font-Custom: Custom, "Custom fallback: Arial", sans-serif; }'),
 		true,
 	);
 });
