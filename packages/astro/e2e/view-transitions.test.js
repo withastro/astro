@@ -1619,4 +1619,21 @@ test.describe('View Transitions', () => {
 		await expect(page).toHaveTitle('Page 1');
 		expect(lines.join('')).toBe('312233');
 	});
+
+	test('page-load event waits for inlined module scripts', async ({ page, astro }) => {
+		let lines = [];
+		page.on('console', (msg) => {
+			const txt = msg.text();
+			txt.startsWith('[test] ') && lines.push(txt.substring(7));
+		});
+
+		await page.goto(astro.resolveUrl('/one'));
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+		await page.click('#click-inline-module');
+		await page.waitForURL('**/inline-module');
+		await page.waitForLoadState('networkidle');
+		expect(lines.join(', '), 'should raise page-load after inline module').toBe(
+			'inline module, page-load',
+		);
+	});
 });
