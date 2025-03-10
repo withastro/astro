@@ -22,11 +22,13 @@ export function isRemoteImage(src: ImageMetadata | string): src is string {
 
 /**
  * Resolves the source of an image transformation by handling asynchronous or synchronous inputs.
- * 
- * @param {UnresolvedImageTransform['src']} src - The source of the image transformation. 
+ *
+ * @param {UnresolvedImageTransform['src']} src - The source of the image transformation.
  * @return {Promise<string | ImageMetadata>} A promise that resolves to the image source. It returns either the default export of the resolved source or the resolved source itself if the default export doesn't exist.
  */
-export async function resolveSrc(src: UnresolvedImageTransform['src']): Promise<string | ImageMetadata> {
+export async function resolveSrc(
+	src: UnresolvedImageTransform['src'],
+): Promise<string | ImageMetadata> {
 	if (typeof src === 'object' && 'then' in src) {
 		const resource = await src;
 		return resource.default ?? resource;
