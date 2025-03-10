@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 7.0.6
+
+### Patch Changes
+
+- [#13339](https://github.com/withastro/astro/pull/13339) [`a05e6ab`](https://github.com/withastro/astro/commit/a05e6ab7203e4f0eea6333699b6b7aec9f01752a) Thanks [@Hugos68](https://github.com/Hugos68)! - Fixes a case where `$props.id()` would not be unique across multiple islands
+
 ## 7.0.5
 
 ### Patch Changes
