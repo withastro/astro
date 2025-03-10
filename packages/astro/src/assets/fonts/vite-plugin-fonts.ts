@@ -113,6 +113,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			},
 			generateFontFace: fontaine.generateFontFace,
 			log: (message) => logger.info('assets', message),
+			// TODO: warn if characters are stripped out OR show the list of all generated css variables
 			generateCSSVariableName: (name) => kebab(name),
 		});
 	}
