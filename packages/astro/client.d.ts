@@ -192,53 +192,15 @@ declare module 'astro:middleware' {
 declare module 'astro:config/server' {
 	// biome-ignore format: bug
 	type ServerConfigSerialized = import('./dist/types/public/manifest.js').ServerDeserializedManifest;
-	const { 
-		base, 
-		compressHTML, 
-		build, 
-		i18n,
-		outDir,
-		publicDir,
-		cacheDir, 
-		srcDir, 
-		trailingSlash, 
-		site, 
-		root
-	}: ServerConfigSerialized;
-	export {
-		base, 
-		compressHTML, 
-		build, 
-		i18n, 
-		outDir, 
-		publicDir, 
-		cacheDir, 
-		srcDir, 
-		trailingSlash, 
-		site, 
-		root
-	};
+	const manifest: ServerConfigSerialized;
+	export = manifest;
 }
 
 declare module 'astro:config/client' {
 	// biome-ignore format: bug
 	type ClientConfigSerialized = import('./dist/types/public/manifest.js').ClientDeserializedManifest;
-	const {
-		base,
-		compressHTML,
-		build,
-		i18n,
-		site,
-		trailingSlash
-	}: ClientConfigSerialized;
-	export {
-		base,
-		compressHTML,
-		build,
-		i18n,
-		site,
-		trailingSlash		
-	};
+	const manifest: ClientConfigSerialized;
+	export = manifest;
 }
 
 declare module 'astro:components' {
