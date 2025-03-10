@@ -193,14 +193,14 @@ declare module 'astro:config/server' {
 	// biome-ignore format: bug
 	type ServerConfigSerialized = import('./dist/types/public/manifest.js').ServerDeserializedManifest;
 	const manifest: ServerConfigSerialized;
-	export default manifest;
+	export = manifest;
 }
 
 declare module 'astro:config/client' {
 	// biome-ignore format: bug
 	type ClientConfigSerialized = import('./dist/types/public/manifest.js').ClientDeserializedManifest;
 	const manifest: ClientConfigSerialized;
-	export default manifest;
+	export = manifest;
 }
 
 declare module 'astro:components' {
