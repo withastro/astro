@@ -1,7 +1,7 @@
 import { pathToFileURL } from 'node:url';
 import { prompt } from '@astrojs/cli-kit';
 import arg from 'arg';
-import detectPackageManager from 'preferred-pm';
+import { type DetectResult, detect } from 'package-manager-detector';
 
 export interface Context {
 	help: boolean;
@@ -11,7 +11,7 @@ export interface Context {
 	cwd: URL;
 	stdin?: typeof process.stdin;
 	stdout?: typeof process.stdout;
-	packageManager: string;
+	packageManager: DetectResult;
 	packages: PackageInfo[];
 	exit(code: number): never;
 }
@@ -38,7 +38,11 @@ export async function getContext(argv: string[]): Promise<Context> {
 		{ argv, permissive: true },
 	);
 
-	const packageManager = (await detectPackageManager(process.cwd()))?.name ?? 'npm';
+	const packageManager = (await detect({
+		// Include the `install-metadata` strategy to have the package manager that's
+		// used for installation take precedence
+		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
+	})) ?? { agent: 'npm', name: 'npm' };
 	const {
 		_: [version = 'latest'] = [],
 		'--help': help = false,
