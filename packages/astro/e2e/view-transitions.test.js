@@ -1636,8 +1636,8 @@ test.describe('View Transitions', () => {
 			'head script, body script',
 		);
 	});
-  
-  test('page-load event waits for inlined module scripts', async ({ page, astro }) => {
+
+	test('page-load event waits for inlined module scripts', async ({ page, astro }) => {
 		let lines = [];
 		page.on('console', (msg) => {
 			const txt = msg.text();
@@ -1651,5 +1651,6 @@ test.describe('View Transitions', () => {
 		await page.waitForLoadState('networkidle');
 		expect(lines.join(', '), 'should raise page-load after inline module').toBe(
 			'inline module, page-load',
-	);
+		);
+	});
 });
