@@ -13,10 +13,11 @@ export const nodeLogDestination: LogWritable<LogMessage> = {
 			dest = process.stdout;
 		}
 		let trailingLine = event.newLine ? '\n' : '';
+		const prefix = event.overwrite ? '\r' : '';
 		if (event.label === 'SKIP_FORMAT') {
-			dest.write(event.message + trailingLine);
+			dest.write(prefix + event.message + trailingLine);
 		} else {
-			dest.write(getEventPrefix(event) + ' ' + event.message + trailingLine);
+			dest.write(prefix + getEventPrefix(event) + ' ' + event.message + trailingLine);
 		}
 		return true;
 	},

@@ -9,6 +9,7 @@ import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/p
 import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
+import { getEventPrefix } from '../../core/logger/core.js';
 
 export interface GenerateIdOptions {
 	/** The path to the entry file, relative to the base directory. */
@@ -275,7 +276,9 @@ export function glob(globOptions: GlobOptions): Loader {
 				const fileUrl = new URL(file, baseDir);
 				return configFiles.has(fileUrl.href);
 			}
-
+			logger.info(`Loading files from ${green(relativePath)}...`);
+			let loaded = 0;
+			const len = String(files.length).length;
 			await Promise.all(
 				files.map((entry) => {
 					if (isConfigFile(entry)) {
@@ -288,9 +291,11 @@ export function glob(globOptions: GlobOptions): Loader {
 					return limit(async () => {
 						const entryType = configForFile(entry);
 						await syncData(entry, baseDir, entryType);
+						logger.info(`Loaded ${green(++loaded).padStart(len)}/${green(files.length)} files`, false, true);
 					});
 				}),
 			);
+			logger.info(`Loaded ${green(++loaded).padStart(len)}/${green(files.length)} files`, true, true)
 
 			const skipCount = skippedFiles.length;
 

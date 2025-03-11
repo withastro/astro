@@ -64,6 +64,7 @@ export interface LogMessage {
 	level: LoggerLevel;
 	message: string;
 	newLine: boolean;
+	overwrite?: boolean;
 }
 
 export const levels: Record<LoggerLevel, number> = {
@@ -81,6 +82,7 @@ export function log(
 	label: string | null,
 	message: string,
 	newLine = true,
+	overwrite = false,
 ) {
 	const logLevel = opts.level;
 	const dest = opts.dest;
@@ -89,6 +91,7 @@ export function log(
 		level,
 		message,
 		newLine,
+		overwrite,
 	};
 
 	// test if this level is enabled or not
@@ -104,18 +107,18 @@ export function isLogLevelEnabled(configuredLogLevel: LoggerLevel, level: Logger
 }
 
 /** Emit a user-facing message. Useful for UI and other console messages. */
-export function info(opts: LogOptions, label: string | null, message: string, newLine = true) {
-	return log(opts, 'info', label, message, newLine);
+export function info(opts: LogOptions, label: string | null, message: string, newLine = true, overwrite = false) {
+	return log(opts, 'info', label, message, newLine, overwrite);
 }
 
 /** Emit a warning message. Useful for high-priority messages that aren't necessarily errors. */
-export function warn(opts: LogOptions, label: string | null, message: string, newLine = true) {
-	return log(opts, 'warn', label, message, newLine);
+export function warn(opts: LogOptions, label: string | null, message: string, newLine = true, overwrite = false) {
+	return log(opts, 'warn', label, message, newLine, overwrite);
 }
 
-/** Emit a error message, Useful when Astro can't recover from some error. */
-export function error(opts: LogOptions, label: string | null, message: string, newLine = true) {
-	return log(opts, 'error', label, message, newLine);
+/** Emit an error message. Useful when Astro can't recover from some error. */
+export function error(opts: LogOptions, label: string | null, message: string, newLine = true, overwrite = false) {
+	return log(opts, 'error', label, message, newLine, overwrite);
 }
 
 export function debug(...args: any[]) {
@@ -167,14 +170,14 @@ export class Logger {
 		this.options = options;
 	}
 
-	info(label: LoggerLabel | null, message: string, newLine = true) {
-		info(this.options, label, message, newLine);
+	info(label: LoggerLabel | null, message: string, newLine = true, overwrite = false) {
+		info(this.options, label, message, newLine, overwrite);
 	}
-	warn(label: LoggerLabel | null, message: string, newLine = true) {
-		warn(this.options, label, message, newLine);
+	warn(label: LoggerLabel | null, message: string, newLine = true, overwrite = false) {
+		warn(this.options, label, message, newLine, overwrite);
 	}
-	error(label: LoggerLabel | null, message: string, newLine = true) {
-		error(this.options, label, message, newLine);
+	error(label: LoggerLabel | null, message: string, newLine = true, overwrite = false) {
+		error(this.options, label, message, newLine, overwrite);
 	}
 	debug(label: LoggerLabel, ...messages: any[]) {
 		debug(label, ...messages);
@@ -205,16 +208,16 @@ export class AstroIntegrationLogger {
 		return new AstroIntegrationLogger(this.options, label);
 	}
 
-	info(message: string) {
-		info(this.options, this.label, message);
+	info(message: string, newLine = true, overwrite = false) {
+		info(this.options, this.label, message, newLine, overwrite);
 	}
-	warn(message: string) {
-		warn(this.options, this.label, message);
+	warn(message: string, newLine = true, overwrite = false) {
+		warn(this.options, this.label, message, newLine, overwrite);
 	}
-	error(message: string) {
-		error(this.options, this.label, message);
+	error(message: string, newLine = true, overwrite = false) {
+		error(this.options, this.label, message, newLine, overwrite);
 	}
-	debug(message: string) {
-		debug(this.label, message);
+	debug(message: string, newLine = true, overwrite = false) {
+		debug(this.label, message, newLine, overwrite);
 	}
 }
