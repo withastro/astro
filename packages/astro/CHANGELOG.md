@@ -1,5 +1,37 @@
 # astro
 
+## 5.4.3
+
+### Patch Changes
+
+- [#13381](https://github.com/withastro/astro/pull/13381) [`249d52a`](https://github.com/withastro/astro/commit/249d52a3ff17f792c451ea0e42b97a209667290c) Thanks [@martrapp](https://github.com/martrapp)! - Adds the `types` property to the viewTransition object when the ClientRouter simulates parts of the View Transition API on browsers w/o native support.
+
+- [#13367](https://github.com/withastro/astro/pull/13367) [`3ce4ad9`](https://github.com/withastro/astro/commit/3ce4ad965f576f2f4c53b5f2b876d449ed60c023) Thanks [@ematipico](https://github.com/ematipico)! - Adds documentation to various utility functions used for remote image services
+
+- [#13347](https://github.com/withastro/astro/pull/13347) [`d83f92a`](https://github.com/withastro/astro/commit/d83f92a20403ffc8d088cfd13d2806e0f4f1a11e) Thanks [@bluwy](https://github.com/bluwy)! - Updates internal CSS chunking behavior for Astro components' scoped styles. This may result in slightly more CSS chunks created, but should allow the scoped styles to only be included on pages that use them.
+
+- [#13388](https://github.com/withastro/astro/pull/13388) [`afadc70`](https://github.com/withastro/astro/commit/afadc702d7d928e7b650d3c071cca3d21e14333f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where `astro:config/server` and `astro:config/client` had incorrect types.
+
+- [#13355](https://github.com/withastro/astro/pull/13355) [`042d1de`](https://github.com/withastro/astro/commit/042d1de901fd9aa66157ce078b28bcd9786e1373) Thanks [@ematipico](https://github.com/ematipico)! - Adds documentation to the assets utilities for remote service images.
+
+- [#13395](https://github.com/withastro/astro/pull/13395) [`6d1c63f`](https://github.com/withastro/astro/commit/6d1c63fa46a624b1c4981d4324ebabf37cc2b958) Thanks [@bluwy](https://github.com/bluwy)! - Uses `package-manager-detector` to detect the package manager used in the project
+
+- [#13363](https://github.com/withastro/astro/pull/13363) [`a793636`](https://github.com/withastro/astro/commit/a793636928d0014a7faa4431afdfb9404e9ea819) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the internal function `makeSvgComponent` was incorrectly exposed as a public API.
+
+- Updated dependencies [[`042d1de`](https://github.com/withastro/astro/commit/042d1de901fd9aa66157ce078b28bcd9786e1373)]:
+  - @astrojs/internal-helpers@0.6.1
+  - @astrojs/markdown-remark@6.2.1
+
+## 5.4.2
+
+### Patch Changes
+
+- [#12985](https://github.com/withastro/astro/pull/12985) [`84e94cc`](https://github.com/withastro/astro/commit/84e94cc85cc0f4ea9b5dba2009dc89e83a798f59) Thanks [@matthewp](https://github.com/matthewp)! - Prevent re-executing scripts in client router
+
+- [#13349](https://github.com/withastro/astro/pull/13349) [`50e2e0b`](https://github.com/withastro/astro/commit/50e2e0b3749d6dba3d301ea1a0a3a33a273e7a81) Thanks [@ascorbic](https://github.com/ascorbic)! - Correctly escapes attributes in Markdown images
+
+- [#13262](https://github.com/withastro/astro/pull/13262) [`0025df3`](https://github.com/withastro/astro/commit/0025df37af4dcd390d41c9b175fbdb3edd87edf7) Thanks [@ematipico](https://github.com/ematipico)! - Refactor Astro Actions to not use a middleware. Doing so should avoid unexpected issues when using the Astro middleware at the edge.
+
 ## 5.4.1
 
 ### Patch Changes

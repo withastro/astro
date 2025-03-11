@@ -1,5 +1,6 @@
 import { actions, isInputError } from 'astro:actions';
 import { useState } from 'react';
+import {createLoggerFromFlags} from "../../../../../src/cli/flags.ts";
 
 export function PostComment({
 	postId,

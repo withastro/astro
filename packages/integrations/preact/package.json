@@ -41,12 +41,12 @@
     "@preact/signals": "^2.0.1",
     "babel-plugin-transform-hook-names": "^1.0.2",
     "preact-render-to-string": "^6.5.13",
-    "vite": "^6.2.0"
+    "vite": "^6.2.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "preact": "^10.25.4"
+    "preact": "^10.26.4"
   },
   "peerDependencies": {
     "preact": "^10.6.5"

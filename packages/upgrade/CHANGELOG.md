@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.5.1
+
+### Patch Changes
+
+- [#13395](https://github.com/withastro/astro/pull/13395) [`6d1c63f`](https://github.com/withastro/astro/commit/6d1c63fa46a624b1c4981d4324ebabf37cc2b958) Thanks [@bluwy](https://github.com/bluwy)! - Uses `package-manager-detector` to detect the package manager used in the project
+
 ## 0.5.0
 
 ### Minor Changes

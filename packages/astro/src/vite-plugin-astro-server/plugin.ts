@@ -43,7 +43,7 @@ export default function createVitePluginAstroServer({
 }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
-		configureServer(viteServer) {
+		async configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const pipeline = DevPipeline.create(routesList, {
 				loader,

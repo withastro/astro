@@ -1808,6 +1808,18 @@ export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } sa
 
 /**
  * @docs
+ * @description
+ * Thrown in development mode when the actions file can't be loaded.
+ *
+ */
+export const ActionsCantBeLoaded = {
+	name: 'ActionsCantBeLoaded',
+	title: "Can't load the Astro actions.",
+	message: 'An unknown error was thrown while loading the Astro actions file.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name Session Errors
  */
