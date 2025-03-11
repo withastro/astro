@@ -674,9 +674,9 @@ async function tryToInstallIntegrations({
 	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', inheritedFlags);
 	if (!installCommand) return UpdateResult.none;
 
-	const dependencies = await convertIntegrationsToInstallSpecifiers(integrations);
+	const installSpecifiers = await convertIntegrationsToInstallSpecifiers(integrations);
 
-	const coloredOutput = `${bold(installCommand.command)} ${installCommand.args.join(' ')} ${cyan(dependencies.join(' '))}`;
+	const coloredOutput = `${bold(installCommand.command)} ${installCommand.args.join(' ')} ${cyan(installSpecifiers.join(' '))}`;
 	const message = `\n${boxen(coloredOutput, {
 		margin: 0.5,
 		padding: 0.5,
@@ -692,7 +692,7 @@ async function tryToInstallIntegrations({
 	if (await askToContinue({ flags })) {
 		const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
 		try {
-			await exec(installCommand.command, [...installCommand.args, ...dependencies], {
+			await exec(installCommand.command, [...installCommand.args, ...installSpecifiers], {
 				nodeOptions: {
 					cwd,
 					// reset NODE_ENV to ensure install command run in dev mode
