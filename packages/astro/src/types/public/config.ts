@@ -264,7 +264,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * When redirects occur in production for GET requests, the redirect will be a 301 (permanent) redirect. For all other request methods, it will be a 308 (permanent, and preserve the request method) redirect.
 	 *
 	 * Trailing slashes on prerendered pages are handled by the hosting platform, and may not respect your chosen configuration.
-	 * See your hosting platform's documentation for more information.
+	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](#redirects) for this use case at this point.
 	 *
 	 * ```js
 	 * {
@@ -297,7 +297,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *    '/news': {
 	 *      status: 302,
 	 *      destination: 'https://example.com/news'
-	 *  	}
+	 *  	},
+	 *    // '/product1/', '/product1' // Note, this is not supported
 	 * 	}
 	 * })
 	 * ```
@@ -321,6 +322,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *     },
 	 *   }
 	 * })
+	 *
+	 * 
 	 * ```
 	 */
 	redirects?: Record<string, RedirectConfig>;
