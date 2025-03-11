@@ -649,6 +649,7 @@ if (inBrowser) {
 	}
 	for (const script of document.getElementsByTagName('script')) {
 		detectScriptExecuted(script);
+		script.dataset.astroExec = '';
 	}
 }
 
