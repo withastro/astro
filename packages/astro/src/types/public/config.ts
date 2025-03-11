@@ -1292,6 +1292,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @default `{ type: 'shiki', excludeLangs: ['math'] }`
 		 * @description
 		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
+	 	 * 
 		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
 		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
@@ -1305,19 +1306,58 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * }
 		 * ```
 		 *
-		 * In addition to the above, you can also pass a custom configuration object to the syntax highlighter.
-		 * - `type` - the type of syntax highlighter to use, see above.
-		 * - `excludeLangs` - an array of languages to exclude from syntax highlighting.
-		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     syntaxHighlight: { type: 'shiki', excludeLangs: ['math', 'mermaid'] },
-		 *   }
-		 * }
+	 	 * For more control over syntax highlighting, you can instead specify a configuration object with the properties listed below.
 		 */
 		syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfigType | false;
 
+		// DO NOT TRUST ANY OF THIS SYNTAX!!! PLEASE FORMAT THIS ALL CAREFULLY
+		 :
+			| {
+					/**
+					 * @docs
+					 * @name markdown.syntaxHighlight.type
+					 * @kind h4
+					 * @type `'shiki' | 'prism' | 'false'`
+					 * @default 
+					 * @version 5.5.0
+					 * @description
+					 *
+					 * The default CSS classes to apply to Markdown code blocks.
+					 * (If no other syntax highlighting configuration is needed, you can instead set `markdown.syntaxHighlight` directly to `shiki`, `prism`, or `false`.)
+					 * 
+					 */
+					type?:
+
+					/**
+					 * @docs
+					 * @name markdown.syntaxHighlight.excludeLangs
+					 * @kind h4
+					 * @type []
+					 * @default ['math']
+					 * @version 5.5.0
+					 * @description
+					 *
+					 * An array of languages to exclude from the default syntax highlighting specified in `markdown.syntaxHighlight.type`.
+					 * This can be useful when using tools that create diagrams from Markdown code blocks, such as Mermaid.js and D2.
+					 *
+					 * // DO WE WANT A FULL EXAMPLE SHOWING MERMAID? COPIED IN CASE, BUT THE SMALLER EXAMPLE WOULD ALSO BE FINE
+					 * ```js title="astro.config.mjs"
+           * import { defineConfig } from 'astro/config';
+           * import rehypeMermaid from 'rehype-mermaid';
+           * 
+           * export default defineConfig({
+           * 	markdown: {
+           * 		syntaxHighlight: {
+           * 			type: 'shiki',
+           * 			excludeLangs: ['mermaid', 'math'],
+           * 		},
+           * 		rehypePlugins: [rehypeMermaid],
+           * 	},
+           * });
+           * ```
+					 * */
+					excludeLangs?: 
+		
 		/**
 		 * @docs
 		 * @name markdown.remarkPlugins
