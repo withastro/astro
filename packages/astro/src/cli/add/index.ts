@@ -6,7 +6,7 @@ import { diffWords } from 'diff';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
 import { type ASTNode, type ProxifiedModule, builders, generateCode, loadFile } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
-import preferredPM from 'preferred-pm';
+import { detect, resolveCommand } from 'package-manager-detector';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
 import yoctoSpinner from 'yocto-spinner';
@@ -213,7 +213,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			// we add an .npmrc to hoist them
 			if (
 				integrations.find((integration) => integration.id === 'lit') &&
-				(await preferredPM(fileURLToPath(root)))?.name === 'pnpm'
+				(await detect({ cwd: fileURLToPath(root) }))?.name === 'pnpm'
 			) {
 				await setupIntegrationConfig({
 					root,
@@ -599,41 +599,6 @@ async function updateAstroConfig({
 	}
 }
 
-interface InstallCommand {
-	pm: string;
-	command: string;
-	flags: string[];
-	dependencies: string[];
-}
-
-async function getInstallIntegrationsCommand({
-	integrations,
-	logger,
-	cwd = process.cwd(),
-}: {
-	integrations: IntegrationInfo[];
-	logger: Logger;
-	cwd?: string;
-}): Promise<InstallCommand | null> {
-	const pm = await preferredPM(cwd);
-	logger.debug('add', `package manager: ${JSON.stringify(pm)}`);
-	if (!pm) return null;
-
-	const dependencies = await convertIntegrationsToInstallSpecifiers(integrations);
-	switch (pm.name) {
-		case 'npm':
-			return { pm: 'npm', command: 'install', flags: [], dependencies };
-		case 'yarn':
-			return { pm: 'yarn', command: 'add', flags: [], dependencies };
-		case 'pnpm':
-			return { pm: 'pnpm', command: 'add', flags: [], dependencies };
-		case 'bun':
-			return { pm: 'bun', command: 'add', flags: [], dependencies };
-		default:
-			return null;
-	}
-}
-
 async function convertIntegrationsToInstallSpecifiers(
 	integrations: IntegrationInfo[],
 ): Promise<string[]> {
@@ -686,7 +651,14 @@ async function tryToInstallIntegrations({
 	flags: Flags;
 	logger: Logger;
 }): Promise<UpdateResult> {
-	const installCommand = await getInstallIntegrationsCommand({ integrations, cwd, logger });
+	const packageManager = await detect({
+		cwd,
+		// Include the `install-metadata` strategy to have the package manager that's
+		// used for installation take precedence
+		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
+	});
+	logger.debug('add', `package manager: "${packageManager?.name}"`);
+	if (!packageManager) return UpdateResult.none;
 
 	const inheritedFlags = Object.entries(flags)
 		.map(([flag]) => {
@@ -699,57 +671,45 @@ async function tryToInstallIntegrations({
 		.filter(Boolean)
 		.flat() as string[];
 
-	if (installCommand === null) {
-		return UpdateResult.none;
-	} else {
-		const coloredOutput = `${bold(installCommand.pm)} ${installCommand.command}${[
-			'',
-			...installCommand.flags,
-			...inheritedFlags,
-		].join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
-		const message = `\n${boxen(coloredOutput, {
-			margin: 0.5,
-			padding: 0.5,
-			borderStyle: 'round',
-		})}\n`;
-		logger.info(
-			'SKIP_FORMAT',
-			`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
-				'If you skip this step, you can always run it yourself later',
-			)}\n${message}`,
-		);
+	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', inheritedFlags);
+	if (!installCommand) return UpdateResult.none;
 
-		if (await askToContinue({ flags })) {
-			const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
-			try {
-				await exec(
-					installCommand.pm,
-					[
-						installCommand.command,
-						...installCommand.flags,
-						...inheritedFlags,
-						...installCommand.dependencies,
-					],
-					{
-						nodeOptions: {
-							cwd,
-							// reset NODE_ENV to ensure install command run in dev mode
-							env: { NODE_ENV: undefined },
-						},
-					},
-				);
-				spinner.success();
-				return UpdateResult.updated;
-			} catch (err: any) {
-				spinner.error();
-				logger.debug('add', 'Error installing dependencies', err);
-				// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
-				console.error('\n', err.stdout || err.message, '\n');
-				return UpdateResult.failure;
-			}
-		} else {
-			return UpdateResult.cancelled;
+	const dependencies = await convertIntegrationsToInstallSpecifiers(integrations);
+
+	const coloredOutput = `${bold(installCommand.command)} ${installCommand.args.join(' ')} ${cyan(dependencies.join(' '))}`;
+	const message = `\n${boxen(coloredOutput, {
+		margin: 0.5,
+		padding: 0.5,
+		borderStyle: 'round',
+	})}\n`;
+	logger.info(
+		'SKIP_FORMAT',
+		`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
+			'If you skip this step, you can always run it yourself later',
+		)}\n${message}`,
+	);
+
+	if (await askToContinue({ flags })) {
+		const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
+		try {
+			await exec(installCommand.command, [...installCommand.args, ...dependencies], {
+				nodeOptions: {
+					cwd,
+					// reset NODE_ENV to ensure install command run in dev mode
+					env: { NODE_ENV: undefined },
+				},
+			});
+			spinner.success();
+			return UpdateResult.updated;
+		} catch (err: any) {
+			spinner.error();
+			logger.debug('add', 'Error installing dependencies', err);
+			// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
+			console.error('\n', err.stdout || err.message, '\n');
+			return UpdateResult.failure;
 		}
+	} else {
+		return UpdateResult.cancelled;
 	}
 }
 
