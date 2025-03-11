@@ -1,3 +1,3 @@
 export async function GET({ request }) {
-  return fetch("https://httpstat.us/500", request)
+  return fetch(new URL("/500", request.url), request);
 }
