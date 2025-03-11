@@ -25,3 +25,21 @@ export default defineConfig({
 
 This can be useful when heading IDs and anchor links need to behave consistently across your site
 and other platforms such as GitHub and npm.
+
+If you are [using the `rehypeHeadingIds` plugin directly](https://docs.astro.build/en/guides/markdown-content/#heading-ids-and-plugins), you can also pass this new option:
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import { otherPluginThatReliesOnHeadingIDs } from 'some/plugin/source';
+
+export default defineConfig({
+  markdown: {
+    rehypePlugins: [
+      [rehypeHeadingIds, { experimentalHeadingIdCompat: true }],
+      otherPluginThatReliesOnHeadingIDs,
+    ],
+  },
+});
+```
