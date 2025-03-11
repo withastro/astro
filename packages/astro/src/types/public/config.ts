@@ -1633,9 +1633,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * export default defineConfig({
 		 * 	 site: "https://example.com",
 		 * 	 output: "server", // required, with no prerendered pages
-		 *   adapter: node({
-		 *     mode: 'standalone',
-		 *   }),
+		 * 	 adapter: node({
+		 * 	   mode: 'standalone',
+		 * 	 }),
 		 * 	 i18n: {
 		 *     defaultLocale: "en",
 		 *     locales: ["en", "fr", "pt-br", "es"],
