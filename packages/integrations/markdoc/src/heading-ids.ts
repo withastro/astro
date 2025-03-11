@@ -7,14 +7,11 @@ import Slugger from 'github-slugger';
 import { getTextContent } from './runtime.js';
 import { MarkdocError } from './utils.js';
 
-const sluggerContext = {
-	experimentalHeadingIdCompat: false,
-};
-
 function getSlug(
 	attributes: Record<string, any>,
 	children: RenderableTreeNode[],
 	headingSlugger: Slugger,
+	experimentalHeadingIdCompat: boolean,
 ): string {
 	if (attributes.id && typeof attributes.id === 'string') {
 		return attributes.id;
@@ -22,14 +19,14 @@ function getSlug(
 	const textContent = attributes.content ?? getTextContent(children);
 	let slug = headingSlugger.slug(textContent);
 
-	if (!sluggerContext.experimentalHeadingIdCompat) {
+	if (!experimentalHeadingIdCompat) {
 		if (slug.endsWith('-')) slug = slug.slice(0, -1);
 	}
 	return slug;
 }
 
 type HeadingIdConfig = MarkdocConfig & {
-	ctx: { headingSlugger: Slugger };
+	ctx: { headingSlugger: Slugger; experimentalHeadingIdCompat: boolean };
 };
 
 /*
@@ -53,7 +50,12 @@ export const heading: Schema = {
 					'Unexpected problem adding heading IDs to Markdoc file. Did you modify the `ctx.headingSlugger` property in your Markdoc config?',
 			});
 		}
-		const slug = getSlug(attributes, children, config.ctx.headingSlugger);
+		const slug = getSlug(
+			attributes,
+			children,
+			config.ctx.headingSlugger,
+			config.ctx.experimentalHeadingIdCompat,
+		);
 
 		const render = config.nodes?.heading?.render ?? `h${level}`;
 
@@ -71,11 +73,11 @@ export const heading: Schema = {
 
 // Called internally to ensure `ctx` is generated per-file, instead of per-build.
 export function setupHeadingConfig(experimentalHeadingIdCompat: boolean): HeadingIdConfig {
-	sluggerContext.experimentalHeadingIdCompat = experimentalHeadingIdCompat;
 	const headingSlugger = new Slugger();
 	return {
 		ctx: {
 			headingSlugger,
+			experimentalHeadingIdCompat,
 		},
 		nodes: {
 			heading,
