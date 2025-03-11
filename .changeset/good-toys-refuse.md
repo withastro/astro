@@ -7,7 +7,7 @@
 
 Adds support for a new `experimental.headingIdCompat` flag
 
-By default, Astro removes a trailing `-` from the end of IDs it generates for headings containing
+By default, Astro removes a trailing `-` from the end of IDs it generates for headings ending with
 special characters. This differs from the behavior of common Markdown processors.
 
 You can now disable this behavior with a new configuration flag:
