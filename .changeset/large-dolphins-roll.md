@@ -3,7 +3,11 @@
 'astro': minor
 ---
 
-Adds support for `excludeLangs` to allow users to customize syntax highlighting behavior to exclude languages from syntax highlighting. This is useful when rendering markdown that contains code blocks with specific languages with integrations that depend on the code not being highlighted, such as mermaid diagrams. Mermaid diagrams are rendered using the code block with the language `mermaid`. Syntax highlighting introduces additional code blocks with the language `astro` and `html` to wrap the diagram, which is redundant when the diagram is rendered using a different integration.
+Adds a new configuration option for Markdown syntax highlighting `excludeLangs` 
+
+This option provides better support for diagramming tools that rely on Markdown code blocks, such as Mermaid.js and D2 by allowing you to exclude specific languages from Astro's default syntax highlighting.
+
+This option allows you to avoid rendering conflicts with tools that depend on the code not being highlighted without forcing you to disable syntax highlighting for other code blocks.
 
 The default value for `excludeLangs` is `['math']` and remains unchanged by default in this release.
 But users can now override it to exclude other languages or exclude no languages.
