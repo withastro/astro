@@ -36,13 +36,13 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@cloudflare/workers-types": "^4.20250303.0",
+    "@cloudflare/workers-types": "^4.20250310.0",
     "esbuild": "^0.25.0",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.17",
-    "miniflare": "^3.20250214.2",
+    "miniflare": "^3.20250224.0",
     "tinyglobby": "^0.2.12",
-    "vite": "^6.2.0",
+    "vite": "^6.2.1",
     "wrangler": "^3.112.0"
   },
   "peerDependencies": {
@@ -53,7 +53,7 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "execa": "^8.0.1",
-    "rollup": "^4.34.9",
+    "rollup": "^4.35.0",
     "strip-ansi": "^7.1.0"
   },
   "publishConfig": {
