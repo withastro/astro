@@ -1624,7 +1624,7 @@ test.describe('View Transitions', () => {
 		let consoleErrors = [];
 		page.on('console', (msg) => {
 			const txt = msg.text();
-			txt.startsWith("[test] ") && consoleErrors.push(txt.substring(7));
+			txt.startsWith('[test] ') && consoleErrors.push(txt.substring(7));
 		});
 		await page.goto(astro.resolveUrl('/partial-swap'));
 		await page.waitForURL('**/partial-swap');
@@ -1632,6 +1632,8 @@ test.describe('View Transitions', () => {
 		await page.waitForURL('**/partial-swap?v=2');
 		await page.click('#link3');
 		await page.waitForURL('**/partial-swap?v=3');
-		expect(consoleErrors.join(", "), 'There should only be two executions').toEqual("head script, body script");
+		expect(consoleErrors.join(', '), 'There should only be two executions').toEqual(
+			'head script, body script',
+		);
 	});
 });
