@@ -1620,7 +1620,22 @@ test.describe('View Transitions', () => {
 		expect(lines.join('')).toBe('312233');
 	});
 
-	test('page-load event waits for inlined module scripts', async ({ page, astro }) => {
+	test('initial scripts are not re-executed after partial swap', async ({ page, astro }) => {
+		let consoleErrors = [];
+		page.on('console', (msg) => {
+			const txt = msg.text();
+			txt.startsWith("[test] ") && consoleErrors.push(txt.substring(7));
+		});
+		await page.goto(astro.resolveUrl('/partial-swap'));
+		await page.waitForURL('**/partial-swap');
+		await page.click('#link2');
+		await page.waitForURL('**/partial-swap?v=2');
+		await page.click('#link3');
+		await page.waitForURL('**/partial-swap?v=3');
+		expect(consoleErrors.join(", "), 'There should only be two executions').toEqual("head script, body script");
+	});
+  
+  test('page-load event waits for inlined module scripts', async ({ page, astro }) => {
 		let lines = [];
 		page.on('console', (msg) => {
 			const txt = msg.text();
@@ -1634,6 +1649,5 @@ test.describe('View Transitions', () => {
 		await page.waitForLoadState('networkidle');
 		expect(lines.join(', '), 'should raise page-load after inline module').toBe(
 			'inline module, page-load',
-		);
-	});
+	);
 });

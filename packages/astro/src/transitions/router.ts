@@ -525,7 +525,6 @@ async function transition(
 		//
 		// "finished" resolves after all animations are done.
 
-		// @ts-expect-error the internal type `types` isn't provided and not even documented on MDN
 		currentTransition.viewTransition = {
 			updateCallbackDone: updateDone, // this is about correct
 			ready: updateDone, // good enough
@@ -537,6 +536,7 @@ async function transition(
 				// This cancels all animations of the simulation
 				document.documentElement.removeAttribute(OLD_NEW_ATTR);
 			},
+			types: new Set<string>(), // empty by default
 		};
 	}
 	// In earlier versions was then'ed on viewTransition.ready which would not execute
@@ -666,6 +666,7 @@ if (inBrowser) {
 	}
 	for (const script of document.getElementsByTagName('script')) {
 		detectScriptExecuted(script);
+		script.dataset.astroExec = '';
 	}
 }
 
