@@ -323,7 +323,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *   }
 	 * })
 	 *
-	 * 
+	 *
 	 * ```
 	 */
 	redirects?: Record<string, RedirectConfig>;
