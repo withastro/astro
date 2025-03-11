@@ -1308,17 +1308,14 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 	 	 * For more control over syntax highlighting, you can instead specify a configuration object with the properties listed below.
 		 */
-		syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfigType | false;
-
-		// DO NOT TRUST ANY OF THIS SYNTAX!!! PLEASE FORMAT THIS ALL CAREFULLY
-		 :
+		syntaxHighlight?:
 			| {
 					/**
 					 * @docs
 					 * @name markdown.syntaxHighlight.type
 					 * @kind h4
-					 * @type `'shiki' | 'prism' | 'false'`
-					 * @default 
+					 * @type {'shiki' | 'prism'}
+					 * @default `'shiki'`
 					 * @version 5.5.0
 					 * @description
 					 *
@@ -1326,13 +1323,13 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * (If no other syntax highlighting configuration is needed, you can instead set `markdown.syntaxHighlight` directly to `shiki`, `prism`, or `false`.)
 					 * 
 					 */
-					type?:
+					type?: SyntaxHighlightConfigType;
 
 					/**
 					 * @docs
 					 * @name markdown.syntaxHighlight.excludeLangs
 					 * @kind h4
-					 * @type []
+					 * @type {string[]}
 					 * @default ['math']
 					 * @version 5.5.0
 					 * @description
@@ -1340,24 +1337,35 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * An array of languages to exclude from the default syntax highlighting specified in `markdown.syntaxHighlight.type`.
 					 * This can be useful when using tools that create diagrams from Markdown code blocks, such as Mermaid.js and D2.
 					 *
-					 * // DO WE WANT A FULL EXAMPLE SHOWING MERMAID? COPIED IN CASE, BUT THE SMALLER EXAMPLE WOULD ALSO BE FINE
 					 * ```js title="astro.config.mjs"
            * import { defineConfig } from 'astro/config';
-           * import rehypeMermaid from 'rehype-mermaid';
            * 
            * export default defineConfig({
-           * 	markdown: {
-           * 		syntaxHighlight: {
-           * 			type: 'shiki',
-           * 			excludeLangs: ['mermaid', 'math'],
-           * 		},
-           * 		rehypePlugins: [rehypeMermaid],
-           * 	},
+           *   markdown: {
+           *     syntaxHighlight: {
+           *       type: 'shiki',
+           *       excludeLangs: ['mermaid', 'math'],
+           *     },
+           *   },
            * });
            * ```
+					 * 
+					 * ```html
+					 * <!-- Call Mermaid JavaScript Integration in the body -->
+					 * <script>
+					 *   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+					 *   mermaid.initialize({ startOnLoad: false });
+					 *   mermaid.run({
+					 *     querySelector: 'data-language="mermaid"',
+					 *   });
+					 * </script>
+					 * ```
+					 * 
 					 * */
-					excludeLangs?: 
-		
+					excludeLangs?: string[];
+			}
+			| SyntaxHighlightConfigType
+			| false;
 		/**
 		 * @docs
 		 * @name markdown.remarkPlugins
