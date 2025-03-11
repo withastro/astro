@@ -32,7 +32,7 @@
     "astro-component"
   ],
   "dependencies": {
-    "prismjs": "^1.29.0"
+    "prismjs": "^1.30.0"
   },
   "devDependencies": {
     "@types/prismjs": "1.26.5",
