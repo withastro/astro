@@ -37,6 +37,11 @@ export function resolveLocalFont(
 							format: extractFontType(path),
 						};
 					}),
+					display: src.display,
+					unicodeRange: src.unicodeRange,
+					stretch: src.stretch,
+					featureSettings: src.featureSettings,
+					variationSettings: src.variationSettings,
 				});
 			}
 		}
