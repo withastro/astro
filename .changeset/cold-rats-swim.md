@@ -29,7 +29,7 @@ body {background:#ff0} body {background:red}
 When `experimental.preserveScriptOrder` is set to `true`, the order of the two styles is kept as it is, and in the style generated `red` appears first, and then `yellow`:
 
 ```css
-body {background:red} body{background:#ff0}
+body {background:red} body {background:#ff0}
 ```
 
 
