@@ -92,10 +92,12 @@ export default function createVitePluginAstroServer({
 			viteServer.watcher.on('change', rebuildManifest);
 
 			function handleUnhandledRejection(rejection: any) {
-				const error = new AstroError({
-					...AstroErrorData.UnhandledRejection,
-					message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection),
-				});
+				const error = AstroError.is(rejection)
+					? rejection
+					: new AstroError({
+							...AstroErrorData.UnhandledRejection,
+							message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection),
+						});
 				const store = localStorage.getStore();
 				if (store instanceof IncomingMessage) {
 					const request = store;
