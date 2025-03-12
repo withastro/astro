@@ -200,6 +200,25 @@ export interface PrefetchOptions {
 	 * Should prefetch even on data saver mode or slow connection. (default `false`)
 	 */
 	ignoreSlowConnection?: boolean;
+	/**
+	 * A string providing a hint to the browser as to how eagerly it should prefetch/prerender link targets in order to balance performance advantages against resource overheads. (default `immediate`)
+	 * Only works if `clientPrerender` is enabled and supported.
+	 * Possible values are:
+	 *
+	 * - `"immediate"`
+	 *   : The author thinks the link is very likely to be followed, and/or the document may take significant time to fetch. Prefetch/prerender should start as soon as possible, subject only to considerations such as user preferences and resource limits.
+	 * - `"eager"`
+	 *   : The author wants to prefetch/prerender a large number of navigations, as early as possible. Prefetch/prerender should start on any slight suggestion that a link may be followed. For example, the user could move their mouse cursor towards the link, hover/focus it for a moment, or pause scrolling with the link in a prominent place.
+	 * - `"moderate"`
+	 *   : The author is looking for a balance between `eager` and `conservative`. Prefetch/prerender should start when there is a reasonable suggestion that the user will follow a link in the near future. For example, the user could scroll a link into the viewport and hover/focus it for some time.
+	 * - `"conservative"`
+	 *   : The author wishes to get some benefit from speculative loading with a fairly small tradeoff of resources. Prefetch/prerender should start only when the user is starting to click on the link, for example on `"mousedown"` or `"pointerdown"`.
+	 *
+	 * If `"eagerness"` is not explicitly specified, it rules default to `immediate`. The browser takes this hint into consideration along with its own heuristics, so it may select a link that the author has hinted as less eager than another, if the less eager candidate is considered a better choice.
+	 *
+	 * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/speculationrules#eagerness
+	 */
+	eagerness?: 'immediate' | 'eager' | 'moderate' | 'conservative';
 }
 
 /**
@@ -225,7 +244,7 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 	// NOTE: This condition is tree-shaken if `clientPrerender` is false as its a static value
 	if (clientPrerender && HTMLScriptElement.supports?.('speculationrules')) {
 		debug?.(`[astro] Prefetching ${url} with <script type="speculationrules">`);
-		appendSpeculationRules(url);
+		appendSpeculationRules(url, opts?.eagerness ?? 'immediate');
 	}
 	// Prefetch with link if supported
 	else if (
@@ -324,8 +343,10 @@ function onPageLoad(cb: () => void) {
  * A new script must be added for each `url`.
  *
  * @param url The url of the page to prerender.
+ *
+ * @param eagerness Hint to the browser as to how eagerly it should prefetch/prerender link targets
  */
-function appendSpeculationRules(url: string) {
+function appendSpeculationRules(url: string, eagerness: PrefetchOptions["eagerness"]) {
 	const script = document.createElement('script');
 	script.type = 'speculationrules';
 	script.textContent = JSON.stringify({
@@ -333,6 +354,7 @@ function appendSpeculationRules(url: string) {
 			{
 				source: 'list',
 				urls: [url],
+				eagerness: eagerness,
 			},
 		],
 		// Currently, adding `prefetch` is required to fallback if `prerender` fails.
@@ -342,6 +364,7 @@ function appendSpeculationRules(url: string) {
 			{
 				source: 'list',
 				urls: [url],
+				eagerness: eagerness,
 			},
 		],
 	});
