@@ -1332,7 +1332,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * @name markdown.syntaxHighlight.excludeLangs
 					 * @kind h4
 					 * @type {string[]}
-					 * @default ['math']
+					 * @default `['math']`
 					 * @version 5.5.0
 					 * @description
 					 *
