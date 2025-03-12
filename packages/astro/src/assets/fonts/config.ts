@@ -5,6 +5,8 @@ function dedupe<T>(arr: Array<T>): Array<T> {
 	return [...new Set(arr)];
 }
 
+// TODO: jsdoc for everything, most of those end up in the public AstroConfig type
+
 export const resolveFontOptionsSchema = z.object({
 	weights: z
 		.array(
