@@ -131,7 +131,7 @@ export async function loadFonts({
 		}
 
 		for (const data of fonts) {
-			// TODO: should the user setting override or act as a fallback when a provider already returns a property?
+			// User settings override the generated font settings
 			css += generateFontFace(getFamilyName(family), {
 				src: data.src,
 				display: data.display ?? family.display,

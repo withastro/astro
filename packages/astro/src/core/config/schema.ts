@@ -649,9 +649,9 @@ export const AstroConfigSchema = z.object({
 								code: z.ZodIssueCode.custom,
 								message:
 									key === 'name' && existing === 'name'
-										? `2 families have the same **name** property: "${name}". Names have to be unique, you can override one of these family name by specifying the **as** property. Read more at TODO:`
+										? `Multiple families have the same **name** property: "${name}". Names have to be unique, you can override one of these family name by specifying the **as** property. Read more at TODO:`
 										: key === 'as' && existing === 'as'
-											? `2 families have the same **as** property: "${name}". Names have to be unique, update one of these family **as** property to avoid conflicts. Read more at TODO:`
+											? `Multiple families have the same **as** property: "${name}". Names have to be unique, update one of these family **as** property to avoid conflicts. Read more at TODO:`
 											: `A family **name** property is conflicting with another family **as** property: "${name}". Either update the current **as** property or add a unique **as** property to the family that has a **name** property. Read more at TODO:`,
 								path: ['families', i, key],
 							});

@@ -429,7 +429,7 @@ describe('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message.includes('2 families have the same **name** property: "Foo"'),
+				configError.errors[0].message.includes('Multiple families have the same **name** property: "Foo"'),
 				true,
 			);
 
@@ -445,7 +445,7 @@ describe('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message.includes('2 families have the same **as** property: "Bar"'),
+				configError.errors[0].message.includes('Multiple families have the same **as** property: "Bar"'),
 				true,
 			);
 
