@@ -5,7 +5,6 @@ import type {
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
-	SyntaxHighlightConfig,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
