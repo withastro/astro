@@ -2188,7 +2188,38 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @version 5.5
 		 * @description
 		 * 
-		 * When enabled, scripts and styles are rendered in the same order as they are defined.
+		 * When enabled, `<script>` and `<style>` tags are rendered in the same order as they are defined.
+		 * 
+		 * ## Example
+		 * 
+		 * Consider the following component:
+		 * 
+		 * ```html
+		 * <p>I am a component</p>
+		 * <style>
+		 *   body {
+		 *     background: red;
+		 *   }
+		 * </style>
+		 * <style>
+		 *   body {
+		 *     background: yellow;
+		 *   }
+		 * </style>
+		 * ```
+		 * 
+		 * By default, it will generate a CSS style where `red` will be applied:
+		 * 
+		 * ```css
+		 * body {background:#ff0} body {background:red}
+		 * ```
+		 * 
+		 * When this new option is set to `true`, the generated CSS style will apply `yellow`:
+		 * 
+		 * ```css
+		 * body {background:red} body {background:#ff0}
+		 * ```
+		 * 
 		 */
 		preserveScriptOrder: boolean;
 	};
