@@ -4,6 +4,19 @@
 
 Adds a new experimental flag called `experimental.preserveScriptOrder` that renders `<script>` and `<style>` tags in the same order as they are defined.
 
+When rendering multiple `<style>` and `<script>` tags on the same page, Astro currently reverses their order in your generated HTML output. This can give unexpected results, for example CSS styles being overridden by earlier defined style tags when your site is built.
+
+With the new `preserveScriptOrder` flag enabled, Astro will generate the styles in the order they are defined:
+
+```js title="astro.config.mjs"
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  experimental: {
+    preserveScriptOrder: true,
+  },
+});
+```
 For example, the following component has two `<style>` tags, and both define the same style for the `body` tag:
 
 ```html
