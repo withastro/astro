@@ -37,6 +37,13 @@ export type RemarkRehype = RemarkRehypeOptions;
 
 export type ThemePresets = BuiltinTheme | 'css-variables';
 
+export type SyntaxHighlightConfigType = 'shiki' | 'prism';
+
+export interface SyntaxHighlightConfig {
+	type: SyntaxHighlightConfigType;
+	excludeLangs?: string[];
+}
+
 export interface ShikiConfig
 	extends Pick<CreateShikiHighlighterOptions, 'langs' | 'theme' | 'themes' | 'langAlias'>,
 		Pick<ShikiHighlighterHighlightOptions, 'defaultColor' | 'wrap' | 'transformers'> {}
@@ -45,7 +52,7 @@ export interface ShikiConfig
  * Configuration options that end up in the markdown section of AstroConfig
  */
 export interface AstroMarkdownOptions {
-	syntaxHighlight?: 'shiki' | 'prism' | false;
+	syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfigType | false;
 	shikiConfig?: ShikiConfig;
 	remarkPlugins?: RemarkPlugins;
 	rehypePlugins?: RehypePlugins;

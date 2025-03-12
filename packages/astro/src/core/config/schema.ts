@@ -7,7 +7,7 @@ import type {
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
 } from '@astrojs/markdown-remark';
-import { markdownConfigDefaults } from '@astrojs/markdown-remark';
+import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import { z } from 'zod';
 import type { SvgRenderMode } from '../../assets/utils/svg.js';
@@ -103,6 +103,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		session: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
+
+const highlighterTypesSchema = z
+	.union([z.literal('shiki'), z.literal('prism')])
+	.default(syntaxHighlightDefaults.type);
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -308,7 +312,19 @@ export const AstroConfigSchema = z.object({
 	markdown: z
 		.object({
 			syntaxHighlight: z
-				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
+				.union([
+					z
+						.object({
+							type: highlighterTypesSchema,
+							excludeLangs: z
+								.array(z.string())
+								.optional()
+								.default(syntaxHighlightDefaults.excludeLangs),
+						})
+						.default(syntaxHighlightDefaults),
+					highlighterTypesSchema,
+					z.literal(false),
+				])
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight),
 			shikiConfig: z
 				.object({

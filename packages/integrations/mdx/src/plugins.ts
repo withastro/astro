@@ -65,12 +65,17 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 		[rehypeRaw, { passThrough: nodeTypes }],
 	];
 
-	if (!isPerformanceBenchmark) {
+	const syntaxHighlight = mdxOptions.syntaxHighlight;
+	if (syntaxHighlight && !isPerformanceBenchmark) {
+		const syntaxHighlightType =
+			typeof syntaxHighlight === 'string' ? syntaxHighlight : syntaxHighlight?.type;
+		const excludeLangs =
+			typeof syntaxHighlight === 'object' ? syntaxHighlight?.excludeLangs : undefined;
 		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
-		if (mdxOptions.syntaxHighlight === 'shiki') {
-			rehypePlugins.push([rehypeShiki, mdxOptions.shikiConfig]);
-		} else if (mdxOptions.syntaxHighlight === 'prism') {
-			rehypePlugins.push(rehypePrism);
+		if (syntaxHighlightType === 'shiki') {
+			rehypePlugins.push([rehypeShiki, mdxOptions.shikiConfig, excludeLangs]);
+		} else if (syntaxHighlightType === 'prism') {
+			rehypePlugins.push([rehypePrism, excludeLangs]);
 		}
 	}
 
