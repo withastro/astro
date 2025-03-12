@@ -26,8 +26,10 @@ export const defaultExcludeLanguages = ['math'];
 export async function highlightCodeBlocks(
 	tree: Root,
 	highlighter: Highlighter,
-	excludeLanguages = defaultExcludeLanguages,
+	excludeLanguages: string[] = [],
 ) {
+	
+	excludeLanguages.push(...defaultExcludeLanguages);
 	const nodes: Array<{
 		node: Element;
 		language: string;
