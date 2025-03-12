@@ -79,6 +79,7 @@ export async function createMarkdownProcessor(
 		remarkRehype: remarkRehypeOptions = markdownConfigDefaults.remarkRehype,
 		gfm = markdownConfigDefaults.gfm,
 		smartypants = markdownConfigDefaults.smartypants,
+		experimentalHeadingIdCompat = false,
 	} = opts ?? {};
 
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
@@ -136,7 +137,7 @@ export async function createMarkdownProcessor(
 
 	// Headings
 	if (!isPerformanceBenchmark) {
-		parser.use(rehypeHeadingIds);
+		parser.use(rehypeHeadingIds, { experimentalHeadingIdCompat });
 	}
 
 	// Stringify to HTML

@@ -2166,6 +2166,20 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * These two virtual modules contain a serializable subset of the Astro configuration.
 		 */
 		serializeConfig?: boolean;
+
+		/**
+		 * @name experimental.headingIdCompat
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.5.x
+		 * @description
+		 *
+		 * Enables full compatibility of Markdown headings IDs with common platforms such as GitHub and npm.
+		 *
+		 * When enabled, IDs for headings ending with non-alphanumeric characters, e.g. `<Picture />`, will
+		 * include a trailing `-`, matching standard behavior in other Markdown tooling.
+		 */
+		headingIdCompat?: boolean;
 	};
 }
 

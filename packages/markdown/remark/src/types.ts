@@ -69,6 +69,7 @@ export interface AstroMarkdownProcessorOptions extends AstroMarkdownOptions {
 		domains?: string[];
 		remotePatterns?: RemotePattern[];
 	};
+	experimentalHeadingIdCompat?: boolean;
 }
 
 export interface MarkdownProcessor {
