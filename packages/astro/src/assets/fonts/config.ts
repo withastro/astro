@@ -6,8 +6,11 @@ function dedupe<T>(arr: Array<T>): Array<T> {
 
 export const resolveFontOptionsSchema = z.object({
 	weights: z
-		// TODO: support numbers
-		.array(z.string())
+		.array(
+			z
+				.union([z.string(), z.number()])
+				.transform((val) => (typeof val === 'number' ? val.toString() : val)),
+		)
 		.nonempty()
 		.transform((arr) => dedupe(arr)),
 	styles: z
@@ -23,6 +26,11 @@ export const resolveFontOptionsSchema = z.object({
 		.nonempty()
 		.transform((arr) => dedupe(arr))
 		.optional(),
+	display: z.enum(['auto', 'block', 'swap', 'fallback', 'optional']).optional(),
+	unicodeRange: z.array(z.string()).nonempty().optional(),
+	stretch: z.string().optional(),
+	featureSettings: z.string().optional(),
+	variationSettings: z.string().optional(),
 });
 
 export const fontFamilyAttributesSchema = z.object({

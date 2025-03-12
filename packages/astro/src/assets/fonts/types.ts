@@ -28,9 +28,11 @@ export interface FontFamilyAttributes
 	extends z.infer<typeof fontFamilyAttributesSchema>,
 		Partial<ResolveFontOptions> {}
 
-export interface LocalFontFamily extends Pick<FontFamilyAttributes, 'name' | 'fallbacks' | 'as'> {
+export interface LocalFontFamily
+	extends Omit<FontFamilyAttributes, 'provider' | 'weights' | 'styles' | 'subsets'> {
 	provider: LocalProviderName;
-	src: Array<Partial<Omit<ResolveFontOptions, 'fallbacks'>> & { paths: Array<string> }>;
+	// TODO: find a way to support subsets
+	src: Array<Partial<Omit<ResolveFontOptions, 'fallbacks' | 'subsets'>> & { paths: Array<string> }>;
 }
 
 interface CommonFontFamily<TProvider extends string>

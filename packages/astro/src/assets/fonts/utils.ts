@@ -6,14 +6,13 @@ import type { Storage } from 'unstorage';
 import type * as fontaine from 'fontaine';
 import type { Logger } from '../../core/logger/core.js';
 
-// TODO: expose all relevant options in config
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
 	return [
 		'@font-face {',
-		`  font-family: '${family}';`,
+		`  font-family: ${JSON.stringify(family)};`,
 		`  src: ${renderFontSrc(font.src)};`,
-		`  font-display: ${font.display || 'swap'};`,
+		`  font-display: ${font.display ?? 'swap'};`,
 		font.unicodeRange && `  unicode-range: ${font.unicodeRange};`,
 		font.weight &&
 			`  font-weight: ${Array.isArray(font.weight) ? font.weight.join(' ') : font.weight};`,
@@ -194,7 +193,6 @@ export async function generateFallbacksCSS({
  * - If there are many downloads started at once, only one log is shown for start and end
  * - If a given file has already been logged, it won't show up anymore (useful in dev)
  */
-// TODO: test
 export function createLogManager(logger: Logger) {
 	const done = new Set<string>();
 	const items = new Set<string>();
