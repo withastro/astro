@@ -2182,7 +2182,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		headingIdCompat?: boolean;
 
 		/**
-		 * @name experimental.serializeConfig
+		 * @name experimental.preserveScriptOrder
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 5.5
