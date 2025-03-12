@@ -9,9 +9,6 @@ This option provides better support for diagramming tools that rely on Markdown 
 
 This option allows you to avoid rendering conflicts with tools that depend on the code not being highlighted without forcing you to disable syntax highlighting for other code blocks.
 
-The default value for `excludeLangs` is `['math']` and remains unchanged by default in this release.
-But users can now override it to exclude other languages or exclude no languages.
-
 The following example configuration will exclude highlighting for `mermaid` and `math` code blocks:
 
 ```js
@@ -27,3 +24,4 @@ export default defineConfig({
 });
 ```
 
+Read more about this new option in the [Markdown syntax highlighting configuration docs](https://docs.astro.build/en/reference/configuration-reference/#markdownsyntaxhighlight).
