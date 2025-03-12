@@ -60,24 +60,22 @@ export const fontProviderSchema = z
 export const localFontFamilySchema = z
 	.object({
 		provider: z.literal(LOCAL_PROVIDER_NAME),
-		src: z
-			.array(
-				z
-					.object({
-						paths: z.array(z.string()).nonempty(),
-					})
-					.merge(
-						resolveFontOptionsSchema
-							.omit({
-								fallbacks: true,
-								// TODO: find a way to support subsets
-								subsets: true,
-							})
-							.partial(),
-					)
-					.strict(),
-			)
-			.nonempty(),
+		src: z.array(
+			z
+				.object({
+					paths: z.array(z.string()).nonempty(),
+				})
+				.merge(
+					resolveFontOptionsSchema
+						.omit({
+							fallbacks: true,
+							// TODO: find a way to support subsets
+							subsets: true,
+						})
+						.partial(),
+				)
+				.strict(),
+		),
 	})
 	.merge(fontFamilyAttributesSchema.omit({ provider: true }))
 	.merge(
