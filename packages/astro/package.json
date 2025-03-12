@@ -118,7 +118,7 @@
     "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.10.4",
+    "@astrojs/compiler": "^2.11.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",

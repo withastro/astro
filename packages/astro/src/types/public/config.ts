@@ -2180,6 +2180,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * include a trailing `-`, matching standard behavior in other Markdown tooling.
 		 */
 		headingIdCompat?: boolean;
+
+		/**
+		 * @name experimental.serializeConfig
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 * 
+		 * When enabled, scripts and styles are rendered in the same order as they are defined.
+		 */
+		transparentScriptOrder: boolean;
 	};
 }
 
