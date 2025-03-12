@@ -101,6 +101,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				Object.assign(vitePluginMdxOptions, {
 					mdxOptions: resolvedMdxOptions,
 					srcDir: config.srcDir,
+					experimentalHeadingIdCompat: config.experimental.headingIdCompat,
 				});
 				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
 				// Re-assign it so that the garbage can be collected later.
