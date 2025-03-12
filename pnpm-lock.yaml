@@ -461,8 +461,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.10.4
-        version: 2.10.4
+        specifier: ^2.11.0
+        version: 2.11.0
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -2871,6 +2871,12 @@ importers:
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/css-order-layout:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/css-order-transparent:
     dependencies:
       astro:
         specifier: workspace:*
@@ -6333,8 +6339,8 @@ packages:
     resolution: {integrity: sha512-bVzyKzEpIwqjihBU/aUzt1LQckJuHK0agd3/ITdXhPUYculrc6K1/K7H+XG4rwjXtg+ikT3PM05V1MVYWiIvQw==}
     engines: {node: '>=18.14.1'}
 
-  '@astrojs/compiler@2.10.4':
-    resolution: {integrity: sha512-86B3QGagP99MvSNwuJGiYSBHnh8nLvm2Q1IFI15wIUJJsPeQTO3eb2uwBmrqRsXykeR/mBzH8XCgz5AAt1BJrQ==}
+  '@astrojs/compiler@2.11.0':
+    resolution: {integrity: sha512-zZOO7i+JhojO8qmlyR/URui6LyfHJY6m+L9nwyX5GiKD78YoRaZ5tzz6X0fkl+5bD3uwlDHayf6Oe8Fu36RKNg==}
 
   '@astrojs/language-server@2.15.0':
     resolution: {integrity: sha512-wJHSjGApm5X8Rg1GvkevoatZBfvaFizY4kCPvuSYgs3jGCobuY3KstJGKC1yNLsRJlDweHruP+J54iKn9vEKoA==}
@@ -10197,7 +10203,6 @@ packages:
 
   libsql@0.4.5:
     resolution: {integrity: sha512-sorTJV6PNt94Wap27Sai5gtVLIea4Otb2LUiAUyr3p6BPOScGMKGt5F1b5X/XgkNtcsDKeX5qfeBDj+PdShclQ==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lightningcss-darwin-arm64@1.29.1:
@@ -12882,11 +12887,11 @@ snapshots:
       log-update: 5.0.1
       sisteransi: 1.0.5
 
-  '@astrojs/compiler@2.10.4': {}
+  '@astrojs/compiler@2.11.0': {}
 
   '@astrojs/language-server@2.15.0(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(typescript@5.8.2)':
     dependencies:
-      '@astrojs/compiler': 2.10.4
+      '@astrojs/compiler': 2.11.0
       '@astrojs/yaml2ts': 0.2.1
       '@jridgewell/sourcemap-codec': 1.5.0
       '@volar/kit': 2.4.6(typescript@5.8.2)
@@ -18194,7 +18199,7 @@ snapshots:
 
   prettier-plugin-astro@0.14.1:
     dependencies:
-      '@astrojs/compiler': 2.10.4
+      '@astrojs/compiler': 2.11.0
       prettier: 3.5.3
       sass-formatter: 0.7.9
 
