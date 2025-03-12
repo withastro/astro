@@ -2190,7 +2190,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * 
 		 * When enabled, scripts and styles are rendered in the same order as they are defined.
 		 */
-		transparentScriptOrder: boolean;
+		preserveScriptOrder: boolean;
 	};
 }
 

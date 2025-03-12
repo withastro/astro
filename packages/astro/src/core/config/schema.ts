@@ -102,7 +102,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		serializeConfig: false,
 		session: false,
 		headingIdCompat: false,
-		transparentScriptOrder: false
+		preserveScriptOrder: false
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -622,7 +622,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.headingIdCompat),
-			transparentScriptOrder: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.transparentScriptOrder),
+			preserveScriptOrder: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.preserveScriptOrder),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

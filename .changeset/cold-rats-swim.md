@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds a new experimental flag called `experimental.transparentScriptOrder` that renders `<script>` and `<style>` tags in the same order as they are defined.
+Adds a new experimental flag called `experimental.preserveScriptOrder` that renders `<script>` and `<style>` tags in the same order as they are defined.
 
 For example, the following component has two `<style>` tags, and both define the same style for the `body` tag:
 
@@ -26,7 +26,7 @@ Once the project is compiled, Astro will create an inline style where `yellow` a
 body {background:#ff0} body {background:red}
 ```
 
-When `experimental.transparentScriptOrder` is set to `true`, the order of the two styles is kept as it is, and in the style generated `red` appears first, and then `yellow`:
+When `experimental.preserveScriptOrder` is set to `true`, the order of the two styles is kept as it is, and in the style generated `red` appears first, and then `yellow`:
 
 ```css
 body {background:red} body{background:#ff0}

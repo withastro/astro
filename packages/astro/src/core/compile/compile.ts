@@ -65,7 +65,7 @@ export async function compile({
 				cssPartialCompileResults,
 				cssTransformErrors,
 			}),
-			experimentalScriptOrder: astroConfig.experimental.transparentScriptOrder ?? false,
+			experimentalScriptOrder: astroConfig.experimental.preserveScriptOrder ?? false,
 			async resolvePath(specifier) {
 				return resolvePath(specifier, filename);
 			},
