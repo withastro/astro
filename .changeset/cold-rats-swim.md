@@ -45,4 +45,8 @@ When `experimental.preserveScriptOrder` is set to `true`, the order of the two s
 body {background:red} body {background:#ff0}
 ```
 
+This is a breaking change to how Astro renders project code that contains multiple `<style>` and `<script>` tags in the same component. If you were previously compensating for Astro's behavior by writing these out of order, you will need to update your code.
 
+This will eventually become the new default Astro behavior, so we encourage you to add this experimental style and script ordering as soon as you are able! This will help us test the new behavior and ensure your code is ready when this becomes the new normal.
+
+For more information as this feature develops, please see the [experimental script order docs](https://docs.astro.build/en/reference/experimental-flags/preserve-script-order/).
