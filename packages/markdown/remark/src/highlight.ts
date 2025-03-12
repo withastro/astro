@@ -28,8 +28,6 @@ export async function highlightCodeBlocks(
 	highlighter: Highlighter,
 	excludeLanguages: string[] = [],
 ) {
-	
-	excludeLanguages.push(...defaultExcludeLanguages);
 	const nodes: Array<{
 		node: Element;
 		language: string;
@@ -70,7 +68,7 @@ export async function highlightCodeBlocks(
 		}
 
 		const language = languageMatch?.[1] || 'plaintext';
-		if (excludeLanguages.includes(language)) {
+		if (excludeLanguages.includes(language) || defaultExcludeLanguages.includes(language)) {
 			return;
 		}
 
