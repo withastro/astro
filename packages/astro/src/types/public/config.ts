@@ -2185,7 +2185,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name experimental.serializeConfig
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 5.x
+		 * @version 5.5
 		 * @description
 		 * 
 		 * When enabled, scripts and styles are rendered in the same order as they are defined.
