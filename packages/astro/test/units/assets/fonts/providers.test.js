@@ -95,6 +95,7 @@ describe('fonts providers', () => {
 				src: [
 					{
 						paths: ['./src/fonts/foo.woff2', './src/fonts/foo.ttf'],
+						display: 'block',
 					},
 				],
 			},
@@ -105,6 +106,7 @@ describe('fonts providers', () => {
 			{
 				weight: '400',
 				style: 'normal',
+				display: 'block',
 				src: [
 					{
 						originalURL: fileURLToPath(new URL('./src/fonts/foo.woff2', import.meta.url)),
@@ -121,6 +123,7 @@ describe('fonts providers', () => {
 			{
 				weight: '400',
 				style: 'italic',
+				display: 'block',
 				src: [
 					{
 						originalURL: fileURLToPath(new URL('./src/fonts/foo.woff2', import.meta.url)),
@@ -149,6 +152,7 @@ describe('fonts providers', () => {
 						weights: ['600', '700'],
 						styles: ['oblique'],
 						paths: ['./src/fonts/bar.eot'],
+						stretch: 'condensed',
 					},
 				],
 			},
@@ -159,6 +163,7 @@ describe('fonts providers', () => {
 			{
 				weight: '600',
 				style: 'oblique',
+				stretch: 'condensed',
 				src: [
 					{
 						originalURL: fileURLToPath(new URL('./src/fonts/bar.eot', import.meta.url)),
@@ -170,6 +175,7 @@ describe('fonts providers', () => {
 			{
 				weight: '700',
 				style: 'oblique',
+				stretch: 'condensed',
 				src: [
 					{
 						originalURL: fileURLToPath(new URL('./src/fonts/bar.eot', import.meta.url)),
