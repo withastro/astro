@@ -26,8 +26,7 @@ export function resolveLocalFont(
 	for (const src of family.src) {
 		for (const weight of src.weights ?? DEFAULTS.weights) {
 			for (const style of src.styles ?? DEFAULTS.styles) {
-				// TODO: handle subset
-				fonts.push({
+				const data: ResolveFontResult['fonts'][number] = {
 					weight,
 					style,
 					src: src.paths.map((path) => {
@@ -38,7 +37,14 @@ export function resolveLocalFont(
 							format: extractFontType(path),
 						};
 					}),
-				});
+				};
+				if (src.display) data.display = src.display;
+				if (src.unicodeRange) data.unicodeRange = src.unicodeRange;
+				if (src.stretch) data.stretch = src.stretch;
+				if (src.featureSettings) data.featureSettings = src.featureSettings;
+				if (src.variationSettings) data.variationSettings = src.variationSettings;
+
+				fonts.push(data);
 			}
 		}
 	}

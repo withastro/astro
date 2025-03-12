@@ -131,7 +131,17 @@ export async function loadFonts({
 		}
 
 		for (const data of fonts) {
-			css += generateFontFace(family.name, data);
+			// User settings override the generated font settings
+			css += generateFontFace(getFamilyName(family), {
+				src: data.src,
+				display: data.display ?? family.display,
+				unicodeRange: data.unicodeRange ?? family.unicodeRange,
+				weight: data.weight,
+				style: data.style,
+				stretch: data.stretch ?? family.stretch,
+				featureSettings: data.featureSettings ?? family.featureSettings,
+				variationSettings: data.variationSettings ?? family.variationSettings,
+			});
 		}
 		const urls = fonts
 			.flatMap((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))

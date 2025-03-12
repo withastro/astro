@@ -14,12 +14,12 @@ import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import { EnvSchema } from '../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { BUILTIN_PROVIDERS, GOOGLE_PROVIDER_NAME } from '../../assets/fonts/constants.js';
 import {
-	BUILTIN_PROVIDERS,
-	GOOGLE_PROVIDER_NAME,
-	LOCAL_PROVIDER_NAME,
-} from '../../assets/fonts/constants.js';
-import { fontFamilyAttributesSchema, resolveFontOptionsSchema } from '../../assets/fonts/config.js';
+	commonFontFamilySchema,
+	fontProviderSchema,
+	localFontFamilySchema,
+} from '../../assets/fonts/config.js';
 import { getFamilyName } from '../../assets/fonts/utils.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
@@ -604,66 +604,17 @@ export const AstroConfigSchema = z.object({
 					return svgConfig;
 				}),
 
-			// TODO: properly test everything
 			fonts: z
 				.object({
-					providers: z
-						.array(
-							z
-								.object({
-									name: z.string().superRefine((name, ctx) => {
-										if (BUILTIN_PROVIDERS.includes(name as any)) {
-											ctx.addIssue({
-												code: z.ZodIssueCode.custom,
-												message: `"${name}" is a reserved provider name`,
-											});
-										}
-									}),
-									entrypoint: z.string(),
-									config: z.record(z.string(), z.any()).optional(),
-								})
-								.strict(),
-						)
-						.optional(),
-					families: z
-						.array(
-							z
-								.union([
-									z.string(),
-									z
-										.object({
-											provider: z.literal(LOCAL_PROVIDER_NAME),
-											src: z.array(
-												z
-													.object({
-														paths: z.array(z.string()).nonempty(),
-													})
-													.merge(resolveFontOptionsSchema.omit({ fallbacks: true }).partial())
-													.strict(),
-											),
-										})
-										.merge(fontFamilyAttributesSchema.omit({ provider: true }))
-										.merge(resolveFontOptionsSchema.pick({ fallbacks: true }).partial())
-										.strict(),
-									z
-										.object({
-											provider: z.string().optional().default(GOOGLE_PROVIDER_NAME),
-										})
-										.merge(fontFamilyAttributesSchema.omit({ provider: true }))
-										.merge(resolveFontOptionsSchema.partial())
-										.strict(),
-								])
-								.transform((family) =>
-									typeof family === 'string'
-										? { name: family, provider: GOOGLE_PROVIDER_NAME }
-										: family,
-								),
-						)
-						// We dedupe families
-						.transform((families) => [
-							// TODO: warn if some families are being overriden and how to resolve the issue
-							...new Map(families.map((family) => [getFamilyName(family), family])).values(),
+					providers: z.array(fontProviderSchema).optional(),
+					families: z.array(
+						z.union([
+							// Shorthand
+							z.string().transform((name) => ({ name, provider: GOOGLE_PROVIDER_NAME })),
+							localFontFamilySchema,
+							commonFontFamilySchema,
 						]),
+					),
 				})
 				.strict()
 				.optional()
@@ -675,13 +626,37 @@ export const AstroConfigSchema = z.object({
 						...BUILTIN_PROVIDERS,
 						...(fonts.providers ?? []).map((provider) => provider.name),
 					];
-					for (const family of fonts.families) {
+					const visited = new Map<string, 'name' | 'as'>();
+
+					for (let i = 0; i < fonts.families.length; i++) {
+						const family = fonts.families[i];
+
+						// Check for invalid providers
 						if (!providersNames.includes(family.provider)) {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
 								message: `Invalid provider "${family.provider}". Please use of the following: ${providersNames.map((name) => `"${name}"`).join(', ')}`,
+								path: ['families', i, 'provider'],
 							});
 						}
+
+						// Check for name/as conflicts
+						const name = getFamilyName(family);
+						const key = 'as' in family ? 'as' : 'name';
+						const existing = visited.get(name);
+						if (existing) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message:
+									key === 'name' && existing === 'name'
+										? `Multiple families have the same **name** property: "${name}". Names have to be unique, you can override one of these family name by specifying the **as** property. Read more at TODO:`
+										: key === 'as' && existing === 'as'
+											? `Multiple families have the same **as** property: "${name}". Names have to be unique, update one of these family **as** property to avoid conflicts. Read more at TODO:`
+											: `A family **name** property is conflicting with another family **as** property: "${name}". Either update the current **as** property or add a unique **as** property to the family that has a **name** property. Read more at TODO:`,
+								path: ['families', i, key],
+							});
+						}
+						visited.set(name, key);
 					}
 				}),
 			serializeConfig: z

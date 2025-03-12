@@ -57,7 +57,8 @@ it('loadFonts()', async () => {
 				// we do weird typings internally for "reasons" (provider is typed as "local" | "custom") but this is valid
 				provider: /** @type {any} */ ('google'),
 				fallbacks: ['sans-serif'],
-				as: 'Custom'
+				as: 'Custom',
+				display: 'block',
 			},
 		],
 		storage,
@@ -91,10 +92,10 @@ it('loadFonts()', async () => {
 	assert.equal(Array.from(hashToUrlMap.keys()).length > 0, true);
 	assert.deepStrictEqual(Array.from(resolvedMap.keys()), ['Roboto']);
 	assert.deepStrictEqual(logs, ['Fonts initialized']);
+	const css = resolvedMap.get('Roboto').css;
 	assert.equal(
-		resolvedMap
-			.get('Roboto')
-			.css.includes(':root { --astro-font-Custom: Custom, "Custom fallback: Arial", sans-serif; }'),
+		css.includes(':root { --astro-font-Custom: Custom, "Custom fallback: Arial", sans-serif; }'),
 		true,
 	);
+	assert.equal(css.includes('font-display: block'), true);
 });

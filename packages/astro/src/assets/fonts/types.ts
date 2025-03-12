@@ -6,14 +6,18 @@ import type {
 	FONT_TYPES,
 } from './constants.js';
 import type * as unifont from 'unifont';
-import type { fontFamilyAttributesSchema, resolveFontOptionsSchema } from './config.js';
+import type {
+	commonFontFamilySchema,
+	fontFamilyAttributesSchema,
+	fontProviderSchema,
+	localFontFamilySchema,
+	resolveFontOptionsSchema,
+} from './config.js';
 
 // TODO: jsdoc for everything, most of those end up in the public AstroConfig type
 
-export interface FontProvider<TName extends string> {
+export interface FontProvider<TName extends string> extends z.infer<typeof fontProviderSchema> {
 	name: TName;
-	entrypoint: string | URL;
-	config?: Record<string, any>;
 }
 
 export interface ResolvedFontProvider {
@@ -28,13 +32,10 @@ export interface FontFamilyAttributes
 	extends z.infer<typeof fontFamilyAttributesSchema>,
 		Partial<ResolveFontOptions> {}
 
-export interface LocalFontFamily extends Pick<FontFamilyAttributes, 'name' | 'fallbacks' | 'as'> {
-	provider: LocalProviderName;
-	src: Array<Partial<Omit<ResolveFontOptions, 'fallbacks'>> & { paths: Array<string> }>;
-}
+export type LocalFontFamily = z.infer<typeof localFontFamilySchema>;
 
 interface CommonFontFamily<TProvider extends string>
-	extends Omit<FontFamilyAttributes, 'provider'> {
+	extends z.infer<typeof commonFontFamilySchema> {
 	provider: TProvider;
 }
 
