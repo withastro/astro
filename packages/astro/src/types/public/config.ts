@@ -1323,7 +1323,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 *
 					 * The default CSS classes to apply to Markdown code blocks.
 					 * (If no other syntax highlighting configuration is needed, you can instead set `markdown.syntaxHighlight` directly to `shiki`, `prism`, or `false`.)
-					 * 
+					 *
 					 */
 					type?: SyntaxHighlightConfigType;
 
@@ -1340,18 +1340,18 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * This can be useful when using tools that create diagrams from Markdown code blocks, such as Mermaid.js and D2.
 					 *
 					 * ```js title="astro.config.mjs"
-           * import { defineConfig } from 'astro/config';
-           * 
-           * export default defineConfig({
-           *   markdown: {
-           *     syntaxHighlight: {
-           *       type: 'shiki',
-           *       excludeLangs: ['mermaid', 'math'],
-           *     },
-           *   },
-           * });
-           * ```
-					 * 
+					 * import { defineConfig } from 'astro/config';
+					 *
+					 * export default defineConfig({
+					 *   markdown: {
+					 *     syntaxHighlight: {
+					 *       type: 'shiki',
+					 *       excludeLangs: ['mermaid', 'math'],
+					 *     },
+					 *   },
+					 * });
+					 * ```
+					 *
 					 * ```html
 					 * <!-- Call Mermaid JavaScript Integration in the body -->
 					 * <script>
@@ -1362,10 +1362,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 *   });
 					 * </script>
 					 * ```
-					 * 
+					 *
 					 * */
 					excludeLangs?: string[];
-			}
+			  }
 			| SyntaxHighlightConfigType
 			| false;
 		/**
