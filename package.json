@@ -78,6 +78,11 @@
         "vite"
       ]
     },
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "workerd",
+      "@biomejs/biome",
+      "sharp"
+    ]
   }
 }
