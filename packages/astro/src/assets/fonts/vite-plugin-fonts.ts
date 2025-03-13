@@ -113,7 +113,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				return metrics;
 			},
 			log: (message) => logger.info('assets', message),
-			// TODO: throw error earlier if name or as isn't valid
 			generateCSSVariableName: (name) => kebab(name),
 		});
 	}

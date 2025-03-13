@@ -419,6 +419,38 @@ describe('Config Validation', () => {
 			assert.equal(configError.errors[0].message.includes('Invalid provider "custom"'), true);
 		});
 
+		it('Should error on invalid families name', async () => {
+			let configError = await validateConfig({
+				experimental: {
+					fonts: {
+						families: [{ name: '(' }],
+					},
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'Family name "(" contains invalid characters for CSS variable generation.',
+				),
+				true,
+			);
+
+			configError = await validateConfig({
+				experimental: {
+					fonts: {
+						families: [{ name: '(', as: ')' }],
+					},
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'**as** property ")" contains invalid characters for CSS variable generation.',
+				),
+				true,
+			);
+		});
+
 		it('Should error on families name conflicts', async () => {
 			let configError = await validateConfig({
 				experimental: {
@@ -429,7 +461,9 @@ describe('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message.includes('Multiple families have the same **name** property: "Foo"'),
+				configError.errors[0].message.includes(
+					'Multiple families have the same **name** property: "Foo"',
+				),
 				true,
 			);
 
@@ -445,17 +479,16 @@ describe('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message.includes('Multiple families have the same **as** property: "Bar"'),
+				configError.errors[0].message.includes(
+					'Multiple families have the same **as** property: "Bar"',
+				),
 				true,
 			);
 
 			configError = await validateConfig({
 				experimental: {
 					fonts: {
-						families: [
-							{ name: 'Foo', as: 'Bar' },
-							{ name: 'Bar' },
-						],
+						families: [{ name: 'Foo', as: 'Bar' }, { name: 'Bar' }],
 					},
 				},
 			}).catch((err) => err);

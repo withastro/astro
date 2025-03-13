@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
 	fontProviderSchema,
 	resolveFontOptionsSchema,
+	VALID_CHAR_RE,
 } from '../../../../dist/assets/fonts/config.js';
 
 describe('fonts schemas', () => {
@@ -54,5 +55,10 @@ describe('fonts schemas', () => {
 		assert.equal(res.success, false);
 		assert.equal(res.error.issues[0].code, 'custom');
 		assert.equal(res.error.issues[0].message, '"local" is a reserved provider name');
+	});
+
+	it('VALID_CHAR_RE', () => {
+		assert.equal(VALID_CHAR_RE.test('abA _:8'), true);
+		assert.equal(VALID_CHAR_RE.test('('), false);
 	});
 });
