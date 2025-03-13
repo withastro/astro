@@ -3,8 +3,8 @@ import type { FontFamilyAttributes, FontType } from './types.js';
 import { extname } from 'node:path';
 import { DEFAULT_FALLBACKS, FONT_TYPES } from './constants.js';
 import type { Storage } from 'unstorage';
-import type * as fontaine from 'fontaine';
 import type { Logger } from '../../core/logger/core.js';
+import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
@@ -114,19 +114,28 @@ export function isGenericFontFamily(str: string): str is keyof typeof DEFAULT_FA
 	return Object.keys(DEFAULT_FALLBACKS).includes(str);
 }
 
-type FontFaceMetrics = Parameters<typeof fontaine.generateFontFace>[0];
+export type GetMetricsForFamilyFont = {
+	hash: string;
+	url: string;
+} | null;
+
+export type GetMetricsForFamily = (
+	name: string,
+	/** A remote url or local filepath to a font file. Used if metrics can't be resolved purely from the family name */
+	font: GetMetricsForFamilyFont,
+) => Promise<FontFaceMetrics | null>;
 
 /**
  * Generates CSS for a given family fallbacks if possible.
  *
- * It works by trying to get metrics (using fontaine) of the provided font family.
+ * It works by trying to get metrics (using capsize) of the provided font family.
  * If some can be computed, they will be applied to the eligible fallbacks to match
  * the original font shape as close as possible.
  */
 export async function generateFallbacksCSS({
 	family,
 	fallbacks: _fallbacks,
-	fontURL,
+	font: fontData,
 	getMetricsForFamily,
 	// eslint-disable-next-line @typescript-eslint/no-shadow
 	generateFontFace,
@@ -137,10 +146,9 @@ export async function generateFallbacksCSS({
 	};
 	/** The family fallbacks */
 	fallbacks: Array<string>;
-	/** A remote url or local filepath to a font file. Used if metrics can't be resolved purely from the family name */
-	fontURL: string | null;
-	getMetricsForFamily: (family: string, fontURL: string | null) => Promise<null | FontFaceMetrics>;
-	generateFontFace: typeof fontaine.generateFontFace;
+	font: GetMetricsForFamilyFont;
+	getMetricsForFamily: GetMetricsForFamily;
+	generateFontFace: typeof generateFallbackFontFace;
 }): Promise<null | { css: string; fallbacks: Array<string> }> {
 	// We avoid mutating the original array
 	let fallbacks = [..._fallbacks];
@@ -164,7 +172,7 @@ export async function generateFallbacksCSS({
 		return { css, fallbacks };
 	}
 
-	const metrics = await getMetricsForFamily(family.name, fontURL);
+	const metrics = await getMetricsForFamily(family.name, fontData);
 	if (!metrics) {
 		// If there are no metrics, we can't generate useful fallbacks
 		return { css, fallbacks };

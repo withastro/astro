@@ -22,8 +22,8 @@ import { readFile } from 'node:fs/promises';
 import { createStorage, type Storage } from 'unstorage';
 import fsLiteDriver from 'unstorage/drivers/fs-lite';
 import { fileURLToPath } from 'node:url';
-import * as fontaine from 'fontaine';
 import { loadFonts } from './load.js';
+import { generateFallbackFontFace, getMetricsForFamily, readMetrics } from './metrics.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -103,17 +103,17 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			resolvedMap,
 			resolveMod,
 			hashString: h64ToString,
-			getMetricsForFamily: async (name, fontURL) => {
-				let metrics = await fontaine.getMetricsForFamily(name);
-				if (fontURL && !metrics) {
-					// TODO: investigate in using capsize directly (fromBlob) to be able to cache
-					metrics = await fontaine.readMetrics(fontURL);
+			generateFallbackFontFace,
+			getMetricsForFamily: async (name, font) => {
+				let metrics = await getMetricsForFamily(name);
+				if (font && !metrics) {
+					const { data } = await cache(storage!, font.hash, () => fetchFont(font.url));
+					metrics = await readMetrics(name, data);
 				}
 				return metrics;
 			},
-			generateFontFace: fontaine.generateFontFace,
 			log: (message) => logger.info('assets', message),
-			// TODO: warn if characters are stripped out OR show the list of all generated css variables
+			// TODO: throw error earlier if name or as isn't valid
 			generateCSSVariableName: (name) => kebab(name),
 		});
 	}

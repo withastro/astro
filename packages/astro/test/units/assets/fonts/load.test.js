@@ -78,7 +78,7 @@ it('loadFonts()', async () => {
 			unitsPerEm: 0,
 			xWidthAvg: 0,
 		}),
-		generateFontFace: () => '',
+		generateFallbackFontFace: () => '',
 		log: (message) => {
 			logs.push(message);
 		},
