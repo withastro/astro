@@ -1,5 +1,11 @@
 # astro
 
+## 5.5.1
+
+### Patch Changes
+
+- [#13413](https://github.com/withastro/astro/pull/13413) [`65903c9`](https://github.com/withastro/astro/commit/65903c995408397c63c911e184218c0206e5853f) Thanks [@ascorbic](https://github.com/ascorbic)! - Makes experimental flag optional
+
 ## 5.5.0
 
 ### Minor Changes
