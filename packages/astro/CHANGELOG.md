@@ -1,5 +1,13 @@
 # astro
 
+## 5.5.2
+
+### Patch Changes
+
+- [#13415](https://github.com/withastro/astro/pull/13415) [`be866a1`](https://github.com/withastro/astro/commit/be866a1d1db12793e0953b228d0b2dc1c00929e2) Thanks [@ascorbic](https://github.com/ascorbic)! - Reuses experimental session storage object between requests. This prevents memory leaks and improves performance for drivers that open persistent connections to a database.
+
+- [#13420](https://github.com/withastro/astro/pull/13420) [`2f039b9`](https://github.com/withastro/astro/commit/2f039b927a3a1334948adc7788b1f24c074dfac7) Thanks [@ematipico](https://github.com/ematipico)! - It fixes an issue that caused some regressions in how styles are bundled.
+
 ## 5.5.1
 
 ### Patch Changes
