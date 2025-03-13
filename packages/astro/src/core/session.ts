@@ -76,6 +76,8 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	// preserving in-memory changes and deletions.
 	#partial = true;
 
+	static #sharedStorage = new Map<string, Storage>();
+
 	constructor(
 		cookies: AstroCookies,
 		{
@@ -402,6 +404,14 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			return this.#storage;
 		}
 
+		// We reuse the storage object if it has already been created.
+		// We don't need to worry about the config changing because editing it
+		// will always restart the process.
+		if (AstroSession.#sharedStorage.has(this.#config.driver)) {
+			this.#storage = AstroSession.#sharedStorage.get(this.#config.driver);
+			return this.#storage!;
+		}
+
 		if (this.#config.driver === 'test') {
 			this.#storage = (this.#config as SessionConfig<'test'>).options.mockStorage;
 			return this.#storage!;
@@ -468,6 +478,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			this.#storage = createStorage({
 				driver: driver(this.#config.options),
 			});
+			AstroSession.#sharedStorage.set(this.#config.driver, this.#storage);
 			return this.#storage;
 		} catch (err) {
 			throw new AstroError(
