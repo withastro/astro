@@ -181,7 +181,7 @@ describe('fonts utils', () => {
 				await generateFallbacksCSS({
 					family: { name: 'Roboto' },
 					fallbacks: [],
-					fontURL: null,
+					font: null,
 					getMetricsForFamily: async () => null,
 					generateFontFace: () => '',
 				}),
@@ -194,7 +194,7 @@ describe('fonts utils', () => {
 				await generateFallbacksCSS({
 					family: { name: 'Roboto' },
 					fallbacks: ['foo'],
-					fontURL: null,
+					font: null,
 					getMetricsForFamily: async () => null,
 					generateFontFace: () => '',
 				}),
@@ -210,7 +210,7 @@ describe('fonts utils', () => {
 				await generateFallbacksCSS({
 					family: { name: 'Roboto' },
 					fallbacks: ['foo'],
-					fontURL: null,
+					font: null,
 					getMetricsForFamily: async () => ({
 						ascent: 0,
 						descent: 0,
@@ -232,7 +232,7 @@ describe('fonts utils', () => {
 				await generateFallbacksCSS({
 					family: { name: 'Roboto' },
 					fallbacks: ['emoji'],
-					fontURL: null,
+					font: null,
 					getMetricsForFamily: async () => ({
 						ascent: 0,
 						descent: 0,
@@ -254,7 +254,7 @@ describe('fonts utils', () => {
 				await generateFallbacksCSS({
 					family: { name: 'Roboto' },
 					fallbacks: ['foo', 'bar'],
-					fontURL: null,
+					font: null,
 					getMetricsForFamily: async () => ({
 						ascent: 0,
 						descent: 0,
@@ -273,7 +273,7 @@ describe('fonts utils', () => {
 				await generateFallbacksCSS({
 					family: { name: 'Roboto' },
 					fallbacks: ['sans-serif', 'foo'],
-					fontURL: null,
+					font: null,
 					getMetricsForFamily: async () => ({
 						ascent: 0,
 						descent: 0,
@@ -292,7 +292,7 @@ describe('fonts utils', () => {
 				await generateFallbacksCSS({
 					family: { name: 'Roboto', as: 'Custom' },
 					fallbacks: ['foo', 'sans-serif'],
-					fontURL: null,
+					font: null,
 					getMetricsForFamily: async () => ({
 						ascent: 0,
 						descent: 0,
