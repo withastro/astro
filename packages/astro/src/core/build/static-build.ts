@@ -188,18 +188,7 @@ async function ssrBuild(
 						const encoded = encodeName(name);
 						return [prefix, encoded, suffix].join('');
 					},
-					assetFileNames(chunkInfo) {
-						const { names } = chunkInfo;
-						const name = names[0] ?? '';
-
-						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
-						// TODO: refactor our build logic to avoid this
-						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
-							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-							return `${settings.config.build.assets}/${sanitizedName}.[hash][extname]`;
-						}
-						return `${settings.config.build.assets}/[name].[hash][extname]`;
-					},
+					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {

@@ -4,15 +4,6 @@ import * as cheerio from 'cheerio';
 import eol from 'eol';
 import { loadFixture } from './test-utils.js';
 
-async function getCssContent($, fixture) {
-	const contents = await Promise.all(
-		$('link[rel=stylesheet][href^=/_astro/]').map((_, el) =>
-			fixture.readFile(el.attribs.href.replace(/^\/?/, '/')),
-		),
-	);
-	return contents.join('').replace(/\s/g, '').replace('/n', '');
-}
-
 describe('PostCSS', () => {
 	let fixture;
 	let bundledCSS;
@@ -28,7 +19,10 @@ describe('PostCSS', () => {
 			// get bundled CSS (will be hashed, hence DOM query)
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			bundledCSS = await getCssContent($, fixture);
+			const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
+			bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
+				.replace(/\s/g, '')
+				.replace('/n', '');
 		},
 		{ timeout: 45000 },
 	);
