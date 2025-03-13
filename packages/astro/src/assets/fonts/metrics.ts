@@ -3,7 +3,9 @@ import type { Font } from '@capsizecss/unpack';
 import { fontFamilyToCamelCase } from '@capsizecss/metrics';
 import { fromBlob } from '@capsizecss/unpack';
 
-const withoutQuotes = (str: string) => str.trim().replace(/^["']|["']$/g, '');
+const QUOTES_RE = /^["']|["']$/g
+
+const withoutQuotes = (str: string) => str.trim().replace(QUOTES_RE, '');
 
 export type FontFaceMetrics = Pick<
 	Font,
