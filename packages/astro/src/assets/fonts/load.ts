@@ -6,6 +6,8 @@ import {
 	generateFontFace,
 	getFamilyName,
 	proxyURL,
+	type GetMetricsForFamily,
+	type GetMetricsForFamilyFont,
 	type ProxyURLOptions,
 } from './utils.js';
 import * as unifont from 'unifont';
@@ -13,10 +15,9 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
 import type { FontFamily, FontProvider, PreloadData } from './types.js';
 import type { Storage } from 'unstorage';
+import type { generateFallbackFontFace } from './metrics.js';
 
-interface Options
-	extends Pick<Parameters<typeof proxyURL>[0], 'hashString'>,
-		Pick<Parameters<typeof generateFallbacksCSS>[0], 'generateFontFace' | 'getMetricsForFamily'> {
+interface Options {
 	root: URL;
 	base: string;
 	providers: Array<FontProvider<string>>;
@@ -24,9 +25,12 @@ interface Options
 	storage: Storage;
 	hashToUrlMap: Map<string, string>;
 	resolvedMap: Map<string, { preloadData: PreloadData; css: string }>;
+	hashString: (value: string) => string;
 	resolveMod: ResolveMod;
 	log: (message: string) => void;
 	generateCSSVariableName: (name: string) => string;
+	generateFallbackFontFace: typeof generateFallbackFontFace;
+	getMetricsForFamily: GetMetricsForFamily;
 }
 
 export async function loadFonts({
@@ -39,7 +43,7 @@ export async function loadFonts({
 	resolvedMap,
 	resolveMod,
 	hashString,
-	generateFontFace: generateFallbackFontFace,
+	generateFallbackFontFace,
 	getMetricsForFamily,
 	log,
 	generateCSSVariableName,
@@ -58,6 +62,7 @@ export async function loadFonts({
 	for (const family of families) {
 		const preloadData: PreloadData = [];
 		let css = '';
+		let fallbackFontData: GetMetricsForFamilyFont = null;
 
 		// When going through the urls/filepaths returned by providers,
 		// We save the hash and the associated original value so we can use
@@ -67,6 +72,15 @@ export async function loadFonts({
 			if (!hashToUrlMap.has(hash)) {
 				hashToUrlMap.set(hash, value);
 				preloadData.push({ url, type });
+			}
+			// If a family has fallbacks, we store the first url we get that may
+			// be used for the fallback generation, if capsize doesn't have this
+			// family in its built-in collection
+			if (family.fallbacks && family.fallbacks.length > 0) {
+				fallbackFontData ??= {
+					hash,
+					url: value,
+				};
 			}
 			return url;
 		};
@@ -106,7 +120,7 @@ export async function loadFonts({
 					// No default fallback to be used here
 					fallbacks: family.fallbacks,
 				},
-				// By default, fontaine goes through all providers. We use a different approach
+				// By default, unifont goes through all providers. We use a different approach
 				// where we specify a provider per font (default to google)
 				[family.provider],
 			);
@@ -143,14 +157,11 @@ export async function loadFonts({
 				variationSettings: data.variationSettings ?? family.variationSettings,
 			});
 		}
-		const urls = fonts
-			.flatMap((font) => font.src.map((src) => ('originalURL' in src ? src.originalURL : null)))
-			.filter(Boolean);
 
 		const fallbackData = await generateFallbacksCSS({
 			family,
+			font: fallbackFontData,
 			fallbacks: family.fallbacks ?? [],
-			fontURL: urls.at(0) ?? null,
 			getMetricsForFamily,
 			generateFontFace: generateFallbackFontFace,
 		});
