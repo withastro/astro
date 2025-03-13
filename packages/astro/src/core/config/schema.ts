@@ -19,8 +19,10 @@ import {
 	commonFontFamilySchema,
 	fontProviderSchema,
 	localFontFamilySchema,
+	VALID_CHAR_RE,
 } from '../../assets/fonts/config.js';
 import { getFamilyName } from '../../assets/fonts/utils.js';
+import type { FontFamilyAttributes } from '../../assets/fonts/types.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
@@ -610,7 +612,14 @@ export const AstroConfigSchema = z.object({
 					families: z.array(
 						z.union([
 							// Shorthand
-							z.string().transform((name) => ({ name, provider: GOOGLE_PROVIDER_NAME })),
+							z
+								.string()
+								.transform(
+									(name): FontFamilyAttributes => ({
+										name,
+										provider: GOOGLE_PROVIDER_NAME,
+									}),
+								),
 							localFontFamilySchema,
 							commonFontFamilySchema,
 						]),
@@ -637,6 +646,22 @@ export const AstroConfigSchema = z.object({
 								code: z.ZodIssueCode.custom,
 								message: `Invalid provider "${family.provider}". Please use of the following: ${providersNames.map((name) => `"${name}"`).join(', ')}`,
 								path: ['families', i, 'provider'],
+							});
+						}
+
+						if (family.as) {
+							if (!VALID_CHAR_RE.test(family.as)) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `**as** property "${family.as}" contains invalid characters for CSS variable generation. Only letters, numbers, spaces, underscores and colons are allowed.`,
+									path: ['as'],
+								});
+							}
+						} else if (!VALID_CHAR_RE.test(family.name)) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message: `Family name "${family.name}" contains invalid characters for CSS variable generation. Specify the **as** property, read more at TODO:`,
+								path: ['name'],
 							});
 						}
 
