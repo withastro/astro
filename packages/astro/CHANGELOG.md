@@ -1,5 +1,148 @@
 # astro
 
+## 5.5.0
+
+### Minor Changes
+
+- [#13402](https://github.com/withastro/astro/pull/13402) [`3e7b498`](https://github.com/withastro/astro/commit/3e7b498dce52648484bb4deb04bf9e960c3d08e3) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new experimental flag called `experimental.preserveScriptOrder` that renders `<script>` and `<style>` tags in the same order as they are defined.
+
+  When rendering multiple `<style>` and `<script>` tags on the same page, Astro currently reverses their order in your generated HTML output. This can give unexpected results, for example CSS styles being overridden by earlier defined style tags when your site is built.
+
+  With the new `preserveScriptOrder` flag enabled, Astro will generate the styles in the order they are defined:
+
+  ```js title="astro.config.mjs"
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      preserveScriptOrder: true,
+    },
+  });
+  ```
+
+  For example, the following component has two `<style>` tags, and both define the same style for the `body` tag:
+
+  ```html
+  <p>I am a component</p>
+  <style>
+    body {
+      background: red;
+    }
+  </style>
+  <style>
+    body {
+      background: yellow;
+    }
+  </style>
+  ```
+
+  Once the project is compiled, Astro will create an inline style where `yellow` appears first, and then `red`. Ultimately, the `red` background is applied:
+
+  ```css
+  body {
+    background: #ff0;
+  }
+  body {
+    background: red;
+  }
+  ```
+
+  When `experimental.preserveScriptOrder` is set to `true`, the order of the two styles is kept as it is, and in the style generated `red` appears first, and then `yellow`:
+
+  ```css
+  body {
+    background: red;
+  }
+  body {
+    background: #ff0;
+  }
+  ```
+
+  This is a breaking change to how Astro renders project code that contains multiple `<style>` and `<script>` tags in the same component. If you were previously compensating for Astro's behavior by writing these out of order, you will need to update your code.
+
+  This will eventually become the new default Astro behavior, so we encourage you to add this experimental style and script ordering as soon as you are able! This will help us test the new behavior and ensure your code is ready when this becomes the new normal.
+
+  For more information as this feature develops, please see the [experimental script order docs](https://docs.astro.build/en/reference/experimental-flags/preserve-script-order/).
+
+- [#13352](https://github.com/withastro/astro/pull/13352) [`cb886dc`](https://github.com/withastro/astro/commit/cb886dcde6c28acca286a66be46228a4d4cc52e7) Thanks [@delucis](https://github.com/delucis)! - Adds support for a new `experimental.headingIdCompat` flag
+
+  By default, Astro removes a trailing `-` from the end of IDs it generates for headings ending with
+  special characters. This differs from the behavior of common Markdown processors.
+
+  You can now disable this behavior with a new configuration flag:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      headingIdCompat: true,
+    },
+  });
+  ```
+
+  This can be useful when heading IDs and anchor links need to behave consistently across your site
+  and other platforms such as GitHub and npm.
+
+  If you are [using the `rehypeHeadingIds` plugin directly](https://docs.astro.build/en/guides/markdown-content/#heading-ids-and-plugins), you can also pass this new option:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+  import { otherPluginThatReliesOnHeadingIDs } from 'some/plugin/source';
+
+  export default defineConfig({
+    markdown: {
+      rehypePlugins: [
+        [rehypeHeadingIds, { experimentalHeadingIdCompat: true }],
+        otherPluginThatReliesOnHeadingIDs,
+      ],
+    },
+  });
+  ```
+
+- [#13311](https://github.com/withastro/astro/pull/13311) [`a3327ff`](https://github.com/withastro/astro/commit/a3327ffbe6373228339824684eaa6f340a20a32e) Thanks [@chrisirhc](https://github.com/chrisirhc)! - Adds a new configuration option for Markdown syntax highlighting `excludeLangs`
+
+  This option provides better support for diagramming tools that rely on Markdown code blocks, such as Mermaid.js and D2 by allowing you to exclude specific languages from Astro's default syntax highlighting.
+
+  This option allows you to avoid rendering conflicts with tools that depend on the code not being highlighted without forcing you to disable syntax highlighting for other code blocks.
+
+  The following example configuration will exclude highlighting for `mermaid` and `math` code blocks:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    markdown: {
+      syntaxHighlight: {
+        type: 'shiki',
+        excludeLangs: ['mermaid', 'math'],
+      },
+    },
+  });
+  ```
+
+  Read more about this new option in the [Markdown syntax highlighting configuration docs](https://docs.astro.build/en/reference/configuration-reference/#markdownsyntaxhighlight).
+
+### Patch Changes
+
+- [#13404](https://github.com/withastro/astro/pull/13404) [`4e78b4d`](https://github.com/withastro/astro/commit/4e78b4d10d2214c94752a1fef74db325053cf071) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug in error handling that saving a content file with a schema error would display an "unhandled rejection" error instead of the correct schema error
+
+- [#13379](https://github.com/withastro/astro/pull/13379) [`d59eb22`](https://github.com/withastro/astro/commit/d59eb227334b788289533bac41f015b498179a2f) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an edge case where the client router executed scripts twice when used with a custom swap function that only swaps parts of the DOM.
+
+- [#13393](https://github.com/withastro/astro/pull/13393) [`6b8fdb8`](https://github.com/withastro/astro/commit/6b8fdb8a113b6f76448b41beb990c33fafb09b3e) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `primsjs` to version 1.30.0, which adds support for more languages and fixes a security advisory which does not affect Astro.
+
+- [#13374](https://github.com/withastro/astro/pull/13374) [`7b75bc5`](https://github.com/withastro/astro/commit/7b75bc5c36bc338bcef5ef41502e87c184c117ec) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes the documentation of the i18n configuration where `manual` was presented as a key of `routing` instead of an available value.
+
+- [#13380](https://github.com/withastro/astro/pull/13380) [`9bfa6e6`](https://github.com/withastro/astro/commit/9bfa6e6d8b95424436be405a80d5df3f2e2e72df) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue where astro:page-load fires before all scripts are executed
+
+- [#13407](https://github.com/withastro/astro/pull/13407) [`0efdc22`](https://github.com/withastro/astro/commit/0efdc22b182f6cec4155a972f0dde1da686c5453) Thanks [@ascorbic](https://github.com/ascorbic)! - Displays correct error message when sharp isn't installed
+
+- Updated dependencies [[`cb886dc`](https://github.com/withastro/astro/commit/cb886dcde6c28acca286a66be46228a4d4cc52e7), [`a3327ff`](https://github.com/withastro/astro/commit/a3327ffbe6373228339824684eaa6f340a20a32e)]:
+  - @astrojs/markdown-remark@6.3.0
+
 ## 5.4.3
 
 ### Patch Changes
