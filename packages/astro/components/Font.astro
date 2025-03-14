@@ -13,6 +13,7 @@ interface Props {
 const { family, preload = false } = Astro.props;
 const data = fontsData.get(family);
 if (!data) {
+	// TODO: improve
 	throw new Error(`No data for ${family}`);
 }
 ---

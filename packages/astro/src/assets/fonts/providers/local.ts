@@ -3,6 +3,7 @@ import type { LocalFontFamily } from '../types.js';
 import { DEFAULTS } from '../constants.js';
 import { fileURLToPath } from 'node:url';
 import { extractFontType } from '../utils.js';
+import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 
 // https://fonts.nuxt.com/get-started/providers#local
 // https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
@@ -93,7 +94,6 @@ export class LocalFontsWatcher {
 		if (!this.#matches(path)) {
 			return;
 		}
-		// TODO: improve
-		throw new Error('File used for font deleted. Restore it or update your config');
+		throw new AstroError(AstroErrorData.DeletedLocalFont);
 	}
 }

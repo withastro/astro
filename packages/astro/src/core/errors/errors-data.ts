@@ -1306,6 +1306,57 @@ export const UnknownFilesystemError = {
 
 /**
  * @docs
+ * @description
+ * Cannot extract the font type from the given URL.
+ */
+export const CannotExtractFontType = {
+	name: 'CannotExtractFontType',
+	title: 'Cannot extract the font type from the given URL.',
+	hint: 'Open an issue at https://github.com/withastro/astro/issues',
+};
+
+/**
+ * @docs
+ * @description
+ * Cannot fetch the given font file
+ * @message
+ * An error occured while fetching font file from the given URL.
+ */
+export const CannotFetchFontFile = {
+	name: 'CannotFetchFontFile',
+	title: 'Cannot fetch the given font file.',
+	message: (url: string) => `An error occured while fetching font file from ${url}`,
+	hint: 'Check the error cause and open an issue if it cannot be solved on your side.',
+};
+
+/**
+ * @docs
+ * @description
+ * A local font file referenced in your Astro config has been deleted. Restore the file or update your Astro config.
+ */
+export const DeletedLocalFont = {
+	name: 'DeletedLocalFont',
+	title: 'A local font has been deleted',
+	message: 'A local font file referenced in your Astro config has been deleted.',
+	hint: 'Restore the file or update your Astro config.',
+};
+
+/**
+ * @docs
+ * @description
+ * Cannot load font provider
+ * @message
+ * An error occured while loading the given provider. Open an issue on the corresponding repository.
+ */
+export const CannotLoadFontProvider = {
+	name: 'CannotLoadFontProvider',
+	title: 'Cannot load font provider',
+	message: (provider: string) => `An error occured while loading the "${provider}" provider.`,
+	hint: 'Open an issue on the corresponding repository.',
+};
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */
