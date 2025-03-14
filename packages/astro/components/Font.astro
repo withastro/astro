@@ -1,8 +1,9 @@
 ---
+import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+
 // TODO: remove dynamic import when fonts are stabilized
 const { fontsData } = await import('virtual:astro:assets/fonts/internal').catch(() => {
-	// TODO: improve
-	throw new Error('experimental.fonts not enabled');
+	throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
 });
 
 interface Props {
@@ -13,7 +14,10 @@ interface Props {
 const { family, preload = false } = Astro.props;
 const data = fontsData.get(family);
 if (!data) {
-	throw new Error(`No data for ${family}`);
+	throw new AstroError({
+		...AstroErrorData.FontFamilyNotFound,
+		message: AstroErrorData.FontFamilyNotFound.message(family),
+	});
 }
 ---
 

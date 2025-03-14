@@ -111,7 +111,7 @@ describe('fonts utils', () => {
 					assert.fail(`String ${JSON.stringify(input)} should be valid`);
 				} else {
 					assert.equal(e instanceof Error, true);
-					assert.equal(e.message, "Can't extract font type");
+					assert.equal(e.title, 'Cannot extract the font type from the given URL.');
 				}
 			}
 		}

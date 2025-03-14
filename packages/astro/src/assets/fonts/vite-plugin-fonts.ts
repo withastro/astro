@@ -39,9 +39,14 @@ async function fetchFont(url: string): Promise<Buffer> {
 		const r = await fetch(url);
 		const arr = await r.arrayBuffer();
 		return Buffer.from(arr);
-	} catch (e) {
-		// TODO: AstroError
-		throw new Error('Error downloading font file', { cause: e });
+	} catch (cause) {
+		throw new AstroError(
+			{
+				...AstroErrorData.CannotFetchFontFile,
+				message: AstroErrorData.CannotFetchFontFile.message(url),
+			},
+			{ cause },
+		);
 	}
 }
 
@@ -212,8 +217,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				const fontsDir = new URL('.' + baseUrl, dir);
 				try {
 					mkdirSync(fontsDir, { recursive: true });
-				} catch (e) {
-					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+				} catch (cause) {
+					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 				}
 				if (hashToUrlMap) {
 					await Promise.all(
@@ -223,8 +228,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 							logManager.remove(hash, cached);
 							try {
 								writeFileSync(new URL(hash, fontsDir), data);
-							} catch (e) {
-								throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+							} catch (cause) {
+								throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 							}
 						}),
 					);
