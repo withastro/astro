@@ -77,6 +77,12 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let isBuild: boolean;
 	let storage: Storage | null = null;
 
+	const cleanup = () => {
+		resolvedMap = null;
+		hashToUrlMap = null;
+		storage = null;
+	};
+
 	async function initialize({ resolveMod, base }: { resolveMod: ResolveMod; base: URL }) {
 		const { h64ToString } = await xxhash();
 
@@ -195,41 +201,37 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async buildEnd() {
-			resolvedMap = null;
-
-			if (sync) {
-				hashToUrlMap = null;
-				storage = null;
+			if (sync || settings.config.experimental.fonts!.families.length === 0) {
+				cleanup();
 				return;
 			}
 
-			// TODO: properly cleanup in case of failure
-
-			const logManager = createLogManager(logger);
-			const dir = getClientOutputDirectory(settings);
-			const fontsDir = new URL('.' + baseUrl, dir);
 			try {
-				mkdirSync(fontsDir, { recursive: true });
-			} catch (e) {
-				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+				const logManager = createLogManager(logger);
+				const dir = getClientOutputDirectory(settings);
+				const fontsDir = new URL('.' + baseUrl, dir);
+				try {
+					mkdirSync(fontsDir, { recursive: true });
+				} catch (e) {
+					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+				}
+				if (hashToUrlMap) {
+					await Promise.all(
+						Array.from(hashToUrlMap.entries()).map(async ([hash, url]) => {
+							logManager.add(hash);
+							const { cached, data } = await cache(storage!, hash, () => fetchFont(url));
+							logManager.remove(hash, cached);
+							try {
+								writeFileSync(new URL(hash, fontsDir), data);
+							} catch (e) {
+								throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+							}
+						}),
+					);
+				}
+			} finally {
+				cleanup();
 			}
-			if (hashToUrlMap) {
-				await Promise.all(
-					Array.from(hashToUrlMap.entries()).map(async ([hash, url]) => {
-						logManager.add(hash);
-						const { cached, data } = await cache(storage!, hash, () => fetchFont(url));
-						logManager.remove(hash, cached);
-						try {
-							writeFileSync(new URL(hash, fontsDir), data);
-						} catch (e) {
-							throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
-						}
-					}),
-				);
-			}
-
-			hashToUrlMap = null;
-			storage = null;
 		},
 	};
 }
