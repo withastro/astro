@@ -654,14 +654,14 @@ export const AstroConfigSchema = z.object({
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,
 									message: `**as** property "${family.as}" contains invalid characters for CSS variable generation. Only letters, numbers, spaces, underscores and colons are allowed.`,
-									path: ['as'],
+									path: ['families', i, 'as'],
 								});
 							}
 						} else if (!VALID_CHAR_RE.test(family.name)) {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
 								message: `Family name "${family.name}" contains invalid characters for CSS variable generation. Specify the **as** property, read more at TODO:`,
-								path: ['name'],
+								path: ['families', i, 'name'],
 							});
 						}
 
