@@ -63,7 +63,7 @@
     "mdast-util-mdx-jsx": "^3.2.0",
     "mdast-util-to-string": "^4.0.0",
     "rehype-mathjax": "^6.0.0",
-    "rehype-pretty-code": "^0.14.0",
+    "rehype-pretty-code": "^0.14.1",
     "remark-math": "^6.0.0",
     "remark-rehype": "^11.1.1",
     "remark-shiki-twoslash": "^3.1.3",
