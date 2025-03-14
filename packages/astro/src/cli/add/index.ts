@@ -9,6 +9,7 @@ import { getDefaultExportOptions } from 'magicast/helpers';
 import { detect, resolveCommand } from 'package-manager-detector';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
+import type yargsParser from 'yargs-parser';
 import yoctoSpinner from 'yocto-spinner';
 import {
 	loadTSConfig,
@@ -32,7 +33,6 @@ import { eventCliSession, telemetry } from '../../events/index.js';
 import { exec } from '../exec.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
-import type yargsParser from 'yargs-parser';
 
 interface AddOptions {
 	flags: Flags;
