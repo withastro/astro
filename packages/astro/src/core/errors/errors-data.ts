@@ -72,7 +72,7 @@ export const ClientAddressNotAvailable = {
 export const PrerenderClientAddressNotAvailable = {
 	name: 'PrerenderClientAddressNotAvailable',
 	title: '`Astro.clientAddress` cannot be used inside prerendered routes.',
-	message: `\`Astro.clientAddress\` cannot be used inside prerendered routes`,
+	message: (name: string) => `\`Astro.clientAddress\` cannot be used inside prerendered route ${name}`,
 } satisfies ErrorData;
 /**
  * @docs
