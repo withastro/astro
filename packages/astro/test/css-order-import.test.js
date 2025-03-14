@@ -147,9 +147,9 @@ describe('CSS ordering - import order', () => {
 			const content = await Promise.all(
 				getLinks(html).map((href) => getLinkContent(href, fixture)),
 			);
-			let [link1, , link3] = content;
+			let [link1, link2] = content;
 			assert.ok(link1.css.includes('f0f8ff')); // aliceblue minified
-			assert.ok(link3.css.includes('ff0')); // yellow minified
+			assert.ok(link2.css.includes('ff0')); // yellow minified
 		});
 	});
 });

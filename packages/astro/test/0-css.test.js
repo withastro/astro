@@ -9,19 +9,10 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-async function getCssContent($, fixture) {
-	const contents = await Promise.all(
-		$('link[rel=stylesheet][href^=/_astro/]').map((_, el) =>
-			fixture.readFile(el.attribs.href.replace(/^\/?/, '/')),
-		),
-	);
-	return contents.join('').replace(/\s/g, '').replace('/n', '');
-}
+/** @type {import('./test-utils').Fixture} */
+let fixture;
 
 describe('CSS', function () {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/0-css/' });
 	});
@@ -39,7 +30,10 @@ describe('CSS', function () {
 				// get bundled CSS (will be hashed, hence DOM query)
 				html = await fixture.readFile('/index.html');
 				$ = cheerio.load(html);
-				bundledCSS = await getCssContent($, fixture);
+				const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
+					.replace(/\s/g, '')
+					.replace('/n', '');
 			},
 			{
 				timeout: 45000,
@@ -105,7 +99,8 @@ describe('CSS', function () {
 			it('Styles through barrel files should only include used Astro scoped styles', async () => {
 				const barrelHtml = await fixture.readFile('/barrel-styles/index.html');
 				const barrel$ = cheerio.load(barrelHtml);
-				const style = await getCssContent(barrel$, fixture);
+				const barrelBundledCssHref = barrel$('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const style = await fixture.readFile(barrelBundledCssHref.replace(/^\/?/, '/'));
 				assert.match(style, /\.comp-a\[data-astro-cid/);
 				assert.match(style, /\.comp-c\{/);
 				assert.doesNotMatch(style, /\.comp-b/);

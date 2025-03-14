@@ -11,6 +11,7 @@
     "start": "astro dev"
   },
   "dependencies": {
+
     "@astrojs/mdx": "^4.1.1",
     "@astrojs/tailwind": "^6.0.0",
     "@tailwindcss/vite": "^4.0.12",

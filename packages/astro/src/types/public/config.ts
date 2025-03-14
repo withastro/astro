@@ -2210,7 +2210,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * ```
 		 *
 		 */
-		preserveScriptOrder: boolean;
+		preserveScriptOrder?: boolean;
 	};
 }
 

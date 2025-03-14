@@ -113,7 +113,7 @@ describe('Setting inlineStylesheets to auto in static output', () => {
 
 		// the count of style/link tags depends on our css chunking logic
 		// this test should be updated if it changes
-		assert.equal($('style').length, 2);
+		assert.equal($('style').length, 3);
 		assert.equal($('link[rel=stylesheet]').length, 1);
 	});
 
@@ -162,7 +162,7 @@ describe('Setting inlineStylesheets to auto in server output', () => {
 
 		// the count of style/link tags depends on our css chunking logic
 		// this test should be updated if it changes
-		assert.equal($('style').length, 2);
+		assert.equal($('style').length, 3);
 		assert.equal($('link[rel=stylesheet]').length, 1);
 	});
 
