@@ -1358,13 +1358,13 @@ export const CannotLoadFontProvider = {
 /**
  * @docs
  * @description
- * <Font /> component is used but experimental fonts have not been registered in the config.
+ * Font component is used but experimental fonts have not been registered in the config.
  */
 export const ExperimentalFontsNotEnabled = {
 	name: 'ExperimentalFontsNotEnabled',
 	title: 'Experimental fonts are not enabled',
 	message:
-		'<Font /> component is used but experimental fonts have not been registered in the config.',
+		'Font component is used but experimental fonts have not been registered in the config.',
 	hint: 'See TODO:',
 } satisfies ErrorData;
 
