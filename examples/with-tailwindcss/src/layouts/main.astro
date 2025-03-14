@@ -1,16 +1,31 @@
 ---
 import '../styles/global.css';
-const { content } = Astro.props;
+const { title } = Astro.props;
 ---
 
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<title>{content.title}</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Astro description">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta name="msapplication-TileImage" content="/android-chrome-192x192.png">
+    <meta name="apple-touch-icon" content="/apple-touch-icon.png">
+    <meta name="generator" content="Astro v2.9.1">
+    <title>{title || "Default Title"}</title>
+  </head>
+  <body class="bg-white dark:bg-neutral-950 w-screen text-neutral-800 dark:text-neutral-200 grid grid-flow-row gap-4 lg:gap-6 p-4 md:p-6 lg:p-8 2xl:px-64">
+    <slot />
+    <footer style="text-align: center;">
+      © 2025 · Louis Schinas
+    </footer>
+  </body>
 </html>

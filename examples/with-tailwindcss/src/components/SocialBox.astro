@@ -1,0 +1,25 @@
+---
+const { href, title, thumbnail, iconPath } = Astro.props;
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  class="relative rounded-xl overflow-hidden bg-gradient-to-br dark:from-neutral-800 dark:to-neutral-900 from-neutral-100 to-neutral-50 shadow-neutral-200 dark:shadow-neutral-500 shadow-sm hover:shadow min-h-[200px] grid grid-cols-1 astro-J7PV25F6"
+>
+  <div class="absolute w-full h-full">
+    <img
+      src={thumbnail}
+      class="object-cover w-full h-full opacity-60 astro-J7PV25F6"
+    />
+  </div>
+  <div class="relative p-4 flex items-end astro-J7PV25F6">
+    <div class="flex gap-4 items-center astro-J7PV25F6">
+      <img src={iconPath} class="h-6 w-6 astro-J7PV25F6" />
+      <span class="text-xl font-semibold text-white drop-shadow astro-J7PV25F6">
+        {title}
+      </span>
+    </div>
+  </div>
+</a>

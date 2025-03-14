@@ -1,25 +1,189 @@
 ---
 import '../styles/global.css';
-// Component Imports
 import Button from '../components/Button.astro';
-
-// Full Astro Component Syntax:
-// https://docs.astro.build/basics/astro-components/
+import Main from '../layouts/main.astro';
+import SocialBox from '../components/SocialBox.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro + TailwindCSS</title>
-	</head>
+<Main title="Louis Schinas">
+  <div class="grid grid-cols-1 gap-y-4 astro-J7PV25F6">
+    <!-- Erste Sektion: Begrüßungsbox, About Me und Bild -->
+    <section class="col-span-1 grid grid-cols-1 lg:grid-cols-6 gap-y-4 md:gap-x-6 astro-J7PV25F6">
+      <!-- Linker Bereich (4 Spalten) -->
+      <div class="col-span-1 lg:col-span-4 grid grid-cols-1 gap-y-4 astro-J7PV25F6">
+        <!-- Begrüßungsbox -->
+        <div class="col-span-1 px-4 p-8 md:p-6 xl:p-8 gap-16 astro-J7PV25F6 w-full h-full rounded-xl overflow-hidden bg-gradient-to-br dark:from-neutral-800 dark:to-neutral-900 from-neutral-100 to-neutral-50 shadow-neutral-200 dark:shadow-neutral-500 shadow-sm hover:shadow min-h-full rounded-xl grid">
+          <div class="grid grid-flow-row gap-4 h-full astro-J7PV25F6">
+            <h1 class="font-semibold text-6xl leading-16 astro-J7PV25F6">
+              Hey, I'm <br class="astro-J7PV25F6">
+              <span class="bg-clip-text text-transparent bg-gradient-to-r from-lime-600 to-lime-600 dark:from-lime-300 dark:to-emerald-400 astro-J7PV25F6">Louis!</span>
+            </h1>
+            <p class="astro-J7PV25F6">
+              What I'm doing right now? Currently studying abroad at Griffith University in Brisbane, Australia, until the end of October 2025. Seeking an internship opportunity to commence after completing my semester abroad.
+            </p>
+          </div>
+        </div>
 
-	<body>
-		<div class="grid place-items-center h-screen content-center">
-			<Button>Tailwind Button in Astro!</Button>
-			<a href="/markdown-page" class="p-4 underline">Markdown is also supported...</a>
-		</div>
-	</body>
-</html>
+        <!-- About Me Box -->
+        <div class="col-span-1 px-4 p-8 md:p-6 xl:p-8 grid grid-cols-1 md:grid-cols-10 astro-J7PV25F6 w-full h-full rounded-xl overflow-hidden bg-gradient-to-br dark:from-neutral-800 dark:to-neutral-900 from-neutral-100 to-neutral-50 shadow-neutral-200 dark:shadow-neutral-500 shadow-sm hover:shadow min-h-full rounded-xl grid">
+          <div class="col-span-1 md:col-span-2 flex justify-center pb-4 md:pb-0 astro-J7PV25F6">
+            <img src="/mockup_buch.png" class="max-h-32 astro-J7PV25F6">
+          </div>
+          <div class="col-span-1 md:col-span-8 grid grid-cols-1 gap-y-4 astro-J7PV25F6">
+            <h1 class="col-span-1 font-semibold text-3xl leading-12 astro-J7PV25F6">
+              About Me
+            </h1>
+            <span class="col-span-1 astro-J7PV25F6">
+              I am a 4th-semester Business Informatics student, passionate about software development, artificial intelligence, and the future of work. I aim to create innovative solutions and adapt to the evolving digital landscape.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rechter Bereich (2 Spalten) -->
+      <div class="col-span-1 lg:col-span-2 order-first lg:order-last lg:h-full w-full astro-J7PV25F6">
+        <!-- Bild-Box oben rechts -->
+        <div class="w-full h-full rounded-xl overflow-hidden bg-gradient-to-br dark:from-neutral-800 dark:to-neutral-900 from-neutral-100 to-neutral-50 shadow-neutral-200 dark:shadow-neutral-500 shadow-sm hover:shadow min-h-full rounded-xl grid astro-J7PV25F6">
+          <div class="w-full flex text-lg:items-end pt-6 md:pt-4 max-h-64 lg:max-h-full overflow-hidden rounded-xl bg-gradient-to-br dark:from-neutral-800 dark:to-neutral-900 from-neutral-100 to-neutral-50 shadow-neutral-200 dark:shadow-neutral-500 dark:hover:shadow-neutral-500 shadow-sm hover:shadow astro-J7PV25F6">
+            <img class="object-cover object-top drop-shadow-xl w-full md:w-1/3 lg:w-full lg:w-auto astro-J7PV25F6" src="/louisfit.webp">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Zweite Sektion: Social-Boxen -->
+    <section class="col-span-1 grid grid-cols-1 lg:grid-cols-6 gap-y-4 md:gap-x-6 astro-J7PV25F6">
+      <!-- Social-Boxen (volle Breite, 6 Spalten) -->
+      <div class="col-span-1 lg:col-span-6 grid grid-cols-1 md:grid-cols-3 gap-y-4 md:gap-x-4 lg:gap-x-6 astro-J7PV25F6">
+        <SocialBox
+          href="https://www.linkedin.com/in/louis-schinas-461363241/"
+          title="LinkedIn"
+          thumbnail="/Linkedin.webp"
+          iconPath="/linkedin.svg"
+        />
+        <SocialBox
+          href="https://github.com/derSchinas"
+          title="GitHub"
+          thumbnail="/Github.webp"
+          iconPath="/github.svg"
+        />
+        <SocialBox
+          href="https://www.instagram.com/der_schinas/"
+          title="Instagram"
+          thumbnail="/Instagram.webp"
+          iconPath="/instagram.svg"
+        />
+      </div>
+    </section>
+
+    <!-- Dritte Sektion: Work Experience und Get in Touch -->
+    <section class="col-span-1 grid grid-cols-1 lg:grid-cols-6 gap-y-4 md:gap-x-6 astro-J7PV25F6">
+      <!-- Linker Bereich (2 Spalten, dünn und lang) mit neuen Boxen -->
+      <div class="col-span-1 lg:col-span-2 w-full h-full rounded-xl overflow-hidden bg-gradient-to-br dark:from-neutral-800 dark:to-neutral-900 from-neutral-100 to-neutral-50 shadow-neutral-200 dark:shadow-neutral-500 shadow-sm hover:shadow min-h-[400px] grid astro-J7PV25F6">
+        <div class="p-6 space-y-6">
+          <!-- Get in touch Box -->
+          <div class="relative p-5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:shadow-md transition-shadow">
+            <span class="absolute -left-10 top-2 w-4 h-4 rounded-full bg-lime-600 dark:bg-lime-300 border-2 border-white dark:border-neutral-900"></span>
+            <h2 class="font-semibold text-xl text-lime-600 dark:text-lime-300 pb-2">Get in touch</h2>
+            <div class="flex items-center space-x-2">
+              <a href="mailto:Louis.Schinas@gmail.com" class="text-neutral-600 dark:text-neutral-400 hover:underline">📧Louis.Schinas@gmail.com</a>
+              <span class="cursor-pointer text-neutral-600 dark:text-neutral-400 hover:text-lime-600 dark:hover:text-lime-300" onclick="navigator.clipboard.writeText('Louis.Schinas@gmail.com'); alert('Email copied to clipboard!')">📋</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <a href="tel:+491765554670" class="text-neutral-600 dark:text-neutral-400 hover:underline">📞 +49 176 5554670</a>
+              <span class="cursor-pointer text-neutral-600 dark:text-neutral-400 hover:text-lime-600 dark:hover:text-lime-300" onclick="navigator.clipboard.writeText('+491765554670'); alert('Phone number copied to clipboard!')">📋</span>
+            </div>
+          </div>
+
+          <!-- Skill Set Box -->
+          <div class="relative p-5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:shadow-md transition-shadow">
+            <span class="absolute -left-10 top-2 w-4 h-4 rounded-full bg-lime-600 dark:bg-lime-300 border-2 border-white dark:border-neutral-900"></span>
+            <h2 class="font-semibold text-xl text-lime-600 dark:text-lime-300 pb-2">Skill Set</h2>
+            <ul class="list-disc pl-5 text-neutral-600 dark:text-neutral-400 space-y-1">
+              <li>Java</li>
+              <li>HTML, CSS, PHP</li>
+              <li>SQL</li>
+              <li>JavaScript</li>
+              <li>Linux</li>
+            </ul>
+          </div>
+
+          <!-- Certifications Box -->
+          <div class="relative p-5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:shadow-md transition-shadow">
+            <span class="absolute -left-10 top-2 w-4 h-4 rounded-full bg-lime-600 dark:bg-lime-300 border-2 border-white dark:border-neutral-900"></span>
+            <h2 class="font-semibold text-xl text-lime-600 dark:text-lime-300 pb-2">Certifications</h2>
+            <ul class="list-disc pl-5 text-neutral-600 dark:text-neutral-400 space-y-1">
+              <li>General and Business English Focus on Writing (B2-C1)</li>
+              <li>Cisco Networking Technologies Workshop</li>
+              <li>Excel Certificate</li>
+            </ul>
+          </div>
+
+          <!-- Education Box -->
+          <div class="relative p-5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:shadow-md transition-shadow">
+            <span class="absolute -left-10 top-2 w-4 h-4 rounded-full bg-lime-600 dark:bg-lime-300 border-2 border-white dark:border-neutral-900"></span>
+            <h2 class="font-semibold text-xl text-lime-600 dark:text-lime-300 pb-2">Education</h2>
+            <ul class="list-disc pl-5 text-neutral-600 dark:text-neutral-400 space-y-1">
+              <li>B.Sc. Business Informatics (2027)</li>
+              <li>University of Applied Sciences Entrance Qualification till July 2022</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rechter Bereich (4 Spalten, breit und kürzer) -->
+      <div class="col-span-1 lg:col-span-4 w-full h-full rounded-xl overflow-hidden bg-gradient-to-br dark:from-neutral-800 dark:to-neutral-900 from-neutral-100 to-neutral-50 shadow-neutral-200 dark:shadow-neutral-500 shadow-sm hover:shadow min-h-[200px] astro-J7PV25F6">
+        <div class="p-8">
+          <!-- Work Experience Verlauf -->
+          <div class="w-full">
+            <h2 class="font-semibold text-3xl text-lime-600 dark:text-lime-300 pb-5">Work Experience</h2>
+            <div class="relative pl-8 border-l-2 border-neutral-300 dark:border-neutral-600 space-y-6">
+              <!-- Eintrag 1 -->
+              <div class="relative p-5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:shadow-md transition-shadow">
+                <span class="absolute -left-10 top-2 w-4 h-4 rounded-full bg-lime-600 dark:bg-lime-300 border-2 border-white dark:border-neutral-900"></span>
+                <h3 class="text-xl font-semibold text-lime-600 dark:text-lime-300">Consultant</h3>
+                <p class="text-sm italic text-neutral-600 dark:text-neutral-400 pt-1 pb-2">
+                  <span class="text-purple-600 dark:text-purple-400">ESB Student Consulting e.V</span> (Oct 2023 – Till Now)
+                </p>
+                <ul class="list-disc pl-5 text-neutral-600 dark:text-neutral-400 space-y-1">
+                  <li>2nd/3rd Semester – Conducted consulting projects focused on:</li>
+                  <li>Competitive analysis & strategy development</li>
+                  <li>Data analysis & reporting</li>
+                  <li>Project management & communication</li>
+                  <li>1st Semester – Member of the Business Improvement and IT Department:</li>
+                  <li>Designed and customized SharePoint environment</li>
+                  <li>Structured and organized data for improved accessibility and efficiency</li>
+                </ul>
+              </div>
+              <!-- Eintrag 2 -->
+              <div class="relative p-5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:shadow-md transition-shadow">
+                <span class="absolute -left-10 top-2 w-4 h-4 rounded-full bg-lime-600 dark:bg-lime-300 border-2 border-white dark:border-neutral-900"></span>
+                <h3 class="text-xl font-semibold text-lime-600 dark:text-lime-300">Intern Informatics</h3>
+                <p class="text-sm italic text-neutral-600 dark:text-neutral-400 pt-1 pb-2">
+                  <span class="text-purple-600 dark:text-purple-400">IAL Institute for applied Logistic</span> (Aug 2022 - Jul 2023)
+                </p>
+                <ul class="list-disc pl-5 text-neutral-600 dark:text-neutral-400 space-y-1">
+                  <li>Compared and evaluated information and telecommunication technology systems</li>
+                  <li>Configured, installed, and maintained systems (PCs, servers, telephones)</li>
+                  <li>Managed and edited WordPress and learning management systems (e.g., ILIAS)</li>
+                </ul>
+              </div>
+
+              <div class="relative p-5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:shadow-md transition-shadow">
+                <span class="absolute -left-10 top-2 w-4 h-4 rounded-full bg-lime-600 dark:bg-lime-300 border-2 border-white dark:border-neutral-900"></span>
+                <h3 class="text-xl font-semibold text-lime-600 dark:text-lime-300">Employee in Vaccination Center</h3>
+                <p class="text-sm italic text-neutral-600 dark:text-neutral-400 pt-1 pb-2">
+                  <span class="text-purple-600 dark:text-purple-400">KV Nordrhein</span> (Mar 2021 - Jul 2021)
+                </p>
+                <ul class="list-disc pl-5 text-neutral-600 dark:text-neutral-400 space-y-1">
+                  <li>Data collection and maintenance</li>
+                  <li>Customer service</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</Main>

@@ -7,14 +7,18 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "start": "astro dev"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.1.1",
+    "@astrojs/tailwind": "^6.0.0",
     "@tailwindcss/vite": "^4.0.12",
     "@types/canvas-confetti": "^1.9.0",
     "astro": "^5.4.3",
-    "canvas-confetti": "^1.9.3",
+    "canvas-confetti": "^1.9.3"
+  },
+  "devDependencies": {
     "tailwindcss": "^4.0.12"
   }
 }
