@@ -71,7 +71,7 @@ export class RenderContext {
 	 * A safety net in case of loops
 	 */
 	counter = 0;
-
+	
 	static async create({
 		locals = {},
 		middleware,
@@ -284,12 +284,17 @@ export class RenderContext {
 			new Response(null, { status, headers: { Location: path } });
 		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
 
-		return Object.assign(context, {
+		const apiContext = Object.assign(context, {
 			props,
 			redirect,
 			getActionResult: createGetActionResult(context.locals),
-			callAction: createCallAction(context),
 		});
+		Object.defineProperty(apiContext, 'callAction', {
+			get(): APIContext['callAction'] {
+					return createCallAction(this)
+			}
+		})
+		return apiContext as APIContext
 	}
 
 	async #executeRewrite(reroutePayload: RewritePayload) {
@@ -341,7 +346,7 @@ export class RenderContext {
 		const { cookies, params, pipeline, url, session } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
 
-		const rewrite = async (reroutePayload: RewritePayload) => {
+		const _rewrite = async (reroutePayload: RewritePayload) => {
 			return await this.#executeRewrite(reroutePayload);
 		};
 
@@ -369,7 +374,9 @@ export class RenderContext {
 			get preferredLocaleList() {
 				return renderContext.computePreferredLocaleList();
 			},
-			rewrite,
+			rewrite(...args) {
+				return _rewrite(...args)
+			},
 			request: this.request,
 			site: pipeline.site,
 			url,
@@ -573,7 +580,10 @@ export class RenderContext {
 		const { pipeline, request, routeData, clientAddress } = this;
 
 		if (routeData.prerender) {
-			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
+			throw new AstroError({
+				...AstroErrorData.PrerenderClientAddressNotAvailable,
+				message: AstroErrorData.PrerenderClientAddressNotAvailable.message(routeData.component),
+			});
 		}
 
 		if (clientAddress) {
