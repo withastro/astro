@@ -30,7 +30,9 @@ describe('Config', () => {
 		it('xslURL: Includes xml-stylesheet', async () => {
 			const indexXml = await fixture.readFile('/sitemap-index.xml');
 			assert.ok(
-				indexXml.includes('<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>'),
+				indexXml.includes(
+					'<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>',
+				),
 				indexXml,
 			);
 
@@ -65,7 +67,9 @@ describe('Config', () => {
 		it('xslURL: Includes xml-stylesheet', async () => {
 			const indexXml = await fixture.readFile('/client/sitemap-index.xml');
 			assert.ok(
-				indexXml.includes('<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>'),
+				indexXml.includes(
+					'<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>',
+				),
 				indexXml,
 			);
 
