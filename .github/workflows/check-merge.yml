@@ -39,14 +39,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Get changed files in the .changeset folder
-        id: changed-files
-        uses: tj-actions/changed-files@v45
-        if: steps.blocked.outputs.result != 'true'
-        with:
-          files: |
-            .changeset/**/*.md
-
       - name: Check if any changesets contain minor or major changes
         id: check
         if: steps.blocked.outputs.result != 'true'
