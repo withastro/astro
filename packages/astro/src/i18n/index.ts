@@ -230,11 +230,11 @@ export function normalizeTheLocale(locale: string): string {
  * @param locales
  */
 export function toCodes(locales: Locales): string[] {
-	return locales.map((loopLocale) => {
+	return locales.flatMap((loopLocale) => {
 		if (typeof loopLocale === 'string') {
 			return loopLocale;
 		} else {
-			return loopLocale.codes[0];
+			return loopLocale.codes;
 		}
 	});
 }
