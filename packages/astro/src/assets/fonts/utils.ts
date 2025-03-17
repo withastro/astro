@@ -136,9 +136,7 @@ export async function generateFallbacksCSS({
 	family,
 	fallbacks: _fallbacks,
 	font: fontData,
-	getMetricsForFamily,
-	// eslint-disable-next-line @typescript-eslint/no-shadow
-	generateFontFace,
+	metrics,
 }: {
 	family: {
 		name: string;
@@ -147,8 +145,10 @@ export async function generateFallbacksCSS({
 	/** The family fallbacks */
 	fallbacks: Array<string>;
 	font: GetMetricsForFamilyFont;
-	getMetricsForFamily: GetMetricsForFamily;
-	generateFontFace: typeof generateFallbackFontFace;
+	metrics: {
+		getMetricsForFamily: GetMetricsForFamily;
+		generateFontFace: typeof generateFallbackFontFace;
+	} | null;
 }): Promise<null | { css: string; fallbacks: Array<string> }> {
 	// We avoid mutating the original array
 	let fallbacks = [..._fallbacks];
@@ -157,6 +157,10 @@ export async function generateFallbacksCSS({
 	}
 
 	let css = '';
+
+	if (!metrics) {
+		return { css, fallbacks };
+	}
 
 	// The last element of the fallbacks is usually a generic family name (eg. serif)
 	const lastFallback = fallbacks[fallbacks.length - 1];
@@ -172,8 +176,8 @@ export async function generateFallbacksCSS({
 		return { css, fallbacks };
 	}
 
-	const metrics = await getMetricsForFamily(family.name, fontData);
-	if (!metrics) {
+	const foundMetrics = await metrics.getMetricsForFamily(family.name, fontData);
+	if (!foundMetrics) {
 		// If there are no metrics, we can't generate useful fallbacks
 		return { css, fallbacks };
 	}
@@ -187,7 +191,7 @@ export async function generateFallbacksCSS({
 	fallbacks = [...new Set([...localFontsMappings.map((m) => m.name), ...fallbacks])];
 
 	for (const { font, name } of localFontsMappings) {
-		css += generateFontFace(metrics, { font, name });
+		css += metrics.generateFontFace(foundMetrics, { font, name });
 	}
 
 	return { css, fallbacks };

@@ -29,6 +29,7 @@ export const resolveFontOptionsSchema = z.object({
 		.nonempty()
 		.transform((arr) => dedupe(arr))
 		.optional(),
+	automaticFallback: z.boolean().optional().default(true),
 	display: z.enum(['auto', 'block', 'swap', 'fallback', 'optional']).optional(),
 	unicodeRange: z.array(z.string()).nonempty().optional(),
 	stretch: z.string().optional(),
@@ -72,6 +73,7 @@ export const localFontFamilySchema = z
 					resolveFontOptionsSchema
 						.omit({
 							fallbacks: true,
+							automaticFallback: true,
 							// TODO: find a way to support subsets
 							subsets: true,
 						})
