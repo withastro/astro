@@ -241,7 +241,8 @@ test.describe('Dev Toolbar', () => {
 
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
 		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
-		for (const highlight of await auditHighlights.all()) {
+		const highlights = (await auditHighlights.all()).filter((_, index) => index !== 1);
+		for (const highlight of highlights) {
 			await expect(highlight).toBeVisible();
 			await highlight.hover();
 			const tooltip = highlight.locator('astro-dev-toolbar-tooltip');
@@ -254,6 +255,22 @@ test.describe('Dev Toolbar', () => {
 			expect(tooltipBox.x + tooltipBox.width).toBeLessThan(clientWidth);
 			expect(tooltipBox.y + tooltipBox.height).toBeLessThan(clientHeight);
 		}
+	});
+
+	test('tooltip is rendered behind audit list window', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/tooltip-position'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
+		const highlight = auditHighlights.nth(1)
+
+		await expect(async() => {
+			await highlight.hover({timeout: 100});
+		}).rejects.toThrowError()
 	});
 
 	test('can open Settings app', async ({ page, astro }) => {
