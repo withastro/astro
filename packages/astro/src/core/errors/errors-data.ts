@@ -1338,7 +1338,7 @@ export const DeletedLocalFont = {
 	name: 'DeletedLocalFont',
 	title: 'A local font has been deleted',
 	message: 'A local font file referenced in your config has been deleted.',
-	hint: 'Restore the file or update your config.',
+	hint: 'Restore the file or remove this font from your configuration if it is no longer needed.',
 } satisfies ErrorData;
 
 /**
