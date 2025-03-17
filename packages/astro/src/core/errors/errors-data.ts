@@ -1346,13 +1346,13 @@ export const DeletedLocalFont = {
  * @description
  * Cannot load font provider
  * @message
- * An error occured while loading the given provider. Open an issue on the corresponding repository.
+ * Astro is unable to load the given font provider. Open an issue on the corresponding provider's repository.
  */
 export const CannotLoadFontProvider = {
 	name: 'CannotLoadFontProvider',
 	title: 'Cannot load font provider',
 	message: (provider: string) => `An error occured while loading the "${provider}" provider.`,
-	hint: 'Open an issue on the corresponding repository.',
+	hint: 'This is an issue with the font provider. Please open an issue on their repository.',
 } satisfies ErrorData;
 
 /**
@@ -1364,7 +1364,7 @@ export const ExperimentalFontsNotEnabled = {
 	name: 'ExperimentalFontsNotEnabled',
 	title: 'Experimental fonts are not enabled',
 	message:
-		'Font component is used but experimental fonts have not been registered in the config.',
+		'The Font component is used but experimental fonts have not been registered in the config.',
 	hint: 'See TODO:',
 } satisfies ErrorData;
 
