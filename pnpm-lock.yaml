@@ -4298,7 +4298,7 @@ importers:
         version: 1.0.2
       drizzle-orm:
         specifier: ^0.31.2
-        version: 0.31.4(@cloudflare/workers-types@4.20250310.0)(@libsql/client@0.14.0)(@types/react@18.3.18)(react@19.0.0)
+        version: 0.31.4(@cloudflare/workers-types@4.20250317.0)(@libsql/client@0.14.0)(@types/react@18.3.18)(react@19.0.0)
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -4559,8 +4559,8 @@ importers:
         specifier: workspace:*
         version: link:../../underscore-redirects
       '@cloudflare/workers-types':
-        specifier: ^4.20250310.0
-        version: 4.20250310.0
+        specifier: ^4.20250317.0
+        version: 4.20250317.0
       esbuild:
         specifier: ^0.25.0
         version: 0.25.0
@@ -4581,7 +4581,7 @@ importers:
         version: 6.2.1(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.1)(sass@1.85.1)(yaml@2.5.1)
       wrangler:
         specifier: ^3.112.0
-        version: 3.112.0(@cloudflare/workers-types@4.20250310.0)
+        version: 3.112.0(@cloudflare/workers-types@4.20250317.0)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -4613,7 +4613,7 @@ importers:
     devDependencies:
       wrangler:
         specifier: ^3.112.0
-        version: 3.112.0(@cloudflare/workers-types@4.20250310.0)
+        version: 3.112.0(@cloudflare/workers-types@4.20250317.0)
 
   packages/integrations/cloudflare/test/fixtures/astro-env:
     dependencies:
@@ -4626,7 +4626,7 @@ importers:
     devDependencies:
       wrangler:
         specifier: ^3.112.0
-        version: 3.112.0(@cloudflare/workers-types@4.20250310.0)
+        version: 3.112.0(@cloudflare/workers-types@4.20250317.0)
 
   packages/integrations/cloudflare/test/fixtures/compile-image-service:
     dependencies:
@@ -6712,8 +6712,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-types@4.20250310.0':
-    resolution: {integrity: sha512-SNE2ohlL9/VxFbcHQc28n3Nj70FiS1Ea0wrUhCXUIbR2lsr4ceRVndNxhuzhcF9EZd2UXm2wwow34RIS1mm+Mg==}
+  '@cloudflare/workers-types@4.20250317.0':
+    resolution: {integrity: sha512-ud1x5D1ksDIdx35jsx6wG9G8a/SLeg7kfGv/c732umLYn7I+DZ7TdKTvM1LaWTLzp+yYGyXZOrInJywfUU8bVw==}
 
   '@codspeed/core@4.0.0':
     resolution: {integrity: sha512-B3zwdwLG8rcV0ORfYKX1wDP6ZCWf9C6ySidSf61q2vm9v5Lj2cWwRvj7vX+w/UyFHWKjp/zSyWTEed/r3Fv4Tg==}
@@ -13293,7 +13293,7 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20250224.0':
     optional: true
 
-  '@cloudflare/workers-types@4.20250310.0': {}
+  '@cloudflare/workers-types@4.20250317.0': {}
 
   '@codspeed/core@4.0.0':
     dependencies:
@@ -15656,9 +15656,9 @@ snapshots:
 
   dotenv@8.6.0: {}
 
-  drizzle-orm@0.31.4(@cloudflare/workers-types@4.20250310.0)(@libsql/client@0.14.0)(@types/react@18.3.18)(react@19.0.0):
+  drizzle-orm@0.31.4(@cloudflare/workers-types@4.20250317.0)(@libsql/client@0.14.0)(@types/react@18.3.18)(react@19.0.0):
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20250310.0
+      '@cloudflare/workers-types': 4.20250317.0
       '@libsql/client': 0.14.0
       '@types/react': 18.3.18
       react: 19.0.0
@@ -19588,7 +19588,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20250224.0
       '@cloudflare/workerd-windows-64': 1.20250224.0
 
-  wrangler@3.112.0(@cloudflare/workers-types@4.20250310.0):
+  wrangler@3.112.0(@cloudflare/workers-types@4.20250317.0):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.3.4
       '@esbuild-plugins/node-globals-polyfill': 0.2.3(esbuild@0.17.19)
@@ -19600,7 +19600,7 @@ snapshots:
       unenv: 2.0.0-rc.1
       workerd: 1.20250214.0
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20250310.0
+      '@cloudflare/workers-types': 4.20250317.0
       fsevents: 2.3.3
       sharp: 0.33.5
     transitivePeerDependencies:
