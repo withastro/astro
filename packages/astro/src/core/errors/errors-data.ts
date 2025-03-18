@@ -1325,7 +1325,7 @@ export const CannotExtractFontType = {
 export const CannotFetchFontFile = {
 	name: 'CannotFetchFontFile',
 	title: 'Cannot fetch the given font file.',
-	message: (url: string) => `An error occured while fetching font file from ${url}`,
+	message: (url: string) => `An error occurred while fetching the font file from ${url}`,
 	hint: 'Check the error cause and open an issue if it cannot be solved on your side.',
 } satisfies ErrorData;
 
