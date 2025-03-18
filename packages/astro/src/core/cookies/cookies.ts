@@ -227,7 +227,9 @@ class AstroCookies implements AstroCookiesInterface {
 		return cookies.headers();
 	}
 
-	#ensureParsed(options: AstroCookieGetOptions | undefined = undefined): Record<string, string | undefined> {
+	#ensureParsed(
+		options: AstroCookieGetOptions | undefined = undefined,
+	): Record<string, string | undefined> {
 		if (!this.#requestValues) {
 			this.#parse(options);
 		}
