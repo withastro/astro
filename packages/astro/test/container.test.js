@@ -3,6 +3,7 @@ import { before, describe, it } from 'node:test';
 import { experimental_AstroContainer } from '../dist/container/index.js';
 import {
 	Fragment,
+	createAstro,
 	createComponent,
 	createHeadAndContent,
 	maybeRenderHead,
@@ -11,7 +12,6 @@ import {
 	renderHead,
 	renderSlot,
 	renderTemplate,
-	createAstro
 } from '../dist/runtime/server/index.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -64,9 +64,9 @@ describe('Container', () => {
 		const $$Astro = createAstro();
 		const Page = createComponent((result, props, slots) => {
 			const Astro = result.createAstro($$Astro, props, slots);
-			return Astro.rewrite('/example')
+			return Astro.rewrite('/example');
 		});
-		
+
 		const Example = createComponent((result) => {
 			return render`${renderComponent(
 				result,
@@ -77,14 +77,14 @@ describe('Container', () => {
 					default: () => render`${maybeRenderHead(result)}<div>hello world</div>`,
 					head: () => render`
 						${renderComponent(
-						result,
-						'Fragment',
-						Fragment,
-						{ slot: 'head' },
-						{
-							default: () => render`<meta charset="utf-8">`,
-						},
-					)}
+							result,
+							'Fragment',
+							Fragment,
+							{ slot: 'head' },
+							{
+								default: () => render`<meta charset="utf-8">`,
+							},
+						)}
 					`,
 				},
 			)}`;

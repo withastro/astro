@@ -90,7 +90,7 @@ export class ContainerPipeline extends Pipeline {
 
 	// At the moment it's not used by the container via any public API
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
-		const page =  this.#componentsInterner.get(routeData);
+		const page = this.#componentsInterner.get(routeData);
 		if (page) {
 			return page.page();
 		}

@@ -13,6 +13,7 @@ import { getParts } from '../core/routing/manifest/parts.js';
 import { getPattern } from '../core/routing/manifest/pattern.js';
 import { validateSegment } from '../core/routing/manifest/segment.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
+import { SlotString } from '../runtime/server/render/slot.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { AstroMiddlewareInstance, MiddlewareHandler, Props } from '../types/public/common.js';
 import type { AstroConfig, AstroUserConfig } from '../types/public/config.js';
@@ -26,7 +27,6 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
-import { SlotString } from '../runtime/server/render/slot.js';
 
 /** Public type, used for integrations to define a renderer for the container API */
 export type ContainerRenderer = {
@@ -540,16 +540,20 @@ export class experimental_AstroContainer {
 	}
 
 	/**
-	 * It stores an Astro **page** route. The first argument, `route`, gets associated to the `component`. 
+	 * It stores an Astro **page** route. The first argument, `route`, gets associated to the `component`.
 	 *
-	 * This function can be useful when you want to render a route via `AstroContainer.renderToString`, where that 
+	 * This function can be useful when you want to render a route via `AstroContainer.renderToString`, where that
 	 * route eventually renders another route via `Astro.rewrite`.
 	 *
 	 * @param {string} route - The URL that will render the component.
 	 * @param {AstroComponentFactory} component - The component factory to be used for rendering the route.
 	 * @param {Record<string, string | undefined>} params - An object containing key-value pairs of route parameters.
 	 */
-	public insertPageRoute(route: string,component: AstroComponentFactory, params?: Record<string, string | undefined>) {
+	public insertPageRoute(
+		route: string,
+		component: AstroComponentFactory,
+		params?: Record<string, string | undefined>,
+	) {
 		const url = new URL(route, 'https://example.com/');
 		const routeData: RouteData = this.#createRoute(url, params ?? {}, 'page');
 		this.#pipeline.manifest.routes.push({
