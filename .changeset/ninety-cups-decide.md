@@ -11,9 +11,9 @@ For example, if you have a route `/blog/post` and for some business decision the
 ```js
 import Post from "../src/pages/Post.astro";
 import GenericError from "../src/pages/GenericError.astro";
-import { experimental_AstroContainer as AstroContainer } from "astro/contaer";
+import { experimental_AstroContainer as AstroContainer } from "astro/container";
 
-const contaienr = await AstroContainer.create();
+const container = await AstroContainer.create();
 container.insertPageRoute("/generic-error", GenericError);
 const result = await container.renderToString(Post);
 console.log(result) // this should print the response from GenericError.astro
