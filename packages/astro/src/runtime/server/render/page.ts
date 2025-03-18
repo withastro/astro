@@ -89,7 +89,7 @@ export async function renderPage(
 			statusText = 'Not Found';
 		}
 	} else if (route?.route === '/500') {
-		status = 500; 
+		status = 500;
 		if (statusText === 'OK') {
 			statusText = 'Internal Server Error';
 		}

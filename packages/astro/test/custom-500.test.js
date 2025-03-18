@@ -95,7 +95,6 @@ describe('Custom 500', () => {
 			const response = await app.render(request);
 			assert.equal(response.status, 500);
 			assert.equal(response.statusText, 'Internal Server Error');
-			
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
