@@ -26,6 +26,7 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
+import { SlotString } from '../runtime/server/render/slot.js';
 
 /** Public type, used for integrations to define a renderer for the container API */
 export type ContainerRenderer = {
@@ -474,6 +475,10 @@ export class experimental_AstroContainer {
 		component: AstroComponentFactory,
 		options: ContainerRenderOptions = {},
 	): Promise<string> {
+		if (options.slots) {
+			options.slots = markAllSlotsAsSlotString(options.slots);
+		}
+
 		const response = await this.renderToResponse(component, options);
 		return await response.text();
 	}
@@ -587,4 +592,12 @@ export class experimental_AstroContainer {
 
 function isNamedRenderer(renderer: any): renderer is NamedSSRLoadedRendererValue {
 	return !!renderer?.name;
+}
+
+function markAllSlotsAsSlotString(slots: Record<string, any>): Record<string, any> {
+	const markedSlots: Record<string, any> = {};
+	for (const slotName in slots) {
+		markedSlots[slotName] = new SlotString(slots[slotName], null);
+	}
+	return markedSlots;
 }
