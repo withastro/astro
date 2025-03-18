@@ -327,15 +327,15 @@ describe('Astro.redirect', () => {
 				redirects: {
 					'/one': '/',
 				},
-				site: "https://example.com"
+				site: 'https://example.com',
 			});
 			await fixture.build();
 		});
 
 		it('Does not add it to the generated HTML file', async () => {
 			const secretHtml = await fixture.readFile('/secret/index.html');
-			assert.equal(secretHtml.includes('https://example.com'), false);
+			assert.equal(secretHtml.includes('url=https://example.com/login'), false);
+			assert.equal(secretHtml.includes('url=/login'), true);
 		});
-
 	});
 });
