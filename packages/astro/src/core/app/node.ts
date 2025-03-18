@@ -75,7 +75,7 @@ export class NodeApp extends App {
 		// We need to handle it here and parse the header correctly.
 		// @example "https, http,http" => "http"
 		const forwardedProtocol = getFirstForwardedValue(req.headers['x-forwarded-proto']);
-		const providedProtocol = (isEncrypted ? 'https' : 'http');
+		const providedProtocol = isEncrypted ? 'https' : 'http';
 		const protocol = forwardedProtocol ?? providedProtocol;
 
 		// @example "example.com,www2.example.com" => "example.com"

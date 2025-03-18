@@ -92,7 +92,7 @@ describe('NodeApp', () => {
 					...mockNodeRequest,
 					headers: {
 						host: 'example.com',
-						'x-forwarded-host': ':123'
+						'x-forwarded-host': ':123',
 					},
 				});
 				assert.equal(result.url, 'https://example.com/');
