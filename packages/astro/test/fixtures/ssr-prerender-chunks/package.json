@@ -5,8 +5,8 @@
   "dependencies": {
     "@astrojs/react": "workspace:*",
     "@test/ssr-prerender-chunks-test-adapter": "link:./deps/test-adapter",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
     "astro": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

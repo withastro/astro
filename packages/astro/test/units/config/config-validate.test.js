@@ -23,7 +23,8 @@ describe('Config Validation', () => {
 		assert.equal(
 			formattedError,
 			`[config] Astro found issue(s) with your configuration:
-  ! site  Expected string, received number.`,
+
+! site: Expected type "string", received "number"`,
 		);
 	});
 
@@ -38,8 +39,11 @@ describe('Config Validation', () => {
 		assert.equal(
 			formattedError,
 			`[config] Astro found issue(s) with your configuration:
-  ! integrations.0  Expected object, received number.
-  ! build.format  Invalid input.`,
+
+! integrations.0: Expected type "object", received "number"
+
+! build.format: Did not match union.
+  > Expected "file" | "directory" | "preserve", received "invalid"`,
 		);
 	});
 
@@ -118,7 +122,10 @@ describe('Config Validation', () => {
 				process.cwd(),
 			).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
-			assert.equal(configError.errors[0].message, 'Array must contain at least 1 element(s)');
+			assert.equal(
+				configError.errors[0].message,
+				'**i18n.locales.1.codes**: Array must contain at least 1 element(s)',
+			);
 		});
 
 		it('errors if the default locale is not in path', async () => {
@@ -397,6 +404,26 @@ describe('Config Validation', () => {
 			assert.equal(
 				configError.errors[0].message,
 				'A valid variable name cannot start with a number.',
+			);
+		});
+
+		it('Should provide a useful error for access/context invalid combinations', async () => {
+			const configError = await validateConfig(
+				{
+					env: {
+						schema: {
+							BAR: envField.string({ access: 'secret', context: 'client' }),
+						},
+					},
+				},
+				process.cwd(),
+			).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'**Invalid combination** of "access" and "context" options',
+				),
+				true,
 			);
 		});
 	});

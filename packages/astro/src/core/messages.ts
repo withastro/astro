@@ -14,9 +14,9 @@ import {
 	underline,
 	yellow,
 } from 'kleur/colors';
+import { detect, resolveCommand } from 'package-manager-detector';
 import type { ResolvedServerUrls } from 'vite';
 import type { ZodError } from 'zod';
-import { getExecCommand } from '../cli/install-package.js';
 import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
 import {
 	AstroError,
@@ -111,9 +111,13 @@ export function serverShortcuts({ key, label }: { key: string; label: string }):
 export async function newVersionAvailable({ latestVersion }: { latestVersion: string }) {
 	const badge = bgYellow(black(` update `));
 	const headline = yellow(`▶ New version of Astro available: ${latestVersion}`);
-	const execCommand = await getExecCommand();
-
-	const details = `  Run ${cyan(`${execCommand} @astrojs/upgrade`)} to update`;
+	const packageManager = (await detect())?.agent ?? 'npm';
+	const execCommand = resolveCommand(packageManager, 'execute', ['@astrojs/upgrade']);
+	// NOTE: Usually it's impossible for `execCommand` to be null as `package-manager-detector` should
+	// already match a valid package manager
+	const details = !execCommand
+		? ''
+		: `  Run ${cyan(`${execCommand.command} ${execCommand.args.join(' ')}`)} to update`;
 	return ['', `${badge} ${headline}`, details, ''].join('\n');
 }
 
@@ -209,6 +213,15 @@ export function failure(message: string, tip?: string) {
 		.join('\n');
 }
 
+export function actionRequired(message: string) {
+	const badge = bgYellow(black(` action required `));
+	const headline = yellow(message);
+	return ['', `${badge} ${headline}`]
+		.filter((v) => v !== undefined)
+		.map((msg) => `  ${msg}`)
+		.join('\n');
+}
+
 export function cancelled(message: string, tip?: string) {
 	const badge = bgYellow(black(` cancelled `));
 	const headline = yellow(message);
@@ -231,12 +244,20 @@ function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 
 	}
 }
 
+const codeRegex = /`([^`]+)`/g;
+
 export function formatConfigErrorMessage(err: ZodError) {
-	const errorList = err.issues.map(
-		(issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`,
+	const errorList = err.issues.map((issue) =>
+		`! ${renderErrorMarkdown(issue.message, 'cli')}`
+			// Make text wrapped in backticks blue.
+			.replaceAll(codeRegex, blue('$1'))
+			// Make the first line red and indent the rest.
+			.split('\n')
+			.map((line, index) => (index === 0 ? red(line) : '  ' + line))
+			.join('\n'),
 	);
-	return `${red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join(
-		'\n',
+	return `${red('[config]')} Astro found issue(s) with your configuration:\n\n${errorList.join(
+		'\n\n',
 	)}`;
 }
 

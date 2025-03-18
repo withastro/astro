@@ -10,6 +10,11 @@ declare global {
 		 * Used by middlewares to store information, that can be read by the user via the global `Astro.locals`
 		 */
 		export interface Locals {}
+
+		/**
+		 * Optionally type the data stored in the session
+		 */
+		export interface SessionData {}
 	}
 
 	namespace Astro {

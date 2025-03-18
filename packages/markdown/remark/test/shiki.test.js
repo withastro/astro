@@ -124,7 +124,7 @@ describe('shiki syntax highlighting', () => {
 		assert.match(html, /data-language="cjs"/);
 	});
 
-	it('the markdown processsor support lang alias', async () => {
+	it('the markdown processor support lang alias', async () => {
 		const processor = await createMarkdownProcessor({
 			shikiConfig: {
 				langAlias: {

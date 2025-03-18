@@ -267,7 +267,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			assert.equal(error.includes('**title**: Expected type `"string"`, received "number"'), true);
+			assert.match(error, /\*\*title\*\*: Expected type `"string"`, received `"number"`/);
 		});
 	});
 	describe('With config.mts', () => {
@@ -281,7 +281,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			assert.equal(error.includes('**title**: Expected type `"string"`, received "number"'), true);
+			assert.match(error, /\*\*title\*\*: Expected type `"string"`, received `"number"`/);
 		});
 	});
 
@@ -296,7 +296,22 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			assert.equal(error.includes('**title**: Required'), true);
+			assert.match(error, /\*\*title\*\*: Required/);
+		});
+	});
+
+	describe('With numbers for IDs', () => {
+		it('Throws the right error', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-number-id/',
+			});
+			let error;
+			try {
+				await fixture.build({ force: true });
+			} catch (e) {
+				error = e.message;
+			}
+			assert.match(error, /returned an entry with an invalid `id`/);
 		});
 	});
 

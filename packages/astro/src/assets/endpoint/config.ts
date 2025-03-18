@@ -4,27 +4,16 @@ import {
 } from '@astrojs/internal-helpers/path';
 import { resolveInjectedRoute } from '../../core/routing/manifest/create.js';
 import { getPattern } from '../../core/routing/manifest/pattern.js';
-import type { AstroSettings, ManifestData } from '../../types/astro.js';
+import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { RouteData } from '../../types/public/internal.js';
 
 export function injectImageEndpoint(
 	settings: AstroSettings,
-	manifest: ManifestData,
+	manifest: RoutesList,
 	mode: 'dev' | 'build',
 	cwd?: string,
 ) {
-	manifest.routes.push(getImageEndpointData(settings, mode, cwd));
-}
-
-export function ensureImageEndpointRoute(
-	settings: AstroSettings,
-	manifest: ManifestData,
-	mode: 'dev' | 'build',
-	cwd?: string,
-) {
-	if (!manifest.routes.some((route) => route.route === '/_image')) {
-		manifest.routes.push(getImageEndpointData(settings, mode, cwd));
-	}
+	manifest.routes.unshift(getImageEndpointData(settings, mode, cwd));
 }
 
 function getImageEndpointData(

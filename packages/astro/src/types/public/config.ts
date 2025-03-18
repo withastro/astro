@@ -1,22 +1,24 @@
 import type { OutgoingHttpHeaders } from 'node:http';
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
+	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
+import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
-import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-
-export type Locales = (string | { codes: string[]; path: string })[];
+export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -68,6 +70,26 @@ export type ServerConfig = {
 	port?: number;
 
 	/**
+	 * @name server.allowedHosts
+	 * @type {string[] | true}
+	 * @default `[]`
+	 * @version 5.4.0
+	 * @description
+	 *
+	 * A list of hostnames that Astro is allowed to respond to. When the value is set to `true`, any
+	 * hostname is allowed.
+	 *
+	 * ```js
+	 * {
+	 *   server: {
+	 *   	allowedHosts: ['staging.example.com', 'qa.example.com']
+	 *   }
+	 * }
+	 * ```
+	 */
+	allowedHosts?: string[] | true;
+
+	/**
 	 * @name server.headers
 	 * @typeraw {OutgoingHttpHeaders}
 	 * @default `{}`
@@ -96,6 +118,53 @@ export type ServerConfig = {
 	open?: string | boolean;
 };
 
+export type SessionDriverName = BuiltinDriverName | 'custom' | 'test';
+
+interface CommonSessionConfig {
+	/**
+	 * Configures the session cookie. If set to a string, it will be used as the cookie name.
+	 * Alternatively, you can pass an object with additional options.
+	 */
+	cookie?:
+		| string
+		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & { name?: string });
+
+	/**
+	 * Default session duration in seconds. If not set, the session will be stored until deleted, or until the cookie expires.
+	 */
+	ttl?: number;
+}
+
+interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
+	extends CommonSessionConfig {
+	driver: TDriver;
+	options?: BuiltinDriverOptions[TDriver];
+}
+
+interface CustomSessionConfig extends CommonSessionConfig {
+	/** Entrypoint for a custom session driver */
+	driver: string;
+	options?: Record<string, unknown>;
+}
+
+interface TestSessionConfig extends CommonSessionConfig {
+	driver: 'test';
+	options: {
+		mockStorage: Storage;
+	};
+}
+
+export type SessionConfig<TDriver extends SessionDriverName> =
+	TDriver extends keyof BuiltinDriverOptions
+		? BuiltinSessionConfig<TDriver>
+		: TDriver extends 'test'
+			? TestSessionConfig
+			: CustomSessionConfig;
+
+export type ResolvedSessionConfig<TDriver extends SessionDriverName> = SessionConfig<TDriver> & {
+	driverModule?: () => Promise<{ default: () => Driver }>;
+};
+
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
 }
@@ -113,7 +182,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  * Docs: https://docs.astro.build/reference/configuration-reference/
  *
  * Generics do not follow semver and may change at any time.
- */ export interface AstroUserConfig<TLocales extends Locales = never> {
+ */ export interface AstroUserConfig<
+	TLocales extends Locales = never,
+	TSession extends SessionDriverName = never,
+> {
 	/**
 	 * @docs
 	 * @kind heading
@@ -185,14 +257,15 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @see build.format
 	 * @description
 	 *
-	 * Set the route matching behavior of the dev server. Choose from the following options:
-	 *   - `'always'` - Only match URLs that include a trailing slash (ex: "/foo/")
-	 *   - `'never'` - Never match URLs that include a trailing slash (ex: "/foo")
-	 *   - `'ignore'` - Match URLs regardless of whether a trailing "/" exists
+	 * Set the route matching behavior for trailing slashes in the dev server and on-demand rendered pages. Choose from the following options:
+	 *   - `'ignore'` - Match URLs regardless of whether a trailing "/" exists. Requests for "/about" and "/about/" will both match the same route.
+	 *   - `'always'` - Only match URLs that include a trailing slash (e.g: "/about/"). In production, requests for on-demand rendered URLs without a trailing slash will be redirected to the correct URL for your convenience. However, in development, they will display a warning page reminding you that you have `always` configured.
+	 *   - `'never'` - Only match URLs that do not include a trailing slash (e.g: "/about"). In production, requests for on-demand rendered URLs with a trailing slash will be redirected to the correct URL for your convenience. However, in development, they will display a warning page reminding you that you have `never` configured.
 	 *
-	 * Use this configuration option if your production host has strict handling of how trailing slashes work or do not work.
+	 * When redirects occur in production for GET requests, the redirect will be a 301 (permanent) redirect. For all other request methods, it will be a 308 (permanent, and preserve the request method) redirect.
 	 *
-	 * You can also set this if you prefer to be more strict yourself, so that URLs with or without trailing slashes won't work during development.
+	 * Trailing slashes on prerendered pages are handled by the hosting platform, and may not respect your chosen configuration.
+	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](#redirects) for this use case at this point.
 	 *
 	 * ```js
 	 * {
@@ -213,16 +286,22 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * and the value is the path to redirect to.
 	 *
 	 * You can redirect both static and dynamic routes, but only to the same kind of route.
-	 * For example you cannot have a `'/article': '/blog/[...slug]'` redirect.
+	 * For example, you cannot have a `'/article': '/blog/[...slug]'` redirect.
 	 *
 	 *
 	 * ```js
-	 * {
+	 * export default defineConfig({
 	 *   redirects: {
-	 *     '/old': '/new',
-	 *     '/blog/[...slug]': '/articles/[...slug]',
-	 *   }
-	 * }
+	 *    '/old': '/new',
+	 *    '/blog/[...slug]': '/articles/[...slug]',
+	 *    '/about': 'https://example.com/about',
+	 *    '/news': {
+	 *      status: 302,
+	 *      destination: 'https://example.com/news'
+	 *  	},
+	 *    // '/product1/', '/product1' // Note, this is not supported
+	 * 	}
+	 * })
 	 * ```
 	 *
 	 *
@@ -236,14 +315,16 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * You can customize the [redirection status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#redirection_messages) using an object in the redirect config:
 	 *
 	 * ```js
-	 * {
+	 * export default defineConfig({
 	 *   redirects: {
 	 *     '/other': {
 	 *       status: 302,
 	 *       destination: '/place',
 	 *     },
 	 *   }
-	 * }
+	 * })
+	 *
+	 *
 	 * ```
 	 */
 	redirects?: Record<string, RedirectConfig>;
@@ -304,10 +385,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * ```js
 	 * import react from '@astrojs/react';
-	 * import tailwind from '@astrojs/tailwind';
+	 * import mdx from '@astrojs/mdx';
 	 * {
-	 *   // Example: Add React + Tailwind support to Astro
-	 *   integrations: [react(), tailwind()]
+	 *   // Example: Add React + MDX support to Astro
+	 *   integrations: [react(), mdx()]
 	 * }
 	 * ```
 	 */
@@ -322,7 +403,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @type {string}
 	 * @default `"."` (current working directory)
 	 * @summary Set the project root. The project root is the directory where your Astro project (and all `src`, `public` and `package.json` files) live.
-	 * @description  You should only provide this option if you run the `astro` CLI commands in a directory other than the project root directory. Usually, this option is provided via the CLI instead of the [Astro config file](https://docs.astro.build/en/guides/configuring-astro/#supported-config-file-types), since Astro needs to know your project root before it can locate your config file.
+	 * @description  You should only provide this option if you run the `astro` CLI commands in a directory other than the project root directory. Usually, this option is provided via the CLI instead of the Astro config file, since Astro needs to know your project root before it can locate your config file.
 	 *
 	 * If you provide a relative path (ex: `--root: './my-project'`) Astro will resolve it against your current working directory.
 	 *
@@ -499,6 +580,36 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 	/**
 	 * @docs
+	 * @name session
+	 * @type {SessionConfig}
+	 * @version 5.3.0
+	 * @description
+	 *
+	 * Configures experimental session support by specifying a storage `driver` as well as any associated `options`.
+	 * You must enable the `experimental.session` flag to use this feature.
+	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
+	 *
+	 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
+	 *
+	 * See [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information.
+	 *
+	 * ```js title="astro.config.mjs"
+	 *   {
+	 *     session: {
+	 *       // Required: the name of the Unstorage driver
+	 *       driver: 'redis',
+	 *       // The required options depend on the driver
+	 *       options: {
+	 *         url: process.env.REDIS_URL,
+	 *       },
+	 *     }
+	 *   }
+	 * ```
+	 */
+	session?: SessionConfig<TSession>;
+
+	/**
+	 * @docs
 	 * @name vite
 	 * @typeraw {ViteUserConfig}
 	 * @description
@@ -561,8 +672,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * #### Effect on Astro.url
 		 * Setting `build.format` controls what `Astro.url` is set to during the build. When it is:
-		 * - `directory` - The `Astro.url.pathname` will include a trailing slash to mimic folder behavior; ie `/foo/`.
-		 * - `file` - The `Astro.url.pathname` will include `.html`; ie `/foo.html`.
+		 * - `directory` - The `Astro.url.pathname` will include a trailing slash to mimic folder behavior. (e.g. `/foo/`)
+		 * - `file` - The `Astro.url.pathname` will include `.html`. (e.g. `/foo.html`)
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 *
@@ -1015,7 +1126,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @docs
 		 * @name image.domains
 		 * @type {string[]}
-		 * @default `{domains: []}`
+		 * @default `[]`
 		 * @version 2.10.10
 		 * @description
 		 * Defines a list of permitted image source domains for remote image optimization. No other remote images will be optimized by Astro.
@@ -1038,7 +1149,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @docs
 		 * @name image.remotePatterns
 		 * @type {RemotePattern[]}
-		 * @default `{remotePatterns: []}`
+		 * @default `[]`
 		 * @version 2.10.10
 		 * @description
 		 * Defines a list of permitted image source URL patterns for remote image optimization.
@@ -1179,14 +1290,15 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 * @docs
 		 * @name markdown.syntaxHighlight
-		 * @type {'shiki' | 'prism' | false}
-		 * @default `shiki`
+		 * @type {SyntaxHighlightConfig | SyntaxHighlightConfigType | false}
+		 * @default `{ type: 'shiki', excludeLangs: ['math'] }`
 		 * @description
 		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
+	 	 * 
 		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
 		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
-		 *
+
 		 * ```js
 		 * {
 		 *   markdown: {
@@ -1195,9 +1307,56 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *   }
 		 * }
 		 * ```
+		 *
+	 	 * For more control over syntax highlighting, you can instead specify a configuration object with the properties listed below.
 		 */
-		syntaxHighlight?: 'shiki' | 'prism' | false;
+		syntaxHighlight?:
+			| {
+					/**
+					 * @docs
+					 * @name markdown.syntaxHighlight.type
+					 * @kind h4
+					 * @type {'shiki' | 'prism'}
+					 * @default `'shiki'`
+					 * @version 5.5.0
+					 * @description
+					 *
+					 * The default CSS classes to apply to Markdown code blocks.
+					 * (If no other syntax highlighting configuration is needed, you can instead set `markdown.syntaxHighlight` directly to `shiki`, `prism`, or `false`.)
+					 *
+					 */
+					type?: SyntaxHighlightConfigType;
 
+					/**
+					 * @docs
+					 * @name markdown.syntaxHighlight.excludeLangs
+					 * @kind h4
+					 * @type {string[]}
+					 * @default `['math']`
+					 * @version 5.5.0
+					 * @description
+					 *
+					 * An array of languages to exclude from the default syntax highlighting specified in `markdown.syntaxHighlight.type`.
+					 * This can be useful when using tools that create diagrams from Markdown code blocks, such as Mermaid.js and D2.
+					 *
+					 * ```js title="astro.config.mjs"
+					 * import { defineConfig } from 'astro/config';
+					 *
+					 * export default defineConfig({
+					 *   markdown: {
+					 *     syntaxHighlight: {
+					 *       type: 'shiki',
+					 *       excludeLangs: ['mermaid', 'math'],
+					 *     },
+					 *   },
+					 * });
+					 * ```
+					 *
+					 * */
+					excludeLangs?: string[];
+			  }
+			| SyntaxHighlightConfigType
+			| false;
 		/**
 		 * @docs
 		 * @name markdown.remarkPlugins
@@ -1293,7 +1452,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @name i18n
 	 * @type {object}
 	 * @version 3.5.0
-	 * @type {object}
 	 * @description
 	 *
 	 * Configures i18n routing and allows you to specify some customization options.
@@ -1369,11 +1527,38 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 * @docs
 		 * @name i18n.routing
-		 * @type {Routing}
+		 * @type {object | "manual"}
+		 * @default `object`
 		 * @version 3.7.0
 		 * @description
 		 *
 		 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
+		 *
+		 * ```js
+		 * export default defineConfig({
+		 * 	i18n: {
+		 * 		defaultLocale: "en",
+		 * 		locales: ["en", "fr"],
+		 * 		routing: {
+		 * 			prefixDefaultLocale: false,
+		 * 			redirectToDefaultLocale: true,
+		 * 			fallbackType: "redirect",
+		 * 		}
+		 * 	}
+		 * })
+		 * ```
+		 *
+		 * Since 4.6.0, this option can also be set to `manual`. When this routing strategy is enabled, Astro will **disable** its i18n middleware and no other `routing` options (e.g. `prefixDefaultLocale`) may be configured. You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
+		 *
+		 * ```js
+		 * export default defineConfig({
+		 * 	i18n: {
+		 * 		defaultLocale: "en",
+		 * 		locales: ["en", "fr"],
+		 * 		routing: "manual"
+		 * 	}
+		 * })
+		 * ```
 		 *
 		 */
 		routing?:
@@ -1474,48 +1659,14 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * ```
 					 */
 					fallbackType?: 'redirect' | 'rewrite';
-
-					/**
-					 * @name i18n.routing.strategy
-					 * @type {"pathname"}
-					 * @default `"pathname"`
-					 * @version 3.7.0
-					 * @description
-					 *
-					 * - `"pathname": The strategy is applied to the pathname of the URLs
-					 */
-					strategy?: 'pathname';
 			  }
-			/**
-			 *
-			 * @docs
-			 * @name i18n.routing.manual
-			 * @kind h4
-			 * @type {string}
-			 * @version 4.6.0
-			 * @description
-			 * When this option is enabled, Astro will **disable** its i18n middleware so that you can implement your own custom logic. No other `routing` options (e.g. `prefixDefaultLocale`) may be configured with `routing: "manual"`.
-			 *
-			 * You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
-			 *
-			 * ```js
-			 * export default defineConfig({
-			 * 	i18n: {
-			 * 		defaultLocale: "en",
-			 * 		locales: ["en", "fr", "pt-br", "es"],
-			 * 		routing: {
-			 * 			prefixDefaultLocale: true,
-			 * 		}
-			 * 	}
-			 * })
-			 * ```
-			 */
 			| 'manual';
 
 		/**
+		 * @docs
 		 * @name i18n.domains
 		 * @type {Record<string, string> }
-		 * @default '{}'
+		 * @default `{}`
 		 * @version 4.3.0
 		 * @description
 		 *
@@ -1531,9 +1682,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * export default defineConfig({
 		 * 	 site: "https://example.com",
 		 * 	 output: "server", // required, with no prerendered pages
-		 *   adapter: node({
-		 *     mode: 'standalone',
-		 *   }),
+		 * 	 adapter: node({
+		 * 	   mode: 'standalone',
+		 * 	 }),
 		 * 	 i18n: {
 		 *     defaultLocale: "en",
 		 *     locales: ["en", "fr", "pt-br", "es"],
@@ -1546,7 +1697,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * })
 		 * ```
 		 *
-		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
+		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/reference/modules/astro-i18n/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/reference/modules/astro-i18n/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
 		 *
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
 		 */
@@ -1908,6 +2059,33 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 *
+		 * @name experimental.session
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.0.0
+		 * @description
+		 *
+		 * Enables support for sessions in Astro. Sessions are used to store user data across requests, such as user authentication state.
+		 *
+		 * When enabled you can access the `Astro.session` object to read and write data that persists across requests. You can configure the session driver using the [`session` option](#session), or use the default provided by your adapter.
+		 *
+		 * ```astro title=src/components/CartButton.astro
+		 * ---
+		 * export const prerender = false; // Not needed in 'server' mode
+		 * const cart = await Astro.session.get('cart');
+		 * ---
+		 *
+		 * <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
+		 *
+		 * ```
+		 *
+		 * For more details, see [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/).
+		 *
+		 */
+
+		session?: boolean;
+		/**
+		 *
 		 * @name experimental.svg
 		 * @type {boolean|object}
 		 * @default `undefined`
@@ -1940,28 +2118,99 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * For a complete overview, and to give feedback on this experimental API,
 		 * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
 		 */
-		svg?: {
-			/**
-			 *
-			 * @name experimental.svg.mode
-			 * @type {string}
-			 * @default 'inline'
-			 *
-			 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
-			 *
-			 * - `inline`: Astro will inline the SVG content into your HTML output.
-			 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
-			 *
-			 * ```astro
-			 * ---
-			 * import Logo from './path/to/svg/file.svg';
-			 * ---
-			 *
-			 * <Logo size={24} mode="sprite" />
-			 * ```
-			 */
-			mode?: SvgRenderMode;
-		};
+		svg?:
+			| boolean
+			| {
+					/**
+					 *
+					 * @name experimental.svg.mode
+					 * @type {string}
+					 * @default 'inline'
+					 *
+					 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
+					 *
+					 * - `inline`: Astro will inline the SVG content into your HTML output.
+					 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
+					 *
+					 * ```astro
+					 * ---
+					 * import Logo from './path/to/svg/file.svg';
+					 * ---
+					 *
+					 * <Logo size={24} mode="sprite" />
+					 * ```
+					 */
+					mode: SvgRenderMode;
+			  };
+
+		/**
+		 * @name experimental.serializeConfig
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 *
+		 * Enables the use of the experimental virtual modules `astro:config/server` and `astro:config/client`.
+		 *
+		 * These two virtual modules contain a serializable subset of the Astro configuration.
+		 */
+		serializeConfig?: boolean;
+
+		/**
+		 * @name experimental.headingIdCompat
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.5.x
+		 * @description
+		 *
+		 * Enables full compatibility of Markdown headings IDs with common platforms such as GitHub and npm.
+		 *
+		 * When enabled, IDs for headings ending with non-alphanumeric characters, e.g. `<Picture />`, will
+		 * include a trailing `-`, matching standard behavior in other Markdown tooling.
+		 */
+		headingIdCompat?: boolean;
+
+		/**
+		 * @name experimental.preserveScriptOrder
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.5
+		 * @description
+		 *
+		 * When enabled, `<script>` and `<style>` tags are rendered in the same order as they are defined.
+		 *
+		 * ## Example
+		 *
+		 * Consider the following component:
+		 *
+		 * ```html
+		 * <p>I am a component</p>
+		 * <style>
+		 *   body {
+		 *     background: red;
+		 *   }
+		 * </style>
+		 * <style>
+		 *   body {
+		 *     background: yellow;
+		 *   }
+		 * </style>
+		 * ```
+		 *
+		 * By default, it will generate a CSS style where `red` will be applied:
+		 *
+		 * ```css
+		 * body {background:#ff0} body {background:red}
+		 * ```
+		 *
+		 * When this new option is set to `true`, the generated CSS style will apply `yellow`:
+		 *
+		 * ```css
+		 * body {background:red} body {background:#ff0}
+		 * ```
+		 *
+		 */
+		preserveScriptOrder?: boolean;
 	};
 }
 

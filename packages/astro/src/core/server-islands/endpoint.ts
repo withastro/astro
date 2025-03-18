@@ -6,13 +6,14 @@ import {
 } from '../../runtime/server/index.js';
 import { isAstroComponentFactory } from '../../runtime/server/render/astro/factory.js';
 import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
-import type { ComponentInstance, ManifestData } from '../../types/astro.js';
+import type { ComponentInstance, RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { decryptString } from '../encryption.js';
 import { getPattern } from '../routing/manifest/pattern.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
 export const SERVER_ISLAND_COMPONENT = '_server-islands.astro';
+export const SERVER_ISLAND_BASE_PREFIX = '_server-islands';
 
 type ConfigFields = Pick<SSRManifest, 'base' | 'trailingSlash'>;
 
@@ -37,11 +38,7 @@ export function getServerIslandRouteData(config: ConfigFields) {
 	return route;
 }
 
-export function ensureServerIslandRoute(config: ConfigFields, routeManifest: ManifestData) {
-	if (routeManifest.routes.some((route) => route.route === '/_server-islands/[name]')) {
-		return;
-	}
-
+export function injectServerIslandRoute(config: ConfigFields, routeManifest: RoutesList) {
 	routeManifest.routes.unshift(getServerIslandRouteData(config));
 }
 
@@ -108,6 +105,7 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		// Get the request data from the body or search params
 		const data = await getRequestData(result.request);
+		// probably error
 		if (data instanceof Response) {
 			return data;
 		}
@@ -123,7 +121,7 @@ export function createEndpoint(manifest: SSRManifest) {
 		const key = await manifest.key;
 		const encryptedProps = data.encryptedProps;
 
-		const propString = await decryptString(key, encryptedProps);
+		const propString = encryptedProps === '' ? '{}' : await decryptString(key, encryptedProps);
 		const props = JSON.parse(propString);
 
 		const componentModule = await imp();
@@ -133,6 +131,9 @@ export function createEndpoint(manifest: SSRManifest) {
 		for (const prop in data.slots) {
 			slots[prop] = createSlotValueFromString(data.slots[prop]);
 		}
+
+		// Prevent server islands from being indexed
+		result.response.headers.set('X-Robots-Tag', 'noindex');
 
 		// Wrap Astro components so we can set propagation to
 		// `self` which is needed to force the runtime to wait

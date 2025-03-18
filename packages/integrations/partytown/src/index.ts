@@ -2,9 +2,9 @@ import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { PartytownConfig } from '@builder.io/partytown/integration';
-import { partytownSnippet } from '@builder.io/partytown/integration';
-import { copyLibFiles, libDirPath } from '@builder.io/partytown/utils';
+import type { PartytownConfig } from '@qwik.dev/partytown/integration';
+import { partytownSnippet } from '@qwik.dev/partytown/integration';
+import { copyLibFiles, libDirPath } from '@qwik.dev/partytown/utils';
 import type { AstroIntegration } from 'astro';
 import sirv from './sirv.js';
 const resolve = createRequire(import.meta.url).resolve;
@@ -19,7 +19,7 @@ function appendForwardSlash(str: string) {
 
 export default function createPlugin(options?: PartytownOptions): AstroIntegration {
 	let partytownSnippetHtml: string;
-	const partytownEntrypoint = resolve('@builder.io/partytown/package.json');
+	const partytownEntrypoint = resolve('@qwik.dev/partytown/package.json');
 	const partytownLibDirectory = path.resolve(partytownEntrypoint, '../lib');
 	return {
 		name: '@astrojs/partytown',
@@ -37,7 +37,7 @@ export default function createPlugin(options?: PartytownOptions): AstroIntegrati
 				injectScript('head-inline', partytownSnippetHtml);
 			},
 			'astro:server:setup': ({ server }) => {
-				const lib = `/~partytown/`;
+				const lib = options?.config?.lib ?? `/~partytown/`;
 				server.middlewares.use(
 					sirv(partytownLibDirectory, {
 						mount: lib,
@@ -48,9 +48,12 @@ export default function createPlugin(options?: PartytownOptions): AstroIntegrati
 				);
 			},
 			'astro:build:done': async ({ dir }) => {
-				await copyLibFiles(fileURLToPath(new URL('~partytown', dir)), {
-					debugDir: options?.config?.debug ?? false,
-				});
+				await copyLibFiles(
+					fileURLToPath(new URL(options?.config?.lib?.replace(/^\/?/, '') ?? '~partytown', dir)),
+					{
+						debugDir: options?.config?.debug ?? false,
+					},
+				);
 			},
 			'astro:build:ssr': async ({ manifest }) => {
 				const dirpath = libDirPath({ debugDir: false });

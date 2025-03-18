@@ -1,6 +1,9 @@
+import { glob } from 'astro/loaders';
 import { defineCollection, z } from 'astro:content';
 
 const releases = defineCollection({
+	// Load Markdown files in the src/content/releases directory.
+	loader: glob({ base: './src/content/releases', pattern: '**/*.md' }),
 	// Type-check frontmatter using a schema
 	schema: ({ image }) =>
 		z.object({

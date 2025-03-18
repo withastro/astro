@@ -1,7 +1,7 @@
 /* eslint no-console: 'off' */
 import { color, label, spinner as load } from '@astrojs/cli-kit';
 import { align } from '@astrojs/cli-kit/utils';
-import detectPackageManager from 'preferred-pm';
+import { detect } from 'package-manager-detector';
 import terminalLink from 'terminal-link';
 import type { PackageInfo } from './actions/context.js';
 import { shell } from './shell.js';
@@ -14,7 +14,7 @@ let _registry: string;
 export async function getRegistry(): Promise<string> {
 	if (_registry) return _registry;
 	const fallback = 'https://registry.npmjs.org';
-	const packageManager = (await detectPackageManager(process.cwd()))?.name || 'npm';
+	const packageManager = (await detect())?.name || 'npm';
 	try {
 		const { stdout } = await shell(packageManager, ['config', 'get', 'registry']);
 		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
@@ -109,14 +109,17 @@ export const info = async (prefix: string, text: string, version = '') => {
 		);
 	}
 };
+
 export const upgrade = async (packageInfo: PackageInfo, text: string) => {
-	const { name, isMajor = false, targetVersion } = packageInfo;
+	const { name, isMajor = false, targetVersion, currentVersion } = packageInfo;
 
 	const bg = isMajor ? (v: string) => color.bgYellow(color.black(` ${v} `)) : color.green;
 	const style = isMajor ? color.yellow : color.green;
 	const symbol = isMajor ? '▲' : '●';
+
+	const fromVersion = currentVersion.replace(/^\D+/, '');
 	const toVersion = targetVersion.replace(/^\D+/, '');
-	const version = `v${toVersion}`;
+	const version = `from v${fromVersion} to v${toVersion}`;
 
 	const length = 12 + name.length + text.length + version.length;
 	if (length > stdout.columns) {

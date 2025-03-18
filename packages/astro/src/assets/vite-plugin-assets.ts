@@ -1,7 +1,6 @@
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
-import { normalizePath } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import {
 	appendForwardSlash,
@@ -10,6 +9,7 @@ import {
 	removeBase,
 	removeQueryString,
 } from '../core/path.js';
+import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import type { ImageTransform } from './types.js';
@@ -99,6 +99,7 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 		referencedImages: new Set(),
 	};
 
+	const imageComponentPrefix = settings.config.experimental.responsiveImages ? 'Responsive' : '';
 	return [
 		// Expose the components and different utilities from `astro:assets`
 		{
@@ -119,8 +120,8 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 					return /* ts */ `
 					export { getConfiguredImageService, isLocalService } from "astro/assets";
 					import { getImage as getImageInternal } from "astro/assets";
-					export { default as Image } from "astro/components/Image.astro";
-					export { default as Picture } from "astro/components/Picture.astro";
+					export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
+					export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
 					export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
 					export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
@@ -205,7 +206,12 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 					}
 
 					const emitFile = shouldEmitFile ? this.emitFile : undefined;
-					const imageMetadata = await emitESMImage(id, this.meta.watchMode, emitFile);
+					const imageMetadata = await emitESMImage(
+						id,
+						this.meta.watchMode,
+						!!settings.config.experimental.svg,
+						emitFile,
+					);
 
 					if (!imageMetadata) {
 						throw new AstroError({

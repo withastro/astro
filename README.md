@@ -11,7 +11,6 @@
 <div align="center">
 
 [![main](https://github.com/withastro/astro/actions/workflows/ci.yml/badge.svg)](https://github.com/withastro/astro/actions/workflows/ci.yml)
-[![next](https://github.com/withastro/astro/actions/workflows/ci.yml/badge.svg?branch=next)](https://github.com/withastro/astro/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/withastro/astro/blob/main/LICENSE)
 [![npm version](https://badge.fury.io/js/astro.svg)](https://badge.fury.io/js/astro)
 
@@ -60,7 +59,6 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [@astrojs/solid-js](packages/integrations/solid)                                           | [![@astrojs/solid version](https://img.shields.io/npm/v/@astrojs/solid-js.svg?label=%20)](packages/integrations/solid/CHANGELOG.md)                                                |
 | [@astrojs/svelte](packages/integrations/svelte)                                            | [![@astrojs/svelte version](https://img.shields.io/npm/v/@astrojs/svelte.svg?label=%20)](packages/integrations/svelte/CHANGELOG.md)                                                |
 | [@astrojs/vue](packages/integrations/vue)                                                  | [![@astrojs/vue version](https://img.shields.io/npm/v/@astrojs/vue.svg?label=%20)](packages/integrations/vue/CHANGELOG.md)                                                         |
-| [@astrojs/lit](packages/integrations/lit)                                                  | [![@astrojs/lit version](https://img.shields.io/npm/v/@astrojs/lit.svg?label=%20)](packages/integrations/lit/CHANGELOG.md)                                                         |
 | [@astrojs/node](packages/integrations/node)                                                | [![@astrojs/node version](https://img.shields.io/npm/v/@astrojs/node.svg?label=%20)](packages/integrations/node/CHANGELOG.md)                                                      |
 | [@astrojs/vercel](packages/integrations/vercel)                                            | [![@astrojs/vercel version](https://img.shields.io/npm/v/@astrojs/vercel.svg?label=%20)](packages/integrations/vercel/CHANGELOG.md)                                                |
 | [@astrojs/cloudflare](https://github.com/withastro/adapters/blob/main/packages/cloudflare) | [![@astrojs/cloudflare version](https://img.shields.io/npm/v/@astrojs/cloudflare.svg?label=%20)](https://github.com/withastro/adapters/blob/main/packages/cloudflare/CHANGELOG.md) |
@@ -97,12 +95,7 @@ Astro is free, open source software made possible by these wonderful sponsors.
 [❤️ Sponsor Astro! ❤️](https://github.com/withastro/.github/blob/main/FUNDING.md)
 
 <p align="center">
-  <a target="_blank" href="https://github.com/sponsors/withastro">
-
-[![Astro's sponsors.](https://astro.build/sponsors.png "Astro's sponsors.
-Platinum sponsors: Vercel, storyblok, Netlify, Ship Shape, Google Chrome
-Gold sponsors: ‹div›RIOTS, DEEPGRAM, Transloadit, CloudCannon
-Sponsors: Monogram, Qoddi, Dimension")](https://github.com/sponsors/withastro)
-
+  <a target="_blank" href="https://opencollective.com/astrodotbuild">
+    <img src="https://astro.build/sponsors.png" alt="Sponsor logos including the current Astro Sponsors, Gold Sponsors, and Exclusive Partner Sponsors: Netlify, Sentry, and Project IDX." />
   </a>
 </p>

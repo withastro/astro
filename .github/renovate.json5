@@ -6,16 +6,29 @@
     "group:allNonMajor",
     ":disablePeerDependencies", 
     "regexManagers:biomeVersions",
+    "helpers:pinGitHubActionDigestsToSemver"
   ],
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
   "postUpdateOptions": ["pnpmDedupe"],
   "ignorePaths": ["**/node_modules/**"],
+  "packageRules": [
+    // TODO: remove once the tailwind integration is removed
+    {
+      "matchPackageNames": ["tailwindcss"],
+      "ignorePaths": ["packages/integrations/tailwind"]
+    },
+    {
+      "groupName": "github-actions",
+      "matchManagers": [
+        "github-actions"
+      ]
+    }
+  ],
   "ignoreDeps": [
     // manually bumping deps
     "@biomejs/biome",
     "@types/node",
-    "@preact/preset-vite", // v2.8.3 starts to use Vite's esbuild for perf, but this conflicts with the react plugin
     "astro-embed", // TODO: investigate upgrade (zod import issues with atproto)
     "drizzle-orm", // TODO: investigate upgrade (has type issues)
     "sharp",

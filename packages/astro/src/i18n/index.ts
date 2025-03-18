@@ -15,12 +15,6 @@ export function requestHasLocale(locales: Locales) {
 	};
 }
 
-export function requestIs404Or500(request: Request, base = '') {
-	const url = new URL(request.url);
-
-	return url.pathname.startsWith(`${base}/404`) || url.pathname.startsWith(`${base}/500`);
-}
-
 // Checks if the pathname has any locale
 export function pathHasLocale(path: string, locales: Locales): boolean {
 	const segments = path.split('/');
@@ -104,11 +98,17 @@ export function getLocaleRelativeUrl({
 	}
 	pathsToJoin.push(path);
 
+	let relativePath: string;
 	if (shouldAppendForwardSlash(trailingSlash, format)) {
-		return appendForwardSlash(joinPaths(...pathsToJoin));
+		relativePath = appendForwardSlash(joinPaths(...pathsToJoin));
 	} else {
-		return joinPaths(...pathsToJoin);
+		relativePath = joinPaths(...pathsToJoin);
 	}
+
+	if (relativePath === '') {
+		return '/';
+	}
+	return relativePath;
 }
 
 /**
@@ -122,7 +122,9 @@ export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsolu
 		const base = domains[locale];
 		url = joinPaths(base, localeUrl.replace(`/${rest.locale}`, ''));
 	} else {
-		if (site) {
+		if (localeUrl === '/') {
+			url = site || '/';
+		} else if (site) {
 			url = joinPaths(site, localeUrl);
 		} else {
 			url = localeUrl;
@@ -298,9 +300,14 @@ export function redirectToDefaultLocale({
 }
 
 // NOTE: public function exported to the users via `astro:i18n` module
-export function notFound({ base, locales }: MiddlewarePayload) {
+export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 	return function (context: APIContext, response?: Response): Response | undefined {
-		if (response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no') return response;
+		if (
+			response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no' &&
+			typeof fallback === 'undefined'
+		) {
+			return response;
+		}
 
 		const url = context.url;
 		// We return a 404 if:
@@ -375,9 +382,9 @@ export function redirectToFallback({
 				}
 
 				if (fallbackType === 'rewrite') {
-					return await context.rewrite(newPathname);
+					return await context.rewrite(newPathname + context.url.search);
 				} else {
-					return context.redirect(newPathname);
+					return context.redirect(newPathname + context.url.search);
 				}
 			}
 		}

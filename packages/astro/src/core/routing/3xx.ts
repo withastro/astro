@@ -1,5 +1,5 @@
 export type RedirectTemplate = {
-	from: string;
+	from?: string;
 	location: string | URL;
 	status: number;
 };
@@ -14,6 +14,6 @@ export function redirectTemplate({ status, location, from }: RedirectTemplate) {
 <meta name="robots" content="noindex">
 <link rel="canonical" href="${location}">
 <body>
-	<a href="${location}">Redirecting from <code>${from}</code> to <code>${location}</code></a>
+	<a href="${location}">Redirecting ${from ? `from <code>${from}</code> ` : ''}to <code>${location}</code></a>
 </body>`;
 }

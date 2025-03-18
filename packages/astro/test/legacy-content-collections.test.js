@@ -55,6 +55,12 @@ describe('Legacy Content Collections', () => {
 				);
 			});
 
+			it('Passes legacy entry to filter function', async () => {
+				assert.ok(json.hasOwnProperty('filtered'));
+				assert.ok(Array.isArray(json.filtered));
+				assert.ok(json.filtered.length > 0);
+			});
+
 			it('Returns `with schema` collection', async () => {
 				assert.ok(json.hasOwnProperty('withSchemaConfig'));
 				assert.equal(Array.isArray(json.withSchemaConfig), true);
@@ -285,7 +291,7 @@ describe('Legacy Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			assert.equal(error.includes('**title**: Expected type `"string"`, received "number"'), true);
+			assert.match(error, /\*\*title\*\*: Expected type `"string"`, received `"number"`/);
 		});
 	});
 	describe('With config.mts', () => {
@@ -302,7 +308,7 @@ describe('Legacy Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			assert.equal(error.includes('**title**: Expected type `"string"`, received "number"'), true);
+			assert.match(error, /\*\*title\*\*: Expected type `"string"`, received `"number"`/);
 		});
 	});
 

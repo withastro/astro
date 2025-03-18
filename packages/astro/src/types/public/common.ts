@@ -72,7 +72,7 @@ export interface Page<T = any> {
 		next: string | undefined;
 		/** url of the first page (if the current page is not the first page) */
 		first: string | undefined;
-		/** url of the next page (if the current page in not the last page) */
+		/** url of the last page (if the current page is not the last page) */
 		last: string | undefined;
 	};
 }
@@ -82,7 +82,7 @@ export type PaginateFunction = <
 	AdditionalPaginateProps extends Props,
 	AdditionalPaginateParams extends Params,
 >(
-	data: PaginateData[],
+	data: readonly PaginateData[],
 	args?: PaginateOptions<AdditionalPaginateProps, AdditionalPaginateParams>,
 ) => {
 	params: Simplify<
@@ -98,9 +98,9 @@ export type PaginateFunction = <
 }[];
 
 export type APIRoute<
-	Props extends Record<string, any> = Record<string, any>,
+	APIProps extends Record<string, any> = Record<string, any>,
 	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
-> = (context: APIContext<Props, APIParams>) => Response | Promise<Response>;
+> = (context: APIContext<APIProps, APIParams>) => Response | Promise<Response>;
 
 export type RewritePayload = string | URL | Request;
 

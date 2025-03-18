@@ -1,5 +1,5 @@
 import type { ComponentSlots } from '../slot.js';
-import type { AstroComponentFactory } from './factory.js';
+import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
 
 import type { SSRResult } from '../../../../types/public/internal.js';
 import { isPromise } from '../../util.js';
@@ -46,9 +46,13 @@ export class AstroComponentInstance {
 		}
 	}
 
-	async init(result: SSRResult) {
-		if (this.returnValue !== undefined) return this.returnValue;
+	init(result: SSRResult) {
+		if (this.returnValue !== undefined) {
+			return this.returnValue;
+		}
+
 		this.returnValue = this.factory(result, this.props, this.slotValues);
+
 		// Save the resolved value after promise is resolved for optimization
 		if (isPromise(this.returnValue)) {
 			this.returnValue
@@ -62,12 +66,21 @@ export class AstroComponentInstance {
 		return this.returnValue;
 	}
 
-	async render(destination: RenderDestination) {
-		const returnValue = await this.init(this.result);
+	render(destination: RenderDestination): void | Promise<void> {
+		const returnValue = this.init(this.result);
+
+		if (isPromise(returnValue)) {
+			return returnValue.then((x) => this.renderImpl(destination, x));
+		}
+
+		return this.renderImpl(destination, returnValue);
+	}
+
+	private renderImpl(destination: RenderDestination, returnValue: AstroFactoryReturnValue) {
 		if (isHeadAndContent(returnValue)) {
-			await returnValue.content.render(destination);
+			return returnValue.content.render(destination);
 		} else {
-			await renderChild(destination, returnValue);
+			return renderChild(destination, returnValue);
 		}
 	}
 }

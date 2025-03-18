@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { teardown } from '@astrojs/compiler';
-import glob from 'fast-glob';
 import { bgGreen, black, green } from 'kleur/colors';
+import { glob } from 'tinyglobby';
 import * as vite from 'vite';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
@@ -63,7 +63,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	registerAllPlugins(container);
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
-	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
+	opts.logger.info('build', `Building ${settings.buildOutput} entrypoints...`);
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
 	opts.logger.info('build', green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
@@ -92,7 +92,6 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
 	const clientOutputs = viteBuildReturnToRollupOutputs(clientOutput ?? []);
 	await runPostBuildHooks(container, ssrOutputs, clientOutputs);
-	let contentFileNames: string[] | undefined = undefined;
 	settings.timer.end('Client build');
 
 	// Free up memory
@@ -112,20 +111,19 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		}
 	}
 
-	return { internals, ssrOutputChunkNames, contentFileNames };
+	return { internals, ssrOutputChunkNames };
 }
 
 export async function staticBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	ssrOutputChunkNames: string[],
-	contentFileNames?: string[],
 ) {
 	const { settings } = opts;
 	if (settings.buildOutput === 'static') {
 		settings.timer.start('Static generate');
 		await generatePages(opts, internals);
-		await cleanServerOutput(opts, ssrOutputChunkNames, contentFileNames, internals);
+		await cleanServerOutput(opts, ssrOutputChunkNames, internals);
 		settings.timer.end('Static generate');
 	} else if (settings.buildOutput === 'server') {
 		settings.timer.start('Server generate');
@@ -249,8 +247,8 @@ async function clientBuild(
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
 		// If SSR, copy public over
-		if (ssr) {
-			await copyFiles(settings.config.publicDir, out, true);
+		if (ssr && fs.existsSync(settings.config.publicDir)) {
+			await fs.promises.cp(settings.config.publicDir, out, { recursive: true, force: true });
 		}
 
 		return null;
@@ -285,7 +283,7 @@ async function clientBuild(
 		base: settings.config.base,
 	};
 
-	await runHookBuildSetup({
+	const updatedViteBuildConfig = await runHookBuildSetup({
 		config: settings.config,
 		pages: internals.pagesByKeys,
 		vite: viteBuildConfig,
@@ -293,7 +291,7 @@ async function clientBuild(
 		logger: opts.logger,
 	});
 
-	const buildResult = await vite.build(viteBuildConfig);
+	const buildResult = await vite.build(updatedViteBuildConfig);
 	return buildResult;
 }
 
@@ -354,14 +352,11 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 async function cleanServerOutput(
 	opts: StaticBuildOptions,
 	ssrOutputChunkNames: string[],
-	contentFileNames: string[] | undefined,
 	internals: BuildInternals,
 ) {
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output chunks for Astro are all .mjs files
-	const files = ssrOutputChunkNames
-		.filter((f) => f.endsWith('.mjs'))
-		.concat(contentFileNames ?? []);
+	const files = ssrOutputChunkNames.filter((f) => f.endsWith('.mjs'));
 	if (internals.manifestFileName) {
 		files.push(internals.manifestFileName);
 	}
@@ -370,7 +365,9 @@ async function cleanServerOutput(
 		await Promise.all(
 			files.map(async (filename) => {
 				const url = new URL(filename, out);
-				await fs.promises.rm(url);
+				const map = new URL(url + '.map');
+				// Sourcemaps may not be generated, so ignore any errors if fail to remove it
+				await Promise.all([fs.promises.rm(url), fs.promises.rm(map).catch(() => {})]);
 			}),
 		);
 
@@ -387,29 +384,10 @@ async function cleanServerOutput(
 				.map((fileName) => fs.promises.rm(new URL(fileName, out))),
 		);
 		// Copy assets before cleaning directory if outside root
-		await copyFiles(out, opts.settings.config.outDir, true);
+		await fs.promises.cp(out, opts.settings.config.outDir, { recursive: true, force: true });
 		await fs.promises.rm(out, { recursive: true });
 		return;
 	}
-}
-
-export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles = false) {
-	const files = await glob('**/*', {
-		cwd: fileURLToPath(fromFolder),
-		dot: includeDotfiles,
-	});
-	if (files.length === 0) return;
-	return await Promise.all(
-		files.map(async function copyFile(filename) {
-			const from = new URL(filename, fromFolder);
-			const to = new URL(filename, toFolder);
-			const lastFolder = new URL('./', to);
-			return fs.promises.mkdir(lastFolder, { recursive: true }).then(async function fsCopyFile() {
-				const p = await fs.promises.copyFile(from, to, fs.constants.COPYFILE_FICLONE);
-				return p;
-			});
-		}),
-	);
 }
 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
@@ -438,7 +416,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 				return fs.promises.rename(currentUrl, clientUrl);
 			}),
 		);
-		removeEmptyDirs(fileURLToPath(serverAssets));
+		removeEmptyDirs(fileURLToPath(serverRoot));
 	}
 }
 

@@ -260,15 +260,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		}
 	} else {
 		if (metadata.hydrate === 'only') {
-			const rendererName = rendererAliases.has(metadata.hydrateArgs)
-				? rendererAliases.get(metadata.hydrateArgs)
-				: metadata.hydrateArgs;
-			if (!clientOnlyValues.has(rendererName)) {
-				// warning if provide incorrect client:only directive but find the renderer by guess
-				console.warn(
-					`The client:only directive for ${metadata.displayName} is not recognized. The renderer ${renderer.name} will be used. If you intended to use a different renderer, please provide a valid client:only directive.`,
-				);
-			}
 			html = await renderSlotToString(result, slots?.fallback);
 		} else {
 			const componentRenderStartTime = performance.now();
@@ -455,29 +446,32 @@ function renderAstroComponent(
 	}
 
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
+
 	return {
-		async render(destination) {
+		render(destination: RenderDestination): Promise<void> | void {
 			// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
 			// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
 			// The slots are initialized eagerly for head propagation.
-			await instance.render(destination);
+			return instance.render(destination);
 		},
 	};
 }
 
-export async function renderComponent(
+export function renderComponent(
 	result: SSRResult,
 	displayName: string,
 	Component: unknown,
 	props: Record<string | number, any>,
 	slots: ComponentSlots = {},
-): Promise<RenderInstance> {
+): RenderInstance | Promise<RenderInstance> {
 	if (isPromise(Component)) {
-		Component = await Component.catch(handleCancellation);
+		return Component.catch(handleCancellation).then((x) => {
+			return renderComponent(result, displayName, x, props, slots);
+		});
 	}
 
 	if (isFragmentComponent(Component)) {
-		return await renderFragmentComponent(result, slots).catch(handleCancellation);
+		return renderFragmentComponent(result, slots).catch(handleCancellation);
 	}
 
 	// Ensure directives (`class:list`) are processed
@@ -485,14 +479,14 @@ export async function renderComponent(
 
 	// .html components
 	if (isHTMLComponent(Component)) {
-		return await renderHTMLComponent(result, Component, props, slots).catch(handleCancellation);
+		return renderHTMLComponent(result, Component, props, slots).catch(handleCancellation);
 	}
 
 	if (isAstroComponentFactory(Component)) {
 		return renderAstroComponent(result, displayName, Component, props, slots);
 	}
 
-	return await renderFrameworkComponent(result, displayName, Component, props, slots).catch(
+	return renderFrameworkComponent(result, displayName, Component, props, slots).catch(
 		handleCancellation,
 	);
 

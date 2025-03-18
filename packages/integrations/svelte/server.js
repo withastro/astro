@@ -1,5 +1,6 @@
 import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
+import { incrementId } from './context.js';
 
 function check(Component) {
 	if (typeof Component !== 'function') return false;
@@ -20,8 +21,11 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 
 	let children = undefined;
 	let $$slots = undefined;
+	let idPrefix;
+	if (this && this.result) {
+		idPrefix = incrementId(this.result);
+	}
 	const renderProps = {};
-
 	for (const [key, value] of Object.entries(slotted)) {
 		// Legacy slot support
 		$$slots ??= {};
@@ -49,6 +53,7 @@ async function renderToStaticMarkup(Component, props, slotted, metadata) {
 			$$slots,
 			...renderProps,
 		},
+		idPrefix,
 	});
 	return { html: result.body };
 }

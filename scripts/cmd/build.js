@@ -1,8 +1,7 @@
 import fs from 'node:fs/promises';
 import esbuild from 'esbuild';
-import { copy } from 'esbuild-plugin-copy';
-import glob from 'fast-glob';
 import { dim, green, red, yellow } from 'kleur/colors';
+import { glob } from 'tinyglobby';
 import prebuild from './prebuild.js';
 
 /** @type {import('esbuild').BuildOptions} */
@@ -39,17 +38,19 @@ export default async function build(...args) {
 	const prebuilds = getPrebuilds(isDev, args);
 	const patterns = args
 		.filter((f) => !!f) // remove empty args
+		.filter((f) => !f.startsWith('--')) // remove flags
 		.map((f) => f.replace(/^'/, '').replace(/'$/, '')); // Needed for Windows: glob strings contain surrounding string chars??? remove these
 	let entryPoints = [].concat(
 		...(await Promise.all(
-			patterns.map((pattern) => glob(pattern, { filesOnly: true, absolute: true })),
+			patterns.map((pattern) =>
+				glob(pattern, { filesOnly: true, expandDirectories: false, absolute: true }),
+			),
 		)),
 	);
 
 	const noClean = args.includes('--no-clean-dist');
 	const bundle = args.includes('--bundle');
 	const forceCJS = args.includes('--force-cjs');
-	const copyWASM = args.includes('--copy-wasm');
 
 	const { type = 'module', dependencies = {} } = await readPackageJSON('./package.json');
 
@@ -117,7 +118,12 @@ export default async function build(...args) {
 }
 
 async function clean(outdir) {
-	const files = await glob([`${outdir}/**`, `!${outdir}/**/*.d.ts`], { filesOnly: true });
+	const files = await glob('**', {
+		cwd: outdir,
+		filesOnly: true,
+		ignore: ['**/*.d.ts'],
+		absolute: true,
+	});
 	await Promise.all(files.map((file) => fs.rm(file, { force: true })));
 }
 

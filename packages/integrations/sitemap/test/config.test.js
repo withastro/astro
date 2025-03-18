@@ -27,7 +27,15 @@ describe('Config', () => {
 			assert.equal(urls.length, 1);
 		});
 
-		it('xslURL: Includes xml-stylsheet', async () => {
+		it('xslURL: Includes xml-stylesheet', async () => {
+			const indexXml = await fixture.readFile('/sitemap-index.xml');
+			assert.ok(
+				indexXml.includes(
+					'<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>',
+				),
+				indexXml,
+			);
+
 			const xml = await fixture.readFile('/sitemap-0.xml');
 			assert.ok(
 				xml.includes('<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>'),
@@ -56,7 +64,15 @@ describe('Config', () => {
 			assert.equal(urls.length, 1);
 		});
 
-		it('xslURL: Includes xml-stylsheet', async () => {
+		it('xslURL: Includes xml-stylesheet', async () => {
+			const indexXml = await fixture.readFile('/client/sitemap-index.xml');
+			assert.ok(
+				indexXml.includes(
+					'<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>',
+				),
+				indexXml,
+			);
+
 			const xml = await fixture.readFile('/client/sitemap-0.xml');
 			assert.ok(
 				xml.includes('<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>'),

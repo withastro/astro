@@ -9,6 +9,8 @@ import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
+const MAX_DEPTH = 10;
+
 /**
  * Extends the DataStore with the ability to change entries and write them to disk.
  * This is kept as a separate class to avoid needing node builtins at runtime, when read-only access is all that is needed.
@@ -22,6 +24,9 @@ export class MutableDataStore extends ImmutableDataStore {
 	#saveTimeout: NodeJS.Timeout | undefined;
 	#assetsSaveTimeout: NodeJS.Timeout | undefined;
 	#modulesSaveTimeout: NodeJS.Timeout | undefined;
+
+	#savePromise: Promise<void> | undefined;
+	#savePromiseResolve: (() => void) | undefined;
 
 	#dirty = false;
 	#assetsDirty = false;
@@ -86,7 +91,7 @@ export class MutableDataStore extends ImmutableDataStore {
 
 		if (this.#assetImports.size === 0) {
 			try {
-				await fs.writeFile(filePath, 'export default new Map();');
+				await this.#writeFileAtomic(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
@@ -102,7 +107,7 @@ export class MutableDataStore extends ImmutableDataStore {
 		const exports: Array<string> = [];
 		this.#assetImports.forEach((id) => {
 			const symbol = importIdToSymbolName(id);
-			imports.push(`import ${symbol} from '${id}';`);
+			imports.push(`import ${symbol} from ${JSON.stringify(id)};`);
 			exports.push(`[${JSON.stringify(id)}, ${symbol}]`);
 		});
 		const code = /* js */ `
@@ -110,7 +115,7 @@ ${imports.join('\n')}
 export default new Map([${exports.join(', ')}]);
 		`;
 		try {
-			await fs.writeFile(filePath, code);
+			await this.#writeFileAtomic(filePath, code);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -122,7 +127,7 @@ export default new Map([${exports.join(', ')}]);
 
 		if (this.#moduleImports.size === 0) {
 			try {
-				await fs.writeFile(filePath, 'export default new Map();');
+				await this.#writeFileAtomic(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
@@ -137,17 +142,30 @@ export default new Map([${exports.join(', ')}]);
 		// We then export them all, mapped by the import id, so we can find them again in the build.
 		const lines: Array<string> = [];
 		for (const [fileName, specifier] of this.#moduleImports) {
-			lines.push(`['${fileName}', () => import('${specifier}')]`);
+			lines.push(`[${JSON.stringify(fileName)}, () => import(${JSON.stringify(specifier)})]`);
 		}
 		const code = `
 export default new Map([\n${lines.join(',\n')}]);
 		`;
 		try {
-			await fs.writeFile(filePath, code);
+			await this.#writeFileAtomic(filePath, code);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
 		this.#modulesDirty = false;
+	}
+
+	#maybeResolveSavePromise() {
+		if (
+			!this.#saveTimeout &&
+			!this.#assetsSaveTimeout &&
+			!this.#modulesSaveTimeout &&
+			this.#savePromiseResolve
+		) {
+			this.#savePromiseResolve();
+			this.#savePromiseResolve = undefined;
+			this.#savePromise = undefined;
+		}
 	}
 
 	#writeAssetsImportsDebounced() {
@@ -156,9 +174,17 @@ export default new Map([\n${lines.join(',\n')}]);
 			if (this.#assetsSaveTimeout) {
 				clearTimeout(this.#assetsSaveTimeout);
 			}
-			this.#assetsSaveTimeout = setTimeout(() => {
+
+			if (!this.#savePromise) {
+				this.#savePromise = new Promise<void>((resolve) => {
+					this.#savePromiseResolve = resolve;
+				});
+			}
+
+			this.#assetsSaveTimeout = setTimeout(async () => {
 				this.#assetsSaveTimeout = undefined;
-				this.writeAssetImports(this.#assetsFile!);
+				await this.writeAssetImports(this.#assetsFile!);
+				this.#maybeResolveSavePromise();
 			}, SAVE_DEBOUNCE_MS);
 		}
 	}
@@ -169,24 +195,92 @@ export default new Map([\n${lines.join(',\n')}]);
 			if (this.#modulesSaveTimeout) {
 				clearTimeout(this.#modulesSaveTimeout);
 			}
-			this.#modulesSaveTimeout = setTimeout(() => {
+
+			if (!this.#savePromise) {
+				this.#savePromise = new Promise<void>((resolve) => {
+					this.#savePromiseResolve = resolve;
+				});
+			}
+
+			this.#modulesSaveTimeout = setTimeout(async () => {
 				this.#modulesSaveTimeout = undefined;
-				this.writeModuleImports(this.#modulesFile!);
+				await this.writeModuleImports(this.#modulesFile!);
+				this.#maybeResolveSavePromise();
 			}, SAVE_DEBOUNCE_MS);
 		}
 	}
 
+	// Skips the debounce and writes to disk immediately
+	async #saveToDiskNow() {
+		if (this.#saveTimeout) {
+			clearTimeout(this.#saveTimeout);
+		}
+		this.#saveTimeout = undefined;
+		if (this.#file) {
+			await this.writeToDisk();
+		}
+		this.#maybeResolveSavePromise();
+	}
+
 	#saveToDiskDebounced() {
 		this.#dirty = true;
-		// Only save to disk if it has already been saved once
-		if (this.#file) {
-			if (this.#saveTimeout) {
-				clearTimeout(this.#saveTimeout);
+		if (this.#saveTimeout) {
+			clearTimeout(this.#saveTimeout);
+		}
+
+		if (!this.#savePromise) {
+			this.#savePromise = new Promise<void>((resolve) => {
+				this.#savePromiseResolve = resolve;
+			});
+		}
+
+		this.#saveTimeout = setTimeout(async () => {
+			this.#saveTimeout = undefined;
+			if (this.#file) {
+				await this.writeToDisk();
 			}
-			this.#saveTimeout = setTimeout(() => {
-				this.#saveTimeout = undefined;
-				this.writeToDisk(this.#file!);
-			}, SAVE_DEBOUNCE_MS);
+			this.#maybeResolveSavePromise();
+		}, SAVE_DEBOUNCE_MS);
+	}
+
+	#writing = new Set<string>();
+	#pending = new Set<string>();
+
+	async #writeFileAtomic(filePath: PathLike, data: string, depth = 0) {
+		if (depth > MAX_DEPTH) {
+			// If we hit the max depth, we skip a write to prevent the stack from growing too large
+			// In theory this means we may miss the latest data, but in practice this will only happen when the file is being written to very frequently
+			// so it will be saved on the next write. This is unlikely to ever happen in practice, as the writes are debounced. It requires lots of writes to very large files.
+			return;
+		}
+		const fileKey = filePath.toString();
+		// If we are already writing this file, instead of writing now, flag it as pending and write it when we're done.
+		if (this.#writing.has(fileKey)) {
+			this.#pending.add(fileKey);
+			return;
+		}
+		// Prevent concurrent writes to this file by flagging it as being written
+		this.#writing.add(fileKey);
+
+		const tempFile = filePath instanceof URL ? new URL(`${filePath.href}.tmp`) : `${filePath}.tmp`;
+		try {
+			const oldData = await fs.readFile(filePath, 'utf-8').catch(() => '');
+			if (oldData === data) {
+				// If the data hasn't changed, we can skip the write
+				return;
+			}
+			// Write it to a temporary file first and then move it to prevent partial reads.
+			await fs.writeFile(tempFile, data);
+			await fs.rename(tempFile, filePath);
+		} finally {
+			// We're done writing. Unflag the file and check if there are any pending writes for this file.
+			this.#writing.delete(fileKey);
+			// If there are pending writes, we need to write again to ensure we flush the latest data.
+			if (this.#pending.has(fileKey)) {
+				this.#pending.delete(fileKey);
+				// Call ourself recursively to write the file again
+				await this.#writeFileAtomic(filePath, data, depth + 1);
+			}
 		}
 	}
 
@@ -289,18 +383,34 @@ export default new Map([\n${lines.join(',\n')}]);
 		};
 	}
 
+	/**
+	 * Returns a promise that resolves when all pending saves are complete.
+	 * This includes any in-progress debounced saves for the data store, asset imports, and module imports.
+	 */
+	async waitUntilSaveComplete(): Promise<void> {
+		// If there's no save promise, all saves are complete
+		if (!this.#savePromise) {
+			return Promise.resolve();
+		}
+		await this.#saveToDiskNow();
+		return this.#savePromise;
+	}
+
 	toString() {
 		return devalue.stringify(this._collections);
 	}
 
-	async writeToDisk(filePath: PathLike) {
+	async writeToDisk() {
 		if (!this.#dirty) {
 			return;
 		}
+		if (!this.#file) {
+			throw new AstroError(AstroErrorData.UnknownFilesystemError);
+		}
 		try {
-			await fs.writeFile(filePath, this.toString());
-			this.#file = filePath;
+			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
+			await this.#writeFileAtomic(this.#file, this.toString());
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -335,10 +445,16 @@ export default new Map([\n${lines.join(',\n')}]);
 		try {
 			if (existsSync(filePath)) {
 				const data = await fs.readFile(filePath, 'utf-8');
-				return MutableDataStore.fromString(data);
+				const store = await MutableDataStore.fromString(data);
+				store.#file = filePath;
+				return store;
+			} else {
+				await fs.mkdir(new URL('./', filePath), { recursive: true });
 			}
 		} catch {}
-		return new MutableDataStore();
+		const store = new MutableDataStore();
+		store.#file = filePath;
+		return store;
 	}
 }
 

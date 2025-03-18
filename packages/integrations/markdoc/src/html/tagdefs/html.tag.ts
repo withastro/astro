@@ -1,6 +1,37 @@
 import type { Config, Schema } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 
+const booleanAttributes = new Set([
+	'allowfullscreen',
+	'async',
+	'autofocus',
+	'autoplay',
+	'checked',
+	'controls',
+	'default',
+	'defer',
+	'disabled',
+	'disablepictureinpicture',
+	'disableremoteplayback',
+	'download',
+	'formnovalidate',
+	'hidden',
+	'inert',
+	'ismap',
+	'itemscope',
+	'loop',
+	'multiple',
+	'muted',
+	'nomodule',
+	'novalidate',
+	'open',
+	'playsinline',
+	'readonly',
+	'required',
+	'reversed',
+	'selected',
+]);
+
 // local
 import { parseInlineCSSToReactLikeObject } from '../css/parse-inline-css-to-react.js';
 
@@ -17,6 +48,14 @@ export const htmlTag: Schema<Config, never> = {
 
 		// pull out any "unsafe" attributes which need additional processing
 		const { style, ...safeAttributes } = unsafeAttributes as Record<string, unknown>;
+
+		// Convert boolean attributes to boolean literals
+		for (const [key, value] of Object.entries(safeAttributes)) {
+			if (booleanAttributes.has(key)) {
+				// If the attribute exists, ensure its value is a boolean
+				safeAttributes[key] = value === '' || value === true || value === 'true';
+			}
+		}
 
 		// if the inline "style" attribute is present we need to parse the HTML into a react-like React.CSSProperties object
 		if (typeof style === 'string') {

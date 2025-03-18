@@ -1,5 +1,6 @@
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
 import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../core/constants.js';
+import { isRequestServerIsland, requestIs404Or500 } from '../core/routing/match.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
 import type { APIContext } from '../types/public/context.js';
 import {
@@ -9,7 +10,6 @@ import {
 	redirectToDefaultLocale,
 	redirectToFallback,
 	requestHasLocale,
-	requestIs404Or500,
 } from './index.js';
 
 export function createI18nMiddleware(
@@ -31,7 +31,7 @@ export function createI18nMiddleware(
 	const _requestHasLocale = requestHasLocale(payload.locales);
 	const _redirectToFallback = redirectToFallback(payload);
 
-	const prefixAlways = (context: APIContext): Response | undefined => {
+	const prefixAlways = (context: APIContext, response: Response): Response | undefined => {
 		const url = context.url;
 		if (url.pathname === base + '/' || url.pathname === base) {
 			return _redirectToDefaultLocale(context);
@@ -39,7 +39,7 @@ export function createI18nMiddleware(
 
 		// Astro can't know where the default locale is supposed to be, so it returns a 404.
 		else if (!_requestHasLocale(context)) {
-			return _noFoundForNonLocaleRoute(context);
+			return _noFoundForNonLocaleRoute(context, response);
 		}
 
 		return undefined;
@@ -82,8 +82,13 @@ export function createI18nMiddleware(
 			return response;
 		}
 
-		const { currentLocale } = context;
+		// This is a case where the rendering phase belongs to a server island. Server island are
+		// special routes, and should be exhempt from i18n routing
+		if (isRequestServerIsland(context.request, base)) {
+			return response;
+		}
 
+		const { currentLocale } = context;
 		switch (i18n.strategy) {
 			// NOTE: theoretically, we should never hit this code path
 			case 'manual': {
@@ -125,7 +130,7 @@ export function createI18nMiddleware(
 			}
 
 			case 'pathname-prefix-always': {
-				const result = prefixAlways(context);
+				const result = prefixAlways(context, response);
 				if (result) {
 					return result;
 				}
@@ -133,7 +138,7 @@ export function createI18nMiddleware(
 			}
 			case 'domains-prefix-always': {
 				if (localeHasntDomain(i18n, currentLocale)) {
-					const result = prefixAlways(context);
+					const result = prefixAlways(context, response);
 					if (result) {
 						return result;
 					}

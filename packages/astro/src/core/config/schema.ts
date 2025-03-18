@@ -1,16 +1,16 @@
+import type { OutgoingHttpHeaders } from 'node:http';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type {
 	ShikiConfig,
 	RehypePlugin as _RehypePlugin,
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
 } from '@astrojs/markdown-remark';
-import { markdownConfigDefaults } from '@astrojs/markdown-remark';
+import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
-
-import type { OutgoingHttpHeaders } from 'node:http';
-import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import { z } from 'zod';
+import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import { EnvSchema } from '../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
@@ -77,6 +77,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		host: false,
 		port: 4321,
 		open: false,
+		allowedHosts: [],
 	},
 	integrations: [],
 	markdown: markdownConfigDefaults,
@@ -92,15 +93,22 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		schema: {},
 		validateSecrets: false,
 	},
+	session: undefined,
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
 		responsiveImages: false,
-		svg: {
-			mode: 'inline',
-		},
+		svg: false,
+		serializeConfig: false,
+		session: false,
+		headingIdCompat: false,
+		preserveScriptOrder: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
+
+const highlighterTypesSchema = z
+	.union([z.literal('shiki'), z.literal('prism')])
+	.default(syntaxHighlightDefaults.type);
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -213,6 +221,10 @@ export const AstroConfigSchema = z.object({
 					.default(ASTRO_CONFIG_DEFAULTS.server.host),
 				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 				headers: z.custom<OutgoingHttpHeaders>().optional(),
+				allowedHosts: z
+					.union([z.array(z.string()), z.literal(true)])
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
 			})
 			.default({}),
 	),
@@ -302,7 +314,19 @@ export const AstroConfigSchema = z.object({
 	markdown: z
 		.object({
 			syntaxHighlight: z
-				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
+				.union([
+					z
+						.object({
+							type: highlighterTypesSchema,
+							excludeLangs: z
+								.array(z.string())
+								.optional()
+								.default(syntaxHighlightDefaults.excludeLangs),
+						})
+						.default(syntaxHighlightDefaults),
+					highlighterTypesSchema,
+					z.literal(false),
+				])
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight),
 			shikiConfig: z
 				.object({
@@ -523,6 +547,30 @@ export const AstroConfigSchema = z.object({
 		.strict()
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.env),
+	session: z
+		.object({
+			driver: z.string(),
+			options: z.record(z.any()).optional(),
+			cookie: z
+				.object({
+					name: z.string().optional(),
+					domain: z.string().optional(),
+					path: z.string().optional(),
+					maxAge: z.number().optional(),
+					sameSite: z.union([z.enum(['strict', 'lax', 'none']), z.boolean()]).optional(),
+					secure: z.boolean().optional(),
+				})
+				.or(z.string())
+				.transform((val) => {
+					if (typeof val === 'string') {
+						return { name: val };
+					}
+					return val;
+				})
+				.optional(),
+			ttl: z.number().optional(),
+		})
+		.optional(),
 	experimental: z
 		.object({
 			clientPrerender: z
@@ -537,27 +585,50 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
+			session: z.boolean().optional(),
 			svg: z
 				.union([
 					z.boolean(),
-					z.object({
-						mode: z
-							.union([z.literal('inline'), z.literal('sprite')])
-							.optional()
-							.default(ASTRO_CONFIG_DEFAULTS.experimental.svg.mode),
-					}),
+					z
+						.object({
+							mode: z.union([z.literal('inline'), z.literal('sprite')]).optional(),
+						})
+						.optional(),
 				])
 				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.svg)
 				.transform((svgConfig) => {
 					// Handle normalization of `experimental.svg` config boolean values
 					if (typeof svgConfig === 'boolean') {
-						return svgConfig ? ASTRO_CONFIG_DEFAULTS.experimental.svg : undefined;
+						return svgConfig
+							? {
+									mode: 'inline' as SvgRenderMode,
+								}
+							: undefined;
+					} else {
+						if (!svgConfig.mode) {
+							return {
+								mode: 'inline' as SvgRenderMode,
+							};
+						}
 					}
 					return svgConfig;
 				}),
+			serializeConfig: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.serializeConfig),
+			headingIdCompat: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.headingIdCompat),
+			preserveScriptOrder: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.preserveScriptOrder),
 		})
 		.strict(
-			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,
+			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
 		)
 		.default({}),
 	legacy: z
@@ -678,6 +749,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 					headers: z.custom<OutgoingHttpHeaders>().optional(),
 					streaming: z.boolean().optional().default(true),
+					allowedHosts: z
+						.union([z.array(z.string()), z.literal(true)])
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
 				})
 				.optional()
 				.default({}),

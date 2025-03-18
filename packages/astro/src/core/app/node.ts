@@ -75,19 +75,27 @@ export class NodeApp extends App {
 		// We need to handle it here and parse the header correctly.
 		// @example "https, http,http" => "http"
 		const forwardedProtocol = getFirstForwardedValue(req.headers['x-forwarded-proto']);
-		const protocol = forwardedProtocol ?? (isEncrypted ? 'https' : 'http');
+		const providedProtocol = isEncrypted ? 'https' : 'http';
+		const protocol = forwardedProtocol ?? providedProtocol;
 
 		// @example "example.com,www2.example.com" => "example.com"
 		const forwardedHostname = getFirstForwardedValue(req.headers['x-forwarded-host']);
-		const hostname = forwardedHostname ?? req.headers.host ?? req.headers[':authority'];
+		const providedHostname = req.headers.host ?? req.headers[':authority'];
+		const hostname = forwardedHostname ?? providedHostname;
 
 		// @example "443,8080,80" => "443"
 		const port = getFirstForwardedValue(req.headers['x-forwarded-port']);
 
-		const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
-		const hostnamePort = portInHostname ? hostname : `${hostname}${port ? `:${port}` : ''}`;
+		let url: URL;
+		try {
+			const hostnamePort = getHostnamePort(hostname, port);
+			url = new URL(`${protocol}://${hostnamePort}${req.url}`);
+		} catch {
+			// Fallback to the provided hostname and port
+			const hostnamePort = getHostnamePort(providedHostname, port);
+			url = new URL(`${providedProtocol}://${hostnamePort}`);
+		}
 
-		const url = `${protocol}://${hostnamePort}${req.url}`;
 		const options: RequestInit = {
 			method: req.method || 'GET',
 			headers: makeRequestHeaders(req),
@@ -159,6 +167,12 @@ export class NodeApp extends App {
 			});
 		}
 	}
+}
+
+function getHostnamePort(hostname: string | string[] | undefined, port?: string): string {
+	const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
+	const hostnamePort = portInHostname ? hostname : `${hostname}${port ? `:${port}` : ''}`;
+	return hostnamePort;
 }
 
 function makeRequestHeaders(req: NodeRequest): Headers {

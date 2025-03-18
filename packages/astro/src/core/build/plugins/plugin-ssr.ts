@@ -1,6 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../../../types/astro.js';
+import { ASTRO_ACTIONS_INTERNAL_MODULE_ID } from '../../../actions/consts.js';
 import type { AstroAdapter } from '../../../types/public/integrations.js';
+import { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
 import { addRollupInput } from '../add-rollup-input.js';
@@ -8,7 +9,6 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
-import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { getVirtualModulePageName } from './util.js';
@@ -30,7 +30,7 @@ function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
 		},
 		async load(id) {
 			if (id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
-				return `export * from '${adapter.serverEntrypoint}';`;
+				return `export * from ${JSON.stringify(adapter.serverEntrypoint)};`;
 			}
 		},
 	};
@@ -168,6 +168,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 
 	const imports = [
 		`import { renderers } from '${RENDERERS_MODULE_ID}';`,
+		`import * as actions from '${ASTRO_ACTIONS_INTERNAL_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		`import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`,
@@ -179,6 +180,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`    pageMap,`,
 		`    serverIslandMap,`,
 		`    renderers,`,
+		`    actions,`,
 		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${middlewareId}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,

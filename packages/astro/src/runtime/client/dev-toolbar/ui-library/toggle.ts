@@ -122,6 +122,7 @@ export class DevToolbarToggle extends HTMLElement {
 
 	connectedCallback() {
 		this.input.type = 'checkbox';
+		this.input.name = 'dev-toolbar-toggle';
 		this.shadowRoot.append(this.input);
 		this.updateStyle();
 	}

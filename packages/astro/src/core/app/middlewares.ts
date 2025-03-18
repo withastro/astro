@@ -13,6 +13,9 @@ const FORM_CONTENT_TYPES = [
 	'text/plain',
 ];
 
+// Note: TRACE is unsupported by undici/Node.js
+const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
+
 /**
  * Returns a middleware function in charge to check the `origin` header.
  *
@@ -25,22 +28,39 @@ export function createOriginCheckMiddleware(): MiddlewareHandler {
 		if (isPrerendered) {
 			return next();
 		}
-		const contentType = request.headers.get('content-type');
-		if (contentType) {
-			if (FORM_CONTENT_TYPES.includes(contentType.toLowerCase())) {
-				const forbidden =
-					(request.method === 'POST' ||
-						request.method === 'PUT' ||
-						request.method === 'PATCH' ||
-						request.method === 'DELETE') &&
-					request.headers.get('origin') !== url.origin;
-				if (forbidden) {
-					return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
-						status: 403,
-					});
-				}
+		// Safe methods don't require origin check
+		if (SAFE_METHODS.includes(request.method)) {
+			return next();
+		}
+		const isSameOrigin = request.headers.get('origin') === url.origin;
+
+		const hasContentType = request.headers.has('content-type');
+		if (hasContentType) {
+			const formLikeHeader = hasFormLikeHeader(request.headers.get('content-type'));
+			if (formLikeHeader && !isSameOrigin) {
+				return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
+					status: 403,
+				});
+			}
+		} else {
+			if (!isSameOrigin) {
+				return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
+					status: 403,
+				});
 			}
 		}
+
 		return next();
 	});
+}
+
+function hasFormLikeHeader(contentType: string | null): boolean {
+	if (contentType) {
+		for (const FORM_CONTENT_TYPE of FORM_CONTENT_TYPES) {
+			if (contentType.toLowerCase().includes(FORM_CONTENT_TYPE)) {
+				return true;
+			}
+		}
+	}
+	return false;
 }

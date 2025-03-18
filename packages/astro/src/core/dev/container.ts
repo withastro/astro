@@ -7,7 +7,6 @@ import * as vite from 'vite';
 import {
 	runHookConfigDone,
 	runHookConfigSetup,
-	runHookRoutesResolved,
 	runHookServerDone,
 	runHookServerStart,
 } from '../../integrations/hooks.js';
@@ -16,8 +15,7 @@ import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-import { injectDefaultDevRoutes } from '../routing/dev-default.js';
-import { createRouteManifest } from '../routing/index.js';
+import { createRoutesList } from '../routing/index.js';
 import { syncInternal } from '../sync/index.js';
 import { warnMissingAdapter } from './adapter-validation.js';
 
@@ -58,7 +56,7 @@ export async function createContainer({
 
 	const {
 		base,
-		server: { host, headers, open: serverOpen },
+		server: { host, headers, open: serverOpen, allowedHosts },
 	} = settings.config;
 
 	// serverOpen = true, isRestart = false
@@ -84,11 +82,8 @@ export async function createContainer({
 		.filter(Boolean) as string[];
 
 	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
-	let manifest = await createRouteManifest({ settings, fsMod: fs }, logger, { dev: true });
-	const devSSRManifest = createDevelopmentManifest(settings);
-
-	manifest = injectDefaultDevRoutes(settings, devSSRManifest, manifest);
-	await runHookRoutesResolved({ settings, logger, routes: manifest.routes });
+	const routesList = await createRoutesList({ settings, fsMod: fs }, logger, { dev: true });
+	const manifest = createDevelopmentManifest(settings);
 
 	await runHookConfigDone({ settings, logger, command: 'dev' });
 
@@ -97,7 +92,7 @@ export async function createContainer({
 	const mode = inlineConfig?.mode ?? 'development';
 	const viteConfig = await createVite(
 		{
-			server: { host, headers, open },
+			server: { host, headers, open, allowedHosts },
 			optimizeDeps: {
 				include: rendererClientEntries,
 			},
@@ -109,23 +104,26 @@ export async function createContainer({
 			command: 'dev',
 			fs,
 			sync: false,
+			routesList,
 			manifest,
-			ssrManifest: devSSRManifest,
 		},
 	);
+	const viteServer = await vite.createServer(viteConfig);
 
 	await syncInternal({
 		settings,
 		mode,
 		logger,
 		skip: {
-			content: true,
+			content: !isRestart,
+			cleanup: true,
 		},
 		force: inlineConfig?.force,
+		routesList,
 		manifest,
+		command: 'dev',
+		watcher: viteServer.watcher,
 	});
-
-	const viteServer = await vite.createServer(viteConfig);
 
 	const container: Container = {
 		inlineConfig: inlineConfig ?? {},

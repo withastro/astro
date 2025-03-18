@@ -39,7 +39,7 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		assert.equal(fixture.hasMessage('●  astro can be updated to v1.0.1'), true);
+		assert.equal(fixture.hasMessage('●  astro can be updated from v1.0.0 to v1.0.1'), true);
 	});
 
 	it('minor', async () => {
@@ -54,7 +54,7 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		assert.equal(fixture.hasMessage('●  astro can be updated to v1.2.0'), true);
+		assert.equal(fixture.hasMessage('●  astro can be updated from v1.0.0 to v1.2.0'), true);
 	});
 
 	it('major (reject)', async () => {
@@ -81,7 +81,7 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		assert.equal(fixture.hasMessage('▲  astro can be updated to  v2.0.0'), true);
+		assert.equal(fixture.hasMessage('▲  astro can be updated  from v1.0.0 to v2.0.0'), true);
 		assert.equal(prompted, true);
 		assert.equal(exitCode, 0);
 		assert.equal(fixture.hasMessage('check   Be sure to follow the CHANGELOG.'), false);
@@ -111,7 +111,7 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		assert.equal(fixture.hasMessage('▲  astro can be updated to  v2.0.0'), true);
+		assert.equal(fixture.hasMessage('▲  astro can be updated  from v1.0.0 to v2.0.0'), true);
 		assert.equal(prompted, true);
 		assert.equal(exitCode, undefined);
 		assert.equal(fixture.hasMessage('check   Be sure to follow the CHANGELOG.'), true);
@@ -149,8 +149,8 @@ describe('install', () => {
 			],
 		};
 		await install(context);
-		assert.equal(fixture.hasMessage('▲  a can be updated to  v2.0.0'), true);
-		assert.equal(fixture.hasMessage('▲  b can be updated to  v7.0.0'), true);
+		assert.equal(fixture.hasMessage('▲  a can be updated  from v1.0.0 to v2.0.0'), true);
+		assert.equal(fixture.hasMessage('▲  b can be updated  from v6.0.0 to v7.0.0'), true);
 		assert.equal(prompted, true);
 		assert.equal(exitCode, undefined);
 		const [changelog, a, b] = fixture.messages().slice(-5);
@@ -199,9 +199,9 @@ describe('install', () => {
 		};
 		await install(context);
 		assert.equal(fixture.hasMessage('◼  current is up to date on v1.0.0'), true);
-		assert.equal(fixture.hasMessage('●  patch can be updated to v1.0.1'), true);
-		assert.equal(fixture.hasMessage('●  minor can be updated to v1.2.0'), true);
-		assert.equal(fixture.hasMessage('▲  major can be updated to  v3.0.0'), true);
+		assert.equal(fixture.hasMessage('●  patch can be updated from v1.0.0 to v1.0.1'), true);
+		assert.equal(fixture.hasMessage('●  minor can be updated from v1.0.0 to v1.2.0'), true);
+		assert.equal(fixture.hasMessage('▲  major can be updated  from v1.0.0 to v3.0.0'), true);
 		assert.equal(prompted, true);
 		assert.equal(exitCode, undefined);
 		assert.equal(fixture.hasMessage('check   Be sure to follow the CHANGELOG.'), true);

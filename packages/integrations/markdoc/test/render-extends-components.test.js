@@ -61,4 +61,9 @@ function renderComponentsChecks(html) {
 	const pre = document.querySelector('pre');
 	assert.notEqual(pre, null);
 	assert.equal(pre.className, 'astro-code github-dark');
+
+	// Renders 2nd Astro Code component inside if tag
+	const pre2 = document.querySelectorAll('pre')[1];
+	assert.notEqual(pre2, null);
+	assert.equal(pre2.className, 'astro-code github-dark');
 }

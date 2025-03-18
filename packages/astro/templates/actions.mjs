@@ -1,5 +1,13 @@
-import { ActionError, deserializeActionResult, getActionQueryString } from 'astro:actions';
+import {
+	ACTION_QUERY_PARAMS,
+	ActionError,
+	appendForwardSlash,
+	astroCalledServerError,
+	deserializeActionResult,
+	getActionQueryString,
+} from 'astro:actions';
 
+const apiContextRoutesSymbol = Symbol.for('context.routes');
 const ENCODED_DOT = '%2E';
 
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
@@ -47,6 +55,17 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	});
 }
 
+const SHOULD_APPEND_TRAILING_SLASH = '/** @TRAILING_SLASH@ **/';
+
+/** @param {import('astro:actions').ActionClient<any, any, any>} */
+export function getActionPath(action) {
+	let path = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${new URLSearchParams(action.toString()).get(ACTION_QUERY_PARAMS.actionName)}`;
+	if (SHOULD_APPEND_TRAILING_SLASH) {
+		path = appendForwardSlash(path);
+	}
+	return path;
+}
+
 /**
  * @param {*} param argument passed to the action when called server or client-side.
  * @param {string} path Built path to call action by path name.
@@ -56,11 +75,13 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
  */
 async function handleAction(param, path, context) {
 	// When running server-side, import the action and call it.
-	if (import.meta.env.SSR) {
-		const { getAction } = await import('astro/actions/runtime/virtual/get-action.js');
-		const action = await getAction(path);
+	if (import.meta.env.SSR && context) {
+		const pipeline = Reflect.get(context, apiContextRoutesSymbol);
+		if (!pipeline) {
+			throw astroCalledServerError();
+		}
+		const action = await pipeline.getAction(path);
 		if (!action) throw new Error(`Action not found: ${path}`);
-
 		return action.bind(context)(param);
 	}
 
@@ -83,11 +104,19 @@ async function handleAction(param, path, context) {
 			headers.set('Content-Length', '0');
 		}
 	}
-	const rawResult = await fetch(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${path}`, {
-		method: 'POST',
-		body,
-		headers,
-	});
+	const rawResult = await fetch(
+		getActionPath({
+			toString() {
+				return getActionQueryString(path);
+			},
+		}),
+		{
+			method: 'POST',
+			body,
+			headers,
+		},
+	);
+
 	if (rawResult.status === 204) {
 		return deserializeActionResult({ type: 'empty', status: 204 });
 	}

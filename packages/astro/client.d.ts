@@ -110,7 +110,7 @@ declare module '*.avif' {
 declare module '*.svg' {
 	type Props = {
 		/**
-		 * Accesible, short-text description
+		 * Accessible, short-text description
 		 *
 		 *  {@link https://developer.mozilla.org/en-US/docs/Web/SVG/Element/title|MDN Reference}
 		 */
@@ -152,8 +152,8 @@ declare module 'astro:transitions/client' {
 
 	export type Fallback = import('./dist/virtual-modules/transitions-types.js').Fallback;
 	export type Direction = import('./dist/virtual-modules/transitions-types.ts').Direction;
-	export type NavigationTypeString =
-		import('./dist/virtual-modules/transitions-types.js').NavigationTypeString;
+	// biome-ignore format: bug
+	export type NavigationTypeString = import('./dist/virtual-modules/transitions-types.js').NavigationTypeString;
 	export type Options = import('./dist/virtual-modules/transitions-types.js').Options;
 
 	type EventModule = typeof import('./dist/virtual-modules/transitions-events.js');
@@ -162,14 +162,14 @@ declare module 'astro:transitions/client' {
 	export const TRANSITION_BEFORE_SWAP: EventModule['TRANSITION_BEFORE_SWAP'];
 	export const TRANSITION_AFTER_SWAP: EventModule['TRANSITION_AFTER_SWAP'];
 	export const TRANSITION_PAGE_LOAD: EventModule['TRANSITION_PAGE_LOAD'];
-	export type TransitionBeforePreparationEvent =
-		import('./dist/virtual-modules/transitions-events.js').TransitionBeforePreparationEvent;
-	export type TransitionBeforeSwapEvent =
-		import('./dist/virtual-modules/transitions-events.js').TransitionBeforeSwapEvent;
+	// biome-ignore format: bug
+	export type TransitionBeforePreparationEvent = import('./dist/virtual-modules/transitions-events.js').TransitionBeforePreparationEvent;
+	// biome-ignore format: bug
+	export type TransitionBeforeSwapEvent = import('./dist/virtual-modules/transitions-events.js').TransitionBeforeSwapEvent;
 	export const isTransitionBeforePreparationEvent: EventModule['isTransitionBeforePreparationEvent'];
 	export const isTransitionBeforeSwapEvent: EventModule['isTransitionBeforeSwapEvent'];
-	type TransitionSwapFunctionModule =
-		typeof import('./dist/virtual-modules/transitions-swap-functions.js');
+	// biome-ignore format: bug
+	type TransitionSwapFunctionModule = typeof import('./dist/virtual-modules/transitions-swap-functions.js');
 	export const swapFunctions: TransitionSwapFunctionModule['swapFunctions'];
 }
 
@@ -187,6 +187,20 @@ declare module 'astro:container' {
 
 declare module 'astro:middleware' {
 	export * from 'astro/virtual-modules/middleware.js';
+}
+
+declare module 'astro:config/server' {
+	// biome-ignore format: bug
+	type ServerConfigSerialized = import('./dist/types/public/manifest.js').ServerDeserializedManifest;
+	const manifest: ServerConfigSerialized;
+	export = manifest;
+}
+
+declare module 'astro:config/client' {
+	// biome-ignore format: bug
+	type ClientConfigSerialized = import('./dist/types/public/manifest.js').ClientDeserializedManifest;
+	const manifest: ClientConfigSerialized;
+	export = manifest;
 }
 
 declare module 'astro:components' {
@@ -532,6 +546,16 @@ declare module '*?url' {
 }
 
 declare module '*?inline' {
+	const src: string;
+	export default src;
+}
+
+declare module '*?url&inline' {
+	const src: string;
+	export default src;
+}
+
+declare module '*?url&no-inline' {
 	const src: string;
 	export default src;
 }

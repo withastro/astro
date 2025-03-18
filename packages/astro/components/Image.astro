@@ -1,10 +1,8 @@
 ---
 import { type LocalImageProps, type RemoteImageProps, getImage, imageConfig } from 'astro:assets';
 import type { UnresolvedImageTransform } from '../dist/assets/types';
-import { applyResponsiveAttributes } from '../dist/assets/utils/imageAttributes.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import type { HTMLAttributes } from '../types';
-import './image.css';
 
 // The TypeScript diagnostic for JSX props uses the last member of the union to suggest props, so it would be better for
 // LocalImageProps to be last. Unfortunately, when we do this the error messages that remote images get are complete nonsense
@@ -47,15 +45,8 @@ if (import.meta.env.DEV) {
 	additionalAttributes['data-image-component'] = 'true';
 }
 
-const attributes = useResponsive
-	? applyResponsiveAttributes({
-			layout,
-			image,
-			props,
-			additionalAttributes,
-		})
-	: { ...additionalAttributes, ...image.attributes };
+const { class: className, ...attributes } = { ...additionalAttributes, ...image.attributes };
 ---
 
 {/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}
-<img src={image.src} {...attributes} class={attributes.class} />
+<img src={image.src} {...attributes} class={className} />

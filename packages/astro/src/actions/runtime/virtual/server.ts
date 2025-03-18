@@ -1,6 +1,10 @@
 import { z } from 'zod';
+import type { Pipeline } from '../../../core/base-pipeline.js';
+import { shouldAppendForwardSlash } from '../../../core/build/util.js';
 import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
+import { removeTrailingForwardSlash } from '../../../core/path.js';
+import { apiContextRoutesSymbol } from '../../../core/render-context.js';
 import type { APIContext } from '../../../types/public/index.js';
 import { ACTION_RPC_ROUTE_PATTERN } from '../../consts.js';
 import {
@@ -13,7 +17,6 @@ import {
 	isActionAPIContext,
 } from '../utils.js';
 import type { Locals } from '../utils.js';
-import { getAction } from './get-action.js';
 import {
 	ACTION_QUERY_PARAMS,
 	ActionError,
@@ -235,14 +238,14 @@ function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 	return schema;
 }
 
-export type ActionMiddlewareContext = {
+export type AstroActionContext = {
 	/** Information about an incoming action request. */
 	action?: {
 		/** Whether an action was called using an RPC function or by using an HTML form action. */
 		calledFrom: 'rpc' | 'form';
 		/** The name of the action. Useful to track the source of an action result during a redirect. */
 		name: string;
-		/** Programatically call the action to get the result. */
+		/** Programmatically call the action to get the result. */
 		handler: () => Promise<SafeResult<any, any>>;
 	};
 	/**
@@ -264,7 +267,7 @@ export type ActionMiddlewareContext = {
 /**
  * Access information about Action requests from middleware.
  */
-export function getActionContext(context: APIContext): ActionMiddlewareContext {
+export function getActionContext(context: APIContext): AstroActionContext {
 	const callerInfo = getCallerInfo(context);
 
 	// Prevents action results from being handled on a rewrite.
@@ -272,14 +275,22 @@ export function getActionContext(context: APIContext): ActionMiddlewareContext {
 	// if the user's middleware has already handled the result.
 	const actionResultAlreadySet = Boolean((context.locals as Locals)._actionPayload);
 
-	let action: ActionMiddlewareContext['action'] = undefined;
+	let action: AstroActionContext['action'] = undefined;
 
 	if (callerInfo && context.request.method === 'POST' && !actionResultAlreadySet) {
 		action = {
 			calledFrom: callerInfo.from,
 			name: callerInfo.name,
 			handler: async () => {
-				const baseAction = await getAction(callerInfo.name);
+				const pipeline: Pipeline = Reflect.get(context, apiContextRoutesSymbol);
+				const callerInfoName = shouldAppendForwardSlash(
+					pipeline.manifest.trailingSlash,
+					pipeline.manifest.buildFormat,
+				)
+					? removeTrailingForwardSlash(callerInfo.name)
+					: callerInfo.name;
+
+				const baseAction = await pipeline.getAction(callerInfoName);
 				let input;
 				try {
 					input = await parseRequestBody(context.request);

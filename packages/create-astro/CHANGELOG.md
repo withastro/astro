@@ -1,5 +1,24 @@
 # create-astro
 
+## 4.11.1
+
+### Patch Changes
+
+- [#13257](https://github.com/withastro/astro/pull/13257) [`6012e06`](https://github.com/withastro/astro/commit/6012e061cdd07688be73d5d543ad3a055c373475) Thanks [@ADTC](https://github.com/ADTC)! - Modify the template README file to reflect the correct package manager
+
+## 4.11.0
+
+### Minor Changes
+
+- [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
+
+- [#12083](https://github.com/withastro/astro/pull/12083) [`9263e96`](https://github.com/withastro/astro/commit/9263e965932b9a6a116801c063c6b7105c39643e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Reworks the experience of creating a new Astro project using the `create astro` CLI command.
+
+  - Updates the list of templates to include Starlight and combines the "minimal" and "basics" templates into a new, refreshed "Basics" template to serve as the single, minimal Astro project starter.
+  - Removes the TypeScript question. Astro is TypeScript-only, so this question was often misleading. The "Strict" preset is now the default, but it can still be changed manually in `tsconfig.json`.
+  - `astro check` is no longer automatically added to the build script.
+  - Added a new `--add` flag to install additional integrations after creating a project. For example, `pnpm create astro --add react` will create a new Astro project and install the React integration.
+
 ## 4.11.0-beta.1
 
 ### Minor Changes
@@ -85,7 +104,7 @@
 
 ### Patch Changes
 
-- [#10255](https://github.com/withastro/astro/pull/10255) [`2aec2cdc21f48f9b4f1dd82e2fd16fa3d653ccc5`](https://github.com/withastro/astro/commit/2aec2cdc21f48f9b4f1dd82e2fd16fa3d653ccc5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes an issue where TypeScript and `@astrojs/check` versions would occassionally print as `undefined`.
+- [#10255](https://github.com/withastro/astro/pull/10255) [`2aec2cdc21f48f9b4f1dd82e2fd16fa3d653ccc5`](https://github.com/withastro/astro/commit/2aec2cdc21f48f9b4f1dd82e2fd16fa3d653ccc5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes an issue where TypeScript and `@astrojs/check` versions would occasionally print as `undefined`.
 
 ## 4.7.3
 

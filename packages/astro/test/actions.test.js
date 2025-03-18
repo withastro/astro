@@ -60,8 +60,8 @@ describe('Astro Actions', () => {
 
 			assert.equal(res.ok, true);
 			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
 			const data = devalue.parse(await res.text());
+
 			assert.equal(data.channel, 'bholmesdev');
 			assert.equal(data.subscribeButtonState, 'smashed');
 		});
@@ -561,6 +561,46 @@ it('Base path should be used', async () => {
 	const data = devalue.parse(await res.text());
 	assert.equal(data.channel, 'bholmesdev');
 	assert.equal(data.comment, 'Hello, World!');
+	await devServer.stop();
+});
+
+it('Should support trailing slash', async () => {
+	const fixture = await loadFixture({
+		root: './fixtures/actions/',
+		adapter: testAdapter(),
+		trailingSlash: 'always',
+	});
+	const devServer = await fixture.startDevServer();
+	const formData = new FormData();
+	formData.append('channel', 'bholmesdev');
+	formData.append('comment', 'Hello, World!');
+	const res = await fixture.fetch('/_actions/comment/', {
+		method: 'POST',
+		body: formData,
+	});
+	assert.equal(res.ok, true);
+	assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+	const data = devalue.parse(await res.text());
+	assert.equal(data.channel, 'bholmesdev');
+	assert.equal(data.comment, 'Hello, World!');
+	await devServer.stop();
+});
+
+it('getActionPath() should return the right path', async () => {
+	const fixture = await loadFixture({
+		root: './fixtures/actions/',
+		adapter: testAdapter(),
+		base: '/base',
+		trailingSlash: 'always',
+	});
+	const devServer = await fixture.startDevServer();
+	const res = await fixture.fetch('/base/get-action-path/');
+
+	assert.equal(res.ok, true);
+	const html = await res.text();
+	let $ = cheerio.load(html);
+	assert.equal($('[data-path]').text(), '/base/_actions/transformFormInput/');
 	await devServer.stop();
 });
 

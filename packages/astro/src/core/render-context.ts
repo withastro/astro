@@ -1,4 +1,5 @@
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
+import { getActionContext } from '../actions/runtime/virtual/server.js';
 import { deserializeActionResult } from '../actions/runtime/virtual/shared.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
@@ -12,6 +13,7 @@ import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal, AstroGlobalPartial } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
+import type { SSRActions } from './app/types.js';
 import {
 	ASTRO_VERSION,
 	REROUTE_DIRECTIVE_HEADER,
@@ -29,9 +31,9 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
-import { isRoute404or500 } from './routing/match.js';
+import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
-import { SERVER_ISLAND_COMPONENT } from './server-islands/endpoint.js';
+import { AstroSession } from './session.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -44,15 +46,21 @@ export class RenderContext {
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
+		readonly actions: SSRActions,
+		// It must be a DECODED pathname
 		public pathname: string,
 		public request: Request,
 		public routeData: RouteData,
 		public status: number,
+		public clientAddress: string | undefined,
 		protected cookies = new AstroCookies(request),
 		public params = getParams(routeData, pathname),
 		protected url = new URL(request.url),
 		public props: Props = {},
 		public partial: undefined | boolean = undefined,
+		public session: AstroSession | undefined = pipeline.manifest.sessionConfig
+			? new AstroSession(cookies, pipeline.manifest.sessionConfig)
+			: undefined,
 	) {}
 
 	/**
@@ -71,23 +79,28 @@ export class RenderContext {
 		pipeline,
 		request,
 		routeData,
+		clientAddress,
 		status = 200,
 		props,
 		partial = undefined,
-	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
+		actions,
+	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'> &
 		Partial<
-			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial'>
+			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial' | 'actions'>
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
+		const pipelineActions = actions ?? (await pipeline.getActions());
 		setOriginPathname(request, pathname);
 		return new RenderContext(
 			pipeline,
 			locals,
 			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
-			decodeURI(pathname),
+			pipelineActions,
+			pathname,
 			request,
 			routeData,
 			status,
+			clientAddress,
 			undefined,
 			undefined,
 			undefined,
@@ -95,7 +108,6 @@ export class RenderContext {
 			partial,
 		);
 	}
-
 	/**
 	 * The main function of the RenderContext.
 	 *
@@ -126,7 +138,8 @@ export class RenderContext {
 						serverLike,
 						base: manifest.base,
 					});
-		const apiContext = this.createAPIContext(props);
+		const actionApiContext = this.createActionAPIContext();
+		const apiContext = this.createAPIContext(props, actionApiContext);
 
 		this.counter++;
 		if (this.counter === 4) {
@@ -168,7 +181,14 @@ export class RenderContext {
 				if (payload instanceof Request) {
 					this.request = payload;
 				} else {
-					this.request = copyRequest(newUrl, this.request);
+					this.request = copyRequest(
+						newUrl,
+						this.request,
+						// need to send the flag of the previous routeData
+						routeData.prerender,
+						this.pipeline.logger,
+						this.routeData.route,
+					);
 				}
 				this.isRewriting = true;
 				this.url = new URL(this.request.url);
@@ -178,6 +198,15 @@ export class RenderContext {
 				this.status = 200;
 			}
 			let response: Response;
+
+			if (!ctx.isPrerendered) {
+				const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
+
+				if (action?.calledFrom === 'form') {
+					const actionResult = await action.handler();
+					setActionResult(action.name, serializeActionResult(actionResult));
+				}
+			}
 
 			switch (this.routeData.type) {
 				case 'endpoint': {
@@ -192,7 +221,7 @@ export class RenderContext {
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
-					const result = await this.createResult(componentInstance!);
+					const result = await this.createResult(componentInstance!, actionApiContext);
 					try {
 						response = await renderPage(
 							result,
@@ -233,6 +262,12 @@ export class RenderContext {
 			return response;
 		};
 
+		// If we are rendering an extrnal redirect, we don't need go through the middleware,
+		// otherwise Astro will attempt to render the external website
+		if (isRouteExternalRedirect(this.routeData)) {
+			return renderRedirect(this);
+		}
+
 		const response = await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
@@ -244,8 +279,7 @@ export class RenderContext {
 		return response;
 	}
 
-	createAPIContext(props: APIContext['props']): APIContext {
-		const context = this.createActionAPIContext();
+	createAPIContext(props: APIContext['props'], context: ActionAPIContext): APIContext {
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
 		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
@@ -283,7 +317,14 @@ export class RenderContext {
 		if (reroutePayload instanceof Request) {
 			this.request = reroutePayload;
 		} else {
-			this.request = copyRequest(newUrl, this.request);
+			this.request = copyRequest(
+				newUrl,
+				this.request,
+				// need to send the flag of the previous routeData
+				routeData.prerender,
+				this.pipeline.logger,
+				this.routeData.route,
+			);
 		}
 		this.url = new URL(this.request.url);
 		this.cookies = new AstroCookies(this.request);
@@ -297,7 +338,7 @@ export class RenderContext {
 
 	createActionAPIContext(): ActionAPIContext {
 		const renderContext = this;
-		const { cookies, params, pipeline, url } = this;
+		const { cookies, params, pipeline, url, session } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
@@ -309,7 +350,7 @@ export class RenderContext {
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			get clientAddress() {
-				return renderContext.clientAddress();
+				return renderContext.getClientAddress();
 			},
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
@@ -335,10 +376,11 @@ export class RenderContext {
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
 			},
+			session,
 		};
 	}
 
-	async createResult(mod: ComponentInstance) {
+	async createResult(mod: ComponentInstance, ctx: ActionAPIContext): Promise<SSRResult> {
 		const { cookies, pathname, pipeline, routeData, status } = this;
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
@@ -367,6 +409,7 @@ export class RenderContext {
 		// calling the render() function will populate the object with scripts, styles, etc.
 		const result: SSRResult = {
 			base: manifest.base,
+			userAssetsBase: manifest.userAssetsBase,
 			cancelled: false,
 			clientDirectives,
 			inlinedScripts,
@@ -375,7 +418,7 @@ export class RenderContext {
 			cookies,
 			/** This function returns the `Astro` faux-global */
 			createAstro: (astroGlobal, props, slots) =>
-				this.createAstro(result, astroGlobal, props, slots),
+				this.createAstro(result, astroGlobal, props, slots, ctx),
 			links,
 			params: this.params,
 			partial,
@@ -420,6 +463,7 @@ export class RenderContext {
 		astroStaticPartial: AstroGlobalPartial,
 		props: Record<string, any>,
 		slotValues: Record<string, any> | null,
+		apiContext: ActionAPIContext,
 	): AstroGlobal {
 		let astroPagePartial;
 		// During rewriting, we must recompute the Astro global, because we need to purge the previous params/props/etc.
@@ -427,12 +471,14 @@ export class RenderContext {
 			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(
 				result,
 				astroStaticPartial,
+				apiContext,
 			);
 		} else {
 			// Create page partial with static partial so they can be cached together.
 			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(
 				result,
 				astroStaticPartial,
+				apiContext,
 			);
 		}
 		// Create component-level partials. `Astro.self` is added by the compiler.
@@ -465,9 +511,10 @@ export class RenderContext {
 	createAstroPagePartial(
 		result: SSRResult,
 		astroStaticPartial: AstroGlobalPartial,
+		apiContext: ActionAPIContext,
 	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const renderContext = this;
-		const { cookies, locals, params, pipeline, url } = this;
+		const { cookies, locals, params, pipeline, url, session } = this;
 		const { response } = result;
 		const redirect = (path: string, status = 302) => {
 			// If the response is already sent, error as we cannot proceed with the redirect.
@@ -483,14 +530,17 @@ export class RenderContext {
 			return await this.#executeRewrite(reroutePayload);
 		};
 
+		const callAction = createCallAction(apiContext);
+
 		return {
 			generator: astroStaticPartial.generator,
 			glob: astroStaticPartial.glob,
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			cookies,
+			session,
 			get clientAddress() {
-				return renderContext.clientAddress();
+				return renderContext.getClientAddress();
 			},
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
@@ -510,7 +560,7 @@ export class RenderContext {
 			site: pipeline.site,
 			getActionResult: createGetActionResult(locals),
 			get callAction() {
-				return createCallAction(this);
+				return callAction;
 			},
 			url,
 			get originPathname() {
@@ -519,14 +569,22 @@ export class RenderContext {
 		};
 	}
 
-	clientAddress() {
-		const { pipeline, request } = this;
-		if (clientAddressSymbol in request) {
-			return Reflect.get(request, clientAddressSymbol) as string;
+	getClientAddress() {
+		const { pipeline, request, routeData, clientAddress } = this;
+
+		if (routeData.prerender) {
+			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
 		}
 
-		if (request.body === null) {
-			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
+		if (clientAddress) {
+			return clientAddress;
+		}
+
+		// TODO: Legacy, should not need to get here.
+		// Some adapters set this symbol so we can't remove support yet.
+		// Adapters should be updated to provide it via RenderOptions instead.
+		if (clientAddressSymbol in request) {
+			return Reflect.get(request, clientAddressSymbol) as string;
 		}
 
 		if (pipeline.adapterName) {
@@ -565,7 +623,7 @@ export class RenderContext {
 		}
 
 		let computedLocale;
-		if (routeData.component === SERVER_ISLAND_COMPONENT) {
+		if (isRouteServerIsland(routeData)) {
 			let referer = this.request.headers.get('referer');
 			if (referer) {
 				if (URL.canParse(referer)) {
@@ -574,8 +632,17 @@ export class RenderContext {
 				computedLocale = computeCurrentLocale(referer, locales, defaultLocale);
 			}
 		} else {
-			const pathname =
-				routeData.pathname && !isRoute404or500(routeData) ? routeData.pathname : url.pathname;
+			// For SSG we match the route naively, for dev we handle fallback on 404, for SSR we find route from fallbackRoutes
+			let pathname = routeData.pathname;
+			if (!routeData.pattern.test(url.pathname)) {
+				for (const fallbackRoute of routeData.fallbackRoutes) {
+					if (fallbackRoute.pattern.test(url.pathname)) {
+						pathname = fallbackRoute.pathname;
+						break;
+					}
+				}
+			}
+			pathname = pathname && !isRoute404or500(routeData) ? pathname : url.pathname;
 			computedLocale = computeCurrentLocale(pathname, locales, defaultLocale);
 		}
 

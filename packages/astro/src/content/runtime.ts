@@ -1,4 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
 import { ZodIssueCode, z } from 'zod';
@@ -6,6 +7,7 @@ import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
+
 import {
 	type AstroComponentFactory,
 	createComponent,
@@ -96,22 +98,27 @@ export function createGetCollection({
 			for (const rawEntry of store.values<DataEntry>(collection)) {
 				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
 
-				const entry = {
+				let entry = {
 					...rawEntry,
 					data,
 					collection,
 				};
+
+				if (entry.legacyId) {
+					entry = emulateLegacyEntry(entry);
+				}
+
 				if (hasFilter && !filter(entry)) {
 					continue;
 				}
-				result.push(entry.legacyId ? emulateLegacyEntry(entry) : entry);
+				result.push(entry);
 			}
 			return result;
 		} else {
 			console.warn(
 				`The collection ${JSON.stringify(
 					collection,
-				)} does not exist or is empty. Ensure a collection directory with this name exists.`,
+				)} does not exist or is empty. Please check your content config file for errors.`,
 			);
 			return [];
 		}
@@ -272,19 +279,18 @@ type DataEntryResult = {
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
 
-function emulateLegacyEntry(entry: DataEntry) {
+function emulateLegacyEntry({ legacyId, ...entry }: DataEntry & { collection: string }) {
 	// Define this first so it's in scope for the render function
 	const legacyEntry = {
 		...entry,
-		id: entry.legacyId!,
+		id: legacyId!,
 		slug: entry.id,
 	};
-	delete legacyEntry.legacyId;
 	return {
 		...legacyEntry,
 		// Define separately so the render function isn't included in the object passed to `renderEntry()`
 		render: () => renderEntry(legacyEntry),
-	};
+	} as ContentEntryResult;
 }
 
 export function createGetEntry({
@@ -334,7 +340,7 @@ export function createGetEntry({
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 			entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
 			if (entry.legacyId) {
-				return { ...emulateLegacyEntry(entry), collection } as ContentEntryResult;
+				return emulateLegacyEntry({ ...entry, collection });
 			}
 			return {
 				...entry,
@@ -410,13 +416,23 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
 		try {
 			const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
-			const id = imageSrcToImportId(decodedImagePath.src, fileName);
 
-			const imported = imageAssetMap.get(id);
-			if (!id || imageObjects.has(id) || !imported) {
-				continue;
+			let image: GetImageResult;
+			if (URL.canParse(decodedImagePath.src)) {
+				// Remote image, pass through without resolving import
+				// We know we should resolve this remote image because either:
+				// 1. It was collected with the remark-collect-images plugin, which respects the astro image configuration,
+				// 2. OR it was manually injected by another plugin, and we should respect that.
+				image = await getImage(decodedImagePath);
+			} else {
+				const id = imageSrcToImportId(decodedImagePath.src, fileName);
+
+				const imported = imageAssetMap.get(id);
+				if (!id || imageObjects.has(id) || !imported) {
+					continue;
+				}
+				image = await getImage({ ...decodedImagePath, src: imported });
 			}
-			const image: GetImageResult = await getImage({ ...decodedImagePath, src: imported });
 			imageObjects.set(imagePath, image);
 		} catch {
 			throw new Error(`Failed to parse image reference: ${imagePath}`);
@@ -437,7 +453,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			src: image.src,
 			srcset: image.srcSet.attribute,
 		})
-			.map(([key, value]) => (value ? `${key}=${JSON.stringify(String(value))}` : ''))
+			.map(([key, value]) => (value ? `${key}="${escape(value)}"` : ''))
 			.join(' ');
 	});
 }
@@ -618,7 +634,7 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 				}),
 			])
 			.transform(
-				async (
+				(
 					lookup:
 						| string
 						| { id: string; collection: string }
@@ -626,8 +642,6 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 					ctx,
 				) => {
 					const flattenedErrorPath = ctx.path.join('.');
-					const store = await globalDataStore.get();
-					const collectionIsInStore = store.hasCollection(collection);
 
 					if (typeof lookup === 'object') {
 						// If these don't match then something is wrong with the reference
@@ -644,22 +658,8 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						return lookup;
 					}
 
-					if (collectionIsInStore) {
-						const entry = store.get(collection, lookup);
-						if (!entry) {
-							ctx.addIssue({
-								code: ZodIssueCode.custom,
-								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Entry ${lookup} does not exist.`,
-							});
-							return;
-						}
-						return { id: lookup, collection };
-					}
-
-					// If the collection is not in the lookup map or store, it may be a content layer collection and the store may not yet be populated.
-					// If the store has 0 or 1 entries it probably means that the entries have not yet been loaded.
-					// The store may have a single entry even if the collections have not loaded, because the top-level metadata collection is generated early.
-					if (!lookupMap[collection] && store.collections().size <= 1) {
+					// If the collection is not in the lookup map it may be a content layer collection and the store may not yet be populated.
+					if (!lookupMap[collection]) {
 						// For now, we can't validate this reference, so we'll optimistically convert it to a reference object which we'll validate
 						// later in the pipeline when we do have access to the store.
 						return { id: lookup, collection };

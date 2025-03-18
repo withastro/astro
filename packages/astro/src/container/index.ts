@@ -9,9 +9,11 @@ import { nodeLogDestination } from '../core/logger/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
 import { RenderContext } from '../core/render-context.js';
-import { getParts, validateSegment } from '../core/routing/manifest/create.js';
+import { getParts } from '../core/routing/manifest/parts.js';
 import { getPattern } from '../core/routing/manifest/pattern.js';
+import { validateSegment } from '../core/routing/manifest/segment.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
+import { SlotString } from '../runtime/server/render/slot.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { AstroMiddlewareInstance, MiddlewareHandler, Props } from '../types/public/common.js';
 import type { AstroConfig, AstroUserConfig } from '../types/public/config.js';
@@ -139,6 +141,12 @@ function createManifest(
 
 	return {
 		hrefRoot: import.meta.url,
+		srcDir: manifest?.srcDir ?? ASTRO_CONFIG_DEFAULTS.srcDir,
+		buildClientDir: manifest?.buildClientDir ?? ASTRO_CONFIG_DEFAULTS.build.client,
+		buildServerDir: manifest?.buildServerDir ?? ASTRO_CONFIG_DEFAULTS.build.server,
+		publicDir: manifest?.publicDir ?? ASTRO_CONFIG_DEFAULTS.publicDir,
+		outDir: manifest?.outDir ?? ASTRO_CONFIG_DEFAULTS.outDir,
+		cacheDir: manifest?.cacheDir ?? ASTRO_CONFIG_DEFAULTS.cacheDir,
 		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
 		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
@@ -150,12 +158,12 @@ function createManifest(
 		clientDirectives: manifest?.clientDirectives ?? getDefaultClientDirectives(),
 		renderers: renderers ?? manifest?.renderers ?? [],
 		base: manifest?.base ?? ASTRO_CONFIG_DEFAULTS.base,
+		userAssetsBase: manifest?.userAssetsBase ?? '',
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middlewareInstance,
-		envGetSecretEnabled: false,
 		key: createKey(),
 	};
 }
@@ -228,6 +236,7 @@ type AstroContainerManifest = Pick<
 	| 'renderers'
 	| 'assetsPrefix'
 	| 'base'
+	| 'userAssetsBase'
 	| 'routes'
 	| 'assets'
 	| 'entryModules'
@@ -235,6 +244,12 @@ type AstroContainerManifest = Pick<
 	| 'trailingSlash'
 	| 'buildFormat'
 	| 'i18n'
+	| 'srcDir'
+	| 'buildClientDir'
+	| 'buildServerDir'
+	| 'publicDir'
+	| 'outDir'
+	| 'cacheDir'
 >;
 
 type AstroContainerConstructor = {
@@ -460,6 +475,10 @@ export class experimental_AstroContainer {
 		component: AstroComponentFactory,
 		options: ContainerRenderOptions = {},
 	): Promise<string> {
+		if (options.slots) {
+			options.slots = markAllSlotsAsSlotString(options.slots);
+		}
+
 		const response = await this.renderToResponse(component, options);
 		return await response.text();
 	}
@@ -508,6 +527,7 @@ export class experimental_AstroContainer {
 			pathname: url.pathname,
 			locals: options?.locals ?? {},
 			partial: options?.partial ?? true,
+			clientAddress: '',
 		});
 		if (options.params) {
 			renderContext.params = options.params;
@@ -517,6 +537,34 @@ export class experimental_AstroContainer {
 		}
 
 		return renderContext.render(componentInstance, slots);
+	}
+
+	/**
+	 * It stores an Astro **page** route. The first argument, `route`, gets associated to the `component`.
+	 *
+	 * This function can be useful when you want to render a route via `AstroContainer.renderToString`, where that
+	 * route eventually renders another route via `Astro.rewrite`.
+	 *
+	 * @param {string} route - The URL that will render the component.
+	 * @param {AstroComponentFactory} component - The component factory to be used for rendering the route.
+	 * @param {Record<string, string | undefined>} params - An object containing key-value pairs of route parameters.
+	 */
+	public insertPageRoute(
+		route: string,
+		component: AstroComponentFactory,
+		params?: Record<string, string | undefined>,
+	) {
+		const url = new URL(route, 'https://example.com/');
+		const routeData: RouteData = this.#createRoute(url, params ?? {}, 'page');
+		this.#pipeline.manifest.routes.push({
+			routeData,
+			file: '',
+			links: [],
+			styles: [],
+			scripts: [],
+		});
+		const componentInstance = this.#wrapComponent(component, params);
+		this.#pipeline.insertRoute(routeData, componentInstance);
 	}
 
 	#createRoute(url: URL, params: Record<string, string | undefined>, type: RouteType): RouteData {
@@ -572,4 +620,12 @@ export class experimental_AstroContainer {
 
 function isNamedRenderer(renderer: any): renderer is NamedSSRLoadedRendererValue {
 	return !!renderer?.name;
+}
+
+function markAllSlotsAsSlotString(slots: Record<string, any>): Record<string, any> {
+	const markedSlots: Record<string, any> = {};
+	for (const slotName in slots) {
+		markedSlots[slotName] = new SlotString(slots[slotName], null);
+	}
+	return markedSlots;
 }

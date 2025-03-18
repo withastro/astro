@@ -1,5 +1,5 @@
 import { getOutputDirectory } from '../../prerender/utils.js';
-import type { ComponentInstance } from '../../types/astro.js';
+import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type {
 	RouteData,
@@ -87,7 +87,7 @@ export class BuildPipeline extends Pipeline {
 	}
 
 	getRoutes(): RouteData[] {
-		return this.options.manifest.routes;
+		return this.options.routesList.routes;
 	}
 
 	static create({
@@ -112,10 +112,10 @@ export class BuildPipeline extends Pipeline {
 	 * @param staticBuildOptions
 	 */
 	static async retrieveManifest(
-		staticBuildOptions: StaticBuildOptions,
+		settings: AstroSettings,
 		internals: BuildInternals,
 	): Promise<SSRManifest> {
-		const baseDirectory = getOutputDirectory(staticBuildOptions.settings);
+		const baseDirectory = getOutputDirectory(settings);
 		const manifestEntryUrl = new URL(
 			`${internals.manifestFileName}?time=${Date.now()}`,
 			baseDirectory,
@@ -131,11 +131,11 @@ export class BuildPipeline extends Pipeline {
 		const renderers = await import(renderersEntryUrl.toString());
 
 		const middleware = internals.middlewareEntryPoint
-			? await import(internals.middlewareEntryPoint.toString()).then((mod) => {
-					return function () {
-						return { onRequest: mod.onRequest };
-					};
-				})
+			? async function () {
+					// @ts-expect-error: the compiler can't understand the previous check
+					const mod = await import(internals.middlewareEntryPoint.toString());
+					return { onRequest: mod.onRequest };
+				}
 			: manifest.middleware;
 
 		if (!renderers) {
@@ -269,7 +269,7 @@ export class BuildPipeline extends Pipeline {
 		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
-			routes: this.options.manifest.routes,
+			routes: this.options.routesList.routes,
 			trailingSlash: this.config.trailingSlash,
 			buildFormat: this.config.build.format,
 			base: this.config.base,

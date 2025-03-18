@@ -3,7 +3,6 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { ManagedAppToken } from '@astrojs/studio';
-import { LibsqlError } from '@libsql/client';
 import type { AstroIntegration } from 'astro';
 import { blue, yellow } from 'kleur/colors';
 import {
@@ -15,8 +14,8 @@ import {
 	mergeConfig,
 } from 'vite';
 import parseArgs from 'yargs-parser';
-import { AstroDbError } from '../../runtime/utils.js';
-import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
+import { AstroDbError, isDbError } from '../../runtime/utils.js';
+import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
 import { SEED_DEV_FILE_NAME } from '../queries.js';
@@ -27,7 +26,6 @@ import {
 	type LateSeedFiles,
 	type LateTables,
 	type SeedHandler,
-	resolved,
 	vitePluginDb,
 } from './vite-plugin-db.js';
 
@@ -153,7 +151,7 @@ function astroDBIntegration(): AstroIntegration {
 					);
 					// Eager load astro:db module on startup
 					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
-						server.ssrLoadModule(resolved.module).catch((e) => {
+						server.ssrLoadModule(VIRTUAL_MODULE_ID).catch((e) => {
 							logger.error(e instanceof Error ? e.message : String(e));
 						});
 					}
@@ -199,14 +197,17 @@ async function executeSeedFile({
 	fileUrl: URL;
 	viteServer: ViteDevServer;
 }) {
-	const mod = await viteServer.ssrLoadModule(fileUrl.pathname);
+	// Use decodeURIComponent to handle paths with spaces correctly
+	// This ensures that %20 in the pathname is properly handled
+	const pathname = decodeURIComponent(fileUrl.pathname);
+	const mod = await viteServer.ssrLoadModule(pathname);
 	if (typeof mod.default !== 'function') {
 		throw new AstroDbError(EXEC_DEFAULT_EXPORT_ERROR(fileURLToPath(fileUrl)));
 	}
 	try {
 		await mod.default();
 	} catch (e) {
-		if (e instanceof LibsqlError) {
+		if (isDbError(e)) {
 			throw new AstroDbError(EXEC_ERROR(e.message));
 		}
 		throw e;

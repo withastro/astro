@@ -2,14 +2,13 @@ import type { IncomingHttpHeaders } from 'node:http';
 import type { Logger } from './logger/core.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
-type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;
 
 export interface CreateRequestOptions {
 	url: URL | string;
 	clientAddress?: string | undefined;
 	headers: HeaderType;
 	method?: string;
-	body?: RequestBody | undefined;
+	body?: RequestInit['body'];
 	logger: Logger;
 	locals?: object | undefined;
 	/**
@@ -20,10 +19,11 @@ export interface CreateRequestOptions {
 	 * @default false
 	 */
 	isPrerendered?: boolean;
-}
 
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const clientLocalsSymbol = Symbol.for('astro.locals');
+	routePattern: string;
+
+	init?: RequestInit;
+}
 
 /**
  * Used by astro internals to create a web standard request object.
@@ -35,12 +35,12 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
 export function createRequest({
 	url,
 	headers,
-	clientAddress,
 	method = 'GET',
 	body = undefined,
 	logger,
-	locals,
 	isPrerendered = false,
+	routePattern,
+	init,
 }: CreateRequestOptions): Request {
 	// headers are made available on the created request only if the request is for a page that will be on-demand rendered
 	const headersObj = isPrerendered
@@ -67,28 +67,31 @@ export function createRequest({
 		headers: headersObj,
 		// body is made available only if the request is for a page that will be on-demand rendered
 		body: isPrerendered ? null : body,
+		...init,
 	});
 
 	if (isPrerendered) {
-		// Warn when accessing headers in prerendered pages
-		const _headers = request.headers;
-		const headersDesc = Object.getOwnPropertyDescriptor(request, 'headers') || {};
+		// Warn when accessing headers in SSG mode
+		let _headers = request.headers;
+
+		// We need to remove descriptor's value and writable properties because we're adding getters and setters.
+		const { value, writable, ...headersDesc } =
+			Object.getOwnPropertyDescriptor(request, 'headers') || {};
+
 		Object.defineProperty(request, 'headers', {
 			...headersDesc,
 			get() {
 				logger.warn(
 					null,
-					`\`Astro.request.headers\` is not available on prerendered pages. If you need access to request headers, make sure that the page is server rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server rendered.`,
+					`\`Astro.request.headers\` was used when rendering the route \`${routePattern}'\`. \`Astro.request.headers\` is not available on prerendered pages. If you need access to request headers, make sure that the page is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server-rendered by default.`,
 				);
 				return _headers;
 			},
+			set(newHeaders: Headers) {
+				_headers = newHeaders;
+			},
 		});
-	} else if (clientAddress) {
-		// clientAddress is stored to be read by RenderContext, only if the request is for a page that will be on-demand rendered
-		Reflect.set(request, clientAddressSymbol, clientAddress);
 	}
-
-	Reflect.set(request, clientLocalsSymbol, locals ?? {});
 
 	return request;
 }

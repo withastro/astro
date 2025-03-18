@@ -6,9 +6,12 @@
   "bin": {
     "astro-benchmark": "./index.js"
   },
+  "scripts": {
+    "bench": "pnpm vitest bench --run"
+  },
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
-    "@astrojs/node": "^8.3.4",
+    "@astrojs/node": "workspace:*",
     "@benchmark/timer": "workspace:*",
     "@benchmark/adapter": "workspace:*",
     "astro": "workspace:*",
@@ -18,10 +21,10 @@
     "port-authority": "^2.0.1",
     "pretty-bytes": "^6.1.1",
     "sharp": "^0.33.3",
-    "tinyexec": "^0.3.1"
+    "tinyexec": "^0.3.2"
   },
   "devDependencies": {
-    "@codspeed/tinybench-plugin": "^3.1.1",
-    "tinybench": "^2.9.0"
+    "@codspeed/vitest-plugin": "4.0.0",
+    "vitest": "^3.0.8"
   }
 }

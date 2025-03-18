@@ -1,4 +1,3 @@
-import { LibsqlError } from '@libsql/client';
 import { sql as _sql } from 'drizzle-orm';
 import type {
 	BooleanColumnInput,
@@ -19,10 +18,6 @@ function createColumn<S extends string, T extends Record<string, unknown>>(type:
 		 */
 		schema,
 	};
-}
-
-export function isDbError(err: unknown): err is LibsqlError {
-	return err instanceof LibsqlError;
 }
 
 export const column = {
@@ -73,6 +68,7 @@ export {
 	between,
 	notBetween,
 	like,
+	ilike,
 	notIlike,
 	not,
 	asc,
@@ -90,3 +86,4 @@ export {
 } from 'drizzle-orm';
 
 export { alias } from 'drizzle-orm/sqlite-core';
+export { isDbError } from './utils.js';

@@ -1,5 +1,6 @@
 import { actions, isInputError } from 'astro:actions';
 import { useState } from 'react';
+import {createLoggerFromFlags} from "../../../../../src/cli/flags.ts";
 
 export function PostComment({
 	postId,
@@ -17,7 +18,7 @@ export function PostComment({
 			<form
 				method="POST"
 				data-testid="client"
-				action={actions.blog.comment}
+				action={actions.blog.comment.toString()}
 				onSubmit={async (e) => {
 					e.preventDefault();
 					const form = e.target as HTMLFormElement;
