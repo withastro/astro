@@ -18,10 +18,16 @@ export function validateMod(
 	mod: any,
 	providerName: string,
 ): Pick<ResolvedFontProvider, 'provider'> {
+	// We do not throw astro errors directly to avoid duplication. Instead, we throw an error to be used as cause
 	try {
-		if (!mod.provider && typeof mod.provider !== 'function') {
-			throw new Error('provider is not a function');
+		if (typeof mod !== 'object' || mod === null) {
+			throw new Error(`Expected an object for the module, but received ${typeof mod}.`);
 		}
+
+		if (typeof mod.provider !== 'function') {
+			throw new Error(`Invalid provider export in module, expected a function.`);
+		}
+
 		return {
 			provider: mod.provider,
 		};
