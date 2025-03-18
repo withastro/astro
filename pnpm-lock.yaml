@@ -478,9 +478,6 @@ importers:
       '@rollup/pluginutils':
         specifier: ^5.1.4
         version: 5.1.4(rollup@4.35.0)
-      '@types/cookie':
-        specifier: ^0.6.0
-        version: 0.6.0
       acorn:
         specifier: ^8.14.1
         version: 8.14.1
@@ -503,8 +500,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       cookie:
-        specifier: ^0.7.2
-        version: 0.7.2
+        specifier: ^1.0.2
+        version: 1.0.2
       cssesc:
         specifier: ^3.0.0
         version: 3.0.0
@@ -8180,9 +8177,6 @@ packages:
   '@types/common-ancestor-path@1.0.2':
     resolution: {integrity: sha512-8llyULydTb7nM9yfiW78n6id3cet+qnATPV3R44yIywxgBaa8QXFSM9QTMf4OH64QOB45BlgZ3/oL4mmFLztQw==}
 
-  '@types/cookie@0.6.0':
-    resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
-
   '@types/cssesc@3.0.2':
     resolution: {integrity: sha512-Qii6nTRktvtI380EloxH/V7MwgrYxkPgBI+NklUjQuhzgAd1AqT3QDJd+eD+0doRADgfwvtagLRo7JFa7aMHXg==}
 
@@ -9014,9 +9008,9 @@ packages:
     resolution: {integrity: sha512-6DnInpx7SJ2AK3+CTUE/ZM0vWTUboZCegxhC2xiIydHR9jNuTAASBrfEpHhiGOZw/nX51bHt6YQl8jsGo4y/0w==}
     engines: {node: '>= 0.6'}
 
-  cookie@0.7.2:
-    resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
-    engines: {node: '>= 0.6'}
+  cookie@1.0.2:
+    resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
+    engines: {node: '>=18'}
 
   copy-anything@3.0.5:
     resolution: {integrity: sha512-yCEafptTtb4bk7GLEQoM8KVJpxAfdBJYaXyzQEgQQQgYrZiDp8SJmGKlYza6CYjEDNstAdNdKA3UuoULlEbS6w==}
@@ -14510,8 +14504,6 @@ snapshots:
 
   '@types/common-ancestor-path@1.0.2': {}
 
-  '@types/cookie@0.6.0': {}
-
   '@types/cssesc@3.0.2': {}
 
   '@types/debug@4.1.12':
@@ -15473,7 +15465,7 @@ snapshots:
 
   cookie@0.7.1: {}
 
-  cookie@0.7.2: {}
+  cookie@1.0.2: {}
 
   copy-anything@3.0.5:
     dependencies:
