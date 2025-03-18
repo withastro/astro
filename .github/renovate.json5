@@ -6,6 +6,7 @@
     "group:allNonMajor",
     ":disablePeerDependencies", 
     "regexManagers:biomeVersions",
+    "helpers:pinGitHubActionDigestsToSemver"
   ],
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
@@ -16,6 +17,12 @@
     {
       "matchPackageNames": ["tailwindcss"],
       "ignorePaths": ["packages/integrations/tailwind"]
+    },
+    {
+      "groupName": "github-actions",
+      "matchManagers": [
+        "github-actions"
+      ]
     }
   ],
   "ignoreDeps": [
