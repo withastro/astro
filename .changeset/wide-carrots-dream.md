@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
-Fix an issue when renderToString function not render properly nested slots when they are components
+Fix an issue in the Container API, where the `renderToString` function doesn't render adequately nested slots when they are components.
