@@ -90,7 +90,7 @@ export class NodeApp extends App {
 		try {
 			const hostnamePort = getHostnamePort(hostname, port);
 			url = new URL(`${protocol}://${hostnamePort}${req.url}`);
-		} catch (error) {
+		} catch {
 			// Fallback to the provided hostname and port
 			const hostnamePort = getHostnamePort(providedHostname, port);
 			url = new URL(`${providedProtocol}://${hostnamePort}`);
