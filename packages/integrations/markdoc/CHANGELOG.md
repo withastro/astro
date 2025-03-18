@@ -1,12 +1,5 @@
 # @astrojs/markdoc
 
-## 0.13.1
-
-### Patch Changes
-
-- Updated dependencies [[`ea74336`](https://github.com/withastro/astro/commit/ea7433666e0cc7e1301e638e80f90323f20db3e1)]:
-  - @astrojs/markdown-remark@6.3.1
-
 ## 0.13.0
 
 ### Minor Changes
