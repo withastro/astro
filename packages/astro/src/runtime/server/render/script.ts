@@ -20,5 +20,7 @@ export async function renderScript(result: SSRResult, id: string) {
 	}
 
 	const resolved = await result.resolve(id);
-	return markHTMLString(`<script type="module" src="${resolved}"></script>`);
+	return markHTMLString(
+		`<script type="module" src="${result.userAssetsBase ? (result.base === '/' ? '' : result.base) + result.userAssetsBase : ''}${resolved}"></script>`,
+	);
 }

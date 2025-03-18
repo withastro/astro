@@ -43,7 +43,7 @@ export default function createVitePluginAstroServer({
 }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
-		configureServer(viteServer) {
+		async configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const pipeline = DevPipeline.create(routesList, {
 				loader,
@@ -92,10 +92,12 @@ export default function createVitePluginAstroServer({
 			viteServer.watcher.on('change', rebuildManifest);
 
 			function handleUnhandledRejection(rejection: any) {
-				const error = new AstroError({
-					...AstroErrorData.UnhandledRejection,
-					message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection),
-				});
+				const error = AstroError.is(rejection)
+					? rejection
+					: new AstroError({
+							...AstroErrorData.UnhandledRejection,
+							message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection),
+						});
 				const store = localStorage.getStore();
 				if (store instanceof IncomingMessage) {
 					const request = store;
@@ -190,6 +192,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		clientDirectives: settings.clientDirectives,
 		renderers: [],
 		base: settings.config.base,
+		userAssetsBase: settings.config?.vite?.base,
 		assetsPrefix: settings.config.build.assetsPrefix,
 		site: settings.config.site,
 		componentMetadata: new Map(),

@@ -1,5 +1,36 @@
 # @astrojs/cloudflare
 
+## 12.2.4
+
+### Patch Changes
+
+- Updated dependencies [[`042d1de`](https://github.com/withastro/astro/commit/042d1de901fd9aa66157ce078b28bcd9786e1373)]:
+  - @astrojs/internal-helpers@0.6.1
+  - @astrojs/underscore-redirects@0.6.0
+
+## 12.2.3
+
+### Patch Changes
+
+- [#13323](https://github.com/withastro/astro/pull/13323) [`80926fa`](https://github.com/withastro/astro/commit/80926fadc06492fcae55f105582b9dc8279da6b3) Thanks [@ematipico](https://github.com/ematipico)! - Updates `esbuild` and `vite` to the latest to avoid false positives audits warnings caused by `esbuild`.
+
+- Updated dependencies [[`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b)]:
+  - @astrojs/internal-helpers@0.6.0
+  - @astrojs/underscore-redirects@0.6.0
+
+## 12.2.2
+
+### Patch Changes
+
+- [#13304](https://github.com/withastro/astro/pull/13304) [`6efd57d`](https://github.com/withastro/astro/commit/6efd57d1747052e9a61d8867dd5941d0bf65ff22) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a small issue where the package was pulling an outdated version of its internal dependencies.
+
+- [#13201](https://github.com/withastro/astro/pull/13201) [`065157c`](https://github.com/withastro/astro/commit/065157cac73e176cd6da9b8b0a157359a20ebebd) Thanks [@ekwoka](https://github.com/ekwoka)! - Includes onerror passthrough param for Cloudflare Image Service
+
+- [#13299](https://github.com/withastro/astro/pull/13299) [`2e1321e`](https://github.com/withastro/astro/commit/2e1321e9d5b27da3e86bc4021e4136661a8055aa) Thanks [@bluwy](https://github.com/bluwy)! - Uses `tinyglobby` for globbing files
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
 ## 12.2.1
 
 ### Patch Changes

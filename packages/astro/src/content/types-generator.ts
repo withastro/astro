@@ -1,8 +1,8 @@
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import glob from 'fast-glob';
 import { bold, cyan } from 'kleur/colors';
+import { glob } from 'tinyglobby';
 import { type ViteDevServer, normalizePath } from 'vite';
 import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
@@ -94,21 +94,16 @@ export async function createContentTypesGenerator({
 			}
 			const globResult = await glob('**', {
 				cwd: fileURLToPath(contentPaths.contentDir),
-				fs: {
-					readdir: fs.readdir.bind(fs),
-					readdirSync: fs.readdirSync.bind(fs),
-				},
-				onlyFiles: false,
-				objectMode: true,
+				absolute: true,
 			});
 
-			for (const entry of globResult) {
-				const fullPath = path.join(fileURLToPath(contentPaths.contentDir), entry.path);
+			for (const fullPath of globResult) {
 				const entryURL = pathToFileURL(fullPath);
 				if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
-				if (entry.dirent.isFile()) {
+				const stat = fs.statSync(fullPath);
+				if (stat.isFile()) {
 					events.push({ name: 'add', entry: entryURL });
-				} else if (entry.dirent.isDirectory()) {
+				} else if (stat.isDirectory()) {
 					events.push({ name: 'addDir', entry: entryURL });
 				}
 			}

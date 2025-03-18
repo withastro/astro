@@ -1,4 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
 import { ZodIssueCode, z } from 'zod';
@@ -6,6 +7,7 @@ import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
+
 import {
 	type AstroComponentFactory,
 	createComponent,
@@ -18,7 +20,7 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX } from './consts.js';
-import { type DataEntry, type ImmutableDataStore, globalDataStore } from './data-store.js';
+import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
 
 type LazyImport = () => Promise<any>;
@@ -414,13 +416,23 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
 		try {
 			const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
-			const id = imageSrcToImportId(decodedImagePath.src, fileName);
 
-			const imported = imageAssetMap.get(id);
-			if (!id || imageObjects.has(id) || !imported) {
-				continue;
+			let image: GetImageResult;
+			if (URL.canParse(decodedImagePath.src)) {
+				// Remote image, pass through without resolving import
+				// We know we should resolve this remote image because either:
+				// 1. It was collected with the remark-collect-images plugin, which respects the astro image configuration,
+				// 2. OR it was manually injected by another plugin, and we should respect that.
+				image = await getImage(decodedImagePath);
+			} else {
+				const id = imageSrcToImportId(decodedImagePath.src, fileName);
+
+				const imported = imageAssetMap.get(id);
+				if (!id || imageObjects.has(id) || !imported) {
+					continue;
+				}
+				image = await getImage({ ...decodedImagePath, src: imported });
 			}
-			const image: GetImageResult = await getImage({ ...decodedImagePath, src: imported });
 			imageObjects.set(imagePath, image);
 		} catch {
 			throw new Error(`Failed to parse image reference: ${imagePath}`);
@@ -441,7 +453,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			src: image.src,
 			srcset: image.srcSet.attribute,
 		})
-			.map(([key, value]) => (value ? `${key}=${JSON.stringify(String(value))}` : ''))
+			.map(([key, value]) => (value ? `${key}="${escape(value)}"` : ''))
 			.join(' ');
 	});
 }
@@ -608,10 +620,6 @@ async function render({
 }
 
 export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) {
-	// We're handling it like this to avoid needing an async schema. Not ideal, but should
-	// be safe because the store will already have been loaded by the time this is called.
-	let store: ImmutableDataStore | null = null;
-	globalDataStore.get().then((s) => (store = s));
 	return function reference(collection: string) {
 		return z
 			.union([
@@ -633,14 +641,6 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						| { slug: string; collection: string },
 					ctx,
 				) => {
-					if (!store) {
-						ctx.addIssue({
-							code: ZodIssueCode.custom,
-							message: `**${ctx.path.join('.')}:** Reference to ${collection} could not be resolved: store not available.\nThis is an Astro bug, so please file an issue at https://github.com/withastro/astro/issues.`,
-						});
-						return;
-					}
-
 					const flattenedErrorPath = ctx.path.join('.');
 
 					if (typeof lookup === 'object') {

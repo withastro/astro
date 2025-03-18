@@ -1,5 +1,77 @@
 # @astrojs/netlify
 
+## 6.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`042d1de`](https://github.com/withastro/astro/commit/042d1de901fd9aa66157ce078b28bcd9786e1373)]:
+  - @astrojs/internal-helpers@0.6.1
+  - @astrojs/underscore-redirects@0.6.0
+
+## 6.2.2
+
+### Patch Changes
+
+- [#13323](https://github.com/withastro/astro/pull/13323) [`80926fa`](https://github.com/withastro/astro/commit/80926fadc06492fcae55f105582b9dc8279da6b3) Thanks [@ematipico](https://github.com/ematipico)! - Updates `esbuild` and `vite` to the latest to avoid false positives audits warnings caused by `esbuild`.
+
+- Updated dependencies [[`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b)]:
+  - @astrojs/internal-helpers@0.6.0
+  - @astrojs/underscore-redirects@0.6.0
+
+## 6.2.1
+
+### Patch Changes
+
+- [#13299](https://github.com/withastro/astro/pull/13299) [`2e1321e`](https://github.com/withastro/astro/commit/2e1321e9d5b27da3e86bc4021e4136661a8055aa) Thanks [@bluwy](https://github.com/bluwy)! - Uses `tinyglobby` for globbing files
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
+## 6.2.0
+
+### Minor Changes
+
+- [#13194](https://github.com/withastro/astro/pull/13194) [`1b5037b`](https://github.com/withastro/astro/commit/1b5037bd77d77817e5f821aee8ceccb49b00e0d9) Thanks [@dfdez](https://github.com/dfdez)! - Adds `includedFiles` and `excludedFiles` configuration options to customize SSR function bundle contents.
+
+  The `includeFiles` property allows you to explicitly specify additional files that should be bundled with your function. This is useful for files that aren't automatically detected as dependencies, such as:
+
+  - Data files loaded using `fs` operations
+  - Configuration files
+  - Template files
+
+  Similarly, you can use the `excludeFiles` property to prevent specific files from being bundled that would otherwise be included. This is helpful for:
+
+  - Reducing bundle size
+  - Excluding large binaries
+  - Preventing unwanted files from being deployed
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify';
+
+  export default defineConfig({
+    // ...
+    output: 'server',
+    adapter: netlify({
+      includeFiles: ['./my-data.json'],
+      excludeFiles: ['./node_modules/package/**/*', './src/**/*.test.js'],
+    }),
+  });
+  ```
+
+  See the [Netlify adapter documentation](https://docs.astro.build/en/guides/integrations-guide/netlify/#including-or-excluding-files) for detailed usage instructions and examples.
+
+- [#13145](https://github.com/withastro/astro/pull/13145) [`8d4e566`](https://github.com/withastro/astro/commit/8d4e566f5420c8a5406e1e40e8bae1c1f87cbe37) Thanks [@ascorbic](https://github.com/ascorbic)! - Automatically configures Netlify Blobs storage when experimental session enabled
+
+  If the `experimental.session` flag is enabled when using the Netlify adapter, Astro will automatically configure the session storage using the Netlify Blobs driver. You can still manually configure the session storage if you need to use a different driver or want to customize the session storage configuration.
+
+  See [the experimental session docs](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information on configuring session storage.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
 ## 6.1.0
 
 ### Minor Changes

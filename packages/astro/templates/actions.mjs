@@ -2,10 +2,12 @@ import {
 	ACTION_QUERY_PARAMS,
 	ActionError,
 	appendForwardSlash,
+	astroCalledServerError,
 	deserializeActionResult,
 	getActionQueryString,
 } from 'astro:actions';
 
+const apiContextRoutesSymbol = Symbol.for('context.routes');
 const ENCODED_DOT = '%2E';
 
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
@@ -73,11 +75,13 @@ export function getActionPath(action) {
  */
 async function handleAction(param, path, context) {
 	// When running server-side, import the action and call it.
-	if (import.meta.env.SSR) {
-		const { getAction } = await import('astro/actions/runtime/virtual/get-action.js');
-		const action = await getAction(path);
+	if (import.meta.env.SSR && context) {
+		const pipeline = Reflect.get(context, apiContextRoutesSymbol);
+		if (!pipeline) {
+			throw astroCalledServerError();
+		}
+		const action = await pipeline.getAction(path);
 		if (!action) throw new Error(`Action not found: ${path}`);
-
 		return action.bind(context)(param);
 	}
 

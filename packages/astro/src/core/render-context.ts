@@ -1,4 +1,5 @@
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
+import { getActionContext } from '../actions/runtime/virtual/server.js';
 import { deserializeActionResult } from '../actions/runtime/virtual/shared.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
@@ -12,6 +13,7 @@ import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal, AstroGlobalPartial } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
+import type { SSRActions } from './app/types.js';
 import {
 	ASTRO_VERSION,
 	REROUTE_DIRECTIVE_HEADER,
@@ -44,6 +46,7 @@ export class RenderContext {
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
+		readonly actions: SSRActions,
 		// It must be a DECODED pathname
 		public pathname: string,
 		public request: Request,
@@ -80,16 +83,19 @@ export class RenderContext {
 		status = 200,
 		props,
 		partial = undefined,
+		actions,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'> &
 		Partial<
-			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial'>
+			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial' | 'actions'>
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
+		const pipelineActions = actions ?? (await pipeline.getActions());
 		setOriginPathname(request, pathname);
 		return new RenderContext(
 			pipeline,
 			locals,
 			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
+			pipelineActions,
 			pathname,
 			request,
 			routeData,
@@ -132,7 +138,8 @@ export class RenderContext {
 						serverLike,
 						base: manifest.base,
 					});
-		const apiContext = this.createAPIContext(props);
+		const actionApiContext = this.createActionAPIContext();
+		const apiContext = this.createAPIContext(props, actionApiContext);
 
 		this.counter++;
 		if (this.counter === 4) {
@@ -192,6 +199,15 @@ export class RenderContext {
 			}
 			let response: Response;
 
+			if (!ctx.isPrerendered) {
+				const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
+
+				if (action?.calledFrom === 'form') {
+					const actionResult = await action.handler();
+					setActionResult(action.name, serializeActionResult(actionResult));
+				}
+			}
+
 			switch (this.routeData.type) {
 				case 'endpoint': {
 					response = await renderEndpoint(
@@ -205,7 +221,7 @@ export class RenderContext {
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
-					const result = await this.createResult(componentInstance!);
+					const result = await this.createResult(componentInstance!, actionApiContext);
 					try {
 						response = await renderPage(
 							result,
@@ -263,8 +279,7 @@ export class RenderContext {
 		return response;
 	}
 
-	createAPIContext(props: APIContext['props']): APIContext {
-		const context = this.createActionAPIContext();
+	createAPIContext(props: APIContext['props'], context: ActionAPIContext): APIContext {
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
 		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
@@ -365,7 +380,7 @@ export class RenderContext {
 		};
 	}
 
-	async createResult(mod: ComponentInstance) {
+	async createResult(mod: ComponentInstance, ctx: ActionAPIContext): Promise<SSRResult> {
 		const { cookies, pathname, pipeline, routeData, status } = this;
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
@@ -394,6 +409,7 @@ export class RenderContext {
 		// calling the render() function will populate the object with scripts, styles, etc.
 		const result: SSRResult = {
 			base: manifest.base,
+			userAssetsBase: manifest.userAssetsBase,
 			cancelled: false,
 			clientDirectives,
 			inlinedScripts,
@@ -402,7 +418,7 @@ export class RenderContext {
 			cookies,
 			/** This function returns the `Astro` faux-global */
 			createAstro: (astroGlobal, props, slots) =>
-				this.createAstro(result, astroGlobal, props, slots),
+				this.createAstro(result, astroGlobal, props, slots, ctx),
 			links,
 			params: this.params,
 			partial,
@@ -447,6 +463,7 @@ export class RenderContext {
 		astroStaticPartial: AstroGlobalPartial,
 		props: Record<string, any>,
 		slotValues: Record<string, any> | null,
+		apiContext: ActionAPIContext,
 	): AstroGlobal {
 		let astroPagePartial;
 		// During rewriting, we must recompute the Astro global, because we need to purge the previous params/props/etc.
@@ -454,12 +471,14 @@ export class RenderContext {
 			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(
 				result,
 				astroStaticPartial,
+				apiContext,
 			);
 		} else {
 			// Create page partial with static partial so they can be cached together.
 			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(
 				result,
 				astroStaticPartial,
+				apiContext,
 			);
 		}
 		// Create component-level partials. `Astro.self` is added by the compiler.
@@ -492,6 +511,7 @@ export class RenderContext {
 	createAstroPagePartial(
 		result: SSRResult,
 		astroStaticPartial: AstroGlobalPartial,
+		apiContext: ActionAPIContext,
 	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const renderContext = this;
 		const { cookies, locals, params, pipeline, url, session } = this;
@@ -509,6 +529,8 @@ export class RenderContext {
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			return await this.#executeRewrite(reroutePayload);
 		};
+
+		const callAction = createCallAction(apiContext);
 
 		return {
 			generator: astroStaticPartial.generator,
@@ -538,7 +560,7 @@ export class RenderContext {
 			site: pipeline.site,
 			getActionResult: createGetActionResult(locals),
 			get callAction() {
-				return createCallAction(this);
+				return callAction;
 			},
 			url,
 			get originPathname() {

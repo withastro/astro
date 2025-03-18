@@ -49,27 +49,27 @@
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
   },
-  "packageManager": "pnpm@9.12.1",
+  "packageManager": "pnpm@10.5.1",
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
     "@biomejs/biome": "1.9.4",
-    "@changesets/changelog-github": "^0.5.0",
-    "@changesets/cli": "^2.27.12",
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.28.1",
     "@types/node": "^18.17.8",
-    "esbuild": "^0.24.2",
-    "eslint": "^9.19.0",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.22.0",
     "eslint-plugin-regexp": "^2.7.0",
-    "globby": "^14.0.2",
     "only-allow": "^1.2.1",
-    "prettier": "^3.4.2",
+    "prettier": "^3.5.3",
     "prettier-plugin-astro": "^0.14.1",
-    "publint": "^0.3.2",
-    "turbo": "^2.4.0",
-    "typescript": "~5.7.3",
-    "typescript-eslint": "^8.23.0"
+    "publint": "^0.3.9",
+    "tinyglobby": "^0.2.12",
+    "turbo": "^2.4.4",
+    "typescript": "~5.8.2",
+    "typescript-eslint": "^8.26.1"
   },
   "pnpm": {
     "peerDependencyRules": {
@@ -77,6 +77,12 @@
         "astro",
         "vite"
       ]
-    }
+    },
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "workerd",
+      "@biomejs/biome",
+      "sharp"
+    ]
   }
 }

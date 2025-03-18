@@ -37,6 +37,7 @@ export async function writeSitemap(
 
 	const sitemapAndIndexStream = new SitemapAndIndexStream({
 		limit,
+		xslUrl,
 		getSitemapStream: (i) => {
 			const sitemapStream = new SitemapStream({
 				hostname,

@@ -18,6 +18,10 @@ export async function preview({ flags }: PreviewOptions) {
 					['--host', `Listen on all addresses, including LAN and public addresses.`],
 					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
 					['--open', 'Automatically open the app in the browser on server start'],
+					[
+						'--allowed-hosts',
+						'Specify a comma-separated list of allowed hosts or allow any hostname.',
+					],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},

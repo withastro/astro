@@ -7,7 +7,7 @@ import { isESMImportedImage, isRemoteAllowed } from '../utils/assets.js';
 const service: ExternalImageService = {
 	...baseService,
 	getURL: (options, imageConfig) => {
-		const resizingParams = [];
+		const resizingParams = ['onerror=redirect'];
 		if (options.width) resizingParams.push(`width=${options.width}`);
 		if (options.height) resizingParams.push(`height=${options.height}`);
 		if (options.quality) resizingParams.push(`quality=${options.quality}`);

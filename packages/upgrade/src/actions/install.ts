@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { color, say } from '@astrojs/cli-kit';
 import { random, sleep } from '@astrojs/cli-kit/utils';
+import { resolveCommand } from 'package-manager-detector';
 import {
 	banner,
 	bye,
@@ -121,21 +122,26 @@ async function runInstallCommand(
 	devDependencies: PackageInfo[],
 ) {
 	const cwd = fileURLToPath(ctx.cwd);
-	if (ctx.packageManager === 'yarn') await ensureYarnLock({ cwd });
+	if (ctx.packageManager.name === 'yarn') await ensureYarnLock({ cwd });
 
-	const installCmd =
-		ctx.packageManager === 'yarn' || ctx.packageManager === 'pnpm' ? 'add' : 'install';
+	const installCommand = resolveCommand(ctx.packageManager.agent, 'add', []);
+	if (!installCommand) {
+		// NOTE: Usually it's impossible to reach here as `package-manager-detector` should
+		// already match a supported agent
+		error('error', `Unable to find install command for ${ctx.packageManager.name}.`);
+		return ctx.exit(1);
+	}
 
 	await spinner({
-		start: `Installing dependencies with ${ctx.packageManager}...`,
+		start: `Installing dependencies with ${ctx.packageManager.name}...`,
 		end: `Installed dependencies!`,
 		while: async () => {
 			try {
 				if (dependencies.length > 0) {
 					await shell(
-						ctx.packageManager,
+						installCommand.command,
 						[
-							installCmd,
+							...installCommand.args,
 							...dependencies.map(
 								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`,
 							),
@@ -145,10 +151,9 @@ async function runInstallCommand(
 				}
 				if (devDependencies.length > 0) {
 					await shell(
-						ctx.packageManager,
+						installCommand.command,
 						[
-							installCmd,
-							'--save-dev',
+							...installCommand.args,
 							...devDependencies.map(
 								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`,
 							),
@@ -157,15 +162,17 @@ async function runInstallCommand(
 					);
 				}
 			} catch {
-				const packages = [...dependencies, ...devDependencies]
-					.map(({ name, targetVersion }) => `${name}@${targetVersion}`)
-					.join(' ');
+				const manualInstallCommand = [
+					installCommand.command,
+					...installCommand.args,
+					...[...dependencies, ...devDependencies].map(
+						({ name, targetVersion }) => `${name}@${targetVersion}`,
+					),
+				].join(' ');
 				newline();
 				error(
 					'error',
-					`Dependencies failed to install, please run the following command manually:\n${color.bold(
-						`${ctx.packageManager} ${installCmd} ${packages}`,
-					)}`,
+					`Dependencies failed to install, please run the following command manually:\n${color.bold(manualInstallCommand)}`,
 				);
 				return ctx.exit(1);
 			}

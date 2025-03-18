@@ -1,5 +1,35 @@
 # @astrojs/node
 
+## 9.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`042d1de`](https://github.com/withastro/astro/commit/042d1de901fd9aa66157ce078b28bcd9786e1373)]:
+  - @astrojs/internal-helpers@0.6.1
+
+## 9.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b)]:
+  - @astrojs/internal-helpers@0.6.0
+
+## 9.1.1
+
+### Patch Changes
+
+- [#13190](https://github.com/withastro/astro/pull/13190) [`c6bf6b3`](https://github.com/withastro/astro/commit/c6bf6b3b210d3cfd7a23d42815b1b5c58099736f) Thanks [@lee-arnold](https://github.com/lee-arnold)! - Fixes the image endpoint entrypoint
+
+## 9.1.0
+
+### Minor Changes
+
+- [#13145](https://github.com/withastro/astro/pull/13145) [`8d4e566`](https://github.com/withastro/astro/commit/8d4e566f5420c8a5406e1e40e8bae1c1f87cbe37) Thanks [@ascorbic](https://github.com/ascorbic)! - Automatically configures filesystem storage when experimental session enabled
+
+  If the `experimental.session` flag is enabled when using the Node adapter, Astro will automatically configure session storage using the filesystem driver. You can still manually configure session storage if you need to use a different driver or want to customize the session storage configuration.
+
+  See [the experimental session docs](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information on configuring session storage.
+
 ## 9.0.3
 
 ### Patch Changes
