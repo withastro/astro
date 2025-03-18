@@ -53,6 +53,38 @@ describe('API routes in SSR', () => {
 			assert.equal(data.clientAddress, '0.0.0.0');
 			assert.equal(data.site, 'https://mysite.dev/subsite/');
 		});
+
+		describe('custom status', () => {
+			it('should return a custom status code and empty body for HEAD', async () => {
+				const request = new Request('http://example.com/custom-status', { method: 'HEAD' });
+				const response = await app.render(request);
+				const text = await response.text();
+				assert.equal(response.status, 403);
+				assert.equal(text, '');
+			});
+
+			it('should return a 403 status code with the correct body for GET', async () => {
+				const request = new Request('http://example.com/custom-status');
+				const response = await app.render(request);
+				const text = await response.text();
+				assert.equal(response.status, 403);
+				assert.equal(text, 'hello world');
+			});
+
+			it('should return the correct headers for GET', async () => {
+				const request = new Request('http://example.com/custom-status');
+				const response = await app.render(request);
+				const headers = response.headers.get('x-hello');
+				assert.equal(headers, 'world');
+			});
+
+			it('should return the correct headers for HEAD', async () => {
+				const request = new Request('http://example.com/custom-status', { method: 'HEAD' });
+				const response = await app.render(request);
+				const headers = response.headers.get('x-hello');
+				assert.equal(headers, 'world');
+			});
+		});
 	});
 
 	describe('Dev', () => {
