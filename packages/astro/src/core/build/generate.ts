@@ -548,7 +548,7 @@ async function generatePath(
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		body = redirectTemplate({ status: response.status, location, from: fromPath });
+		body = redirectTemplate({ status: response.status, location: locationSite, from: fromPath });
 		if (config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}
