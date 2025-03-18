@@ -2514,12 +2514,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/container:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/container-custom-renderers:
     dependencies:
       '@astrojs/react':
