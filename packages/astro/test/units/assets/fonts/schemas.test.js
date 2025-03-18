@@ -23,6 +23,7 @@ describe('fonts schemas', () => {
 					styles: ['normal', 'oblique'],
 					subsets: ['latin', 'latin-extended'],
 					fallbacks: ['Arial', 'Roboto'],
+					automaticFallback: true,
 				},
 			},
 		);

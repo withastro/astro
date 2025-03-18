@@ -9,6 +9,7 @@ export const DEFAULTS: ResolveFontOptions = {
 	weights: ['400'],
 	styles: ['normal', 'italic'],
 	subsets: ['cyrillic-ext', 'cyrillic', 'greek-ext', 'greek', 'vietnamese', 'latin-ext', 'latin'],
+	automaticFallback: true,
 };
 
 export const VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/internal';

@@ -162,8 +162,13 @@ export async function loadFonts({
 			family,
 			font: fallbackFontData,
 			fallbacks: family.fallbacks ?? [],
-			getMetricsForFamily,
-			generateFontFace: generateFallbackFontFace,
+			metrics:
+				(family.automaticFallback ?? DEFAULTS.automaticFallback)
+					? {
+							getMetricsForFamily,
+							generateFontFace: generateFallbackFontFace,
+						}
+					: null,
 		});
 
 		const cssVarValues = [getFamilyName(family)];

@@ -182,10 +182,27 @@ describe('fonts utils', () => {
 					family: { name: 'Roboto' },
 					fallbacks: [],
 					font: null,
-					getMetricsForFamily: async () => null,
-					generateFontFace: () => '',
+					metrics: {
+						getMetricsForFamily: async () => null,
+						generateFontFace: () => '',
+					},
 				}),
 				null,
+			);
+		});
+
+		it('should return fallbacks even without automatic fallbacks generation', async () => {
+			assert.deepStrictEqual(
+				await generateFallbacksCSS({
+					family: { name: 'Roboto' },
+					fallbacks: ['foo'],
+					font: null,
+					metrics: null,
+				}),
+				{
+					css: '',
+					fallbacks: ['foo'],
+				},
 			);
 		});
 
@@ -195,8 +212,10 @@ describe('fonts utils', () => {
 					family: { name: 'Roboto' },
 					fallbacks: ['foo'],
 					font: null,
-					getMetricsForFamily: async () => null,
-					generateFontFace: () => '',
+					metrics: {
+						getMetricsForFamily: async () => null,
+						generateFontFace: () => '',
+					},
 				}),
 				{
 					css: '',
@@ -211,14 +230,16 @@ describe('fonts utils', () => {
 					family: { name: 'Roboto' },
 					fallbacks: ['foo'],
 					font: null,
-					getMetricsForFamily: async () => ({
-						ascent: 0,
-						descent: 0,
-						lineGap: 0,
-						unitsPerEm: 0,
-						xWidthAvg: 0,
-					}),
-					generateFontFace: () => '',
+					metrics: {
+						getMetricsForFamily: async () => ({
+							ascent: 0,
+							descent: 0,
+							lineGap: 0,
+							unitsPerEm: 0,
+							xWidthAvg: 0,
+						}),
+						generateFontFace: () => '',
+					},
 				}),
 				{
 					css: '',
@@ -233,14 +254,16 @@ describe('fonts utils', () => {
 					family: { name: 'Roboto' },
 					fallbacks: ['emoji'],
 					font: null,
-					getMetricsForFamily: async () => ({
-						ascent: 0,
-						descent: 0,
-						lineGap: 0,
-						unitsPerEm: 0,
-						xWidthAvg: 0,
-					}),
-					generateFontFace: () => '',
+					metrics: {
+						getMetricsForFamily: async () => ({
+							ascent: 0,
+							descent: 0,
+							lineGap: 0,
+							unitsPerEm: 0,
+							xWidthAvg: 0,
+						}),
+						generateFontFace: () => '',
+					},
 				}),
 				{
 					css: '',
@@ -255,14 +278,16 @@ describe('fonts utils', () => {
 					family: { name: 'Roboto' },
 					fallbacks: ['foo', 'bar'],
 					font: null,
-					getMetricsForFamily: async () => ({
-						ascent: 0,
-						descent: 0,
-						lineGap: 0,
-						unitsPerEm: 0,
-						xWidthAvg: 0,
-					}),
-					generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
+					metrics: {
+						getMetricsForFamily: async () => ({
+							ascent: 0,
+							descent: 0,
+							lineGap: 0,
+							unitsPerEm: 0,
+							xWidthAvg: 0,
+						}),
+						generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
+					},
 				}),
 				{
 					css: '',
@@ -274,14 +299,16 @@ describe('fonts utils', () => {
 					family: { name: 'Roboto' },
 					fallbacks: ['sans-serif', 'foo'],
 					font: null,
-					getMetricsForFamily: async () => ({
-						ascent: 0,
-						descent: 0,
-						lineGap: 0,
-						unitsPerEm: 0,
-						xWidthAvg: 0,
-					}),
-					generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
+					metrics: {
+						getMetricsForFamily: async () => ({
+							ascent: 0,
+							descent: 0,
+							lineGap: 0,
+							unitsPerEm: 0,
+							xWidthAvg: 0,
+						}),
+						generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
+					},
 				}),
 				{
 					css: '',
@@ -293,14 +320,16 @@ describe('fonts utils', () => {
 					family: { name: 'Roboto', as: 'Custom' },
 					fallbacks: ['foo', 'sans-serif'],
 					font: null,
-					getMetricsForFamily: async () => ({
-						ascent: 0,
-						descent: 0,
-						lineGap: 0,
-						unitsPerEm: 0,
-						xWidthAvg: 0,
-					}),
-					generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
+					metrics: {
+						getMetricsForFamily: async () => ({
+							ascent: 0,
+							descent: 0,
+							lineGap: 0,
+							unitsPerEm: 0,
+							xWidthAvg: 0,
+						}),
+						generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
+					},
 				}),
 				{
 					css: `[Arial,"Custom fallback: Arial"]`,
