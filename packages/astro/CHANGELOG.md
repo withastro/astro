@@ -4,13 +4,13 @@
 
 ### Patch Changes
 
-- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Upgrade to shiki v3
+- [#13437](https://github.com/withastro/astro/pull/13437) [`013fa87`](https://github.com/withastro/astro/commit/013fa87982ea92675e899d2f71a200e5298db608) Thanks [@Vardhaman619](https://github.com/Vardhaman619)! - Handle server.allowedHosts when the value is true without attempting to push it into an array.
 
-- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Handle `server.allowedHosts` when the value is true without attempting to push it into an array.
+- [#13324](https://github.com/withastro/astro/pull/13324) [`ea74336`](https://github.com/withastro/astro/commit/ea7433666e0cc7e1301e638e80f90323f20db3e1) Thanks [@ematipico](https://github.com/ematipico)! - Upgrade to shiki v3
 
-- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug that caused some very large data stores to save incomplete data.
+- [#13372](https://github.com/withastro/astro/pull/13372) [`7783dbf`](https://github.com/withastro/astro/commit/7783dbf8117650c60d7633b43f0d42da487aa2b1) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused some very large data stores to save incomplete data.
 
-- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new function called `insertPageRoute` to the Astro Container API.
+- [#13358](https://github.com/withastro/astro/pull/13358) [`8c21663`](https://github.com/withastro/astro/commit/8c21663c4a6363765f2caa5705a93a41492a95c9) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new function called `insertPageRoute` to the Astro Container API.
 
   The new function is useful when testing routes that, for some business logic, use `Astro.rewrite`.
 
@@ -29,13 +29,13 @@
 
   This new method only works for page routes, which means that endpoints aren't supported.
 
-- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug that caused the `astro add` command to ignore the `--yes` flag for third-party integrations
+- [#13426](https://github.com/withastro/astro/pull/13426) [`565583b`](https://github.com/withastro/astro/commit/565583bd6c99163ce5d9475b26075149cc8c155b) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused the `astro add` command to ignore the `--yes` flag for third-party integrations
 
-- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Prevent bad value in x-forwarded-host from crashing request
+- [#13428](https://github.com/withastro/astro/pull/13428) [`9cac9f3`](https://github.com/withastro/astro/commit/9cac9f314277def0ee584e45d4937bac0235738a) Thanks [@matthewp](https://github.com/matthewp)! - Prevent bad value in x-forwarded-host from crashing request
 
-- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Fix an issue in the Container API, where the `renderToString` function doesn't render adequately nested slots when they are components.
+- [#13432](https://github.com/withastro/astro/pull/13432) [`defad33`](https://github.com/withastro/astro/commit/defad33140dccde324b9357bc6331f7e5cdec266) Thanks [@P4tt4te](https://github.com/P4tt4te)! - Fix an issue in the Container API, where the `renderToString` function doesn't render adequately nested slots when they are components.
 
-- Updated dependencies [[`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366)]:
+- Updated dependencies [[`ea74336`](https://github.com/withastro/astro/commit/ea7433666e0cc7e1301e638e80f90323f20db3e1)]:
   - @astrojs/markdown-remark@6.3.1
 
 ## 5.5.2
