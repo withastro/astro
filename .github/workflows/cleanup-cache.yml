@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Cleanup caches older than 5 days
         if: github.event_name == 'schedule'
-        uses: MyAlbum/purge-cache@v2
+        uses: MyAlbum/purge-cache@881eb5957687193fa612bf74c0042adc78ea5e54 # v2.2.0
         with:
           max-age: 432000
 
