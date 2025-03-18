@@ -1,5 +1,43 @@
 # astro
 
+## 5.5.3
+
+### Patch Changes
+
+- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Upgrade to shiki v3
+
+- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Handle `server.allowedHosts` when the value is true without attempting to push it into an array.
+
+- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug that caused some very large data stores to save incomplete data.
+
+- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new function called `insertPageRoute` to the Astro Container API.
+
+  The new function is useful when testing routes that, for some business logic, use `Astro.rewrite`.
+
+  For example, if you have a route `/blog/post` and for some business decision there's a rewrite to `/generic-error`, the container API implementation will look like this:
+
+  ```js
+  import Post from '../src/pages/Post.astro';
+  import GenericError from '../src/pages/GenericError.astro';
+  import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+
+  const container = await AstroContainer.create();
+  container.insertPageRoute('/generic-error', GenericError);
+  const result = await container.renderToString(Post);
+  console.log(result); // this should print the response from GenericError.astro
+  ```
+
+  This new method only works for page routes, which means that endpoints aren't supported.
+
+- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug that caused the `astro add` command to ignore the `--yes` flag for third-party integrations
+
+- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Prevent bad value in x-forwarded-host from crashing request
+
+- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Fix an issue in the Container API, where the `renderToString` function doesn't render adequately nested slots when they are components.
+
+- Updated dependencies [[`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366)]:
+  - @astrojs/markdown-remark@6.3.1
+
 ## 5.5.2
 
 ### Patch Changes
