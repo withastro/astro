@@ -9,7 +9,7 @@ import { setGetEnv } from 'astro/env/setup';
 import { env as globalEnv } from 'cloudflare:workers';
 import { createGetEnv } from '../utils/env.js';
 
-setGetEnv(createGetEnv(globalEnv as any));
+setGetEnv(createGetEnv(globalEnv as Env));
 
 type Env = {
 	[key: string]: unknown;
