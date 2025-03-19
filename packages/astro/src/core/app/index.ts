@@ -290,7 +290,7 @@ export class App {
 
 		if (redirect !== url.pathname) {
 			const status = request.method === 'GET' ? 301 : 308;
-			return new Response(redirectTemplate({ status, location: redirect, from: request.url }), {
+			return new Response(redirectTemplate({ status, relativeLocation: url.pathname, absoluteLocation: redirect, from: request.url }), {
 				status,
 				headers: {
 					location: redirect + url.search,
