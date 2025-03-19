@@ -1312,7 +1312,7 @@ export const UnknownFilesystemError = {
 export const CannotExtractFontType = {
 	name: 'CannotExtractFontType',
 	title: 'Cannot extract the font type from the given URL.',
-	hint: 'Open an issue at https://github.com/withastro/astro/issues',
+	hint: 'Open an issue at https://github.com/withastro/astro/issues.',
 } satisfies ErrorData;
 
 /**
@@ -1326,7 +1326,7 @@ export const CannotFetchFontFile = {
 	name: 'CannotFetchFontFile',
 	title: 'Cannot fetch the given font file.',
 	message: (url: string) => `An error occurred while fetching the font file from ${url}`,
-	hint: 'Check the error cause and open an issue if it cannot be solved on your side.',
+	hint: 'This is often caused by connectivity issues. If the error persists, open an issue at https://github.com/withastro/astro/issues.',
 } satisfies ErrorData;
 
 /**
@@ -1372,7 +1372,7 @@ export const FontFamilyNotFound = {
 	name: 'FontFamilyNotFound',
 	title: 'Font family not found',
 	message: (family: string) => `No data was found for the "${family}" family.`,
-	hint: 'Review your config family names.',
+	hint: 'This is often caused by a typo in the "family" property of the Font component. Review your component usage.',
 } satisfies ErrorData;
 
 /**
