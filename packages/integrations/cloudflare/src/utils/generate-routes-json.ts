@@ -49,7 +49,6 @@ async function writeRoutesFileToOutDir(
 	include: string[],
 	exclude: string[],
 ) {
-	console.log('Writing _routes.json to', _config.outDir.href);
 	try {
 		await writeFile(
 			new URL('./_routes.json', _config.outDir),
