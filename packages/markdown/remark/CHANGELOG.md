@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 6.3.1
+
+### Patch Changes
+
+- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Upgrade to shiki v3
+
 ## 6.3.0
 
 ### Minor Changes

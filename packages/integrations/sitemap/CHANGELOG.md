@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.3.0
+
+### Minor Changes
+
+- [#13448](https://github.com/withastro/astro/pull/13448) [`91c9503`](https://github.com/withastro/astro/commit/91c95034e0d0bd450170623fd8aab4b56b5b1366) Thanks [@ematipico](https://github.com/ematipico)! - Add support for XSL in sitemap-index.xml
+
 ## 3.2.1
 
 ### Patch Changes
