@@ -4670,6 +4670,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/with-base:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/with-solid-js:
     dependencies:
       '@astrojs/cloudflare':
