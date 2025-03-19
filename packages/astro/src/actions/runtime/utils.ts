@@ -41,8 +41,10 @@ export type ActionAPIContext = Pick<
 	| 'originPathname'
 	| 'session'
 > & {
+	// TODO: remove in Astro 6.0
 	/**
 	 * @deprecated
+	 * The use of `rewrite` in Actions is deprecated
 	 */
 	rewrite:  AstroSharedContext['rewrite']
 }

@@ -282,19 +282,18 @@ export class RenderContext {
 	createAPIContext(props: APIContext['props'], context: ActionAPIContext): APIContext {
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
+
 		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
 
-		const apiContext = Object.assign(context, {
-			props,
-			redirect,
-			getActionResult: createGetActionResult(context.locals),
-		});
-		Object.defineProperty(apiContext, 'callAction', {
-			get(): APIContext['callAction'] {
-					return createCallAction(this)
-			}
-		})
-		return apiContext as APIContext
+		// NOTE: the type here, unfortunately, doesn't help. When you add new methods to `APIContext`,
+		// they must be added here, manually.
+		const apiContext: APIContext = Object.create(context);
+		apiContext.props = props;
+		apiContext.redirect = redirect;
+		apiContext.callAction = createCallAction(apiContext);
+		apiContext.getActionResult = createGetActionResult(context.locals);
+		
+		return apiContext
 	}
 
 	async #executeRewrite(reroutePayload: RewritePayload) {
@@ -307,9 +306,7 @@ export class RenderContext {
 		// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 		// so Astro can't retrieve it from the emitted manifest.
 		if (
-			this.pipeline.serverLike === true &&
-			this.routeData.prerender === false &&
-			routeData.prerender === true
+			this.pipeline.serverLike && !this.routeData.prerender && routeData.prerender
 		) {
 			throw new AstroError({
 				...ForbiddenRewrite,
