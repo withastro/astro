@@ -1,9 +1,9 @@
 // @ts-check
 import * as assert from 'node:assert/strict';
+import { promises as fs, existsSync } from 'node:fs';
 import { before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { astroCli } from './_test-utils.js';
-import { existsSync, promises as fs } from 'node:fs';
 
 const root = new URL('./fixtures/with-base/', import.meta.url);
 
@@ -14,9 +14,8 @@ describe('With base', () => {
 	});
 
 	it('generates platform files in the correct directory', async () => {
-		for (const file of ['_redirects',  '_routes.json', 'blog/static/index.html']) {
+		for (const file of ['_redirects', '_routes.json', 'blog/static/index.html']) {
 			assert.ok(existsSync(new URL(`dist/${file}`, root)));
 		}
 	});
 });
-
