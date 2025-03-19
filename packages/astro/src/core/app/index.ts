@@ -55,13 +55,25 @@ export interface RenderOptions {
 	locals?: object;
 
 	/**
+	 * A custom fetch function for retrieving prerendered pages, such as 404 or 500 error pages.
+	 *
+	 * Default: `fetch` 
+	 *
+	 * When a dynamic route is matched but ultimately results in a 404, this function will be used
+	 * to fetch the prerendered 404 page if available. Similarly, it may be used to fetch a
+	 * prerendered 500 error page when necessary.
+	 *
+	 * @param {string} url - The URL of the prerendered resource to fetch.
+	 * @returns {Promise<Response>} A promise resolving to the prerendered response.
+	 */
+	preRenderedFetch?: (string: string) => Promise<Response>;
+
+	/**
 	 * **Advanced API**: you probably do not need to use this.
 	 *
 	 * Default: `app.match(request)`
 	 */
 	routeData?: RouteData;
-
-	preRenderedFetch?: (string: string) => Promise<Response>;
 }
 
 export interface RenderErrorOptions {
