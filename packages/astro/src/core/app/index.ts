@@ -64,9 +64,9 @@ export interface RenderOptions {
 	locals?: object;
 
 	/**
-	 * A custom fetch function for retrieving prerendered pages, such as 404 or 500 error pages.
+	 * A custom fetch function for retrieving prerendered pages - 404 or 500.
 	 *
-	 * Default: `fetch` 
+	 * If not provided, Astro will fallback to its default behavior for fetching error pages.
 	 *
 	 * When a dynamic route is matched but ultimately results in a 404, this function will be used
 	 * to fetch the prerendered 404 page if available. Similarly, it may be used to fetch a
