@@ -2,6 +2,7 @@
 /// <reference path="./types/content.d.ts" />
 /// <reference path="./types/actions.d.ts" />
 /// <reference path="./types/env.d.ts" />
+/// <reference path="./types/fonts.d.ts" />
 
 interface ImportMetaEnv {
 	/**
@@ -74,6 +75,7 @@ declare module 'astro:assets' {
 		imageConfig,
 		Image,
 		Picture,
+		Font,
 		inferRemoteSize,
 	}: AstroAssets;
 }

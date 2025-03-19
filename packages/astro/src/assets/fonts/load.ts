@@ -180,7 +180,7 @@ export async function loadFonts({
 
 		css += `:root { --astro-font-${generateCSSVariableName(getFamilyName(family))}: ${cssVarValues.join(', ')}; }`;
 
-		resolvedMap.set(family.name, { preloadData, css });
+		resolvedMap.set(getFamilyName(family), { preloadData, css });
 	}
 	log('Fonts initialized');
 }
