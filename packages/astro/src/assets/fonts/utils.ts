@@ -5,6 +5,7 @@ import { DEFAULT_FALLBACKS, FONT_TYPES } from './constants.js';
 import type { Storage } from 'unstorage';
 import type { Logger } from '../../core/logger/core.js';
 import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
@@ -48,8 +49,9 @@ export function extractFontType(str: string): FontType {
 	// Extname includes a leading dot
 	const extension = extname(str).slice(1);
 	if (!isFontType(extension)) {
-		// TODO: AstroError
-		throw new Error("Can't extract font type");
+		throw new AstroError(AstroErrorData.CannotExtractFontType, {
+			cause: `Unexpected extension, got "${extension}"`,
+		});
 	}
 	return extension;
 }

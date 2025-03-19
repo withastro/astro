@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { google } from './google.js';
 import type { FontProvider, ResolvedFontProvider } from '../types.js';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 
 export function resolveEntrypoint(root: URL, entrypoint: string): string {
 	const require = createRequire(root);
@@ -13,18 +14,31 @@ export function resolveEntrypoint(root: URL, entrypoint: string): string {
 	}
 }
 
-export function validateMod(mod: any): Pick<ResolvedFontProvider, 'provider'> {
+export function validateMod(
+	mod: any,
+	providerName: string,
+): Pick<ResolvedFontProvider, 'provider'> {
+	// We do not throw astro errors directly to avoid duplication. Instead, we throw an error to be used as cause
 	try {
-		if (!mod.provider && typeof mod.provider !== 'function') {
-			// TODO: improve
-			throw new Error('Not a function');
+		if (typeof mod !== 'object' || mod === null) {
+			throw new Error(`Expected an object for the module, but received ${typeof mod}.`);
 		}
+
+		if (typeof mod.provider !== 'function') {
+			throw new Error(`Invalid provider export in module, expected a function.`);
+		}
+
 		return {
 			provider: mod.provider,
 		};
-	} catch (e) {
-		// TODO: AstroError
-		throw e;
+	} catch (cause) {
+		throw new AstroError(
+			{
+				...AstroErrorData.CannotLoadFontProvider,
+				message: AstroErrorData.CannotLoadFontProvider.message(providerName),
+			},
+			{ cause },
+		);
 	}
 }
 
@@ -45,7 +59,7 @@ export async function resolveProviders({
 	for (const { name, entrypoint, config } of providers) {
 		const id = pathToFileURL(resolveEntrypoint(root, entrypoint.toString())).href;
 		const mod = await resolveMod(id);
-		const { provider } = validateMod(mod);
+		const { provider } = validateMod(mod, name);
 		resolvedProviders.push({ name, config, provider });
 	}
 

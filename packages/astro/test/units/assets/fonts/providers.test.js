@@ -210,7 +210,7 @@ describe('fonts providers', () => {
 			assert.fail();
 		} catch (err) {
 			assert.equal(err instanceof Error, true);
-			assert.equal(err.message, 'File used for font deleted. Restore it or update your config');
+			assert.equal(err.message, 'A local font file referenced in your config has been deleted.');
 		}
 	});
 
@@ -218,13 +218,13 @@ describe('fonts providers', () => {
 		it('validateMod()', () => {
 			const provider = () => {};
 
-			assert.deepStrictEqual(validateMod({ provider }), { provider });
+			assert.deepStrictEqual(validateMod({ provider }, "custom"), { provider });
 
 			const invalidMods = [{}, null, () => {}, { provider: {} }, { provider: null }];
 
 			for (const invalidMod of invalidMods) {
 				try {
-					validateMod(invalidMod);
+					validateMod(invalidMod, "custom");
 					assert.fail('This mod should not pass');
 				} catch (err) {
 					assert.equal(err instanceof Error, true);
