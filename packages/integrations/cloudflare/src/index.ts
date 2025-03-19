@@ -7,7 +7,7 @@ import type {
 import type { PluginOption } from 'vite';
 
 import { createReadStream } from 'node:fs';
-import { appendFile, rename, stat } from 'node:fs/promises';
+import { appendFile, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import {
 	appendForwardSlash,
