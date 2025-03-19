@@ -30,6 +30,15 @@ import { AppPipeline } from './pipeline.js';
 
 export { deserializeManifest } from './common.js';
 
+
+type ErrorPagePath = 
+  | `${string}/404`
+  | `${string}/500`
+  | `${string}/404/`
+  | `${string}/500/`
+  | `${string}404.html`
+  | `${string}500.html`;
+
 export interface RenderOptions {
 	/**
 	 * Whether to automatically add all cookies written by `Astro.cookie.set()` to the response headers.
@@ -63,10 +72,10 @@ export interface RenderOptions {
 	 * to fetch the prerendered 404 page if available. Similarly, it may be used to fetch a
 	 * prerendered 500 error page when necessary.
 	 *
-	 * @param {string} url - The URL of the prerendered resource to fetch.
+	 * @param {ErrorPagePath} url - The URL of the prerendered error page to fetch
 	 * @returns {Promise<Response>} A promise resolving to the prerendered response.
 	 */
-	preRenderedFetch?: (string: string) => Promise<Response>;
+	preRenderedFetch?: (url: ErrorPagePath) => Promise<Response>;
 
 	/**
 	 * **Advanced API**: you probably do not need to use this.
@@ -90,7 +99,7 @@ export interface RenderErrorOptions {
 	 */
 	error?: unknown;
 	clientAddress: string | undefined;
-	preRenderedFetch: (string: string) => Promise<Response>;
+	preRenderedFetch: (url: ErrorPagePath) => Promise<Response>;
 }
 
 export class App {
@@ -446,7 +455,7 @@ export class App {
 					url,
 				);
 				if (statusURL.toString() !== request.url) {
-					const response = await preRenderedFetch(statusURL.toString());
+					const response = await preRenderedFetch(statusURL.toString() as ErrorPagePath);
 
 					// response for /404.html and 500.html is 200, which is not meaningful
 					// so we create an override
