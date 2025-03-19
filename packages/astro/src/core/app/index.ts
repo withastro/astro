@@ -72,7 +72,7 @@ export interface RenderOptions {
 	 * to fetch the prerendered 404 page if available. Similarly, it may be used to fetch a
 	 * prerendered 500 error page when necessary.
 	 *
-	 * @param {ErrorPagePath} url - The URL of the prerendered error page to fetch
+	 * @param {ErrorPagePath} url - The URL of the prerendered 404 or 500 error page to fetch.
 	 * @returns {Promise<Response>} A promise resolving to the prerendered response.
 	 */
 	preRenderedFetch?: (url: ErrorPagePath) => Promise<Response>;
