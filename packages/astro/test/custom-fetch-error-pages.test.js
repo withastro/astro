@@ -23,8 +23,8 @@ describe('Custom Fetch for Error Pages', () => {
     
     // Mock fetch calls for tracking
     let fetchCalls = [];
-    const customFetch = async (url, options) => {
-      fetchCalls.push({ url, options });
+    const customFetch = async (url) => {
+      fetchCalls.push(url);
       // Return a custom response to verify our fetch was used
       return new Response('<html><body><h1>Custom Fetch Response</h1></body></html>', {
         headers: {
@@ -52,7 +52,7 @@ describe('Custom Fetch for Error Pages', () => {
       
       // Verify our custom fetch was called with the right URL
       assert.equal(fetchCalls.length, 1);
-      assert.ok(fetchCalls[0].url.includes('/404'));
+      assert.ok(fetchCalls[0].includes('/404'));
 
       const html = await response.text();
       const $ = cheerio.load(html);
@@ -68,7 +68,7 @@ describe('Custom Fetch for Error Pages', () => {
       
       // Verify our custom fetch was called with the right URL
       assert.equal(fetchCalls.length, 1);
-      assert.ok(fetchCalls[0].url.includes('/500'));
+      assert.ok(fetchCalls[0].includes('/500'));
       
       const html = await response.text();
       const $ = cheerio.load(html);
