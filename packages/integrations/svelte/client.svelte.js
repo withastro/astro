@@ -5,6 +5,7 @@ const existingApplications = new WeakMap();
 
 export default (element) => {
 	return async (Component, props, slotted, { client }) => {
+		console.log('Svelte client integration', { Component, props, slotted, client });
 		if (!element.hasAttribute('ssr')) return;
 
 		let children = undefined;
@@ -61,6 +62,9 @@ export default (element) => {
 function createComponent(Component, target, props, shouldHydrate) {
 	let propsState = $state(props);
 	const bootstrap = shouldHydrate ? hydrate : mount;
+	if(!shouldHydrate) {
+		target.innerHTML = '';
+	}
 	const component = bootstrap(Component, { target, props: propsState });
 	return {
 		setProps(newProps) {
