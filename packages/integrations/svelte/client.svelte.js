@@ -61,7 +61,7 @@ export default (element) => {
 function createComponent(Component, target, props, shouldHydrate) {
 	let propsState = $state(props);
 	const bootstrap = shouldHydrate ? hydrate : mount;
-	if(!shouldHydrate) {
+	if (!shouldHydrate) {
 		target.innerHTML = '';
 	}
 	const component = bootstrap(Component, { target, props: propsState });

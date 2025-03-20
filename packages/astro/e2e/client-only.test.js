@@ -41,7 +41,6 @@ test.describe('Client only', () => {
 		const counter = await page.locator('#preact-counter');
 		await expect(counter, 'component is visible').toBeVisible();
 
-		
 		const fallback = await page.locator('[data-fallback=preact]');
 		await expect(fallback, 'fallback content is hidden').not.toBeVisible();
 
