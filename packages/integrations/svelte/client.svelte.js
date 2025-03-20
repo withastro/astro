@@ -5,7 +5,6 @@ const existingApplications = new WeakMap();
 
 export default (element) => {
 	return async (Component, props, slotted, { client }) => {
-		console.log('Svelte client integration', { Component, props, slotted, client });
 		if (!element.hasAttribute('ssr')) return;
 
 		let children = undefined;
