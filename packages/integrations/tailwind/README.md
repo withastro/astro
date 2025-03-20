@@ -2,9 +2,9 @@
 
 > ⚠️ **This integration is deprecated**
 >
-> Tailwind CSS now offers a Vite plugin which is the preferred way to use Tailwind 4 in Astro.
+> [Tailwind CSS now offers a Vite plugin](https://tailwindcss.com/docs/installation/framework-guides/astro) which is the preferred way to use Tailwind 4 in Astro.
 >
-> [Learn how to add Tailwind 4 in the Astro Docs.][docs]
+> [Learn how to use Tailwind in your Astro project in the Styling guide.][docs]
 
 ## Support
 
