@@ -40,7 +40,7 @@
     "esbuild": "^0.25.0",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.17",
-    "miniflare": "^3.20250224.0",
+    "miniflare": "^4.20250317.0",
     "tinyglobby": "^0.2.12",
     "vite": "^6.2.1",
     "wrangler": "^3.112.0"

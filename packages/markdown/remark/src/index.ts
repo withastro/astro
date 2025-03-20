@@ -2,6 +2,7 @@ import type {
 	AstroMarkdownOptions,
 	AstroMarkdownProcessorOptions,
 	MarkdownProcessor,
+	SyntaxHighlightConfig,
 } from './types.js';
 
 import { loadPlugins } from './load-plugins.js';
@@ -18,8 +19,8 @@ import remarkRehype from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
+import { defaultExcludeLanguages } from './highlight.js';
 import { rehypeImages } from './rehype-images.js';
-
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export { rehypePrism } from './rehype-prism.js';
@@ -39,8 +40,13 @@ export {
 } from './shiki.js';
 export * from './types.js';
 
+export const syntaxHighlightDefaults: Required<SyntaxHighlightConfig> = {
+	type: 'shiki',
+	excludeLangs: defaultExcludeLanguages,
+};
+
 export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
-	syntaxHighlight: 'shiki',
+	syntaxHighlight: syntaxHighlightDefaults,
 	shikiConfig: {
 		langs: [],
 		theme: 'github-dark',
@@ -73,6 +79,7 @@ export async function createMarkdownProcessor(
 		remarkRehype: remarkRehypeOptions = markdownConfigDefaults.remarkRehype,
 		gfm = markdownConfigDefaults.gfm,
 		smartypants = markdownConfigDefaults.smartypants,
+		experimentalHeadingIdCompat = false,
 	} = opts ?? {};
 
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
@@ -107,12 +114,16 @@ export async function createMarkdownProcessor(
 		...remarkRehypeOptions,
 	});
 
-	if (!isPerformanceBenchmark) {
+	if (syntaxHighlight && !isPerformanceBenchmark) {
+		const syntaxHighlightType =
+			typeof syntaxHighlight === 'string' ? syntaxHighlight : syntaxHighlight?.type;
+		const excludeLangs =
+			typeof syntaxHighlight === 'object' ? syntaxHighlight?.excludeLangs : undefined;
 		// Syntax highlighting
-		if (syntaxHighlight === 'shiki') {
-			parser.use(rehypeShiki, shikiConfig);
-		} else if (syntaxHighlight === 'prism') {
-			parser.use(rehypePrism);
+		if (syntaxHighlightType === 'shiki') {
+			parser.use(rehypeShiki, shikiConfig, excludeLangs);
+		} else if (syntaxHighlightType === 'prism') {
+			parser.use(rehypePrism, excludeLangs);
 		}
 	}
 
@@ -126,7 +137,7 @@ export async function createMarkdownProcessor(
 
 	// Headings
 	if (!isPerformanceBenchmark) {
-		parser.use(rehypeHeadingIds);
+		parser.use(rehypeHeadingIds, { experimentalHeadingIdCompat });
 	}
 
 	// Stringify to HTML

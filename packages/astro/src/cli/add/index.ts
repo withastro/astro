@@ -9,6 +9,7 @@ import { getDefaultExportOptions } from 'magicast/helpers';
 import { detect, resolveCommand } from 'package-manager-detector';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
+import type yargsParser from 'yargs-parser';
 import yoctoSpinner from 'yocto-spinner';
 import {
 	loadTSConfig,
@@ -138,7 +139,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	const cwd = inlineConfig.root;
 	const logger = createLoggerFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
-	const integrations = await validateIntegrations(integrationNames);
+	const integrations = await validateIntegrations(integrationNames, flags);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
 	const rootPath = resolveRoot(cwd);
 	const root = pathToFileURL(rootPath);
@@ -713,7 +714,10 @@ async function tryToInstallIntegrations({
 	}
 }
 
-async function validateIntegrations(integrations: string[]): Promise<IntegrationInfo[]> {
+async function validateIntegrations(
+	integrations: string[],
+	flags: yargsParser.Arguments,
+): Promise<IntegrationInfo[]> {
 	const spinner = yoctoSpinner({ text: 'Resolving packages...' }).start();
 	try {
 		const integrationEntries = await Promise.all(
@@ -735,13 +739,7 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 							spinner.warning(yellow(firstPartyPkgCheck.message));
 						}
 						spinner.warning(yellow(`${bold(integration)} is not an official Astro package.`));
-						const response = await prompts({
-							type: 'confirm',
-							name: 'askToContinue',
-							message: 'Continue?',
-							initial: true,
-						});
-						if (!response.askToContinue) {
+						if (!(await askToContinue({ flags }))) {
 							throw new Error(
 								`No problem! Find our official integrations at ${cyan(
 									'https://astro.build/integrations',

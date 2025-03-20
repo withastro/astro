@@ -9,6 +9,38 @@ async function getFixture(name) {
 	});
 }
 
+describe('experimental.headingIdCompat', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL(`./fixtures/headings/`, import.meta.url),
+			experimental: { headingIdCompat: true },
+		});
+	});
+
+	describe('dev', () => {
+		let devServer;
+
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('applies IDs to headings containing special characters', async () => {
+			const res = await fixture.fetch('/headings-with-special-characters');
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			assert.equal(document.querySelector('h2')?.id, 'picture-');
+			assert.equal(document.querySelector('h3')?.id, '-sacrebleu--');
+		});
+	});
+});
+
 describe('Markdoc - Headings', () => {
 	let fixture;
 
@@ -33,6 +65,15 @@ describe('Markdoc - Headings', () => {
 			const { document } = parseHTML(html);
 
 			idTest(document);
+		});
+
+		it('applies IDs to headings containing special characters', async () => {
+			const res = await fixture.fetch('/headings-with-special-characters');
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			assert.equal(document.querySelector('h2')?.id, 'picture');
+			assert.equal(document.querySelector('h3')?.id, '-sacrebleu-');
 		});
 
 		it('generates the same IDs for other documents with the same headings', async () => {

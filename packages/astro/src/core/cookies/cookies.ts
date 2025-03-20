@@ -1,9 +1,9 @@
-import type { CookieSerializeOptions } from 'cookie';
+import type { SerializeOptions } from 'cookie';
 import { parse, serialize } from 'cookie';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export type AstroCookieSetOptions = Pick<
-	CookieSerializeOptions,
+	SerializeOptions,
 	'domain' | 'path' | 'expires' | 'maxAge' | 'httpOnly' | 'sameSite' | 'secure' | 'encode'
 >;
 
@@ -55,7 +55,7 @@ class AstroCookie implements AstroCookieInterface {
 
 class AstroCookies implements AstroCookiesInterface {
 	#request: Request;
-	#requestValues: Record<string, string> | null;
+	#requestValues: Record<string, string | undefined> | null;
 	#outgoing: Map<string, [string, string, boolean]> | null;
 	#consumed: boolean;
 	constructor(request: Request) {
@@ -83,7 +83,7 @@ class AstroCookies implements AstroCookiesInterface {
 			expires: _ignoredExpires,
 			...sanitizedOptions
 		} = options || {};
-		const serializeOptions: CookieSerializeOptions = {
+		const serializeOptions: SerializeOptions = {
 			expires: DELETED_EXPIRATION,
 			...sanitizedOptions,
 		};
@@ -120,7 +120,9 @@ class AstroCookies implements AstroCookiesInterface {
 		const values = this.#ensureParsed(options);
 		if (key in values) {
 			const value = values[key];
-			return new AstroCookie(value);
+			if (value) {
+				return new AstroCookie(value);
+			}
 		}
 	}
 
@@ -172,7 +174,7 @@ class AstroCookies implements AstroCookiesInterface {
 			}
 		}
 
-		const serializeOptions: CookieSerializeOptions = {};
+		const serializeOptions: SerializeOptions = {};
 		if (options) {
 			Object.assign(serializeOptions, options);
 		}
@@ -225,7 +227,9 @@ class AstroCookies implements AstroCookiesInterface {
 		return cookies.headers();
 	}
 
-	#ensureParsed(options: AstroCookieGetOptions | undefined = undefined): Record<string, string> {
+	#ensureParsed(
+		options: AstroCookieGetOptions | undefined = undefined,
+	): Record<string, string | undefined> {
 		if (!this.#requestValues) {
 			this.#parse(options);
 		}

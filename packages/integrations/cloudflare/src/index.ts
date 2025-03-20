@@ -7,7 +7,7 @@ import type {
 import type { PluginOption } from 'vite';
 
 import { createReadStream } from 'node:fs';
-import { appendFile, rename, stat } from 'node:fs/promises';
+import { appendFile, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import {
 	appendForwardSlash,
@@ -260,18 +260,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:build:done': async ({ pages, dir, logger, assets }) => {
 				await cloudflareModulePlugin.afterBuildCompleted(_config);
-				const PLATFORM_FILES = ['_headers', '_redirects', '_routes.json'];
-				if (_config.base !== '/') {
-					for (const file of PLATFORM_FILES) {
-						try {
-							await rename(new URL(file, _config.build.client), new URL(file, _config.outDir));
-						} catch (_e) {
-							logger.error(
-								`There was an error moving ${file} to the root of the output directory.`,
-							);
-						}
-					}
-				}
 
 				let redirectsExists = false;
 				try {
