@@ -621,7 +621,10 @@ export const AstroConfigSchema = z.object({
 									}),
 								),
 							localFontFamilySchema,
-							commonFontFamilySchema,
+							commonFontFamilySchema.transform((family) => ({
+								provider: GOOGLE_PROVIDER_NAME,
+								...family,
+							})),
 						]),
 					),
 				})

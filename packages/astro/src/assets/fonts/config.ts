@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BUILTIN_PROVIDERS, GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME } from './constants.js';
+import { BUILTIN_PROVIDERS, LOCAL_PROVIDER_NAME } from './constants.js';
 
 function dedupe<T>(arr: Array<T>): Array<T> {
 	return [...new Set(arr)];
@@ -96,7 +96,7 @@ export const localFontFamilySchema = z
 
 export const commonFontFamilySchema = z
 	.object({
-		provider: z.string().optional().default(GOOGLE_PROVIDER_NAME),
+		provider: z.string().optional(),
 	})
 	.merge(fontFamilyAttributesSchema.omit({ provider: true }))
 	.merge(resolveFontOptionsSchema.partial())
