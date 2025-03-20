@@ -49,12 +49,18 @@ export default (element: HTMLElement) =>
 			}
 		}
 
-		const bootstrap = client !== 'only' ? hydrate : render;
-
-		bootstrap(
-			h(Component, props, children != null ? h(StaticHtml, { value: children }) : children),
-			element,
+		const child = h(
+			Component,
+			props,
+			children != null ? h(StaticHtml, { value: children }) : children,
 		);
+
+		if (client === 'only') {
+			element.innerHTML = '';
+			render(child, element);
+		} else {
+			hydrate(child, element);
+		}
 
 		// Preact has no "unmount" option, but you can use `render(null, element)`
 		element.addEventListener('astro:unmount', () => render(null, element), { once: true });
