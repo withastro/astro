@@ -212,7 +212,7 @@ describe('Config Validation', () => {
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
 				configError.errors[0].message,
-				'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
+				'The option `i18n.routing.redirectToDefaultLocale` is only useful when the `i18n.routing.prefixDefaultLocale` is set to `true`. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `true`.',
 			);
 		});
 

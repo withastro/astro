@@ -703,20 +703,19 @@ export const AstroConfigPostIntegrationsSchema = z
 			}
 		}
 
-		// TODO: reenable
-		// if (
-		// 	config.i18n &&
-		// 	typeof config.i18n.routing !== 'string' &&
-		// 	config.i18n.routing.redirectToDefaultLocale &&
-		// 	!config.i18n.routing.prefixDefaultLocale
-		// ) {
-		// 	ctx.addIssue({
-		// 		code: z.ZodIssueCode.custom,
-		// 		message:
-		// 			'The option `i18n.routing.redirectToDefaultLocale` is only useful when the `i18n.routing.prefixDefaultLocale` is set to `true`. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `true`.',
-		// 		path: ['i18n', 'routing', 'redirectToDefaultLocale'],
-		// 	});
-		// }
+		if (
+			config.i18n &&
+			typeof config.i18n.routing !== 'string' &&
+			!config.i18n.routing.redirectToDefaultLocale &&
+			!config.i18n.routing.prefixDefaultLocale
+		) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message:
+					'The option `i18n.routing.redirectToDefaultLocale` is only useful when the `i18n.routing.prefixDefaultLocale` is set to `true`. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `true`.',
+				path: ['i18n', 'routing', 'redirectToDefaultLocale'],
+			});
+		}
 
 		if (config.outDir.toString().startsWith(config.publicDir.toString())) {
 			ctx.addIssue({
