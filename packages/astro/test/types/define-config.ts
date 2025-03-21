@@ -95,6 +95,8 @@ describe('defineConfig()', () => {
 						families: [
 							{ name: 'foo', provider: 'google' },
 							{ name: 'bar', provider: 'local', src: [] },
+							{ name: 'baz' },
+							'test',
 						],
 					},
 				},
@@ -107,11 +109,9 @@ describe('defineConfig()', () => {
 						never,
 						[
 							{ readonly name: 'foo'; readonly provider: 'google' },
-							{
-								readonly name: 'bar';
-								readonly provider: 'local';
-								readonly src: [];
-							},
+							{ readonly name: 'bar'; readonly provider: 'local'; readonly src: [] },
+							{ readonly name: 'baz' },
+							'test',
 						]
 					>
 				>();
@@ -122,6 +122,8 @@ describe('defineConfig()', () => {
 					[
 						{ readonly name: 'foo'; readonly provider: 'google' },
 						{ readonly name: 'bar'; readonly provider: 'local'; readonly src: [] },
+						{ readonly name: 'baz' },
+						'test',
 					]
 				>();
 			},

@@ -36,7 +36,7 @@ export type LocalFontFamily = z.infer<typeof localFontFamilySchema>;
 
 interface CommonFontFamily<TProvider extends string>
 	extends z.infer<typeof commonFontFamilySchema> {
-	provider: TProvider;
+	provider?: TProvider;
 }
 
 export type FontFamily<TProvider extends string> = TProvider extends LocalProviderName
