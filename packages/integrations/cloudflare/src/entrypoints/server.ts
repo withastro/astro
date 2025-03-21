@@ -6,7 +6,10 @@ import type {
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { setGetEnv } from 'astro/env/setup';
+import { env as globalEnv } from 'cloudflare:workers';
 import { createGetEnv } from '../utils/env.js';
+
+setGetEnv(createGetEnv(globalEnv as Env));
 
 type Env = {
 	[key: string]: unknown;
@@ -78,8 +81,6 @@ export function createExports(manifest: SSRManifest) {
 				},
 			},
 		};
-
-		setGetEnv(createGetEnv(env));
 
 		const response = await app.render(request, { routeData, locals });
 
