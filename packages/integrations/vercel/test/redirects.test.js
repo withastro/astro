@@ -16,6 +16,10 @@ describe('Redirects', () => {
 					status: 302,
 					destination: '/',
 				},
+				'/four': {
+					status: 302,
+					destination: 'http://example.com',
+				},
 				'/blog/[...slug]': '/team/articles/[...slug]',
 				'/Basic/http-2-0.html': '/posts/http2',
 			},
@@ -43,6 +47,10 @@ describe('Redirects', () => {
 		const threeRoute = config.routes.find((r) => r.src === '^/three$');
 		assert.equal(threeRoute.headers.Location, '/');
 		assert.equal(threeRoute.status, 302);
+
+		const fourRoute = config.routes.find((r) => r.src === '^/four$');
+		assert.equal(fourRoute.headers.Location, 'http://example.com');
+		assert.equal(fourRoute.status, 302);
 	});
 
 	it('define redirects for static files', async () => {
