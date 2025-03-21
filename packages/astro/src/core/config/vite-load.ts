@@ -3,6 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { type ViteDevServer, createServer } from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';
+import { AstroError, AstroErrorData, AstroUserError } from '../errors/index.js';
 
 async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDevServer> {
 	const viteServer = await createServer({
@@ -34,6 +35,13 @@ export async function loadConfigWithVite({
 			const config = await import(pathToFileURL(configPath).toString() + '?t=' + Date.now());
 			return config.default ?? {};
 		} catch (e) {
+			// Normally we silently ignore loading errors here because we'll try loading it again below using Vite
+			// However, if the error is because of addons being disabled we rethrow it immediately,
+			// because when this happens in Stackblitz, the Vite error below will be uncatchable
+			// and we want to provide a more helpful error message.
+			if (e && typeof e === 'object' && 'code' in e && e.code === 'ERR_DLOPEN_DISABLED') {
+				throw e;
+			}
 			// We do not need to throw the error here as we have a Vite fallback below
 			debug('Failed to load config with Node', e);
 		}
