@@ -1,3 +1,4 @@
+import { env as globalEnv } from 'cloudflare:workers';
 import type {
 	CacheStorage as CLOUDFLARE_CACHESTORAGE,
 	Request as CLOUDFLARE_REQUEST,
@@ -6,7 +7,6 @@ import type {
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { setGetEnv } from 'astro/env/setup';
-import { env as globalEnv } from 'cloudflare:workers';
 import { createGetEnv } from '../utils/env.js';
 
 setGetEnv(createGetEnv(globalEnv as Env));
