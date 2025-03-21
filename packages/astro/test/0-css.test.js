@@ -41,6 +41,7 @@ describe('CSS', function () {
 		);
 
 		describe('Astro Styles', () => {
+			// Fails
 			it('HTML and CSS scoped correctly', async () => {
 				const el1 = $('#dynamic-class');
 				const el2 = $('#dynamic-vis');
@@ -88,10 +89,12 @@ describe('CSS', function () {
 				assert.equal(inline.includes('display:contents'), true);
 			});
 
+			// Fails
 			it('<style lang="sass">', async () => {
 				assert.match(bundledCSS, /h1\[data-astro-cid-[^{]*\{color:#90ee90\}/);
 			});
 
+			// Fails
 			it('<style lang="scss">', async () => {
 				assert.match(bundledCSS, /h1\[data-astro-cid-[^{]*\{color:#ff69b4\}/);
 			});
@@ -108,20 +111,24 @@ describe('CSS', function () {
 		});
 
 		describe('Styles in src/', () => {
+			// Fails
 			it('.css', async () => {
 				assert.match(bundledCSS, /.linked-css[^{]*\{color:gold/);
 			});
 
+			// Fails
 			it('.sass', async () => {
 				assert.match(bundledCSS, /.linked-sass[^{]*\{color:#789/);
 			});
 
+			// Fails
 			it('.scss', async () => {
 				assert.match(bundledCSS, /.linked-scss[^{]*\{color:#6b8e23/);
 			});
 		});
 
 		describe('JSX', () => {
+			// Fails
 			it('.css', async () => {
 				const el = $('#react-css');
 				// 1. check HTML
@@ -130,6 +137,7 @@ describe('CSS', function () {
 				assert.equal(bundledCSS.includes('.react-title'), true);
 			});
 
+			// Fails
 			it('.module.css', async () => {
 				const el = $('#react-module-css');
 				const classes = el.attr('class').split(' ');
@@ -142,6 +150,7 @@ describe('CSS', function () {
 				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 
+			// Fails
 			it('.sass', async () => {
 				const el = $('#react-sass');
 
@@ -152,6 +161,7 @@ describe('CSS', function () {
 				assert.match(bundledCSS, /.react-sass-title[^{]*\{font-family:fantasy/);
 			});
 
+			// Fails
 			it('.scss', async () => {
 				const el = $('#react-scss');
 
@@ -162,6 +172,7 @@ describe('CSS', function () {
 				assert.match(bundledCSS, /.react-scss-title[^{]*\{font-family:fantasy/);
 			});
 
+			// Fails
 			it('.module.sass', async () => {
 				const el = $('#react-module-sass');
 				const classes = el.attr('class').split(' ');
@@ -174,6 +185,7 @@ describe('CSS', function () {
 				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 
+			// Fails
 			it('.module.scss', async () => {
 				const el = $('#react-module-scss');
 				const classes = el.attr('class').split(' ');
@@ -186,6 +198,7 @@ describe('CSS', function () {
 				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 
+			// Fails
 			it('.module.css ordering', () => {
 				const globalStyleClassIndex = bundledCSS.indexOf('.module-ordering');
 				const moduleStyleClassIndex = bundledCSS.indexOf('._module_ordering');
@@ -197,6 +210,7 @@ describe('CSS', function () {
 		});
 
 		describe('Vue', () => {
+			// Fails
 			it('<style>', async () => {
 				const el = $('#vue-css');
 
@@ -222,6 +236,7 @@ describe('CSS', function () {
 				assert.equal(bundledCSS.includes(`.vue-scoped[${scopeId}]`), true);
 			});
 
+			// Fails
 			it('<style module>', async () => {
 				const el = $('#vue-modules');
 				const classes = el.attr('class').split(' ');
@@ -234,6 +249,7 @@ describe('CSS', function () {
 				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:cursive`));
 			});
 
+			// Fails
 			it('<style lang="sass">', async () => {
 				const el = $('#vue-sass');
 
@@ -244,6 +260,7 @@ describe('CSS', function () {
 				assert.match(bundledCSS, /.vue-sass[^{]*\{font-family:cursive/);
 			});
 
+			// Fails
 			it('<style lang="scss">', async () => {
 				const el = $('#vue-scss');
 
@@ -256,6 +273,7 @@ describe('CSS', function () {
 		});
 
 		describe('Svelte', () => {
+			// Fails
 			it('<style>', async () => {
 				const el = $('#svelte-css');
 				const classes = el.attr('class').split(' ');
@@ -273,6 +291,7 @@ describe('CSS', function () {
 				);
 			});
 
+			// Fails
 			it('<style lang="sass">', async () => {
 				const el = $('#svelte-sass');
 				const classes = el.attr('class').split(' ');
@@ -290,6 +309,7 @@ describe('CSS', function () {
 				);
 			});
 
+			// Fails
 			it('<style lang="scss">', async () => {
 				const el = $('#svelte-scss');
 				const classes = el.attr('class').split(' ');
