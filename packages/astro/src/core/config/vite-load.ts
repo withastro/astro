@@ -3,7 +3,6 @@ import { pathToFileURL } from 'node:url';
 import { type ViteDevServer, createServer } from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';
-import { AstroError, AstroErrorData, AstroUserError } from '../errors/index.js';
 
 async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDevServer> {
 	const viteServer = await createServer({
