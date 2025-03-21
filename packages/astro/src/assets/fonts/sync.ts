@@ -10,6 +10,7 @@ export function syncFonts(settings: AstroSettings): void {
 	settings.injectedTypes.push({
 		filename: FONTS_TYPES_FILE,
 		content: `declare module 'astro:assets' {
+	/** @internal */
 	export type FontFamily = (${JSON.stringify(settings.config.experimental.fonts.families.map((family) => getFamilyName(family)))})[number];
 }
 `,
