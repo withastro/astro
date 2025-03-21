@@ -1,10 +1,10 @@
 # @astrojs/tailwind 💨
 
-This **[Astro integration][astro-integration]** brings [Tailwind's](https://tailwindcss.com/) utility CSS classes to every `.astro` file and [framework component](https://docs.astro.build/en/core-concepts/framework-components/) in your project, along with support for the Tailwind configuration file.
-
-## Documentation
-
-Read the [`@astrojs/tailwind` docs][docs]
+> ⚠️ **This integration is deprecated**
+>
+> [Tailwind CSS now offers a Vite plugin](https://tailwindcss.com/docs/installation/framework-guides/astro) which is the preferred way to use Tailwind 4 in Astro.
+>
+> Learn how to use Tailwind in your project in the Astro [“Styles and CSS”][docs] guide.
 
 ## Support
 
@@ -29,7 +29,7 @@ MIT
 Copyright (c) 2023–present [Astro][astro]
 
 [astro]: https://astro.build/
-[docs]: https://docs.astro.build/en/guides/integrations-guide/tailwind/
+[docs]: https://docs.astro.build/en/guides/styling/#tailwind
 [contributing]: https://github.com/withastro/astro/blob/main/CONTRIBUTING.md
 [coc]: https://github.com/withastro/.github/blob/main/CODE_OF_CONDUCT.md
 [community]: https://github.com/withastro/.github/blob/main/COMMUNITY_GUIDE.md
