@@ -318,6 +318,18 @@ describe('Middleware API in PROD mode, SSR', () => {
 		assert.equal(response.headers.get('content-type'), 'text/html');
 	});
 
+	it('can render a page that does not exist', async () => {
+		const request = new Request('http://example.com/does-not-exist');
+		const routeData = app.match(request);
+
+		const response = await app.render(request, { routeData });
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		assert.equal($('p').html(), null);
+		assert.equal($('span').html(), 'New content!!');
+	});
+
 	it('can set locals for prerendered pages to use', async () => {
 		const text = await fixture.readFile('/client/prerendered/index.html');
 		assert.equal(text.includes('<p>yes they can!</p>'), true);

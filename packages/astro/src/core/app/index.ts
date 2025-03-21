@@ -7,6 +7,7 @@ import {
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
 	responseSentSymbol,
+	DEFAULT_404_COMPONENT,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -88,7 +89,6 @@ export class App {
 	#baseWithoutTrailingSlash: string;
 	#pipeline: AppPipeline;
 	#adapterLogger: AstroIntegrationLogger;
-	#renderOptionsDeprecationWarningShown = false;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -330,6 +330,14 @@ export class App {
 			routeData = this.match(request);
 			this.#logger.debug('router', 'Astro matched the following route for ' + request.url);
 			this.#logger.debug('router', 'RouteData:\n' + routeData);
+		}
+		// At this point we haven't found a route that matches the request, so we create
+		// a "fake" 404 route, so we can call the RenderContext.render
+		// and hit the middleware, which might be able to return a correct Response.
+		if (!routeData) {
+			routeData = this.#manifestData.routes.find(
+				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
+			);
 		}
 		if (!routeData) {
 			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);
