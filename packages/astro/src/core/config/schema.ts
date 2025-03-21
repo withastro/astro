@@ -413,89 +413,7 @@ export const AstroConfigSchema = z.object({
 					.optional()
 					.default({}),
 			})
-			.optional()
-			.superRefine((i18n, ctx) => {
-				if (i18n) {
-					const { defaultLocale, locales: _locales, fallback, domains } = i18n;
-					const locales = _locales.map((locale) => {
-						if (typeof locale === 'string') {
-							return locale;
-						} else {
-							return locale.path;
-						}
-					});
-					if (!locales.includes(defaultLocale)) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: `The default locale \`${defaultLocale}\` is not present in the \`i18n.locales\` array.`,
-						});
-					}
-					if (fallback) {
-						for (const [fallbackFrom, fallbackTo] of Object.entries(fallback)) {
-							if (!locales.includes(fallbackFrom)) {
-								ctx.addIssue({
-									code: z.ZodIssueCode.custom,
-									message: `The locale \`${fallbackFrom}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
-								});
-							}
-
-							if (fallbackFrom === defaultLocale) {
-								ctx.addIssue({
-									code: z.ZodIssueCode.custom,
-									message: `You can't use the default locale as a key. The default locale can only be used as value.`,
-								});
-							}
-
-							if (!locales.includes(fallbackTo)) {
-								ctx.addIssue({
-									code: z.ZodIssueCode.custom,
-									message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
-								});
-							}
-						}
-					}
-					if (domains) {
-						const entries = Object.entries(domains);
-						const hasDomains = domains ? Object.keys(domains).length > 0 : false;
-						if (entries.length > 0 && !hasDomains) {
-							ctx.addIssue({
-								code: z.ZodIssueCode.custom,
-								message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domains"\`.`,
-							});
-						}
-
-						for (const [domainKey, domainValue] of entries) {
-							if (!locales.includes(domainKey)) {
-								ctx.addIssue({
-									code: z.ZodIssueCode.custom,
-									message: `The locale \`${domainKey}\` key in the \`i18n.domains\` record doesn't exist in the \`i18n.locales\` array.`,
-								});
-							}
-							if (!domainValue.startsWith('https') && !domainValue.startsWith('http')) {
-								ctx.addIssue({
-									code: z.ZodIssueCode.custom,
-									message:
-										"The domain value must be a valid URL, and it has to start with 'https' or 'http'.",
-									path: ['domains'],
-								});
-							} else {
-								try {
-									const domainUrl = new URL(domainValue);
-									if (domainUrl.pathname !== '/') {
-										ctx.addIssue({
-											code: z.ZodIssueCode.custom,
-											message: `The URL \`${domainValue}\` must contain only the origin. A subsequent pathname isn't allowed here. Remove \`${domainUrl.pathname}\`.`,
-											path: ['domains'],
-										});
-									}
-								} catch {
-									// no need to catch the error
-								}
-							}
-						}
-					}
-				}
-			}),
+			.optional(),
 	),
 	security: z
 		.object({
@@ -708,69 +626,36 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				.optional()
 				.default({}),
 		),
-	})
-		.transform((config) => {
-			// If the user changed `outDir`, we need to also update `build.client` and `build.server`
-			// the be based on the correct `outDir`
-			if (
-				config.outDir.toString() !==
-				resolveDirAsUrl(ASTRO_CONFIG_DEFAULTS.outDir, fileProtocolRoot).toString()
-			) {
-				const outDirPath = fileURLToPath(config.outDir);
-				config.build.client = resolveDirAsUrl(originalBuildClient, outDirPath);
-				config.build.server = resolveDirAsUrl(originalBuildServer, outDirPath);
-			}
+	}).transform((config) => {
+		// If the user changed `outDir`, we need to also update `build.client` and `build.server`
+		// the be based on the correct `outDir`
+		if (
+			config.outDir.toString() !==
+			resolveDirAsUrl(ASTRO_CONFIG_DEFAULTS.outDir, fileProtocolRoot).toString()
+		) {
+			const outDirPath = fileURLToPath(config.outDir);
+			config.build.client = resolveDirAsUrl(originalBuildClient, outDirPath);
+			config.build.server = resolveDirAsUrl(originalBuildServer, outDirPath);
+		}
 
-			// Handle `base` and `image.endpoint.route` trailing slash based on `trailingSlash` config
-			if (config.trailingSlash === 'never') {
-				config.base = prependForwardSlash(removeTrailingForwardSlash(config.base));
-				config.image.endpoint.route = prependForwardSlash(
-					removeTrailingForwardSlash(config.image.endpoint.route),
-				);
-			} else if (config.trailingSlash === 'always') {
-				config.base = prependForwardSlash(appendForwardSlash(config.base));
-				config.image.endpoint.route = prependForwardSlash(
-					appendForwardSlash(config.image.endpoint.route),
-				);
-			} else {
-				config.base = prependForwardSlash(config.base);
-				config.image.endpoint.route = prependForwardSlash(config.image.endpoint.route);
-			}
+		// Handle `base` and `image.endpoint.route` trailing slash based on `trailingSlash` config
+		if (config.trailingSlash === 'never') {
+			config.base = prependForwardSlash(removeTrailingForwardSlash(config.base));
+			config.image.endpoint.route = prependForwardSlash(
+				removeTrailingForwardSlash(config.image.endpoint.route),
+			);
+		} else if (config.trailingSlash === 'always') {
+			config.base = prependForwardSlash(appendForwardSlash(config.base));
+			config.image.endpoint.route = prependForwardSlash(
+				appendForwardSlash(config.image.endpoint.route),
+			);
+		} else {
+			config.base = prependForwardSlash(config.base);
+			config.image.endpoint.route = prependForwardSlash(config.image.endpoint.route);
+		}
 
-			return config;
-		})
-		.superRefine((configuration, ctx) => {
-			const { site, i18n, output, image, experimental } = configuration;
-			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
-			if (hasDomains) {
-				if (!site) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message:
-							"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
-					});
-				}
-				if (output !== 'server') {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: 'Domain support is only available when `output` is `"server"`.',
-					});
-				}
-			}
-			if (
-				!experimental.responsiveImages &&
-				(image.experimentalLayout ||
-					image.experimentalObjectFit ||
-					image.experimentalObjectPosition ||
-					image.experimentalBreakpoints)
-			) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message:
-						'The `experimentalLayout`, `experimentalObjectFit`, `experimentalObjectPosition` and `experimentalBreakpoints` options are only available when `experimental.responsiveImages` is enabled.',
-				});
-			}
-		});
+		return config;
+	});
 
 	return AstroConfigRelativeSchema;
 }
@@ -827,7 +712,7 @@ export const AstroConfigPostIntegrationsSchema = z
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
 				message:
-					'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
+					'The option `i18n.routing.redirectToDefaultLocale` is only useful when the `i18n.routing.prefixDefaultLocale` is set to `true`. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `true`.',
 				path: ['i18n', 'routing', 'redirectToDefaultLocale'],
 			});
 		}
@@ -841,7 +726,125 @@ export const AstroConfigPostIntegrationsSchema = z
 			});
 		}
 
-		// TODO: all superRefine
+		if (config.i18n) {
+			const { defaultLocale, locales: _locales, fallback, domains } = config.i18n;
+			const locales = _locales.map((locale) => {
+				if (typeof locale === 'string') {
+					return locale;
+				} else {
+					return locale.path;
+				}
+			});
+			if (!locales.includes(defaultLocale)) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: `The default locale \`${defaultLocale}\` is not present in the \`i18n.locales\` array.`,
+					path: ['i18n', 'locales'],
+				});
+			}
+			if (fallback) {
+				for (const [fallbackFrom, fallbackTo] of Object.entries(fallback)) {
+					if (!locales.includes(fallbackFrom)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `The locale \`${fallbackFrom}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+							path: ['i18n', 'fallbacks'],
+						});
+					}
+
+					if (fallbackFrom === defaultLocale) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `You can't use the default locale as a key. The default locale can only be used as value.`,
+							path: ['i18n', 'fallbacks'],
+						});
+					}
+
+					if (!locales.includes(fallbackTo)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
+							path: ['i18n', 'fallbacks'],
+						});
+					}
+				}
+			}
+			if (domains) {
+				const entries = Object.entries(domains);
+				const hasDomains = domains ? Object.keys(domains).length > 0 : false;
+				if (entries.length > 0 && !hasDomains) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `When specifying some domains, the property \`i18n.routing.strategy\` must be set to \`"domains"\`.`,
+						path: ['i18n', 'routing', 'strategy'],
+					});
+				}
+
+				if (hasDomains) {
+					if (!config.site) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message:
+								"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
+							path: ['site'],
+						});
+					}
+					if (config.output !== 'server') {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: 'Domain support is only available when `output` is `"server"`.',
+							path: ['output'],
+						});
+					}
+				}
+
+				for (const [domainKey, domainValue] of entries) {
+					if (!locales.includes(domainKey)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `The locale \`${domainKey}\` key in the \`i18n.domains\` record doesn't exist in the \`i18n.locales\` array.`,
+							path: ['i18n', 'domains'],
+						});
+					}
+					if (!domainValue.startsWith('https') && !domainValue.startsWith('http')) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message:
+								"The domain value must be a valid URL, and it has to start with 'https' or 'http'.",
+							path: ['i18n', 'domains'],
+						});
+					} else {
+						try {
+							const domainUrl = new URL(domainValue);
+							if (domainUrl.pathname !== '/') {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `The URL \`${domainValue}\` must contain only the origin. A subsequent pathname isn't allowed here. Remove \`${domainUrl.pathname}\`.`,
+									path: ['i18n', 'domains'],
+								});
+							}
+						} catch {
+							// no need to catch the error
+						}
+					}
+				}
+			}
+		}
+
+		if (
+			!config.experimental.responsiveImages &&
+			(config.image.experimentalLayout ||
+				config.image.experimentalObjectFit ||
+				config.image.experimentalObjectPosition ||
+				config.image.experimentalBreakpoints)
+		) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message:
+					'The `experimentalLayout`, `experimentalObjectFit`, `experimentalObjectPosition` and `experimentalBreakpoints` options are only available when `experimental.responsiveImages` is enabled.',
+				path: ['experimental', 'responsiveImages'],
+			});
+		}
 	});
 
 function resolveDirAsUrl(dir: string, root: string) {
