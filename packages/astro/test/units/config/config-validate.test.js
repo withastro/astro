@@ -219,6 +219,7 @@ describe('Config Validation', () => {
 		it('errors if a domains key does not exist', async () => {
 			const configError = await validateConfig({
 				output: 'server',
+				site: 'https://www.example.com',
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['es', 'en'],
@@ -237,6 +238,7 @@ describe('Config Validation', () => {
 		it('errors if a domains value is not an URL', async () => {
 			const configError = await validateConfig({
 				output: 'server',
+				site: 'https://www.example.com',
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['es', 'en'],
@@ -255,6 +257,7 @@ describe('Config Validation', () => {
 		it('errors if a domains value is not an URL with incorrect protocol', async () => {
 			const configError = await validateConfig({
 				output: 'server',
+				site: 'https://www.example.com',
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['es', 'en'],
@@ -273,6 +276,7 @@ describe('Config Validation', () => {
 		it('errors if a domain is a URL with a pathname that is not the home', async () => {
 			const configError = await validateConfig({
 				output: 'server',
+				site: 'https://www.example.com',
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['es', 'en'],
