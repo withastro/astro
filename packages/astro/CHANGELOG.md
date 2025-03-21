@@ -1,5 +1,17 @@
 # astro
 
+## 5.5.4
+
+### Patch Changes
+
+- [#13457](https://github.com/withastro/astro/pull/13457) [`968e713`](https://github.com/withastro/astro/commit/968e713c268e1b2176c9265b6c438c56105c2730) Thanks [@ascorbic](https://github.com/ascorbic)! - Sets correct response status text for custom error pages
+
+- [#13447](https://github.com/withastro/astro/pull/13447) [`d80ba2b`](https://github.com/withastro/astro/commit/d80ba2b27d33d2972ffa3242330fb00d0fc58ba9) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `site` was added to the generated redirects.
+
+- [#13481](https://github.com/withastro/astro/pull/13481) [`e9e9245`](https://github.com/withastro/astro/commit/e9e9245c7c0ad6e3bda2b7600ff2bd845921a19d) Thanks [@martrapp](https://github.com/martrapp)! - Makes server island work with the client router again.
+
+- [#13484](https://github.com/withastro/astro/pull/13484) [`8b5e4dc`](https://github.com/withastro/astro/commit/8b5e4dc733bccce7d77defdbb973204aa9b8126b) Thanks [@ascorbic](https://github.com/ascorbic)! - Display useful errors when config loading fails because of Node addons being disabled on Stackblitz
+
 ## 5.5.3
 
 ### Patch Changes

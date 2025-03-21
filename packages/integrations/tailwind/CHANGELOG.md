@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 6.0.1
+
+### Patch Changes
+
+- [#13471](https://github.com/withastro/astro/pull/13471) [`020c542`](https://github.com/withastro/astro/commit/020c54247909fadc2c80c89b226ba59565d12cbf) Thanks [@delucis](https://github.com/delucis)! - Updates the README to indicate that the Tailwind integration is deprecated
+
 ## 6.0.0
 
 ### Major Changes
