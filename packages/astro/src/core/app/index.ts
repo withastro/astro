@@ -331,6 +331,12 @@ export class App {
 			this.#logger.debug('router', 'Astro matched the following route for ' + request.url);
 			this.#logger.debug('router', 'RouteData:\n' + routeData);
 		}
+		// At this point we haven't found a route that matches the request, so we create
+		// a "fake" 404 route, so we can call the RenderContext.render
+		// and hit the middleware, which might be able to return a correct Response.
+		if (!routeData) {
+			routeData= this.#getKnownErrorRoute(404);
+		}
 		if (!routeData) {
 			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);
 			this.#logger.debug('router', "Here's the available routes:\n", this.#manifestData);
@@ -425,8 +431,7 @@ export class App {
 			clientAddress,
 		}: RenderErrorOptions,
 	): Promise<Response> {
-		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
-		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
+		const errorRouteData = this.#getKnownErrorRoute(status);
 		const url = new URL(request.url);
 		if (errorRouteData) {
 			if (errorRouteData.prerender) {
@@ -481,6 +486,11 @@ export class App {
 		const response = this.#mergeResponses(new Response(null, { status }), originalResponse);
 		Reflect.set(response, responseSentSymbol, true);
 		return response;
+	}
+	
+	#getKnownErrorRoute(status: number): RouteData | undefined {
+		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
+		return matchRoute(errorRoutePath, this.#manifestData);
 	}
 
 	#mergeResponses(
