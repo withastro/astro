@@ -37,3 +37,5 @@ export const DEFAULT_FALLBACKS: Record<string, Array<string>> = {
 	math: [],
 	fangsong: [],
 };
+
+export const FONTS_TYPES_FILE = 'fonts.d.ts';

@@ -90,9 +90,9 @@ it('loadFonts()', async () => {
 		true,
 	);
 	assert.equal(Array.from(hashToUrlMap.keys()).length > 0, true);
-	assert.deepStrictEqual(Array.from(resolvedMap.keys()), ['Roboto']);
+	assert.deepStrictEqual(Array.from(resolvedMap.keys()), ['Custom']);
 	assert.deepStrictEqual(logs, ['Fonts initialized']);
-	const css = resolvedMap.get('Roboto').css;
+	const css = resolvedMap.get('Custom').css;
 	assert.equal(
 		css.includes(':root { --astro-font-Custom: Custom, "Custom fallback: Arial", sans-serif; }'),
 		true,

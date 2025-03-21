@@ -7,7 +7,7 @@ const { fontsData } = await import('virtual:astro:assets/fonts/internal').catch(
 });
 
 interface Props {
-	family: string;
+	family: import('astro:assets').FontFamily;
 	preload?: boolean;
 }
 
