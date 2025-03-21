@@ -6,7 +6,8 @@ import {
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
-	responseSentSymbol, 
+	responseSentSymbol,
+	DEFAULT_404_COMPONENT,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -334,7 +335,9 @@ export class App {
 		// a "fake" 404 route, so we can call the RenderContext.render
 		// and hit the middleware, which might be able to return a correct Response.
 		if (!routeData) {
-			routeData = this.#manifestData.routes.find(route => route.route === "/404");
+			routeData = this.#manifestData.routes.find(
+				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
+			);
 		}
 		if (!routeData) {
 			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);
@@ -349,7 +352,7 @@ export class App {
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
 			const mod = await this.#pipeline.getModuleForRoute(routeData);
-			
+
 			const renderContext = await RenderContext.create({
 				pipeline: this.#pipeline,
 				locals,
