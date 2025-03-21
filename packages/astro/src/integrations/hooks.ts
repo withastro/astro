@@ -34,7 +34,7 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import { validateConfigPostIntegrations } from '../core/config/validate.js';
+import { validateConfigRefined } from '../core/config/validate.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -307,7 +307,8 @@ export async function runHookConfigSetup({
 		updatedSettings.renderers.push(astroJSXRenderer);
 	}
 
-	updatedSettings.config = await validateConfigPostIntegrations(updatedConfig);
+	// TODO: investigate validating for each integration
+	updatedSettings.config = await validateConfigRefined(updatedConfig);
 	return updatedSettings;
 }
 

@@ -660,7 +660,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 	return AstroConfigRelativeSchema;
 }
 
-export const AstroConfigPostIntegrationsSchema = z
+export const AstroConfigRefinedSchema = z
 	.custom<AstroConfig>()
 	.superRefine((config, ctx) => {
 		if (
