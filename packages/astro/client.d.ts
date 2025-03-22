@@ -108,22 +108,7 @@ declare module '*.avif' {
 	export default metadata;
 }
 declare module '*.svg' {
-	type Props = {
-		/**
-		 * Accessible, short-text description
-		 *
-		 *  {@link https://developer.mozilla.org/en-US/docs/Web/SVG/Element/title|MDN Reference}
-		 */
-		title?: string;
-		/**
-		 * Shorthand for setting the `height` and `width` properties
-		 */
-		size?: number | string;
-		/**
-		 * Override the default rendering mode for SVGs
-		 */
-		mode?: import('./dist/assets/utils/svg.js').SvgRenderMode;
-	} & astroHTML.JSX.SVGAttributes;
+	type Props = astroHTML.JSX.SVGAttributes;
 
 	const Component: ((_props: Props) => any) & ImageMetadata;
 	export default Component;
