@@ -10,7 +10,6 @@ import type {
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import { z } from 'zod';
-import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import { EnvSchema } from '../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
@@ -586,34 +585,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
 			session: z.boolean().optional(),
-			svg: z
-				.union([
-					z.boolean(),
-					z
-						.object({
-							mode: z.union([z.literal('inline'), z.literal('sprite')]).optional(),
-						})
-						.optional(),
-				])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.svg)
-				.transform((svgConfig) => {
-					// Handle normalization of `experimental.svg` config boolean values
-					if (typeof svgConfig === 'boolean') {
-						return svgConfig
-							? {
-									mode: 'inline' as SvgRenderMode,
-								}
-							: undefined;
-					} else {
-						if (!svgConfig.mode) {
-							return {
-								mode: 'inline' as SvgRenderMode,
-							};
-						}
-					}
-					return svgConfig;
-				}),
+			svg: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.svg),
 			serializeConfig: z
 				.boolean()
 				.optional()

@@ -26,6 +26,7 @@ export type {
 	ImageService,
 	LocalImageService,
 } from '../../assets/services/service.js';
+export type { SVGComponent } from '../../assets/utils/svg.js';
 export type {
 	GetImageResult,
 	ImageInputFormat,
