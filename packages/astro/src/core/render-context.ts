@@ -285,15 +285,12 @@ export class RenderContext {
 
 		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
 
-		// NOTE: the type here, unfortunately, doesn't help. When you add new methods to `APIContext`,
-		// they must be added here, manually.
-		const apiContext: APIContext = Object.create(context);
-		apiContext.props = props;
-		apiContext.redirect = redirect;
-		apiContext.callAction = createCallAction(apiContext);
-		apiContext.getActionResult = createGetActionResult(context.locals);
-		
-		return apiContext
+		return Object.assign(context, {
+			props,
+			redirect,
+			getActionResult: createGetActionResult(context.locals),
+			callAction: createCallAction(context),
+		});
 	}
 
 	async #executeRewrite(reroutePayload: RewritePayload) {
@@ -343,7 +340,7 @@ export class RenderContext {
 		const { cookies, params, pipeline, url, session } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
 
-		const _rewrite = async (reroutePayload: RewritePayload) => {
+		const rewrite = async (reroutePayload: RewritePayload) => {
 			return await this.#executeRewrite(reroutePayload);
 		};
 
@@ -371,9 +368,7 @@ export class RenderContext {
 			get preferredLocaleList() {
 				return renderContext.computePreferredLocaleList();
 			},
-			rewrite(...args) {
-				return _rewrite(...args)
-			},
+			rewrite,
 			request: this.request,
 			site: pipeline.site,
 			url,

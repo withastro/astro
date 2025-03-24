@@ -17,7 +17,7 @@ export const server = {
 			}),
 			z.object({ type: z.literal('rest-chunk'), image: z.instanceof(File), uploadId: z.string() }),
 		]),
-		handler: async (data, ctx) => {
+		handler: async (data) => {
 			if (data.type === 'first-chunk') {
 				const uploadId = Math.random().toString(36).slice(2);
 				return {
