@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      astro:
+        specifier: link:packages/astro
+        version: link:packages/astro
       astro-benchmark:
         specifier: workspace:*
         version: link:benchmark
@@ -493,6 +496,9 @@ importers:
       ci-info:
         specifier: ^4.2.0
         version: 4.2.0
+      ciorent:
+        specifier: ^0.0.16
+        version: 0.0.16
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -562,12 +568,6 @@ importers:
       neotraverse:
         specifier: ^0.6.18
         version: 0.6.18
-      p-limit:
-        specifier: ^6.2.0
-        version: 6.2.0
-      p-queue:
-        specifier: ^8.1.0
-        version: 8.1.0
       package-manager-detector:
         specifier: ^1.0.0
         version: 1.1.0
@@ -8921,6 +8921,9 @@ packages:
     resolution: {integrity: sha512-cYY9mypksY8NRqgDB1XD1RiJL338v/551niynFTGkZOO2LHuB2OmOYxDIe/ttN9AHwrqdum1360G3ald0W9kCg==}
     engines: {node: '>=8'}
 
+  ciorent@0.0.16:
+    resolution: {integrity: sha512-tjimeK7guKnWy6mj/KqD+LAiuXDos7eYl5YyTm2ji3U+0iHzrCjfPtSsOoa1I+EugSRe2jrWGlnTow49BXab4g==}
+
   cli-boxes@3.0.0:
     resolution: {integrity: sha512-/lzGpEWL/8PfI0BmBOPRwp0c/wFNX1RdUML3jK/RcSBA9T8mZDdQpqYBKtCFTOfQbwPqWEOpjqW+Fnayc0969g==}
     engines: {node: '>=10'}
@@ -9563,9 +9566,6 @@ packages:
   etag@1.8.1:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
-
-  eventemitter3@5.0.1:
-    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
 
   execa@8.0.1:
     resolution: {integrity: sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg==}
@@ -10889,14 +10889,6 @@ packages:
   p-map@2.1.0:
     resolution: {integrity: sha512-y3b8Kpd8OAN444hxfBbFfj1FY/RjtTd8tzYwhUqNYXx0fXx2iX4maP4Qr6qhIKbQXI02wTLAda4fYUbDagTUFw==}
     engines: {node: '>=6'}
-
-  p-queue@8.1.0:
-    resolution: {integrity: sha512-mxLDbbGIBEXTJL0zEx8JIylaj3xQ7Z/7eEVjcF9fJX4DBiH9oqe+oahYnlKKxm0Ci9TlWTyhSHgygxMxjIB2jw==}
-    engines: {node: '>=18'}
-
-  p-timeout@6.1.2:
-    resolution: {integrity: sha512-UbD77BuZ9Bc9aABo74gfXhNvzC9Tx7SxtHSh1fxvx3jTLLYvmVhiQZZrJzqqU0jKbN32kb5VOKiLEQI/3bIjgQ==}
-    engines: {node: '>=14.16'}
 
   p-try@2.2.0:
     resolution: {integrity: sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==}
@@ -15430,6 +15422,8 @@ snapshots:
 
   ci-info@4.2.0: {}
 
+  ciorent@0.0.16: {}
+
   cli-boxes@3.0.0: {}
 
   cli-cursor@4.0.0:
@@ -16001,8 +15995,6 @@ snapshots:
   esutils@2.0.3: {}
 
   etag@1.8.1: {}
-
-  eventemitter3@5.0.1: {}
 
   execa@8.0.1:
     dependencies:
@@ -17706,13 +17698,6 @@ snapshots:
       p-limit: 4.0.0
 
   p-map@2.1.0: {}
-
-  p-queue@8.1.0:
-    dependencies:
-      eventemitter3: 5.0.1
-      p-timeout: 6.1.2
-
-  p-timeout@6.1.2: {}
 
   p-try@2.2.0: {}
 

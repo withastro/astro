@@ -1,7 +1,7 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
-import pLimit from 'p-limit';
+import * as semaphore from 'ciorent/semaphore.js';
 import { ZodIssueCode, z } from 'zod';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
@@ -134,10 +134,10 @@ export function createGetCollection({
 		if (!import.meta.env?.DEV && cacheEntriesByCollection.has(collection)) {
 			entries = cacheEntriesByCollection.get(collection)!;
 		} else {
-			const limit = pLimit(10);
 			entries = await Promise.all(
-				lazyImports.map((lazyImport) =>
-					limit(async () => {
+				lazyImports.map(semaphore.task(
+				  semaphore.init(10),
+				  async (lazyImport) => {
 						const entry = await lazyImport();
 						return type === 'content'
 							? {

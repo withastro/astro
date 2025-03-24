@@ -6,7 +6,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
-import pLimit from 'p-limit';
+import * as semaphore from 'ciorent/semaphore.js';
 import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookRoutesResolved } from '../../../integrations/hooks.js';
@@ -505,22 +505,23 @@ export async function createRoutesList(
 	settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
 
 	// Check the prerender option for each route
-	const limit = pLimit(10);
-	let promises = [];
-	for (const route of routes) {
-		promises.push(
-			limit(async () => {
-				if (route.type !== 'page' && route.type !== 'endpoint') return;
-				const localFs = params.fsMod ?? nodeFs;
-				const content = await localFs.promises.readFile(
-					fileURLToPath(new URL(route.component, settings.config.root)),
-					'utf-8',
-				);
+  const checkPrerenderOption = semaphore.task(
+    semaphore.init(10),
+    async (route: RouteData) => {
+			if (route.type !== 'page' && route.type !== 'endpoint') return;
+			const localFs = params.fsMod ?? nodeFs;
+			const content = await localFs.promises.readFile(
+				fileURLToPath(new URL(route.component, settings.config.root)),
+				'utf-8',
+			);
 
-				await getRoutePrerenderOption(content, route, settings, logger);
-			}),
-		);
-	}
+			await getRoutePrerenderOption(content, route, settings, logger);
+		}
+  );
+
+	let promises = [];
+	for (const route of routes)
+		promises.push(checkPrerenderOption(route));
 	await Promise.all(promises);
 
 	// Report route collisions

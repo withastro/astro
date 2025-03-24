@@ -2,7 +2,7 @@ import nodeFs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
-import pLimit from 'p-limit';
+import * as semaphore from 'ciorent/semaphore.js';
 import { glob } from 'tinyglobby';
 import type { Plugin, ViteDevServer } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -286,79 +286,79 @@ export async function generateLookupMap({
 
 	// Run 10 at a time to prevent `await getEntrySlug` from accessing the filesystem all at once.
 	// Each await shouldn't take too long for the work to be noticeably slow too.
-	const limit = pLimit(10);
-	const promises: Promise<void>[] = [];
+	const lookup = semaphore.task(
+	  semaphore.init(10),
+		async (filePath: string) => {
+			const entryType = getEntryType(filePath, contentPaths, contentEntryExts, dataEntryExts);
+			// Globbed ignored or unsupported entry.
+			// Logs warning during type generation, should ignore in lookup map.
+			if (entryType !== 'content' && entryType !== 'data') return;
 
-	for (const filePath of contentGlob) {
-		promises.push(
-			limit(async () => {
-				const entryType = getEntryType(filePath, contentPaths, contentEntryExts, dataEntryExts);
-				// Globbed ignored or unsupported entry.
-				// Logs warning during type generation, should ignore in lookup map.
-				if (entryType !== 'content' && entryType !== 'data') return;
+			const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
+			if (!collection) throw UnexpectedLookupMapError;
 
-				const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
-				if (!collection) throw UnexpectedLookupMapError;
+			if (lookupMap[collection]?.type && lookupMap[collection].type !== entryType) {
+				throw new AstroError({
+					...AstroErrorData.MixedContentDataCollectionError,
+					message: AstroErrorData.MixedContentDataCollectionError.message(collection),
+				});
+			}
 
-				if (lookupMap[collection]?.type && lookupMap[collection].type !== entryType) {
+			if (entryType === 'content') {
+				const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
+				if (!contentEntryType) throw UnexpectedLookupMapError;
+
+				const { id, slug: generatedSlug } = getContentEntryIdAndSlug({
+					entry: pathToFileURL(filePath),
+					contentDir,
+					collection,
+				});
+				const slug = await getEntrySlug({
+					id,
+					collection,
+					generatedSlug,
+					fs,
+					fileUrl: pathToFileURL(filePath),
+					contentEntryType,
+				});
+				if (lookupMap[collection]?.entries?.[slug]) {
 					throw new AstroError({
-						...AstroErrorData.MixedContentDataCollectionError,
-						message: AstroErrorData.MixedContentDataCollectionError.message(collection),
+						...AstroErrorData.DuplicateContentEntrySlugError,
+						message: AstroErrorData.DuplicateContentEntrySlugError.message(
+							collection,
+							slug,
+							lookupMap[collection].entries[slug],
+							rootRelativePath(root, filePath),
+						),
+						hint:
+							slug !== generatedSlug
+								? `Check the \`slug\` frontmatter property in **${id}**.`
+								: undefined,
 					});
 				}
+				lookupMap[collection] = {
+					type: 'content',
+					entries: {
+					...lookupMap[collection]?.entries,
+						[slug]: rootRelativePath(root, filePath),
+					},
+				};
+			} else {
+				const id = getDataEntryId({ entry: pathToFileURL(filePath), contentDir, collection });
+				lookupMap[collection] = {
+					type: 'data',
+					entries: {
+						...lookupMap[collection]?.entries,
+						[id]: rootRelativePath(root, filePath),
+					},
+				};
+			}
+		}
+	);
 
-				if (entryType === 'content') {
-					const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
-					if (!contentEntryType) throw UnexpectedLookupMapError;
-
-					const { id, slug: generatedSlug } = getContentEntryIdAndSlug({
-						entry: pathToFileURL(filePath),
-						contentDir,
-						collection,
-					});
-					const slug = await getEntrySlug({
-						id,
-						collection,
-						generatedSlug,
-						fs,
-						fileUrl: pathToFileURL(filePath),
-						contentEntryType,
-					});
-					if (lookupMap[collection]?.entries?.[slug]) {
-						throw new AstroError({
-							...AstroErrorData.DuplicateContentEntrySlugError,
-							message: AstroErrorData.DuplicateContentEntrySlugError.message(
-								collection,
-								slug,
-								lookupMap[collection].entries[slug],
-								rootRelativePath(root, filePath),
-							),
-							hint:
-								slug !== generatedSlug
-									? `Check the \`slug\` frontmatter property in **${id}**.`
-									: undefined,
-						});
-					}
-					lookupMap[collection] = {
-						type: 'content',
-						entries: {
-							...lookupMap[collection]?.entries,
-							[slug]: rootRelativePath(root, filePath),
-						},
-					};
-				} else {
-					const id = getDataEntryId({ entry: pathToFileURL(filePath), contentDir, collection });
-					lookupMap[collection] = {
-						type: 'data',
-						entries: {
-							...lookupMap[collection]?.entries,
-							[id]: rootRelativePath(root, filePath),
-						},
-					};
-				}
-			}),
-		);
-	}
+	const promises: Promise<void>[] = [];
+	for (const filePath of contentGlob)
+		promises.push(lookup(filePath));
 
 	await Promise.all(promises);
 	return lookupMap;

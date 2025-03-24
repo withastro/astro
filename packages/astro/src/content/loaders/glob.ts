@@ -2,7 +2,7 @@ import { promises as fs, existsSync } from 'node:fs';
 import { relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, green } from 'kleur/colors';
-import pLimit from 'p-limit';
+import * as semaphore from 'ciorent/semaphore.js';
 import picomatch from 'picomatch';
 import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
@@ -257,7 +257,6 @@ export function glob(globOptions: GlobOptions): Loader {
 				return entryTypes.get(`.${ext}`);
 			}
 
-			const limit = pLimit(10);
 			const skippedFiles: Array<string> = [];
 
 			const contentDir = new URL('content/', config.srcDir);
@@ -276,6 +275,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				return configFiles.has(fileUrl.href);
 			}
 
+      const controlledSyncData = semaphore.task(semaphore.init(10), syncData);
 			await Promise.all(
 				files.map((entry) => {
 					if (isConfigFile(entry)) {
@@ -285,10 +285,9 @@ export function glob(globOptions: GlobOptions): Loader {
 						skippedFiles.push(entry);
 						return;
 					}
-					return limit(async () => {
-						const entryType = configForFile(entry);
-						await syncData(entry, baseDir, entryType);
-					});
+
+					const entryType = configForFile(entry);
+          return controlledSyncData(entry, baseDir, entryType);
 				}),
 			);
 

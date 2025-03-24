@@ -1,14 +1,14 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } from 'kleur/colors';
-import PLimit from 'p-limit';
-import PQueue from 'p-queue';
 import {
 	generateImagesForPath,
 	getStaticImageList,
 	prepareAssetsGenerationEnv,
 } from '../../assets/build/generate.js';
 import { type BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
+import * as semaphore from 'ciorent/semaphore.js';
+import 'ciorent'
 import {
 	isRelativePath,
 	joinPaths,
@@ -49,6 +49,8 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+
+const controlledGenerateImagesForPath = semaphore.wrap(generateImagesForPath);
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
@@ -126,7 +128,9 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
 		const assetsCreationPipeline = await prepareAssetsGenerationEnv(pipeline, totalCount);
-		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
+
+		const queue: Promise<any>[] = [];
+    const limiter = semaphore.init(Math.max(cpuCount, 1));
 
 		const assetsTimer = performance.now();
 		for (const [originalPath, transforms] of staticImageList) {
@@ -192,14 +196,10 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			//   to override Node’s os.cpus().length default.
 			// * Create a proper performance benchmark for asset transformations of
 			//   projects in varying sizes of source images and transforms.
-			queue
-				.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
-				.catch((e) => {
-					throw e;
-				});
+			queue.push(controlledGenerateImagesForPath(limiter, originalPath, transforms, assetsCreationPipeline));
 		}
 
-		await queue.onIdle();
+		await Promise.all(queue);
 		const assetsTimeEnd = performance.now();
 		logger.info(null, green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
 
@@ -242,6 +242,7 @@ async function generatePage(
 		mod: pageModule,
 	};
 
+  const controlledGeneratePathWithLogs = semaphore.wrap(generatePathWithLogs);
 	async function generatePathWithLogs(
 		path: string,
 		route: RouteData,
@@ -290,11 +291,14 @@ async function generatePage(
 
 		// Generate each paths
 		if (config.build.concurrency > 1) {
-			const limit = PLimit(config.build.concurrency);
+			const limiter = semaphore.init(config.build.concurrency);
 			const promises: Promise<void>[] = [];
 			for (let i = 0; i < paths.length; i++) {
 				const path = paths[i];
-				promises.push(limit(() => generatePathWithLogs(path, route, i, paths, true)));
+        promises.push(controlledGeneratePathWithLogs(
+          limiter,
+          path, route, i, paths, true
+        ));
 			}
 			await Promise.allSettled(promises);
 		} else {
