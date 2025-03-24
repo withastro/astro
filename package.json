@@ -51,7 +51,6 @@
   },
   "packageManager": "pnpm@10.5.1",
   "dependencies": {
-    "astro": "link:packages/astro",
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
