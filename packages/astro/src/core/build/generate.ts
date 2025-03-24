@@ -8,7 +8,6 @@ import {
 } from '../../assets/build/generate.js';
 import { type BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import * as semaphore from 'ciorent/semaphore.js';
-import 'ciorent'
 import {
 	isRelativePath,
 	joinPaths,
