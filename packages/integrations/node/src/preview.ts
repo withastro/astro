@@ -21,7 +21,7 @@ const createPreviewServer: CreatePreviewServer = async (preview) => {
 			);
 		}
 	} catch (err) {
-		if ((err as any).code === 'ERR_MODULE_NOT_FOUND') {
+		if ((err as any).code === 'ERR_MODULE_NOT_FOUND' && (err as any).url?.endsWith?.('/server/entry.mjs')) {
 			throw new AstroError(
 				`The server entrypoint ${fileURLToPath(
 					preview.serverEntrypoint,
