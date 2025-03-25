@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 4.0.6
+
+### Patch Changes
+
+- [#13470](https://github.com/withastro/astro/pull/13470) [`ecadb6b`](https://github.com/withastro/astro/commit/ecadb6b02e942feccf584547fe9c14d3d1e21ba6) Thanks [@ascorbic](https://github.com/ascorbic)! - Hides fallback content when rendering `client:only` island
+
 ## 4.0.5
 
 ### Patch Changes
