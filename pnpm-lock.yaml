@@ -278,7 +278,7 @@ importers:
         specifier: ^18.3.5
         version: 18.3.5(@types/react@18.3.19)
       astro:
-        specifier: ^5.5.4
+        specifier: workspace:*
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -341,7 +341,7 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^5.5.4
+        specifier: workspace:*
         version: link:../../packages/astro
 
   examples/portfolio:

@@ -37,9 +37,16 @@ export function getPrescripts(result: SSRResult, type: PrescriptType, directive:
 	// deps to be loaded immediately.
 	switch (type) {
 		case 'both':
-			return `${ISLAND_STYLES}<script>${getDirectiveScriptText(result, directive)};${
-				process.env.NODE_ENV === 'development' ? islandScriptDev : islandScript
-			}</script>`;
+			// return `${ISLAND_STYLES}<script>${getDirectiveScriptText(result, directive)};${
+			// 	process.env.NODE_ENV === 'development' ? islandScriptDev : islandScript
+			// }</script>`;
+			if (process.env.NODE_ENV === 'development') {
+				return `${ISLAND_STYLES}<script>${getDirectiveScriptText(result, directive)};
+</script><script src="astro:island-script-development" type="module"></script>`;
+			} else {
+				return `${ISLAND_STYLES}<script>${getDirectiveScriptText(result, directive)};
+</script><script src="astro:island-script" type="module"></script>`;
+			}
 		case 'directive':
 			return `<script>${getDirectiveScriptText(result, directive)}</script>`;
 		case null:

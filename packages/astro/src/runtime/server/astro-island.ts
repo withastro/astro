@@ -57,6 +57,7 @@ declare const Astro: {
 		}
 
 		connectedCallback() {
+			console.log("connectedCallback")
 			if (
 				!this.hasAttribute('await-children') ||
 				document.readyState === 'interactive' ||
@@ -201,7 +202,9 @@ declare const Astro: {
 		};
 
 		attributeChangedCallback() {
-			this.hydrate();
+			this.hydrate().catch((e) => {
+				console.error(`[astro-island] Error hydrating ${this.getAttribute('component-url')}`, e);
+			});
 		}
 
 		unmount = () => {
