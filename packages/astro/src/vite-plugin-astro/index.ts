@@ -152,6 +152,8 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					};
 				}
 				case 'script': {
+
+					console.log("ah im here!!", query)
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for scripts must include an index`);
 					}

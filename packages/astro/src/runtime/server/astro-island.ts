@@ -91,7 +91,7 @@ declare const Astro: {
 		async childrenConnectedCallback() {
 			let beforeHydrationUrl = this.getAttribute('before-hydration-url');
 			if (beforeHydrationUrl) {
-				await import(beforeHydrationUrl);
+				await import(/* @vite-ignore */ beforeHydrationUrl);
 			}
 			this.start();
 		}
@@ -108,8 +108,8 @@ declare const Astro: {
 					async () => {
 						const rendererUrl = this.getAttribute('renderer-url');
 						const [componentModule, { default: hydrator }] = await Promise.all([
-							import(this.getAttribute('component-url')!),
-							rendererUrl ? import(rendererUrl) : () => () => {},
+							import(/* @vite-ignore */ this.getAttribute('component-url')!),
+							rendererUrl ? import(/* @vite-ignore */ rendererUrl) : () => () => {},
 						]);
 						const componentExport = this.getAttribute('component-export') || 'default';
 						if (!componentExport.includes('.')) {
@@ -201,7 +201,9 @@ declare const Astro: {
 		};
 
 		attributeChangedCallback() {
-			this.hydrate();
+			this.hydrate().catch((e) => {
+				console.error(`[astro-island] Error hydrating ${this.getAttribute('component-url')}`, e);
+			});
 		}
 
 		unmount = () => {

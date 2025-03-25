@@ -143,6 +143,8 @@ declare module 'astro:transitions' {
 	export const ClientRouter: ClientRouterModule['default'];
 }
 
+declare module 'astro:internal-hashes' {}
+
 declare module 'astro:transitions/client' {
 	type TransitionRouterModule = typeof import('./dist/virtual-modules/transitions-router.js');
 	export const navigate: TransitionRouterModule['navigate'];

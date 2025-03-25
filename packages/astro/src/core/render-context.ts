@@ -259,6 +259,16 @@ export class RenderContext {
 			if (responseCookies) {
 				cookies.merge(responseCookies);
 			}
+			
+			const hashes = [
+				"ZR0ZAU8UNTzLmo/ApeWH0y1mVLT+XtFkvZ5nw32W8jI=",
+				"HDWxd14AUw8OvjrhhRRyyZFHCGnzxXGDrg59Qi8ayhc=",
+				"IUFD1DRojcB/vykHve5+J7sdItJPcp5EPYVWiGffQ/c=",
+				"GI/D8grziRZwfj/Mqmn+dcgU/i8sylHSR/IfobqcUT4=",
+				"cSNmhdbFlyTDRozeu9HPjo+B2S4QAeMp0RO41PqgAcA=",
+				"XN6a2Vn8uvpBr/WhdYPdK0jVeCzlcOD2XYaP10veV4Y=",
+			].map(hash => `'sha256-${hash}'`).join(' ');
+			response.headers.set('Content-Security-Policy', `script-src ${hashes}`);
 			return response;
 		};
 
