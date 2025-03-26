@@ -19,6 +19,7 @@ import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
+import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -131,9 +132,9 @@ export abstract class Pipeline {
 		if (this.resolvedActions) {
 			return this.resolvedActions;
 		} else if (this.actions) {
-			return this.actions;
+			return await this.actions();
 		}
-		return { server: {} };
+		return NOOP_ACTIONS_MOD;
 	}
 
 	async getAction(path: string): Promise<ActionClient<unknown, ActionAccept, ZodType>> {

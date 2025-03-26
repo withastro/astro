@@ -49,6 +49,7 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { NOOP_ACTIONS_MOD } from '../../actions/noop-actions.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
@@ -66,7 +67,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 
 		const actions: SSRActions = internals.astroActionsEntryPoint
 			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
-			: { server: {} };
+			: NOOP_ACTIONS_MOD;
 		manifest = createBuildManifest(
 			options.settings,
 			internals,
@@ -651,7 +652,7 @@ function createBuildManifest(
 				onRequest: middleware,
 			};
 		},
-		actions,
+		actions: () => actions,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,
