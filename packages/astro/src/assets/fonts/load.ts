@@ -12,7 +12,7 @@ import {
 } from './utils.js';
 import * as unifont from 'unifont';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
+import { DEFAULTS, GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME } from './constants.js';
 import type { FontFamily, FontProvider, PreloadData } from './types.js';
 import type { Storage } from 'unstorage';
 import type { generateFallbackFontFace } from './metrics.js';
@@ -122,7 +122,7 @@ export async function loadFonts({
 				},
 				// By default, unifont goes through all providers. We use a different approach
 				// where we specify a provider per font (default to google)
-				[family.provider],
+				[family.provider ?? GOOGLE_PROVIDER_NAME],
 			);
 
 			fonts = result.fonts.map((font) => ({
