@@ -1,6 +1,6 @@
 import type { AstroConfig } from '../../types/public/config.js';
 import { errorMap } from '../errors/index.js';
-import { AstroConfigRefinedSchema, createRelativeSchema } from './schema.js';
+import { AstroConfigRefinedSchema, createRelativeSchema } from './schemas/index.js';
 
 /** Turn raw config values into normalized values */
 export async function validateConfig(
