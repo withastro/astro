@@ -3,6 +3,7 @@ import os from 'node:os';
 import { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } from 'kleur/colors';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
+import { NOOP_ACTIONS_MOD } from '../../actions/noop-actions.js';
 import {
 	generateImagesForPath,
 	getStaticImageList,
@@ -49,7 +50,6 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
-import { NOOP_ACTIONS_MOD } from '../../actions/noop-actions.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();

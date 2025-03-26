@@ -1,4 +1,5 @@
 import type { ZodType } from 'zod';
+import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 import type { ActionAccept, ActionClient } from '../actions/runtime/virtual/server.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { ComponentInstance } from '../types/astro.js';
@@ -19,7 +20,6 @@ import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
-import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
