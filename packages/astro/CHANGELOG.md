@@ -1,5 +1,17 @@
 # astro
 
+## 5.5.5
+
+### Patch Changes
+
+- [#13510](https://github.com/withastro/astro/pull/13510) [`5b14d33`](https://github.com/withastro/astro/commit/5b14d33f81cdac0f7ac77186113dcce4369d848d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `astro:env` secrets used in actions would not be available
+
+- [#13485](https://github.com/withastro/astro/pull/13485) [`018fbe9`](https://github.com/withastro/astro/commit/018fbe90f4030bbc2b2db7589d750e5392f38e59) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused cookies to ignore custom decode function if has() had been called before
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
+- [#13483](https://github.com/withastro/astro/pull/13483) [`fc2dcb8`](https://github.com/withastro/astro/commit/fc2dcb83543d88af9e0920b90a035652d6db5166) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where an Astro adapter couldn't call the middleware when there isn't a route that matches the incoming request.
+
 ## 5.5.4
 
 ### Patch Changes
