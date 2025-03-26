@@ -1365,7 +1365,7 @@ export const ExperimentalFontsNotEnabled = {
 	title: 'Experimental fonts are not enabled',
 	message:
 		'The Font component is used but experimental fonts have not been registered in the config.',
-	hint: 'See TODO:',
+	hint: 'Check that you have enabled experimental fonts and also configured your preferred fonts.',
 } satisfies ErrorData;
 
 export const FontFamilyNotFound = {

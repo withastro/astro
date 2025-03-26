@@ -662,7 +662,7 @@ export const AstroConfigSchema = z.object({
 						if (!providersNames.includes(family.provider)) {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
-								message: `Invalid provider "${family.provider}". Please use of the following: ${providersNames.map((name) => `"${name}"`).join(', ')}`,
+								message: `Invalid provider "${family.provider}". Please use one of the following: ${providersNames.map((name) => `"${name}"`).join(', ')}`,
 								path: ['families', i, 'provider'],
 							});
 						}
@@ -671,7 +671,7 @@ export const AstroConfigSchema = z.object({
 							if (!VALID_CHAR_RE.test(family.as)) {
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,
-									message: `**as** property "${family.as}" contains invalid characters for CSS variable generation. Only letters, numbers, spaces, underscores and colons are allowed.`,
+									message: `**as** property "${family.as}" contains invalid characters for CSS variable generation. Only letters, numbers, spaces, underscores (\`_\`) and colons (\`:\`) are allowed.`,
 									path: ['families', i, 'as'],
 								});
 							}
@@ -692,10 +692,10 @@ export const AstroConfigSchema = z.object({
 								code: z.ZodIssueCode.custom,
 								message:
 									key === 'name' && existing === 'name'
-										? `Multiple families have the same **name** property: "${name}". Names have to be unique, you can override one of these family name by specifying the **as** property. Read more at TODO:`
+										? `Multiple families have the same **name** property: "${name}". Names must be unique. You can override one of these family names by specifying the **as** property. Read more at TODO:`
 										: key === 'as' && existing === 'as'
-											? `Multiple families have the same **as** property: "${name}". Names have to be unique, update one of these family **as** property to avoid conflicts. Read more at TODO:`
-											: `A family **name** property is conflicting with another family **as** property: "${name}". Either update the current **as** property or add a unique **as** property to the family that has a **name** property. Read more at TODO:`,
+											? `Multiple families have the same **as** property: "${name}". Names must be unique. Please rename one of the **as** properties to avoid conflicts. Read more at TODO:`
+											: `A family **name** property is conflicting with another family **as** property: "${name}". All **name** and **as** values must be unique. Please rename to avoid conflicts. Read more at TODO:`,
 								path: ['families', i, key],
 							});
 						}
