@@ -165,7 +165,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} else {
 						logger.info(
 							'SKIP_FORMAT',
-							`\n  @astrojs/tailwind requires additional configuration. Please refer to https://docs.astro.build/en/guides/integrations-guide/tailwind/`,
+							`\n  @tailwindcss/vite requires additional configuration. Please refer to https://docs.astro.build/en/guides/integrations-guide/tailwind/`,
 						);
 					}
 				} else {
