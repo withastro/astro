@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.13.2
+
+### Patch Changes
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
 ## 0.13.1
 
 ### Patch Changes
