@@ -86,11 +86,7 @@ async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
 		await withTakingALongTimeMsg({
 			name: integration.name,
 			hookName,
-			hookFn: () =>
-				hook({
-					...params(),
-					logger: integrationLogger,
-				} as any),
+			hookFn: () => hook(Object.assign(params(), { logger: integrationLogger }) as any),
 			logger,
 			integrationLogger,
 		});
