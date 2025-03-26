@@ -48,7 +48,7 @@ describe('astro/src/core/cookies', () => {
 			const cookies = new AstroCookies(req);
 
 			assert.ok(cookies.has('url'));
-			assert.equal(cookies.get('url', { decode } ).value, url);
+			assert.equal(cookies.get('url', { decode }).value, url);
 			assert.equal(cookies.get('url').value, encode(url));
 		});
 

@@ -119,7 +119,7 @@ class AstroCookies implements AstroCookiesInterface {
 			}
 		}
 		// decodeURIComponent is the default decode function for cookies
-		const decode = options?.decode ?? decodeURIComponent
+		const decode = options?.decode ?? decodeURIComponent;
 
 		const values = this.#ensureParsed();
 		if (key in values) {
