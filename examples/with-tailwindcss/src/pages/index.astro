@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 // Component Imports
+import Brand from '../components/Brand.astro';
 import Button from '../components/Button.astro';
 
 // Full Astro Component Syntax:
@@ -18,6 +19,7 @@ import Button from '../components/Button.astro';
 
 	<body>
 		<div class="grid place-items-center h-screen content-center">
+			<Brand>Astro</Brand>
 			<Button>Tailwind Button in Astro!</Button>
 			<a href="/markdown-page" class="p-4 underline">Markdown is also supported...</a>
 		</div>
