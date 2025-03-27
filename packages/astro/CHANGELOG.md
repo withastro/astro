@@ -1,5 +1,11 @@
 # astro
 
+## 5.5.6
+
+### Patch Changes
+
+- [#13429](https://github.com/withastro/astro/pull/13429) [`06de673`](https://github.com/withastro/astro/commit/06de673375f2339eb1bf8eda03d79177598979a9) Thanks [@ematipico](https://github.com/ematipico)! - The `ActionAPIContext.rewrite` method is deprecated and will be removed in a future major version of Astro
+
 ## 5.5.5
 
 ### Patch Changes
