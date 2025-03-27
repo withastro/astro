@@ -71,7 +71,7 @@ export class RenderContext {
 	 * A safety net in case of loops
 	 */
 	counter = 0;
-
+	
 	static async create({
 		locals = {},
 		middleware,
@@ -282,6 +282,7 @@ export class RenderContext {
 	createAPIContext(props: APIContext['props'], context: ActionAPIContext): APIContext {
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
+
 		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
 
 		return Object.assign(context, {
@@ -302,9 +303,7 @@ export class RenderContext {
 		// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 		// so Astro can't retrieve it from the emitted manifest.
 		if (
-			this.pipeline.serverLike === true &&
-			this.routeData.prerender === false &&
-			routeData.prerender === true
+			this.pipeline.serverLike && !this.routeData.prerender && routeData.prerender
 		) {
 			throw new AstroError({
 				...ForbiddenRewrite,
@@ -573,7 +572,10 @@ export class RenderContext {
 		const { pipeline, request, routeData, clientAddress } = this;
 
 		if (routeData.prerender) {
-			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
+			throw new AstroError({
+				...AstroErrorData.PrerenderClientAddressNotAvailable,
+				message: AstroErrorData.PrerenderClientAddressNotAvailable.message(routeData.component),
+			});
 		}
 
 		if (clientAddress) {
