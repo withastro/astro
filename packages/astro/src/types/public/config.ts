@@ -10,7 +10,6 @@ import type {
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
-import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
@@ -2087,7 +2086,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 *
 		 * @name experimental.svg
-		 * @type {boolean|object}
+		 * @type {boolean}
 		 * @default `undefined`
 		 * @version 5.x
 		 * @description
@@ -2118,30 +2117,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * For a complete overview, and to give feedback on this experimental API,
 		 * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
 		 */
-		svg?:
-			| boolean
-			| {
-					/**
-					 *
-					 * @name experimental.svg.mode
-					 * @type {string}
-					 * @default 'inline'
-					 *
-					 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
-					 *
-					 * - `inline`: Astro will inline the SVG content into your HTML output.
-					 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
-					 *
-					 * ```astro
-					 * ---
-					 * import Logo from './path/to/svg/file.svg';
-					 * ---
-					 *
-					 * <Logo size={24} mode="sprite" />
-					 * ```
-					 */
-					mode: SvgRenderMode;
-			  };
+		svg?: boolean;
 
 		/**
 		 * @name experimental.serializeConfig
