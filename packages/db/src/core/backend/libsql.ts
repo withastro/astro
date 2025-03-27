@@ -60,6 +60,8 @@ export class LibsqlBackend extends SqliteBackendBase {
 		throw new Error("Method not implemented.");
 	}
 	getTypeDeclarations(): string {
-		throw new Error("Method not implemented.");
+		return [
+			'export * from "@astrojs/db/runtime/backend/sqlite/libsqlTypes";',
+		].join('\n');
 	}
 }
