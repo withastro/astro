@@ -59,7 +59,11 @@ export function writeRedirectResponse(
 	statusCode: number,
 	location: string,
 ) {
-	const html = redirectTemplate({ status: statusCode, location });
+	const html = redirectTemplate({
+		status: statusCode,
+		absoluteLocation: location,
+		relativeLocation: location,
+	});
 	res.writeHead(statusCode, {
 		Location: location,
 		'Content-Type': 'text/html',

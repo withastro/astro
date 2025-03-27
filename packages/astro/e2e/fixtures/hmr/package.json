@@ -4,6 +4,6 @@
   "private": true,
   "devDependencies": {
     "astro": "workspace:*",
-    "sass": "^1.83.4"
+    "sass": "^1.86.0"
   }
 }

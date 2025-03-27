@@ -23,12 +23,13 @@ const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
 
 interface MdxProcessorExtraOptions {
 	sourcemap: boolean;
+	experimentalHeadingIdCompat: boolean;
 }
 
 export function createMdxProcessor(mdxOptions: MdxOptions, extraOptions: MdxProcessorExtraOptions) {
 	return createProcessor({
 		remarkPlugins: getRemarkPlugins(mdxOptions),
-		rehypePlugins: getRehypePlugins(mdxOptions),
+		rehypePlugins: getRehypePlugins(mdxOptions, extraOptions),
 		recmaPlugins: mdxOptions.recmaPlugins,
 		remarkRehypeOptions: mdxOptions.remarkRehype,
 		jsxImportSource: 'astro',
@@ -57,7 +58,10 @@ function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
 	return remarkPlugins;
 }
 
-function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
+function getRehypePlugins(
+	mdxOptions: MdxOptions,
+	{ experimentalHeadingIdCompat }: MdxProcessorExtraOptions,
+): PluggableList {
 	let rehypePlugins: PluggableList = [
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,
@@ -65,12 +69,17 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 		[rehypeRaw, { passThrough: nodeTypes }],
 	];
 
-	if (!isPerformanceBenchmark) {
+	const syntaxHighlight = mdxOptions.syntaxHighlight;
+	if (syntaxHighlight && !isPerformanceBenchmark) {
+		const syntaxHighlightType =
+			typeof syntaxHighlight === 'string' ? syntaxHighlight : syntaxHighlight?.type;
+		const excludeLangs =
+			typeof syntaxHighlight === 'object' ? syntaxHighlight?.excludeLangs : undefined;
 		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
-		if (mdxOptions.syntaxHighlight === 'shiki') {
-			rehypePlugins.push([rehypeShiki, mdxOptions.shikiConfig]);
-		} else if (mdxOptions.syntaxHighlight === 'prism') {
-			rehypePlugins.push(rehypePrism);
+		if (syntaxHighlightType === 'shiki') {
+			rehypePlugins.push([rehypeShiki, mdxOptions.shikiConfig, excludeLangs]);
+		} else if (syntaxHighlightType === 'prism') {
+			rehypePlugins.push([rehypePrism, excludeLangs]);
 		}
 	}
 
@@ -79,7 +88,10 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 	if (!isPerformanceBenchmark) {
 		// getHeadings() is guaranteed by TS, so this must be included.
 		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
-		rehypePlugins.push(rehypeHeadingIds, rehypeInjectHeadingsExport);
+		rehypePlugins.push(
+			[rehypeHeadingIds, { experimentalHeadingIdCompat }],
+			rehypeInjectHeadingsExport,
+		);
 	}
 
 	rehypePlugins.push(

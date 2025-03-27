@@ -1,10 +1,10 @@
 import { promises as fs, existsSync } from 'node:fs';
 import { relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import fastGlob from 'fast-glob';
 import { bold, green } from 'kleur/colors';
-import micromatch from 'micromatch';
 import pLimit from 'p-limit';
+import picomatch from 'picomatch';
+import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
 import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
@@ -236,8 +236,9 @@ export function glob(globOptions: GlobOptions): Loader {
 				logger.warn(`The base directory "${fileURLToPath(baseDir)}" does not exist.`);
 			}
 
-			const files = await fastGlob(globOptions.pattern, {
+			const files = await tinyglobby(globOptions.pattern, {
 				cwd: fileURLToPath(baseDir),
+				expandDirectories: false,
 			});
 
 			if (exists && files.length === 0) {
@@ -321,7 +322,7 @@ export function glob(globOptions: GlobOptions): Loader {
 			watcher.add(filePath);
 
 			const matchesGlob = (entry: string) =>
-				!entry.startsWith('../') && micromatch.isMatch(entry, globOptions.pattern);
+				!entry.startsWith('../') && picomatch.isMatch(entry, globOptions.pattern);
 
 			const basePath = fileURLToPath(baseDir);
 

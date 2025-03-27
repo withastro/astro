@@ -1,5 +1,17 @@
 # @astrojs/vue
 
+## 5.0.8
+
+### Patch Changes
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
+## 5.0.7
+
+### Patch Changes
+
+- [#13251](https://github.com/withastro/astro/pull/13251) [`3842ce5`](https://github.com/withastro/astro/commit/3842ce5ec9471d358042b3d9ef697cf06c7a91f6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the compiler could not be resolved automatically
+
 ## 5.0.6
 
 ### Patch Changes

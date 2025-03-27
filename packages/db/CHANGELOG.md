@@ -1,5 +1,32 @@
 # @astrojs/db
 
+## 0.14.9
+
+### Patch Changes
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
+- Updated dependencies [[`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e)]:
+  - @astrojs/studio@0.1.5
+
+## 0.14.8
+
+### Patch Changes
+
+- [#13343](https://github.com/withastro/astro/pull/13343) [`a001a75`](https://github.com/withastro/astro/commit/a001a75d6ec08378d607531dc73959bf0a9e079e) Thanks [@dreyfus92](https://github.com/dreyfus92)! - Fix Astro DB seed failing when project path contains spaces. This resolves by properly decoding URL pathnames that contain encoded spaces (%20) before passing them to Vite's ssrLoadModule.
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.4
+
+## 0.14.7
+
+### Patch Changes
+
+- [#13314](https://github.com/withastro/astro/pull/13314) [`797a948`](https://github.com/withastro/astro/commit/797a9480b23303329dd618633194cbfb3dccb459) Thanks [@jlebras](https://github.com/jlebras)! - Expose `ilike` function from `drizzle-orm`
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.4
+
 ## 0.14.6
 
 ### Patch Changes

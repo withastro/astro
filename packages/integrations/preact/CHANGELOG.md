@@ -1,5 +1,23 @@
 # @astrojs/preact
 
+## 4.0.7
+
+### Patch Changes
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
+## 4.0.6
+
+### Patch Changes
+
+- [#13470](https://github.com/withastro/astro/pull/13470) [`ecadb6b`](https://github.com/withastro/astro/commit/ecadb6b02e942feccf584547fe9c14d3d1e21ba6) Thanks [@ascorbic](https://github.com/ascorbic)! - Hides fallback content when rendering `client:only` island
+
+## 4.0.5
+
+### Patch Changes
+
+- [#13323](https://github.com/withastro/astro/pull/13323) [`80926fa`](https://github.com/withastro/astro/commit/80926fadc06492fcae55f105582b9dc8279da6b3) Thanks [@ematipico](https://github.com/ematipico)! - Updates `esbuild` and `vite` to the latest to avoid false positives audits warnings caused by `esbuild`.
+
 ## 4.0.4
 
 ### Patch Changes

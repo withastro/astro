@@ -81,14 +81,22 @@ export async function renderPage(
 		headers.set('Content-Length', body.byteLength.toString());
 	}
 	let status = init.status;
+	let statusText = init.statusText;
 	// Custom 404.astro and 500.astro are particular routes that must return a fixed status code
 	if (route?.route === '/404') {
 		status = 404;
+		if (statusText === 'OK') {
+			statusText = 'Not Found';
+		}
 	} else if (route?.route === '/500') {
 		status = 500;
+		if (statusText === 'OK') {
+			statusText = 'Internal Server Error';
+		}
 	}
+
 	if (status) {
-		return new Response(body, { ...init, headers, status });
+		return new Response(body, { ...init, headers, status, statusText });
 	} else {
 		return new Response(body, { ...init, headers });
 	}

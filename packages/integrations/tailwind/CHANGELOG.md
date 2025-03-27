@@ -1,5 +1,17 @@
 # @astrojs/tailwind
 
+## 6.0.2
+
+### Patch Changes
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
+## 6.0.1
+
+### Patch Changes
+
+- [#13471](https://github.com/withastro/astro/pull/13471) [`020c542`](https://github.com/withastro/astro/commit/020c54247909fadc2c80c89b226ba59565d12cbf) Thanks [@delucis](https://github.com/delucis)! - Updates the README to indicate that the Tailwind integration is deprecated
+
 ## 6.0.0
 
 ### Major Changes

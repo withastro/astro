@@ -279,6 +279,9 @@ export async function generateImagesForPath(
 				)
 			).data;
 		} catch (e) {
+			if (AstroError.is(e)) {
+				throw e;
+			}
 			const error = new AstroError(
 				{
 					...AstroErrorData.CouldNotTransformImage,

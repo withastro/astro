@@ -1,5 +1,41 @@
 # @astrojs/netlify
 
+## 6.2.4
+
+### Patch Changes
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
+## 6.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`042d1de`](https://github.com/withastro/astro/commit/042d1de901fd9aa66157ce078b28bcd9786e1373)]:
+  - @astrojs/internal-helpers@0.6.1
+  - @astrojs/underscore-redirects@0.6.0
+
+## 6.2.2
+
+### Patch Changes
+
+- [#13323](https://github.com/withastro/astro/pull/13323) [`80926fa`](https://github.com/withastro/astro/commit/80926fadc06492fcae55f105582b9dc8279da6b3) Thanks [@ematipico](https://github.com/ematipico)! - Updates `esbuild` and `vite` to the latest to avoid false positives audits warnings caused by `esbuild`.
+
+- Updated dependencies [[`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b)]:
+  - @astrojs/internal-helpers@0.6.0
+  - @astrojs/underscore-redirects@0.6.0
+
+## 6.2.1
+
+### Patch Changes
+
+- [#13299](https://github.com/withastro/astro/pull/13299) [`2e1321e`](https://github.com/withastro/astro/commit/2e1321e9d5b27da3e86bc4021e4136661a8055aa) Thanks [@bluwy](https://github.com/bluwy)! - Uses `tinyglobby` for globbing files
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
 ## 6.2.0
 
 ### Minor Changes

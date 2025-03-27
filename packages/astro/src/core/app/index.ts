@@ -3,6 +3,7 @@ import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import {
+	DEFAULT_404_COMPONENT,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
@@ -88,7 +89,6 @@ export class App {
 	#baseWithoutTrailingSlash: string;
 	#pipeline: AppPipeline;
 	#adapterLogger: AstroIntegrationLogger;
-	#renderOptionsDeprecationWarningShown = false;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -177,7 +177,7 @@ export class App {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		let routeData = matchRoute(pathname, this.#manifestData);
+		let routeData = matchRoute(decodeURI(pathname), this.#manifestData);
 
 		// missing routes fall-through, pre rendered are handled by static layer
 		if (!routeData || routeData.prerender) return undefined;
@@ -290,12 +290,20 @@ export class App {
 
 		if (redirect !== url.pathname) {
 			const status = request.method === 'GET' ? 301 : 308;
-			return new Response(redirectTemplate({ status, location: redirect, from: request.url }), {
-				status,
-				headers: {
-					location: redirect + url.search,
+			return new Response(
+				redirectTemplate({
+					status,
+					relativeLocation: url.pathname,
+					absoluteLocation: redirect,
+					from: request.url,
+				}),
+				{
+					status,
+					headers: {
+						location: redirect + url.search,
+					},
 				},
-			});
+			);
 		}
 
 		addCookieHeader = renderOptions?.addCookieHeader;
@@ -322,6 +330,14 @@ export class App {
 			routeData = this.match(request);
 			this.#logger.debug('router', 'Astro matched the following route for ' + request.url);
 			this.#logger.debug('router', 'RouteData:\n' + routeData);
+		}
+		// At this point we haven't found a route that matches the request, so we create
+		// a "fake" 404 route, so we can call the RenderContext.render
+		// and hit the middleware, which might be able to return a correct Response.
+		if (!routeData) {
+			routeData = this.#manifestData.routes.find(
+				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
+			);
 		}
 		if (!routeData) {
 			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);

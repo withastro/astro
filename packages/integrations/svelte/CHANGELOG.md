@@ -1,5 +1,29 @@
 # @astrojs/svelte
 
+## 7.0.8
+
+### Patch Changes
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
+## 7.0.7
+
+### Patch Changes
+
+- [#13470](https://github.com/withastro/astro/pull/13470) [`ecadb6b`](https://github.com/withastro/astro/commit/ecadb6b02e942feccf584547fe9c14d3d1e21ba6) Thanks [@ascorbic](https://github.com/ascorbic)! - Hides fallback content when rendering `client:only` island
+
+## 7.0.6
+
+### Patch Changes
+
+- [#13339](https://github.com/withastro/astro/pull/13339) [`a05e6ab`](https://github.com/withastro/astro/commit/a05e6ab7203e4f0eea6333699b6b7aec9f01752a) Thanks [@Hugos68](https://github.com/Hugos68)! - Fixes a case where `$props.id()` would not be unique across multiple islands
+
+## 7.0.5
+
+### Patch Changes
+
+- [#13323](https://github.com/withastro/astro/pull/13323) [`80926fa`](https://github.com/withastro/astro/commit/80926fadc06492fcae55f105582b9dc8279da6b3) Thanks [@ematipico](https://github.com/ematipico)! - Updates `esbuild` and `vite` to the latest to avoid false positives audits warnings caused by `esbuild`.
+
 ## 7.0.4
 
 ### Patch Changes

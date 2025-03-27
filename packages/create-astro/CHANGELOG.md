@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.11.1
+
+### Patch Changes
+
+- [#13257](https://github.com/withastro/astro/pull/13257) [`6012e06`](https://github.com/withastro/astro/commit/6012e061cdd07688be73d5d543ad3a055c373475) Thanks [@ADTC](https://github.com/ADTC)! - Modify the template README file to reflect the correct package manager
+
 ## 4.11.0
 
 ### Minor Changes

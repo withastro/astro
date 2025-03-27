@@ -73,84 +73,106 @@ function getImageComponentAttributes(props: Properties): MdxJsxAttribute[] {
 
 export function rehypeImageToComponent() {
 	return function (tree: Root, file: VFile) {
-		if (!file.data.astro?.imagePaths?.length) return;
+		if (!file.data.astro?.localImagePaths?.length && !file.data.astro?.remoteImagePaths?.length)
+			return;
 		const importsStatements: MdxjsEsm[] = [];
 		const importedImages = new Map<string, string>();
 
 		visit(tree, 'element', (node, index, parent) => {
-			if (!file.data.astro?.imagePaths?.length || node.tagName !== 'img' || !node.properties.src)
-				return;
+			if (node.tagName !== 'img' || !node.properties.src) return;
 
 			const src = decodeURI(String(node.properties.src));
 
-			if (!file.data.astro.imagePaths?.includes(src)) return;
+			const isLocalImage = file.data.astro?.localImagePaths?.includes(src);
+			const isRemoteImage = file.data.astro?.remoteImagePaths?.includes(src);
 
-			let importName = importedImages.get(src);
+			let element: MdxJsxFlowElementHast;
+			if (isLocalImage) {
+				let importName = importedImages.get(src);
 
-			if (!importName) {
-				importName = `__${importedImages.size}_${src.replace(/\W/g, '_')}__`;
+				if (!importName) {
+					importName = `__${importedImages.size}_${src.replace(/\W/g, '_')}__`;
 
-				importsStatements.push({
-					type: 'mdxjsEsm',
-					value: '',
-					data: {
-						estree: {
-							type: 'Program',
-							sourceType: 'module',
-							body: [
-								{
-									type: 'ImportDeclaration',
-									source: {
-										type: 'Literal',
-										value: src,
-										raw: JSON.stringify(src),
+					importsStatements.push({
+						type: 'mdxjsEsm',
+						value: '',
+						data: {
+							estree: {
+								type: 'Program',
+								sourceType: 'module',
+								body: [
+									{
+										attributes: [],
+										type: 'ImportDeclaration',
+										source: {
+											type: 'Literal',
+											value: src,
+											raw: JSON.stringify(src),
+										},
+										specifiers: [
+											{
+												type: 'ImportDefaultSpecifier',
+												local: { type: 'Identifier', name: importName },
+											},
+										],
 									},
-									specifiers: [
-										{
-											type: 'ImportDefaultSpecifier',
-											local: { type: 'Identifier', name: importName },
-										},
-									],
-								},
-							],
+								],
+							},
 						},
-					},
-				});
-				importedImages.set(src, importName);
-			}
+					});
+					importedImages.set(src, importName);
+				}
 
-			// Build a component that's equivalent to <Image src={importName} {...attributes} />
-			const componentElement: MdxJsxFlowElementHast = {
-				name: ASTRO_IMAGE_ELEMENT,
-				type: 'mdxJsxFlowElement',
-				attributes: [
-					...getImageComponentAttributes(node.properties),
-					{
-						name: 'src',
-						type: 'mdxJsxAttribute',
-						value: {
-							type: 'mdxJsxAttributeValueExpression',
-							value: importName,
-							data: {
-								estree: {
-									type: 'Program',
-									sourceType: 'module',
-									comments: [],
-									body: [
-										{
-											type: 'ExpressionStatement',
-											expression: { type: 'Identifier', name: importName },
-										},
-									],
+				// Build a component that's equivalent to <Image src={importName} {...attributes} />
+				element = {
+					name: ASTRO_IMAGE_ELEMENT,
+					type: 'mdxJsxFlowElement',
+					attributes: [
+						...getImageComponentAttributes(node.properties),
+						{
+							name: 'src',
+							type: 'mdxJsxAttribute',
+							value: {
+								type: 'mdxJsxAttributeValueExpression',
+								value: importName,
+								data: {
+									estree: {
+										type: 'Program',
+										sourceType: 'module',
+										comments: [],
+										body: [
+											{
+												type: 'ExpressionStatement',
+												expression: { type: 'Identifier', name: importName },
+											},
+										],
+									},
 								},
 							},
 						},
-					},
-				],
-				children: [],
-			};
+					],
+					children: [],
+				};
+			} else if (isRemoteImage) {
+				// Build a component that's equivalent to <Image src={url} {...attributes} />
+				element = {
+					name: ASTRO_IMAGE_ELEMENT,
+					type: 'mdxJsxFlowElement',
+					attributes: [
+						...getImageComponentAttributes(node.properties),
+						{
+							name: 'src',
+							type: 'mdxJsxAttribute',
+							value: src,
+						},
+					],
+					children: [],
+				};
+			} else {
+				return;
+			}
 
-			parent!.children.splice(index!, 1, componentElement);
+			parent!.children.splice(index!, 1, element);
 		});
 
 		// Add all the import statements to the top of the file for the images

@@ -15,16 +15,16 @@ export const server = {
 			handler: async ({ postId }) => {
 				await new Promise((r) => setTimeout(r, 500));
 
-				const { likes } = await db
+				const result  = await db
 					.update(Likes)
 					.set({
-						likes: sql`likes + 1`,
+						likes: sql`${Likes.likes} + 1`,
 					})
 					.where(eq(Likes.postId, postId))
 					.returning()
 					.get();
 
-				return likes;
+				return result?.likes;
 			},
 		}),
 

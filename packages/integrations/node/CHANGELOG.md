@@ -1,5 +1,25 @@
 # @astrojs/node
 
+## 9.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`042d1de`](https://github.com/withastro/astro/commit/042d1de901fd9aa66157ce078b28bcd9786e1373)]:
+  - @astrojs/internal-helpers@0.6.1
+
+## 9.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b)]:
+  - @astrojs/internal-helpers@0.6.0
+
+## 9.1.1
+
+### Patch Changes
+
+- [#13190](https://github.com/withastro/astro/pull/13190) [`c6bf6b3`](https://github.com/withastro/astro/commit/c6bf6b3b210d3cfd7a23d42815b1b5c58099736f) Thanks [@lee-arnold](https://github.com/lee-arnold)! - Fixes the image endpoint entrypoint
+
 ## 9.1.0
 
 ### Minor Changes

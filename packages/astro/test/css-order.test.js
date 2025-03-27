@@ -111,4 +111,23 @@ describe('CSS production ordering', () => {
 			}
 		});
 	});
+
+	describe('Changes order when transparentScriptOrder is enabled', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/css-order-transparent/',
+			});
+			await fixture.build();
+		});
+
+		it('should compile styles in the same order as they are found', async () => {
+			const html = await fixture.readFile('/index.html');
+
+			// The component declares red background first, then yellow
+			assert.match(html, /body\{background:red\}body\{background:#ff0/);
+		});
+	});
 });

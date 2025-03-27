@@ -72,7 +72,8 @@ export const ClientAddressNotAvailable = {
 export const PrerenderClientAddressNotAvailable = {
 	name: 'PrerenderClientAddressNotAvailable',
 	title: '`Astro.clientAddress` cannot be used inside prerendered routes.',
-	message: `\`Astro.clientAddress\` cannot be used inside prerendered routes`,
+	message: (name: string) =>
+		`\`Astro.clientAddress\` cannot be used inside prerendered route ${name}`,
 } satisfies ErrorData;
 /**
  * @docs
@@ -1805,6 +1806,18 @@ export const ActionCalledFromServerError = {
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Thrown in development mode when the actions file can't be loaded.
+ *
+ */
+export const ActionsCantBeLoaded = {
+	name: 'ActionsCantBeLoaded',
+	title: "Can't load the Astro actions.",
+	message: 'An unknown error was thrown while loading the Astro actions file.',
+} satisfies ErrorData;
 
 /**
  * @docs

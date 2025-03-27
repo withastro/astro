@@ -3,6 +3,7 @@ import { before, describe, it } from 'node:test';
 import { experimental_AstroContainer } from '../dist/container/index.js';
 import {
 	Fragment,
+	createAstro,
 	createComponent,
 	createHeadAndContent,
 	maybeRenderHead,
@@ -54,6 +55,43 @@ describe('Container', () => {
 		});
 
 		const container = await experimental_AstroContainer.create();
+		const response = await container.renderToString(Page);
+
+		assert.match(response, /hello world/);
+	});
+
+	it('Renders a div with hello world text', async () => {
+		const $$Astro = createAstro();
+		const Page = createComponent((result, props, slots) => {
+			const Astro = result.createAstro($$Astro, props, slots);
+			return Astro.rewrite('/example');
+		});
+
+		const Example = createComponent((result) => {
+			return render`${renderComponent(
+				result,
+				'BaseLayout',
+				BaseLayout,
+				{},
+				{
+					default: () => render`${maybeRenderHead(result)}<div>hello world</div>`,
+					head: () => render`
+						${renderComponent(
+							result,
+							'Fragment',
+							Fragment,
+							{ slot: 'head' },
+							{
+								default: () => render`<meta charset="utf-8">`,
+							},
+						)}
+					`,
+				},
+			)}`;
+		});
+
+		const container = await experimental_AstroContainer.create();
+		container.insertPageRoute('/example', Example);
 		const response = await container.renderToString(Page);
 
 		assert.match(response, /hello world/);

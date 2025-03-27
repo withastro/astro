@@ -1,5 +1,17 @@
 # @astrojs/upgrade
 
+## 0.5.1
+
+### Patch Changes
+
+- [#13395](https://github.com/withastro/astro/pull/13395) [`6d1c63f`](https://github.com/withastro/astro/commit/6d1c63fa46a624b1c4981d4324ebabf37cc2b958) Thanks [@bluwy](https://github.com/bluwy)! - Uses `package-manager-detector` to detect the package manager used in the project
+
+## 0.5.0
+
+### Minor Changes
+
+- [#13330](https://github.com/withastro/astro/pull/13330) [`5e7646e`](https://github.com/withastro/astro/commit/5e7646efc12d47bbb65d8c80a160f4f27329903c) Thanks [@ematipico](https://github.com/ematipico)! - Adds the ability to identify `bun` as the preferred package manager.
+
 ## 0.4.3
 
 ### Patch Changes

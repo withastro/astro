@@ -14,9 +14,9 @@ import {
 	underline,
 	yellow,
 } from 'kleur/colors';
+import { detect, resolveCommand } from 'package-manager-detector';
 import type { ResolvedServerUrls } from 'vite';
 import type { ZodError } from 'zod';
-import { getExecCommand } from '../cli/install-package.js';
 import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
 import {
 	AstroError,
@@ -111,9 +111,13 @@ export function serverShortcuts({ key, label }: { key: string; label: string }):
 export async function newVersionAvailable({ latestVersion }: { latestVersion: string }) {
 	const badge = bgYellow(black(` update `));
 	const headline = yellow(`▶ New version of Astro available: ${latestVersion}`);
-	const execCommand = await getExecCommand();
-
-	const details = `  Run ${cyan(`${execCommand} @astrojs/upgrade`)} to update`;
+	const packageManager = (await detect())?.agent ?? 'npm';
+	const execCommand = resolveCommand(packageManager, 'execute', ['@astrojs/upgrade']);
+	// NOTE: Usually it's impossible for `execCommand` to be null as `package-manager-detector` should
+	// already match a valid package manager
+	const details = !execCommand
+		? ''
+		: `  Run ${cyan(`${execCommand.command} ${execCommand.args.join(' ')}`)} to update`;
 	return ['', `${badge} ${headline}`, details, ''].join('\n');
 }
 
