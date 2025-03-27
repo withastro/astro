@@ -1,4 +1,4 @@
-import type {APIContext, AstroSharedContext} from '../../types/public/context.js';
+import type { APIContext, AstroSharedContext } from '../../types/public/context.js';
 import type { SerializedActionResult } from './virtual/shared.js';
 
 export type ActionPayload = {
@@ -46,8 +46,8 @@ export type ActionAPIContext = Pick<
 	 * @deprecated
 	 * The use of `rewrite` in Actions is deprecated
 	 */
-	rewrite:  AstroSharedContext['rewrite']
-}
+	rewrite: AstroSharedContext['rewrite'];
+};
 
 export type MaybePromise<T> = T | Promise<T>;
 

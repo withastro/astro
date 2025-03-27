@@ -71,7 +71,7 @@ export class RenderContext {
 	 * A safety net in case of loops
 	 */
 	counter = 0;
-	
+
 	static async create({
 		locals = {},
 		middleware,
@@ -302,9 +302,7 @@ export class RenderContext {
 		// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
 		// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 		// so Astro can't retrieve it from the emitted manifest.
-		if (
-			this.pipeline.serverLike && !this.routeData.prerender && routeData.prerender
-		) {
+		if (this.pipeline.serverLike && !this.routeData.prerender && routeData.prerender) {
 			throw new AstroError({
 				...ForbiddenRewrite,
 				message: ForbiddenRewrite.message(this.pathname, pathname, routeData.component),
