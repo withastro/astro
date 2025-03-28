@@ -69,6 +69,7 @@ async function withTakingALongTimeMsg<T>({
 	}
 }
 
+/** Executes the specified hook of the integration if present, and handles loggers */
 async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
 	integration,
 	hookName,
