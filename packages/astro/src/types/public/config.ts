@@ -12,7 +12,7 @@ import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
-import type { AstroConfigType } from '../../core/config/schema.js';
+import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
