@@ -13,7 +13,7 @@ npx wrangler kv namespace create SESSION
 
 This will log the id of the created namespace. You can then add it to your `wrangler.json`/`wrangler.toml` file like this:
 
-```json
+```jsonc
 // wrangler.json
 {
   "kv_namespaces": [
