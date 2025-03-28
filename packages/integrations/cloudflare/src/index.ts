@@ -145,20 +145,19 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				const isBuild = command === 'build';
 
+
 				if (config.experimental.session && !session?.driver) {
 					const bindingName = args?.sessionKVBindingName ?? 'SESSION';
 					logger.info(
-						`Configuring experimental session support using ${isBuild ? 'Cloudflare KV' : 'filesystem storage'}`,
+						`Configuring experimental session support using ${isBuild ? 'Cloudflare KV' : 'filesystem storage'}. Be sure to define a KV binding named "${bindingName}".`,
 					);
-					logger.info(`Be sure to define a KV binding named "${bindingName}".`);
+					logger.info(`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`);
 					session = isBuild
 						? {
 								...session,
 								driver: 'cloudflare-kv-binding',
 								options: {
-									// This is the name of the global variable where the KV namespace is stored
-									// in the worker. It is assigned to this inside the request handler.
-									binding: '__ASTRO_SESSION',
+									binding: bindingName,
 									...session?.options,
 								},
 							}
