@@ -3,6 +3,7 @@ import type {
 	CacheStorage as CLOUDFLARE_CACHESTORAGE,
 	Request as CLOUDFLARE_REQUEST,
 	ExecutionContext,
+	KVNamespace,
 } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
@@ -26,6 +27,13 @@ export interface Runtime<T extends object = object> {
 	};
 }
 
+declare global {
+	// eslint-disable-next-line no-var
+	var __ASTRO_SESSION_BINDING_NAME: string;
+	// eslint-disable-next-line no-var
+	var __ASTRO_SESSION: KVNamespace;
+}
+
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
@@ -35,7 +43,7 @@ export function createExports(manifest: SSRManifest) {
 		context: ExecutionContext,
 	) => {
 		const { pathname } = new URL(request.url);
-
+		globalThis.__ASTRO_SESSION = env[globalThis.__ASTRO_SESSION_BINDING_NAME] as KVNamespace;
 		// static assets fallback, in case default _routes.json is not used
 		if (manifest.assets.has(pathname)) {
 			return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));

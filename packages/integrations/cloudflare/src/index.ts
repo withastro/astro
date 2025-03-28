@@ -25,6 +25,7 @@ import {
 import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { setImageConfig } from './utils/image-config.js';
+import { fileURLToPath } from 'node:url';
 
 export type { Runtime } from './entrypoints/server.js';
 
@@ -71,6 +72,35 @@ export type Options = {
 	 * for reference on how these file types are exported
 	 */
 	cloudflareModules?: boolean;
+
+	/**
+	 * By default, Astro will be configured to use Cloudflare KV to store session data. If you want to use sessions, 
+	 * you must create a KV namespace and declare it in your wrangler config file. You can do this with the wrangler command:
+	 * 
+	 * ```sh
+	 * npx wrangler kv namespace create SESSION
+	 * ```
+	 * 
+	 * This will log the id of the created namespace. You can then add it to your `wrangler.json` file like this:
+	 * 
+	 * ```json
+	 * {
+	 *   "kv_namespaces": [
+	 *     {
+	 *       "binding": "SESSION",
+	 *       "id": "<your kv namespace id here>"
+	 *     }
+	 *   ]
+	 * }
+	 * ```
+	 * By default, the driver looks for the binding named `SESSION`, but you can override this by providing a different name here.
+	 * 
+	 * See https://developers.cloudflare.com/kv/concepts/kv-namespaces/ for more details on using KV namespaces.
+	 * 
+	 */
+
+	sessionKVBindingName?: string
+
 };
 
 function wrapWithSlashes(path: string): string {
@@ -111,6 +141,36 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				addWatchFile,
 				addMiddleware,
 			}) => {
+				let session = config.session;
+
+				const isBuild = command === 'build';
+
+				if (config.experimental.session && !session?.driver) {
+					const bindingName = args?.sessionKVBindingName ?? 'SESSION';
+					logger.info(
+						`Configuring experimental session support using ${isBuild ? 'Cloudflare KV' : 'filesystem storage'}`,
+					);
+					logger.info(`Be sure to define a KV binding named "${bindingName}".`);
+					session = isBuild
+						? {
+								...session,
+								driver: 'cloudflare-kv-binding',
+								options: {
+									binding: '__ASTRO_SESSION',
+									...session?.options,
+								},
+							}
+						: {
+								...session,
+								driver: 'fs-lite',
+								options: {
+									base: fileURLToPath(new URL('sessions', config.cacheDir)),
+									...session?.options,
+								},
+							};
+				}
+
+
 				updateConfig({
 					build: {
 						client: new URL(`.${wrapWithSlashes(config.base)}`, config.outDir),
@@ -118,6 +178,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						serverEntry: 'index.js',
 						redirects: false,
 					},
+					session,
 					vite: {
 						plugins: [
 							// https://developers.cloudflare.com/pages/functions/module-support/
@@ -254,6 +315,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					// in a global way, so we shim their access as `process.env.*`. This is not the recommended way for users to access environment variables. But we'll add this for compatibility for chosen variables. Mainly to support `@astrojs/db`
 					vite.define = {
 						'process.env': 'process.env',
+						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(args?.sessionKVBindingName ?? 'SESSION'),
 						...vite.define,
 					};
 				}
