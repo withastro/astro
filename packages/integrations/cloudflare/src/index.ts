@@ -156,6 +156,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								...session,
 								driver: 'cloudflare-kv-binding',
 								options: {
+									// This is the name of the global variable where the KV namespace is stored
+									// in the worker. It is assigned to this inside the request handler.
 									binding: '__ASTRO_SESSION',
 									...session?.options,
 								},
@@ -315,6 +317,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					// in a global way, so we shim their access as `process.env.*`. This is not the recommended way for users to access environment variables. But we'll add this for compatibility for chosen variables. Mainly to support `@astrojs/db`
 					vite.define = {
 						'process.env': 'process.env',
+						// Allows the request handler to know what the binding name is
 						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(args?.sessionKVBindingName ?? 'SESSION'),
 						...vite.define,
 					};
