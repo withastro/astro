@@ -1,15 +1,15 @@
 import { createRequire } from 'node:module';
 import type { FontProvider, ResolvedFontProvider } from '../types.js';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 
-export function resolveEntrypoint(root: URL, entrypoint: string): string {
+export function resolveEntrypoint(root: URL, entrypoint: string): URL {
 	const require = createRequire(root);
 
 	try {
-		return require.resolve(entrypoint);
+		return pathToFileURL(require.resolve(entrypoint));
 	} catch {
-		return fileURLToPath(new URL(entrypoint, root));
+		return new URL(entrypoint, root);
 	}
 }
 
@@ -51,7 +51,7 @@ export async function resolveProvider({
 	provider: { entrypoint, config },
 	resolveMod,
 }: ResolveProviderOptions): Promise<ResolvedFontProvider> {
-	const id = pathToFileURL(resolveEntrypoint(root, entrypoint.toString())).href;
+	const id = resolveEntrypoint(root, entrypoint.toString()).href;
 	const mod = await resolveMod(id);
 	const { provider } = validateMod(mod, id);
 	return { config, provider };

@@ -37,7 +37,6 @@ export const sharedFontOptionsSchema = z.object({
 	variationSettings: z.string().optional(),
 });
 
-// TODO: probably not needed anymore
 // a-z A-Z 0-9 space underscore colon
 export const VALID_CHAR_RE = /[\w ]/;
 
