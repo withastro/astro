@@ -16,12 +16,10 @@ import type {
 
 // TODO: jsdoc for everything, most of those end up in the public AstroConfig type
 
-export interface FontProvider<TName extends string> extends z.infer<typeof fontProviderSchema> {
-	name: TName;
-}
+export type FontProvider = z.infer<typeof fontProviderSchema>;
 
 export interface ResolvedFontProvider {
-	name: string;
+	name?: string;
 	provider: (config?: Record<string, any>) => unifont.Provider;
 	config?: Record<string, any>;
 }
@@ -38,7 +36,7 @@ interface ResolvedLocalFontFamily extends LocalFontFamily {
 	provider: LocalProviderName;
 }
 
-interface RemoteFontFamily<TProvider extends GoogleProviderName | FontProvider<string>>
+interface RemoteFontFamily<TProvider extends GoogleProviderName | FontProvider>
 	extends z.infer<typeof remoteFontFamilySchema> {
 	provider?: TProvider;
 }
@@ -48,10 +46,10 @@ interface ResolvedRemoteFontFamily
 	provider: ResolvedFontProvider;
 }
 
-export type FontFamily<TProvider extends BuiltInProvider | FontProvider<string>> =
+export type FontFamily<TProvider extends BuiltInProvider | FontProvider> =
 	TProvider extends GoogleProviderName
 		? RemoteFontFamily<TProvider>
-		: TProvider extends FontProvider<string>
+		: TProvider extends FontProvider
 			? RemoteFontFamily<TProvider>
 			: LocalFontFamily;
 

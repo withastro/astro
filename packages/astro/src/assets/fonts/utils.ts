@@ -282,7 +282,7 @@ export async function resolveFontFamily({
 	family,
 	...resolveProviderOptions
 }: Omit<ResolveProviderOptions, 'provider'> & {
-	family: FontFamily<BuiltInProvider | FontProvider<string>>;
+	family: FontFamily<BuiltInProvider | FontProvider>;
 }): Promise<ResolvedFontFamily> {
 	if (family.provider === LOCAL_PROVIDER_NAME || (!family.provider && 'src' in family)) {
 		return {
@@ -303,4 +303,53 @@ export async function resolveFontFamily({
 			provider,
 		}),
 	};
+}
+
+function sortObjectByKey<T extends Record<string, any>>(unordered: T): T {
+	const ordered = Object.keys(unordered)
+		.sort()
+		.reduce((obj, key) => {
+			// @ts-expect-error
+			obj[key] = unordered[key];
+			return obj;
+		}, {} as T);
+	return ordered;
+}
+
+/**
+ * Extracts providers from families so they can be consumed by unifont.
+ * It deduplicates them based on their config and provider name, to eg.
+ * allow using the same providers with different options.
+ */
+export function familiesToUnifontProviders({
+	families,
+	hashString,
+}: {
+	families: Array<ResolvedFontFamily>;
+	hashString: (value: string) => string;
+}): Array<unifont.Provider> {
+	const map = new Map<string, unifont.Provider>();
+
+	for (const { provider } of families) {
+		if (provider === LOCAL_PROVIDER_NAME) {
+			continue;
+		}
+
+		const unifontProvider = provider.provider(provider.config);
+		const hash = hashString(
+			JSON.stringify(
+				sortObjectByKey({
+					name: unifontProvider._name,
+					...provider.config,
+				}),
+			),
+		);
+		if (map.has(hash)) {
+			continue;
+		}
+		provider.name = unifontProvider._name;
+		map.set(hash, unifontProvider);
+	}
+
+	return [...map.values()];
 }

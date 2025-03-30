@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolveLocalFont } from './providers/local.js';
 import {
+	familiesToUnifontProviders,
 	generateFallbacksCSS,
 	generateFontFace,
 	getFamilyName,
@@ -44,12 +45,10 @@ export async function loadFonts({
 	generateCSSVariableName,
 }: Options): Promise<void> {
 	const { resolveFont } = await unifont.createUnifont(
-		// TODO: avoid initializing same providers several times
-		// TODO: handle same providers with different options
-		families
-			.filter((family) => family.provider !== LOCAL_PROVIDER_NAME)
-			.map((family) => family.provider.provider(family.provider.config)),
-		{ storage },
+		familiesToUnifontProviders({ families, hashString }),
+		{
+			storage,
+		},
 	);
 
 	for (const family of families) {
@@ -114,8 +113,9 @@ export async function loadFonts({
 					fallbacks: family.fallbacks,
 				},
 				// By default, unifont goes through all providers. We use a different approach
-				// where we specify a provider per font
-				[family.provider.name],
+				// where we specify a provider per font.
+				// Name has been set while extracting unifont providers from families
+				[family.provider.name!],
 			);
 
 			fonts = result.fonts.map((font) => ({

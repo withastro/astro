@@ -3,7 +3,6 @@ import type { FontProvider } from '../types.js';
 
 function adobe(config: Parameters<typeof providers.adobe>[0]) {
 	return defineFontProvider({
-		name: 'adobe',
 		entrypoint: 'astro/assets/fonts/providers/adobe',
 		config,
 	});
@@ -11,21 +10,18 @@ function adobe(config: Parameters<typeof providers.adobe>[0]) {
 
 function bunny() {
 	return defineFontProvider({
-		name: 'bunny',
 		entrypoint: 'astro/assets/fonts/providers/bunny',
 	});
 }
 
 function fontshare() {
 	return defineFontProvider({
-		name: 'fontshare',
 		entrypoint: 'astro/assets/fonts/providers/fontshare',
 	});
 }
 
 function fontsource() {
 	return defineFontProvider({
-		name: 'fontsource',
 		entrypoint: 'astro/assets/fonts/providers/fontsource',
 	});
 }
@@ -39,6 +35,6 @@ export const fontProviders = {
 };
 
 /** TODO: jsdoc */
-export function defineFontProvider<TName extends string>(provider: FontProvider<TName>) {
+export function defineFontProvider(provider: FontProvider) {
 	return provider;
 }

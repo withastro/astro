@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BUILTIN_PROVIDERS, GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME } from './constants.js';
+import { GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME } from './constants.js';
 
 function dedupe<T>(arr: Array<T>): Array<T> {
 	return [...new Set(arr)];
@@ -48,14 +48,6 @@ export const baseFamilyAttributesSchema = z.object({
 
 export const fontProviderSchema = z
 	.object({
-		name: z.string().superRefine((name, ctx) => {
-			if (BUILTIN_PROVIDERS.includes(name as any)) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: `"${name}" is a reserved provider name`,
-				});
-			}
-		}),
 		entrypoint: z.union([z.string(), z.instanceof(URL)]),
 		config: z.record(z.string(), z.any()).optional(),
 	})

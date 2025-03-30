@@ -3,7 +3,7 @@ import { expectTypeOf } from 'expect-type';
 import { defineConfig } from '../../dist/config/index.js';
 import type { AstroUserConfig } from '../../dist/types/public/index.js';
 import type { BuiltInProvider, FontFamily, FontProvider } from '../../dist/assets/fonts/types.js';
-import { fontProviders } from '../../dist/config/entrypoint.js';
+import { defineFontProvider } from '../../dist/config/entrypoint.js';
 
 function assertType<T>(data: T, cb: (data: NoInfer<T>) => void) {
 	cb(data);
@@ -66,7 +66,7 @@ describe('defineConfig()', () => {
 		assertType(defineConfig({}), (config) => {
 			expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, never>>();
 			expectTypeOf(config.experimental!.fonts!).toEqualTypeOf<
-				FontFamily<BuiltInProvider | FontProvider<string>>[]
+				FontFamily<BuiltInProvider | FontProvider>[]
 			>();
 		});
 
@@ -82,13 +82,15 @@ describe('defineConfig()', () => {
 			},
 		);
 
+		const provider = defineFontProvider({ entrypoint: '' });
+
 		assertType(
 			defineConfig({
 				experimental: {
 					fonts: [
 						{ name: 'foo', provider: 'google' },
 						{ name: 'bar', provider: 'local', src: [] },
-						{ name: 'baz', provider: fontProviders.fontsource() },
+						{ name: 'baz', provider },
 					],
 				},
 			}),
@@ -100,7 +102,7 @@ describe('defineConfig()', () => {
 						[
 							{ readonly name: 'foo'; readonly provider: 'google' },
 							{ readonly name: 'bar'; readonly provider: 'local'; readonly src: [] },
-							{ readonly name: 'baz'; readonly provider: FontProvider<'fontsource'> },
+							{ readonly name: 'baz'; readonly provider: FontProvider },
 						]
 					>
 				>();
@@ -108,7 +110,7 @@ describe('defineConfig()', () => {
 					[
 						{ readonly name: 'foo'; readonly provider: 'google' },
 						{ readonly name: 'bar'; readonly provider: 'local'; readonly src: [] },
-						{ readonly name: 'baz'; readonly provider: FontProvider<'fontsource'> },
+						{ readonly name: 'baz'; readonly provider: FontProvider },
 					]
 				>();
 			},

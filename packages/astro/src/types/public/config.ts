@@ -189,7 +189,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */ export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
-	TFontFamilies extends FontFamily<BuiltInProvider | FontProvider<string>>[] = never,
+	TFontFamilies extends FontFamily<BuiltInProvider | FontProvider>[] = never,
 > {
 	/**
 	 * @docs
@@ -2159,7 +2159,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * TODO:
 		 */
 		fonts?: [TFontFamilies] extends [never]
-			? FontFamily<BuiltInProvider | FontProvider<string>>[]
+			? FontFamily<BuiltInProvider | FontProvider>[]
 			: TFontFamilies;
 
 		/*
