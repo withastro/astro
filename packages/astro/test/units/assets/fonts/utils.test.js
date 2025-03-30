@@ -9,6 +9,7 @@ import {
 	isGenericFontFamily,
 	generateFallbacksCSS,
 	kebab,
+	resolveFontFamily,
 } from '../../../../dist/assets/fonts/utils.js';
 
 function createSpyCache() {
@@ -346,5 +347,93 @@ describe('fonts utils', () => {
 		assert.equal(kebab('snake_case'), 'snake-case');
 		assert.equal(kebab('  trim- '), 'trim');
 		assert.equal(kebab('de--dupe'), 'de-dupe');
+	});
+
+	describe('resolveFontFamily()', () => {
+		const root = new URL(import.meta.url);
+
+		it('handles the local provider correctly', async () => {
+			assert.deepStrictEqual(
+				await resolveFontFamily({
+					family: {
+						name: 'Custom',
+						provider: 'local',
+						src: [],
+					},
+					resolveMod: async () => ({ provider: () => {} }),
+					root,
+				}),
+				{
+					name: 'Custom',
+					provider: 'local',
+					src: [],
+				},
+			);
+			assert.deepStrictEqual(
+				await resolveFontFamily({
+					family: {
+						name: 'Custom',
+						src: [],
+					},
+					resolveMod: async () => ({ provider: () => {} }),
+					root,
+				}),
+				{
+					name: 'Custom',
+					provider: 'local',
+					src: [],
+				},
+			);
+		});
+
+		it('handles the google provider correctly', async () => {
+			let res = await resolveFontFamily({
+				family: {
+					name: 'Custom',
+					provider: 'google',
+				},
+				resolveMod: (id) => import(id),
+				root,
+			});
+			assert.equal(res.name, 'Custom');
+			// Required to make TS happy
+			if (res.provider !== 'local') {
+				const provider = res.provider.provider(res.provider.config);
+				assert.equal(provider._name, 'google');
+			}
+
+			res = await resolveFontFamily({
+				family: {
+					name: 'Custom',
+				},
+				resolveMod: (id) => import(id),
+				root,
+			});
+			assert.equal(res.name, 'Custom');
+			// Required to make TS happy
+			if (res.provider !== 'local') {
+				const provider = res.provider.provider(res.provider.config);
+				assert.equal(provider._name, 'google');
+			}
+		});
+
+		it('handles custom providers correctly', async () => {
+			const res = await resolveFontFamily({
+				family: {
+					name: 'Custom',
+					provider: {
+						entrypoint: '',
+					},
+				},
+				resolveMod: async () => ({ provider: () => Object.assign(() => {}, { _name: 'test' }) }),
+				root,
+			});
+			assert.equal(res.name, 'Custom');
+			if (res.provider !== 'local') {
+				// Required to make TS happy
+				const provider = res.provider.provider(res.provider.config);
+				assert.equal(provider._name, 'test');
+			}
+		});
 	});
 });
