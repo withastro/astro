@@ -1,11 +1,11 @@
-import type { ResolveFontOptions } from './types.js';
+import type { SharedFontOptions } from './types.js';
 
 export const GOOGLE_PROVIDER_NAME = 'google';
 export const LOCAL_PROVIDER_NAME = 'local';
 
 export const BUILTIN_PROVIDERS = [GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME] as const;
 
-export const DEFAULTS: ResolveFontOptions = {
+export const DEFAULTS: SharedFontOptions = {
 	weights: ['400'],
 	styles: ['normal', 'italic'],
 	subsets: ['cyrillic-ext', 'cyrillic', 'greek-ext', 'greek', 'vietnamese', 'latin-ext', 'latin'],

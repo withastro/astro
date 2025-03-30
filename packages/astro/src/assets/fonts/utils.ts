@@ -1,11 +1,24 @@
 import type * as unifont from 'unifont';
-import type { FontFamilyAttributes, FontType } from './types.js';
+import type {
+	BuiltInProvider,
+	FontFamily,
+	FontFamilyAttributes,
+	FontProvider,
+	FontType,
+	ResolvedFontFamily,
+} from './types.js';
 import { extname } from 'node:path';
-import { DEFAULT_FALLBACKS, FONT_TYPES } from './constants.js';
+import {
+	DEFAULT_FALLBACKS,
+	FONT_TYPES,
+	GOOGLE_PROVIDER_NAME,
+	LOCAL_PROVIDER_NAME,
+} from './constants.js';
 import type { Storage } from 'unstorage';
 import type { Logger } from '../../core/logger/core.js';
 import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { resolveProvider, type ResolveProviderOptions } from './providers/utils.js';
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
@@ -263,4 +276,31 @@ export function kebab(value: string) {
 
 export function getFamilyName(family: Pick<FontFamilyAttributes, 'name' | 'as'>): string {
 	return family.as ?? family.name;
+}
+
+export async function resolveFontFamily({
+	family,
+	...resolveProviderOptions
+}: Omit<ResolveProviderOptions, 'provider'> & {
+	family: FontFamily<BuiltInProvider | FontProvider<string>>;
+}): Promise<ResolvedFontFamily> {
+	if (family.provider === LOCAL_PROVIDER_NAME || (!family.provider && 'src' in family)) {
+		return {
+			...family,
+			provider: LOCAL_PROVIDER_NAME,
+		};
+	}
+
+	const provider =
+		family.provider === GOOGLE_PROVIDER_NAME || !family.provider
+			? await import('./providers/google.js').then((mod) => mod.google())
+			: family.provider;
+
+	return {
+		...family,
+		provider: await resolveProvider({
+			...resolveProviderOptions,
+			provider,
+		}),
+	};
 }

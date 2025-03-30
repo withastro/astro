@@ -1,12 +1,12 @@
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import type { ResolveMod } from './providers/utils.js';
-import type { PreloadData } from './types.js';
+import type { FontFamily, PreloadData } from './types.js';
 import xxhash from 'xxhash-wasm';
 import { isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { cache, createLogManager, extractFontType, kebab } from './utils.js';
+import { cache, createLogManager, extractFontType, kebab, resolveFontFamily } from './utils.js';
 import {
 	VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
@@ -103,16 +103,19 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		hashToUrlMap = new Map();
 		resolvedMap = new Map();
 
+		const root = settings.config.root;
+
 		await loadFonts({
-			root: settings.config.root,
+			root,
 			base: baseUrl,
-			providers: settings.config.experimental.fonts!.providers ?? [],
-			// TS is not smart enough
-			families: settings.config.experimental.fonts!.families as any,
+			families: await Promise.all(
+				settings.config.experimental.fonts!.map((family: FontFamily<any>) =>
+					resolveFontFamily({ family, resolveMod, root }),
+				),
+			),
 			storage,
 			hashToUrlMap,
 			resolvedMap,
-			resolveMod,
 			hashString: h64ToString,
 			generateFallbackFontFace,
 			getMetricsForFamily: async (name, font) => {
@@ -206,7 +209,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async buildEnd() {
-			if (sync || settings.config.experimental.fonts!.families.length === 0) {
+			if (sync || settings.config.experimental.fonts!.length === 0) {
 				cleanup();
 				return;
 			}

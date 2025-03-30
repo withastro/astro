@@ -3,14 +3,14 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
 	fontProviderSchema,
-	resolveFontOptionsSchema,
+	sharedFontOptionsSchema,
 	VALID_CHAR_RE,
 } from '../../../../dist/assets/fonts/config.js';
 
 describe('fonts schemas', () => {
-	it('resolveFontOptionsSchema', () => {
+	it('sharedFontOptionsSchema', () => {
 		assert.deepStrictEqual(
-			resolveFontOptionsSchema.safeParse({
+			sharedFontOptionsSchema.safeParse({
 				weights: ['400', 400, '500', 600, '100..900'],
 				styles: ['normal', 'normal', 'oblique'],
 				subsets: ['latin', 'latin', 'latin-extended'],

@@ -44,6 +44,24 @@ export function validateMod(
 
 export type ResolveMod = (id: string) => Promise<any>;
 
+export interface ResolveProviderOptions {
+	root: URL;
+	provider: FontProvider<any>;
+	resolveMod: ResolveMod;
+}
+
+export async function resolveProvider({
+	root,
+	provider: { name, entrypoint, config },
+	resolveMod,
+}: ResolveProviderOptions): Promise<ResolvedFontProvider> {
+	const id = pathToFileURL(resolveEntrypoint(root, entrypoint.toString())).href;
+	const mod = await resolveMod(id);
+	const { provider } = validateMod(mod, name);
+	return { name, config, provider };
+}
+
+// TODO: remove
 export async function resolveProviders({
 	root,
 	providers: _providers,

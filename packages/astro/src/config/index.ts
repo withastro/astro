@@ -16,14 +16,8 @@ import type { BuiltInProvider, FontFamily, FontProvider } from '../assets/fonts/
 export function defineConfig<
 	const TLocales extends Locales = never,
 	const TDriver extends SessionDriverName = never,
-	const TFontProviders extends FontProvider<string>[] = never,
-	const TFontFamilies extends (
-		| string
-		| FontFamily<
-				(TFontProviders extends never ? [] : TFontProviders)[number]['name'] | BuiltInProvider
-		  >
-	)[] = never,
->(config: AstroUserConfig<TLocales, TDriver, TFontProviders, TFontFamilies>) {
+	const TFontFamilies extends FontFamily<BuiltInProvider | FontProvider<string>>[] = never,
+>(config: AstroUserConfig<TLocales, TDriver, TFontFamilies>) {
 	return config;
 }
 

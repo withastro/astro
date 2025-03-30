@@ -189,13 +189,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */ export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
-	TFontProviders extends FontProvider<string>[] = never,
-	TFontFamilies extends (
-		| string
-		| FontFamily<
-				(TFontProviders extends never ? [] : TFontProviders)[number]['name'] | BuiltInProvider
-		  >
-	)[] = never,
+	TFontFamilies extends FontFamily<BuiltInProvider | FontProvider<string>>[] = never,
 > {
 	/**
 	 * @docs
@@ -2157,44 +2151,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 *
 		 * @name experimental.fonts
-		 * @type {object}
+		 * @type {FontFamily[]}
 		 * @default `undefined`
 		 * @version 5.x
 		 * @description
 		 *
 		 * TODO:
 		 */
-		fonts?: {
-			/**
-			 *
-			 * @name experimental.fonts.providers
-			 * @type {FontProvider[]}
-			 * @version 5.x
-			 * @description
-			 *
-			 * TODO:
-			 */
-			providers?: [TFontProviders] extends [never] ? FontProvider<string>[] : TFontProviders;
+		fonts?: [TFontFamilies] extends [never]
+			? FontFamily<BuiltInProvider | FontProvider<string>>[]
+			: TFontFamilies;
 
-			/**
-			 *
-			 * @name experimental.fonts.families
-			 * @type {FontFamily[]}
-			 * @version 5.x
-			 * @description
-			 *
-			 * TODO:
-			 */
-			families: [TFontFamilies] extends [never]
-				? (
-						| string
-						| FontFamily<
-								| ([TFontProviders] extends [never] ? [] : TFontProviders)[number]['name']
-								| BuiltInProvider
-						  >
-					)[]
-				: TFontFamilies;
-		};
 		/*
 		 * @name experimental.serializeConfig
 		 * @type {boolean}

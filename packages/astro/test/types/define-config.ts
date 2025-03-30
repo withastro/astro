@@ -2,7 +2,8 @@ import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
 import { defineConfig } from '../../dist/config/index.js';
 import type { AstroUserConfig } from '../../dist/types/public/index.js';
-import type { FontFamily, FontProvider } from '../../dist/assets/fonts/types.js';
+import type { BuiltInProvider, FontFamily, FontProvider } from '../../dist/assets/fonts/types.js';
+import { fontProviders } from '../../dist/config/entrypoint.js';
 
 function assertType<T>(data: T, cb: (data: NoInfer<T>) => void) {
 	cb(data);
@@ -11,7 +12,7 @@ function assertType<T>(data: T, cb: (data: NoInfer<T>) => void) {
 describe('defineConfig()', () => {
 	it('Infers i18n generics correctly', () => {
 		assertType(defineConfig({}), (config) => {
-			expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, never, never>>();
+			expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, never>>();
 			expectTypeOf(config.i18n!.defaultLocale).toEqualTypeOf<string>();
 		});
 
@@ -23,7 +24,7 @@ describe('defineConfig()', () => {
 				},
 			}),
 			(config) => {
-				expectTypeOf(config).toEqualTypeOf<AstroUserConfig<['en'], never, never, never>>();
+				expectTypeOf(config).toEqualTypeOf<AstroUserConfig<['en'], never, never>>();
 				expectTypeOf(config.i18n!.defaultLocale).toEqualTypeOf<'en'>();
 			},
 		);
@@ -36,7 +37,7 @@ describe('defineConfig()', () => {
 				},
 			}),
 			(config) => {
-				expectTypeOf(config).toEqualTypeOf<AstroUserConfig<['en', 'fr'], never, never, never>>();
+				expectTypeOf(config).toEqualTypeOf<AstroUserConfig<['en', 'fr'], never, never>>();
 				expectTypeOf(config.i18n!.defaultLocale).toEqualTypeOf<'en' | 'fr'>();
 			},
 		);
@@ -53,7 +54,6 @@ describe('defineConfig()', () => {
 					AstroUserConfig<
 						['en', { readonly path: 'french'; readonly codes: ['fr', 'fr-FR'] }],
 						never,
-						never,
 						never
 					>
 				>();
@@ -64,186 +64,51 @@ describe('defineConfig()', () => {
 
 	it('Infers fonts generics correctly', () => {
 		assertType(defineConfig({}), (config) => {
-			expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, never, never>>();
-			expectTypeOf(config.experimental!.fonts!.providers!).toEqualTypeOf<FontProvider<string>[]>();
-			expectTypeOf(config.experimental!.fonts!.families).toEqualTypeOf<
-				(string | FontFamily<'google' | 'local'>)[]
+			expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, never>>();
+			expectTypeOf(config.experimental!.fonts!).toEqualTypeOf<
+				FontFamily<BuiltInProvider | FontProvider<string>>[]
 			>();
 		});
 
 		assertType(
 			defineConfig({
 				experimental: {
-					fonts: {
-						families: [],
-					},
+					fonts: [],
 				},
 			}),
 			(config) => {
-				expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, never, []>>();
-				expectTypeOf(config.experimental!.fonts!.providers!).toEqualTypeOf<
-					FontProvider<string>[]
-				>();
-				expectTypeOf(config.experimental!.fonts!.families).toEqualTypeOf<[]>();
+				expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, []>>();
+				expectTypeOf(config.experimental!.fonts!).toEqualTypeOf<[]>();
 			},
 		);
 
 		assertType(
 			defineConfig({
 				experimental: {
-					fonts: {
-						families: [
-							{ name: 'foo', provider: 'google' },
-							{ name: 'bar', provider: 'local', src: [] },
-							{ name: 'baz' },
-							'test',
-						],
-					},
+					fonts: [
+						{ name: 'foo', provider: 'google' },
+						{ name: 'bar', provider: 'local', src: [] },
+						{ name: 'baz', provider: fontProviders.fontsource() },
+					],
 				},
 			}),
 			(config) => {
 				expectTypeOf(config).toEqualTypeOf<
 					AstroUserConfig<
-						never,
 						never,
 						never,
 						[
 							{ readonly name: 'foo'; readonly provider: 'google' },
 							{ readonly name: 'bar'; readonly provider: 'local'; readonly src: [] },
-							{ readonly name: 'baz' },
-							'test',
+							{ readonly name: 'baz'; readonly provider: FontProvider<'fontsource'> },
 						]
 					>
 				>();
-				expectTypeOf(config.experimental!.fonts!.providers!).toEqualTypeOf<
-					FontProvider<string>[]
-				>();
-				expectTypeOf(config.experimental!.fonts!.families).toEqualTypeOf<
+				expectTypeOf(config.experimental!.fonts!).toEqualTypeOf<
 					[
 						{ readonly name: 'foo'; readonly provider: 'google' },
 						{ readonly name: 'bar'; readonly provider: 'local'; readonly src: [] },
-						{ readonly name: 'baz' },
-						'test',
-					]
-				>();
-			},
-		);
-
-		assertType(
-			defineConfig({
-				experimental: {
-					fonts: {
-						providers: [],
-						families: [],
-					},
-				},
-			}),
-			(config) => {
-				expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, [], []>>();
-				expectTypeOf(config.experimental!.fonts!.providers!).toEqualTypeOf<[]>();
-				expectTypeOf(config.experimental!.fonts!.families).toEqualTypeOf<[]>();
-			},
-		);
-
-		assertType(
-			defineConfig({
-				experimental: {
-					fonts: {
-						providers: [{ name: 'adobe', entrypoint: '' }],
-						families: [],
-					},
-				},
-			}),
-			(config) => {
-				expectTypeOf(config).toEqualTypeOf<
-					AstroUserConfig<
-						never,
-						never,
-						[
-							{
-								readonly name: 'adobe';
-								readonly entrypoint: '';
-							},
-						],
-						[]
-					>
-				>();
-				expectTypeOf(config.experimental!.fonts!.providers!).toEqualTypeOf<
-					[
-						{
-							readonly name: 'adobe';
-							readonly entrypoint: '';
-						},
-					]
-				>();
-				expectTypeOf(config.experimental!.fonts!.families).toEqualTypeOf<[]>();
-			},
-		);
-
-		assertType(
-			defineConfig({
-				experimental: {
-					fonts: {
-						providers: [{ name: 'adobe', entrypoint: '' }],
-						families: [
-							{ name: 'foo', provider: 'google' },
-							{ name: 'bar', provider: 'local', src: [] },
-							{ name: 'baz', provider: 'adobe' },
-						],
-					},
-				},
-			}),
-			(config) => {
-				expectTypeOf(config).toEqualTypeOf<
-					AstroUserConfig<
-						never,
-						never,
-						[
-							{
-								readonly name: 'adobe';
-								readonly entrypoint: '';
-							},
-						],
-						[
-							{
-								readonly name: 'foo';
-								readonly provider: 'google';
-							},
-							{
-								readonly name: 'bar';
-								readonly provider: 'local';
-								readonly src: [];
-							},
-							{
-								readonly name: 'baz';
-								readonly provider: 'adobe';
-							},
-						]
-					>
-				>();
-				expectTypeOf(config.experimental!.fonts!.providers!).toEqualTypeOf<
-					[
-						{
-							readonly name: 'adobe';
-							readonly entrypoint: '';
-						},
-					]
-				>();
-				expectTypeOf(config.experimental!.fonts!.families).toEqualTypeOf<
-					[
-						{
-							readonly name: 'foo';
-							readonly provider: 'google';
-						},
-						{
-							readonly name: 'bar';
-							readonly provider: 'local';
-							readonly src: [];
-						},
-						{
-							readonly name: 'baz';
-							readonly provider: 'adobe';
-						},
+						{ readonly name: 'baz'; readonly provider: FontProvider<'fontsource'> },
 					]
 				>();
 			},

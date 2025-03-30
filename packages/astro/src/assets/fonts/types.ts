@@ -7,11 +7,11 @@ import type {
 } from './constants.js';
 import type * as unifont from 'unifont';
 import type {
-	commonFontFamilySchema,
-	fontFamilyAttributesSchema,
+	remoteFontFamilySchema,
+	baseFamilyAttributesSchema,
 	fontProviderSchema,
 	localFontFamilySchema,
-	resolveFontOptionsSchema,
+	sharedFontOptionsSchema,
 } from './config.js';
 
 // TODO: jsdoc for everything, most of those end up in the public AstroConfig type
@@ -26,22 +26,36 @@ export interface ResolvedFontProvider {
 	config?: Record<string, any>;
 }
 
-export type ResolveFontOptions = z.output<typeof resolveFontOptionsSchema>;
+export type SharedFontOptions = z.output<typeof sharedFontOptionsSchema>;
 
 export interface FontFamilyAttributes
-	extends z.infer<typeof fontFamilyAttributesSchema>,
-		Partial<ResolveFontOptions> {}
+	extends z.infer<typeof baseFamilyAttributesSchema>,
+		Partial<SharedFontOptions> {}
 
 export type LocalFontFamily = z.infer<typeof localFontFamilySchema>;
 
-interface CommonFontFamily<TProvider extends string>
-	extends z.infer<typeof commonFontFamilySchema> {
+interface ResolvedLocalFontFamily extends LocalFontFamily {
+	provider: LocalProviderName;
+}
+
+interface RemoteFontFamily<TProvider extends GoogleProviderName | FontProvider<string>>
+	extends z.infer<typeof remoteFontFamilySchema> {
 	provider?: TProvider;
 }
 
-export type FontFamily<TProvider extends string> = TProvider extends LocalProviderName
-	? LocalFontFamily
-	: CommonFontFamily<TProvider>;
+interface ResolvedRemoteFontFamily
+	extends Omit<z.output<typeof remoteFontFamilySchema>, 'provider'> {
+	provider: ResolvedFontProvider;
+}
+
+export type FontFamily<TProvider extends BuiltInProvider | FontProvider<string>> =
+	TProvider extends GoogleProviderName
+		? RemoteFontFamily<TProvider>
+		: TProvider extends FontProvider<string>
+			? RemoteFontFamily<TProvider>
+			: LocalFontFamily;
+
+export type ResolvedFontFamily = ResolvedLocalFontFamily | ResolvedRemoteFontFamily;
 
 export type LocalProviderName = typeof LOCAL_PROVIDER_NAME;
 export type GoogleProviderName = typeof GOOGLE_PROVIDER_NAME;
