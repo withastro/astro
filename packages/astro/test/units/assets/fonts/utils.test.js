@@ -10,6 +10,7 @@ import {
 	generateFallbacksCSS,
 	kebab,
 	resolveFontFamily,
+	familiesToUnifontProviders,
 } from '../../../../dist/assets/fonts/utils.js';
 
 function createSpyCache() {
@@ -434,6 +435,120 @@ describe('fonts utils', () => {
 				const provider = res.provider.provider(res.provider.config);
 				assert.equal(provider._name, 'test');
 			}
+		});
+
+		describe('familiesToUnifontProviders()', () => {
+			const hashString = (/** @type {string} */ value) => value;
+			const createProvider = (/** @type {string} */ name) => () =>
+				Object.assign(() => undefined, { _name: name });
+
+			it('skips local fonts', () => {
+				/** @type {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} */
+				const families = [
+					{
+						name: 'Custom',
+						provider: 'local',
+						src: [],
+					},
+				];
+				assert.deepStrictEqual(
+					familiesToUnifontProviders({
+						hashString,
+						families,
+					}).length,
+					0,
+				);
+				assert.deepStrictEqual(families, [
+					{
+						name: 'Custom',
+						provider: 'local',
+						src: [],
+					},
+				]);
+			});
+
+			/** @type {Array<Exclude<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily, { provider: 'local' }>>} */
+			let families = [];
+			assert.deepStrictEqual(familiesToUnifontProviders({ hashString, families }).length, 0);
+			assert.deepStrictEqual(families, []);
+
+			families = [
+				{
+					name: 'Custom',
+					provider: {
+						provider: createProvider('test'),
+					},
+				},
+			];
+			assert.equal(
+				familiesToUnifontProviders({
+					hashString,
+					families,
+				}).length,
+				1,
+			);
+			assert.deepEqual(
+				families.map((f) => f.provider.name),
+				['test-{"name":"test"}'],
+			);
+
+			families = [
+				{
+					name: 'Foo',
+					provider: {
+						provider: createProvider('test'),
+					},
+				},
+				{
+					name: 'Bar',
+					provider: {
+						provider: createProvider('test'),
+					},
+				},
+			];
+			assert.equal(
+				familiesToUnifontProviders({
+					hashString,
+					families,
+				}).length,
+				1,
+			);
+			assert.deepEqual(
+				families.map((f) => f.provider.name),
+				['test-{"name":"test"}', undefined],
+			);
+
+			families = [
+				{
+					name: 'Foo',
+					provider: {
+						provider: createProvider('test'),
+						config: {
+							x: 'foo'
+						}
+					},
+				},
+				{
+					name: 'Bar',
+					provider: {
+						provider: createProvider('test'),
+						config: {
+							x: 'bar'
+						}
+					},
+				},
+			];
+			assert.equal(
+				familiesToUnifontProviders({
+					hashString,
+					families,
+				}).length,
+				2,
+			);
+			assert.deepEqual(
+				families.map((f) => f.provider.name),
+				['test-{"name":"test","x":"foo"}', 'test-{"name":"test","x":"bar"}'],
+			);
 		});
 	});
 });
