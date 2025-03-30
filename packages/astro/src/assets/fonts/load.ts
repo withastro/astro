@@ -117,8 +117,7 @@ export async function loadFonts({
 					weights: family.weights ?? DEFAULTS.weights,
 					styles: family.styles ?? DEFAULTS.styles,
 					subsets: family.subsets ?? DEFAULTS.subsets,
-					// No default fallback to be used here
-					fallbacks: family.fallbacks,
+					fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
 				},
 				// By default, unifont goes through all providers. We use a different approach
 				// where we specify a provider per font (default to google)
