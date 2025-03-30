@@ -57,6 +57,9 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 
 			nonPrerenderOnlyEntryChunks.add(chunk);
 		}
+		if (chunk.type === 'chunk' && chunk.isDynamicEntry) {
+			nonPrerenderOnlyEntryChunks.add(chunk);
+		}
 	}
 
 	// From the `nonPrerenderedEntryChunks`, we crawl all the imports/dynamicImports to find all
