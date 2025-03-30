@@ -661,7 +661,7 @@ export const AstroConfigSchema = z.object({
 										? `Multiple font families have the same **name** property: "${name}". Names must be unique. You can override one of these family names by specifying the **as** property. Read more at TODO:`
 										: key === 'as' && existing === 'as'
 											? `Multiple font families have the same **as** property: "${name}". Names must be unique. Please rename one of the **as** properties to avoid conflicts. Read more at TODO:`
-											: `A family **name** property is conflicting with another family **as** property: "${name}". All **name** and **as** values must be unique. Please rename to avoid conflicts. Read more at TODO:`,
+											: `A font family **name** property is conflicting with another family **as** property: "${name}". All **name** and **as** values must be unique. Please rename to avoid conflicts. Read more at TODO:`,
 								path: ['fonts', i, key],
 							});
 						}

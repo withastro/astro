@@ -381,50 +381,20 @@ describe('Config Validation', () => {
 	});
 
 	describe('fonts', () => {
-		it('Should allow empty providers and families', () => {
+		it('Should allow empty fonts', () => {
 			assert.doesNotThrow(() =>
 				validateConfig({
 					experimental: {
-						fonts: {
-							providers: [],
-							families: [],
-						},
+						fonts: [],
 					},
 				}),
 			);
 		});
 
-		it('Tranforms family shorthand', async () => {
-			const config = await validateConfig({
-				experimental: {
-					fonts: {
-						families: ['Roboto'],
-					},
-				},
-			});
-			assert.deepEqual(config.experimental.fonts, {
-				families: [{ name: 'Roboto', provider: 'google' }],
-			});
-		});
-
-		it('Should not allow using non registed providers', async () => {
-			const configError = await validateConfig({
-				experimental: {
-					fonts: {
-						families: [{ provider: 'custom', name: 'foo' }],
-					},
-				},
-			}).catch((err) => err);
-			assert.equal(configError instanceof z.ZodError, true);
-			assert.equal(configError.errors[0].message.includes('Invalid provider "custom"'), true);
-		});
-
 		it('Should error on invalid families name', async () => {
 			let configError = await validateConfig({
 				experimental: {
-					fonts: {
-						families: [{ name: '(' }],
-					},
+					fonts: [{ name: '(' }],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
@@ -437,9 +407,7 @@ describe('Config Validation', () => {
 
 			configError = await validateConfig({
 				experimental: {
-					fonts: {
-						families: [{ name: '(', as: ')' }],
-					},
+					fonts: [{ name: '(', as: ')' }],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
@@ -454,48 +422,42 @@ describe('Config Validation', () => {
 		it('Should error on families name conflicts', async () => {
 			let configError = await validateConfig({
 				experimental: {
-					fonts: {
-						families: [{ name: 'Foo' }, { name: 'Foo' }],
-					},
+					fonts: [{ name: 'Foo' }, { name: 'Foo' }],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
 				configError.errors[0].message.includes(
-					'Multiple families have the same **name** property: "Foo"',
+					'Multiple font families have the same **name** property: "Foo"',
 				),
 				true,
 			);
 
 			configError = await validateConfig({
 				experimental: {
-					fonts: {
-						families: [
-							{ name: 'Foo', as: 'Bar' },
-							{ name: 'Foo', as: 'Bar' },
-						],
-					},
+					fonts: [
+						{ name: 'Foo', as: 'Bar' },
+						{ name: 'Foo', as: 'Bar' },
+					],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
 				configError.errors[0].message.includes(
-					'Multiple families have the same **as** property: "Bar"',
+					'Multiple font families have the same **as** property: "Bar"',
 				),
 				true,
 			);
 
 			configError = await validateConfig({
 				experimental: {
-					fonts: {
-						families: [{ name: 'Foo', as: 'Bar' }, { name: 'Bar' }],
-					},
+					fonts: [{ name: 'Foo', as: 'Bar' }, { name: 'Bar' }],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
 				configError.errors[0].message.includes(
-					'A family **name** property is conflicting with another family **as** property: "Bar"',
+					'A font family **name** property is conflicting with another family **as** property: "Bar"',
 				),
 				true,
 			);
