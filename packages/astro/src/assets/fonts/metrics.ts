@@ -55,6 +55,7 @@ export async function getMetricsForFamily(family: string) {
 }
 
 export async function readMetrics(family: string, buffer: Buffer) {
+	// TODO: https://github.com/seek-oss/capsize/pull/223
 	const metrics = await fromBlob(new Blob([buffer]));
 
 	metricCache[family] = filterRequiredMetrics(metrics);
