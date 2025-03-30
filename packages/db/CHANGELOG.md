@@ -1,5 +1,14 @@
 # @astrojs/db
 
+## 0.14.9
+
+### Patch Changes
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
+- Updated dependencies [[`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e)]:
+  - @astrojs/studio@0.1.5
+
 ## 0.14.8
 
 ### Patch Changes

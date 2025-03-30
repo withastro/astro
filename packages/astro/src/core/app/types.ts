@@ -77,7 +77,7 @@ export type SSRManifest = {
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
-	actions?: SSRActions;
+	actions?: () => Promise<SSRActions> | SSRActions;
 	checkOrigin: boolean;
 	sessionConfig?: ResolvedSessionConfig<any>;
 	cacheDir: string | URL;
