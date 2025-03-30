@@ -347,6 +347,9 @@ export function familiesToUnifontProviders({
 		if (map.has(hash)) {
 			continue;
 		}
+		// Makes sure every font uses the right instance of a given provider
+		// if this provider is provided several times with different options
+		unifontProvider._name += `-${hash}`;
 		provider.name = unifontProvider._name;
 		map.set(hash, unifontProvider);
 	}
