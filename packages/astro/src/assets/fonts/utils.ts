@@ -278,6 +278,7 @@ export function getFamilyName(family: Pick<FontFamilyAttributes, 'name' | 'as'>)
 	return family.as ?? family.name;
 }
 
+/** Resolves the font family provider. If none is provided, it will infer the correct one and resolve it. */
 export async function resolveFontFamily({
 	family,
 	...resolveProviderOptions
