@@ -74,15 +74,15 @@ export type Options = {
 	cloudflareModules?: boolean;
 
 	/**
-	 * By default, Astro will be configured to use Cloudflare KV to store session data. If you want to use sessions, 
+	 * By default, Astro will be configured to use Cloudflare KV to store session data. If you want to use sessions,
 	 * you must create a KV namespace and declare it in your wrangler config file. You can do this with the wrangler command:
-	 * 
+	 *
 	 * ```sh
 	 * npx wrangler kv namespace create SESSION
 	 * ```
-	 * 
+	 *
 	 * This will log the id of the created namespace. You can then add it to your `wrangler.json` file like this:
-	 * 
+	 *
 	 * ```json
 	 * {
 	 *   "kv_namespaces": [
@@ -94,13 +94,12 @@ export type Options = {
 	 * }
 	 * ```
 	 * By default, the driver looks for the binding named `SESSION`, but you can override this by providing a different name here.
-	 * 
+	 *
 	 * See https://developers.cloudflare.com/kv/concepts/kv-namespaces/ for more details on using KV namespaces.
-	 * 
+	 *
 	 */
 
-	sessionKVBindingName?: string
-
+	sessionKVBindingName?: string;
 };
 
 function wrapWithSlashes(path: string): string {
@@ -140,18 +139,21 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				logger,
 				addWatchFile,
 				addMiddleware,
+				createCodegenDir,
 			}) => {
 				let session = config.session;
 
 				const isBuild = command === 'build';
 
-
 				if (config.experimental.session && !session?.driver) {
+					const sessionDir = isBuild ? undefined : createCodegenDir();
 					const bindingName = args?.sessionKVBindingName ?? 'SESSION';
 					logger.info(
 						`Configuring experimental session support using ${isBuild ? 'Cloudflare KV' : 'filesystem storage'}. Be sure to define a KV binding named "${bindingName}".`,
 					);
-					logger.info(`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`);
+					logger.info(
+						`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
+					);
 					session = isBuild
 						? {
 								...session,
@@ -165,7 +167,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								...session,
 								driver: 'fs-lite',
 								options: {
-									base: fileURLToPath(new URL('sessions', config.cacheDir)),
+									base: fileURLToPath(new URL('sessions', sessionDir)),
 									...session?.options,
 								},
 							};
@@ -317,7 +319,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.define = {
 						'process.env': 'process.env',
 						// Allows the request handler to know what the binding name is
-						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(args?.sessionKVBindingName ?? 'SESSION'),
+						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(
+							args?.sessionKVBindingName ?? 'SESSION',
+						),
 						...vite.define,
 					};
 				}
