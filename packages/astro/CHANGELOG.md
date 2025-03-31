@@ -1,5 +1,17 @@
 # astro
 
+## 5.5.6
+
+### Patch Changes
+
+- [#13429](https://github.com/withastro/astro/pull/13429) [`06de673`](https://github.com/withastro/astro/commit/06de673375f2339eb1bf8eda03d79177598979a9) Thanks [@ematipico](https://github.com/ematipico)! - The `ActionAPIContext.rewrite` method is deprecated and will be removed in a future major version of Astro
+
+- [#13524](https://github.com/withastro/astro/pull/13524) [`82cd583`](https://github.com/withastro/astro/commit/82cd5832860d70ea7524473ae927db0cc2682b12) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the functions `Astro.preferredLocale` and `Astro.preferredLocaleList` would return the incorrect locales
+  when the Astro configuration specifies a list of `codes`. Before, the functions would return the `path`, instead now the functions
+  return a list built from `codes`.
+
+- [#13526](https://github.com/withastro/astro/pull/13526) [`ff9d69e`](https://github.com/withastro/astro/commit/ff9d69e3443c80059c54f6296d19f66bb068ead3) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update `vite` to the latest version
+
 ## 5.5.5
 
 ### Patch Changes

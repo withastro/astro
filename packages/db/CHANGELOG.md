@@ -1,5 +1,14 @@
 # @astrojs/db
 
+## 0.14.10
+
+### Patch Changes
+
+- [#13526](https://github.com/withastro/astro/pull/13526) [`ff9d69e`](https://github.com/withastro/astro/commit/ff9d69e3443c80059c54f6296d19f66bb068ead3) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update `vite` to the latest version
+
+- Updated dependencies [[`ff9d69e`](https://github.com/withastro/astro/commit/ff9d69e3443c80059c54f6296d19f66bb068ead3)]:
+  - @astrojs/studio@0.1.6
+
 ## 0.14.9
 
 ### Patch Changes
