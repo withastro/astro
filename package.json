@@ -69,7 +69,11 @@
     "@typescript-eslint/parser": "^7.1.1",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "esbuild": "^0.25.0",
+<<<<<<< HEAD
     "eslint": "^8.57.0",
+=======
+    "eslint": "^9.23.0",
+>>>>>>> 758523cc04c51cc4a0cd55fb7800552c9ff0a5fc
     "eslint-plugin-regexp": "^2.7.0",
     "eslint-plugin-react": "^7.34.0",
     "only-allow": "^1.2.1",
@@ -78,10 +82,15 @@
     "publint": "^0.3.9",
     "tinyglobby": "^0.2.12",
     "turbo": "^2.4.4",
+<<<<<<< HEAD
     "typescript": "^5.4.2",
     "typescript-eslint": "^8.27.0",
     "jest": "^29.7.0",
     "tailwindcss": "^3.4.1"
+=======
+    "typescript": "~5.8.2",
+    "typescript-eslint": "^8.28.0"
+>>>>>>> 758523cc04c51cc4a0cd55fb7800552c9ff0a5fc
   },
   "pnpm": {
     "peerDependencyRules": {
