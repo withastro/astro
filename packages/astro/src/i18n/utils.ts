@@ -1,6 +1,6 @@
 import type { SSRManifest } from '../core/app/types.js';
 import type { AstroConfig, Locales } from '../types/public/config.js';
-import { normalizeTheLocale, getAllCodes } from './index.js';
+import { getAllCodes, normalizeTheLocale } from './index.js';
 
 type BrowserLocale = {
 	locale: string;

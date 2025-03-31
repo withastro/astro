@@ -1701,7 +1701,6 @@ describe('[SSR] i18n routing', () => {
 			assert.equal(text.includes('Locale list: en, pt, it'), true);
 		});
 
-
 		it('should render the preferred locale when a locale is configured with codes', async () => {
 			let request = new Request('http://example.com/preferred-locale', {
 				headers: {

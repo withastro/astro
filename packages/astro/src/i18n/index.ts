@@ -238,7 +238,7 @@ export function getAllCodes(locales: Locales): string[] {
 			result.push(...loopLocale.codes);
 		}
 	}
-	return result
+	return result;
 }
 
 export function toCodes(locales: Locales): string[] {
@@ -250,7 +250,6 @@ export function toCodes(locales: Locales): string[] {
 		}
 	});
 }
-
 
 /**
  * It returns the array of paths
