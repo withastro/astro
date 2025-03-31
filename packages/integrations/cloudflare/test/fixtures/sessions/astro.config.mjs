@@ -9,7 +9,4 @@ export default defineConfig({
       enabled: true,
     },
   }),
-  experimental: {
-    session: true,
-  }
 });

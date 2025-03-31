@@ -18,9 +18,6 @@ describe('Astro.session', () => {
 					driver: 'fs',
 					ttl: 20,
 				},
-				experimental: {
-					session: true,
-				},
 			});
 		});
 
@@ -114,9 +111,6 @@ describe('Astro.session', () => {
 					driver: 'fs',
 					ttl: 20,
 				},
-				experimental: {
-					session: true,
-				},
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -194,38 +188,6 @@ describe('Astro.session', () => {
 	});
 
 	describe('Configuration', () => {
-		it('throws if flag is enabled but driver is not set', async () => {
-			const fixture = await loadFixture({
-				root: './fixtures/sessions/',
-				output: 'server',
-				adapter: testAdapter(),
-				experimental: {
-					session: true,
-				},
-			});
-			await assert.rejects(
-				fixture.build({}),
-				/Error: The `experimental.session` flag was set to `true`, but no storage was configured/,
-			);
-		});
-
-		it('throws if session is configured but flag is not enabled', async () => {
-			const fixture = await loadFixture({
-				root: './fixtures/sessions/',
-				output: 'server',
-				adapter: testAdapter(),
-				session: {
-					driver: 'fs',
-				},
-				experimental: {
-					session: false,
-				},
-			});
-			await assert.rejects(
-				fixture.build({}),
-				/Error: Session config was provided without enabling the `experimental.session` flag/,
-			);
-		});
 
 		it('throws if output is static', async () => {
 			const fixture = await loadFixture({
@@ -234,9 +196,6 @@ describe('Astro.session', () => {
 				session: {
 					driver: 'fs',
 					ttl: 20,
-				},
-				experimental: {
-					session: true,
 				},
 			});
 			// Disable actions so we can do a static build

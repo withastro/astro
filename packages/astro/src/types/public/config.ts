@@ -585,13 +585,12 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @version 5.3.0
 	 * @description
 	 *
-	 * Configures experimental session support by specifying a storage `driver` as well as any associated `options`.
-	 * You must enable the `experimental.session` flag to use this feature.
+	 * Configures session support by specifying a storage `driver` as well as any associated `options`.
 	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
 	 *
 	 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
 	 *
-	 * See [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information.
+	 * See [the session guide](https://docs.astro.build/en/guides/sessions/) for more information.
 	 *
 	 * ```js title="astro.config.mjs"
 	 *   {
@@ -2057,33 +2056,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		responsiveImages?: boolean;
 
-		/**
-		 *
-		 * @name experimental.session
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 5.0.0
-		 * @description
-		 *
-		 * Enables support for sessions in Astro. Sessions are used to store user data across requests, such as user authentication state.
-		 *
-		 * When enabled you can access the `Astro.session` object to read and write data that persists across requests. You can configure the session driver using the [`session` option](#session), or use the default provided by your adapter.
-		 *
-		 * ```astro title=src/components/CartButton.astro
-		 * ---
-		 * export const prerender = false; // Not needed in 'server' mode
-		 * const cart = await Astro.session.get('cart');
-		 * ---
-		 *
-		 * <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
-		 *
-		 * ```
-		 *
-		 * For more details, see [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/).
-		 *
-		 */
-
-		session?: boolean;
 		/**
 		 *
 		 * @name experimental.svg

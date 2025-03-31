@@ -15,8 +15,6 @@ import type {
 import type { AstroCookies } from './cookies/cookies.js';
 import type { AstroCookieSetOptions } from './cookies/cookies.js';
 import {
-	SessionConfigMissingError,
-	SessionConfigWithoutFlagError,
 	SessionStorageInitError,
 	SessionStorageSaveError,
 	SessionWithoutSupportedAdapterOutputError,
@@ -511,18 +509,13 @@ export async function resolveSessionDriver(driver: string | undefined): Promise<
 }
 
 export function validateSessionConfig(settings: AstroSettings): void {
-	const { experimental, session } = settings.config;
+	const { session } = settings.config;
 	const { buildOutput } = settings;
 	let error: AstroError | undefined;
-	if (experimental.session) {
-		if (!session?.driver) {
-			error = new AstroError(SessionConfigMissingError);
-		} else if (buildOutput === 'static') {
-			error = new AstroError(SessionWithoutSupportedAdapterOutputError);
-		}
-	} else if (session?.driver) {
-		error = new AstroError(SessionConfigWithoutFlagError);
+	if (session?.driver && buildOutput === 'static') {
+		error = new AstroError(SessionWithoutSupportedAdapterOutputError);
 	}
+
 	if (error) {
 		error.stack = undefined;
 		throw error;
