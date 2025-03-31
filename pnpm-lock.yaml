@@ -473,11 +473,11 @@ importers:
         specifier: workspace:*
         version: link:../telemetry
       '@capsizecss/metrics':
-        specifier: ^3.4.0
-        version: 3.4.0
+        specifier: ^3.5.0
+        version: 3.5.0
       '@capsizecss/unpack':
-        specifier: ^2.3.0
-        version: 2.3.0
+        specifier: ^2.4.0
+        version: 2.4.0
       '@oslojs/encoding':
         specifier: ^1.1.0
         version: 1.1.0
@@ -6600,11 +6600,11 @@ packages:
     resolution: {integrity: sha512-v9f+ueUOKkZCDKiCm0yxKtYgYNLD9zlKarNux0NSXOvNm94QEYL3RlMpGKgD2hq44pbF2qWqEmHnCvmk56kPJw==}
     engines: {node: '>=18'}
 
-  '@capsizecss/metrics@3.4.0':
-    resolution: {integrity: sha512-hIn8MAHxLvwyUh6ZvLQHDt2GPShBz6+gxBs1JTD9GleBkht1AZvtCFo0adr7bQvYYuQzUJeKi69zqlAwgKMHNA==}
+  '@capsizecss/metrics@3.5.0':
+    resolution: {integrity: sha512-Ju2I/Qn3c1OaU8FgeW4Tc22D4C9NwyVfKzNmzst59bvxBjPoLYNZMqFYn+HvCtn4MpXwiaDtCE8fNuQLpdi9yA==}
 
-  '@capsizecss/unpack@2.3.0':
-    resolution: {integrity: sha512-qkf9IoFIVTOkkpr8oZtCNSmubyWFCuPU4EOWO6J/rFPP5Ks2b1k1EHDSQRLwfokh6nCd7mJgBT2lhcuDCE6w4w==}
+  '@capsizecss/unpack@2.4.0':
+    resolution: {integrity: sha512-GrSU71meACqcmIUxPYOJvGKF0yryjN/L1aCuE9DViCTJI7bfkjgYDPD1zbNDcINJwSSP6UaBZY9GAbYDO7re0Q==}
 
   '@changesets/apply-release-plan@7.0.10':
     resolution: {integrity: sha512-wNyeIJ3yDsVspYvHnEz1xQDq18D9ifed3lI+wxRQRK4pArUcuHgCTrHv0QRnnwjhVCQACxZ+CBih3wgOct6UXw==}
@@ -13202,9 +13202,9 @@ snapshots:
     dependencies:
       tar: 6.2.1
 
-  '@capsizecss/metrics@3.4.0': {}
+  '@capsizecss/metrics@3.5.0': {}
 
-  '@capsizecss/unpack@2.3.0':
+  '@capsizecss/unpack@2.4.0':
     dependencies:
       blob-to-buffer: 1.2.9
       cross-fetch: 3.2.0
