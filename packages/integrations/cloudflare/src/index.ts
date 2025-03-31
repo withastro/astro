@@ -9,6 +9,7 @@ import type { PluginOption } from 'vite';
 import { createReadStream } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
+import { fileURLToPath } from 'node:url';
 import {
 	appendForwardSlash,
 	prependForwardSlash,
@@ -25,7 +26,6 @@ import {
 import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { setImageConfig } from './utils/image-config.js';
-import { fileURLToPath } from 'node:url';
 
 export type { Runtime } from './entrypoints/server.js';
 
@@ -172,7 +172,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								},
 							};
 				}
-
 
 				updateConfig({
 					build: {

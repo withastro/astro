@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import * as devalue from 'devalue';
 import { fileURLToPath } from 'node:url';
+import * as devalue from 'devalue';
 import { astroCli, wranglerCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/sessions/', import.meta.url);

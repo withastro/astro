@@ -50,7 +50,7 @@ export function createExports(manifest: SSRManifest) {
 		// unstorage checks in globalThis and globalThis.__env__ for the binding.
 		globalThis.__env__ ??= {};
 		globalThis.__env__[bindingName] = env[bindingName];
-		
+
 		// static assets fallback, in case default _routes.json is not used
 		if (manifest.assets.has(pathname)) {
 			return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));
