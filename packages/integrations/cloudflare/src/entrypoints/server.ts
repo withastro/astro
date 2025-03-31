@@ -3,7 +3,6 @@ import type {
 	CacheStorage as CLOUDFLARE_CACHESTORAGE,
 	Request as CLOUDFLARE_REQUEST,
 	ExecutionContext,
-	KVNamespace,
 } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
