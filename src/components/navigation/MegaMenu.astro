@@ -1,0 +1,50 @@
+---
+interface Props {
+  columns?: number;
+}
+
+const { columns = 3 } = Astro.props;
+---
+
+<div class="mega-menu" role="menu">
+  <div class="mega-menu-container" style={`--columns: ${columns};`}>
+    <slot />
+  </div>
+</div>
+
+<style>
+  .mega-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+    z-index: 100;
+  }
+
+  /* This styles will be applied via JavaScript when parent NavItem is hovered */
+  :global(.nav-item:hover .mega-menu) {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .mega-menu-container {
+    display: grid;
+    grid-template-columns: repeat(var(--columns), 1fr);
+    gap: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .mega-menu-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style> 

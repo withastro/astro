@@ -1,0 +1,46 @@
+import BreadcrumbItem from './BreadcrumbItem.astro';
+
+interface Crumb {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  crumbs: Crumb[];
+  className?: string;
+}
+
+const { crumbs = [], className = '' } = Astro.props;
+
+// We always want a home crumb
+const allCrumbs = [
+  { label: 'Home', href: '/' },
+  ...crumbs
+];
+
+<nav aria-label="Breadcrumb" class={`breadcrumbs ${className}`}>
+  <ol class="breadcrumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
+    {allCrumbs.map((crumb, index) => (
+      <BreadcrumbItem
+        label={crumb.label}
+        href={crumb.href}
+        isLast={index === allCrumbs.length - 1}
+      />
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .breadcrumbs {
+    padding: 1rem 0;
+    font-size: 0.875rem;
+  }
+  
+  .breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+</style> 

@@ -1,0 +1,125 @@
+---
+// Empty frontmatter section is required for Astro components
+---
+
+<nav id="mobile-nav" class="mobile-nav">
+  <div class="mobile-nav-container">
+    <slot />
+  </div>
+</nav>
+
+<style>
+  .mobile-nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 400px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow-y: auto;
+    transition: right 0.3s ease;
+  }
+  
+  .mobile-nav.open {
+    right: 0;
+  }
+  
+  .mobile-nav-container {
+    padding: 2rem 1.5rem;
+  }
+  
+  /* Mobile nav styles */
+  :global(.mobile-nav .nav-list) {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  :global(.mobile-nav .nav-item) {
+    display: block;
+    width: 100%;
+    border-bottom: 1px solid #eee;
+  }
+  
+  :global(.mobile-nav .nav-link) {
+    padding: 1rem 0;
+  }
+  
+  :global(.mobile-nav .mega-menu) {
+    position: static;
+    width: 100%;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    height: 0;
+    overflow: hidden;
+    padding: 0 0 0 1rem;
+    transition: height 0.3s;
+  }
+  
+  :global(.mobile-nav .mega-menu-container) {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  :global(.mobile-nav .nav-item.active .mega-menu) {
+    height: auto;
+    padding: 1rem 0 1rem 1rem;
+  }
+  
+  /* Overlay when mobile menu is open */
+  :global(body.menu-open::after) {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const mobileNav = document.getElementById('mobile-nav');
+    if (!mobileNav) return;
+    
+    // Handle dropdown toggles in mobile menu
+    const mobileNavItems = mobileNav.querySelectorAll('.nav-item');
+    
+    mobileNavItems.forEach(item => {
+      const link = item.querySelector('.nav-link');
+      if (!link) return;
+      
+      if (link.classList.contains('has-children')) {
+        link.addEventListener('click', (e) => {
+          // Only prevent default in mobile view
+          if (window.innerWidth <= 768) {
+            e.preventDefault();
+            item.classList.toggle('active');
+          }
+        });
+      }
+    });
+    
+    // Close mobile nav when clicking outside
+    document.addEventListener('click', (e) => {
+      if (mobileNav.classList.contains('open') && 
+          !mobileNav.contains(e.target) && 
+          !e.target.classList.contains('mobile-nav-toggle')) {
+        mobileNav.classList.remove('open');
+        document.body.classList.remove('menu-open');
+        
+        const toggle = document.querySelector('.mobile-nav-toggle');
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      }
+    });
+  });
+</script> 

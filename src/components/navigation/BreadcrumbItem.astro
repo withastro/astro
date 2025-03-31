@@ -1,0 +1,46 @@
+---
+interface Props {
+  label: string;
+  href: string;
+  isLast?: boolean;
+}
+
+const { label, href, isLast = false } = Astro.props;
+---
+
+<li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+  {isLast ? (
+    <span itemprop="name" class="breadcrumb-label current">{label}</span>
+  ) : (
+    <a href={href} itemprop="item" class="breadcrumb-link">
+      <span itemprop="name" class="breadcrumb-label">{label}</span>
+    </a>
+  )}
+  <meta itemprop="position" content="2" />
+</li>
+
+<style>
+  .breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .breadcrumb-item:not(:last-child)::after {
+    content: "/";
+    margin: 0 0.5rem;
+    color: #999;
+  }
+  
+  .breadcrumb-link {
+    color: #0077cc;
+    text-decoration: none;
+  }
+  
+  .breadcrumb-link:hover {
+    text-decoration: underline;
+  }
+  
+  .breadcrumb-label.current {
+    color: #666;
+  }
+</style> 

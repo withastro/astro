@@ -1,0 +1,58 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  isActive?: boolean;
+  hasChildren?: boolean;
+}
+
+const { href, label, isActive = false, hasChildren = false } = Astro.props;
+---
+
+<li class="nav-item">
+  <a 
+    href={href} 
+    class={`nav-link ${isActive ? 'active' : ''} ${hasChildren ? 'has-children' : ''}`}
+    aria-current={isActive ? "page" : undefined}
+  >
+    {label}
+    {hasChildren && (
+      <span class="dropdown-indicator">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </span>
+    )}
+  </a>
+  {hasChildren && <slot />}
+</li>
+
+<style>
+  .nav-item {
+    position: relative;
+    display: inline-block;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: #333;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: #0077cc;
+  }
+
+  .dropdown-indicator {
+    margin-left: 0.25rem;
+    transition: transform 0.2s;
+  }
+
+  .has-children:hover .dropdown-indicator {
+    transform: rotate(180deg);
+  }
+</style> 

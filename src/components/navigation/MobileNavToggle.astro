@@ -1,0 +1,72 @@
+---
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<button
+  id={id}
+  class="mobile-nav-toggle"
+  aria-label="Toggle mobile navigation"
+  aria-expanded="false"
+  aria-controls="mobile-nav"
+>
+  <span class="toggle-bar"></span>
+  <span class="toggle-bar"></span>
+  <span class="toggle-bar"></span>
+</button>
+
+<script define:vars={{ id }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggleButton = document.getElementById(id);
+    const mobileNav = document.getElementById('mobile-nav');
+    
+    if (!toggleButton || !mobileNav) return;
+    
+    toggleButton.addEventListener('click', () => {
+      const expanded = toggleButton.getAttribute('aria-expanded') === 'true';
+      toggleButton.setAttribute('aria-expanded', !expanded);
+      mobileNav.classList.toggle('open');
+      document.body.classList.toggle('menu-open');
+    });
+  });
+</script>
+
+<style>
+  .mobile-nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+  }
+  
+  .toggle-bar {
+    display: block;
+    width: 24px;
+    height: 3px;
+    margin: 4px 0;
+    background-color: #333;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  
+  .mobile-nav-toggle[aria-expanded="true"] .toggle-bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  
+  .mobile-nav-toggle[aria-expanded="true"] .toggle-bar:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .mobile-nav-toggle[aria-expanded="true"] .toggle-bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+  
+  @media (max-width: 768px) {
+    .mobile-nav-toggle {
+      display: block;
+    }
+  }
+</style> 

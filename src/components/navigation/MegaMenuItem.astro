@@ -1,0 +1,72 @@
+---
+interface Props {
+  title: string;
+  href: string;
+  description?: string;
+  icon?: string;
+}
+
+const { title, href, description, icon } = Astro.props;
+---
+
+<li class="mega-menu-item">
+  <a href={href} class="mega-menu-link">
+    {icon && (
+      <span class="mega-menu-icon">
+        <Fragment set:html={icon} />
+      </span>
+    )}
+    <div class="mega-menu-content">
+      <h3 class="mega-menu-title">{title}</h3>
+      {description && <p class="mega-menu-description">{description}</p>}
+    </div>
+  </a>
+</li>
+
+<style>
+  .mega-menu-item {
+    margin-bottom: 0.75rem;
+  }
+
+  .mega-menu-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.2s;
+  }
+
+  .mega-menu-link:hover {
+    background-color: rgba(0, 119, 204, 0.1);
+  }
+
+  .mega-menu-icon {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0077cc;
+  }
+
+  .mega-menu-content {
+    flex: 1;
+  }
+
+  .mega-menu-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+    margin-bottom: 0.25rem;
+  }
+
+  .mega-menu-description {
+    font-size: 0.875rem;
+    margin: 0;
+    color: #666;
+  }
+</style> 

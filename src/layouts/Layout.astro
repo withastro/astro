@@ -1,0 +1,100 @@
+---
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content="OnlineMarketingCORE - Data-driven marketing expertise with 25+ years of experience" />
+    <!-- Add Tailwind CSS via CDN for development -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <header class="bg-white shadow-sm">
+      <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <a href="/" class="text-2xl font-bold">OnlineMarketingCORE</a>
+        <div class="hidden md:flex space-x-6">
+          <a href="/" class="hover:text-blue-600">Home</a>
+          <a href="/about" class="hover:text-blue-600">About</a>
+          <a href="/services" class="hover:text-blue-600">Services</a>
+          <a href="/technology" class="hover:text-blue-600">Technology</a>
+          <a href="/industries" class="hover:text-blue-600">Industries</a>
+          <a href="/success-stories" class="hover:text-blue-600">Success Stories</a>
+          <a href="/contact" class="hover:text-blue-600">Contact</a>
+        </div>
+        <button class="md:hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </nav>
+    </header>
+
+    <slot />
+
+    <footer class="bg-gray-800 text-white py-12">
+      <div class="container mx-auto px-4">
+        <div class="grid md:grid-cols-4 gap-8">
+          <div>
+            <h3 class="text-xl font-bold mb-4">OnlineMarketingCORE</h3>
+            <p class="mb-4">Data-driven marketing expertise with 25+ years of experience.</p>
+            <div class="flex space-x-4">
+              <a href="#" class="hover:text-blue-400">
+                <span class="sr-only">LinkedIn</span>
+                <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+              </a>
+              <a href="#" class="hover:text-blue-400">
+                <span class="sr-only">Twitter</span>
+                <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.1 10.1 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Services</h3>
+            <ul class="space-y-2">
+              <li><a href="/services/seo" class="hover:text-blue-400">SEO</a></li>
+              <li><a href="/services/paid-search/google-ads" class="hover:text-blue-400">Google Ads</a></li>
+              <li><a href="/services/content-marketing" class="hover:text-blue-400">Content Marketing</a></li>
+              <li><a href="/services/social-media" class="hover:text-blue-400">Social Media</a></li>
+              <li><a href="/services/website-optimization" class="hover:text-blue-400">Website Optimization</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Company</h3>
+            <ul class="space-y-2">
+              <li><a href="/about" class="hover:text-blue-400">About Us</a></li>
+              <li><a href="/about/team" class="hover:text-blue-400">Our Team</a></li>
+              <li><a href="/about/experience" class="hover:text-blue-400">Experience</a></li>
+              <li><a href="/about/locations" class="hover:text-blue-400">Locations</a></li>
+              <li><a href="/careers" class="hover:text-blue-400">Careers</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Contact</h3>
+            <p class="mb-2">info@onlinemarketingcore.com</p>
+            <p class="mb-4">+1 (555) 123-4567</p>
+            <a href="/contact" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">
+              Contact Us
+            </a>
+          </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-sm text-gray-400">
+          <p>&copy; {new Date().getFullYear()} OnlineMarketingCORE. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html> 

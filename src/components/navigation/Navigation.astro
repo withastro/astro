@@ -1,0 +1,192 @@
+import NavItem from './NavItem.astro';
+import MegaMenu from './MegaMenu.astro';
+import MegaMenuItem from './MegaMenuItem.astro';
+import MobileNav from './MobileNav.astro';
+import MobileNavToggle from './MobileNavToggle.astro';
+
+interface NavigationItem {
+  label: string;
+  href: string;
+  isActive?: boolean;
+  children?: Array<{
+    title: string;
+    href: string;
+    description?: string;
+    icon?: string;
+  }>;
+}
+
+interface Props {
+  items: NavigationItem[];
+  logoSrc?: string;
+  logoAlt?: string;
+  className?: string;
+}
+
+const { 
+  items = [], 
+  logoSrc = '/logo.svg', 
+  logoAlt = 'Company Logo',
+  className = ''
+} = Astro.props;
+
+// Determine current page for active states
+const currentPath = Astro.url.pathname;
+
+<header class:list={['site-header', className]}>
+  <div class="container">
+    <div class="header-content">
+      <a href="/" class="logo">
+        {logoSrc && <img src={logoSrc} alt={logoAlt} />}
+      </a>
+      
+      <nav class="desktop-nav" aria-label="Main Navigation">
+        <ul class="nav-list">
+          {items.map(item => {
+            const isActive = currentPath === item.href || item.isActive;
+            const hasChildren = item.children && item.children.length > 0;
+            
+            return (
+              <NavItem
+                href={item.href}
+                label={item.label}
+                isActive={isActive}
+                hasChildren={hasChildren}
+              >
+                {hasChildren && (
+                  <MegaMenu columns={Math.min(item.children!.length, 4)}>
+                    {item.children!.map(child => (
+                      <MegaMenuItem
+                        title={child.title}
+                        href={child.href}
+                        description={child.description}
+                        icon={child.icon}
+                      />
+                    ))}
+                  </MegaMenu>
+                )}
+              </NavItem>
+            );
+          })}
+        </ul>
+      </nav>
+      
+      <MobileNavToggle id="mobile-nav-toggle" />
+    </div>
+  </div>
+  
+  <MobileNav>
+    <ul class="nav-list">
+      {items.map(item => {
+        const isActive = currentPath === item.href || item.isActive;
+        const hasChildren = item.children && item.children.length > 0;
+        
+        return (
+          <NavItem
+            href={item.href}
+            label={item.label}
+            isActive={isActive}
+            hasChildren={hasChildren}
+          >
+            {hasChildren && (
+              <MegaMenu>
+                {item.children!.map(child => (
+                  <MegaMenuItem
+                    title={child.title}
+                    href={child.href}
+                    description={child.description}
+                    icon={child.icon}
+                  />
+                ))}
+              </MegaMenu>
+            )}
+          </NavItem>
+        );
+      })}
+    </ul>
+  </MobileNav>
+</header>
+
+<style>
+  .site-header {
+    position: relative;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+  }
+  
+  .logo {
+    display: block;
+    height: 40px;
+  }
+  
+  .logo img {
+    height: 100%;
+    width: auto;
+  }
+  
+  .desktop-nav {
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-list {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  @media (max-width: 768px) {
+    .desktop-nav {
+      display: none;
+    }
+  }
+
+  /* Sticky navigation styles */
+  :global(header.sticky) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    animation: slideDown 0.35s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<script>
+  // Handle sticky navigation on scroll
+  const header = document.querySelector('header');
+  let lastScrollY = window.scrollY;
+  
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 100) {
+      header?.classList.add('sticky');
+    } else {
+      header?.classList.remove('sticky');
+    }
+    lastScrollY = window.scrollY;
+  });
+</script> 
