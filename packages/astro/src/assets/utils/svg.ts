@@ -2,7 +2,6 @@ import { parse, renderSync } from 'ultrahtml';
 import type { SvgComponentProps } from '../runtime.js';
 import { dropAttributes } from '../runtime.js';
 import type { ImageMetadata } from '../types.js';
-import type { AstroComponentFactory } from '../../runtime/server/index.js';
 
 function parseSvg(contents: string) {
 	const root = parse(contents);
@@ -17,8 +16,6 @@ function parseSvg(contents: string) {
 
 	return { attributes, body };
 }
-
-export type SVGComponent = AstroComponentFactory;
 
 export function makeSvgComponent(meta: ImageMetadata, contents: Buffer | string) {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
