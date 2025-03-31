@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 5.0.7
+
+### Patch Changes
+
+- [#13526](https://github.com/withastro/astro/pull/13526) [`ff9d69e`](https://github.com/withastro/astro/commit/ff9d69e3443c80059c54f6296d19f66bb068ead3) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update `vite` to the latest version
+
 ## 5.0.6
 
 ### Patch Changes
