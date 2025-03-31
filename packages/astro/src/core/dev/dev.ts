@@ -4,7 +4,7 @@ import type { AddressInfo } from 'node:net';
 import { performance } from 'node:perf_hooks';
 import { green } from 'kleur/colors';
 import { gt, major, minor, patch } from 'semver';
-import type * as vite from 'vite';
+import * as vite from 'vite';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
@@ -20,10 +20,12 @@ import {
 	fetchLatestAstroVersion,
 	shouldCheckForUpdates,
 } from './update-check.js';
+import path from 'node:path';
+import { createNodeLogger, resolveConfig, scanForConfigs } from '../config/index.js';
 
 export interface DevServer {
-	address: AddressInfo;
-	handle: (req: http.IncomingMessage, res: http.ServerResponse<http.IncomingMessage>) => void;
+	address?: AddressInfo;
+	handle?: (req: http.IncomingMessage, res: http.ServerResponse<http.IncomingMessage>) => void;
 	watcher: vite.FSWatcher;
 	stop(): Promise<void>;
 }
@@ -34,7 +36,89 @@ export interface DevServer {
  *
  * @experimental The JavaScript API is experimental
  */
-export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevServer> {
+export default async function dev(inlineConfig: AstroInlineConfig, isNestedConfig = false): Promise<DevServer> {
+	const { astroConfig } = await resolveConfig(inlineConfig, 'build');
+
+	const mode = astroConfig.experimental?.multiBundle?.mode ?? 'disabled';
+
+	if (isNestedConfig && ['disabled', 'workspace'].includes(mode)) {
+		throw new Error('Cannot build a classic or workspace Astro config inside a workspace');
+	}
+
+	if (['disabled', 'bundle'].includes(mode)) {
+		const name = path.relative('./', inlineConfig.root ?? './');
+		
+		return await devServer(inlineConfig, name);
+	} else if (mode === 'workspace') {
+		return await workspaceDevServer(inlineConfig);
+	}
+	
+	throw new Error('Unsupported mode: ' + mode);
+}
+
+async function workspaceDevServer(inlineConfig: AstroInlineConfig): Promise<DevServer> {
+	const logger = createNodeLogger(inlineConfig);
+	
+	logger.info('workspace', 'Starting a workspace mode dev server');
+
+	const configPaths = await scanForConfigs('./');
+	
+	const serverPromises: Promise<DevServer>[] = [];
+
+	for (const configPath of configPaths) {
+		const configDistDir = path.resolve(path.join(
+			inlineConfig.outDir ?? './dist/',
+			path.relative('./', path.dirname(configPath))
+		));
+
+		const targetInlineConfig = {
+			...inlineConfig,
+			outDir: configDistDir,
+			root: path.dirname(configPath),
+			configFile: path.basename(configPath),
+		};
+		
+		const { astroConfig } = await resolveConfig(targetInlineConfig, 'build');
+		
+		if (astroConfig.experimental?.multiBundle?.mode === 'bundle') {
+			logger.info('workspace', `Starting ${configPath}`);
+			
+			serverPromises.push(dev(targetInlineConfig, true));
+		}
+	}
+	
+	const servers = await Promise.all(serverPromises);
+
+	return {
+		get watcher(): vite.FSWatcher {
+			return new class extends vite.FSWatcher {
+				
+				override on(event: any, listener: any): this {
+					for (const server of servers) {
+						server.watcher.on(event, listener);
+					}
+					
+					return this;
+				}
+				
+				override off(event: any, listener: any): this {
+					for (const server of servers) {
+						server.watcher.off(event, listener);
+					}
+					
+					return this;
+				}
+			};
+		},
+		async stop() {
+			for (const server of servers) {
+				await server.stop();
+			}
+		},
+	};
+}
+
+async function devServer(inlineConfig: AstroInlineConfig, name?: string): Promise<DevServer> {
 	ensureProcessNodeEnv('development');
 	const devStart = performance.now();
 	await telemetry.record([]);
@@ -124,6 +208,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: restart.container.settings.config.server.host,
 			base: restart.container.settings.config.base,
+			name,
 		}),
 	);
 

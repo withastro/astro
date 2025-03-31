@@ -2211,6 +2211,40 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 */
 		preserveScriptOrder?: boolean;
+
+		multiBundle?: {
+			/**
+			 * @name experimental.multiBundle.mode
+			 * @type {false | 'workspace' | 'bundle' | 'plugin'}
+			 * @default `false`
+			 * @description
+			 *
+			 * When set to `false` or `disabled`, Astro tooling will act as usual.
+			 * 
+			 * When set to `workspace`, will make Astro tooling *not* build the app as it is by default.
+			 * Instead, tooling will search for nested `astro.config...` files,
+			 * and treat them as separate bundles.
+			 * Nested configs are allowed only in this mode, and can only be of 'bundle' and 'plugin' modes.
+			 * 
+			 * When this is a nested config and `mode` is set to `bundle`,
+			 * it will generate a deployable bundle based on this config and the workspace one.
+			 * 
+			 * When this is a nested config and `mode` is set to `module`,
+			 * it will generate a reusable module subdirectory, alongside with a virtual module
+			 * for other module and bundles.
+			 */
+			mode?: 'disabled' | 'workspace' | 'bundle' | 'module';
+
+			/**
+			 * @name experimental.multiBundle.name
+			 * @type {string}
+			 * @default Whatever the current config's directory name is
+			 * @description
+			 * 
+			 * Used to determine a name for a bundle or a plugin.
+			 */
+			name?: string;
+		};
 	};
 }
 

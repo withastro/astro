@@ -626,6 +626,15 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.preserveScriptOrder),
+			multiBundle: z
+				.object({
+					mode: z.enum(['disabled', 'workspace', 'bundle', 'module'])
+						.default('disabled')
+						.optional(),
+					name: z.string()
+						.optional()
+				})
+				.optional()
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

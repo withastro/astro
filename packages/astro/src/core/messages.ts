@@ -62,14 +62,17 @@ export function serverStart({
 	resolvedUrls,
 	host,
 	base,
+	name,
 }: {
 	startupTime: number;
 	resolvedUrls: ResolvedServerUrls;
 	host: string | boolean;
 	base: string;
+	name?: string;
 }): string {
 	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
+	const namePrefix = `${dim('┃')} Name     `;
 	const localPrefix = `${dim('┃')} Local    `;
 	const networkPrefix = `${dim('┃')} Network  `;
 	const emptyPrefix = ' '.repeat(11);
@@ -96,6 +99,7 @@ export function serverStart({
 			startupTime,
 		)} ${dim('ms')}`,
 		'',
+		...(name ? [`${namePrefix}${cyan(name)}`] : []),
 		...localUrlMessages,
 		...networkUrlMessages,
 		'',

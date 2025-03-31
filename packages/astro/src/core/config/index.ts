@@ -9,3 +9,4 @@ export { mergeConfig } from './merge.js';
 export type { AstroConfigType } from './schema.js';
 export { createSettings } from './settings.js';
 export { loadTSConfig, updateTSConfigForFramework } from './tsconfig.js';
+export { scanForConfigs } from './scan.js';

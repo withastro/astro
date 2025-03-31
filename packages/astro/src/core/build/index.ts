@@ -32,6 +32,8 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import path from 'node:path';
+import { scanForConfigs } from '../config/scan.js';
 
 export interface BuildOptions {
 	/**
@@ -51,6 +53,10 @@ export interface BuildOptions {
 	 * @default true
 	 */
 	teardownCompiler?: boolean;
+	/**
+	 * 
+	 */
+	isNestedConfig?: boolean;
 }
 
 /**
@@ -61,28 +67,49 @@ export interface BuildOptions {
  */
 export default async function build(
 	inlineConfig: AstroInlineConfig,
-	options: BuildOptions = {},
+	options: BuildOptions = {}
 ): Promise<void> {
 	ensureProcessNodeEnv(options.devOutput ? 'development' : 'production');
 	applyPolyfill();
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
-
+	const mode = astroConfig.experimental?.multiBundle?.mode ?? 'disabled';
+	
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
-
+	
 	if (inlineConfig.force) {
 		// isDev is always false, because it's interested in the build command, not the output type
 		await clearContentLayerCache({ settings, logger, fs, isDev: false });
 	}
-
-	const builder = new AstroBuilder(settings, {
-		...options,
-		logger,
-		mode: inlineConfig.mode ?? 'production',
-		runtimeMode: options.devOutput ? 'development' : 'production',
-	});
-	await builder.run();
+	
+	if (options.isNestedConfig && ['disabled', 'workspace'].includes(mode)) {
+		throw new Error('Cannot build a classic or workspace Astro config inside a workspace');
+	}
+	
+	if (['disabled', 'bundle'].includes(mode)) {
+		const builder = new AstroBuilder(settings, {
+			...options,
+			logger,
+			mode: inlineConfig.mode ?? 'production',
+			runtimeMode: options.devOutput ? 'development' : 'production',
+		});
+		await builder.run();
+	}
+	
+	if (mode === 'workspace') {
+		const builder = new AstroWorkspaceBuilder(
+			inlineConfig.outDir ?? './dist/',
+			inlineConfig,
+			{
+				...options,
+				logger,
+				mode: inlineConfig.mode ?? 'production',
+				runtimeMode: options.devOutput ? 'development' : 'production',
+			}
+		);
+		await builder.run();
+	}
 }
 
 interface AstroBuilderOptions extends BuildOptions {
@@ -311,5 +338,35 @@ class AstroBuilder {
 
 		logger.info('build', messages.join(' '));
 		logger.info('build', `${bold('Complete!')}`);
+	}
+}
+
+class AstroWorkspaceBuilder {
+	constructor(
+		private distDir: string,
+		private inlineConfig: AstroInlineConfig,
+		private options: AstroBuilderOptions
+	) {}
+	
+	async run() {
+		this.options.logger?.info('workspace', 'Building in workspace mode');
+		
+		const configPaths = await scanForConfigs('./');
+		
+		for (const configPath of configPaths) {
+			this.options.logger?.info('workspace', `Building ${configPath}`);
+			
+			const configDistDir = path.resolve(path.join(
+				this.distDir,
+				path.relative('./', path.dirname(configPath))
+			));
+			
+			await build({
+				...this.inlineConfig,
+				outDir: configDistDir,
+				root: path.dirname(configPath),
+				configFile: path.basename(configPath),
+			}, this.options);
+		}
 	}
 }
