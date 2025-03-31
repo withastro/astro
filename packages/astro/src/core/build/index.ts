@@ -27,7 +27,7 @@ import { apply as applyPolyfill } from '../polyfill.js';
 import { createRoutesList } from '../routing/index.js';
 import { getServerIslandRouteData } from '../server-islands/endpoint.js';
 import { clearContentLayerCache } from '../sync/index.js';
-import { ensureProcessNodeEnv } from '../util.js';
+import { ensureProcessNodeEnv, getExtraSrcDirsForBundle } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
@@ -93,6 +93,7 @@ export default async function build(
 			logger,
 			mode: inlineConfig.mode ?? 'production',
 			runtimeMode: options.devOutput ? 'development' : 'production',
+			isModule: mode === 'module',
 		});
 		await builder.run();
 	}
@@ -116,6 +117,7 @@ interface AstroBuilderOptions extends BuildOptions {
 	logger: Logger;
 	mode: string;
 	runtimeMode: RuntimeMode;
+	isModule?: boolean;
 }
 
 class AstroBuilder {
@@ -155,8 +157,11 @@ class AstroBuilder {
 			command: 'build',
 			logger: logger,
 		});
-
-		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
+		
+		this.routesList = await createRoutesList({
+			settings: this.settings,
+			extraSrcDirs: getExtraSrcDirsForBundle(this.settings),
+		}, this.logger);
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 

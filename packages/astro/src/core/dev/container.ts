@@ -18,6 +18,7 @@ import { apply as applyPolyfill } from '../polyfill.js';
 import { createRoutesList } from '../routing/index.js';
 import { syncInternal } from '../sync/index.js';
 import { warnMissingAdapter } from './adapter-validation.js';
+import {getExtraSrcDirsForBundle} from "../util.js";
 
 export interface Container {
 	fs: typeof nodeFs;
@@ -82,7 +83,11 @@ export async function createContainer({
 		.filter(Boolean) as string[];
 
 	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
-	const routesList = await createRoutesList({ settings, fsMod: fs }, logger, { dev: true });
+	const routesList = await createRoutesList({
+		settings,
+		fsMod: fs,
+		extraSrcDirs: getExtraSrcDirsForBundle(settings),
+	}, logger, { dev: true });
 	const manifest = createDevelopmentManifest(settings);
 
 	await runHookConfigDone({ settings, logger, command: 'dev' });

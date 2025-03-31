@@ -2219,7 +2219,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			 * @default `false`
 			 * @description
 			 *
-			 * When set to `false` or `disabled`, Astro tooling will act as usual.
+			 * When set to `disabled` (the default value), Astro tooling will act as usual.
 			 * 
 			 * When set to `workspace`, will make Astro tooling *not* build the app as it is by default.
 			 * Instead, tooling will search for nested `astro.config...` files,
@@ -2236,14 +2236,19 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			mode?: 'disabled' | 'workspace' | 'bundle' | 'module';
 
 			/**
-			 * @name experimental.multiBundle.name
-			 * @type {string}
-			 * @default Whatever the current config's directory name is
+			 * @name experimental.multiBundle.imports
+			 * @type {string[]}
+			 * @default []
 			 * @description
 			 * 
-			 * Used to determine a name for a bundle or a plugin.
+			 * Specifies what modules should be wired into the current bundle.
+			 * 
+			 * Local modules can be imported by providing a relative path to the module directory.
+			 * Modules from npm packages will be picked up if you prefix the path with `@`.
+			 * 
+			 * You do not need to use this if you just want to import code from a module.
 			 */
-			name?: string;
+			imports?: string[];
 		};
 	};
 }

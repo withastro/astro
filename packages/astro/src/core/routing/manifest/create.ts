@@ -109,10 +109,12 @@ export interface CreateRouteManifestParams {
 	cwd?: string;
 	/** fs module, for testing */
 	fsMod?: typeof nodeFs;
+	/** Extra source directories */
+	extraSrcDirs?: string[];
 }
 
 function createFileBasedRoutes(
-	{ settings, cwd, fsMod }: CreateRouteManifestParams,
+	{ settings, cwd, fsMod, extraSrcDirs }: CreateRouteManifestParams,
 	logger: Logger,
 ): RouteData[] {
 	const components: string[] = [];
@@ -245,6 +247,7 @@ function createFileBasedRoutes(
 	}
 
 	const { config } = settings;
+	
 	const pages = resolvePages(config);
 
 	if (localFs.existsSync(pages)) {
@@ -253,6 +256,14 @@ function createFileBasedRoutes(
 		const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
 		logger.warn(null, `Missing pages directory: ${pagesDirRootRelative}`);
 	}
+	
+	extraSrcDirs?.forEach((srcDir) => {
+		const extraPages = path.resolve(srcDir, 'pages')
+		
+		if (localFs.existsSync(extraPages)) {
+			walk(localFs, extraPages, [], []);
+		}
+	})
 
 	return routes;
 }

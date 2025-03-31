@@ -20,6 +20,9 @@ export default defineConfig({
 	experimental: {
 		multiBundle: {
 			mode: 'bundle',
+			imports: [
+				'../common-module',
+			],
 		},
 	},
 });

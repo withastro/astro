@@ -188,3 +188,15 @@ export function ensureProcessNodeEnv(defaultNodeEnv: string) {
 		process.env.NODE_ENV = defaultNodeEnv;
 	}
 }
+
+export function getExtraSrcDirsForBundle(settings: AstroSettings): string[] {
+	const imports = settings.config.experimental?.multiBundle?.imports;
+
+	return (imports ?? []).map((i) => {
+		if (i.startsWith('@')) {
+			return path.resolve('./node_modules', i.slice(1), 'src');
+		} else {
+			return path.resolve(fileURLToPath(settings.config.root), i, 'src');
+		}
+	});
+}

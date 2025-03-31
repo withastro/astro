@@ -631,7 +631,7 @@ export const AstroConfigSchema = z.object({
 					mode: z.enum(['disabled', 'workspace', 'bundle', 'module'])
 						.default('disabled')
 						.optional(),
-					name: z.string()
+					imports: z.array(z.string())
 						.optional()
 				})
 				.optional()
