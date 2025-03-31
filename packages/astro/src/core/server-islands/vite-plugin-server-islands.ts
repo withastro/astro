@@ -27,7 +27,7 @@ export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions
 		},
 		load(id) {
 			if (id === RESOLVED_VIRTUAL_ISLAND_MAP_ID) {
-				return `export const serverIslandMap = ${serverIslandPlaceholder};`;
+				return { code: `export const serverIslandMap = ${serverIslandPlaceholder};` };
 			}
 		},
 		transform(_code, id) {

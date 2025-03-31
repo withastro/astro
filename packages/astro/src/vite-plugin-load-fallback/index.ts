@@ -59,8 +59,10 @@ export default function loadFallbackPlugin({
 				}
 			},
 			async load(id) {
-				const source = await tryLoadModule(id);
-				return source;
+				const code = await tryLoadModule(id);
+				if (code) {
+					return { code };
+				}
 			},
 		},
 		{
