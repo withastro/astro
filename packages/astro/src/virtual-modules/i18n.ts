@@ -9,7 +9,7 @@ import type { MiddlewareHandler } from '../types/public/common.js';
 import type { AstroConfig, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
 
-export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
+export { normalizeTheLocale, getAllCodes, toPaths } from '../i18n/index.js';
 
 const { trailingSlash, format, site, i18n, isBuild } =
 	// @ts-expect-error
