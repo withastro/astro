@@ -118,7 +118,7 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
 					return {
-						code: /* ts */ `
+						code: `
 							export { getConfiguredImageService, isLocalService } from "astro/assets";
 							import { getImage as getImageInternal } from "astro/assets";
 							export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
@@ -144,7 +144,6 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 							)}, outDir);
 							export const getImage = async (options) => await getImageInternal(options, imageConfig);
 						`,
-						moduleType: 'js',
 					};
 				}
 			},
@@ -230,7 +229,6 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 							code: makeSvgComponent(metadata, contents!, {
 								mode: settings.config.experimental.svg.mode,
 							}),
-							moduleType: 'js',
 						};
 					}
 
@@ -243,13 +241,11 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 								imageMetadata,
 								settings.buildOutput === 'server',
 							)}`,
-							moduleType: 'js',
 						};
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
 						return {
 							code: `export default ${JSON.stringify(imageMetadata)}`,
-							moduleType: 'js',
 						};
 					}
 				}
