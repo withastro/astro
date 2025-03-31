@@ -102,6 +102,7 @@ export function rehypeImageToComponent() {
 								sourceType: 'module',
 								body: [
 									{
+										attributes: [],
 										type: 'ImportDeclaration',
 										source: {
 											type: 'Literal',
