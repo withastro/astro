@@ -1,7 +1,6 @@
 // Adapted from https://github.com/unjs/fontaine/
-import type { Font } from '@capsizecss/unpack';
 import { fontFamilyToCamelCase } from '@capsizecss/metrics';
-import { fromBlob } from '@capsizecss/unpack';
+import { fromBuffer, type Font } from '@capsizecss/unpack';
 
 const QUOTES_RE = /^["']|["']$/g
 
@@ -55,7 +54,7 @@ export async function getMetricsForFamily(family: string) {
 }
 
 export async function readMetrics(family: string, buffer: Buffer) {
-	const metrics = await fromBlob(new Blob([buffer]));
+	const metrics = await fromBuffer(buffer);
 
 	metricCache[family] = filterRequiredMetrics(metrics);
 
