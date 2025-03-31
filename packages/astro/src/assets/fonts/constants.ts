@@ -9,6 +9,8 @@ export const DEFAULTS: ResolveFontOptions = {
 	weights: ['400'],
 	styles: ['normal', 'italic'],
 	subsets: ['cyrillic-ext', 'cyrillic', 'greek-ext', 'greek', 'vietnamese', 'latin-ext', 'latin'],
+	// Technically serif is the browser default but most websites these days use sans-serif
+	fallbacks: ['sans-serif'],
 	automaticFallback: true,
 };
 
