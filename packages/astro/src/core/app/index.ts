@@ -506,7 +506,7 @@ export class App {
 						response: originalResponse,
 						skipMiddleware: true,
 						clientAddress,
-						prerenderedErrorPageFetch: preRenderedFetch,
+						prerenderedErrorPageFetch,
 					});
 				}
 			} finally {
