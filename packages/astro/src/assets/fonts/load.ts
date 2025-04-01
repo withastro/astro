@@ -113,7 +113,7 @@ export async function loadFonts({
 				},
 				// By default, unifont goes through all providers. We use a different approach
 				// where we specify a provider per font.
-				// Name has been set while extracting unifont providers from families
+				// Name has been set while extracting unifont providers from families (inside familiesToUnifontProviders)
 				[family.provider.name!],
 			);
 
