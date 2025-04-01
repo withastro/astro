@@ -1827,21 +1827,6 @@ export const ActionsCantBeLoaded = {
 // Session Errors
 /**
  * @docs
- * @see
- * - [Server output adapter feature](https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter)
- * @description
- * Your adapter must support server output to use sessions.
- */
-export const SessionWithoutSupportedAdapterOutputError = {
-	name: 'SessionWithoutSupportedAdapterOutputError',
-	title: "Sessions cannot be used with an adapter that doesn't support server output.",
-	message:
-		'Sessions require an adapter that supports server output. The adapter must set `"server"` in the `buildOutput` adapter feature.',
-	hint: 'Ensure your adapter supports `buildOutput: "server"`: https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter',
-} satisfies ErrorData;
-
-/**
- * @docs
  * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
  * @see
  * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)

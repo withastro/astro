@@ -1,3 +1,4 @@
+import { green } from 'kleur/colors';
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
 import { getActionContext } from '../actions/runtime/virtual/server.js';
 import { deserializeActionResult } from '../actions/runtime/virtual/shared.js';
@@ -335,7 +336,7 @@ export class RenderContext {
 
 	createActionAPIContext(): ActionAPIContext {
 		const renderContext = this;
-		const { cookies, params, pipeline, url, session } = this;
+		const { cookies, params, pipeline, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
@@ -373,7 +374,23 @@ export class RenderContext {
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
 			},
-			session,
+			get session() {
+				if (this.isPrerendered) {
+					pipeline.logger.warn(
+						'session',
+						`context.session was used when rendering the route ${green(this.routePattern)}, but it is not available on prerendered routes. If you need access to sessions, make sure that the route is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your eoutes server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
+					);
+					return undefined;
+				}
+				if (!renderContext.session) {
+					pipeline.logger.warn(
+						'session',
+						`context.session was used when rendering the route ${green(this.routePattern)}, but no storage configuration was provided. Either configure the storage manually or use an adapter that provides session storage. For more information, see https://docs.astro.build/en/guides/sessions/`,
+					);
+					return undefined;
+				}
+				return renderContext.session;
+			},
 		};
 	}
 
@@ -511,7 +528,7 @@ export class RenderContext {
 		apiContext: ActionAPIContext,
 	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const renderContext = this;
-		const { cookies, locals, params, pipeline, url, session } = this;
+		const { cookies, locals, params, pipeline, url } = this;
 		const { response } = result;
 		const redirect = (path: string, status = 302) => {
 			// If the response is already sent, error as we cannot proceed with the redirect.
@@ -535,7 +552,23 @@ export class RenderContext {
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			cookies,
-			session,
+			get session() {
+				if (this.isPrerendered) {
+					pipeline.logger.warn(
+						'session',
+						`Astro.session was used when rendering the route ${green(this.routePattern)}, but it is not available on prerendered pages. If you need access to sessions, make sure that the page is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
+					);
+					return undefined;
+				}
+				if (!renderContext.session) {
+					pipeline.logger.warn(
+						'session',
+						`Astro.session was used when rendering the route ${green(this.routePattern)}, but no storage configuration was provided. Either configure the storage manually or use an adapter that provides session storage. For more information, see https://docs.astro.build/en/guides/sessions/`,
+					);
+					return undefined;
+				}
+				return renderContext.session;
+			},
 			get clientAddress() {
 				return renderContext.getClientAddress();
 			},

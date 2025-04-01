@@ -186,25 +186,4 @@ describe('Astro.session', () => {
 			);
 		});
 	});
-
-	describe('Configuration', () => {
-
-		it('throws if output is static', async () => {
-			const fixture = await loadFixture({
-				root: './fixtures/sessions/',
-				output: 'static',
-				session: {
-					driver: 'fs',
-					ttl: 20,
-				},
-			});
-			// Disable actions so we can do a static build
-			await fixture.editFile('src/actions/index.ts', () => '');
-			await assert.rejects(
-				fixture.build({}),
-				/Sessions require an adapter that supports server output/,
-			);
-			await fixture.resetAllFiles();
-		});
-	});
 });
