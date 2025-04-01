@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-Allow adapaters to pass custom fetch for fetching pre-rendered error pages
+Adds a new `prerenderedErrorPageFetch` property to `RenderOptions` in the Adapter API to allow custom fetching of prerendered error pages
