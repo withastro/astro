@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Updates Astro config validation to also run for the Integration API. An error log will specify what integration is failing the validation
+Updates Astro config validation to also run for the Integration API. An error log will specify which integration is failing the validation.
 
 Now, Astro will first validate the user configuration, then validate the updated configuration after each integration `astro:config:setup` hook has run. This means `updateConfig()` calls will no longer accept invalid configuration.
 
