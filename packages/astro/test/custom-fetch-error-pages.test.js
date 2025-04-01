@@ -45,7 +45,7 @@ describe('Custom Fetch for Error Pages', () => {
     
     it('uses custom fetch implementation in case the server needs to get pre-rendered error 404 page when provided via preRenderedFetch', async () => {
       const request = new Request('http://example.com/not-found');
-      const response = await app.render(request, { preRenderedFetch: customFetch });
+      const response = await app.render(request, { prerenderedErrorPageFetch: customFetch });
       
       // Verify the response comes from our custom fetch
       assert.equal(response.status, 404);
@@ -61,7 +61,7 @@ describe('Custom Fetch for Error Pages', () => {
     
     it('uses custom fetch implementation for 500 errors', async () => {
       const request = new Request('http://example.com/causes-error');
-      const response = await app.render(request, { preRenderedFetch: customFetch });
+      const response = await app.render(request, { prerenderedErrorPageFetch: customFetch });
       
       // Verify the response comes from our custom fetch
       assert.equal(response.status, 500);
