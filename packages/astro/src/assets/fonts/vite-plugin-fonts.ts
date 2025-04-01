@@ -36,9 +36,13 @@ async function fetchFont(url: string): Promise<Buffer> {
 		if (isAbsolute(url)) {
 			return await readFile(url);
 		}
-		const r = await fetch(url);
-		const arr = await r.arrayBuffer();
-		return Buffer.from(arr);
+		// TODO: find a way to pass headers
+		// https://github.com/unjs/unifont/issues/143
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error(`Response was not successful, received status code ${response.status}`);
+		}
+		return Buffer.from(await response.arrayBuffer());
 	} catch (cause) {
 		throw new AstroError(
 			{

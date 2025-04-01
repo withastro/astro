@@ -229,6 +229,18 @@ export function normalizeTheLocale(locale: string): string {
  * Returns an array of only locales, by picking the `code`
  * @param locales
  */
+export function getAllCodes(locales: Locales): string[] {
+	const result: string[] = [];
+	for (const loopLocale of locales) {
+		if (typeof loopLocale === 'string') {
+			result.push(loopLocale);
+		} else {
+			result.push(...loopLocale.codes);
+		}
+	}
+	return result;
+}
+
 export function toCodes(locales: Locales): string[] {
 	return locales.map((loopLocale) => {
 		if (typeof loopLocale === 'string') {
