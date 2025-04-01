@@ -3,6 +3,7 @@ import os from 'node:os';
 import { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } from 'kleur/colors';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
+import { NOOP_ACTIONS_MOD } from '../../actions/noop-actions.js';
 import {
 	generateImagesForPath,
 	getStaticImageList,
@@ -66,7 +67,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 
 		const actions: SSRActions = internals.astroActionsEntryPoint
 			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
-			: { server: {} };
+			: NOOP_ACTIONS_MOD;
 		manifest = createBuildManifest(
 			options.settings,
 			internals,
@@ -548,7 +549,12 @@ async function generatePath(
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		body = redirectTemplate({ status: response.status, location, from: fromPath });
+		body = redirectTemplate({
+			status: response.status,
+			absoluteLocation: location,
+			relativeLocation: locationSite,
+			from: fromPath,
+		});
 		if (config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}
@@ -646,7 +652,7 @@ function createBuildManifest(
 				onRequest: middleware,
 			};
 		},
-		actions,
+		actions: () => actions,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,

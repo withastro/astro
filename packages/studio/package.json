@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/studio",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "description": "Internal package powering integrations between Astro projects and Astro Studio",
   "license": "MIT",
   "repository": {
@@ -34,7 +34,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "ci-info": "^4.1.0",
+    "ci-info": "^4.2.0",
     "kleur": "^4.1.5",
     "yocto-spinner": "^0.2.1"
   },
@@ -42,6 +42,6 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "typescript": "^5.8.2",
-    "vite": "^6.2.0"
+    "vite": "^6.2.4"
   }
 }

@@ -5,6 +5,15 @@ import { apply as applyPolyfill } from '../../../dist/core/polyfill.js';
 
 applyPolyfill();
 
+export const encode = (data) => {
+	const dataSerialized = typeof data === 'string' ? data : JSON.stringify(data);
+	return Buffer.from(dataSerialized).toString('base64');
+};
+
+export const decode = (str) => {
+	return Buffer.from(str, 'base64').toString();
+};
+
 describe('astro/src/core/cookies', () => {
 	describe('Astro.cookies.get', () => {
 		it('gets the cookie value', () => {
@@ -18,7 +27,7 @@ describe('astro/src/core/cookies', () => {
 		});
 
 		it('gets the cookie value with default decode', () => {
-			const url = 'http://localhost';
+			const url = 'http://localhost/?hello=world&foo=bar#hash';
 			const req = new Request('http://example.com/', {
 				headers: {
 					cookie: `url=${encodeURIComponent(url)}`,
@@ -30,15 +39,17 @@ describe('astro/src/core/cookies', () => {
 		});
 
 		it('gets the cookie value with custom decode', () => {
-			const url = 'http://localhost';
+			const url = 'http://localhost/?hello=world&foo=bar#hash';
 			const req = new Request('http://example.com/', {
 				headers: {
-					cookie: `url=${encodeURIComponent(url)}`,
+					cookie: `url=${encode(url)}`,
 				},
 			});
 			const cookies = new AstroCookies(req);
-			// set decode to the identity function to prevent decodeURIComponent on the value
-			assert.equal(cookies.get('url', { decode: (o) => o }).value, encodeURIComponent(url));
+
+			assert.ok(cookies.has('url'));
+			assert.equal(cookies.get('url', { decode }).value, url);
+			assert.equal(cookies.get('url').value, encode(url));
 		});
 
 		it("Returns undefined is the value doesn't exist", () => {

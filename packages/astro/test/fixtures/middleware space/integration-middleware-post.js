@@ -8,6 +8,10 @@ export const onRequest = defineMiddleware((context, next) => {
 			},
 		});
 	}
+	
+	if (context.url.pathname === '/does-not-exist') {
+		return context.rewrite('/rewrite');
+	}
 
 	return next();
 });

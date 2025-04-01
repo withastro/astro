@@ -5,6 +5,7 @@ import type {
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
+	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
@@ -264,7 +265,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * When redirects occur in production for GET requests, the redirect will be a 301 (permanent) redirect. For all other request methods, it will be a 308 (permanent, and preserve the request method) redirect.
 	 *
 	 * Trailing slashes on prerendered pages are handled by the hosting platform, and may not respect your chosen configuration.
-	 * See your hosting platform's documentation for more information.
+	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](#redirects) for this use case at this point.
 	 *
 	 * ```js
 	 * {
@@ -297,7 +298,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *    '/news': {
 	 *      status: 302,
 	 *      destination: 'https://example.com/news'
-	 *  	}
+	 *  	},
+	 *    // '/product1/', '/product1' // Note, this is not supported
 	 * 	}
 	 * })
 	 * ```
@@ -321,6 +323,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *     },
 	 *   }
 	 * })
+	 *
+	 *
 	 * ```
 	 */
 	redirects?: Record<string, RedirectConfig>;
@@ -1286,14 +1290,15 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 * @docs
 		 * @name markdown.syntaxHighlight
-		 * @type {'shiki' | 'prism' | false}
-		 * @default `shiki`
+		 * @type {SyntaxHighlightConfig | SyntaxHighlightConfigType | false}
+		 * @default `{ type: 'shiki', excludeLangs: ['math'] }`
 		 * @description
 		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
+	 	 * 
 		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
 		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
-		 *
+
 		 * ```js
 		 * {
 		 *   markdown: {
@@ -1302,9 +1307,56 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *   }
 		 * }
 		 * ```
+		 *
+	 	 * For more control over syntax highlighting, you can instead specify a configuration object with the properties listed below.
 		 */
-		syntaxHighlight?: 'shiki' | 'prism' | false;
+		syntaxHighlight?:
+			| {
+					/**
+					 * @docs
+					 * @name markdown.syntaxHighlight.type
+					 * @kind h4
+					 * @type {'shiki' | 'prism'}
+					 * @default `'shiki'`
+					 * @version 5.5.0
+					 * @description
+					 *
+					 * The default CSS classes to apply to Markdown code blocks.
+					 * (If no other syntax highlighting configuration is needed, you can instead set `markdown.syntaxHighlight` directly to `shiki`, `prism`, or `false`.)
+					 *
+					 */
+					type?: SyntaxHighlightConfigType;
 
+					/**
+					 * @docs
+					 * @name markdown.syntaxHighlight.excludeLangs
+					 * @kind h4
+					 * @type {string[]}
+					 * @default `['math']`
+					 * @version 5.5.0
+					 * @description
+					 *
+					 * An array of languages to exclude from the default syntax highlighting specified in `markdown.syntaxHighlight.type`.
+					 * This can be useful when using tools that create diagrams from Markdown code blocks, such as Mermaid.js and D2.
+					 *
+					 * ```js title="astro.config.mjs"
+					 * import { defineConfig } from 'astro/config';
+					 *
+					 * export default defineConfig({
+					 *   markdown: {
+					 *     syntaxHighlight: {
+					 *       type: 'shiki',
+					 *       excludeLangs: ['mermaid', 'math'],
+					 *     },
+					 *   },
+					 * });
+					 * ```
+					 *
+					 * */
+					excludeLangs?: string[];
+			  }
+			| SyntaxHighlightConfigType
+			| false;
 		/**
 		 * @docs
 		 * @name markdown.remarkPlugins
@@ -1630,9 +1682,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * export default defineConfig({
 		 * 	 site: "https://example.com",
 		 * 	 output: "server", // required, with no prerendered pages
-		 *   adapter: node({
-		 *     mode: 'standalone',
-		 *   }),
+		 * 	 adapter: node({
+		 * 	   mode: 'standalone',
+		 * 	 }),
 		 * 	 i18n: {
 		 *     defaultLocale: "en",
 		 *     locales: ["en", "fr", "pt-br", "es"],
@@ -2103,6 +2155,62 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * These two virtual modules contain a serializable subset of the Astro configuration.
 		 */
 		serializeConfig?: boolean;
+
+		/**
+		 * @name experimental.headingIdCompat
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.5.x
+		 * @description
+		 *
+		 * Enables full compatibility of Markdown headings IDs with common platforms such as GitHub and npm.
+		 *
+		 * When enabled, IDs for headings ending with non-alphanumeric characters, e.g. `<Picture />`, will
+		 * include a trailing `-`, matching standard behavior in other Markdown tooling.
+		 */
+		headingIdCompat?: boolean;
+
+		/**
+		 * @name experimental.preserveScriptOrder
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.5
+		 * @description
+		 *
+		 * When enabled, `<script>` and `<style>` tags are rendered in the same order as they are defined.
+		 *
+		 * ## Example
+		 *
+		 * Consider the following component:
+		 *
+		 * ```html
+		 * <p>I am a component</p>
+		 * <style>
+		 *   body {
+		 *     background: red;
+		 *   }
+		 * </style>
+		 * <style>
+		 *   body {
+		 *     background: yellow;
+		 *   }
+		 * </style>
+		 * ```
+		 *
+		 * By default, it will generate a CSS style where `red` will be applied:
+		 *
+		 * ```css
+		 * body {background:#ff0} body {background:red}
+		 * ```
+		 *
+		 * When this new option is set to `true`, the generated CSS style will apply `yellow`:
+		 *
+		 * ```css
+		 * body {background:red} body {background:#ff0}
+		 * ```
+		 *
+		 */
+		preserveScriptOrder?: boolean;
 	};
 }
 

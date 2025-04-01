@@ -40,6 +40,11 @@ function mergeConfigRecursively(
 			}
 		}
 
+		// for server.allowedHosts, if the value is a boolean
+		if (key === 'allowedHosts' && rootPath === 'server' && typeof existing === 'boolean') {
+			continue;
+		}
+
 		if (key === 'data' && rootPath === 'db') {
 			// db.data can be a function or an array of functions. When
 			// merging, make sure they become an array

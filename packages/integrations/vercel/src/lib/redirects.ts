@@ -1,5 +1,5 @@
 import nodePath from 'node:path';
-import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
+import { isRemotePath, removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { AstroConfig, IntegrationResolvedRoute, RoutePart } from 'astro';
 
 import type { Redirect } from '@vercel/routing-utils';
@@ -92,10 +92,14 @@ function getRedirectLocation(route: IntegrationResolvedRoute, config: AstroConfi
 		return pathJoin(config.base, pattern);
 	}
 
-	if (typeof route.redirect === 'object') {
-		return pathJoin(config.base, route.redirect.destination);
+	const destination =
+		typeof route.redirect === 'object' ? route.redirect.destination : (route.redirect ?? '');
+
+	if (isRemotePath(destination)) {
+		return destination;
 	}
-	return pathJoin(config.base, route.redirect || '');
+
+	return pathJoin(config.base, destination);
 }
 
 function getRedirectStatus(route: IntegrationResolvedRoute): number {
