@@ -24,7 +24,7 @@ import { resolveProvider, type ResolveProviderOptions } from './providers/utils.
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
 	return [
 		'@font-face {',
-		`  font-family: ${JSON.stringify(family)};`,
+		`  font-family: ${family};`,
 		`  src: ${renderFontSrc(font.src)};`,
 		`  font-display: ${font.display ?? 'swap'};`,
 		font.unicodeRange && `  unicode-range: ${font.unicodeRange};`,
