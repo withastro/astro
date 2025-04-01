@@ -1,10 +1,10 @@
-import { defineFontProvider } from './index.js';
+import { defineAstroFontProvider } from './index.js';
 
 // TODO: https://github.com/unjs/unifont/issues/108
 // This provider downloads too many files when there's a variable font
 // available. This is bad because it doesn't align with our default font settings
 export function google() {
-	return defineFontProvider({
+	return defineAstroFontProvider({
 		entrypoint: 'astro/assets/fonts/providers/google',
 	});
 }

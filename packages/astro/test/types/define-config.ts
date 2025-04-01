@@ -3,7 +3,7 @@ import { expectTypeOf } from 'expect-type';
 import { defineConfig } from '../../dist/config/index.js';
 import type { AstroUserConfig } from '../../dist/types/public/index.js';
 import type { BuiltInProvider, FontFamily, FontProvider } from '../../dist/assets/fonts/types.js';
-import { defineFontProvider } from '../../dist/config/entrypoint.js';
+import { defineAstroFontProvider } from '../../dist/config/entrypoint.js';
 
 function assertType<T>(data: T, cb: (data: NoInfer<T>) => void) {
 	cb(data);
@@ -82,7 +82,7 @@ describe('defineConfig()', () => {
 			},
 		);
 
-		const provider = defineFontProvider({ entrypoint: '' });
+		const provider = defineAstroFontProvider({ entrypoint: '' });
 
 		assertType(
 			defineConfig({
