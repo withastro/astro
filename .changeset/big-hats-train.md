@@ -26,4 +26,4 @@ return app.render(request, {
 ```
 If no value is provided, Astro will fallback to its default behavior for fetching error pages.
 
-Read more about this feature in the [Adapter API reference](/en/reference/adapter-reference/#prerenderederrorpagefetch).
+Read more about this feature in the [Adapter API reference](https://docs.astro.build/en/reference/adapter-reference/#prerenderederrorpagefetch).
