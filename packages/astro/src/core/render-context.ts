@@ -378,7 +378,7 @@ export class RenderContext {
 				if (this.isPrerendered) {
 					pipeline.logger.warn(
 						'session',
-						`context.session was used when rendering the route ${green(this.routePattern)}, but it is not available on prerendered routes. If you need access to sessions, make sure that the route is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your eoutes server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
+						`context.session was used when rendering the route ${green(this.routePattern)}, but it is not available on prerendered routes. If you need access to sessions, make sure that the route is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your routes server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
 					);
 					return undefined;
 				}
