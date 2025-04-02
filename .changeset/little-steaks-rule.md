@@ -12,23 +12,23 @@ Removes some previously available prop, attribute, and configuration options fro
   + <Logo aria-label="My Company Logo" />
   ```
 - Sprite mode has been temporarily removed while we consider a new implementation that addresses how this feature was being used in practice. This means that there are no longer multiple `mode` options, and all SVGs will be inline. All instances of `mode` must be removed from your project as you can no longer control a mode:
-```diff
-- <Logo mode="inline" />
-+ <Logo />
-```
+  ```diff
+  - <Logo mode="inline" />
+  + <Logo />
+  ```
 
-```diff
-import { defineConfig } from 'astro'
+  ```diff
+  import { defineConfig } from 'astro'
 
-export default defineConfig({
-  experimental: {
--    svg: {
--      mode: 'sprite'
--    },
-+   svg: true
-  }
-});
-```
+  export default defineConfig({
+    experimental: {
+  -    svg: {
+  -      mode: 'sprite'
+  -    },
+  +   svg: true
+    }
+  });
+  ```
 - The default `role` is no longer applied due to developer feedback. Please add the appropriate `role` on each component individually as needed:
   ```diff
   - <Logo />
