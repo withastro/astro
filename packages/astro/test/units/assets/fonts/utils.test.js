@@ -8,9 +8,9 @@ import {
 	proxyURL,
 	isGenericFontFamily,
 	generateFallbacksCSS,
-	kebab,
 	resolveFontFamily,
 	familiesToUnifontProviders,
+	isValidCssVariableName,
 } from '../../../../dist/assets/fonts/utils.js';
 
 function createSpyCache() {
@@ -181,7 +181,7 @@ describe('fonts utils', () => {
 		it('should return null if there are no fallbacks', async () => {
 			assert.equal(
 				await generateFallbacksCSS({
-					family: { name: 'Roboto' },
+					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: [],
 					font: null,
 					metrics: {
@@ -196,7 +196,7 @@ describe('fonts utils', () => {
 		it('should return fallbacks even without automatic fallbacks generation', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: { name: 'Roboto' },
+					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: ['foo'],
 					font: null,
 					metrics: null,
@@ -211,7 +211,7 @@ describe('fonts utils', () => {
 		it('should return fallbacks if there are no metrics', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: { name: 'Roboto' },
+					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: ['foo'],
 					font: null,
 					metrics: {
@@ -229,7 +229,7 @@ describe('fonts utils', () => {
 		it('should return fallbacks if there are metrics but no generic font family', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: { name: 'Roboto' },
+					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: ['foo'],
 					font: null,
 					metrics: {
@@ -253,7 +253,7 @@ describe('fonts utils', () => {
 		it('shold return fallbacks if the generic font family does not have fonts associated', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: { name: 'Roboto' },
+					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: ['emoji'],
 					font: null,
 					metrics: {
@@ -277,7 +277,7 @@ describe('fonts utils', () => {
 		it('resolves fallbacks correctly', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: { name: 'Roboto' },
+					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: ['foo', 'bar'],
 					font: null,
 					metrics: {
@@ -298,7 +298,7 @@ describe('fonts utils', () => {
 			);
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
-					family: { name: 'Roboto' },
+					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: ['sans-serif', 'foo'],
 					font: null,
 					metrics: {
@@ -315,39 +315,9 @@ describe('fonts utils', () => {
 				{
 					css: '',
 					fallbacks: ['sans-serif', 'foo'],
-				},
-			);
-			assert.deepStrictEqual(
-				await generateFallbacksCSS({
-					family: { name: 'Roboto', as: 'Custom' },
-					fallbacks: ['foo', 'sans-serif'],
-					font: null,
-					metrics: {
-						getMetricsForFamily: async () => ({
-							ascent: 0,
-							descent: 0,
-							lineGap: 0,
-							unitsPerEm: 0,
-							xWidthAvg: 0,
-						}),
-						generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
-					},
-				}),
-				{
-					css: `[Arial,"Custom fallback: Arial"]`,
-					fallbacks: ['"Custom fallback: Arial"', 'foo', 'sans-serif'],
 				},
 			);
 		});
-	});
-
-	it('kebab()', () => {
-		assert.equal(kebab('valid'), 'valid');
-		assert.equal(kebab('camelCase'), 'camel-case');
-		assert.equal(kebab('PascalCase'), 'pascal-case');
-		assert.equal(kebab('snake_case'), 'snake-case');
-		assert.equal(kebab('  trim- '), 'trim');
-		assert.equal(kebab('de--dupe'), 'de-dupe');
 	});
 
 	describe('resolveFontFamily()', () => {
@@ -358,14 +328,18 @@ describe('fonts utils', () => {
 				await resolveFontFamily({
 					family: {
 						name: 'Custom',
+						cssVariable: '--custom',
 						provider: 'local',
 						src: [],
 					},
 					resolveMod: async () => ({ provider: () => {} }),
+					generateNameWithHash: (family) => `${family.name}-x`,
 					root,
 				}),
 				{
 					name: 'Custom',
+					nameWithHash: 'Custom-x',
+					cssVariable: '--custom',
 					provider: 'local',
 					src: [],
 				},
@@ -374,13 +348,17 @@ describe('fonts utils', () => {
 				await resolveFontFamily({
 					family: {
 						name: 'Custom',
+						cssVariable: '--custom',
 						src: [],
 					},
 					resolveMod: async () => ({ provider: () => {} }),
+					generateNameWithHash: (family) => `${family.name}-x`,
 					root,
 				}),
 				{
 					name: 'Custom',
+					nameWithHash: 'Custom-x',
+					cssVariable: '--custom',
 					provider: 'local',
 					src: [],
 				},
@@ -391,9 +369,11 @@ describe('fonts utils', () => {
 			let res = await resolveFontFamily({
 				family: {
 					name: 'Custom',
+					cssVariable: '--custom',
 					provider: 'google',
 				},
 				resolveMod: (id) => import(id),
+				generateNameWithHash: (family) => `${family.name}-x`,
 				root,
 			});
 			assert.equal(res.name, 'Custom');
@@ -406,8 +386,10 @@ describe('fonts utils', () => {
 			res = await resolveFontFamily({
 				family: {
 					name: 'Custom',
+					cssVariable: '--custom',
 				},
 				resolveMod: (id) => import(id),
+				generateNameWithHash: (family) => `${family.name}-x`,
 				root,
 			});
 			assert.equal(res.name, 'Custom');
@@ -422,11 +404,13 @@ describe('fonts utils', () => {
 			const res = await resolveFontFamily({
 				family: {
 					name: 'Custom',
+					cssVariable: '--custom',
 					provider: {
 						entrypoint: '',
 					},
 				},
 				resolveMod: async () => ({ provider: () => Object.assign(() => {}, { _name: 'test' }) }),
+				generateNameWithHash: (family) => `${family.name}-x`,
 				root,
 			});
 			assert.equal(res.name, 'Custom');
@@ -436,130 +420,155 @@ describe('fonts utils', () => {
 				assert.equal(provider._name, 'test');
 			}
 		});
+	});
 
-		describe('familiesToUnifontProviders()', () => {
-			const createProvider = (/** @type {string} */ name) => () =>
-				Object.assign(() => undefined, { _name: name });
+	describe('familiesToUnifontProviders()', () => {
+		const createProvider = (/** @type {string} */ name) => () =>
+			Object.assign(() => undefined, { _name: name });
 
-			/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
-			function createFixture(families) {
-				const result = familiesToUnifontProviders({
-					hashString: (v) => v,
-					families,
-				});
-				return {
-					/**
-					 * @param {number} length
-					 */
-					assertProvidersLength: (length) => {
-						assert.equal(result.providers.length, length);
-					},
-					/**
-					 * @param {Array<string | undefined>} names
-					 */
-					assertProvidersNames: (names) => {
-						assert.deepStrictEqual(
-							result.families.map((f) =>
-								typeof f.provider === 'string' ? f.provider : f.provider.name,
-							),
-							names,
-						);
-					},
-				};
-			}
-
-			it('skips local fonts', () => {
-				const fixture = createFixture([
-					{
-						name: 'Custom',
-						provider: 'local',
-						src: [],
-					},
-				]);
-				fixture.assertProvidersLength(0);
-				fixture.assertProvidersNames(['local']);
+		/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
+		function createFixture(families) {
+			const result = familiesToUnifontProviders({
+				hashString: (v) => v,
+				families,
 			});
+			return {
+				/**
+				 * @param {number} length
+				 */
+				assertProvidersLength: (length) => {
+					assert.equal(result.providers.length, length);
+				},
+				/**
+				 * @param {Array<string | undefined>} names
+				 */
+				assertProvidersNames: (names) => {
+					assert.deepStrictEqual(
+						result.families.map((f) =>
+							typeof f.provider === 'string' ? f.provider : f.provider.name,
+						),
+						names,
+					);
+				},
+			};
+		}
 
-			it('appends a hash to the provider name', () => {
-				const fixture = createFixture([
-					{
-						name: 'Custom',
-						provider: {
-							provider: createProvider('test'),
-						},
-					},
-				]);
-				fixture.assertProvidersLength(1);
-				fixture.assertProvidersNames(['test-{"name":"test"}']);
-			});
-
-			it('deduplicates providers with no config', () => {
-				const fixture = createFixture([
-					{
-						name: 'Foo',
-						provider: {
-							provider: createProvider('test'),
-						},
-					},
-					{
-						name: 'Bar',
-						provider: {
-							provider: createProvider('test'),
-						},
-					},
-				]);
-				fixture.assertProvidersLength(1);
-				fixture.assertProvidersNames(['test-{"name":"test"}', undefined]);
-			});
-
-			it('deduplicates providers with the same config', () => {
-				const fixture = createFixture([
-					{
-						name: 'Foo',
-						provider: {
-							provider: createProvider('test'),
-							config: { x: 'y' },
-						},
-					},
-					{
-						name: 'Bar',
-						provider: {
-							provider: createProvider('test'),
-							config: { x: 'y' },
-						},
-					},
-				]);
-				fixture.assertProvidersLength(1);
-				fixture.assertProvidersNames(['test-{"name":"test","x":"y"}', undefined]);
-			});
-
-			it('does not deduplicate providers with different configs', () => {
-				const fixture = createFixture([
-					{
-						name: 'Foo',
-						provider: {
-							provider: createProvider('test'),
-							config: {
-								x: 'foo',
-							},
-						},
-					},
-					{
-						name: 'Bar',
-						provider: {
-							provider: createProvider('test'),
-							config: {
-								x: 'bar',
-							},
-						},
-					},
-				]);
-				fixture.assertProvidersLength(2);
-				fixture.assertProvidersNames([
-					'test-{"name":"test","x":"foo"}',
-					'test-{"name":"test","x":"bar"}',
-				]);
-			});
+		it('skips local fonts', () => {
+			const fixture = createFixture([
+				{
+					name: 'Custom',
+					nameWithHash: 'Custom-xxx',
+					cssVariable: '--custom',
+					provider: 'local',
+					src: [],
+				},
+			]);
+			fixture.assertProvidersLength(0);
+			fixture.assertProvidersNames(['local']);
 		});
+
+		it('appends a hash to the provider name', () => {
+			const fixture = createFixture([
+				{
+					name: 'Custom',
+					nameWithHash: 'Custom-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+					},
+				},
+			]);
+			fixture.assertProvidersLength(1);
+			fixture.assertProvidersNames(['test-{"name":"test"}']);
+		});
+
+		it('deduplicates providers with no config', () => {
+			const fixture = createFixture([
+				{
+					name: 'Foo',
+					nameWithHash: 'Foo-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+					},
+				},
+				{
+					name: 'Bar',
+					nameWithHash: 'Bar-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+					},
+				},
+			]);
+			fixture.assertProvidersLength(1);
+			fixture.assertProvidersNames(['test-{"name":"test"}', undefined]);
+		});
+
+		it('deduplicates providers with the same config', () => {
+			const fixture = createFixture([
+				{
+					name: 'Foo',
+					nameWithHash: 'Foo-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+						config: { x: 'y' },
+					},
+				},
+				{
+					name: 'Bar',
+					nameWithHash: 'Bar-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+						config: { x: 'y' },
+					},
+				},
+			]);
+			fixture.assertProvidersLength(1);
+			fixture.assertProvidersNames(['test-{"name":"test","x":"y"}', undefined]);
+		});
+
+		it('does not deduplicate providers with different configs', () => {
+			const fixture = createFixture([
+				{
+					name: 'Foo',
+					nameWithHash: 'Foo-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+						config: {
+							x: 'foo',
+						},
+					},
+				},
+				{
+					name: 'Bar',
+					nameWithHash: 'Bar-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+						config: {
+							x: 'bar',
+						},
+					},
+				},
+			]);
+			fixture.assertProvidersLength(2);
+			fixture.assertProvidersNames([
+				'test-{"name":"test","x":"foo"}',
+				'test-{"name":"test","x":"bar"}',
+			]);
+		});
+	});
+
+	it('isValidCssVariableName', () => {
+		assert.equal(isValidCssVariableName('test'), false);
+		assert.equal(isValidCssVariableName('-test'), false);
+		assert.equal(isValidCssVariableName('--test '), false);
+		assert.equal(isValidCssVariableName('--test:x'), false);
+		assert.equal(isValidCssVariableName('--test'), true);
+
 	});
 });

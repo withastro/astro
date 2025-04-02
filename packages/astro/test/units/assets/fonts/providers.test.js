@@ -91,6 +91,7 @@ describe('fonts providers', () => {
 		let { fonts, values } = resolveLocalFontSpy(
 			{
 				name: 'Custom',
+				cssVariable: '--custom',
 				provider: 'local',
 				src: [
 					{
@@ -146,6 +147,7 @@ describe('fonts providers', () => {
 		({ fonts, values } = resolveLocalFontSpy(
 			{
 				name: 'Custom',
+				cssVariable: '--custom',
 				provider: 'local',
 				src: [
 					{

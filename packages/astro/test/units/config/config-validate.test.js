@@ -395,73 +395,16 @@ describe('Config Validation', () => {
 			);
 		});
 
-		it('Should error on invalid families name', async () => {
-			let configError = await validateConfig({
+		it('Should error on invalid css variable', async () => {
+			const configError = await validateConfig({
 				experimental: {
-					fonts: [{ name: '(' }],
+					fonts: [{ name: 'Roboto', cssVariable: 'invalid' }],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
 				configError.errors[0].message.includes(
-					'Family name "(" contains invalid characters for CSS variable generation.',
-				),
-				true,
-			);
-
-			configError = await validateConfig({
-				experimental: {
-					fonts: [{ name: '(', as: ')' }],
-				},
-			}).catch((err) => err);
-			assert.equal(configError instanceof z.ZodError, true);
-			assert.equal(
-				configError.errors[0].message.includes(
-					'**as** property ")" contains invalid characters for CSS variable generation.',
-				),
-				true,
-			);
-		});
-
-		it('Should error on families name conflicts', async () => {
-			let configError = await validateConfig({
-				experimental: {
-					fonts: [{ name: 'Foo' }, { name: 'Foo' }],
-				},
-			}).catch((err) => err);
-			assert.equal(configError instanceof z.ZodError, true);
-			assert.equal(
-				configError.errors[0].message.includes(
-					'Multiple font families have the same **name** property: "Foo"',
-				),
-				true,
-			);
-
-			configError = await validateConfig({
-				experimental: {
-					fonts: [
-						{ name: 'Foo', as: 'Bar' },
-						{ name: 'Foo', as: 'Bar' },
-					],
-				},
-			}).catch((err) => err);
-			assert.equal(configError instanceof z.ZodError, true);
-			assert.equal(
-				configError.errors[0].message.includes(
-					'Multiple font families have the same **as** property: "Bar"',
-				),
-				true,
-			);
-
-			configError = await validateConfig({
-				experimental: {
-					fonts: [{ name: 'Foo', as: 'Bar' }, { name: 'Bar' }],
-				},
-			}).catch((err) => err);
-			assert.equal(configError instanceof z.ZodError, true);
-			assert.equal(
-				configError.errors[0].message.includes(
-					'A font family **name** property is conflicting with another family **as** property: "Bar"',
+					'contains invalid characters for CSS variable generation',
 				),
 				true,
 			);
