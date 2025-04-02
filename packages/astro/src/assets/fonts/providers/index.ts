@@ -2,26 +2,26 @@ import type { providers } from 'unifont';
 import type { FontProvider } from '../types.js';
 
 function adobe(config: Parameters<typeof providers.adobe>[0]) {
-	return defineFontProvider({
+	return defineAstroFontProvider({
 		entrypoint: 'astro/assets/fonts/providers/adobe',
 		config,
 	});
 }
 
 function bunny() {
-	return defineFontProvider({
+	return defineAstroFontProvider({
 		entrypoint: 'astro/assets/fonts/providers/bunny',
 	});
 }
 
 function fontshare() {
-	return defineFontProvider({
+	return defineAstroFontProvider({
 		entrypoint: 'astro/assets/fonts/providers/fontshare',
 	});
 }
 
 function fontsource() {
-	return defineFontProvider({
+	return defineAstroFontProvider({
 		entrypoint: 'astro/assets/fonts/providers/fontsource',
 	});
 }
@@ -35,6 +35,6 @@ export const fontProviders = {
 };
 
 /** TODO: jsdoc */
-export function defineFontProvider(provider: FontProvider) {
+export function defineAstroFontProvider(provider: FontProvider) {
 	return provider;
 }
