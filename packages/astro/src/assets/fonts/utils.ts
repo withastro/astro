@@ -15,7 +15,6 @@ import {
 	LOCAL_PROVIDER_NAME,
 } from './constants.js';
 import type { Storage } from 'unstorage';
-import type { Logger } from '../../core/logger/core.js';
 import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { resolveProvider, type ResolveProviderOptions } from './providers/utils.js';
@@ -211,56 +210,6 @@ export async function generateFallbacksCSS({
 	}
 
 	return { css, fallbacks };
-}
-
-/**
- * We want to show logs related to font downloading (fresh or from cache)
- * However if we just use the logger as is, there are too many logs, and not
- * so useful.
- * This log manager allows avoiding repetitive logs:
- * - If there are many downloads started at once, only one log is shown for start and end
- * - If a given file has already been logged, it won't show up anymore (useful in dev)
- */
-export function createLogManager(logger: Logger) {
-	const done = new Set<string>();
-	const items = new Set<string>();
-	let id: NodeJS.Timeout | null = null;
-
-	return {
-		add: (value: string) => {
-			if (done.has(value)) {
-				return;
-			}
-
-			if (items.size === 0 && id === null) {
-				logger.info('assets', 'Downloading fonts...');
-			}
-			items.add(value);
-			if (id) {
-				clearTimeout(id);
-				id = null;
-			}
-		},
-		remove: (value: string, cached: boolean) => {
-			if (done.has(value)) {
-				return;
-			}
-
-			items.delete(value);
-			done.add(value);
-			if (id) {
-				clearTimeout(id);
-				id = null;
-			}
-			id = setTimeout(() => {
-				let msg = 'Done';
-				if (cached) {
-					msg += ' (loaded from cache)';
-				}
-				logger.info('assets', msg);
-			}, 50);
-		},
-	};
 }
 
 const CAMEL_CASE_REGEX = /([a-z])([A-Z])/g;

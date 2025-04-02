@@ -6,7 +6,7 @@ import xxhash from 'xxhash-wasm';
 import { isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { cache, createLogManager, extractFontType, kebab, resolveFontFamily } from './utils.js';
+import { cache, extractFontType, kebab, resolveFontFamily } from './utils.js';
 import {
 	VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
@@ -15,7 +15,7 @@ import {
 } from './constants.js';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
 import { createViteLoader } from '../../core/module-loader/vite.js';
 import { LocalFontsWatcher } from './providers/local.js';
 import { readFile } from 'node:fs/promises';
@@ -24,6 +24,8 @@ import fsLiteDriver from 'unstorage/drivers/fs-lite';
 import { fileURLToPath } from 'node:url';
 import { loadFonts } from './load.js';
 import { generateFallbackFontFace, getMetricsForFamily, readMetrics } from './metrics.js';
+import { formatErrorMessage } from '../../core/messages.js';
+import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -170,7 +172,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			// We do not purge the cache in case the user wants to re-use the file later on
 			server.watcher.on('unlink', (path) => localFontsWatcher.onUnlink(path));
 
-			const logManager = createLogManager(logger);
 			// Base is taken into account by default. The prefix contains a traling slash,
 			// so it matches correctly any hash, eg. /_astro/fonts/abc.woff => abc.woff
 			server.middlewares.use(URL_PREFIX, async (req, res, next) => {
@@ -182,22 +183,33 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				if (!url) {
 					return next();
 				}
-				logManager.add(hash);
-				// Storage should be defined at this point since initialize it called before registering
-				// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
-				// no url will be matched and this line will not be reached.
-				const { cached, data } = await cache(storage!, hash, () => fetchFont(url));
-				logManager.remove(hash, cached);
-
-				res.setHeader('Content-Length', data.length);
-				res.setHeader('Content-Type', `font/${extractFontType(hash)}`);
 				// We don't want the request to be cached in dev because we cache it already internally,
 				// and it makes it easier to debug without needing hard refreshes
 				res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
 				res.setHeader('Pragma', 'no-cache');
 				res.setHeader('Expires', 0);
 
-				res.end(data);
+				try {
+					// Storage should be defined at this point since initialize it called before registering
+					// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
+					// no url will be matched and this line will not be reached.
+					const { data } = await cache(storage!, hash, () => fetchFont(url));
+
+					res.setHeader('Content-Length', data.length);
+					res.setHeader('Content-Type', `font/${extractFontType(hash)}`);
+
+					res.end(data);
+				} catch (err) {
+					logger.error('assets', 'Cannot download font file');
+					if (isAstroError(err)) {
+						logger.error(
+							'SKIP_FORMAT',
+							formatErrorMessage(collectErrorMetadata(err), logger.level() === 'debug'),
+						);
+					}
+					res.statusCode = 500;
+					res.end();
+				}
 			});
 		},
 		resolveId(id) {
@@ -219,7 +231,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 
 			try {
-				const logManager = createLogManager(logger);
 				const dir = getClientOutputDirectory(settings);
 				const fontsDir = new URL('.' + baseUrl, dir);
 				try {
@@ -228,11 +239,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 				}
 				if (hashToUrlMap) {
+					logger.info('assets', 'Copying fonts...')
 					await Promise.all(
 						Array.from(hashToUrlMap.entries()).map(async ([hash, url]) => {
-							logManager.add(hash);
-							const { cached, data } = await cache(storage!, hash, () => fetchFont(url));
-							logManager.remove(hash, cached);
+							const { data } = await cache(storage!, hash, () => fetchFont(url));
 							try {
 								writeFileSync(new URL(hash, fontsDir), data);
 							} catch (cause) {
