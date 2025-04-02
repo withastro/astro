@@ -2,9 +2,11 @@
 'astro': patch
 ---
 
-Adds support for loading a session by ID
+Adds a new `session.load()` method to the experimental session API that allows you to load a session by ID.
 
-When using [the experimental sessions API](https://docs.astro.build/en/reference/experimental-flags/sessions/), you don't normally need to worry about managing the session ID and cookies: Astro automatically reads the user's cookies and loads the correct session when needed. However, sometimes you need more control over which session to load. The new `load()` method allows you to manually load a session by ID. This is useful if you are handling the session ID yourself, or if you want to keep track of a session without using cookies. For example, you might want to restore a session from a logged-in user on another device, or work with an API endpoint that doesn't use cookies.
+When using [the experimental sessions API](https://docs.astro.build/en/reference/experimental-flags/sessions/), you don't normally need to worry about managing the session ID and cookies: Astro automatically reads the user's cookies and loads the correct session when needed. However, sometimes you need more control over which session to load. 
+
+The new `load()` method allows you to manually load a session by ID. This is useful if you are handling the session ID yourself, or if you want to keep track of a session without using cookies. For example, you might want to restore a session from a logged-in user on another device, or work with an API endpoint that doesn't use cookies.
 
 ```ts
 // src/pages/api/cart.ts
