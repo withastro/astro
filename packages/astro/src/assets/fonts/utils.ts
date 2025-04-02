@@ -332,7 +332,7 @@ export function familiesToUnifontProviders({
 }: {
 	families: Array<ResolvedFontFamily>;
 	hashString: (value: string) => string;
-}): Array<unifont.Provider> {
+}): { families: Array<ResolvedFontFamily>; providers: Array<unifont.Provider> } {
 	const hashes = new Set<string>();
 	const providers: Array<unifont.Provider> = [];
 
@@ -365,5 +365,5 @@ export function familiesToUnifontProviders({
 		providers.push(unifontProvider);
 	}
 
-	return providers;
+	return { families, providers };
 }

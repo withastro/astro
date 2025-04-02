@@ -44,12 +44,11 @@ export async function loadFonts({
 	log,
 	generateCSSVariableName,
 }: Options): Promise<void> {
-	const { resolveFont } = await unifont.createUnifont(
-		familiesToUnifontProviders({ families, hashString }),
-		{
-			storage,
-		},
-	);
+	const extractedProvidersResult = familiesToUnifontProviders({ families, hashString });
+	families = extractedProvidersResult.families;
+	const { resolveFont } = await unifont.createUnifont(extractedProvidersResult.providers, {
+		storage,
+	});
 
 	for (const family of families) {
 		const preloadData: PreloadData = [];
