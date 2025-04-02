@@ -10,29 +10,29 @@
   + <Logo aria-label="My Company Logo" />
   ```
 - Sprite mode has been removed until we can find the correct implementation without the footguns of the previous approach.
-  - The `mode` prop has been removed due to the removal of Sprite mode.
-    ```diff
-    - <Logo mode="inline" />
-    + <Logo />
-    ```
-  - The `mode` config option has been removed due to the removal of Sprite mode.
-    ```diff
-    import { defineConfig } from 'astro'
+```diff
+- <Logo mode="inline" />
++ <Logo />
+```
 
-    export default defineConfig({
-    -  experimental: {
-    -    svg: {
-    -      mode: 'sprite'
-    -    },
-    -  }
-    });
-    ```
-- The default `role` is no longer applied due to developer feedback.
+```diff
+import { defineConfig } from 'astro'
+
+export default defineConfig({
+  experimental: {
+-    svg: {
+-      mode: 'sprite'
+-    },
++   svg: true
+  }
+});
+```
+- The default `role` is no longer applied due to developer feedback. Please add the appropriate `role` on each component individually as needed:
   ```diff
   - <Logo />
-  + <Logo role="img" /> // NOTE: Only necessary if you wish to keep this functionality
+  + <Logo role="img" /> // To keep the role that was previously applied by default
   ```
-- The `size` prop has been removed as developers expressed confusion on how it would work in combination with `viewBox` and additional styles/attributes.
+- The `size` prop has been removed to better work in combination with `viewBox` and additional styles/attributes. Please replace `size` with explicit `width` and `height` attributes:
   ```diff
   - <Logo size={64} />
   + <Logo width={64} height={64} />
