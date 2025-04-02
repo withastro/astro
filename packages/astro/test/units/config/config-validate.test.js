@@ -11,7 +11,7 @@ import { envField } from '../../../dist/env/config.js';
  *
  * @param {any} userConfig
  */
-function validateConfig(userConfig) {
+async function validateConfig(userConfig) {
 	return _validateConfig(userConfig, process.cwd(), '');
 }
 
@@ -209,13 +209,14 @@ describe('Config Validation', () => {
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
 				configError.errors[0].message,
-				'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
+				'The option `i18n.routing.redirectToDefaultLocale` is only useful when the `i18n.routing.prefixDefaultLocale` is set to `true`. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `true`.',
 			);
 		});
 
 		it('errors if a domains key does not exist', async () => {
 			const configError = await validateConfig({
 				output: 'server',
+				site: 'https://www.example.com',
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['es', 'en'],
@@ -234,6 +235,7 @@ describe('Config Validation', () => {
 		it('errors if a domains value is not an URL', async () => {
 			const configError = await validateConfig({
 				output: 'server',
+				site: 'https://www.example.com',
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['es', 'en'],
@@ -252,6 +254,7 @@ describe('Config Validation', () => {
 		it('errors if a domains value is not an URL with incorrect protocol', async () => {
 			const configError = await validateConfig({
 				output: 'server',
+				site: 'https://www.example.com',
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['es', 'en'],
@@ -270,6 +273,7 @@ describe('Config Validation', () => {
 		it('errors if a domain is a URL with a pathname that is not the home', async () => {
 			const configError = await validateConfig({
 				output: 'server',
+				site: 'https://www.example.com',
 				i18n: {
 					defaultLocale: 'en',
 					locales: ['es', 'en'],

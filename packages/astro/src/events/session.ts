@@ -1,4 +1,4 @@
-import { AstroConfigSchema } from '../core/config/schema.js';
+import { AstroConfigSchema } from '../core/config/schemas/index.js';
 import type { AstroUserConfig } from '../types/public/config.js';
 import type { AstroIntegration } from '../types/public/integrations.js';
 

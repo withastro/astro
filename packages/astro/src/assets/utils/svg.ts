@@ -17,18 +17,12 @@ function parseSvg(contents: string) {
 	return { attributes, body };
 }
 
-export type SvgRenderMode = 'inline' | 'sprite';
-
-export function makeSvgComponent(
-	meta: ImageMetadata,
-	contents: Buffer | string,
-	options?: { mode?: SvgRenderMode },
-) {
+export function makeSvgComponent(meta: ImageMetadata, contents: Buffer | string) {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
 	const { attributes, body: children } = parseSvg(file);
 	const props: SvgComponentProps = {
 		meta,
-		attributes: dropAttributes({ mode: options?.mode, ...attributes }),
+		attributes: dropAttributes(attributes),
 		children,
 	};
 
