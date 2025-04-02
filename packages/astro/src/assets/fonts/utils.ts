@@ -298,7 +298,7 @@ export async function resolveFontFamily({
 	}
 
 	const provider =
-		family.provider === GOOGLE_PROVIDER_NAME || !family.provider ? google() : family.provider
+		family.provider === GOOGLE_PROVIDER_NAME || !family.provider ? google() : family.provider;
 
 	return {
 		...family,
@@ -313,7 +313,7 @@ function sortObjectByKey<T extends Record<string, any>>(unordered: T): T {
 	const ordered = Object.keys(unordered)
 		.sort()
 		.reduce((obj, key) => {
-			// @ts-expect-error
+			// @ts-expect-error Type 'T' is generic and can only be indexed for reading. That's fine here
 			obj[key] = unordered[key];
 			return obj;
 		}, {} as T);
@@ -322,8 +322,9 @@ function sortObjectByKey<T extends Record<string, any>>(unordered: T): T {
 
 /**
  * Extracts providers from families so they can be consumed by unifont.
- * It deduplicates them based on their config and provider name, to eg.
- * allow using the same providers with different options.
+ * It deduplicates them based on their config and provider name:
+ * - If several families use the same provider (by value, not by reference), we only use one provider
+ * - If one provider is used with different settings for 2 families, we make sure there are kept as 2 providers
  */
 export function familiesToUnifontProviders({
 	families,
@@ -331,21 +332,9 @@ export function familiesToUnifontProviders({
 }: {
 	families: Array<ResolvedFontFamily>;
 	hashString: (value: string) => string;
-<<<<<<< HEAD
-}): Array<unifont.Provider>
-{
-	const map = new Map<string, unifont.Provider>();
-	=======
-}
-):
-{
-	families: Array<ResolvedFontFamily>;
-	providers: Array<unifont.Provider>;
-}
-{
+}): { families: Array<ResolvedFontFamily>; providers: Array<unifont.Provider> } {
 	const hashes = new Set<string>();
 	const providers: Array<unifont.Provider> = [];
->>>>>>> feat/fonts
 
 	for (const { provider } of families) {
 		if (provider === LOCAL_PROVIDER_NAME) {
@@ -361,23 +350,11 @@ export function familiesToUnifontProviders({
 				}),
 			),
 		);
-<<<<<<< HEAD
-		if (map.has(hash)) {
-=======
 		if (hashes.has(hash)) {
->>>>>>> feat/fonts
 			continue;
 		}
 		// Makes sure every font uses the right instance of a given provider
 		// if this provider is provided several times with different options
-<<<<<<< HEAD
-		unifontProvider._name += `-${hash}`;
-		provider.name = unifontProvider._name;
-		map.set(hash, unifontProvider);
-	}
-
-	return [...map.values()];
-=======
 		// We have to mutate the unifont provider name because unifont deduplicates
 		// based on the name.
 		unifontProvider._name += `-${hash}`;
@@ -389,5 +366,4 @@ export function familiesToUnifontProviders({
 	}
 
 	return { families, providers };
->>>>>>> feat/fonts
 }
