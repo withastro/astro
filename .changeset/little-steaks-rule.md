@@ -2,33 +2,7 @@
 'astro': patch
 ---
 
-The SVG import feature introduced behind a flag in [v5.0.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#500) is no longer experimental and is available for general use.
-
-This feature allows you to import SVG files directly into your Astro project as components and inlining them into your HTML.
-
-To use this feature, import an SVG file in your Astro project, passing any common SVG attributes to the imported component.
-
-```astro
----
-import Logo from './path/to/svg/file.svg';
----
-
-<Logo />
-```
-
-If you were previously using this feature, please remove the experimental flag from your Astro config:
-
-```diff
-import { defineConfig } from 'astro'
-
-export default defineConfig({
--  experimental: {
--    svg: true,
--  }
-})
-```
-
-A few other features that were available during the experimental stage have been removed. Be sure to update your implementations based on the following:
+**BREAKING CHANGE to the experimental SVG Component API only**
 
 - The `title` prop has been removed until we can settle on the correct DX and a11y tradeoffs
   ```diff
@@ -63,8 +37,3 @@ A few other features that were available during the experimental stage have been
   - <Logo size={64} />
   + <Logo width={64} height={64} />
   ```
-
-
-If you have been waiting for stabilization before using the SVG Components feature, you can now do so.
-
-Please see [SVG Components page in docs](https://docs.astro.build/en/svg-components/) for more about this feature.
