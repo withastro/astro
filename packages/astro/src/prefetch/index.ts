@@ -335,7 +335,7 @@ function onPageLoad(cb: () => void) {
  *
  * @param eagerness Hint to the browser as to how eagerly it should prefetch/prerender link targets
  */
-function appendSpeculationRules(url: string, eagerness: PrefetchOptions["eagerness"]) {
+function appendSpeculationRules(url: string, eagerness: PrefetchOptions['eagerness']) {
 	const script = document.createElement('script');
 	script.type = 'speculationrules';
 	script.textContent = JSON.stringify({
