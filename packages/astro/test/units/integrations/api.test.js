@@ -12,6 +12,13 @@ import { createFixture, defaultLogger, runInContainer } from '../test-utils.js';
 const defaultConfig = {
 	root: new URL('./', import.meta.url),
 	srcDir: new URL('src/', import.meta.url),
+	build: {},
+	image: {
+		remotePatterns: [],
+	},
+	outDir: new URL('./dist/', import.meta.url),
+	publicDir: new URL('./public/', import.meta.url),
+	experimental: {},
 };
 const dotAstroDir = new URL('./.astro/', defaultConfig.root);
 

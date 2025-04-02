@@ -168,7 +168,6 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 
 	const imports = [
 		`import { renderers } from '${RENDERERS_MODULE_ID}';`,
-		`import * as actions from '${ASTRO_ACTIONS_INTERNAL_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		`import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`,
@@ -180,7 +179,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`    pageMap,`,
 		`    serverIslandMap,`,
 		`    renderers,`,
-		`    actions,`,
+		`    actions: () => import("${ASTRO_ACTIONS_INTERNAL_MODULE_ID}"),`,
 		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${middlewareId}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,
