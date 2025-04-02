@@ -4,12 +4,14 @@
 
 **BREAKING CHANGE to the experimental SVG Component API only**
 
-- The `title` prop has been removed until we can settle on the correct DX and a11y tradeoffs
+Removes some previously available prop, attribute, and configuration options from the experimental SVG API. These items are no longer available and must be removed from your code:
+
+- The `title` prop has been removed until we can settle on the correct balance between developer experience and accessibility. Please replace any `title` props on your components with `aria-label`:
   ```diff
   - <Logo title="My Company Logo" />
   + <Logo aria-label="My Company Logo" />
   ```
-- Sprite mode has been removed until we can find the correct implementation without the footguns of the previous approach.
+- Sprite mode has been temporarily removed while we consider a new implementation that addresses how this feature was being used in practice. This means that there are no longer multiple `mode` options, and all SVGs will be inline. All instances of `mode` must be removed from your project as you can no longer control a mode:
 ```diff
 - <Logo mode="inline" />
 + <Logo />
