@@ -290,6 +290,20 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	}
 
 	/**
+	 * Loads a session from storage with the given ID, and replaces the current session.
+	 * Any changes made to the current session will be lost.
+	 * This is not normally needed, as the session is automatically loaded using the cookie.
+	 * However it can be used to restore a session where the ID has been recorded somewhere
+	 * else (e.g. in a database).
+	 */
+	async load(sessionID: string) {
+		this.#sessionID = sessionID;
+		this.#data = undefined;
+		await this.#setCookie();
+		await this.#ensureData();
+	}
+
+	/**
 	 * Sets the session cookie.
 	 */
 	async #setCookie() {

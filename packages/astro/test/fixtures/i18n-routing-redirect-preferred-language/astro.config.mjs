@@ -4,7 +4,14 @@ export default defineConfig({
 	i18n: {
 		defaultLocale: 'en',
 		locales: [
-			'en', 'pt', 'it'
+			'en', 
+			'pt', 
+			'it',
+			{
+				path: "zh-Hant",
+				codes: ["zh-HK", "zh-TW"]
+			}
+			
 		]
 	}
 })

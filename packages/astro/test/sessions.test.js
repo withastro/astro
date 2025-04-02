@@ -96,6 +96,33 @@ describe('Astro.session', () => {
 				'Favorite URL set to https://example.com/ from https://domain.invalid/',
 			);
 		});
+
+		it('can load a session by ID', async () => {
+			const firstResponse = await fetchResponse('/_actions/addToCart', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					Origin: 'http://example.com',
+				},
+				body: new URLSearchParams({ productId: 'item1' }),
+			});
+			const firstResponseData = devalue.parse(await firstResponse.text());
+			assert.equal(firstResponseData.cart.includes('item1'), true);
+
+			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
+			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
+
+			//  Load without a cookie, but with the session ID for the action to load
+			const secondResponse = await fetchResponse('/_actions/loadCart', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ id: firstSessionId }),
+			});
+			const cartData = devalue.parse(await secondResponse.text());
+			assert.deepEqual(cartData.cart, firstResponseData.cart);
+		});
 	});
 
 	describe('Development', () => {

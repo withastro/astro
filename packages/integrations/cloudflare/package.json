@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "12.3.1",
+  "version": "12.4.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -42,7 +42,7 @@
     "magic-string": "^0.30.17",
     "miniflare": "^4.20250321.1",
     "tinyglobby": "^0.2.12",
-    "vite": "^6.2.3",
+    "vite": "^6.2.4",
     "wrangler": "^4.5.1"
   },
   "peerDependencies": {
