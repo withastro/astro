@@ -31,14 +31,13 @@ import { AppPipeline } from './pipeline.js';
 
 export { deserializeManifest } from './common.js';
 
-
-type ErrorPagePath = 
-  | `${string}/404`
-  | `${string}/500`
-  | `${string}/404/`
-  | `${string}/500/`
-  | `${string}404.html`
-  | `${string}500.html`;
+type ErrorPagePath =
+	| `${string}/404`
+	| `${string}/500`
+	| `${string}/404/`
+	| `${string}/500/`
+	| `${string}404.html`
+	| `${string}500.html`;
 
 export interface RenderOptions {
 	/**
@@ -348,7 +347,12 @@ export class App {
 			if (typeof locals !== 'object') {
 				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
 				this.#logger.error(null, error.stack!);
-				return this.#renderError(request, { status: 500, error, clientAddress, prerenderedErrorPageFetch: prerenderedErrorPageFetch, });
+				return this.#renderError(request, {
+					status: 500,
+					error,
+					clientAddress,
+					prerenderedErrorPageFetch: prerenderedErrorPageFetch,
+				});
 			}
 		}
 		if (!routeData) {
@@ -367,7 +371,12 @@ export class App {
 		if (!routeData) {
 			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);
 			this.#logger.debug('router', "Here's the available routes:\n", this.#manifestData);
-			return this.#renderError(request, { locals, status: 404, clientAddress, prerenderedErrorPageFetch: prerenderedErrorPageFetch });
+			return this.#renderError(request, {
+				locals,
+				status: 404,
+				clientAddress,
+				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
+			});
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
@@ -391,7 +400,13 @@ export class App {
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
-			return this.#renderError(request, { locals, status: 500, error: err, clientAddress, prerenderedErrorPageFetch: prerenderedErrorPageFetch });
+			return this.#renderError(request, {
+				locals,
+				status: 500,
+				error: err,
+				clientAddress,
+				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
+			});
 		} finally {
 			await session?.[PERSIST_SYMBOL]();
 		}
