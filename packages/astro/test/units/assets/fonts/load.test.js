@@ -2,6 +2,8 @@
 import { it } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadFonts } from '../../../../dist/assets/fonts/load.js';
+import { resolveProvider } from '../../../../dist/assets/fonts/providers/utils.js';
+import { google } from '../../../../dist/assets/fonts/providers/google.js';
 
 it('loadFonts()', async () => {
 	const root = new URL(import.meta.url);
@@ -50,12 +52,14 @@ it('loadFonts()', async () => {
 	await loadFonts({
 		root,
 		base,
-		providers: [],
 		families: [
 			{
 				name: 'Roboto',
-				// we do weird typings internally for "reasons" (provider is typed as "local" | "custom") but this is valid
-				provider: /** @type {any} */ ('google'),
+				provider: await resolveProvider({
+					root,
+					resolveMod: (id) => import(id),
+					provider: google(),
+				}),
 				fallbacks: ['sans-serif'],
 				as: 'Custom',
 				display: 'block',
@@ -64,12 +68,6 @@ it('loadFonts()', async () => {
 		storage,
 		hashToUrlMap,
 		resolvedMap,
-		resolveMod: async (id) => {
-			if (id === '/CUSTOM') {
-				return { provider: () => {} };
-			}
-			return await import(id);
-		},
 		hashString: (v) => Buffer.from(v).toString('base64'),
 		getMetricsForFamily: async () => ({
 			ascent: 0,

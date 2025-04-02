@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BUILTIN_PROVIDERS, LOCAL_PROVIDER_NAME } from './constants.js';
+import { GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME } from './constants.js';
 
 function dedupe<T>(arr: Array<T>): Array<T> {
 	return [...new Set(arr)];
@@ -7,7 +7,7 @@ function dedupe<T>(arr: Array<T>): Array<T> {
 
 // TODO: jsdoc for everything, most of those end up in the public AstroConfig type
 
-export const resolveFontOptionsSchema = z.object({
+export const sharedFontOptionsSchema = z.object({
 	weights: z
 		.array(
 			z
@@ -40,22 +40,13 @@ export const resolveFontOptionsSchema = z.object({
 // a-z A-Z 0-9 space underscore colon
 export const VALID_CHAR_RE = /[\w ]/;
 
-export const fontFamilyAttributesSchema = z.object({
+export const baseFamilyAttributesSchema = z.object({
 	name: z.string(),
-	provider: z.string(),
 	as: z.string().optional(),
 });
 
 export const fontProviderSchema = z
 	.object({
-		name: z.string().superRefine((name, ctx) => {
-			if (BUILTIN_PROVIDERS.includes(name as any)) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: `"${name}" is a reserved provider name`,
-				});
-			}
-		}),
 		entrypoint: z.union([z.string(), z.instanceof(URL)]),
 		config: z.record(z.string(), z.any()).optional(),
 	})
@@ -63,18 +54,18 @@ export const fontProviderSchema = z
 
 export const localFontFamilySchema = z
 	.object({
-		provider: z.literal(LOCAL_PROVIDER_NAME),
+		provider: z.literal(LOCAL_PROVIDER_NAME).optional(),
 		src: z.array(
 			z
 				.object({
 					paths: z.array(z.string()).nonempty(),
 				})
 				.merge(
-					resolveFontOptionsSchema
+					sharedFontOptionsSchema
 						.omit({
 							fallbacks: true,
 							automaticFallback: true,
-							// TODO: find a way to support subsets
+							// TODO: find a way to support subsets (through fontkit?)
 							subsets: true,
 						})
 						.partial(),
@@ -82,9 +73,9 @@ export const localFontFamilySchema = z
 				.strict(),
 		),
 	})
-	.merge(fontFamilyAttributesSchema.omit({ provider: true }))
+	.merge(baseFamilyAttributesSchema)
 	.merge(
-		resolveFontOptionsSchema
+		sharedFontOptionsSchema
 			.omit({
 				weights: true,
 				styles: true,
@@ -94,10 +85,10 @@ export const localFontFamilySchema = z
 	)
 	.strict();
 
-export const commonFontFamilySchema = z
+export const remoteFontFamilySchema = z
 	.object({
-		provider: z.string().optional(),
+		provider: z.union([z.literal(GOOGLE_PROVIDER_NAME), fontProviderSchema]).optional(),
 	})
-	.merge(fontFamilyAttributesSchema.omit({ provider: true }))
-	.merge(resolveFontOptionsSchema.partial())
+	.merge(baseFamilyAttributesSchema)
+	.merge(sharedFontOptionsSchema.partial())
 	.strict();

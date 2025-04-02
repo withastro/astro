@@ -1352,7 +1352,7 @@ export const DeletedLocalFont = {
 export const CannotLoadFontProvider = {
 	name: 'CannotLoadFontProvider',
 	title: 'Cannot load font provider',
-	message: (provider: string) => `An error occured while loading the "${provider}" provider.`,
+	message: (entrypoint: string) => `An error occured while loading the "${entrypoint}" provider.`,
 	hint: 'This is an issue with the font provider. Please open an issue on their repository.',
 } satisfies ErrorData;
 

@@ -40,14 +40,12 @@ describe('astro:fonts', () => {
 				fixture = await loadFixture({
 					root: './fixtures/fonts/',
 					experimental: {
-						fonts: {
-							families: [
-								{
-									name: 'Roboto',
-									provider: 'google',
-								},
-							],
-						},
+						fonts: [
+							{
+								name: 'Roboto',
+								provider: 'google',
+							},
+						],
 					},
 				});
 				devServer = await fixture.startDevServer();

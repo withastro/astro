@@ -11,7 +11,7 @@ import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entryp
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
 import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
 import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontsource.js';
-import { validateMod, resolveProviders } from '../../../../dist/assets/fonts/providers/utils.js';
+import { validateMod, resolveProvider } from '../../../../dist/assets/fonts/providers/utils.js';
 import { proxyURL } from '../../../../dist/assets/fonts/utils.js';
 import { basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -218,13 +218,13 @@ describe('fonts providers', () => {
 		it('validateMod()', () => {
 			const provider = () => {};
 
-			assert.deepStrictEqual(validateMod({ provider }, "custom"), { provider });
+			assert.deepStrictEqual(validateMod({ provider }, 'custom'), { provider });
 
 			const invalidMods = [{}, null, () => {}, { provider: {} }, { provider: null }];
 
 			for (const invalidMod of invalidMods) {
 				try {
-					validateMod(invalidMod, "custom");
+					validateMod(invalidMod, 'custom');
 					assert.fail('This mod should not pass');
 				} catch (err) {
 					assert.equal(err instanceof Error, true);
@@ -232,49 +232,24 @@ describe('fonts providers', () => {
 			}
 		});
 
-		it('resolveProviders()', async () => {
+		it('resolveProvider()', async () => {
 			const root = new URL(import.meta.url);
 			const provider = () => {};
 
 			assert.deepStrictEqual(
-				await resolveProviders({
-					providers: [],
-					resolveMod: async () => ({ provider }),
-					root,
-				}),
-				[
-					{
-						name: 'google',
-						config: undefined,
-						provider,
-					},
-				],
-			);
-
-			assert.deepStrictEqual(
-				await resolveProviders({
-					providers: [
-						{
-							name: 'foo',
-							entrypoint: 'bar',
-							config: { abc: 404 },
-						},
-					],
-					resolveMod: async () => ({ provider }),
-					root,
-				}),
-				[
-					{
-						name: 'google',
-						config: undefined,
-						provider,
-					},
-					{
-						name: 'foo',
+				await resolveProvider({
+					provider: {
+						entrypoint: 'bar',
 						config: { abc: 404 },
-						provider,
 					},
-				],
+
+					resolveMod: async () => ({ provider }),
+					root,
+				}),
+				{
+					config: { abc: 404 },
+					provider,
+				},
 			);
 		});
 	});

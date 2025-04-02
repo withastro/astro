@@ -1,16 +1,12 @@
 // @ts-check
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import {
-	fontProviderSchema,
-	resolveFontOptionsSchema,
-	VALID_CHAR_RE,
-} from '../../../../dist/assets/fonts/config.js';
+import { sharedFontOptionsSchema, VALID_CHAR_RE } from '../../../../dist/assets/fonts/config.js';
 
 describe('fonts schemas', () => {
-	it('resolveFontOptionsSchema', () => {
+	it('sharedFontOptionsSchema', () => {
 		assert.deepStrictEqual(
-			resolveFontOptionsSchema.safeParse({
+			sharedFontOptionsSchema.safeParse({
 				weights: ['400', 400, '500', 600, '100..900'],
 				styles: ['normal', 'normal', 'oblique'],
 				subsets: ['latin', 'latin', 'latin-extended'],
@@ -27,35 +23,6 @@ describe('fonts schemas', () => {
 				},
 			},
 		);
-	});
-
-	it('fontProviderSchema', () => {
-		assert.deepStrictEqual(
-			fontProviderSchema.safeParse({
-				name: 'custom',
-				entrypoint: '',
-			}),
-			{
-				success: true,
-				data: { name: 'custom', entrypoint: '' },
-			},
-		);
-
-		let res = fontProviderSchema.safeParse({
-			name: 'google',
-			entrypoint: '',
-		});
-		assert.equal(res.success, false);
-		assert.equal(res.error.issues[0].code, 'custom');
-		assert.equal(res.error.issues[0].message, '"google" is a reserved provider name');
-
-		res = fontProviderSchema.safeParse({
-			name: 'local',
-			entrypoint: '',
-		});
-		assert.equal(res.success, false);
-		assert.equal(res.error.issues[0].code, 'custom');
-		assert.equal(res.error.issues[0].message, '"local" is a reserved provider name');
 	});
 
 	it('VALID_CHAR_RE', () => {

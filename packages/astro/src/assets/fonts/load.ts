@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolveLocalFont } from './providers/local.js';
-import { resolveProviders, type ResolveMod } from './providers/utils.js';
 import {
+	familiesToUnifontProviders,
 	generateFallbacksCSS,
 	generateFontFace,
 	getFamilyName,
@@ -12,21 +12,19 @@ import {
 } from './utils.js';
 import * as unifont from 'unifont';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { DEFAULTS, GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME } from './constants.js';
-import type { FontFamily, FontProvider, PreloadData } from './types.js';
+import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
+import type { PreloadData, ResolvedFontFamily } from './types.js';
 import type { Storage } from 'unstorage';
 import type { generateFallbackFontFace } from './metrics.js';
 
 interface Options {
 	root: URL;
 	base: string;
-	providers: Array<FontProvider<string>>;
-	families: Array<FontFamily<'local' | 'custom'>>;
+	families: Array<ResolvedFontFamily>;
 	storage: Storage;
 	hashToUrlMap: Map<string, string>;
 	resolvedMap: Map<string, { preloadData: PreloadData; css: string }>;
 	hashString: (value: string) => string;
-	resolveMod: ResolveMod;
 	log: (message: string) => void;
 	generateCSSVariableName: (name: string) => string;
 	generateFallbackFontFace: typeof generateFallbackFontFace;
@@ -36,28 +34,21 @@ interface Options {
 export async function loadFonts({
 	root,
 	base,
-	providers,
 	families,
 	storage,
 	hashToUrlMap,
 	resolvedMap,
-	resolveMod,
 	hashString,
 	generateFallbackFontFace,
 	getMetricsForFamily,
 	log,
 	generateCSSVariableName,
 }: Options): Promise<void> {
-	const resolved = await resolveProviders({
-		root,
-		providers,
-		resolveMod,
+	const extractedProvidersResult = familiesToUnifontProviders({ families, hashString });
+	families = extractedProvidersResult.families;
+	const { resolveFont } = await unifont.createUnifont(extractedProvidersResult.providers, {
+		storage,
 	});
-
-	const { resolveFont } = await unifont.createUnifont(
-		resolved.map((e) => e.provider(e.config)),
-		{ storage },
-	);
 
 	for (const family of families) {
 		const preloadData: PreloadData = [];
@@ -120,8 +111,9 @@ export async function loadFonts({
 					fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
 				},
 				// By default, unifont goes through all providers. We use a different approach
-				// where we specify a provider per font (default to google)
-				[family.provider ?? GOOGLE_PROVIDER_NAME],
+				// where we specify a provider per font.
+				// Name has been set while extracting unifont providers from families (inside familiesToUnifontProviders)
+				[family.provider.name!],
 			);
 
 			fonts = result.fonts.map((font) => ({

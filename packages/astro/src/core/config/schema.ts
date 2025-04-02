@@ -14,15 +14,12 @@ import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import { EnvSchema } from '../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
-import { BUILTIN_PROVIDERS, GOOGLE_PROVIDER_NAME } from '../../assets/fonts/constants.js';
 import {
-	commonFontFamilySchema,
-	fontProviderSchema,
+	remoteFontFamilySchema,
 	localFontFamilySchema,
 	VALID_CHAR_RE,
 } from '../../assets/fonts/config.js';
 import { getFamilyName } from '../../assets/fonts/utils.js';
-import type { FontFamilyAttributes } from '../../assets/fonts/types.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
@@ -625,64 +622,30 @@ export const AstroConfigSchema = z.object({
 				}),
 
 			fonts: z
-				.object({
-					providers: z.array(fontProviderSchema).optional(),
-					families: z.array(
-						z.union([
-							// Shorthand
-							z
-								.string()
-								.transform(
-									(name): FontFamilyAttributes => ({
-										name,
-										provider: GOOGLE_PROVIDER_NAME,
-									}),
-								),
-							localFontFamilySchema,
-							commonFontFamilySchema.transform((family) => ({
-								provider: GOOGLE_PROVIDER_NAME,
-								...family,
-							})),
-						]),
-					),
-				})
-				.strict()
+				.array(z.union([localFontFamilySchema, remoteFontFamilySchema]))
 				.optional()
 				.superRefine((fonts, ctx) => {
 					if (!fonts) {
 						return;
 					}
-					const providersNames = [
-						...BUILTIN_PROVIDERS,
-						...(fonts.providers ?? []).map((provider) => provider.name),
-					];
 					const visited = new Map<string, 'name' | 'as'>();
 
-					for (let i = 0; i < fonts.families.length; i++) {
-						const family = fonts.families[i];
-
-						// Check for invalid providers
-						if (!providersNames.includes(family.provider)) {
-							ctx.addIssue({
-								code: z.ZodIssueCode.custom,
-								message: `Invalid provider "${family.provider}". Please use one of the following: ${providersNames.map((name) => `"${name}"`).join(', ')}`,
-								path: ['families', i, 'provider'],
-							});
-						}
+					for (let i = 0; i < fonts.length; i++) {
+						const family = fonts[i];
 
 						if (family.as) {
 							if (!VALID_CHAR_RE.test(family.as)) {
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,
 									message: `**as** property "${family.as}" contains invalid characters for CSS variable generation. Only letters, numbers, spaces, underscores (\`_\`) and colons (\`:\`) are allowed.`,
-									path: ['families', i, 'as'],
+									path: ['fonts', i, 'as'],
 								});
 							}
 						} else if (!VALID_CHAR_RE.test(family.name)) {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
 								message: `Family name "${family.name}" contains invalid characters for CSS variable generation. Specify the **as** property, read more at TODO:`,
-								path: ['families', i, 'name'],
+								path: ['fonts', i, 'name'],
 							});
 						}
 
@@ -695,11 +658,11 @@ export const AstroConfigSchema = z.object({
 								code: z.ZodIssueCode.custom,
 								message:
 									key === 'name' && existing === 'name'
-										? `Multiple families have the same **name** property: "${name}". Names must be unique. You can override one of these family names by specifying the **as** property. Read more at TODO:`
+										? `Multiple font families have the same **name** property: "${name}". Names must be unique. You can override one of these family names by specifying the **as** property. Read more at TODO:`
 										: key === 'as' && existing === 'as'
-											? `Multiple families have the same **as** property: "${name}". Names must be unique. Please rename one of the **as** properties to avoid conflicts. Read more at TODO:`
-											: `A family **name** property is conflicting with another family **as** property: "${name}". All **name** and **as** values must be unique. Please rename to avoid conflicts. Read more at TODO:`,
-								path: ['families', i, key],
+											? `Multiple font families have the same **as** property: "${name}". Names must be unique. Please rename one of the **as** properties to avoid conflicts. Read more at TODO:`
+											: `A font family **name** property is conflicting with another family **as** property: "${name}". All **name** and **as** values must be unique. Please rename to avoid conflicts. Read more at TODO:`,
+								path: ['fonts', i, key],
 							});
 						}
 						visited.set(name, key);
