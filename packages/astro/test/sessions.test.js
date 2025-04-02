@@ -105,7 +105,7 @@ describe('Astro.session', () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'Origin': 'http://example.com',
+					Origin: 'http://example.com',
 				},
 				body: new URLSearchParams({ productId: 'item1' }),
 			});
@@ -126,7 +126,6 @@ describe('Astro.session', () => {
 			const cartData = devalue.parse(await secondResponse.text());
 			assert.deepEqual(cartData.cart, firstResponseData.cart);
 		});
-
 	});
 
 	describe('Development', () => {
