@@ -88,9 +88,9 @@ describe('defineConfig()', () => {
 			defineConfig({
 				experimental: {
 					fonts: [
-						{ name: 'foo', provider: 'google' },
-						{ name: 'bar', provider: 'local', src: [] },
-						{ name: 'baz', provider },
+						{ name: 'foo', cssVariable: '--font-foo', provider: 'google' },
+						{ name: 'bar', cssVariable: '--font-bar', provider: 'local', src: [] },
+						{ name: 'baz', cssVariable: '--font-baz', provider },
 					],
 				},
 			}),
@@ -100,17 +100,43 @@ describe('defineConfig()', () => {
 						never,
 						never,
 						[
-							{ readonly name: 'foo'; readonly provider: 'google' },
-							{ readonly name: 'bar'; readonly provider: 'local'; readonly src: [] },
-							{ readonly name: 'baz'; readonly provider: FontProvider },
+							{
+								readonly name: 'foo';
+								readonly cssVariable: '--font-foo';
+								readonly provider: 'google';
+							},
+							{
+								readonly name: 'bar';
+								readonly cssVariable: '--font-bar';
+								readonly provider: 'local';
+								readonly src: [];
+							},
+							{
+								readonly name: 'baz';
+								readonly cssVariable: '--font-baz';
+								readonly provider: FontProvider;
+							},
 						]
 					>
 				>();
 				expectTypeOf(config.experimental!.fonts!).toEqualTypeOf<
 					[
-						{ readonly name: 'foo'; readonly provider: 'google' },
-						{ readonly name: 'bar'; readonly provider: 'local'; readonly src: [] },
-						{ readonly name: 'baz'; readonly provider: FontProvider },
+						{
+							readonly name: 'foo';
+							readonly cssVariable: '--font-foo';
+							readonly provider: 'google';
+						},
+						{
+							readonly name: 'bar';
+							readonly cssVariable: '--font-bar';
+							readonly provider: 'local';
+							readonly src: [];
+						},
+						{
+							readonly name: 'baz';
+							readonly cssVariable: '--font-baz';
+							readonly provider: FontProvider;
+						},
 					]
 				>();
 			},
