@@ -438,117 +438,128 @@ describe('fonts utils', () => {
 		});
 
 		describe('familiesToUnifontProviders()', () => {
-			const hashString = (/** @type {string} */ value) => value;
 			const createProvider = (/** @type {string} */ name) => () =>
 				Object.assign(() => undefined, { _name: name });
 
-			it('skips local fonts', () => {
-				/** @type {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} */
-				const families = [
-					{
-						name: 'Custom',
-						provider: 'local',
-						src: [],
+			/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
+			function createFixture(families) {
+				const result = familiesToUnifontProviders({
+					hashString: (v) => v,
+					families,
+				});
+				return {
+					/**
+					 * @param {number} length
+					 */
+					assertProvidersLength: (length) => {
+						assert.equal(result.providers.length, length);
 					},
-				];
-				assert.deepStrictEqual(
-					familiesToUnifontProviders({
-						hashString,
-						families,
-					}).length,
-					0,
-				);
-				assert.deepStrictEqual(families, [
+					/**
+					 * @param {Array<string | undefined>} names
+					 */
+					assertProvidersNames: (names) => {
+						assert.deepStrictEqual(
+							result.families.map((f) =>
+								typeof f.provider === 'string' ? f.provider : f.provider.name,
+							),
+							names,
+						);
+					},
+				};
+			}
+
+			it('skips local fonts', () => {
+				const fixture = createFixture([
 					{
 						name: 'Custom',
 						provider: 'local',
 						src: [],
 					},
 				]);
+				fixture.assertProvidersLength(0);
+				fixture.assertProvidersNames(['local']);
 			});
 
-			/** @type {Array<Exclude<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily, { provider: 'local' }>>} */
-			let families = [];
-			assert.deepStrictEqual(familiesToUnifontProviders({ hashString, families }).length, 0);
-			assert.deepStrictEqual(families, []);
+			it('appends a hash to the provider name', () => {
+				const fixture = createFixture([
+					{
+						name: 'Custom',
+						provider: {
+							provider: createProvider('test'),
+						},
+					},
+				]);
+				fixture.assertProvidersLength(1);
+				fixture.assertProvidersNames(['test-{"name":"test"}']);
+			});
 
-			families = [
-				{
-					name: 'Custom',
-					provider: {
-						provider: createProvider('test'),
+			it('deduplicates providers with no config', () => {
+				const fixture = createFixture([
+					{
+						name: 'Foo',
+						provider: {
+							provider: createProvider('test'),
+						},
 					},
-				},
-			];
-			assert.equal(
-				familiesToUnifontProviders({
-					hashString,
-					families,
-				}).length,
-				1,
-			);
-			assert.deepEqual(
-				families.map((f) => f.provider.name),
-				['test-{"name":"test"}'],
-			);
+					{
+						name: 'Bar',
+						provider: {
+							provider: createProvider('test'),
+						},
+					},
+				]);
+				fixture.assertProvidersLength(1);
+				fixture.assertProvidersNames(['test-{"name":"test"}', undefined]);
+			});
 
-			families = [
-				{
-					name: 'Foo',
-					provider: {
-						provider: createProvider('test'),
+			it('deduplicates providers with the same config', () => {
+				const fixture = createFixture([
+					{
+						name: 'Foo',
+						provider: {
+							provider: createProvider('test'),
+							config: { x: 'y' },
+						},
 					},
-				},
-				{
-					name: 'Bar',
-					provider: {
-						provider: createProvider('test'),
+					{
+						name: 'Bar',
+						provider: {
+							provider: createProvider('test'),
+							config: { x: 'y' },
+						},
 					},
-				},
-			];
-			assert.equal(
-				familiesToUnifontProviders({
-					hashString,
-					families,
-				}).length,
-				1,
-			);
-			assert.deepEqual(
-				families.map((f) => f.provider.name),
-				['test-{"name":"test"}', undefined],
-			);
+				]);
+				fixture.assertProvidersLength(1);
+				fixture.assertProvidersNames(['test-{"name":"test","x":"y"}', undefined]);
+			});
 
-			families = [
-				{
-					name: 'Foo',
-					provider: {
-						provider: createProvider('test'),
-						config: {
-							x: 'foo'
-						}
+			it('does not deduplicate providers with different configs', () => {
+				const fixture = createFixture([
+					{
+						name: 'Foo',
+						provider: {
+							provider: createProvider('test'),
+							config: {
+								x: 'foo',
+							},
+						},
 					},
-				},
-				{
-					name: 'Bar',
-					provider: {
-						provider: createProvider('test'),
-						config: {
-							x: 'bar'
-						}
+					{
+						name: 'Bar',
+						provider: {
+							provider: createProvider('test'),
+							config: {
+								x: 'bar',
+							},
+						},
 					},
-				},
-			];
-			assert.equal(
-				familiesToUnifontProviders({
-					hashString,
-					families,
-				}).length,
-				2,
-			);
-			assert.deepEqual(
-				families.map((f) => f.provider.name),
-				['test-{"name":"test","x":"foo"}', 'test-{"name":"test","x":"bar"}'],
-			);
+				]);
+				fixture.assertProvidersLength(2);
+				fixture.assertProvidersNames([
+					'test-{"name":"test","x":"foo"}',
+					'test-{"name":"test","x":"bar"}',
+				]);
+			});
 		});
 	});
 });

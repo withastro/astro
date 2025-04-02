@@ -18,6 +18,7 @@ import type { Storage } from 'unstorage';
 import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { resolveProvider, type ResolveProviderOptions } from './providers/utils.js';
+import { google } from './providers/google.js';
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
@@ -227,7 +228,11 @@ export function getFamilyName(family: Pick<FontFamilyAttributes, 'name' | 'as'>)
 	return family.as ?? family.name;
 }
 
-/** Resolves the font family provider. If none is provided, it will infer the correct one and resolve it. */
+/**
+ * Resolves the font family provider. If none is provided, it will infer the provider as
+ * one of the built-in providers and resolve it. The most important part is that if a
+ * provider is not provided but `src` is, then it's inferred as the local provider.
+ */
 export async function resolveFontFamily({
 	family,
 	...resolveProviderOptions
@@ -242,9 +247,7 @@ export async function resolveFontFamily({
 	}
 
 	const provider =
-		family.provider === GOOGLE_PROVIDER_NAME || !family.provider
-			? await import('./providers/google.js').then((mod) => mod.google())
-			: family.provider;
+		family.provider === GOOGLE_PROVIDER_NAME || !family.provider ? google() : family.provider;
 
 	return {
 		...family,
@@ -259,7 +262,7 @@ function sortObjectByKey<T extends Record<string, any>>(unordered: T): T {
 	const ordered = Object.keys(unordered)
 		.sort()
 		.reduce((obj, key) => {
-			// @ts-expect-error
+			// @ts-expect-error Type 'T' is generic and can only be indexed for reading. That's fine here
 			obj[key] = unordered[key];
 			return obj;
 		}, {} as T);
@@ -268,8 +271,9 @@ function sortObjectByKey<T extends Record<string, any>>(unordered: T): T {
 
 /**
  * Extracts providers from families so they can be consumed by unifont.
- * It deduplicates them based on their config and provider name, to eg.
- * allow using the same providers with different options.
+ * It deduplicates them based on their config and provider name:
+ * - If several families use the same provider (by value, not by reference), we only use one provider
+ * - If one provider is used with different settings for 2 families, we make sure there are kept as 2 providers
  */
 export function familiesToUnifontProviders({
 	families,
@@ -277,8 +281,9 @@ export function familiesToUnifontProviders({
 }: {
 	families: Array<ResolvedFontFamily>;
 	hashString: (value: string) => string;
-}): Array<unifont.Provider> {
-	const map = new Map<string, unifont.Provider>();
+}): { families: Array<ResolvedFontFamily>; providers: Array<unifont.Provider> } {
+	const hashes = new Set<string>();
+	const providers: Array<unifont.Provider> = [];
 
 	for (const { provider } of families) {
 		if (provider === LOCAL_PROVIDER_NAME) {
@@ -294,15 +299,20 @@ export function familiesToUnifontProviders({
 				}),
 			),
 		);
-		if (map.has(hash)) {
+		if (hashes.has(hash)) {
 			continue;
 		}
 		// Makes sure every font uses the right instance of a given provider
 		// if this provider is provided several times with different options
+		// We have to mutate the unifont provider name because unifont deduplicates
+		// based on the name.
 		unifontProvider._name += `-${hash}`;
+		// We set the provider name so we can tell unifont what provider to use when
+		// resolving font faces
 		provider.name = unifontProvider._name;
-		map.set(hash, unifontProvider);
+		hashes.add(hash);
+		providers.push(unifontProvider);
 	}
 
-	return [...map.values()];
+	return { families, providers };
 }
