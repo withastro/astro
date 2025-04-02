@@ -44,12 +44,11 @@ export async function loadFonts({
 	log,
 	generateCSSVariableName,
 }: Options): Promise<void> {
-	const { resolveFont } = await unifont.createUnifont(
-		familiesToUnifontProviders({ families, hashString }),
-		{
-			storage,
-		},
-	);
+	const extractedProvidersResult = familiesToUnifontProviders({ families, hashString });
+	families = extractedProvidersResult.families;
+	const { resolveFont } = await unifont.createUnifont(extractedProvidersResult.providers, {
+		storage,
+	});
 
 	for (const family of families) {
 		const preloadData: PreloadData = [];
@@ -113,7 +112,7 @@ export async function loadFonts({
 				},
 				// By default, unifont goes through all providers. We use a different approach
 				// where we specify a provider per font.
-				// Name has been set while extracting unifont providers from families
+				// Name has been set while extracting unifont providers from families (inside familiesToUnifontProviders)
 				[family.provider.name!],
 			);
 
