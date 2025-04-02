@@ -19,6 +19,7 @@ import type { Logger } from '../../core/logger/core.js';
 import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { resolveProvider, type ResolveProviderOptions } from './providers/utils.js';
+import { google } from './providers/google.js';
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
@@ -278,7 +279,11 @@ export function getFamilyName(family: Pick<FontFamilyAttributes, 'name' | 'as'>)
 	return family.as ?? family.name;
 }
 
-/** Resolves the font family provider. If none is provided, it will infer the correct one and resolve it. */
+/**
+ * Resolves the font family provider. If none is provided, it will infer the provider as
+ * one of the built-in providers and resolve it. The most important part is that if a
+ * provider is not provided but `src` is, then it's inferred as the local provider.
+ */
 export async function resolveFontFamily({
 	family,
 	...resolveProviderOptions
@@ -293,9 +298,7 @@ export async function resolveFontFamily({
 	}
 
 	const provider =
-		family.provider === GOOGLE_PROVIDER_NAME || !family.provider
-			? await import('./providers/google.js').then((mod) => mod.google())
-			: family.provider;
+		family.provider === GOOGLE_PROVIDER_NAME || !family.provider ? google() : family.provider
 
 	return {
 		...family,
@@ -328,8 +331,21 @@ export function familiesToUnifontProviders({
 }: {
 	families: Array<ResolvedFontFamily>;
 	hashString: (value: string) => string;
-}): Array<unifont.Provider> {
+<<<<<<< HEAD
+}): Array<unifont.Provider>
+{
 	const map = new Map<string, unifont.Provider>();
+	=======
+}
+):
+{
+	families: Array<ResolvedFontFamily>;
+	providers: Array<unifont.Provider>;
+}
+{
+	const hashes = new Set<string>();
+	const providers: Array<unifont.Provider> = [];
+>>>>>>> feat/fonts
 
 	for (const { provider } of families) {
 		if (provider === LOCAL_PROVIDER_NAME) {
@@ -345,15 +361,33 @@ export function familiesToUnifontProviders({
 				}),
 			),
 		);
+<<<<<<< HEAD
 		if (map.has(hash)) {
+=======
+		if (hashes.has(hash)) {
+>>>>>>> feat/fonts
 			continue;
 		}
 		// Makes sure every font uses the right instance of a given provider
 		// if this provider is provided several times with different options
+<<<<<<< HEAD
 		unifontProvider._name += `-${hash}`;
 		provider.name = unifontProvider._name;
 		map.set(hash, unifontProvider);
 	}
 
 	return [...map.values()];
+=======
+		// We have to mutate the unifont provider name because unifont deduplicates
+		// based on the name.
+		unifontProvider._name += `-${hash}`;
+		// We set the provider name so we can tell unifont what provider to use when
+		// resolving font faces
+		provider.name = unifontProvider._name;
+		hashes.add(hash);
+		providers.push(unifontProvider);
+	}
+
+	return { families, providers };
+>>>>>>> feat/fonts
 }
