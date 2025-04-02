@@ -6,7 +6,7 @@ import xxhash from 'xxhash-wasm';
 import { isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { cache, extractFontType, kebab, resolveFontFamily } from './utils.js';
+import { cache, extractFontType, resolveFontFamily, sortObjectByKey } from './utils.js';
 import {
 	VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
@@ -111,14 +111,22 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 		const root = settings.config.root;
 
+		const families = await Promise.all(
+			settings.config.experimental.fonts!.map((family: FontFamily<any>) =>
+				resolveFontFamily({
+					family,
+					root,
+					resolveMod,
+					generateNameWithHash: (_family) =>
+						`${_family.name}-${h64ToString(JSON.stringify(sortObjectByKey(_family)))}`,
+				}),
+			),
+		);
+
 		await loadFonts({
 			root,
 			base: baseUrl,
-			families: await Promise.all(
-				settings.config.experimental.fonts!.map((family: FontFamily<any>) =>
-					resolveFontFamily({ family, resolveMod, root }),
-				),
-			),
+			families,
 			storage,
 			hashToUrlMap,
 			resolvedMap,
@@ -133,7 +141,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				return metrics;
 			},
 			log: (message) => logger.info('assets', message),
-			generateCSSVariableName: (name) => kebab(name),
 		});
 	}
 
@@ -239,7 +246,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 				}
 				if (hashToUrlMap) {
-					logger.info('assets', 'Copying fonts...')
+					logger.info('assets', 'Copying fonts...');
 					await Promise.all(
 						Array.from(hashToUrlMap.entries()).map(async ([hash, url]) => {
 							const { data } = await cache(storage!, hash, () => fetchFont(url));

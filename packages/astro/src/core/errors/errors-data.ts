@@ -1372,8 +1372,8 @@ export const ExperimentalFontsNotEnabled = {
 export const FontFamilyNotFound = {
 	name: 'FontFamilyNotFound',
 	title: 'Font family not found',
-	message: (family: string) => `No data was found for the "${family}" family.`,
-	hint: 'This is often caused by a typo in the \`family\` property of the Font component. Check that your component is using a font family you specified in the config.',
+	message: (family: string) => `No data was found for "${family}".`,
+	hint: 'This is often caused by a typo in the \`family\` property of the Font component. Check that your component is using a \`cssVariable\` you specified in the config.',
 } satisfies ErrorData;
 
 /**

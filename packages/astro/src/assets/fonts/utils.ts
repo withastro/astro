@@ -2,7 +2,6 @@ import type * as unifont from 'unifont';
 import type {
 	BuiltInProvider,
 	FontFamily,
-	FontFamilyAttributes,
 	FontProvider,
 	FontType,
 	ResolvedFontFamily,
@@ -153,10 +152,7 @@ export async function generateFallbacksCSS({
 	font: fontData,
 	metrics,
 }: {
-	family: {
-		name: string;
-		as?: string;
-	};
+	family: Pick<ResolvedFontFamily, 'name' | 'nameWithHash'>;
 	/** The family fallbacks */
 	fallbacks: Array<string>;
 	font: GetMetricsForFamilyFont;
@@ -199,7 +195,7 @@ export async function generateFallbacksCSS({
 
 	const localFontsMappings = localFonts.map((font) => ({
 		font,
-		name: `"${getFamilyName(family)} fallback: ${font}"`,
+		name: `"${family.nameWithHash} fallback: ${font}"`,
 	}));
 
 	// We prepend the fallbacks with the local fonts and we dedupe in case a local font is already provided
@@ -212,22 +208,6 @@ export async function generateFallbacksCSS({
 	return { css, fallbacks };
 }
 
-const CAMEL_CASE_REGEX = /([a-z])([A-Z])/g;
-const NON_ALPHANUMERIC_REGEX = /[^a-zA-Z0-9]+/g;
-const TRIM_DASHES_REGEX = /^-+|-+$/g;
-
-export function kebab(value: string) {
-	return value
-		.replace(CAMEL_CASE_REGEX, '$1-$2') // Handle camelCase
-		.replace(NON_ALPHANUMERIC_REGEX, '-') // Replace non-alphanumeric characters with dashes
-		.replace(TRIM_DASHES_REGEX, '') // Trim leading/trailing dashes
-		.toLowerCase();
-}
-
-export function getFamilyName(family: Pick<FontFamilyAttributes, 'name' | 'as'>): string {
-	return family.as ?? family.name;
-}
-
 /**
  * Resolves the font family provider. If none is provided, it will infer the provider as
  * one of the built-in providers and resolve it. The most important part is that if a
@@ -235,13 +215,18 @@ export function getFamilyName(family: Pick<FontFamilyAttributes, 'name' | 'as'>)
  */
 export async function resolveFontFamily({
 	family,
+	generateNameWithHash,
 	...resolveProviderOptions
 }: Omit<ResolveProviderOptions, 'provider'> & {
 	family: FontFamily<BuiltInProvider | FontProvider>;
+	generateNameWithHash: (family: FontFamily<any>) => string;
 }): Promise<ResolvedFontFamily> {
+	const nameWithHash = generateNameWithHash(family);
+
 	if (family.provider === LOCAL_PROVIDER_NAME || (!family.provider && 'src' in family)) {
 		return {
 			...family,
+			nameWithHash,
 			provider: LOCAL_PROVIDER_NAME,
 		};
 	}
@@ -251,6 +236,7 @@ export async function resolveFontFamily({
 
 	return {
 		...family,
+		nameWithHash,
 		provider: await resolveProvider({
 			...resolveProviderOptions,
 			provider,
@@ -258,7 +244,7 @@ export async function resolveFontFamily({
 	};
 }
 
-function sortObjectByKey<T extends Record<string, any>>(unordered: T): T {
+export function sortObjectByKey<T extends Record<string, any>>(unordered: T): T {
 	const ordered = Object.keys(unordered)
 		.sort()
 		.reduce((obj, key) => {
@@ -315,4 +301,9 @@ export function familiesToUnifontProviders({
 	}
 
 	return { families, providers };
+}
+
+/** Checks if the name starts with --, doesn't include a space nor a colon */
+export function isValidCssVariableName(name: string) {
+	return name.startsWith('--') && !name.includes(' ') && !name.includes(':');
 }

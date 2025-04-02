@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import type { AstroConfig } from '../../../types/public/config.js';
-import { VALID_CHAR_RE } from '../../../assets/fonts/config.js';
-import { getFamilyName } from '../../../assets/fonts/utils.js';
+import { isValidCssVariableName } from '../../../assets/fonts/utils.js';
 
 export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((config, ctx) => {
 	if (
@@ -187,45 +186,17 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		});
 	}
 
-	if (config.experimental.fonts) {
-		const visited = new Map<string, 'name' | 'as'>();
-
+	if (config.experimental.fonts && config.experimental.fonts.length > 0) {
 		for (let i = 0; i < config.experimental.fonts.length; i++) {
 			const family = config.experimental.fonts[i];
 
-			if (family.as) {
-				if (!VALID_CHAR_RE.test(family.as)) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: `**as** property "${family.as}" contains invalid characters for CSS variable generation. Only letters, numbers, spaces, underscores (\`_\`) and colons (\`:\`) are allowed.`,
-						path: ['fonts', i, 'as'],
-					});
-				}
-			} else if (!VALID_CHAR_RE.test(family.name)) {
+			if (!isValidCssVariableName(family.cssVariable)) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: `Family name "${family.name}" contains invalid characters for CSS variable generation. Specify the **as** property, read more at TODO:`,
-					path: ['fonts', i, 'name'],
+					message: `**cssVariable** property "${family.cssVariable}" contains invalid characters for CSS variable generation. It must start with --, not contain spaces nor colons (\`:\`).`,
+					path: ['fonts', i, 'cssVariable'],
 				});
 			}
-
-			// Check for name/as conflicts
-			const name = getFamilyName(family);
-			const key = 'as' in family ? 'as' : 'name';
-			const existing = visited.get(name);
-			if (existing) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message:
-						key === 'name' && existing === 'name'
-							? `Multiple font families have the same **name** property: "${name}". Names must be unique. You can override one of these family names by specifying the **as** property. Read more at TODO:`
-							: key === 'as' && existing === 'as'
-								? `Multiple font families have the same **as** property: "${name}". Names must be unique. Please rename one of the **as** properties to avoid conflicts. Read more at TODO:`
-								: `A font family **name** property is conflicting with another family **as** property: "${name}". All **name** and **as** values must be unique. Please rename to avoid conflicts. Read more at TODO:`,
-					path: ['fonts', i, key],
-				});
-			}
-			visited.set(name, key);
 		}
 	}
 });

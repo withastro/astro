@@ -37,12 +37,9 @@ export const sharedFontOptionsSchema = z.object({
 	variationSettings: z.string().optional(),
 });
 
-// a-z A-Z 0-9 space underscore colon
-export const VALID_CHAR_RE = /[\w ]/;
-
 export const baseFamilyAttributesSchema = z.object({
 	name: z.string(),
-	as: z.string().optional(),
+	cssVariable: z.string(),
 });
 
 export const fontProviderSchema = z
