@@ -13,6 +13,7 @@ import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
+import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { validateSessionConfig } from '../core/session.js';
@@ -34,7 +35,6 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import { validateConfigRefined } from '../core/config/validate.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
