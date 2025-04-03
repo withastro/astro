@@ -1,6 +1,5 @@
 import type * as unifont from 'unifont';
-import type { LocalFontFamily } from '../types.js';
-import { DEFAULTS } from '../constants.js';
+import type { ResolvedLocalFontFamily } from '../types.js';
 import { fileURLToPath } from 'node:url';
 import { extractFontType } from '../utils.js';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
@@ -19,35 +18,31 @@ interface ResolveOptions {
 }
 
 export function resolveLocalFont(
-	family: LocalFontFamily,
+	family: ResolvedLocalFontFamily,
 	{ proxyURL, root }: ResolveOptions,
 ): ResolveFontResult {
 	const fonts: ResolveFontResult['fonts'] = [];
 
-	for (const src of family.src) {
-		for (const weight of src.weights ?? DEFAULTS.weights) {
-			for (const style of src.styles ?? DEFAULTS.styles) {
-				const data: ResolveFontResult['fonts'][number] = {
-					weight,
-					style,
-					src: src.paths.map((path) => {
-						const originalURL = fileURLToPath(new URL(path, root));
-						return {
-							originalURL,
-							url: proxyURL(originalURL),
-							format: extractFontType(path),
-						};
-					}),
+	for (const variant of family.variants) {
+		const data: ResolveFontResult['fonts'][number] = {
+			weight: variant.weight,
+			style: variant.style,
+			src: variant.src.map((path) => {
+				const originalURL = fileURLToPath(new URL(path, root));
+				return {
+					originalURL,
+					url: proxyURL(originalURL),
+					format: extractFontType(path),
 				};
-				if (src.display) data.display = src.display;
-				if (src.unicodeRange) data.unicodeRange = src.unicodeRange;
-				if (src.stretch) data.stretch = src.stretch;
-				if (src.featureSettings) data.featureSettings = src.featureSettings;
-				if (src.variationSettings) data.variationSettings = src.variationSettings;
+			}),
+		};
+		if (variant.display) data.display = variant.display;
+		if (variant.unicodeRange) data.unicodeRange = variant.unicodeRange;
+		if (variant.stretch) data.stretch = variant.stretch;
+		if (variant.featureSettings) data.featureSettings = variant.featureSettings;
+		if (variant.variationSettings) data.variationSettings = variant.variationSettings;
 
-				fonts.push(data);
-			}
-		}
+		fonts.push(data);
 	}
 
 	return {

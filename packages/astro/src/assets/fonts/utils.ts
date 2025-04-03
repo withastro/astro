@@ -208,6 +208,14 @@ export async function generateFallbacksCSS({
 	return { css, fallbacks };
 }
 
+function isLocalFontFamily(family: FontFamily<any>): family is FontFamily<'local'> {
+	return family.provider === LOCAL_PROVIDER_NAME || (!family.provider && 'variants' in family);
+}
+
+function dedupe<const T extends Array<any>>(arr: T): T {
+	return [...new Set(arr)] as T;
+}
+
 /**
  * Resolves the font family provider. If none is provided, it will infer the provider as
  * one of the built-in providers and resolve it. The most important part is that if a
@@ -223,11 +231,16 @@ export async function resolveFontFamily({
 }): Promise<ResolvedFontFamily> {
 	const nameWithHash = generateNameWithHash(family);
 
-	if (family.provider === LOCAL_PROVIDER_NAME || (!family.provider && 'src' in family)) {
+	if (isLocalFontFamily(family)) {
 		return {
 			...family,
 			nameWithHash,
 			provider: LOCAL_PROVIDER_NAME,
+			variants: family.variants.map((variant) => ({
+				...variant,
+				weight: variant.weight.toString(),
+			})),
+			fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
 		};
 	}
 
@@ -241,6 +254,11 @@ export async function resolveFontFamily({
 			...resolveProviderOptions,
 			provider,
 		}),
+		weights: family.weights ? dedupe(family.weights.map((weight) => weight.toString())) : undefined,
+		styles: family.styles ? dedupe(family.styles) : undefined,
+		subsets: family.subsets ? dedupe(family.subsets) : undefined,
+		fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
+		unicodeRange: family.unicodeRange ? dedupe(family.unicodeRange) : undefined,
 	};
 }
 

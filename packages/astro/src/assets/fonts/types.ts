@@ -8,10 +8,8 @@ import type {
 import type * as unifont from 'unifont';
 import type {
 	remoteFontFamilySchema,
-	baseFamilyAttributesSchema,
 	fontProviderSchema,
 	localFontFamilySchema,
-	sharedFontOptionsSchema,
 } from './config.js';
 
 // TODO: jsdoc for everything, most of those end up in the public AstroConfig type
@@ -24,17 +22,17 @@ export interface ResolvedFontProvider {
 	config?: Record<string, any>;
 }
 
-export type SharedFontOptions = z.output<typeof sharedFontOptionsSchema>;
-
-export interface FontFamilyAttributes
-	extends z.infer<typeof baseFamilyAttributesSchema>,
-		Partial<SharedFontOptions> {}
-
 export type LocalFontFamily = z.infer<typeof localFontFamilySchema>;
 
-interface ResolvedLocalFontFamily extends LocalFontFamily {
-	provider: LocalProviderName;
+interface ResolvedFontFamilyAttributes {
 	nameWithHash: string;
+}
+
+export interface ResolvedLocalFontFamily
+	extends ResolvedFontFamilyAttributes,
+		Omit<LocalFontFamily, 'variants'> {
+	provider: LocalProviderName;
+	variants: Array<Omit<LocalFontFamily['variants'][number], 'weight'> & { weight: string }>;
 }
 
 interface RemoteFontFamily<TProvider extends GoogleProviderName | FontProvider>
@@ -42,10 +40,11 @@ interface RemoteFontFamily<TProvider extends GoogleProviderName | FontProvider>
 	provider?: TProvider;
 }
 
-interface ResolvedRemoteFontFamily
-	extends Omit<z.output<typeof remoteFontFamilySchema>, 'provider'> {
+export interface ResolvedRemoteFontFamily
+	extends ResolvedFontFamilyAttributes,
+		Omit<z.output<typeof remoteFontFamilySchema>, 'provider' | 'weights'> {
 	provider: ResolvedFontProvider;
-	nameWithHash: string;
+	weights?: Array<string>;
 }
 
 export type FontFamily<TProvider extends BuiltInProvider | FontProvider> =
