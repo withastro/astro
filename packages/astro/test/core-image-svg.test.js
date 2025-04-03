@@ -54,9 +54,11 @@ describe('astro:assets - SVG Components', () => {
 		describe('props', () => {
 			describe('strip', () => {
 				let $;
+				let html;
+
 				before(async () => {
 					let res = await fixture.fetch('/strip');
-					let html = await res.text();
+					html = await res.text();
 					$ = cheerio.load(html, { xml: true });
 				});
 
@@ -77,6 +79,9 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal(!!$svg.attr('xmlns'), false);
 					assert.equal(!!$svg.attr('xmlns:xlink'), false);
 					assert.equal(!!$svg.attr('version'), false);
+				});
+				it('should have no empty attributes', () => {
+					assert.equal(/\s=""/.test(html), false);
 				});
 			});
 			describe('additional props', () => {

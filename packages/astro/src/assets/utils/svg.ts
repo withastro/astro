@@ -19,7 +19,10 @@ function parseSvg(contents: string) {
 
 export function makeSvgComponent(meta: ImageMetadata, contents: Buffer | string) {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
-	const { attributes, body: children } = parseSvg(file);
+	const { attributes, body: children } = parseSvg(
+		// NOTE: This is a workaround for the `ultrahtml` bug that adds empty attributes
+		file.replaceAll(/\s+/g, ' '),
+	);
 	const props: SvgComponentProps = {
 		meta,
 		attributes: dropAttributes(attributes),
