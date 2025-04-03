@@ -51,7 +51,7 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		ctx.addIssue({
 			code: z.ZodIssueCode.custom,
 			message:
-				'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`; setting `i18n.routing.prefixDefaultLocale` to `false` might cause infinite loops. Remove the option `i18n.routing.prefixDefaultLocale`, or change its value to `true`.',
+				'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`, otherwise redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
 			path: ['i18n', 'routing', 'redirectToDefaultLocale'],
 		});
 	}
