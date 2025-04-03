@@ -10,7 +10,8 @@ export default defineConfig({
 				}
 			], 
 			routing: {
-				prefixDefaultLocale: true
+				prefixDefaultLocale: true,
+				redirectToDefaultLocale: true,
 			}
 		},
 		base: "/new-site"
