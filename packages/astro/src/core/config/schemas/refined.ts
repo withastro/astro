@@ -193,7 +193,7 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 			if (!isValidCssVariableName(family.cssVariable)) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: `**cssVariable** property "${family.cssVariable}" contains invalid characters for CSS variable generation. It must start with --, not contain spaces nor colons (\`:\`).`,
+					message: `**cssVariable** property "${family.cssVariable}" contains invalid characters for CSS variable generation. It must start with -- and be a valid indent: https://developer.mozilla.org/en-US/docs/Web/CSS/ident.`,
 					path: ['fonts', i, 'cssVariable'],
 				});
 			}
