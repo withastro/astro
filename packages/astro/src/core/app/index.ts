@@ -31,6 +31,14 @@ import { AppPipeline } from './pipeline.js';
 
 export { deserializeManifest } from './common.js';
 
+type ErrorPagePath =
+	| `${string}/404`
+	| `${string}/500`
+	| `${string}/404/`
+	| `${string}/500/`
+	| `${string}404.html`
+	| `${string}500.html`;
+
 export interface RenderOptions {
 	/**
 	 * Whether to automatically add all cookies written by `Astro.cookie.set()` to the response headers.
@@ -56,6 +64,20 @@ export interface RenderOptions {
 	locals?: object;
 
 	/**
+	 * A custom fetch function for retrieving prerendered pages - 404 or 500.
+	 *
+	 * If not provided, Astro will fallback to its default behavior for fetching error pages.
+	 *
+	 * When a dynamic route is matched but ultimately results in a 404, this function will be used
+	 * to fetch the prerendered 404 page if available. Similarly, it may be used to fetch a
+	 * prerendered 500 error page when necessary.
+	 *
+	 * @param {ErrorPagePath} url - The URL of the prerendered 404 or 500 error page to fetch.
+	 * @returns {Promise<Response>} A promise resolving to the prerendered response.
+	 */
+	prerenderedErrorPageFetch?: (url: ErrorPagePath) => Promise<Response>;
+
+	/**
 	 * **Advanced API**: you probably do not need to use this.
 	 *
 	 * Default: `app.match(request)`
@@ -77,6 +99,7 @@ export interface RenderErrorOptions {
 	 */
 	error?: unknown;
 	clientAddress: string | undefined;
+	prerenderedErrorPageFetch: (url: ErrorPagePath) => Promise<Response>;
 }
 
 export class App {
@@ -287,6 +310,7 @@ export class App {
 		let addCookieHeader: boolean | undefined;
 		const url = new URL(request.url);
 		const redirect = this.#redirectTrailingSlash(url.pathname);
+		const prerenderedErrorPageFetch = renderOptions?.prerenderedErrorPageFetch ?? fetch;
 
 		if (redirect !== url.pathname) {
 			const status = request.method === 'GET' ? 301 : 308;
@@ -323,7 +347,12 @@ export class App {
 			if (typeof locals !== 'object') {
 				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
 				this.#logger.error(null, error.stack!);
-				return this.#renderError(request, { status: 500, error, clientAddress });
+				return this.#renderError(request, {
+					status: 500,
+					error,
+					clientAddress,
+					prerenderedErrorPageFetch: prerenderedErrorPageFetch,
+				});
 			}
 		}
 		if (!routeData) {
@@ -342,7 +371,12 @@ export class App {
 		if (!routeData) {
 			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);
 			this.#logger.debug('router', "Here's the available routes:\n", this.#manifestData);
-			return this.#renderError(request, { locals, status: 404, clientAddress });
+			return this.#renderError(request, {
+				locals,
+				status: 404,
+				clientAddress,
+				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
+			});
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
@@ -366,7 +400,13 @@ export class App {
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
-			return this.#renderError(request, { locals, status: 500, error: err, clientAddress });
+			return this.#renderError(request, {
+				locals,
+				status: 500,
+				error: err,
+				clientAddress,
+				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
+			});
 		} finally {
 			await session?.[PERSIST_SYMBOL]();
 		}
@@ -383,6 +423,7 @@ export class App {
 				// while undefined means there's no error
 				error: response.status === 500 ? null : undefined,
 				clientAddress,
+				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 			});
 		}
 
@@ -431,6 +472,7 @@ export class App {
 			skipMiddleware = false,
 			error,
 			clientAddress,
+			prerenderedErrorPageFetch,
 		}: RenderErrorOptions,
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
@@ -444,7 +486,7 @@ export class App {
 					url,
 				);
 				if (statusURL.toString() !== request.url) {
-					const response = await fetch(statusURL.toString());
+					const response = await prerenderedErrorPageFetch(statusURL.toString() as ErrorPagePath);
 
 					// response for /404.html and 500.html is 200, which is not meaningful
 					// so we create an override
@@ -479,6 +521,7 @@ export class App {
 						response: originalResponse,
 						skipMiddleware: true,
 						clientAddress,
+						prerenderedErrorPageFetch,
 					});
 				}
 			} finally {
