@@ -37,9 +37,9 @@ export function vitePluginRenderers(opts: StaticBuildOptions): VitePlugin {
 
 					exports.push(`export const renderers = [${rendererItems}];`);
 
-					return `${imports.join('\n')}\n${exports.join('\n')}`;
+					return { code: `${imports.join('\n')}\n${exports.join('\n')}` };
 				} else {
-					return `export const renderers = [];`;
+					return { code: `export const renderers = [];` };
 				}
 			}
 		},

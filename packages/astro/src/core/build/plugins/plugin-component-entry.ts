@@ -64,7 +64,9 @@ export function vitePluginComponentEntry(internals: BuildInternals): VitePlugin 
 				const componentId = id.slice(astroEntryPrefix.length);
 				const exportNames = componentToExportNames.get(componentId);
 				if (exportNames) {
-					return `export { ${exportNames.join(', ')} } from ${JSON.stringify(componentId)}`;
+					return {
+						code: `export { ${exportNames.join(', ')} } from ${JSON.stringify(componentId)}`,
+					};
 				}
 			}
 		},

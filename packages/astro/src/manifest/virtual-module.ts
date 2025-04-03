@@ -42,7 +42,7 @@ export default function virtualModulePlugin({
 					});
 				}
 				// There's nothing wrong about using `/client` on the server
-				return `${serializeClientConfig(manifest)};`;
+				return { code: serializeClientConfig(manifest) };
 			}
 			// server
 			else if (id == RESOLVED_VIRTUAL_SERVER_ID) {
@@ -58,7 +58,7 @@ export default function virtualModulePlugin({
 						message: AstroErrorData.ServerOnlyModule.message(VIRTUAL_SERVER_ID),
 					});
 				}
-				return `${serializeServerConfig(manifest)};`;
+				return { code: serializeServerConfig(manifest) };
 			}
 		},
 	};

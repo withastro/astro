@@ -14,12 +14,13 @@ export function vitePluginSSRManifest(): VitePlugin {
 		},
 		load(id) {
 			if (id === resolvedManifestVirtualModuleId) {
-				return `export let manifest = {};
+				return {
+					code: `export let manifest = {};
 export function _privateSetManifestDontUseThis(ssrManifest) {
   manifest = ssrManifest;
-}`;
+}`,
+				};
 			}
-			return void 0;
 		},
 	};
 }
