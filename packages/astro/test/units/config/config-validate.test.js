@@ -195,7 +195,7 @@ describe('Config Validation', () => {
 			);
 		});
 
-		it('errors if `i18n.prefixDefaultLocale` is `false` and `i18n.redirectToDefaultLocale` is `true`', async () => {
+		it('errors if `i18n.prefixDefaultLocale` is `false` and `i18n.redirectToDefaultLocale` is `true`', { todo: "Enable in Astro 6.0", skip: "Removed validation"}, async () => {
 			const configError = await validateConfig({
 				i18n: {
 					defaultLocale: 'en',
