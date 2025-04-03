@@ -202,14 +202,14 @@ describe('Config Validation', () => {
 					locales: ['es', 'en'],
 					routing: {
 						prefixDefaultLocale: false,
-						redirectToDefaultLocale: false,
+						redirectToDefaultLocale: true,
 					},
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
 				configError.errors[0].message,
-				'The option `i18n.routing.redirectToDefaultLocale` is only useful when the `i18n.routing.prefixDefaultLocale` is set to `true`. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `true`.',
+				'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`; setting `i18n.routing.prefixDefaultLocale` to `false` might cause infinite loops. Remove the option `i18n.routing.prefixDefaultLocale`, or change its value to `true`.'
 			);
 		});
 
