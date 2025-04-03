@@ -91,12 +91,15 @@ describe('fonts providers', () => {
 		let { fonts, values } = resolveLocalFontSpy(
 			{
 				name: 'Custom',
+				nameWithHash: 'Custom-xxx',
 				cssVariable: '--custom',
 				provider: 'local',
-				src: [
+				variants: [
 					{
-						paths: ['./src/fonts/foo.woff2', './src/fonts/foo.ttf'],
-						display: 'block',
+						src: ['./src/fonts/foo.woff2', './src/fonts/foo.ttf'],
+						weight: '400',
+						style: 'normal',
+						display: 'block'
 					},
 				],
 			},
@@ -121,23 +124,6 @@ describe('fonts providers', () => {
 					},
 				],
 			},
-			{
-				weight: '400',
-				style: 'italic',
-				display: 'block',
-				src: [
-					{
-						originalURL: fileURLToPath(new URL('./src/fonts/foo.woff2', import.meta.url)),
-						url: '/_astro/fonts/foo.woff2',
-						format: 'woff2',
-					},
-					{
-						originalURL: fileURLToPath(new URL('./src/fonts/foo.ttf', import.meta.url)),
-						url: '/_astro/fonts/foo.ttf',
-						format: 'ttf',
-					},
-				],
-			},
 		]);
 		assert.deepStrictEqual(values, [
 			fileURLToPath(new URL('./src/fonts/foo.woff2', root)),
@@ -147,13 +133,20 @@ describe('fonts providers', () => {
 		({ fonts, values } = resolveLocalFontSpy(
 			{
 				name: 'Custom',
+				nameWithHash: 'Custom-xxx',
 				cssVariable: '--custom',
 				provider: 'local',
-				src: [
+				variants: [
 					{
-						weights: ['600', '700'],
-						styles: ['oblique'],
-						paths: ['./src/fonts/bar.eot'],
+						src: ['./src/fonts/bar.eot'],
+						weight: '600',
+						style: 'oblique',
+						stretch: 'condensed',
+					},
+					{
+						src: ['./src/fonts/bar.eot'],
+						weight: '700',
+						style: 'oblique',
 						stretch: 'condensed',
 					},
 				],
