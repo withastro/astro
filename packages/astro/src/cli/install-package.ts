@@ -70,6 +70,10 @@ async function installPackage(
 	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', []);
 	if (!installCommand) return false;
 
+	if (installCommand.command === 'deno') {
+		// Deno requires npm prefix to install packages
+		packageNames = packageNames.map((name) => `npm:${name}`);
+	}
 	const coloredOutput = `${bold(installCommand.command)} ${installCommand.args.join(' ')} ${cyan(packageNames.join(' '))}`;
 	const message = `\n${boxen(coloredOutput, {
 		margin: 0.5,
