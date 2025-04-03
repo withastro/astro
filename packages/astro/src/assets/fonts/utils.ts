@@ -302,12 +302,3 @@ export function familiesToUnifontProviders({
 
 	return { families, providers };
 }
-
-/**
- * Checks if the name starts with --, doesn't include a space nor a colon.
- * We are not trying to recreate the full CSS spec about indents:
- * https://developer.mozilla.org/en-US/docs/Web/CSS/ident
- */
-export function isValidCssVariableName(name: string) {
-	return name.startsWith('--') && !name.includes(' ') && !name.includes(':');
-}

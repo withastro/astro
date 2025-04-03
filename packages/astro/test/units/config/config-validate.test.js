@@ -396,9 +396,9 @@ describe('Config Validation', () => {
 		});
 
 		it('Should error on invalid css variable', async () => {
-			const configError = await validateConfig({
+			let configError = await validateConfig({
 				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: 'invalid' }],
+					fonts: [{ name: 'Roboto', cssVariable: 'test' }],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
@@ -407,6 +407,53 @@ describe('Config Validation', () => {
 					'contains invalid characters for CSS variable generation',
 				),
 				true,
+			);
+
+			configError = await validateConfig({
+				experimental: {
+					fonts: [{ name: 'Roboto', cssVariable: '-test' }],
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'contains invalid characters for CSS variable generation',
+				),
+				true,
+			);
+
+			configError = await validateConfig({
+				experimental: {
+					fonts: [{ name: 'Roboto', cssVariable: '--test ' }],
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'contains invalid characters for CSS variable generation',
+				),
+				true,
+			);
+
+			configError = await validateConfig({
+				experimental: {
+					fonts: [{ name: 'Roboto', cssVariable: '--test:x' }],
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'contains invalid characters for CSS variable generation',
+				),
+				true,
+			);
+
+			assert.doesNotThrow(() =>
+				validateConfig({
+					experimental: {
+						fonts: [{ name: 'Roboto', cssVariable: '--test' }],
+					},
+				}),
 			);
 		});
 	});

@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import type { AstroConfig } from '../../../types/public/config.js';
-import { isValidCssVariableName } from '../../../assets/fonts/utils.js';
 
 export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((config, ctx) => {
 	if (
@@ -188,12 +187,15 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 
 	if (config.experimental.fonts && config.experimental.fonts.length > 0) {
 		for (let i = 0; i < config.experimental.fonts.length; i++) {
-			const family = config.experimental.fonts[i];
+			const { cssVariable } = config.experimental.fonts[i];
 
-			if (!isValidCssVariableName(family.cssVariable)) {
+			// Checks if the name starts with --, doesn't include a space nor a colon.
+			// We are not trying to recreate the full CSS spec about indents:
+			// https://developer.mozilla.org/en-US/docs/Web/CSS/ident
+			if (!cssVariable.startsWith('--') || cssVariable.includes(' ') || cssVariable.includes(':')) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: `**cssVariable** property "${family.cssVariable}" contains invalid characters for CSS variable generation. It must start with -- and be a valid indent: https://developer.mozilla.org/en-US/docs/Web/CSS/ident.`,
+					message: `**cssVariable** property "${cssVariable}" contains invalid characters for CSS variable generation. It must start with -- and be a valid indent: https://developer.mozilla.org/en-US/docs/Web/CSS/ident.`,
 					path: ['fonts', i, 'cssVariable'],
 				});
 			}

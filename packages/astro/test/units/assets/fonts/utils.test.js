@@ -10,7 +10,6 @@ import {
 	generateFallbacksCSS,
 	resolveFontFamily,
 	familiesToUnifontProviders,
-	isValidCssVariableName,
 } from '../../../../dist/assets/fonts/utils.js';
 
 function createSpyCache() {
@@ -561,14 +560,5 @@ describe('fonts utils', () => {
 				'test-{"name":"test","x":"bar"}',
 			]);
 		});
-	});
-
-	it('isValidCssVariableName', () => {
-		assert.equal(isValidCssVariableName('test'), false);
-		assert.equal(isValidCssVariableName('-test'), false);
-		assert.equal(isValidCssVariableName('--test '), false);
-		assert.equal(isValidCssVariableName('--test:x'), false);
-		assert.equal(isValidCssVariableName('--test'), true);
-
 	});
 });
