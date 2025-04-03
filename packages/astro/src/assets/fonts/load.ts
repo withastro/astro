@@ -4,7 +4,6 @@ import {
 	familiesToUnifontProviders,
 	generateFallbacksCSS,
 	generateFontFace,
-	getFamilyName,
 	proxyURL,
 	type GetMetricsForFamily,
 	type GetMetricsForFamilyFont,
@@ -26,7 +25,6 @@ interface Options {
 	resolvedMap: Map<string, { preloadData: PreloadData; css: string }>;
 	hashString: (value: string) => string;
 	log: (message: string) => void;
-	generateCSSVariableName: (name: string) => string;
 	generateFallbackFontFace: typeof generateFallbackFontFace;
 	getMetricsForFamily: GetMetricsForFamily;
 }
@@ -42,7 +40,6 @@ export async function loadFonts({
 	generateFallbackFontFace,
 	getMetricsForFamily,
 	log,
-	generateCSSVariableName,
 }: Options): Promise<void> {
 	const extractedProvidersResult = familiesToUnifontProviders({ families, hashString });
 	families = extractedProvidersResult.families;
@@ -137,7 +134,7 @@ export async function loadFonts({
 
 		for (const data of fonts) {
 			// User settings override the generated font settings
-			css += generateFontFace(getFamilyName(family), {
+			css += generateFontFace(family.nameWithHash, {
 				src: data.src,
 				display: data.display ?? family.display,
 				unicodeRange: data.unicodeRange ?? family.unicodeRange,
@@ -162,16 +159,16 @@ export async function loadFonts({
 					: null,
 		});
 
-		const cssVarValues = [getFamilyName(family)];
+		const cssVarValues = [family.nameWithHash];
 
 		if (fallbackData) {
 			css += fallbackData.css;
 			cssVarValues.push(...fallbackData.fallbacks);
 		}
 
-		css += `:root { --astro-font-${generateCSSVariableName(getFamilyName(family))}: ${cssVarValues.join(', ')}; }`;
+		css += `:root { ${family.cssVariable}: ${cssVarValues.join(', ')}; }`;
 
-		resolvedMap.set(getFamilyName(family), { preloadData, css });
+		resolvedMap.set(family.cssVariable, { preloadData, css });
 	}
 	log('Fonts initialized');
 }

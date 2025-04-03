@@ -34,6 +34,7 @@ export type LocalFontFamily = z.infer<typeof localFontFamilySchema>;
 
 interface ResolvedLocalFontFamily extends LocalFontFamily {
 	provider: LocalProviderName;
+	nameWithHash: string;
 }
 
 interface RemoteFontFamily<TProvider extends GoogleProviderName | FontProvider>
@@ -44,6 +45,7 @@ interface RemoteFontFamily<TProvider extends GoogleProviderName | FontProvider>
 interface ResolvedRemoteFontFamily
 	extends Omit<z.output<typeof remoteFontFamilySchema>, 'provider'> {
 	provider: ResolvedFontProvider;
+	nameWithHash: string;
 }
 
 export type FontFamily<TProvider extends BuiltInProvider | FontProvider> =

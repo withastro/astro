@@ -43,6 +43,7 @@ describe('astro:fonts', () => {
 						fonts: [
 							{
 								name: 'Roboto',
+								cssVariable: '--font-roboto',
 								provider: 'google',
 							},
 						],

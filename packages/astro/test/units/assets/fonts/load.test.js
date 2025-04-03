@@ -55,13 +55,14 @@ it('loadFonts()', async () => {
 		families: [
 			{
 				name: 'Roboto',
+				nameWithHash: 'Roboto-xxx',
 				provider: await resolveProvider({
 					root,
 					resolveMod: (id) => import(id),
 					provider: google(),
 				}),
 				fallbacks: ['sans-serif'],
-				as: 'Custom',
+				cssVariable: '--custom',
 				display: 'block',
 			},
 		],
@@ -80,7 +81,6 @@ it('loadFonts()', async () => {
 		log: (message) => {
 			logs.push(message);
 		},
-		generateCSSVariableName: (name) => name,
 	});
 
 	assert.equal(
@@ -88,11 +88,11 @@ it('loadFonts()', async () => {
 		true,
 	);
 	assert.equal(Array.from(hashToUrlMap.keys()).length > 0, true);
-	assert.deepStrictEqual(Array.from(resolvedMap.keys()), ['Custom']);
+	assert.deepStrictEqual(Array.from(resolvedMap.keys()), ['--custom']);
 	assert.deepStrictEqual(logs, ['Fonts initialized']);
-	const css = resolvedMap.get('Custom').css;
+	const css = resolvedMap.get('--custom').css;
 	assert.equal(
-		css.includes(':root { --astro-font-Custom: Custom, "Custom fallback: Arial", sans-serif; }'),
+		css.includes(':root { --custom: Roboto-xxx, "Roboto-xxx fallback: Arial", sans-serif; }'),
 		true,
 	);
 	assert.equal(css.includes('font-display: block'), true);
