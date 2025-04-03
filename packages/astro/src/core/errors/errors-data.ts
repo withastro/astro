@@ -1369,11 +1369,19 @@ export const ExperimentalFontsNotEnabled = {
 	hint: 'Check that you have enabled experimental fonts and also configured your preferred fonts.',
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * Font family not found
+ * @message
+ * No data was found for the family passed to the Font component.
+ */
 export const FontFamilyNotFound = {
 	name: 'FontFamilyNotFound',
 	title: 'Font family not found',
-	message: (family: string) => `No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
-	hint: 'This is often caused by a typo. Check that your Font component is using a \`cssVariable\` specified in your config.',
+	message: (family: string) =>
+		`No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
+	hint: 'This is often caused by a typo. Check that your Font component is using a `cssVariable` specified in your config.',
 } satisfies ErrorData;
 
 /**
