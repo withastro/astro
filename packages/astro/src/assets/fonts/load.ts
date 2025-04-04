@@ -17,7 +17,6 @@ import type { Storage } from 'unstorage';
 import type { generateFallbackFontFace } from './metrics.js';
 
 interface Options {
-	root: URL;
 	base: string;
 	families: Array<ResolvedFontFamily>;
 	storage: Storage;
@@ -30,7 +29,6 @@ interface Options {
 }
 
 export async function loadFonts({
-	root,
 	base,
 	families,
 	storage,

@@ -50,7 +50,6 @@ it('loadFonts()', async () => {
 	const logs = [];
 
 	await loadFonts({
-		root,
 		base,
 		families: [
 			{

@@ -109,15 +109,13 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		hashToUrlMap = new Map();
 		resolvedMap = new Map();
 
-		const root = settings.config.root;
-
 		const families: Array<ResolvedFontFamily> = [];
 
 		for (const family of settings.config.experimental.fonts!) {
 			families.push(
 				await resolveFontFamily({
 					family: family as FontFamily<any>,
-					root,
+					root: settings.config.root,
 					resolveMod,
 					generateNameWithHash: (_family) =>
 						`${_family.name}-${h64ToString(JSON.stringify(sortObjectByKey(_family)))}`,
@@ -126,7 +124,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		}
 
 		await loadFonts({
-			root,
 			base: baseUrl,
 			families,
 			storage,
