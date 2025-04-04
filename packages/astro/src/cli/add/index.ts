@@ -675,7 +675,12 @@ async function tryToInstallIntegrations({
 	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', inheritedFlags);
 	if (!installCommand) return UpdateResult.none;
 
-	const installSpecifiers = await convertIntegrationsToInstallSpecifiers(integrations);
+	const installSpecifiers = await convertIntegrationsToInstallSpecifiers(integrations).then(
+		(specifiers) =>
+			installCommand.command === 'deno'
+				? specifiers.map((specifier) => `npm:${specifier}`) // Deno requires npm prefix to install packages
+				: specifiers,
+	);
 
 	const coloredOutput = `${bold(installCommand.command)} ${installCommand.args.join(' ')} ${cyan(installSpecifiers.join(' '))}`;
 	const message = `\n${boxen(coloredOutput, {
