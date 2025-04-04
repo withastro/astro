@@ -158,7 +158,7 @@ export async function loadFonts({
 		const fallbackData = await generateFallbacksCSS({
 			family,
 			font: fallbackFontData,
-			fallbacks: family.fallbacks ?? [],
+			fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
 			metrics:
 				(family.automaticFallback ?? DEFAULTS.automaticFallback)
 					? {
