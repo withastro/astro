@@ -329,7 +329,13 @@ describe('fonts utils', () => {
 						name: 'Custom',
 						cssVariable: '--custom',
 						provider: 'local',
-						src: [],
+						variants: [
+							{
+								src: ['a'],
+								weight: 400,
+								style: 'normal',
+							},
+						],
 					},
 					resolveMod: async () => ({ provider: () => {} }),
 					generateNameWithHash: (family) => `${family.name}-x`,
@@ -340,7 +346,14 @@ describe('fonts utils', () => {
 					nameWithHash: 'Custom-x',
 					cssVariable: '--custom',
 					provider: 'local',
-					src: [],
+					fallbacks: undefined,
+					variants: [
+						{
+							src: ['a'],
+							weight: '400',
+							style: 'normal',
+						},
+					],
 				},
 			);
 			assert.deepStrictEqual(
@@ -348,7 +361,13 @@ describe('fonts utils', () => {
 					family: {
 						name: 'Custom',
 						cssVariable: '--custom',
-						src: [],
+						variants: [
+							{
+								src: ['a'],
+								weight: 400,
+								style: 'normal',
+							},
+						],
 					},
 					resolveMod: async () => ({ provider: () => {} }),
 					generateNameWithHash: (family) => `${family.name}-x`,
@@ -359,7 +378,14 @@ describe('fonts utils', () => {
 					nameWithHash: 'Custom-x',
 					cssVariable: '--custom',
 					provider: 'local',
-					src: [],
+					fallbacks: undefined,
+					variants: [
+						{
+							src: ['a'],
+							weight: '400',
+							style: 'normal',
+						},
+					],
 				},
 			);
 		});
@@ -459,7 +485,13 @@ describe('fonts utils', () => {
 					nameWithHash: 'Custom-xxx',
 					cssVariable: '--custom',
 					provider: 'local',
-					src: [],
+					variants: [
+						{
+							src: ['a'],
+							weight: '400',
+							style: 'normal',
+						},
+					],
 				},
 			]);
 			fixture.assertProvidersLength(0);

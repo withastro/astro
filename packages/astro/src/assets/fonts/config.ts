@@ -1,35 +1,14 @@
 import { z } from 'zod';
 import { GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME } from './constants.js';
 
-function dedupe<T>(arr: Array<T>): Array<T> {
-	return [...new Set(arr)];
-}
-
 // TODO: jsdoc for everything, most of those end up in the public AstroConfig type
 
-export const sharedFontOptionsSchema = z.object({
-	weights: z
-		.array(
-			z
-				.union([z.string(), z.number()])
-				.transform((val) => (typeof val === 'number' ? val.toString() : val)),
-		)
-		.nonempty()
-		.transform((arr) => dedupe(arr)),
-	styles: z
-		.array(z.enum(['normal', 'italic', 'oblique']))
-		.nonempty()
-		.transform((arr) => dedupe(arr)),
-	subsets: z
-		.array(z.string())
-		.nonempty()
-		.transform((arr) => dedupe(arr)),
-	fallbacks: z
-		.array(z.string())
-		.nonempty()
-		.transform((arr) => dedupe(arr))
-		.optional(),
-	automaticFallback: z.boolean().optional().default(true),
+const weightSchema = z.union([z.string(), z.number()]);
+const styleSchema = z.enum(['normal', 'italic', 'oblique']);
+
+const familyPropertiesSchema = z.object({
+	weight: weightSchema,
+	style: styleSchema,
 	display: z.enum(['auto', 'block', 'swap', 'fallback', 'optional']).optional(),
 	unicodeRange: z.array(z.string()).nonempty().optional(),
 	stretch: z.string().optional(),
@@ -37,7 +16,12 @@ export const sharedFontOptionsSchema = z.object({
 	variationSettings: z.string().optional(),
 });
 
-export const baseFamilyAttributesSchema = z.object({
+const fallbacksSchema = z.object({
+	fallbacks: z.array(z.string()).nonempty().optional(),
+	automaticFallback: z.boolean().optional(),
+});
+
+export const requiredFamilyAttributesSchema = z.object({
 	name: z.string(),
 	cssVariable: z.string(),
 });
@@ -49,43 +33,41 @@ export const fontProviderSchema = z
 	})
 	.strict();
 
-export const localFontFamilySchema = z
-	.object({
-		provider: z.literal(LOCAL_PROVIDER_NAME).optional(),
-		src: z.array(
-			z
-				.object({
-					paths: z.array(z.string()).nonempty(),
-				})
-				.merge(
-					sharedFontOptionsSchema
-						.omit({
-							fallbacks: true,
-							automaticFallback: true,
-							// TODO: find a way to support subsets (through fontkit?)
-							subsets: true,
-						})
-						.partial(),
-				)
-				.strict(),
-		),
-	})
-	.merge(baseFamilyAttributesSchema)
+export const localFontFamilySchema = requiredFamilyAttributesSchema
+	.merge(fallbacksSchema)
 	.merge(
-		sharedFontOptionsSchema
-			.omit({
-				weights: true,
-				styles: true,
-				subsets: true,
-			})
-			.partial(),
+		z.object({
+			provider: z.literal(LOCAL_PROVIDER_NAME).optional(),
+			variants: z
+				.array(
+					familyPropertiesSchema.merge(
+						z
+							.object({
+								src: z.array(z.string()).nonempty(),
+								// TODO: find a way to support subsets (through fontkit?)
+							})
+							.strict(),
+					),
+				)
+				.nonempty(),
+		}),
 	)
 	.strict();
 
-export const remoteFontFamilySchema = z
-	.object({
-		provider: z.union([z.literal(GOOGLE_PROVIDER_NAME), fontProviderSchema]).optional(),
-	})
-	.merge(baseFamilyAttributesSchema)
-	.merge(sharedFontOptionsSchema.partial())
+export const remoteFontFamilySchema = requiredFamilyAttributesSchema
+	.merge(
+		familyPropertiesSchema.omit({
+			weight: true,
+			style: true,
+		}),
+	)
+	.merge(fallbacksSchema)
+	.merge(
+		z.object({
+			provider: z.union([z.literal(GOOGLE_PROVIDER_NAME), fontProviderSchema]).optional(),
+			weights: z.array(weightSchema).nonempty().optional(),
+			styles: z.array(styleSchema).nonempty().optional(),
+			subsets: z.array(z.string()).nonempty().optional(),
+		}),
+	)
 	.strict();

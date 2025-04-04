@@ -89,7 +89,12 @@ describe('defineConfig()', () => {
 				experimental: {
 					fonts: [
 						{ name: 'foo', cssVariable: '--font-foo', provider: 'google' },
-						{ name: 'bar', cssVariable: '--font-bar', provider: 'local', src: [] },
+						{
+							name: 'bar',
+							cssVariable: '--font-bar',
+							provider: 'local',
+							variants: [{ src: [''], weight: 400, style: 'normal' }],
+						},
 						{ name: 'baz', cssVariable: '--font-baz', provider },
 					],
 				},
@@ -109,7 +114,9 @@ describe('defineConfig()', () => {
 								readonly name: 'bar';
 								readonly cssVariable: '--font-bar';
 								readonly provider: 'local';
-								readonly src: [];
+								readonly variants: [
+									{ readonly src: ['']; readonly weight: 400; readonly style: 'normal' },
+								];
 							},
 							{
 								readonly name: 'baz';
@@ -130,7 +137,9 @@ describe('defineConfig()', () => {
 							readonly name: 'bar';
 							readonly cssVariable: '--font-bar';
 							readonly provider: 'local';
-							readonly src: [];
+							readonly variants: [
+								{ readonly src: ['']; readonly weight: 400; readonly style: 'normal' },
+							];
 						},
 						{
 							readonly name: 'baz';

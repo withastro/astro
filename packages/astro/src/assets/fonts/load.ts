@@ -136,13 +136,24 @@ export async function loadFonts({
 			// User settings override the generated font settings
 			css += generateFontFace(family.nameWithHash, {
 				src: data.src,
-				display: data.display ?? family.display,
-				unicodeRange: data.unicodeRange ?? family.unicodeRange,
+				display:
+					(data.display ?? family.provider === LOCAL_PROVIDER_NAME) ? undefined : family.display,
+				unicodeRange:
+					(data.unicodeRange ?? family.provider === LOCAL_PROVIDER_NAME)
+						? undefined
+						: family.unicodeRange,
 				weight: data.weight,
 				style: data.style,
-				stretch: data.stretch ?? family.stretch,
-				featureSettings: data.featureSettings ?? family.featureSettings,
-				variationSettings: data.variationSettings ?? family.variationSettings,
+				stretch:
+					(data.stretch ?? family.provider === LOCAL_PROVIDER_NAME) ? undefined : family.stretch,
+				featureSettings:
+					(data.featureSettings ?? family.provider === LOCAL_PROVIDER_NAME)
+						? undefined
+						: family.featureSettings,
+				variationSettings:
+					(data.variationSettings ?? family.provider === LOCAL_PROVIDER_NAME)
+						? undefined
+						: family.variationSettings,
 			});
 		}
 
