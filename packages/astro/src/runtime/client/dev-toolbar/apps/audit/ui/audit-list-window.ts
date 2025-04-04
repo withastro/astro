@@ -83,7 +83,7 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 					"Noto Color Emoji";
 				color: rgba(191, 193, 201, 1);
 				position: fixed;
-				z-index: 999999999;
+				z-index: 2000000009;
 				bottom: 72px;
 				left: 50%;
 				transform: translateX(-50%);
