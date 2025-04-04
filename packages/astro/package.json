@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.5.6",
+  "version": "5.6.1",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -163,7 +163,7 @@
     "tinyexec": "^0.3.2",
     "tinyglobby": "^0.2.12",
     "tsconfck": "^3.1.5",
-    "ultrahtml": "^1.5.3",
+    "ultrahtml": "^1.6.0",
     "unist-util-visit": "^5.0.0",
     "unstorage": "^1.15.0",
     "vfile": "^6.0.3",

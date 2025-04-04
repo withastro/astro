@@ -1,5 +1,144 @@
 # astro
 
+## 5.6.1
+
+### Patch Changes
+
+- [#13519](https://github.com/withastro/astro/pull/13519) [`3323f5c`](https://github.com/withastro/astro/commit/3323f5c554a3af966463cc95a42d7ca789ba678b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors some internals to improve Rolldown compatibility
+
+- [#13545](https://github.com/withastro/astro/pull/13545) [`a7aff41`](https://github.com/withastro/astro/commit/a7aff41681f9235719c03f97650db288f9f5f71a) Thanks [@stramel](https://github.com/stramel)! - Prevent empty attributes from appearing in the SVG output
+
+- [#13552](https://github.com/withastro/astro/pull/13552) [`9cd0fd4`](https://github.com/withastro/astro/commit/9cd0fd432634ed664a820ac78c6a3033684c7a83) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where Astro validated the i18n configuration incorrectly, causing false positives in downstream libraries.
+
+## 5.6.0
+
+### Minor Changes
+
+- [#13403](https://github.com/withastro/astro/pull/13403) [`dcb9526`](https://github.com/withastro/astro/commit/dcb9526c6ece3b716c677205fb99b483c95bfa7d) Thanks [@yurynix](https://github.com/yurynix)! - Adds a new optional `prerenderedErrorPageFetch` option in the Adapter API to allow adapters to provide custom implementations for fetching prerendered error pages.
+
+  Now, adapters can override the default `fetch()` behavior, for example when `fetch()` is unavailable or when you cannot call the server from itself.
+
+  The following example provides a custom fetch for `500.html` and `404.html`, reading them from disk instead of performing an HTTP call:
+
+  ```js "prerenderedErrorPageFetch"
+  return app.render(request, {
+    prerenderedErrorPageFetch: async (url: string): Promise<Response> => {
+      if (url.includes("/500")) {
+          const content = await fs.promises.readFile("500.html", "utf-8");
+          return new Response(content, {
+            status: 500,
+            headers: { "Content-Type": "text/html" },
+          });
+      }
+      const content = await fs.promises.readFile("404.html", "utf-8");
+        return new Response(content, {
+          status: 404,
+          headers: { "Content-Type": "text/html" },
+        });
+  });
+  ```
+
+  If no value is provided, Astro will fallback to its default behavior for fetching error pages.
+
+  Read more about this feature in the [Adapter API reference](https://docs.astro.build/en/reference/adapter-reference/#prerenderederrorpagefetch).
+
+- [#13482](https://github.com/withastro/astro/pull/13482) [`ff257df`](https://github.com/withastro/astro/commit/ff257df4e1a7f3e29e9bf7f92d52bf72f7b595a4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Astro config validation to also run for the Integration API. An error log will specify which integration is failing the validation.
+
+  Now, Astro will first validate the user configuration, then validate the updated configuration after each integration `astro:config:setup` hook has run. This means `updateConfig()` calls will no longer accept invalid configuration.
+
+  This fixes a situation where integrations could potentially update a project with a malformed configuration. These issues should now be caught and logged so that you can update your integration to only set valid configurations.
+
+- [#13405](https://github.com/withastro/astro/pull/13405) [`21e7e80`](https://github.com/withastro/astro/commit/21e7e8077d6f0c9ad14fe1876d87bb445f5584b1) Thanks [@Marocco2](https://github.com/Marocco2)! - Adds a new `eagerness` option for `prefetch()` when using `experimental.clientPrerender`
+
+  With the experimental [`clientPrerender`](https://docs.astro.build/en/reference/experimental-flags/client-prerender/) flag enabled, you can use the `eagerness` option on `prefetch()` to suggest to the browser how eagerly it should prefetch/prerender link targets.
+
+  This follows the same API described in the [Speculation Rules API](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/speculationrules#eagerness) and allows you to balance the benefit of reduced wait times against bandwidth, memory, and CPU costs for your site visitors.
+
+  For example, you can now use `prefetch()` programmatically with large sets of links and avoid [browser limits in place to guard against over-speculating](https://developer.chrome.com/blog/speculation-rules-improvements#chrome-limits) (prerendering/prefetching too many links). Set `eagerness: 'moderate'` to take advantage of [First In, First Out (FIFO)](<https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)>) strategies and browser heuristics to let the browser decide when to prerender/prefetch them and in what order:
+
+  ```astro
+  <a class="link-moderate" href="/nice-link-1">A Nice Link 1</a>
+  <a class="link-moderate" href="/nice-link-2">A Nice Link 2</a>
+  <a class="link-moderate" href="/nice-link-3">A Nice Link 3</a>
+  <a class="link-moderate" href="/nice-link-4">A Nice Link 4</a>
+  ...
+  <a class="link-moderate" href="/nice-link-20">A Nice Link 20</a>
+  <script>
+    import { prefetch } from 'astro:prefetch';
+    const linkModerate = document.getElementsByClassName('link-moderate');
+    linkModerate.forEach((link) => prefetch(link.getAttribute('href'), { eagerness: 'moderate' }));
+  </script>
+  ```
+
+- [#13482](https://github.com/withastro/astro/pull/13482) [`ff257df`](https://github.com/withastro/astro/commit/ff257df4e1a7f3e29e9bf7f92d52bf72f7b595a4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves integrations error handling
+
+  If an error is thrown from an integration hook, an error log will now provide information about the concerned integration and hook
+
+### Patch Changes
+
+- [#13539](https://github.com/withastro/astro/pull/13539) [`c43bf8c`](https://github.com/withastro/astro/commit/c43bf8cd0513c2260d4ba32b5beffe97306e2e09) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a new `session.load()` method to the experimental session API that allows you to load a session by ID.
+
+  When using [the experimental sessions API](https://docs.astro.build/en/reference/experimental-flags/sessions/), you don't normally need to worry about managing the session ID and cookies: Astro automatically reads the user's cookies and loads the correct session when needed. However, sometimes you need more control over which session to load.
+
+  The new `load()` method allows you to manually load a session by ID. This is useful if you are handling the session ID yourself, or if you want to keep track of a session without using cookies. For example, you might want to restore a session from a logged-in user on another device, or work with an API endpoint that doesn't use cookies.
+
+  ```ts
+  // src/pages/api/cart.ts
+  import type { APIRoute } from 'astro';
+
+  export const GET: APIRoute = async ({ session, request }) => {
+    // Load the session from a header instead of cookies
+    const sessionId = request.headers.get('x-session-id');
+    await session.load(sessionId);
+    const cart = await session.get('cart');
+    return Response.json({ cart });
+  };
+  ```
+
+  If a session with that ID doesn't exist, a new one will be created. This allows you to generate a session ID in the client if needed.
+
+  For more information, see the [experimental sessions docs](https://docs.astro.build/en/reference/experimental-flags/sessions/).
+
+- [#13488](https://github.com/withastro/astro/pull/13488) [`d777420`](https://github.com/withastro/astro/commit/d7774207b11d042711ec310f2ad46d15246482f0) Thanks [@stramel](https://github.com/stramel)! - **BREAKING CHANGE to the experimental SVG Component API only**
+
+  Removes some previously available prop, attribute, and configuration options from the experimental SVG API. These items are no longer available and must be removed from your code:
+
+  - The `title` prop has been removed until we can settle on the correct balance between developer experience and accessibility. Please replace any `title` props on your components with `aria-label`:
+    ```diff
+    - <Logo title="My Company Logo" />
+    + <Logo aria-label="My Company Logo" />
+    ```
+  - Sprite mode has been temporarily removed while we consider a new implementation that addresses how this feature was being used in practice. This means that there are no longer multiple `mode` options, and all SVGs will be inline. All instances of `mode` must be removed from your project as you can no longer control a mode:
+
+    ```diff
+    - <Logo mode="inline" />
+    + <Logo />
+    ```
+
+    ```diff
+    import { defineConfig } from 'astro'
+
+    export default defineConfig({
+      experimental: {
+    -    svg: {
+    -      mode: 'sprite'
+    -    },
+    +   svg: true
+      }
+    });
+    ```
+
+  - The default `role` is no longer applied due to developer feedback. Please add the appropriate `role` on each component individually as needed:
+    ```diff
+    - <Logo />
+    + <Logo role="img" /> // To keep the role that was previously applied by default
+    ```
+  - The `size` prop has been removed to better work in combination with `viewBox` and additional styles/attributes. Please replace `size` with explicit `width` and `height` attributes:
+    ```diff
+    - <Logo size={64} />
+    + <Logo width={64} height={64} />
+    ```
+
 ## 5.5.6
 
 ### Patch Changes

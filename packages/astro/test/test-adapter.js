@@ -46,7 +46,8 @@ export default function ({
 								},
 								load(id) {
 									if (id === '@my-ssr') {
-										return `
+										return {
+											code: `
 											import { App } from 'astro/app';
 											import fs from 'fs';
 
@@ -92,7 +93,8 @@ export default function ({
 													createApp: (streaming) => new MyApp(manifest, streaming)
 												};
 											}
-										`;
+										`,
+										};
 									}
 								},
 							},
