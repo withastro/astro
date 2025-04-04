@@ -126,7 +126,7 @@ export function vitePluginActions({
 					shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
 				),
 			);
-			return code;
+			return { code };
 		},
 	};
 }

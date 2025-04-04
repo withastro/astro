@@ -125,33 +125,35 @@ export default function assets({ settings, sync, logger }: Options): vite.Plugin
 			},
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
-					return /* ts */ `
-					export { getConfiguredImageService, isLocalService } from "astro/assets";
-					import { getImage as getImageInternal } from "astro/assets";
-					export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
-					export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
-					export { default as Font } from "astro/components/Font.astro";
-					export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
+					return {
+						code: `
+							export { getConfiguredImageService, isLocalService } from "astro/assets";
+							import { getImage as getImageInternal } from "astro/assets";
+							export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
+							export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
+							export { default as Font } from "astro/components/Font.astro";
+							export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
-					export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
-					// This is used by the @astrojs/node integration to locate images.
-					// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
-					// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
-					// in the Lambda bundle, which would bloat the bundle with images.
-					// To prevent this, we mark the URL construction as pure,
-					// so that it's tree-shaken away for all platforms that don't need it.
-					export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
-						new URL(
-							settings.buildOutput === 'server'
-								? settings.config.build.client
-								: settings.config.outDir,
-						),
-					)});
-					export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(
-						settings.config.build.assets,
-					)}, outDir);
-					export const getImage = async (options) => await getImageInternal(options, imageConfig);
-				`;
+							export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
+							// This is used by the @astrojs/node integration to locate images.
+							// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
+							// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
+							// in the Lambda bundle, which would bloat the bundle with images.
+							// To prevent this, we mark the URL construction as pure,
+							// so that it's tree-shaken away for all platforms that don't need it.
+							export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
+								new URL(
+									settings.buildOutput === 'server'
+										? settings.config.build.client
+										: settings.config.outDir,
+								),
+							)});
+							export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(
+								settings.config.build.assets,
+							)}, outDir);
+							export const getImage = async (options) => await getImageInternal(options, imageConfig);
+						`,
+					};
 				}
 			},
 			buildStart() {
@@ -160,7 +162,7 @@ export default function assets({ settings, sync, logger }: Options): vite.Plugin
 			},
 			// In build, rewrite paths to ESM imported images in code to their final location
 			async renderChunk(code) {
-				const assetUrlRE = /__ASTRO_ASSET_IMAGE__([\w$]{8})__(?:_(.*?)__)?/g;
+				const assetUrlRE = /__ASTRO_ASSET_IMAGE__([\w$]+)__(?:_(.*?)__)?/g;
 
 				let match;
 				let s;
@@ -214,7 +216,7 @@ export default function assets({ settings, sync, logger }: Options): vite.Plugin
 						return;
 					}
 
-					const emitFile = shouldEmitFile ? this.emitFile : undefined;
+					const emitFile = shouldEmitFile ? this.emitFile.bind(this) : undefined;
 					const imageMetadata = await emitESMImage(
 						id,
 						this.meta.watchMode,
@@ -232,20 +234,24 @@ export default function assets({ settings, sync, logger }: Options): vite.Plugin
 					if (settings.config.experimental.svg && /\.svg$/.test(id)) {
 						const { contents, ...metadata } = imageMetadata;
 						// We know that the contents are present, as we only emit this property for SVG files
-						return makeSvgComponent(metadata, contents!);
+						return { code: makeSvgComponent(metadata, contents!) };
 					}
 
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
 					if (options?.ssr) {
-						return `export default ${getProxyCode(
-							imageMetadata,
-							settings.buildOutput === 'server',
-						)}`;
+						return {
+							code: `export default ${getProxyCode(
+								imageMetadata,
+								settings.buildOutput === 'server',
+							)}`,
+						};
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
-						return `export default ${JSON.stringify(imageMetadata)}`;
+						return {
+							code: `export default ${JSON.stringify(imageMetadata)}`,
+						};
 					}
 				}
 			},
