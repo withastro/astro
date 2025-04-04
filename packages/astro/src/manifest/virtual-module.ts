@@ -1,5 +1,4 @@
 import type { Plugin } from 'vite';
-import { CantUseAstroConfigModuleError } from '../core/errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { fromRoutingStrategy } from '../i18n/utils.js';
@@ -35,23 +34,11 @@ export default function virtualModulePlugin({
 		load(id, opts) {
 			// client
 			if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
-				if (!settings.config.experimental.serializeConfig) {
-					throw new AstroError({
-						...CantUseAstroConfigModuleError,
-						message: CantUseAstroConfigModuleError.message(VIRTUAL_CLIENT_ID),
-					});
-				}
 				// There's nothing wrong about using `/client` on the server
 				return { code: serializeClientConfig(manifest) };
 			}
 			// server
 			else if (id == RESOLVED_VIRTUAL_SERVER_ID) {
-				if (!settings.config.experimental.serializeConfig) {
-					throw new AstroError({
-						...CantUseAstroConfigModuleError,
-						message: CantUseAstroConfigModuleError.message(VIRTUAL_SERVER_ID),
-					});
-				}
 				if (!opts?.ssr) {
 					throw new AstroError({
 						...AstroErrorData.ServerOnlyModule,
