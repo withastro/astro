@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.13.4
+
+### Patch Changes
+
+- [#13547](https://github.com/withastro/astro/pull/13547) [`360cb91`](https://github.com/withastro/astro/commit/360cb9199a4314f90825c5639ff4396760e9cfcc) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates vite to the latest version
+
 ## 0.13.3
 
 ### Patch Changes
