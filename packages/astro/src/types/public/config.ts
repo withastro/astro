@@ -965,7 +965,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @type {string}
 	 * @description
 	 *
-	 * The Unstorage driver to use for session storage. The Node, Cloudflare, and Netlify adapters provide default drivers,
+	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions), 
+	 * [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#sessions), and
+	 * [Netlify](/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
 	 * but you can specify your own if you would prefer or if you are using an adapter that does not provide one.
 	 *
 	 * The value is the "Driver name" from the [Unstorage driver documentation](https://unstorage.unjs.io/drivers).
