@@ -195,23 +195,27 @@ describe('Config Validation', () => {
 			);
 		});
 
-		it('errors if `i18n.prefixDefaultLocale` is `false` and `i18n.redirectToDefaultLocale` is `true`', { todo: "Enable in Astro 6.0", skip: "Removed validation"}, async () => {
-			const configError = await validateConfig({
-				i18n: {
-					defaultLocale: 'en',
-					locales: ['es', 'en'],
-					routing: {
-						prefixDefaultLocale: false,
-						redirectToDefaultLocale: true,
+		it(
+			'errors if `i18n.prefixDefaultLocale` is `false` and `i18n.redirectToDefaultLocale` is `true`',
+			{ todo: 'Enable in Astro 6.0', skip: 'Removed validation' },
+			async () => {
+				const configError = await validateConfig({
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['es', 'en'],
+						routing: {
+							prefixDefaultLocale: false,
+							redirectToDefaultLocale: true,
+						},
 					},
-				},
-			}).catch((err) => err);
-			assert.equal(configError instanceof z.ZodError, true);
-			assert.equal(
-				configError.errors[0].message,
-				'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`, otherwise redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.'
-			);
-		});
+				}).catch((err) => err);
+				assert.equal(configError instanceof z.ZodError, true);
+				assert.equal(
+					configError.errors[0].message,
+					'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`, otherwise redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
+				);
+			},
+		);
 
 		it('errors if a domains key does not exist', async () => {
 			const configError = await validateConfig({
