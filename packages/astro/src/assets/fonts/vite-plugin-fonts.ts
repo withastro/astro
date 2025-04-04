@@ -16,8 +16,6 @@ import {
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Logger } from '../../core/logger/core.js';
 import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
-import { createViteLoader } from '../../core/module-loader/vite.js';
-import { LocalFontsWatcher } from './providers/local.js';
 import { readFile } from 'node:fs/promises';
 import { createStorage, type Storage } from 'unstorage';
 import fsLiteDriver from 'unstorage/drivers/fs-lite';
@@ -160,26 +158,29 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async configureServer(server) {
-			const moduleLoader = createViteLoader(server);
 			await initialize({
-				resolveMod: (id) => moduleLoader.import(id),
+				resolveMod: (id) => server.ssrLoadModule(id),
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				base: new URL(CACHE_DIR, settings.dotAstroDir),
 			});
-			const localFontsWatcher = new LocalFontsWatcher({
-				// The map is always defined at this point. Its values contains urls from remote providers
-				// as well as local paths for the local provider. We filter them to only keep the filepaths
-				paths: [...hashToUrlMap!.values()].filter((url) => isAbsolute(url)),
-				// Whenever a local font file is updated, we restart the server so the user always has an up to date
-				// version of the font file
-				update: () => {
+			// The map is always defined at this point. Its values contains urls from remote providers
+			// as well as local paths for the local provider. We filter them to only keep the filepaths
+			const localPaths = [...hashToUrlMap!.values()].filter((url) => isAbsolute(url));
+			server.watcher.on('change', (path) => {
+				if (localPaths.includes(path)) {
 					logger.info('assets', 'Font file updated');
 					server.restart();
-				},
+				}
 			});
-			server.watcher.on('change', (path) => localFontsWatcher.onUpdate(path));
 			// We do not purge the cache in case the user wants to re-use the file later on
-			server.watcher.on('unlink', (path) => localFontsWatcher.onUnlink(path));
+			server.watcher.on('unlink', (path) => {
+				if (localPaths.includes(path)) {
+					logger.warn(
+						'assets',
+						'A local font file referenced in your config has been deleted. Restore the file or remove this font from your configuration if it is no longer needed.',
+					);
+				}
+			});
 
 			// Base is taken into account by default. The prefix contains a traling slash,
 			// so it matches correctly any hash, eg. /_astro/fonts/abc.woff => abc.woff
