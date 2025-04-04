@@ -19,7 +19,7 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { resolveProvider, type ResolveProviderOptions } from './providers/utils.js';
 import { google } from './providers/google.js';
 import { createRequire } from 'node:module';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
@@ -247,7 +247,7 @@ export async function resolveFontFamily({
 					const url = (isValue ? value : value.url).toString();
 					const tech = isValue ? undefined : value.tech;
 					return {
-						url: resolveEntrypoint(root, url),
+						url: fileURLToPath(resolveEntrypoint(root, url)),
 						tech,
 					};
 				}),
@@ -334,12 +334,12 @@ export function familiesToUnifontProviders({
 	return { families, providers };
 }
 
-export function resolveEntrypoint(root: URL, entrypoint: string): string {
+export function resolveEntrypoint(root: URL, entrypoint: string): URL {
 	const require = createRequire(root);
 
 	try {
-		return pathToFileURL(require.resolve(entrypoint)).href;
+		return pathToFileURL(require.resolve(entrypoint));
 	} catch {
-		return new URL(entrypoint, root).href;
+		return new URL(entrypoint, root);
 	}
 }

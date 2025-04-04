@@ -40,7 +40,7 @@ export async function resolveProvider({
 	provider: { entrypoint, config },
 	resolveMod,
 }: ResolveProviderOptions): Promise<ResolvedFontProvider> {
-	const id = resolveEntrypoint(root, entrypoint.toString());
+	const id = resolveEntrypoint(root, entrypoint.toString()).href;
 	const mod = await resolveMod(id);
 	const { provider } = validateMod(mod, id);
 	return { config, provider };
