@@ -44,7 +44,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
 					throw new AstroError(MissingMiddlewareForInternationalization);
 				}
-				return 'export const onRequest = (_, next) => next()';
+				return { code: 'export const onRequest = (_, next) => next()' };
 			} else if (id === MIDDLEWARE_MODULE_ID) {
 				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
 					throw new AstroError(MissingMiddlewareForInternationalization);
@@ -53,7 +53,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
 				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
 
-				const source = `
+				const code = `
 				${
 					userMiddlewareIsPresent
 						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
@@ -69,7 +69,7 @@ export const onRequest = sequence(
 );
 `.trim();
 
-				return source;
+				return { code };
 			}
 		},
 	};

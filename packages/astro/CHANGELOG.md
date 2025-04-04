@@ -1,5 +1,15 @@
 # astro
 
+## 5.6.1
+
+### Patch Changes
+
+- [#13519](https://github.com/withastro/astro/pull/13519) [`3323f5c`](https://github.com/withastro/astro/commit/3323f5c554a3af966463cc95a42d7ca789ba678b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors some internals to improve Rolldown compatibility
+
+- [#13545](https://github.com/withastro/astro/pull/13545) [`a7aff41`](https://github.com/withastro/astro/commit/a7aff41681f9235719c03f97650db288f9f5f71a) Thanks [@stramel](https://github.com/stramel)! - Prevent empty attributes from appearing in the SVG output
+
+- [#13552](https://github.com/withastro/astro/pull/13552) [`9cd0fd4`](https://github.com/withastro/astro/commit/9cd0fd432634ed664a820ac78c6a3033684c7a83) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where Astro validated the i18n configuration incorrectly, causing false positives in downstream libraries.
+
 ## 5.6.0
 
 ### Minor Changes

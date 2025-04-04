@@ -50,7 +50,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 						imports.push(`import { renderers } from "${RENDERERS_MODULE_ID}";`);
 						exports.push(`export { renderers };`);
 
-						return `${imports.join('\n')}${exports.join('\n')}`;
+						return { code: `${imports.join('\n')}${exports.join('\n')}` };
 					}
 				}
 			}
