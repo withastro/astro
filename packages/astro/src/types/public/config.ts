@@ -1050,7 +1050,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * An optional default time-to-live expiration period for session values, in seconds.
 	 *
 	 * By default, session values persist until they are deleted or the session is destroyed, and do not automatically expire because a particular amount of time has passed.
-	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](#sessionset) will override the global default
+	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://docs.astro.build/en/reference/api-reference/#set) will override the global default
 	 * for that individual entry.
 	 * 
 	 * ```js title="astro.config.mjs" ins={3-4}
