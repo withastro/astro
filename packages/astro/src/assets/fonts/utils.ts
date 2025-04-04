@@ -18,6 +18,8 @@ import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { resolveProvider, type ResolveProviderOptions } from './providers/utils.js';
 import { google } from './providers/google.js';
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
@@ -224,7 +226,8 @@ function dedupe<const T extends Array<any>>(arr: T): T {
 export async function resolveFontFamily({
 	family,
 	generateNameWithHash,
-	...resolveProviderOptions
+	root,
+	resolveMod,
 }: Omit<ResolveProviderOptions, 'provider'> & {
 	family: FontFamily<BuiltInProvider | FontProvider>;
 	generateNameWithHash: (family: FontFamily<any>) => string;
@@ -239,6 +242,15 @@ export async function resolveFontFamily({
 			variants: family.variants.map((variant) => ({
 				...variant,
 				weight: variant.weight.toString(),
+				src: variant.src.map((value) => {
+					const isValue = typeof value === 'string' || value instanceof URL;
+					const url = (isValue ? value : value.url).toString();
+					const tech = isValue ? undefined : value.tech;
+					return {
+						url: resolveEntrypoint(root, url),
+						tech,
+					};
+				}),
 			})),
 			fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
 		};
@@ -251,7 +263,8 @@ export async function resolveFontFamily({
 		...family,
 		nameWithHash,
 		provider: await resolveProvider({
-			...resolveProviderOptions,
+			root,
+			resolveMod,
 			provider,
 		}),
 		weights: family.weights ? dedupe(family.weights.map((weight) => weight.toString())) : undefined,
@@ -319,4 +332,14 @@ export function familiesToUnifontProviders({
 	}
 
 	return { families, providers };
+}
+
+export function resolveEntrypoint(root: URL, entrypoint: string): string {
+	const require = createRequire(root);
+
+	try {
+		return pathToFileURL(require.resolve(entrypoint)).href;
+	} catch {
+		return new URL(entrypoint, root).href;
+	}
 }

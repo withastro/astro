@@ -76,7 +76,8 @@ export async function loadFonts({
 		let fonts: Array<unifont.FontFaceData>;
 
 		if (family.provider === LOCAL_PROVIDER_NAME) {
-			const result = resolveLocalFont(family, {
+			const result = resolveLocalFont({
+				family,
 				proxyURL: (value) => {
 					return proxyURL({
 						value,
@@ -94,7 +95,6 @@ export async function loadFonts({
 						collect,
 					});
 				},
-				root,
 			});
 			fonts = result.fonts;
 		} else {
