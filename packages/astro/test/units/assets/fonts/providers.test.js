@@ -3,10 +3,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
 import { google } from '../../../../dist/assets/fonts/providers/google.js';
-import {
-	LocalFontsWatcher,
-	resolveLocalFont,
-} from '../../../../dist/assets/fonts/providers/local.js';
+import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
 import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
 import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
@@ -174,32 +171,6 @@ describe('fonts providers', () => {
 			},
 		]);
 		assert.deepStrictEqual(values, ['/src/fonts/bar.eot']);
-	});
-
-	it('LocalFontsWatcher', () => {
-		let updated = 0;
-		const watcher = new LocalFontsWatcher({
-			paths: ['foo', 'bar'],
-			update: () => {
-				updated++;
-			},
-		});
-
-		watcher.onUpdate('baz');
-		assert.equal(updated, 0);
-
-		watcher.onUpdate('foo');
-		watcher.onUpdate('bar');
-		assert.equal(updated, 2);
-
-		assert.doesNotThrow(() => watcher.onUnlink('baz'));
-		try {
-			watcher.onUnlink('foo');
-			assert.fail();
-		} catch (err) {
-			assert.equal(err instanceof Error, true);
-			assert.equal(err.message, 'A local font file referenced in your config has been deleted.');
-		}
 	});
 
 	describe('utils', () => {
