@@ -596,8 +596,8 @@ importers:
         specifier: ^3.1.5
         version: 3.1.5(typescript@5.8.2)
       ultrahtml:
-        specifier: ^1.5.3
-        version: 1.5.3
+        specifier: ^1.6.0
+        version: 1.6.0
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0
@@ -11803,6 +11803,9 @@ packages:
   ultrahtml@1.5.3:
     resolution: {integrity: sha512-GykOvZwgDWZlTQMtp5jrD4BVL+gNn2NVlVafjcFUJ7taY20tqYdwdoWBFy6GBJsNTZe1GkGPkSl5knQAjtgceg==}
 
+  ultrahtml@1.6.0:
+    resolution: {integrity: sha512-R9fBn90VTJrqqLDwyMph+HGne8eqY1iPfYhPzZrvKpIfwkWZbcYlfpsb8B9dTvBfpy1/hqAD7Wi8EKfP9e8zdw==}
+
   uncrypto@0.1.3:
     resolution: {integrity: sha512-Ql87qFHB3s/De2ClA9e0gsnS6zXG27SkTiSJwjCc9MebbfapQfuPzumMIUMi38ezPZVNFcHI9sUIepeQfw8J8Q==}
 
@@ -14916,7 +14919,7 @@ snapshots:
       marked: 12.0.2
       marked-footnote: 1.2.4(marked@12.0.2)
       marked-smartypants: 1.1.8(marked@12.0.2)
-      ultrahtml: 1.5.3
+      ultrahtml: 1.6.0
 
   async-listen@3.1.0: {}
 
@@ -18653,6 +18656,8 @@ snapshots:
   uhyphen@0.2.0: {}
 
   ultrahtml@1.5.3: {}
+
+  ultrahtml@1.6.0: {}
 
   uncrypto@0.1.3: {}
 
