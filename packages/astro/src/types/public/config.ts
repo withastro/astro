@@ -17,7 +17,11 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { BuiltInProvider, FontFamily, FontProvider } from '../../assets/fonts/types.js';
+
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
+
+export type { FontProvider };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -184,6 +188,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */ export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
+	TFontFamilies extends FontFamily<BuiltInProvider | FontProvider>[] = never,
 > {
 	/**
 	 * @docs
@@ -2120,6 +2125,20 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		svg?: boolean;
 
 		/**
+		 *
+		 * @name experimental.fonts
+		 * @type {FontFamily[]}
+		 * @default `undefined`
+		 * @version 5.x
+		 * @description
+		 *
+		 * TODO:
+		 */
+		fonts?: [TFontFamilies] extends [never]
+			? FontFamily<BuiltInProvider | FontProvider>[]
+			: TFontFamilies;
+
+		/*
 		 * @name experimental.serializeConfig
 		 * @type {boolean}
 		 * @default `false`
