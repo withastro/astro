@@ -4,7 +4,9 @@ import type {
 	FontFamily,
 	FontProvider,
 	FontType,
+	LocalFontFamily,
 	ResolvedFontFamily,
+	ResolvedLocalFontFamily,
 } from './types.js';
 import { extname } from 'node:path';
 import {
@@ -218,6 +220,25 @@ function dedupe<const T extends Array<any>>(arr: T): T {
 	return [...new Set(arr)] as T;
 }
 
+function resolveVariants({
+	variants,
+	root,
+}: { variants: LocalFontFamily['variants']; root: URL }): ResolvedLocalFontFamily['variants'] {
+	return variants.map((variant) => ({
+		...variant,
+		weight: variant.weight.toString(),
+		src: variant.src.map((value) => {
+			const isValue = typeof value === 'string' || value instanceof URL;
+			const url = (isValue ? value : value.url).toString();
+			const tech = isValue ? undefined : value.tech;
+			return {
+				url: fileURLToPath(resolveEntrypoint(root, url)),
+				tech,
+			};
+		}),
+	}));
+}
+
 /**
  * Resolves the font family provider. If none is provided, it will infer the provider as
  * one of the built-in providers and resolve it. The most important part is that if a
@@ -239,19 +260,7 @@ export async function resolveFontFamily({
 			...family,
 			nameWithHash,
 			provider: LOCAL_PROVIDER_NAME,
-			variants: family.variants.map((variant) => ({
-				...variant,
-				weight: variant.weight.toString(),
-				src: variant.src.map((value) => {
-					const isValue = typeof value === 'string' || value instanceof URL;
-					const url = (isValue ? value : value.url).toString();
-					const tech = isValue ? undefined : value.tech;
-					return {
-						url: fileURLToPath(resolveEntrypoint(root, url)),
-						tech,
-					};
-				}),
-			})),
+			variants: resolveVariants({ variants: family.variants, root }),
 			fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
 		};
 	}
