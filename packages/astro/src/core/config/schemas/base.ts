@@ -402,6 +402,7 @@ export const AstroConfigSchema = z.object({
 					.or(
 						z.object({
 							prefixDefaultLocale: z.boolean().optional().default(false),
+							// TODO: Astro 6.0 change to false
 							redirectToDefaultLocale: z.boolean().optional().default(true),
 							fallbackType: z.enum(['redirect', 'rewrite']).optional().default('redirect'),
 						}),
