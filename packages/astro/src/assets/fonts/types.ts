@@ -32,7 +32,12 @@ export interface ResolvedLocalFontFamily
 	extends ResolvedFontFamilyAttributes,
 		Omit<LocalFontFamily, 'variants'> {
 	provider: LocalProviderName;
-	variants: Array<Omit<LocalFontFamily['variants'][number], 'weight'> & { weight: string }>;
+	variants: Array<
+		Omit<LocalFontFamily['variants'][number], 'weight' | 'src'> & {
+			weight: string;
+			src: Array<{ url: string; tech?: string }>;
+		}
+	>;
 }
 
 interface RemoteFontFamily<TProvider extends GoogleProviderName | FontProvider>

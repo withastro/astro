@@ -1,17 +1,6 @@
-import { createRequire } from 'node:module';
 import type { FontProvider, ResolvedFontProvider } from '../types.js';
-import { pathToFileURL } from 'node:url';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
-
-export function resolveEntrypoint(root: URL, entrypoint: string): URL {
-	const require = createRequire(root);
-
-	try {
-		return pathToFileURL(require.resolve(entrypoint));
-	} catch {
-		return new URL(entrypoint, root);
-	}
-}
+import { resolveEntrypoint } from '../utils.js';
 
 export function validateMod(mod: any, entrypoint: string): Pick<ResolvedFontProvider, 'provider'> {
 	// We do not throw astro errors directly to avoid duplication. Instead, we throw an error to be used as cause

@@ -26,9 +26,11 @@ export const requiredFamilyAttributesSchema = z.object({
 	cssVariable: z.string(),
 });
 
+const entrypointSchema = z.union([z.string(), z.instanceof(URL)]);
+
 export const fontProviderSchema = z
 	.object({
-		entrypoint: z.union([z.string(), z.instanceof(URL)]),
+		entrypoint: entrypointSchema,
 		config: z.record(z.string(), z.any()).optional(),
 	})
 	.strict();
@@ -43,7 +45,14 @@ export const localFontFamilySchema = requiredFamilyAttributesSchema
 					familyPropertiesSchema.merge(
 						z
 							.object({
-								src: z.array(z.string()).nonempty(),
+								src: z
+									.array(
+										z.union([
+											entrypointSchema,
+											z.object({ url: entrypointSchema, tech: z.string().optional() }).strict(),
+										]),
+									)
+									.nonempty(),
 								// TODO: find a way to support subsets (through fontkit?)
 							})
 							.strict(),

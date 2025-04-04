@@ -1,6 +1,5 @@
 import type * as unifont from 'unifont';
 import type { ResolvedLocalFontFamily } from '../types.js';
-import { fileURLToPath } from 'node:url';
 import { extractFontType } from '../utils.js';
 
 // https://fonts.nuxt.com/get-started/providers#local
@@ -11,27 +10,24 @@ type InitializedProvider = NonNullable<Awaited<ReturnType<unifont.Provider>>>;
 
 type ResolveFontResult = NonNullable<Awaited<ReturnType<InitializedProvider['resolveFont']>>>;
 
-interface ResolveOptions {
-	root: URL;
+interface Options {
+	family: ResolvedLocalFontFamily;
 	proxyURL: (value: string) => string;
 }
 
-export function resolveLocalFont(
-	family: ResolvedLocalFontFamily,
-	{ proxyURL, root }: ResolveOptions,
-): ResolveFontResult {
+export function resolveLocalFont({ family, proxyURL }: Options): ResolveFontResult {
 	const fonts: ResolveFontResult['fonts'] = [];
 
 	for (const variant of family.variants) {
 		const data: ResolveFontResult['fonts'][number] = {
 			weight: variant.weight,
 			style: variant.style,
-			src: variant.src.map((path) => {
-				const originalURL = fileURLToPath(new URL(path, root));
+			src: variant.src.map(({ url: originalURL, tech }) => {
 				return {
 					originalURL,
 					url: proxyURL(originalURL),
-					format: extractFontType(path),
+					format: extractFontType(originalURL),
+					tech,
 				};
 			}),
 		};

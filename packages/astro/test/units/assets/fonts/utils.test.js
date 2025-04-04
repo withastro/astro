@@ -11,6 +11,7 @@ import {
 	resolveFontFamily,
 	familiesToUnifontProviders,
 } from '../../../../dist/assets/fonts/utils.js';
+import { fileURLToPath } from 'node:url';
 
 function createSpyCache() {
 	/** @type {Map<string, Buffer>} */
@@ -349,7 +350,7 @@ describe('fonts utils', () => {
 					fallbacks: undefined,
 					variants: [
 						{
-							src: ['a'],
+							src: [{ url: fileURLToPath(new URL('a', root)), tech: undefined }],
 							weight: '400',
 							style: 'normal',
 						},
@@ -381,7 +382,7 @@ describe('fonts utils', () => {
 					fallbacks: undefined,
 					variants: [
 						{
-							src: ['a'],
+							src: [{ url: fileURLToPath(new URL('a', root)), tech: undefined }],
 							weight: '400',
 							style: 'normal',
 						},
@@ -487,7 +488,7 @@ describe('fonts utils', () => {
 					provider: 'local',
 					variants: [
 						{
-							src: ['a'],
+							src: [{ url: 'a' }],
 							weight: '400',
 							style: 'normal',
 						},

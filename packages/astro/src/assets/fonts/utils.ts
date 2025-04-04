@@ -4,7 +4,9 @@ import type {
 	FontFamily,
 	FontProvider,
 	FontType,
+	LocalFontFamily,
 	ResolvedFontFamily,
+	ResolvedLocalFontFamily,
 } from './types.js';
 import { extname } from 'node:path';
 import {
@@ -18,6 +20,8 @@ import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { resolveProvider, type ResolveProviderOptions } from './providers/utils.js';
 import { google } from './providers/google.js';
+import { createRequire } from 'node:module';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
@@ -216,6 +220,25 @@ function dedupe<const T extends Array<any>>(arr: T): T {
 	return [...new Set(arr)] as T;
 }
 
+function resolveVariants({
+	variants,
+	root,
+}: { variants: LocalFontFamily['variants']; root: URL }): ResolvedLocalFontFamily['variants'] {
+	return variants.map((variant) => ({
+		...variant,
+		weight: variant.weight.toString(),
+		src: variant.src.map((value) => {
+			const isValue = typeof value === 'string' || value instanceof URL;
+			const url = (isValue ? value : value.url).toString();
+			const tech = isValue ? undefined : value.tech;
+			return {
+				url: fileURLToPath(resolveEntrypoint(root, url)),
+				tech,
+			};
+		}),
+	}));
+}
+
 /**
  * Resolves the font family provider. If none is provided, it will infer the provider as
  * one of the built-in providers and resolve it. The most important part is that if a
@@ -224,7 +247,8 @@ function dedupe<const T extends Array<any>>(arr: T): T {
 export async function resolveFontFamily({
 	family,
 	generateNameWithHash,
-	...resolveProviderOptions
+	root,
+	resolveMod,
 }: Omit<ResolveProviderOptions, 'provider'> & {
 	family: FontFamily<BuiltInProvider | FontProvider>;
 	generateNameWithHash: (family: FontFamily<any>) => string;
@@ -236,10 +260,7 @@ export async function resolveFontFamily({
 			...family,
 			nameWithHash,
 			provider: LOCAL_PROVIDER_NAME,
-			variants: family.variants.map((variant) => ({
-				...variant,
-				weight: variant.weight.toString(),
-			})),
+			variants: resolveVariants({ variants: family.variants, root }),
 			fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
 		};
 	}
@@ -251,7 +272,8 @@ export async function resolveFontFamily({
 		...family,
 		nameWithHash,
 		provider: await resolveProvider({
-			...resolveProviderOptions,
+			root,
+			resolveMod,
 			provider,
 		}),
 		weights: family.weights ? dedupe(family.weights.map((weight) => weight.toString())) : undefined,
@@ -319,4 +341,14 @@ export function familiesToUnifontProviders({
 	}
 
 	return { families, providers };
+}
+
+export function resolveEntrypoint(root: URL, entrypoint: string): URL {
+	const require = createRequire(root);
+
+	try {
+		return pathToFileURL(require.resolve(entrypoint));
+	} catch {
+		return new URL(entrypoint, root);
+	}
 }

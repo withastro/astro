@@ -17,7 +17,6 @@ import type { Storage } from 'unstorage';
 import type { generateFallbackFontFace } from './metrics.js';
 
 interface Options {
-	root: URL;
 	base: string;
 	families: Array<ResolvedFontFamily>;
 	storage: Storage;
@@ -30,7 +29,6 @@ interface Options {
 }
 
 export async function loadFonts({
-	root,
 	base,
 	families,
 	storage,
@@ -76,7 +74,8 @@ export async function loadFonts({
 		let fonts: Array<unifont.FontFaceData>;
 
 		if (family.provider === LOCAL_PROVIDER_NAME) {
-			const result = resolveLocalFont(family, {
+			const result = resolveLocalFont({
+				family,
 				proxyURL: (value) => {
 					return proxyURL({
 						value,
@@ -94,7 +93,6 @@ export async function loadFonts({
 						collect,
 					});
 				},
-				root,
 			});
 			fonts = result.fonts;
 		} else {
@@ -160,7 +158,7 @@ export async function loadFonts({
 		const fallbackData = await generateFallbacksCSS({
 			family,
 			font: fallbackFontData,
-			fallbacks: family.fallbacks ?? [],
+			fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
 			metrics:
 				(family.automaticFallback ?? DEFAULTS.automaticFallback)
 					? {
