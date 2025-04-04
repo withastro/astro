@@ -2,7 +2,6 @@ import type * as unifont from 'unifont';
 import type { ResolvedLocalFontFamily } from '../types.js';
 import { fileURLToPath } from 'node:url';
 import { extractFontType } from '../utils.js';
-import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 
 // https://fonts.nuxt.com/get-started/providers#local
 // https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
@@ -48,47 +47,4 @@ export function resolveLocalFont(
 	return {
 		fonts,
 	};
-}
-
-/**
- * Orchestrates local font updates and deletions during development
- */
-export class LocalFontsWatcher {
-	/**
-	 * Watched fonts files
-	 */
-	#paths: Array<string>;
-	/**
-	 * Action performed when a font file is updated
-	 */
-	#update: () => void;
-
-	constructor({ paths, update }: { paths: Array<string>; update: () => void }) {
-		this.#paths = paths;
-		this.#update = update;
-	}
-
-	#matches(path: string): boolean {
-		return this.#paths.includes(path);
-	}
-
-	/**
-	 * Callback to call whenever a file is updated
-	 */
-	onUpdate(path: string): void {
-		if (!this.#matches(path)) {
-			return;
-		}
-		this.#update();
-	}
-
-	/**
-	 * Callback to call whenever a file is unlinked
-	 */
-	onUnlink(path: string): void {
-		if (!this.#matches(path)) {
-			return;
-		}
-		throw new AstroError(AstroErrorData.DeletedLocalFont);
-	}
 }
