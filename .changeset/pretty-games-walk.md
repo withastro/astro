@@ -14,4 +14,4 @@
 '@astrojs/db': patch
 ---
 
-update vite to latest version
+Updates vite to the latest version
