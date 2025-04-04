@@ -349,7 +349,7 @@ describe('fonts utils', () => {
 					fallbacks: undefined,
 					variants: [
 						{
-							src: ['a'],
+							src: [{ url: new URL('a', root).href, tech: undefined }],
 							weight: '400',
 							style: 'normal',
 						},
@@ -381,7 +381,7 @@ describe('fonts utils', () => {
 					fallbacks: undefined,
 					variants: [
 						{
-							src: ['a'],
+							src: [{ url: new URL('a', root).href, tech: undefined }],
 							weight: '400',
 							style: 'normal',
 						},
@@ -487,7 +487,7 @@ describe('fonts utils', () => {
 					provider: 'local',
 					variants: [
 						{
-							src: ['a'],
+							src: [{ url: 'a' }],
 							weight: '400',
 							style: 'normal',
 						},

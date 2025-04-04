@@ -14,17 +14,16 @@ import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/e
 import { validateMod, resolveProvider } from '../../../../dist/assets/fonts/providers/utils.js';
 import { proxyURL } from '../../../../dist/assets/fonts/utils.js';
 import { basename, extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 /**
- * @param {Parameters<typeof resolveLocalFont>[0]} family
- * @param {URL} root
+ * @param {Parameters<resolveLocalFont>[0]['family']} family
  */
-function resolveLocalFontSpy(family, root) {
+function resolveLocalFontSpy(family) {
 	/** @type {Array<string>} */
 	const values = [];
 
-	const { fonts } = resolveLocalFont(family, {
+	const { fonts } = resolveLocalFont({
+		family,
 		proxyURL: (v) =>
 			proxyURL({
 				value: v,
@@ -34,7 +33,6 @@ function resolveLocalFontSpy(family, root) {
 					return `/_astro/fonts/${hash}`;
 				},
 			}),
-		root,
 	});
 
 	return {
@@ -88,23 +86,20 @@ describe('fonts providers', () => {
 	it('resolveLocalFont()', () => {
 		const root = new URL(import.meta.url);
 
-		let { fonts, values } = resolveLocalFontSpy(
-			{
-				name: 'Custom',
-				nameWithHash: 'Custom-xxx',
-				cssVariable: '--custom',
-				provider: 'local',
-				variants: [
-					{
-						src: ['./src/fonts/foo.woff2', './src/fonts/foo.ttf'],
-						weight: '400',
-						style: 'normal',
-						display: 'block'
-					},
-				],
-			},
-			root,
-		);
+		let { fonts, values } = resolveLocalFontSpy({
+			name: 'Custom',
+			nameWithHash: 'Custom-xxx',
+			cssVariable: '--custom',
+			provider: 'local',
+			variants: [
+				{
+					src: [{ url: '/src/fonts/foo.woff2' }, { url: '/src/fonts/foo.ttf' }],
+					weight: '400',
+					style: 'normal',
+					display: 'block',
+				},
+			],
+		});
 
 		assert.deepStrictEqual(fonts, [
 			{
@@ -113,46 +108,42 @@ describe('fonts providers', () => {
 				display: 'block',
 				src: [
 					{
-						originalURL: fileURLToPath(new URL('./src/fonts/foo.woff2', import.meta.url)),
+						originalURL: '/src/fonts/foo.woff2',
 						url: '/_astro/fonts/foo.woff2',
 						format: 'woff2',
+						tech: undefined,
 					},
 					{
-						originalURL: fileURLToPath(new URL('./src/fonts/foo.ttf', import.meta.url)),
+						originalURL: '/src/fonts/foo.ttf',
 						url: '/_astro/fonts/foo.ttf',
 						format: 'ttf',
+						tech: undefined,
 					},
 				],
 			},
 		]);
-		assert.deepStrictEqual(values, [
-			fileURLToPath(new URL('./src/fonts/foo.woff2', root)),
-			fileURLToPath(new URL('./src/fonts/foo.ttf', root)),
-		]);
+		assert.deepStrictEqual(values, ['/src/fonts/foo.woff2', '/src/fonts/foo.ttf']);
 
-		({ fonts, values } = resolveLocalFontSpy(
-			{
-				name: 'Custom',
-				nameWithHash: 'Custom-xxx',
-				cssVariable: '--custom',
-				provider: 'local',
-				variants: [
-					{
-						src: ['./src/fonts/bar.eot'],
-						weight: '600',
-						style: 'oblique',
-						stretch: 'condensed',
-					},
-					{
-						src: ['./src/fonts/bar.eot'],
-						weight: '700',
-						style: 'oblique',
-						stretch: 'condensed',
-					},
-				],
-			},
-			root,
-		));
+		({ fonts, values } = resolveLocalFontSpy({
+			name: 'Custom',
+			nameWithHash: 'Custom-xxx',
+			cssVariable: '--custom',
+			provider: 'local',
+			variants: [
+				{
+					src: [{ url: '/src/fonts/bar.eot', tech: 'color-SVG' }],
+					weight: '600',
+					style: 'oblique',
+					stretch: 'condensed',
+				},
+				{
+					src: [{ url: '/src/fonts/bar.eot' }],
+					weight: '700',
+					style: 'oblique',
+					stretch: 'condensed',
+				},
+			],
+		}));
 
 		assert.deepStrictEqual(fonts, [
 			{
@@ -161,9 +152,10 @@ describe('fonts providers', () => {
 				stretch: 'condensed',
 				src: [
 					{
-						originalURL: fileURLToPath(new URL('./src/fonts/bar.eot', import.meta.url)),
+						originalURL: '/src/fonts/bar.eot',
 						url: '/_astro/fonts/bar.eot',
 						format: 'eot',
+						tech: 'color-SVG',
 					},
 				],
 			},
@@ -173,14 +165,15 @@ describe('fonts providers', () => {
 				stretch: 'condensed',
 				src: [
 					{
-						originalURL: fileURLToPath(new URL('./src/fonts/bar.eot', import.meta.url)),
+						originalURL: '/src/fonts/bar.eot',
 						url: '/_astro/fonts/bar.eot',
 						format: 'eot',
+						tech: undefined,
 					},
 				],
 			},
 		]);
-		assert.deepStrictEqual(values, [fileURLToPath(new URL('./src/fonts/bar.eot', root))]);
+		assert.deepStrictEqual(values, ['/src/fonts/bar.eot']);
 	});
 
 	it('LocalFontsWatcher', () => {
