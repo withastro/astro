@@ -9,15 +9,13 @@ import {
 import type { AstroSettings } from '../types/astro.js';
 import type {
 	ResolvedSessionConfig,
+	RuntimeMode,
 	SessionConfig,
 	SessionDriverName,
 } from '../types/public/config.js';
 import type { AstroCookies } from './cookies/cookies.js';
 import type { AstroCookieSetOptions } from './cookies/cookies.js';
-import {
-	SessionStorageInitError,
-	SessionStorageSaveError,
-} from './errors/errors-data.js';
+import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 
 export const PERSIST_SYMBOL = Symbol();
@@ -81,6 +79,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			cookie: cookieConfig = DEFAULT_COOKIE_NAME,
 			...config
 		}: Exclude<ResolvedSessionConfig<TDriver>, undefined>,
+		 runtimeMode?: RuntimeMode
 	) {
 		this.#cookies = cookies;
 		let cookieConfigObject: AstroCookieSetOptions | undefined;
@@ -93,7 +92,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 		this.#cookieConfig = {
 			sameSite: 'lax',
-			secure: true,
+			secure: runtimeMode === 'production',
 			path: '/',
 			...cookieConfigObject,
 			httpOnly: true,

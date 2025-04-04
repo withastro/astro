@@ -35,7 +35,7 @@ describe('Astro.session', () => {
 		}
 
 		it('can regenerate session cookies upon request', async () => {
-			const firstResponse = await fetchResponse('/regenerate', { method: 'GET' });
+			const firstResponse = await fetchResponse('/regenerate');
 			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
 			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 
@@ -50,8 +50,21 @@ describe('Astro.session', () => {
 			assert.notEqual(firstSessionId, secondSessionId);
 		});
 
+		it('defaults to secure cookies in production', async () => {
+			const firstResponse = await fetchResponse('/regenerate');
+			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
+			assert.ok(
+				firstHeaders[0].includes('Secure'),
+				'Secure cookie not set in production',
+			);
+			assert.ok(
+				firstHeaders[0].includes('HttpOnly'),
+				'HttpOnly cookie not set in production',
+			);
+		});
+
 		it('can save session data by value', async () => {
-			const firstResponse = await fetchResponse('/update', { method: 'GET' });
+			const firstResponse = await fetchResponse('/update');
 			const firstValue = await firstResponse.json();
 			assert.equal(firstValue.previousValue, 'none');
 
@@ -162,6 +175,13 @@ describe('Astro.session', () => {
 			const secondHeaders = secondResponse.headers.get('set-cookie').split(',');
 			const secondSessionId = secondHeaders[0].split(';')[0].split('=')[1];
 			assert.notEqual(firstSessionId, secondSessionId);
+		});
+
+
+		it('defaults to non-secure cookies in development', async () => {
+			const response = await fixture.fetch('/regenerate');
+			const setCookieHeader = response.headers.get('set-cookie');
+			assert.ok(!setCookieHeader.includes('Secure'));
 		});
 
 		it('can save session data by value', async () => {

@@ -60,7 +60,7 @@ export class RenderContext {
 		public props: Props = {},
 		public partial: undefined | boolean = undefined,
 		public session: AstroSession | undefined = pipeline.manifest.sessionConfig
-			? new AstroSession(cookies, pipeline.manifest.sessionConfig)
+			? new AstroSession(cookies, pipeline.manifest.sessionConfig, pipeline.runtimeMode)
 			: undefined,
 	) {}
 
