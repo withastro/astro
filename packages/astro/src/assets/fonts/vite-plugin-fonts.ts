@@ -177,7 +177,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				if (localPaths.includes(path)) {
 					logger.warn(
 						'assets',
-						'A local font file referenced in your config has been deleted. Restore the file or remove this font from your configuration if it is no longer needed.',
+						`The font file ${JSON.stringify(path)} referenced in your config has been deleted. Restore the file or remove this font from your configuration if it is no longer needed.`,
 					);
 				}
 			});
