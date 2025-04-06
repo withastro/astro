@@ -15,4 +15,12 @@ const blog = defineCollection({
 	}),
 });
 
-export const collections = { blog };
+const test = defineCollection({
+	loader: {
+		name: 'test',
+		load: async () => {},
+		schema: z.object({ id: z.string(), name: z.string() })
+	}
+})
+
+export const collections = { blog, test };

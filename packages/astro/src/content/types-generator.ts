@@ -405,15 +405,19 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (collection?.type === CONTENT_LAYER_TYPE) {
 		const schema = await getContentLayerSchema(collection, collectionKey);
 		if (schema) {
-			return await compile(
-				// @ts-expect-error not the same version of json schema spec
-				await toJsonSchema(schema),
-				collectionKey.replace(/"/g, ''),
-				{
-					additionalProperties: false,
-					bannerComment: '',
-				},
-			);
+			return (
+				await compile(
+					// @ts-expect-error not the same version of json schema spec
+					await toJsonSchema(schema),
+					'X',
+					{
+						additionalProperties: false,
+						bannerComment: '',
+						unknownAny: false,
+						format: false,
+					},
+				)
+			).slice(19);
 		}
 	}
 	return 'any';

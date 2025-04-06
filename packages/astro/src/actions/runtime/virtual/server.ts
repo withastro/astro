@@ -146,9 +146,12 @@ export function getDecodeOptionsFromSchema(schema: JsonSchema7): FormDataInfo {
 		if (obj.type === 'array' && obj.items) {
 			result.arrays!.push(path);
 			// Check array item type
+			// @ts-ignore
 			if (obj.items.type === 'object') {
+				// @ts-ignore
 				traverse(obj.items, `${path}.$`);
 			} else {
+				// @ts-ignore
 				traverse(obj.items, path); // in case of primitives
 			}
 			return;
@@ -158,6 +161,7 @@ export function getDecodeOptionsFromSchema(schema: JsonSchema7): FormDataInfo {
 			for (const key in obj.properties) {
 				const prop = obj.properties[key];
 				const newPath = path ? `${path}.${key}` : key;
+				// @ts-ignore
 				traverse(prop, newPath);
 			}
 			return;
