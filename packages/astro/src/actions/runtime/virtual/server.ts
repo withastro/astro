@@ -27,6 +27,8 @@ import {
 	deserializeActionResult,
 	serializeActionResult,
 } from './shared.js';
+import { toJsonSchema } from '@standard-community/standard-json';
+import { decode, type FormDataInfo } from 'decode-formdata';
 
 export * from './shared.js';
 
@@ -117,17 +119,79 @@ function getFormServerHandler<TOutput, TInputSchema extends z.ZodType>(
 
 		if (!inputSchema) return await handler(unparsedInput, context);
 
-		const baseSchema = unwrapBaseObjectSchema(inputSchema, unparsedInput);
-		const parsed = await inputSchema.safeParseAsync(
-			baseSchema instanceof z.ZodObject
-				? formDataToObject(unparsedInput, baseSchema)
-				: unparsedInput,
-		);
+		const jsonSchema = await toJsonSchema(inputSchema);
+		const formValues = decode(unparsedInput, getDecodeOptionsFromSchema(jsonSchema));
+		const parsed = await inputSchema.safeParseAsync(formValues);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
 		return await handler(parsed.data, context);
 	};
+}
+
+type JsonSchema7 = Awaited<ReturnType<typeof toJsonSchema>>;
+
+export function getDecodeOptionsFromSchema(schema: JsonSchema7): FormDataInfo {
+	const result: FormDataInfo = {
+		arrays: [],
+		booleans: [],
+		dates: [],
+		files: [],
+		numbers: [],
+	};
+
+	function traverse(obj: JsonSchema7, path = '') {
+		if (!obj || typeof obj !== 'object') return;
+
+		if (obj.type === 'array' && obj.items) {
+			result.arrays!.push(path);
+			// Check array item type
+			if (obj.items.type === 'object') {
+				traverse(obj.items, `${path}.$`);
+			} else {
+				traverse(obj.items, path); // in case of primitives
+			}
+			return;
+		}
+
+		if (obj.type === 'object' && obj.properties) {
+			for (const key in obj.properties) {
+				const prop = obj.properties[key];
+				const newPath = path ? `${path}.${key}` : key;
+				traverse(prop, newPath);
+			}
+			return;
+		}
+
+		if (typeof obj.format === 'string') {
+			switch (obj.format) {
+				case 'date':
+				case 'date-time':
+					result.dates!.push(path);
+					return;
+				case 'binary':
+					result.files!.push(path);
+					return;
+			}
+		}
+
+		if (obj.type === 'boolean') {
+			result.booleans!.push(path);
+		} else if (obj.type === 'number' || obj.type === 'integer') {
+			result.numbers!.push(path);
+		}
+	}
+
+	traverse(schema);
+
+	// Remove empty arrays
+	for (const key of Object.keys(result) as (keyof FormDataInfo)[]) {
+		if (result[key]!.length === 0) {
+			delete result[key];
+		}
+	}
+
+	return result;
 }
 
 function getJsonServerHandler<TOutput, TInputSchema extends z.ZodType>(

@@ -411,6 +411,7 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 				collectionKey.replace(/"/g, ''),
 				{
 					additionalProperties: false,
+					bannerComment: '',
 				},
 			);
 		}

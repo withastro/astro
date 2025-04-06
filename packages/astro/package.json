@@ -135,6 +135,7 @@
     "cookie": "^1.0.2",
     "cssesc": "^3.0.0",
     "debug": "^4.4.0",
+    "decode-formdata": "^0.9.0",
     "deterministic-object-hash": "^2.0.2",
     "devalue": "^5.1.1",
     "diff": "^5.2.0",
