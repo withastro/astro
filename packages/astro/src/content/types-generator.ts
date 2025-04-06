@@ -5,7 +5,7 @@ import { bold, cyan } from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import { type ViteDevServer, normalizePath } from 'vite';
 import { type ZodSchema, z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { toJsonSchema } from '@standard-community/standard-json';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -33,6 +33,7 @@ import {
 	getEntryType,
 	reloadContentConfigObserver,
 } from './utils.js';
+import { compile } from 'json-schema-to-typescript';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -404,17 +405,14 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (collection?.type === CONTENT_LAYER_TYPE) {
 		const schema = await getContentLayerSchema(collection, collectionKey);
 		if (schema) {
-			try {
-				const zodToTs = await import('zod-to-ts');
-				const ast = zodToTs.zodToTs(schema);
-				return zodToTs.printNode(ast.node);
-			} catch (err: any) {
-				// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
-				if (err.message.includes("Cannot find package 'typescript'")) {
-					return 'any';
-				}
-				throw err;
-			}
+			return await compile(
+				// @ts-expect-error not the same version of json schema spec
+				await toJsonSchema(schema),
+				collectionKey.replace(/"/g, ''),
+				{
+					additionalProperties: false,
+				},
+			);
 		}
 	}
 	return 'any';
@@ -631,7 +629,7 @@ async function generateJSONSchema(
 		await fsMod.promises.writeFile(
 			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
 			JSON.stringify(
-				zodToJsonSchema(zodSchemaForJson, {
+				await toJsonSchema(zodSchemaForJson, {
 					name: collectionKey.replace(/"/g, ''),
 					markdownDescription: true,
 					errorMessages: true,
