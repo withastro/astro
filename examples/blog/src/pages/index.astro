@@ -3,6 +3,15 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { actions } from 'astro:actions';
+
+const formData = new FormData();
+formData.append('name', 'test');
+formData.append('test', 'off');
+formData.append('nested.num', '0');
+
+const res = await Astro.callAction(actions.foo, formData);
+console.log({ error: !!res.error })
 ---
 
 <!doctype html>

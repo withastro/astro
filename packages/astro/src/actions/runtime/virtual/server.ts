@@ -120,7 +120,10 @@ function getFormServerHandler<TOutput, TInputSchema extends z.ZodType>(
 		if (!inputSchema) return await handler(unparsedInput, context);
 
 		const jsonSchema = await toJsonSchema(inputSchema);
-		const formValues = decode(unparsedInput, getDecodeOptionsFromSchema(jsonSchema));
+		const options = getDecodeOptionsFromSchema(jsonSchema);
+		console.log({ options });
+		const formValues = decode(unparsedInput, options);
+		console.log({ options, formValues });
 		const parsed = await inputSchema.safeParseAsync(formValues);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
@@ -146,12 +149,13 @@ export function getDecodeOptionsFromSchema(schema: JsonSchema7): FormDataInfo {
 		if (obj.type === 'array' && obj.items) {
 			result.arrays!.push(path);
 			// Check array item type
-			// @ts-ignore
-			if (obj.items.type === 'object') {
-				// @ts-ignore
+			if (obj.items === true) {
+				// TODO:
+			} else if (Array.isArray(obj.items)) {
+				// TODO:
+			} else if (obj.items.type === 'object') {
 				traverse(obj.items, `${path}.$`);
 			} else {
-				// @ts-ignore
 				traverse(obj.items, path); // in case of primitives
 			}
 			return;
