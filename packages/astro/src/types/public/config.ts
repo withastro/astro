@@ -1069,7 +1069,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```
 	 * :::note
 	 * Setting a value for `ttl` does not automatically delete the value from storage after the time limit has passed.
+	 * 
 	 * Values from storage will only be deleted when there is an attempt to access them after the `ttl` period has expired. At this time, the session value will be undefined and only then will the value be deleted.
+	 * 
 	 * Individual drivers may also support a `ttl` option that will automatically delete sessions after the specified time. See your chosen driver's documentation for more information.
 	 * :::
 	 */
