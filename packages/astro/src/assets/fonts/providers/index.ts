@@ -26,7 +26,7 @@ function fontsource() {
 	});
 }
 
-// TODO: https://github.com/unjs/unifont/issues/108
+// TODO: https://github.com/unjs/unifont/issues/108. Once resolved, remove the unifont patch
 // This provider downloads too many files when there's a variable font
 // available. This is bad because it doesn't align with our default font settings
 function google() {
