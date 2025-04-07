@@ -1,0 +1,13 @@
+diff --git a/dist/index.js b/dist/index.js
+index a8d7acc843a641e4797d69b897fc66fbddbd31a9..2741a3a400c9a9b0ee4ad7ff0a361d890e6fd756 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -441,7 +441,7 @@ const google = defineFontProvider("google", async (_options = {}, ctx) => {
+   async function getFontDetails(family, options) {
+     const font = googleFonts.find((font2) => font2.family === family);
+     const styles = [...new Set(options.styles.map((i) => styleMap[i]))].sort();
+-    const variableWeight = font.axes.find((a) => a.tag === "wght");
++    const variableWeight = options.weights.some(weight => weight.includes(" ")) && font.axes.find((a) => a.tag === "wght");
+     const weights = variableWeight ? [`${variableWeight.min}..${variableWeight.max}`] : options.weights.filter((weight) => weight in font.fonts);
+     if (weights.length === 0 || styles.length === 0)
+       return [];
