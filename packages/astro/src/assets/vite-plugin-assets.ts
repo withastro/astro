@@ -222,7 +222,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					const imageMetadata = await emitESMImage(
 						id,
 						this.meta.watchMode,
-						!!settings.config.experimental.svg,
+						id.endsWith('.svg'),
 						emitFile,
 					);
 
@@ -233,7 +233,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						});
 					}
 
-					if (settings.config.experimental.svg && /\.svg$/.test(id)) {
+					if (id.endsWith('.svg')) {
 						const contents = await fs.promises.readFile(imageMetadata.fsPath, { encoding: 'utf8' });
 						// We know that the contents are present, as we only emit this property for SVG files
 						return { code: makeSvgComponent(imageMetadata, contents) };

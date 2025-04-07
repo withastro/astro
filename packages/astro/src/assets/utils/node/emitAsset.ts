@@ -14,7 +14,7 @@ type ImageMetadataWithContents = ImageMetadata & { contents?: Buffer };
  *
  * @param {string | undefined} id - The identifier or path of the image file to process. If undefined, the function returns immediately.
  * @param {boolean} _watchMode - **Deprecated**: Indicates if the method is operating in watch mode. This parameter will be removed or updated in the future.
- * @param {boolean} experimentalSvgEnabled - A flag to enable experimental handling of SVG files. Embeds SVG file data if set to true.
+ * @param {boolean} _experimentalSvgEnabled - **Deprecated**: A flag to enable experimental handling of SVG files. Embeds SVG file data if set to true.
  * @param {FileEmitter | undefined} [fileEmitter] - Function for emitting files during the build process. May throw in certain scenarios.
  * @return {Promise<ImageMetadataWithContents | undefined>} Resolves to metadata with optional image contents or `undefined` if processing fails.
  */
@@ -25,7 +25,8 @@ export async function emitESMImage(
 	_watchMode: boolean,
 	// FIX: in Astro 6, this function should not be passed in dev mode at all.
 	// Or rethink the API so that a function that throws isn't passed through.
-	experimentalSvgEnabled: boolean,
+	/** @deprecated */
+	_experimentalSvgEnabled: boolean,
 	fileEmitter?: FileEmitter,
 ): Promise<ImageMetadataWithContents | undefined> {
 	if (!id) {

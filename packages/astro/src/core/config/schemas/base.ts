@@ -95,7 +95,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		responsiveImages: false,
-		svg: false,
 		headingIdCompat: false,
 		preserveScriptOrder: false,
 	},
@@ -463,7 +462,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
-			svg: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.svg),
 			headingIdCompat: z
 				.boolean()
 				.optional()
