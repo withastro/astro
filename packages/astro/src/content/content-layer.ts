@@ -270,7 +270,8 @@ export class ContentLayer {
 						},
 						collectionWithResolvedSchema,
 						false,
-						!!this.#settings.config.experimental.svg,
+						// TODO: Fix memory issue
+						id.endsWith('.svg'), //!!this.#settings.config.experimental.svg,
 					);
 
 					return parsedData;

@@ -318,7 +318,10 @@ async function emitOptimizedImages(
 					const src = await emitESMImage(
 						resolved.id,
 						ctx.pluginContext.meta.watchMode,
-						!!ctx.astroConfig.experimental.svg,
+
+						// TODO: Fix memory leak issue
+						resolved.id.endsWith('.svg'),
+						// !!ctx.astroConfig.experimental.svg,
 						ctx.pluginContext.emitFile,
 					);
 
