@@ -12,6 +12,7 @@ import {
 	familiesToUnifontProviders,
 } from '../../../../dist/assets/fonts/utils.js';
 import { fileURLToPath } from 'node:url';
+import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js';
 
 function createSpyCache() {
 	/** @type {Map<string, Buffer>} */
@@ -362,6 +363,7 @@ describe('fonts utils', () => {
 					family: {
 						name: 'Custom',
 						cssVariable: '--custom',
+						provider: 'local',
 						variants: [
 							{
 								src: ['a'],
@@ -396,7 +398,7 @@ describe('fonts utils', () => {
 				family: {
 					name: 'Custom',
 					cssVariable: '--custom',
-					provider: 'google',
+					provider: fontProviders.google(),
 				},
 				resolveMod: (id) => import(id),
 				generateNameWithHash: (family) => `${family.name}-x`,
@@ -413,6 +415,7 @@ describe('fonts utils', () => {
 				family: {
 					name: 'Custom',
 					cssVariable: '--custom',
+					provider: fontProviders.google(),
 				},
 				resolveMod: (id) => import(id),
 				generateNameWithHash: (family) => `${family.name}-x`,

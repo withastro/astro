@@ -2,7 +2,7 @@ import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
 import { defineConfig } from '../../dist/config/index.js';
 import type { AstroUserConfig } from '../../dist/types/public/index.js';
-import type { BuiltInProvider, FontFamily, FontProvider } from '../../dist/assets/fonts/types.js';
+import type { FontFamily, FontProvider } from '../../dist/assets/fonts/types.js';
 import { defineAstroFontProvider } from '../../dist/config/entrypoint.js';
 
 function assertType<T>(data: T, cb: (data: NoInfer<T>) => void) {
@@ -65,9 +65,7 @@ describe('defineConfig()', () => {
 	it('Infers fonts generics correctly', () => {
 		assertType(defineConfig({}), (config) => {
 			expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, never>>();
-			expectTypeOf(config.experimental!.fonts!).toEqualTypeOf<
-				FontFamily<BuiltInProvider | FontProvider>[]
-			>();
+			expectTypeOf(config.experimental!.fonts!).toEqualTypeOf<FontFamily[]>();
 		});
 
 		assertType(
@@ -88,7 +86,6 @@ describe('defineConfig()', () => {
 			defineConfig({
 				experimental: {
 					fonts: [
-						{ name: 'foo', cssVariable: '--font-foo', provider: 'google' },
 						{
 							name: 'bar',
 							cssVariable: '--font-bar',
@@ -105,11 +102,6 @@ describe('defineConfig()', () => {
 						never,
 						never,
 						[
-							{
-								readonly name: 'foo';
-								readonly cssVariable: '--font-foo';
-								readonly provider: 'google';
-							},
 							{
 								readonly name: 'bar';
 								readonly cssVariable: '--font-bar';
@@ -128,11 +120,6 @@ describe('defineConfig()', () => {
 				>();
 				expectTypeOf(config.experimental!.fonts!).toEqualTypeOf<
 					[
-						{
-							readonly name: 'foo';
-							readonly cssVariable: '--font-foo';
-							readonly provider: 'google';
-						},
 						{
 							readonly name: 'bar';
 							readonly cssVariable: '--font-bar';

@@ -402,7 +402,7 @@ describe('Config Validation', () => {
 		it('Should error on invalid css variable', async () => {
 			let configError = await validateConfig({
 				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: 'test' }],
+					fonts: [{ name: 'Roboto', cssVariable: 'test', provider: { entrypoint: '' } }],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
@@ -415,7 +415,7 @@ describe('Config Validation', () => {
 
 			configError = await validateConfig({
 				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: '-test' }],
+					fonts: [{ name: 'Roboto', cssVariable: '-test', provider: { entrypoint: '' } }],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
@@ -428,7 +428,7 @@ describe('Config Validation', () => {
 
 			configError = await validateConfig({
 				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: '--test ' }],
+					fonts: [{ name: 'Roboto', cssVariable: '--test ', provider: { entrypoint: '' } }],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
@@ -441,7 +441,7 @@ describe('Config Validation', () => {
 
 			configError = await validateConfig({
 				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: '--test:x' }],
+					fonts: [{ name: 'Roboto', cssVariable: '--test:x', provider: { entrypoint: '' } }],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
@@ -455,7 +455,7 @@ describe('Config Validation', () => {
 			assert.doesNotThrow(() =>
 				validateConfig({
 					experimental: {
-						fonts: [{ name: 'Roboto', cssVariable: '--test' }],
+						fonts: [{ name: 'Roboto', cssVariable: '--test', provider: { entrypoint: '' } }],
 					},
 				}),
 			);
