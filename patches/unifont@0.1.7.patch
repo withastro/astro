@@ -1,7 +1,16 @@
 diff --git a/dist/index.js b/dist/index.js
-index a8d7acc843a641e4797d69b897fc66fbddbd31a9..2741a3a400c9a9b0ee4ad7ff0a361d890e6fd756 100644
+index a8d7acc843a641e4797d69b897fc66fbddbd31a9..93c3e63a1a238505ccf8f6b12767a2acdcb0d183 100644
 --- a/dist/index.js
 +++ b/dist/index.js
+@@ -383,7 +383,7 @@ const fontsource = defineFontProvider("fontsource", async (_options, ctx) => {
+     const fontFaceData = [];
+     for (const subset of subsets) {
+       for (const style of styles) {
+-        if (font.variable) {
++        if (options.weights.some(weight => weight.includes(" ")) && font.variable) {
+           try {
+             const variableAxes = await ctx.storage.getItem(`fontsource:${font.family}-axes.json`, () => fontAPI(`/variable/${font.id}`, { responseType: "json" }));
+             if (variableAxes && variableAxes.axes.wght) {
 @@ -441,7 +441,7 @@ const google = defineFontProvider("google", async (_options = {}, ctx) => {
    async function getFontDetails(family, options) {
      const font = googleFonts.find((font2) => font2.family === family);

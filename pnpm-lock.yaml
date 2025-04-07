@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   unifont@0.1.7:
-    hash: 494f2c46378c730373126b43886dd6b0bf4be487f307c2def14e0efdbfbd0084
+    hash: 8015962152377f03e7f61d7d6a3511d95131453e45fd8afb4c4e10c337306488
     path: patches/unifont@0.1.7.patch
 
 importers:
@@ -611,7 +611,7 @@ importers:
         version: 1.6.0
       unifont:
         specifier: ^0.1.7
-        version: 0.1.7(patch_hash=494f2c46378c730373126b43886dd6b0bf4be487f307c2def14e0efdbfbd0084)
+        version: 0.1.7(patch_hash=8015962152377f03e7f61d7d6a3511d95131453e45fd8afb4c4e10c337306488)
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0
@@ -18605,7 +18605,7 @@ snapshots:
       trough: 2.2.0
       vfile: 6.0.3
 
-  unifont@0.1.7(patch_hash=494f2c46378c730373126b43886dd6b0bf4be487f307c2def14e0efdbfbd0084):
+  unifont@0.1.7(patch_hash=8015962152377f03e7f61d7d6a3511d95131453e45fd8afb4c4e10c337306488):
     dependencies:
       css-tree: 3.1.0
       ohash: 1.1.6
