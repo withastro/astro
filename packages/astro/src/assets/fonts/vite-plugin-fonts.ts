@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import type { ResolveMod } from './providers/utils.js';
-import type { FontFamily, PreloadData, ResolvedFontFamily } from './types.js';
+import type { PreloadData, ResolvedFontFamily } from './types.js';
 import xxhash from 'xxhash-wasm';
 import { isAbsolute } from 'node:path';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
@@ -112,7 +112,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		for (const family of settings.config.experimental.fonts!) {
 			families.push(
 				await resolveFontFamily({
-					family: family as FontFamily<any>,
+					family,
 					root: settings.config.root,
 					resolveMod,
 					generateNameWithHash: (_family) =>

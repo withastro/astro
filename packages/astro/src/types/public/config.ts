@@ -17,7 +17,7 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-import type { BuiltInProvider, FontFamily, FontProvider } from '../../assets/fonts/types.js';
+import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -188,7 +188,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */ export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
-	TFontFamilies extends FontFamily<BuiltInProvider | FontProvider>[] = never,
+	TFontFamilies extends FontFamily[] = never,
 > {
 	/**
 	 * @docs
@@ -2134,9 +2134,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * TODO:
 		 */
-		fonts?: [TFontFamilies] extends [never]
-			? FontFamily<BuiltInProvider | FontProvider>[]
-			: TFontFamilies;
+		fonts?: [TFontFamilies] extends [never] ? FontFamily[] : TFontFamilies;
 
 		/*
 		 * @name experimental.serializeConfig

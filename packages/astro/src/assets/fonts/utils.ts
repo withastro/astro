@@ -1,25 +1,17 @@
 import type * as unifont from 'unifont';
 import type {
-	BuiltInProvider,
 	FontFamily,
-	FontProvider,
 	FontType,
 	LocalFontFamily,
 	ResolvedFontFamily,
 	ResolvedLocalFontFamily,
 } from './types.js';
 import { extname } from 'node:path';
-import {
-	DEFAULT_FALLBACKS,
-	FONT_TYPES,
-	GOOGLE_PROVIDER_NAME,
-	LOCAL_PROVIDER_NAME,
-} from './constants.js';
+import { DEFAULT_FALLBACKS, FONT_TYPES, LOCAL_PROVIDER_NAME } from './constants.js';
 import type { Storage } from 'unstorage';
 import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { resolveProvider, type ResolveProviderOptions } from './providers/utils.js';
-import { google } from './providers/google.js';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -212,10 +204,6 @@ export async function generateFallbacksCSS({
 	return { css, fallbacks };
 }
 
-function isLocalFontFamily(family: FontFamily<any>): family is FontFamily<'local'> {
-	return family.provider === LOCAL_PROVIDER_NAME || (!family.provider && 'variants' in family);
-}
-
 function dedupe<const T extends Array<any>>(arr: T): T {
 	return [...new Set(arr)] as T;
 }
@@ -250,23 +238,19 @@ export async function resolveFontFamily({
 	root,
 	resolveMod,
 }: Omit<ResolveProviderOptions, 'provider'> & {
-	family: FontFamily<BuiltInProvider | FontProvider>;
-	generateNameWithHash: (family: FontFamily<any>) => string;
+	family: FontFamily;
+	generateNameWithHash: (family: FontFamily) => string;
 }): Promise<ResolvedFontFamily> {
 	const nameWithHash = generateNameWithHash(family);
 
-	if (isLocalFontFamily(family)) {
+	if (family.provider === LOCAL_PROVIDER_NAME) {
 		return {
 			...family,
 			nameWithHash,
-			provider: LOCAL_PROVIDER_NAME,
 			variants: resolveVariants({ variants: family.variants, root }),
 			fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
 		};
 	}
-
-	const provider =
-		family.provider === GOOGLE_PROVIDER_NAME || !family.provider ? google() : family.provider;
 
 	return {
 		...family,
@@ -274,7 +258,7 @@ export async function resolveFontFamily({
 		provider: await resolveProvider({
 			root,
 			resolveMod,
-			provider,
+			provider: family.provider,
 		}),
 		weights: family.weights ? dedupe(family.weights.map((weight) => weight.toString())) : undefined,
 		styles: family.styles ? dedupe(family.styles) : undefined,

@@ -1,10 +1,5 @@
 import type { z } from 'zod';
-import type {
-	GOOGLE_PROVIDER_NAME,
-	LOCAL_PROVIDER_NAME,
-	BUILTIN_PROVIDERS,
-	FONT_TYPES,
-} from './constants.js';
+import type { FONT_TYPES } from './constants.js';
 import type * as unifont from 'unifont';
 import type {
 	remoteFontFamilySchema,
@@ -31,7 +26,6 @@ interface ResolvedFontFamilyAttributes {
 export interface ResolvedLocalFontFamily
 	extends ResolvedFontFamilyAttributes,
 		Omit<LocalFontFamily, 'variants'> {
-	provider: LocalProviderName;
 	variants: Array<
 		Omit<LocalFontFamily['variants'][number], 'weight' | 'src'> & {
 			weight: string;
@@ -40,10 +34,7 @@ export interface ResolvedLocalFontFamily
 	>;
 }
 
-interface RemoteFontFamily<TProvider extends GoogleProviderName | FontProvider>
-	extends z.infer<typeof remoteFontFamilySchema> {
-	provider?: TProvider;
-}
+type RemoteFontFamily = z.infer<typeof remoteFontFamilySchema>;
 
 export interface ResolvedRemoteFontFamily
 	extends ResolvedFontFamilyAttributes,
@@ -52,18 +43,8 @@ export interface ResolvedRemoteFontFamily
 	weights?: Array<string>;
 }
 
-export type FontFamily<TProvider extends BuiltInProvider | FontProvider> =
-	TProvider extends GoogleProviderName
-		? RemoteFontFamily<TProvider>
-		: TProvider extends FontProvider
-			? RemoteFontFamily<TProvider>
-			: LocalFontFamily;
-
+export type FontFamily = LocalFontFamily | RemoteFontFamily;
 export type ResolvedFontFamily = ResolvedLocalFontFamily | ResolvedRemoteFontFamily;
-
-export type LocalProviderName = typeof LOCAL_PROVIDER_NAME;
-export type GoogleProviderName = typeof GOOGLE_PROVIDER_NAME;
-export type BuiltInProvider = (typeof BUILTIN_PROVIDERS)[number];
 
 export type FontType = (typeof FONT_TYPES)[number];
 

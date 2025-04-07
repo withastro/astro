@@ -1,9 +1,6 @@
 import type { ResolvedRemoteFontFamily } from './types.js';
 
-export const GOOGLE_PROVIDER_NAME = 'google';
 export const LOCAL_PROVIDER_NAME = 'local';
-
-export const BUILTIN_PROVIDERS = [GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME] as const;
 
 export const DEFAULTS = {
 	weights: ['400'],
