@@ -105,8 +105,29 @@ export function renderServerIsland(
 				);
 			}
 
-			destination.write(`<script async type="module" data-astro-rerun data-island-id="${hostId}">
-let script = document.querySelector('script[data-island-id="${hostId}"]');
+			if(!result._metadata.hasServerIslandScript) {
+				result._metadata.hasServerIslandScript = true;
+
+				destination.write(`<script>
+async function replaceServerIsland(id, r) {
+  let s = document.querySelector(\`script[data-island-id="\${id}"]\`);
+	if(!s) return;
+	if(r.status === 200 && r.headers.has('content-type') && r.headers.get('content-type').split(";")[0].trim() === 'text/html') {
+		let html = await r.text();
+		while(s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '[if astro]>server-island-start<![endif]') {
+			s.previousSibling.remove();
+		}
+		s.previousSibling?.remove();
+		let frag = document.createRange().createContextualFragment(html);
+		s.before(frag);
+	}
+	s.remove();
+}
+</script>`);
+
+			}
+
+			destination.write(`<script type="module" data-astro-rerun data-island-id="${hostId}">{
 
 ${
 	useGETRequest
@@ -126,27 +147,8 @@ let response = await fetch('${serverIslandUrl}', {
 });
 `
 }
-if (script) {
-	if(
-		response.status === 200
-		&& response.headers.has('content-type')
-		&& response.headers.get('content-type').split(";")[0].trim() === 'text/html') {
-		let html = await response.text();
-
-		// Swap!
-		while(script.previousSibling &&
-			script.previousSibling.nodeType !== 8 &&
-			script.previousSibling.data !== '[if astro]>server-island-start<![endif]') {
-			script.previousSibling.remove();
-		}
-		script.previousSibling?.remove();
-
-		let frag = document.createRange().createContextualFragment(html);
-		script.before(frag);
-	}
-	script.remove(); // Prior to v5.4.2, this was the trick to force rerun of scripts.  Keeping it to minimize change to the existing behavior.
-}
-</script>`);
+replaceServerIsland('${hostId}', response);
+}</script>`);
 		},
 	};
 }
