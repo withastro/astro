@@ -297,7 +297,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *    '/news': {
 	 *      status: 302,
 	 *      destination: 'https://example.com/news'
-	 *  	},
+	 *    },
 	 *    // '/product1/', '/product1' // Note, this is not supported
 	 * 	}
 	 * })
@@ -941,7 +941,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * Configures session storage for your Astro project. This is used to store session data in a persistent way, so that it can be accessed across different requests.
 	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
 	 *
-	 * See [the session guide](https://docs.astro.build/en/guides/sessions/) for more information.
+	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
 	 *
 	 * ```js title="astro.config.mjs"
 	 *   {
@@ -962,9 +962,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	/**
 	 * @docs
 	 * @name session.driver
-	 * @type {string}
+	 * @type {string | undefined}
+	 * @version 5.3.0
 	 * @description
-	 *
+	 * 
 	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions), 
 	 * [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#sessions), and
 	 * [Netlify](/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
@@ -989,7 +990,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	/**
 	 * @docs
 	 * @name session.options
-	 * @type {Record<string, unknown>}
+	 * @type {Record<string, unknown> | undefined}
+	 * @version 5.3.0
+	 * @default `{}`
 	 * @description
 	 *
 	 * The driver-specific options to use for session storage. The options depend on the driver you are using. See the [Unstorage documentation](https://unstorage.unjs.io/drivers)
@@ -998,11 +1001,11 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```js title="astro.config.mjs" ins={4-6}
 	 * {
 	 *    session: {
-	 * 			driver: "redis",
-	 * 			options: {
-	 *				url: process.env.REDIS_URL
-	 * 			},
-	 * 		}
+	 *      driver: "redis",
+	 *      options: {
+	 *        url: process.env.REDIS_URL
+	 *      },
+	 *    }
 	 * }
 	 * ```
 	 */
@@ -1010,33 +1013,34 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	/**
 	 * @docs
 	 * @name session.cookie
-	 * @type {string | AstroCookieSetOptions}
+	 * @type {string | AstroCookieSetOptions | undefined}
+	 * @version 5.3.0
+	 * @default `{ name: "astro-session", sameSite: "lax", httpOnly: true, secure: true }`
 	 * @description
 	 *
 	 * The session cookie configuration. If set to a string, it will be used as the cookie name.
-	 * Alternatively, you can pass an object with additional options.
+	 * Alternatively, you can pass an object with additional options. These will be merged with the defaults.
 	 *
 	 * ```js title="astro.config.mjs" ins={3-4}
 	 * {
-	 * 	session: {
-	 *			// If set to a string, it will be used as the cookie name.
-	 * 		cookie: "my-session-cookie",
-	 * 	}
+	 *  session: {
+	 *    // If set to a string, it will be used as the cookie name.
+	 *    cookie: "my-session-cookie",
+	 *  }
 	 * }
 	 *
 	 * ```
 	 *
 	 * ```js title="astro.config.mjs" ins={4-8}
 	 * {
-	 * 	session: {
-	 * 		// If set to an object, it will be used as the cookie options.
-	 * 		cookie: {
-	 * 			name: "my-session-cookie",
-	 * 			httpOnly: true,
-	 * 			sameSite: "lax",
-	 * 			secure: true,
-	 * 		}
-	 * 	}
+	 *  session: {
+	 *    // If set to an object, it will be used as the cookie options.
+	 *    cookie: {
+	 *      name: "my-session-cookie",
+	 *      sameSite: "lax",
+	 *      secure: true,
+	 *    }
+	 *  }
 	 * }
 	 * ```
 	 */
@@ -1044,7 +1048,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	/**
 	 * @docs
 	 * @name session.ttl
-	 * @type {number}
+	 * @version 5.3.0
+	 * @type {number | undefined}
+	 * @default {Infinity}
 	 * @description
 	 *
 	 * An optional default time-to-live expiration period for session values, in seconds.
@@ -1056,9 +1062,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```js title="astro.config.mjs" ins={3-4}
 	 * {
 	 *  session: {
-	 * 		// Set a default expiration period of 1 hour (3600 seconds)
-	 * 		ttl: 3600,
-	 * 	}
+	 *    // Set a default expiration period of 1 hour (3600 seconds)
+	 *    ttl: 3600,
+	 *  }
 	 * }
 	 * ```
 	 * :::note
@@ -2057,7 +2063,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * ```js title=astro.config.mjs
 		 * {
-		 *  	experimental: {
+		 *    experimental: {
 		 * 			responsiveImages: true,
 		 * 		},
 		 * }
