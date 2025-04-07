@@ -2,12 +2,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
-import { google } from '../../../../dist/assets/fonts/providers/google.js';
 import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
 import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
 import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
 import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontsource.js';
+import * as googleEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/google.js';
 import { validateMod, resolveProvider } from '../../../../dist/assets/fonts/providers/utils.js';
 import { proxyURL } from '../../../../dist/assets/fonts/utils.js';
 import { basename, extname } from 'node:path';
@@ -51,7 +51,7 @@ describe('fonts providers', () => {
 				fontProviders.fontsource().entrypoint,
 				'astro/assets/fonts/providers/fontsource',
 			);
-			assert.equal(google().entrypoint, 'astro/assets/fonts/providers/google');
+			assert.equal(fontProviders.google().entrypoint, 'astro/assets/fonts/providers/google');
 		});
 
 		it('forwards the config', () => {
@@ -78,11 +78,13 @@ describe('fonts providers', () => {
 			'provider' in fontsourceEntrypoint && typeof fontsourceEntrypoint.provider === 'function',
 			true,
 		);
+		assert.equal(
+			'provider' in googleEntrypoint && typeof googleEntrypoint.provider === 'function',
+			true,
+		);
 	});
 
 	it('resolveLocalFont()', () => {
-		const root = new URL(import.meta.url);
-
 		let { fonts, values } = resolveLocalFontSpy({
 			name: 'Custom',
 			nameWithHash: 'Custom-xxx',

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GOOGLE_PROVIDER_NAME, LOCAL_PROVIDER_NAME } from './constants.js';
+import { LOCAL_PROVIDER_NAME } from './constants.js';
 
 // TODO: jsdoc for everything, most of those end up in the public AstroConfig type
 
@@ -39,7 +39,7 @@ export const localFontFamilySchema = requiredFamilyAttributesSchema
 	.merge(fallbacksSchema)
 	.merge(
 		z.object({
-			provider: z.literal(LOCAL_PROVIDER_NAME).optional(),
+			provider: z.literal(LOCAL_PROVIDER_NAME),
 			variants: z
 				.array(
 					familyPropertiesSchema.merge(
@@ -73,7 +73,7 @@ export const remoteFontFamilySchema = requiredFamilyAttributesSchema
 	.merge(fallbacksSchema)
 	.merge(
 		z.object({
-			provider: z.union([z.literal(GOOGLE_PROVIDER_NAME), fontProviderSchema]).optional(),
+			provider: fontProviderSchema,
 			weights: z.array(weightSchema).nonempty().optional(),
 			styles: z.array(styleSchema).nonempty().optional(),
 			subsets: z.array(z.string()).nonempty().optional(),

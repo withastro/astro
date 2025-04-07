@@ -7,7 +7,7 @@ import type {
 	SessionDriverName,
 } from '../types/public/config.js';
 import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js';
-import type { BuiltInProvider, FontFamily, FontProvider } from '../assets/fonts/types.js';
+import type { FontFamily } from '../assets/fonts/types.js';
 
 /**
  * See the full Astro Configuration API Documentation
@@ -16,7 +16,7 @@ import type { BuiltInProvider, FontFamily, FontProvider } from '../assets/fonts/
 export function defineConfig<
 	const TLocales extends Locales = never,
 	const TDriver extends SessionDriverName = never,
-	const TFontFamilies extends FontFamily<BuiltInProvider | FontProvider>[] = never,
+	const TFontFamilies extends FontFamily[] = never,
 >(config: AstroUserConfig<TLocales, TDriver, TFontFamilies>) {
 	return config;
 }

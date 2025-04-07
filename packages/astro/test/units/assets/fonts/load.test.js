@@ -3,7 +3,7 @@ import { it } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadFonts } from '../../../../dist/assets/fonts/load.js';
 import { resolveProvider } from '../../../../dist/assets/fonts/providers/utils.js';
-import { google } from '../../../../dist/assets/fonts/providers/google.js';
+import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js';
 
 it('loadFonts()', async () => {
 	const root = new URL(import.meta.url);
@@ -58,7 +58,7 @@ it('loadFonts()', async () => {
 				provider: await resolveProvider({
 					root,
 					resolveMod: (id) => import(id),
-					provider: google(),
+					provider: fontProviders.google(),
 				}),
 				fallbacks: ['sans-serif'],
 				cssVariable: '--custom',

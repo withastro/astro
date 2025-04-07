@@ -3,6 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 import assert from 'node:assert/strict';
 import * as cheerio from 'cheerio';
+import { fontProviders } from 'astro/config'
 
 describe('astro:fonts', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -44,7 +45,7 @@ describe('astro:fonts', () => {
 							{
 								name: 'Roboto',
 								cssVariable: '--font-roboto',
-								provider: 'google',
+								provider: fontProviders.google(),
 							},
 						],
 					},
