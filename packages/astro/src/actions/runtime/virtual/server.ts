@@ -121,9 +121,8 @@ function getFormServerHandler<TOutput, TInputSchema extends z.ZodType>(
 
 		const jsonSchema = await toJsonSchema(inputSchema);
 		const options = getDecodeOptionsFromSchema(jsonSchema);
-		console.log({ options });
 		const formValues = decode(unparsedInput, options);
-		console.log({ options, formValues });
+		console.log({ jsonSchema, options, formValues });
 		const parsed = await inputSchema.safeParseAsync(formValues);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);

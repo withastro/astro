@@ -10,6 +10,7 @@ export const server = {
             nested: z.object({
                 num: z.number()
             }),
+            abc: z.instanceof(File),
             // arr: z.array(z.string())
             arr: z.array(z.object({ a: z.number()}))
         }),
