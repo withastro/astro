@@ -20,7 +20,7 @@ const cart = await Astro.session.get('cart');
 
 ## Upgrading from Experimental to Stable
 
-If you were previously using the experimental API, you should remove the `experimental.session` flag from your configuration.
+If you were previously using the experimental API, please remove the `experimental.session` flag from your configuration:
 
 ```diff
 import { defineConfig } from 'astro/config';
@@ -56,7 +56,9 @@ export default defineConfig({
 
 ## Using sessions
 
-Sessions are available in on-demand rendered pages, API endpoints and middleware. In pages and components, you can access the session using `Astro.session`:
+Sessions are available in on-demand rendered pages, API endpoints, actions and middleware.
+
+In pages and components, you can access the session using `Astro.session`:
 
 ```astro
 ---
@@ -66,7 +68,7 @@ const cart = await Astro.session.get('cart');
 <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
 ```
 
-In endpoints and middleware, you can access the session using `context.session`:
+In endpoints, actions, and middleware, you can access the session using `context.session`:
 
 ```js
 export async function GET(context) {
