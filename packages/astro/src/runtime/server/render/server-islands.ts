@@ -107,7 +107,9 @@ export function renderServerIsland(
 
 			if(!result._metadata.hasServerIslandScript) {
 				result._metadata.hasServerIslandScript = true;
-
+// The runtime is a non-module script so that we can guarantee that is has executed before any module scripts
+// This is important because the module script will call replaceServerIsland, which needs to be defined first
+// It's ok to make it a sync script because it doesn't do anything until the module script runs
 				destination.write(`<script data-si-runtime>
 async function replaceServerIsland(id, r) {
   let s = document.querySelector(\`script[data-island-id="\${id}"]\`);
