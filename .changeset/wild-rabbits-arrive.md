@@ -2,35 +2,14 @@
 'astro': minor
 ---
 
-The virtual module `astro:config` is now stable, and it can be used without experimental flag, which is now removed:
+The virtual module `astro:config` introduced behind a flag in [v5.2.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#520) is no longer experimental and is available for general use.
 
-```diff
-// astro.config.mjs
-export default defineConfig({
--  experimental: {
--    serializeConfig: true
--  }
-})
-```
-
-The virtual module exposes two sub-paths for controlled access to your configuration:
+This virtual module exposes two sub-paths for type-safe, controlled access to your configuration:
 
 - `astro:config/client`: exposes config information that is safe to expose to the client.
-- `astro:config/server`: exposes additional information that is safe to expose to the server, such as file/dir paths.
+- `astro:config/server`: exposes additional information that is safe to expose to the server, such as file and directory paths.
 
-To enable this new virtual module, add the `experimental.serializeManifest` feature flag to your Astro config:
-
-  ```js
-  // astro.config.mjs
-  import { defineConfig } from 'astro/config';
-  export default defineConfig({
-    experimental: {
-      serializeManifest: true,
-    },
-  });
-  ```
-
-Then, you can access the module in any file inside your project to import and use values from your Astro config:
+Access these in any file inside your project to import and use select values from your Astro config:
 
   ```js
   // src/utils.js
@@ -45,4 +24,17 @@ Then, you can access the module in any file inside your project to import and us
   }
   ```
 
-For a complete overview, and to give feedback on this experimental API, see the [Serialized Manifest RFC](https://github.com/withastro/roadmap/blob/feat/serialised-config/proposals/0051-serialized-manifest.md).
+If you were previously using this feature, please remove the experimental flag from your Astro config:
+
+```diff
+// astro.config.mjs
+export default defineConfig({
+-  experimental: {
+-    serializeConfig: true
+-  }
+})
+```
+
+If you have been waiting for feature stabilization before using configuration imports, you can now do so.
+
+Please see [the `astro:config` reference](https://docs.astro.build/en/my-feature/) for more about this feature.
