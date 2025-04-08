@@ -202,8 +202,17 @@ describe('Server islands', () => {
 				assert.equal(serverIslandEl.length, 0);
 
 				const serverIslandScript = $('script[data-island-id]');
-				assert.equal(serverIslandScript.length, 1, 'has the island script');
+				assert.equal(serverIslandScript.length, 2, 'has the island script');
 			});
+
+			it('does not duplicate the server island runtime script', async() => {
+				let html = await fixture.readFile('/client/index.html');
+
+				const $ = cheerio.load(html);
+				const serverIslandScript = $('script[data-si-runtime]');
+				assert.equal(serverIslandScript.length, 1, 'should include the server island runtime script once');
+			})
+
 		});
 
 		describe('build (no adapter)', () => {

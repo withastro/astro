@@ -108,7 +108,7 @@ export function renderServerIsland(
 			if(!result._metadata.hasServerIslandScript) {
 				result._metadata.hasServerIslandScript = true;
 
-				destination.write(`<script>
+				destination.write(`<script data-si-runtime>
 async function replaceServerIsland(id, r) {
   let s = document.querySelector(\`script[data-island-id="\${id}"]\`);
 	if(!s) return;
