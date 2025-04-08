@@ -6,7 +6,6 @@ import {
 	builtinDrivers,
 	createStorage,
 } from 'unstorage';
-import type { AstroSettings } from '../types/astro.js';
 import type {
 	ResolvedSessionConfig,
 	RuntimeMode,

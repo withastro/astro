@@ -18,24 +18,6 @@ const cart = await Astro.session.get('cart');
 <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
 ```
 
-## Upgrading from Experimental to Stable
-
-If you were previously using the experimental API, please remove the `experimental.session` flag from your configuration:
-
-```diff
-import { defineConfig } from 'astro/config';
-import node from '@astrojs/node';
-
-export default defineConfig({
-   adapter: node({
-     mode: "standalone",
-   }),
--  experimental: {
--    session: true,
--  },
-});
-```
-
 ## Configuring session storage
 
 Sessions require a storage driver to store the data. The Node, Cloudflare and Netlify adapters automatically configure a default driver for you, but other adapters currently require you to specify a custom storage driver in your configuration.
@@ -84,6 +66,24 @@ If you attempt to access the session when there is no storage driver configured,
 export const prerender = true;
 const cart = await Astro.session?.get('cart'); // Logs an error. Astro.session is undefined
 ---
+```
+
+## Upgrading from Experimental to Stable
+
+If you were previously using the experimental API, please remove the `experimental.session` flag from your configuration:
+
+```diff
+import { defineConfig } from 'astro/config';
+import node from '@astrojs/node';
+
+export default defineConfig({
+   adapter: node({
+     mode: "standalone",
+   }),
+-  experimental: {
+-    session: true,
+-  },
+});
 ```
 
 See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.

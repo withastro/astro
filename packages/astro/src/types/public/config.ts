@@ -934,7 +934,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @version 5.3.0
+	 * @version 5.7.0
 	 * @name Session Options
 	 * @description
 	 *
@@ -963,7 +963,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @docs
 	 * @name session.driver
 	 * @type {string | undefined}
-	 * @version 5.3.0
+	 * @version 5.7.0
 	 * @description
 	 * 
 	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions), 
@@ -991,7 +991,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @docs
 	 * @name session.options
 	 * @type {Record<string, unknown> | undefined}
-	 * @version 5.3.0
+	 * @version 5.7.0
 	 * @default `{}`
 	 * @description
 	 *
@@ -1014,7 +1014,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @docs
 	 * @name session.cookie
 	 * @type {string | AstroCookieSetOptions | undefined}
-	 * @version 5.3.0
+	 * @version 5.7.0
 	 * @default `{ name: "astro-session", sameSite: "lax", httpOnly: true, secure: true }`
 	 * @description
 	 *
@@ -1048,7 +1048,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	/**
 	 * @docs
 	 * @name session.ttl
-	 * @version 5.3.0
+	 * @version 5.7.0
 	 * @type {number | undefined}
 	 * @default {Infinity}
 	 * @description
