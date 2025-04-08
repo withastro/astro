@@ -1,8 +1,6 @@
 import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
 import { fromRoutingStrategy } from '../i18n/utils.js';
-import type { AstroSettings } from '../types/astro.js';
 import type {
 	AstroConfig,
 	ClientDeserializedManifest,
@@ -16,10 +14,8 @@ const VIRTUAL_CLIENT_ID = 'astro:config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
 export default function virtualModulePlugin({
-	settings,
 	manifest,
-	logger: _logger,
-}: { settings: AstroSettings; manifest: SSRManifest; logger: Logger }): Plugin {
+}: { manifest: SSRManifest }): Plugin {
 	return {
 		enforce: 'pre',
 		name: 'astro-manifest-plugin',

@@ -142,7 +142,7 @@ export async function createVite(
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
-			astroVirtualManifestPlugin({ settings, logger, manifest }),
+			astroVirtualManifestPlugin({ manifest }),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({ settings, logger }),
