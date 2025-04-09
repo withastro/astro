@@ -6,10 +6,6 @@
     "workspaces": {
         "packages/astro": {
             "entry": [
-                "src/runtime/**/*.ts",
-                "src/actions/runtime/**/*.ts",
-                "src/assets/endpoint/**/*.ts",
-                "src/virtual-modules/**/*.ts",
                 "templates/**/*",
                 "test/types/**/*"
             ],
