@@ -125,7 +125,7 @@ export default [
 	${entries.join(',\n	')}
 ];`;
 	await fs.promises.writeFile(
-		path.join(fileURLToPath(import.meta.url), '../../../packages/astro/', 'csp-hashes.js'),
+		path.join(fileURLToPath(import.meta.url), '../../../packages/astro/src/core', 'csp-hashes.js'),
 		content,
 		'utf-8',
 	);
