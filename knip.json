@@ -37,6 +37,9 @@
                 "src/{index,server,preview}.ts",
                 "test/**/*.test.js"
             ]
+        },
+        "packages/integrations/partytown": {
+            "entry": ["src/index.ts"]
         }
     }
 }
