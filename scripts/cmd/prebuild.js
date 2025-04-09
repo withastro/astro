@@ -41,7 +41,7 @@ export default async function prebuild(...args) {
 		return outURL;
 	}
 
-	const hashes = new Map();
+	const hashes = [];
 
 	async function prebuildFile(filepath) {
 		let tscode = await fs.promises.readFile(filepath, 'utf-8');
@@ -113,15 +113,12 @@ export default \`${generatedCode}\`;`;
 			const url = getPrebuildURL(filepath, result.dev);
 			await fs.promises.writeFile(url, mod, 'utf-8');
 			const hash = crypto.createHash('sha256').update(code).digest('base64');
-			hashes.set(fileURLToPath(url), hash);
+			hashes.push(hash);
 		}
 	}
 
 	await Promise.all(entryPoints.map(prebuildFile));
-	const entries = [];
-	for (const [url, hash] of hashes.entries()) {
-		entries.push(`// ${url}\n "${hash}"`);
-	}
+	const entries = hashes.map((hash) => `"${hash}"`);
 	const content = `// This file is code-generated, please don't change it manually
 export default [
 	${entries.join(',\n	')}
