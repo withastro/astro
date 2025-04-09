@@ -6,7 +6,7 @@
             "entry": [
                 "src/index.ts",
                 "src/entrypoints/*.ts",
-                "test/*.test.js"
+                "test/**/*.test.js"
             ],
             "ignoreDependencies": ["cloudflare"]
         },
@@ -15,8 +15,15 @@
                 "src/extensions/*.ts",
                 "src/{config,index,runtime,runtime-assets-config}.ts",
                 "src/components/index.ts",
-                "test/*.test.js"
+                "test/**/*.test.js"
             ]
+        },
+        "packages/integrations/mdx": {
+            "entry": [
+                "src/{index,server}.ts",
+                "test/**/*.test.js"
+            ],
+            "ignoreDependencies": ["@types/*"]
         }
     }
 }
