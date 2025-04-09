@@ -4564,18 +4564,6 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20250327.0
         version: 4.20250327.0
-      esbuild:
-        specifier: ^0.25.0
-        version: 0.25.0
-      estree-walker:
-        specifier: ^3.0.3
-        version: 3.0.3
-      magic-string:
-        specifier: ^0.30.17
-        version: 0.30.17
-      miniflare:
-        specifier: ^4.20250321.1
-        version: 4.20250321.1
       tinyglobby:
         specifier: ^0.2.12
         version: 0.2.12
