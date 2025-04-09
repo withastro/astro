@@ -22,9 +22,9 @@
   "exports": {
     ".": "./dist/index.js",
     "./actions": "./dist/actions.js",
-    "./client.js": "./client.js",
-    "./client-v17.js": "./client-v17.js",
-    "./server.js": "./server.js",
+    "./client.js": "./dist/client.js",
+    "./client-v17.js": "./dist/client-v17.js",
+    "./server.js": "./dist/server.js",
     "./server-v17.js": "./server-v17.js",
     "./package.json": "./package.json",
     "./jsx-runtime": "./jsx-runtime.js"
