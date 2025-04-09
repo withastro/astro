@@ -45,6 +45,12 @@
             "entry": [
                 "src/{index,client,client-dev,server}.ts"
             ]
+        },
+        "packages/integrations/react": {
+            "entry": [
+                "src/{index,actions,client,client-v17,server,server-v17,jsx-runtime}.ts",
+                "test/**/*.test.js"
+            ]
         }
     }
 }
