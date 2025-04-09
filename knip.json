@@ -63,6 +63,12 @@
                 "src/{index,client,server}.ts",
                 "test/**/*.test.js"
             ]
+        },
+        "packages/integrations/svelte": {
+            "entry": [
+                "src/{index,client,server}.ts",
+                "src/editor.cts"
+            ]
         }
     }
 }

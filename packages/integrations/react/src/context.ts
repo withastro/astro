@@ -1,6 +1,6 @@
 import type { SSRResult } from 'astro';
 
-const contexts = new WeakMap();
+const contexts = new WeakMap<SSRResult, { currentIndex: number; readonly id: string }>();
 
 const ID_PREFIX = 'r';
 
@@ -19,7 +19,7 @@ function getContext(rendererContextResult: SSRResult) {
 }
 
 export function incrementId(rendererContextResult: SSRResult) {
-	const ctx = getContext(rendererContextResult);
+	const ctx = getContext(rendererContextResult)!;
 	const id = ctx.id;
 	ctx.currentIndex++;
 	return id;
