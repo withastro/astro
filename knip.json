@@ -1,10 +1,55 @@
 {
     "$schema": "https://unpkg.com/knip@5/schema.json",
     "ignore": [
-        "**/test/**/fixtures/**",
-        "**/test/**/_temp-fixtures/**"
+        "**/test/**/{fixtures,_temp-fixtures}/**"
     ],
     "workspaces": {
+        "packages/astro": {
+            "entry": [
+                "index.d.ts",
+                "src/core.index.js",
+                "env.d.ts",
+                "src/env/runtime.ts",
+                "src/env/setup.ts",
+                "types.d.ts",
+                "client.d.ts",
+                "astro-jsx.d.ts",
+                "tsconfigs/*.json",
+                "src/jsx/rehype.ts",
+                "jsx-runtime.d.ts",
+                "src/jsx-runtime/index.ts",
+                "src/runtime/**/*.ts",
+                "src/config/entrypoint.ts",
+                "src/container/index.ts",
+                "src/core/app/index.ts",
+                "src/core/app/node/index.ts",
+                "components/*",
+                "src/toolbar/index.ts",
+                "src/actions/runtime/**/*.ts",
+                "src/assets/index.ts",
+                "src/assets/runtime.ts",
+                "src/assets/utils/index.js",
+                "src/assets/endpoint/**/*.ts",
+                "src/assets/services/sharp.ts",
+                "src/assets/services/noop.ts",
+                "src/content/loaders/index.ts",
+                "src/content/runtime.ts",
+                "src/content/runtime-assets.ts",
+                "zod.d.ts",
+                "zod.mjs",
+                "src/core/errors/userError.ts",
+                "src/core/middleware/index.ts",
+                "src/virtual-modules/**/*.ts",
+                "astro.js",
+                "{test,e2e}/**/*.test.js",
+                "test/types/**/*",
+                "templates/**/*"
+            ],
+            "ignore": [
+                "**/e2e/**/{fixtures,_temp-fixtures}/**",
+                "performance/**/*"
+            ]
+        },
         "packages/integrations/cloudflare": {
             "entry": [
                 "src/index.ts",
