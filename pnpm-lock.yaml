@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  unifont@0.1.7:
-    hash: 8015962152377f03e7f61d7d6a3511d95131453e45fd8afb4c4e10c337306488
-    path: patches/unifont@0.1.7.patch
-
 importers:
 
   .:
@@ -610,8 +605,8 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       unifont:
-        specifier: ^0.1.7
-        version: 0.1.7(patch_hash=8015962152377f03e7f61d7d6a3511d95131453e45fd8afb4c4e10c337306488)
+        specifier: ~0.2.0
+        version: 0.2.0
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0
@@ -10002,6 +9997,7 @@ packages:
 
   libsql@0.5.4:
     resolution: {integrity: sha512-GEFeWca4SDAQFxjHWJBE6GK52LEtSskiujbG3rqmmeTO9t4sfSBKIURNLLpKDDF7fb7jmTuuRkDAn9BZGITQNw==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lightningcss-darwin-arm64@1.29.2:
@@ -10594,9 +10590,6 @@ packages:
 
   ofetch@1.4.1:
     resolution: {integrity: sha512-QZj2DfGplQAr2oj9KzceK9Hwz6Whxazmn85yYeVuS3u9XTMOGMRx0kO95MQ+vLsj/S/NwBDMMLU5hpxvI6Tklw==}
-
-  ohash@1.1.6:
-    resolution: {integrity: sha512-TBu7PtV8YkAZn0tSxobKY2n2aAQva936lhRrj6957aDaCf9IEtqsKbgMzXE/F/sjqYOwmrukeORHNLe5glk7Cg==}
 
   ohash@2.0.11:
     resolution: {integrity: sha512-RdR9FQrFwNBNXAr4GixM8YaRZRJ5PUWbKYbE5eOsrwAjJW0q2REGcf79oYPsLyskQCZG1PLN+S/K1V00joZAoQ==}
@@ -11841,8 +11834,8 @@ packages:
   unified@11.0.5:
     resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
 
-  unifont@0.1.7:
-    resolution: {integrity: sha512-UyN6r/TUyl69iW/jhXaCtuwA6bP9ZSLhVViwgP8LH9EHRGk5FyIMDxvClqD5z2BV6MI9GMATzd0dyLqFxKkUmQ==}
+  unifont@0.2.0:
+    resolution: {integrity: sha512-RoF14/tOhLvDa7R5K6A3PjsfJVFKvadvRpWjfV1ttabUe9704P1ie9z1ABLWEts/8SxrBVePav/XhgeFNltpsw==}
 
   unist-util-find-after@5.0.0:
     resolution: {integrity: sha512-amQa0Ep2m6hE2g72AugUItjbuM8X8cGQnFoHk0pGfrFeT9GZhzN5SW8nRsiGKK7Aif4CrACPENkA6P/Lw6fHGQ==}
@@ -17163,8 +17156,6 @@ snapshots:
       node-fetch-native: 1.6.6
       ufo: 1.5.4
 
-  ohash@1.1.6: {}
-
   ohash@2.0.11: {}
 
   on-finished@2.4.1:
@@ -18605,10 +18596,10 @@ snapshots:
       trough: 2.2.0
       vfile: 6.0.3
 
-  unifont@0.1.7(patch_hash=8015962152377f03e7f61d7d6a3511d95131453e45fd8afb4c4e10c337306488):
+  unifont@0.2.0:
     dependencies:
       css-tree: 3.1.0
-      ohash: 1.1.6
+      ohash: 2.0.11
 
   unist-util-find-after@5.0.0:
     dependencies:
