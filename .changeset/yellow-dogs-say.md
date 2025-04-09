@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Avoiding preserve `data-astro-*` attrs other than `data-astro-transition` and `data-astro-transition-fallback` when using `swapRootAttributes` [#135577](https://github.com/withastro/astro/issues/13577)
+Fixes an issue with the client router where some attributes of the root element were not updated during swap, including the transition scope.
