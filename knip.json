@@ -40,6 +40,11 @@
         },
         "packages/integrations/partytown": {
             "entry": ["src/index.ts"]
+        },
+        "packages/integrations/preact": {
+            "entry": [
+                "src/{index,client,client-dev,server}.ts"
+            ]
         }
     }
 }

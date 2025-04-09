@@ -5480,21 +5480,12 @@ importers:
 
   packages/integrations/preact:
     dependencies:
-      '@babel/plugin-transform-react-jsx':
-        specifier: ^7.25.9
-        version: 7.25.9(@babel/core@7.26.10)
-      '@babel/plugin-transform-react-jsx-development':
-        specifier: ^7.25.9
-        version: 7.25.9(@babel/core@7.26.10)
       '@preact/preset-vite':
         specifier: ^2.10.1
         version: 2.10.1(@babel/core@7.26.10)(preact@10.26.5)(vite@6.2.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.5.1))
       '@preact/signals':
         specifier: ^2.0.2
         version: 2.0.3(preact@10.26.5)
-      babel-plugin-transform-hook-names:
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.26.10)
       preact-render-to-string:
         specifier: ^6.5.13
         version: 6.5.13(preact@10.26.5)
