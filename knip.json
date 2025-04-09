@@ -69,6 +69,16 @@
                 "src/{index,client,server}.ts",
                 "src/editor.cts"
             ]
+        },
+        "packages/integrations/vercel": {
+            "entry": [
+                "src/index.ts",
+                "src/serverless/{entrypoint,adapter}.ts",
+                "src/static/adapter.ts",
+                "src/image/{build-service,dev-service}.ts",
+                "test/**/*.test.js"
+            ],
+            "ignore": ["test/hosted/**"]
         }
     }
 }
