@@ -503,7 +503,7 @@ function addVitePlugin(mod: ProxifiedModule<any>, pluginId: string, packageName:
 	}
 }
 
-export function setAdapter(
+function setAdapter(
 	mod: ProxifiedModule<any>,
 	adapter: IntegrationInfo,
 	exportName: string,

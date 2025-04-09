@@ -495,7 +495,7 @@ export function safeParseFrontmatter(source: string, id?: string) {
  */
 export const globalContentConfigObserver = contentObservable({ status: 'init' });
 
-export function hasAnyContentFlag(viteId: string): boolean {
+function hasAnyContentFlag(viteId: string): boolean {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	const flag = Array.from(flags.keys()).at(0);
 	if (typeof flag !== 'string') {
@@ -542,7 +542,7 @@ async function loadContentConfig({
 	}
 }
 
-export async function autogenerateCollections({
+async function autogenerateCollections({
 	config,
 	settings,
 	fs,
@@ -679,7 +679,7 @@ type Observable<C> = {
 
 export type ContentObservable = Observable<ContentCtx>;
 
-export function contentObservable(initialCtx: ContentCtx): ContentObservable {
+function contentObservable(initialCtx: ContentCtx): ContentObservable {
 	type Subscriber = (ctx: ContentCtx) => void;
 	const subscribers = new Set<Subscriber>();
 	let ctx = initialCtx;
@@ -809,7 +809,7 @@ export function globWithUnderscoresIgnored(relContentDir: string, exts: string[]
 /**
  * Convert a platform path to a posix path.
  */
-export function posixifyPath(filePath: string) {
+function posixifyPath(filePath: string) {
 	return filePath.split(path.sep).join('/');
 }
 

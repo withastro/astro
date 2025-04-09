@@ -1,4 +1,4 @@
-export type RedirectTemplate = {
+type RedirectTemplate = {
 	from?: string;
 	absoluteLocation: string | URL;
 	status: number;

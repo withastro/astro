@@ -7,7 +7,7 @@
         "packages/astro": {
             "entry": [
                 "index.d.ts",
-                "src/core.index.js",
+                "src/core/index.ts",
                 "env.d.ts",
                 "src/env/runtime.ts",
                 "src/env/setup.ts",
@@ -28,7 +28,7 @@
                 "src/actions/runtime/**/*.ts",
                 "src/assets/index.ts",
                 "src/assets/runtime.ts",
-                "src/assets/utils/index.js",
+                "src/assets/utils/index.ts",
                 "src/assets/endpoint/**/*.ts",
                 "src/assets/services/sharp.ts",
                 "src/assets/services/noop.ts",

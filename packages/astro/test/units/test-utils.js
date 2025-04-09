@@ -20,7 +20,7 @@ export const defaultLogger = new Logger({
 });
 
 /** @type {import('../../src/core/logger/core').LogOptions} */
-export const silentLogging = {
+const silentLogging = {
 	dest: nodeLogDestination,
 	level: 'error',
 };
@@ -69,7 +69,7 @@ export function createRequestAndResponse(reqOptions = {}) {
 	return { req, res, done, json, text };
 }
 
-export function toPromise(res) {
+function toPromise(res) {
 	return new Promise((resolve) => {
 		// node-mocks-http doesn't correctly handle non-Buffer typed arrays,
 		// so override the write method to fix it.
@@ -90,7 +90,7 @@ export function toPromise(res) {
 	});
 }
 
-export function buffersToString(buffers) {
+function buffersToString(buffers) {
 	let decoder = new TextDecoder();
 	let str = '';
 	for (const buffer of buffers) {

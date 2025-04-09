@@ -31,7 +31,7 @@ import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/conf
 // back to the issue again. The complexified type should be the base representation that we want to expose.
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ComplexifyUnionObj {}
+interface ComplexifyUnionObj {}
 
 type ComplexifyWithUnion<T> = T & ComplexifyUnionObj;
 type ComplexifyWithOmit<T> = Omit<T, '__nonExistent'>;
@@ -41,7 +41,7 @@ type ShikiTheme = ComplexifyWithUnion<NonNullable<ShikiConfig['theme']>>;
 type ShikiTransformer = ComplexifyWithUnion<NonNullable<ShikiConfig['transformers']>[number]>;
 type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
 type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
-export type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
+type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 
 export const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',

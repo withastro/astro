@@ -9,7 +9,7 @@ import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 import notFoundTemplate from '../template/4xx.js';
 
-export async function handle404Response(
+async function handle404Response(
 	origin: string,
 	req: http.IncomingMessage,
 	res: http.ServerResponse,

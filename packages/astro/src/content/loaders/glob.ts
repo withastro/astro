@@ -10,7 +10,7 @@ import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
 
-export interface GenerateIdOptions {
+interface GenerateIdOptions {
 	/** The path to the entry file, relative to the base directory. */
 	entry: string;
 
@@ -20,7 +20,7 @@ export interface GenerateIdOptions {
 	data: Record<string, unknown>;
 }
 
-export interface GlobOptions {
+interface GlobOptions {
 	/** The glob pattern to match files, relative to the base directory */
 	pattern: string | Array<string>;
 	/** The base directory to resolve the glob pattern from. Relative to the root directory, or an absolute file URL. Defaults to `.` */

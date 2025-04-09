@@ -1,6 +1,6 @@
-export type ErrorState = 'fresh' | 'error';
+type ErrorState = 'fresh' | 'error';
 
-export interface RouteState {
+interface RouteState {
 	state: ErrorState;
 	error?: Error;
 }
@@ -18,7 +18,7 @@ export function createServerState(): ServerState {
 	};
 }
 
-export function hasAnyFailureState(serverState: ServerState) {
+function hasAnyFailureState(serverState: ServerState) {
 	return serverState.state !== 'fresh';
 }
 

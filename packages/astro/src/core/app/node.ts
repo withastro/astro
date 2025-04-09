@@ -229,14 +229,14 @@ function asyncIterableToBodyProps(iterable: AsyncIterable<any>): RequestInit {
 	};
 }
 
-export async function loadManifest(rootFolder: URL): Promise<SSRManifest> {
+async function loadManifest(rootFolder: URL): Promise<SSRManifest> {
 	const manifestFile = new URL('./manifest.json', rootFolder);
 	const rawManifest = await fs.promises.readFile(manifestFile, 'utf-8');
 	const serializedManifest: SerializedSSRManifest = JSON.parse(rawManifest);
 	return deserializeManifest(serializedManifest);
 }
 
-export async function loadApp(rootFolder: URL): Promise<NodeApp> {
+async function loadApp(rootFolder: URL): Promise<NodeApp> {
 	const manifest = await loadManifest(rootFolder);
 	return new NodeApp(manifest);
 }

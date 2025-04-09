@@ -18,7 +18,7 @@ export const DEFAULT_404_ROUTE: RouteData = {
 	origin: 'internal',
 };
 
-export const DEFAULT_500_ROUTE: RouteData = {
+const DEFAULT_500_ROUTE: RouteData = {
 	component: DEFAULT_500_COMPONENT,
 	generate: () => '',
 	params: [],

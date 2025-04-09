@@ -8,7 +8,7 @@ import * as msg from '../messages.js';
 import { getResolvedHostForHttpServer } from './util.js';
 import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
 
-export interface PreviewServer {
+interface PreviewServer {
 	host?: string;
 	port: number;
 	server: http.Server;

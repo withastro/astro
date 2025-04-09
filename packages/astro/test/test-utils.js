@@ -70,13 +70,13 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  */
 
 /** @type {import('../src/core/logger/core').LogOptions} */
-export const defaultLogging = {
+const defaultLogging = {
 	dest: nodeLogDestination,
 	level: 'error',
 };
 
 /** @type {import('../src/core/logger/core').LogOptions} */
-export const silentLogging = {
+const silentLogging = {
 	dest: nodeLogDestination,
 	level: 'silent',
 };
@@ -376,7 +376,7 @@ export async function cliServerLogSetup(flags = [], cmd = 'dev') {
 	return { local, network };
 }
 
-export const isLinux = os.platform() === 'linux';
+const isLinux = os.platform() === 'linux';
 export const isMacOS = os.platform() === 'darwin';
 export const isWindows = os.platform() === 'win32';
 

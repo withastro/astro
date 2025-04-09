@@ -203,7 +203,7 @@ export function success(message: string, tip?: string) {
 		.join('\n');
 }
 
-export function failure(message: string, tip?: string) {
+function failure(message: string, tip?: string) {
 	const badge = bgRed(black(` error `));
 	const headline = red(message);
 	const footer = tip ? `\n  ▶ ${tip}` : undefined;
