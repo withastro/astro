@@ -31,6 +31,12 @@
                 "test/**/*.test.js"
             ],
             "ignore": ["test/hosted/**"]
+        },
+        "packages/integrations/node": {
+            "entry": [
+                "src/{index,server,preview}.ts",
+                "test/**/*.test.js"
+            ]
         }
     }
 }
