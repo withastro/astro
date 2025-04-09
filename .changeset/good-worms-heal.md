@@ -14,4 +14,4 @@ Please replace it with the new function`emitImageMetadata()` as soon as you are 
 + import { emitImageMetadata } from "astro/assets/utils";
 ```
 
-The new function returns the same signature as the previous one, however the new function drops some deprecated arguments that weren't meant to be exposed to users;`_watchMode` and `experimentalSvgEnabled` are removed and you may need to check if your code works as intended. 
+The new function returns the same signature as the previous one. However, the new function removes two deprecated arguments that were not meant to be exposed for public use: `_watchMode` and `experimentalSvgEnabled`. Since it was possible to access these with the old function, you may need to verify that your code still works as intended with `emitImageMetadata()`.
