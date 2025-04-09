@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*",
+    "@astrojs/node": "workspace:*",
     "@astrojs/sitemap": "workspace:*"
   }
 }

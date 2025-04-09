@@ -5570,9 +5570,6 @@ importers:
         specifier: ^3.24.2
         version: 3.24.2
     devDependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../node
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -5594,6 +5591,9 @@ importers:
 
   packages/integrations/sitemap/test/fixtures/ssr:
     dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../node
       '@astrojs/sitemap':
         specifier: workspace:*
         version: link:../../..
