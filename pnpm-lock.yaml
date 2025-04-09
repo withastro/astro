@@ -37,8 +37,8 @@ importers:
         specifier: ^2.7.0
         version: 2.7.0(eslint@9.24.0(jiti@2.4.2))
       knip:
-        specifier: ^5.48.0
-        version: 5.48.0(@types/node@18.19.50)(typescript@5.8.3)
+        specifier: https://pkg.pr.new/knip@32759a3
+        version: https://pkg.pr.new/knip@32759a3(@types/node@18.19.50)(typescript@5.8.3)
       only-allow:
         specifier: ^1.2.1
         version: 1.2.1
@@ -701,9 +701,6 @@ importers:
       fs-fixture:
         specifier: ^2.7.1
         version: 2.7.1
-      mdast-util-mdx:
-        specifier: ^3.0.0
-        version: 3.0.0
       mdast-util-mdx-jsx:
         specifier: ^3.2.0
         version: 3.2.0
@@ -9914,8 +9911,9 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
-  knip@5.48.0:
-    resolution: {integrity: sha512-aXiNYFf+09G5At8PALVHV+9xsKTjw2TNaA3S7Gh5rCeaOyZH6sKkvA8chX8+9If13rxMQiJ9sY0QuMblvnGsmQ==}
+  knip@https://pkg.pr.new/knip@32759a3:
+    resolution: {tarball: https://pkg.pr.new/knip@32759a3}
+    version: 5.48.0
     engines: {node: '>=18.18.0'}
     hasBin: true
     peerDependencies:
@@ -16190,7 +16188,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  knip@5.48.0(@types/node@18.19.50)(typescript@5.8.3):
+  knip@https://pkg.pr.new/knip@32759a3(@types/node@18.19.50)(typescript@5.8.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 18.19.50
