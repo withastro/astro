@@ -9,6 +9,14 @@
                 "test/*.test.js"
             ],
             "ignoreDependencies": ["cloudflare"]
+        },
+        "packages/integrations/markdoc": {
+            "entry": [
+                "src/extensions/*.ts",
+                "src/{config,index,runtime,runtime-assets-config}.ts",
+                "src/components/index.ts",
+                "test/*.test.js"
+            ]
         }
     }
 }
