@@ -48,7 +48,8 @@
             "ignore": [
                 "**/e2e/**/{fixtures,_temp-fixtures}/**",
                 "performance/**/*"
-            ]
+            ],
+            "ignoreDependencies": ["rehype-autolink-headings", "rehype-slug", "rehype-toc", "remark-code-titles"]
         },
         "packages/integrations/cloudflare": {
             "entry": [
