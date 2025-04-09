@@ -57,6 +57,12 @@
                 "src/index.ts",
                 "test/**/*.test.js"
             ]
+        },
+        "packages/integrations/solid": {
+            "entry": [
+                "src/{index,client,server}.ts",
+                "test/**/*.test.js"
+            ]
         }
     }
 }
