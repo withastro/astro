@@ -50,8 +50,7 @@
     "cheerio": "1.0.0",
     "devalue": "^5.1.1",
     "execa": "^8.0.1",
-    "rollup": "^4.35.0",
-    "strip-ansi": "^7.1.0"
+    "rollup": "^4.35.0"
   },
   "publishConfig": {
     "provenance": true

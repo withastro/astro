@@ -1,4 +1,14 @@
 {
     "$schema": "https://unpkg.com/knip@5/schema.json",
-    "ignore": ["**/test/fixtures/**"]
+    "ignore": ["**/test/fixtures/**"],
+    "workspaces": {
+        "packages/integrations/cloudflare": {
+            "entry": [
+                "src/index.ts",
+                "src/entrypoints/*.ts",
+                "test/*.test.js"
+            ],
+            "ignoreDependencies": ["cloudflare"]
+        }
+    }
 }
