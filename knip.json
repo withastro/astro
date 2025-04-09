@@ -79,6 +79,13 @@
                 "test/**/*.test.js"
             ],
             "ignore": ["test/hosted/**"]
+        },
+        "packages/integrations/vue": {
+            "entry": [
+                "src/{index,client,server}.ts",
+                "src/editor.cts",
+                "test/**/*.test.js"
+            ]
         }
     }
 }

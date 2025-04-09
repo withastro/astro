@@ -22,18 +22,12 @@
   "exports": {
     ".": "./dist/index.js",
     "./editor": "./dist/editor.cjs",
-    "./*": "./*",
-    "./client.js": "./client.js",
-    "./server.js": "./server.js",
+    "./client.js": "./dist/client.js",
+    "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist",
-    "client.js",
-    "context.js",
-    "server.js",
-    "server.d.ts",
-    "static-html.js"
+    "dist"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
