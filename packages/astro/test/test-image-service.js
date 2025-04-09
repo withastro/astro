@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'node:url';
-import { baseService } from '../dist/assets/services/service.js';
 
 /**
  * stub image service that returns images as-is without optimization

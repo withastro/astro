@@ -19,12 +19,6 @@ export const defaultLogger = new Logger({
 	level: 'error',
 });
 
-/** @type {import('../../src/core/logger/core').LogOptions} */
-const silentLogging = {
-	dest: nodeLogDestination,
-	level: 'error',
-};
-
 const tempFixturesDir = fileURLToPath(new URL('./_temp-fixtures/', import.meta.url));
 
 /**

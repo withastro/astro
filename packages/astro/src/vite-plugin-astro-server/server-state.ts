@@ -18,10 +18,6 @@ export function createServerState(): ServerState {
 	};
 }
 
-function hasAnyFailureState(serverState: ServerState) {
-	return serverState.state !== 'fresh';
-}
-
 export function setRouteError(serverState: ServerState, pathname: string, error: Error) {
 	if (serverState.routes.has(pathname)) {
 		const routeState = serverState.routes.get(pathname)!;

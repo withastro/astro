@@ -22,7 +22,7 @@
                 "src/config/entrypoint.ts",
                 "src/container/index.ts",
                 "src/core/app/index.ts",
-                "src/core/app/node/index.ts",
+                "src/core/app/node.ts",
                 "components/*",
                 "src/toolbar/index.ts",
                 "src/actions/runtime/**/*.ts",

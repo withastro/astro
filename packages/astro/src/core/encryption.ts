@@ -52,14 +52,6 @@ export async function getEnvironmentKey(): Promise<CryptoKey> {
 }
 
 /**
- * Takes a key that has been serialized to an array of bytes and returns a CryptoKey
- */
-async function importKey(bytes: Uint8Array): Promise<CryptoKey> {
-	const key = await crypto.subtle.importKey('raw', bytes, ALGORITHM, true, ['encrypt', 'decrypt']);
-	return key;
-}
-
-/**
  * Encodes a CryptoKey to base64 string, so that it can be embedded in JSON / JavaScript
  */
 export async function encodeKey(key: CryptoKey) {
