@@ -118,6 +118,7 @@ export default \`${generatedCode}\`;`;
 	}
 
 	await Promise.all(entryPoints.map(prebuildFile));
+	hashes.sort();
 	const entries = hashes.map((hash) => `"${hash}"`);
 	const content = `// This file is code-generated, please don't change it manually
 export default [
