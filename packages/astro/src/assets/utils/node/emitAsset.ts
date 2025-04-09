@@ -17,8 +17,8 @@ type ImageMetadataWithContents = ImageMetadata & { contents?: Buffer };
  * @param {boolean} experimentalSvgEnabled - A flag to enable experimental handling of SVG files. Embeds SVG file data if set to true.
  * @param {FileEmitter | undefined} [fileEmitter] - Function for emitting files during the build process. May throw in certain scenarios.
  * @return {Promise<ImageMetadataWithContents | undefined>} Resolves to metadata with optional image contents or `undefined` if processing fails.
- * @deprecated Use `emitImageMetadata` instead.
  */
+// We want to internally use this function until we fix the memory in the SVG features
 export async function emitESMImage(
 	id: string | undefined,
 	/** @deprecated */
