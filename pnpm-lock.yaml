@@ -5213,12 +5213,6 @@ importers:
         specifier: ^6.2.5
         version: 6.2.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.5.1)
     devDependencies:
-      '@netlify/edge-functions':
-        specifier: ^2.11.1
-        version: 2.11.1
-      '@netlify/edge-handler-types':
-        specifier: ^0.34.1
-        version: 0.34.1
       '@types/node':
         specifier: ^22.10.6
         version: 22.13.1
@@ -5234,12 +5228,6 @@ importers:
       devalue:
         specifier: ^5.1.1
         version: 5.1.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
-      strip-ansi:
-        specifier: ^7.1.0
-        version: 7.1.0
       typescript:
         specifier: ^5.8.2
         version: 5.8.3
@@ -7561,12 +7549,6 @@ packages:
   '@netlify/blobs@8.1.1':
     resolution: {integrity: sha512-7Dg3PzArvQ0Owq4wpkLECC9iaDBOxuWUN2uwbQtUF6tZssyez2QN+eO0CjuIhhZUivbw+X9bwsyiEjWkdJnv/A==}
     engines: {node: ^14.16.0 || >=16.0.0}
-
-  '@netlify/edge-functions@2.11.1':
-    resolution: {integrity: sha512-pyQOTZ8a+ge5lZlE+H/UAHyuqQqtL5gE0pXrHT9mOykr3YQqnkB2hZMtx12odatZ87gHg4EA+UPyMZUbLfnXvw==}
-
-  '@netlify/edge-handler-types@0.34.1':
-    resolution: {integrity: sha512-YTwn8cw89M4lRTmoUhl9s8ljSGMDt7FOIsxsrx7YrRz/RZlbh4Yuh4RU13DDafDRBEVuRbjGo93cnN621ZfBjA==}
 
   '@netlify/functions@3.0.4':
     resolution: {integrity: sha512-Ox8+ABI+nsLK+c4/oC5dpquXuEIjzfTlJrdQKgQijCsDQoje7inXFAtKDLvvaGvuvE+PVpMLwQcIUL6P9Ob1hQ==}
@@ -13716,12 +13698,6 @@ snapshots:
   '@neon-rs/load@0.0.4': {}
 
   '@netlify/blobs@8.1.1': {}
-
-  '@netlify/edge-functions@2.11.1': {}
-
-  '@netlify/edge-handler-types@0.34.1':
-    dependencies:
-      web-streams-polyfill: 3.3.3
 
   '@netlify/functions@3.0.4':
     dependencies:

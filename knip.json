@@ -1,6 +1,6 @@
 {
     "$schema": "https://unpkg.com/knip@5/schema.json",
-    "ignore": ["**/test/fixtures/**"],
+    "ignore": ["**/test/**/fixtures/**"],
     "workspaces": {
         "packages/integrations/cloudflare": {
             "entry": [
@@ -24,6 +24,13 @@
                 "test/**/*.test.js"
             ],
             "ignoreDependencies": ["@types/*"]
+        },
+        "packages/integrations/netlify": {
+            "entry": [
+                "src/{index,static,functions,ssr-function,image-service}.ts",
+                "test/**/*.test.js"
+            ],
+            "ignore": ["test/hosted/**"]
         }
     }
 }
