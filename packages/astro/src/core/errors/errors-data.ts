@@ -1861,7 +1861,7 @@ export const SessionStorageSaveError = {
  * @docs
  * @see
  * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
- * @deprecated This error was removed in Astro 5.7, when the Session feature stopped being experimental.
+ * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
  * @description
  * Your adapter must support server output to use sessions.
  */
@@ -1875,7 +1875,7 @@ export const SessionWithoutSupportedAdapterOutputError = {
 /**
  * @docs
  * @message The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage.
- * @deprecated This error was removed in Astro 5.7, when the Session feature stopped being experimental.
+ * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
  * @see
  * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
  * @description
@@ -1892,7 +1892,7 @@ export const SessionConfigMissingError = {
 /**
  * @docs
  * @message Session config was provided without enabling the `experimental.session` flag
- * @deprecated This error was removed in Astro 5.7, when the Session feature stopped being experimental.
+ * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
  * @see
  * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
  * @description
