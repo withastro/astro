@@ -45,7 +45,7 @@ const fallbacksSchema = z.object({
 	/**
 	 * @default `["sans-serif"]`
 	 *
-	 * An array of fonts to use when your chosen font is unavailable, or loading. Fallbacks are applied from left to right:
+	 * An array of fonts to use when your chosen font is unavailable, or loading. Fallback fonts will be chosen in the order listed. The first available font will be used:
 	 *
 	 * ```js
 	 * fallbacks: ["CustomFont", "serif"]
