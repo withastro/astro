@@ -79,9 +79,10 @@ export default {
 		},
 		'packages/internal-helpers': {},
 		'packages/markdown/remark': {
-            entry: [testEntry],
-            // package.json#imports are not resolved
-            ignore: ['src/import-plugin-browser.ts']
-        },
+			entry: [testEntry],
+			// package.json#imports are not resolved
+			ignore: ['src/import-plugin-browser.ts'],
+		},
+		'packages/studio': {},
 	},
 };
