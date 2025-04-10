@@ -60,16 +60,16 @@
     "@changesets/cli": "^2.28.1",
     "@types/node": "^18.17.8",
     "esbuild": "^0.25.0",
-    "eslint": "^9.23.0",
+    "eslint": "^9.24.0",
     "eslint-plugin-regexp": "^2.7.0",
     "only-allow": "^1.2.1",
     "prettier": "^3.5.3",
     "prettier-plugin-astro": "^0.14.1",
-    "publint": "^0.3.9",
+    "publint": "^0.3.10",
     "tinyglobby": "^0.2.12",
-    "turbo": "^2.4.4",
-    "typescript": "~5.8.2",
-    "typescript-eslint": "^8.28.0"
+    "turbo": "^2.5.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.29.0"
   },
   "pnpm": {
     "peerDependencyRules": {
