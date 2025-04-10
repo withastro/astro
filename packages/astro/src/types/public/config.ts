@@ -17,11 +17,11 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
+import type { FontFamily, AstroFontProvider } from '../../assets/fonts/types.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
-export type { FontProvider };
+export type { AstroFontProvider as FontProvider };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -2128,11 +2128,19 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * @name experimental.fonts
 		 * @type {FontFamily[]}
-		 * @default `undefined`
-		 * @version 5.x
+		 * @version 5.7
 		 * @description
 		 *
-		 * TODO:
+		 * This experimental feature allows you to use fonts from your filesystem and various providers
+		 * (eg. Google, Fontsource, Bunny...) through a unified, fully customizable and type-safe API.
+		 *
+		 * Web fonts can impact page performance at both load time and rendering time. We're doing
+		 * automatic [optimization](https://web.dev/learn/performance/optimize-web-fonts) by creating
+		 * preload links and optimized fallbacks. We also have opiniated defaults to avoid downloading
+		 * too many font files.
+		 *
+		 * For a complete overview, and to give feedback on this experimental API,
+		 * see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039).
 		 */
 		fonts?: [TFontFamilies] extends [never] ? FontFamily[] : TFontFamilies;
 

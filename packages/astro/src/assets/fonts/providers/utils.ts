@@ -1,4 +1,4 @@
-import type { FontProvider, ResolvedFontProvider } from '../types.js';
+import type { AstroFontProvider, ResolvedFontProvider } from '../types.js';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { resolveEntrypoint } from '../utils.js';
 
@@ -31,7 +31,7 @@ export type ResolveMod = (id: string) => Promise<any>;
 
 export interface ResolveProviderOptions {
 	root: URL;
-	provider: FontProvider;
+	provider: AstroFontProvider;
 	resolveMod: ResolveMod;
 }
 
