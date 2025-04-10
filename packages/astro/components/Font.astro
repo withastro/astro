@@ -7,16 +7,16 @@ const { fontsData } = await import('virtual:astro:assets/fonts/internal').catch(
 });
 
 interface Props {
-	family: import('astro:assets').FontFamily;
+	cssVariable: import('astro:assets').FontFamily;
 	preload?: boolean;
 }
 
-const { family, preload = false } = Astro.props;
-const data = fontsData.get(family);
+const { cssVariable, preload = false } = Astro.props;
+const data = fontsData.get(cssVariable);
 if (!data) {
 	throw new AstroError({
 		...AstroErrorData.FontFamilyNotFound,
-		message: AstroErrorData.FontFamilyNotFound.message(family),
+		message: AstroErrorData.FontFamilyNotFound.message(cssVariable),
 	});
 }
 ---

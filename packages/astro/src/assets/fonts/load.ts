@@ -160,7 +160,7 @@ export async function loadFonts({
 			font: fallbackFontData,
 			fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
 			metrics:
-				(family.automaticFallback ?? DEFAULTS.automaticFallback)
+				(family.optimizedFallbacks ?? DEFAULTS.optimizedFallbacks)
 					? {
 							getMetricsForFamily,
 							generateFontFace: generateFallbackFontFace,
