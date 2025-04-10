@@ -4279,9 +4279,6 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
-      strip-json-comments:
-        specifier: ^5.0.1
-        version: 5.0.1
 
   packages/create-astro/test/fixtures/not-empty: {}
 

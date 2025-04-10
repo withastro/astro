@@ -26,6 +26,13 @@ export default {
 				'remark-code-titles',
 			],
 		},
+        'packages/astro-prism': {},
+        'packages/astro-rss': {
+            entry: [testEntry],
+        },
+        'packages/create-astro': {
+            entry: [testEntry],
+        },
 		'packages/integrations/cloudflare': {
 			entry: [testEntry],
 			// False positive because of cloudflare:workers
