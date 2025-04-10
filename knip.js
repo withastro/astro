@@ -33,6 +33,9 @@ export default {
         'packages/create-astro': {
             entry: [testEntry],
         },
+        'packages/db': {
+            entry: [testEntry],
+        },
 		'packages/integrations/cloudflare': {
 			entry: [testEntry],
 			// False positive because of cloudflare:workers
