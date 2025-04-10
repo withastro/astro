@@ -211,7 +211,8 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 					const imageMetadata = await emitESMImage(
 						id,
 						this.meta.watchMode,
-						!!settings.config.experimental.svg,
+						// TODO: Fix memory issue
+						id.endsWith('.svg'), //!!settings.config.experimental.svg,
 						emitFile,
 					);
 
@@ -222,7 +223,7 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 						});
 					}
 
-					if (settings.config.experimental.svg && /\.svg$/.test(id)) {
+					if (id.endsWith('.svg')) {
 						const { contents, ...metadata } = imageMetadata;
 						// We know that the contents are present, as we only emit this property for SVG files
 						return { code: makeSvgComponent(metadata, contents!) };
