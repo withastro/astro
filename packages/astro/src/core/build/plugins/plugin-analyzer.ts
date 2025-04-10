@@ -9,7 +9,7 @@ import {
 } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 
-export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
+function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/rollup-plugin-astro-analyzer',
 		async generateBundle() {

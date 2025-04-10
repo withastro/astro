@@ -1,8 +1,10 @@
 import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 import { incrementId } from './context.js';
+import type { AstroComponentMetadata } from 'astro';
+import type { RendererContext } from './types.js';
 
-function check(Component) {
+function check(Component: any) {
 	if (typeof Component !== 'function') return false;
 	// Svelte 5 generated components always accept a `$$payload` prop.
 	// This assumes that the SSR build does not minify it (which Astro enforces by default).
@@ -11,21 +13,27 @@ function check(Component) {
 	return Component.toString().includes('$$payload');
 }
 
-function needsHydration(metadata) {
+function needsHydration(metadata: AstroComponentMetadata) {
 	// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
 	return metadata.astroStaticSlot ? !!metadata.hydrate : true;
 }
 
-async function renderToStaticMarkup(Component, props, slotted, metadata) {
+async function renderToStaticMarkup(
+	this: RendererContext,
+	Component: any,
+	props: Record<string, any>,
+	slotted: Record<string, any>,
+	metadata: AstroComponentMetadata,
+) {
 	const tagName = needsHydration(metadata) ? 'astro-slot' : 'astro-static-slot';
 
 	let children = undefined;
-	let $$slots = undefined;
+	let $$slots: Record<string, any> | undefined = undefined;
 	let idPrefix;
 	if (this && this.result) {
 		idPrefix = incrementId(this.result);
 	}
-	const renderProps = {};
+	const renderProps: Record<string, any> = {};
 	for (const [key, value] of Object.entries(slotted)) {
 		// Legacy slot support
 		$$slots ??= {};

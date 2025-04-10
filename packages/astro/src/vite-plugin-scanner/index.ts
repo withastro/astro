@@ -9,7 +9,7 @@ import { isEndpoint, isPage } from '../core/util.js';
 import { normalizePath, rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 
-export interface AstroPluginScannerOptions {
+interface AstroPluginScannerOptions {
 	settings: AstroSettings;
 	logger: Logger;
 	routesList: RoutesList;

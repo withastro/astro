@@ -2,7 +2,7 @@ import type { HoistedScript, TransformResult } from '@astrojs/compiler';
 import type { CompileCssResult } from '../core/compile/types.js';
 import type { PropagationHint } from '../types/public/internal.js';
 
-export interface PageOptions {
+interface PageOptions {
 	prerender?: boolean;
 }
 

@@ -3,9 +3,9 @@ import { before, describe, it } from 'node:test';
 import cloudflare from '../dist/index.js';
 import { loadFixture } from './_test-utils.js';
 
-/** @type {import('./test-utils.js').Fixture} */
 describe('_routes.json generation', () => {
 	describe('of on-demand and prerenderd', () => {
+		/** @type {import('../../../astro/test/test-utils').Fixture} */
 		let fixture;
 
 		before(async () => {

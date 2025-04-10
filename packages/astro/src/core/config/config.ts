@@ -26,7 +26,7 @@ export function resolveRoot(cwd?: string | URL): string {
 
 // Config paths to search for. In order of likely appearance
 // to speed up the check.
-export const configPaths = Object.freeze([
+const configPaths = Object.freeze([
 	'astro.config.mjs',
 	'astro.config.js',
 	'astro.config.ts',

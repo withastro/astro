@@ -198,7 +198,7 @@ export function astroContentVirtualModPlugin({
 	};
 }
 
-export async function generateContentEntryFile({
+async function generateContentEntryFile({
 	settings,
 	lookupMap,
 	isClient,
@@ -258,7 +258,7 @@ export async function generateContentEntryFile({
  * This is used internally to resolve entry imports when using `getEntry()`.
  * @see `templates/content/module.mjs`
  */
-export async function generateLookupMap({
+async function generateLookupMap({
 	settings,
 	fs,
 }: {

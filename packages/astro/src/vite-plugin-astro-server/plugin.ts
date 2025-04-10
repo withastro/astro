@@ -26,7 +26,7 @@ import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
 
-export interface AstroPluginOptions {
+interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
 	fs: typeof fs;

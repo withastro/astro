@@ -19,12 +19,6 @@ export const defaultLogger = new Logger({
 	level: 'error',
 });
 
-/** @type {import('../../src/core/logger/core').LogOptions} */
-export const silentLogging = {
-	dest: nodeLogDestination,
-	level: 'error',
-};
-
 const tempFixturesDir = fileURLToPath(new URL('./_temp-fixtures/', import.meta.url));
 
 /**
@@ -69,7 +63,7 @@ export function createRequestAndResponse(reqOptions = {}) {
 	return { req, res, done, json, text };
 }
 
-export function toPromise(res) {
+function toPromise(res) {
 	return new Promise((resolve) => {
 		// node-mocks-http doesn't correctly handle non-Buffer typed arrays,
 		// so override the write method to fix it.
@@ -90,7 +84,7 @@ export function toPromise(res) {
 	});
 }
 
-export function buffersToString(buffers) {
+function buffersToString(buffers) {
 	let decoder = new TextDecoder();
 	let str = '';
 	for (const buffer of buffers) {

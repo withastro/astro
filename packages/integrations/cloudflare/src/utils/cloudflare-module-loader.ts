@@ -9,7 +9,7 @@ export interface CloudflareModulePluginExtra {
 	afterBuildCompleted(config: AstroConfig): Promise<void>;
 }
 
-export type ModuleType = 'CompiledWasm' | 'Text' | 'Data';
+type ModuleType = 'CompiledWasm' | 'Text' | 'Data';
 
 /**
  * Enables support for various non-standard extensions in module imports that cloudflare workers supports.

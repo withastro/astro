@@ -38,6 +38,6 @@ export function lookup(input: Uint8Array): ISizeCalculationResult {
   throw new TypeError('unsupported file type: ' + type)
 }
 
-export const disableTypes = (types: imageType[]): void => {
+const disableTypes = (types: imageType[]): void => {
   globalOptions.disabledTypes = types
 }

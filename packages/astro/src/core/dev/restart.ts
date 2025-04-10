@@ -103,7 +103,7 @@ async function restartContainer(container: Container): Promise<Container | Error
 	}
 }
 
-export interface CreateContainerWithAutomaticRestart {
+interface CreateContainerWithAutomaticRestart {
 	inlineConfig?: AstroInlineConfig;
 	fs: typeof nodeFs;
 }

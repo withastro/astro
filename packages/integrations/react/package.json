@@ -22,25 +22,15 @@
   "exports": {
     ".": "./dist/index.js",
     "./actions": "./dist/actions.js",
-    "./client.js": "./client.js",
-    "./client-v17.js": "./client-v17.js",
-    "./server.js": "./server.js",
-    "./server-v17.js": "./server-v17.js",
+    "./client.js": "./dist/client.js",
+    "./client-v17.js": "./dist/client-v17.js",
+    "./server.js": "./dist/server.js",
+    "./server-v17.js": "./dist/server-v17.js",
     "./package.json": "./package.json",
-    "./jsx-runtime": "./jsx-runtime.js"
+    "./jsx-runtime": "./dist/jsx-runtime.js"
   },
   "files": [
-    "dist",
-    "client.js",
-    "client-v17.js",
-    "context.js",
-    "jsx-runtime.js",
-    "server.js",
-    "server.d.ts",
-    "server-v17.js",
-    "server-v17.d.ts",
-    "static-html.js",
-    "vnode-children.js"
+    "dist"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",

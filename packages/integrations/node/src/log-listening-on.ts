@@ -45,7 +45,7 @@ interface NetworkAddressOpt {
 }
 
 // this code from vite https://github.com/vitejs/vite/blob/d09bbd093a4b893e78f0bbff5b17c7cf7821f403/packages/vite/src/node/utils.ts#L892-L914
-export function getNetworkAddress(
+function getNetworkAddress(
 	protocol: 'http' | 'https' = 'http',
 	hostname: string | undefined,
 	port: number,

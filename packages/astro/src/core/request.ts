@@ -3,7 +3,7 @@ import type { Logger } from './logger/core.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
 
-export interface CreateRequestOptions {
+interface CreateRequestOptions {
 	url: URL | string;
 	clientAddress?: string | undefined;
 	headers: HeaderType;
