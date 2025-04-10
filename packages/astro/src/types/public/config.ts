@@ -2134,10 +2134,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * This experimental feature allows you to use fonts from your filesystem and various providers
 		 * (eg. Google, Fontsource, Bunny...) through a unified, fully customizable and type-safe API.
 		 *
-		 * Web fonts can impact page performance at both load time and rendering time. We're doing
+		 * Web fonts can impact page performance at both load time and rendering time. This feature provides
 		 * automatic [optimization](https://web.dev/learn/performance/optimize-web-fonts) by creating
-		 * preload links and optimized fallbacks. We also have opiniated defaults to avoid downloading
-		 * too many font files.
+		 * preload links and optimized fallbacks. This API includes opinionated defaults to keep your sites lightweight and performant (e.g. minimal font files downloaded) while allowing for extensive customization so you can opt in to greater control.
 		 *
 		 * For a complete overview, and to give feedback on this experimental API,
 		 * see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039).
