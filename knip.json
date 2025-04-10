@@ -3,6 +3,7 @@
     "ignore": [
         "**/test/**/{fixtures,_temp-fixtures}/**"
     ],
+    "tags": ["-lintignore"],
     "workspaces": {
         "packages/astro": {
             "entry": [
@@ -13,7 +14,7 @@
                 "**/e2e/**/{fixtures,_temp-fixtures}/**",
                 "performance/**/*"
             ],
-            "ignoreDependencies": ["rehype-autolink-headings", "rehype-slug", "rehype-toc", "remark-code-titles"]
+            "ignoreDependencies": ["mdast-util-mdx", "rehype-autolink-headings", "rehype-slug", "rehype-toc", "remark-code-titles"]
         },
         "packages/integrations/cloudflare": {
             "entry": [

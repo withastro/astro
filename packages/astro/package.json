@@ -196,6 +196,7 @@
     "execa": "^8.0.1",
     "expect-type": "^1.2.0",
     "fs-fixture": "^2.7.1",
+    "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-jsx": "^3.2.0",
     "node-mocks-http": "^1.16.2",
     "parse-srcset": "^1.0.2",
