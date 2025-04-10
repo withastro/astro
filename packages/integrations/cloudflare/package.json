@@ -42,7 +42,7 @@
     "magic-string": "^0.30.17",
     "miniflare": "^4.20250321.1",
     "tinyglobby": "^0.2.12",
-    "vite": "^6.2.5",
+    "vite": "^6.2.6",
     "wrangler": "^4.5.1"
   },
   "peerDependencies": {
