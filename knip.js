@@ -9,9 +9,9 @@ export default {
 	ignore: ['**/test/**/{fixtures,_temp-fixtures}/**'],
 	tags: ['-lintignore'],
 	workspaces: {
-        '.': {
-            project: ['!examples/**/*']
-        },
+		'.': {
+			project: ['!examples/**/*'],
+		},
 		'packages/astro': {
 			entry: [
 				// Can't be detected automatically since it's only in package.json#files
@@ -19,6 +19,7 @@ export default {
 				testEntry,
 				'test/types/**/*',
 				'e2e/**/*.test.js',
+				'test/units/teardown.js',
 			],
 			ignore: ['**/e2e/**/{fixtures,_temp-fixtures}/**', 'performance/**/*'],
 			ignoreDependencies: [
@@ -88,13 +89,13 @@ export default {
 		},
 		'packages/studio': {},
 		'packages/telemetry': {
-            entry: [testEntry],
-        },
+			entry: [testEntry],
+		},
 		'packages/underscore-redirects': {
-            entry: [testEntry],
-        },
+			entry: [testEntry],
+		},
 		'packages/upgrade': {
-            entry: ["src/index.ts", testEntry],
-        },
+			entry: ['src/index.ts', testEntry],
+		},
 	},
 };
