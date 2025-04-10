@@ -74,7 +74,7 @@ export const requiredFamilyAttributesSchema = z.object({
 	 */
 	name: z.string(),
 	/**
-	 * A valid [ident](https://developer.mozilla.org/en-US/docs/Web/CSS/ident) in the form of a CSS variable.
+	 * A valid [ident](https://developer.mozilla.org/en-US/docs/Web/CSS/ident) in the form of a CSS variable (i.e. starting with `--`).
 	 */
 	cssVariable: z.string(),
 });
