@@ -20,18 +20,6 @@ export interface ErrorData {
 
 /**
  * @docs
- * @description
- * Cannot use the module `astro:config` without enabling the experimental feature.
- */
-export const CantUseAstroConfigModuleError = {
-	name: 'CantUseAstroConfigModuleError',
-	title: 'Cannot use the `astro:config` module without enabling the experimental feature.',
-	message: (moduleName) =>
-		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeConfig\` in your \`astro.config.mjs\` `,
-} satisfies ErrorData;
-
-/**
- * @docs
  * @message
  * Unknown compiler error.
  * @see

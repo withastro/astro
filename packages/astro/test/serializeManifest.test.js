@@ -11,29 +11,7 @@ describe('astro:config/client', () => {
 	let fixture;
 	let devServer;
 
-	describe('when the experimental flag is not enabled', async () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/astro-manifest/',
-				experimental: {
-					serializeConfig: false,
-				},
-			});
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('should throw an error when importing the module', async () => {
-			const response = await fixture.fetch('/');
-			const html = await response.text();
-			assert.match(html, /CantUseAstroConfigModuleError/);
-		});
-	});
-
-	describe('when the experimental flag is enabled in dev', async () => {
+	describe('in dev', async () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
@@ -132,29 +110,7 @@ describe('astro:config/server', () => {
 		});
 	});
 
-	describe('when the experimental flag is not enabled in dev', async () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/astro-manifest/',
-				experimental: {
-					serializeConfig: false,
-				},
-			});
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('should throw an error when importing the module', async () => {
-			const response = await fixture.fetch('/server');
-			const html = await response.text();
-			assert.match(html, /CantUseAstroConfigModuleError/);
-		});
-	});
-
-	describe('when the experimental flag is enabled in dev', async () => {
+	describe('in dev', async () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
