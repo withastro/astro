@@ -51,7 +51,7 @@ const fallbacksSchema = z.object({
 	 * fallbacks: ["CustomFont", "serif"]
 	 * ```
 	 *
-	 * If you don't want any fallbacks, use an empty array:
+	 * To disable fallback fonts completely, configure an empty array:
 	 *
 	 * ```js
 	 * fallbacks: []
