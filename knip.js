@@ -9,6 +9,9 @@ export default {
 	ignore: ['**/test/**/{fixtures,_temp-fixtures}/**'],
 	tags: ['-lintignore'],
 	workspaces: {
+        '.': {
+            project: ['!examples/**/*']
+        },
 		'packages/astro': {
 			entry: [
 				// Can't be detected automatically since it's only in package.json#files
