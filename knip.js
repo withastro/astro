@@ -26,16 +26,16 @@ export default {
 				'remark-code-titles',
 			],
 		},
-        'packages/astro-prism': {},
-        'packages/astro-rss': {
-            entry: [testEntry],
-        },
-        'packages/create-astro': {
-            entry: [testEntry],
-        },
-        'packages/db': {
-            entry: [testEntry],
-        },
+		'packages/astro-prism': {},
+		'packages/astro-rss': {
+			entry: [testEntry],
+		},
+		'packages/create-astro': {
+			entry: [testEntry],
+		},
+		'packages/db': {
+			entry: [testEntry],
+		},
 		'packages/integrations/cloudflare': {
 			entry: [testEntry],
 			// False positive because of cloudflare:workers
@@ -77,5 +77,11 @@ export default {
 		'packages/integrations/web-vitals': {
 			entry: [testEntry],
 		},
+		'packages/internal-helpers': {},
+		'packages/markdown/remark': {
+            entry: [testEntry],
+            // package.json#imports are not resolved
+            ignore: ['src/import-plugin-browser.ts']
+        },
 	},
 };
