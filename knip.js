@@ -84,5 +84,14 @@ export default {
 			ignore: ['src/import-plugin-browser.ts'],
 		},
 		'packages/studio': {},
+		'packages/telemetry': {
+            entry: [testEntry],
+        },
+		'packages/underscore-redirects': {
+            entry: [testEntry],
+        },
+		'packages/upgrade': {
+            entry: ["src/index.ts", testEntry],
+        },
 	},
 };
