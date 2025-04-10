@@ -8,7 +8,7 @@ export const DEFAULTS = {
 	subsets: ['cyrillic-ext', 'cyrillic', 'greek-ext', 'greek', 'vietnamese', 'latin-ext', 'latin'],
 	// Technically serif is the browser default but most websites these days use sans-serif
 	fallbacks: ['sans-serif'],
-	automaticFallback: true,
+	optimizedFallbacks: true,
 } satisfies Partial<ResolvedRemoteFontFamily>;
 
 export const VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/internal';

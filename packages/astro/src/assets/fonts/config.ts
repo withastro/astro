@@ -18,7 +18,7 @@ const familyPropertiesSchema = z.object({
 
 const fallbacksSchema = z.object({
 	fallbacks: z.array(z.string()).nonempty().optional(),
-	automaticFallback: z.boolean().optional(),
+	optimizedFallbacks: z.boolean().optional(),
 });
 
 export const requiredFamilyAttributesSchema = z.object({
