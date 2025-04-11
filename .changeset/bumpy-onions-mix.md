@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Extract shared logic for server island loading into a function and only include it once. This reduces duplicate code in the HTML.
+Reduces duplicate code in server islands scripts by extracting shared logic into a helper function.
