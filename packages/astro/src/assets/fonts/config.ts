@@ -57,13 +57,14 @@ const fallbacksSchema = z.object({
 	 * fallbacks: []
 	 * ```
 	 *
-	 * If `optimizedFallbacks` is set to `true`, we look for the last fallback and check if it's a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name). If so, we try to generate an [optimized fallback](https://developer.chrome.com/blog/font-fallbacks) using font metrics.
+
+	 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), an [optimized fallback](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
 	 */
 	fallbacks: z.array(z.string()).nonempty().optional(),
 	/**
 	 * @default `true`
 	 *
-	 * Whether or not to enable optimized fallback generation. Enabling this should only be needed if you want full control over the `fallbacks`.
+	 * Whether or not to enable optimized fallback generation. You may disable this default optimization to have full control over `fallbacks`.
 	 */
 	optimizedFallbacks: z.boolean().optional(),
 });
