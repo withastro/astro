@@ -618,8 +618,38 @@ export default function netlifyIntegration(
 				}
 			},
 
-			// local dev
-			'astro:server:setup': async ({ server }) => {
+			// local dev or Netlify Preview
+			'astro:server:setup': async ({ server, refreshContent }) => {
+				if (process.env.NETLIFY_PREVIEW_SERVER) {
+					server.middlewares.use('/__refresh', async (req, res) => {
+						if (req.method !== 'POST') {
+							res.statusCode = 405;
+							res.end('Method Not Allowed');
+							return;
+						}
+						let webhookBody = '';
+						req.on('data', (chunk) => {
+							webhookBody += chunk.toString();
+						});
+						req.on('end', async () => {
+							try {
+								await refreshContent?.({
+									context: { webhookBody },
+								});
+								res.writeHead(200, { 'Content-Type': 'application/json' });
+								res.end(JSON.stringify({ message: 'Content refreshed successfully' }));
+							} catch (error) {
+								res.writeHead(500, { 'Content-Type': 'application/json' });
+								res.end(
+									JSON.stringify({
+										error: `Failed to refresh content: ${(error as Error).message}`,
+									}),
+								);
+							}
+						});
+					});
+				}
+
 				server.middlewares.use((req, _res, next) => {
 					const locals = Symbol.for('astro.locals');
 					Reflect.set(req, locals, {
