@@ -1,7 +1,9 @@
 import { encryptString } from '../../../core/encryption.js';
 import type { SSRResult } from '../../../types/public/internal.js';
+import { markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
 import type { RenderInstance } from './common.js';
+import { createRenderInstruction } from './instruction.js';
 import { type ComponentSlots, renderSlotToString } from './slot.js';
 
 const internalProps = new Set([
@@ -67,6 +69,7 @@ export function renderServerIsland(
 					delete props[key];
 				}
 			}
+			destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
 
 			destination.write('<!--[if astro]>server-island-start<![endif]-->');
 
@@ -105,52 +108,49 @@ export function renderServerIsland(
 				);
 			}
 
-			if(!result._metadata.hasServerIslandScript) {
-				result._metadata.hasServerIslandScript = true;
-// The runtime is a non-module script so that we can guarantee that is has executed before any module scripts
-// This is important because the module script will call replaceServerIsland, which needs to be defined first
-// It's ok to make it a sync script because it doesn't do anything until the module script runs
-				destination.write(`<script data-si-runtime>
-async function replaceServerIsland(id, r) {
-  let s = document.querySelector(\`script[data-island-id="\${id}"]\`);
-	if(!s) return;
-	if(r.status === 200 && r.headers.has('content-type') && r.headers.get('content-type').split(";")[0].trim() === 'text/html') {
-		let html = await r.text();
-		while(s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '[if astro]>server-island-start<![endif]') {
-			s.previousSibling.remove();
-		}
-		s.previousSibling?.remove();
-		let frag = document.createRange().createContextualFragment(html);
-		s.before(frag);
-	}
-	s.remove();
-}
-</script>`);
-
-			}
-
-			destination.write(`<script type="module" data-astro-rerun data-island-id="${hostId}">{
-
-${
-	useGETRequest
-		? // GET request
-			`let response = await fetch('${serverIslandUrl}');
-`
-		: // POST request
-			`let data = {
+			destination.write(`<script type="module" data-astro-rerun data-island-id="${hostId}">${
+				useGETRequest
+					? // GET request
+						`let response = await fetch('${serverIslandUrl}');`
+					: // POST request
+						`let data = {
 	componentExport: ${safeJsonStringify(componentExport)},
 	encryptedProps: ${safeJsonStringify(propsEncrypted)},
 	slots: ${safeJsonStringify(renderedSlots)},
 };
-
 let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
-});
-`
-}
-replaceServerIsland('${hostId}', response);
-}</script>`);
+});`
+			}
+replaceServerIsland('${hostId}', response);</script>`);
 		},
 	};
 }
+
+export const renderServerIslandRuntime = () =>
+	markHTMLString(
+		`
+	<script>
+		async function replaceServerIsland(id, r) {
+			let s = document.querySelector(\`script[data-island-id="\${id}"]\`);
+			// If there's no matching script, or the request fails then return
+			if (!s || r.status !== 200 || r.headers.get('content-type')?.split(';')[0].trim() !== 'text/html') return;
+			// Load the HTML before modifying the DOM in case of errors
+			let html = await r.text();
+			// Remove any placeholder content before the island script
+			while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '[if astro]>server-island-start<![endif]')
+				s.previousSibling.remove();
+			s.previousSibling?.remove();
+			// Insert the new HTML
+			s.before(document.createRange().createContextualFragment(html));
+			// Remove the script. Prior to v5.4.2, this was the trick to force rerun of scripts.  Keeping it to minimize change to the existing behavior.
+			s.remove();
+		}
+	</script>`
+			// Very basic minification
+			.split('\n')
+			.map((line) => line.trim())
+			.filter((line) => line && !line.startsWith('//'))
+			.join(' '),
+	);

@@ -436,7 +436,7 @@ export class RenderContext {
 				hasRenderedHead: false,
 				renderedScripts: new Set(),
 				hasDirectives: new Set(),
-				hasServerIslandScript: false,
+				hasRenderedServerIslandRuntime: false,
 				headInTree: false,
 				extraHead: [],
 				propagators: new Set(),
