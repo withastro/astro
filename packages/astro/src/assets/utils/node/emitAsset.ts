@@ -54,12 +54,6 @@ export async function emitESMImage(
 		value: id,
 	});
 
-	// Attach file data for SVGs
-	// TODO: this is a workaround to prevent a memory leak, and it must be fixed before we remove the experimental flag, see
-	if (fileMetadata.format === 'svg' && experimentalSvgEnabled) {
-		emittedImage.contents = fileData;
-	}
-
 	// Build
 	let isBuild = typeof fileEmitter === 'function';
 	if (isBuild) {

@@ -1,3 +1,4 @@
+import type * as fsMod from 'node:fs';
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
@@ -90,7 +91,7 @@ const addStaticImageFactory = (
 	};
 };
 
-export default function assets({ settings }: { settings: AstroSettings }): vite.Plugin[] {
+export default function assets({ fs, settings }: { fs: typeof fsMod; settings: AstroSettings }): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 	let shouldEmitFile = false;
 	let isBuild = false;
@@ -223,9 +224,9 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 					}
 
 					if (settings.config.experimental.svg && /\.svg$/.test(id)) {
-						const { contents, ...metadata } = imageMetadata;
+						const contents = await fs.promises.readFile(imageMetadata.fsPath, { encoding: 'utf8' });
 						// We know that the contents are present, as we only emit this property for SVG files
-						return { code: makeSvgComponent(metadata, contents!) };
+						return { code: makeSvgComponent(imageMetadata, contents) };
 					}
 
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
