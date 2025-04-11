@@ -7,9 +7,7 @@ import type {
 	localFontFamilySchema,
 } from './config.js';
 
-// TODO: jsdoc for everything, most of those end up in the public AstroConfig type
-
-export type FontProvider = z.infer<typeof fontProviderSchema>;
+export type AstroFontProvider = z.infer<typeof fontProviderSchema>;
 
 export interface ResolvedFontProvider {
 	name?: string;
