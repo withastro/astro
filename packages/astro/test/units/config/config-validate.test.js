@@ -387,4 +387,78 @@ describe('Config Validation', () => {
 			);
 		});
 	});
+
+	describe('fonts', () => {
+		it('Should allow empty fonts', () => {
+			assert.doesNotThrow(() =>
+				validateConfig({
+					experimental: {
+						fonts: [],
+					},
+				}),
+			);
+		});
+
+		it('Should error on invalid css variable', async () => {
+			let configError = await validateConfig({
+				experimental: {
+					fonts: [{ name: 'Roboto', cssVariable: 'test', provider: { entrypoint: '' } }],
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'contains invalid characters for CSS variable generation',
+				),
+				true,
+			);
+
+			configError = await validateConfig({
+				experimental: {
+					fonts: [{ name: 'Roboto', cssVariable: '-test', provider: { entrypoint: '' } }],
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'contains invalid characters for CSS variable generation',
+				),
+				true,
+			);
+
+			configError = await validateConfig({
+				experimental: {
+					fonts: [{ name: 'Roboto', cssVariable: '--test ', provider: { entrypoint: '' } }],
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'contains invalid characters for CSS variable generation',
+				),
+				true,
+			);
+
+			configError = await validateConfig({
+				experimental: {
+					fonts: [{ name: 'Roboto', cssVariable: '--test:x', provider: { entrypoint: '' } }],
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'contains invalid characters for CSS variable generation',
+				),
+				true,
+			);
+
+			assert.doesNotThrow(() =>
+				validateConfig({
+					experimental: {
+						fonts: [{ name: 'Roboto', cssVariable: '--test', provider: { entrypoint: '' } }],
+					},
+				}),
+			);
+		});
+	});
 });
