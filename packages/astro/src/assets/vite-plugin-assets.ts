@@ -91,7 +91,10 @@ const addStaticImageFactory = (
 	};
 };
 
-export default function assets({ fs, settings }: { fs: typeof fsMod; settings: AstroSettings }): vite.Plugin[] {
+export default function assets({
+	fs,
+	settings,
+}: { fs: typeof fsMod; settings: AstroSettings }): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 	let shouldEmitFile = false;
 	let isBuild = false;
