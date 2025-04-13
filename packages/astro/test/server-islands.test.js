@@ -202,7 +202,21 @@ describe('Server islands', () => {
 				assert.equal(serverIslandEl.length, 0);
 
 				const serverIslandScript = $('script[data-island-id]');
-				assert.equal(serverIslandScript.length, 1, 'has the island script');
+				assert.equal(serverIslandScript.length, 2, 'has the island script');
+			});
+
+			it('includes the server island runtime script once', async () => {
+				let html = await fixture.readFile('/client/index.html');
+
+				const $ = cheerio.load(html);
+				const serverIslandScript = $('script').filter((_, el) =>
+					$(el).html().trim().startsWith('async function replaceServerIsland'),
+				);
+				assert.equal(
+					serverIslandScript.length,
+					1,
+					'should include the server island runtime script once',
+				);
 			});
 		});
 
