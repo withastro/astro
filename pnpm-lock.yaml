@@ -12,9 +12,6 @@ importers:
         specifier: workspace:*
         version: link:benchmark
     devDependencies:
-      '@astrojs/check':
-        specifier: ^0.9.4
-        version: 0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(typescript@5.8.3)
       '@biomejs/biome':
         specifier: 1.9.4
         version: 1.9.4
@@ -37,8 +34,8 @@ importers:
         specifier: ^2.7.0
         version: 2.7.0(eslint@9.24.0(jiti@2.4.2))
       knip:
-        specifier: 5.50.1
-        version: 5.50.1(@types/node@18.19.50)(typescript@5.8.3)
+        specifier: 5.50.3
+        version: 5.50.3(@types/node@18.19.50)(typescript@5.8.3)
       only-allow:
         specifier: ^1.2.1
         version: 1.2.1
@@ -6218,9 +6215,6 @@ importers:
       p-limit:
         specifier: ^6.2.0
         version: 6.2.0
-      tinyexec:
-        specifier: ^0.3.2
-        version: 0.3.2
       tinyglobby:
         specifier: ^0.2.12
         version: 0.2.12
@@ -9908,8 +9902,8 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
-  knip@5.50.1:
-    resolution: {integrity: sha512-jSOKVBfasIO8D/5j1+7PLnJlT1wZs0bqckev+Gdyjp4mVRLljEBPlRbTxzlcemjp+RKuqJv/EnHaWFUnqriDfg==}
+  knip@5.50.3:
+    resolution: {integrity: sha512-0A4G7UPucGTCpNh5vHSfL0+tVQIuKfJKdg8sAq6EC3COKbAchEbM+TeN4w32OrnJW9CesHs71lqftlggMVfW2A==}
     engines: {node: '>=18.18.0'}
     hasBin: true
     peerDependencies:
@@ -16184,7 +16178,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  knip@5.50.1(@types/node@18.19.50)(typescript@5.8.3):
+  knip@5.50.3(@types/node@18.19.50)(typescript@5.8.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 18.19.50

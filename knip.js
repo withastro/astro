@@ -6,11 +6,16 @@ const testEntry = 'test/**/*.test.js';
 
 /** @type {KnipConfig} */
 export default {
-	ignore: ['**/test/**/{fixtures,_temp-fixtures}/**'],
+	ignore: ['**/test/**/{fixtures,_temp-fixtures}/**', '.github/scripts/**'],
 	tags: ['-lintignore'],
+	ignoreWorkspaces: [
+		'examples/**',
+		'**/{test,e2e}/**/{fixtures,_temp-fixtures}/**',
+		'benchmark/**',
+	],
 	workspaces: {
 		'.': {
-			project: ['!examples/**/*'],
+			ignoreBinaries: ['docgen', 'docgen:errors', 'playwright'],
 		},
 		'packages/astro': {
 			entry: [
@@ -23,7 +28,6 @@ export default {
 			],
 			ignore: ['**/e2e/**/{fixtures,_temp-fixtures}/**', 'performance/**/*'],
 			ignoreDependencies: [
-				'mdast-util-mdx',
 				'rehype-autolink-headings',
 				'rehype-slug',
 				'rehype-toc',
@@ -69,6 +73,7 @@ export default {
 		},
 		'packages/integrations/solid': {
 			entry: [testEntry],
+			ignoreDependencies: ['solid-devtools'],
 		},
 		'packages/integrations/svelte': {},
 		'packages/integrations/vercel': {
