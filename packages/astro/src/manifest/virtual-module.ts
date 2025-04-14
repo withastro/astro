@@ -13,9 +13,7 @@ const RESOLVED_VIRTUAL_SERVER_ID = '\0' + VIRTUAL_SERVER_ID;
 const VIRTUAL_CLIENT_ID = 'astro:config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
-export default function virtualModulePlugin({
-	manifest,
-}: { manifest: SSRManifest }): Plugin {
+export default function virtualModulePlugin({ manifest }: { manifest: SSRManifest }): Plugin {
 	return {
 		enforce: 'pre',
 		name: 'astro-manifest-plugin',
