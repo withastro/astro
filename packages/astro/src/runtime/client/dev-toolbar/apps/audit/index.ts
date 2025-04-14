@@ -3,6 +3,7 @@ import { settings } from '../../settings.js';
 import type { DevToolbarHighlight } from '../../ui-library/highlight.js';
 import { positionHighlight } from '../utils/highlight.js';
 import { closeOnOutsideClick } from '../utils/window.js';
+import { processAnnotations } from './annotations.js';
 import { type AuditRule, rulesCategories } from './rules/index.js';
 import { DevToolbarAuditListItem } from './ui/audit-list-item.js';
 import { DevToolbarAuditListWindow } from './ui/audit-list-window.js';
@@ -35,10 +36,11 @@ export default {
 			'astro-dev-toolbar-audit-window',
 		) as DevToolbarAuditListWindow;
 		let hasCreatedUI = false;
+		auditWindow.popover = '';
 
 		canvas.appendChild(auditWindow);
 
-		await lint();
+		await run();
 
 		let mutationDebounce: ReturnType<typeof setTimeout>;
 		const observer = new MutationObserver(() => {
@@ -56,7 +58,7 @@ export default {
 				if ('requestIdleCallback' in window) {
 					window.requestIdleCallback(
 						async () => {
-							lint().then(() => {
+							run().then(() => {
 								if (showState) createAuditsUI();
 							});
 						},
@@ -65,7 +67,7 @@ export default {
 				} else {
 					// Fallback for old versions of Safari, we'll assume that things are less likely to be busy after 150ms.
 					setTimeout(async () => {
-						lint().then(() => {
+						run().then(() => {
 							if (showState) createAuditsUI();
 						});
 					}, 150);
@@ -79,7 +81,7 @@ export default {
 			observer.disconnect();
 		});
 		document.addEventListener('astro:after-swap', async () => {
-			lint();
+			run();
 		});
 		document.addEventListener('astro:page-load', async () => {
 			refreshLintPositions();
@@ -127,6 +129,11 @@ export default {
 			canvas.appendChild(fragment);
 
 			hasCreatedUI = true;
+		}
+
+		async function run() {
+			processAnnotations();
+			await lint();
 		}
 
 		async function lint() {

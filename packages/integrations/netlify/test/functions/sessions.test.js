@@ -40,9 +40,6 @@ describe('Astro.session', () => {
 				root: new URL('./fixtures/sessions/', import.meta.url),
 				output: 'server',
 				adapter: netlify(),
-				experimental: {
-					session: true,
-				},
 				// @ts-ignore
 				session: { driver: '', options },
 			});
