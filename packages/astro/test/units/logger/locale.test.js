@@ -13,7 +13,7 @@ describe('logger - dateTimeFormat', () => {
 	LOCALES.forEach((locale, i) => {
 		it(`works with process.env.LANG="${locale}"`, async () => {
 			process.env.LANG = locale;
-			const { dateTimeFormat } = await import('../../../dist/core/logger/core.js?cachebust=' + i);
+			const { dateTimeFormat } = await import(`../../../dist/core/logger/core.js?cachebust=${i}`);
 			assert.doesNotThrow(() => {
 				dateTimeFormat.format(new Date());
 			});
