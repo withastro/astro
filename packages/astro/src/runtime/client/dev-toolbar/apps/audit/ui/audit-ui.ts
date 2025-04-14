@@ -5,10 +5,10 @@ import {
 	createHighlight,
 	getElementsPositionInDocument,
 } from '../../utils/highlight.js';
+import { getAnnotationsForElement } from '../annotations.js';
 import type { Audit } from '../index.js';
 import { type ResolvedAuditRule, resolveAuditRule } from '../rules/index.js';
 import type { DevToolbarAuditListItem } from './audit-list-item.js';
-import { getAnnotationsForElement } from '../annotations.js';
 
 function truncate(val: string, maxLength: number): string {
 	return val.length > maxLength ? val.slice(0, maxLength - 1) + '&hellip;' : val;
