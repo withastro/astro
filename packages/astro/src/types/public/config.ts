@@ -302,7 +302,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *    '/news': {
 	 *      status: 302,
 	 *      destination: 'https://example.com/news'
-	 *  	},
+	 *    },
 	 *    // '/product1/', '/product1' // Note, this is not supported
 	 * 	}
 	 * })
@@ -581,36 +581,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		checkOrigin?: boolean;
 	};
-
-	/**
-	 * @docs
-	 * @name session
-	 * @type {SessionConfig}
-	 * @version 5.3.0
-	 * @description
-	 *
-	 * Configures experimental session support by specifying a storage `driver` as well as any associated `options`.
-	 * You must enable the `experimental.session` flag to use this feature.
-	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
-	 *
-	 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
-	 *
-	 * See [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information.
-	 *
-	 * ```js title="astro.config.mjs"
-	 *   {
-	 *     session: {
-	 *       // Required: the name of the Unstorage driver
-	 *       driver: 'redis',
-	 *       // The required options depend on the driver
-	 *       options: {
-	 *         url: process.env.REDIS_URL,
-	 *       },
-	 *     }
-	 *   }
-	 * ```
-	 */
-	session?: SessionConfig<TSession>;
 
 	/**
 	 * @docs
@@ -965,6 +935,151 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 */
 
 	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @version 5.7.0
+	 * @name Session Options
+	 * @description
+	 *
+	 * Configures session storage for your Astro project. This is used to store session data in a persistent way, so that it can be accessed across different requests.
+	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
+	 *
+	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
+	 *
+	 * ```js title="astro.config.mjs"
+	 *   {
+	 *     session: {
+	 *       // The name of the Unstorage driver
+	 *       driver: 'redis',
+	 *       // The required options depend on the driver
+	 *       options: {
+	 *         url: process.env.REDIS_URL,
+	 *       },
+	 *       ttl: 3600, // 1 hour
+	 *     }
+	 *   }
+	 * ```
+	 */
+	session?: SessionConfig<TSession>;
+
+	/**
+	 * @docs
+	 * @name session.driver
+	 * @type {string | undefined}
+	 * @version 5.7.0
+	 * @description
+	 *
+	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions),
+	 * [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#sessions), and
+	 * [Netlify](/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
+	 * but you can specify your own if you would prefer or if you are using an adapter that does not provide one.
+	 *
+	 * The value is the "Driver name" from the [Unstorage driver documentation](https://unstorage.unjs.io/drivers).
+	 *
+	 * ```js title="astro.config.mjs" ins={4}
+	 * {
+	 *   adapter: vercel(),
+	 *   session: {
+	 *     driver: "redis",
+	 *   },
+	 * }
+	 * ```
+	 * :::note
+	 * Some drivers may need extra packages to be installed. Some drivers may also require environment variables or credentials to be set. See the [Unstorage documentation](https://unstorage.unjs.io/drivers) for more information.
+	 * :::
+	 *
+	 */
+
+	/**
+	 * @docs
+	 * @name session.options
+	 * @type {Record<string, unknown> | undefined}
+	 * @version 5.7.0
+	 * @default `{}`
+	 * @description
+	 *
+	 * The driver-specific options to use for session storage. The options depend on the driver you are using. See the [Unstorage documentation](https://unstorage.unjs.io/drivers)
+	 * for more information on the options available for each driver.
+	 *
+	 * ```js title="astro.config.mjs" ins={4-6}
+	 * {
+	 *    session: {
+	 *      driver: "redis",
+	 *      options: {
+	 *        url: process.env.REDIS_URL
+	 *      },
+	 *    }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name session.cookie
+	 * @type {string | AstroCookieSetOptions | undefined}
+	 * @version 5.7.0
+	 * @default `{ name: "astro-session", sameSite: "lax", httpOnly: true, secure: true }`
+	 * @description
+	 *
+	 * The session cookie configuration. If set to a string, it will be used as the cookie name.
+	 * Alternatively, you can pass an object with additional options. These will be merged with the defaults.
+	 *
+	 * ```js title="astro.config.mjs" ins={3-4}
+	 * {
+	 *  session: {
+	 *    // If set to a string, it will be used as the cookie name.
+	 *    cookie: "my-session-cookie",
+	 *  }
+	 * }
+	 *
+	 * ```
+	 *
+	 * ```js title="astro.config.mjs" ins={4-8}
+	 * {
+	 *  session: {
+	 *    // If set to an object, it will be used as the cookie options.
+	 *    cookie: {
+	 *      name: "my-session-cookie",
+	 *      sameSite: "lax",
+	 *      secure: true,
+	 *    }
+	 *  }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name session.ttl
+	 * @version 5.7.0
+	 * @type {number | undefined}
+	 * @default {Infinity}
+	 * @description
+	 *
+	 * An optional default time-to-live expiration period for session values, in seconds.
+	 *
+	 * By default, session values persist until they are deleted or the session is destroyed, and do not automatically expire because a particular amount of time has passed.
+	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://docs.astro.build/en/reference/api-reference/#set) will override the global default
+	 * for that individual entry.
+	 *
+	 * ```js title="astro.config.mjs" ins={3-4}
+	 * {
+	 *  session: {
+	 *    // Set a default expiration period of 1 hour (3600 seconds)
+	 *    ttl: 3600,
+	 *  }
+	 * }
+	 * ```
+	 * :::note
+	 * Setting a value for `ttl` does not automatically delete the value from storage after the time limit has passed.
+	 *
+	 * Values from storage will only be deleted when there is an attempt to access them after the `ttl` period has expired. At this time, the session value will be undefined and only then will the value be deleted.
+	 *
+	 * Individual drivers may also support a `ttl` option that will automatically delete sessions after the specified time. See your chosen driver's documentation for more information.
+	 * :::
+	 */
 
 	/**
 	 * @docs
@@ -1955,7 +2070,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * ```js title=astro.config.mjs
 		 * {
-		 *  	experimental: {
+		 *    experimental: {
 		 * 			responsiveImages: true,
 		 * 		},
 		 * }
@@ -2063,33 +2178,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 *
-		 * @name experimental.session
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 5.0.0
-		 * @description
-		 *
-		 * Enables support for sessions in Astro. Sessions are used to store user data across requests, such as user authentication state.
-		 *
-		 * When enabled you can access the `Astro.session` object to read and write data that persists across requests. You can configure the session driver using the [`session` option](#session), or use the default provided by your adapter.
-		 *
-		 * ```astro title=src/components/CartButton.astro
-		 * ---
-		 * export const prerender = false; // Not needed in 'server' mode
-		 * const cart = await Astro.session.get('cart');
-		 * ---
-		 *
-		 * <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
-		 *
-		 * ```
-		 *
-		 * For more details, see [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/).
-		 *
-		 */
-
-		session?: boolean;
-		/**
-		 *
 		 * @name experimental.svg
 		 * @type {boolean}
 		 * @default `undefined`
@@ -2142,19 +2230,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039).
 		 */
 		fonts?: [TFontFamilies] extends [never] ? FontFamily[] : TFontFamilies;
-
-		/*
-		 * @name experimental.serializeConfig
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 5.x
-		 * @description
-		 *
-		 * Enables the use of the experimental virtual modules `astro:config/server` and `astro:config/client`.
-		 *
-		 * These two virtual modules contain a serializable subset of the Astro configuration.
-		 */
-		serializeConfig?: boolean;
 
 		/**
 		 * @name experimental.headingIdCompat

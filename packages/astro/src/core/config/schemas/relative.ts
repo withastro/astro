@@ -91,9 +91,8 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			(val) => {
 				if (typeof val === 'function') {
 					return val({ command: cmd === 'dev' ? 'dev' : 'preview' });
-				} else {
-					return val;
 				}
+				return val;
 			},
 			// validate
 			z

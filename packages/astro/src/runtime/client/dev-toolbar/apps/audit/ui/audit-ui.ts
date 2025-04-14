@@ -5,6 +5,7 @@ import {
 	createHighlight,
 	getElementsPositionInDocument,
 } from '../../utils/highlight.js';
+import { getAnnotationsForElement } from '../annotations.js';
 import type { Audit } from '../index.js';
 import { type ResolvedAuditRule, resolveAuditRule } from '../rules/index.js';
 import type { DevToolbarAuditListItem } from './audit-list-item.js';
@@ -71,8 +72,7 @@ function buildAuditTooltip(rule: ResolvedAuditRule, element: Element) {
 		},
 	];
 
-	const elementFile = element.getAttribute('data-astro-source-file');
-	const elementPosition = element.getAttribute('data-astro-source-loc');
+	const { file: elementFile, location: elementPosition } = getAnnotationsForElement(element) ?? {};
 
 	if (elementFile) {
 		const elementFileWithPosition = elementFile + (elementPosition ? ':' + elementPosition : '');
