@@ -1,5 +1,39 @@
 # astro
 
+## 5.6.2
+
+### Patch Changes
+
+- [#13606](https://github.com/withastro/astro/pull/13606) [`793ecd9`](https://github.com/withastro/astro/commit/793ecd916e4e815886a57b85bd1739f704faae7f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes a regression that allowed prerendered code to leak into the server bundle.
+
+- [#13576](https://github.com/withastro/astro/pull/13576) [`1c60ec3`](https://github.com/withastro/astro/commit/1c60ec3c4d8518208737de405b1bc0b5b285a0c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Reduces duplicate code in server islands scripts by extracting shared logic into a helper function.
+
+- [#13588](https://github.com/withastro/astro/pull/13588) [`57e59be`](https://github.com/withastro/astro/commit/57e59bec40ec2febd32065324505087caec9038a) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes a memory leak when using SVG assets.
+
+- [#13589](https://github.com/withastro/astro/pull/13589) [`5a0563d`](https://github.com/withastro/astro/commit/5a0563de9e377ba7b0af7e055a85893773616d4b) Thanks [@ematipico](https://github.com/ematipico)! - Deprecates the asset utility function `emitESMImage()` and adds a new `emitImageMetadata()` to be used instead
+
+  The function
+  `emitESMImage()` is now deprecated. It will continue to function, but it is no longer recommended nor supported. This function will be completely removed in a next major release of Astro.
+
+  Please replace it with the new function`emitImageMetadata()` as soon as you are able to do so:
+
+  ```diff
+  - import { emitESMImage } from "astro/assets/utils";
+  + import { emitImageMetadata } from "astro/assets/utils";
+  ```
+
+  The new function returns the same signature as the previous one. However, the new function removes two deprecated arguments that were not meant to be exposed for public use: `_watchMode` and `experimentalSvgEnabled`. Since it was possible to access these with the old function, you may need to verify that your code still works as intended with `emitImageMetadata()`.
+
+- [#13596](https://github.com/withastro/astro/pull/13596) [`3752519`](https://github.com/withastro/astro/commit/375251966d1b28a570bff45ff0fe7e7d2fe46f72) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update vite to latest version to fix CVE
+
+- [#13547](https://github.com/withastro/astro/pull/13547) [`360cb91`](https://github.com/withastro/astro/commit/360cb9199a4314f90825c5639ff4396760e9cfcc) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates vite to the latest version
+
+- [#13548](https://github.com/withastro/astro/pull/13548) [`e588527`](https://github.com/withastro/astro/commit/e588527b4c3de7759ef7d10d3004405d0b197f48) Thanks [@ryuapp](https://github.com/ryuapp)! - Support for Deno to install npm pacakges.
+
+  Deno requires npm prefix to install packages on npm. For example, to install react, we need to run `deno add npm:react`. But currently the command executed is `deno add react`, which doesn't work. So, we change the package names to have an npm prefix if you are using Deno.
+
+- [#13587](https://github.com/withastro/astro/pull/13587) [`a0774b3`](https://github.com/withastro/astro/commit/a0774b376a4f24e2bf1db5b70616dff63d7412dd) Thanks [@robertoms99](https://github.com/robertoms99)! - Fixes an issue with the client router where some attributes of the root element were not updated during swap, including the transition scope.
+
 ## 5.6.1
 
 ### Patch Changes
