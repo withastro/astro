@@ -1886,8 +1886,8 @@ export const SessionConfigMissingError = {
 	title: 'Session storage was enabled but not configured.',
 	message:
 		'The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage',
-		hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
-	} satisfies ErrorData;
+	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
+} satisfies ErrorData;
 
 /**
  * @docs

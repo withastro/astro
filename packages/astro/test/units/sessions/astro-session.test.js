@@ -18,7 +18,12 @@ const defaultConfig = {
 };
 
 // Helper to create a new session instance with mocked dependencies
-function createSession(config = defaultConfig, cookies = defaultMockCookies, mockStorage, runtimeMode = 'production') {
+function createSession(
+	config = defaultConfig,
+	cookies = defaultMockCookies,
+	mockStorage,
+	runtimeMode = 'production',
+) {
 	if (mockStorage) {
 		config.driver = 'test';
 		config.options ??= {};
@@ -410,8 +415,7 @@ test('AstroSession - Cookie Security', async (t) => {
 		session.set('key', 'value');
 		assert.equal(cookieOptions.secure, false);
 		assert.equal(cookieOptions.sameSite, 'lax');
-	})	
-
+	});
 });
 
 test('AstroSession - Storage Errors', async (t) => {

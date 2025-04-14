@@ -78,7 +78,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			cookie: cookieConfig = DEFAULT_COOKIE_NAME,
 			...config
 		}: Exclude<ResolvedSessionConfig<TDriver>, undefined>,
-		 runtimeMode?: RuntimeMode
+		runtimeMode?: RuntimeMode,
 	) {
 		this.#cookies = cookies;
 		let cookieConfigObject: AstroCookieSetOptions | undefined;

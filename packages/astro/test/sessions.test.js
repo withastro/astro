@@ -53,14 +53,8 @@ describe('Astro.session', () => {
 		it('defaults to secure cookies in production', async () => {
 			const firstResponse = await fetchResponse('/regenerate');
 			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
-			assert.ok(
-				firstHeaders[0].includes('Secure'),
-				'Secure cookie not set in production',
-			);
-			assert.ok(
-				firstHeaders[0].includes('HttpOnly'),
-				'HttpOnly cookie not set in production',
-			);
+			assert.ok(firstHeaders[0].includes('Secure'), 'Secure cookie not set in production');
+			assert.ok(firstHeaders[0].includes('HttpOnly'), 'HttpOnly cookie not set in production');
 		});
 
 		it('can save session data by value', async () => {
@@ -176,7 +170,6 @@ describe('Astro.session', () => {
 			const secondSessionId = secondHeaders[0].split(';')[0].split('=')[1];
 			assert.notEqual(firstSessionId, secondSessionId);
 		});
-
 
 		it('defaults to non-secure cookies in development', async () => {
 			const response = await fixture.fetch('/regenerate');

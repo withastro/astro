@@ -965,8 +965,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @type {string | undefined}
 	 * @version 5.7.0
 	 * @description
-	 * 
-	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions), 
+	 *
+	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions),
 	 * [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#sessions), and
 	 * [Netlify](/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
 	 * but you can specify your own if you would prefer or if you are using an adapter that does not provide one.
@@ -984,7 +984,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * :::note
 	 * Some drivers may need extra packages to be installed. Some drivers may also require environment variables or credentials to be set. See the [Unstorage documentation](https://unstorage.unjs.io/drivers) for more information.
 	 * :::
-	 * 
+	 *
 	 */
 
 	/**
@@ -1058,7 +1058,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * By default, session values persist until they are deleted or the session is destroyed, and do not automatically expire because a particular amount of time has passed.
 	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://docs.astro.build/en/reference/api-reference/#set) will override the global default
 	 * for that individual entry.
-	 * 
+	 *
 	 * ```js title="astro.config.mjs" ins={3-4}
 	 * {
 	 *  session: {
@@ -1069,9 +1069,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```
 	 * :::note
 	 * Setting a value for `ttl` does not automatically delete the value from storage after the time limit has passed.
-	 * 
+	 *
 	 * Values from storage will only be deleted when there is an attempt to access them after the `ttl` period has expired. At this time, the session value will be undefined and only then will the value be deleted.
-	 * 
+	 *
 	 * Individual drivers may also support a `ttl` option that will automatically delete sessions after the specified time. See your chosen driver's documentation for more information.
 	 * :::
 	 */
