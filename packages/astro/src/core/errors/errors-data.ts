@@ -1297,10 +1297,13 @@ export const UnknownFilesystemError = {
  * @docs
  * @description
  * Cannot extract the font type from the given URL.
+ * @message
+ * An error occured while trying to extract the font type from the given URL.
  */
 export const CannotExtractFontType = {
 	name: 'CannotExtractFontType',
 	title: 'Cannot extract the font type from the given URL.',
+	message: (url: string) => `An error occurred while trying to extract the font type from ${url}`,
 	hint: 'Open an issue at https://github.com/withastro/astro/issues.',
 } satisfies ErrorData;
 
