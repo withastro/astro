@@ -17,7 +17,11 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { FontFamily, AstroFontProvider } from '../../assets/fonts/types.js';
+
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
+
+export type { AstroFontProvider as FontProvider };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -184,6 +188,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */ export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
+	TFontFamilies extends FontFamily[] = never,
 > {
 	/**
 	 * @docs
@@ -2206,6 +2211,25 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
 		 */
 		svg?: boolean;
+
+		/**
+		 *
+		 * @name experimental.fonts
+		 * @type {FontFamily[]}
+		 * @version 5.7
+		 * @description
+		 *
+		 * This experimental feature allows you to use fonts from your filesystem and various providers
+		 * (eg. Google, Fontsource, Bunny...) through a unified, fully customizable and type-safe API.
+		 *
+		 * Web fonts can impact page performance at both load time and rendering time. This feature provides
+		 * automatic [optimization](https://web.dev/learn/performance/optimize-web-fonts) by creating
+		 * preload links and optimized fallbacks. This API includes opinionated defaults to keep your sites lightweight and performant (e.g. minimal font files downloaded) while allowing for extensive customization so you can opt in to greater control.
+		 *
+		 * For a complete overview, and to give feedback on this experimental API,
+		 * see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039).
+		 */
+		fonts?: [TFontFamilies] extends [never] ? FontFamily[] : TFontFamilies;
 
 		/**
 		 * @name experimental.headingIdCompat

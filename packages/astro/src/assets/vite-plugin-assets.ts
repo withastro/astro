@@ -20,6 +20,8 @@ import { emitESMImage } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
+import type { Logger } from '../core/logger/core.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -91,10 +93,14 @@ const addStaticImageFactory = (
 	};
 };
 
-export default function assets({
-	fs,
-	settings,
-}: { fs: typeof fsMod; settings: AstroSettings }): vite.Plugin[] {
+interface Options {
+	settings: AstroSettings;
+	sync: boolean;
+	logger: Logger;
+	fs: typeof fsMod;
+}
+
+export default function assets({ fs, settings, sync, logger }: Options): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 	let shouldEmitFile = false;
 	let isBuild = false;
@@ -127,6 +133,7 @@ export default function assets({
 							import { getImage as getImageInternal } from "astro/assets";
 							export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
 							export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
+							export { default as Font } from "astro/components/Font.astro";
 							export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
 							export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
@@ -251,5 +258,6 @@ export default function assets({
 				}
 			},
 		},
+		fontsPlugin({ settings, sync, logger }),
 	];
 }

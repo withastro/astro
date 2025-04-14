@@ -1295,6 +1295,73 @@ export const UnknownFilesystemError = {
 
 /**
  * @docs
+ * @description
+ * Cannot extract the font type from the given URL.
+ */
+export const CannotExtractFontType = {
+	name: 'CannotExtractFontType',
+	title: 'Cannot extract the font type from the given URL.',
+	hint: 'Open an issue at https://github.com/withastro/astro/issues.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Cannot fetch the given font file
+ * @message
+ * An error occured while fetching font file from the given URL.
+ */
+export const CannotFetchFontFile = {
+	name: 'CannotFetchFontFile',
+	title: 'Cannot fetch the given font file.',
+	message: (url: string) => `An error occurred while fetching the font file from ${url}`,
+	hint: 'This is often caused by connectivity issues. If the error persists, open an issue at https://github.com/withastro/astro/issues.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Cannot load font provider
+ * @message
+ * Astro is unable to load the given font provider. Open an issue on the corresponding provider's repository.
+ */
+export const CannotLoadFontProvider = {
+	name: 'CannotLoadFontProvider',
+	title: 'Cannot load font provider',
+	message: (entrypoint: string) => `An error occured while loading the "${entrypoint}" provider.`,
+	hint: 'This is an issue with the font provider. Please open an issue on their repository.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Font component is used but experimental fonts have not been registered in the config.
+ */
+export const ExperimentalFontsNotEnabled = {
+	name: 'ExperimentalFontsNotEnabled',
+	title: 'Experimental fonts are not enabled',
+	message:
+		'The Font component is used but experimental fonts have not been registered in the config.',
+	hint: 'Check that you have enabled experimental fonts and also configured your preferred fonts.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Font family not found
+ * @message
+ * No data was found for the family passed to the Font component.
+ */
+export const FontFamilyNotFound = {
+	name: 'FontFamilyNotFound',
+	title: 'Font family not found',
+	message: (family: string) =>
+		`No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
+	hint: 'This is often caused by a typo. Check that your Font component is using a `cssVariable` specified in your config.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */

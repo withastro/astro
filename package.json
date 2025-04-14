@@ -83,6 +83,9 @@
       "workerd",
       "@biomejs/biome",
       "sharp"
-    ]
+    ],
+    "patchedDependencies": {
+      "unifont@0.1.7": "patches/unifont@0.1.7.patch"
+    }
   }
 }
