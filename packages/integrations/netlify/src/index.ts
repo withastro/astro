@@ -521,9 +521,9 @@ export default function netlifyIntegration(
 
 				let session = config.session;
 
-				if (config.experimental.session && !session?.driver) {
+				if (!session?.driver) {
 					logger.info(
-						`Configuring experimental session support using ${isRunningInNetlify ? 'Netlify Blobs' : 'filesystem storage'}`,
+						`Enabling sessions with ${isRunningInNetlify ? 'Netlify Blobs' : 'filesystem storage'}`,
 					);
 					session = isRunningInNetlify
 						? {
