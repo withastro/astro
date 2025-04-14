@@ -6,7 +6,7 @@ import { cleanUrl } from '../vite-plugin-utils/index.js';
 
 type NodeFileSystemModule = typeof nodeFs;
 
-export interface LoadFallbackPluginParams {
+interface LoadFallbackPluginParams {
 	fs?: NodeFileSystemModule;
 	root: URL;
 }

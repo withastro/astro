@@ -1,15 +1,19 @@
 import { createRawSnippet, hydrate, mount, unmount } from 'svelte';
 
-/** @type {WeakMap<any, ReturnType<typeof createComponent>} */
-const existingApplications = new WeakMap();
+const existingApplications = new WeakMap<HTMLElement, ReturnType<typeof createComponent>>();
 
-export default (element) => {
-	return async (Component, props, slotted, { client }) => {
+export default (element: HTMLElement) => {
+	return async (
+		Component: any,
+		props: Record<string, any>,
+		slotted: Record<string, any>,
+		{ client }: Record<string, string>,
+	) => {
 		if (!element.hasAttribute('ssr')) return;
 
 		let children = undefined;
-		let _$$slots = undefined;
-		let renderFns = {};
+		let _$$slots: Record<string, any> | undefined = undefined;
+		let renderFns: Record<string, any> = {};
 
 		for (const [key, value] of Object.entries(slotted)) {
 			// Legacy slot support
@@ -43,7 +47,7 @@ export default (element) => {
 			...renderFns,
 		};
 		if (existingApplications.has(element)) {
-			existingApplications.get(element).setProps(resolvedProps);
+			existingApplications.get(element)!.setProps(resolvedProps);
 		} else {
 			const component = createComponent(Component, element, resolvedProps, client !== 'only');
 			existingApplications.set(element, component);
@@ -52,13 +56,12 @@ export default (element) => {
 	};
 };
 
-/**
- * @param {any} Component
- * @param {HTMLElement} target
- * @param {Record<string, any>} props
- * @param {boolean} shouldHydrate
- */
-function createComponent(Component, target, props, shouldHydrate) {
+function createComponent(
+	Component: any,
+	target: HTMLElement,
+	props: Record<string, any>,
+	shouldHydrate: boolean,
+) {
 	let propsState = $state(props);
 	const bootstrap = shouldHydrate ? hydrate : mount;
 	if (!shouldHydrate) {
@@ -66,7 +69,7 @@ function createComponent(Component, target, props, shouldHydrate) {
 	}
 	const component = bootstrap(Component, { target, props: propsState });
 	return {
-		setProps(newProps) {
+		setProps(newProps: Record<string, any>) {
 			Object.assign(propsState, newProps);
 			// Remove props in `propsState` but not in `newProps`
 			for (const key in propsState) {

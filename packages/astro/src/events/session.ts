@@ -17,7 +17,7 @@ type ConfigInfoRecord = Record<string, ConfigInfoValue>;
 type ConfigInfoBase = {
 	[alias in keyof AstroUserConfig]: ConfigInfoValue | ConfigInfoRecord;
 };
-export interface ConfigInfo extends ConfigInfoBase {
+interface ConfigInfo extends ConfigInfoBase {
 	build: ConfigInfoRecord;
 	image: ConfigInfoRecord;
 	markdown: ConfigInfoRecord;

@@ -33,7 +33,7 @@ import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
-export interface BuildOptions {
+interface BuildOptions {
 	/**
 	 * Output a development-based build similar to code transformed in `astro dev`. This
 	 * can be useful to test build-only issues with additional debugging information included.

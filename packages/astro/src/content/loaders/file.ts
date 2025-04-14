@@ -4,7 +4,7 @@ import yaml from 'js-yaml';
 import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
 
-export interface FileOptions {
+interface FileOptions {
 	/**
 	 * the parsing function to use for this data
 	 * @default JSON.parse or yaml.load, depending on the extension of the file

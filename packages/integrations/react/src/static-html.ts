@@ -7,7 +7,11 @@ import { createElement as h } from 'react';
  * As a bonus, we can signal to React that this subtree is
  * entirely static and will never change via `shouldComponentUpdate`.
  */
-const StaticHtml = ({ value, name, hydrate = true }) => {
+const StaticHtml = ({
+	value,
+	name,
+	hydrate = true,
+}: { value: string | null; name?: string; hydrate?: boolean }) => {
 	if (!value) return null;
 	const tagName = hydrate ? 'astro-slot' : 'astro-static-slot';
 	return h(tagName, {

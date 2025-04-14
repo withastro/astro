@@ -47,11 +47,6 @@ export const ROUTE_TYPE_HEADER = 'X-Astro-Route-Type';
 export const DEFAULT_404_COMPONENT = 'astro-default-404.astro';
 
 /**
- * The value of the `component` field of the default 500 page, which is used when there is no user-provided 404.astro page.
- */
-export const DEFAULT_500_COMPONENT = 'astro-default-500.astro';
-
-/**
  * A response with one of these status codes will create a redirect response.
  */
 export const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308, 300, 304] as const;

@@ -1,4 +1,4 @@
-export interface AstroQuery {
+interface AstroQuery {
 	astro?: boolean;
 	src?: boolean;
 	type?: 'script' | 'template' | 'style' | 'custom';
@@ -7,7 +7,7 @@ export interface AstroQuery {
 	raw?: boolean;
 }
 
-export interface ParsedRequestResult {
+interface ParsedRequestResult {
 	filename: string;
 	query: AstroQuery;
 }

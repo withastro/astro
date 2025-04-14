@@ -14,7 +14,7 @@ import {
 import { createRequest } from '../request.js';
 import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';
 
-export type FindRouteToRewrite = {
+type FindRouteToRewrite = {
 	payload: RewritePayload;
 	routes: RouteData[];
 	request: Request;
@@ -23,7 +23,7 @@ export type FindRouteToRewrite = {
 	base: AstroConfig['base'];
 };
 
-export interface FindRouteToRewriteResult {
+interface FindRouteToRewriteResult {
 	routeData: RouteData;
 	newUrl: URL;
 	pathname: string;

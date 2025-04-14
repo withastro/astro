@@ -6,7 +6,7 @@ import { shouldInlineAsset } from './util.js';
 /**
  * Inline scripts from Astro files directly into the HTML.
  */
-export function vitePluginScripts(internals: BuildInternals): VitePlugin {
+function vitePluginScripts(internals: BuildInternals): VitePlugin {
 	let assetInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>;
 
 	return {
