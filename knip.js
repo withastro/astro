@@ -15,6 +15,7 @@ export default {
 	],
 	workspaces: {
 		'.': {
+			ignoreDependencies: ['@astrojs/check'],
 			ignoreBinaries: ['docgen', 'docgen:errors', 'playwright'],
 		},
 		'packages/astro': {
