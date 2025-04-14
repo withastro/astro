@@ -1,10 +1,7 @@
 // @ts-check
-
-/** @typedef {import('knip').KnipConfig} KnipConfig */
-
 const testEntry = 'test/**/*.test.js';
 
-/** @type {KnipConfig} */
+/** @type {import('knip').KnipConfig} */
 export default {
 	ignore: ['**/test/**/{fixtures,_temp-fixtures}/**', '.github/scripts/**'],
 	tags: ['-lintignore'],
