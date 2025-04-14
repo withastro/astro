@@ -1,4 +1,5 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
+import type { FontFamily } from '../assets/fonts/types.js';
 import { createRoutesList } from '../core/routing/index.js';
 import type {
 	AstroInlineConfig,
@@ -7,7 +8,6 @@ import type {
 	SessionDriverName,
 } from '../types/public/config.js';
 import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js';
-import type { FontFamily } from '../assets/fonts/types.js';
 
 /**
  * See the full Astro Configuration API Documentation

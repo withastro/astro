@@ -1,29 +1,29 @@
-import type { Plugin } from 'vite';
-import type { AstroSettings } from '../../types/astro.js';
-import type { ResolveMod } from './providers/utils.js';
-import type { PreloadData, ResolvedFontFamily } from './types.js';
-import xxhash from 'xxhash-wasm';
-import { isAbsolute } from 'node:path';
-import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { cache, extractFontType, resolveFontFamily, sortObjectByKey } from './utils.js';
+import { readFile } from 'node:fs/promises';
+import { isAbsolute } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
+import { type Storage, createStorage } from 'unstorage';
+import fsLiteDriver from 'unstorage/drivers/fs-lite';
+import type { Plugin } from 'vite';
+import xxhash from 'xxhash-wasm';
+import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
+import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
+import type { Logger } from '../../core/logger/core.js';
+import { formatErrorMessage } from '../../core/messages.js';
+import { getClientOutputDirectory } from '../../prerender/utils.js';
+import type { AstroSettings } from '../../types/astro.js';
 import {
-	VIRTUAL_MODULE_ID,
+	CACHE_DIR,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	URL_PREFIX,
-	CACHE_DIR,
+	VIRTUAL_MODULE_ID,
 } from './constants.js';
-import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import type { Logger } from '../../core/logger/core.js';
-import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
-import { readFile } from 'node:fs/promises';
-import { createStorage, type Storage } from 'unstorage';
-import fsLiteDriver from 'unstorage/drivers/fs-lite';
-import { fileURLToPath } from 'node:url';
 import { loadFonts } from './load.js';
 import { generateFallbackFontFace, getMetricsForFamily, readMetrics } from './metrics.js';
-import { formatErrorMessage } from '../../core/messages.js';
-import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
+import type { ResolveMod } from './providers/utils.js';
+import type { PreloadData, ResolvedFontFamily } from './types.js';
+import { cache, extractFontType, resolveFontFamily, sortObjectByKey } from './utils.js';
 
 interface Options {
 	settings: AstroSettings;

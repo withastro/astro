@@ -1,4 +1,12 @@
+import { createRequire } from 'node:module';
+import { extname } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type * as unifont from 'unifont';
+import type { Storage } from 'unstorage';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { DEFAULT_FALLBACKS, FONT_TYPES, LOCAL_PROVIDER_NAME } from './constants.js';
+import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
+import { type ResolveProviderOptions, resolveProvider } from './providers/utils.js';
 import type {
 	FontFamily,
 	FontType,
@@ -6,14 +14,6 @@ import type {
 	ResolvedFontFamily,
 	ResolvedLocalFontFamily,
 } from './types.js';
-import { extname } from 'node:path';
-import { DEFAULT_FALLBACKS, FONT_TYPES, LOCAL_PROVIDER_NAME } from './constants.js';
-import type { Storage } from 'unstorage';
-import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { resolveProvider, type ResolveProviderOptions } from './providers/utils.js';
-import { createRequire } from 'node:module';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
 export function generateFontFace(family: string, font: unifont.FontFaceData) {

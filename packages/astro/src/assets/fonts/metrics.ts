@@ -1,8 +1,8 @@
 // Adapted from https://github.com/unjs/fontaine/
 import { fontFamilyToCamelCase } from '@capsizecss/metrics';
-import { fromBuffer, type Font } from '@capsizecss/unpack';
+import { type Font, fromBuffer } from '@capsizecss/unpack';
 
-const QUOTES_RE = /^["']|["']$/g
+const QUOTES_RE = /^["']|["']$/g;
 
 const withoutQuotes = (str: string) => str.trim().replace(QUOTES_RE, '');
 

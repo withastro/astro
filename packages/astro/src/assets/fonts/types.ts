@@ -1,11 +1,11 @@
-import type { z } from 'zod';
-import type { FONT_TYPES } from './constants.js';
 import type * as unifont from 'unifont';
+import type { z } from 'zod';
 import type {
-	remoteFontFamilySchema,
 	fontProviderSchema,
 	localFontFamilySchema,
+	remoteFontFamilySchema,
 } from './config.js';
+import type { FONT_TYPES } from './constants.js';
 
 export type AstroFontProvider = z.infer<typeof fontProviderSchema>;
 

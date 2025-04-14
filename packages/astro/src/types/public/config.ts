@@ -9,6 +9,7 @@ import type {
 } from '@astrojs/markdown-remark';
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
+import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
@@ -17,7 +18,6 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-import type { FontFamily, AstroFontProvider } from '../../assets/fonts/types.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 

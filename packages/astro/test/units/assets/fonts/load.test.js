@@ -1,9 +1,9 @@
+import assert from 'node:assert/strict';
 // @ts-check
 import { it } from 'node:test';
-import assert from 'node:assert/strict';
 import { loadFonts } from '../../../../dist/assets/fonts/load.js';
-import { resolveProvider } from '../../../../dist/assets/fonts/providers/utils.js';
 import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js';
+import { resolveProvider } from '../../../../dist/assets/fonts/providers/utils.js';
 
 it('loadFonts()', async () => {
 	const root = new URL(import.meta.url);

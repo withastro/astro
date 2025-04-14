@@ -1,5 +1,5 @@
-import type { AstroFontProvider, ResolvedFontProvider } from '../types.js';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import type { AstroFontProvider, ResolvedFontProvider } from '../types.js';
 import { resolveEntrypoint } from '../utils.js';
 
 export function validateMod(mod: any, entrypoint: string): Pick<ResolvedFontProvider, 'provider'> {

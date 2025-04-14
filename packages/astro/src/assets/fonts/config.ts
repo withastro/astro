@@ -19,7 +19,7 @@ const familyPropertiesSchema = z.object({
 	style: styleSchema,
 	/**
 	 * @default `"swap"`
-	 * 
+	 *
 	 * A [font display](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display).
 	 */
 	display: z.enum(['auto', 'block', 'swap', 'fallback', 'optional']).optional(),
