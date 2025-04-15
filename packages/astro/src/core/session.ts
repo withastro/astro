@@ -102,7 +102,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	/**
 	 * Gets a session value. Returns `undefined` if the session or value does not exist.
 	 */
-	async get<T = void, K extends string = string>(
+	async get<T = void, K extends string = keyof App.SessionData | (string & {})>(
 		key: K,
 	): Promise<
 		(T extends void ? (K extends keyof App.SessionData ? App.SessionData[K] : any) : T) | undefined
@@ -153,7 +153,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Sets a session value. The session is created if it does not exist.
 	 */
 
-	set<T = void, K extends string = string>(
+	set<T = void, K extends string = keyof App.SessionData | (string & {})>(
 		key: K,
 		value: T extends void
 			? K extends keyof App.SessionData
