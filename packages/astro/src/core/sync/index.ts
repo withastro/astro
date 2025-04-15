@@ -35,7 +35,6 @@ import type { Logger } from '../logger/core.js';
 import { createRoutesList } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
-import { syncFonts } from '../../assets/fonts/sync.js';
 
 export type SyncOptions = {
 	mode: string;
