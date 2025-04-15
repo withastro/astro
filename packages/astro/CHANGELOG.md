@@ -174,7 +174,7 @@
   import Logo from './path/to/svg/file.svg';
   ---
 
-  <Logo <Logo width={64} height={64} fill="currentColor" />
+  <Logo width={64} height={64} fill="currentColor" />
   ```
 
   If you have been waiting for stabilization before using the SVG Components feature, you can now do so.
