@@ -123,7 +123,6 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
-    "@capsizecss/metrics": "^3.5.0",
     "@capsizecss/unpack": "^2.4.0",
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.1.4",

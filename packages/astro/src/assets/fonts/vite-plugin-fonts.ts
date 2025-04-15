@@ -20,7 +20,7 @@ import {
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
 import { loadFonts } from './load.js';
-import { generateFallbackFontFace, getMetricsForFamily, readMetrics } from './metrics.js';
+import { generateFallbackFontFace, readMetrics } from './metrics.js';
 import type { ResolveMod } from './providers/utils.js';
 import type { PreloadData, ResolvedFontFamily } from './types.js';
 import { cache, extractFontType, resolveFontFamily, sortObjectByKey } from './utils.js';
@@ -130,12 +130,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			hashString: h64ToString,
 			generateFallbackFontFace,
 			getMetricsForFamily: async (name, font) => {
-				let metrics = await getMetricsForFamily(name);
-				if (font && !metrics) {
-					const { data } = await cache(storage!, font.hash, () => fetchFont(font.url));
-					metrics = await readMetrics(name, data);
-				}
-				return metrics;
+				return await readMetrics(name, await cache(storage!, font.hash, () => fetchFont(font.url)));
 			},
 			log: (message) => logger.info('assets', message),
 		});
@@ -200,7 +195,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					// Storage should be defined at this point since initialize it called before registering
 					// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
 					// no url will be matched and this line will not be reached.
-					const { data } = await cache(storage!, hash, () => fetchFont(url));
+					const data = await cache(storage!, hash, () => fetchFont(url));
 
 					res.setHeader('Content-Length', data.length);
 					res.setHeader('Content-Type', `font/${extractFontType(hash)}`);
@@ -249,7 +244,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					logger.info('assets', 'Copying fonts...');
 					await Promise.all(
 						Array.from(hashToUrlMap.entries()).map(async ([hash, url]) => {
-							const { data } = await cache(storage!, hash, () => fetchFont(url));
+							const data = await cache(storage!, hash, () => fetchFont(url));
 							try {
 								writeFileSync(new URL(hash, fontsDir), data);
 							} catch (cause) {
