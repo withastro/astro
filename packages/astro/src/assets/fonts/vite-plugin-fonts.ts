@@ -224,8 +224,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
 		},
-		load(id, opts) {
-			if (id === RESOLVED_VIRTUAL_MODULE_ID && opts?.ssr) {
+		load(id) {
+			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 				return {
 					code: `export const fontsData = new Map(${JSON.stringify(Array.from(resolvedMap?.entries() ?? []))})`,
 				};
