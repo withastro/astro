@@ -17,7 +17,7 @@
   <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
   ```
 
-  ## Configuring session storage
+  #### Configuring session storage
 
   Sessions require a storage driver to store the data. The Node, Cloudflare and Netlify adapters automatically configure a default driver for you, but other adapters currently require you to specify a custom storage driver in your configuration.
 
@@ -35,7 +35,7 @@
   });
   ```
 
-  ## Using sessions
+  #### Using sessions
 
   Sessions are available in on-demand rendered pages, API endpoints, actions and middleware.
 
@@ -67,7 +67,7 @@
   ---
   ```
 
-  ## Upgrading from Experimental to Stable
+  #### Upgrading from Experimental to Stable
 
   If you were previously using the experimental API, please remove the `experimental.session` flag from your configuration:
 
