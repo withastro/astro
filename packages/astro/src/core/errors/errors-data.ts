@@ -20,18 +20,6 @@ export interface ErrorData {
 
 /**
  * @docs
- * @description
- * Cannot use the module `astro:config` without enabling the experimental feature.
- */
-export const CantUseAstroConfigModuleError = {
-	name: 'CantUseAstroConfigModuleError',
-	title: 'Cannot use the `astro:config` module without enabling the experimental feature.',
-	message: (moduleName) =>
-		`Cannot import the module "${moduleName}" because the experimental feature is disabled. Enable \`experimental.serializeConfig\` in your \`astro.config.mjs\` `,
-} satisfies ErrorData;
-
-/**
- * @docs
  * @message
  * Unknown compiler error.
  * @see
@@ -1309,10 +1297,13 @@ export const UnknownFilesystemError = {
  * @docs
  * @description
  * Cannot extract the font type from the given URL.
+ * @message
+ * An error occured while trying to extract the font type from the given URL.
  */
 export const CannotExtractFontType = {
 	name: 'CannotExtractFontType',
 	title: 'Cannot extract the font type from the given URL.',
+	message: (url: string) => `An error occurred while trying to extract the font type from ${url}`,
 	hint: 'Open an issue at https://github.com/withastro/astro/issues.',
 } satisfies ErrorData;
 
@@ -1894,8 +1885,41 @@ export const ActionsCantBeLoaded = {
 // Session Errors
 /**
  * @docs
+ * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
  * @see
- * - [Server output adapter feature](https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter)
+ * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
+ * @description
+ * Thrown when the session storage could not be initialized.
+ */
+export const SessionStorageInitError = {
+	name: 'SessionStorageInitError',
+	title: 'Session storage could not be initialized.',
+	message: (error: string, driver?: string) =>
+		`Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Error when saving session data with driver `DRIVER`. `ERROR`
+ * @see
+ * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
+ * @description
+ * Thrown when the session data could not be saved.
+ */
+export const SessionStorageSaveError = {
+	name: 'SessionStorageSaveError',
+	title: 'Session data could not be saved.',
+	message: (error: string, driver?: string) =>
+		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
+ * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
  * @description
  * Your adapter must support server output to use sessions.
  */
@@ -1906,44 +1930,12 @@ export const SessionWithoutSupportedAdapterOutputError = {
 		'Sessions require an adapter that supports server output. The adapter must set `"server"` in the `buildOutput` adapter feature.',
 	hint: 'Ensure your adapter supports `buildOutput: "server"`: https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter',
 } satisfies ErrorData;
-
 /**
  * @docs
- * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
+ * @message The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage.
+ * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
  * @see
- * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
- * @description
- * Thrown when the session storage could not be initialized.
- */
-export const SessionStorageInitError = {
-	name: 'SessionStorageInitError',
-	title: 'Session storage could not be initialized.',
-	message: (error: string, driver?: string) =>
-		`Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
-	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @message Error when saving session data with driver `DRIVER`. `ERROR`
- * @see
- * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
- * @description
- * Thrown when the session data could not be saved.
- */
-export const SessionStorageSaveError = {
-	name: 'SessionStorageSaveError',
-	title: 'Session data could not be saved.',
-	message: (error: string, driver?: string) =>
-		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
-	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @message The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage
- * @see
- * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
  * @description
  * Thrown when session storage is enabled but not configured.
  */
@@ -1952,14 +1944,15 @@ export const SessionConfigMissingError = {
 	title: 'Session storage was enabled but not configured.',
 	message:
 		'The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage',
-	hint: 'See https://docs.astro.build/en/reference/experimental-flags/sessions/',
+	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
 } satisfies ErrorData;
 
 /**
  * @docs
  * @message Session config was provided without enabling the `experimental.session` flag
+ * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
  * @see
- * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
+ * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
  * @description
  * Thrown when session storage is configured but the `experimental.session` flag is not enabled.
  */
@@ -1967,7 +1960,7 @@ export const SessionConfigWithoutFlagError = {
 	name: 'SessionConfigWithoutFlagError',
 	title: 'Session flag not set',
 	message: 'Session config was provided without enabling the `experimental.session` flag',
-	hint: 'See https://docs.astro.build/en/reference/experimental-flags/sessions/',
+	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
 } satisfies ErrorData;
 
 /*

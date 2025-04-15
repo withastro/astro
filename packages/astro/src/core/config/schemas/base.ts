@@ -8,7 +8,7 @@ import type {
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import { z } from 'zod';
-import { remoteFontFamilySchema, localFontFamilySchema } from '../../../assets/fonts/config.js';
+import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
 
@@ -95,9 +95,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		responsiveImages: false,
-		svg: false,
-		serializeConfig: false,
-		session: false,
 		headingIdCompat: false,
 		preserveScriptOrder: false,
 	},
@@ -465,12 +462,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
-			session: z.boolean().optional(),
-			svg: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.svg),
-			serializeConfig: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.serializeConfig),
 			headingIdCompat: z
 				.boolean()
 				.optional()

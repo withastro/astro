@@ -1,9 +1,9 @@
+import assert from 'node:assert/strict';
 // @ts-check
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
-import assert from 'node:assert/strict';
+import { fontProviders } from 'astro/config';
 import * as cheerio from 'cheerio';
-import { fontProviders } from 'astro/config'
+import { loadFixture } from './test-utils.js';
 
 describe('astro:fonts', () => {
 	/** @type {import('./test-utils.js').Fixture} */

@@ -1,5 +1,5 @@
-import type { FontProvider, ResolvedFontProvider } from '../types.js';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import type { ResolvedFontProvider } from '../types.js';
 import { resolveEntrypoint } from '../utils.js';
 
 export function validateMod(mod: any, entrypoint: string): Pick<ResolvedFontProvider, 'provider'> {
@@ -31,8 +31,8 @@ export type ResolveMod = (id: string) => Promise<any>;
 
 export interface ResolveProviderOptions {
 	root: URL;
-	provider: FontProvider;
-	resolveMod: ResolveMod;
+	provider: AstroFontProvider
+	resolveMod: ResolveMod
 }
 
 export async function resolveProvider({

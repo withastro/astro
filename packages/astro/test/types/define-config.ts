@@ -1,9 +1,14 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
+import type { AstroFontProvider } from '../../dist/assets/fonts/types.js';
 import { defineConfig } from '../../dist/config/index.js';
 import type { AstroUserConfig } from '../../dist/types/public/index.js';
-import type { FontFamily, FontProvider } from '../../dist/assets/fonts/types.js';
+import type { FontFamily } from '../../dist/assets/fonts/types.js';
 import { defineAstroFontProvider } from '../../dist/config/entrypoint.js';
+
+function assertType<T>(data: T, cb: (data: NoInfer<T>) => void) {
+	cb(data);
+}
 
 function assertType<T>(data: T, cb: (data: NoInfer<T>) => void) {
 	cb(data);
@@ -113,7 +118,7 @@ describe('defineConfig()', () => {
 							{
 								readonly name: 'baz';
 								readonly cssVariable: '--font-baz';
-								readonly provider: FontProvider;
+								readonly provider: AstroFontProvider;
 							},
 						]
 					>
@@ -131,7 +136,7 @@ describe('defineConfig()', () => {
 						{
 							readonly name: 'baz';
 							readonly cssVariable: '--font-baz';
-							readonly provider: FontProvider;
+							readonly provider: AstroFontProvider;
 						},
 					]
 				>();

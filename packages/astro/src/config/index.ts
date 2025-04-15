@@ -1,4 +1,5 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
+import type { FontFamily } from '../assets/fonts/types.js';
 import { createRoutesList } from '../core/routing/index.js';
 import type {
 	AstroInlineConfig,

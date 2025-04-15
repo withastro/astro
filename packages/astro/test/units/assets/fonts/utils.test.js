@@ -1,18 +1,18 @@
+import assert from 'node:assert/strict';
 // @ts-check
 import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import {
-	isFontType,
-	extractFontType,
-	cache as internalCache,
-	proxyURL,
-	isGenericFontFamily,
-	generateFallbacksCSS,
-	resolveFontFamily,
-	familiesToUnifontProviders,
-} from '../../../../dist/assets/fonts/utils.js';
 import { fileURLToPath } from 'node:url';
 import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js';
+import {
+	extractFontType,
+	familiesToUnifontProviders,
+	generateFallbacksCSS,
+	cache as internalCache,
+	isFontType,
+	isGenericFontFamily,
+	proxyURL,
+	resolveFontFamily,
+} from '../../../../dist/assets/fonts/utils.js';
 
 function createSpyCache() {
 	/** @type {Map<string, Buffer>} */

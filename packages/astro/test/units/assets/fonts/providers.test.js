@@ -1,16 +1,16 @@
+import assert from 'node:assert/strict';
+import { basename, extname } from 'node:path';
 // @ts-check
 import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import { fontProviders } from '../../../../dist/config/entrypoint.js';
-import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
 import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
 import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
 import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontsource.js';
 import * as googleEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/google.js';
-import { validateMod, resolveProvider } from '../../../../dist/assets/fonts/providers/utils.js';
+import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
+import { resolveProvider, validateMod } from '../../../../dist/assets/fonts/providers/utils.js';
 import { proxyURL } from '../../../../dist/assets/fonts/utils.js';
-import { basename, extname } from 'node:path';
+import { fontProviders } from '../../../../dist/config/entrypoint.js';
 
 /**
  * @param {Parameters<resolveLocalFont>[0]['family']} family

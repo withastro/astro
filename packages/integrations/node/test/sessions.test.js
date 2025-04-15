@@ -15,9 +15,6 @@ describe('Astro.session', () => {
 				root: './fixtures/sessions/',
 				output: 'server',
 				adapter: nodejs({ mode: 'middleware' }),
-				experimental: {
-					session: true,
-				},
 			});
 		});
 
@@ -109,9 +106,6 @@ describe('Astro.session', () => {
 				root: './fixtures/sessions/',
 				output: 'server',
 				adapter: nodejs({ mode: 'middleware' }),
-				experimental: {
-					session: true,
-				},
 			});
 			devServer = await fixture.startDevServer();
 		});

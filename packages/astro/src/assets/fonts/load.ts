@@ -1,20 +1,20 @@
 import { readFileSync } from 'node:fs';
+import * as unifont from 'unifont';
+import type { Storage } from 'unstorage';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
+import type { generateFallbackFontFace } from './metrics.js';
 import { resolveLocalFont } from './providers/local.js';
+import type { PreloadData, ResolvedFontFamily } from './types.js';
 import {
+	type GetMetricsForFamily,
+	type GetMetricsForFamilyFont,
+	type ProxyURLOptions,
 	familiesToUnifontProviders,
 	generateFallbacksCSS,
 	generateFontFace,
 	proxyURL,
-	type GetMetricsForFamily,
-	type GetMetricsForFamilyFont,
-	type ProxyURLOptions,
 } from './utils.js';
-import * as unifont from 'unifont';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
-import type { PreloadData, ResolvedFontFamily } from './types.js';
-import type { Storage } from 'unstorage';
-import type { generateFallbackFontFace } from './metrics.js';
 
 interface Options {
 	base: string;
@@ -166,7 +166,7 @@ export async function loadFonts({
 			font: fallbackFontData,
 			fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
 			metrics:
-				(family.automaticFallback ?? DEFAULTS.automaticFallback)
+				(family.optimizedFallbacks ?? DEFAULTS.optimizedFallbacks)
 					? {
 							getMetricsForFamily,
 							generateFontFace: generateFallbackFontFace,
