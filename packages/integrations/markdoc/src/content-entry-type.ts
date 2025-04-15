@@ -318,7 +318,8 @@ async function emitOptimizedImages(
 					const src = await emitESMImage(
 						resolved.id,
 						ctx.pluginContext.meta.watchMode,
-						!!ctx.astroConfig.experimental.svg,
+						// FUTURE: Remove in this in v6
+						resolved.id.endsWith('.svg'),
 						ctx.pluginContext.emitFile,
 					);
 
