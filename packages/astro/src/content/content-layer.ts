@@ -270,7 +270,8 @@ export class ContentLayer {
 						},
 						collectionWithResolvedSchema,
 						false,
-						id.endsWith('.svg'), //!!this.#settings.config.experimental.svg,
+						// FUTURE: Remove in this in v6
+						id.endsWith('.svg'),
 					);
 
 					return parsedData;

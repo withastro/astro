@@ -15,6 +15,7 @@ export function createImage(
 			const metadata = (await emitESMImage(
 				resolvedFilePath,
 				pluginContext.meta.watchMode,
+				// FUTURE: Remove in this in v6
 				experimentalSvgEnabled,
 				shouldEmitFile ? pluginContext.emitFile : undefined,
 			)) as OmitBrand<ImageMetadata>;

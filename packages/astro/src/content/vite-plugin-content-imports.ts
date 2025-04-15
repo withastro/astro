@@ -245,9 +245,8 @@ async function getContentEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				params.shouldEmitFile,
-				// TODO: Fix memory leak issue
+				// FUTURE: Remove in this in v6
 				id.endsWith('.svg'),
-				// !!params.config.experimental.svg,
 				pluginContext,
 			)
 		: unvalidatedData;
@@ -283,9 +282,8 @@ async function getDataEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				params.shouldEmitFile,
-				// TODO: Fix memory leak issue
+				// FUTURE: Remove in this in v6
 				id.endsWith('.svg'),
-				// !!params.config.experimental.svg,
 				pluginContext,
 			)
 		: unvalidatedData;
