@@ -35,7 +35,6 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import { getClientOutputDirectory } from '../prerender/utils.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
