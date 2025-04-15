@@ -1,5 +1,210 @@
 # astro
 
+## 5.7.0
+
+### Minor Changes
+
+- [#13527](https://github.com/withastro/astro/pull/13527) [`2fd6a6b`](https://github.com/withastro/astro/commit/2fd6a6b7aa51a4713af7fac37d5dfd824543c1bc) Thanks [@ascorbic](https://github.com/ascorbic)! - The experimental session API introduced in Astro 5.1 is now stable and ready for production use.
+
+  Sessions are used to store user state between requests for [on-demand rendered pages](https://astro.build/en/guides/on-demand-rendering/). You can use them to store user data, such as authentication tokens, shopping cart contents, or any other data that needs to persist across requests:
+
+  ```astro
+  ---
+  export const prerender = false; // Not needed with 'server' output
+  const cart = await Astro.session.get('cart');
+  ---
+
+  <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
+  ```
+
+  ## Configuring session storage
+
+  Sessions require a storage driver to store the data. The Node, Cloudflare and Netlify adapters automatically configure a default driver for you, but other adapters currently require you to specify a custom storage driver in your configuration.
+
+  If you are using an adapter that doesn't have a default driver, or if you want to choose a different driver, you can configure it using the `session` configuration option:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import vercel from '@astrojs/vercel';
+
+  export default defineConfig({
+    adapter: vercel(),
+    session: {
+      driver: 'upstash',
+    },
+  });
+  ```
+
+  ## Using sessions
+
+  Sessions are available in on-demand rendered pages, API endpoints, actions and middleware.
+
+  In pages and components, you can access the session using `Astro.session`:
+
+  ```astro
+  ---
+  const cart = await Astro.session.get('cart');
+  ---
+
+  <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
+  ```
+
+  In endpoints, actions, and middleware, you can access the session using `context.session`:
+
+  ```js
+  export async function GET(context) {
+    const cart = await context.session.get('cart');
+    return Response.json({ cart });
+  }
+  ```
+
+  If you attempt to access the session when there is no storage driver configured, or in a prerendered page, the session object will be `undefined` and an error will be logged in the console:
+
+  ```astro
+  ---
+  export const prerender = true;
+  const cart = await Astro.session?.get('cart'); // Logs an error. Astro.session is undefined
+  ---
+  ```
+
+  ## Upgrading from Experimental to Stable
+
+  If you were previously using the experimental API, please remove the `experimental.session` flag from your configuration:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+  import node from '@astrojs/node';
+
+  export default defineConfig({
+     adapter: node({
+       mode: "standalone",
+     }),
+  -  experimental: {
+  -    session: true,
+  -  },
+  });
+  ```
+
+  See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
+
+- [#12775](https://github.com/withastro/astro/pull/12775) [`b1fe521`](https://github.com/withastro/astro/commit/b1fe521e2c45172b786594c50c0ca595105a6d68) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new, experimental Fonts API to provide first-party support for fonts in Astro.
+
+  This experimental feature allows you to use fonts from both your file system and several built-in supported providers (e.g. Google, Fontsource, Bunny) through a unified API. Keep your site performant thanks to sensible defaults and automatic optimizations including fallback font generation.
+
+  To enable this feature, configure an `experimental.fonts` object with one or more fonts:
+
+  ```js title="astro.config.mjs"
+  import { defineConfig, fontProviders } from "astro/config"
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+              provider: fontProviders.google(),
+        `      name: "Roboto",
+              cssVariable: "--font-roboto",
+          }]
+      }
+  })
+  ```
+
+  Then, add a `<Font />` component and site-wide styling in your `<head>`:
+
+  ```astro title="src/components/Head.astro"
+  ---
+  import { Font } from 'astro:assets';
+  ---
+
+  <Font cssVariable="--font-roboto" preload />
+  <style>
+    body {
+      font-family: var(--font-roboto);
+    }
+  </style>
+  ```
+
+  Visit [the experimental Fonts documentation](https://docs.astro.build/en/reference/experimental-flags/fonts/) for the full API, how to get started, and even how to build your own custom `AstroFontProvider` if we don't yet support your preferred font service.
+
+  For a complete overview, and to give feedback on this experimental API, see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039) and help shape its future.
+
+- [#13560](https://github.com/withastro/astro/pull/13560) [`df3fd54`](https://github.com/withastro/astro/commit/df3fd5434514b68cf1fe499a2e28bc1215bd253d) Thanks [@ematipico](https://github.com/ematipico)! - The virtual module `astro:config` introduced behind a flag in [v5.2.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#520) is no longer experimental and is available for general use.
+
+  This virtual module exposes two sub-paths for type-safe, controlled access to your configuration:
+
+  - `astro:config/client`: exposes config information that is safe to expose to the client.
+  - `astro:config/server`: exposes additional information that is safe to expose to the server, such as file and directory paths.
+
+  Access these in any file inside your project to import and use select values from your Astro config:
+
+  ```js
+  // src/utils.js
+  import { trailingSlash } from 'astro:config/client';
+
+  function addForwardSlash(path) {
+    if (trailingSlash === 'always') {
+      return path.endsWith('/') ? path : path + '/';
+    } else {
+      return path;
+    }
+  }
+  ```
+
+  If you were previously using this feature, please remove the experimental flag from your Astro config:
+
+  ```diff
+  // astro.config.mjs
+  export default defineConfig({
+  -  experimental: {
+  -    serializeConfig: true
+  -  }
+  })
+  ```
+
+  If you have been waiting for feature stabilization before using configuration imports, you can now do so.
+
+  Please see [the `astro:config` reference](https://docs.astro.build/en/my-feature/) for more about this feature.
+
+- [#13578](https://github.com/withastro/astro/pull/13578) [`406501a`](https://github.com/withastro/astro/commit/406501aeb7f314ae5c31f31a373c270e3b9ec715) Thanks [@stramel](https://github.com/stramel)! - The SVG import feature introduced behind a flag in [v5.0.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#500) is no longer experimental and is available for general use.
+
+  This feature allows you to import SVG files directly into your Astro project as components and inline them into your HTML.
+
+  To use this feature, import an SVG file in your Astro project, passing any common SVG attributes to the imported component.
+
+  ```astro
+  ---
+  import Logo from './path/to/svg/file.svg';
+  ---
+
+  <Logo <Logo width={64} height={64} fill="currentColor" />
+  ```
+
+  If you have been waiting for stabilization before using the SVG Components feature, you can now do so.
+
+  If you were previously using this feature, please remove the experimental flag from your Astro config:
+
+  ```diff
+  import { defineConfig } from 'astro'
+
+  export default defineConfig({
+  -  experimental: {
+  -    svg: true,
+  -  }
+  })
+  ```
+
+  Additionally, a few features that were available during the experimental stage were removed in a previous release. Please see [the v5.6.0 changelog](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#560) for details if you have not yet already updated your project code for the experimental feature accordingly.
+
+  Please see the [SVG Components guide in docs](https://docs.astro.build/en/guides/images/#svg-components) for more about this feature.
+
+### Patch Changes
+
+- [#13602](https://github.com/withastro/astro/pull/13602) [`3213450`](https://github.com/withastro/astro/commit/3213450bda5b21527a03d292a5f222f35293f9bb) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Updates the [Audit](http://docs.astro.build/en/guides/dev-toolbar/#audit) dev toolbar app to automatically strip `data-astro-source-file` and `data-astro-source-loc` attributes in dev mode.
+
+- [#13598](https://github.com/withastro/astro/pull/13598) [`f5de51e`](https://github.com/withastro/astro/commit/f5de51e94755cdbeaa19667309b5f1aa0c416bd4) Thanks [@dreyfus92](https://github.com/dreyfus92)! - Fix routing with base paths when trailingSlash is set to 'never'. This ensures requests to '/base' are correctly matched when the base path is set to '/base', without requiring a trailing slash.
+
+- [#13603](https://github.com/withastro/astro/pull/13603) [`d038030`](https://github.com/withastro/astro/commit/d038030770b294e811beb99c9478fbe4b4cbb968) Thanks [@sarah11918](https://github.com/sarah11918)! - Adds the minimal starter template to the list of `create astro` options
+
+  Good news if you're taking the introductory tutorial in docs, making a minimal reproduction, or just want to start a project with as little to rip out as possible. Astro's `minimal` (empty) template is now back as one of the options when running `create astro@latest` and starting a new project!
+
 ## 5.6.2
 
 ### Patch Changes
