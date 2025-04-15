@@ -53,12 +53,12 @@ export function findRouteToRewrite({
 
 	let pathname = newUrl.pathname;
 	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
-	
+
 	// Special handling for base path
 	if (base !== '/') {
 		// Check if this is a request to the base path
-		const isBasePathRequest = newUrl.pathname === base || 
-			newUrl.pathname === removeTrailingForwardSlash(base);
+		const isBasePathRequest =
+			newUrl.pathname === base || newUrl.pathname === removeTrailingForwardSlash(base);
 
 		if (isBasePathRequest) {
 			// For root path requests at the base URL
