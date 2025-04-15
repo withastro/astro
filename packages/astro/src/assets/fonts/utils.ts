@@ -57,9 +57,15 @@ export function extractFontType(str: string): FontType {
 	// Extname includes a leading dot
 	const extension = extname(str).slice(1);
 	if (!isFontType(extension)) {
-		throw new AstroError(AstroErrorData.CannotExtractFontType, {
-			cause: `Unexpected extension, got "${extension}"`,
-		});
+		throw new AstroError(
+			{
+				...AstroErrorData.CannotExtractFontType,
+				message: AstroErrorData.CannotExtractFontType.message(str),
+			},
+			{
+				cause: `Unexpected extension, got "${extension}"`,
+			},
+		);
 	}
 	return extension;
 }
