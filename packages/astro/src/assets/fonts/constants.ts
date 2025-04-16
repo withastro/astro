@@ -74,7 +74,6 @@ export const SYSTEM_METRICS = {
 	},
 } satisfies Record<string, FontFaceMetrics>;
 
-// Keep up to date with system metrics data
 // Source: https://github.com/nuxt/fonts/blob/3a3eb6dfecc472242b3011b25f3fcbae237d0acc/src/module.ts#L55-L75
 export const DEFAULT_FALLBACKS = {
 	serif: ['Times New Roman'],

@@ -221,7 +221,7 @@ export async function generateFallbacksCSS({
 			fallbackMetrics: SYSTEM_METRICS[font],
 			font,
 			name,
-			// TODO: forward some properties?
+			// TODO: forward some properties once we generate one fallback per font face data
 		});
 	}
 
