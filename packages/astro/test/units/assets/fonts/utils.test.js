@@ -11,6 +11,7 @@ import {
 	isGenericFontFamily,
 	proxyURL,
 	resolveFontFamily,
+	toCSS,
 } from '../../../../dist/assets/fonts/utils.js';
 
 /**
@@ -536,5 +537,11 @@ describe('fonts utils', () => {
 				'test-{"name":"test","x":"bar"}',
 			]);
 		});
+	});
+
+	it('toCSS', () => {
+		assert.deepStrictEqual(toCSS({}, 0), '');
+		assert.deepStrictEqual(toCSS({ foo: 'bar' }, 0), 'foo: bar;');
+		assert.deepStrictEqual(toCSS({ foo: 'bar', bar: undefined }, 0), 'foo: bar;');
 	});
 });

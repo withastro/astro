@@ -1,4 +1,5 @@
 import { type Font, fromBuffer } from '@capsizecss/unpack';
+import { renderFontFace, renderFontSrc } from './utils.js';
 
 export type FontFaceMetrics = Pick<
 	Font,
@@ -37,12 +38,6 @@ function toPercentage(value: number, fractionDigits = 4) {
 	return `${+percentage.toFixed(fractionDigits)}%`;
 }
 
-function toCSS(properties: Record<string, any>, indent = 2) {
-	return Object.entries(properties)
-		.map(([key, value]) => `${' '.repeat(indent)}${key}: ${value};`)
-		.join('\n');
-}
-
 export function generateFallbackFontFace(
 	metrics: FontFaceMetrics,
 	fallback: {
@@ -79,15 +74,13 @@ export function generateFallbackFontFace(
 	const descentOverride = Math.abs(metrics.descent) / adjustedEmSquare;
 	const lineGapOverride = metrics.lineGap / adjustedEmSquare;
 
-	const declaration = {
-		'font-family': JSON.stringify(fallbackName),
-		src: `local(${JSON.stringify(fallbackFontName)})`,
+	return renderFontFace({
+		'font-family': fallbackName,
+		src: renderFontSrc([{ name: fallbackFontName }]),
 		'size-adjust': toPercentage(sizeAdjust),
 		'ascent-override': toPercentage(ascentOverride),
 		'descent-override': toPercentage(descentOverride),
 		'line-gap-override': toPercentage(lineGapOverride),
 		...properties,
-	};
-
-	return `@font-face {\n${toCSS(declaration)}\n}\n`;
+	});
 }

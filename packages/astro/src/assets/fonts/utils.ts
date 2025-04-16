@@ -15,28 +15,33 @@ import type {
 	ResolvedLocalFontFamily,
 } from './types.js';
 
-// Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L7-L21
-export function generateFontFace(family: string, font: unifont.FontFaceData) {
-	return [
-		'@font-face {',
-		`  font-family: ${family};`,
-		`  src: ${renderFontSrc(font.src)};`,
-		`  font-display: ${font.display ?? 'swap'};`,
-		font.unicodeRange && `  unicode-range: ${font.unicodeRange};`,
-		font.weight &&
-			`  font-weight: ${Array.isArray(font.weight) ? font.weight.join(' ') : font.weight};`,
-		font.style && `  font-style: ${font.style};`,
-		font.stretch && `  font-stretch: ${font.stretch};`,
-		font.featureSettings && `  font-feature-settings: ${font.featureSettings};`,
-		font.variationSettings && `  font-variation-settings: ${font.variationSettings};`,
-		`}`,
-	]
-		.filter(Boolean)
+export function toCSS(properties: Record<string, string | undefined>, indent = 2) {
+	return Object.entries(properties)
+		.filter(([, value]) => Boolean(value))
+		.map(([key, value]) => `${' '.repeat(indent)}${key}: ${value};`)
 		.join('\n');
 }
 
+export function renderFontFace(properties: Record<string, string | undefined>) {
+	return `@font-face {\n${toCSS(properties)}\n}\n`;
+}
+
+export function generateFontFace(family: string, font: unifont.FontFaceData) {
+	return renderFontFace({
+		'font-family': family,
+		src: renderFontSrc(font.src),
+		'font-display': font.display ?? 'swap',
+		'unicode-range': font.unicodeRange?.join(','),
+		'font-weight': Array.isArray(font.weight) ? font.weight.join(' ') : font.weight?.toString(),
+		'font-style': font.style,
+		'font-stretch': font.stretch,
+		'font-feature-settings': font.featureSettings,
+		'font-variation-settings': font.variationSettings,
+	});
+}
+
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L68-L81
-function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], string>[]) {
+export function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], string>[]) {
 	return sources
 		.map((src) => {
 			if ('url' in src) {
@@ -51,6 +56,12 @@ function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], str
 			return `local("${src.name}")`;
 		})
 		.join(', ');
+}
+
+const QUOTES_RE = /^["']|["']$/g;
+
+export function withoutQuotes(str: string) {
+	return str.trim().replace(QUOTES_RE, '');
 }
 
 export function extractFontType(str: string): FontType {
@@ -204,6 +215,7 @@ export async function generateFallbacksCSS({
 	fallbacks = [...new Set([...localFontsMappings.map((m) => m.name), ...fallbacks])];
 
 	for (const { font, name } of localFontsMappings) {
+		// TODO: forward some properties?
 		css += metrics.generateFontFace(foundMetrics, { font, name });
 	}
 
