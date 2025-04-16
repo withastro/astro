@@ -1,5 +1,19 @@
 # astro
 
+## 5.7.1
+
+### Patch Changes
+
+- [#13594](https://github.com/withastro/astro/pull/13594) [`dc4a015`](https://github.com/withastro/astro/commit/dc4a015cf33c01b659e07b7d31dbd49f1c2ebfdf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Reduces the number of font files downloaded
+
+- [#13627](https://github.com/withastro/astro/pull/13627) [`7f1a624`](https://github.com/withastro/astro/commit/7f1a62484ed17fe7a9be5d1e2bb71e2fd12b9fed) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where using the `<Font />` component would throw a Rollup error during the build
+
+- [#13626](https://github.com/withastro/astro/pull/13626) [`3838efe`](https://github.com/withastro/astro/commit/3838efe5028256e0e28bf823f868bcda6ef1e775) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates fallback font generation to always read font files returned by font providers
+
+- [#13625](https://github.com/withastro/astro/pull/13625) [`f1311d2`](https://github.com/withastro/astro/commit/f1311d2acb6dd7a75f7ea10eea3a02fbe674eb2a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the `<Font />` component so that preload links are generated before the style tag if `preload` is passed
+
+- [#13622](https://github.com/withastro/astro/pull/13622) [`a70d32a`](https://github.com/withastro/astro/commit/a70d32a4284ef18c3f93196f44c1fcf3ff56d3d5) Thanks [@ascorbic](https://github.com/ascorbic)! - Improve autocomplete for session keys
+
 ## 5.7.0
 
 ### Minor Changes
