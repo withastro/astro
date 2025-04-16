@@ -24,7 +24,7 @@ export async function template(
 				{ value: 'basics', label: 'A basic, helpful starter project', hint: '(recommended)' },
 				{ value: 'blog', label: 'Use blog template' },
 				{ value: 'starlight', label: 'Use docs (Starlight) template' },
-				{ value: 'minimal', label: 'A minimal template with no extra files' },
+				{ value: 'minimal', label: 'Use minimal template with no extra files' },
 			],
 		});
 		ctx.template = tmpl;
