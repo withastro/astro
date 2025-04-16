@@ -111,23 +111,33 @@ export async function loadFonts({
 				[family.provider.name!],
 			);
 
-			fonts = result.fonts.map((font) => ({
-				...font,
-				src: font.src.map((source) =>
-					'name' in source
-						? source
-						: {
-								...source,
-								originalURL: source.url,
-								url: proxyURL({
-									value: source.url,
-									// We only use the url for hashing since the service returns urls with a hash already
-									hashString,
-									collect,
-								}),
-							},
-				),
-			}));
+			fonts = result.fonts
+				// Avoid getting too much font files
+				.filter((font) =>
+					typeof font.meta?.priority === 'number' ? font.meta.priority === 0 : true,
+				)
+				// Collect URLs
+				.map((font) => ({
+					...font,
+					src: font.src
+						// Limit src to 1 file (eg. if woff2 and woff are present, will only take woff2) to avoid
+						// downloading too many files
+						.slice(0, 1)
+						.map((source) =>
+							'name' in source
+								? source
+								: {
+										...source,
+										originalURL: source.url,
+										url: proxyURL({
+											value: source.url,
+											// We only use the url for hashing since the service returns urls with a hash already
+											hashString,
+											collect,
+										}),
+									},
+						),
+				}));
 		}
 
 		for (const data of fonts) {
