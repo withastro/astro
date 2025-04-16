@@ -80,7 +80,7 @@ export function findRouteToRewrite({
 	}
 
 	// Convert '/' to '' for trailingSlash: 'never'
-	if (pathname === '/' && !shouldAppendSlash) {
+	if (pathname === '/' && base !== '/' && !shouldAppendSlash) {
 		pathname = '';
 	}
 

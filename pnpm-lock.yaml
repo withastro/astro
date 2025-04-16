@@ -3648,6 +3648,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/rewrite-issue-13633:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/rewrite-runtime-error:
     dependencies:
       astro:
