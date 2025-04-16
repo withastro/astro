@@ -36,14 +36,15 @@ export function generateFontFace(family: string, font: unifont.FontFaceData) {
 }
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L68-L81
-function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], string>[]) {
+export function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], string>[]) {
 	return sources
 		.map((src) => {
 			if ('url' in src) {
 				let rendered = `url("${src.url}")`;
 				for (const key of ['format', 'tech'] as const) {
-					if (key in src) {
-						rendered += ` ${key}(${src[key]})`;
+					const value = src[key]
+					if (value) {
+						rendered += ` ${key}(${value})`;
 					}
 				}
 				return rendered;
