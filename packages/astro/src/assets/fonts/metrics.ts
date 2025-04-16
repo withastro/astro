@@ -1,10 +1,4 @@
-// Adapted from https://github.com/unjs/fontaine/
-import { fontFamilyToCamelCase } from '@capsizecss/metrics';
 import { type Font, fromBuffer } from '@capsizecss/unpack';
-
-const QUOTES_RE = /^["']|["']$/g;
-
-const withoutQuotes = (str: string) => str.trim().replace(QUOTES_RE, '');
 
 export type FontFaceMetrics = Pick<
 	Font,
@@ -27,30 +21,6 @@ function filterRequiredMetrics({
 		unitsPerEm,
 		xWidthAvg,
 	};
-}
-
-export async function getMetricsForFamily(family: string) {
-	family = withoutQuotes(family);
-
-	if (family in metricCache) return metricCache[family];
-
-	try {
-		const name = fontFamilyToCamelCase(family);
-		const { entireMetricsCollection } = await import('@capsizecss/metrics/entireMetricsCollection');
-		const metrics = entireMetricsCollection[name as keyof typeof entireMetricsCollection];
-
-		if (!('descent' in metrics)) {
-			metricCache[family] = null;
-			return null;
-		}
-
-		const filteredMetrics = filterRequiredMetrics(metrics);
-		metricCache[family] = filteredMetrics;
-		return filteredMetrics;
-	} catch {
-		metricCache[family] = null;
-		return null;
-	}
 }
 
 export async function readMetrics(family: string, buffer: Buffer) {

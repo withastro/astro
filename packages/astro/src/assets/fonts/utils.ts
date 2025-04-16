@@ -78,14 +78,14 @@ export async function cache(
 	storage: Storage,
 	key: string,
 	cb: () => Promise<Buffer>,
-): Promise<{ cached: boolean; data: Buffer }> {
+): Promise<Buffer> {
 	const existing = await storage.getItemRaw(key);
 	if (existing) {
-		return { cached: true, data: existing };
+		return existing;
 	}
 	const data = await cb();
 	await storage.setItemRaw(key, data);
-	return { cached: false, data };
+	return data;
 }
 
 export interface ProxyURLOptions {
@@ -133,13 +133,13 @@ export function isGenericFontFamily(str: string): str is keyof typeof DEFAULT_FA
 export type GetMetricsForFamilyFont = {
 	hash: string;
 	url: string;
-} | null;
+};
 
 export type GetMetricsForFamily = (
 	name: string,
 	/** A remote url or local filepath to a font file. Used if metrics can't be resolved purely from the family name */
 	font: GetMetricsForFamilyFont,
-) => Promise<FontFaceMetrics | null>;
+) => Promise<FontFaceMetrics>;
 
 /**
  * Generates CSS for a given family fallbacks if possible.
@@ -157,7 +157,7 @@ export async function generateFallbacksCSS({
 	family: Pick<ResolvedFontFamily, 'name' | 'nameWithHash'>;
 	/** The family fallbacks */
 	fallbacks: Array<string>;
-	font: GetMetricsForFamilyFont;
+	font: GetMetricsForFamilyFont | null;
 	metrics: {
 		getMetricsForFamily: GetMetricsForFamily;
 		generateFontFace: typeof generateFallbackFontFace;
@@ -171,7 +171,7 @@ export async function generateFallbacksCSS({
 
 	let css = '';
 
-	if (!metrics) {
+	if (!fontData || !metrics) {
 		return { css, fallbacks };
 	}
 

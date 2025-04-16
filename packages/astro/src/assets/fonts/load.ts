@@ -48,7 +48,7 @@ export async function loadFonts({
 	for (const family of families) {
 		const preloadData: PreloadData = [];
 		let css = '';
-		let fallbackFontData: GetMetricsForFamilyFont = null;
+		let fallbackFontData: GetMetricsForFamilyFont | null = null;
 
 		// When going through the urls/filepaths returned by providers,
 		// We save the hash and the associated original value so we can use

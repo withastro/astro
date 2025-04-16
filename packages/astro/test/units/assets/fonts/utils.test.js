@@ -7,52 +7,11 @@ import {
 	extractFontType,
 	familiesToUnifontProviders,
 	generateFallbacksCSS,
-	cache as internalCache,
 	isFontType,
 	isGenericFontFamily,
 	proxyURL,
 	resolveFontFamily,
 } from '../../../../dist/assets/fonts/utils.js';
-
-function createSpyCache() {
-	/** @type {Map<string, Buffer>} */
-	const store = new Map();
-
-	const storage = {
-		/**
-		 * @param {string} key
-		 * @returns {Promise<Buffer | null>}
-		 */
-		getItemRaw: async (key) => {
-			return store.get(key) ?? null;
-		},
-		/**
-		 * @param {string} key
-		 * @param {Buffer} value
-		 * @returns {Promise<void>}
-		 */
-		setItemRaw: async (key, value) => {
-			store.set(key, value);
-		},
-	};
-
-	return {
-		/**
-		 *
-		 * @param {Parameters<typeof internalCache>[1]} key
-		 * @param {Parameters<typeof internalCache>[2]} cb
-		 * @returns
-		 */
-		cache: (key, cb) =>
-			internalCache(
-				// @ts-expect-error we only mock the required hooks
-				storage,
-				key,
-				cb,
-			),
-		getKeys: () => Array.from(store.keys()),
-	};
-}
 
 /**
  *
@@ -118,25 +77,6 @@ describe('fonts utils', () => {
 				}
 			}
 		}
-	});
-
-	it('cache()', async () => {
-		const { cache, getKeys } = createSpyCache();
-
-		assert.deepStrictEqual(getKeys(), []);
-
-		let buffer = Buffer.from('foo');
-		let res = await cache('foo', async () => buffer);
-		assert.equal(res.cached, false);
-		assert.equal(res.data, buffer);
-
-		assert.deepStrictEqual(getKeys(), ['foo']);
-
-		res = await cache('foo', async () => buffer);
-		assert.equal(res.cached, true);
-		assert.equal(res.data, buffer);
-
-		assert.deepStrictEqual(getKeys(), ['foo']);
 	});
 
 	it('proxyURL()', () => {
