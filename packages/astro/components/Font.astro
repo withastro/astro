@@ -23,10 +23,10 @@ if (!data) {
 }
 ---
 
-<style set:html={data.css}></style>
 {
 	preload &&
 		data.preloadData.map(({ url, type }) => (
 			<link rel="preload" href={url} as="font" type={`font/${type}`} crossorigin />
 		))
 }
+<style set:html={data.css}></style>
