@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { DEFAULT_FALLBACKS, FONT_TYPES, LOCAL_PROVIDER_NAME } from './constants.js';
+import { DEFAULT_FALLBACKS, FONT_TYPES, LOCAL_PROVIDER_NAME, SYSTEM_METRICS } from './constants.js';
 import type { FontFaceMetrics, generateFallbackFontFace } from './metrics.js';
 import { type ResolveProviderOptions, resolveProvider } from './providers/utils.js';
 import type {
@@ -216,8 +216,13 @@ export async function generateFallbacksCSS({
 	fallbacks = [...new Set([...localFontsMappings.map((m) => m.name), ...fallbacks])];
 
 	for (const { font, name } of localFontsMappings) {
-		// TODO: forward some properties?
-		css += metrics.generateFontFace(foundMetrics, { font, name });
+		css += metrics.generateFontFace({
+			metrics: foundMetrics,
+			fallbackMetrics: SYSTEM_METRICS[font],
+			font,
+			name,
+			// TODO: forward some properties?
+		});
 	}
 
 	return { css, fallbacks };

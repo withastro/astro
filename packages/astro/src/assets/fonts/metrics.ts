@@ -38,34 +38,25 @@ function toPercentage(value: number, fractionDigits = 4) {
 	return `${+percentage.toFixed(fractionDigits)}%`;
 }
 
-export function generateFallbackFontFace(
-	metrics: FontFaceMetrics,
-	fallback: {
-		name: string;
-		font: string;
-		metrics?: FontFaceMetrics;
-		[key: string]: any;
-	},
-) {
-	const {
-		name: fallbackName,
-		font: fallbackFontName,
-		metrics: fallbackMetrics,
-		...properties
-	} = fallback;
-
+export function generateFallbackFontFace({
+	metrics,
+	fallbackMetrics,
+	name: fallbackName,
+	font: fallbackFontName,
+	properties = {},
+}: {
+	metrics: FontFaceMetrics;
+	fallbackMetrics: FontFaceMetrics;
+	name: string;
+	font: string;
+	properties?: Record<string, string | undefined>;
+}) {
 	// Credits to: https://github.com/seek-oss/capsize/blob/master/packages/core/src/createFontStack.ts
 
 	// Calculate size adjust
 	const preferredFontXAvgRatio = metrics.xWidthAvg / metrics.unitsPerEm;
-	const fallbackFontXAvgRatio = fallbackMetrics
-		? fallbackMetrics.xWidthAvg / fallbackMetrics.unitsPerEm
-		: 1;
-
-	const sizeAdjust =
-		fallbackMetrics && preferredFontXAvgRatio && fallbackFontXAvgRatio
-			? preferredFontXAvgRatio / fallbackFontXAvgRatio
-			: 1;
+	const fallbackFontXAvgRatio = fallbackMetrics.xWidthAvg / fallbackMetrics.unitsPerEm;
+	const sizeAdjust = preferredFontXAvgRatio / fallbackFontXAvgRatio;
 
 	const adjustedEmSquare = metrics.unitsPerEm * sizeAdjust;
 
