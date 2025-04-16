@@ -43,13 +43,13 @@ export function generateFallbackFontFace({
 	fallbackMetrics,
 	name: fallbackName,
 	font: fallbackFontName,
-	properties = {},
+	properties,
 }: {
 	metrics: FontFaceMetrics;
 	fallbackMetrics: FontFaceMetrics;
 	name: string;
 	font: string;
-	properties?: Record<string, string | undefined>;
+	properties: Record<string, string | undefined>;
 }) {
 	// Credits to: https://github.com/seek-oss/capsize/blob/master/packages/core/src/createFontStack.ts
 

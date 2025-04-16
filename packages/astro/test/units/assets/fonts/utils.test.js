@@ -1,5 +1,5 @@
-import assert from 'node:assert/strict';
 // @ts-check
+import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js';
@@ -121,14 +121,21 @@ describe('fonts utils', () => {
 	});
 
 	describe('generateFallbacksCSS()', () => {
+		const METRICS_STUB = {
+			ascent: 0,
+			descent: 0,
+			lineGap: 0,
+			unitsPerEm: 0,
+			xWidthAvg: 0,
+		};
 		it('should return null if there are no fallbacks', async () => {
 			assert.equal(
 				await generateFallbacksCSS({
 					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: [],
-					font: null,
+					font: [{ url: '/', hash: 'hash', data: { weight: '400' } }],
 					metrics: {
-						getMetricsForFamily: async () => null,
+						getMetricsForFamily: async () => METRICS_STUB,
 						generateFontFace: () => '',
 					},
 				}),
@@ -141,29 +148,10 @@ describe('fonts utils', () => {
 				await generateFallbacksCSS({
 					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: ['foo'],
-					font: null,
+					font: [],
 					metrics: null,
 				}),
 				{
-					css: '',
-					fallbacks: ['foo'],
-				},
-			);
-		});
-
-		it('should return fallbacks if there are no metrics', async () => {
-			assert.deepStrictEqual(
-				await generateFallbacksCSS({
-					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
-					fallbacks: ['foo'],
-					font: null,
-					metrics: {
-						getMetricsForFamily: async () => null,
-						generateFontFace: () => '',
-					},
-				}),
-				{
-					css: '',
 					fallbacks: ['foo'],
 				},
 			);
@@ -174,45 +162,48 @@ describe('fonts utils', () => {
 				await generateFallbacksCSS({
 					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: ['foo'],
-					font: null,
+					font: [{ url: '/', hash: 'hash', data: { weight: '400' } }],
 					metrics: {
-						getMetricsForFamily: async () => ({
-							ascent: 0,
-							descent: 0,
-							lineGap: 0,
-							unitsPerEm: 0,
-							xWidthAvg: 0,
-						}),
+						getMetricsForFamily: async () => METRICS_STUB,
 						generateFontFace: () => '',
 					},
 				}),
 				{
-					css: '',
 					fallbacks: ['foo'],
 				},
 			);
 		});
 
-		it('shold return fallbacks if the generic font family does not have fonts associated', async () => {
+		it('should return fallbacks if the generic font family does not have fonts associated', async () => {
 			assert.deepStrictEqual(
 				await generateFallbacksCSS({
 					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: ['emoji'],
-					font: null,
+					font: [{ url: '/', hash: 'hash', data: { weight: '400' } }],
 					metrics: {
-						getMetricsForFamily: async () => ({
-							ascent: 0,
-							descent: 0,
-							lineGap: 0,
-							unitsPerEm: 0,
-							xWidthAvg: 0,
-						}),
+						getMetricsForFamily: async () => METRICS_STUB,
 						generateFontFace: () => '',
 					},
 				}),
 				{
-					css: '',
 					fallbacks: ['emoji'],
+				},
+			);
+		});
+
+		it('should return fallbacks if the family name is a system font for the associated generic family name', async () => {
+			assert.deepStrictEqual(
+				await generateFallbacksCSS({
+					family: { name: 'Arial', nameWithHash: 'Arial-xxx' },
+					fallbacks: ['sans-serif'],
+					font: [{ url: '/', hash: 'hash', data: { weight: '400' } }],
+					metrics: {
+						getMetricsForFamily: async () => METRICS_STUB,
+						generateFontFace: () => '',
+					},
+				}),
+				{
+					fallbacks: ['sans-serif'],
 				},
 			);
 		});
@@ -222,20 +213,13 @@ describe('fonts utils', () => {
 				await generateFallbacksCSS({
 					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: ['foo', 'bar'],
-					font: null,
+					font: [],
 					metrics: {
-						getMetricsForFamily: async () => ({
-							ascent: 0,
-							descent: 0,
-							lineGap: 0,
-							unitsPerEm: 0,
-							xWidthAvg: 0,
-						}),
-						generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
+						getMetricsForFamily: async () => METRICS_STUB,
+						generateFontFace: ({ font, name }) => `[${font},${name}]`,
 					},
 				}),
 				{
-					css: '',
 					fallbacks: ['foo', 'bar'],
 				},
 			);
@@ -243,21 +227,33 @@ describe('fonts utils', () => {
 				await generateFallbacksCSS({
 					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
 					fallbacks: ['sans-serif', 'foo'],
-					font: null,
+					font: [],
 					metrics: {
-						getMetricsForFamily: async () => ({
-							ascent: 0,
-							descent: 0,
-							lineGap: 0,
-							unitsPerEm: 0,
-							xWidthAvg: 0,
-						}),
-						generateFontFace: (_metrics, fallback) => `[${fallback.font},${fallback.name}]`,
+						getMetricsForFamily: async () => METRICS_STUB,
+						generateFontFace: ({ font, name }) => `[${font},${name}]`,
 					},
 				}),
 				{
-					css: '',
 					fallbacks: ['sans-serif', 'foo'],
+				},
+			);
+			assert.deepStrictEqual(
+				await generateFallbacksCSS({
+					family: { name: 'Roboto', nameWithHash: 'Roboto-xxx' },
+					fallbacks: ['foo', 'sans-serif'],
+					font: [
+						{ url: '/', hash: 'hash', data: { weight: '400' } },
+						{ url: '/', hash: 'hash', data: { weight: '500' } },
+					],
+					metrics: {
+						getMetricsForFamily: async () => METRICS_STUB,
+						generateFontFace: ({ font, name, properties }) =>
+							`[${font},${name},${properties['font-weight']}]`,
+					},
+				}),
+				{
+					css: '[Arial,"Roboto-xxx fallback: Arial",400][Arial,"Roboto-xxx fallback: Arial",500]',
+					fallbacks: ['"Roboto-xxx fallback: Arial"', 'foo', 'sans-serif'],
 				},
 			);
 		});

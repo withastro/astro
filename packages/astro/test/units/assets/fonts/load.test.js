@@ -1,5 +1,5 @@
-import assert from 'node:assert/strict';
 // @ts-check
+import assert from 'node:assert/strict';
 import { it } from 'node:test';
 import { loadFonts } from '../../../../dist/assets/fonts/load.js';
 import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js';
