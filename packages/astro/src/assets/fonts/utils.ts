@@ -23,7 +23,7 @@ export function toCSS(properties: Record<string, string | undefined>, indent = 2
 }
 
 export function renderFontFace(properties: Record<string, string | undefined>) {
-	return `@font-face {\n${toCSS(properties)}\n}\n`;
+	return `@font-face {\n\t${toCSS(properties)}\n}\n`;
 }
 
 export function generateFontFace(family: string, font: unifont.FontFaceData) {
