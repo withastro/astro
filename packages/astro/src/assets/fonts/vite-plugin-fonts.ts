@@ -23,7 +23,13 @@ import { loadFonts } from './load.js';
 import { generateFallbackFontFace, readMetrics } from './metrics.js';
 import type { ResolveMod } from './providers/utils.js';
 import type { PreloadData, ResolvedFontFamily } from './types.js';
-import { cache, extractFontType, resolveFontFamily, sortObjectByKey } from './utils.js';
+import {
+	cache,
+	extractFontType,
+	resolveFontFamily,
+	sortObjectByKey,
+	withoutQuotes,
+} from './utils.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -116,7 +122,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					root: settings.config.root,
 					resolveMod,
 					generateNameWithHash: (_family) =>
-						`${_family.name}-${h64ToString(JSON.stringify(sortObjectByKey(_family)))}`,
+						`${withoutQuotes(_family.name)}-${h64ToString(JSON.stringify(sortObjectByKey(_family)))}`,
 				}),
 			);
 		}

@@ -1,4 +1,5 @@
 import { type Font, fromBuffer } from '@capsizecss/unpack';
+import { renderFontFace, renderFontSrc } from './utils.js';
 
 export type FontFaceMetrics = Pick<
 	Font,
@@ -37,40 +38,25 @@ function toPercentage(value: number, fractionDigits = 4) {
 	return `${+percentage.toFixed(fractionDigits)}%`;
 }
 
-function toCSS(properties: Record<string, any>, indent = 2) {
-	return Object.entries(properties)
-		.map(([key, value]) => `${' '.repeat(indent)}${key}: ${value};`)
-		.join('\n');
-}
-
-export function generateFallbackFontFace(
-	metrics: FontFaceMetrics,
-	fallback: {
-		name: string;
-		font: string;
-		metrics?: FontFaceMetrics;
-		[key: string]: any;
-	},
-) {
-	const {
-		name: fallbackName,
-		font: fallbackFontName,
-		metrics: fallbackMetrics,
-		...properties
-	} = fallback;
-
+export function generateFallbackFontFace({
+	metrics,
+	fallbackMetrics,
+	name: fallbackName,
+	font: fallbackFontName,
+	properties = {},
+}: {
+	metrics: FontFaceMetrics;
+	fallbackMetrics: FontFaceMetrics;
+	name: string;
+	font: string;
+	properties?: Record<string, string | undefined>;
+}) {
 	// Credits to: https://github.com/seek-oss/capsize/blob/master/packages/core/src/createFontStack.ts
 
 	// Calculate size adjust
 	const preferredFontXAvgRatio = metrics.xWidthAvg / metrics.unitsPerEm;
-	const fallbackFontXAvgRatio = fallbackMetrics
-		? fallbackMetrics.xWidthAvg / fallbackMetrics.unitsPerEm
-		: 1;
-
-	const sizeAdjust =
-		fallbackMetrics && preferredFontXAvgRatio && fallbackFontXAvgRatio
-			? preferredFontXAvgRatio / fallbackFontXAvgRatio
-			: 1;
+	const fallbackFontXAvgRatio = fallbackMetrics.xWidthAvg / fallbackMetrics.unitsPerEm;
+	const sizeAdjust = preferredFontXAvgRatio / fallbackFontXAvgRatio;
 
 	const adjustedEmSquare = metrics.unitsPerEm * sizeAdjust;
 
@@ -79,15 +65,13 @@ export function generateFallbackFontFace(
 	const descentOverride = Math.abs(metrics.descent) / adjustedEmSquare;
 	const lineGapOverride = metrics.lineGap / adjustedEmSquare;
 
-	const declaration = {
-		'font-family': JSON.stringify(fallbackName),
-		src: `local(${JSON.stringify(fallbackFontName)})`,
+	return renderFontFace({
+		'font-family': fallbackName,
+		src: renderFontSrc([{ name: fallbackFontName }]),
 		'size-adjust': toPercentage(sizeAdjust),
 		'ascent-override': toPercentage(ascentOverride),
 		'descent-override': toPercentage(descentOverride),
 		'line-gap-override': toPercentage(lineGapOverride),
 		...properties,
-	};
-
-	return `@font-face {\n${toCSS(declaration)}\n}\n`;
+	});
 }
