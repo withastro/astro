@@ -10,6 +10,7 @@ import {
 	isFontType,
 	isGenericFontFamily,
 	proxyURL,
+	renderFontSrc,
 	resolveFontFamily,
 } from '../../../../dist/assets/fonts/utils.js';
 
@@ -535,6 +536,15 @@ describe('fonts utils', () => {
 				'test-{"name":"test","x":"foo"}',
 				'test-{"name":"test","x":"bar"}',
 			]);
+		});
+	});
+
+	describe('renderFontSrc()', () => {
+		it('does not output tech(undefined) if key is present without value', () => {
+			assert.equal(
+				renderFontSrc([{ url: 'test', tech: undefined }]).includes('tech(undefined)'),
+				false,
+			);
 		});
 	});
 });
