@@ -42,7 +42,7 @@ export function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][numbe
 			if ('url' in src) {
 				let rendered = `url("${src.url}")`;
 				for (const key of ['format', 'tech'] as const) {
-					const value = src[key]
+					const value = src[key];
 					if (value) {
 						rendered += ` ${key}(${value})`;
 					}
