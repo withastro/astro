@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Relative redirects work again after regression introduced in #12979
+Fixes a regression where relative static redirects didn't work as expected.
