@@ -1,7 +1,8 @@
 import type { AstroFontProvider, ResolvedFontProvider } from './types.js';
 
 export interface Hasher {
-	hash: (input: string) => string;
+	hashString: (input: string) => string;
+	hashObject: (input: Record<string, any>) => string;
 }
 
 export interface RemoteFontProviderResolver {

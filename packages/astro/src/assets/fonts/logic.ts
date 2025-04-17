@@ -10,7 +10,7 @@ import type {
 	ResolvedFontFamily,
 	ResolvedLocalFontFamily,
 } from './types.js';
-import { sortObjectByKey, withoutQuotes } from './utils.js';
+import { withoutQuotes } from './utils.js';
 import type * as unifont from 'unifont';
 
 function dedupe<const T extends Array<any>>(arr: T): T {
@@ -51,8 +51,7 @@ export async function resolveFamily({
 	localProviderUrlResolver: LocalProviderUrlResolver;
 }): Promise<ResolvedFontFamily> {
 	// TODO: handle spaces
-	// TODO: recursive sort, may need to be a dependency
-	const nameWithHash = `${withoutQuotes(family.name)}-${hasher.hash(JSON.stringify(sortObjectByKey(family)))}`;
+	const nameWithHash = `${withoutQuotes(family.name)}-${hasher.hashObject(family)}`;
 
 	if (family.provider === LOCAL_PROVIDER_NAME) {
 		return {
@@ -114,15 +113,10 @@ export function extractUnifontProviders({
 		}
 
 		const unifontProvider = provider.provider(provider.config);
-		const hash = hasher.hash(
-			// TODO: Probably need to be extracted to the hasher, eg. hashObject()
-			JSON.stringify(
-				sortObjectByKey({
-					name: unifontProvider._name,
-					...provider.config,
-				}),
-			),
-		);
+		const hash = hasher.hashObject({
+			name: unifontProvider._name,
+			...provider.config,
+		});
 		// Makes sure every font uses the right instance of a given provider
 		// if this provider is provided several times with different options
 		// We have to mutate the unifont provider name because unifont deduplicates
