@@ -333,9 +333,6 @@ export function familiesToUnifontProviders({
 				}),
 			),
 		);
-		if (hashes.has(hash)) {
-			continue;
-		}
 		// Makes sure every font uses the right instance of a given provider
 		// if this provider is provided several times with different options
 		// We have to mutate the unifont provider name because unifont deduplicates
@@ -344,8 +341,11 @@ export function familiesToUnifontProviders({
 		// We set the provider name so we can tell unifont what provider to use when
 		// resolving font faces
 		provider.name = unifontProvider._name;
-		hashes.add(hash);
-		providers.push(unifontProvider);
+
+		if (!hashes.has(hash)) {
+			hashes.add(hash);
+			providers.push(unifontProvider);
+		}
 	}
 
 	return { families, providers };
