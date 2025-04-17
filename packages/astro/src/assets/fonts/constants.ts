@@ -20,6 +20,13 @@ export const URL_PREFIX = '/_astro/fonts/';
 export const CACHE_DIR = './fonts/';
 
 export const FONT_TYPES = ['woff2', 'woff', 'otf', 'ttf', 'eot'] as const;
+export const FONT_FORMAT_MAP: Record<(typeof FONT_TYPES)[number], string> = {
+	woff2: 'woff2',
+	woff: 'woff',
+	otf: 'opentype',
+	ttf: 'truetype',
+	eot: 'embedded-opentype',
+};
 
 // Extracted from https://raw.githubusercontent.com/seek-oss/capsize/refs/heads/master/packages/metrics/src/entireMetricsCollection.json
 export const SYSTEM_METRICS = {

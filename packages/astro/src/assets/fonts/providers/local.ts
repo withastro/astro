@@ -1,6 +1,7 @@
 import type * as unifont from 'unifont';
 import type { ResolvedLocalFontFamily } from '../types.js';
 import { extractFontType } from '../utils.js';
+import { FONT_FORMAT_MAP } from '../constants.js';
 
 // https://fonts.nuxt.com/get-started/providers#local
 // https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
@@ -26,7 +27,7 @@ export function resolveLocalFont({ family, proxyURL }: Options): ResolveFontResu
 				return {
 					originalURL,
 					url: proxyURL(originalURL),
-					format: extractFontType(originalURL),
+					format: FONT_FORMAT_MAP[extractFontType(originalURL)],
 					tech,
 				};
 			}),

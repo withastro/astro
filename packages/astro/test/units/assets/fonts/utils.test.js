@@ -550,6 +550,18 @@ describe('fonts utils', () => {
 				false,
 			);
 		});
+		it('wraps format in quotes', () => {
+			assert.equal(
+				renderFontSrc([{ url: 'test', format: 'woff2' }]).includes('format("woff2")'),
+				true,
+			);
+		});
+		it('does not wrap tech in quotes', () => {
+			assert.equal(
+				renderFontSrc([{ url: 'test', tech: 'x' }]).includes('tech(x)'),
+				true,
+			);
+		});
 	});
 
 	it('toCSS', () => {
