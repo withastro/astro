@@ -12,3 +12,20 @@ export interface RemoteFontProviderResolver {
 export interface LocalProviderUrlResolver {
 	resolve: (input: string) => string;
 }
+
+type SingleErrorInput<TType extends string, TData extends Record<string, any>> = {
+	type: TType;
+	data: TData;
+	cause: unknown
+};
+
+export type ErrorHandlerInput = SingleErrorInput<
+		'cannot-load-font-provider',
+		{
+			entrypoint: string;
+		}
+	>;
+
+export interface ErrorHandler {
+	handle: (input: ErrorHandlerInput) => Error;
+}
