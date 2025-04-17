@@ -1,5 +1,13 @@
 # astro
 
+## 5.7.3
+
+### Patch Changes
+
+- [#13643](https://github.com/withastro/astro/pull/13643) [`67b7493`](https://github.com/withastro/astro/commit/67b749391a9069ae1d94ef646b68a99973ef44d7) Thanks [@tanishqmanuja](https://github.com/tanishqmanuja)! - Fixes a case where the font face `src` format would be invalid when using the experimental fonts API
+
+- [#13639](https://github.com/withastro/astro/pull/13639) [`23410c6`](https://github.com/withastro/astro/commit/23410c644f5fc528ef630f2bcbe58c68dfe0c719) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where some font families would not be downloaded when using the same font provider several times, using the experimental fonts API
+
 ## 5.7.2
 
 ### Patch Changes
