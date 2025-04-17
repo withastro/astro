@@ -2,7 +2,7 @@ import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
 import { AstroErrorHandler } from './implementations/error-handler.js';
 import { XxHasher } from './implementations/hasher.js';
 import { RequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
-import { BuildRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
+import { RealRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
 import { FsStorage } from './implementations/storage.js';
 import { extractUnifontProviders, normalizeRemoteFontFaces, resolveFamilies } from './logic.js';
 import { resolveLocalFont } from './providers/local.js';
@@ -10,6 +10,7 @@ import type { FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
 import { extractFontType, hashWithExtension, type GetMetricsForFamilyFont } from './utils.js';
 import { readFileSync } from 'node:fs';
+import { BuildRemoteFontProviderModResolver } from './implementations/remote-font-provider-mod-resolver.js';
 
 // TODO: logs everywhere!
 export async function main({
@@ -26,7 +27,8 @@ export async function main({
 	// Dependencies
 	const hasher = await XxHasher.create();
 	const errorHandler = new AstroErrorHandler();
-	const remoteFontProviderResolver = new BuildRemoteFontProviderResolver(root, errorHandler);
+	const remoteFontProviderResolver = new RealRemoteFontProviderResolver(root, errorHandler);
+	const modResolver = new BuildRemoteFontProviderModResolver();
 	const localProviderUrlResolver = new RequireLocalProviderUrlResolver(root);
 	const storage = FsStorage.create(cacheDir);
 
@@ -34,6 +36,7 @@ export async function main({
 		families,
 		hasher,
 		remoteFontProviderResolver,
+		modResolver,
 		localProviderUrlResolver,
 	});
 

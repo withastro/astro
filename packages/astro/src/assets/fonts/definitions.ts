@@ -5,8 +5,15 @@ export interface Hasher {
 	hashObject: (input: Record<string, any>) => string;
 }
 
+export interface RemoteFontProviderModResolver {
+	resolve: (id: string) => Promise<any>;
+}
+
 export interface RemoteFontProviderResolver {
-	resolve: (input: AstroFontProvider) => Promise<ResolvedFontProvider>;
+	resolve: (input: {
+		provider: AstroFontProvider;
+		modResolver: RemoteFontProviderModResolver;
+	}) => Promise<ResolvedFontProvider>;
 }
 
 export interface LocalProviderUrlResolver {
@@ -16,15 +23,15 @@ export interface LocalProviderUrlResolver {
 type SingleErrorInput<TType extends string, TData extends Record<string, any>> = {
 	type: TType;
 	data: TData;
-	cause: unknown
+	cause: unknown;
 };
 
 export type ErrorHandlerInput = SingleErrorInput<
-		'cannot-load-font-provider',
-		{
-			entrypoint: string;
-		}
-	>;
+	'cannot-load-font-provider',
+	{
+		entrypoint: string;
+	}
+>;
 
 export interface ErrorHandler {
 	handle: (input: ErrorHandlerInput) => Error;

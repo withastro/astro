@@ -3,6 +3,7 @@ import type {
 	RemoteFontProviderResolver,
 	Hasher,
 	LocalProviderUrlResolver,
+	RemoteFontProviderModResolver,
 } from './definitions.js';
 import type {
 	FontFamily,
@@ -43,11 +44,13 @@ export async function resolveFamily({
 	family,
 	hasher,
 	remoteFontProviderResolver,
+	modResolver,
 	localProviderUrlResolver,
 }: {
 	family: FontFamily;
 	hasher: Hasher;
 	remoteFontProviderResolver: RemoteFontProviderResolver;
+	modResolver: RemoteFontProviderModResolver;
 	localProviderUrlResolver: LocalProviderUrlResolver;
 }): Promise<ResolvedFontFamily> {
 	// TODO: handle spaces
@@ -65,7 +68,10 @@ export async function resolveFamily({
 	return {
 		...family,
 		nameWithHash,
-		provider: await remoteFontProviderResolver.resolve(family.provider),
+		provider: await remoteFontProviderResolver.resolve({
+			provider: family.provider,
+			modResolver,
+		}),
 		weights: family.weights ? dedupe(family.weights.map((weight) => weight.toString())) : undefined,
 		styles: family.styles ? dedupe(family.styles) : undefined,
 		subsets: family.subsets ? dedupe(family.subsets) : undefined,

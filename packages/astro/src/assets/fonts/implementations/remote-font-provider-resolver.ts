@@ -1,7 +1,10 @@
-import type { ErrorHandler, RemoteFontProviderResolver } from '../definitions.js';
+import type {
+	ErrorHandler,
+	RemoteFontProviderModResolver,
+	RemoteFontProviderResolver,
+} from '../definitions.js';
 import type { AstroFontProvider, ResolvedFontProvider } from '../types.js';
 import { resolveEntrypoint } from '../utils.js';
-import type { ViteDevServer } from 'vite';
 
 export function validateMod({
 	mod,
@@ -35,56 +38,26 @@ export function validateMod({
 	}
 }
 
-export async function resolve({
-	provider: { entrypoint, config },
-	resolveMod,
-	root,
-	errorHandler,
-}: {
-	provider: AstroFontProvider;
-	resolveMod: (id: string) => Promise<any>;
-	root: URL;
-	errorHandler: ErrorHandler;
-}): Promise<ResolvedFontProvider> {
-	const id = resolveEntrypoint(root, entrypoint.toString()).href;
-	const mod = await resolveMod(id);
-	const { provider } = validateMod({
-		mod,
-		entrypoint: id,
-		errorHandler,
-	});
-	return { config, provider };
-}
-
-export class BuildRemoteFontProviderResolver implements RemoteFontProviderResolver {
+export class RealRemoteFontProviderResolver implements RemoteFontProviderResolver {
 	constructor(
 		private root: URL,
 		private errorHandler: ErrorHandler,
 	) {}
 
-	async resolve(provider: AstroFontProvider): Promise<ResolvedFontProvider> {
-		return await resolve({
-			provider,
-			resolveMod: (id) => import(id),
-			root: this.root,
+	async resolve({
+		provider: { entrypoint, config },
+		modResolver,
+	}: {
+		provider: AstroFontProvider;
+		modResolver: RemoteFontProviderModResolver;
+	}): Promise<ResolvedFontProvider> {
+		const id = resolveEntrypoint(this.root, entrypoint.toString()).href;
+		const mod = await modResolver.resolve(id);
+		const { provider } = validateMod({
+			mod,
+			entrypoint: id,
 			errorHandler: this.errorHandler,
 		});
-	}
-}
-
-export class DevServerRemoteFontProviderResolver implements RemoteFontProviderResolver {
-	constructor(
-		private root: URL,
-		private server: ViteDevServer,
-		private errorHandler: ErrorHandler,
-	) {}
-
-	async resolve(provider: AstroFontProvider): Promise<ResolvedFontProvider> {
-		return await resolve({
-			provider,
-			resolveMod: (id) => this.server.ssrLoadModule(id),
-			root: this.root,
-			errorHandler: this.errorHandler,
-		});
+		return { config, provider };
 	}
 }
