@@ -308,11 +308,10 @@ export function getActionContext(context: APIContext): AstroActionContext {
 				const actionAPIContext = Object.create(
 					Object.getPrototypeOf(context),
 					Object.fromEntries(
-						Object.entries(Object.getOwnPropertyDescriptors(context))
-							.filter(([key]) =>
-								!omitKeys.includes(key)
-							)
-					)
+						Object.entries(Object.getOwnPropertyDescriptors(context)).filter(
+							([key]) => !omitKeys.includes(key),
+						),
+					),
 				);
 
 				Reflect.set(actionAPIContext, ACTION_API_CONTEXT_SYMBOL, true);
