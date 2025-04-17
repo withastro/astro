@@ -504,7 +504,10 @@ describe('fonts utils', () => {
 				},
 			]);
 			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames(['test-{"name":"test","x":"y"}', 'test-{"name":"test","x":"y"}']);
+			fixture.assertProvidersNames([
+				'test-{"name":"test","x":"y"}',
+				'test-{"name":"test","x":"y"}',
+			]);
 		});
 
 		it('does not deduplicate providers with different configs', () => {
