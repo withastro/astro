@@ -13,7 +13,7 @@ type ResolveFontResult = NonNullable<Awaited<ReturnType<InitializedProvider['res
 
 interface Options {
 	family: ResolvedLocalFontFamily;
-	proxyURL: (value: string) => string;
+	proxyURL: (input: { originalUrl: string; collectPreload: boolean }) => string;
 }
 
 export function resolveLocalFont({ family, proxyURL }: Options): ResolveFontResult {
@@ -23,10 +23,11 @@ export function resolveLocalFont({ family, proxyURL }: Options): ResolveFontResu
 		const data: ResolveFontResult['fonts'][number] = {
 			weight: variant.weight,
 			style: variant.style,
-			src: variant.src.map(({ url: originalURL, tech }) => {
+			src: variant.src.map(({ url: originalURL, tech }, index) => {
 				return {
 					originalURL,
-					url: proxyURL(originalURL),
+					// TODO: explain
+					url: proxyURL({ originalUrl: originalURL, collectPreload: index === 0 }),
 					format: FONT_FORMAT_MAP[extractFontType(originalURL)],
 					tech,
 				};

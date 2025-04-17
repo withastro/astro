@@ -1,19 +1,27 @@
-import { LOCAL_PROVIDER_NAME } from './constants.js';
+import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
 import { AstroErrorHandler } from './implementations/error-handler.js';
 import { XxHasher } from './implementations/hasher.js';
 import { RequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
 import { BuildRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
 import { FsStorage } from './implementations/storage.js';
 import { extractUnifontProviders, resolveFamilies } from './logic.js';
-import type { FontFamily } from './types.js';
+import { resolveLocalFont } from './providers/local.js';
+import type { FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
+import { extractFontType, hashWithExtension, type GetMetricsForFamilyFont } from './utils.js';
 
 // TODO: logs everywhere!
 export async function main({
 	families,
 	root,
 	cacheDir,
-}: { families: Array<FontFamily>; root: URL; cacheDir: URL }) {
+	base,
+}: {
+	families: Array<FontFamily>;
+	root: URL;
+	cacheDir: URL;
+	base: string;
+}) {
 	// Dependencies
 	const hasher = await XxHasher.create();
 	const errorHandler = new AstroErrorHandler();
@@ -40,13 +48,46 @@ export async function main({
 		storage,
 	});
 
+	// TODO: might be optimized?
+	const hashToUrlMap = new Map<string, string>();
+	const resolvedMap = new Map<string, { preloadData: PreloadData; css: string }>();
+
 	for (const family of resolvedFamilies) {
-		// TODO: data for collection
+		// TODO: might be refactored
+		const preloadData: PreloadData = [];
+		let css = '';
+		let fallbackFontData: GetMetricsForFamilyFont | null = null;
 
 		let fonts: Array<unifont.FontFaceData>;
 
 		if (family.provider === LOCAL_PROVIDER_NAME) {
-			const result = resolveLocalFont();
+			const result = resolveLocalFont({
+				family,
+				proxyURL: ({ originalUrl, collectPreload }) => {
+					const type = extractFontType(originalUrl);
+					const hash = hashWithExtension({ hash: hasher.hashString(originalUrl), type });
+					const url = base + hash;
+
+					if (!hashToUrlMap.has(hash)) {
+						hashToUrlMap.set(hash, originalUrl);
+						if (collectPreload) {
+							preloadData.push({ url, type });
+						}
+					}
+
+					// If a family has fallbacks, we store the first url we get that may
+					// be used for the fallback generation, if capsize doesn't have this
+					// family in its built-in collection
+					if (family.fallbacks && family.fallbacks.length > 0) {
+						fallbackFontData ??= {
+							hash,
+							url: originalUrl,
+						};
+					}
+
+					return url;
+				},
+			});
 			fonts = result.fonts;
 		} else {
 			const result = await resolveFont(
