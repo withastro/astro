@@ -67,6 +67,8 @@ export async function main({
 		if (family.provider === LOCAL_PROVIDER_NAME) {
 			const result = resolveLocalFont({
 				family,
+				// TODO: UrlProxy
+				// TODO: UrlProxyContentResolver
 				proxyURL: ({ originalUrl, collectPreload }) => {
 					let content: string;
 					try {
