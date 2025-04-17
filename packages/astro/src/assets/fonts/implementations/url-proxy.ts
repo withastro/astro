@@ -2,26 +2,25 @@ import type { DataCollector, Hasher, UrlProxy, UrlProxyContentResolver } from '.
 import { extractFontType } from '../utils.js';
 
 export class RealUrlProxy implements UrlProxy {
+	constructor(
+		private base: string,
+		private contentResolver: UrlProxyContentResolver,
+		private hasher: Hasher,
+		private dataCollector: DataCollector,
+	) {}
+
 	proxy({
 		url: originalUrl,
 		collectPreload,
-		contentResolver,
-		hasher,
-		base,
-		dataCollector,
 	}: {
 		url: string;
 		collectPreload: boolean;
-		contentResolver: UrlProxyContentResolver;
-		hasher: Hasher;
-		base: string;
-		dataCollector: DataCollector;
 	}): string {
 		const type = extractFontType(originalUrl);
-		const hash = `${hasher.hashString(contentResolver.resolve(originalUrl))}.${type}`;
-		const url = base + hash;
+		const hash = `${this.hasher.hashString(this.contentResolver.resolve(originalUrl))}.${type}`;
+		const url = this.base + hash;
 
-		dataCollector.collect({
+		this.dataCollector.collect({
 			originalUrl,
 			hash,
 			preload: collectPreload ? { url, type } : null,

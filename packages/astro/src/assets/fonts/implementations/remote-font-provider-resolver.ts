@@ -41,18 +41,13 @@ export function validateMod({
 export class RealRemoteFontProviderResolver implements RemoteFontProviderResolver {
 	constructor(
 		private root: URL,
+		private modResolver: RemoteFontProviderModResolver,
 		private errorHandler: ErrorHandler,
 	) {}
 
-	async resolve({
-		provider: { entrypoint, config },
-		modResolver,
-	}: {
-		provider: AstroFontProvider;
-		modResolver: RemoteFontProviderModResolver;
-	}): Promise<ResolvedFontProvider> {
+	async resolve({ entrypoint, config }: AstroFontProvider): Promise<ResolvedFontProvider> {
 		const id = resolveEntrypoint(this.root, entrypoint.toString()).href;
-		const mod = await modResolver.resolve(id);
+		const mod = await this.modResolver.resolve(id);
 		const { provider } = validateMod({
 			mod,
 			entrypoint: id,

@@ -11,10 +11,7 @@ export interface RemoteFontProviderModResolver {
 }
 
 export interface RemoteFontProviderResolver {
-	resolve: (input: {
-		provider: AstroFontProvider;
-		modResolver: RemoteFontProviderModResolver;
-	}) => Promise<ResolvedFontProvider>;
+	resolve: (provider: AstroFontProvider) => Promise<ResolvedFontProvider>;
 }
 
 export interface LocalProviderUrlResolver {
@@ -44,10 +41,6 @@ export interface UrlProxy {
 	proxy: (input: {
 		url: string;
 		collectPreload: boolean;
-		contentResolver: UrlProxyContentResolver;
-		hasher: Hasher;
-		base: string;
-		dataCollector: DataCollector;
 	}) => string;
 }
 

@@ -8,11 +8,14 @@ import { extractUnifontProviders, normalizeRemoteFontFaces, resolveFamilies } fr
 import { resolveLocalFont } from './providers/local.js';
 import type { FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
-import { extractFontType, type GetMetricsForFamilyFont } from './utils.js';
-import { readFileSync } from 'node:fs';
+import type { GetMetricsForFamilyFont } from './utils.js';
 import { BuildRemoteFontProviderModResolver } from './implementations/remote-font-provider-mod-resolver.js';
 import { RealUrlProxy } from './implementations/url-proxy.js';
 import { RealDataCollector } from './implementations/data-collector.js';
+import {
+	LocalUrlProxyContentResolver,
+	RemoteUrlProxyContentResolver,
+} from './implementations/url-proxy-content-resolver.js';
 
 // TODO: logs everywhere!
 export async function main({
@@ -29,17 +32,19 @@ export async function main({
 	// Dependencies
 	const hasher = await XxHasher.create();
 	const errorHandler = new AstroErrorHandler();
-	const remoteFontProviderResolver = new RealRemoteFontProviderResolver(root, errorHandler);
 	const modResolver = new BuildRemoteFontProviderModResolver();
+	const remoteFontProviderResolver = new RealRemoteFontProviderResolver(
+		root,
+		modResolver,
+		errorHandler,
+	);
 	const localProviderUrlResolver = new RequireLocalProviderUrlResolver(root);
 	const storage = FsStorage.create(cacheDir);
-	const urlProxy = new RealUrlProxy();
 
 	let resolvedFamilies = await resolveFamilies({
 		families,
 		hasher,
 		remoteFontProviderResolver,
-		modResolver,
 		localProviderUrlResolver,
 	});
 
@@ -72,47 +77,18 @@ export async function main({
 			fallbackFontData,
 			fallbacks,
 		);
+		const contentResolver =
+			family.provider === LOCAL_PROVIDER_NAME
+				? new LocalUrlProxyContentResolver(errorHandler)
+				: new RemoteUrlProxyContentResolver();
+		const urlProxy = new RealUrlProxy(base, contentResolver, hasher, dataCollector);
 
 		let fonts: Array<unifont.FontFaceData>;
 
 		if (family.provider === LOCAL_PROVIDER_NAME) {
 			const result = resolveLocalFont({
 				family,
-				// TODO: UrlProxy
-				// TODO: UrlProxyContentResolver
-				proxyURL: ({ originalUrl, collectPreload }) => {
-					let content: string;
-					try {
-						// TODO: dependency
-						content = readFileSync(originalUrl, 'utf-8');
-					} catch (cause) {
-						// TODO: errorHandler
-						throw 'test';
-					}
-
-					const type = extractFontType(originalUrl);
-					const hash = hashWithExtension({ hash: hasher.hashString(originalUrl + content), type });
-					const url = base + hash;
-
-					if (!hashToUrlMap.has(hash)) {
-						hashToUrlMap.set(hash, originalUrl);
-						if (collectPreload) {
-							preloadData.push({ url, type });
-						}
-					}
-
-					// If a family has fallbacks, we store the first url we get that may
-					// be used for the fallback generation, if capsize doesn't have this
-					// family in its built-in collection
-					if (family.fallbacks && family.fallbacks.length > 0) {
-						fallbackFontData.value ??= {
-							hash,
-							url: originalUrl,
-						};
-					}
-
-					return url;
-				},
+				urlProxy,
 			});
 			fonts = result.fonts;
 		} else {
@@ -131,7 +107,7 @@ export async function main({
 				// Name has been set while extracting unifont providers from families (inside familiesToUnifontProviders)
 				[family.provider.name!],
 			);
-			fonts = normalizeRemoteFontFaces(result.fonts);
+			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy });
 		}
 
 		// TODO: generate CSS font faces

@@ -3,7 +3,7 @@ import type {
 	RemoteFontProviderResolver,
 	Hasher,
 	LocalProviderUrlResolver,
-	RemoteFontProviderModResolver,
+	UrlProxy,
 } from './definitions.js';
 import type {
 	FontFamily,
@@ -40,13 +40,11 @@ export async function resolveFamily({
 	family,
 	hasher,
 	remoteFontProviderResolver,
-	modResolver,
 	localProviderUrlResolver,
 }: {
 	family: FontFamily;
 	hasher: Hasher;
 	remoteFontProviderResolver: RemoteFontProviderResolver;
-	modResolver: RemoteFontProviderModResolver;
 	localProviderUrlResolver: LocalProviderUrlResolver;
 }): Promise<ResolvedFontFamily> {
 	// TODO: handle spaces
@@ -64,10 +62,7 @@ export async function resolveFamily({
 	return {
 		...family,
 		nameWithHash,
-		provider: await remoteFontProviderResolver.resolve({
-			provider: family.provider,
-			modResolver,
-		}),
+		provider: await remoteFontProviderResolver.resolve(family.provider),
 		weights: family.weights ? dedupe(family.weights.map((weight) => weight.toString())) : undefined,
 		styles: family.styles ? dedupe(family.styles) : undefined,
 		subsets: family.subsets ? dedupe(family.subsets) : undefined,
@@ -137,9 +132,13 @@ export function extractUnifontProviders({
 	return { families, providers };
 }
 
-export function normalizeRemoteFontFaces(
-	fonts: Array<unifont.FontFaceData>,
-): Array<unifont.FontFaceData> {
+export function normalizeRemoteFontFaces({
+	fonts,
+	urlProxy,
+}: {
+	fonts: Array<unifont.FontFaceData>;
+	urlProxy: UrlProxy;
+}): Array<unifont.FontFaceData> {
 	return (
 		fonts
 			// Avoid getting too much font files
@@ -158,13 +157,11 @@ export function normalizeRemoteFontFaces(
 						const proxied = {
 							...source,
 							originalURL: source.url,
-							url: proxyURL({
-								value: source.url,
-								// We only use the url for hashing since the service returns urls with a hash already
-								hashString,
+							url: urlProxy.proxy({
+								url: source.url,
 								// We only collect the first URL to avoid preloading fallback sources (eg. we only
 								// preload woff2 if woff is available)
-								collect: (data) => collect(data, index === 0),
+								collectPreload: index === 0,
 							}),
 						};
 						index++;
