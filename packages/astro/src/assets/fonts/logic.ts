@@ -134,3 +134,41 @@ export function extractUnifontProviders({
 
 	return { families, providers };
 }
+
+export function normalizeRemoteFontFaces(
+	fonts: Array<unifont.FontFaceData>,
+): Array<unifont.FontFaceData> {
+	return (
+		fonts
+			// Avoid getting too much font files
+			.filter((font) => (typeof font.meta?.priority === 'number' ? font.meta.priority === 0 : true))
+			// Collect URLs
+			.map((font) => {
+				// The index keeps track of encountered URLs. We can't use the index on font.src.map
+				// below because it may contain sources without urls, which would prevent preloading completely
+				let index = 0;
+				return {
+					...font,
+					src: font.src.map((source) => {
+						if ('name' in source) {
+							return source;
+						}
+						const proxied = {
+							...source,
+							originalURL: source.url,
+							url: proxyURL({
+								value: source.url,
+								// We only use the url for hashing since the service returns urls with a hash already
+								hashString,
+								// We only collect the first URL to avoid preloading fallback sources (eg. we only
+								// preload woff2 if woff is available)
+								collect: (data) => collect(data, index === 0),
+							}),
+						};
+						index++;
+						return proxied;
+					}),
+				};
+			})
+	);
+}

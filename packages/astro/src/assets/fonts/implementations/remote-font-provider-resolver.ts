@@ -35,21 +35,40 @@ export function validateMod({
 	}
 }
 
+export async function resolve({
+	provider: { entrypoint, config },
+	resolveMod,
+	root,
+	errorHandler,
+}: {
+	provider: AstroFontProvider;
+	resolveMod: (id: string) => Promise<any>;
+	root: URL;
+	errorHandler: ErrorHandler;
+}): Promise<ResolvedFontProvider> {
+	const id = resolveEntrypoint(root, entrypoint.toString()).href;
+	const mod = await resolveMod(id);
+	const { provider } = validateMod({
+		mod,
+		entrypoint: id,
+		errorHandler,
+	});
+	return { config, provider };
+}
+
 export class BuildRemoteFontProviderResolver implements RemoteFontProviderResolver {
 	constructor(
 		private root: URL,
 		private errorHandler: ErrorHandler,
 	) {}
 
-	async resolve({ entrypoint, config }: AstroFontProvider): Promise<ResolvedFontProvider> {
-		const id = resolveEntrypoint(this.root, entrypoint.toString()).href;
-		const mod = await import(id);
-		const { provider } = validateMod({
-			mod,
-			entrypoint: id,
+	async resolve(provider: AstroFontProvider): Promise<ResolvedFontProvider> {
+		return await resolve({
+			provider,
+			resolveMod: (id) => import(id),
+			root: this.root,
 			errorHandler: this.errorHandler,
 		});
-		return { config, provider };
 	}
 }
 
@@ -60,14 +79,12 @@ export class DevServerRemoteFontProviderResolver implements RemoteFontProviderRe
 		private errorHandler: ErrorHandler,
 	) {}
 
-	async resolve({ entrypoint, config }: AstroFontProvider): Promise<ResolvedFontProvider> {
-		const id = resolveEntrypoint(this.root, entrypoint.toString()).href;
-		const mod = await this.server.ssrLoadModule(id);
-		const { provider } = validateMod({
-			mod,
-			entrypoint: id,
+	async resolve(provider: AstroFontProvider): Promise<ResolvedFontProvider> {
+		return await resolve({
+			provider,
+			resolveMod: (id) => this.server.ssrLoadModule(id),
+			root: this.root,
 			errorHandler: this.errorHandler,
 		});
-		return { config, provider };
 	}
 }

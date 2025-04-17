@@ -13,6 +13,7 @@ type ResolveFontResult = NonNullable<Awaited<ReturnType<InitializedProvider['res
 
 interface Options {
 	family: ResolvedLocalFontFamily;
+	// TODO: dedupe?
 	proxyURL: (input: { originalUrl: string; collectPreload: boolean }) => string;
 }
 

@@ -4,11 +4,12 @@ import { XxHasher } from './implementations/hasher.js';
 import { RequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
 import { BuildRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
 import { FsStorage } from './implementations/storage.js';
-import { extractUnifontProviders, resolveFamilies } from './logic.js';
+import { extractUnifontProviders, normalizeRemoteFontFaces, resolveFamilies } from './logic.js';
 import { resolveLocalFont } from './providers/local.js';
 import type { FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
 import { extractFontType, hashWithExtension, type GetMetricsForFamilyFont } from './utils.js';
+import { readFileSync } from 'node:fs';
 
 // TODO: logs everywhere!
 export async function main({
@@ -64,8 +65,17 @@ export async function main({
 			const result = resolveLocalFont({
 				family,
 				proxyURL: ({ originalUrl, collectPreload }) => {
+					let content: string;
+					try {
+						// TODO: dependency
+						content = readFileSync(originalUrl, 'utf-8');
+					} catch (cause) {
+						// TODO: errorHandler
+						throw 'test';
+					}
+
 					const type = extractFontType(originalUrl);
-					const hash = hashWithExtension({ hash: hasher.hashString(originalUrl), type });
+					const hash = hashWithExtension({ hash: hasher.hashString(originalUrl + content), type });
 					const url = base + hash;
 
 					if (!hashToUrlMap.has(hash)) {
