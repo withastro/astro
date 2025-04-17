@@ -47,10 +47,10 @@ export function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][numbe
 			if ('url' in src) {
 				let rendered = `url("${src.url}")`;
 				if (src.format) {
-					rendered += ` format("${src.format}")`
+					rendered += ` format("${src.format}")`;
 				}
 				if (src.tech) {
-					rendered += ` tech(${src.tech})`
+					rendered += ` tech(${src.tech})`;
 				}
 				return rendered;
 			}

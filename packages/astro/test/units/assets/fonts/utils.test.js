@@ -557,10 +557,7 @@ describe('fonts utils', () => {
 			);
 		});
 		it('does not wrap tech in quotes', () => {
-			assert.equal(
-				renderFontSrc([{ url: 'test', tech: 'x' }]).includes('tech(x)'),
-				true,
-			);
+			assert.equal(renderFontSrc([{ url: 'test', tech: 'x' }]).includes('tech(x)'), true);
 		});
 	});
 
