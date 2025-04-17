@@ -26,7 +26,7 @@ export interface ResolvedLocalFontFamily
 		Omit<LocalFontFamily, 'variants'> {
 	variants: Array<
 		Omit<LocalFontFamily['variants'][number], 'weight' | 'src'> & {
-			weight: string;
+			weight: 'infer' | (string & {});
 			src: Array<{ url: string; tech?: string }>;
 		}
 	>;

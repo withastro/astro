@@ -76,22 +76,24 @@ export async function loadFonts({
 		if (family.provider === LOCAL_PROVIDER_NAME) {
 			const result = resolveLocalFont({
 				family,
+				// TODO: There must be a better flow than this. proxyURL should probably accept a hash directly
 				proxyURL: (value) => {
-					return proxyURL({
+					let content: Buffer;
+					try {
+						content = readFileSync(value);
+					} catch (e) {
+						throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
+					}
+					const url = proxyURL({
 						value,
 						// We hash based on the filepath and the contents, since the user could replace
 						// a given font file with completely different contents.
 						hashString: (v) => {
-							let content: string;
-							try {
-								content = readFileSync(value, 'utf-8');
-							} catch (e) {
-								throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
-							}
-							return hashString(v + content);
+							return hashString(v + content.toString('utf-8'));
 						},
 						collect,
 					});
+					return { url, content };
 				},
 			});
 			fonts = result.fonts;
@@ -110,6 +112,8 @@ export async function loadFonts({
 				// Name has been set while extracting unifont providers from families (inside familiesToUnifontProviders)
 				[family.provider.name!],
 			);
+
+			// TODO: warn if no font faces have been resolved
 
 			fonts = result.fonts
 				// Avoid getting too much font files
