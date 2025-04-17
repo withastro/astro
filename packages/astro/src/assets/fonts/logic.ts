@@ -11,12 +11,8 @@ import type {
 	ResolvedFontFamily,
 	ResolvedLocalFontFamily,
 } from './types.js';
-import { withoutQuotes } from './utils.js';
+import { dedupe, withoutQuotes } from './utils.js';
 import type * as unifont from 'unifont';
-
-function dedupe<const T extends Array<any>>(arr: T): T {
-	return [...new Set(arr)] as T;
-}
 
 function resolveVariants({
 	variants,

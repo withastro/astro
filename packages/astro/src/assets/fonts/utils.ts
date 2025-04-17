@@ -138,10 +138,6 @@ export function proxyURL({ value, hashString, collect }: ProxyURLOptions): strin
 	return url;
 }
 
-export function hashWithExtension({ hash, type }: { hash: string; type: FontType }): string {
-	return `${hash}.${type}`;
-}
-
 export function isGenericFontFamily(str: string): str is keyof typeof DEFAULT_FALLBACKS {
 	return Object.keys(DEFAULT_FALLBACKS).includes(str);
 }
@@ -232,7 +228,7 @@ export async function generateFallbacksCSS({
 	return { css, fallbacks };
 }
 
-function dedupe<const T extends Array<any>>(arr: T): T {
+export function dedupe<const T extends Array<any>>(arr: T): T {
 	return [...new Set(arr)] as T;
 }
 

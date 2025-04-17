@@ -8,9 +8,11 @@ import { extractUnifontProviders, normalizeRemoteFontFaces, resolveFamilies } fr
 import { resolveLocalFont } from './providers/local.js';
 import type { FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
-import { extractFontType, hashWithExtension, type GetMetricsForFamilyFont } from './utils.js';
+import { extractFontType, type GetMetricsForFamilyFont } from './utils.js';
 import { readFileSync } from 'node:fs';
 import { BuildRemoteFontProviderModResolver } from './implementations/remote-font-provider-mod-resolver.js';
+import { RealUrlProxy } from './implementations/url-proxy.js';
+import { RealDataCollector } from './implementations/data-collector.js';
 
 // TODO: logs everywhere!
 export async function main({
@@ -31,6 +33,7 @@ export async function main({
 	const modResolver = new BuildRemoteFontProviderModResolver();
 	const localProviderUrlResolver = new RequireLocalProviderUrlResolver(root);
 	const storage = FsStorage.create(cacheDir);
+	const urlProxy = new RealUrlProxy();
 
 	let resolvedFamilies = await resolveFamilies({
 		families,
@@ -60,7 +63,15 @@ export async function main({
 		// TODO: might be refactored
 		const preloadData: PreloadData = [];
 		let css = '';
-		let fallbackFontData: GetMetricsForFamilyFont | null = null;
+		const fallbackFontData: { value: GetMetricsForFamilyFont | null } = { value: null };
+		const fallbacks = family.fallbacks ?? DEFAULTS.fallbacks;
+
+		const dataCollector = new RealDataCollector(
+			hashToUrlMap,
+			preloadData,
+			fallbackFontData,
+			fallbacks,
+		);
 
 		let fonts: Array<unifont.FontFaceData>;
 
@@ -94,7 +105,7 @@ export async function main({
 					// be used for the fallback generation, if capsize doesn't have this
 					// family in its built-in collection
 					if (family.fallbacks && family.fallbacks.length > 0) {
-						fallbackFontData ??= {
+						fallbackFontData.value ??= {
 							hash,
 							url: originalUrl,
 						};

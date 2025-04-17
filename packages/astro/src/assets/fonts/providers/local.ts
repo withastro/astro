@@ -2,6 +2,7 @@ import type * as unifont from 'unifont';
 import { FONT_FORMAT_MAP } from '../constants.js';
 import type { ResolvedLocalFontFamily } from '../types.js';
 import { extractFontType } from '../utils.js';
+import type { DataCollector, Hasher, UrlProxy, UrlProxyContentResolver } from '../definitions.js';
 
 // https://fonts.nuxt.com/get-started/providers#local
 // https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
@@ -13,11 +14,21 @@ type ResolveFontResult = NonNullable<Awaited<ReturnType<InitializedProvider['res
 
 interface Options {
 	family: ResolvedLocalFontFamily;
-	// TODO: dedupe?
-	proxyURL: (input: { originalUrl: string; collectPreload: boolean }) => string;
+	urlProxy: UrlProxy;
+	contentResolver: UrlProxyContentResolver;
+	base: string;
+	dataCollector: DataCollector;
+	hasher: Hasher;
 }
 
-export function resolveLocalFont({ family, proxyURL }: Options): ResolveFontResult {
+export function resolveLocalFont({
+	family,
+	urlProxy,
+	contentResolver,
+	base,
+	dataCollector,
+	hasher,
+}: Options): ResolveFontResult {
 	const fonts: ResolveFontResult['fonts'] = [];
 
 	for (const variant of family.variants) {
@@ -27,8 +38,16 @@ export function resolveLocalFont({ family, proxyURL }: Options): ResolveFontResu
 			src: variant.src.map(({ url: originalURL, tech }, index) => {
 				return {
 					originalURL,
-					// TODO: explain
-					url: proxyURL({ originalUrl: originalURL, collectPreload: index === 0 }),
+					url: urlProxy.proxy({
+						base,
+						// TODO: explain
+						collectPreload: index === 0,
+						contentResolver,
+						hasher,
+						url: originalURL,
+						dataCollector,
+					}),
+					// url: proxyURL({ originalUrl: originalURL, collectPreload: index === 0 }),
 					format: FONT_FORMAT_MAP[extractFontType(originalURL)],
 					tech,
 				};
