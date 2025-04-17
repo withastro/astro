@@ -3,7 +3,7 @@ import {
 	RequireLocalProviderUrlResolver,
 	XxHasher,
 } from './implementations.js';
-import { resolveFamilies } from './logic.js';
+import { extractUnifontProviders, resolveFamilies } from './logic.js';
 import type { FontFamily } from './types.js';
 
 export async function main({ families, root }: { families: Array<FontFamily>; root: URL }) {
@@ -11,10 +11,17 @@ export async function main({ families, root }: { families: Array<FontFamily>; ro
 	const remoteFontProviderResolver = new BuildRemoteFontProviderResolver(root);
 	const localProviderUrlResolver = new RequireLocalProviderUrlResolver(root);
 
-	const resolvedFamilies = await resolveFamilies({
+	let resolvedFamilies = await resolveFamilies({
 		families,
 		hasher,
 		remoteFontProviderResolver,
 		localProviderUrlResolver,
 	});
+
+	const extractedUnifontProvidersResult = extractUnifontProviders({
+		families: resolvedFamilies,
+		hasher,
+	});
+	resolvedFamilies = extractedUnifontProvidersResult.families;
+	const unifontProviders = extractedUnifontProvidersResult.providers;
 }
