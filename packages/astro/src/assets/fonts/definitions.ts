@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { AstroFontProvider, PreloadData, ResolvedFontProvider } from './types.js';
 import type * as unifont from 'unifont';
+import type { GetMetricsForFamily } from './utils.js';
 
 export interface Hasher {
 	hashString: (input: string) => string;
@@ -60,4 +61,10 @@ export interface DataCollector {
 export interface CssRenderer {
 	generateFontFace: (family: string, font: unifont.FontFaceData) => string;
 	generateCssVariable: (key: string, values: Array<string>) => string;
+}
+
+export interface FontMetricsResolver {
+	// TODO: do not keep type like this
+	getMetrics: GetMetricsForFamily;
+	generateFontFace: any
 }

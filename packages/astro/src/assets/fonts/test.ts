@@ -130,6 +130,7 @@ export async function main({
 		}
 
 		// TODO: generate fallback css
+		// logic fn + deps
 		// TODO: generate CSS variables
 		// TODO: add data to internal data structures
 	}
