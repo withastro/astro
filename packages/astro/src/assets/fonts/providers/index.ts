@@ -34,9 +34,10 @@ function fontsource() {
 // This provider downloads too many files when there's a variable font
 // available. This is bad because it doesn't align with our default font settings
 /** [Google](https://fonts.google.com/) */
-function google() {
+function google(config?: Parameters<typeof providers.google>[0]) {
 	return defineAstroFontProvider({
 		entrypoint: 'astro/assets/fonts/providers/google',
+		config,
 	});
 }
 
