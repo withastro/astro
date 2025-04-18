@@ -68,8 +68,7 @@ export async function loadFonts({
 				}
 			}
 			// If a family has fallbacks, we store the first url we get that may
-			// be used for the fallback generation, if capsize doesn't have this
-			// family in its built-in collection
+			// be used for the fallback generation
 			if (
 				fallbacks &&
 				fallbacks.length > 0 &&
