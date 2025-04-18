@@ -43,7 +43,4 @@ export const GENERIC_FALLBACK_NAMES = [
 	'fangsong',
 ] as const;
 
-// TODO: move type
-export type GenericFallbackName = (typeof GENERIC_FALLBACK_NAMES)[number];
-
 export const FONTS_TYPES_FILE = 'fonts.d.ts';

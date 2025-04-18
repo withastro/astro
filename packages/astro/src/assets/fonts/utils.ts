@@ -4,13 +4,8 @@ import { pathToFileURL } from 'node:url';
 import type * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import {
-	FONT_TYPES,
-	GENERIC_FALLBACK_NAMES,
-	type GenericFallbackName,
-	LOCAL_PROVIDER_NAME,
-} from './constants.js';
-import type { FontType, ResolvedFontFamily } from './types.js';
+import { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
+import type { FontType, GenericFallbackName, ResolvedFontFamily } from './types.js';
 
 export function unifontFontFaceDataToProperties(
 	font: Partial<unifont.FontFaceData>,

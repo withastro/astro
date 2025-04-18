@@ -1,6 +1,5 @@
-import type { GenericFallbackName } from '../constants.js';
 import type { SystemFallbacksProvider } from '../definitions.js';
-import type { FontFaceMetrics } from '../types.js';
+import type { FontFaceMetrics, GenericFallbackName } from '../types.js';
 
 // Extracted from https://raw.githubusercontent.com/seek-oss/capsize/refs/heads/master/packages/metrics/src/entireMetricsCollection.json
 export const SYSTEM_METRICS = {

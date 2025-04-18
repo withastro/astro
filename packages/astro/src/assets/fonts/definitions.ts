@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { AstroFontProvider, PreloadData, ResolvedFontProvider } from './types.js';
 import type * as unifont from 'unifont';
-import type { FontFaceMetrics } from './types.js';
-import type { GenericFallbackName } from './constants.js';
+import type { FontFaceMetrics, GenericFallbackName } from './types.js';
 import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
 
 export interface Hasher {
