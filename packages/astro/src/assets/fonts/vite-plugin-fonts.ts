@@ -20,7 +20,7 @@ import { extractFontType } from './utils.js';
 import { orchestrate } from './orchestrate.js';
 import { XxHasher } from './implementations/hasher.js';
 import { AstroErrorHandler } from './implementations/error-handler.js';
-import type { FontFetcher, RemoteFontProviderModResolver } from './definitions.js';
+import type { CssRenderer, FontFetcher, RemoteFontProviderModResolver } from './definitions.js';
 import {
 	BuildRemoteFontProviderModResolver,
 	DevServerRemoteFontProviderModResolver,
@@ -28,7 +28,6 @@ import {
 import { RealRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
 import { RequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
 import { FsStorage } from './implementations/storage.js';
-import { PrettyCssRenderer } from './implementations/css-renderer.js';
 import { RealSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
 import { CachedFontFetcher } from './implementations/font-fetcher.js';
 import { RealFontMetricsResolver } from './implementations/font-metrics-resolver.js';
@@ -38,6 +37,7 @@ import {
 	RemoteUrlProxyContentResolver,
 } from './implementations/url-proxy-content-resolver.js';
 import { RealDataCollector } from './implementations/data-collector.js';
+import { MinifiedCssRenderer, PrettyCssRenderer } from './implementations/css-renderer.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -86,9 +86,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	async function initialize({
 		cacheDir,
 		modResolver,
+		cssRenderer,
 	}: {
 		cacheDir: URL;
 		modResolver: RemoteFontProviderModResolver;
+		cssRenderer: CssRenderer;
 	}) {
 		// Dependencies
 		const { root } = settings.config;
@@ -101,7 +103,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		);
 		const localProviderUrlResolver = new RequireLocalProviderUrlResolver(root);
 		const storage = FsStorage.create(cacheDir);
-		const cssRenderer = new PrettyCssRenderer();
 		const systemFallbacksProvider = new RealSystemFallbacksProvider();
 		fontFetcher = new CachedFontFetcher(storage, errorHandler);
 		const fontMetricsResolver = new RealFontMetricsResolver(fontFetcher, cssRenderer);
@@ -140,6 +141,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				await initialize({
 					cacheDir: new URL(CACHE_DIR, settings.config.cacheDir),
 					modResolver: new BuildRemoteFontProviderModResolver(),
+					cssRenderer: new MinifiedCssRenderer(),
 				});
 			}
 		},
@@ -148,6 +150,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
 				modResolver: new DevServerRemoteFontProviderModResolver(server),
+				cssRenderer: new PrettyCssRenderer(),
 			});
 			// The map is always defined at this point. Its values contains urls from remote providers
 			// as well as local paths for the local provider. We filter them to only keep the filepaths
