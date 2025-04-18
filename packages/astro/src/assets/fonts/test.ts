@@ -19,6 +19,10 @@ import {
 import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
 import { PrettyCssRenderer } from './implementations/css-renderer.js';
+import { optimizeFallbacks } from './logic/optimize-fallbacks.js';
+import { RealSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
+import { CachedFontFetcher } from './implementations/font-fetcher.js';
+import { RealFontMetricsResolver } from './implementations/font-metrics-resolver.js';
 
 // TODO: logs everywhere!
 export async function main({
@@ -45,6 +49,9 @@ export async function main({
 	const localProviderUrlResolver = new RequireLocalProviderUrlResolver(root);
 	const storage = FsStorage.create(cacheDir);
 	const cssRenderer = new PrettyCssRenderer();
+	const systemFallbacksProvider = new RealSystemFallbacksProvider();
+	const fontFetcher = new CachedFontFetcher(storage, errorHandler);
+	const fontMetricsResolver = new RealFontMetricsResolver(fontFetcher);
 
 	let resolvedFamilies = await resolveFamilies({
 		families,
@@ -129,10 +136,28 @@ export async function main({
 			});
 		}
 
-		// TODO: generate fallback css
-		// logic fn + deps
-		// TODO: generate CSS variables
-		// TODO: add data to internal data structures
+		const cssVarValues = [family.nameWithHash];
+		const optimizeFallbacksResult = await optimizeFallbacks({
+			family,
+			fallbacks,
+			fontData: fallbackFontData,
+			enabled: family.optimizedFallbacks ?? DEFAULTS.optimizedFallbacks,
+			systemFallbacksProvider,
+			fontMetricsResolver,
+		});
+
+		if (optimizeFallbacksResult) {
+			css += optimizeFallbacksResult.css;
+			cssVarValues.push(...optimizeFallbacksResult.fallbacks);
+		} else {
+			// Nothing to optimize, pass as is
+			cssVarValues.push(...fallbacks);
+		}
+
+		css += cssRenderer.generateCssVariable(family.cssVariable, cssVarValues);
+
+		resolvedMap.set(family.cssVariable, { preloadData, css });
 	}
-	// TODO: return data
+
+	return { hashToUrlMap, resolvedMap };
 }

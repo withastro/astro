@@ -2,6 +2,7 @@
 import type { AstroFontProvider, PreloadData, ResolvedFontProvider } from './types.js';
 import type * as unifont from 'unifont';
 import type { GetMetricsForFamily } from './utils.js';
+import type { FontFaceMetrics } from './metrics.js';
 
 export interface Hasher {
 	hashString: (input: string) => string;
@@ -33,7 +34,8 @@ export type ErrorHandlerInput =
 				entrypoint: string;
 			}
 	  >
-	| SingleErrorInput<'unknown-fs-error', {}>;
+	| SingleErrorInput<'unknown-fs-error', {}>
+	| SingleErrorInput<'cannot-fetch-font-file', { url: string }>;
 
 export interface ErrorHandler {
 	handle: (input: ErrorHandlerInput) => Error;
@@ -68,5 +70,20 @@ export interface CssRenderer {
 export interface FontMetricsResolver {
 	// TODO: do not keep type like this
 	getMetrics: GetMetricsForFamily;
-	generateFontFace: any;
+	generateFontFace: (input: {
+		metrics: FontFaceMetrics;
+		fallbackMetrics: FontFaceMetrics;
+		name: string;
+		font: string;
+		properties: Record<string, string | undefined>;
+	}) => string;
+}
+
+export interface SystemFallbacksProvider {
+	getLocalFonts: (fallback: string) => Array<string> | null;
+	getMetricsForLocalFont: (family: string) => FontFaceMetrics;
+}
+
+export interface FontFetcher {
+	fetch: (hash: string, url: string) => Promise<Buffer>;
 }
