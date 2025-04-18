@@ -1,5 +1,15 @@
 # astro
 
+## 5.7.4
+
+### Patch Changes
+
+- [#13647](https://github.com/withastro/astro/pull/13647) [`ffbe8f2`](https://github.com/withastro/astro/commit/ffbe8f27a3e897971432eed1fde566db328b540d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused a session error to be logged when using actions without sessions
+
+- [#13646](https://github.com/withastro/astro/pull/13646) [`6744842`](https://github.com/withastro/astro/commit/67448426fb4e2289ef8bc25d97bd617456b18b68) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where extra font sources were removed when using the experimental fonts API
+
+- [#13635](https://github.com/withastro/astro/pull/13635) [`d75cac4`](https://github.com/withastro/astro/commit/d75cac45de8790331aad134ae91bfeb1943cd458) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - The experimental fonts API now generates optimized fallbacks for every weight and style
+
 ## 5.7.3
 
 ### Patch Changes
