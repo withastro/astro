@@ -10,7 +10,7 @@ import {
 	type GenericFallbackName,
 	LOCAL_PROVIDER_NAME,
 } from './constants.js';
-import type { FontFaceMetrics } from './metrics.js';
+import type { FontFaceMetrics } from './types.js';
 import type { FontType, ResolvedFontFamily } from './types.js';
 
 export function toCSS(properties: Record<string, string | undefined>, indent = 2) {
@@ -37,13 +37,6 @@ export function unifontFontFaceDataToProperties(
 		'font-feature-settings': font.featureSettings,
 		'font-variation-settings': font.variationSettings,
 	};
-}
-
-export function generateFontFace(family: string, font: unifont.FontFaceData) {
-	return renderFontFace({
-		'font-family': family,
-		...unifontFontFaceDataToProperties(font),
-	});
 }
 
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L68-L81

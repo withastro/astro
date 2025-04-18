@@ -6,6 +6,7 @@ import type {
 	remoteFontFamilySchema,
 } from './config.js';
 import type { FONT_TYPES } from './constants.js';
+import type { Font } from '@capsizecss/unpack';
 
 export type AstroFontProvider = z.infer<typeof fontProviderSchema>;
 
@@ -59,3 +60,8 @@ export type PreloadData = Array<{
 	 */
 	type: FontType;
 }>;
+
+export type FontFaceMetrics = Pick<
+	Font,
+	'ascent' | 'descent' | 'lineGap' | 'unitsPerEm' | 'xWidthAvg'
+>;

@@ -2,7 +2,7 @@
 import type { AstroFontProvider, PreloadData, ResolvedFontProvider } from './types.js';
 import type * as unifont from 'unifont';
 import type { GetMetricsForFamily } from './utils.js';
-import type { FontFaceMetrics } from './metrics.js';
+import type { FontFaceMetrics } from './types.js';
 import type { GenericFallbackName } from './constants.js';
 
 export interface Hasher {
@@ -64,7 +64,7 @@ export interface DataCollector {
 }
 
 export interface CssRenderer {
-	generateFontFace: (family: string, font: unifont.FontFaceData) => string;
+	generateFontFace: (family: string, properties: Record<string, string | undefined>) => string;
 	generateCssVariable: (key: string, values: Array<string>) => string;
 }
 

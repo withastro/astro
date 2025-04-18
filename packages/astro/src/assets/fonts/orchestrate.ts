@@ -3,7 +3,11 @@ import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
 import type { FontFamily, PreloadData, ResolvedRemoteFontFamily } from './types.js';
 import * as unifont from 'unifont';
-import { pickFontFaceProperty, type GetMetricsForFamilyFont } from './utils.js';
+import {
+	pickFontFaceProperty,
+	unifontFontFaceDataToProperties,
+	type GetMetricsForFamilyFont,
+} from './utils.js';
 import type { RealDataCollector } from './implementations/data-collector.js';
 import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
@@ -118,17 +122,20 @@ export async function orchestrate({
 		}
 
 		for (const data of fonts) {
-			css += cssRenderer.generateFontFace(family.nameWithHash, {
-				src: data.src,
-				weight: data.weight,
-				style: data.style,
-				// User settings override the generated font settings
-				display: pickFontFaceProperty('display', { data, family }),
-				unicodeRange: pickFontFaceProperty('unicodeRange', { data, family }),
-				stretch: pickFontFaceProperty('stretch', { data, family }),
-				featureSettings: pickFontFaceProperty('featureSettings', { data, family }),
-				variationSettings: pickFontFaceProperty('variationSettings', { data, family }),
-			});
+			css += cssRenderer.generateFontFace(
+				family.nameWithHash,
+				unifontFontFaceDataToProperties({
+					src: data.src,
+					weight: data.weight,
+					style: data.style,
+					// User settings override the generated font settings
+					display: pickFontFaceProperty('display', { data, family }),
+					unicodeRange: pickFontFaceProperty('unicodeRange', { data, family }),
+					stretch: pickFontFaceProperty('stretch', { data, family }),
+					featureSettings: pickFontFaceProperty('featureSettings', { data, family }),
+					variationSettings: pickFontFaceProperty('variationSettings', { data, family }),
+				}),
+			);
 		}
 
 		const cssVarValues = [family.nameWithHash];

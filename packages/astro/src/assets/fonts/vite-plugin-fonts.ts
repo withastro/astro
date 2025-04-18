@@ -104,7 +104,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const cssRenderer = new PrettyCssRenderer();
 		const systemFallbacksProvider = new RealSystemFallbacksProvider();
 		fontFetcher = new CachedFontFetcher(storage, errorHandler);
-		const fontMetricsResolver = new RealFontMetricsResolver(fontFetcher);
+		const fontMetricsResolver = new RealFontMetricsResolver(fontFetcher, cssRenderer);
 
 		const res = await orchestrate({
 			families: settings.config.experimental.fonts!,
