@@ -13,17 +13,6 @@ import {
 import type { FontFaceMetrics } from './types.js';
 import type { FontType, ResolvedFontFamily } from './types.js';
 
-export function toCSS(properties: Record<string, string | undefined>, indent = 2) {
-	return Object.entries(properties)
-		.filter(([, value]) => Boolean(value))
-		.map(([key, value]) => `${' '.repeat(indent)}${key}: ${value};`)
-		.join('\n');
-}
-
-export function renderFontFace(properties: Record<string, string | undefined>) {
-	return `@font-face {\n\t${toCSS(properties)}\n}\n`;
-}
-
 export function unifontFontFaceDataToProperties(
 	font: Partial<unifont.FontFaceData>,
 ): Record<string, string | undefined> {
