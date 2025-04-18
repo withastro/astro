@@ -26,10 +26,11 @@ export function renderFontFace(properties: Record<string, string | undefined>) {
 	return `@font-face {\n\t${toCSS(properties)}\n}\n`;
 }
 
-export function generateFontFace(family: string, font: unifont.FontFaceData) {
-	return renderFontFace({
-		'font-family': family,
-		src: renderFontSrc(font.src),
+export function unifontFontFaceDataToProperties(
+	font: Partial<unifont.FontFaceData>,
+): Record<string, string | undefined> {
+	return {
+		src: font.src ? renderFontSrc(font.src) : undefined,
 		'font-display': font.display ?? 'swap',
 		'unicode-range': font.unicodeRange?.join(','),
 		'font-weight': Array.isArray(font.weight) ? font.weight.join(' ') : font.weight?.toString(),
@@ -37,6 +38,13 @@ export function generateFontFace(family: string, font: unifont.FontFaceData) {
 		'font-stretch': font.stretch,
 		'font-feature-settings': font.featureSettings,
 		'font-variation-settings': font.variationSettings,
+	};
+}
+
+export function generateFontFace(family: string, font: unifont.FontFaceData) {
+	return renderFontFace({
+		'font-family': family,
+		...unifontFontFaceDataToProperties(font),
 	});
 }
 
@@ -145,6 +153,7 @@ export function isGenericFontFamily(str: string): str is keyof typeof DEFAULT_FA
 export type GetMetricsForFamilyFont = {
 	hash: string;
 	url: string;
+	data: Partial<unifont.FontFaceData>;
 };
 
 export type GetMetricsForFamily = (
@@ -169,42 +178,44 @@ export async function generateFallbacksCSS({
 	family: Pick<ResolvedFontFamily, 'name' | 'nameWithHash'>;
 	/** The family fallbacks */
 	fallbacks: Array<string>;
-	font: GetMetricsForFamilyFont | null;
+	font: Array<GetMetricsForFamilyFont>;
 	metrics: {
 		getMetricsForFamily: GetMetricsForFamily;
 		generateFontFace: typeof generateFallbackFontFace;
 	} | null;
-}): Promise<null | { css: string; fallbacks: Array<string> }> {
+}): Promise<null | { css?: string; fallbacks: Array<string> }> {
 	// We avoid mutating the original array
 	let fallbacks = [..._fallbacks];
 	if (fallbacks.length === 0) {
 		return null;
 	}
 
-	let css = '';
-
-	if (!fontData || !metrics) {
-		return { css, fallbacks };
+	if (fontData.length === 0 || !metrics) {
+		return { fallbacks };
 	}
 
 	// The last element of the fallbacks is usually a generic family name (eg. serif)
 	const lastFallback = fallbacks[fallbacks.length - 1];
 	// If it's not a generic family name, we can't infer local fonts to be used as fallbacks
 	if (!isGenericFontFamily(lastFallback)) {
-		return { css, fallbacks };
+		return { fallbacks };
 	}
 
 	// If it's a generic family name, we get the associated local fonts (eg. Arial)
 	const localFonts = DEFAULT_FALLBACKS[lastFallback];
 	// Some generic families do not have associated local fonts so we abort early
 	if (localFonts.length === 0) {
-		return { css, fallbacks };
+		return { fallbacks };
 	}
 
-	const foundMetrics = await metrics.getMetricsForFamily(family.name, fontData);
-	if (!foundMetrics) {
-		// If there are no metrics, we can't generate useful fallbacks
-		return { css, fallbacks };
+	// If the family is already a system font, no need to generate fallbacks
+	if (
+		localFonts.includes(
+			// @ts-expect-error TS is not smart enough
+			family.name,
+		)
+	) {
+		return { fallbacks };
 	}
 
 	const localFontsMappings = localFonts.map((font) => ({
@@ -214,15 +225,18 @@ export async function generateFallbacksCSS({
 
 	// We prepend the fallbacks with the local fonts and we dedupe in case a local font is already provided
 	fallbacks = [...new Set([...localFontsMappings.map((m) => m.name), ...fallbacks])];
+	let css = '';
 
 	for (const { font, name } of localFontsMappings) {
-		css += metrics.generateFontFace({
-			metrics: foundMetrics,
-			fallbackMetrics: SYSTEM_METRICS[font],
-			font,
-			name,
-			// TODO: forward some properties once we generate one fallback per font face data
-		});
+		for (const { hash, url, data } of fontData) {
+			css += metrics.generateFontFace({
+				metrics: await metrics.getMetricsForFamily(family.name, { hash, url, data }),
+				fallbackMetrics: SYSTEM_METRICS[font],
+				font,
+				name,
+				properties: unifontFontFaceDataToProperties(data),
+			});
+		}
 	}
 
 	return { css, fallbacks };

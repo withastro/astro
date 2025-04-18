@@ -1,6 +1,6 @@
+// @ts-check
 import assert from 'node:assert/strict';
 import { basename, extname } from 'node:path';
-// @ts-check
 import { describe, it } from 'node:test';
 import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
@@ -23,7 +23,7 @@ function resolveLocalFontSpy(family) {
 		family,
 		proxyURL: (v) =>
 			proxyURL({
-				value: v,
+				value: v.value,
 				hashString: (value) => basename(value, extname(value)),
 				collect: ({ hash, value }) => {
 					values.push(value);

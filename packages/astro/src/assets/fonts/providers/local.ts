@@ -13,7 +13,7 @@ type ResolveFontResult = NonNullable<Awaited<ReturnType<InitializedProvider['res
 
 interface Options {
 	family: ResolvedLocalFontFamily;
-	proxyURL: (value: string) => string;
+	proxyURL: (params: { value: string; data: Partial<unifont.FontFaceData> }) => string;
 }
 
 export function resolveLocalFont({ family, proxyURL }: Options): ResolveFontResult {
@@ -26,7 +26,13 @@ export function resolveLocalFont({ family, proxyURL }: Options): ResolveFontResu
 			src: variant.src.map(({ url: originalURL, tech }) => {
 				return {
 					originalURL,
-					url: proxyURL(originalURL),
+					url: proxyURL({
+						value: originalURL,
+						data: {
+							weight: variant.weight,
+							style: variant.style,
+						},
+					}),
 					format: FONT_FORMAT_MAP[extractFontType(originalURL)],
 					tech,
 				};
