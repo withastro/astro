@@ -1,5 +1,4 @@
 import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
-import { FsStorage } from './implementations/storage.js';
 import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
 import type { FontFamily, PreloadData } from './types.js';
@@ -13,17 +12,17 @@ import {
 } from './implementations/url-proxy-content-resolver.js';
 import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
-import { PrettyCssRenderer } from './implementations/css-renderer.js';
 import { optimizeFallbacks } from './logic/optimize-fallbacks.js';
-import { RealSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
-import { CachedFontFetcher } from './implementations/font-fetcher.js';
-import { RealFontMetricsResolver } from './implementations/font-metrics-resolver.js';
 import type {
+	CssRenderer,
 	ErrorHandler,
+	FontMetricsResolver,
 	Hasher,
 	LocalProviderUrlResolver,
 	RemoteFontProviderResolver,
+	SystemFallbacksProvider,
 } from './definitions.js';
+import type { Storage } from 'unstorage';
 
 // TODO: logs everywhere!
 export async function orchestrate({
@@ -34,6 +33,10 @@ export async function orchestrate({
 	errorHandler,
 	remoteFontProviderResolver,
 	localProviderUrlResolver,
+	storage,
+	cssRenderer,
+	systemFallbacksProvider,
+	fontMetricsResolver,
 }: {
 	families: Array<FontFamily>;
 	cacheDir: URL;
@@ -42,13 +45,11 @@ export async function orchestrate({
 	errorHandler: ErrorHandler;
 	remoteFontProviderResolver: RemoteFontProviderResolver;
 	localProviderUrlResolver: LocalProviderUrlResolver;
+	storage: Storage;
+	cssRenderer: CssRenderer;
+	systemFallbacksProvider: SystemFallbacksProvider;
+	fontMetricsResolver: FontMetricsResolver;
 }) {
-	const storage = FsStorage.create(cacheDir);
-	const cssRenderer = new PrettyCssRenderer();
-	const systemFallbacksProvider = new RealSystemFallbacksProvider();
-	const fontFetcher = new CachedFontFetcher(storage, errorHandler);
-	const fontMetricsResolver = new RealFontMetricsResolver(fontFetcher);
-
 	let resolvedFamilies = await resolveFamilies({
 		families,
 		hasher,

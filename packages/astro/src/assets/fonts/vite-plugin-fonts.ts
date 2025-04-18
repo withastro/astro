@@ -40,6 +40,11 @@ import {
 } from './implementations/remote-font-provider-mod-resolver.js';
 import { RealRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
 import { RequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
+import { FsStorage } from './implementations/storage.js';
+import { PrettyCssRenderer } from './implementations/css-renderer.js';
+import { RealSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
+import { CachedFontFetcher } from './implementations/font-fetcher.js';
+import { RealFontMetricsResolver } from './implementations/font-metrics-resolver.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -165,6 +170,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			errorHandler,
 		);
 		const localProviderUrlResolver = new RequireLocalProviderUrlResolver(root);
+		const storage = FsStorage.create(base);
+		const cssRenderer = new PrettyCssRenderer();
+		const systemFallbacksProvider = new RealSystemFallbacksProvider();
+		const fontFetcher = new CachedFontFetcher(storage, errorHandler);
+		const fontMetricsResolver = new RealFontMetricsResolver(fontFetcher);
 
 		// TODO: renames needed
 		const res = await orchestrate({
@@ -175,7 +185,13 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			errorHandler,
 			remoteFontProviderResolver,
 			localProviderUrlResolver,
+			storage,
+			cssRenderer,
+			systemFallbacksProvider,
+			fontMetricsResolver,
 		});
+		hashToUrlMap = res.hashToUrlMap;
+		resolvedMap = res.resolvedMap;
 	}
 
 	return {
