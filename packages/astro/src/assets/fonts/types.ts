@@ -5,7 +5,8 @@ import type {
 	localFontFamilySchema,
 	remoteFontFamilySchema,
 } from './config.js';
-import type { FONT_TYPES } from './constants.js';
+import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
+import type { Font } from '@capsizecss/unpack';
 
 export type AstroFontProvider = z.infer<typeof fontProviderSchema>;
 
@@ -59,3 +60,17 @@ export type PreloadData = Array<{
 	 */
 	type: FontType;
 }>;
+
+export type FontFaceMetrics = Pick<
+	Font,
+	'ascent' | 'descent' | 'lineGap' | 'unitsPerEm' | 'xWidthAvg'
+>;
+
+export type GenericFallbackName = (typeof GENERIC_FALLBACK_NAMES)[number];
+
+export type Defaults = Partial<
+	Pick<
+		ResolvedRemoteFontFamily,
+		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks'
+	>
+>;
