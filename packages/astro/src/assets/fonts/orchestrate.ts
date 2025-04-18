@@ -1,7 +1,7 @@
 import { LOCAL_PROVIDER_NAME } from './constants.js';
 import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
-import type { FontFamily, PreloadData, ResolvedRemoteFontFamily } from './types.js';
+import type { Defaults, FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
 import { pickFontFaceProperty, unifontFontFaceDataToProperties } from './utils.js';
 import type { RealDataCollector } from './implementations/data-collector.js';
@@ -19,12 +19,7 @@ import type {
 } from './definitions.js';
 import type { Storage } from 'unstorage';
 
-export type Defaults = Partial<
-	Pick<
-		ResolvedRemoteFontFamily,
-		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks'
-	>
->;
+// TODO: comment/document everything everywhere
 
 // TODO: logs everywhere!
 export async function orchestrate({
@@ -49,6 +44,7 @@ export async function orchestrate({
 	fontMetricsResolver: FontMetricsResolver;
 	createUrlProxy: (
 		local: boolean,
+		// TODO: needs a better shape, should not rely on an implementation
 		...collectorArgs: ConstructorParameters<typeof RealDataCollector>
 	) => UrlProxy;
 	defaults: Defaults;
@@ -71,19 +67,17 @@ export async function orchestrate({
 		storage,
 	});
 
-	// TODO: might be optimized?
 	const hashToUrlMap = new Map<string, string>();
 	const resolvedMap = new Map<string, { preloadData: PreloadData; css: string }>();
 
 	for (const family of resolvedFamilies) {
-		// TODO: might be refactored
 		const preloadData: PreloadData = [];
 		let css = '';
+
 		// TODO: rename to something like collectedFonts
 		const fallbackFontData: Array<CollectedFontForMetrics> = [];
 		const fallbacks = family.fallbacks ?? defaults.fallbacks ?? [];
 
-		// Must be cleaned to less rely on internal structures
 		const urlProxy = createUrlProxy(
 			family.provider === LOCAL_PROVIDER_NAME,
 			hashToUrlMap,

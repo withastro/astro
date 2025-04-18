@@ -67,3 +67,10 @@ export type FontFaceMetrics = Pick<
 >;
 
 export type GenericFallbackName = (typeof GENERIC_FALLBACK_NAMES)[number];
+
+export type Defaults = Partial<
+	Pick<
+		ResolvedRemoteFontFamily,
+		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks'
+	>
+>;
