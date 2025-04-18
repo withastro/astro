@@ -81,6 +81,7 @@ declare module 'astro:assets' {
 }
 
 type ImageMetadata = import('./dist/assets/types.js').ImageMetadata;
+type SvgComponent = import('./dist/assets/types.js').SvgComponent;
 
 declare module '*.gif' {
 	const metadata: ImageMetadata;
@@ -111,9 +112,7 @@ declare module '*.avif' {
 	export default metadata;
 }
 declare module '*.svg' {
-	type Props = astroHTML.JSX.SVGAttributes;
-
-	const Component: ((_props: Props) => any) & ImageMetadata;
+	const Component: SvgComponent;
 	export default Component;
 }
 

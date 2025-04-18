@@ -1,3 +1,4 @@
+import type * as astroHTML from 'astro/jsx-runtime';
 import type { OmitPreservingIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { VALID_INPUT_FORMATS, VALID_OUTPUT_FORMATS } from './consts.js';
 import type { ImageService } from './services/service.js';
@@ -284,3 +285,6 @@ export type RemoteImageProps<T> =
 			 */
 			inferSize?: false | undefined;
 	  });
+
+type SvgProps = astroHTML.JSX.SVGAttributes;
+export type SvgComponent = ((props: SvgProps) => any) & ImageMetadata;
