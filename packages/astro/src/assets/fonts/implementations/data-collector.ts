@@ -36,8 +36,7 @@ export class RealDataCollector implements DataCollector {
 			!this.fallbackFontData.some((f) => JSON.stringify(f.data) === JSON.stringify(data))
 		) {
 			// If a family has fallbacks, we store the first url we get that may
-			// be used for the fallback generation, if capsize doesn't have this
-			// family in its built-in collection
+			// be used for the fallback generation
 			this.fallbackFontData.push({
 				hash,
 				url: originalUrl,

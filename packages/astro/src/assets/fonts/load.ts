@@ -68,14 +68,13 @@ export async function loadFonts({
 				}
 			}
 			// If a family has fallbacks, we store the first url we get that may
-			// be used for the fallback generation, if capsize doesn't have this
-			// family in its built-in collection
+			// be used for the fallback generation
 			if (
 				fallbacks &&
 				fallbacks.length > 0 &&
 				// If the same data has already been sent for this family, we don't want to have duplicate fallbacks
 				// Such scenario can occur with unicode ranges
-				!fallbackFontData.some((f) => JSON.stringify(f) === JSON.stringify(data))
+				!fallbackFontData.some((f) => JSON.stringify(f.data) === JSON.stringify(data))
 			) {
 				fallbackFontData.push({
 					hash,
