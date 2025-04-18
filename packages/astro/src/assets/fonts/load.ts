@@ -58,11 +58,14 @@ export async function loadFonts({
 			parameters: Parameters<ProxyURLOptions['collect']>[0] & {
 				data: Partial<unifont.FontFaceData>;
 			},
-		) => ReturnType<ProxyURLOptions['collect']> = ({ hash, type, value, data }) => {
+			collectPreload: boolean,
+		) => ReturnType<ProxyURLOptions['collect']> = ({ hash, type, value, data }, collectPreload) => {
 			const url = base + hash;
 			if (!hashToUrlMap.has(hash)) {
 				hashToUrlMap.set(hash, value);
-				preloadData.push({ url, type });
+				if (collectPreload) {
+					preloadData.push({ url, type });
+				}
 			}
 			// If a family has fallbacks, we store the first url we get that may
 			// be used for the fallback generation, if capsize doesn't have this
@@ -102,7 +105,7 @@ export async function loadFonts({
 							}
 							return hashString(v + content);
 						},
-						collect: (input) => collect({ ...input, data }),
+						collect: (input) => collect({ ...input, data }, true),
 					});
 				},
 			});
@@ -129,34 +132,43 @@ export async function loadFonts({
 					typeof font.meta?.priority === 'number' ? font.meta.priority === 0 : true,
 				)
 				// Collect URLs
-				.map((font) => ({
-					...font,
-					src: font.src
-						// Limit src to 1 file (eg. if woff2 and woff are present, will only take woff2) to avoid
-						// downloading too many files
-						.slice(0, 1)
-						.map((source) =>
-							'name' in source
-								? source
-								: {
-										...source,
-										originalURL: source.url,
-										url: proxyURL({
-											value: source.url,
-											// We only use the url for hashing since the service returns urls with a hash already
-											hashString,
-											collect: (data) =>
-												collect({
-													...data,
-													data: {
-														weight: font.weight,
-														style: font.style,
-													},
-												}),
-										}),
-									},
-						),
-				}));
+				.map((font) => {
+					// The index keeps track of encountered URLs. We can't use the index on font.src.map
+					// below because it may contain sources without urls, which would prevent preloading completely
+					let index = 0;
+					return {
+						...font,
+						src: font.src.map((source) => {
+							if ('name' in source) {
+								return source;
+							}
+							const proxied = {
+								...source,
+								originalURL: source.url,
+								url: proxyURL({
+									value: source.url,
+									// We only use the url for hashing since the service returns urls with a hash already
+									hashString,
+									// We only collect the first URL to avoid preloading fallback sources (eg. we only
+									// preload woff2 if woff is available)
+									collect: (data) =>
+										collect(
+											{
+												...data,
+												data: {
+													weight: font.weight,
+													style: font.style,
+												},
+											},
+											index === 0,
+										),
+								}),
+							};
+							index++;
+							return proxied;
+						}),
+					};
+				});
 		}
 
 		for (const data of fonts) {

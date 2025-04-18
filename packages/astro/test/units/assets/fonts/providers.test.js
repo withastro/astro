@@ -115,7 +115,7 @@ describe('fonts providers', () => {
 					{
 						originalURL: '/src/fonts/foo.ttf',
 						url: '/_astro/fonts/foo.ttf',
-						format: 'ttf',
+						format: 'truetype',
 						tech: undefined,
 					},
 				],
@@ -153,7 +153,7 @@ describe('fonts providers', () => {
 					{
 						originalURL: '/src/fonts/bar.eot',
 						url: '/_astro/fonts/bar.eot',
-						format: 'eot',
+						format: 'embedded-opentype',
 						tech: 'color-SVG',
 					},
 				],
@@ -166,7 +166,7 @@ describe('fonts providers', () => {
 					{
 						originalURL: '/src/fonts/bar.eot',
 						url: '/_astro/fonts/bar.eot',
-						format: 'eot',
+						format: 'embedded-opentype',
 						tech: undefined,
 					},
 				],

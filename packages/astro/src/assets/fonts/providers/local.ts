@@ -1,4 +1,5 @@
 import type * as unifont from 'unifont';
+import { FONT_FORMAT_MAP } from '../constants.js';
 import type { ResolvedLocalFontFamily } from '../types.js';
 import { extractFontType } from '../utils.js';
 
@@ -32,7 +33,7 @@ export function resolveLocalFont({ family, proxyURL }: Options): ResolveFontResu
 							style: variant.style,
 						},
 					}),
-					format: extractFontType(originalURL),
+					format: FONT_FORMAT_MAP[extractFontType(originalURL)],
 					tech,
 				};
 			}),

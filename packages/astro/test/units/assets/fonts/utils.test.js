@@ -407,7 +407,7 @@ describe('fonts utils', () => {
 					assert.equal(result.providers.length, length);
 				},
 				/**
-				 * @param {Array<string | undefined>} names
+				 * @param {Array<string>} names
 				 */
 				assertProvidersNames: (names) => {
 					assert.deepStrictEqual(
@@ -475,7 +475,7 @@ describe('fonts utils', () => {
 				},
 			]);
 			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames(['test-{"name":"test"}', undefined]);
+			fixture.assertProvidersNames(['test-{"name":"test"}', 'test-{"name":"test"}']);
 		});
 
 		it('deduplicates providers with the same config', () => {
@@ -500,7 +500,10 @@ describe('fonts utils', () => {
 				},
 			]);
 			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames(['test-{"name":"test","x":"y"}', undefined]);
+			fixture.assertProvidersNames([
+				'test-{"name":"test","x":"y"}',
+				'test-{"name":"test","x":"y"}',
+			]);
 		});
 
 		it('does not deduplicate providers with different configs', () => {
@@ -542,6 +545,15 @@ describe('fonts utils', () => {
 				renderFontSrc([{ url: 'test', tech: undefined }]).includes('tech(undefined)'),
 				false,
 			);
+		});
+		it('wraps format in quotes', () => {
+			assert.equal(
+				renderFontSrc([{ url: 'test', format: 'woff2' }]).includes('format("woff2")'),
+				true,
+			);
+		});
+		it('does not wrap tech in quotes', () => {
+			assert.equal(renderFontSrc([{ url: 'test', tech: 'x' }]).includes('tech(x)'), true);
 		});
 	});
 

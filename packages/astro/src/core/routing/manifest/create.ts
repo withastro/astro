@@ -357,12 +357,9 @@ function createRedirectRoutes(
 			destination = to.destination;
 		}
 
-		// URLs that don't start with leading slash should be considered external
-		if (!destination.startsWith('/')) {
-			// check if the link starts with http or https; if not, log a warning
-			if (!/^https?:\/\//.test(destination) && !URL.canParse(destination)) {
-				throw new AstroError(UnsupportedExternalRedirect);
-			}
+		// check if the link starts with http or https; if not, throw an error
+		if (URL.canParse(destination) && !/^https?:\/\//.test(destination)) {
+			throw new AstroError(UnsupportedExternalRedirect);
 		}
 
 		routes.push({
