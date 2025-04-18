@@ -113,8 +113,9 @@ export function sortObjectByKey<T extends Record<string, any>>(unordered: T): T 
 	const ordered = Object.keys(unordered)
 		.sort()
 		.reduce((obj, key) => {
+			const value = unordered[key];
 			// @ts-expect-error Type 'T' is generic and can only be indexed for reading. That's fine here
-			obj[key] = unordered[key];
+			obj[key] = typeof value === 'object' && value !== null ? sortObjectByKey(value) : value;
 			return obj;
 		}, {} as T);
 	return ordered;

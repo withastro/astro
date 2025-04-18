@@ -11,7 +11,6 @@ export class XxHasher implements Hasher {
 	}
 
 	hashObject(input: Record<string, any>): string {
-		// TODO: needs to be deep
 		return this.hashString(JSON.stringify(sortObjectByKey(input)));
 	}
 }
