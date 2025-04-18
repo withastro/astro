@@ -4,51 +4,45 @@ import { resolveLocalFont } from './providers/local.js';
 import type { FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
 import { pickFontFaceProperty, type GetMetricsForFamilyFont } from './utils.js';
-import { RealUrlProxy } from './implementations/url-proxy.js';
-import { RealDataCollector } from './implementations/data-collector.js';
-import {
-	LocalUrlProxyContentResolver,
-	RemoteUrlProxyContentResolver,
-} from './implementations/url-proxy-content-resolver.js';
+import type { RealDataCollector } from './implementations/data-collector.js';
 import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
 import { optimizeFallbacks } from './logic/optimize-fallbacks.js';
 import type {
 	CssRenderer,
-	ErrorHandler,
 	FontMetricsResolver,
 	Hasher,
 	LocalProviderUrlResolver,
 	RemoteFontProviderResolver,
 	SystemFallbacksProvider,
+	UrlProxy,
 } from './definitions.js';
 import type { Storage } from 'unstorage';
 
 // TODO: logs everywhere!
 export async function orchestrate({
 	families,
-	cacheDir,
-	base,
 	hasher,
-	errorHandler,
 	remoteFontProviderResolver,
 	localProviderUrlResolver,
 	storage,
 	cssRenderer,
 	systemFallbacksProvider,
 	fontMetricsResolver,
+	createUrlProxy,
 }: {
 	families: Array<FontFamily>;
-	cacheDir: URL;
-	base: string;
 	hasher: Hasher;
-	errorHandler: ErrorHandler;
 	remoteFontProviderResolver: RemoteFontProviderResolver;
 	localProviderUrlResolver: LocalProviderUrlResolver;
 	storage: Storage;
 	cssRenderer: CssRenderer;
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
+	createUrlProxy: (
+		local: boolean,
+		...collectorArgs: ConstructorParameters<typeof RealDataCollector>
+	) => UrlProxy;
 }) {
 	let resolvedFamilies = await resolveFamilies({
 		families,
@@ -64,7 +58,6 @@ export async function orchestrate({
 	resolvedFamilies = extractedUnifontProvidersResult.families;
 	const unifontProviders = extractedUnifontProvidersResult.providers;
 
-	// Probably not worth making a dependency
 	const { resolveFont } = await unifont.createUnifont(unifontProviders, {
 		storage,
 	});
@@ -80,17 +73,14 @@ export async function orchestrate({
 		const fallbackFontData: Array<GetMetricsForFamilyFont> = [];
 		const fallbacks = family.fallbacks ?? DEFAULTS.fallbacks;
 
-		const dataCollector = new RealDataCollector(
+		// Must be cleaned to less rely on internal structures
+		const urlProxy = createUrlProxy(
+			family.provider === LOCAL_PROVIDER_NAME,
 			hashToUrlMap,
 			preloadData,
 			fallbackFontData,
 			fallbacks,
 		);
-		const contentResolver =
-			family.provider === LOCAL_PROVIDER_NAME
-				? new LocalUrlProxyContentResolver(errorHandler)
-				: new RemoteUrlProxyContentResolver();
-		const urlProxy = new RealUrlProxy(base, contentResolver, hasher, dataCollector);
 
 		let fonts: Array<unifont.FontFaceData>;
 

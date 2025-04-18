@@ -45,6 +45,12 @@ import { PrettyCssRenderer } from './implementations/css-renderer.js';
 import { RealSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
 import { CachedFontFetcher } from './implementations/font-fetcher.js';
 import { RealFontMetricsResolver } from './implementations/font-metrics-resolver.js';
+import { RealUrlProxy } from './implementations/url-proxy.js';
+import {
+	LocalUrlProxyContentResolver,
+	RemoteUrlProxyContentResolver,
+} from './implementations/url-proxy-content-resolver.js';
+import { RealDataCollector } from './implementations/data-collector.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -179,16 +185,20 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		// TODO: renames needed
 		const res = await orchestrate({
 			families: settings.config.experimental.fonts!,
-			base: baseUrl,
-			cacheDir: base,
 			hasher,
-			errorHandler,
 			remoteFontProviderResolver,
 			localProviderUrlResolver,
 			storage,
 			cssRenderer,
 			systemFallbacksProvider,
 			fontMetricsResolver,
+			createUrlProxy: (local, ...collectorArgs) => {
+				const dataCollector = new RealDataCollector(...collectorArgs);
+				const contentResolver = local
+					? new LocalUrlProxyContentResolver(errorHandler)
+					: new RemoteUrlProxyContentResolver();
+				return new RealUrlProxy(baseUrl, contentResolver, hasher, dataCollector);
+			},
 		});
 		hashToUrlMap = res.hashToUrlMap;
 		resolvedMap = res.resolvedMap;
