@@ -286,5 +286,4 @@ export type RemoteImageProps<T> =
 			inferSize?: false | undefined;
 	  });
 
-type SvgProps = astroHTML.JSX.SVGAttributes;
-export type SvgComponent = ((props: SvgProps) => any) & ImageMetadata;
+export type SvgComponent = (props: astroHTML.JSX.SVGAttributes) => any;
