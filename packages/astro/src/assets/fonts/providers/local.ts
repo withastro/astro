@@ -32,6 +32,13 @@ export function resolveLocalFont({ family, urlProxy }: Options): ResolveFontResu
 						// TODO: explain
 						collectPreload: index === 0,
 					}),
+					// 					url: proxyURL({
+					// 	value: originalURL,
+					// 	data: {
+					// 		weight: variant.weight,
+					// 		style: variant.style,
+					// 	},
+					// }),
 					format: FONT_FORMAT_MAP[extractFontType(source.url)],
 					tech: source.tech,
 				};

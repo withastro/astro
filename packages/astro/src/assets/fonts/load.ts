@@ -48,15 +48,18 @@ export async function loadFonts({
 	for (const family of families) {
 		const preloadData: PreloadData = [];
 		let css = '';
-		let fallbackFontData: GetMetricsForFamilyFont | null = null;
+		const fallbacks = family.fallbacks ?? DEFAULTS.fallbacks;
+		const fallbackFontData: Array<GetMetricsForFamilyFont> = [];
 
 		// When going through the urls/filepaths returned by providers,
 		// We save the hash and the associated original value so we can use
 		// it in the vite middleware during development
-		const collect = (
-			{ hash, type, value }: Parameters<ProxyURLOptions['collect']>[0],
+		const collect: (
+			parameters: Parameters<ProxyURLOptions['collect']>[0] & {
+				data: Partial<unifont.FontFaceData>;
+			},
 			collectPreload: boolean,
-		): ReturnType<ProxyURLOptions['collect']> => {
+		) => ReturnType<ProxyURLOptions['collect']> = ({ hash, type, value, data }, collectPreload) => {
 			const url = base + hash;
 			if (!hashToUrlMap.has(hash)) {
 				hashToUrlMap.set(hash, value);
@@ -67,11 +70,18 @@ export async function loadFonts({
 			// If a family has fallbacks, we store the first url we get that may
 			// be used for the fallback generation, if capsize doesn't have this
 			// family in its built-in collection
-			if (family.fallbacks && family.fallbacks.length > 0) {
-				fallbackFontData ??= {
+			if (
+				fallbacks &&
+				fallbacks.length > 0 &&
+				// If the same data has already been sent for this family, we don't want to have duplicate fallbacks
+				// Such scenario can occur with unicode ranges
+				!fallbackFontData.some((f) => JSON.stringify(f) === JSON.stringify(data))
+			) {
+				fallbackFontData.push({
 					hash,
 					url: value,
-				};
+					data,
+				});
 			}
 			return url;
 		};
@@ -81,7 +91,7 @@ export async function loadFonts({
 		if (family.provider === LOCAL_PROVIDER_NAME) {
 			const result = resolveLocalFont({
 				family,
-				proxyURL: (value) => {
+				proxyURL: ({ value, data }) => {
 					return proxyURL({
 						value,
 						// We hash based on the filepath and the contents, since the user could replace
@@ -95,7 +105,7 @@ export async function loadFonts({
 							}
 							return hashString(v + content);
 						},
-						collect: (data) => collect(data, true),
+						collect: (input) => collect({ ...input, data }, true),
 					});
 				},
 			});
@@ -141,7 +151,17 @@ export async function loadFonts({
 									hashString,
 									// We only collect the first URL to avoid preloading fallback sources (eg. we only
 									// preload woff2 if woff is available)
-									collect: (data) => collect(data, index === 0),
+									collect: (data) =>
+										collect(
+											{
+												...data,
+												data: {
+													weight: font.weight,
+													style: font.style,
+												},
+											},
+											index === 0,
+										),
 								}),
 							};
 							index++;
@@ -179,7 +199,7 @@ export async function loadFonts({
 		const fallbackData = await generateFallbacksCSS({
 			family,
 			font: fallbackFontData,
-			fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
+			fallbacks,
 			metrics:
 				(family.optimizedFallbacks ?? DEFAULTS.optimizedFallbacks)
 					? {
@@ -192,7 +212,9 @@ export async function loadFonts({
 		const cssVarValues = [family.nameWithHash];
 
 		if (fallbackData) {
-			css += fallbackData.css;
+			if (fallbackData.css) {
+				css += fallbackData.css;
+			}
 			cssVarValues.push(...fallbackData.fallbacks);
 		}
 
