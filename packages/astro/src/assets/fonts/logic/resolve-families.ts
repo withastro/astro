@@ -45,12 +45,13 @@ export async function resolveFamily({
 	remoteFontProviderResolver: RemoteFontProviderResolver;
 	localProviderUrlResolver: LocalProviderUrlResolver;
 }): Promise<ResolvedFontFamily> {
-	// TODO: handle spaces
-	const nameWithHash = `${withoutQuotes(family.name)}-${hasher.hashObject(family)}`;
+	const name = withoutQuotes(family.name);
+	const nameWithHash = `${name}-${hasher.hashObject(family)}`;
 
 	if (family.provider === LOCAL_PROVIDER_NAME) {
 		return {
 			...family,
+			name,
 			nameWithHash,
 			variants: resolveVariants({ variants: family.variants, localProviderUrlResolver }),
 			fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
@@ -59,8 +60,9 @@ export async function resolveFamily({
 
 	return {
 		...family,
+		name,
 		nameWithHash,
-		// TODO: this will be an Astro specific aspect eventually
+		// TODO: this will only be Astro specific eventually
 		provider: await remoteFontProviderResolver.resolve(family.provider),
 		weights: family.weights ? dedupe(family.weights.map((weight) => weight.toString())) : undefined,
 		styles: family.styles ? dedupe(family.styles) : undefined,
