@@ -1,16 +1,16 @@
 import type { FontFaceMetrics } from './metrics.js';
-import type { ResolvedRemoteFontFamily } from './types.js';
+import type { Defaults } from './orchestrate.js';
 
 export const LOCAL_PROVIDER_NAME = 'local';
 
-export const DEFAULTS = {
+export const DEFAULTS: Defaults = {
 	weights: ['400'],
 	styles: ['normal', 'italic'],
 	subsets: ['cyrillic-ext', 'cyrillic', 'greek-ext', 'greek', 'vietnamese', 'latin-ext', 'latin'],
 	// Technically serif is the browser default but most websites these days use sans-serif
 	fallbacks: ['sans-serif'],
 	optimizedFallbacks: true,
-} satisfies Partial<ResolvedRemoteFontFamily>;
+};
 
 export const VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/internal';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;

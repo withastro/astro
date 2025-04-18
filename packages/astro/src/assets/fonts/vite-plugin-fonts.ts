@@ -15,6 +15,7 @@ import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import {
 	CACHE_DIR,
+	DEFAULTS,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	URL_PREFIX,
 	VIRTUAL_MODULE_ID,
@@ -199,6 +200,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					: new RemoteUrlProxyContentResolver();
 				return new RealUrlProxy(baseUrl, contentResolver, hasher, dataCollector);
 			},
+			defaults: DEFAULTS,
 		});
 		hashToUrlMap = res.hashToUrlMap;
 		resolvedMap = res.resolvedMap;

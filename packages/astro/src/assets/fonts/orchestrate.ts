@@ -1,7 +1,7 @@
-import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
+import { LOCAL_PROVIDER_NAME } from './constants.js';
 import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
-import type { FontFamily, PreloadData } from './types.js';
+import type { FontFamily, PreloadData, ResolvedRemoteFontFamily } from './types.js';
 import * as unifont from 'unifont';
 import { pickFontFaceProperty, type GetMetricsForFamilyFont } from './utils.js';
 import type { RealDataCollector } from './implementations/data-collector.js';
@@ -19,6 +19,13 @@ import type {
 } from './definitions.js';
 import type { Storage } from 'unstorage';
 
+export type Defaults = Partial<
+	Pick<
+		ResolvedRemoteFontFamily,
+		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks'
+	>
+>;
+
 // TODO: logs everywhere!
 export async function orchestrate({
 	families,
@@ -30,6 +37,7 @@ export async function orchestrate({
 	systemFallbacksProvider,
 	fontMetricsResolver,
 	createUrlProxy,
+	defaults,
 }: {
 	families: Array<FontFamily>;
 	hasher: Hasher;
@@ -43,6 +51,7 @@ export async function orchestrate({
 		local: boolean,
 		...collectorArgs: ConstructorParameters<typeof RealDataCollector>
 	) => UrlProxy;
+	defaults: Defaults;
 }) {
 	let resolvedFamilies = await resolveFamilies({
 		families,
@@ -71,7 +80,7 @@ export async function orchestrate({
 		const preloadData: PreloadData = [];
 		let css = '';
 		const fallbackFontData: Array<GetMetricsForFamilyFont> = [];
-		const fallbacks = family.fallbacks ?? DEFAULTS.fallbacks;
+		const fallbacks = family.fallbacks ?? defaults.fallbacks ?? [];
 
 		// Must be cleaned to less rely on internal structures
 		const urlProxy = createUrlProxy(
@@ -96,10 +105,10 @@ export async function orchestrate({
 				// We do not merge the defaults, we only provide defaults as a fallback
 				// TODO: defaults should be customizable
 				{
-					weights: family.weights ?? DEFAULTS.weights,
-					styles: family.styles ?? DEFAULTS.styles,
-					subsets: family.subsets ?? DEFAULTS.subsets,
-					fallbacks: family.fallbacks ?? DEFAULTS.fallbacks,
+					weights: family.weights ?? defaults.weights,
+					styles: family.styles ?? defaults.styles,
+					subsets: family.subsets ?? defaults.subsets,
+					fallbacks: family.fallbacks ?? defaults.fallbacks,
 				},
 				// By default, unifont goes through all providers. We use a different approach
 				// where we specify a provider per font.
@@ -128,7 +137,7 @@ export async function orchestrate({
 			family,
 			fallbacks,
 			fontData: fallbackFontData,
-			enabled: family.optimizedFallbacks ?? DEFAULTS.optimizedFallbacks,
+			enabled: family.optimizedFallbacks ?? defaults.optimizedFallbacks ?? false,
 			systemFallbacksProvider,
 			fontMetricsResolver,
 		});
