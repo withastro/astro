@@ -1,0 +1,32 @@
+---
+import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+
+// TODO: remove dynamic import when fonts are stabilized
+const { fontsData } = await import('virtual:astro:assets/fonts/internal').catch(() => {
+	throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
+});
+
+interface Props {
+	/** The `cssVariable` registered in your Astro configuration. */
+	cssVariable: import('astro:assets').FontFamily;
+	/** Whether it should output [preload links](https://web.dev/learn/performance/optimize-web-fonts#preload) or not. */
+	preload?: boolean;
+}
+
+const { cssVariable, preload = false } = Astro.props;
+const data = fontsData.get(cssVariable);
+if (!data) {
+	throw new AstroError({
+		...AstroErrorData.FontFamilyNotFound,
+		message: AstroErrorData.FontFamilyNotFound.message(cssVariable),
+	});
+}
+---
+
+{
+	preload &&
+		data.preloadData.map(({ url, type }) => (
+			<link rel="preload" href={url} as="font" type={`font/${type}`} crossorigin />
+		))
+}
+<style set:html={data.css}></style>
