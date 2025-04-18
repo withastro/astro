@@ -4,7 +4,7 @@ import { XxHasher } from './implementations/hasher.js';
 import { RequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
 import { RealRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
 import { FsStorage } from './implementations/storage.js';
-import { extractUnifontProviders, normalizeRemoteFontFaces, resolveFamilies } from './logic.js';
+import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
 import type { FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
@@ -16,6 +16,8 @@ import {
 	LocalUrlProxyContentResolver,
 	RemoteUrlProxyContentResolver,
 } from './implementations/url-proxy-content-resolver.js';
+import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
+import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
 
 // TODO: logs everywhere!
 export async function main({
