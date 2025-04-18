@@ -360,3 +360,12 @@ export function resolveEntrypoint(root: URL, entrypoint: string): URL {
 		return new URL(entrypoint, root);
 	}
 }
+
+export function pickFontFaceProperty<
+	T extends keyof Pick<
+		unifont.FontFaceData,
+		'display' | 'unicodeRange' | 'stretch' | 'featureSettings' | 'variationSettings'
+	>,
+>(property: T, { data, family }: { data: unifont.FontFaceData; family: ResolvedFontFamily }) {
+	return data[property] ?? (family.provider === LOCAL_PROVIDER_NAME ? undefined : family[property]);
+}

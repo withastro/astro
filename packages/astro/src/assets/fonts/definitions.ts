@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { AstroFontProvider, PreloadData, ResolvedFontProvider } from './types.js';
+import type * as unifont from 'unifont';
 
 export interface Hasher {
 	hashString: (input: string) => string;
@@ -54,4 +55,9 @@ export interface DataCollector {
 		hash: string;
 		preload: PreloadData[number] | null;
 	}) => void;
+}
+
+export interface CssRenderer {
+	generateFontFace: (family: string, font: unifont.FontFaceData) => string;
+	generateCssVariable: (key: string, values: Array<string>) => string;
 }

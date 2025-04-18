@@ -8,7 +8,7 @@ import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
 import type { FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
-import type { GetMetricsForFamilyFont } from './utils.js';
+import { pickFontFaceProperty, type GetMetricsForFamilyFont } from './utils.js';
 import { BuildRemoteFontProviderModResolver } from './implementations/remote-font-provider-mod-resolver.js';
 import { RealUrlProxy } from './implementations/url-proxy.js';
 import { RealDataCollector } from './implementations/data-collector.js';
@@ -18,6 +18,7 @@ import {
 } from './implementations/url-proxy-content-resolver.js';
 import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
+import { PrettyCssRenderer } from './implementations/css-renderer.js';
 
 // TODO: logs everywhere!
 export async function main({
@@ -31,6 +32,7 @@ export async function main({
 	cacheDir: URL;
 	base: string;
 }) {
+	// TODO: dependencies will have to be args
 	// Dependencies
 	const hasher = await XxHasher.create();
 	const errorHandler = new AstroErrorHandler();
@@ -42,6 +44,7 @@ export async function main({
 	);
 	const localProviderUrlResolver = new RequireLocalProviderUrlResolver(root);
 	const storage = FsStorage.create(cacheDir);
+	const cssRenderer = new PrettyCssRenderer();
 
 	let resolvedFamilies = await resolveFamilies({
 		families,
@@ -112,7 +115,20 @@ export async function main({
 			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy });
 		}
 
-		// TODO: generate CSS font faces
+		for (const data of fonts) {
+			css += cssRenderer.generateFontFace(family.nameWithHash, {
+				src: data.src,
+				weight: data.weight,
+				style: data.style,
+				// User settings override the generated font settings
+				display: pickFontFaceProperty('display', { data, family }),
+				unicodeRange: pickFontFaceProperty('unicodeRange', { data, family }),
+				stretch: pickFontFaceProperty('stretch', { data, family }),
+				featureSettings: pickFontFaceProperty('featureSettings', { data, family }),
+				variationSettings: pickFontFaceProperty('variationSettings', { data, family }),
+			});
+		}
+
 		// TODO: generate fallback css
 		// TODO: generate CSS variables
 		// TODO: add data to internal data structures
