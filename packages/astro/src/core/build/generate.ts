@@ -491,6 +491,18 @@ async function generatePath(
 		addPageName(pathname, options);
 	}
 
+	// FIX: Normalize pathname to handle duplicate locale prefixes
+	let normalizedPathname = pathname;
+	if (route.type === 'fallback' && config.i18n) {
+		// Extract path parts and check for duplicate locale prefixes
+		const pathParts = pathname.split('/').filter(Boolean);
+		if (pathParts.length >= 2 && pathParts[0] === pathParts[1]) {
+			// Found duplicate locale - e.g., /es/es/
+			normalizedPathname = '/' + pathParts.slice(1).join('/');
+			logger.debug('build', `Fixed duplicate locale path: ${pathname} → ${normalizedPathname}`);
+		}
+	}
+
 	// Do not render the fallback route if there is already a translated page
 	// with the same path
 	if (
@@ -499,13 +511,17 @@ async function generatePath(
 		// always be rendered
 		route.pathname !== '/' &&
 		// Check if there is a translated page with the same path
-		Object.values(options.allPages).some((val) => val.route.pattern.test(pathname))
+		// FIX: Check both original and normalized paths to properly detect existing translations
+		Object.values(options.allPages).some((val) =>
+			val.route.pattern.test(pathname) || val.route.pattern.test(normalizedPathname)
+		)
 	) {
 		return undefined;
 	}
 
+	// FIX: Use normalized path for URL creation
 	const url = getUrlForPath(
-		pathname,
+		normalizedPathname,
 		config.base,
 		options.origin,
 		config.build.format,
@@ -520,9 +536,11 @@ async function generatePath(
 		isPrerendered: true,
 		routePattern: route.component,
 	});
+
+	// FIX: Use normalized pathname here too
 	const renderContext = await RenderContext.create({
 		pipeline,
-		pathname: pathname,
+		pathname: normalizedPathname,
 		request,
 		routeData: route,
 		clientAddress: undefined,
@@ -568,11 +586,11 @@ async function generatePath(
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	// We encode the path because some paths will received encoded characters, e.g. /[page] VS /%5Bpage%5D.
-	// Node.js decodes the paths, so to avoid a clash between paths, do encode paths again, so we create the correct files and folders requested by the user.
-	const encodedPath = encodeURI(pathname);
+	// FIX: Use normalized path for file output
+	const encodedPath = encodeURI(normalizedPathname);
 	const outFolder = getOutFolder(pipeline.settings, encodedPath, route);
 	const outFile = getOutFile(config, outFolder, encodedPath, route);
+
 	if (route.distURL) {
 		route.distURL.push(outFile);
 	} else {
@@ -584,6 +602,7 @@ async function generatePath(
 
 	return true;
 }
+
 
 function getPrettyRouteName(route: RouteData): string {
 	if (isRelativePath(route.component)) {
