@@ -103,7 +103,6 @@ export async function orchestrate({
 			const result = await resolveFont(
 				family.name,
 				// We do not merge the defaults, we only provide defaults as a fallback
-				// TODO: defaults should be customizable
 				{
 					weights: family.weights ?? defaults.weights,
 					styles: family.styles ?? defaults.styles,
