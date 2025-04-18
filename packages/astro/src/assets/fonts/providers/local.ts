@@ -4,24 +4,18 @@ import type { ResolvedLocalFontFamily } from '../types.js';
 import { extractFontType } from '../utils.js';
 import type { UrlProxy } from '../definitions.js';
 
-// https://fonts.nuxt.com/get-started/providers#local
-// https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
-// https://github.com/unjs/unifont/blob/main/src/providers/google.ts
-
-type InitializedProvider = NonNullable<Awaited<ReturnType<unifont.Provider>>>;
-
-type ResolveFontResult = NonNullable<Awaited<ReturnType<InitializedProvider['resolveFont']>>>;
-
 interface Options {
 	family: ResolvedLocalFontFamily;
 	urlProxy: UrlProxy;
 }
 
-export function resolveLocalFont({ family, urlProxy }: Options): ResolveFontResult {
-	const fonts: ResolveFontResult['fonts'] = [];
+export function resolveLocalFont({ family, urlProxy }: Options): {
+	fonts: Array<unifont.FontFaceData>;
+} {
+	const fonts: Array<unifont.FontFaceData> = [];
 
 	for (const variant of family.variants) {
-		const data: ResolveFontResult['fonts'][number] = {
+		const data: unifont.FontFaceData = {
 			weight: variant.weight,
 			style: variant.style,
 			src: variant.src.map((source, index) => {
