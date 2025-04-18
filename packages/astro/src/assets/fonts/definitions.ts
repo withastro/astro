@@ -43,6 +43,7 @@ export interface UrlProxy {
 	proxy: (input: {
 		url: string;
 		collectPreload: boolean;
+		data: Partial<unifont.FontFaceData>;
 	}) => string;
 }
 
@@ -54,6 +55,7 @@ export interface DataCollector {
 	collect: (input: {
 		originalUrl: string;
 		hash: string;
+		data: Partial<unifont.FontFaceData>;
 		preload: PreloadData[number] | null;
 	}) => void;
 }
@@ -66,5 +68,5 @@ export interface CssRenderer {
 export interface FontMetricsResolver {
 	// TODO: do not keep type like this
 	getMetrics: GetMetricsForFamily;
-	generateFontFace: any
+	generateFontFace: any;
 }

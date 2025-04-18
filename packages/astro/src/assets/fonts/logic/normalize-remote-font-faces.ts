@@ -31,6 +31,10 @@ export function normalizeRemoteFontFaces({
 								// We only collect the first URL to avoid preloading fallback sources (eg. we only
 								// preload woff2 if woff is available)
 								collectPreload: index === 0,
+								data: {
+									weight: font.weight,
+									style: font.style,
+								},
 							}),
 						};
 						index++;

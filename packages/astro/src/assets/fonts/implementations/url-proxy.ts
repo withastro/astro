@@ -1,3 +1,4 @@
+import type * as unifont from 'unifont';
 import type { DataCollector, Hasher, UrlProxy, UrlProxyContentResolver } from '../definitions.js';
 import { extractFontType } from '../utils.js';
 
@@ -11,9 +12,11 @@ export class RealUrlProxy implements UrlProxy {
 
 	proxy({
 		url: originalUrl,
+		data,
 		collectPreload,
 	}: {
 		url: string;
+		data: Partial<unifont.FontFaceData>;
 		collectPreload: boolean;
 	}): string {
 		const type = extractFontType(originalUrl);
@@ -24,6 +27,7 @@ export class RealUrlProxy implements UrlProxy {
 			originalUrl,
 			hash,
 			preload: collectPreload ? { url, type } : null,
+			data,
 		});
 
 		return url;

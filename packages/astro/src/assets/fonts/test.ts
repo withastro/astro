@@ -73,7 +73,7 @@ export async function main({
 		// TODO: might be refactored
 		const preloadData: PreloadData = [];
 		let css = '';
-		const fallbackFontData: { value: GetMetricsForFamilyFont | null } = { value: null };
+		const fallbackFontData: Array<GetMetricsForFamilyFont> = [];
 		const fallbacks = family.fallbacks ?? DEFAULTS.fallbacks;
 
 		const dataCollector = new RealDataCollector(
