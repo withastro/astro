@@ -75,7 +75,7 @@ export async function loadFonts({
 				fallbacks.length > 0 &&
 				// If the same data has already been sent for this family, we don't want to have duplicate fallbacks
 				// Such scenario can occur with unicode ranges
-				!fallbackFontData.some((f) => JSON.stringify(f) === JSON.stringify(data))
+				!fallbackFontData.some((f) => JSON.stringify(f.data) === JSON.stringify(data))
 			) {
 				fallbackFontData.push({
 					hash,
