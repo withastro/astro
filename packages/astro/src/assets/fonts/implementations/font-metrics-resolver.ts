@@ -1,7 +1,8 @@
 import { fromBuffer, type Font } from '@capsizecss/unpack';
 import type { CssRenderer, FontFetcher, FontMetricsResolver } from '../definitions.js';
 import type { FontFaceMetrics } from '../types.js';
-import { renderFontSrc, type GetMetricsForFamilyFont } from '../utils.js';
+import { renderFontSrc } from '../utils.js';
+import type { CollectedFontForMetrics } from '../logic/optimize-fallbacks.js';
 
 function filterRequiredMetrics({
 	ascent,
@@ -33,7 +34,7 @@ export class RealFontMetricsResolver implements FontMetricsResolver {
 		private cssRenderer: CssRenderer,
 	) {}
 
-	async getMetrics(name: string, { hash, url }: GetMetricsForFamilyFont): Promise<FontFaceMetrics> {
+	async getMetrics(name: string, { hash, url }: CollectedFontForMetrics): Promise<FontFaceMetrics> {
 		this.cache[name] ??= filterRequiredMetrics(
 			await fromBuffer(await this.fontFetcher.fetch(hash, url)),
 		);

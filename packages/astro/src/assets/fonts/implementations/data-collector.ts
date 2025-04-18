@@ -1,13 +1,13 @@
 import type { DataCollector } from '../definitions.js';
+import type { CollectedFontForMetrics } from '../logic/optimize-fallbacks.js';
 import type { PreloadData } from '../types.js';
-import type { GetMetricsForFamilyFont } from '../utils.js';
 import type * as unifont from 'unifont';
 
 export class RealDataCollector implements DataCollector {
 	constructor(
 		private hashToUrlMap: Map<string, string>,
 		private preloadData: PreloadData = [],
-		private fallbackFontData: Array<GetMetricsForFamilyFont>,
+		private fallbackFontData: Array<CollectedFontForMetrics>,
 		private fallbacks: Array<string>,
 	) {}
 

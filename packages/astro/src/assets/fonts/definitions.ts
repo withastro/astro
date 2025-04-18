@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { AstroFontProvider, PreloadData, ResolvedFontProvider } from './types.js';
 import type * as unifont from 'unifont';
-import type { GetMetricsForFamily } from './utils.js';
 import type { FontFaceMetrics } from './types.js';
 import type { GenericFallbackName } from './constants.js';
+import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
 
 export interface Hasher {
 	hashString: (input: string) => string;
@@ -69,8 +69,7 @@ export interface CssRenderer {
 }
 
 export interface FontMetricsResolver {
-	// TODO: do not keep type like this
-	getMetrics: GetMetricsForFamily;
+	getMetrics: (name: string, font: CollectedFontForMetrics) => Promise<FontFaceMetrics>;
 	generateFontFace: (input: {
 		metrics: FontFaceMetrics;
 		fallbackMetrics: FontFaceMetrics;

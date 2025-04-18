@@ -1,23 +1,25 @@
 import type { FontMetricsResolver, SystemFallbacksProvider } from '../definitions.js';
 import type { ResolvedFontFamily } from '../types.js';
-import {
-	isGenericFontFamily,
-	unifontFontFaceDataToProperties,
-	type GetMetricsForFamilyFont,
-} from '../utils.js';
+import { isGenericFontFamily, unifontFontFaceDataToProperties } from '../utils.js';
+import type * as unifont from 'unifont';
+
+export interface CollectedFontForMetrics {
+	hash: string;
+	url: string;
+	data: Partial<unifont.FontFaceData>;
+}
 
 export async function optimizeFallbacks({
 	family,
 	fallbacks: _fallbacks,
-	fontData,
+	collectedFonts,
 	enabled,
 	systemFallbacksProvider,
 	fontMetricsResolver,
 }: {
 	family: Pick<ResolvedFontFamily, 'name' | 'nameWithHash'>;
 	fallbacks: Array<string>;
-	// TODO: type is pretty bad
-	fontData: Array<GetMetricsForFamilyFont>;
+	collectedFonts: Array<CollectedFontForMetrics>;
 	enabled: boolean;
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
@@ -28,7 +30,7 @@ export async function optimizeFallbacks({
 	// We avoid mutating the original array
 	let fallbacks = [..._fallbacks];
 
-	if (fallbacks.length === 0 || !enabled || fontData.length === 0) {
+	if (fallbacks.length === 0 || !enabled || collectedFonts.length === 0) {
 		return null;
 	}
 
@@ -61,7 +63,7 @@ export async function optimizeFallbacks({
 	let css = '';
 
 	for (const { font, name } of localFontsMappings) {
-		for (const { hash, url, data } of fontData) {
+		for (const { hash, url, data } of collectedFonts) {
 			css += fontMetricsResolver.generateFontFace({
 				metrics: await fontMetricsResolver.getMetrics(family.name, { hash, url, data }),
 				fallbackMetrics: systemFallbacksProvider.getMetricsForLocalFont(font),

@@ -3,15 +3,11 @@ import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
 import type { FontFamily, PreloadData, ResolvedRemoteFontFamily } from './types.js';
 import * as unifont from 'unifont';
-import {
-	pickFontFaceProperty,
-	unifontFontFaceDataToProperties,
-	type GetMetricsForFamilyFont,
-} from './utils.js';
+import { pickFontFaceProperty, unifontFontFaceDataToProperties } from './utils.js';
 import type { RealDataCollector } from './implementations/data-collector.js';
 import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
-import { optimizeFallbacks } from './logic/optimize-fallbacks.js';
+import { optimizeFallbacks, type CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
 import type {
 	CssRenderer,
 	FontMetricsResolver,
@@ -83,7 +79,8 @@ export async function orchestrate({
 		// TODO: might be refactored
 		const preloadData: PreloadData = [];
 		let css = '';
-		const fallbackFontData: Array<GetMetricsForFamilyFont> = [];
+		// TODO: rename to something like collectedFonts
+		const fallbackFontData: Array<CollectedFontForMetrics> = [];
 		const fallbacks = family.fallbacks ?? defaults.fallbacks ?? [];
 
 		// Must be cleaned to less rely on internal structures
@@ -142,7 +139,7 @@ export async function orchestrate({
 		const optimizeFallbacksResult = await optimizeFallbacks({
 			family,
 			fallbacks,
-			fontData: fallbackFontData,
+			collectedFonts: fallbackFontData,
 			enabled: family.optimizedFallbacks ?? defaults.optimizedFallbacks ?? false,
 			systemFallbacksProvider,
 			fontMetricsResolver,

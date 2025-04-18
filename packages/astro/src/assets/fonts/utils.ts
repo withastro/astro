@@ -10,7 +10,6 @@ import {
 	type GenericFallbackName,
 	LOCAL_PROVIDER_NAME,
 } from './constants.js';
-import type { FontFaceMetrics } from './types.js';
 import type { FontType, ResolvedFontFamily } from './types.js';
 
 export function unifontFontFaceDataToProperties(
@@ -91,19 +90,6 @@ export async function cache(
 export function isGenericFontFamily(str: string): str is GenericFallbackName {
 	return (GENERIC_FALLBACK_NAMES as unknown as Array<string>).includes(str);
 }
-
-// TODO: types should not live here
-export type GetMetricsForFamilyFont = {
-	hash: string;
-	url: string;
-	data: Partial<unifont.FontFaceData>;
-};
-
-export type GetMetricsForFamily = (
-	name: string,
-	/** A remote url or local filepath to a font file. Used if metrics can't be resolved purely from the family name */
-	font: GetMetricsForFamilyFont,
-) => Promise<FontFaceMetrics>;
 
 export function dedupe<const T extends Array<any>>(arr: T): T {
 	return [...new Set(arr)] as T;
