@@ -3,6 +3,7 @@ import type { AstroFontProvider, PreloadData, ResolvedFontProvider } from './typ
 import type * as unifont from 'unifont';
 import type { GetMetricsForFamily } from './utils.js';
 import type { FontFaceMetrics } from './metrics.js';
+import type { GenericFallbackName } from './constants.js';
 
 export interface Hasher {
 	hashString: (input: string) => string;
@@ -80,7 +81,7 @@ export interface FontMetricsResolver {
 }
 
 export interface SystemFallbacksProvider {
-	getLocalFonts: (fallback: string) => Array<string> | null;
+	getLocalFonts: (fallback: GenericFallbackName) => Array<string> | null;
 	getMetricsForLocalFont: (family: string) => FontFaceMetrics;
 }
 

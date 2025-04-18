@@ -1,3 +1,4 @@
+import type { GenericFallbackName } from '../constants.js';
 import type { SystemFallbacksProvider } from '../definitions.js';
 import type { FontFaceMetrics } from '../metrics.js';
 
@@ -61,20 +62,14 @@ export const DEFAULT_FALLBACKS = {
 	serif: ['Times New Roman'],
 	'sans-serif': ['Arial'],
 	monospace: ['Courier New'],
-	// cursive: [],
-	// fantasy: [],
 	'system-ui': ['BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial'],
 	'ui-serif': ['Times New Roman'],
 	'ui-sans-serif': ['Arial'],
 	'ui-monospace': ['Courier New'],
-	// 'ui-rounded': [],
-	// emoji: [],
-	// math: [],
-	// fangsong: [],
-} as const satisfies Record<string, Array<FallbackName>>;
+} satisfies Partial<Record<GenericFallbackName, Array<FallbackName>>>;
 
 export class RealSystemFallbacksProvider implements SystemFallbacksProvider {
-	getLocalFonts(fallback: string): Array<string> | null {
+	getLocalFonts(fallback: GenericFallbackName): Array<string> | null {
 		return DEFAULT_FALLBACKS[fallback as keyof typeof DEFAULT_FALLBACKS] ?? null;
 	}
 	getMetricsForLocalFont(family: string): FontFaceMetrics {
