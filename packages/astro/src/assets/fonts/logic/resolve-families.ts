@@ -60,6 +60,7 @@ export async function resolveFamily({
 	return {
 		...family,
 		nameWithHash,
+		// TODO: this will be an Astro specific aspect eventually
 		provider: await remoteFontProviderResolver.resolve(family.provider),
 		weights: family.weights ? dedupe(family.weights.map((weight) => weight.toString())) : undefined,
 		styles: family.styles ? dedupe(family.styles) : undefined,

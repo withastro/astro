@@ -25,7 +25,7 @@ import { CachedFontFetcher } from './implementations/font-fetcher.js';
 import { RealFontMetricsResolver } from './implementations/font-metrics-resolver.js';
 
 // TODO: logs everywhere!
-export async function main({
+export async function orchestrate({
 	families,
 	root,
 	cacheDir,
