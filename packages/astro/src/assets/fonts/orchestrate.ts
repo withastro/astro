@@ -1,6 +1,4 @@
 import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
-import { AstroErrorHandler } from './implementations/error-handler.js';
-import { XxHasher } from './implementations/hasher.js';
 import { RequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
 import { RealRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
 import { FsStorage } from './implementations/storage.js';
@@ -23,23 +21,22 @@ import { optimizeFallbacks } from './logic/optimize-fallbacks.js';
 import { RealSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
 import { CachedFontFetcher } from './implementations/font-fetcher.js';
 import { RealFontMetricsResolver } from './implementations/font-metrics-resolver.js';
+import type { ErrorHandler, Hasher } from './definitions.js';
 
 // TODO: logs everywhere!
 export async function orchestrate({
 	families,
-	root,
 	cacheDir,
 	base,
+	hasher,
+	errorHandler,
 }: {
 	families: Array<FontFamily>;
-	root: URL;
 	cacheDir: URL;
 	base: string;
+	hasher: Hasher;
+	errorHandler: ErrorHandler;
 }) {
-	// TODO: dependencies will have to be args
-	// Dependencies
-	const hasher = await XxHasher.create();
-	const errorHandler = new AstroErrorHandler();
 	const modResolver = new BuildRemoteFontProviderModResolver();
 	const remoteFontProviderResolver = new RealRemoteFontProviderResolver(
 		root,

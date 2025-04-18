@@ -30,6 +30,14 @@ import {
 	sortObjectByKey,
 	withoutQuotes,
 } from './utils.js';
+import { orchestrate } from './orchestrate.js';
+import { XxHasher } from './implementations/hasher.js';
+import { AstroErrorHandler } from './implementations/error-handler.js';
+import type { RemoteFontProviderModResolver } from './definitions.js';
+import {
+	BuildRemoteFontProviderModResolver,
+	DevServerRemoteFontProviderModResolver,
+} from './implementations/remote-font-provider-mod-resolver.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -98,7 +106,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		storage = null;
 	};
 
-	async function initialize({ resolveMod, base }: { resolveMod: ResolveMod; base: URL }) {
+	async function initialize({
+		resolveMod,
+		base,
+		modResolver,
+	}: { resolveMod: ResolveMod; base: URL; modResolver: RemoteFontProviderModResolver }) {
 		const { h64ToString } = await xxhash();
 
 		storage = createStorage({
@@ -140,6 +152,20 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			},
 			log: (message) => logger.info('assets', message),
 		});
+
+		// Dependencies
+		const { root } = settings.config;
+		const hasher = await XxHasher.create();
+		const errorHandler = new AstroErrorHandler();
+
+		// TODO: renames needed
+		const res = await orchestrate({
+			families: settings.config.experimental.fonts!,
+			base: baseUrl,
+			cacheDir: base,
+			hasher,
+			errorHandler,
+		});
 	}
 
 	return {
@@ -152,6 +178,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				await initialize({
 					resolveMod: (id) => import(id),
 					base: new URL(CACHE_DIR, settings.config.cacheDir),
+					modResolver: new BuildRemoteFontProviderModResolver(),
 				});
 			}
 		},
@@ -160,6 +187,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				resolveMod: (id) => server.ssrLoadModule(id),
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				base: new URL(CACHE_DIR, settings.dotAstroDir),
+				modResolver: new DevServerRemoteFontProviderModResolver(server),
 			});
 			// The map is always defined at this point. Its values contains urls from remote providers
 			// as well as local paths for the local provider. We filter them to only keep the filepaths
