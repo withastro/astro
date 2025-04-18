@@ -1,13 +1,10 @@
 import { DEFAULTS, LOCAL_PROVIDER_NAME } from './constants.js';
-import { RequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
-import { RealRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
 import { FsStorage } from './implementations/storage.js';
 import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
 import type { FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
 import { pickFontFaceProperty, type GetMetricsForFamilyFont } from './utils.js';
-import { BuildRemoteFontProviderModResolver } from './implementations/remote-font-provider-mod-resolver.js';
 import { RealUrlProxy } from './implementations/url-proxy.js';
 import { RealDataCollector } from './implementations/data-collector.js';
 import {
@@ -21,7 +18,12 @@ import { optimizeFallbacks } from './logic/optimize-fallbacks.js';
 import { RealSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
 import { CachedFontFetcher } from './implementations/font-fetcher.js';
 import { RealFontMetricsResolver } from './implementations/font-metrics-resolver.js';
-import type { ErrorHandler, Hasher } from './definitions.js';
+import type {
+	ErrorHandler,
+	Hasher,
+	LocalProviderUrlResolver,
+	RemoteFontProviderResolver,
+} from './definitions.js';
 
 // TODO: logs everywhere!
 export async function orchestrate({
@@ -30,20 +32,17 @@ export async function orchestrate({
 	base,
 	hasher,
 	errorHandler,
+	remoteFontProviderResolver,
+	localProviderUrlResolver,
 }: {
 	families: Array<FontFamily>;
 	cacheDir: URL;
 	base: string;
 	hasher: Hasher;
 	errorHandler: ErrorHandler;
+	remoteFontProviderResolver: RemoteFontProviderResolver;
+	localProviderUrlResolver: LocalProviderUrlResolver;
 }) {
-	const modResolver = new BuildRemoteFontProviderModResolver();
-	const remoteFontProviderResolver = new RealRemoteFontProviderResolver(
-		root,
-		modResolver,
-		errorHandler,
-	);
-	const localProviderUrlResolver = new RequireLocalProviderUrlResolver(root);
 	const storage = FsStorage.create(cacheDir);
 	const cssRenderer = new PrettyCssRenderer();
 	const systemFallbacksProvider = new RealSystemFallbacksProvider();

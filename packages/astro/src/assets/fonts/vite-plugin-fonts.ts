@@ -38,6 +38,8 @@ import {
 	BuildRemoteFontProviderModResolver,
 	DevServerRemoteFontProviderModResolver,
 } from './implementations/remote-font-provider-mod-resolver.js';
+import { RealRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
+import { RequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -157,6 +159,12 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const { root } = settings.config;
 		const hasher = await XxHasher.create();
 		const errorHandler = new AstroErrorHandler();
+		const remoteFontProviderResolver = new RealRemoteFontProviderResolver(
+			root,
+			modResolver,
+			errorHandler,
+		);
+		const localProviderUrlResolver = new RequireLocalProviderUrlResolver(root);
 
 		// TODO: renames needed
 		const res = await orchestrate({
@@ -165,6 +173,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			cacheDir: base,
 			hasher,
 			errorHandler,
+			remoteFontProviderResolver,
+			localProviderUrlResolver,
 		});
 	}
 
