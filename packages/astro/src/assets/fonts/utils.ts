@@ -26,7 +26,7 @@ export function renderFontFace(properties: Record<string, string | undefined>) {
 	return `@font-face {\n\t${toCSS(properties)}\n}\n`;
 }
 
-export function unifontFontFaceDataToProperties(
+function unifontFontFaceDataToProperties(
 	font: Partial<unifont.FontFaceData>,
 ): Record<string, string | undefined> {
 	return {

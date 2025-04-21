@@ -53,6 +53,7 @@ export interface LogOptions {
 // Here be the dragons we've slain:
 // https://github.com/withastro/astro/issues/2625
 // https://github.com/withastro/astro/issues/3309
+/** @lintignore */
 export const dateTimeFormat = new Intl.DateTimeFormat([], {
 	hour: '2-digit',
 	minute: '2-digit',

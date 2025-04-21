@@ -69,7 +69,7 @@ const fallbacksSchema = z.object({
 	optimizedFallbacks: z.boolean().optional(),
 });
 
-export const requiredFamilyAttributesSchema = z.object({
+const requiredFamilyAttributesSchema = z.object({
 	/**
 	 * The font family name, as identified by your font provider.
 	 */
