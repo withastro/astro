@@ -9,7 +9,7 @@
   },
   "scripts": {
     "release": "pnpm run build && changeset publish",
-    "build": "turbo run build --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "build": "turbo run build --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\" --force",
     "build:ci": "turbo run build:ci --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "build:ci:no-cache": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\" build:ci",
     "build:examples": "turbo run build --filter=\"@example/*\"",
