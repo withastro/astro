@@ -1,7 +1,7 @@
+import type { AstroComponentMetadata } from 'astro';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import StaticHtml from './static-html.js';
-import type { AstroComponentMetadata } from 'astro';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');

@@ -1,5 +1,5 @@
 import { createElement, startTransition } from 'react';
-import { createRoot, hydrateRoot, type Root } from 'react-dom/client';
+import { type Root, createRoot, hydrateRoot } from 'react-dom/client';
 import StaticHtml from './static-html.js';
 
 function isAlreadyHydrated(element: HTMLElement) {

@@ -1,7 +1,7 @@
+import type { AstroComponentMetadata } from 'astro';
 import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 import { incrementId } from './context.js';
-import type { AstroComponentMetadata } from 'astro';
 import type { RendererContext } from './types.js';
 
 function check(Component: any) {

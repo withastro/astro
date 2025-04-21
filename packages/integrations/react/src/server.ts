@@ -1,16 +1,21 @@
 import opts from 'astro:react:opts';
+import type { AstroComponentMetadata } from 'astro';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { incrementId } from './context.js';
 import StaticHtml from './static-html.js';
-import type { AstroComponentMetadata } from 'astro';
 import type { RendererContext } from './types.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
 const reactTransitionalTypeof = Symbol.for('react.transitional.element');
 
-async function check(this: RendererContext, Component: any, props: Record<string, any>, children: any) {
+async function check(
+	this: RendererContext,
+	Component: any,
+	props: Record<string, any>,
+	children: any,
+) {
 	// Note: there are packages that do some unholy things to create "components".
 	// Checking the $$typeof property catches most of these patterns.
 	if (typeof Component === 'object') {
@@ -42,13 +47,12 @@ async function check(this: RendererContext, Component: any, props: Record<string
 		return React.createElement('div');
 	}
 
-	
 	await renderToStaticMarkup.call(this, Tester, props, children, {} as any);
 
 	return isReactComponent;
 }
 
-async function getNodeWritable(): Promise<typeof import("node:stream").Writable> {
+async function getNodeWritable(): Promise<typeof import('node:stream').Writable> {
 	let nodeStreamBuiltinModuleName = 'node:stream';
 	let { Writable } = await import(/* @vite-ignore */ nodeStreamBuiltinModuleName);
 	return Writable;
@@ -219,4 +223,4 @@ export default {
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
-}
+};

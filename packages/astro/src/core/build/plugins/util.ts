@@ -103,10 +103,7 @@ export function getPagesFromVirtualModulePageName(
  * @param virtualModulePrefix The prefix at the beginning of the virtual module
  * @param id Virtual module name
  */
-function getComponentFromVirtualModulePageName(
-	virtualModulePrefix: string,
-	id: string,
-): string {
+function getComponentFromVirtualModulePageName(virtualModulePrefix: string, id: string): string {
 	return id.slice(virtualModulePrefix.length).replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
 }
 

@@ -1,3 +1,3 @@
-export {  startContainer } from './container.js';
+export { startContainer } from './container.js';
 export { default } from './dev.js';
 export { createContainerWithAutomaticRestart } from './restart.js';

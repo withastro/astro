@@ -1,10 +1,10 @@
 import type http from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
-import type { ErrorWithMetadata } from '../core/errors/index.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Readable } from 'node:stream';
 import { getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
+import type { ErrorWithMetadata } from '../core/errors/index.js';
+import type { ModuleLoader } from '../core/module-loader/index.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 
 export async function handle500Response(
