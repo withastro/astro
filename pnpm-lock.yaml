@@ -37,8 +37,8 @@ importers:
         specifier: ^2.7.0
         version: 2.7.0(eslint@9.24.0(jiti@2.4.2))
       knip:
-        specifier: 5.50.3
-        version: 5.50.3(@types/node@18.19.50)(typescript@5.8.3)
+        specifier: 5.50.5
+        version: 5.50.5(@types/node@18.19.50)(typescript@5.8.3)
       only-allow:
         specifier: ^1.2.1
         version: 1.2.1
@@ -9952,8 +9952,8 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
-  knip@5.50.3:
-    resolution: {integrity: sha512-0A4G7UPucGTCpNh5vHSfL0+tVQIuKfJKdg8sAq6EC3COKbAchEbM+TeN4w32OrnJW9CesHs71lqftlggMVfW2A==}
+  knip@5.50.5:
+    resolution: {integrity: sha512-I3mfebuG5x8i/mJJA41xjnmHMbLw75ymbDxlS7HMP+4CjY+jXEDSJyP3A2xmI5JF5/o47Fr8D7Pq3BVT0/nQPw==}
     engines: {node: '>=18.18.0'}
     hasBin: true
     peerDependencies:
@@ -16295,7 +16295,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  knip@5.50.3(@types/node@18.19.50)(typescript@5.8.3):
+  knip@5.50.5(@types/node@18.19.50)(typescript@5.8.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 18.19.50
