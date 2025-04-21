@@ -28,6 +28,7 @@ type LoggerLabel =
 	| 'preferences'
 	| 'redirects'
 	| 'sync'
+	| 'session'
 	| 'toolbar'
 	| 'assets'
 	| 'env'

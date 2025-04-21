@@ -131,6 +131,7 @@ describe('Astro.redirect', () => {
 						'/more/old/[dynamic]/[route]': '/more/[dynamic]/[route]',
 						'/more/old/[...spread]': '/more/new/[...spread]',
 						'/external/redirect': 'https://example.com/',
+						'/relative/redirect': '../../test',
 					},
 				});
 				await fixture.build();
@@ -213,6 +214,12 @@ describe('Astro.redirect', () => {
 				const html = await fixture.readFile('/external/redirect/index.html');
 				assert.equal(html.includes('http-equiv="refresh'), true);
 				assert.equal(html.includes('url=https://example.com/'), true);
+			});
+
+			it('supports redirecting to a relative destination', async () => {
+				const html = await fixture.readFile('/relative/redirect/index.html');
+				assert.equal(html.includes('http-equiv="refresh'), true);
+				assert.equal(html.includes('url=../../test'), true);
 			});
 		});
 

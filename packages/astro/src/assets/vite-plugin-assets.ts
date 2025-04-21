@@ -1,7 +1,9 @@
+import type * as fsMod from 'node:fs';
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import type { Logger } from '../core/logger/core.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -12,6 +14,7 @@ import {
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
+import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
 import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/imageKind.js';
@@ -90,7 +93,14 @@ const addStaticImageFactory = (
 	};
 };
 
-export default function assets({ settings }: { settings: AstroSettings }): vite.Plugin[] {
+interface Options {
+	settings: AstroSettings;
+	sync: boolean;
+	logger: Logger;
+	fs: typeof fsMod;
+}
+
+export default function assets({ fs, settings, sync, logger }: Options): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 	let shouldEmitFile = false;
 	let isBuild = false;
@@ -123,6 +133,7 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 							import { getImage as getImageInternal } from "astro/assets";
 							export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
 							export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
+							export { default as Font } from "astro/components/Font.astro";
 							export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
 							export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
@@ -211,7 +222,7 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 					const imageMetadata = await emitESMImage(
 						id,
 						this.meta.watchMode,
-						!!settings.config.experimental.svg,
+						id.endsWith('.svg'),
 						emitFile,
 					);
 
@@ -222,10 +233,10 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 						});
 					}
 
-					if (settings.config.experimental.svg && /\.svg$/.test(id)) {
-						const { contents, ...metadata } = imageMetadata;
+					if (id.endsWith('.svg')) {
+						const contents = await fs.promises.readFile(imageMetadata.fsPath, { encoding: 'utf8' });
 						// We know that the contents are present, as we only emit this property for SVG files
-						return { code: makeSvgComponent(metadata, contents!) };
+						return { code: makeSvgComponent(imageMetadata, contents) };
 					}
 
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
@@ -247,5 +258,6 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 				}
 			},
 		},
+		fontsPlugin({ settings, sync, logger }),
 	];
 }

@@ -6,21 +6,15 @@ import {
 	builtinDrivers,
 	createStorage,
 } from 'unstorage';
-import type { AstroSettings } from '../types/astro.js';
 import type {
 	ResolvedSessionConfig,
+	RuntimeMode,
 	SessionConfig,
 	SessionDriverName,
 } from '../types/public/config.js';
 import type { AstroCookies } from './cookies/cookies.js';
 import type { AstroCookieSetOptions } from './cookies/cookies.js';
-import {
-	SessionConfigMissingError,
-	SessionConfigWithoutFlagError,
-	SessionStorageInitError,
-	SessionStorageSaveError,
-	SessionWithoutSupportedAdapterOutputError,
-} from './errors/errors-data.js';
+import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 
 export const PERSIST_SYMBOL = Symbol();
@@ -84,6 +78,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			cookie: cookieConfig = DEFAULT_COOKIE_NAME,
 			...config
 		}: Exclude<ResolvedSessionConfig<TDriver>, undefined>,
+		runtimeMode?: RuntimeMode,
 	) {
 		this.#cookies = cookies;
 		let cookieConfigObject: AstroCookieSetOptions | undefined;
@@ -96,7 +91,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 		this.#cookieConfig = {
 			sameSite: 'lax',
-			secure: true,
+			secure: runtimeMode === 'production',
 			path: '/',
 			...cookieConfigObject,
 			httpOnly: true,
@@ -107,7 +102,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	/**
 	 * Gets a session value. Returns `undefined` if the session or value does not exist.
 	 */
-	async get<T = void, K extends string = string>(
+	async get<T = void, K extends string = keyof App.SessionData | (string & {})>(
 		key: K,
 	): Promise<
 		(T extends void ? (K extends keyof App.SessionData ? App.SessionData[K] : any) : T) | undefined
@@ -158,7 +153,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Sets a session value. The session is created if it does not exist.
 	 */
 
-	set<T = void, K extends string = string>(
+	set<T = void, K extends string = keyof App.SessionData | (string & {})>(
 		key: K,
 		value: T extends void
 			? K extends keyof App.SessionData
@@ -522,23 +517,4 @@ export async function resolveSessionDriver(driver: string | undefined): Promise<
 	}
 
 	return driver;
-}
-
-export function validateSessionConfig(settings: AstroSettings): void {
-	const { experimental, session } = settings.config;
-	const { buildOutput } = settings;
-	let error: AstroError | undefined;
-	if (experimental.session) {
-		if (!session?.driver) {
-			error = new AstroError(SessionConfigMissingError);
-		} else if (buildOutput === 'static') {
-			error = new AstroError(SessionWithoutSupportedAdapterOutputError);
-		}
-	} else if (session?.driver) {
-		error = new AstroError(SessionConfigWithoutFlagError);
-	}
-	if (error) {
-		error.stack = undefined;
-		throw error;
-	}
 }

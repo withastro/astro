@@ -728,3 +728,28 @@ describe('Runtime error in SSR, custom 500', () => {
 		assert.equal($('h1').text(), 'Expected http status of index page is 200');
 	});
 });
+
+describe('Issue 13633', async () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-issue-13633/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should correctly rewrite to be homepage', async () => {
+		const html = await fixture.fetch('/foo').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index page');
+	});
+});
