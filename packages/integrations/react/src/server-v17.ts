@@ -1,11 +1,12 @@
+import type { AstroComponentMetadata } from 'astro';
 import React from 'react';
-import ReactDOM from 'react-dom/server.js';
+import ReactDOM from 'react-dom/server';
 import StaticHtml from './static-html.js';
 
-const slotName = (str) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
+const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
 
-function check(Component, props, children) {
+function check(Component: any, props: Record<string, any>, children: any) {
 	// Note: there are packages that do some unholy things to create "components".
 	// Checking the $$typeof property catches most of these patterns.
 	if (typeof Component === 'object') {
@@ -19,7 +20,7 @@ function check(Component, props, children) {
 	}
 
 	let isReactComponent = false;
-	function Tester(...args) {
+	function Tester(...args: Array<any>) {
 		try {
 			const vnode = Component(...args);
 			if (vnode && vnode['$$typeof'] === reactTypeof) {
@@ -30,14 +31,19 @@ function check(Component, props, children) {
 		return React.createElement('div');
 	}
 
-	renderToStaticMarkup(Tester, props, children, {});
+	renderToStaticMarkup(Tester, props, children, {} as any);
 
 	return isReactComponent;
 }
 
-function renderToStaticMarkup(Component, props, { default: children, ...slotted }, metadata) {
+function renderToStaticMarkup(
+	Component: any,
+	props: Record<string, any>,
+	{ default: children, ...slotted }: Record<string, any>,
+	metadata: AstroComponentMetadata,
+) {
 	delete props['class'];
-	const slots = {};
+	const slots: Record<string, any> = {};
 	for (const [key, value] of Object.entries(slotted)) {
 		const name = slotName(key);
 		slots[name] = React.createElement(StaticHtml, { value, name });
