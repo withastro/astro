@@ -9,7 +9,7 @@
   },
   "scripts": {
     "release": "pnpm run build && changeset publish",
-    "build": "turbo run build --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\" --force",
+    "build": "turbo run build --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "build:ci": "turbo run build:ci --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "build:ci:no-cache": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\" build:ci",
     "build:examples": "turbo run build --filter=\"@example/*\"",
@@ -35,7 +35,7 @@
     "test:e2e:hosts": "turbo run test:hosted",
     "benchmark": "astro-benchmark",
     "lint": "biome lint && eslint . --report-unused-disable-directives-severity=warn && knip",
-    "lint:ci": "biome ci --formatter-enabled=false --organize-imports-enabled=false --reporter=github && eslint . --report-unused-disable-directives-severity=warn && ls packages/astro/src/runtime/client && knip",
+    "lint:ci": "biome ci --formatter-enabled=false --organize-imports-enabled=false --reporter=github && eslint . --report-unused-disable-directives-severity=warn && knip",
     "lint:fix": "biome lint --write --unsafe",
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
