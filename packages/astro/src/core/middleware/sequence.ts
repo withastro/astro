@@ -6,6 +6,7 @@ import { AstroError } from '../errors/index.js';
 import { apiContextRoutesSymbol } from '../render-context.js';
 import { type Pipeline, getParams } from '../render/index.js';
 import { defineMiddleware } from './index.js';
+import { setOriginPathname } from '../routing/rewrite.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
 /**
@@ -46,6 +47,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 								handleContext.request,
 							);
 						}
+						const oldPathname = handleContext.url.pathname;
 						const pipeline: Pipeline = Reflect.get(handleContext, apiContextRoutesSymbol);
 						const { routeData, pathname } = await pipeline.tryRewrite(
 							payload,
@@ -76,6 +78,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						handleContext.url = new URL(newRequest.url);
 						handleContext.cookies = new AstroCookies(newRequest);
 						handleContext.params = getParams(routeData, pathname);
+						setOriginPathname(handleContext.request, oldPathname);
 					}
 					return applyHandle(i + 1, handleContext);
 				} else {
