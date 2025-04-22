@@ -12,7 +12,10 @@ export function testImageService(config = {}) {
 	};
 }
 
-/** @type {import("../dist/types/public/index.js").LocalImageService} */
+/**
+ * @type {import("../dist/types/public/index.js").LocalImageService}
+ * @lintignore
+ * */
 export default {
 	...baseService,
 	propertiesToHash: [...baseService.propertiesToHash, 'data-custom'],

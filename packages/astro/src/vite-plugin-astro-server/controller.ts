@@ -16,7 +16,7 @@ export interface DevServerController {
 	onHMRError: LoaderEvents['hmr-error'];
 }
 
-export type CreateControllerParams =
+type CreateControllerParams =
 	| {
 			loader: ModuleLoader;
 	  }
@@ -84,7 +84,7 @@ function createLoaderController(loader: ModuleLoader): DevServerController {
 	return controller;
 }
 
-export interface RunWithErrorHandlingParams {
+interface RunWithErrorHandlingParams {
 	controller: DevServerController;
 	pathname: string;
 	run: () => Promise<any>;

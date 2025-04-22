@@ -26,7 +26,7 @@ import {
 } from './utils.js';
 import { type WrappedWatcher, createWatcherWrapper } from './watcher.js';
 
-export interface ContentLayerOptions {
+interface ContentLayerOptions {
 	store: MutableDataStore;
 	settings: AstroSettings;
 	logger: Logger;
@@ -39,7 +39,7 @@ type CollectionLoader<TData> = () =>
 	| Record<string, Record<string, unknown>>
 	| Promise<Record<string, Record<string, unknown>>>;
 
-export class ContentLayer {
+class ContentLayer {
 	#logger: Logger;
 	#store: MutableDataStore;
 	#settings: AstroSettings;
@@ -342,7 +342,7 @@ export class ContentLayer {
 	}
 }
 
-export async function simpleLoader<TData extends { id: string }>(
+async function simpleLoader<TData extends { id: string }>(
 	handler: CollectionLoader<TData>,
 	context: LoaderContext,
 ) {

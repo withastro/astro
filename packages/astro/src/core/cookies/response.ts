@@ -6,10 +6,6 @@ export function attachCookiesToResponse(response: Response, cookies: AstroCookie
 	Reflect.set(response, astroCookiesSymbol, cookies);
 }
 
-export function responseHasCookies(response: Response): boolean {
-	return Reflect.has(response, astroCookiesSymbol);
-}
-
 export function getCookiesFromResponse(response: Response): AstroCookies | undefined {
 	let cookies = Reflect.get(response, astroCookiesSymbol);
 	if (cookies != null) {

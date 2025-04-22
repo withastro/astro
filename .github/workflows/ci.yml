@@ -92,7 +92,8 @@ jobs:
         run: pnpm install
 
       - name: Build Packages
-        run: pnpm run build
+        # The cache doesn't contain prebuild files and causes knip to fail
+        run: pnpm run build --force
 
       - name: Lint source code
         run: pnpm run lint:ci

@@ -26,7 +26,7 @@ const ENVIRONMENT_KEY_NAME = 'ASTRO_KEY' as const;
 /**
  * Get the encoded value of the ASTRO_KEY env var.
  */
-export function getEncodedEnvironmentKey(): string {
+function getEncodedEnvironmentKey(): string {
 	return process.env[ENVIRONMENT_KEY_NAME] || '';
 }
 
@@ -49,14 +49,6 @@ export async function getEnvironmentKey(): Promise<CryptoKey> {
 	}
 	const encodedKey = getEncodedEnvironmentKey();
 	return decodeKey(encodedKey);
-}
-
-/**
- * Takes a key that has been serialized to an array of bytes and returns a CryptoKey
- */
-export async function importKey(bytes: Uint8Array): Promise<CryptoKey> {
-	const key = await crypto.subtle.importKey('raw', bytes, ALGORITHM, true, ['encrypt', 'decrypt']);
-	return key;
 }
 
 /**

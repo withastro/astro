@@ -25,7 +25,7 @@ importers:
         specifier: ^2.28.1
         version: 2.28.1
       '@types/node':
-        specifier: ^18.17.8
+        specifier: ^18.19.50
         version: 18.19.50
       esbuild:
         specifier: ^0.25.0
@@ -36,6 +36,9 @@ importers:
       eslint-plugin-regexp:
         specifier: ^2.7.0
         version: 2.7.0(eslint@9.24.0(jiti@2.4.2))
+      knip:
+        specifier: 5.50.5
+        version: 5.50.5(@types/node@18.19.50)(typescript@5.8.3)
       only-allow:
         specifier: ^1.2.1
         version: 1.2.1
@@ -4294,9 +4297,6 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
-      strip-json-comments:
-        specifier: ^5.0.1
-        version: 5.0.1
 
   packages/create-astro/test/fixtures/not-empty: {}
 
@@ -4579,18 +4579,6 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20250327.0
         version: 4.20250327.0
-      esbuild:
-        specifier: ^0.25.0
-        version: 0.25.0
-      estree-walker:
-        specifier: ^3.0.3
-        version: 3.0.3
-      magic-string:
-        specifier: ^0.30.17
-        version: 0.30.17
-      miniflare:
-        specifier: ^4.20250321.1
-        version: 4.20250321.1
       tinyglobby:
         specifier: ^0.2.12
         version: 0.2.12
@@ -4619,9 +4607,6 @@ importers:
       rollup:
         specifier: ^4.35.0
         version: 4.38.0
-      strip-ansi:
-        specifier: ^7.1.0
-        version: 7.1.0
 
   packages/integrations/cloudflare/test/fixtures/astro-dev-platform:
     dependencies:
@@ -5032,9 +5017,6 @@ importers:
       mdast-util-mdx-jsx:
         specifier: ^3.2.0
         version: 3.2.0
-      mdast-util-to-string:
-        specifier: ^4.0.0
-        version: 4.0.0
       rehype-mathjax:
         specifier: ^7.1.0
         version: 7.1.0
@@ -5246,12 +5228,6 @@ importers:
         specifier: ^6.2.6
         version: 6.2.6(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.5.1)
     devDependencies:
-      '@netlify/edge-functions':
-        specifier: ^2.11.1
-        version: 2.11.1
-      '@netlify/edge-handler-types':
-        specifier: ^0.34.1
-        version: 0.34.1
       '@types/node':
         specifier: ^22.10.6
         version: 22.13.1
@@ -5267,12 +5243,6 @@ importers:
       devalue:
         specifier: ^5.1.1
         version: 5.1.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
-      strip-ansi:
-        specifier: ^7.1.0
-        version: 7.1.0
       typescript:
         specifier: ^5.8.2
         version: 5.8.3
@@ -5525,21 +5495,12 @@ importers:
 
   packages/integrations/preact:
     dependencies:
-      '@babel/plugin-transform-react-jsx':
-        specifier: ^7.25.9
-        version: 7.25.9(@babel/core@7.26.10)
-      '@babel/plugin-transform-react-jsx-development':
-        specifier: ^7.25.9
-        version: 7.25.9(@babel/core@7.26.10)
       '@preact/preset-vite':
         specifier: ^2.10.1
         version: 2.10.1(@babel/core@7.26.10)(preact@10.26.5)(vite@6.2.6(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.5.1))
       '@preact/signals':
         specifier: ^2.0.2
         version: 2.0.3(preact@10.26.5)
-      babel-plugin-transform-hook-names:
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.26.10)
       preact-render-to-string:
         specifier: ^6.5.13
         version: 6.5.13(preact@10.26.5)
@@ -5624,9 +5585,6 @@ importers:
         specifier: ^3.24.2
         version: 3.24.2
     devDependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../node
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -5648,6 +5606,9 @@ importers:
 
   packages/integrations/sitemap/test/fixtures/ssr:
     dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../node
       '@astrojs/sitemap':
         specifier: workspace:*
         version: link:../../..
@@ -6180,9 +6141,6 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
     devDependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../astro
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
@@ -6278,9 +6236,6 @@ importers:
       p-limit:
         specifier: ^6.2.0
         version: 6.2.0
-      tinyexec:
-        specifier: ^0.3.2
-        version: 0.3.2
       tinyglobby:
         specifier: ^0.2.12
         version: 0.2.12
@@ -7598,12 +7553,6 @@ packages:
     resolution: {integrity: sha512-7Dg3PzArvQ0Owq4wpkLECC9iaDBOxuWUN2uwbQtUF6tZssyez2QN+eO0CjuIhhZUivbw+X9bwsyiEjWkdJnv/A==}
     engines: {node: ^14.16.0 || >=16.0.0}
 
-  '@netlify/edge-functions@2.11.1':
-    resolution: {integrity: sha512-pyQOTZ8a+ge5lZlE+H/UAHyuqQqtL5gE0pXrHT9mOykr3YQqnkB2hZMtx12odatZ87gHg4EA+UPyMZUbLfnXvw==}
-
-  '@netlify/edge-handler-types@0.34.1':
-    resolution: {integrity: sha512-YTwn8cw89M4lRTmoUhl9s8ljSGMDt7FOIsxsrx7YrRz/RZlbh4Yuh4RU13DDafDRBEVuRbjGo93cnN621ZfBjA==}
-
   '@netlify/functions@3.0.4':
     resolution: {integrity: sha512-Ox8+ABI+nsLK+c4/oC5dpquXuEIjzfTlJrdQKgQijCsDQoje7inXFAtKDLvvaGvuvE+PVpMLwQcIUL6P9Ob1hQ==}
     engines: {node: '>=18.0.0'}
@@ -8770,6 +8719,10 @@ packages:
     resolution: {integrity: sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ==}
     engines: {node: '>=12'}
 
+  clone@1.0.4:
+    resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
+    engines: {node: '>=0.8'}
+
   clone@2.1.2:
     resolution: {integrity: sha512-3Pe/CF1Nn94hyhIYpjtiLhdCoEoz0DqQ+988E9gmeEdQZlojxnOb74wctFyuwWQHzqyf9X7C7MG8juUpqBJT8w==}
     engines: {node: '>=0.8'}
@@ -9003,6 +8956,9 @@ packages:
     resolution: {integrity: sha512-WY/3TUME0x3KPYdRRxEJJvXRHV4PyPoUsxtZa78lwItwRQRHhd2U9xOscaT/YTf8uCXIAjeJOFBVEh/7FtD8Xg==}
     engines: {node: '>=18'}
 
+  defaults@1.0.4:
+    resolution: {integrity: sha512-eFuaLoy/Rxalv2kr+lqMlUnrDWV+3j4pljOIJgLIhI058IQfWJ7vXhyEIHu+HtC738klGALYxOKDO0bQP3tg8A==}
+
   define-lazy-prop@3.0.0:
     resolution: {integrity: sha512-N+MeXYoqr3pOgn8xfyRPREN7gHakLYjhsHhWGT3fWAiL4IkAt0iDw14QiiEm2bE30c5XX5q0FtAA3CK5f9/BUg==}
     engines: {node: '>=12'}
@@ -9198,6 +9154,9 @@ packages:
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
+
+  easy-table@1.2.0:
+    resolution: {integrity: sha512-OFzVOv03YpvtcWGe5AayU5G2hgybsg3iqA6drU8UaoZyB9jLGMTrz9+asnLp/E+6qPh88yEI1gvyZFZ41dmgww==}
 
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
@@ -9993,6 +9952,14 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
+  knip@5.50.5:
+    resolution: {integrity: sha512-I3mfebuG5x8i/mJJA41xjnmHMbLw75ymbDxlS7HMP+4CjY+jXEDSJyP3A2xmI5JF5/o47Fr8D7Pq3BVT0/nQPw==}
+    engines: {node: '>=18.18.0'}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>=18'
+      typescript: '>=5.0.4'
+
   kolorist@1.8.0:
     resolution: {integrity: sha512-Y+60/zizpJ3HRH8DCss+q95yr6145JXZo46OTpFvDZWLfRCE4qChOyk1b26nMaNpfHHgxagk9dXT5OP0Tfe+dQ==}
 
@@ -10002,6 +9969,7 @@ packages:
 
   libsql@0.5.4:
     resolution: {integrity: sha512-GEFeWca4SDAQFxjHWJBE6GK52LEtSskiujbG3rqmmeTO9t4sfSBKIURNLLpKDDF7fb7jmTuuRkDAn9BZGITQNw==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lightningcss-darwin-arm64@1.29.2:
@@ -10522,6 +10490,7 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
 
   node-fetch-native@1.6.6:
     resolution: {integrity: sha512-8Mc2HhqPdlIfedsuZoc3yioPuzp6b+L5jRCRY1QzuWZh2EGJVQrGppC6V6cF0bLdbW0+O2YpqCA25aF/1lvipQ==}
@@ -12250,6 +12219,9 @@ packages:
       typescript:
         optional: true
 
+  wcwidth@1.0.1:
+    resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
+
   web-namespaces@2.0.1:
     resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
 
@@ -12438,6 +12410,12 @@ packages:
     peerDependencies:
       typescript: ^4.9.4 || ^5.0.2
       zod: ^3
+
+  zod-validation-error@3.4.0:
+    resolution: {integrity: sha512-ZOPR9SVY6Pb2qqO5XHt+MkkTRxGXb4EVtnjc9JpXUOtUB1T9Ru7mZOT361AN3MsetVe7R0a1KZshJDZdgp9miQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      zod: ^3.18.0
 
   zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
@@ -13780,12 +13758,6 @@ snapshots:
 
   '@netlify/blobs@8.1.1': {}
 
-  '@netlify/edge-functions@2.11.1': {}
-
-  '@netlify/edge-handler-types@0.34.1':
-    dependencies:
-      web-streams-polyfill: 3.3.3
-
   '@netlify/functions@3.0.4':
     dependencies:
       '@netlify/serverless-functions-api': 1.36.0
@@ -14250,7 +14222,7 @@ snapshots:
 
   '@types/prompts@2.4.9':
     dependencies:
-      '@types/node': 22.13.1
+      '@types/node': 18.19.50
       kleur: 3.0.3
 
   '@types/prop-types@15.7.12': {}
@@ -14266,18 +14238,18 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 22.13.1
+      '@types/node': 18.19.50
 
   '@types/semver@7.7.0': {}
 
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 22.13.1
+      '@types/node': 18.19.50
 
   '@types/server-destroy@1.0.4':
     dependencies:
-      '@types/node': 22.13.1
+      '@types/node': 18.19.50
 
   '@types/trusted-types@2.0.7': {}
 
@@ -14291,11 +14263,11 @@ snapshots:
 
   '@types/ws@8.5.12':
     dependencies:
-      '@types/node': 22.13.1
+      '@types/node': 18.19.50
 
   '@types/xml2js@0.4.14':
     dependencies:
-      '@types/node': 22.13.1
+      '@types/node': 18.19.50
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -15053,6 +15025,9 @@ snapshots:
       strip-ansi: 6.0.1
       wrap-ansi: 7.0.0
 
+  clone@1.0.4:
+    optional: true
+
   clone@2.1.2: {}
 
   clsx@2.1.1: {}
@@ -15238,6 +15213,11 @@ snapshots:
       bundle-name: 4.1.0
       default-browser-id: 5.0.0
 
+  defaults@1.0.4:
+    dependencies:
+      clone: 1.0.4
+    optional: true
+
   define-lazy-prop@3.0.0: {}
 
   defu@6.1.4: {}
@@ -15323,6 +15303,12 @@ snapshots:
       gopd: 1.2.0
 
   eastasianwidth@0.2.0: {}
+
+  easy-table@1.2.0:
+    dependencies:
+      ansi-regex: 5.0.1
+    optionalDependencies:
+      wcwidth: 1.0.1
 
   ee-first@1.1.1: {}
 
@@ -16308,6 +16294,25 @@ snapshots:
   kleur@3.0.3: {}
 
   kleur@4.1.5: {}
+
+  knip@5.50.5(@types/node@18.19.50)(typescript@5.8.3):
+    dependencies:
+      '@nodelib/fs.walk': 1.2.8
+      '@types/node': 18.19.50
+      easy-table: 1.2.0
+      enhanced-resolve: 5.18.1
+      fast-glob: 3.3.3
+      jiti: 2.4.2
+      js-yaml: 4.1.0
+      minimist: 1.2.8
+      picocolors: 1.1.1
+      picomatch: 4.0.2
+      pretty-ms: 9.2.0
+      smol-toml: 1.3.1
+      strip-json-comments: 5.0.1
+      typescript: 5.8.3
+      zod: 3.24.2
+      zod-validation-error: 3.4.0(zod@3.24.2)
 
   kolorist@1.8.0: {}
 
@@ -19020,6 +19025,11 @@ snapshots:
     optionalDependencies:
       typescript: 5.8.3
 
+  wcwidth@1.0.1:
+    dependencies:
+      defaults: 1.0.4
+    optional: true
+
   web-namespaces@2.0.1: {}
 
   web-streams-polyfill@3.3.3: {}
@@ -19208,6 +19218,10 @@ snapshots:
   zod-to-ts@1.2.0(typescript@5.8.3)(zod@3.24.2):
     dependencies:
       typescript: 5.8.3
+      zod: 3.24.2
+
+  zod-validation-error@3.4.0(zod@3.24.2):
+    dependencies:
       zod: 3.24.2
 
   zod@3.22.3: {}
