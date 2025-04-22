@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Create a new project in the `projectDir` directory. Make sure to clean up the
  * previous artifacts here before generating files.
