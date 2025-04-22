@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import esbuild from 'esbuild';
 import { red } from 'kleur/colors';
 import { glob } from 'tinyglobby';
+import crypto from 'node:crypto';
 
 function escapeTemplateLiterals(str) {
 	return str.replace(/\`/g, '\\`').replace(/\$\{/g, '\\${');
@@ -39,6 +40,8 @@ export default async function prebuild(...args) {
 		const outURL = new URL('./' + outname, entryURL);
 		return outURL;
 	}
+
+	const hashes = [];
 
 	async function prebuildFile(filepath) {
 		let tscode = await fs.promises.readFile(filepath, 'utf-8');
@@ -99,17 +102,31 @@ export default async function prebuild(...args) {
 			const code = result.build.outputFiles[0].text.trim();
 			const rootURL = new URL('../../', import.meta.url);
 			const rel = path.relative(fileURLToPath(rootURL), filepath);
+			const generatedCode = escapeTemplateLiterals(code);
 			const mod = `/**
  * This file is prebuilt from ${rel}
  * Do not edit this directly, but instead edit that file and rerun the prebuild
  * to generate this file.
  */
 
-export default \`${escapeTemplateLiterals(code)}\`;`;
+export default \`${generatedCode}\`;`;
 			const url = getPrebuildURL(filepath, result.dev);
 			await fs.promises.writeFile(url, mod, 'utf-8');
+			const hash = crypto.createHash('sha256').update(code).digest('base64');
+			hashes.push(hash);
 		}
 	}
 
 	await Promise.all(entryPoints.map(prebuildFile));
+	hashes.sort();
+	const entries = hashes.map((hash) => `"${hash}"`);
+	const content = `// This file is code-generated, please don't change it manually
+export default [
+	${entries.join(',\n	')}
+];`;
+	await fs.promises.writeFile(
+		path.join(fileURLToPath(import.meta.url), '../../../packages/astro/src/core', 'csp-hashes.js'),
+		content,
+		'utf-8',
+	);
 }
