@@ -22,7 +22,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./editor": "./dist/editor.cjs",
-    "./client.js": "./dist/client.js",
+    "./client.js": "./dist/client.svelte.js",
     "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },

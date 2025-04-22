@@ -908,6 +908,26 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 	/**
 	 * @docs
+	 * @name server.allowedHosts
+	 * @type {string[] | true}
+	 * @default `[]`
+	 * @version 5.4.0
+	 * @description
+	 *
+	 * A list of hostnames that Astro is allowed to respond to. When the value is set to `true`, any
+	 * hostname is allowed.
+	 *
+	 * ```js
+	 * {
+	 *   server: {
+	 *   	allowedHosts: ['staging.example.com', 'qa.example.com']
+	 *   }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @docs
 	 * @name server.open
 	 * @type {string | boolean}
 	 * @default `false`

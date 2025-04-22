@@ -124,10 +124,11 @@ async function renderToStaticMarkup(
 	return { html, attrs };
 }
 
-/**
- * @returns {Promise<[actionResult: any, actionKey: string, actionName: string] | undefined>}
- */
-async function getFormState({ result }: RendererContext) {
+async function getFormState({
+	result,
+}: RendererContext): Promise<
+	[actionResult: any, actionKey: string, actionName: string] | undefined
+> {
 	const { request, actionResult } = result;
 
 	if (!actionResult) return undefined;
