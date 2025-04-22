@@ -75,7 +75,7 @@ export default {
 		},
 		'packages/integrations/svelte': {},
 		'packages/integrations/vercel': {
-			entry: [testEntry],
+			entry: [testEntry, 'test/test-image-service.js'],
 			ignore: ['test/hosted/**'],
 		},
 		'packages/integrations/vue': {
