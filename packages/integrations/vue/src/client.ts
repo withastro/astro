@@ -3,15 +3,23 @@ import { Suspense, createApp, createSSRApp, h } from 'vue';
 import StaticHtml from './static-html.js';
 
 // keep track of already initialized apps, so we don't hydrate again for view transitions
-let appMap = new WeakMap();
+let appMap = new WeakMap<
+	HTMLElement,
+	{ props: Record<string, any>; slots: Record<string, any>; component?: any }
+>();
 
-export default (element) =>
-	async (Component, props, slotted, { client }) => {
+export default (element: HTMLElement) =>
+	async (
+		Component: any,
+		props: Record<string, any>,
+		slotted: Record<string, any>,
+		{ client }: Record<string, string>,
+	) => {
 		if (!element.hasAttribute('ssr')) return;
 
 		// Expose name on host component for Vue devtools
 		const name = Component.name ? `${Component.name} Host` : undefined;
-		const slots = {};
+		const slots: Record<string, any> = {};
 		for (const [key, value] of Object.entries(slotted)) {
 			slots[key] = () => h(StaticHtml, { value, name: key === 'default' ? undefined : key });
 		}
@@ -30,8 +38,9 @@ export default (element) =>
 			const app = bootstrap({
 				name,
 				render() {
-					let content = h(Component, appInstance.props, appInstance.slots);
-					appInstance.component = this;
+					// At this point, appInstance has been set so it's safe to use a non-null assertion
+					let content = h(Component, appInstance!.props, appInstance!.slots);
+					appInstance!.component = this;
 					// related to https://github.com/withastro/astro/issues/6549
 					// if the component is async, wrap it in a Suspense component
 					if (isAsync(Component.setup)) {
@@ -40,7 +49,7 @@ export default (element) =>
 					return content;
 				},
 			});
-			app.config.idPrefix = element.getAttribute('prefix');
+			app.config.idPrefix = element.getAttribute('prefix') ?? undefined;
 			await setup(app);
 			app.mount(element, isHydrate);
 			appMap.set(element, appInstance);
@@ -52,7 +61,7 @@ export default (element) =>
 		}
 	};
 
-function isAsync(fn) {
+function isAsync(fn: () => any) {
 	const constructor = fn?.constructor;
 	return constructor && constructor.name === 'AsyncFunction';
 }

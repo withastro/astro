@@ -22,20 +22,15 @@
   "exports": {
     ".": "./dist/index.js",
     "./editor": "./dist/editor.cjs",
-    "./*": "./*",
-    "./client.js": "./client.svelte.js",
-    "./server.js": "./server.js",
+    "./client.js": "./dist/client.svelte.js",
+    "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist",
-    "client.svelte.js",
-    "server.js",
-    "server.d.ts",
-    "context.js"
+    "dist"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },

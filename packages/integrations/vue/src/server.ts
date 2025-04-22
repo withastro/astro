@@ -1,21 +1,29 @@
 import { setup } from 'virtual:@astrojs/vue/app';
+import type { AstroComponentMetadata } from 'astro';
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { incrementId } from './context.js';
 import StaticHtml from './static-html.js';
+import type { RendererContext } from './types.js';
 
-function check(Component) {
+function check(Component: any) {
 	return !!Component['ssrRender'] || !!Component['__ssrInlineRender'];
 }
 
-async function renderToStaticMarkup(Component, inputProps, slotted, metadata) {
+async function renderToStaticMarkup(
+	this: RendererContext,
+	Component: any,
+	inputProps: Record<string, any>,
+	slotted: Record<string, any>,
+	metadata: AstroComponentMetadata,
+) {
 	let prefix;
 	if (this && this.result) {
 		prefix = incrementId(this.result);
 	}
 	const attrs = { prefix };
 
-	const slots = {};
+	const slots: Record<string, any> = {};
 	const props = { ...inputProps };
 	delete props.slot;
 	for (const [key, value] of Object.entries(slotted)) {
