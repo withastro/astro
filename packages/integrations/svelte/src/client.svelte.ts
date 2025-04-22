@@ -56,7 +56,6 @@ export default (element: HTMLElement) => {
 	};
 };
 
-
 function createComponent(
 	Component: any,
 	target: HTMLElement,
