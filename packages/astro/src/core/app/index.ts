@@ -122,7 +122,7 @@ export class App {
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.#manifestData);
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
-		this.#pipeline = this.#createPipeline(this.#manifestData, streaming);
+		this.#pipeline = this.#createPipeline(streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
 			this.#logger.options,
 			this.#manifest.adapterName,
@@ -136,12 +136,11 @@ export class App {
 	/**
 	 * Creates a pipeline by reading the stored manifest
 	 *
-	 * @param manifestData
 	 * @param streaming
 	 * @private
 	 */
-	#createPipeline(manifestData: RoutesList, streaming = false) {
-		return AppPipeline.create(manifestData, {
+	#createPipeline(streaming = false) {
+		return AppPipeline.create({
 			logger: this.#logger,
 			manifest: this.#manifest,
 			runtimeMode: 'production',

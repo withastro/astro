@@ -1,4 +1,4 @@
-import type { ComponentInstance, RoutesList } from '../../types/astro.js';
+import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { RouteData, SSRElement, SSRResult } from '../../types/public/internal.js';
 import { Pipeline, type TryRewriteResult } from '../base-pipeline.js';
@@ -8,31 +8,26 @@ import { createModuleScriptElement, createStylesheetElementSet } from '../render
 import { findRouteToRewrite } from '../routing/rewrite.js';
 
 export class AppPipeline extends Pipeline {
-	#manifestData: RoutesList | undefined;
-
-	static create(
-		manifestData: RoutesList,
-		{
-			logger,
-			manifest,
-			runtimeMode,
-			renderers,
-			resolve,
-			serverLike,
-			streaming,
-			defaultRoutes,
-		}: Pick<
-			AppPipeline,
-			| 'logger'
-			| 'manifest'
-			| 'runtimeMode'
-			| 'renderers'
-			| 'resolve'
-			| 'serverLike'
-			| 'streaming'
-			| 'defaultRoutes'
-		>,
-	) {
+	static create({
+		logger,
+		manifest,
+		runtimeMode,
+		renderers,
+		resolve,
+		serverLike,
+		streaming,
+		defaultRoutes,
+	}: Pick<
+		AppPipeline,
+		| 'logger'
+		| 'manifest'
+		| 'runtimeMode'
+		| 'renderers'
+		| 'resolve'
+		| 'serverLike'
+		| 'streaming'
+		| 'defaultRoutes'
+	>) {
 		const pipeline = new AppPipeline(
 			logger,
 			manifest,
@@ -51,7 +46,6 @@ export class AppPipeline extends Pipeline {
 			undefined,
 			defaultRoutes,
 		);
-		pipeline.#manifestData = manifestData;
 		return pipeline;
 	}
 
