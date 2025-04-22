@@ -38,6 +38,7 @@ export default (element: HTMLElement) =>
 			const app = bootstrap({
 				name,
 				render() {
+					// At this point, appInstance has been set so it's safe to use a non-null assertion
 					let content = h(Component, appInstance!.props, appInstance!.slots);
 					appInstance!.component = this;
 					// related to https://github.com/withastro/astro/issues/6549
