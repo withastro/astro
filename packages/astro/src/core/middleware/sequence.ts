@@ -5,8 +5,8 @@ import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
 import { apiContextRoutesSymbol } from '../render-context.js';
 import { type Pipeline, getParams } from '../render/index.js';
-import { defineMiddleware } from './index.js';
 import { setOriginPathname } from '../routing/rewrite.js';
+import { defineMiddleware } from './index.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
 /**
