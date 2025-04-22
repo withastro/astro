@@ -12,8 +12,14 @@ export default {
 	],
 	workspaces: {
 		'.': {
-			ignoreDependencies: ['@astrojs/check'],
+			ignoreDependencies: [
+				'@astrojs/check', // Used by the build script but not as a standard module import
+			],
+			// In smoke tests, we checkout to the docs repo so those binaries are not present in this project
 			ignoreBinaries: ['docgen', 'docgen:errors', 'playwright'],
+		},
+		'packages/*': {
+			entry: [testEntry],
 		},
 		'packages/astro': {
 			entry: [
@@ -25,6 +31,7 @@ export default {
 				'test/units/teardown.js',
 			],
 			ignore: ['**/e2e/**/{fixtures,_temp-fixtures}/**', 'performance/**/*'],
+			// Those deps are used in tests but only referenced as strings
 			ignoreDependencies: [
 				'rehype-autolink-headings',
 				'rehype-slug',
@@ -32,14 +39,7 @@ export default {
 				'remark-code-titles',
 			],
 		},
-		'packages/astro-prism': {},
-		'packages/astro-rss': {
-			entry: [testEntry],
-		},
-		'packages/create-astro': {
-			entry: [testEntry],
-		},
-		'packages/db': {
+		'packages/integrations/*': {
 			entry: [testEntry],
 		},
 		'packages/integrations/cloudflare': {
@@ -47,55 +47,28 @@ export default {
 			// False positive because of cloudflare:workers
 			ignoreDependencies: ['cloudflare'],
 		},
-		'packages/integrations/markdoc': {
-			entry: [testEntry],
-		},
 		'packages/integrations/mdx': {
 			entry: [testEntry],
+			// Required but not imported directly
 			ignoreDependencies: ['@types/*'],
 		},
 		'packages/integrations/netlify': {
 			entry: [testEntry],
 			ignore: ['test/hosted/**'],
 		},
-		'packages/integrations/node': {
-			entry: [testEntry],
-		},
-		'packages/integrations/partytown': {},
-		'packages/integrations/preact': {},
-		'packages/integrations/react': {
-			entry: [testEntry],
-		},
-		'packages/integrations/sitemap': {
-			entry: [testEntry],
-		},
 		'packages/integrations/solid': {
 			entry: [testEntry],
+			// It's an optional peer dep (triggers a warning) but it's fine in this case
 			ignoreDependencies: ['solid-devtools'],
 		},
-		'packages/integrations/svelte': {},
 		'packages/integrations/vercel': {
 			entry: [testEntry, 'test/test-image-service.js'],
 			ignore: ['test/hosted/**'],
 		},
-		'packages/integrations/vue': {
-			entry: [testEntry],
-		},
-		'packages/integrations/web-vitals': {
-			entry: [testEntry],
-		},
-		'packages/internal-helpers': {},
 		'packages/markdown/remark': {
 			entry: [testEntry],
-			// package.json#imports are not resolved
+			// package.json#imports are not resolved at the moment
 			ignore: ['src/import-plugin-browser.ts'],
-		},
-		'packages/studio': {},
-		'packages/telemetry': {
-			entry: [testEntry],
-		},
-		'packages/underscore-redirects': {
-			entry: [testEntry],
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
