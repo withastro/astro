@@ -10,7 +10,8 @@ function escapeTemplateLiterals(str) {
 	return str.replace(/\`/g, '\\`').replace(/\$\{/g, '\\${');
 }
 
-const ASTRO_ISLAND_STYLE = `<style>astro-island,astro-slot,astro-static-slot{display:contents}</style>`;
+const ASTRO_ISLAND_STYLE_REGEX = /'([^']*)'/;
+
 export default async function prebuild(...args) {
 	let buildToString = args.indexOf('--to-string');
 	if (buildToString !== -1) {
@@ -121,7 +122,12 @@ export default \`${generatedCode}\`;`;
 		await prebuildFile(entrypoint);
 	}
 
-	hashes.push(crypto.createHash('sha256').update(ASTRO_ISLAND_STYLE).digest('base64'));
+	const fileContent = await fs.promises.readFile(
+		new URL('../../packages/astro/src/runtime/server/astro-island-styles.ts', import.meta.url),
+		'utf-8',
+	);
+	const styleContent = fileContent.match(ASTRO_ISLAND_STYLE_REGEX)[1];
+	hashes.push(crypto.createHash('sha256').update(styleContent).digest('base64'));
 	hashes.sort();
 	const entries = hashes.map((hash) => `"${hash}"`);
 	const content = `// This file is code-generated, please don't change it manually
