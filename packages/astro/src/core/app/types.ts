@@ -86,6 +86,13 @@ export type SSRManifest = {
 	publicDir: string | URL;
 	buildClientDir: string | URL;
 	buildServerDir: string | URL;
+	clientScriptHashes: string[];
+	clientStyleHashes: string[];
+	/**
+	 * When enabled, Astro tracks the hashes of script and styles, and eventually it will render the `<meta>` tag
+	 */
+	shouldInjectCspMetaTags: boolean;
+	astroIslandHashes: string[];
 };
 
 export type SSRActions = {
