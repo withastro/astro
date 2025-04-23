@@ -62,19 +62,22 @@ async function fetchFont(url: string): Promise<Buffer> {
 
 export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	if (!settings.config.experimental.fonts) {
-		// this is required because the virtual module does not exist
-		// when fonts are not enabled, and that prevents rollup from building
+		// This is required because the virtual module may be imported as
+		// a side effect
 		// TODO: remove once fonts are stabilized
 		return {
 			name: 'astro:fonts:fallback',
-			config() {
-				return {
-					build: {
-						rollupOptions: {
-							external: [VIRTUAL_MODULE_ID],
-						},
-					},
-				};
+			resolveId(id) {
+				if (id === VIRTUAL_MODULE_ID) {
+					return RESOLVED_VIRTUAL_MODULE_ID;
+				}
+			},
+			load(id) {
+				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+					return {
+						code: '',
+					};
+				}
 			},
 		};
 	}
