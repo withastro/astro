@@ -2,11 +2,7 @@ import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
-import type {
-	PluginCssMetadata as AstroPluginCssMetadata,
-	PluginMetadata as AstroPluginMetadata,
-	CompileMetadata,
-} from './types.js';
+import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
 
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import type { AstroConfig } from '../types/public/config.js';
@@ -16,7 +12,7 @@ import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import { loadId } from './utils.js';
 export { getAstroMetadata } from './metadata.js';
-export type { AstroPluginMetadata, AstroPluginCssMetadata };
+export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -138,17 +134,15 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 					return {
 						code: result.code,
-						// This metadata is used by `cssScopeToPlugin` to remove this module from the bundle
-						// if the `filename` default export (the Astro component) is unused.
+						// `vite.cssScopeTo` is a Vite feature that allows this CSS to be treeshaken
+						// if the Astro component's default export is not used
 						meta: result.isGlobal
 							? undefined
-							: ({
-									astroCss: {
-										cssScopeTo: {
-											[filename]: ['default'],
-										},
+							: {
+									vite: {
+										cssScopeTo: [filename, 'default'],
 									},
-								} satisfies AstroPluginCssMetadata),
+								},
 					};
 				}
 				case 'script': {
