@@ -25,6 +25,8 @@ import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
+import { ASTRO_ISLAND_HASHES } from '../core/astro-islands-hashes.js';
+import { shouldTrackCspHashes } from '../core/csp/common.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -100,8 +102,7 @@ export default function createVitePluginAstroServer({
 						});
 				const store = localStorage.getStore();
 				if (store instanceof IncomingMessage) {
-					const request = store;
-					setRouteError(controller.state, request.url!, error);
+					setRouteError(controller.state, store.url!, error);
 				}
 				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
 				setTimeout(
@@ -207,5 +208,9 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			};
 		},
 		sessionConfig: settings.config.session,
+		clientScriptHashes: [],
+		clientStyleHashes: [],
+		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config),
+		astroIslandHashes: ASTRO_ISLAND_HASHES,
 	};
 }

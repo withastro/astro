@@ -24,6 +24,8 @@ import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
+import { shouldTrackCspHashes, trackScriptHashes, trackStyleHashes } from '../../csp/common.js';
+import { ASTRO_ISLAND_HASHES } from '../../astro-islands-hashes.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
@@ -294,6 +296,14 @@ function buildManifest(
 		};
 	}
 
+	let clientScriptHashes: string[] = [];
+	let clientStyleHashes: string[] = [];
+
+	if (shouldTrackCspHashes(settings.config)) {
+		clientScriptHashes = trackScriptHashes(internals, opts.settings);
+		clientStyleHashes = trackStyleHashes(internals);
+	}
+
 	return {
 		hrefRoot: opts.settings.config.root.toString(),
 		cacheDir: opts.settings.config.cacheDir.toString(),
@@ -323,5 +333,9 @@ function buildManifest(
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
 		sessionConfig: settings.config.session,
+		shouldInjectCspMetaTags: shouldTrackCspHashes(opts.settings.config),
+		clientStyleHashes,
+		clientScriptHashes,
+		astroIslandHashes: ASTRO_ISLAND_HASHES,
 	};
 }
