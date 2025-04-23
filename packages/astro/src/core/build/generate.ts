@@ -8,7 +8,7 @@ import {
 	getStaticImageList,
 	prepareAssetsGenerationEnv,
 } from '../../assets/build/generate.js';
-import { type BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
+import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import {
 	isRelativePath,
 	joinPaths,
@@ -49,6 +49,9 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import crypto from 'node:crypto';
+import { shouldTrackCspHashes, trackScriptHashes, trackStyleHashes } from '../csp/common.js';
+import { ASTRO_ISLAND_HASHES } from '../astro-islands-hashes.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
@@ -600,8 +603,6 @@ function getPrettyRouteName(route: RouteData): string {
  * It creates a `SSRManifest` from the `AstroSettings`.
  *
  * Renderers needs to be pulled out from the page module emitted during the build.
- * @param settings
- * @param renderers
  */
 function createBuildManifest(
 	settings: AstroSettings,
@@ -612,6 +613,15 @@ function createBuildManifest(
 	key: Promise<CryptoKey>,
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
+
+	let clientStyleHashes: string[] = [];
+	let clientScriptHashes: string[] = [];
+
+	if (shouldTrackCspHashes(settings.config)) {
+		clientScriptHashes = trackScriptHashes(internals, settings);
+		clientStyleHashes = trackStyleHashes(internals);
+	}
+
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
@@ -655,5 +665,9 @@ function createBuildManifest(
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,
+		clientStyleHashes,
+		clientScriptHashes,
+		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config),
+		astroIslandHashes: ASTRO_ISLAND_HASHES,
 	};
 }

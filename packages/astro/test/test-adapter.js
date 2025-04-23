@@ -26,6 +26,7 @@ export default function ({
 	setEntryPoints,
 	setMiddlewareEntryPoint,
 	setRoutes,
+	setManifest,
 	env,
 } = {}) {
 	return {
@@ -107,7 +108,7 @@ export default function ({
 					exports: ['manifest', 'createApp'],
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
-						envGetSecret: 'experimental',
+						envGetSecret: 'stable',
 						staticOutput: 'stable',
 						hybridOutput: 'stable',
 						assets: 'stable',
@@ -119,12 +120,15 @@ export default function ({
 					...extendAdapter,
 				});
 			},
-			'astro:build:ssr': ({ entryPoints, middlewareEntryPoint }) => {
+			'astro:build:ssr': ({ entryPoints, middlewareEntryPoint, manifest }) => {
 				if (setEntryPoints) {
 					setEntryPoints(entryPoints);
 				}
 				if (setMiddlewareEntryPoint) {
 					setMiddlewareEntryPoint(middlewareEntryPoint);
+				}
+				if (setManifest) {
+					setManifest(manifest);
 				}
 			},
 			'astro:build:done': ({ routes }) => {

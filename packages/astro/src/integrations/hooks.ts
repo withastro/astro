@@ -34,6 +34,7 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
+import type { Pipeline } from '../core/base-pipeline.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -129,19 +130,21 @@ export function normalizeInjectedTypeFilename(filename: string, integrationName:
 	return `${normalizeCodegenDir(integrationName)}${filename.replace(SAFE_CHARS_RE, '_')}`;
 }
 
+interface RunHookConfigSetup {
+	settings: AstroSettings;
+	command: 'dev' | 'build' | 'preview' | 'sync';
+	logger: Logger;
+	isRestart?: boolean;
+	fs?: typeof fsMod;
+}
+
 export async function runHookConfigSetup({
 	settings,
 	command,
 	logger,
 	isRestart = false,
 	fs = fsMod,
-}: {
-	settings: AstroSettings;
-	command: 'dev' | 'build' | 'preview' | 'sync';
-	logger: Logger;
-	isRestart?: boolean;
-	fs?: typeof fsMod;
-}): Promise<AstroSettings> {
+}: RunHookConfigSetup): Promise<AstroSettings> {
 	// An adapter is an integration, so if one is provided add it to the list of integrations.
 	if (settings.config.adapter) {
 		settings.config.integrations.unshift(settings.config.adapter);

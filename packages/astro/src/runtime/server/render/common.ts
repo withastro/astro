@@ -1,5 +1,4 @@
 import type { RenderInstruction } from './instruction.js';
-
 import type { SSRResult } from '../../../types/public/internal.js';
 import type { HTMLBytes, HTMLString } from '../escape.js';
 import { markHTMLString } from '../escape.js';
@@ -99,6 +98,7 @@ function stringifyChunk(
 				}
 				return '';
 			}
+
 			default: {
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);
 			}

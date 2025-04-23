@@ -246,6 +246,12 @@ export interface SSRResult {
 	trailingSlash: AstroConfig['trailingSlash'];
 	key: Promise<CryptoKey>;
 	_metadata: SSRMetadata;
+	/**
+	 * Whether Astro should inject the CSP <meta> tag into the head of the component.
+	 */
+	shouldInjectCspMetaTags: boolean;
+	clientScriptHashes: string[];
+	clientStyleHashes: string[];
 }
 
 /**
