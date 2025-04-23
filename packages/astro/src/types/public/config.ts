@@ -2133,19 +2133,20 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * The following styles are applied to ensure the images resize correctly:
 		 *
 		 * ```css title="Responsive Image Styles"
-		 * @layer astro-image {
-		 *   [data-astro-image] {
-		 *     object-fit: var(--fit);
-		 *     object-position: var(--pos);
-		 *   }
-		 *   [data-astro-image='full-width'] {
-		 *     width: 100%;
-		 *   }
 		 * 
-		 *   [data-astro-image='constrained'] {
-		 *     max-width: 100%;
-		 *   }
+		 * :where([data-astro-image]) {
+		 *   object-fit: var(--fit);
+		 *   object-position: var(--pos);
 		 * }
+		 * 
+		 * :where([data-astro-image='full-width']) {
+		 *   width: 100%;
+		 * }
+		 * 
+		 * :where([data-astro-image='constrained']) {
+		 *   max-width: 100%;
+		 * }
+		 * 
 		 * ```
 		 * You can enable responsive images for all `<Image />` and `<Picture />` components by setting `image.experimentalLayout` with a default value. This can be overridden by the `layout` prop on each component.
 		 *
