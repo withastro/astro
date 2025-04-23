@@ -10,6 +10,8 @@ function escapeTemplateLiterals(str) {
 	return str.replace(/\`/g, '\\`').replace(/\$\{/g, '\\${');
 }
 
+const ASTRO_ISLAND_STYLE_REGEX = /'([^']*)'/;
+
 export default async function prebuild(...args) {
 	let buildToString = args.indexOf('--to-string');
 	if (buildToString !== -1) {
@@ -116,16 +118,28 @@ export default \`${generatedCode}\`;`;
 			hashes.push(hash);
 		}
 	}
+	for (const entrypoint of entryPoints) {
+		await prebuildFile(entrypoint);
+	}
 
-	await Promise.all(entryPoints.map(prebuildFile));
+	const fileContent = await fs.promises.readFile(
+		new URL('../../packages/astro/src/runtime/server/astro-island-styles.ts', import.meta.url),
+		'utf-8',
+	);
+	const styleContent = fileContent.match(ASTRO_ISLAND_STYLE_REGEX)[1];
+	hashes.push(crypto.createHash('sha256').update(styleContent).digest('base64'));
 	hashes.sort();
 	const entries = hashes.map((hash) => `"${hash}"`);
 	const content = `// This file is code-generated, please don't change it manually
-export default [
+export const ASTRO_ISLAND_HASHES = [
 	${entries.join(',\n	')}
 ];`;
 	await fs.promises.writeFile(
-		path.join(fileURLToPath(import.meta.url), '../../../packages/astro/src/core', 'csp-hashes.js'),
+		path.join(
+			fileURLToPath(import.meta.url),
+			'../../../packages/astro/src/core',
+			'astro-islands-hashes.ts',
+		),
 		content,
 		'utf-8',
 	);

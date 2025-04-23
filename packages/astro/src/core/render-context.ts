@@ -462,6 +462,9 @@ export class RenderContext {
 				extraHead: [],
 				propagators: new Set(),
 			},
+			shouldInjectCspMetaTags: manifest.shouldInjectCspMetaTags,
+			clientScriptHashes: manifest.clientScriptHashes,
+			clientStyleHashes: manifest.clientStyleHashes,
 		};
 
 		return result;

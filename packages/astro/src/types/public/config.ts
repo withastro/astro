@@ -2229,6 +2229,13 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 */
 		headingIdCompat?: boolean;
 
+
+		/**
+		 * 
+		 */
+		// TODO: add docs once we are reaching the end
+		csp?: boolean,
+
 		/**
 		 * @name experimental.preserveScriptOrder
 		 * @type {boolean}
