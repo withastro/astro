@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 7.0.11
+
+### Patch Changes
+
+- [#13663](https://github.com/withastro/astro/pull/13663) [`a19a185`](https://github.com/withastro/astro/commit/a19a185efd75334f2f417b433fcfaa0017fe41ee) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves type-safety of renderers
+
 ## 7.0.10
 
 ### Patch Changes
