@@ -23,9 +23,7 @@ import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
-import crypto from 'node:crypto';
 import { shouldTrackCspHashes, trackScriptHashes, trackStyleHashes } from '../../csp/common.js';
-import type { AstroSettings } from '../../../types/astro.js';
 import { ASTRO_ISLAND_HASHES } from '../../astro-islands-hashes.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';

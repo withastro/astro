@@ -49,7 +49,6 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
-import crypto from 'node:crypto';
 import { shouldTrackCspHashes, trackScriptHashes, trackStyleHashes } from '../csp/common.js';
 import { ASTRO_ISLAND_HASHES } from '../astro-islands-hashes.js';
 
