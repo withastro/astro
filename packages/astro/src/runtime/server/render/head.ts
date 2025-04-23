@@ -51,6 +51,27 @@ export function renderAllHeadContent(result: SSRResult) {
 		}
 	}
 
+	const hashes = [];
+
+	if (result.shouldInjectCspMetaTags) {
+		for (const scriptHash of [...result.clientScriptHashes, ...result.clientStyleHashes]) {
+			hashes.push(
+				renderElement(
+					'meta',
+					{
+						props: {
+							'http-equiv': 'content-security-policy',
+							content: scriptHash,
+						},
+						children: '',
+					},
+					false,
+				),
+			);
+		}
+	}
+	content += hashes.join('\n');
+
 	return markHTMLString(content);
 }
 
