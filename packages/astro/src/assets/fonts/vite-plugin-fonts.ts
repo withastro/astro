@@ -142,7 +142,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		}
 
 		for (const path of [...pathsToWarn]) {
-			logger.warn('assets', `The font file ${JSON.stringify(path)} used by a local family is located in \`config.public\`. This will result in duplicated files in the output.`)
+			logger.warn(
+				'assets',
+				`The font file ${JSON.stringify(path)} used by a local family is located in \`config.publicDir\`. This will result in duplicated files in the output.`,
+			);
 		}
 
 		await loadFonts({
