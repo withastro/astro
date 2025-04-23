@@ -36,11 +36,11 @@
   "dependencies": {
     "ci-info": "^4.2.0",
     "kleur": "^4.1.5",
-    "yocto-spinner": "^0.2.1"
+    "yocto-spinner": "^0.2.2"
   },
   "devDependencies": {
     "astro-scripts": "workspace:*",
     "typescript": "^5.8.3",
-    "vite": "^6.2.6"
+    "vite": "^6.3.2"
   }
 }
