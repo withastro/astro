@@ -19,7 +19,6 @@ import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
-import crypto from 'node:crypto';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
