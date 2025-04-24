@@ -39,20 +39,13 @@ export function handleValueWithSpaces(value: string): string {
 	return value;
 }
 
-export class PrettyCssRenderer implements CssRenderer {
-	generateFontFace(family: string, properties: Properties): string {
-		return renderFontFace(withFamily(family, properties), false);
-	}
-	generateCssVariable(key: string, values: Array<string>): string {
-		return renderCssVariable(key, values, false);
-	}
-}
+export class MinifiableCssRenderer implements CssRenderer {
+	constructor(private minify: boolean) {}
 
-export class MinifiedCssRenderer implements CssRenderer {
 	generateFontFace(family: string, properties: Properties): string {
-		return renderFontFace(withFamily(family, properties), true);
+		return renderFontFace(withFamily(family, properties), this.minify);
 	}
 	generateCssVariable(key: string, values: Array<string>): string {
-		return renderCssVariable(key, values, true);
+		return renderCssVariable(key, values, this.minify);
 	}
 }

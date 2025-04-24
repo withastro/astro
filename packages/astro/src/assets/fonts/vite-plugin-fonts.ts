@@ -37,7 +37,7 @@ import {
 	RemoteUrlProxyContentResolver,
 } from './implementations/url-proxy-content-resolver.js';
 import { RealDataCollector } from './implementations/data-collector.js';
-import { MinifiedCssRenderer, PrettyCssRenderer } from './implementations/css-renderer.js';
+import { MinifiableCssRenderer } from './implementations/css-renderer.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -144,7 +144,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				await initialize({
 					cacheDir: new URL(CACHE_DIR, settings.config.cacheDir),
 					modResolver: new BuildRemoteFontProviderModResolver(),
-					cssRenderer: new MinifiedCssRenderer(),
+					cssRenderer: new MinifiableCssRenderer(true),
 				});
 			}
 		},
@@ -153,7 +153,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
 				modResolver: new DevServerRemoteFontProviderModResolver(server),
-				cssRenderer: new PrettyCssRenderer(),
+				cssRenderer: new MinifiableCssRenderer(false),
 			});
 			// The map is always defined at this point. Its values contains urls from remote providers
 			// as well as local paths for the local provider. We filter them to only keep the filepaths
