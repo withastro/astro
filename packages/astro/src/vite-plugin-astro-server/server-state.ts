@@ -1,6 +1,6 @@
-export type ErrorState = 'fresh' | 'error';
+type ErrorState = 'fresh' | 'error';
 
-export interface RouteState {
+interface RouteState {
 	state: ErrorState;
 	error?: Error;
 }
@@ -16,10 +16,6 @@ export function createServerState(): ServerState {
 		routes: new Map(),
 		state: 'fresh',
 	};
-}
-
-export function hasAnyFailureState(serverState: ServerState) {
-	return serverState.state !== 'fresh';
 }
 
 export function setRouteError(serverState: ServerState, pathname: string, error: Error) {

@@ -22,7 +22,7 @@ const ROOT_FILES = [
 	'lerna.json',
 ];
 
-export function tryStatSync(file: string): fs.Stats | undefined {
+function tryStatSync(file: string): fs.Stats | undefined {
 	try {
 		// The "throwIfNoEntry" is a performance optimization for cases where the file does not exist
 		return fs.statSync(file, { throwIfNoEntry: false });
@@ -31,7 +31,7 @@ export function tryStatSync(file: string): fs.Stats | undefined {
 	}
 }
 
-export function isFileReadable(filename: string): boolean {
+function isFileReadable(filename: string): boolean {
 	if (!tryStatSync(filename)) {
 		return false;
 	}
@@ -73,7 +73,7 @@ function hasPackageJSON(root: string) {
 /**
  * Search up for the nearest `package.json`
  */
-export function searchForPackageRoot(current: string, root = current): string {
+function searchForPackageRoot(current: string, root = current): string {
 	if (hasPackageJSON(current)) return current;
 
 	const dir = dirname(current);

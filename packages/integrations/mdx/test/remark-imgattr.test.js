@@ -6,11 +6,11 @@ import { loadFixture } from '../../../astro/test/test-utils.js';
 const FIXTURE_ROOT = new URL('./fixtures/image-remark-imgattr/', import.meta.url);
 
 describe('Testing remark plugins for image processing', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('../../../astro/test/test-utils.js').Fixture} */
 	let fixture;
 
 	describe('start dev server', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('../../../astro/test/test-utils.js').DevServer} */
 		let devServer;
 
 		before(async () => {

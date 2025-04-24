@@ -7,7 +7,7 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
 import type { FontType, GenericFallbackName, ResolvedFontFamily } from './types.js';
 
-export function unifontFontFaceDataToProperties(
+function unifontFontFaceDataToProperties(
 	font: Partial<unifont.FontFaceData>,
 ): Record<string, string | undefined> {
 	return {

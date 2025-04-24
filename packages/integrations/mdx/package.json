@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "4.2.4",
+  "version": "4.2.5",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -61,7 +61,6 @@
     "linkedom": "^0.18.9",
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-jsx": "^3.2.0",
-    "mdast-util-to-string": "^4.0.0",
     "rehype-mathjax": "^7.1.0",
     "rehype-pretty-code": "^0.14.1",
     "remark-math": "^6.0.0",

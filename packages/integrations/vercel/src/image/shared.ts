@@ -56,7 +56,7 @@ export type VercelImageConfig = {
 	contentSecurityPolicy?: string;
 };
 
-export const qualityTable: Record<ImageQualityPreset, number> = {
+const qualityTable: Record<ImageQualityPreset, number> = {
 	low: 25,
 	mid: 50,
 	high: 80,

@@ -8,7 +8,7 @@
  * Simplified, optimized and add modified for 52 bit, which provides a larger hash space
  * and still making use of Javascript's 53-bit integer space.
  */
-export const fnv1a52 = (str: string) => {
+const fnv1a52 = (str: string) => {
 	const len = str.length;
 	let i = 0,
 		t0 = 0,

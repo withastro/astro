@@ -2,7 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { AstroBuildPlugin } from '../plugin.js';
 import { extendManualChunks } from './util.js';
 
-export function vitePluginChunks(): VitePlugin {
+function vitePluginChunks(): VitePlugin {
 	return {
 		name: 'astro:chunks',
 		outputOptions(outputOptions) {

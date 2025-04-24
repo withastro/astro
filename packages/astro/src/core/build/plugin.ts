@@ -9,7 +9,7 @@ export type BuildTarget = 'server' | 'client';
 
 type MutateChunk = (chunk: OutputChunk, targets: BuildTarget[], newCode: string) => void;
 
-export interface BuildBeforeHookResult {
+interface BuildBeforeHookResult {
 	enforce?: 'after-user-plugins';
 	vitePlugin: VitePlugin | VitePlugin[] | undefined;
 }

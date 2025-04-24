@@ -1,6 +1,6 @@
 import { z } from 'astro/zod';
 
-export const RatingSchema = z.enum(['good', 'needs-improvement', 'poor']);
+const RatingSchema = z.enum(['good', 'needs-improvement', 'poor']);
 const MetricTypeSchema = z.enum(['CLS', 'INP', 'LCP', 'FCP', 'FID', 'TTFB']);
 
 /** `web-vitals` generated ID, transformed to reduce data resolution. */

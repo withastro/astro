@@ -169,7 +169,7 @@ function deepMergeObjects<T extends Record<string, any>>(a: T, b: T): T {
 // https://github.com/unjs/pkg-types/blob/78328837d369d0145a8ddb35d7fe1fadda4bfadf/src/types/tsconfig.ts
 // See https://github.com/unjs/pkg-types/blob/78328837d369d0145a8ddb35d7fe1fadda4bfadf/LICENSE for license information
 
-export type StripEnums<T extends Record<string, any>> = {
+type StripEnums<T extends Record<string, any>> = {
 	[K in keyof T]: T[K] extends boolean
 		? T[K]
 		: T[K] extends string

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import convert from '../vnode-children.js';
+import convert from '../dist/vnode-children.js';
 
 describe('experimental react children', () => {
 	it('has undefined as children for direct children', () => {

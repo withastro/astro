@@ -1,14 +1,21 @@
 import opts from 'astro:react:opts';
+import type { AstroComponentMetadata } from 'astro';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { incrementId } from './context.js';
 import StaticHtml from './static-html.js';
+import type { RendererContext } from './types.js';
 
-const slotName = (str) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
+const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
 const reactTransitionalTypeof = Symbol.for('react.transitional.element');
 
-async function check(Component, props, children) {
+async function check(
+	this: RendererContext,
+	Component: any,
+	props: Record<string, any>,
+	children: any,
+) {
 	// Note: there are packages that do some unholy things to create "components".
 	// Checking the $$typeof property catches most of these patterns.
 	if (typeof Component === 'object') {
@@ -26,7 +33,7 @@ async function check(Component, props, children) {
 	}
 
 	let isReactComponent = false;
-	function Tester(...args) {
+	function Tester(...args: Array<any>) {
 		try {
 			const vnode = Component(...args);
 			if (
@@ -40,31 +47,37 @@ async function check(Component, props, children) {
 		return React.createElement('div');
 	}
 
-	await renderToStaticMarkup(Tester, props, children, {});
+	await renderToStaticMarkup.call(this, Tester, props, children, {} as any);
 
 	return isReactComponent;
 }
 
-async function getNodeWritable() {
+async function getNodeWritable(): Promise<typeof import('node:stream').Writable> {
 	let nodeStreamBuiltinModuleName = 'node:stream';
 	let { Writable } = await import(/* @vite-ignore */ nodeStreamBuiltinModuleName);
 	return Writable;
 }
 
-function needsHydration(metadata) {
+function needsHydration(metadata: AstroComponentMetadata) {
 	// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
 	return metadata.astroStaticSlot ? !!metadata.hydrate : true;
 }
 
-async function renderToStaticMarkup(Component, props, { default: children, ...slotted }, metadata) {
+async function renderToStaticMarkup(
+	this: RendererContext,
+	Component: any,
+	props: Record<string, any>,
+	{ default: children, ...slotted }: Record<string, any>,
+	metadata: AstroComponentMetadata,
+) {
 	let prefix;
 	if (this && this.result) {
 		prefix = incrementId(this.result);
 	}
-	const attrs = { prefix };
+	const attrs: Record<string, any> = { prefix };
 
 	delete props['class'];
-	const slots = {};
+	const slots: Record<string, any> = {};
 	for (const [key, value] of Object.entries(slotted)) {
 		const name = slotName(key);
 		slots[name] = React.createElement(StaticHtml, {
@@ -111,10 +124,11 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 	return { html, attrs };
 }
 
-/**
- * @returns {Promise<[actionResult: any, actionKey: string, actionName: string] | undefined>}
- */
-async function getFormState({ result }) {
+async function getFormState({
+	result,
+}: RendererContext): Promise<
+	[actionResult: any, actionKey: string, actionName: string] | undefined
+> {
 	const { request, actionResult } = result;
 
 	if (!actionResult) return undefined;
@@ -139,7 +153,7 @@ async function getFormState({ result }) {
 	return [actionResult, actionKey, actionName];
 }
 
-async function renderToPipeableStreamAsync(vnode, options) {
+async function renderToPipeableStreamAsync(vnode: any, options: Record<string, any>) {
 	const Writable = await getNodeWritable();
 	let html = '';
 	return new Promise((resolve, reject) => {
@@ -171,7 +185,7 @@ async function renderToPipeableStreamAsync(vnode, options) {
  * Use a while loop instead of "for await" due to cloudflare and Vercel Edge issues
  * See https://github.com/facebook/react/issues/24169
  */
-async function readResult(stream) {
+async function readResult(stream: ReactDOM.ReactDOMServerReadableStream) {
 	const reader = stream.getReader();
 	let result = '';
 	const decoder = new TextDecoder('utf-8');
@@ -191,13 +205,13 @@ async function readResult(stream) {
 	}
 }
 
-async function renderToReadableStreamAsync(vnode, options) {
+async function renderToReadableStreamAsync(vnode: any, options: Record<string, any>) {
 	return await readResult(await ReactDOM.renderToReadableStream(vnode, options));
 }
 
 const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
 
-function isFormRequest(contentType) {
+function isFormRequest(contentType: string | null) {
 	// Split off parameters like charset or boundary
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type#content-type_in_html_forms
 	const type = contentType?.split(';')[0].toLowerCase();

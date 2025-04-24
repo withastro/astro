@@ -30,7 +30,7 @@ type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	? R
 	: any;
 
-export interface MatchedRoute {
+interface MatchedRoute {
 	route: RouteData;
 	filePath: URL;
 	resolvedPathname: string;

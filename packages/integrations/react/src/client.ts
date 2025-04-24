@@ -1,17 +1,17 @@
 import { createElement, startTransition } from 'react';
-import { createRoot, hydrateRoot } from 'react-dom/client';
+import { type Root, createRoot, hydrateRoot } from 'react-dom/client';
 import StaticHtml from './static-html.js';
 
-function isAlreadyHydrated(element) {
+function isAlreadyHydrated(element: HTMLElement) {
 	for (const key in element) {
 		if (key.startsWith('__reactContainer')) {
-			return key;
+			return key as keyof HTMLElement;
 		}
 	}
 }
 
-function createReactElementFromDOMElement(element) {
-	let attrs = {};
+function createReactElementFromDOMElement(element: any): any {
+	let attrs: Record<string, string> = {};
 	for (const attr of element.attributes) {
 		attrs[attr.name] = attr.value;
 	}
@@ -24,7 +24,7 @@ function createReactElementFromDOMElement(element) {
 		element.localName,
 		attrs,
 		Array.from(element.childNodes)
-			.map((c) => {
+			.map((c: any) => {
 				if (c.nodeType === Node.TEXT_NODE) {
 					return c.data;
 				} else if (c.nodeType === Node.ELEMENT_NODE) {
@@ -37,7 +37,7 @@ function createReactElementFromDOMElement(element) {
 	);
 }
 
-function getChildren(childString, experimentalReactChildren) {
+function getChildren(childString: string, experimentalReactChildren: boolean) {
 	if (experimentalReactChildren && childString) {
 		let children = [];
 		let template = document.createElement('template');
@@ -54,8 +54,8 @@ function getChildren(childString, experimentalReactChildren) {
 }
 
 // Keep a map of roots so we can reuse them on re-renders
-let rootMap = new WeakMap();
-const getOrCreateRoot = (element, creator) => {
+let rootMap = new WeakMap<HTMLElement, Root>();
+const getOrCreateRoot = (element: HTMLElement, creator: () => Root) => {
 	let root = rootMap.get(element);
 	if (!root) {
 		root = creator();
@@ -64,8 +64,13 @@ const getOrCreateRoot = (element, creator) => {
 	return root;
 };
 
-export default (element) =>
-	(Component, props, { default: children, ...slotted }, { client }) => {
+export default (element: HTMLElement) =>
+	(
+		Component: any,
+		props: Record<string, any>,
+		{ default: children, ...slotted }: Record<string, any>,
+		{ client }: Record<string, string>,
+	) => {
 		if (!element.hasAttribute('ssr')) return;
 
 		const actionKey = element.getAttribute('data-action-key');
@@ -107,7 +112,7 @@ export default (element) =>
 		}
 		startTransition(() => {
 			const root = getOrCreateRoot(element, () => {
-				const r = hydrateRoot(element, componentEl, renderOptions);
+				const r = hydrateRoot(element, componentEl, renderOptions as any);
 				element.addEventListener('astro:unmount', () => r.unmount(), { once: true });
 				return r;
 			});

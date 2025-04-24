@@ -114,7 +114,7 @@ async function promptWorkspace(sessionToken: string) {
 	return workspaceId;
 }
 
-export async function createNewProject({
+async function createNewProject({
 	workspaceId,
 	name,
 	region,
@@ -157,7 +157,7 @@ export async function createNewProject({
 	return { id: data.id, idName: data.idName };
 }
 
-export async function promptExistingProjectName({ workspaceId }: { workspaceId: string }) {
+async function promptExistingProjectName({ workspaceId }: { workspaceId: string }) {
 	const linkUrl = new URL(getAstroStudioUrl() + '/api/cli/projects.list');
 	const response = await safeFetch(
 		linkUrl,
@@ -205,7 +205,7 @@ export async function promptExistingProjectName({ workspaceId }: { workspaceId: 
 	return selectedProjectData;
 }
 
-export async function promptBegin(): Promise<void> {
+async function promptBegin(): Promise<void> {
 	// Get the current working directory relative to the user's home directory
 	const prettyCwd = process.cwd().replace(homedir(), '~');
 
@@ -226,7 +226,7 @@ export async function promptBegin(): Promise<void> {
  * Ask the user if they want to link to an existing Astro Studio project.
  * @returns A `Promise` for the user’s answer: `true` if they answer yes, otherwise `false`.
  */
-export async function promptLinkExisting(): Promise<boolean> {
+async function promptLinkExisting(): Promise<boolean> {
 	// prompt
 	const { linkExisting } = await prompts({
 		type: 'confirm',
@@ -242,7 +242,7 @@ export async function promptLinkExisting(): Promise<boolean> {
  * **Exits the process if they answer no.**
  * @returns A `Promise` for the user’s answer: `true` if they answer yes.
  */
-export async function promptLinkNew(): Promise<boolean> {
+async function promptLinkNew(): Promise<boolean> {
 	// prompt
 	const { linkNew } = await prompts({
 		type: 'confirm',
@@ -257,7 +257,7 @@ export async function promptLinkNew(): Promise<boolean> {
 	return true;
 }
 
-export async function promptNewProjectName(): Promise<string> {
+async function promptNewProjectName(): Promise<string> {
 	const { newProjectName } = await prompts({
 		type: 'text',
 		name: 'newProjectName',
@@ -272,7 +272,7 @@ export async function promptNewProjectName(): Promise<string> {
 	return newProjectName;
 }
 
-export async function promptNewProjectRegion(): Promise<string> {
+async function promptNewProjectRegion(): Promise<string> {
 	const { newProjectRegion } = await prompts({
 		type: 'select',
 		name: 'newProjectRegion',

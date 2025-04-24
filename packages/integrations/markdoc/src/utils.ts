@@ -60,20 +60,6 @@ export function isValidUrl(str: string): boolean {
 	}
 }
 
-/**
- * Identifies Astro components with propagated assets
- * @see 'packages/astro/src/content/consts.ts'
- */
-export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAssets';
-
-/**
- * @see 'packages/astro/src/content/utils.ts'
- */
-export function hasContentFlag(viteId: string, flag: string): boolean {
-	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
-	return flags.has(flag);
-}
-
 /** Identifier for components imports passed as `tags` or `nodes` configuration. */
 export const componentConfigSymbol = Symbol.for('@astrojs/markdoc/component-config');
 
