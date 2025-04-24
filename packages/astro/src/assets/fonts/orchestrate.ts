@@ -19,8 +19,6 @@ import type {
 } from './definitions.js';
 import type { Storage } from 'unstorage';
 
-// TODO: comment/document everything everywhere
-
 /**
  * Manages how fonts are resolved:
  *

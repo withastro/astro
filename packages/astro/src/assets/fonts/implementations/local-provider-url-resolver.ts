@@ -7,6 +7,8 @@ export function createRequireLocalProviderUrlResolver({
 }: { root: URL }): LocalProviderUrlResolver {
 	return {
 		resolve(input) {
+			// fileURLToPath is important so that the file can be read
+			// by createLocalUrlProxyContentResolver
 			return fileURLToPath(resolveEntrypoint(root, input));
 		},
 	};

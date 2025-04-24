@@ -21,7 +21,7 @@ function getProps(input: ErrorHandlerInput): ConstructorParameters<typeof AstroE
 		};
 	}
 	input satisfies never;
-	// Should never happen
+	// Should never happen but TS isn't happy
 	return AstroErrorData.UnknownError;
 }
 

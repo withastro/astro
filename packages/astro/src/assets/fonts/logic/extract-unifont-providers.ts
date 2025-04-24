@@ -17,6 +17,7 @@ export function extractUnifontProviders({
 	const providers: Array<unifont.Provider> = [];
 
 	for (const { provider } of families) {
+		// The local provider logic happens outside of unifont
 		if (provider === LOCAL_PROVIDER_NAME) {
 			continue;
 		}

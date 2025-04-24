@@ -30,6 +30,7 @@ export function withFamily(family: string, properties: CssProperties): CssProper
 
 const SPACE_RE = /\s/;
 
+/** If the value contains spaces (which would be incorrectly interpreted), we wrap it in quotes. */
 export function handleValueWithSpaces(value: string): string {
 	if (SPACE_RE.test(value)) {
 		return JSON.stringify(value);

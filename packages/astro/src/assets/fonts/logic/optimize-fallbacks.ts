@@ -64,6 +64,7 @@ export async function optimizeFallbacks({
 
 	for (const { font, name } of localFontsMappings) {
 		for (const { hash, url, data } of collectedFonts) {
+			// We generate a fallback for each font collected, which is per weight and style
 			css += fontMetricsResolver.generateFontFace({
 				metrics: await fontMetricsResolver.getMetrics(family.name, { hash, url, data }),
 				fallbackMetrics: systemFallbacksProvider.getMetricsForLocalFont(font),

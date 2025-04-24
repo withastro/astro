@@ -6,8 +6,6 @@ import { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './const
 import type { FontType, GenericFallbackName, ResolvedFontFamily } from './types.js';
 import type { CssProperties } from './definitions.js';
 
-// TODO: check for errors
-
 /**
  * Turns unifont font face data into generic CSS properties, to be consumed by the CSS renderer.
  */

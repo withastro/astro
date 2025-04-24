@@ -3,6 +3,7 @@ import type { CssRenderer, FontFetcher, FontMetricsResolver } from '../definitio
 import type { FontFaceMetrics } from '../types.js';
 import { renderFontSrc } from '../utils.js';
 
+// Source: https://github.com/unjs/fontaine/blob/main/src/metrics.ts
 function filterRequiredMetrics({
 	ascent,
 	descent,
@@ -19,7 +20,7 @@ function filterRequiredMetrics({
 	};
 }
 
-// See: https://github.com/seek-oss/capsize/blob/master/packages/core/src/round.ts
+// Source: https://github.com/unjs/fontaine/blob/f00f84032c5d5da72c8798eae4cd68d3ddfbf340/src/css.ts#L7
 function toPercentage(value: number, fractionDigits = 4) {
 	const percentage = value * 100;
 	return `${+percentage.toFixed(fractionDigits)}%`;
@@ -39,6 +40,7 @@ export function createCapsizeFontMetricsResolver({
 			cache[name] ??= filterRequiredMetrics(await fromBuffer(await fontFetcher.fetch(hash, url)));
 			return cache[name];
 		},
+		// Source: https://github.com/unjs/fontaine/blob/f00f84032c5d5da72c8798eae4cd68d3ddfbf340/src/css.ts#L170
 		generateFontFace({
 			metrics,
 			fallbackMetrics,
