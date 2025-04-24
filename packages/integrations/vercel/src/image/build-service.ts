@@ -43,6 +43,12 @@ const service: ExternalImageService = {
 		};
 	},
 	getURL(options) {
+		// For SVG files, return the original source path
+		if (isESMImportedImage(options.src) && options.src.format === 'svg') {
+			return options.src.src;
+		}
+
+		// For non-SVG files, continue with the Vercel image processing
 		const fileSrc = isESMImportedImage(options.src)
 			? removeLeadingForwardSlash(options.src.src)
 			: options.src;

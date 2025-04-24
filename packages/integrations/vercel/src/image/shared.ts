@@ -10,7 +10,7 @@ export function getDefaultImageConfig(astroImageConfig: AstroConfig['image']): V
 }
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
-	return typeof src === 'object';
+	return typeof src === 'object' || (typeof src === 'function' && 'src' in src);
 }
 
 export type DevImageService = 'sharp' | (string & {});
