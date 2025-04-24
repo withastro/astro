@@ -47,3 +47,9 @@ export const simpleErrorHandler = {
 		return new Error(input.type, { cause: input.cause });
 	},
 };
+
+/** @type {import('../../../../dist/assets/fonts/definitions').Hasher} */
+export const fakeHasher = {
+	hashString: (input) => input,
+	hashObject: (input) => JSON.stringify(input),
+};
