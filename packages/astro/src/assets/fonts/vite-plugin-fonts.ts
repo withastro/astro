@@ -26,6 +26,7 @@ import type { PreloadData, ResolvedFontFamily } from './types.js';
 import {
 	cache,
 	extractFontType,
+	resolveEntrypoint,
 	resolveFontFamily,
 	sortObjectByKey,
 	withoutQuotes,
@@ -118,15 +119,33 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 		const families: Array<ResolvedFontFamily> = [];
 
+		const root = settings.config.root;
+		const pathsToWarn = new Set<string>();
+
 		for (const family of settings.config.experimental.fonts!) {
 			families.push(
 				await resolveFontFamily({
 					family,
-					root: settings.config.root,
+					root,
 					resolveMod,
 					generateNameWithHash: (_family) =>
 						`${withoutQuotes(_family.name)}-${h64ToString(JSON.stringify(sortObjectByKey(_family)))}`,
+					resolveLocalEntrypoint: (url) => {
+						const resolvedPath = fileURLToPath(resolveEntrypoint(root, url));
+						if (resolvedPath.startsWith(fileURLToPath(settings.config.publicDir))) {
+							pathsToWarn.add(resolvedPath);
+						}
+						return resolvedPath;
+					},
 				}),
+			);
+		}
+
+		for (const path of [...pathsToWarn]) {
+			// TODO: remove when stabilizing
+			logger.warn(
+				'assets',
+				`Found a local font file ${JSON.stringify(path)} in the \`public/\` folder. To avoid duplicated files in the build output, move this file into \`src/\``,
 			);
 		}
 
