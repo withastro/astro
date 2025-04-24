@@ -13,7 +13,7 @@ export class RealDataCollector implements DataCollector {
 	}: {
 		originalUrl: string;
 		hash: string;
-		preload: PreloadData[number] | null;
+		preload: PreloadData | null;
 		data: Partial<unifont.FontFaceData>;
 	}): void {
 		if (!this.params.hasUrl(hash)) {

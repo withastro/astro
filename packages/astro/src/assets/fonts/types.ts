@@ -51,7 +51,7 @@ export type FontType = (typeof FONT_TYPES)[number];
 /**
  * Preload data is used for links generation inside the <Font /> component
  */
-export type PreloadData = Array<{
+export interface PreloadData {
 	/**
 	 * Absolute link to a font file, eg. /_astro/fonts/abc.woff
 	 */
@@ -60,7 +60,7 @@ export type PreloadData = Array<{
 	 * A font type, eg. woff2, woff, ttf...
 	 */
 	type: FontType;
-}>;
+}
 
 export type FontFaceMetrics = Pick<
 	Font,
@@ -80,7 +80,6 @@ export interface CreateUrlProxyParams {
 	local: boolean;
 	hasUrl: (hash: string) => boolean;
 	saveUrl: (hash: string, url: string) => void;
-	// TODO: improve type
-	savePreload: (preload: PreloadData[number]) => void;
+	savePreload: (preload: PreloadData) => void;
 	saveFontData: (collected: CollectedFontForMetrics) => void;
 }

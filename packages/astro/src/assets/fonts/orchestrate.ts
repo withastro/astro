@@ -63,10 +63,10 @@ export async function orchestrate({
 	});
 
 	const hashToUrlMap = new Map<string, string>();
-	const resolvedMap = new Map<string, { preloadData: PreloadData; css: string }>();
+	const resolvedMap = new Map<string, { preloadData: Array<PreloadData>; css: string }>();
 
 	for (const family of resolvedFamilies) {
-		const preloadData: PreloadData = [];
+		const preloadData: Array<PreloadData> = [];
 		let css = '';
 
 		const collectedFonts: Array<CollectedFontForMetrics> = [];

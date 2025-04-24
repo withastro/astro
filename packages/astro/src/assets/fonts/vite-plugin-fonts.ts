@@ -72,7 +72,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	// to trailingSlash: never)
 	const baseUrl = removeTrailingForwardSlash(settings.config.base) + URL_PREFIX;
 
-	let resolvedMap: Map<string, { preloadData: PreloadData; css: string }> | null = null;
+	let resolvedMap: Map<string, { preloadData: Array<PreloadData>; css: string }> | null = null;
 	// Key is `${hash}.${ext}`, value is a URL.
 	// When a font file is requested (eg. /_astro/fonts/abc.woff), we use the hash
 	// to download the original file, or retrieve it from cache
