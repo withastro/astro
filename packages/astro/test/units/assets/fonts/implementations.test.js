@@ -9,6 +9,8 @@ import {
 } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
 import { createAstroErrorHandler } from '../../../../dist/assets/fonts/implementations/error-handler.js';
+import { createCachedFontFetcher } from '../../../../dist/assets/fonts/implementations/font-fetcher.js';
+import { createSpyStorage, simpleErrorHandler } from './utils.js';
 
 describe('astro fonts implementations', () => {
 	describe('createMinifiableCssRenderer()', () => {
@@ -126,6 +128,127 @@ describe('astro fonts implementations', () => {
 			}).cause,
 			'whatever',
 		);
+	});
+
+	describe('createCachedFontFetcher()', () => {
+		/**
+		 *
+		 * @param {{ ok: boolean }} param0
+		 */
+		function createReadFileMock({ ok }) {
+			/** @type {Array<string>} */
+			const filesUrls = [];
+			return {
+				filesUrls,
+				/** @type {(url: string) => Promise<Buffer>} */
+				readFile: async (url) => {
+					filesUrls.push(url);
+					if (!ok) {
+						throw 'fs error';
+					}
+					return Buffer.from('');
+				},
+			};
+		}
+
+		/**
+		 *
+		 * @param {{ ok: boolean }} param0
+		 */
+		function createFetchMock({ ok }) {
+			/** @type {Array<string>} */
+			const fetchUrls = [];
+			return {
+				fetchUrls,
+				/** @type {(url: string) => Promise<Response>} */
+				fetch: async (url) => {
+					fetchUrls.push(url);
+					// @ts-expect-error
+					return {
+						ok,
+						status: ok ? 200 : 500,
+						arrayBuffer: async () => new ArrayBuffer(),
+					};
+				},
+			};
+		}
+
+		it('caches work', async () => {
+			const { filesUrls, readFile } = createReadFileMock({ ok: true });
+			const { fetchUrls, fetch } = createFetchMock({ ok: true });
+			const { storage, store } = createSpyStorage();
+			const fontFetcher = createCachedFontFetcher({
+				storage,
+				errorHandler: simpleErrorHandler,
+				readFile,
+				fetch,
+			});
+
+			await fontFetcher.fetch('abc', 'def');
+			await fontFetcher.fetch('foo', 'bar');
+			await fontFetcher.fetch('abc', 'def');
+
+			assert.deepStrictEqual([...store.keys()], ['abc', 'foo']);
+			assert.deepStrictEqual(filesUrls, []);
+			assert.deepStrictEqual(fetchUrls, ['def', 'bar']);
+		});
+
+		it('reads files if path is absolute', async () => {
+			const { filesUrls, readFile } = createReadFileMock({ ok: true });
+			const { fetchUrls, fetch } = createFetchMock({ ok: true });
+			const { storage } = createSpyStorage();
+			const fontFetcher = createCachedFontFetcher({
+				storage,
+				errorHandler: simpleErrorHandler,
+				readFile,
+				fetch,
+			});
+
+			await fontFetcher.fetch('abc', '/foo/bar');
+
+			assert.deepStrictEqual(filesUrls, ['/foo/bar']);
+			assert.deepStrictEqual(fetchUrls, []);
+		});
+
+		it('fetches files if path is not absolute', async () => {
+			const { filesUrls, readFile } = createReadFileMock({ ok: true });
+			const { fetchUrls, fetch } = createFetchMock({ ok: true });
+			const { storage } = createSpyStorage();
+			const fontFetcher = createCachedFontFetcher({
+				storage,
+				errorHandler: simpleErrorHandler,
+				readFile,
+				fetch,
+			});
+
+			await fontFetcher.fetch('abc', 'https://example.com');
+
+			assert.deepStrictEqual(filesUrls, []);
+			assert.deepStrictEqual(fetchUrls, ['https://example.com']);
+		});
+
+		it('throws the right error kind', async () => {
+			const { readFile } = createReadFileMock({ ok: false });
+			const { fetch } = createFetchMock({ ok: false });
+			const { storage } = createSpyStorage();
+			const fontFetcher = createCachedFontFetcher({
+				storage,
+				errorHandler: simpleErrorHandler,
+				readFile,
+				fetch,
+			});
+
+			let error = await fontFetcher.fetch('abc', '/foo/bar').catch((err) => err);
+			assert.equal(error instanceof Error, true);
+			assert.equal(error.message, 'cannot-fetch-font-file');
+			assert.equal(error.cause, 'fs error');
+
+			error = await fontFetcher.fetch('abc', 'https://example.com').catch((err) => err);
+			assert.equal(error instanceof Error, true);
+			assert.equal(error.message, 'cannot-fetch-font-file');
+			assert.equal(error.cause instanceof Error, true);
+			assert.equal(error.cause.message.includes('Response was not successful'), true);
+		});
 	});
 
 	// TODO: cover more implementations

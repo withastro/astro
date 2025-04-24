@@ -2,12 +2,18 @@ import type { Storage } from 'unstorage';
 import type { ErrorHandler, FontFetcher } from '../definitions.js';
 import { cache } from '../utils.js';
 import { isAbsolute } from 'node:path';
-import { readFile } from 'node:fs/promises';
 
 export function createCachedFontFetcher({
 	storage,
 	errorHandler,
-}: { storage: Storage; errorHandler: ErrorHandler }): FontFetcher {
+	fetch,
+	readFile,
+}: {
+	storage: Storage;
+	errorHandler: ErrorHandler;
+	fetch: (url: string) => Promise<Response>;
+	readFile: (url: string) => Promise<Buffer>;
+}): FontFetcher {
 	return {
 		async fetch(hash, url) {
 			return await cache(storage, hash, async () => {

@@ -43,6 +43,7 @@ import {
 import { createDataCollector } from './implementations/data-collector.js';
 import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
 import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
+import { readFile } from 'node:fs/promises';
 
 interface Options {
 	settings: AstroSettings;
@@ -114,7 +115,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const localProviderUrlResolver = createRequireLocalProviderUrlResolver({ root });
 		const storage = createFsStorage({ base: cacheDir });
 		const systemFallbacksProvider = createSystemFallbacksProvider();
-		fontFetcher = createCachedFontFetcher({ storage, errorHandler });
+		fontFetcher = createCachedFontFetcher({ storage, errorHandler, fetch, readFile });
 		const fontMetricsResolver = createCapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
 		fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 
