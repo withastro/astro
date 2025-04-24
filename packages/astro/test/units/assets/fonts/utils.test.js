@@ -4,8 +4,6 @@ import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js';
 import {
-	extractFontType,
-	familiesToUnifontProviders,
 	generateFallbacksCSS,
 	isFontType,
 	isGenericFontFamily,
@@ -46,39 +44,6 @@ describe('fonts utils', () => {
 		assert.equal(isFontType('ttf'), true);
 		assert.equal(isFontType('eot'), true);
 		assert.equal(isFontType(''), false);
-	});
-
-	it('extractFontType', () => {
-		/** @type {Array<[string, false | string]>} */
-		const data = [
-			['', false],
-			['.', false],
-			['test.', false],
-			['https://foo.bar/file', false],
-			[
-				'https://fonts.gstatic.com/s/roboto/v47/KFO5CnqEu92Fr1Mu53ZEC9_Vu3r1gIhOszmkC3kaSTbQWt4N.woff2',
-				'woff2',
-			],
-			['/home/documents/project/font.ttf', 'ttf'],
-		];
-
-		for (const [input, check] of data) {
-			try {
-				const res = extractFontType(input);
-				if (check) {
-					assert.equal(res, check);
-				} else {
-					assert.fail(`String ${JSON.stringify(input)} should not be valid`);
-				}
-			} catch (e) {
-				if (check) {
-					assert.fail(`String ${JSON.stringify(input)} should be valid`);
-				} else {
-					assert.equal(e instanceof Error, true);
-					assert.equal(e.title, 'Cannot extract the font type from the given URL.');
-				}
-			}
-		}
 	});
 
 	it('proxyURL()', () => {
@@ -386,156 +351,6 @@ describe('fonts utils', () => {
 				const provider = res.provider.provider(res.provider.config);
 				assert.equal(provider._name, 'test');
 			}
-		});
-	});
-
-	describe('familiesToUnifontProviders()', () => {
-		const createProvider = (/** @type {string} */ name) => () =>
-			Object.assign(() => undefined, { _name: name });
-
-		/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
-		function createFixture(families) {
-			const result = familiesToUnifontProviders({
-				hashString: (v) => v,
-				families,
-			});
-			return {
-				/**
-				 * @param {number} length
-				 */
-				assertProvidersLength: (length) => {
-					assert.equal(result.providers.length, length);
-				},
-				/**
-				 * @param {Array<string>} names
-				 */
-				assertProvidersNames: (names) => {
-					assert.deepStrictEqual(
-						result.families.map((f) =>
-							typeof f.provider === 'string' ? f.provider : f.provider.name,
-						),
-						names,
-					);
-				},
-			};
-		}
-
-		it('skips local fonts', () => {
-			const fixture = createFixture([
-				{
-					name: 'Custom',
-					nameWithHash: 'Custom-xxx',
-					cssVariable: '--custom',
-					provider: 'local',
-					variants: [
-						{
-							src: [{ url: 'a' }],
-							weight: '400',
-							style: 'normal',
-						},
-					],
-				},
-			]);
-			fixture.assertProvidersLength(0);
-			fixture.assertProvidersNames(['local']);
-		});
-
-		it('appends a hash to the provider name', () => {
-			const fixture = createFixture([
-				{
-					name: 'Custom',
-					nameWithHash: 'Custom-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-					},
-				},
-			]);
-			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames(['test-{"name":"test"}']);
-		});
-
-		it('deduplicates providers with no config', () => {
-			const fixture = createFixture([
-				{
-					name: 'Foo',
-					nameWithHash: 'Foo-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-					},
-				},
-				{
-					name: 'Bar',
-					nameWithHash: 'Bar-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-					},
-				},
-			]);
-			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames(['test-{"name":"test"}', 'test-{"name":"test"}']);
-		});
-
-		it('deduplicates providers with the same config', () => {
-			const fixture = createFixture([
-				{
-					name: 'Foo',
-					nameWithHash: 'Foo-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-						config: { x: 'y' },
-					},
-				},
-				{
-					name: 'Bar',
-					nameWithHash: 'Bar-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-						config: { x: 'y' },
-					},
-				},
-			]);
-			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames([
-				'test-{"name":"test","x":"y"}',
-				'test-{"name":"test","x":"y"}',
-			]);
-		});
-
-		it('does not deduplicate providers with different configs', () => {
-			const fixture = createFixture([
-				{
-					name: 'Foo',
-					nameWithHash: 'Foo-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-						config: {
-							x: 'foo',
-						},
-					},
-				},
-				{
-					name: 'Bar',
-					nameWithHash: 'Bar-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-						config: {
-							x: 'bar',
-						},
-					},
-				},
-			]);
-			fixture.assertProvidersLength(2);
-			fixture.assertProvidersNames([
-				'test-{"name":"test","x":"foo"}',
-				'test-{"name":"test","x":"bar"}',
-			]);
 		});
 	});
 

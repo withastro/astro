@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { resolveFamily } from '../../../../dist/assets/fonts/logic/resolve-families.js';
+import { extractUnifontProviders } from '../../../../dist/assets/fonts/logic/extract-unifont-providers.js';
 import { fakeHasher } from './utils.js';
 
 describe('astro fonts logic', () => {
@@ -176,6 +177,156 @@ describe('astro fonts logic', () => {
 				assert.deepStrictEqual(family.fallbacks, ['foo', 'bar']);
 				assert.deepStrictEqual(family.unicodeRange, ['abc', 'def']);
 			}
+		});
+	});
+
+	describe('extractUnifontProviders()', () => {
+		const createProvider = (/** @type {string} */ name) => () =>
+			Object.assign(() => undefined, { _name: name });
+
+		/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
+		function createFixture(families) {
+			const result = extractUnifontProviders({
+				families,
+				hasher: fakeHasher,
+			});
+			return {
+				/**
+				 * @param {number} length
+				 */
+				assertProvidersLength: (length) => {
+					assert.equal(result.providers.length, length);
+				},
+				/**
+				 * @param {Array<string>} names
+				 */
+				assertProvidersNames: (names) => {
+					assert.deepStrictEqual(
+						result.families.map((f) =>
+							typeof f.provider === 'string' ? f.provider : f.provider.name,
+						),
+						names,
+					);
+				},
+			};
+		}
+
+		it('skips local fonts', () => {
+			const fixture = createFixture([
+				{
+					name: 'Custom',
+					nameWithHash: 'Custom-xxx',
+					cssVariable: '--custom',
+					provider: 'local',
+					variants: [
+						{
+							src: [{ url: 'a' }],
+							weight: '400',
+							style: 'normal',
+						},
+					],
+				},
+			]);
+			fixture.assertProvidersLength(0);
+			fixture.assertProvidersNames(['local']);
+		});
+
+		it('appends a hash to the provider name', () => {
+			const fixture = createFixture([
+				{
+					name: 'Custom',
+					nameWithHash: 'Custom-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+					},
+				},
+			]);
+			fixture.assertProvidersLength(1);
+			fixture.assertProvidersNames(['test-{"name":"test"}']);
+		});
+
+		it('deduplicates providers with no config', () => {
+			const fixture = createFixture([
+				{
+					name: 'Foo',
+					nameWithHash: 'Foo-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+					},
+				},
+				{
+					name: 'Bar',
+					nameWithHash: 'Bar-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+					},
+				},
+			]);
+			fixture.assertProvidersLength(1);
+			fixture.assertProvidersNames(['test-{"name":"test"}', 'test-{"name":"test"}']);
+		});
+
+		it('deduplicates providers with the same config', () => {
+			const fixture = createFixture([
+				{
+					name: 'Foo',
+					nameWithHash: 'Foo-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+						config: { x: 'y' },
+					},
+				},
+				{
+					name: 'Bar',
+					nameWithHash: 'Bar-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+						config: { x: 'y' },
+					},
+				},
+			]);
+			fixture.assertProvidersLength(1);
+			fixture.assertProvidersNames([
+				'test-{"name":"test","x":"y"}',
+				'test-{"name":"test","x":"y"}',
+			]);
+		});
+
+		it('does not deduplicate providers with different configs', () => {
+			const fixture = createFixture([
+				{
+					name: 'Foo',
+					nameWithHash: 'Foo-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+						config: {
+							x: 'foo',
+						},
+					},
+				},
+				{
+					name: 'Bar',
+					nameWithHash: 'Bar-xxx',
+					cssVariable: '--custom',
+					provider: {
+						provider: createProvider('test'),
+						config: {
+							x: 'bar',
+						},
+					},
+				},
+			]);
+			fixture.assertProvidersLength(2);
+			fixture.assertProvidersNames([
+				'test-{"name":"test","x":"foo"}',
+				'test-{"name":"test","x":"bar"}',
+			]);
 		});
 	});
 });
