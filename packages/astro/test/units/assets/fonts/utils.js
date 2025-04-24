@@ -53,3 +53,15 @@ export const fakeHasher = {
 	hashString: (input) => input,
 	hashObject: (input) => JSON.stringify(input),
 };
+
+export function createSpyUrlProxy() {
+	const collected = [];
+	/** @type {import('../../../../dist/assets/fonts/definitions').UrlProxy} */
+	const urlProxy = {
+		proxy(input) {
+			collected.push(input);
+			return input.url;
+		},
+	};
+	return { collected, urlProxy };
+}

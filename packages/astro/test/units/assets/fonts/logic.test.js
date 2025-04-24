@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { resolveFamily } from '../../../../dist/assets/fonts/logic/resolve-families.js';
 import { extractUnifontProviders } from '../../../../dist/assets/fonts/logic/extract-unifont-providers.js';
-import { fakeHasher } from './utils.js';
+import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/logic/normalize-remote-font-faces.js';
+import { createSpyUrlProxy, fakeHasher } from './utils.js';
 
 describe('astro fonts logic', () => {
 	describe('resolveFamily()', () => {
@@ -326,6 +327,118 @@ describe('astro fonts logic', () => {
 			fixture.assertProvidersNames([
 				'test-{"name":"test","x":"foo"}',
 				'test-{"name":"test","x":"bar"}',
+			]);
+		});
+	});
+
+	describe('normalizeRemoteFontFaces()', () => {
+		it('filters font data based on priority', () => {
+			const { urlProxy } = createSpyUrlProxy();
+			assert.equal(normalizeRemoteFontFaces({ fonts: [], urlProxy }).length, 0);
+			assert.equal(
+				normalizeRemoteFontFaces({
+					fonts: [
+						{
+							src: [],
+						},
+						{
+							src: [],
+							meta: {},
+						},
+						{
+							src: [],
+							meta: { priority: undefined },
+						},
+						{
+							src: [],
+							meta: { priority: 0 },
+						},
+						// Will be ignored
+						{
+							src: [],
+							meta: { priority: 1 },
+						},
+					],
+					urlProxy,
+				}).length,
+				4,
+			);
+		});
+
+		it('proxies URLs correctly', () => {
+			const { collected, urlProxy } = createSpyUrlProxy();
+			normalizeRemoteFontFaces({
+				urlProxy,
+				fonts: [
+					{
+						weight: '400',
+						style: 'normal',
+						src: [{ url: '/' }, { url: '/ignored' }],
+					},
+					{
+						weight: '500',
+						style: 'normal',
+						src: [{ url: '/2' }],
+					},
+				],
+			});
+			assert.deepStrictEqual(collected, [
+				{
+					url: '/',
+					collectPreload: true,
+					data: { weight: '400', style: 'normal' },
+				},
+				{
+					url: '/ignored',
+					collectPreload: false,
+					data: { weight: '400', style: 'normal' },
+				},
+				{
+					url: '/2',
+					collectPreload: true,
+					data: { weight: '500', style: 'normal' },
+				},
+			]);
+		});
+
+		it('collect preloads correctly', () => {
+			const { collected, urlProxy } = createSpyUrlProxy();
+			normalizeRemoteFontFaces({
+				urlProxy,
+				fonts: [
+					{
+						weight: '400',
+						style: 'normal',
+						src: [{ name: 'Arial' }, { url: '/' }, { url: '/ignored' }],
+					},
+					{
+						weight: '500',
+						style: 'normal',
+						src: [{ url: '/2' }, { name: 'Foo' }, { url: '/also-ignored' }],
+					},
+				],
+			});
+			assert.deepStrictEqual(collected, [
+				{
+					url: '/',
+					collectPreload: true,
+					data: { weight: '400', style: 'normal' },
+				},
+				{
+					url: '/ignored',
+					collectPreload: false,
+					data: { weight: '400', style: 'normal' },
+				},
+				{
+					url: '/2',
+					collectPreload: true,
+					data: { weight: '500', style: 'normal' },
+				},
+				{
+					url: '/also-ignored',
+					collectPreload: false,
+					data: { weight: '500', style: 'normal' },
+				},
 			]);
 		});
 	});

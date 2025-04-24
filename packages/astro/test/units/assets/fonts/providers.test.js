@@ -84,6 +84,7 @@ describe('fonts providers', () => {
 		);
 	});
 
+	// TODO: check preloading
 	it('resolveLocalFont()', () => {
 		let { fonts, values } = resolveLocalFontSpy({
 			name: 'Custom',
