@@ -8,6 +8,7 @@ import {
 	withFamily,
 } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
+import { createAstroErrorHandler } from '../../../../dist/assets/fonts/implementations/error-handler.js';
 
 describe('astro fonts implementations', () => {
 	describe('createMinifiableCssRenderer()', () => {
@@ -91,6 +92,40 @@ describe('astro fonts implementations', () => {
 			{ hash: 'yyy', url: 'def', data: {} },
 			{ hash: 'xxx', url: 'abc', data: {} },
 		]);
+	});
+
+	it('createAstroErrorHandler()', () => {
+		const errorHandler = createAstroErrorHandler();
+		assert.equal(
+			errorHandler.handle({ type: 'cannot-extract-font-type', data: { url: '' }, cause: null })
+				.name,
+			'CannotExtractFontType',
+		);
+		assert.equal(
+			errorHandler.handle({ type: 'cannot-fetch-font-file', data: { url: '' }, cause: null }).name,
+			'CannotFetchFontFile',
+		);
+		assert.equal(
+			errorHandler.handle({
+				type: 'cannot-load-font-provider',
+				data: { entrypoint: '' },
+				cause: null,
+			}).name,
+			'CannotLoadFontProvider',
+		);
+		assert.equal(
+			errorHandler.handle({ type: 'unknown-fs-error', data: {}, cause: null }).name,
+			'UnknownFilesystemError',
+		);
+
+		assert.equal(
+			errorHandler.handle({
+				type: 'cannot-extract-font-type',
+				data: { url: '' },
+				cause: 'whatever',
+			}).cause,
+			'whatever',
+		);
 	});
 
 	// TODO: cover more implementations
