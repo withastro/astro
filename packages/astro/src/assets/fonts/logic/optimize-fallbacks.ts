@@ -55,11 +55,12 @@ export async function optimizeFallbacks({
 
 	const localFontsMappings = localFonts.map((font) => ({
 		font,
-		name: `"${family.nameWithHash} fallback: ${font}"`,
+		// We must't wrap in quote because that's handled by the CSS renderer
+		name: `${family.nameWithHash} fallback: ${font}`,
 	}));
 
 	// We prepend the fallbacks with the local fonts and we dedupe in case a local font is already provided
-	fallbacks = [...new Set([...localFontsMappings.map((m) => m.name), ...fallbacks])];
+	fallbacks = [...localFontsMappings.map((m) => m.name), ...fallbacks];
 	let css = '';
 
 	for (const { font, name } of localFontsMappings) {

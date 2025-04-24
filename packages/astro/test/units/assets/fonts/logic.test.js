@@ -4,7 +4,9 @@ import { describe, it } from 'node:test';
 import { resolveFamily } from '../../../../dist/assets/fonts/logic/resolve-families.js';
 import { extractUnifontProviders } from '../../../../dist/assets/fonts/logic/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/logic/normalize-remote-font-faces.js';
-import { createSpyUrlProxy, fakeHasher } from './utils.js';
+import { optimizeFallbacks } from '../../../../dist/assets/fonts/logic/optimize-fallbacks.js';
+import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
+import { createSpyUrlProxy, fakeFontMetricsResolver, fakeHasher } from './utils.js';
 
 describe('astro fonts logic', () => {
 	describe('resolveFamily()', () => {
@@ -438,6 +440,175 @@ describe('astro fonts logic', () => {
 					url: '/also-ignored',
 					collectPreload: false,
 					data: { weight: '500', style: 'normal' },
+				},
+			]);
+		});
+	});
+
+	describe('optimizeFallbacks()', () => {
+		const family = {
+			name: 'Test',
+			nameWithHash: 'Test-xxx',
+		};
+		const systemFallbacksProvider = createSystemFallbacksProvider();
+		const fontMetricsResolver = fakeFontMetricsResolver;
+
+		it('skips if there are no fallbacks', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family,
+					fallbacks: [],
+					collectedFonts: [{ url: '', hash: '', data: {} }],
+					enabled: true,
+					systemFallbacksProvider,
+					fontMetricsResolver,
+				}),
+				null,
+			);
+		});
+
+		it('skips if it is not enabled', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family,
+					fallbacks: ['foo'],
+					collectedFonts: [{ url: '', hash: '', data: {} }],
+					enabled: false,
+					systemFallbacksProvider,
+					fontMetricsResolver,
+				}),
+				null,
+			);
+		});
+
+		it('skips if there are no collected fonts', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family,
+					fallbacks: ['foo'],
+					collectedFonts: [],
+					enabled: true,
+					systemFallbacksProvider,
+					fontMetricsResolver,
+				}),
+				null,
+			);
+		});
+
+		it('skips if the last fallback is not a generic font family', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family,
+					fallbacks: ['foo'],
+					collectedFonts: [{ url: '', hash: '', data: {} }],
+					enabled: true,
+					systemFallbacksProvider,
+					fontMetricsResolver,
+				}),
+				null,
+			);
+		});
+
+		it('skips if the last fallback does not have local fonts associated', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family,
+					fallbacks: ['cursive'],
+					collectedFonts: [{ url: '', hash: '', data: {} }],
+					enabled: true,
+					systemFallbacksProvider,
+					fontMetricsResolver,
+				}),
+				null,
+			);
+		});
+
+		it('skips if the last fallback does not have local fonts associated', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family: {
+						name: 'Arial',
+						nameWithHash: 'Arial-xxx',
+					},
+					fallbacks: ['sans-serif'],
+					collectedFonts: [{ url: '', hash: '', data: {} }],
+					enabled: true,
+					systemFallbacksProvider,
+					fontMetricsResolver,
+				}),
+				null,
+			);
+		});
+
+		it('places optimized fallbacks at the start', async () => {
+			const result = await optimizeFallbacks({
+				family,
+				fallbacks: ['foo', 'sans-serif'],
+				collectedFonts: [{ url: '', hash: '', data: {} }],
+				enabled: true,
+				systemFallbacksProvider,
+				fontMetricsResolver,
+			});
+			assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial', 'foo', 'sans-serif']);
+		});
+
+		it('outputs correct css', async () => {
+			const result = await optimizeFallbacks({
+				family,
+				fallbacks: ['foo', 'sans-serif'],
+				collectedFonts: [
+					{ url: '', hash: '', data: { weight: '400' } },
+					{ url: '', hash: '', data: { weight: '500' } },
+				],
+				enabled: true,
+				systemFallbacksProvider,
+				fontMetricsResolver,
+			});
+			assert.notEqual(result, null);
+			assert.deepStrictEqual(JSON.parse(`[${result?.css.slice(0, -1)}]`), [
+				{
+					fallbackMetrics: {
+						ascent: 1854,
+						descent: -434,
+						lineGap: 67,
+						unitsPerEm: 2048,
+						xWidthAvg: 913,
+					},
+					font: 'Arial',
+					metrics: {
+						ascent: 0,
+						descent: 0,
+						lineGap: 0,
+						unitsPerEm: 0,
+						xWidthAvg: 0,
+					},
+					name: 'Test-xxx fallback: Arial',
+					properties: {
+						'font-display': 'swap',
+						'font-weight': '400',
+					},
+				},
+				{
+					fallbackMetrics: {
+						ascent: 1854,
+						descent: -434,
+						lineGap: 67,
+						unitsPerEm: 2048,
+						xWidthAvg: 913,
+					},
+					font: 'Arial',
+					metrics: {
+						ascent: 0,
+						descent: 0,
+						lineGap: 0,
+						unitsPerEm: 0,
+						xWidthAvg: 0,
+					},
+					name: 'Test-xxx fallback: Arial',
+					properties: {
+						'font-display': 'swap',
+						'font-weight': '500',
+					},
 				},
 			]);
 		});

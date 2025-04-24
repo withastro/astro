@@ -36,7 +36,8 @@ export interface ResolvedLocalFontFamily
 
 type RemoteFontFamily = z.infer<typeof remoteFontFamilySchema>;
 
-interface ResolvedRemoteFontFamily
+/** @lintignore somehow required by pickFontFaceProperty in utils */
+export interface ResolvedRemoteFontFamily
 	extends ResolvedFontFamilyAttributes,
 		Omit<z.output<typeof remoteFontFamilySchema>, 'provider' | 'weights'> {
 	provider: ResolvedFontProvider;

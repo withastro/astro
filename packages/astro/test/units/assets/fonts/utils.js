@@ -65,3 +65,19 @@ export function createSpyUrlProxy() {
 	};
 	return { collected, urlProxy };
 }
+
+/** @type {import('../../../../dist/assets/fonts/definitions').FontMetricsResolver} */
+export const fakeFontMetricsResolver = {
+	async getMetrics() {
+		return {
+			ascent: 0,
+			descent: 0,
+			lineGap: 0,
+			unitsPerEm: 0,
+			xWidthAvg: 0,
+		};
+	},
+	generateFontFace(input) {
+		return JSON.stringify(input, null, 2) + `,`;
+	},
+};
