@@ -20,7 +20,24 @@ import type { Storage } from 'unstorage';
 
 // TODO: comment/document everything everywhere
 
-// TODO: logs everywhere!
+/**
+ * Manages how fonts are resolved:
+ *
+ * - families are resolved
+ * - unifont providers are extracted from families
+ * - unifont is initialized
+ *
+ * For each family:
+ * - We create a URL proxy
+ * - We resolve the font and normalize the result
+ *
+ * For each resolved font:
+ * - We generate the CSS font face
+ * - We generate optimized fallbacks if applicable
+ * - We generate CSS variables
+ *
+ * Once that's done, the collected data is returned
+ */
 export async function orchestrate({
 	families,
 	hasher,
@@ -62,16 +79,30 @@ export async function orchestrate({
 		storage,
 	});
 
+	/**
+	 * Holds associations of hash and original font file URLs, so they can be
+	 * downloaded whenever the hash is requested.
+	 */
 	const hashToUrlMap = new Map<string, string>();
+	/**
+	 * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
+	 */
 	const resolvedMap = new Map<string, { preloadData: Array<PreloadData>; css: string }>();
 
 	for (const family of resolvedFamilies) {
 		const preloadData: Array<PreloadData> = [];
 		let css = '';
 
+		/**
+		 * Holds a list of font files to be used for optimized fallbacks generation
+		 */
 		const collectedFonts: Array<CollectedFontForMetrics> = [];
 		const fallbacks = family.fallbacks ?? defaults.fallbacks ?? [];
 
+		/**
+		 * Allows collecting and transforming original URLs from providers, so the Vite
+		 * plugin has control over URLs.
+		 */
 		const urlProxy = createUrlProxy({
 			local: family.provider === LOCAL_PROVIDER_NAME,
 			hasUrl: (hash) => hashToUrlMap.has(hash),
@@ -85,12 +116,12 @@ export async function orchestrate({
 				if (
 					fallbacks &&
 					fallbacks.length > 0 &&
-					// If the same data has already been sent for this family, we don't want to have duplicate fallbacks
-					// Such scenario can occur with unicode ranges
+					// If the same data has already been sent for this family, we don't want to have
+					// duplicated fallbacks. Such scenario can occur with unicode ranges.
 					!collectedFonts.some((f) => JSON.stringify(f.data) === JSON.stringify(collected.data))
 				) {
 					// If a family has fallbacks, we store the first url we get that may
-					// be used for the fallback generation
+					// be used for the fallback generation.
 					collectedFonts.push(collected);
 				}
 			},
@@ -103,6 +134,7 @@ export async function orchestrate({
 				family,
 				urlProxy,
 			});
+			// URLs are already proxied at this point so no further processing is required
 			fonts = result.fonts;
 		} else {
 			const result = await resolveFont(
@@ -114,11 +146,12 @@ export async function orchestrate({
 					subsets: family.subsets ?? defaults.subsets,
 					fallbacks: family.fallbacks ?? defaults.fallbacks,
 				},
-				// By default, unifont goes through all providers. We use a different approach
-				// where we specify a provider per font.
-				// Name has been set while extracting unifont providers from families (inside familiesToUnifontProviders)
+				// By default, unifont goes through all providers. We use a different approach where
+				// we specify a provider per font. Name has been set while extracting unifont providers
+				// from families (inside extractUnifontProviders).
 				[family.provider.name!],
 			);
+			// The data returned by the remote provider contains original URLs. We proxy them.
 			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy });
 		}
 
@@ -129,7 +162,8 @@ export async function orchestrate({
 					src: data.src,
 					weight: data.weight,
 					style: data.style,
-					// User settings override the generated font settings
+					// User settings override the generated font settings. We use a helper function
+					// because local and remote providers store this data in different places. 
 					display: pickFontFaceProperty('display', { data, family }),
 					unicodeRange: pickFontFaceProperty('unicodeRange', { data, family }),
 					stretch: pickFontFaceProperty('stretch', { data, family }),
@@ -153,7 +187,7 @@ export async function orchestrate({
 			css += optimizeFallbacksResult.css;
 			cssVarValues.push(...optimizeFallbacksResult.fallbacks);
 		} else {
-			// Nothing to optimize, pass as is
+			// If there are no optimized fallbacks, we pass the provided fallbacks as is.
 			cssVarValues.push(...fallbacks);
 		}
 
