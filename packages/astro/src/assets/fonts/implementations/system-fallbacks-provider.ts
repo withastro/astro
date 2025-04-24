@@ -2,7 +2,7 @@ import type { SystemFallbacksProvider } from '../definitions.js';
 import type { FontFaceMetrics, GenericFallbackName } from '../types.js';
 
 // Extracted from https://raw.githubusercontent.com/seek-oss/capsize/refs/heads/master/packages/metrics/src/entireMetricsCollection.json
-export const SYSTEM_METRICS = {
+const SYSTEM_METRICS = {
 	'Times New Roman': {
 		ascent: 1825,
 		descent: -443,

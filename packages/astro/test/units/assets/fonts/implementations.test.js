@@ -288,6 +288,4 @@ describe('astro fonts implementations', () => {
 			}
 		}
 	});
-
-	// TODO: cover more implementations
 });

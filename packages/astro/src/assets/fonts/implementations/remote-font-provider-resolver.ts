@@ -6,7 +6,7 @@ import type {
 import type { ResolvedFontProvider } from '../types.js';
 import { resolveEntrypoint } from '../utils.js';
 
-export function validateMod({
+function validateMod({
 	mod,
 	entrypoint,
 	errorHandler,
