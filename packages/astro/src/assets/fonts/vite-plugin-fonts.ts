@@ -142,6 +142,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		}
 
 		for (const path of [...pathsToWarn]) {
+			// TODO: remove when stabilizing
 			logger.warn(
 				'assets',
 				`Found a local font file ${JSON.stringify(path)} in the \`public/\` folder. To avoid duplicated files in the build output, move this file into \`src/\``,
