@@ -156,8 +156,6 @@ export async function getImage(
 		if (layout !== 'none') {
 			resolvedOptions.style = addCSSVarsToStyle(
 				{
-					w: String(resolvedOptions.width),
-					h: String(resolvedOptions.height),
 					fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
 					pos: resolvedOptions.position,
 				},
