@@ -4,8 +4,6 @@ import type * as unifont from 'unifont';
 import type { FontFaceMetrics, GenericFallbackName } from './types.js';
 import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
 
-// TODO: rework to extract complex types (maybe get rid of classes?)
-
 export interface Hasher {
 	hashString: (input: string) => string;
 	hashObject: (input: Record<string, any>) => string;

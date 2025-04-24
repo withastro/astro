@@ -18,26 +18,26 @@ import {
 import type { PreloadData } from './types.js';
 import { extractFontType } from './utils.js';
 import { orchestrate } from './orchestrate.js';
-import { XxHasher } from './implementations/hasher.js';
-import { AstroErrorHandler } from './implementations/error-handler.js';
+import { createXxHasher } from './implementations/hasher.js';
+import { createAstroErrorHandler } from './implementations/error-handler.js';
 import type { CssRenderer, FontFetcher, RemoteFontProviderModResolver } from './definitions.js';
 import {
-	BuildRemoteFontProviderModResolver,
-	DevServerRemoteFontProviderModResolver,
+	createBuildRemoteFontProviderModResolver,
+	createDevServerRemoteFontProviderModResolver,
 } from './implementations/remote-font-provider-mod-resolver.js';
-import { RealRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
-import { RequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
-import { FsStorage } from './implementations/storage.js';
-import { RealSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
-import { CachedFontFetcher } from './implementations/font-fetcher.js';
-import { RealFontMetricsResolver } from './implementations/font-metrics-resolver.js';
-import { RealUrlProxy } from './implementations/url-proxy.js';
+import { createRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
+import { createRequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
+import { createFsStorage } from './implementations/storage.js';
+import { createSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
+import { createCachedFontFetcher } from './implementations/font-fetcher.js';
+import { createCapsizeFontMetricsResolver } from './implementations/font-metrics-resolver.js';
+import { createUrlProxy } from './implementations/url-proxy.js';
 import {
-	LocalUrlProxyContentResolver,
-	RemoteUrlProxyContentResolver,
+	createLocalUrlProxyContentResolver,
+	createRemoteUrlProxyContentResolver,
 } from './implementations/url-proxy-content-resolver.js';
-import { RealDataCollector } from './implementations/data-collector.js';
-import { MinifiableCssRenderer } from './implementations/css-renderer.js';
+import { createDataCollector } from './implementations/data-collector.js';
+import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -97,18 +97,18 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	}) {
 		// Dependencies
 		const { root } = settings.config;
-		const hasher = await XxHasher.create();
-		const errorHandler = new AstroErrorHandler();
-		const remoteFontProviderResolver = new RealRemoteFontProviderResolver(
+		const hasher = await createXxHasher();
+		const errorHandler = createAstroErrorHandler();
+		const remoteFontProviderResolver = createRemoteFontProviderResolver({
 			root,
 			modResolver,
 			errorHandler,
-		);
-		const localProviderUrlResolver = new RequireLocalProviderUrlResolver(root);
-		const storage = FsStorage.create(cacheDir);
-		const systemFallbacksProvider = new RealSystemFallbacksProvider();
-		fontFetcher = new CachedFontFetcher(storage, errorHandler);
-		const fontMetricsResolver = new RealFontMetricsResolver(fontFetcher, cssRenderer);
+		});
+		const localProviderUrlResolver = createRequireLocalProviderUrlResolver({ root });
+		const storage = createFsStorage({ base: cacheDir });
+		const systemFallbacksProvider = createSystemFallbacksProvider();
+		fontFetcher = createCachedFontFetcher({ storage, errorHandler });
+		const fontMetricsResolver = createCapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
 
 		const res = await orchestrate({
 			families: settings.config.experimental.fonts!,
@@ -120,11 +120,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			systemFallbacksProvider,
 			fontMetricsResolver,
 			createUrlProxy: ({ local, ...params }) => {
-				const dataCollector = new RealDataCollector(params);
+				const dataCollector = createDataCollector(params);
 				const contentResolver = local
-					? new LocalUrlProxyContentResolver(errorHandler)
-					: new RemoteUrlProxyContentResolver();
-				return new RealUrlProxy(baseUrl, contentResolver, hasher, dataCollector);
+					? createLocalUrlProxyContentResolver({ errorHandler })
+					: createRemoteUrlProxyContentResolver();
+				return createUrlProxy({ base: baseUrl, contentResolver, hasher, dataCollector });
 			},
 			defaults: DEFAULTS,
 		});
@@ -143,8 +143,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			if (isBuild) {
 				await initialize({
 					cacheDir: new URL(CACHE_DIR, settings.config.cacheDir),
-					modResolver: new BuildRemoteFontProviderModResolver(),
-					cssRenderer: new MinifiableCssRenderer(true),
+					modResolver: createBuildRemoteFontProviderModResolver(),
+					cssRenderer: createMinifiableCssRenderer({ minify: true }),
 				});
 			}
 		},
@@ -152,8 +152,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			await initialize({
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
-				modResolver: new DevServerRemoteFontProviderModResolver(server),
-				cssRenderer: new MinifiableCssRenderer(false),
+				modResolver: createDevServerRemoteFontProviderModResolver({ server }),
+				cssRenderer: createMinifiableCssRenderer({ minify: false }),
 			});
 			// The map is always defined at this point. Its values contains urls from remote providers
 			// as well as local paths for the local provider. We filter them to only keep the filepaths

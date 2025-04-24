@@ -39,13 +39,13 @@ export function handleValueWithSpaces(value: string): string {
 	return value;
 }
 
-export class MinifiableCssRenderer implements CssRenderer {
-	constructor(private minify: boolean) {}
-
-	generateFontFace(family: string, properties: Properties): string {
-		return renderFontFace(withFamily(family, properties), this.minify);
-	}
-	generateCssVariable(key: string, values: Array<string>): string {
-		return renderCssVariable(key, values, this.minify);
-	}
+export function createMinifiableCssRenderer({ minify }: { minify: boolean }): CssRenderer {
+	return {
+		generateFontFace(family, properties) {
+			return renderFontFace(withFamily(family, properties), minify);
+		},
+		generateCssVariable(key, values) {
+			return renderCssVariable(key, values, minify);
+		},
+	};
 }

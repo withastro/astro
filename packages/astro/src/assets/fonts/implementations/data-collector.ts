@@ -1,31 +1,25 @@
 import type { DataCollector } from '../definitions.js';
-import type { CreateUrlProxyParams, PreloadData } from '../types.js';
-import type * as unifont from 'unifont';
+import type { CreateUrlProxyParams } from '../types.js';
 
-export class RealDataCollector implements DataCollector {
-	constructor(private params: Omit<CreateUrlProxyParams, 'local'>) {}
-
-	collect({
-		originalUrl,
-		hash,
-		preload,
-		data,
-	}: {
-		originalUrl: string;
-		hash: string;
-		preload: PreloadData | null;
-		data: Partial<unifont.FontFaceData>;
-	}): void {
-		if (!this.params.hasUrl(hash)) {
-			this.params.saveUrl(hash, originalUrl);
-			if (preload) {
-				this.params.savePreload(preload);
+export function createDataCollector({
+	hasUrl,
+	saveUrl,
+	savePreload,
+	saveFontData,
+}: Omit<CreateUrlProxyParams, 'local'>): DataCollector {
+	return {
+		collect({ originalUrl, hash, preload, data }) {
+			if (!hasUrl(hash)) {
+				saveUrl(hash, originalUrl);
+				if (preload) {
+					savePreload(preload);
+				}
 			}
-		}
-		this.params.saveFontData({
-			hash,
-			url: originalUrl,
-			data,
-		});
-	}
+			saveFontData({
+				hash,
+				url: originalUrl,
+				data,
+			});
+		},
+	};
 }

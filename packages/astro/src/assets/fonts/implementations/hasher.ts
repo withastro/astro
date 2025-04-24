@@ -2,15 +2,12 @@ import xxhash from 'xxhash-wasm';
 import type { Hasher } from '../definitions.js';
 import { sortObjectByKey } from '../utils.js';
 
-export class XxHasher implements Hasher {
-	private constructor(public hashString: Hasher['hashString']) {}
-
-	static async create() {
-		const { h64ToString } = await xxhash();
-		return new XxHasher(h64ToString);
-	}
-
-	hashObject(input: Record<string, any>): string {
-		return this.hashString(JSON.stringify(sortObjectByKey(input)));
-	}
+export async function createXxHasher(): Promise<Hasher> {
+	const { h64ToString: hashString } = await xxhash();
+	return {
+		hashString,
+		hashObject(input) {
+			return hashString(JSON.stringify(sortObjectByKey(input)));
+		},
+	};
 }

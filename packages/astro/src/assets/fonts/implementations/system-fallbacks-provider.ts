@@ -67,11 +67,13 @@ export const DEFAULT_FALLBACKS = {
 	'ui-monospace': ['Courier New'],
 } satisfies Partial<Record<GenericFallbackName, Array<FallbackName>>>;
 
-export class RealSystemFallbacksProvider implements SystemFallbacksProvider {
-	getLocalFonts(fallback: GenericFallbackName): Array<string> | null {
-		return DEFAULT_FALLBACKS[fallback as keyof typeof DEFAULT_FALLBACKS] ?? null;
-	}
-	getMetricsForLocalFont(family: string): FontFaceMetrics {
-		return SYSTEM_METRICS[family as FallbackName];
-	}
+export function createSystemFallbacksProvider(): SystemFallbacksProvider {
+	return {
+		getLocalFonts(fallback) {
+			return DEFAULT_FALLBACKS[fallback as keyof typeof DEFAULT_FALLBACKS] ?? null;
+		},
+		getMetricsForLocalFont(family) {
+			return SYSTEM_METRICS[family as FallbackName];
+		},
+	};
 }

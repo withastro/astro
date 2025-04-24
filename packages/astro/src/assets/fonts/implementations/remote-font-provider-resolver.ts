@@ -3,7 +3,7 @@ import type {
 	RemoteFontProviderModResolver,
 	RemoteFontProviderResolver,
 } from '../definitions.js';
-import type { AstroFontProvider, ResolvedFontProvider } from '../types.js';
+import type { ResolvedFontProvider } from '../types.js';
 import { resolveEntrypoint } from '../utils.js';
 
 export function validateMod({
@@ -38,21 +38,25 @@ export function validateMod({
 	}
 }
 
-export class RealRemoteFontProviderResolver implements RemoteFontProviderResolver {
-	constructor(
-		private root: URL,
-		private modResolver: RemoteFontProviderModResolver,
-		private errorHandler: ErrorHandler,
-	) {}
-
-	async resolve({ entrypoint, config }: AstroFontProvider): Promise<ResolvedFontProvider> {
-		const id = resolveEntrypoint(this.root, entrypoint.toString()).href;
-		const mod = await this.modResolver.resolve(id);
-		const { provider } = validateMod({
-			mod,
-			entrypoint: id,
-			errorHandler: this.errorHandler,
-		});
-		return { config, provider };
-	}
+export function createRemoteFontProviderResolver({
+	root,
+	modResolver,
+	errorHandler,
+}: {
+	root: URL;
+	modResolver: RemoteFontProviderModResolver;
+	errorHandler: ErrorHandler;
+}): RemoteFontProviderResolver {
+	return {
+		async resolve({ entrypoint, config }) {
+			const id = resolveEntrypoint(root, entrypoint.toString()).href;
+			const mod = await modResolver.resolve(id);
+			const { provider } = validateMod({
+				mod,
+				entrypoint: id,
+				errorHandler,
+			});
+			return { config, provider };
+		},
+	};
 }

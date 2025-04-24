@@ -2,7 +2,6 @@ import { fromBuffer, type Font } from '@capsizecss/unpack';
 import type { CssRenderer, FontFetcher, FontMetricsResolver } from '../definitions.js';
 import type { FontFaceMetrics } from '../types.js';
 import { renderFontSrc } from '../utils.js';
-import type { CollectedFontForMetrics } from '../logic/optimize-fallbacks.js';
 
 function filterRequiredMetrics({
 	ascent,
@@ -26,53 +25,47 @@ function toPercentage(value: number, fractionDigits = 4) {
 	return `${+percentage.toFixed(fractionDigits)}%`;
 }
 
-export class RealFontMetricsResolver implements FontMetricsResolver {
-	private cache: Record<string, FontFaceMetrics | null> = {};
+export function createCapsizeFontMetricsResolver({
+	fontFetcher,
+	cssRenderer,
+}: {
+	fontFetcher: FontFetcher;
+	cssRenderer: CssRenderer;
+}): FontMetricsResolver {
+	const cache: Record<string, FontFaceMetrics | null> = {};
 
-	constructor(
-		private fontFetcher: FontFetcher,
-		private cssRenderer: CssRenderer,
-	) {}
+	return {
+		async getMetrics(name, { hash, url }) {
+			cache[name] ??= filterRequiredMetrics(await fromBuffer(await fontFetcher.fetch(hash, url)));
+			return cache[name];
+		},
+		generateFontFace({
+			metrics,
+			fallbackMetrics,
+			name: fallbackName,
+			font: fallbackFontName,
+			properties,
+		}) {
+			// Calculate size adjust
+			const preferredFontXAvgRatio = metrics.xWidthAvg / metrics.unitsPerEm;
+			const fallbackFontXAvgRatio = fallbackMetrics.xWidthAvg / fallbackMetrics.unitsPerEm;
+			const sizeAdjust = preferredFontXAvgRatio / fallbackFontXAvgRatio;
 
-	async getMetrics(name: string, { hash, url }: CollectedFontForMetrics): Promise<FontFaceMetrics> {
-		this.cache[name] ??= filterRequiredMetrics(
-			await fromBuffer(await this.fontFetcher.fetch(hash, url)),
-		);
-		return this.cache[name];
-	}
+			const adjustedEmSquare = metrics.unitsPerEm * sizeAdjust;
 
-	generateFontFace({
-		metrics,
-		fallbackMetrics,
-		name: fallbackName,
-		font: fallbackFontName,
-		properties,
-	}: {
-		metrics: FontFaceMetrics;
-		fallbackMetrics: FontFaceMetrics;
-		name: string;
-		font: string;
-		properties: Record<string, string | undefined>;
-	}): string {
-		// Calculate size adjust
-		const preferredFontXAvgRatio = metrics.xWidthAvg / metrics.unitsPerEm;
-		const fallbackFontXAvgRatio = fallbackMetrics.xWidthAvg / fallbackMetrics.unitsPerEm;
-		const sizeAdjust = preferredFontXAvgRatio / fallbackFontXAvgRatio;
+			// Calculate metric overrides for preferred font
+			const ascentOverride = metrics.ascent / adjustedEmSquare;
+			const descentOverride = Math.abs(metrics.descent) / adjustedEmSquare;
+			const lineGapOverride = metrics.lineGap / adjustedEmSquare;
 
-		const adjustedEmSquare = metrics.unitsPerEm * sizeAdjust;
-
-		// Calculate metric overrides for preferred font
-		const ascentOverride = metrics.ascent / adjustedEmSquare;
-		const descentOverride = Math.abs(metrics.descent) / adjustedEmSquare;
-		const lineGapOverride = metrics.lineGap / adjustedEmSquare;
-
-		return this.cssRenderer.generateFontFace(fallbackName, {
-			src: renderFontSrc([{ name: fallbackFontName }]),
-			'size-adjust': toPercentage(sizeAdjust),
-			'ascent-override': toPercentage(ascentOverride),
-			'descent-override': toPercentage(descentOverride),
-			'line-gap-override': toPercentage(lineGapOverride),
-			...properties,
-		});
-	}
+			return cssRenderer.generateFontFace(fallbackName, {
+				src: renderFontSrc([{ name: fallbackFontName }]),
+				'size-adjust': toPercentage(sizeAdjust),
+				'ascent-override': toPercentage(ascentOverride),
+				'descent-override': toPercentage(descentOverride),
+				'line-gap-override': toPercentage(lineGapOverride),
+				...properties,
+			});
+		},
+	};
 }
