@@ -17,6 +17,8 @@ export function validateMod(mod: any, entrypoint: string): Pick<ResolvedFontProv
 			provider: mod.provider,
 		};
 	} catch (cause) {
+		// No need to make it part of the errorHandler because it's Astro specific
+		// TODO: should validateMod be run no matter what?
 		throw new AstroError(
 			{
 				...AstroErrorData.CannotLoadFontProvider,

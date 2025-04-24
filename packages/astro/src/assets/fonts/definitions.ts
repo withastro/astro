@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import type { AstroFontProvider, PreloadData, ResolvedFontProvider } from './types.js';
+import type { AstroFontProvider, FontType, PreloadData, ResolvedFontProvider } from './types.js';
 import type * as unifont from 'unifont';
 import type { FontFaceMetrics, GenericFallbackName } from './types.js';
 import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
@@ -35,7 +35,8 @@ export type ErrorHandlerInput =
 			}
 	  >
 	| SingleErrorInput<'unknown-fs-error', {}>
-	| SingleErrorInput<'cannot-fetch-font-file', { url: string }>;
+	| SingleErrorInput<'cannot-fetch-font-file', { url: string }>
+	| SingleErrorInput<'cannot-extract-font-type', { url: string }>;
 
 export interface ErrorHandler {
 	handle: (input: ErrorHandlerInput) => Error;
@@ -62,8 +63,10 @@ export interface DataCollector {
 	}) => void;
 }
 
+export type CssProperties = Record<string, string | undefined>;
+
 export interface CssRenderer {
-	generateFontFace: (family: string, properties: Record<string, string | undefined>) => string;
+	generateFontFace: (family: string, properties: CssProperties) => string;
 	generateCssVariable: (key: string, values: Array<string>) => string;
 }
 
@@ -74,7 +77,7 @@ export interface FontMetricsResolver {
 		fallbackMetrics: FontFaceMetrics;
 		name: string;
 		font: string;
-		properties: Record<string, string | undefined>;
+		properties: CssProperties;
 	}) => string;
 }
 
@@ -85,4 +88,8 @@ export interface SystemFallbacksProvider {
 
 export interface FontFetcher {
 	fetch: (hash: string, url: string) => Promise<Buffer>;
+}
+
+export interface FontTypeExtractor {
+	extract: (url: string) => FontType;
 }

@@ -10,6 +10,7 @@ import { optimizeFallbacks, type CollectedFontForMetrics } from './logic/optimiz
 import type {
 	CssRenderer,
 	FontMetricsResolver,
+	FontTypeExtractor,
 	Hasher,
 	LocalProviderUrlResolver,
 	RemoteFontProviderResolver,
@@ -47,6 +48,7 @@ export async function orchestrate({
 	cssRenderer,
 	systemFallbacksProvider,
 	fontMetricsResolver,
+	fontTypeExtractor,
 	createUrlProxy,
 	defaults,
 }: {
@@ -58,6 +60,7 @@ export async function orchestrate({
 	cssRenderer: CssRenderer;
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
+	fontTypeExtractor: FontTypeExtractor;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
 }) {
@@ -133,6 +136,7 @@ export async function orchestrate({
 			const result = resolveLocalFont({
 				family,
 				urlProxy,
+				fontTypeExtractor,
 			});
 			// URLs are already proxied at this point so no further processing is required
 			fonts = result.fonts;
@@ -163,7 +167,7 @@ export async function orchestrate({
 					weight: data.weight,
 					style: data.style,
 					// User settings override the generated font settings. We use a helper function
-					// because local and remote providers store this data in different places. 
+					// because local and remote providers store this data in different places.
 					display: pickFontFaceProperty('display', { data, family }),
 					unicodeRange: pickFontFaceProperty('unicodeRange', { data, family }),
 					stretch: pickFontFaceProperty('stretch', { data, family }),

@@ -1,8 +1,6 @@
-import type { CssRenderer } from '../definitions.js';
+import type { CssProperties, CssRenderer } from '../definitions.js';
 
-type Properties = Record<string, string | undefined>;
-
-export function renderFontFace(properties: Properties, minify: boolean): string {
+export function renderFontFace(properties: CssProperties, minify: boolean): string {
 	// Line return
 	const lr = minify ? '' : `\n`;
 	// Space
@@ -23,7 +21,7 @@ export function renderCssVariable(key: string, values: Array<string>, minify: bo
 	return `:root${sp}{${lr}${sp}${sp}${key}:${sp}${values.join(`,${sp}`)};${lr}}${lr}`;
 }
 
-export function withFamily(family: string, properties: Properties): Properties {
+export function withFamily(family: string, properties: CssProperties): CssProperties {
 	return {
 		'font-family': handleValueWithSpaces(family),
 		...properties,

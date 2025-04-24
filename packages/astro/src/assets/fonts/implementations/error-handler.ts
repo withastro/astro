@@ -14,6 +14,11 @@ function getProps(input: ErrorHandlerInput): ConstructorParameters<typeof AstroE
 			...AstroErrorData.CannotFetchFontFile,
 			message: AstroErrorData.CannotFetchFontFile.message(input.data.url),
 		};
+	} else if (input.type === 'cannot-extract-font-type') {
+		return {
+			...AstroErrorData.CannotExtractFontType,
+			message: AstroErrorData.CannotExtractFontType.message(input.data.url),
+		};
 	}
 	input satisfies never;
 	// Should never happen

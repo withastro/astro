@@ -1,15 +1,19 @@
 import { createRequire } from 'node:module';
-import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
 import type { FontType, GenericFallbackName, ResolvedFontFamily } from './types.js';
+import type { CssProperties } from './definitions.js';
 
+// TODO: check for errors
+
+/**
+ * Turns unifont font face data into generic CSS properties, to be consumed by the CSS renderer.
+ */
 export function unifontFontFaceDataToProperties(
 	font: Partial<unifont.FontFaceData>,
-): Record<string, string | undefined> {
+): CssProperties {
 	return {
 		src: font.src ? renderFontSrc(font.src) : undefined,
 		'font-display': font.display ?? 'swap',
@@ -22,8 +26,13 @@ export function unifontFontFaceDataToProperties(
 	};
 }
 
-// Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L68-L81
-export function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], string>[]) {
+/**
+ * Turns unifont font face data src into a valid CSS property.
+ * Adapted from https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L68-L81
+ */
+export function renderFontSrc(
+	sources: Exclude<unifont.FontFaceData['src'][number], string>[],
+): string {
 	return sources
 		.map((src) => {
 			if ('url' in src) {
@@ -43,25 +52,11 @@ export function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][numbe
 
 const QUOTES_RE = /^["']|["']$/g;
 
-export function withoutQuotes(str: string) {
+/**
+ * Removes the quotes from a string. Used for family names
+ */
+export function withoutQuotes(str: string): string {
 	return str.trim().replace(QUOTES_RE, '');
-}
-
-export function extractFontType(str: string): FontType {
-	// Extname includes a leading dot
-	const extension = extname(str).slice(1);
-	if (!isFontType(extension)) {
-		throw new AstroError(
-			{
-				...AstroErrorData.CannotExtractFontType,
-				message: AstroErrorData.CannotExtractFontType.message(str),
-			},
-			{
-				cause: `Unexpected extension, got "${extension}"`,
-			},
-		);
-	}
-	return extension;
 }
 
 export function isFontType(str: string): str is FontType {

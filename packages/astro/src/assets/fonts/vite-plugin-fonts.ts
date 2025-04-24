@@ -16,11 +16,15 @@ import {
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
 import type { PreloadData } from './types.js';
-import { extractFontType } from './utils.js';
 import { orchestrate } from './orchestrate.js';
 import { createXxHasher } from './implementations/hasher.js';
 import { createAstroErrorHandler } from './implementations/error-handler.js';
-import type { CssRenderer, FontFetcher, RemoteFontProviderModResolver } from './definitions.js';
+import type {
+	CssRenderer,
+	FontFetcher,
+	FontTypeExtractor,
+	RemoteFontProviderModResolver,
+} from './definitions.js';
 import {
 	createBuildRemoteFontProviderModResolver,
 	createDevServerRemoteFontProviderModResolver,
@@ -38,6 +42,7 @@ import {
 } from './implementations/url-proxy-content-resolver.js';
 import { createDataCollector } from './implementations/data-collector.js';
 import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
+import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -79,6 +84,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let hashToUrlMap: Map<string, string> | null = null;
 	let isBuild: boolean;
 	let fontFetcher: FontFetcher | null = null;
+	let fontTypeExtractor: FontTypeExtractor | null = null;
 
 	const cleanup = () => {
 		resolvedMap = null;
@@ -95,8 +101,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		modResolver: RemoteFontProviderModResolver;
 		cssRenderer: CssRenderer;
 	}) {
-		// Dependencies
 		const { root } = settings.config;
+		// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
+		// a Vite plugin option.
 		const hasher = await createXxHasher();
 		const errorHandler = createAstroErrorHandler();
 		const remoteFontProviderResolver = createRemoteFontProviderResolver({
@@ -109,6 +116,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const systemFallbacksProvider = createSystemFallbacksProvider();
 		fontFetcher = createCachedFontFetcher({ storage, errorHandler });
 		const fontMetricsResolver = createCapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
+		fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 
 		const res = await orchestrate({
 			families: settings.config.experimental.fonts!,
@@ -119,12 +127,19 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			cssRenderer,
 			systemFallbacksProvider,
 			fontMetricsResolver,
+			fontTypeExtractor,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = local
 					? createLocalUrlProxyContentResolver({ errorHandler })
 					: createRemoteUrlProxyContentResolver();
-				return createUrlProxy({ base: baseUrl, contentResolver, hasher, dataCollector });
+				return createUrlProxy({
+					base: baseUrl,
+					contentResolver,
+					hasher,
+					dataCollector,
+					fontTypeExtractor: fontTypeExtractor!,
+				});
 			},
 			defaults: DEFAULTS,
 		});
@@ -198,7 +213,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					const data = await fontFetcher!.fetch(hash, url);
 
 					res.setHeader('Content-Length', data.length);
-					res.setHeader('Content-Type', `font/${extractFontType(hash)}`);
+					res.setHeader('Content-Type', `font/${fontTypeExtractor!.extract(hash)}`);
 
 					res.end(data);
 				} catch (err) {

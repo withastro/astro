@@ -1,15 +1,15 @@
 import type * as unifont from 'unifont';
 import { FONT_FORMAT_MAP } from '../constants.js';
 import type { ResolvedLocalFontFamily } from '../types.js';
-import { extractFontType } from '../utils.js';
-import type { UrlProxy } from '../definitions.js';
+import type { FontTypeExtractor, UrlProxy } from '../definitions.js';
 
 interface Options {
 	family: ResolvedLocalFontFamily;
 	urlProxy: UrlProxy;
+	fontTypeExtractor: FontTypeExtractor;
 }
 
-export function resolveLocalFont({ family, urlProxy }: Options): {
+export function resolveLocalFont({ family, urlProxy, fontTypeExtractor }: Options): {
 	fonts: Array<unifont.FontFaceData>;
 } {
 	const fonts: Array<unifont.FontFaceData> = [];
@@ -30,7 +30,7 @@ export function resolveLocalFont({ family, urlProxy }: Options): {
 							style: variant.style,
 						},
 					}),
-					format: FONT_FORMAT_MAP[extractFontType(source.url)],
+					format: FONT_FORMAT_MAP[fontTypeExtractor.extract(source.url)],
 					tech: source.tech,
 				};
 			}),
