@@ -10,6 +10,7 @@ import {
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
 import { createAstroErrorHandler } from '../../../../dist/assets/fonts/implementations/error-handler.js';
 import { createCachedFontFetcher } from '../../../../dist/assets/fonts/implementations/font-fetcher.js';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import { createSpyStorage, simpleErrorHandler } from './utils.js';
 
 describe('astro fonts implementations', () => {
@@ -249,6 +250,43 @@ describe('astro fonts implementations', () => {
 			assert.equal(error.cause instanceof Error, true);
 			assert.equal(error.cause.message.includes('Response was not successful'), true);
 		});
+	});
+
+	// TODO: find a good way to test this
+	// describe('createCapsizeFontMetricsResolver()', () => {});
+
+	it('createFontTypeExtractor()', () => {
+		/** @type {Array<[string, false | string]>} */
+		const data = [
+			['', false],
+			['.', false],
+			['test.', false],
+			['https://foo.bar/file', false],
+			[
+				'https://fonts.gstatic.com/s/roboto/v47/KFO5CnqEu92Fr1Mu53ZEC9_Vu3r1gIhOszmkC3kaSTbQWt4N.woff2',
+				'woff2',
+			],
+			['/home/documents/project/font.ttf', 'ttf'],
+		];
+
+		const fontTypeExtractor = createFontTypeExtractor({ errorHandler: simpleErrorHandler });
+
+		for (const [input, check] of data) {
+			try {
+				const res = fontTypeExtractor.extract(input);
+				if (check) {
+					assert.equal(res, check);
+				} else {
+					assert.fail(`String ${JSON.stringify(input)} should not be valid`);
+				}
+			} catch (e) {
+				if (check) {
+					assert.fail(`String ${JSON.stringify(input)} should be valid`);
+				} else {
+					assert.equal(e instanceof Error, true);
+				}
+			}
+		}
 	});
 
 	// TODO: cover more implementations
