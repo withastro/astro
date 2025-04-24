@@ -119,8 +119,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			cssRenderer,
 			systemFallbacksProvider,
 			fontMetricsResolver,
-			createUrlProxy: (local, ...collectorArgs) => {
-				const dataCollector = new RealDataCollector(...collectorArgs);
+			createUrlProxy: ({ local, ...params }) => {
+				const dataCollector = new RealDataCollector(params);
 				const contentResolver = local
 					? new LocalUrlProxyContentResolver(errorHandler)
 					: new RemoteUrlProxyContentResolver();

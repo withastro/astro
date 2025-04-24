@@ -7,6 +7,21 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
 import type { FontType, GenericFallbackName, ResolvedFontFamily } from './types.js';
 
+export function unifontFontFaceDataToProperties(
+	font: Partial<unifont.FontFaceData>,
+): Record<string, string | undefined> {
+	return {
+		src: font.src ? renderFontSrc(font.src) : undefined,
+		'font-display': font.display ?? 'swap',
+		'unicode-range': font.unicodeRange?.join(','),
+		'font-weight': Array.isArray(font.weight) ? font.weight.join(' ') : font.weight?.toString(),
+		'font-style': font.style,
+		'font-stretch': font.stretch,
+		'font-feature-settings': font.featureSettings,
+		'font-variation-settings': font.variationSettings,
+	};
+}
+
 // Source: https://github.com/nuxt/fonts/blob/main/src/css/render.ts#L68-L81
 export function renderFontSrc(sources: Exclude<unifont.FontFaceData['src'][number], string>[]) {
 	return sources

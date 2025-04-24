@@ -1,10 +1,9 @@
 import { LOCAL_PROVIDER_NAME } from './constants.js';
 import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
-import type { Defaults, FontFamily, PreloadData } from './types.js';
+import type { CreateUrlProxyParams, Defaults, FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
 import { pickFontFaceProperty, unifontFontFaceDataToProperties } from './utils.js';
-import type { RealDataCollector } from './implementations/data-collector.js';
 import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
 import { optimizeFallbacks, type CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
@@ -42,11 +41,7 @@ export async function orchestrate({
 	cssRenderer: CssRenderer;
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
-	createUrlProxy: (
-		local: boolean,
-		// TODO: needs a better shape, should not rely on an implementation
-		...collectorArgs: ConstructorParameters<typeof RealDataCollector>
-	) => UrlProxy;
+	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
 }) {
 	let resolvedFamilies = await resolveFamilies({
@@ -74,17 +69,32 @@ export async function orchestrate({
 		const preloadData: PreloadData = [];
 		let css = '';
 
-		// TODO: rename to something like collectedFonts
-		const fallbackFontData: Array<CollectedFontForMetrics> = [];
+		const collectedFonts: Array<CollectedFontForMetrics> = [];
 		const fallbacks = family.fallbacks ?? defaults.fallbacks ?? [];
 
-		const urlProxy = createUrlProxy(
-			family.provider === LOCAL_PROVIDER_NAME,
-			hashToUrlMap,
-			preloadData,
-			fallbackFontData,
-			fallbacks,
-		);
+		const urlProxy = createUrlProxy({
+			local: family.provider === LOCAL_PROVIDER_NAME,
+			hasUrl: (hash) => hashToUrlMap.has(hash),
+			saveUrl: (hash, url) => {
+				hashToUrlMap.set(hash, url);
+			},
+			savePreload: (preload) => {
+				preloadData.push(preload);
+			},
+			saveFontData: (collected) => {
+				if (
+					fallbacks &&
+					fallbacks.length > 0 &&
+					// If the same data has already been sent for this family, we don't want to have duplicate fallbacks
+					// Such scenario can occur with unicode ranges
+					!collectedFonts.some((f) => JSON.stringify(f.data) === JSON.stringify(collected.data))
+				) {
+					// If a family has fallbacks, we store the first url we get that may
+					// be used for the fallback generation
+					collectedFonts.push(collected);
+				}
+			},
+		});
 
 		let fonts: Array<unifont.FontFaceData>;
 
@@ -133,7 +143,7 @@ export async function orchestrate({
 		const optimizeFallbacksResult = await optimizeFallbacks({
 			family,
 			fallbacks,
-			collectedFonts: fallbackFontData,
+			collectedFonts,
 			enabled: family.optimizedFallbacks ?? defaults.optimizedFallbacks ?? false,
 			systemFallbacksProvider,
 			fontMetricsResolver,
