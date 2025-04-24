@@ -100,15 +100,15 @@ export const getSizesAttribute = ({
 	switch (layout) {
 		// If screen is wider than the max size then image width is the max size,
 		// otherwise it's the width of the screen
-		case "constrained":
+		case 'constrained':
 			return `(min-width: ${width}px) ${width}px, 100vw`;
 
 		// Image is always the same width, whatever the size of the screen
-		case "fixed":
+		case 'fixed':
 			return `${width}px`;
 
 		// Image is always the width of the screen
-		case "full-width":
+		case 'full-width':
 			return `100vw`;
 
 		case 'none':
