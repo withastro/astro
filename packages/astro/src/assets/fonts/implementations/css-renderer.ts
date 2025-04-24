@@ -18,7 +18,7 @@ export function renderCssVariable(key: string, values: Array<string>, minify: bo
 	// Space
 	const sp = minify ? '' : ' ';
 
-	return `:root${sp}{${lr}${sp}${sp}${key}:${sp}${values.join(`,${sp}`)};${lr}}${lr}`;
+	return `:root${sp}{${lr}${sp}${sp}${key}:${sp}${values.map((v) => handleValueWithSpaces(v)).join(`,${sp}`)};${lr}}${lr}`;
 }
 
 export function withFamily(family: string, properties: CssProperties): CssProperties {
