@@ -562,7 +562,10 @@ async function autogenerateCollections({
 	const dataPattern = globWithUnderscoresIgnored('', dataExts);
 	let usesContentLayer = false;
 	for (const collectionName of Object.keys(collections)) {
-		if (collections[collectionName]?.type === 'content_layer' || collections[collectionName]?.type === 'live') {
+		if (
+			collections[collectionName]?.type === 'content_layer' ||
+			collections[collectionName]?.type === 'live'
+		) {
 			usesContentLayer = true;
 			// This is already a content layer, skip
 			continue;
@@ -713,15 +716,22 @@ export type ContentPaths = {
 	liveConfig: {
 		exists: boolean;
 		url: URL;
-	}
+	};
 };
 
 export function getContentPaths(
-	{ srcDir, legacy, root }: Pick<AstroConfig, 'root' | 'srcDir' | 'legacy'>,
+	{
+		srcDir,
+		legacy,
+		root,
+		experimental,
+	}: Pick<AstroConfig, 'root' | 'srcDir' | 'legacy' | 'experimental'>,
 	fs: typeof fsMod = fsMod,
 ): ContentPaths {
 	const configStats = searchConfig(fs, srcDir, legacy?.collections);
-	const liveConfigStats = searchLiveConfig(fs, srcDir);
+	const liveConfigStats = experimental?.liveContentLoaders
+		? searchLiveConfig(fs, srcDir)
+		: { exists: false, url: new URL('./', srcDir) };
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
 		root: new URL('./', root),
@@ -734,8 +744,12 @@ export function getContentPaths(
 	};
 }
 
-function searchConfig(fs: typeof fsMod, srcDir: URL, legacy?: boolean): { exists: boolean; url: URL } {
-	 const paths = [
+function searchConfig(
+	fs: typeof fsMod,
+	srcDir: URL,
+	legacy?: boolean,
+): { exists: boolean; url: URL } {
+	const paths = [
 		...(legacy
 			? []
 			: ['content.config.mjs', 'content.config.js', 'content.config.mts', 'content.config.ts']),
@@ -743,7 +757,7 @@ function searchConfig(fs: typeof fsMod, srcDir: URL, legacy?: boolean): { exists
 		'content/config.js',
 		'content/config.mts',
 		'content/config.ts',
-	]
+	];
 	return search(fs, srcDir, paths);
 }
 

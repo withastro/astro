@@ -18,8 +18,6 @@ export { z } from 'astro/zod';
 
 const contentDir = '@@CONTENT_DIR@@';
 
-export { liveCollections };
-
 const contentEntryGlob = '@@CONTENT_ENTRY_GLOB_PATH@@';
 const contentCollectionToEntryMap = createCollectionToGlobResultMap({
 	globResult: contentEntryGlob,
