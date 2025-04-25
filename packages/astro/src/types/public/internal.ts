@@ -7,6 +7,7 @@ import type { Params } from './common.js';
 import type { AstroConfig, RedirectConfig } from './config.js';
 import type { AstroGlobal, AstroGlobalPartial } from './context.js';
 import type { AstroRenderer } from './integrations.js';
+import type { SSRManifest } from '../../core/app/types.js';
 
 export type { SSRManifest } from '../../core/app/types.js';
 
@@ -250,8 +251,9 @@ export interface SSRResult {
 	 * Whether Astro should inject the CSP <meta> tag into the head of the component.
 	 */
 	shouldInjectCspMetaTags: boolean;
-	clientScriptHashes: string[];
-	clientStyleHashes: string[];
+	clientScriptHashes: SSRManifest['clientScriptHashes'];
+	clientStyleHashes: SSRManifest['clientStyleHashes'];
+	astroIslandHashes: SSRManifest['astroIslandHashes'];
 }
 
 /**

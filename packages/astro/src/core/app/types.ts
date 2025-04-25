@@ -92,7 +92,12 @@ export type SSRManifest = {
 	 * When enabled, Astro tracks the hashes of script and styles, and eventually it will render the `<meta>` tag
 	 */
 	shouldInjectCspMetaTags: boolean;
-	astroIslandHashes: string[];
+	astroIslandHashes: AstroIslandHashes[];
+};
+
+export type AstroIslandHashes = {
+	name: string;
+	hash: string;
 };
 
 export type SSRActions = {

@@ -20,6 +20,7 @@ import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
+import { createCSPMiddleware } from './csp/middleware.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -112,11 +113,16 @@ export abstract class Pipeline {
 		else if (this.middleware) {
 			const middlewareInstance = await this.middleware();
 			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
+			const internalMiddlewares = [onRequest];
 			if (this.manifest.checkOrigin) {
-				this.resolvedMiddleware = sequence(createOriginCheckMiddleware(), onRequest);
-			} else {
-				this.resolvedMiddleware = onRequest;
+				// this middleware must be placed at the beginning because it needs to block incoming requests
+				internalMiddlewares.unshift(createOriginCheckMiddleware());
 			}
+			if (this.manifest.shouldInjectCspMetaTags) {
+				// this middleware must be placed at the end because it needs to inject the CSP headers
+				internalMiddlewares.push(createCSPMiddleware());
+			}
+			this.resolvedMiddleware = sequence(...internalMiddlewares);
 			return this.resolvedMiddleware;
 		} else {
 			this.resolvedMiddleware = NOOP_MIDDLEWARE_FN;
