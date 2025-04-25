@@ -44,6 +44,7 @@ import { createDataCollector } from './implementations/data-collector.js';
 import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
 import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 
 interface Options {
 	settings: AstroSettings;
@@ -112,7 +113,23 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			modResolver,
 			errorHandler,
 		});
-		const localProviderUrlResolver = createRequireLocalProviderUrlResolver({ root });
+		// TODO: remove when stabilizing
+		const pathsToWarn = new Set<string>();
+		const localProviderUrlResolver = createRequireLocalProviderUrlResolver({
+			root,
+			intercept: (path) => {
+				if (path.startsWith(fileURLToPath(settings.config.publicDir))) {
+					if (pathsToWarn.has(path)) {
+						return;
+					}
+					pathsToWarn.add(path);
+					logger.warn(
+						'assets',
+						`Found a local font file ${JSON.stringify(path)} in the \`public/\` folder. To avoid duplicated files in the build output, move this file into \`src/\``,
+					);
+				}
+			},
+		});
 		const storage = createFsStorage({ base: cacheDir });
 		const systemFallbacksProvider = createSystemFallbacksProvider();
 		fontFetcher = createCachedFontFetcher({ storage, errorHandler, fetch, readFile });

@@ -4,12 +4,19 @@ import { fileURLToPath } from 'node:url';
 
 export function createRequireLocalProviderUrlResolver({
 	root,
-}: { root: URL }): LocalProviderUrlResolver {
+	intercept,
+}: {
+	root: URL;
+	// TODO: remove when stabilizing
+	intercept?: (path: string) => void;
+}): LocalProviderUrlResolver {
 	return {
 		resolve(input) {
 			// fileURLToPath is important so that the file can be read
 			// by createLocalUrlProxyContentResolver
-			return fileURLToPath(resolveEntrypoint(root, input));
+			const path = fileURLToPath(resolveEntrypoint(root, input));
+			intercept?.(path);
+			return path;
 		},
 	};
 }
