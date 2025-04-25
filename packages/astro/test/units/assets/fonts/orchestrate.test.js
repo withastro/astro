@@ -20,10 +20,11 @@ import {
 } from './utils.js';
 import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
 import { defineFontProvider } from 'unifont';
+import { fileURLToPath } from 'node:url';
 
 describe('fonts orchestrate()', () => {
 	it('works with local fonts', async () => {
-		const root = new URL('file:///foo/bar/');
+		const root = new URL(import.meta.url);
 		const { storage } = createSpyStorage();
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
@@ -71,14 +72,23 @@ describe('fonts orchestrate()', () => {
 		assert.deepStrictEqual(
 			[...hashToUrlMap.entries()],
 			[
-				['/foo/bar/my-font.woff2.woff2', '/foo/bar/my-font.woff2'],
-				['/foo/bar/my-font.woff.woff', '/foo/bar/my-font.woff'],
+				[
+					fileURLToPath(new URL('my-font.woff2.woff2', root)),
+					fileURLToPath(new URL('my-font.woff2', root)),
+				],
+				[
+					fileURLToPath(new URL('my-font.woff.woff', root)),
+					fileURLToPath(new URL('my-font.woff', root)),
+				],
 			],
 		);
 		assert.deepStrictEqual([...resolvedMap.keys()], ['--test']);
 		const entry = resolvedMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
-			{ url: '/test/foo/bar/my-font.woff2.woff2', type: 'woff2' },
+			{
+				url: '/test' + fileURLToPath(new URL('my-font.woff2.woff2', root)),
+				type: 'woff2',
+			},
 		]);
 		// Uses the hash
 		assert.equal(entry?.css.includes('font-family:Test-'), true);
@@ -111,7 +121,7 @@ describe('fonts orchestrate()', () => {
 			entrypoint: 'test',
 		});
 
-		const root = new URL('file:///foo/bar/');
+		const root = new URL(import.meta.url);
 		const { storage } = createSpyStorage();
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
