@@ -11,6 +11,7 @@ import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implement
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
 import { createUrlProxy } from '../../../../dist/assets/fonts/implementations/url-proxy.js';
 import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-content-resolver.js';
+import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
 import {
 	createSpyStorage,
 	fakeFontMetricsResolver,
@@ -18,6 +19,7 @@ import {
 	simpleErrorHandler,
 } from './utils.js';
 import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
+import { defineFontProvider } from 'unifont';
 
 describe('fonts orchestrate()', () => {
 	it('works with local fonts', async () => {
@@ -86,6 +88,90 @@ describe('fonts orchestrate()', () => {
 		assert.equal(entry?.css.includes('fallback: Arial"'), true);
 	});
 
-	// TODO: fake provider
-	it('works with a remote provider', () => {});
+	it('works with a remote provider', async () => {
+		const fakeUnifontProvider = defineFontProvider('test', () => {
+			return {
+				resolveFont: () => {
+					return {
+						fonts: [
+							{
+								src: [
+									{ url: 'https://example.com/foo.woff2' },
+									{ url: 'https://example.com/foo.woff' },
+								],
+								weight: '400',
+								style: 'normal',
+							},
+						],
+					};
+				},
+			};
+		});
+		const fakeAstroProvider = defineAstroFontProvider({
+			entrypoint: 'test',
+		});
+
+		const root = new URL('file:///foo/bar/');
+		const { storage } = createSpyStorage();
+		const errorHandler = simpleErrorHandler;
+		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const hasher = fakeHasher;
+		const { hashToUrlMap, resolvedMap } = await orchestrate({
+			families: [
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+			],
+			hasher,
+			remoteFontProviderResolver: createRemoteFontProviderResolver({
+				root,
+				errorHandler,
+				modResolver: {
+					resolve: async () => ({
+						provider: fakeUnifontProvider,
+					}),
+				},
+			}),
+			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			storage,
+			cssRenderer: createMinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: createSystemFallbacksProvider(),
+			fontMetricsResolver: fakeFontMetricsResolver,
+			fontTypeExtractor,
+			createUrlProxy: ({ local, ...params }) => {
+				const dataCollector = createDataCollector(params);
+				const contentResolver = createRemoteUrlProxyContentResolver();
+				return createUrlProxy({
+					base: '',
+					contentResolver,
+					hasher,
+					dataCollector,
+					fontTypeExtractor,
+				});
+			},
+			defaults: DEFAULTS,
+		});
+
+		assert.deepStrictEqual(
+			[...hashToUrlMap.entries()],
+			[
+				['https://example.com/foo.woff2.woff2', 'https://example.com/foo.woff2'],
+				['https://example.com/foo.woff.woff', 'https://example.com/foo.woff'],
+			],
+		);
+		assert.deepStrictEqual([...resolvedMap.keys()], ['--test']);
+		const entry = resolvedMap.get('--test');
+		assert.deepStrictEqual(entry?.preloadData, [
+			{ url: 'https://example.com/foo.woff2.woff2', type: 'woff2' },
+		]);
+		// Uses the hash
+		assert.equal(entry?.css.includes('font-family:Test-'), true);
+		// CSS var
+		assert.equal(entry?.css.includes(':root{--test:Test-'), true);
+		// Fallback
+		assert.equal(entry?.css.includes('fallback: Times New Roman"'), true);
+	});
 });
