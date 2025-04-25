@@ -9,8 +9,7 @@ export default defineConfig({
               it: 'it-IT',
               de: 'de-DE',
           }
-      },
-      customPages: ['http://example.com/custom-page'],
+      }
   })],
 	site: 'http://example.com',
       redirects: {

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { sitemap } from './fixtures/static/deps.mjs';
 import { loadFixture, readXML } from './test-utils.js';
 
 describe('Custom sitemaps', () => {
@@ -11,10 +12,15 @@ describe('Custom sitemaps', () => {
   before(async () => {
     fixture = await loadFixture({
       root: './fixtures/static/',
+      integrations: [
+        sitemap({
+          customSitemaps: ['http://example.com/custom-sitemap.xml'],
+        }),
+      ],
     });
     await fixture.build();
     const data = await readXML(fixture.readFile('/sitemap-index.xml'));
-    urls = data.sitemapindex.sitemap.map((sitemap) => sitemap.loc[0]);
+    urls = data.sitemapindex.sitemap.map((s) => s.loc[0]);
   });
 
   it('includes defined custom sitemaps', async () => {
