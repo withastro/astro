@@ -11,6 +11,7 @@ import {
 	isGenericFontFamily,
 	proxyURL,
 	renderFontSrc,
+	resolveEntrypoint,
 	resolveFontFamily,
 	toCSS,
 } from '../../../../dist/assets/fonts/utils.js';
@@ -280,6 +281,7 @@ describe('fonts utils', () => {
 					resolveMod: async () => ({ provider: () => {} }),
 					generateNameWithHash: (family) => `${family.name}-x`,
 					root,
+					resolveLocalEntrypoint: (url) => fileURLToPath(resolveEntrypoint(root, url)),
 				}),
 				{
 					name: 'Custom',
@@ -313,6 +315,7 @@ describe('fonts utils', () => {
 					resolveMod: async () => ({ provider: () => {} }),
 					generateNameWithHash: (family) => `${family.name}-x`,
 					root,
+					resolveLocalEntrypoint: (url) => fileURLToPath(resolveEntrypoint(root, url)),
 				}),
 				{
 					name: 'Custom',
@@ -341,6 +344,7 @@ describe('fonts utils', () => {
 				resolveMod: (id) => import(id),
 				generateNameWithHash: (family) => `${family.name}-x`,
 				root,
+				resolveLocalEntrypoint: (url) => fileURLToPath(resolveEntrypoint(root, url)),
 			});
 			assert.equal(res.name, 'Custom');
 			// Required to make TS happy
@@ -358,6 +362,7 @@ describe('fonts utils', () => {
 				resolveMod: (id) => import(id),
 				generateNameWithHash: (family) => `${family.name}-x`,
 				root,
+				resolveLocalEntrypoint: (url) => fileURLToPath(resolveEntrypoint(root, url)),
 			});
 			assert.equal(res.name, 'Custom');
 			// Required to make TS happy
@@ -379,6 +384,7 @@ describe('fonts utils', () => {
 				resolveMod: async () => ({ provider: () => Object.assign(() => {}, { _name: 'test' }) }),
 				generateNameWithHash: (family) => `${family.name}-x`,
 				root,
+				resolveLocalEntrypoint: (url) => fileURLToPath(resolveEntrypoint(root, url)),
 			});
 			assert.equal(res.name, 'Custom');
 			if (res.provider !== 'local') {
