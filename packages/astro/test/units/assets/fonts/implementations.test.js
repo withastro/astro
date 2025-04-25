@@ -13,7 +13,7 @@ import { createCachedFontFetcher } from '../../../../dist/assets/fonts/implement
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import { createSpyStorage, simpleErrorHandler } from './utils.js';
 
-describe('astro fonts implementations', () => {
+describe('fonts implementations', () => {
 	describe('createMinifiableCssRenderer()', () => {
 		describe('renderFontFace()', () => {
 			it('filters undefined properties properly', () => {

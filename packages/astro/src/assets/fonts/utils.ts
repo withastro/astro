@@ -33,17 +33,17 @@ export function renderFontSrc(
 ): string {
 	return sources
 		.map((src) => {
-			if ('url' in src) {
-				let rendered = `url("${src.url}")`;
-				if (src.format) {
-					rendered += ` format("${src.format}")`;
-				}
-				if (src.tech) {
-					rendered += ` tech(${src.tech})`;
-				}
-				return rendered;
+			if ('name' in src) {
+				return `local("${src.name}")`;
 			}
-			return `local("${src.name}")`;
+			let rendered = `url("${src.url}")`;
+			if (src.format) {
+				rendered += ` format("${src.format}")`;
+			}
+			if (src.tech) {
+				rendered += ` tech(${src.tech})`;
+			}
+			return rendered;
 		})
 		.join(', ');
 }

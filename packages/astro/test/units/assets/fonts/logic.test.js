@@ -8,7 +8,7 @@ import { optimizeFallbacks } from '../../../../dist/assets/fonts/logic/optimize-
 import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
 import { createSpyUrlProxy, fakeFontMetricsResolver, fakeHasher } from './utils.js';
 
-describe('astro fonts logic', () => {
+describe('fonts logic', () => {
 	describe('resolveFamily()', () => {
 		it('removes quotes correctly', async () => {
 			const hasher = { ...fakeHasher, hashObject: () => 'xxx' };
