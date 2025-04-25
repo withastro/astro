@@ -247,7 +247,13 @@ async function generateContentEntryFile({
 			.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
 			.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
 			.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
-			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`);
+			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`)
+			.replace(
+				'/* @@LIVE_CONTENT_CONFIG@@ */',
+				contentPaths.liveConfig.exists
+					? `import { collections as liveCollections } from ${JSON.stringify(fileURLToPath(contentPaths.liveConfig.url))};`
+					: 'const liveCollections = {};',
+			);
 	}
 
 	return virtualModContents;
@@ -258,13 +264,7 @@ async function generateContentEntryFile({
  * This is used internally to resolve entry imports when using `getEntry()`.
  * @see `templates/content/module.mjs`
  */
-async function generateLookupMap({
-	settings,
-	fs,
-}: {
-	settings: AstroSettings;
-	fs: typeof nodeFs;
-}) {
+async function generateLookupMap({ settings, fs }: { settings: AstroSettings; fs: typeof nodeFs }) {
 	const { root } = settings.config;
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(root, contentPaths.contentDir, false);

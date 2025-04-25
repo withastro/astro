@@ -7,7 +7,7 @@ import { type ViteDevServer, normalizePath } from 'vite';
 import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
-import { AstroErrorData } from '../core/errors/index.js';
+import { AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -16,6 +16,7 @@ import {
 	COLLECTIONS_DIR,
 	CONTENT_LAYER_TYPE,
 	CONTENT_TYPES_FILE,
+	LIVE_CONTENT_TYPE,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import {
@@ -53,7 +54,11 @@ type CollectionEntryMap = {
 		| {
 				type: 'data' | typeof CONTENT_LAYER_TYPE;
 				entries: Record<string, DataEntryMetadata>;
-		  };
+		  }
+		| {
+			type: typeof LIVE_CONTENT_TYPE;
+			entries: Record<string, never>;
+		}
 };
 
 type CreateContentGeneratorParams = {
@@ -493,6 +498,11 @@ async function writeContentFiles({
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
 		const dataType = await typeForCollection(collectionConfig, collectionKey);
 		switch (resolvedType) {
+			case LIVE_CONTENT_TYPE:
+				// This error should never be thrown, as it should have been caught earlier in the process
+				throw new AstroUserError(
+					`Invalid definition for collection ${collectionKey}: Live content collections must be defined in "src/live-content.config.ts"`,
+				);
 			case 'content':
 				if (collectionEntryKeys.length === 0) {
 					contentTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  slug: string;\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  render(): Render[".md"];\n}>;\n`;
@@ -579,6 +589,11 @@ async function writeContentFiles({
 		contentPaths.config.url.pathname,
 	);
 
+	const liveConfigPathRelativeToCacheDir = contentPaths.liveConfig?.exists ? normalizeConfigPath(
+		settings.dotAstroDir.pathname,
+		contentPaths.liveConfig.url.pathname,
+	) : undefined;
+
 	for (const contentEntryType of contentEntryTypes) {
 		if (contentEntryType.contentModuleTypes) {
 			typeTemplateContent = contentEntryType.contentModuleTypes + '\n' + typeTemplateContent;
@@ -589,6 +604,12 @@ async function writeContentFiles({
 	typeTemplateContent = typeTemplateContent.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never',
+	);
+	typeTemplateContent = typeTemplateContent.replace(
+		"'@@LIVE_CONTENT_CONFIG_TYPE@@'",
+		liveConfigPathRelativeToCacheDir
+			? `typeof import(${liveConfigPathRelativeToCacheDir})`
+			: 'never',
 	);
 
 	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content

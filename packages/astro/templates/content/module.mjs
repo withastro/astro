@@ -12,7 +12,13 @@ import {
 export { defineCollection, renderEntry as render } from 'astro/content/runtime';
 export { z } from 'astro/zod';
 
+// This is a placeholder for the content config. It will be replaced by the
+
+/* @@LIVE_CONTENT_CONFIG@@ */
+
 const contentDir = '@@CONTENT_DIR@@';
+
+export { liveCollections };
 
 const contentEntryGlob = '@@CONTENT_ENTRY_GLOB_PATH@@';
 const contentCollectionToEntryMap = createCollectionToGlobResultMap({
@@ -56,12 +62,14 @@ export const getCollection = createGetCollection({
 	dataCollectionToEntryMap,
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 	cacheEntriesByCollection,
+	liveCollections,
 });
 
 export const getEntry = createGetEntry({
 	getEntryImport: createGlobLookup(collectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 	collectionNames,
+	liveCollections
 });
 
 export const getEntryBySlug = createGetEntryBySlug({

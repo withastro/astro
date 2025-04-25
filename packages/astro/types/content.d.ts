@@ -80,10 +80,17 @@ declare module 'astro:content' {
 		loader?: never;
 	};
 
+	type LiveDataCollectionConfig<S extends BaseSchema> = {
+		type: 'live';
+		schema?: S | ((context: SchemaContext) => S);
+		loader: import('astro/loaders').LiveLoader
+	};
+
 	export type CollectionConfig<S extends BaseSchema> =
 		| ContentCollectionConfig<S>
 		| DataCollectionConfig<S>
-		| ContentLayerConfig<S>;
+		| ContentLayerConfig<S>
+		| LiveDataCollectionConfig<S>;
 
 	export function defineCollection<S extends BaseSchema>(
 		input: CollectionConfig<S>,

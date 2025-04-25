@@ -19,7 +19,7 @@ import {
 	render as serverRender,
 	unescapeHTML,
 } from '../runtime/server/index.js';
-import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX } from './consts.js';
+import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX, LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
 
@@ -27,6 +27,8 @@ type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
+type LiveCollectionConfigMap = Record<
+	string, { loader: any; type: typeof LIVE_CONTENT_TYPE }>;
 
 export function getImporterFilename() {
 	// The 4th line in the stack trace should be the importer filename
@@ -40,6 +42,27 @@ export function getImporterFilename() {
 }
 
 export function defineCollection(config: any) {
+	const isInLiveConfig = getImporterFilename()?.endsWith('/live-content.config.ts');
+
+	if (config.type === LIVE_CONTENT_TYPE) {
+		if (!isInLiveConfig) {
+			throw new AstroUserError(
+				`Collections with type "live" must be defined in a \`src/live-content.config.ts\` file. Check your collection definitions in ${getImporterFilename() ?? 'your content config file'}.`,
+			);
+		}
+		if (!config.loader) {
+			throw new AstroUserError(
+				`Collections that use the Live Content API must have a \`loader\` defined. Check your collection definitions in ${getImporterFilename() ?? 'your live content config file'}.`,
+			);
+		}
+		return config;
+	}
+	if (isInLiveConfig) {
+		throw new AstroUserError(
+			`Collections in a \`live-content.config.ts\` file must be defined with the type "live". Check your collection definitions.`,
+		);
+	}
+
 	if ('loader' in config) {
 		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
 			throw new AstroUserError(
@@ -76,13 +99,20 @@ export function createGetCollection({
 	dataCollectionToEntryMap,
 	getRenderEntryImport,
 	cacheEntriesByCollection,
+	liveCollections,
 }: {
 	contentCollectionToEntryMap: CollectionToEntryMap;
 	dataCollectionToEntryMap: CollectionToEntryMap;
 	getRenderEntryImport: GetEntryImport;
 	cacheEntriesByCollection: Map<string, any[]>;
+	liveCollections: LiveCollectionConfigMap;
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
+
+		if(collection in liveCollections) {
+			return liveCollections[collection].loader?.getCollection?.(collection, filter);
+		}
+
 		const hasFilter = typeof filter === 'function';
 		const store = await globalDataStore.get();
 		let type: 'content' | 'data';
@@ -297,10 +327,12 @@ export function createGetEntry({
 	getEntryImport,
 	getRenderEntryImport,
 	collectionNames,
+	liveCollections,
 }: {
 	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
 	collectionNames: Set<string>;
+	liveCollections: LiveCollectionConfigMap;
 }) {
 	return async function getEntry(
 		// Can either pass collection and identifier as 2 positional args,
@@ -325,6 +357,10 @@ export function createGetEntry({
 				'id' in collectionOrLookupObject
 					? collectionOrLookupObject.id
 					: collectionOrLookupObject.slug;
+		}
+
+		if(collection in liveCollections) {
+			return liveCollections[collection].loader?.getEntry?.(collection, lookupId);
 		}
 
 		const store = await globalDataStore.get();
