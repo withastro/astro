@@ -1,9 +1,9 @@
 ---
-import { getEntry } from "astro:content";
+import { getCollection } from "astro:content";
 
 
-const data = await getEntry("liveStuff", "456")
-console.log({data})
+const collection = await getCollection("liveStuff")
+console.log(collection)
 export const prerender = false;
 
 ---

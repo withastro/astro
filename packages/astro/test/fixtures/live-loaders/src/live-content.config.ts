@@ -2,7 +2,7 @@ import { defineCollection } from "astro:content";
 import type { LiveLoader } from "astro/loaders";
 
 type Entry = {
-		title: string;
+	title: string;
 }
 
 const entries = {

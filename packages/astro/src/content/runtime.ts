@@ -22,13 +22,16 @@ import {
 import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX, LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
+import type { LiveLoader } from './loaders/types.js';
 
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
 type LiveCollectionConfigMap = Record<
-	string, { loader: any; type: typeof LIVE_CONTENT_TYPE }>;
+	string,
+	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE }
+>;
 
 export function getImporterFilename() {
 	// The 4th line in the stack trace should be the importer filename
@@ -107,10 +110,27 @@ export function createGetCollection({
 	cacheEntriesByCollection: Map<string, any[]>;
 	liveCollections: LiveCollectionConfigMap;
 }) {
-	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
+	return async function getCollection(collection: string, filter?: ((entry: any) => unknown) | Record<string, unknown>) {
+		if (collection in liveCollections) {
+			if(typeof filter === 'function') {
+				throw new AstroError({
+					...AstroErrorData.UnknownContentCollectionError,
+					message: `The filter function is not supported for live collections. Please use a filter object instead.`,
+				});
+			}
 
-		if(collection in liveCollections) {
-			return liveCollections[collection].loader?.getCollection?.(collection, filter);
+			const context = {
+				filter,
+			};
+			
+			const response = await (
+				liveCollections[collection].loader as LiveLoader<any, any, Record<string, unknown>>
+			)?.loadCollection?.(context);
+
+			return {
+				...response,
+				collection,
+			}
 		}
 
 		const hasFilter = typeof filter === 'function';
@@ -339,17 +359,17 @@ export function createGetEntry({
 		// Or pass a single object with the collection and identifier as properties.
 		// This means the first positional arg can have different shapes.
 		collectionOrLookupObject: string | EntryLookupObject,
-		_lookupId?: string,
+		lookup?: string | Record<string, unknown>,
 	): Promise<ContentEntryResult | DataEntryResult | undefined> {
-		let collection: string, lookupId: string;
+		let collection: string, lookupId: string | Record<string, unknown>;
 		if (typeof collectionOrLookupObject === 'string') {
 			collection = collectionOrLookupObject;
-			if (!_lookupId)
+			if (!lookup)
 				throw new AstroError({
 					...AstroErrorData.UnknownContentCollectionError,
 					message: '`getEntry()` requires an entry identifier as the second argument.',
 				});
-			lookupId = _lookupId;
+			lookupId = lookup;
 		} else {
 			collection = collectionOrLookupObject.collection;
 			// Identifier could be `slug` for content entries, or `id` for data entries
@@ -359,10 +379,39 @@ export function createGetEntry({
 					: collectionOrLookupObject.slug;
 		}
 
-		if(collection in liveCollections) {
-			return liveCollections[collection].loader?.getEntry?.(collection, lookupId);
-		}
+		if (collection in liveCollections) {
+			if (!lookup) {
+				throw new AstroError({
+					...AstroErrorData.UnknownContentCollectionError,
+					message: '`getEntry()` requires an entry identifier as the second argument.',
+				});
+			}
 
+			const lookupObject = {
+				filter: typeof lookup === 'string' ? { id: lookup } : lookup,
+			};
+
+			const entry = await (
+				liveCollections[collection].loader as LiveLoader<
+					Record<string, unknown>,
+					Record<string, unknown>
+				>
+			)?.loadEntry?.(lookupObject);
+
+			if (!entry) {
+				return;
+			}
+			return {
+				...entry,
+				collection,
+			};
+		}
+		if (typeof lookupId !== 'string') {
+			throw new AstroError({
+				...AstroErrorData.UnknownContentCollectionError,
+				message: `The entry identifier must be a string. Received ${typeof lookupId}.`,
+			});
+		}
 		const store = await globalDataStore.get();
 
 		if (store.hasCollection(collection)) {
