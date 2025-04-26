@@ -89,9 +89,12 @@ declare module 'astro:content' {
 		loader: L;
 	};
 
-	export type CollectionConfig<S extends BaseSchema, TLoader = never> = TLoader extends never
-		? ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S>
-		: LiveDataCollectionConfig<S, TLoader>;
+	export type CollectionConfig<
+		S extends BaseSchema,
+		TLoader = never,
+	> = TLoader extends import('astro/loaders').LiveLoader
+		? LiveDataCollectionConfig<S, TLoader>
+		: ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S>;
 
 	export function defineCollection<S extends BaseSchema, TLoader = never>(
 		input: CollectionConfig<S, TLoader>,
