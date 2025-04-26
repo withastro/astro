@@ -251,7 +251,8 @@ async function generateContentEntryFile({
 			.replace(
 				'/* @@LIVE_CONTENT_CONFIG@@ */',
 				contentPaths.liveConfig.exists
-					? `import { collections as liveCollections } from ${JSON.stringify(fileURLToPath(contentPaths.liveConfig.url))};`
+					? // Dynamic import so it extracts the chunk and avoids a circular import
+						`const liveCollections = (await import(${JSON.stringify(fileURLToPath(contentPaths.liveConfig.url))})).collections;`
 					: 'const liveCollections = {};',
 			);
 	}

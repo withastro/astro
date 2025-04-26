@@ -56,9 +56,9 @@ type CollectionEntryMap = {
 				entries: Record<string, DataEntryMetadata>;
 		  }
 		| {
-			type: typeof LIVE_CONTENT_TYPE;
-			entries: Record<string, never>;
-		}
+				type: typeof LIVE_CONTENT_TYPE;
+				entries: Record<string, never>;
+		  };
 };
 
 type CreateContentGeneratorParams = {
@@ -589,28 +589,28 @@ async function writeContentFiles({
 		contentPaths.config.url.pathname,
 	);
 
-	const liveConfigPathRelativeToCacheDir = contentPaths.liveConfig?.exists ? normalizeConfigPath(
-		settings.dotAstroDir.pathname,
-		contentPaths.liveConfig.url.pathname,
-	) : undefined;
+	const liveConfigPathRelativeToCacheDir = contentPaths.liveConfig?.exists
+		? normalizeConfigPath(settings.dotAstroDir.pathname, contentPaths.liveConfig.url.pathname)
+		: undefined;
 
 	for (const contentEntryType of contentEntryTypes) {
 		if (contentEntryType.contentModuleTypes) {
 			typeTemplateContent = contentEntryType.contentModuleTypes + '\n' + typeTemplateContent;
 		}
 	}
-	typeTemplateContent = typeTemplateContent.replace('// @@CONTENT_ENTRY_MAP@@', contentTypesStr);
-	typeTemplateContent = typeTemplateContent.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr);
-	typeTemplateContent = typeTemplateContent.replace(
-		"'@@CONTENT_CONFIG_TYPE@@'",
-		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never',
-	);
-	typeTemplateContent = typeTemplateContent.replace(
-		"'@@LIVE_CONTENT_CONFIG_TYPE@@'",
-		liveConfigPathRelativeToCacheDir
-			? `typeof import(${liveConfigPathRelativeToCacheDir})`
-			: 'never',
-	);
+	typeTemplateContent = typeTemplateContent
+		.replace('// @@CONTENT_ENTRY_MAP@@', contentTypesStr)
+		.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr)
+		.replace(
+			"'@@CONTENT_CONFIG_TYPE@@'",
+			contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never',
+		)
+		.replace(
+			"'@@LIVE_CONTENT_CONFIG_TYPE@@'",
+			liveConfigPathRelativeToCacheDir
+				? `typeof import(${liveConfigPathRelativeToCacheDir})`
+				: 'never',
+		);
 
 	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content
 	if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {

@@ -12,8 +12,6 @@ import {
 export { defineCollection, renderEntry as render } from 'astro/content/runtime';
 export { z } from 'astro/zod';
 
-// This is a placeholder for the content config. It will be replaced by the
-
 /* @@LIVE_CONTENT_CONFIG@@ */
 
 const contentDir = '@@CONTENT_DIR@@';

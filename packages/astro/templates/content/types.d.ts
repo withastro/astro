@@ -73,6 +73,12 @@ declare module 'astro:content' {
 		filter?: (entry: CollectionEntry<C>) => unknown,
 	): Promise<CollectionEntry<C>[]>;
 
+	export function getCollection<
+	C extends keyof LiveContentConfig["collections"]>(
+		collection: C,
+		filter:  LiveLoaderCollectionFilterType<C>,
+	): Promise<import("astro").LiveDataCollection<LiveLoaderDataType<C> >>
+
 	export function getEntry<
 		C extends keyof ContentEntryMap,
 		E extends ValidContentEntrySlug<C> | (string & {}),
@@ -109,6 +115,11 @@ declare module 'astro:content' {
 			? Promise<DataEntryMap[C][E]> | undefined
 			: Promise<DataEntryMap[C][E]>
 		: Promise<CollectionEntry<C> | undefined>;
+	export function getEntry<
+	C extends keyof LiveContentConfig["collections"]>(
+		collection: C,
+		filter: string | LiveLoaderEntryFilterType<C>,
+	): Promise<import("astro").LiveData<LiveLoaderDataType<C>>>
 
 	/** Resolve an array of entry references from the same collection */
 	export function getEntries<C extends keyof ContentEntryMap>(
@@ -152,6 +163,16 @@ declare module 'astro:content' {
 
 	type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
+	type ExtractLoaderTypes<T> = T extends import("astro/loaders").LiveLoader<infer TData, infer TEntryFilter, infer TCollectionFilter> ? {data: TData, entryFilter: TEntryFilter, collectionFilter: TCollectionFilter} : {data: never, entryFilter: never, collectionFilter: never};
+	type ExtractDataType<T> = ExtractLoaderTypes<T>["data"];
+	type ExtractEntryFilterType<T> = ExtractLoaderTypes<T>["entryFilter"];
+	type ExtractCollectionFilterType<T> = ExtractLoaderTypes<T>["collectionFilter"];
+
+
+	type LiveLoaderDataType<C extends keyof LiveContentConfig["collections"]> = ExtractDataType<LiveContentConfig["collections"][C]["loader"]>;
+	type LiveLoaderEntryFilterType<C extends keyof LiveContentConfig["collections"]> = ExtractEntryFilterType<LiveContentConfig["collections"][C]["loader"]>;
+	type LiveLoaderCollectionFilterType<C extends keyof LiveContentConfig["collections"]> = ExtractCollectionFilterType<LiveContentConfig["collections"][C]["loader"]>;
+	
 	export type ContentConfig = '@@CONTENT_CONFIG_TYPE@@';
 	export type LiveContentConfig = '@@LIVE_CONTENT_CONFIG_TYPE@@';
 }

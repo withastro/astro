@@ -1,3 +1,9 @@
+import { defineCollection } from "astro:content";
+import type { LiveLoader } from "astro/loaders";
+
+type Entry = {
+		title: string;
+}
 
 const entries = {
 	'123': { id: '123', data: { title: '123' } },
@@ -5,18 +11,21 @@ const entries = {
 	'789': { id: '789', data: { title: '789' } },
 }
 
-const liveStuff = {	
-	type: 'live',
-	loader: {
-		getEntry: async (collection, slug) => {
-			return entries[slug as any] || null;
-		},
-		getCollection: async (collection, filter) => {
-			if (filter) {
-				return Object.values(entries).filter((entry) => filter(entry));
-			}
-			return Object.values(entries);
+const loader: LiveLoader<Entry, {id: keyof typeof entries}> = {
+	name: 'test-loader',
+	loadEntry: async (context) => {
+		return entries[context.filter.id] || null;
+	},
+	loadCollection: async (context) => {
+		return {
+			entries: Object.values(entries),
 		}
 	}
 }
+
+const liveStuff = defineCollection({	
+	type: 'live',
+	loader,
+})
+
 export const collections = { liveStuff };
