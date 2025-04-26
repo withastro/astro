@@ -406,10 +406,10 @@ export function createGetEntry({
 				collection,
 			};
 		}
-		if (typeof lookupId !== 'string') {
+		if (typeof lookupId === 'object') {
 			throw new AstroError({
 				...AstroErrorData.UnknownContentCollectionError,
-				message: `The entry identifier must be a string. Received ${typeof lookupId}.`,
+				message: `The entry identifier must be a string. Received object.`,
 			});
 		}
 		const store = await globalDataStore.get();
