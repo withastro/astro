@@ -976,7 +976,8 @@ export const RedirectWithNoLocation = {
 export const UnsupportedExternalRedirect = {
 	name: 'UnsupportedExternalRedirect',
 	title: 'Unsupported or malformed URL.',
-	message: (from: string, to: string) => `The destination URL in the external redirect from "${from}" to "${to}" is unsupported.`,
+	message: (from: string, to: string) =>
+		`The destination URL in the external redirect from "${from}" to "${to}" is unsupported.`,
 	hint: 'An external redirect must start with http or https, and must be a valid URL.',
 } satisfies ErrorData;
 
