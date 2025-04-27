@@ -3,8 +3,8 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
 import { z } from 'zod';
-import { validateConfig as _validateConfig } from '../../../dist/core/config/validate.js';
 import { fontProviders } from '../../../dist/assets/fonts/providers/index.js';
+import { validateConfig as _validateConfig } from '../../../dist/core/config/validate.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
 import { envField } from '../../../dist/env/config.js';
 
