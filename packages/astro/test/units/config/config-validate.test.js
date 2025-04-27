@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
 import { z } from 'zod';
 import { validateConfig as _validateConfig } from '../../../dist/core/config/validate.js';
+import { fontProviders } from '../../../dist/assets/fonts/providers/index.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
 import { envField } from '../../../dist/env/config.js';
 
@@ -456,6 +457,23 @@ describe('Config Validation', () => {
 				validateConfig({
 					experimental: {
 						fonts: [{ name: 'Roboto', cssVariable: '--test', provider: { entrypoint: '' } }],
+					},
+				}),
+			);
+		});
+
+		it('Should allow empty font fallbacks', () => {
+			assert.doesNotThrow(() =>
+				validateConfig({
+					experimental: {
+						fonts: [
+							{
+								provider: fontProviders.google(),
+								name: 'Roboto',
+								fallbacks: [],
+								cssVariable: '--font-roboto',
+							},
+						],
 					},
 				}),
 			);
