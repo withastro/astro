@@ -499,7 +499,9 @@ async function generatePath(
 		// always be rendered
 		route.pathname !== '/' &&
 		// Check if there is a translated page with the same path
-		Object.values(options.allPages).some((val) => val.route.pattern.test(pathname))
+		  Object.values(options.allPages).some((val) => { 
+			return (val.route.pattern.test(pathname) && ((val.route?.distURL?.find((url) => url.pathname.includes(pathname))) || (val.route.pathname == pathname)))
+		})
 	) {
 		return undefined;
 	}
