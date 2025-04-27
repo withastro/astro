@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import { extname } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import type * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
@@ -248,8 +248,11 @@ function dedupe<const T extends Array<any>>(arr: T): T {
 
 function resolveVariants({
 	variants,
-	root,
-}: { variants: LocalFontFamily['variants']; root: URL }): ResolvedLocalFontFamily['variants'] {
+	resolveEntrypoint: _resolveEntrypoint,
+}: {
+	variants: LocalFontFamily['variants'];
+	resolveEntrypoint: (url: string) => string;
+}): ResolvedLocalFontFamily['variants'] {
 	return variants.map((variant) => ({
 		...variant,
 		weight: variant.weight.toString(),
@@ -258,7 +261,7 @@ function resolveVariants({
 			const url = (isValue ? value : value.url).toString();
 			const tech = isValue ? undefined : value.tech;
 			return {
-				url: fileURLToPath(resolveEntrypoint(root, url)),
+				url: _resolveEntrypoint(url),
 				tech,
 			};
 		}),
@@ -275,9 +278,11 @@ export async function resolveFontFamily({
 	generateNameWithHash,
 	root,
 	resolveMod,
+	resolveLocalEntrypoint,
 }: Omit<ResolveProviderOptions, 'provider'> & {
 	family: FontFamily;
 	generateNameWithHash: (family: FontFamily) => string;
+	resolveLocalEntrypoint: (url: string) => string;
 }): Promise<ResolvedFontFamily> {
 	const nameWithHash = generateNameWithHash(family);
 
@@ -285,7 +290,10 @@ export async function resolveFontFamily({
 		return {
 			...family,
 			nameWithHash,
-			variants: resolveVariants({ variants: family.variants, root }),
+			variants: resolveVariants({
+				variants: family.variants,
+				resolveEntrypoint: resolveLocalEntrypoint,
+			}),
 			fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
 		};
 	}
