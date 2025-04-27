@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.11.4
+
+### Patch Changes
+
+- [#13652](https://github.com/withastro/astro/pull/13652) [`c5af903`](https://github.com/withastro/astro/commit/c5af903c1add12dae0a7a87eb42650a9e5d1e6f5) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue when installing dependencies with `pnpm`.
+
 ## 4.11.3
 
 ### Patch Changes
