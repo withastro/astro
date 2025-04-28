@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Allow inferSize for URLs containing '
+Fixes a bug where Astro couldn't probably use `inferSize` for images that contain apostrophe `'` in their name. 
