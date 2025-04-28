@@ -1,24 +1,24 @@
 import type { CssProperties, CssRenderer } from '../definitions.js';
 
 export function renderFontFace(properties: CssProperties, minify: boolean): string {
-	// Line return
-	const lr = minify ? '' : `\n`;
+	// Line feed
+	const lf = minify ? '' : `\n`;
 	// Space
 	const sp = minify ? '' : ' ';
 
-	return `@font-face${sp}{${lr}${Object.entries(properties)
+	return `@font-face${sp}{${lf}${Object.entries(properties)
 		.filter(([, value]) => Boolean(value))
 		.map(([key, value]) => `${sp}${sp}${key}:${sp}${value};`)
-		.join(lr)}${lr}}${lr}`;
+		.join(lf)}${lf}}${lf}`;
 }
 
 export function renderCssVariable(key: string, values: Array<string>, minify: boolean): string {
-	// Line return
-	const lr = minify ? '' : `\n`;
+	// Line feed
+	const lf = minify ? '' : `\n`;
 	// Space
 	const sp = minify ? '' : ' ';
 
-	return `:root${sp}{${lr}${sp}${sp}${key}:${sp}${values.map((v) => handleValueWithSpaces(v)).join(`,${sp}`)};${lr}}${lr}`;
+	return `:root${sp}{${lf}${sp}${sp}${key}:${sp}${values.map((v) => handleValueWithSpaces(v)).join(`,${sp}`)};${lf}}${lf}`;
 }
 
 export function withFamily(family: string, properties: CssProperties): CssProperties {
