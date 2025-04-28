@@ -53,7 +53,7 @@ describe('fonts implementations', () => {
 	});
 
 	it('createDataCollector()', () => {
-		/** @type {Map<string, string>} */
+		/** @type {import('../../../../dist/assets/fonts/types.js').FontFileDataMap} */
 		const map = new Map();
 		/** @type {Array<import('../../../../dist/assets/fonts/types.js').PreloadData>} */
 		const preloadData = [];
@@ -62,8 +62,8 @@ describe('fonts implementations', () => {
 
 		const dataCollector = createDataCollector({
 			hasUrl: (hash) => map.has(hash),
-			saveUrl: (hash, url) => {
-				map.set(hash, url);
+			saveUrl: ({ hash, url, init }) => {
+				map.set(hash, { url, init });
 			},
 			savePreload: (preload) => {
 				preloadData.push(preload);
@@ -73,27 +73,40 @@ describe('fonts implementations', () => {
 			},
 		});
 
-		dataCollector.collect({ hash: 'xxx', originalUrl: 'abc', preload: null, data: {} });
+		dataCollector.collect({
+			hash: 'xxx',
+			url: 'abc',
+			preload: null,
+			data: {},
+			init: null,
+		});
 		dataCollector.collect({
 			hash: 'yyy',
-			originalUrl: 'def',
+			url: 'def',
 			preload: { type: 'woff2', url: 'def' },
 			data: {},
+			init: null,
 		});
-		dataCollector.collect({ hash: 'xxx', originalUrl: 'abc', preload: null, data: {} });
+		dataCollector.collect({
+			hash: 'xxx',
+			url: 'abc',
+			preload: null,
+			data: {},
+			init: null,
+		});
 
 		assert.deepStrictEqual(
 			[...map.entries()],
 			[
-				['xxx', 'abc'],
-				['yyy', 'def'],
+				['xxx', { url: 'abc', init: null }],
+				['yyy', { url: 'def', init: null }],
 			],
 		);
 		assert.deepStrictEqual(preloadData, [{ type: 'woff2', url: 'def' }]);
 		assert.deepStrictEqual(collectedFonts, [
-			{ hash: 'xxx', url: 'abc', data: {} },
-			{ hash: 'yyy', url: 'def', data: {} },
-			{ hash: 'xxx', url: 'abc', data: {} },
+			{ hash: 'xxx', url: 'abc', data: {}, init: null },
+			{ hash: 'yyy', url: 'def', data: {}, init: null },
+			{ hash: 'xxx', url: 'abc', data: {}, init: null },
 		]);
 	});
 
@@ -185,9 +198,9 @@ describe('fonts implementations', () => {
 				fetch,
 			});
 
-			await fontFetcher.fetch('abc', 'def');
-			await fontFetcher.fetch('foo', 'bar');
-			await fontFetcher.fetch('abc', 'def');
+			await fontFetcher.fetch({ hash: 'abc', url: 'def', init: null });
+			await fontFetcher.fetch({ hash: 'foo', url: 'bar', init: null });
+			await fontFetcher.fetch({ hash: 'abc', url: 'def', init: null });
 
 			assert.deepStrictEqual([...store.keys()], ['abc', 'foo']);
 			assert.deepStrictEqual(filesUrls, []);
@@ -205,7 +218,7 @@ describe('fonts implementations', () => {
 				fetch,
 			});
 
-			await fontFetcher.fetch('abc', '/foo/bar');
+			await fontFetcher.fetch({ hash: 'abc', url: '/foo/bar', init: null });
 
 			assert.deepStrictEqual(filesUrls, ['/foo/bar']);
 			assert.deepStrictEqual(fetchUrls, []);
@@ -222,7 +235,7 @@ describe('fonts implementations', () => {
 				fetch,
 			});
 
-			await fontFetcher.fetch('abc', 'https://example.com');
+			await fontFetcher.fetch({ hash: 'abc', url: 'https://example.com', init: null });
 
 			assert.deepStrictEqual(filesUrls, []);
 			assert.deepStrictEqual(fetchUrls, ['https://example.com']);
@@ -239,12 +252,16 @@ describe('fonts implementations', () => {
 				fetch,
 			});
 
-			let error = await fontFetcher.fetch('abc', '/foo/bar').catch((err) => err);
+			let error = await fontFetcher
+				.fetch({ hash: 'abc', url: '/foo/bar', init: null })
+				.catch((err) => err);
 			assert.equal(error instanceof Error, true);
 			assert.equal(error.message, 'cannot-fetch-font-file');
 			assert.equal(error.cause, 'fs error');
 
-			error = await fontFetcher.fetch('abc', 'https://example.com').catch((err) => err);
+			error = await fontFetcher
+				.fetch({ hash: 'abc', url: 'https://example.com', init: null })
+				.catch((err) => err);
 			assert.equal(error instanceof Error, true);
 			assert.equal(error.message, 'cannot-fetch-font-file');
 			assert.equal(error.cause instanceof Error, true);

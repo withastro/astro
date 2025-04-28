@@ -29,7 +29,7 @@ describe('fonts orchestrate()', () => {
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const hasher = fakeHasher;
-		const { hashToUrlMap, resolvedMap } = await orchestrate({
+		const { fontFileDataMap, consumableMap } = await orchestrate({
 			families: [
 				{
 					name: 'Test',
@@ -70,20 +70,20 @@ describe('fonts orchestrate()', () => {
 			defaults: DEFAULTS,
 		});
 		assert.deepStrictEqual(
-			[...hashToUrlMap.entries()],
+			[...fontFileDataMap.entries()],
 			[
 				[
 					fileURLToPath(new URL('my-font.woff2.woff2', root)),
-					fileURLToPath(new URL('my-font.woff2', root)),
+					{ url: fileURLToPath(new URL('my-font.woff2', root)), init: null },
 				],
 				[
 					fileURLToPath(new URL('my-font.woff.woff', root)),
-					fileURLToPath(new URL('my-font.woff', root)),
+					{ url: fileURLToPath(new URL('my-font.woff', root)), init: null },
 				],
 			],
 		);
-		assert.deepStrictEqual([...resolvedMap.keys()], ['--test']);
-		const entry = resolvedMap.get('--test');
+		assert.deepStrictEqual([...consumableMap.keys()], ['--test']);
+		const entry = consumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{
 				url: '/test' + fileURLToPath(new URL('my-font.woff2.woff2', root)),
@@ -126,7 +126,7 @@ describe('fonts orchestrate()', () => {
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const hasher = fakeHasher;
-		const { hashToUrlMap, resolvedMap } = await orchestrate({
+		const { fontFileDataMap, consumableMap } = await orchestrate({
 			families: [
 				{
 					name: 'Test',
@@ -166,14 +166,17 @@ describe('fonts orchestrate()', () => {
 		});
 
 		assert.deepStrictEqual(
-			[...hashToUrlMap.entries()],
+			[...fontFileDataMap.entries()],
 			[
-				['https://example.com/foo.woff2.woff2', 'https://example.com/foo.woff2'],
-				['https://example.com/foo.woff.woff', 'https://example.com/foo.woff'],
+				[
+					'https://example.com/foo.woff2.woff2',
+					{ url: 'https://example.com/foo.woff2', init: null },
+				],
+				['https://example.com/foo.woff.woff', { url: 'https://example.com/foo.woff', init: null }],
 			],
 		);
-		assert.deepStrictEqual([...resolvedMap.keys()], ['--test']);
-		const entry = resolvedMap.get('--test');
+		assert.deepStrictEqual([...consumableMap.keys()], ['--test']);
+		const entry = consumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{ url: 'https://example.com/foo.woff2.woff2', type: 'woff2' },
 		]);
