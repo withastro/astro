@@ -16,7 +16,14 @@ import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js
 import { type CollectedFontForMetrics, optimizeFallbacks } from './logic/optimize-fallbacks.js';
 import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
-import type { CreateUrlProxyParams, Defaults, FontFamily, PreloadData } from './types.js';
+import type {
+	ConsumableMap,
+	CreateUrlProxyParams,
+	Defaults,
+	FontFamily,
+	FontFileDataMap,
+	PreloadData,
+} from './types.js';
 import { pickFontFaceProperty, unifontFontFaceDataToProperties } from './utils.js';
 
 /**
@@ -80,15 +87,8 @@ export async function orchestrate({
 		storage,
 	});
 
-	/**
-	 * Holds associations of hash and original font file URLs, so they can be
-	 * downloaded whenever the hash is requested.
-	 */
-	const hashToUrlMap = new Map<string, { url: string; init: RequestInit | null }>();
-	/**
-	 * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
-	 */
-	const resolvedMap = new Map<string, { preloadData: Array<PreloadData>; css: string }>();
+	const fontFileDataMap: FontFileDataMap = new Map();
+	const consumableMap: ConsumableMap = new Map();
 
 	for (const family of resolvedFamilies) {
 		const preloadData: Array<PreloadData> = [];
@@ -106,9 +106,9 @@ export async function orchestrate({
 		 */
 		const urlProxy = createUrlProxy({
 			local: family.provider === LOCAL_PROVIDER_NAME,
-			hasUrl: (hash) => hashToUrlMap.has(hash),
+			hasUrl: (hash) => fontFileDataMap.has(hash),
 			saveUrl: ({ hash, url, init }) => {
-				hashToUrlMap.set(hash, { url, init });
+				fontFileDataMap.set(hash, { url, init });
 			},
 			savePreload: (preload) => {
 				preloadData.push(preload);
@@ -195,8 +195,8 @@ export async function orchestrate({
 
 		css += cssRenderer.generateCssVariable(family.cssVariable, cssVarValues);
 
-		resolvedMap.set(family.cssVariable, { preloadData, css });
+		consumableMap.set(family.cssVariable, { preloadData, css });
 	}
 
-	return { hashToUrlMap, resolvedMap };
+	return { fontFileDataMap, consumableMap };
 }

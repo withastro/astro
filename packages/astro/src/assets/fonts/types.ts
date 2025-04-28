@@ -8,7 +8,6 @@ import type {
 } from './config.js';
 import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
 import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
-import type { FontFetcherInput } from './definitions.js';
 
 export type AstroFontProvider = z.infer<typeof fontProviderSchema>;
 
@@ -78,10 +77,27 @@ export type Defaults = Partial<
 	>
 >;
 
+export interface FontFileData {
+	hash: string;
+	url: string;
+	init: RequestInit | null;
+}
+
 export interface CreateUrlProxyParams {
 	local: boolean;
 	hasUrl: (hash: string) => boolean;
-	saveUrl: (input: FontFetcherInput) => void;
+	saveUrl: (input: FontFileData) => void;
 	savePreload: (preload: PreloadData) => void;
 	saveFontData: (collected: CollectedFontForMetrics) => void;
 }
+
+/**
+ * Holds associations of hash and original font file URLs, so they can be
+ * downloaded whenever the hash is requested.
+ */
+export type FontFileDataMap = Map<FontFileData['hash'], Pick<FontFileData, 'url' | 'init'>>;
+
+/**
+ * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
+ */
+export type ConsumableMap = Map<string, { preloadData: Array<PreloadData>; css: string }>;

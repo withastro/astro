@@ -1,7 +1,13 @@
 import type * as unifont from 'unifont';
 import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import type { AstroFontProvider, FontType, PreloadData, ResolvedFontProvider } from './types.js';
+import type {
+	AstroFontProvider,
+	FontFileData,
+	FontType,
+	PreloadData,
+	ResolvedFontProvider,
+} from './types.js';
 import type { FontFaceMetrics, GenericFallbackName } from './types.js';
 
 export interface Hasher {
@@ -43,12 +49,12 @@ export interface ErrorHandler {
 }
 
 export interface UrlProxy {
-	proxy: (input: {
-		url: string;
-		collectPreload: boolean;
-		data: Partial<unifont.FontFaceData>;
-		init: RequestInit | null;
-	}) => string;
+	proxy: (
+		input: Pick<FontFileData, 'url' | 'init'> & {
+			collectPreload: boolean;
+			data: Partial<unifont.FontFaceData>;
+		},
+	) => string;
 }
 
 export interface UrlProxyContentResolver {
@@ -56,13 +62,12 @@ export interface UrlProxyContentResolver {
 }
 
 export interface DataCollector {
-	collect: (input: {
-		originalUrl: string;
-		hash: string;
-		init: RequestInit | null;
-		data: Partial<unifont.FontFaceData>;
-		preload: PreloadData | null;
-	}) => void;
+	collect: (
+		input: FontFileData & {
+			data: Partial<unifont.FontFaceData>;
+			preload: PreloadData | null;
+		},
+	) => void;
 }
 
 export type CssProperties = Record<string, string | undefined>;
@@ -88,14 +93,8 @@ export interface SystemFallbacksProvider {
 	getMetricsForLocalFont: (family: string) => FontFaceMetrics;
 }
 
-export interface FontFetcherInput {
-	hash: string;
-	url: string;
-	init: RequestInit | null;
-}
-
 export interface FontFetcher {
-	fetch: (input: FontFetcherInput) => Promise<Buffer>;
+	fetch: (input: FontFileData) => Promise<Buffer>;
 }
 
 export interface FontTypeExtractor {

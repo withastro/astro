@@ -26,7 +26,7 @@ export function createUrlProxy({
 			const url = base + hash;
 
 			dataCollector.collect({
-				originalUrl,
+				url: originalUrl,
 				hash,
 				preload: collectPreload ? { url, type } : null,
 				data,

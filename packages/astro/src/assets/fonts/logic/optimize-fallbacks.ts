@@ -1,13 +1,9 @@
-import type {
-	FontFetcherInput,
-	FontMetricsResolver,
-	SystemFallbacksProvider,
-} from '../definitions.js';
+import type { FontMetricsResolver, SystemFallbacksProvider } from '../definitions.js';
 import type * as unifont from 'unifont';
-import type { ResolvedFontFamily } from '../types.js';
+import type { FontFileData, ResolvedFontFamily } from '../types.js';
 import { isGenericFontFamily, unifontFontFaceDataToProperties } from '../utils.js';
 
-export interface CollectedFontForMetrics extends FontFetcherInput {
+export interface CollectedFontForMetrics extends FontFileData {
 	data: Partial<unifont.FontFaceData>;
 }
 
