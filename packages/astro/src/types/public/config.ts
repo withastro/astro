@@ -2268,14 +2268,14 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 */
 		preserveScriptOrder?: boolean;
 
-		/** 
+		/**
 		 * @name experimental.liveContentLoaders
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 5.7
 		 * @description
 		 * Enables the use of live content loaders.
-		 * 
+		 *
 		 */
 		liveContentLoaders?: boolean;
 	};

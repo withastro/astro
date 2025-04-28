@@ -132,7 +132,9 @@ export interface LiveDataEntry<TData extends Record<string, unknown> = Record<st
 	data: TData;
 }
 
-export interface LiveDataCollection<TData extends Record<string, unknown> = Record<string, unknown>> {
+export interface LiveDataCollection<
+	TData extends Record<string, unknown> = Record<string, unknown>,
+> {
 	entries: Array<LiveDataEntry<TData>>;
 	// TODO: pagination etc.
 }

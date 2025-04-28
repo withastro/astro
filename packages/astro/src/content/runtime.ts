@@ -21,8 +21,8 @@ import {
 } from '../runtime/server/index.js';
 import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX, LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
-import type { ContentLookupMap } from './utils.js';
 import type { LiveLoader } from './loaders/types.js';
+import type { ContentLookupMap } from './utils.js';
 
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
@@ -110,9 +110,12 @@ export function createGetCollection({
 	cacheEntriesByCollection: Map<string, any[]>;
 	liveCollections: LiveCollectionConfigMap;
 }) {
-	return async function getCollection(collection: string, filter?: ((entry: any) => unknown) | Record<string, unknown>) {
+	return async function getCollection(
+		collection: string,
+		filter?: ((entry: any) => unknown) | Record<string, unknown>,
+	) {
 		if (collection in liveCollections) {
-			if(typeof filter === 'function') {
+			if (typeof filter === 'function') {
 				throw new AstroError({
 					...AstroErrorData.UnknownContentCollectionError,
 					message: `The filter function is not supported for live collections. Please use a filter object instead.`,
@@ -122,7 +125,7 @@ export function createGetCollection({
 			const context = {
 				filter,
 			};
-			
+
 			const response = await (
 				liveCollections[collection].loader as LiveLoader<any, any, Record<string, unknown>>
 			)?.loadCollection?.(context);
@@ -130,7 +133,7 @@ export function createGetCollection({
 			return {
 				...response,
 				collection,
-			}
+			};
 		}
 
 		const hasFilter = typeof filter === 'function';

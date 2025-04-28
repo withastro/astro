@@ -65,7 +65,7 @@ export const getEntry = createGetEntry({
 	getEntryImport: createGlobLookup(collectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 	collectionNames,
-	liveCollections
+	liveCollections,
 });
 
 export const getEntryBySlug = createGetEntryBySlug({
