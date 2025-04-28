@@ -51,7 +51,7 @@ declare module 'astro:content' {
 		| import('astro/zod').ZodUnion<[BaseAtomicSchema, ...BaseAtomicSchema[]]>
 		| import('astro/zod').ZodDiscriminatedUnion<string, BaseAtomicSchema[]>
 		// If we have a union of unions, give up on trying to type-check it all. You're on your own.
-		| import('astro/zod').ZodUnion<[import('astro/zod').ZodUnion<z.any>, ...z.any[]]>
+		| import('astro/zod').ZodUnion<[import('astro/zod').ZodUnion<z.any>, ...z.any[]]>;
 
 	type BaseSchemaWithoutEffects =
 		| BaseAtomicSchema
