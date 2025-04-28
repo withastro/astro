@@ -111,6 +111,11 @@ describe('fonts orchestrate()', () => {
 								],
 								weight: '400',
 								style: 'normal',
+								meta: {
+									init: {
+										method: 'POST',
+									},
+								},
 							},
 						],
 					};
@@ -170,9 +175,12 @@ describe('fonts orchestrate()', () => {
 			[
 				[
 					'https://example.com/foo.woff2.woff2',
-					{ url: 'https://example.com/foo.woff2', init: null },
+					{ url: 'https://example.com/foo.woff2', init: { method: 'POST' } },
 				],
-				['https://example.com/foo.woff.woff', { url: 'https://example.com/foo.woff', init: null }],
+				[
+					'https://example.com/foo.woff.woff',
+					{ url: 'https://example.com/foo.woff', init: { method: 'POST' } },
+				],
 			],
 		);
 		assert.deepStrictEqual([...consumableMap.keys()], ['--test']);
