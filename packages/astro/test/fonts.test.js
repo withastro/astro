@@ -1,5 +1,5 @@
-import assert from 'node:assert/strict';
 // @ts-check
+import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { fontProviders } from 'astro/config';
 import * as cheerio from 'cheerio';
