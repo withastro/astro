@@ -1,13 +1,13 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
 import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
 import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontsource.js';
 import * as googleEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/google.js';
 import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
 import { createSpyUrlProxy, simpleErrorHandler } from './utils.js';
 

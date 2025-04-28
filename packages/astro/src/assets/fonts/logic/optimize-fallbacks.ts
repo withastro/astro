@@ -1,7 +1,7 @@
+import type * as unifont from 'unifont';
 import type { FontMetricsResolver, SystemFallbacksProvider } from '../definitions.js';
 import type { ResolvedFontFamily } from '../types.js';
 import { isGenericFontFamily, unifontFontFaceDataToProperties } from '../utils.js';
-import type * as unifont from 'unifont';
 
 export interface CollectedFontForMetrics {
 	hash: string;

@@ -1,5 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Plugin } from 'vite';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
@@ -15,36 +17,34 @@ import {
 	URL_PREFIX,
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
-import type { PreloadData } from './types.js';
-import { orchestrate } from './orchestrate.js';
-import { createXxHasher } from './implementations/hasher.js';
-import { createAstroErrorHandler } from './implementations/error-handler.js';
 import type {
 	CssRenderer,
 	FontFetcher,
 	FontTypeExtractor,
 	RemoteFontProviderModResolver,
 } from './definitions.js';
+import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
+import { createDataCollector } from './implementations/data-collector.js';
+import { createAstroErrorHandler } from './implementations/error-handler.js';
+import { createCachedFontFetcher } from './implementations/font-fetcher.js';
+import { createCapsizeFontMetricsResolver } from './implementations/font-metrics-resolver.js';
+import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
+import { createXxHasher } from './implementations/hasher.js';
+import { createRequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
 import {
 	createBuildRemoteFontProviderModResolver,
 	createDevServerRemoteFontProviderModResolver,
 } from './implementations/remote-font-provider-mod-resolver.js';
 import { createRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
-import { createRequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
 import { createFsStorage } from './implementations/storage.js';
 import { createSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
-import { createCachedFontFetcher } from './implementations/font-fetcher.js';
-import { createCapsizeFontMetricsResolver } from './implementations/font-metrics-resolver.js';
-import { createUrlProxy } from './implementations/url-proxy.js';
 import {
 	createLocalUrlProxyContentResolver,
 	createRemoteUrlProxyContentResolver,
 } from './implementations/url-proxy-content-resolver.js';
-import { createDataCollector } from './implementations/data-collector.js';
-import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
-import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { createUrlProxy } from './implementations/url-proxy.js';
+import { orchestrate } from './orchestrate.js';
+import type { PreloadData } from './types.js';
 
 interface Options {
 	settings: AstroSettings;

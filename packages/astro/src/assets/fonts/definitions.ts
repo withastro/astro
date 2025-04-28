@@ -1,8 +1,8 @@
+import type * as unifont from 'unifont';
+import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { AstroFontProvider, FontType, PreloadData, ResolvedFontProvider } from './types.js';
-import type * as unifont from 'unifont';
 import type { FontFaceMetrics, GenericFallbackName } from './types.js';
-import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
 
 export interface Hasher {
 	hashString: (input: string) => string;

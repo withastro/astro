@@ -1,7 +1,7 @@
+import type * as unifont from 'unifont';
 import { LOCAL_PROVIDER_NAME } from '../constants.js';
 import type { Hasher } from '../definitions.js';
 import type { ResolvedFontFamily } from '../types.js';
-import type * as unifont from 'unifont';
 
 export function extractUnifontProviders({
 	families,

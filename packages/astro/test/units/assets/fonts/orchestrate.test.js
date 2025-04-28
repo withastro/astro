@@ -1,16 +1,19 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
-import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-resolver.js';
-import { createBuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-mod-resolver.js';
-import { createRequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/implementations/local-provider-url-resolver.js';
+import { fileURLToPath } from 'node:url';
+import { defineFontProvider } from 'unifont';
+import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
 import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
-import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
-import { createUrlProxy } from '../../../../dist/assets/fonts/implementations/url-proxy.js';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
+import { createRequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/implementations/local-provider-url-resolver.js';
+import { createBuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-mod-resolver.js';
+import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-resolver.js';
+import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
 import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-content-resolver.js';
+import { createUrlProxy } from '../../../../dist/assets/fonts/implementations/url-proxy.js';
+import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
 import {
 	createSpyStorage,
@@ -18,9 +21,6 @@ import {
 	fakeHasher,
 	simpleErrorHandler,
 } from './utils.js';
-import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
-import { defineFontProvider } from 'unifont';
-import { fileURLToPath } from 'node:url';
 
 describe('fonts orchestrate()', () => {
 	it('works with local fonts', async () => {
