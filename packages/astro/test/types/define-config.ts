@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
 import type { AstroFontProvider, FontFamily } from '../../dist/assets/fonts/types.js';
-import { defineAstroFontProvider } from '../../dist/config/entrypoint.js';
+import { defineAstroFontProvider, fontProviders } from '../../dist/config/entrypoint.js';
 import { defineConfig } from '../../dist/config/index.js';
 import type { AstroUserConfig } from '../../dist/types/public/index.js';
 
@@ -134,6 +134,42 @@ describe('defineConfig()', () => {
 							readonly provider: AstroFontProvider;
 						},
 					]
+				>();
+			},
+		);
+	});
+
+	it('Allows disabling font fallbacks', () => {
+		assertType(
+			defineConfig({
+				experimental: {
+					fonts: [
+						{
+							provider: fontProviders.google(),
+							name: 'Roboto',
+							fallbacks: [],
+							cssVariable: '--font-roboto',
+						},
+					],
+				},
+			}),
+			(config) => {
+				expectTypeOf(config).toEqualTypeOf<
+					AstroUserConfig<
+						never,
+						never,
+						[
+							{
+								readonly provider: {
+									entrypoint: string | URL;
+									config?: Record<string, any> | undefined;
+								};
+								readonly name: 'Roboto';
+								readonly fallbacks: [];
+								readonly cssVariable: '--font-roboto';
+							},
+						]
+					>
 				>();
 			},
 		);
