@@ -49,7 +49,9 @@ declare module 'astro:content' {
 
 	type BaseCompositeSchema =
 		| import('astro/zod').ZodUnion<[BaseAtomicSchema, ...BaseAtomicSchema[]]>
-		| import('astro/zod').ZodDiscriminatedUnion<string, BaseAtomicSchema[]>;
+		| import('astro/zod').ZodDiscriminatedUnion<string, BaseAtomicSchema[]>
+		// If we have a union of unions, give up on trying to type-check it all. You're on your own.
+		| import('astro/zod').ZodUnion<[import('astro/zod').ZodUnion<z.any>, ...z.any[]]>;
 
 	type BaseSchemaWithoutEffects =
 		| BaseAtomicSchema
@@ -58,11 +60,7 @@ declare module 'astro:content' {
 
 	export type BaseSchema =
 		| BaseSchemaWithoutEffects
-		| import('astro/zod').ZodEffects<
-				BaseSchemaWithoutEffects,
-				import('astro/zod').output<BaseSchemaWithoutEffects>,
-				import('astro/zod').input<BaseSchemaWithoutEffects>
-		  >;
+		| import('astro/zod').ZodEffects<BaseSchemaWithoutEffects>;
 
 	export type SchemaContext = { image: ImageFunction };
 
@@ -86,7 +84,7 @@ declare module 'astro:content' {
 	type ContentCollectionConfig<S extends BaseSchema> = {
 		type?: 'content';
 		schema?: S | ((context: SchemaContext) => S);
-		loader?: never
+		loader?: never;
 	};
 
 	type LiveDataCollectionConfig<
