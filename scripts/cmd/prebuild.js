@@ -43,7 +43,7 @@ export default async function prebuild(...args) {
 		return outURL;
 	}
 
-	const hashes = [];
+	const hashes = new Map();
 
 	async function prebuildFile(filepath) {
 		let tscode = await fs.promises.readFile(filepath, 'utf-8');
@@ -116,10 +116,7 @@ export default \`${generatedCode}\`;`;
 			await fs.promises.writeFile(url, mod, 'utf-8');
 			const hash = crypto.createHash('sha256').update(code).digest('base64');
 			const basename = path.basename(filepath);
-			hashes.push({
-				hash,
-				name: basename.slice(0, basename.indexOf('.')),
-			});
+			hashes.set(basename.slice(0, basename.indexOf('.')), hash);
 		}
 	}
 	for (const entrypoint of entryPoints) {
@@ -131,12 +128,12 @@ export default \`${generatedCode}\`;`;
 		'utf-8',
 	);
 	const styleContent = fileContent.match(ASTRO_ISLAND_STYLE_REGEX)[1];
-	hashes.push({
-		hash: crypto.createHash('sha256').update(styleContent).digest('base64'),
-		name: 'astro-island-styles',
-	});
-	hashes.sort();
-	const entries = JSON.stringify(hashes, null, 2);
+	hashes.set(
+		'astro-island-styles',
+		crypto.createHash('sha256').update(styleContent).digest('base64'),
+	);
+
+	const entries = JSON.stringify(Object.fromEntries(hashes.entries()), null, 2);
 	const content = `// This file is code-generated, please don't change it manually
 export const ASTRO_ISLAND_HASHES = ${entries};`;
 	await fs.promises.writeFile(
