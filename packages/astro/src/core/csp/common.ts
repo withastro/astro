@@ -12,9 +12,7 @@ export function trackStyleHashes(internals: BuildInternals): string[] {
 	for (const [_, page] of internals.pagesByViteID.entries()) {
 		for (const style of page.styles) {
 			if (style.sheet.type === 'inline') {
-				clientStyleHashes.push(
-					crypto.createHash('sha256').update(style.sheet.content).digest('base64'),
-				);
+				clientStyleHashes.push(generateHash(style.sheet.content));
 			}
 		}
 	}
@@ -26,15 +24,19 @@ export function trackScriptHashes(internals: BuildInternals, settings: AstroSett
 	const clientScriptHashes: string[] = [];
 
 	for (const script of internals.inlinedScripts.values()) {
-		clientScriptHashes.push(crypto.createHash('sha256').update(script).digest('base64'));
+		clientScriptHashes.push(generateHash(script));
 	}
 
 	for (const script of settings.scripts) {
 		const { content, stage } = script;
 		if (stage === 'head-inline' || stage === 'before-hydration') {
-			clientScriptHashes.push(crypto.createHash('sha256').update(content).digest('base64'));
+			clientScriptHashes.push(generateHash(content));
 		}
 	}
 
 	return clientScriptHashes;
+}
+
+function generateHash(content: string): string {
+	return crypto.createHash('sha256').update(content).digest('base64');
 }
