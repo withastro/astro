@@ -3,6 +3,7 @@ import { markHTMLString } from '../escape.js';
 import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instruction.js';
 import { createRenderInstruction } from './instruction.js';
 import { renderElement } from './util.js';
+import { renderCspContent } from './csp.js';
 
 // Filter out duplicate elements in our set
 const uniqueElements = (item: any, index: number, all: any[]) => {
@@ -51,26 +52,19 @@ export function renderAllHeadContent(result: SSRResult) {
 		}
 	}
 
-	const hashes = [];
-
 	if (result.shouldInjectCspMetaTags) {
-		for (const scriptHash of [...result.clientScriptHashes, ...result.clientStyleHashes]) {
-			hashes.push(
-				renderElement(
-					'meta',
-					{
-						props: {
-							'http-equiv': 'content-security-policy',
-							content: scriptHash,
-						},
-						children: '',
-					},
-					false,
-				),
-			);
-		}
+		content += renderElement(
+			'meta',
+			{
+				props: {
+					'http-equiv': 'content-security-policy',
+					content: renderCspContent(result),
+				},
+				children: '',
+			},
+			false,
+		);
 	}
-	content += hashes.join('\n');
 
 	return markHTMLString(content);
 }

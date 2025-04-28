@@ -2789,9 +2789,18 @@ importers:
 
   packages/astro/test/fixtures/csp:
     dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
       astro:
         specifier: workspace:*
         version: link:../../..
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
 
   packages/astro/test/fixtures/csrf-check-origin:
     dependencies:
@@ -4322,7 +4331,7 @@ importers:
         version: 1.0.2
       drizzle-orm:
         specifier: ^0.31.2
-        version: 0.31.4(@cloudflare/workers-types@4.20250327.0)(@libsql/client@0.15.2)(@types/react@18.3.20)(react@19.0.0)
+        version: 0.31.4(@cloudflare/workers-types@4.20250327.0)(@libsql/client@0.15.2)(@types/react@18.3.20)(react@19.1.0)
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -4774,7 +4783,7 @@ importers:
         version: link:../../astro-prism
       '@markdoc/markdoc':
         specifier: ^0.5.1
-        version: 0.5.1(@types/react@18.3.20)(react@19.0.0)
+        version: 0.5.1(@types/react@18.3.20)(react@19.1.0)
       esbuild:
         specifier: ^0.25.0
         version: 0.25.0
@@ -5688,7 +5697,7 @@ importers:
         version: link:../../internal-helpers
       '@vercel/analytics':
         specifier: ^1.5.0
-        version: 1.5.0(react@19.0.0)(svelte@5.28.2)(vue@3.5.13(typescript@5.8.3))
+        version: 1.5.0(react@19.1.0)(svelte@5.28.2)(vue@3.5.13(typescript@5.8.3))
       '@vercel/edge':
         specifier: ^1.2.1
         version: 1.2.1
@@ -11067,6 +11076,11 @@ packages:
     peerDependencies:
       react: ^19.0.0
 
+  react-dom@19.1.0:
+    resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
+    peerDependencies:
+      react: ^19.1.0
+
   react-refresh@0.17.0:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
@@ -11077,6 +11091,10 @@ packages:
 
   react@19.0.0:
     resolution: {integrity: sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ==}
+    engines: {node: '>=0.10.0'}
+
+  react@19.1.0:
+    resolution: {integrity: sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==}
     engines: {node: '>=0.10.0'}
 
   read-yaml-file@1.1.0:
@@ -11294,6 +11312,9 @@ packages:
 
   scheduler@0.25.0:
     resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
+
+  scheduler@0.26.0:
+    resolution: {integrity: sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==}
 
   scslre@0.3.0:
     resolution: {integrity: sha512-3A6sD0WYP7+QrjbfNA2FN3FsOaGGFoekCVgTyypy53gPxhbkCIjtO6YWgdrfM+n/8sI8JeXZOIxsHjMTNxQ4nQ==}
@@ -13717,12 +13738,12 @@ snapshots:
       - encoding
       - supports-color
 
-  '@markdoc/markdoc@0.5.1(@types/react@18.3.20)(react@19.0.0)':
+  '@markdoc/markdoc@0.5.1(@types/react@18.3.20)(react@19.1.0)':
     optionalDependencies:
       '@types/linkify-it': 3.0.5
       '@types/markdown-it': 12.2.3
       '@types/react': 18.3.20
-      react: 19.0.0
+      react: 19.1.0
 
   '@mdx-js/mdx@3.1.0(acorn@8.14.1)':
     dependencies:
@@ -14375,9 +14396,9 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@vercel/analytics@1.5.0(react@19.0.0)(svelte@5.28.2)(vue@3.5.13(typescript@5.8.3))':
+  '@vercel/analytics@1.5.0(react@19.1.0)(svelte@5.28.2)(vue@3.5.13(typescript@5.8.3))':
     optionalDependencies:
-      react: 19.0.0
+      react: 19.1.0
       svelte: 5.28.2
       vue: 3.5.13(typescript@5.8.3)
 
@@ -15292,12 +15313,12 @@ snapshots:
 
   dotenv@8.6.0: {}
 
-  drizzle-orm@0.31.4(@cloudflare/workers-types@4.20250327.0)(@libsql/client@0.15.2)(@types/react@18.3.20)(react@19.0.0):
+  drizzle-orm@0.31.4(@cloudflare/workers-types@4.20250327.0)(@libsql/client@0.15.2)(@types/react@18.3.20)(react@19.1.0):
     optionalDependencies:
       '@cloudflare/workers-types': 4.20250327.0
       '@libsql/client': 0.15.2
       '@types/react': 18.3.20
-      react: 19.0.0
+      react: 19.1.0
 
   dset@3.1.4: {}
 
@@ -17693,6 +17714,11 @@ snapshots:
       react: 19.0.0
       scheduler: 0.25.0
 
+  react-dom@19.1.0(react@19.1.0):
+    dependencies:
+      react: 19.1.0
+      scheduler: 0.26.0
+
   react-refresh@0.17.0: {}
 
   react@18.3.1:
@@ -17700,6 +17726,8 @@ snapshots:
       loose-envify: 1.4.0
 
   react@19.0.0: {}
+
+  react@19.1.0: {}
 
   read-yaml-file@1.1.0:
     dependencies:
@@ -18040,6 +18068,8 @@ snapshots:
       loose-envify: 1.4.0
 
   scheduler@0.25.0: {}
+
+  scheduler@0.26.0: {}
 
   scslre@0.3.0:
     dependencies:
