@@ -1,4 +1,4 @@
-import { fromBuffer, type Font } from '@capsizecss/unpack';
+import { type Font, fromBuffer } from '@capsizecss/unpack';
 import type { CssRenderer, FontFetcher, FontMetricsResolver } from '../definitions.js';
 import type { FontFaceMetrics } from '../types.js';
 import { renderFontSrc } from '../utils.js';

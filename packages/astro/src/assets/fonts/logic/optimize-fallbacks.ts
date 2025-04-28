@@ -3,9 +3,9 @@ import type {
 	FontMetricsResolver,
 	SystemFallbacksProvider,
 } from '../definitions.js';
+import type * as unifont from 'unifont';
 import type { ResolvedFontFamily } from '../types.js';
 import { isGenericFontFamily, unifontFontFaceDataToProperties } from '../utils.js';
-import type * as unifont from 'unifont';
 
 export interface CollectedFontForMetrics extends FontFetcherInput {
 	data: Partial<unifont.FontFaceData>;

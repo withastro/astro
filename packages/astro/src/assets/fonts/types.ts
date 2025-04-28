@@ -1,3 +1,4 @@
+import type { Font } from '@capsizecss/unpack';
 import type * as unifont from 'unifont';
 import type { z } from 'zod';
 import type {
@@ -6,7 +7,6 @@ import type {
 	remoteFontFamilySchema,
 } from './config.js';
 import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
-import type { Font } from '@capsizecss/unpack';
 import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
 import type { FontFetcherInput } from './definitions.js';
 

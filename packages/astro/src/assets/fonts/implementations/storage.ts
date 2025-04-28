@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { createStorage, type Storage } from 'unstorage';
+import { type Storage, createStorage } from 'unstorage';
 import fsLiteDriver from 'unstorage/drivers/fs-lite';
 
 export function createFsStorage({ base }: { base: URL }): Storage {

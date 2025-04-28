@@ -1,12 +1,6 @@
-import { LOCAL_PROVIDER_NAME } from './constants.js';
-import { resolveFamilies } from './logic/resolve-families.js';
-import { resolveLocalFont } from './providers/local.js';
-import type { CreateUrlProxyParams, Defaults, FontFamily, PreloadData } from './types.js';
 import * as unifont from 'unifont';
-import { pickFontFaceProperty, unifontFontFaceDataToProperties } from './utils.js';
-import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
-import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
-import { optimizeFallbacks, type CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
+import type { Storage } from 'unstorage';
+import { LOCAL_PROVIDER_NAME } from './constants.js';
 import type {
 	CssRenderer,
 	FontMetricsResolver,
@@ -17,7 +11,13 @@ import type {
 	SystemFallbacksProvider,
 	UrlProxy,
 } from './definitions.js';
-import type { Storage } from 'unstorage';
+import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
+import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
+import { type CollectedFontForMetrics, optimizeFallbacks } from './logic/optimize-fallbacks.js';
+import { resolveFamilies } from './logic/resolve-families.js';
+import { resolveLocalFont } from './providers/local.js';
+import type { CreateUrlProxyParams, Defaults, FontFamily, PreloadData } from './types.js';
+import { pickFontFaceProperty, unifontFontFaceDataToProperties } from './utils.js';
 
 /**
  * Manages how fonts are resolved:

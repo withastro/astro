@@ -1,7 +1,7 @@
+import { isAbsolute } from 'node:path';
 import type { Storage } from 'unstorage';
 import type { ErrorHandler, FontFetcher } from '../definitions.js';
 import { cache } from '../utils.js';
-import { isAbsolute } from 'node:path';
 
 export function createCachedFontFetcher({
 	storage,

@@ -1,11 +1,11 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { resolveFamily } from '../../../../dist/assets/fonts/logic/resolve-families.js';
+import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
 import { extractUnifontProviders } from '../../../../dist/assets/fonts/logic/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/logic/normalize-remote-font-faces.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/logic/optimize-fallbacks.js';
-import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
+import { resolveFamily } from '../../../../dist/assets/fonts/logic/resolve-families.js';
 import { createSpyUrlProxy, fakeFontMetricsResolver, fakeHasher } from './utils.js';
 
 describe('fonts logic', () => {

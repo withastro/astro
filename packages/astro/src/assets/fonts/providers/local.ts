@@ -1,7 +1,7 @@
 import type * as unifont from 'unifont';
 import { FONT_FORMAT_MAP } from '../constants.js';
-import type { ResolvedLocalFontFamily } from '../types.js';
 import type { FontTypeExtractor, UrlProxy } from '../definitions.js';
+import type { ResolvedLocalFontFamily } from '../types.js';
 
 interface Options {
 	family: ResolvedLocalFontFamily;

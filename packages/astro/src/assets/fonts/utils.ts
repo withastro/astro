@@ -3,8 +3,8 @@ import { pathToFileURL } from 'node:url';
 import type * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
 import { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
-import type { FontType, GenericFallbackName, ResolvedFontFamily } from './types.js';
 import type { CssProperties } from './definitions.js';
+import type { FontType, GenericFallbackName, ResolvedFontFamily } from './types.js';
 
 /**
  * Turns unifont font face data into generic CSS properties, to be consumed by the CSS renderer.

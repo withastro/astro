@@ -1,4 +1,4 @@
-import type { Defaults } from "./types.js";
+import type { Defaults } from './types.js';
 
 export const LOCAL_PROVIDER_NAME = 'local';
 
