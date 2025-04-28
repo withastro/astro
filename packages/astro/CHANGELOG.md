@@ -1,5 +1,11 @@
 # astro
 
+## 5.7.8
+
+### Patch Changes
+
+- [#13715](https://github.com/withastro/astro/pull/13715) [`b32dffa`](https://github.com/withastro/astro/commit/b32dffab6e16388c87fb5e8bb423ed02d88586bb) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `unifont` to fix a case where a `unicodeRange` related error would be thrown when using the experimental fonts API
+
 ## 5.7.7
 
 ### Patch Changes
