@@ -1,5 +1,60 @@
 # astro
 
+## 5.7.6
+
+### Patch Changes
+
+- [#13681](https://github.com/withastro/astro/pull/13681) [`6d0e382`](https://github.com/withastro/astro/commit/6d0e3826f40487c14a56eacfc265b661715ba744) Thanks [@altano](https://github.com/altano)! - Fixes a bug where empty fallbacks could not be provided when using the experimental fonts API
+
+- [#13677](https://github.com/withastro/astro/pull/13677) [`b16b5ef`](https://github.com/withastro/astro/commit/b16b5ef1ebbd1501bdac4ad9818c5165a0e76e7d) Thanks [@ascorbic](https://github.com/ascorbic)! - Simplifies styles for experimental responsive images
+
+  :warning: **BREAKING CHANGE FOR EXPERIMENTAL RESPONSIVE IMAGES ONLY** :warning:
+
+  The generated styles for image layouts are now simpler and easier to override. Previously the responsive image component used CSS to set the size and aspect ratio of the images, but this is no longer needed. Now the styles just include `object-fit` and `object-position` for all images, and sets `max-width: 100%` for constrained images and `width: 100%` for full-width images.
+
+  This is an implementation change only, and most users will see no change. However, it may affect any custom styles you have added to your responsive images. Please check your rendered images to determine whether any change to your CSS is needed.
+
+  The styles now use the [`:where()` pseudo-class](https://developer.mozilla.org/en-US/docs/Web/CSS/:where), which has a [specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_cascade/Specificity) of 0, meaning that it is easy to override with your own styles. You can now be sure that your own classes will always override the applied styles, as will global styles on `img`.
+
+  An exception is Tailwind 4, which uses [cascade layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer), meaning the rules are always lower specificity. Astro supports browsers that do not support cascade layers, so we cannot use this. If you need to override the styles using Tailwind 4, you must use `!important` classes. Do check if this is needed though: there may be a layout that is more appropriate for your use case.
+
+- [#13678](https://github.com/withastro/astro/pull/13678) [`2e528cb`](https://github.com/withastro/astro/commit/2e528cbe353f11dd7d11055fad6abca631720247) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds warnings about using local font files in the `publicDir` when the experimental fonts API is enabled.
+
+- [#13677](https://github.com/withastro/astro/pull/13677) [`b16b5ef`](https://github.com/withastro/astro/commit/b16b5ef1ebbd1501bdac4ad9818c5165a0e76e7d) Thanks [@ascorbic](https://github.com/ascorbic)! - Renames experimental responsive image layout option from "responsive" to "constrained"
+
+  :warning: **BREAKING CHANGE FOR EXPERIMENTAL RESPONSIVE IMAGES ONLY** :warning:
+
+  The layout option called `"responsive"` is renamed to `"constrained"` to better reflect its behavior.
+
+  The previous name was causing confusion, because it is also the name of the feature. The `responsive` layout option is specifically for images that are displayed at the requested size, unless they do not fit the width of their container, at which point they would be scaled down to fit. They do not get scaled beyond the intrinsic size of the source image, or the `width` prop if provided.
+
+  It became clear from user feedback that many people (understandably) thought that they needed to set `layout` to `responsive` if they wanted to use responsive images. They then struggled with overriding styles to make the image scale up for full-width hero images, for example, when they should have been using `full-width` layout. Renaming the layout to `constrained` should make it clearer that this layout is for when you want to constrain the maximum size of the image, but allow it to scale-down.
+
+  ### Upgrading
+
+  If you set a default `image.experimentalLayout` in your `astro.config.mjs`, or set it on a per-image basis using the `layout` prop, you will need to change all occurences to `constrained`:
+
+  ```diff lang="ts"
+  // astro.config.mjs
+  export default {
+    image: {
+  -    experimentalLayout: 'responsive',
+  +    experimentalLayout: 'constrained',
+    },
+  }
+  ```
+
+  ```diff lang="astro"
+  // src/pages/index.astro
+  ---
+  import { Image } from 'astro:assets';
+  ---
+  - <Image src="/image.jpg" layout="responsive" />
+  + <Image src="/image.jpg" layout="constrained" />
+  ```
+
+  Please [give feedback on the RFC](https://github.com/withastro/roadmap/pull/1051) if you have any questions or comments about the responsive images API.
+
 ## 5.7.5
 
 ### Patch Changes
