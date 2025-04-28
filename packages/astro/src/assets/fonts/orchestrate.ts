@@ -68,7 +68,10 @@ export async function orchestrate({
 	fontTypeExtractor: FontTypeExtractor;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
-}) {
+}): Promise<{
+	fontFileDataMap: FontFileDataMap;
+	consumableMap: ConsumableMap;
+}> {
 	let resolvedFamilies = await resolveFamilies({
 		families,
 		hasher,
@@ -87,7 +90,14 @@ export async function orchestrate({
 		storage,
 	});
 
+	/**
+	 * Holds associations of hash and original font file URLs, so they can be
+	 * downloaded whenever the hash is requested.
+	 */
 	const fontFileDataMap: FontFileDataMap = new Map();
+	/**
+	 * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
+	 */
 	const consumableMap: ConsumableMap = new Map();
 
 	for (const family of resolvedFamilies) {
