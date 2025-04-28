@@ -1,5 +1,5 @@
-import type { FontMetricsResolver, SystemFallbacksProvider } from '../definitions.js';
 import type * as unifont from 'unifont';
+import type { FontMetricsResolver, SystemFallbacksProvider } from '../definitions.js';
 import type { FontFileData, ResolvedFontFamily } from '../types.js';
 import { isGenericFontFamily, unifontFontFaceDataToProperties } from '../utils.js';
 
