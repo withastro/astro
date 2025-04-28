@@ -45,15 +45,24 @@ declare module 'astro:content' {
 		has: (key: string) => boolean;
 	}
 
+	type BaseAtomicSchema = import('astro/zod').AnyZodObject;
+
+	type BaseCompositeSchema =
+		| import('astro/zod').ZodUnion<[BaseAtomicSchema, ...BaseAtomicSchema[]]>
+		| import('astro/zod').ZodDiscriminatedUnion<string, BaseAtomicSchema[]>;
+
 	type BaseSchemaWithoutEffects =
-		| import('astro/zod').AnyZodObject
-		| import('astro/zod').ZodUnion<[BaseSchemaWithoutEffects, ...BaseSchemaWithoutEffects[]]>
-		| import('astro/zod').ZodDiscriminatedUnion<string, import('astro/zod').AnyZodObject[]>
-		| import('astro/zod').ZodIntersection<BaseSchemaWithoutEffects, BaseSchemaWithoutEffects>;
+		| BaseAtomicSchema
+		| BaseCompositeSchema
+		| import('astro/zod').ZodIntersection<BaseAtomicSchema, BaseAtomicSchema | BaseCompositeSchema>;
 
 	export type BaseSchema =
 		| BaseSchemaWithoutEffects
-		| import('astro/zod').ZodEffects<BaseSchemaWithoutEffects>;
+		| import('astro/zod').ZodEffects<
+				BaseSchemaWithoutEffects,
+				import('astro/zod').output<BaseSchemaWithoutEffects>,
+				import('astro/zod').input<BaseSchemaWithoutEffects>
+		  >;
 
 	export type SchemaContext = { image: ImageFunction };
 
@@ -77,7 +86,7 @@ declare module 'astro:content' {
 	type ContentCollectionConfig<S extends BaseSchema> = {
 		type?: 'content';
 		schema?: S | ((context: SchemaContext) => S);
-		loader?: never;
+		loader?: never
 	};
 
 	type LiveDataCollectionConfig<
@@ -91,14 +100,14 @@ declare module 'astro:content' {
 
 	export type CollectionConfig<
 		S extends BaseSchema,
-		TLoader = never,
-	> = TLoader extends import('astro/loaders').LiveLoader
-		? LiveDataCollectionConfig<S, TLoader>
+		TLiveLoader = never,
+	> = TLiveLoader extends import('astro/loaders').LiveLoader
+		? LiveDataCollectionConfig<S, TLiveLoader>
 		: ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S>;
 
-	export function defineCollection<S extends BaseSchema, TLoader = never>(
-		input: CollectionConfig<S, TLoader>,
-	): CollectionConfig<S, TLoader>;
+	export function defineCollection<S extends BaseSchema, TLiveLoader = undefined>(
+		input: CollectionConfig<S, TLiveLoader>,
+	): CollectionConfig<S, TLiveLoader>;
 
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getEntryBySlug: (...args: any[]) => any;
