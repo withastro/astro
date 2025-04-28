@@ -464,6 +464,7 @@ export class RenderContext {
 			shouldInjectCspMetaTags: manifest.shouldInjectCspMetaTags,
 			clientScriptHashes: manifest.clientScriptHashes,
 			clientStyleHashes: manifest.clientStyleHashes,
+			astroIslandHashes: manifest.astroIslandHashes,
 		};
 
 		return result;
