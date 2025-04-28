@@ -1,12 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import { type Storage, createStorage } from 'unstorage';
-import fsLiteDriver from 'unstorage/drivers/fs-lite';
 import type { Plugin } from 'vite';
-import xxhash from 'xxhash-wasm';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
@@ -15,50 +10,46 @@ import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import {
 	CACHE_DIR,
+	DEFAULTS,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	URL_PREFIX,
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
-import { loadFonts } from './load.js';
-import { generateFallbackFontFace, readMetrics } from './metrics.js';
-import type { ResolveMod } from './providers/utils.js';
-import type { PreloadData, ResolvedFontFamily } from './types.js';
+import type { PreloadData } from './types.js';
+import { orchestrate } from './orchestrate.js';
+import { createXxHasher } from './implementations/hasher.js';
+import { createAstroErrorHandler } from './implementations/error-handler.js';
+import type {
+	CssRenderer,
+	FontFetcher,
+	FontTypeExtractor,
+	RemoteFontProviderModResolver,
+} from './definitions.js';
 import {
-	cache,
-	extractFontType,
-	resolveEntrypoint,
-	resolveFontFamily,
-	sortObjectByKey,
-	withoutQuotes,
-} from './utils.js';
+	createBuildRemoteFontProviderModResolver,
+	createDevServerRemoteFontProviderModResolver,
+} from './implementations/remote-font-provider-mod-resolver.js';
+import { createRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
+import { createRequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
+import { createFsStorage } from './implementations/storage.js';
+import { createSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
+import { createCachedFontFetcher } from './implementations/font-fetcher.js';
+import { createCapsizeFontMetricsResolver } from './implementations/font-metrics-resolver.js';
+import { createUrlProxy } from './implementations/url-proxy.js';
+import {
+	createLocalUrlProxyContentResolver,
+	createRemoteUrlProxyContentResolver,
+} from './implementations/url-proxy-content-resolver.js';
+import { createDataCollector } from './implementations/data-collector.js';
+import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
+import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
 	logger: Logger;
-}
-
-async function fetchFont(url: string): Promise<Buffer> {
-	try {
-		if (isAbsolute(url)) {
-			return await readFile(url);
-		}
-		// TODO: find a way to pass headers
-		// https://github.com/unjs/unifont/issues/143
-		const response = await fetch(url);
-		if (!response.ok) {
-			throw new Error(`Response was not successful, received status code ${response.status}`);
-		}
-		return Buffer.from(await response.arrayBuffer());
-	} catch (cause) {
-		throw new AstroError(
-			{
-				...AstroErrorData.CannotFetchFontFile,
-				message: AstroErrorData.CannotFetchFontFile.message(url),
-			},
-			{ cause },
-		);
-	}
 }
 
 export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
@@ -88,80 +79,92 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	// to trailingSlash: never)
 	const baseUrl = removeTrailingForwardSlash(settings.config.base) + URL_PREFIX;
 
-	let resolvedMap: Map<string, { preloadData: PreloadData; css: string }> | null = null;
+	let resolvedMap: Map<string, { preloadData: Array<PreloadData>; css: string }> | null = null;
 	// Key is `${hash}.${ext}`, value is a URL.
 	// When a font file is requested (eg. /_astro/fonts/abc.woff), we use the hash
 	// to download the original file, or retrieve it from cache
 	let hashToUrlMap: Map<string, string> | null = null;
 	let isBuild: boolean;
-	let storage: Storage | null = null;
+	let fontFetcher: FontFetcher | null = null;
+	let fontTypeExtractor: FontTypeExtractor | null = null;
 
 	const cleanup = () => {
 		resolvedMap = null;
 		hashToUrlMap = null;
-		storage = null;
+		fontFetcher = null;
 	};
 
-	async function initialize({ resolveMod, base }: { resolveMod: ResolveMod; base: URL }) {
-		const { h64ToString } = await xxhash();
-
-		storage = createStorage({
-			// Types are weirly exported
-			driver: (fsLiteDriver as unknown as typeof fsLiteDriver.default)({
-				base: fileURLToPath(base),
-			}),
+	async function initialize({
+		cacheDir,
+		modResolver,
+		cssRenderer,
+	}: {
+		cacheDir: URL;
+		modResolver: RemoteFontProviderModResolver;
+		cssRenderer: CssRenderer;
+	}) {
+		const { root } = settings.config;
+		// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
+		// a Vite plugin option.
+		const hasher = await createXxHasher();
+		const errorHandler = createAstroErrorHandler();
+		const remoteFontProviderResolver = createRemoteFontProviderResolver({
+			root,
+			modResolver,
+			errorHandler,
 		});
+		// TODO: remove when stabilizing
+		const pathsToWarn = new Set<string>();
+		const localProviderUrlResolver = createRequireLocalProviderUrlResolver({
+			root,
+			intercept: (path) => {
+				if (path.startsWith(fileURLToPath(settings.config.publicDir))) {
+					if (pathsToWarn.has(path)) {
+						return;
+					}
+					pathsToWarn.add(path);
+					logger.warn(
+						'assets',
+						`Found a local font file ${JSON.stringify(path)} in the \`public/\` folder. To avoid duplicated files in the build output, move this file into \`src/\``,
+					);
+				}
+			},
+		});
+		const storage = createFsStorage({ base: cacheDir });
+		const systemFallbacksProvider = createSystemFallbacksProvider();
+		fontFetcher = createCachedFontFetcher({ storage, errorHandler, fetch, readFile });
+		const fontMetricsResolver = createCapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
+		fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 
+		const res = await orchestrate({
+			families: settings.config.experimental.fonts!,
+			hasher,
+			remoteFontProviderResolver,
+			localProviderUrlResolver,
+			storage,
+			cssRenderer,
+			systemFallbacksProvider,
+			fontMetricsResolver,
+			fontTypeExtractor,
+			createUrlProxy: ({ local, ...params }) => {
+				const dataCollector = createDataCollector(params);
+				const contentResolver = local
+					? createLocalUrlProxyContentResolver({ errorHandler })
+					: createRemoteUrlProxyContentResolver();
+				return createUrlProxy({
+					base: baseUrl,
+					contentResolver,
+					hasher,
+					dataCollector,
+					fontTypeExtractor: fontTypeExtractor!,
+				});
+			},
+			defaults: DEFAULTS,
+		});
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory
-		hashToUrlMap = new Map();
-		resolvedMap = new Map();
-
-		const families: Array<ResolvedFontFamily> = [];
-
-		const root = settings.config.root;
-		const pathsToWarn = new Set<string>();
-
-		for (const family of settings.config.experimental.fonts!) {
-			families.push(
-				await resolveFontFamily({
-					family,
-					root,
-					resolveMod,
-					generateNameWithHash: (_family) =>
-						`${withoutQuotes(_family.name)}-${h64ToString(JSON.stringify(sortObjectByKey(_family)))}`,
-					resolveLocalEntrypoint: (url) => {
-						const resolvedPath = fileURLToPath(resolveEntrypoint(root, url));
-						if (resolvedPath.startsWith(fileURLToPath(settings.config.publicDir))) {
-							pathsToWarn.add(resolvedPath);
-						}
-						return resolvedPath;
-					},
-				}),
-			);
-		}
-
-		for (const path of [...pathsToWarn]) {
-			// TODO: remove when stabilizing
-			logger.warn(
-				'assets',
-				`Found a local font file ${JSON.stringify(path)} in the \`public/\` folder. To avoid duplicated files in the build output, move this file into \`src/\``,
-			);
-		}
-
-		await loadFonts({
-			base: baseUrl,
-			families,
-			storage,
-			hashToUrlMap,
-			resolvedMap,
-			hashString: h64ToString,
-			generateFallbackFontFace,
-			getMetricsForFamily: async (name, font) => {
-				return await readMetrics(name, await cache(storage!, font.hash, () => fetchFont(font.url)));
-			},
-			log: (message) => logger.info('assets', message),
-		});
+		hashToUrlMap = res.hashToUrlMap;
+		resolvedMap = res.resolvedMap;
 	}
 
 	return {
@@ -172,16 +175,18 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		async buildStart() {
 			if (isBuild) {
 				await initialize({
-					resolveMod: (id) => import(id),
-					base: new URL(CACHE_DIR, settings.config.cacheDir),
+					cacheDir: new URL(CACHE_DIR, settings.config.cacheDir),
+					modResolver: createBuildRemoteFontProviderModResolver(),
+					cssRenderer: createMinifiableCssRenderer({ minify: true }),
 				});
 			}
 		},
 		async configureServer(server) {
 			await initialize({
-				resolveMod: (id) => server.ssrLoadModule(id),
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
-				base: new URL(CACHE_DIR, settings.dotAstroDir),
+				cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
+				modResolver: createDevServerRemoteFontProviderModResolver({ server }),
+				cssRenderer: createMinifiableCssRenderer({ minify: false }),
 			});
 			// The map is always defined at this point. Its values contains urls from remote providers
 			// as well as local paths for the local provider. We filter them to only keep the filepaths
@@ -223,10 +228,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					// Storage should be defined at this point since initialize it called before registering
 					// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
 					// no url will be matched and this line will not be reached.
-					const data = await cache(storage!, hash, () => fetchFont(url));
+					const data = await fontFetcher!.fetch(hash, url);
 
 					res.setHeader('Content-Length', data.length);
-					res.setHeader('Content-Type', `font/${extractFontType(hash)}`);
+					res.setHeader('Content-Type', `font/${fontTypeExtractor!.extract(hash)}`);
 
 					res.end(data);
 				} catch (err) {
@@ -272,7 +277,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					logger.info('assets', 'Copying fonts...');
 					await Promise.all(
 						Array.from(hashToUrlMap.entries()).map(async ([hash, url]) => {
-							const data = await cache(storage!, hash, () => fetchFont(url));
+							const data = await fontFetcher!.fetch(hash, url);
 							try {
 								writeFileSync(new URL(hash, fontsDir), data);
 							} catch (cause) {
