@@ -500,7 +500,17 @@ async function generatePath(
 		route.pathname !== '/' &&
 		// Check if there is a translated page with the same path
 		  Object.values(options.allPages).some((val) => { 
-			return (val.route.pattern.test(pathname) && ((val.route?.distURL?.find((url) => url.pathname.includes(pathname))) || (val.route.pathname == pathname)))
+
+      if (val.route.pattern.test(pathname)){
+		// If this is a dynamic route, check that it generates the path we are looking for
+		if (Array.isArray(route.distURL) && route.distURL.length !== 0){
+			let matchedRoute = route.distURL.find((url) => url.pathname.includes(pathname));
+			if (!matchedRoute) return false;
+		}
+		return true;
+	} else {
+		return false;
+	}
 		})
 	) {
 		return undefined;
