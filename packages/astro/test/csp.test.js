@@ -40,13 +40,13 @@ describe('CSP', () => {
 				);
 			}
 
-			let astroStyleHash = manifest.astroIslandHashes.find(
-				({ name }) => name === 'astro-island-styles',
+			let [, astroStyleHash] = Object.entries(manifest.astroIslandHashes).find(
+				([name, _]) => name === 'astro-island-styles',
 			);
-			astroStyleHash = `sha256-${astroStyleHash.hash}`;
+			astroStyleHash = `sha256-${astroStyleHash}`;
 
-			let astroIsland = manifest.astroIslandHashes.find(({ name }) => name === 'astro-island');
-			astroIsland = `sha256-${astroIsland.hash}`;
+			let [, astroIsland] = Object.entries(manifest.astroIslandHashes).find(([name, _]) => name === 'astro-island');
+			astroIsland = `sha256-${astroIsland}`;
 
 			assert.ok(
 				meta.attr('content').includes(astroStyleHash),
