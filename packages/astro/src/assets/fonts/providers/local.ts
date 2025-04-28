@@ -1,53 +1,42 @@
 import type * as unifont from 'unifont';
 import { FONT_FORMAT_MAP } from '../constants.js';
+import type { FontTypeExtractor, UrlProxy } from '../definitions.js';
 import type { ResolvedLocalFontFamily } from '../types.js';
-import { extractFontType } from '../utils.js';
-
-// https://fonts.nuxt.com/get-started/providers#local
-// https://github.com/nuxt/fonts/blob/main/src/providers/local.ts
-// https://github.com/unjs/unifont/blob/main/src/providers/google.ts
-
-type InitializedProvider = NonNullable<Awaited<ReturnType<unifont.Provider>>>;
-
-type ResolveFontResult = NonNullable<Awaited<ReturnType<InitializedProvider['resolveFont']>>>;
 
 interface Options {
 	family: ResolvedLocalFontFamily;
-	proxyURL: (params: { value: string; data: Partial<unifont.FontFaceData> }) => string;
+	urlProxy: UrlProxy;
+	fontTypeExtractor: FontTypeExtractor;
 }
 
-export function resolveLocalFont({ family, proxyURL }: Options): ResolveFontResult {
-	const fonts: ResolveFontResult['fonts'] = [];
-
-	for (const variant of family.variants) {
-		const data: ResolveFontResult['fonts'][number] = {
+export function resolveLocalFont({ family, urlProxy, fontTypeExtractor }: Options): {
+	fonts: Array<unifont.FontFaceData>;
+} {
+	return {
+		fonts: family.variants.map((variant) => ({
 			weight: variant.weight,
 			style: variant.style,
-			src: variant.src.map(({ url: originalURL, tech }) => {
-				return {
-					originalURL,
-					url: proxyURL({
-						value: originalURL,
-						data: {
-							weight: variant.weight,
-							style: variant.style,
-						},
-					}),
-					format: FONT_FORMAT_MAP[extractFontType(originalURL)],
-					tech,
-				};
-			}),
-		};
-		if (variant.display) data.display = variant.display;
-		if (variant.unicodeRange) data.unicodeRange = variant.unicodeRange;
-		if (variant.stretch) data.stretch = variant.stretch;
-		if (variant.featureSettings) data.featureSettings = variant.featureSettings;
-		if (variant.variationSettings) data.variationSettings = variant.variationSettings;
-
-		fonts.push(data);
-	}
-
-	return {
-		fonts,
+			// We proxy each source
+			src: variant.src.map((source, index) => ({
+				originalURL: source.url,
+				url: urlProxy.proxy({
+					url: source.url,
+					// We only use the first source for preloading. For example if woff2 and woff
+					// are available, we only keep woff2.
+					collectPreload: index === 0,
+					data: {
+						weight: variant.weight,
+						style: variant.style,
+					},
+				}),
+				format: FONT_FORMAT_MAP[fontTypeExtractor.extract(source.url)],
+				tech: source.tech,
+			})),
+			display: variant.display,
+			unicodeRange: variant.unicodeRange,
+			stretch: variant.stretch,
+			featureSettings: variant.featureSettings,
+			variationSettings: variant.variationSettings,
+		})),
 	};
 }
