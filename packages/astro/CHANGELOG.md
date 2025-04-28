@@ -1,5 +1,21 @@
 # astro
 
+## 5.7.7
+
+### Patch Changes
+
+- [#13705](https://github.com/withastro/astro/pull/13705) [`28f8716`](https://github.com/withastro/astro/commit/28f8716ceef8b30ebb4da8c6ef32acc72405c1e6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates unifont to latest and adds support for `fetch` options from remote providers when using the experimental fonts API
+
+- [#13692](https://github.com/withastro/astro/pull/13692) [`60d5be4`](https://github.com/withastro/astro/commit/60d5be4af49a72e3739f74424c3d5c423f98c133) Thanks [@Le0Developer](https://github.com/Le0Developer)! - Fixes a bug where Astro couldn't probably use `inferSize` for images that contain apostrophe `'` in their name.
+
+- [#13698](https://github.com/withastro/astro/pull/13698) [`ab98f88`](https://github.com/withastro/astro/commit/ab98f884f2f8639a8f385cdbc919bc829014f64d) Thanks [@sarah11918](https://github.com/sarah11918)! - Improves the configuration reference docs for the `adapter` entry with more relevant text and links.
+
+- [#13706](https://github.com/withastro/astro/pull/13706) [`b4929ae`](https://github.com/withastro/astro/commit/b4929ae9e77f74bde251e81abc0a80e160de774a) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes typechecking for content config schema
+
+- [#13653](https://github.com/withastro/astro/pull/13653) [`a7b2dc6`](https://github.com/withastro/astro/commit/a7b2dc60ca94f42a66575feb190e8b0f36b48e7c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Reduces the amount of preloaded files for the local provider when using the experimental fonts API
+
+- [#13653](https://github.com/withastro/astro/pull/13653) [`a7b2dc6`](https://github.com/withastro/astro/commit/a7b2dc60ca94f42a66575feb190e8b0f36b48e7c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where invalid CSS was emitted when using an experimental fonts API family name containing a space
+
 ## 5.7.6
 
 ### Patch Changes
