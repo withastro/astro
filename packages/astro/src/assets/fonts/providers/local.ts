@@ -28,6 +28,7 @@ export function resolveLocalFont({ family, urlProxy, fontTypeExtractor }: Option
 						weight: variant.weight,
 						style: variant.style,
 					},
+					init: null
 				}),
 				format: FONT_FORMAT_MAP[fontTypeExtractor.extract(source.url)],
 				tech: source.tech,

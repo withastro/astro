@@ -84,7 +84,7 @@ export async function orchestrate({
 	 * Holds associations of hash and original font file URLs, so they can be
 	 * downloaded whenever the hash is requested.
 	 */
-	const hashToUrlMap = new Map<string, string>();
+	const hashToUrlMap = new Map<string, { url: string; init: RequestInit | null }>();
 	/**
 	 * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
 	 */
@@ -107,8 +107,8 @@ export async function orchestrate({
 		const urlProxy = createUrlProxy({
 			local: family.provider === LOCAL_PROVIDER_NAME,
 			hasUrl: (hash) => hashToUrlMap.has(hash),
-			saveUrl: (hash, url) => {
-				hashToUrlMap.set(hash, url);
+			saveUrl: ({ hash, url, init }) => {
+				hashToUrlMap.set(hash, { url, init });
 			},
 			savePreload: (preload) => {
 				preloadData.push(preload);

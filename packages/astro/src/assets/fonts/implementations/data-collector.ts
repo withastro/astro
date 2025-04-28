@@ -8,9 +8,9 @@ export function createDataCollector({
 	saveFontData,
 }: Omit<CreateUrlProxyParams, 'local'>): DataCollector {
 	return {
-		collect({ originalUrl, hash, preload, data }) {
+		collect({ originalUrl, hash, preload, data, init }) {
 			if (!hasUrl(hash)) {
-				saveUrl(hash, originalUrl);
+				saveUrl({ hash, url: originalUrl, init });
 				if (preload) {
 					savePreload(preload);
 				}
@@ -19,6 +19,7 @@ export function createDataCollector({
 				hash,
 				url: originalUrl,
 				data,
+				init,
 			});
 		},
 	};

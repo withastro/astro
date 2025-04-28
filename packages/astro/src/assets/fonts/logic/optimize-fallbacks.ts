@@ -1,11 +1,13 @@
-import type { FontMetricsResolver, SystemFallbacksProvider } from '../definitions.js';
+import type {
+	FontFetcherInput,
+	FontMetricsResolver,
+	SystemFallbacksProvider,
+} from '../definitions.js';
 import type { ResolvedFontFamily } from '../types.js';
 import { isGenericFontFamily, unifontFontFaceDataToProperties } from '../utils.js';
 import type * as unifont from 'unifont';
 
-export interface CollectedFontForMetrics {
-	hash: string;
-	url: string;
+export interface CollectedFontForMetrics extends FontFetcherInput {
 	data: Partial<unifont.FontFaceData>;
 }
 
@@ -64,14 +66,14 @@ export async function optimizeFallbacks({
 	let css = '';
 
 	for (const { font, name } of localFontsMappings) {
-		for (const { hash, url, data } of collectedFonts) {
+		for (const collected of collectedFonts) {
 			// We generate a fallback for each font collected, which is per weight and style
 			css += fontMetricsResolver.generateFontFace({
-				metrics: await fontMetricsResolver.getMetrics(family.name, { hash, url, data }),
+				metrics: await fontMetricsResolver.getMetrics(family.name, collected),
 				fallbackMetrics: systemFallbacksProvider.getMetricsForLocalFont(font),
 				font,
 				name,
-				properties: unifontFontFaceDataToProperties(data),
+				properties: unifontFontFaceDataToProperties(collected.data),
 			});
 		}
 	}

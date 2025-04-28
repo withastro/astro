@@ -11,19 +11,17 @@ export function createCachedFontFetcher({
 }: {
 	storage: Storage;
 	errorHandler: ErrorHandler;
-	fetch: (url: string) => Promise<Response>;
+	fetch: (url: string, init?: RequestInit) => Promise<Response>;
 	readFile: (url: string) => Promise<Buffer>;
 }): FontFetcher {
 	return {
-		async fetch(hash, url) {
+		async fetch({ hash, url, init }) {
 			return await cache(storage, hash, async () => {
 				try {
 					if (isAbsolute(url)) {
 						return await readFile(url);
 					}
-					// TODO: find a way to pass headers
-					// https://github.com/unjs/unifont/issues/143
-					const response = await fetch(url);
+					const response = await fetch(url, init ?? undefined);
 					if (!response.ok) {
 						throw new Error(`Response was not successful, received status code ${response.status}`);
 					}

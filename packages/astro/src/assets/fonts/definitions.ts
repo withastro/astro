@@ -47,6 +47,7 @@ export interface UrlProxy {
 		url: string;
 		collectPreload: boolean;
 		data: Partial<unifont.FontFaceData>;
+		init: RequestInit | null;
 	}) => string;
 }
 
@@ -58,6 +59,7 @@ export interface DataCollector {
 	collect: (input: {
 		originalUrl: string;
 		hash: string;
+		init: RequestInit | null;
 		data: Partial<unifont.FontFaceData>;
 		preload: PreloadData | null;
 	}) => void;
@@ -86,8 +88,14 @@ export interface SystemFallbacksProvider {
 	getMetricsForLocalFont: (family: string) => FontFaceMetrics;
 }
 
+export interface FontFetcherInput {
+	hash: string;
+	url: string;
+	init: RequestInit | null;
+}
+
 export interface FontFetcher {
-	fetch: (hash: string, url: string) => Promise<Buffer>;
+	fetch: (input: FontFetcherInput) => Promise<Buffer>;
 }
 
 export interface FontTypeExtractor {

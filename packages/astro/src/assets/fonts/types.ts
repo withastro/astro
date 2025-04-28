@@ -8,6 +8,7 @@ import type {
 import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
 import type { Font } from '@capsizecss/unpack';
 import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
+import type { FontFetcherInput } from './definitions.js';
 
 export type AstroFontProvider = z.infer<typeof fontProviderSchema>;
 
@@ -80,7 +81,7 @@ export type Defaults = Partial<
 export interface CreateUrlProxyParams {
 	local: boolean;
 	hasUrl: (hash: string) => boolean;
-	saveUrl: (hash: string, url: string) => void;
+	saveUrl: (input: FontFetcherInput) => void;
 	savePreload: (preload: PreloadData) => void;
 	saveFontData: (collected: CollectedFontForMetrics) => void;
 }
