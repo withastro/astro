@@ -60,7 +60,7 @@ const fallbacksSchema = z.object({
 
 	 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
 	 */
-	fallbacks: z.array(z.string()).nonempty().optional(),
+	fallbacks: z.array(z.string()).optional(),
 	/**
 	 * @default `true`
 	 *

@@ -359,7 +359,10 @@ function createRedirectRoutes(
 
 		// check if the link starts with http or https; if not, throw an error
 		if (URL.canParse(destination) && !/^https?:\/\//.test(destination)) {
-			throw new AstroError(UnsupportedExternalRedirect);
+			throw new AstroError({
+				...UnsupportedExternalRedirect,
+				message: UnsupportedExternalRedirect.message(from, destination),
+			});
 		}
 
 		routes.push({
