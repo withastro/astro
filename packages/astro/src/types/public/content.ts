@@ -124,3 +124,17 @@ export interface DataEntryType {
 }
 
 export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawData?: string };
+
+export interface LiveDataEntry<TData extends Record<string, unknown> = Record<string, unknown>> {
+	/** The ID of the entry. Unique per collection. */
+	id: string;
+	/** The parsed entry data */
+	data: TData;
+}
+
+export interface LiveDataCollection<
+	TData extends Record<string, unknown> = Record<string, unknown>,
+> {
+	entries: Array<LiveDataEntry<TData>>;
+	// TODO: pagination etc.
+}
