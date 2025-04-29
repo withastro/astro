@@ -507,7 +507,7 @@ async function generatePath(
         let matchedRoute = val.route.distURL.find((url) => url.pathname.replace(/(?:\/index\.html|\.html)$/, '').endsWith(removeTrailingForwardSlash(pathname)));
         if (!matchedRoute) return false;
       }
-      if(val.route.segments && (!val.route.distURL || val.route.distURL.length == 0)){
+      if(val.route.prerender && val.route.segments && (!val.route.distURL || val.route.distURL.length == 0)){
         return false;
       }
 		return true;
