@@ -1,5 +1,11 @@
 # astro
 
+## 5.7.9
+
+### Patch Changes
+
+- [#13711](https://github.com/withastro/astro/pull/13711) [`2103991`](https://github.com/withastro/astro/commit/210399155a6004e8e975f9024ae6d7e9945ae9a9) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes height for responsive images
+
 ## 5.7.8
 
 ### Patch Changes
