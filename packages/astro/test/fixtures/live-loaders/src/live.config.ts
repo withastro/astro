@@ -6,9 +6,9 @@ type Entry = {
 };
 
 const entries = {
-	'123': { id: '123', data: { title: '123' } },
-	'456': { id: '456', data: { title: '456' } },
-	'789': { id: '789', data: { title: '789' } },
+	'123': { id: '123', data: { title: 'Page 123' } },
+	'456': { id: '456', data: { title: 'Page 456' } },
+	'789': { id: '789', data: { title: 'Page 789' } },
 };
 
 const loader: LiveLoader<Entry, { id: keyof typeof entries }> = {

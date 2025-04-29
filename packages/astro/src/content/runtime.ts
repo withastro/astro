@@ -45,12 +45,12 @@ export function getImporterFilename() {
 }
 
 export function defineCollection(config: any) {
-	const isInLiveConfig = getImporterFilename()?.endsWith('/live-content.config.ts');
+	const isInLiveConfig = getImporterFilename()?.endsWith('/live.config.ts');
 
 	if (config.type === LIVE_CONTENT_TYPE) {
 		if (!isInLiveConfig) {
 			throw new AstroUserError(
-				`Collections with type "live" must be defined in a \`src/live-content.config.ts\` file. Check your collection definitions in ${getImporterFilename() ?? 'your content config file'}.`,
+				`Collections with type "live" must be defined in a \`src/live.config.ts\` file. Check your collection definitions in ${getImporterFilename() ?? 'your content config file'}.`,
 			);
 		}
 		if (!config.loader) {
@@ -62,7 +62,7 @@ export function defineCollection(config: any) {
 	}
 	if (isInLiveConfig) {
 		throw new AstroUserError(
-			`Collections in a \`live-content.config.ts\` file must be defined with the type "live". Check your collection definitions.`,
+			`Collections in a \`live.config.ts\` file must be defined with the type "live". Check your collection definitions.`,
 		);
 	}
 

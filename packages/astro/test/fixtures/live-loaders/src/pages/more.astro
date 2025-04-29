@@ -2,7 +2,6 @@
 import { getEntry } from "astro:content";
 
 const data = await getEntry("liveStuff", "123")
-console.log({data})
 export const prerender = false;
 
 ---
@@ -16,6 +15,7 @@ export const prerender = false;
 		<title>Astro</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<h1>{data.data.title}</h1>
+		
 	</body>
 </html>

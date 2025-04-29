@@ -763,10 +763,10 @@ function searchConfig(
 
 function searchLiveConfig(fs: typeof fsMod, srcDir: URL): { exists: boolean; url: URL } {
 	const paths = [
-		'live-content.config.mjs',
-		'live-content.config.js',
-		'live-content.config.mts',
-		'live-content.config.ts',
+		'live.config.mjs',
+		'live.config.js',
+		'live.config.mts',
+		'live.config.ts',
 	];
 	return search(fs, srcDir, paths);
 }

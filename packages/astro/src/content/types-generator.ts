@@ -501,7 +501,7 @@ async function writeContentFiles({
 			case LIVE_CONTENT_TYPE:
 				// This error should never be thrown, as it should have been caught earlier in the process
 				throw new AstroUserError(
-					`Invalid definition for collection ${collectionKey}: Live content collections must be defined in "src/live-content.config.ts"`,
+					`Invalid definition for collection ${collectionKey}: Live content collections must be defined in "src/live.config.ts"`,
 				);
 			case 'content':
 				if (collectionEntryKeys.length === 0) {
