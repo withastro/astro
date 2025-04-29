@@ -111,8 +111,8 @@ function vitePluginSSR(
 			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					internals.staticFiles.add(chunk.fileName);
-				} 
-
+				}
+			}
 				for (const [, chunk] of Object.entries(bundle)) {
 					if (chunk.type === 'asset') {
 						continue;
@@ -121,7 +121,6 @@ function vitePluginSSR(
 						internals.ssrEntryChunk = chunk;
 					}
 				}
-			}
 		},
 	};
 }
