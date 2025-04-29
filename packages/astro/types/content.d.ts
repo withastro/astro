@@ -45,11 +45,18 @@ declare module 'astro:content' {
 		has: (key: string) => boolean;
 	}
 
+	type BaseAtomicSchema = import('astro/zod').AnyZodObject;
+
+	type BaseCompositeSchema =
+		| import('astro/zod').ZodUnion<[BaseAtomicSchema, ...BaseAtomicSchema[]]>
+		| import('astro/zod').ZodDiscriminatedUnion<string, BaseAtomicSchema[]>
+		// If we have a union of unions, give up on trying to type-check it all. You're on your own.
+		| import('astro/zod').ZodUnion<[import('astro/zod').ZodUnion<z.any>, ...z.any[]]>;
+
 	type BaseSchemaWithoutEffects =
-		| import('astro/zod').AnyZodObject
-		| import('astro/zod').ZodUnion<[BaseSchemaWithoutEffects, ...BaseSchemaWithoutEffects[]]>
-		| import('astro/zod').ZodDiscriminatedUnion<string, import('astro/zod').AnyZodObject[]>
-		| import('astro/zod').ZodIntersection<BaseSchemaWithoutEffects, BaseSchemaWithoutEffects>;
+		| BaseAtomicSchema
+		| BaseCompositeSchema
+		| import('astro/zod').ZodIntersection<BaseAtomicSchema, BaseAtomicSchema | BaseCompositeSchema>;
 
 	export type BaseSchema =
 		| BaseSchemaWithoutEffects
