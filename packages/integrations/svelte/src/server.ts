@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata } from 'astro';
+import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 import { incrementId } from './context.js';
@@ -13,9 +13,9 @@ function check(Component: any) {
 	return Component.toString().includes('$$payload');
 }
 
-function needsHydration(metadata: AstroComponentMetadata) {
+function needsHydration(metadata?: AstroComponentMetadata) {
 	// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
-	return metadata.astroStaticSlot ? !!metadata.hydrate : true;
+	return metadata?.astroStaticSlot ? !!metadata.hydrate : true;
 }
 
 async function renderToStaticMarkup(
@@ -23,7 +23,7 @@ async function renderToStaticMarkup(
 	Component: any,
 	props: Record<string, any>,
 	slotted: Record<string, any>,
-	metadata: AstroComponentMetadata,
+	metadata?: AstroComponentMetadata,
 ) {
 	const tagName = needsHydration(metadata) ? 'astro-slot' : 'astro-static-slot';
 
@@ -66,9 +66,11 @@ async function renderToStaticMarkup(
 	return { html: result.body };
 }
 
-export default {
+const renderer: NamedSSRLoadedRendererValue = {
 	name: '@astrojs/svelte',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
 };
+
+export default renderer;
