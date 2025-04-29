@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
+import { shouldTrackCspHashes } from '../core/csp/common.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
@@ -25,8 +26,6 @@ import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
-import { ASTRO_ISLAND_HASHES } from '../core/astro-islands-hashes.js';
-import { shouldTrackCspHashes } from '../core/csp/common.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -211,6 +210,5 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		clientScriptHashes: [],
 		clientStyleHashes: [],
 		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config),
-		astroIslandHashes: ASTRO_ISLAND_HASHES,
 	};
 }

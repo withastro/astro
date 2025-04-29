@@ -1,8 +1,8 @@
-import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
 import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('CSP', () => {
 	let app;
@@ -45,7 +45,9 @@ describe('CSP', () => {
 			);
 			astroStyleHash = `sha256-${astroStyleHash}`;
 
-			let [, astroIsland] = Object.entries(manifest.astroIslandHashes).find(([name, _]) => name === 'astro-island');
+			let [, astroIsland] = Object.entries(manifest.astroIslandHashes).find(
+				([name, _]) => name === 'astro-island',
+			);
 			astroIsland = `sha256-${astroIsland}`;
 
 			assert.ok(

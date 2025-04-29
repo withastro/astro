@@ -55,6 +55,14 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 				}
 			}
 		},
+
+		async generateBundle(_opts, bundle) {
+			for (const [_, chunk] of Object.entries(bundle)) {
+				if (chunk.type === 'asset') {
+					internals.staticFiles.add(chunk.fileName);
+				}
+			}
+		},
 	};
 }
 
