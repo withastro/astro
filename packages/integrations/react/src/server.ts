@@ -1,5 +1,5 @@
 import opts from 'astro:react:opts';
-import type { AstroComponentMetadata } from 'astro';
+import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { incrementId } from './context.js';
@@ -47,7 +47,7 @@ async function check(
 		return React.createElement('div');
 	}
 
-	await renderToStaticMarkup.call(this, Tester, props, children, {} as any);
+	await renderToStaticMarkup.call(this, Tester, props, children);
 
 	return isReactComponent;
 }
@@ -58,9 +58,9 @@ async function getNodeWritable(): Promise<typeof import('node:stream').Writable>
 	return Writable;
 }
 
-function needsHydration(metadata: AstroComponentMetadata) {
+function needsHydration(metadata?: AstroComponentMetadata) {
 	// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
-	return metadata.astroStaticSlot ? !!metadata.hydrate : true;
+	return metadata?.astroStaticSlot ? !!metadata.hydrate : true;
 }
 
 async function renderToStaticMarkup(
@@ -68,7 +68,7 @@ async function renderToStaticMarkup(
 	Component: any,
 	props: Record<string, any>,
 	{ default: children, ...slotted }: Record<string, any>,
-	metadata: AstroComponentMetadata,
+	metadata?: AstroComponentMetadata,
 ) {
 	let prefix;
 	if (this && this.result) {
@@ -113,7 +113,7 @@ async function renderToStaticMarkup(
 		identifierPrefix: prefix,
 		formState,
 	};
-	let html;
+	let html: string;
 	if (opts.experimentalDisableStreaming) {
 		html = ReactDOM.renderToString(vnode);
 	} else if ('renderToReadableStream' in ReactDOM) {
@@ -156,7 +156,7 @@ async function getFormState({
 async function renderToPipeableStreamAsync(vnode: any, options: Record<string, any>) {
 	const Writable = await getNodeWritable();
 	let html = '';
-	return new Promise((resolve, reject) => {
+	return new Promise<string>((resolve, reject) => {
 		let error = undefined;
 		let stream = ReactDOM.renderToPipeableStream(vnode, {
 			...options,
@@ -219,9 +219,11 @@ function isFormRequest(contentType: string | null) {
 	return formContentTypes.some((t) => type === t);
 }
 
-export default {
+const renderer: NamedSSRLoadedRendererValue = {
 	name: '@astrojs/react',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
 };
+
+export default renderer;

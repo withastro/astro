@@ -1,12 +1,12 @@
 import { setup } from 'virtual:@astrojs/vue/app';
-import type { AstroComponentMetadata } from 'astro';
+import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { incrementId } from './context.js';
 import StaticHtml from './static-html.js';
 import type { RendererContext } from './types.js';
 
-function check(Component: any) {
+async function check(Component: any) {
 	return !!Component['ssrRender'] || !!Component['__ssrInlineRender'];
 }
 
@@ -15,13 +15,13 @@ async function renderToStaticMarkup(
 	Component: any,
 	inputProps: Record<string, any>,
 	slotted: Record<string, any>,
-	metadata: AstroComponentMetadata,
+	metadata?: AstroComponentMetadata,
 ) {
 	let prefix;
 	if (this && this.result) {
 		prefix = incrementId(this.result);
 	}
-	const attrs = { prefix };
+	const attrs: Record<string, any> = { prefix };
 
 	const slots: Record<string, any> = {};
 	const props = { ...inputProps };
@@ -32,7 +32,7 @@ async function renderToStaticMarkup(
 				value,
 				name: key === 'default' ? undefined : key,
 				// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
-				hydrate: metadata.astroStaticSlot ? !!metadata.hydrate : true,
+				hydrate: metadata?.astroStaticSlot ? !!metadata.hydrate : true,
 			});
 	}
 	const app = createSSRApp({ render: () => h(Component, props, slots) });
@@ -42,9 +42,11 @@ async function renderToStaticMarkup(
 	return { html, attrs };
 }
 
-export default {
+const renderer: NamedSSRLoadedRendererValue = {
 	name: '@astrojs/vue',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
 };
+
+export default renderer;
