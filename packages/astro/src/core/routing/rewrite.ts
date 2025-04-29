@@ -105,12 +105,12 @@ export function findRouteToRewrite({
       // Named prerendered route (eg. src/pages/about.astro)
       if (route.pathname == decodedPathname){
         foundRoute = route;
-		break;
+		    break;
       }
       // Dynamic route
-      if (route.distURL && route.distURL.length) {
+      if (route.distURL && route.distURL.length !== 0) {
         // Check that the route generates a matching pathname
-        let matchedRoute = route.distURL.find((url) => url.pathname.includes(decodedPathname));
+        let matchedRoute = route.distURL.find((url) => url.pathname.replace(/(?:\/index\.html|\.html)$/, '').endsWith(removeTrailingForwardSlash(decodedPathname)));
       if (matchedRoute) {
           foundRoute = route;
           break;
