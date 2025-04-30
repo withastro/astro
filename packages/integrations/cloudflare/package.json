@@ -38,7 +38,7 @@
     "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/workers-types": "^4.20250327.0",
     "tinyglobby": "^0.2.12",
-    "vite": "^6.2.6",
+    "vite": "^6.3.4",
     "wrangler": "^4.5.1"
   },
   "peerDependencies": {
