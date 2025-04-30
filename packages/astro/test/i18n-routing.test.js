@@ -812,9 +812,9 @@ describe('[SSG] i18n routing', () => {
 			assert.equal(response.headers.get('Location'), '/');
 			assert.equal(response.status, 302);
 
-			const followRediectResponse = await fixture.fetch('/fr');
-			assert.equal(followRediectResponse.status, 200);
-			assert.equal((await followRediectResponse.text()).includes('Hello'), true);
+			const followRedirectResponse = await fixture.fetch('/fr');
+			assert.equal(followRedirectResponse.status, 200);
+			assert.equal((await followRedirectResponse.text()).includes('Hello'), true);
 		});
 	});
 
