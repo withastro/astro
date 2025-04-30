@@ -11,7 +11,7 @@ export function createFontaceFontFileReader({
 			try {
 				const data = fontace(readFileSync(url));
 				return {
-					weight: data.weight as string,
+					weight: data.weight,
 					style: data.style as Style,
 					unicodeRange: data.unicodeRange.split(',').map((v) => v.trim()),
 				};
