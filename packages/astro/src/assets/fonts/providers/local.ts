@@ -8,6 +8,7 @@ interface Options {
 	family: ResolvedLocalFontFamily;
 	urlProxy: UrlProxy;
 	fontTypeExtractor: FontTypeExtractor;
+	// TODO: local properties inferer
 }
 
 export function resolveLocalFont({ family, urlProxy, fontTypeExtractor }: Options): {
