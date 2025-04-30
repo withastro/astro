@@ -36,7 +36,7 @@ import { createRoutesList } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
 
-export type SyncOptions = {
+type SyncOptions = {
 	mode: string;
 	/**
 	 * @internal only used for testing

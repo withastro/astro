@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "6.3.0",
+  "version": "6.3.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -50,15 +50,11 @@
     "astro": "^5.3.0"
   },
   "devDependencies": {
-    "@netlify/edge-functions": "^2.11.1",
-    "@netlify/edge-handler-types": "^0.34.1",
     "@types/node": "^22.10.6",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "devalue": "^5.1.1",
-    "execa": "^8.0.1",
-    "strip-ansi": "^7.1.0",
     "typescript": "^5.8.2"
   },
   "astro": {

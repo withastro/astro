@@ -47,7 +47,7 @@ interface Item {
 const ROUTE_DYNAMIC_SPLIT = /\[(.+?\(.+?\)|.+?)\]/;
 const ROUTE_SPREAD = /^\.{3}.+$/;
 
-export function getParts(part: string, file: string) {
+function getParts(part: string, file: string) {
 	const result: RoutePart[] = [];
 	part.split(ROUTE_DYNAMIC_SPLIT).map((str, i) => {
 		if (!str) return;
@@ -102,7 +102,7 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
 	return true;
 }
 
-export interface CreateRouteManifestParams {
+interface CreateRouteManifestParams {
 	/** Astro Settings object */
 	settings: AstroSettings;
 	/** Current working directory */
@@ -359,7 +359,10 @@ function createRedirectRoutes(
 
 		// check if the link starts with http or https; if not, throw an error
 		if (URL.canParse(destination) && !/^https?:\/\//.test(destination)) {
-			throw new AstroError(UnsupportedExternalRedirect);
+			throw new AstroError({
+				...UnsupportedExternalRedirect,
+				message: UnsupportedExternalRedirect.message(from, destination),
+			});
 		}
 
 		routes.push({

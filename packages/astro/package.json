@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.7.2",
+  "version": "5.7.9",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -47,10 +47,7 @@
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
     "./runtime/*": "./dist/runtime/*",
     "./config": "./dist/config/entrypoint.js",
-    "./container": {
-      "types": "./dist/container/index.d.ts",
-      "default": "./dist/container/index.js"
-    },
+    "./container": "./dist/container/index.js",
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
@@ -76,10 +73,7 @@
       "default": "./zod.mjs"
     },
     "./errors": "./dist/core/errors/userError.js",
-    "./middleware": {
-      "types": "./dist/core/middleware/index.d.ts",
-      "default": "./dist/core/middleware/index.js"
-    },
+    "./middleware": "./dist/core/middleware/index.js",
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
   "bin": {
@@ -167,7 +161,7 @@
     "tinyglobby": "^0.2.12",
     "tsconfck": "^3.1.5",
     "ultrahtml": "^1.6.0",
-    "unifont": "~0.2.0",
+    "unifont": "~0.4.1",
     "unist-util-visit": "^5.0.0",
     "unstorage": "^1.15.0",
     "vfile": "^6.0.3",

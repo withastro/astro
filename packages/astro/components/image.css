@@ -1,17 +1,11 @@
-[data-astro-image] {
-	width: 100%;
-	height: auto;
+:where([data-astro-image]) {
 	object-fit: var(--fit);
 	object-position: var(--pos);
-	aspect-ratio: var(--w) / var(--h);
+	height: auto;
 }
-/* Styles for responsive layout */
-[data-astro-image='responsive'] {
-	max-width: calc(var(--w) * 1px);
-	max-height: calc(var(--h) * 1px);
+:where([data-astro-image='full-width']) {
+	width: 100%;
 }
-/* Styles for fixed layout */
-[data-astro-image='fixed'] {
-	width: calc(var(--w) * 1px);
-	height: calc(var(--h) * 1px);
+:where([data-astro-image='constrained']) {
+	max-width: 100%;
 }

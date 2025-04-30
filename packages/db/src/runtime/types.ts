@@ -7,7 +7,7 @@ type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	'name' | 'tableName' | 'notNull' | 'hasDefault'
 >;
 
-export type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
+type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
 	T & {
 		data: string;
 		dataType: 'string';
@@ -18,7 +18,7 @@ export type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
 	}
 >;
 
-export type AstroDate<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
+type AstroDate<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	T & {
 		data: Date;
 		dataType: 'custom';
@@ -29,7 +29,7 @@ export type AstroDate<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	}
 >;
 
-export type AstroBoolean<T extends GeneratedConfig<'boolean'>> = SQLiteColumn<
+type AstroBoolean<T extends GeneratedConfig<'boolean'>> = SQLiteColumn<
 	T & {
 		data: boolean;
 		dataType: 'boolean';
@@ -40,7 +40,7 @@ export type AstroBoolean<T extends GeneratedConfig<'boolean'>> = SQLiteColumn<
 	}
 >;
 
-export type AstroNumber<T extends GeneratedConfig<'number'>> = SQLiteColumn<
+type AstroNumber<T extends GeneratedConfig<'number'>> = SQLiteColumn<
 	T & {
 		data: number;
 		dataType: 'number';
@@ -51,7 +51,7 @@ export type AstroNumber<T extends GeneratedConfig<'number'>> = SQLiteColumn<
 	}
 >;
 
-export type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
+type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	T & {
 		data: unknown;
 		dataType: 'custom';
@@ -62,7 +62,7 @@ export type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	}
 >;
 
-export type Column<T extends DBColumn['type'], S extends GeneratedConfig> = T extends 'boolean'
+type Column<T extends DBColumn['type'], S extends GeneratedConfig> = T extends 'boolean'
 	? AstroBoolean<S>
 	: T extends 'number'
 		? AstroNumber<S>

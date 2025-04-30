@@ -16,13 +16,13 @@ type DotKeys<T> = T extends object
 		}[keyof T]
 	: never;
 
-export type GetDotKey<
+type GetDotKey<
 	T extends Record<string | number, any>,
 	K extends string,
 > = K extends `${infer U}.${infer Rest}` ? GetDotKey<T[U], Rest> : T[K];
 
-export type PreferenceLocation = 'global' | 'project';
-export interface PreferenceOptions {
+type PreferenceLocation = 'global' | 'project';
+interface PreferenceOptions {
 	location?: PreferenceLocation;
 	/**
 	 * If `true`, the server will be reloaded after setting the preference.
@@ -40,7 +40,7 @@ type DeepPartial<T> = T extends object
 	: T;
 
 export type PreferenceKey = DotKeys<Preferences>;
-export interface PreferenceList extends Record<PreferenceLocation, DeepPartial<PublicPreferences>> {
+interface PreferenceList extends Record<PreferenceLocation, DeepPartial<PublicPreferences>> {
 	fromAstroConfig: DeepPartial<Preferences>;
 	defaults: PublicPreferences;
 }

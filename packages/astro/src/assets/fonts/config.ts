@@ -60,9 +60,9 @@ const fallbacksSchema = z.object({
 	 * ```
 	 *
 
-	 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), an [optimized fallback](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
+	 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
 	 */
-	fallbacks: z.array(z.string()).nonempty().optional(),
+	fallbacks: z.array(z.string()).optional(),
 	/**
 	 * @default `true`
 	 *
@@ -71,7 +71,7 @@ const fallbacksSchema = z.object({
 	optimizedFallbacks: z.boolean().optional(),
 });
 
-export const requiredFamilyAttributesSchema = z.object({
+const requiredFamilyAttributesSchema = z.object({
 	/**
 	 * The font family name, as identified by your font provider.
 	 */
@@ -168,11 +168,10 @@ export const remoteFontFamilySchema = requiredFamilyAttributesSchema
 			 * An array of [font styles](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
 			 */
 			styles: z.array(styleSchema).nonempty().optional(),
-			// TODO: better link
 			/**
 			 * @default `["cyrillic-ext", "cyrillic", "greek-ext", "greek", "vietnamese", "latin-ext", "latin"]`
 			 *
-			 * An array of [font subsets](https://fonts.google.com/knowledge/glossary/subsetting):
+			 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
 			 */
 			subsets: z.array(z.string()).nonempty().optional(),
 			/**

@@ -32,9 +32,9 @@
         "noConsoleLog": "warn"
       },
       "correctness": {
-        "noUnusedVariables": "info",
-        "noUnusedFunctionParameters": "info",
-        "noUnusedImports": "warn"
+        "noUnusedVariables": "error",
+        "noUnusedFunctionParameters": "error",
+        "noUnusedImports": "error"
       }
     }
   },

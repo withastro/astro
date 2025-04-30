@@ -1,5 +1,17 @@
 # @astrojs/vue
 
+## 5.0.12
+
+### Patch Changes
+
+- [#13720](https://github.com/withastro/astro/pull/13720) [`e1cd1ae`](https://github.com/withastro/astro/commit/e1cd1ae52199c927ad5300a2eaed3996c6af5a64) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes SSR renderer type
+
+## 5.0.11
+
+### Patch Changes
+
+- [#13663](https://github.com/withastro/astro/pull/13663) [`a19a185`](https://github.com/withastro/astro/commit/a19a185efd75334f2f417b433fcfaa0017fe41ee) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves type-safety of renderers
+
 ## 5.0.10
 
 ### Patch Changes

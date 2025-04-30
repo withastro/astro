@@ -24,7 +24,7 @@ export async function template(
 				{ value: 'basics', label: 'A basic, helpful starter project', hint: '(recommended)' },
 				{ value: 'blog', label: 'Use blog template' },
 				{ value: 'starlight', label: 'Use docs (Starlight) template' },
-				{ value: 'minimal', label: 'A minimal (empty) starter' },
+				{ value: 'minimal', label: 'Use minimal (empty) template' },
 			],
 		});
 		ctx.template = tmpl;
@@ -94,7 +94,7 @@ export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	}
 }
 
-export default async function copyTemplate(tmpl: string, ctx: Context) {
+async function copyTemplate(tmpl: string, ctx: Context) {
 	const templateTarget = getTemplateTarget(tmpl, ctx.ref);
 	// Copy
 	if (!ctx.dryRun) {

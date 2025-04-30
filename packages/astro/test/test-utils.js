@@ -12,7 +12,6 @@ import { globalContentConfigObserver } from '../dist/content/utils.js';
 import build from '../dist/core/build/index.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
-import { nodeLogDestination } from '../dist/core/logger/node.js';
 import sync from '../dist/core/sync/index.js';
 
 // Disable telemetry when running tests
@@ -68,18 +67,6 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * });
  * ```
  */
-
-/** @type {import('../src/core/logger/core').LogOptions} */
-export const defaultLogging = {
-	dest: nodeLogDestination,
-	level: 'error',
-};
-
-/** @type {import('../src/core/logger/core').LogOptions} */
-export const silentLogging = {
-	dest: nodeLogDestination,
-	level: 'silent',
-};
 
 /**
  * Load Astro fixture
@@ -376,7 +363,6 @@ export async function cliServerLogSetup(flags = [], cmd = 'dev') {
 	return { local, network };
 }
 
-export const isLinux = os.platform() === 'linux';
 export const isMacOS = os.platform() === 'darwin';
 export const isWindows = os.platform() === 'win32';
 
