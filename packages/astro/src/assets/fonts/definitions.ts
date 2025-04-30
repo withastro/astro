@@ -44,7 +44,7 @@ export type ErrorHandlerInput =
 	| SingleErrorInput<'unknown-fs-error', {}>
 	| SingleErrorInput<'cannot-fetch-font-file', { url: string }>
 	| SingleErrorInput<'cannot-extract-font-type', { url: string }>
-	| SingleErrorInput<'cannot-extract-data', { url: string }>;
+	| SingleErrorInput<'cannot-extract-data', { family: string; url: string }>;
 
 export interface ErrorHandler {
 	handle: (input: ErrorHandlerInput) => Error;
@@ -104,7 +104,7 @@ export interface FontTypeExtractor {
 }
 
 export interface FontFileReader {
-	extract: (url: string) => {
+	extract: (input: { family: string; url: string }) => {
 		weight: string;
 		style: Style;
 		unicodeRange: Array<string>;

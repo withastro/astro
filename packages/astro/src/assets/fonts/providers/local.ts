@@ -40,7 +40,7 @@ export function resolveLocalFont({
 			data.src = variant.src.map((source, index) => {
 				// We only try to infer for the first source
 				if (tryInfer && index === 0) {
-					const result = fontFileReader.extract(source.url);
+					const result = fontFileReader.extract({ family: family.name, url: source.url });
 					if (variant.weight === INFER) data.weight = result.weight;
 					if (variant.style === INFER) data.style = result.style;
 					if (variant.unicodeRange === INFER) data.unicodeRange = result.unicodeRange;

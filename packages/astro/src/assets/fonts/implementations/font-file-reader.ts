@@ -7,7 +7,7 @@ export function createFontaceFontFileReader({
 	errorHandler,
 }: { errorHandler: ErrorHandler }): FontFileReader {
 	return {
-		extract(url) {
+		extract({ family, url }) {
 			try {
 				const data = fontace(readFileSync(url));
 				return {
@@ -18,7 +18,7 @@ export function createFontaceFontFileReader({
 			} catch (cause) {
 				throw errorHandler.handle({
 					type: 'cannot-extract-data',
-					data: { url },
+					data: { family, url },
 					cause,
 				});
 			}
