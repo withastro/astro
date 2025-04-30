@@ -38,7 +38,7 @@
     "@preact/preset-vite": "^2.10.1",
     "@preact/signals": "^2.0.4",
     "preact-render-to-string": "^6.5.13",
-    "vite": "^6.3.3"
+    "vite": "^6.3.4"
   },
   "devDependencies": {
     "astro": "workspace:*",
