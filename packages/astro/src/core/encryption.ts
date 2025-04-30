@@ -109,3 +109,13 @@ export async function decryptString(key: CryptoKey, encoded: string) {
 	const decryptedString = decoder.decode(decryptedBuffer);
 	return decryptedString;
 }
+
+/**
+ * Generates an SHA-256 digest of the given string.
+ * @param {string} data The string to hash.
+ */
+export async function generateDigest(data: string): Promise<string> {
+	const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
+
+	return encodeBase64(new Uint8Array(hashBuffer));
+}

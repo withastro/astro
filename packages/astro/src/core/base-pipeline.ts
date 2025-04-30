@@ -13,6 +13,7 @@ import type {
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
 import type { SSRActions } from './app/types.js';
+import { createCSPMiddleware } from './csp/middleware.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 import type { Logger } from './logger/core.js';
@@ -20,7 +21,6 @@ import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
-import { createCSPMiddleware } from './csp/middleware.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
