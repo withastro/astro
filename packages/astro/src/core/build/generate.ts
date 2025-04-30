@@ -502,11 +502,11 @@ async function generatePath(
 		Object.values(options.allPages).some((val) => {
 			if (val.route.pattern.test(pathname)) {
 				// prerendered dynamic route
-				if (val.route.prerender && val.route.params) {
-					//
+				if (val.route.prerender && val.route.params && val.route.params.length !== 0) {
+					// Check the distURL array for a matching path
 					if (val.route.distURL && val.route.distURL.length !== 0) {
 						let matchedRoute = val.route.distURL.find((url) =>
-							url.pathname
+							url.href
 								.replace(/(?:\/index\.html|\.html)$/, '')
 								.endsWith(removeTrailingForwardSlash(pathname)),
 						);
