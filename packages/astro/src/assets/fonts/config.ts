@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { LOCAL_PROVIDER_NAME } from './constants.js';
+import { INFER, LOCAL_PROVIDER_NAME } from './constants.js';
 
-const inferSchema = z.literal('infer');
+const inferSchema = z.literal(INFER);
 const weightSchema = z.union([
 	// Trick to preserve proper types
 	z.string() as z.ZodType<string & {}, z.ZodStringDef, string>,

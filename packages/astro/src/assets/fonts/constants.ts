@@ -44,3 +44,5 @@ export const GENERIC_FALLBACK_NAMES = [
 ] as const;
 
 export const FONTS_TYPES_FILE = 'fonts.d.ts';
+
+export const INFER = 'infer';

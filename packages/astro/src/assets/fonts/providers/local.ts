@@ -1,5 +1,5 @@
 import type * as unifont from 'unifont';
-import { FONT_FORMAT_MAP } from '../constants.js';
+import { FONT_FORMAT_MAP, INFER } from '../constants.js';
 import type { FontFileReader, FontTypeExtractor, UrlProxy } from '../definitions.js';
 import type { ResolvedLocalFontFamily } from '../types.js';
 
@@ -21,15 +21,14 @@ export function resolveLocalFont({
 	return {
 		fonts: family.variants.map((variant) => {
 			const tryInfer =
-				// TODO: extract to constant and reuse in ./config
-				variant.weight === 'infer' || variant.style === 'infer' || variant.unicodeRange === 'infer';
+				variant.weight === INFER || variant.style === INFER || variant.unicodeRange === INFER;
 
 			// We prepare the data
 			const data: unifont.FontFaceData = {
 				// If it should be inferred, we don't want to set the value
-				weight: variant.weight === 'infer' ? undefined : variant.weight,
-				style: variant.style === 'infer' ? undefined : variant.style,
-				unicodeRange: variant.unicodeRange === 'infer' ? undefined : variant.unicodeRange,
+				weight: variant.weight === INFER ? undefined : variant.weight,
+				style: variant.style === INFER ? undefined : variant.style,
+				unicodeRange: variant.unicodeRange === INFER ? undefined : variant.unicodeRange,
 				// Gotta please TypeScript! We'll fill it after
 				src: [],
 				display: variant.display,
@@ -42,9 +41,9 @@ export function resolveLocalFont({
 				// We only try to infer for the first source
 				if (tryInfer && index === 0) {
 					const result = fontFileReader.extract(source.url);
-					if (variant.weight === 'infer') data.weight = result.weight;
-					if (variant.style === 'infer') data.style = result.style;
-					if (variant.unicodeRange === 'infer') data.unicodeRange = result.unicodeRange;
+					if (variant.weight === INFER) data.weight = result.weight;
+					if (variant.style === INFER) data.style = result.style;
+					if (variant.unicodeRange === INFER) data.unicodeRange = result.unicodeRange;
 				}
 
 				return {

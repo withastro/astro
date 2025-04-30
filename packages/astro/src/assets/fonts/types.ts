@@ -7,7 +7,7 @@ import type {
 	remoteFontFamilySchema,
 	styleSchema,
 } from './config.js';
-import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
+import type { FONT_TYPES, GENERIC_FALLBACK_NAMES, INFER } from './constants.js';
 import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
 
 export type AstroFontProvider = z.infer<typeof fontProviderSchema>;
@@ -29,7 +29,7 @@ export interface ResolvedLocalFontFamily
 		Omit<LocalFontFamily, 'variants'> {
 	variants: Array<
 		Omit<LocalFontFamily['variants'][number], 'weight' | 'src'> & {
-			weight: 'infer' | (string & {});
+			weight: typeof INFER | (string & {});
 			src: Array<{ url: string; tech?: string }>;
 		}
 	>;
