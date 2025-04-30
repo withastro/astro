@@ -1,4 +1,3 @@
-import type { RenderInstruction } from './instruction.js';
 import type { SSRResult } from '../../../types/public/internal.js';
 import type { HTMLBytes, HTMLString } from '../escape.js';
 import { markHTMLString } from '../escape.js';
@@ -8,6 +7,7 @@ import {
 	getPrescripts,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
+import type { RenderInstruction } from './instruction.js';
 import { isRenderInstruction } from './instruction.js';
 import { renderServerIslandRuntime } from './server-islands.js';
 import { type SlotString, isSlotString } from './slot.js';

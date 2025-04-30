@@ -1,9 +1,9 @@
 import type { SSRResult } from '../../../types/public/internal.js';
 import { markHTMLString } from '../escape.js';
+import { renderCspContent } from './csp.js';
 import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instruction.js';
 import { createRenderInstruction } from './instruction.js';
 import { renderElement } from './util.js';
-import { renderCspContent } from './csp.js';
 
 // Filter out duplicate elements in our set
 const uniqueElements = (item: any, index: number, all: any[]) => {

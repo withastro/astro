@@ -164,7 +164,6 @@ function createManifest(
 		clientScriptHashes: manifest?.clientScriptHashes ?? [],
 		clientStyleHashes: manifest?.clientStyleHashes ?? [],
 		shouldInjectCspMetaTags: manifest?.shouldInjectCspMetaTags ?? false,
-		astroIslandHashes: manifest?.astroIslandHashes ?? {},
 	};
 }
 
@@ -253,7 +252,6 @@ type AstroContainerManifest = Pick<
 	| 'clientScriptHashes'
 	| 'clientStyleHashes'
 	| 'shouldInjectCspMetaTags'
-	| 'astroIslandHashes'
 >;
 
 type AstroContainerConstructor = {
