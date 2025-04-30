@@ -499,21 +499,27 @@ async function generatePath(
 		// always be rendered
 		route.pathname !== '/' &&
 		// Check if there is a translated page with the same path
-		Object.values(options.allPages).some((val) => { 
-
-    if (val.route.pattern.test(pathname)){
-		// If this is a dynamic route, check that it generates the path we are looking for
-      if (val.route.distURL && val.route.distURL.length !== 0){
-        let matchedRoute = val.route.distURL.find((url) => url.pathname.replace(/(?:\/index\.html|\.html)$/, '').endsWith(removeTrailingForwardSlash(pathname)));
-        if (!matchedRoute) return false;
-      }
-      if(val.route.prerender && val.route.segments && (!val.route.distURL || val.route.distURL.length == 0)){
-        return false;
-      }
-		return true;
-	} else {
-		return false;
-	}
+		Object.values(options.allPages).some((val) => {
+			if (val.route.pattern.test(pathname)) {
+				// prerendered dynamic route
+				if (val.route.prerender && val.route.params) {
+					//
+					if (val.route.distURL && val.route.distURL.length !== 0) {
+						let matchedRoute = val.route.distURL.find((url) =>
+							url.pathname
+								.replace(/(?:\/index\.html|\.html)$/, '')
+								.endsWith(removeTrailingForwardSlash(pathname)),
+						);
+						if (!matchedRoute) return false;
+					}
+					if (!val.route.distURL || val.route.distURL.length === 0) {
+						return false;
+					}
+				}
+				return true;
+			} else {
+				return false;
+			}
 		})
 	) {
 		return undefined;

@@ -94,30 +94,28 @@ export function findRouteToRewrite({
 
 	const decodedPathname = decodeURI(pathname);
 	let foundRoute;
- for (const route of routes) {
-
-    if (route.pattern.test(decodedPathname)) {
-      // SSR Route
-      if (!route.prerender){
-       foundRoute = route;
-      break;
-      }
-      // Named prerendered route (eg. src/pages/about.astro)
-      if (route.pathname == decodedPathname){
-        foundRoute = route;
-		    break;
-      }
-      // Dynamic route
-      if (route.distURL && route.distURL.length !== 0) {
-        // Check that the route generates a matching pathname
-        let matchedRoute = route.distURL.find((url) => url.pathname.replace(/(?:\/index\.html|\.html)$/, '').endsWith(removeTrailingForwardSlash(decodedPathname)));
-      if (matchedRoute) {
-          foundRoute = route;
-          break;
-      } 
-      }
-    }
-  }
+	for (const route of routes) {
+		if (route.pattern.test(decodedPathname)) {
+			// Named prerendered route (eg. src/pages/about.astro)
+			if (route.pathname == decodedPathname) {
+				foundRoute = route;
+				break;
+			}
+			// Dynamic route
+			if (route.prerender && route.params && route.distURL && route.distURL.length !== 0) {
+				// Check that the route generates a matching pathname
+				let matchedRoute = route.distURL.find((url) =>
+					url.pathname
+						.replace(/(?:\/index\.html|\.html)$/, '')
+						.endsWith(removeTrailingForwardSlash(decodedPathname)),
+				);
+				if (matchedRoute) {
+					foundRoute = route;
+					break;
+				}
+			}
+		}
+	}
 
 	if (foundRoute) {
 		return {
