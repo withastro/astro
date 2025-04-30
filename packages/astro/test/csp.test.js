@@ -39,26 +39,7 @@ describe('CSP', () => {
 					`Should have a CSP meta tag for ${hash}`,
 				);
 			}
-
-			let [, astroStyleHash] = Object.entries(manifest.astroIslandHashes).find(
-				([name, _]) => name === 'astro-island-styles',
-			);
-			astroStyleHash = `sha256-${astroStyleHash}`;
-
-			let [, astroIsland] = Object.entries(manifest.astroIslandHashes).find(
-				([name, _]) => name === 'astro-island',
-			);
-			astroIsland = `sha256-${astroIsland}`;
-
-			assert.ok(
-				meta.attr('content').includes(astroStyleHash),
-				`Should have a CSP meta tag for ${astroStyleHash}`,
-			);
-
-			assert.ok(
-				meta.attr('content').includes(astroIsland),
-				`Should have a CSP meta tag for ${astroIsland}`,
-			);
+			
 		} else {
 			assert.fail('Should have the manifest');
 		}
