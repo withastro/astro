@@ -25,7 +25,7 @@ describe('Hydration script ordering', async () => {
 
 		// Sanity check that we're only rendering them once.
 		assert.equal($('style').length, 1, 'hydration style added once');
-		assert.equal($('script').length, 1, 'only one hydration script needed');
+		assert.equal($('script').length, 2, 'only 2 hydration scripts needed');
 	});
 
 	it('Hydration script included when inside dynamic slot', async () => {
@@ -35,7 +35,7 @@ describe('Hydration script ordering', async () => {
 		// First, let's make sure all islands rendered
 		assert.equal($('astro-island').length, 1);
 
-		// There should be 1 script
-		assert.equal($('script').length, 1);
+		// There should be 2 scripts: directive and astro island 
+		assert.equal($('script').length, 2);
 	});
 });

@@ -4,13 +4,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import esbuild from 'esbuild';
 import { red } from 'kleur/colors';
 import { glob } from 'tinyglobby';
-import crypto from 'node:crypto';
 
 function escapeTemplateLiterals(str) {
 	return str.replace(/\`/g, '\\`').replace(/\$\{/g, '\\${');
 }
-
-const ASTRO_ISLAND_STYLE_REGEX = /'([^']*)'/;
 
 export default async function prebuild(...args) {
 	let buildToString = args.indexOf('--to-string');
@@ -42,8 +39,6 @@ export default async function prebuild(...args) {
 		const outURL = new URL('./' + outname, entryURL);
 		return outURL;
 	}
-
-	const hashes = new Map();
 
 	async function prebuildFile(filepath) {
 		let tscode = await fs.promises.readFile(filepath, 'utf-8');
@@ -114,35 +109,9 @@ export default async function prebuild(...args) {
 export default \`${generatedCode}\`;`;
 			const url = getPrebuildURL(filepath, result.dev);
 			await fs.promises.writeFile(url, mod, 'utf-8');
-			const hash = crypto.createHash('sha256').update(code).digest('base64');
-			const basename = path.basename(filepath);
-			hashes.set(basename.slice(0, basename.indexOf('.')), hash);
 		}
 	}
 	for (const entrypoint of entryPoints) {
 		await prebuildFile(entrypoint);
 	}
-
-	const fileContent = await fs.promises.readFile(
-		new URL('../../packages/astro/src/runtime/server/astro-island-styles.ts', import.meta.url),
-		'utf-8',
-	);
-	const styleContent = fileContent.match(ASTRO_ISLAND_STYLE_REGEX)[1];
-	hashes.set(
-		'astro-island-styles',
-		crypto.createHash('sha256').update(styleContent).digest('base64'),
-	);
-
-	const entries = JSON.stringify(Object.fromEntries(hashes.entries()), null, 2);
-	const content = `// This file is code-generated, please don't change it manually
-export const ASTRO_ISLAND_HASHES = ${entries};`;
-	await fs.promises.writeFile(
-		path.join(
-			fileURLToPath(import.meta.url),
-			'../../../packages/astro/src/core',
-			'astro-islands-hashes.ts',
-		),
-		content,
-		'utf-8',
-	);
 }

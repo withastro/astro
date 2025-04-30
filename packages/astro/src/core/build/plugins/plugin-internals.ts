@@ -40,7 +40,9 @@ function vitePluginInternals(input: Set<string>, internals: BuildInternals): Vit
 				);
 			}
 			await Promise.all(promises);
-			for (const [, chunk] of Object.entries(bundle)) {
+			for (const [_, chunk] of Object.entries(bundle)) {
+				internals.clientChunksAndAssets.add(chunk.fileName);
+
 				if (chunk.type === 'chunk' && chunk.facadeModuleId) {
 					const specifiers = mapping.get(chunk.facadeModuleId) || new Set([chunk.facadeModuleId]);
 					for (const specifier of specifiers) {

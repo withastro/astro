@@ -12,6 +12,7 @@ import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
 } from '../../app/types.js';
+import { shouldTrackCspHashes, trackScriptHashes, trackStyleHashes } from '../../csp/common.js';
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
@@ -23,8 +24,6 @@ import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
-import { shouldTrackCspHashes, trackScriptHashes, trackStyleHashes } from '../../csp/common.js';
-import { ASTRO_ISLAND_HASHES } from '../../astro-islands-hashes.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
@@ -143,7 +142,7 @@ async function createManifest(
 
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
-	return buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
+	return await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
 }
 
 /**
@@ -157,12 +156,12 @@ function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputC
 	});
 }
 
-function buildManifest(
+async function buildManifest(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	staticFiles: string[],
 	encodedKey: string,
-): SerializedSSRManifest {
+): Promise<SerializedSSRManifest> {
 	const { settings } = opts;
 
 	const routes: SerializedRouteInfo[] = [];
@@ -281,8 +280,8 @@ function buildManifest(
 	let clientStyleHashes: string[] = [];
 
 	if (shouldTrackCspHashes(settings.config)) {
-		clientScriptHashes = trackScriptHashes(internals, opts.settings);
-		clientStyleHashes = trackStyleHashes(internals);
+		clientScriptHashes = await trackScriptHashes(internals, opts.settings);
+		clientStyleHashes = await trackStyleHashes(internals, opts.settings);
 	}
 
 	return {
@@ -317,6 +316,5 @@ function buildManifest(
 		shouldInjectCspMetaTags: shouldTrackCspHashes(opts.settings.config),
 		clientStyleHashes,
 		clientScriptHashes,
-		astroIslandHashes: ASTRO_ISLAND_HASHES,
 	};
 }
