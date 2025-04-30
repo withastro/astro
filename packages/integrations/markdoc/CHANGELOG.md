@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.14.2
+
+### Patch Changes
+
+- [#13731](https://github.com/withastro/astro/pull/13731) [`c3e80c2`](https://github.com/withastro/astro/commit/c3e80c25b90c803e2798b752583a8e77cdad3146) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update vite to latest version for fixing CVE
+
 ## 0.14.1
 
 ### Patch Changes
