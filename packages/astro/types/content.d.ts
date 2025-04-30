@@ -45,7 +45,7 @@ declare module 'astro:content' {
 		has: (key: string) => boolean;
 	}
 
-	export type BaseSchema = import('astro/zod').ZodType
+	export type BaseSchema = import('astro/zod').ZodType;
 
 	export type SchemaContext = { image: ImageFunction };
 
