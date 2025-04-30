@@ -97,7 +97,7 @@ export function findRouteToRewrite({
 	for (const route of routes) {
 		if (route.pattern.test(decodedPathname)) {
 			// Named prerendered route (eg. src/pages/about.astro)
-			if (route.prerender && route.pathname === decodedPathname) {
+			if (route.prerender && !route.params) {
 				foundRoute = route;
 				break;
 			}
@@ -115,13 +115,18 @@ export function findRouteToRewrite({
 						.replace(/(?:\/index\.html|\.html)$/, '')
 						.endsWith(removeTrailingForwardSlash(decodedPathname)),
 				);
-				if (matchedRoute) {
-					foundRoute = route;
-					break;
-				} else {
-					continue;
-				}
+				// Skip processing if we don't find a matching pathname
+				if (!matchedRoute) continue;
+
+				foundRoute = route;
+				break;
 			}
+			// Skip prerendered dynamic route with no distURLs
+			// Not sure why this happens
+			if (route.prerender && route.params && (!route.distURL || route.distURL.length === 0)) {
+				continue;
+			}
+			// If we get this far, it should be safe to match the route
 			foundRoute = route;
 			break;
 		}

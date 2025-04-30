@@ -510,14 +510,18 @@ async function generatePath(
 								.replace(/(?:\/index\.html|\.html)$/, '')
 								.endsWith(removeTrailingForwardSlash(pathname)),
 						);
+						// Didn't find a match
 						if (!matchedRoute) return false;
 					}
+					// If there are no distURLs, don't match
 					if (!val.route.distURL || val.route.distURL.length === 0) {
 						return false;
 					}
 				}
+				// Not a dynamic route, safe to match
 				return true;
 			} else {
+				// Pattern doesn't match
 				return false;
 			}
 		})
