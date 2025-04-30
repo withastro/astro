@@ -17,7 +17,7 @@ describe('Dynamic components', () => {
 		const html = await fixture.readFile('/index.html');
 
 		const $ = cheerio.load(html);
-		assert.equal($('script').length, 1);
+		assert.equal($('script').length, 2, "to have directive and astro island script");
 	});
 
 	it('Loads pages using client:media hydrator', async () => {
@@ -25,7 +25,7 @@ describe('Dynamic components', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: static value rendered
-		assert.equal($('script').length, 1);
+		assert.equal($('script').length, 2, "to have directive and astro island script");
 	});
 
 	it('Loads pages using client:only hydrator', async () => {
@@ -56,7 +56,7 @@ describe('Dynamic components subpath', () => {
 		const html = await fixture.readFile('/index.html');
 
 		const $ = cheerio.load(html);
-		assert.equal($('script').length, 1);
+		assert.equal($('script').length, 2);
 	});
 
 	it('Loads pages using client:media hydrator', async () => {
@@ -64,7 +64,7 @@ describe('Dynamic components subpath', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: static value rendered
-		assert.equal($('script').length, 1);
+		assert.equal($('script').length, 2, "to have directive and astro island script");
 	});
 
 	it('Loads pages using client:only hydrator', async () => {

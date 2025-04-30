@@ -9,7 +9,6 @@ import {
 	getStaticImageList,
 	prepareAssetsGenerationEnv,
 } from '../../assets/build/generate.js';
-import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import {
 	isRelativePath,
 	joinPaths,
@@ -29,6 +28,7 @@ import type {
 	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
 import type { SSRActions, SSRManifest, SSRManifestI18n } from '../app/types.js';
+import { shouldTrackCspHashes, trackScriptHashes, trackStyleHashes } from '../csp/common.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
@@ -41,6 +41,7 @@ import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
+import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import { cssOrder, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type {
@@ -50,8 +51,6 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
-import { shouldTrackCspHashes, trackScriptHashes, trackStyleHashes } from '../csp/common.js';
-import { ASTRO_ISLAND_HASHES } from '../astro-islands-hashes.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
@@ -70,7 +69,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		const actions: SSRActions = internals.astroActionsEntryPoint
 			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
 			: NOOP_ACTIONS_MOD;
-		manifest = createBuildManifest(
+		manifest = await createBuildManifest(
 			options.settings,
 			internals,
 			renderers.renderers as SSRLoadedRenderer[],
@@ -604,22 +603,22 @@ function getPrettyRouteName(route: RouteData): string {
  *
  * Renderers needs to be pulled out from the page module emitted during the build.
  */
-function createBuildManifest(
+async function createBuildManifest(
 	settings: AstroSettings,
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[],
 	middleware: MiddlewareHandler,
 	actions: SSRActions,
 	key: Promise<CryptoKey>,
-): SSRManifest {
+): Promise<SSRManifest> {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
 
 	let clientStyleHashes: string[] = [];
 	let clientScriptHashes: string[] = [];
 
 	if (shouldTrackCspHashes(settings.config)) {
-		clientScriptHashes = trackScriptHashes(internals, settings);
-		clientStyleHashes = trackStyleHashes(internals);
+		clientScriptHashes = await trackScriptHashes(internals, settings);
+		clientStyleHashes = await trackStyleHashes(internals, settings);
 	}
 
 	if (settings.config.i18n) {
@@ -668,6 +667,5 @@ function createBuildManifest(
 		clientStyleHashes,
 		clientScriptHashes,
 		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config),
-		astroIslandHashes: ASTRO_ISLAND_HASHES,
 	};
 }
