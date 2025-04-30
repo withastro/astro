@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 7.0.12
+
+### Patch Changes
+
+- [#13720](https://github.com/withastro/astro/pull/13720) [`e1cd1ae`](https://github.com/withastro/astro/commit/e1cd1ae52199c927ad5300a2eaed3996c6af5a64) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes SSR renderer type
+
 ## 7.0.11
 
 ### Patch Changes

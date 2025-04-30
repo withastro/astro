@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata } from 'astro';
+import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import StaticHtml from './static-html.js';
@@ -36,11 +36,11 @@ function check(Component: any, props: Record<string, any>, children: any) {
 	return isReactComponent;
 }
 
-function renderToStaticMarkup(
+async function renderToStaticMarkup(
 	Component: any,
 	props: Record<string, any>,
 	{ default: children, ...slotted }: Record<string, any>,
-	metadata: AstroComponentMetadata,
+	metadata?: AstroComponentMetadata,
 ) {
 	delete props['class'];
 	const slots: Record<string, any> = {};
@@ -57,12 +57,12 @@ function renderToStaticMarkup(
 	if (newChildren != null) {
 		newProps.children = React.createElement(StaticHtml, {
 			// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
-			hydrate: metadata.astroStaticSlot ? !!metadata.hydrate : true,
+			hydrate: metadata?.astroStaticSlot ? !!metadata.hydrate : true,
 			value: newChildren,
 		});
 	}
 	const vnode = React.createElement(Component, newProps);
-	let html;
+	let html: string;
 	if (metadata?.hydrate) {
 		html = ReactDOM.renderToString(vnode);
 	} else {
@@ -71,9 +71,11 @@ function renderToStaticMarkup(
 	return { html };
 }
 
-export default {
+const renderer: NamedSSRLoadedRendererValue = {
 	name: '@astrojs/react',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
 };
+
+export default renderer;
