@@ -1,6 +1,6 @@
 import type * as unifont from 'unifont';
 import { FONT_FORMAT_MAP } from '../constants.js';
-import type { FontTypeExtractor, UrlProxy } from '../definitions.js';
+import type { FontFileReader, FontTypeExtractor, UrlProxy } from '../definitions.js';
 import type { ResolvedLocalFontFamily } from '../types.js';
 // TODO: https://github.com/withastro/astro/pull/13640/commits/c3e6c4adf7b9044de6b1a067b5a505d0627d2f9f
 
@@ -8,10 +8,15 @@ interface Options {
 	family: ResolvedLocalFontFamily;
 	urlProxy: UrlProxy;
 	fontTypeExtractor: FontTypeExtractor;
-	// TODO: local properties inferer
+	fontFileReader: FontFileReader;
 }
 
-export function resolveLocalFont({ family, urlProxy, fontTypeExtractor }: Options): {
+export function resolveLocalFont({
+	family,
+	urlProxy,
+	fontTypeExtractor,
+	fontFileReader,
+}: Options): {
 	fonts: Array<unifont.FontFaceData>;
 } {
 	return {
@@ -20,6 +25,7 @@ export function resolveLocalFont({ family, urlProxy, fontTypeExtractor }: Option
 			style: variant.style,
 			// We proxy each source
 			src: variant.src.map((source, index) => ({
+				// TODO: use fontFileReader
 				originalURL: source.url,
 				url: urlProxy.proxy({
 					url: source.url,

@@ -3,6 +3,7 @@ import type { Storage } from 'unstorage';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
 import type {
 	CssRenderer,
+	FontFileReader,
 	FontMetricsResolver,
 	FontTypeExtractor,
 	Hasher,
@@ -54,6 +55,7 @@ export async function orchestrate({
 	systemFallbacksProvider,
 	fontMetricsResolver,
 	fontTypeExtractor,
+	fontFileReader,
 	createUrlProxy,
 	defaults,
 }: {
@@ -66,6 +68,7 @@ export async function orchestrate({
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
 	fontTypeExtractor: FontTypeExtractor;
+	fontFileReader: FontFileReader;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
 }): Promise<{
@@ -145,6 +148,7 @@ export async function orchestrate({
 				family,
 				urlProxy,
 				fontTypeExtractor,
+				fontFileReader,
 			});
 			// URLs are already proxied at this point so no further processing is required
 			fonts = result.fonts;

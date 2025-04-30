@@ -19,6 +19,8 @@ function getProps(input: ErrorHandlerInput): ConstructorParameters<typeof AstroE
 			...AstroErrorData.CannotExtractFontType,
 			message: AstroErrorData.CannotExtractFontType.message(input.data.url),
 		};
+	} else if (input.type === 'cannot-extract-data') {
+		// TODO:
 	}
 	input satisfies never;
 	// Should never happen but TS isn't happy

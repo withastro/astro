@@ -7,7 +7,7 @@ const weightSchema = z.union([
 	z.string() as z.ZodType<string & {}, z.ZodStringDef, string>,
 	z.number(),
 ]);
-const styleSchema = z.enum(['normal', 'italic', 'oblique']);
+export const styleSchema = z.enum(['normal', 'italic', 'oblique']);
 const unicodeRangeSchema = z.array(z.string()).nonempty();
 
 const familyPropertiesSchema = z.object({

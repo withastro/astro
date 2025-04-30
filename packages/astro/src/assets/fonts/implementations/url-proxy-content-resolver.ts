@@ -10,7 +10,6 @@ export function createLocalUrlProxyContentResolver({
 				// We use the url and the file content for the hash generation because:
 				// - The URL is not hashed unlike remote providers
 				// - A font file can renamed and swapped so we would incorrectly cache it
-				// TODO: store result somehow so it can be reused in the local properties inferer
 				return url + readFileSync(url, 'utf-8');
 			} catch (cause) {
 				throw errorHandler.handle({
