@@ -542,8 +542,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       fontace:
-        specifier: ^0.2.2
-        version: 0.2.2
+        specifier: ~0.3.0
+        version: 0.3.0
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -9481,8 +9481,8 @@ packages:
       debug:
         optional: true
 
-  fontace@0.2.2:
-    resolution: {integrity: sha512-qhfgxmrA4GnCJ9z9icFv8QQcWsqJn1tjCQDV4AKeGxk6ifboJ0zu6QvwLYVESpVUsDSwBGmg1jWIrRNXXVvBPQ==}
+  fontace@0.3.0:
+    resolution: {integrity: sha512-czoqATrcnxgWb/nAkfyIrRp6Q8biYj7nGnL6zfhTcX+JKKpWHFBnb8uNMw/kZr7u++3Y3wYSYoZgHkCcsuBpBg==}
 
   fontkit@2.0.4:
     resolution: {integrity: sha512-syetQadaUEDNdxdugga9CpEYVaQIxOwk7GlwZWWZ19//qW4zE5bknOKeMBDYAASwnpaSHKJITRLMF9m1fp3s6g==}
@@ -14167,7 +14167,7 @@ snapshots:
 
   '@types/fontkit@2.0.8':
     dependencies:
-      '@types/node': 22.13.1
+      '@types/node': 18.19.50
 
   '@types/hast@3.0.4':
     dependencies:
@@ -15750,7 +15750,7 @@ snapshots:
 
   follow-redirects@1.15.9: {}
 
-  fontace@0.2.2:
+  fontace@0.3.0:
     dependencies:
       '@types/fontkit': 2.0.8
       fontkit: 2.0.4

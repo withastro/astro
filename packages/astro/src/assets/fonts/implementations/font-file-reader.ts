@@ -13,7 +13,7 @@ export function createFontaceFontFileReader({
 				return {
 					weight: data.weight,
 					style: data.style as Style,
-					unicodeRange: data.unicodeRange.split(',').map((v) => v.trim()),
+					unicodeRange: data.unicodeRangeArray,
 				};
 			} catch (cause) {
 				throw errorHandler.handle({
