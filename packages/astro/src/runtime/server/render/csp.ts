@@ -12,6 +12,10 @@ export function renderCspContent(result: SSRResult): string {
 		finalStyleHashes.add(`'sha256-${styleHash}'`);
 	}
 
+	for (const styleHash of result._metadata.extraStyleHashes) {
+		finalStyleHashes.add(`'sha256-${styleHash}'`);
+	}
+
 	const scriptSrc = `style-src 'self' ${Array.from(finalStyleHashes).join(' ')};`;
 	const styleSrc = `script-src 'self' ${Array.from(finalScriptHashes).join(' ')};`;
 	return `${scriptSrc} ${styleSrc}`;

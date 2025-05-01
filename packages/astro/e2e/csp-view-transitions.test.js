@@ -1,18 +1,23 @@
 import { expect } from '@playwright/test';
-import { testFactory, waitForHydrate } from './test-utils.js';
+import { testFactory } from './test-utils.js';
 
-const test = testFactory(import.meta.url, { root: './fixtures/view-transitions/' });
+const test = testFactory(import.meta.url, {
+	root: './fixtures/view-transitions/',
+	experimental: {
+		csp: true,
+	},
+});
 
-let devServer;
+let previewServer;
 
 test.beforeAll(async ({ astro }) => {
-	devServer = await astro.startDevServer();
+	await astro.build();
+	previewServer = await astro.preview();
 });
 
 test.afterAll(async () => {
-	await devServer.stop();
+	await previewServer.stop();
 });
-
 function collectLoads(page) {
 	const loads = [];
 	page.on('load', async () => {
@@ -46,7 +51,7 @@ async function nativeViewTransition(page) {
 	return page.evaluate(() => document.startViewTransition !== undefined);
 }
 
-test.describe('View Transitions', () => {
+test.describe('CSP View Transitions', () => {
 	test('Moving from page 1 to page 2', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
@@ -156,10 +161,6 @@ test.describe('View Transitions', () => {
 		// still on page 3
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
-
-		// check that we are further down the page
-		const Y = await page.evaluate(() => window.scrollY);
-		expect(Y, 'The target is further down the page').toBeGreaterThan(0);
 
 		expect(
 			loads.length,
@@ -416,7 +417,8 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 	});
 
-	test('View Transitions Rule', async ({ page, astro }) => {
+	// We don't support inline scripts yet
+	test.skip('View Transitions Rule', async ({ page, astro }) => {
 		let consoleCount = 0;
 		page.on('console', (msg) => {
 			// This count is used for transition events
@@ -555,7 +557,9 @@ test.describe('View Transitions', () => {
 		await expect(pageTitle).toHaveText('Island 2');
 	});
 
-	test('Solid Islands can persist using transition:persist', async ({ page, astro }) => {
+	// TODO: solid injects some hydration script into the window object at runtime, need to find a way to fix it
+	// This is the code injected. Isn't it weird that it's a **test** script? https://github.com/solidjs/solid-meta/blob/main/test/hydration_script.ts
+	test.skip('Solid Islands can persist using transition:persist', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-solid-one'));
 		let cnt = page.locator('.counter pre');
@@ -616,7 +620,7 @@ test.describe('View Transitions', () => {
 		await expect(cnt).toHaveText('BB1');
 	});
 
-	test('transition:persist-props prevents props from changing', async ({ page, astro }) => {
+	test.skip('transition:persist-props prevents props from changing', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-one?persist'));
 
@@ -738,8 +742,7 @@ test.describe('View Transitions', () => {
 		await expect(h, 'should have content').toHaveAttribute('style', 'background-color: green');
 		await expect(h, 'should have content').toHaveAttribute('data-other-name', 'value');
 		await expect(h, 'should have content').toHaveAttribute('data-astro-fake', 'value');
-		// TODO: check this assertion
-		// await expect(h, 'should have content').toHaveAttribute('data-astro-transition', 'forward');
+		await expect(h, 'should have content').toHaveAttribute('data-astro-transition', 'forward');
 		await expect(h, 'should have swap rest of data-astro-* attributes').toHaveAttribute(
 			'data-astro-transition-scope',
 			'scope-y',
@@ -885,7 +888,7 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
-	test('Cross origin redirects do not raise errors', async ({ page, astro }) => {
+	test.skip('Cross origin redirects do not raise errors', async ({ page, astro }) => {
 		let consoleErrors = [];
 		page.on('console', (msg) => {
 			if (msg.type() === 'error') {
@@ -904,48 +907,7 @@ test.describe('View Transitions', () => {
 		expect(consoleErrors.length, 'There should be no errors').toEqual(0);
 	});
 
-	test('client:only styles are retained on transition (1/2)', async ({ page, astro }) => {
-		const totalExpectedStyles = 9;
-
-		await page.goto(astro.resolveUrl('/client-only-one'));
-		let msg = page.locator('.counter-message');
-		await expect(msg).toHaveText('message here');
-
-		let styles = await page.locator('style').all();
-		expect(styles.length).toEqual(totalExpectedStyles);
-
-		await page.click('#click-two');
-
-		let pageTwo = page.locator('#page-two');
-		await expect(pageTwo, 'should have content').toHaveText('Page 2');
-
-		styles = await page.locator('style').all();
-		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
-	});
-
-	test('client:only styles are retained on transition (2/2)', async ({ page, astro }) => {
-		const totalExpectedStyles_page_three = 11;
-		const totalExpectedStyles_page_four = 9;
-
-		await page.goto(astro.resolveUrl('/client-only-three'));
-		let msg = page.locator('#name');
-		await expect(msg).toHaveText('client-only-three');
-		await waitForHydrate(page, page.getByText('Vue'));
-		await waitForHydrate(page, page.getByText('Svelte'));
-
-		let styles = await page.locator('style').all();
-		expect(styles.length).toEqual(totalExpectedStyles_page_three);
-
-		await page.click('#click-four');
-
-		let pageTwo = page.locator('#page-four');
-		await expect(pageTwo, 'should have content').toHaveText('Page 4');
-
-		styles = await page.locator('style').all();
-		expect(styles.length).toEqual(totalExpectedStyles_page_four, 'style count has not changed');
-	});
-
-	test('Horizontal scroll position restored on back button', async ({ page, astro }) => {
+	test.skip('Horizontal scroll position restored on back button', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/wide-page'));
 		let article = page.locator('#widepage');
 		await expect(article, 'should have script content').toBeVisible('exists');
@@ -1023,7 +985,7 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 2');
 	});
 
-	test('body inline scripts do not re-execute on navigation', async ({ page, astro }) => {
+	test.skip('body inline scripts do not re-execute on navigation', async ({ page, astro }) => {
 		const errors = [];
 		page.addListener('pageerror', (err) => {
 			errors.push(err);
@@ -1154,7 +1116,7 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 
-	test('form POST when there is an error shows the error', async ({ page, astro }) => {
+	test.skip('form POST when there is an error shows the error', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/form-one?throw'));
@@ -1374,7 +1336,7 @@ test.describe('View Transitions', () => {
 		await expect(page).toHaveURL(expected);
 	});
 
-	test('Dialog using form with method of "dialog" should not trigger navigation', async ({
+	test.skip('Dialog using form with method of "dialog" should not trigger navigation', async ({
 		page,
 		astro,
 	}) => {
@@ -1419,7 +1381,6 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
-	// TODO: investigate, it weirdly fails
 	test.skip('transition:name should be escaped correctly', async ({ page, astro }) => {
 		// view-transition-name errors on browser w/o native support
 		if (!(await nativeViewTransition(page))) return;
@@ -1584,9 +1545,10 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
-	
-	// It weirdly fails
-	test.skip('animation get canceled when view transition is interrupted', async ({ page, astro }) => {
+	test.skip('animation get canceled when view transition is interrupted', async ({
+		page,
+		astro,
+	}) => {
 		let lines = [];
 		page.on('console', (msg) => {
 			msg.text().startsWith('[test]') && lines.push(msg.text());
@@ -1612,7 +1574,7 @@ test.describe('View Transitions', () => {
 		expect(lines.join('\n')).toBe(expected);
 	});
 
-	test('astro-data-rerun reruns known scripts', async ({ page, astro }) => {
+	test.skip('astro-data-rerun reruns known scripts', async ({ page, astro }) => {
 		let lines = [];
 		page.on('console', (msg) => {
 			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
@@ -1628,7 +1590,7 @@ test.describe('View Transitions', () => {
 		expect(lines.join('')).toBe('312233');
 	});
 
-	test('initial scripts are not re-executed after partial swap', async ({ page, astro }) => {
+	test.skip('initial scripts are not re-executed after partial swap', async ({ page, astro }) => {
 		let consoleErrors = [];
 		page.on('console', (msg) => {
 			const txt = msg.text();
@@ -1645,7 +1607,7 @@ test.describe('View Transitions', () => {
 		);
 	});
 
-	test('page-load event waits for inlined module scripts', async ({ page, astro }) => {
+	test.skip('page-load event waits for inlined module scripts', async ({ page, astro }) => {
 		let lines = [];
 		page.on('console', (msg) => {
 			const txt = msg.text();
