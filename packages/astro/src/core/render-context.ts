@@ -459,6 +459,7 @@ export class RenderContext {
 				hasRenderedServerIslandRuntime: false,
 				headInTree: false,
 				extraHead: [],
+				extraStyleHashes: [],
 				propagators: new Set(),
 			},
 			shouldInjectCspMetaTags: manifest.shouldInjectCspMetaTags,

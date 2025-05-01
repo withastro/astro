@@ -8,6 +8,7 @@ import type {
 	TransitionDirectionalAnimations,
 } from '../../types/public/view-transitions.js';
 import { markHTMLString } from './escape.js';
+import { generateDigest } from '../../core/encryption.js';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
 function incrementTransitionNumber(result: SSRResult) {
@@ -85,7 +86,7 @@ function reEncode(s: string) {
 	return reEncodeInValidStart[result.codePointAt(0) ?? 0] ? '_' + result : result;
 }
 
-export function renderTransition(
+export async function renderTransition(
 	result: SSRResult,
 	hash: string,
 	animationName: TransitionAnimationValue | undefined,
@@ -110,7 +111,11 @@ export function renderTransition(
 		sheet.addModern('group', 'animation: none');
 	}
 
-	result._metadata.extraHead.push(markHTMLString(`<style>${sheet.toString()}</style>`));
+	const css = sheet.toString();
+	if (result.shouldInjectCspMetaTags) {
+		result._metadata.extraStyleHashes.push(await generateDigest(css));
+	}
+	result._metadata.extraHead.push(markHTMLString(`<style>${css}</style>`));
 	return scope;
 }
 
