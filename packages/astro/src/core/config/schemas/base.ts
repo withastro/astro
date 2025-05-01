@@ -271,7 +271,7 @@ export const AstroConfigSchema = z.object({
 					}),
 				)
 				.default([]),
-			experimentalLayout: z.enum(['responsive', 'fixed', 'full-width', 'none']).optional(),
+			experimentalLayout: z.enum(['constrained', 'fixed', 'full-width', 'none']).optional(),
 			experimentalObjectFit: z.string().optional(),
 			experimentalObjectPosition: z.string().optional(),
 			experimentalBreakpoints: z.array(z.number()).optional(),

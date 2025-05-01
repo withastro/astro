@@ -45,15 +45,7 @@ declare module 'astro:content' {
 		has: (key: string) => boolean;
 	}
 
-	type BaseSchemaWithoutEffects =
-		| import('astro/zod').AnyZodObject
-		| import('astro/zod').ZodUnion<[BaseSchemaWithoutEffects, ...BaseSchemaWithoutEffects[]]>
-		| import('astro/zod').ZodDiscriminatedUnion<string, import('astro/zod').AnyZodObject[]>
-		| import('astro/zod').ZodIntersection<BaseSchemaWithoutEffects, BaseSchemaWithoutEffects>;
-
-	export type BaseSchema =
-		| BaseSchemaWithoutEffects
-		| import('astro/zod').ZodEffects<BaseSchemaWithoutEffects>;
+	export type BaseSchema = import('astro/zod').ZodType;
 
 	export type SchemaContext = { image: ImageFunction };
 

@@ -39,6 +39,7 @@ describe('CSP', () => {
 					`Should have a CSP meta tag for ${hash}`,
 				);
 			}
+			
 		} else {
 			assert.fail('Should have the manifest');
 		}

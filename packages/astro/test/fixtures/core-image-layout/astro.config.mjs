@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   image: {
-      experimentalLayout: 'responsive',
+      experimentalLayout: 'constrained',
 	},
 
   experimental: {

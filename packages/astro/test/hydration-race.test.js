@@ -35,7 +35,7 @@ describe('Hydration script ordering', async () => {
 		// First, let's make sure all islands rendered
 		assert.equal($('astro-island').length, 1);
 
-		// There should be 2 scripts: directive and astro island
+		// There should be 2 scripts: directive and astro island 
 		assert.equal($('script').length, 2);
 	});
 });
