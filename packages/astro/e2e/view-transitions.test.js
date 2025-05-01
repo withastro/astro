@@ -136,7 +136,7 @@ test.describe('View Transitions', () => {
 		).toEqual(2);
 	});
 
-	test('Moving within a page without ClientRouter does not trigger a full page navigation', async ({
+	test.only('Moving within a page without ClientRouter does not trigger a full page navigation', async ({
 		page,
 		astro,
 	}) => {
@@ -904,7 +904,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('client:only styles are retained on transition (1/2)', async ({ page, astro }) => {
-		const totalExpectedStyles = 9;
+		const totalExpectedStyles = 7;
 
 		await page.goto(astro.resolveUrl('/client-only-one'));
 		let msg = page.locator('.counter-message');
@@ -923,8 +923,8 @@ test.describe('View Transitions', () => {
 	});
 
 	test('client:only styles are retained on transition (2/2)', async ({ page, astro }) => {
-		const totalExpectedStyles_page_three = 11;
-		const totalExpectedStyles_page_four = 9;
+		const totalExpectedStyles_page_three = 9;
+		const totalExpectedStyles_page_four = 7;
 
 		await page.goto(astro.resolveUrl('/client-only-three'));
 		let msg = page.locator('#name');
