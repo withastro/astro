@@ -136,7 +136,7 @@ test.describe('View Transitions', () => {
 		).toEqual(2);
 	});
 
-	test.only('Moving within a page without ClientRouter does not trigger a full page navigation', async ({
+	test('Moving within a page without ClientRouter does not trigger a full page navigation', async ({
 		page,
 		astro,
 	}) => {
