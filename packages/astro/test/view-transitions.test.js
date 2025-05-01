@@ -21,7 +21,7 @@ describe('View Transitions styles', () => {
 		let html = await res.text();
 		let $ = cheerio.load(html);
 
-		assert.equal($('head style').length, 2);
+		assert.equal($('head style').length, 3);
 	});
 
 	it('should not duplicate transition attributes on island contents', async () => {
