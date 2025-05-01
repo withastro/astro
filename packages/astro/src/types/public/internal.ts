@@ -294,6 +294,11 @@ export interface SSRMetadata {
 	hasRenderedServerIslandRuntime: boolean;
 	headInTree: boolean;
 	extraHead: string[];
+	/**
+	 * Used by the rendering engine to store hashes that are **generated** at runtime.
+	 * For example, this is used by view transitions
+	 */
+	extraStyleHashes: string[];
 	propagators: Set<AstroComponentInstance>;
 }
 
