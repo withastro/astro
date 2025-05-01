@@ -112,7 +112,9 @@ export async function renderTransition(
 	}
 
 	const css = sheet.toString();
-	result._metadata.extraStyleHashes.push(await generateDigest(css));
+	if (result.shouldInjectCspMetaTags) {
+		result._metadata.extraStyleHashes.push(await generateDigest(css));
+	}
 	result._metadata.extraHead.push(markHTMLString(`<style>${css}</style>`));
 	return scope;
 }
