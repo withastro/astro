@@ -61,12 +61,12 @@ export function createCapsizeFontMetricsResolver({
 			const lineGapOverride = metrics.lineGap / adjustedEmSquare;
 
 			return cssRenderer.generateFontFace(fallbackName, {
+				...properties,
+				src: renderFontSrc([{ name: fallbackFontName }]),
 				'size-adjust': toPercentage(sizeAdjust),
 				'ascent-override': toPercentage(ascentOverride),
 				'descent-override': toPercentage(descentOverride),
 				'line-gap-override': toPercentage(lineGapOverride),
-				...properties,
-				src: renderFontSrc([{ name: fallbackFontName }]),
 			});
 		},
 	};
