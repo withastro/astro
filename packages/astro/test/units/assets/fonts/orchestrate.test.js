@@ -12,6 +12,7 @@ import { createBuildRemoteFontProviderModResolver } from '../../../../dist/asset
 import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-resolver.js';
 import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
 import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-content-resolver.js';
+import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/implementations/font-file-reader.js';
 import { createUrlProxy } from '../../../../dist/assets/fonts/implementations/url-proxy.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
@@ -56,6 +57,7 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
@@ -156,6 +158,7 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();

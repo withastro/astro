@@ -54,8 +54,8 @@ export function resolveLocalFont({
 						// are available, we only keep woff2.
 						collectPreload: index === 0,
 						data: {
-							weight: variant.weight,
-							style: variant.style,
+							weight: data.weight,
+							style: data.style,
 						},
 						init: null,
 					}),
