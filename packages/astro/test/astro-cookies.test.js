@@ -194,7 +194,7 @@ describe('Astro.cookies', () => {
 			assert.equal(response.status, 200);
 			assert.match(response.headers.get('Set-Cookie'), /test=value/);
 		});
-		
+
 		it('can set cookies in a rewritten endpoint request from middleware', async () => {
 			const request = new Request('http://example.com/rewrite-me');
 			const response = await app.render(request, { addCookieHeader: true });
