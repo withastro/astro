@@ -10,8 +10,10 @@ import {
 } from '../test-utils.js';
 
 const fileSystem = {
-	'/src/pages/api.ts': `export const GET = () => Response.json({ success: true })`,
-	'/src/pages/dot.json.ts': `export const GET = () => Response.json({ success: true })`,
+	'/src/pages/api.ts': `export const GET = () => Response.json({ success: true });`,
+	'/src/pages/dot.json.ts': `export const GET = () => Response.json({ success: true });`,
+	'/src/pages/index.ts': `export const GET = ({ request }) =>
+		Response.json({ pathname: new URL(request.url).pathname });`,
 };
 
 describe('trailingSlash', () => {
