@@ -29,8 +29,10 @@ export function collapseDuplicateTrailingSlashes(path: string, trailingSlash: bo
 }
 
 export function removeTrailingForwardSlash(path: string) {
-	if (path === '/') return path;
-	return path.endsWith('/') ? path.slice(0, -1) : path;
+	if (path.endsWith('/') && path !== '/' && path.lastIndexOf('/') === 0) {
+		return path.slice(0, -1);
+	}
+	return path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
 }
 
 export function removeLeadingForwardSlash(path: string) {
