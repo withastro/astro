@@ -28,11 +28,9 @@ export function collapseDuplicateTrailingSlashes(path: string, trailingSlash: bo
 	return path.replace(MANY_TRAILING_SLASHES, trailingSlash ? '/' : '') || '/';
 }
 
-export function removeTrailingForwardSlash(path: string): string {
-	if (path.endsWith('/') && path !== '/' && path.lastIndexOf('/') === 0) {
-		return path.slice(0, -1);
-	}
-	return path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
+export function removeTrailingForwardSlash(path: string) {
+	if (path === '/') return path;
+	return path.endsWith('/') ? path.slice(0, -1) : path;
 }
 
 export function removeLeadingForwardSlash(path: string) {

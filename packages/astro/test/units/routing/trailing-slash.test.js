@@ -10,8 +10,8 @@ import {
 } from '../test-utils.js';
 
 const fileSystem = {
-	'/src/pages/api.ts': `export const GET = () => Response.json({ success: true });`,
-	'/src/pages/dot.json.ts': `export const GET = () => Response.json({ success: true });`,
+	'/src/pages/api.ts': `export const GET = () => Response.json({ success: true })`,
+	'/src/pages/dot.json.ts': `export const GET = () => Response.json({ success: true })`,
 	'/src/pages/index.ts': `export const GET = ({ request }) =>
 		Response.json({ pathname: new URL(request.url).pathname });`,
 };
@@ -67,7 +67,7 @@ describe('trailingSlash', () => {
 						'astro:config:setup': ({ injectRoute }) => {
 							injectRoute({
 								pattern: '/',
-								entrypoint: './src/pages/api.ts',
+								entrypoint: './src/pages/index.ts',
 							});
 							injectRoute({
 								pattern: '/injected',
@@ -169,8 +169,8 @@ describe('trailingSlash', () => {
 			url: '/base',
 		});
 		baseContainer.handle(req, res);
-		const json = await text();
-		assert.equal(json, '{"success":true}');
+		const { pathname } = JSON.parse(await text());
+		assert.equal(pathname, '/base');
 	});
 
 	it('should not match root path with trailing slash when base is set and trailingSlash is never', async () => {
