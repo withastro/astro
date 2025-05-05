@@ -164,5 +164,51 @@ describe('fonts providers', () => {
 				},
 			]);
 		});
+
+		it('computes the format correctly', () => {
+			const { urlProxy } = createSpyUrlProxy();
+			const { fonts } = resolveLocalFont({
+				urlProxy,
+				fontTypeExtractor,
+				family: {
+					name: 'Test',
+					nameWithHash: 'Test-xxx',
+					cssVariable: '--test',
+					provider: 'local',
+					variants: [
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ url: '/test.woff2' }, { url: '/ignored.ttf' }],
+						},
+					],
+				},
+			});
+			assert.deepStrictEqual(fonts, [
+				{
+					display: undefined,
+					featureSettings: undefined,
+					src: [
+						{
+							format: 'woff2',
+							originalURL: '/test.woff2',
+							tech: undefined,
+							url: '/test.woff2',
+						},
+						{
+							format: 'truetype',
+							originalURL: '/ignored.ttf',
+							tech: undefined,
+							url: '/ignored.ttf',
+						},
+					],
+					stretch: undefined,
+					style: 'normal',
+					unicodeRange: undefined,
+					variationSettings: undefined,
+					weight: '400',
+				},
+			]);
+		});
 	});
 });
