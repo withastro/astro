@@ -1,5 +1,5 @@
 import type * as unifont from 'unifont';
-import { FONT_FORMAT_MAP } from '../constants.js';
+import { FONT_FORMATS } from '../constants.js';
 import type { FontTypeExtractor, UrlProxy } from '../definitions.js';
 import type { ResolvedLocalFontFamily } from '../types.js';
 
@@ -17,22 +17,26 @@ export function resolveLocalFont({ family, urlProxy, fontTypeExtractor }: Option
 			weight: variant.weight,
 			style: variant.style,
 			// We proxy each source
-			src: variant.src.map((source, index) => ({
-				originalURL: source.url,
-				url: urlProxy.proxy({
-					url: source.url,
-					// We only use the first source for preloading. For example if woff2 and woff
-					// are available, we only keep woff2.
-					collectPreload: index === 0,
-					data: {
-						weight: variant.weight,
-						style: variant.style,
-					},
-					init: null,
-				}),
-				format: FONT_FORMAT_MAP[fontTypeExtractor.extract(source.url)],
-				tech: source.tech,
-			})),
+			src: variant.src.map((source, index) => {
+				const type = fontTypeExtractor.extract(source.url);
+				return {
+					originalURL: source.url,
+					url: urlProxy.proxy({
+						url: source.url,
+						type,
+						// We only use the first source for preloading. For example if woff2 and woff
+						// are available, we only keep woff2.
+						collectPreload: index === 0,
+						data: {
+							weight: variant.weight,
+							style: variant.style,
+						},
+						init: null,
+					}),
+					format: FONT_FORMATS.find((e) => e.type === type)?.format,
+					tech: source.tech,
+				};
+			}),
 			display: variant.display,
 			unicodeRange: variant.unicodeRange,
 			stretch: variant.stretch,

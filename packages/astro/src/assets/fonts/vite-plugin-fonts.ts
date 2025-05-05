@@ -153,7 +153,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					contentResolver,
 					hasher,
 					dataCollector,
-					fontTypeExtractor: fontTypeExtractor!,
 				});
 			},
 			defaults: DEFAULTS,

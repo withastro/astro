@@ -51,6 +51,7 @@ export interface ErrorHandler {
 export interface UrlProxy {
 	proxy: (
 		input: Pick<FontFileData, 'url' | 'init'> & {
+			type: FontType;
 			collectPreload: boolean;
 			data: Partial<unifont.FontFaceData>;
 		},

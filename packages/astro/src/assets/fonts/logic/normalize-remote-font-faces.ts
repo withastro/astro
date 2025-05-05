@@ -1,12 +1,15 @@
 import type * as unifont from 'unifont';
-import type { UrlProxy } from '../definitions.js';
+import type { FontTypeExtractor, UrlProxy } from '../definitions.js';
+import { FONT_FORMATS } from '../constants.js';
 
 export function normalizeRemoteFontFaces({
 	fonts,
 	urlProxy,
+	fontTypeExtractor,
 }: {
 	fonts: Array<unifont.FontFaceData>;
 	urlProxy: UrlProxy;
+	fontTypeExtractor: FontTypeExtractor;
 }): Array<unifont.FontFaceData> {
 	return (
 		fonts
@@ -28,6 +31,9 @@ export function normalizeRemoteFontFaces({
 							originalURL: source.url,
 							url: urlProxy.proxy({
 								url: source.url,
+								type:
+									FONT_FORMATS.find((e) => e.format === source.format)?.type ??
+									fontTypeExtractor.extract(source.url),
 								// We only collect the first URL to avoid preloading fallback sources (eg. we only
 								// preload woff2 if woff is available)
 								collectPreload: index === 0,
