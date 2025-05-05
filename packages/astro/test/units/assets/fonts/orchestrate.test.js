@@ -64,7 +64,6 @@ describe('fonts orchestrate()', () => {
 					contentResolver,
 					hasher,
 					dataCollector,
-					fontTypeExtractor,
 				});
 			},
 			defaults: DEFAULTS,
@@ -164,7 +163,6 @@ describe('fonts orchestrate()', () => {
 					contentResolver,
 					hasher,
 					dataCollector,
-					fontTypeExtractor,
 				});
 			},
 			defaults: DEFAULTS,

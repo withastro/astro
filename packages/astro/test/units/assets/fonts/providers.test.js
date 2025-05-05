@@ -87,18 +87,21 @@ describe('fonts providers', () => {
 			assert.deepStrictEqual(collected, [
 				{
 					url: '/test.woff2',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/ignored.woff',
+					type: 'woff',
 					collectPreload: false,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/2.woff2',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '500', style: 'normal' },
 					init: null,
@@ -133,24 +136,28 @@ describe('fonts providers', () => {
 			assert.deepStrictEqual(collected, [
 				{
 					url: '/test.woff2',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/ignored.woff',
+					type: 'woff',
 					collectPreload: false,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/2.woff2',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '500', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/also-ignored.woff',
+					type: 'woff',
 					collectPreload: false,
 					data: { weight: '500', style: 'normal' },
 					init: null,
