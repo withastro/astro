@@ -111,12 +111,10 @@ const { fallback = 'animate' } = Astro.props;
 			let el = ev.target as HTMLElement;
 			const submitter = ev.submitter;
 
-			if (
-				el.tagName !== 'FORM' ||
-				ev.defaultPrevented ||
-				isReloadEl(el) ||
-				(submitter && submitter === lastClickedElementLeavingWindow)
-			) {
+			const clickedWithKeys = submitter && submitter === lastClickedElementLeavingWindow;
+			lastClickedElementLeavingWindow = null;
+
+			if (el.tagName !== 'FORM' || ev.defaultPrevented || isReloadEl(el) || clickedWithKeys) {
 				return;
 			}
 			const form = el as HTMLFormElement;
