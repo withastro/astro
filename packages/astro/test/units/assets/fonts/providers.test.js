@@ -174,9 +174,6 @@ describe('fonts providers', () => {
 						provider: 'local',
 						variants: [
 							{
-								weight: 'infer',
-								style: 'infer',
-								unicodeRange: 'infer',
 								src: [{ url: '/test.woff2' }],
 							},
 						],
@@ -233,7 +230,6 @@ describe('fonts providers', () => {
 						provider: 'local',
 						variants: [
 							{
-								weight: 'infer',
 								style: 'normal',
 								unicodeRange: ['bar'],
 								src: [{ url: '/test.woff2' }],

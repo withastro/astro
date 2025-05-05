@@ -1,12 +1,7 @@
 import { z } from 'zod';
-import { INFER, LOCAL_PROVIDER_NAME } from './constants.js';
+import { LOCAL_PROVIDER_NAME } from './constants.js';
 
-const inferSchema = z.literal(INFER);
-const weightSchema = z.union([
-	// Trick to preserve proper types
-	z.string() as z.ZodType<string & {}, z.ZodStringDef, string>,
-	z.number(),
-]);
+const weightSchema = z.union([z.string(), z.number()]);
 export const styleSchema = z.enum(['normal', 'italic', 'oblique']);
 const unicodeRangeSchema = z.array(z.string()).nonempty();
 
@@ -18,11 +13,11 @@ const familyPropertiesSchema = z.object({
 	 * weight: "100 900"
 	 * ```
 	 */
-	weight: z.union([inferSchema, weightSchema]),
+	weight: weightSchema.optional(),
 	/**
 	 * A [font style](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
 	 */
-	style: z.union([inferSchema, styleSchema]),
+	style: styleSchema.optional(),
 	/**
 	 * @default `"swap"`
 	 *
@@ -127,7 +122,8 @@ export const localFontFamilySchema = requiredFamilyAttributesSchema
 								/**
 								 * A [unicode range](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range).
 								 */
-								unicodeRange: z.union([inferSchema, unicodeRangeSchema]).optional(),
+								// TODO: how to differentiate between not set and to be infered?
+								unicodeRange: unicodeRangeSchema.optional(),
 								// TODO: find a way to support subsets (through fontkit?)
 							})
 							.strict(),
