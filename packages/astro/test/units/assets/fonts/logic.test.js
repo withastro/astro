@@ -436,7 +436,7 @@ describe('fonts logic', () => {
 						weight: '400',
 						style: 'normal',
 						src: [
-							{ name: 'Arial', format: 'woff2' },
+							{ name: 'Arial' },
 							{ url: '/', format: 'woff2' },
 							{ url: '/ignored', format: 'woff2' },
 						],
@@ -446,7 +446,7 @@ describe('fonts logic', () => {
 						style: 'normal',
 						src: [
 							{ url: '/2', format: 'woff2' },
-							{ name: 'Foo', format: 'woff2' },
+							{ name: 'Foo' },
 							{ url: '/also-ignored', format: 'woff2' },
 						],
 					},
@@ -478,6 +478,102 @@ describe('fonts logic', () => {
 				{
 					url: '/also-ignored',
 					type: 'woff2',
+					collectPreload: false,
+					data: { weight: '500', style: 'normal' },
+					init: null,
+				},
+			]);
+		});
+
+		it('computes type and format correctly', () => {
+			const { collected, urlProxy } = createSpyUrlProxy();
+			const fonts = normalizeRemoteFontFaces({
+				urlProxy,
+				fonts: [
+					{
+						weight: '400',
+						style: 'normal',
+						src: [
+							{ name: 'Arial' },
+							{ url: '/', format: 'woff2' },
+							{ url: '/ignored.ttf' },
+						],
+					},
+					{
+						weight: '500',
+						style: 'normal',
+						src: [
+							{ url: '/2', format: 'woff2' },
+							{ name: 'Foo' },
+							{ url: '/also-ignored.ttf' },
+						],
+					},
+				],
+				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+			});
+			assert.deepStrictEqual(fonts, [
+				{
+					src: [
+						{
+							name: 'Arial',
+						},
+						{
+							format: 'woff2',
+							originalURL: '/',
+							url: '/',
+						},
+						{
+							originalURL: '/ignored.ttf',
+							url: '/ignored.ttf',
+						},
+					],
+					style: 'normal',
+					weight: '400',
+				},
+				{
+					src: [
+						{
+							format: 'woff2',
+							originalURL: '/2',
+							url: '/2',
+						},
+						{
+							name: 'Foo',
+						},
+						{
+							originalURL: '/also-ignored.ttf',
+							url: '/also-ignored.ttf',
+						},
+					],
+					style: 'normal',
+					weight: '500',
+				},
+			]);
+			assert.deepStrictEqual(collected, [
+				{
+					url: '/',
+					type: 'woff2',
+					collectPreload: true,
+					data: { weight: '400', style: 'normal' },
+					init: null,
+				},
+				{
+					url: '/ignored.ttf',
+					type: 'ttf',
+					collectPreload: false,
+					data: { weight: '400', style: 'normal' },
+					init: null,
+				},
+				{
+					url: '/2',
+					type: 'woff2',
+					collectPreload: true,
+					data: { weight: '500', style: 'normal' },
+					init: null,
+				},
+				{
+					url: '/also-ignored.ttf',
+					type: 'ttf',
 					collectPreload: false,
 					data: { weight: '500', style: 'normal' },
 					init: null,
