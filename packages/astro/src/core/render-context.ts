@@ -194,7 +194,6 @@ export class RenderContext {
 				}
 				this.isRewriting = true;
 				this.url = new URL(this.request.url);
-				this.cookies = new AstroCookies(this.request);
 				this.params = getParams(routeData, pathname);
 				this.pathname = pathname;
 				this.status = 200;
