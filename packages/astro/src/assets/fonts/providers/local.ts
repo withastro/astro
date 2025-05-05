@@ -33,7 +33,7 @@ export function resolveLocalFont({ family, urlProxy, fontTypeExtractor }: Option
 						},
 						init: null,
 					}),
-					format: FONT_FORMATS.find((e) => e.type === type)?.format,
+					format: FONT_FORMATS.find((e) => e.type === type)?.format ?? type,
 					tech: source.tech,
 				};
 			}),
