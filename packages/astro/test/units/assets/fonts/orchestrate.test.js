@@ -40,6 +40,7 @@ describe('fonts orchestrate()', () => {
 						{
 							weight: '400',
 							style: 'normal',
+							unicodeRange: [],
 							src: ['./my-font.woff2', './my-font.woff'],
 						},
 					],

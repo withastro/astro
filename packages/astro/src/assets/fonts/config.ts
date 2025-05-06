@@ -3,7 +3,7 @@ import { LOCAL_PROVIDER_NAME } from './constants.js';
 
 const weightSchema = z.union([z.string(), z.number()]);
 export const styleSchema = z.enum(['normal', 'italic', 'oblique']);
-const unicodeRangeSchema = z.array(z.string()).nonempty();
+const unicodeRangeSchema = z.array(z.string());
 
 const familyPropertiesSchema = z.object({
 	/**
@@ -122,7 +122,6 @@ export const localFontFamilySchema = requiredFamilyAttributesSchema
 								/**
 								 * A [unicode range](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range).
 								 */
-								// TODO: how to differentiate between not set and to be infered?
 								unicodeRange: unicodeRangeSchema.optional(),
 								// TODO: find a way to support subsets (through fontkit?)
 							})

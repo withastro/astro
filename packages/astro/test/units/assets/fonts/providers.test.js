@@ -75,11 +75,13 @@ describe('fonts providers', () => {
 						{
 							weight: '400',
 							style: 'normal',
+							unicodeRange: [],
 							src: [{ url: '/test.woff2' }, { url: '/ignored.woff' }],
 						},
 						{
 							weight: '500',
 							style: 'normal',
+							unicodeRange: [],
 							src: [{ url: '/2.woff2' }],
 						},
 					],
@@ -122,11 +124,13 @@ describe('fonts providers', () => {
 						{
 							weight: '400',
 							style: 'normal',
+							unicodeRange: [],
 							src: [{ url: '/test.woff2' }, { url: '/ignored.woff' }],
 						},
 						{
 							weight: '500',
 							style: 'normal',
+							unicodeRange: [],
 							src: [{ url: '/2.woff2' }, { url: '/also-ignored.woff' }],
 						},
 					],
