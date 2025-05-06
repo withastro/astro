@@ -1367,6 +1367,40 @@ export const FontFamilyNotFound = {
 
 /**
  * @docs
+ * @message No parser found for file `example.md`. Pass a parser to the `file` loader (e.g. `parser: mdx`).
+ * @see
+ *  - [parsers](https://docs.astro.build/en/guides/imports/#parsers)
+ * @description
+ * Thrown when the `file` loader can’t determine which parser to use.
+ */
+export const FileParserNotFound = {
+	name: 'FileParserNotFound',
+	title: 'File parser not found',
+	message: (fileName: string) =>
+		`No parser was found for '${fileName}'. Pass a parser function (e.g. \`parser: mdx\`) to the \`file\` loader.`,
+	hint:
+		'See https://docs.astro.build/en/guides/imports/#parsers for the list of available parser options.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Glob patterns are not supported in the `file` loader. Use the `glob` loader instead.
+ * @see
+ *  - [glob patterns](https://docs.astro.build/en/guides/imports/#glob-patterns)
+ * @description
+ * Thrown when a glob pattern is supplied to the `file` loader.
+ */
+export const FileGlobNotSupported = {
+	name: 'FileGlobNotSupported',
+	title: 'Glob patterns are not supported in the file loader',
+	message:
+		'Glob patterns are not supported in the `file` loader. Use the `glob` loader instead.',
+	hint:
+		'See https://docs.astro.build/en/guides/imports/#glob-patterns for supported glob usage.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */
