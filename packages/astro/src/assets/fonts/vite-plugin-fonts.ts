@@ -143,6 +143,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			systemFallbacksProvider,
 			fontMetricsResolver,
 			fontTypeExtractor,
+			logger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = local
