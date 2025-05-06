@@ -1,9 +1,9 @@
 import { promises as fs, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import { AstroError } from '../../core/errors/index.js';
 import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
-import { AstroError } from '../../core/errors/index.js';
 
 interface FileOptions {
 	/**
