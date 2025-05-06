@@ -3,7 +3,7 @@ import { LOCAL_PROVIDER_NAME } from './constants.js';
 
 const weightSchema = z.union([z.string(), z.number()]);
 export const styleSchema = z.enum(['normal', 'italic', 'oblique']);
-const unicodeRangeSchema = z.array(z.string());
+const unicodeRangeSchema = z.array(z.string()).nonempty();
 
 const familyPropertiesSchema = z.object({
 	/**
