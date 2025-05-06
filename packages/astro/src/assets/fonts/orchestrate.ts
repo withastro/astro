@@ -1,5 +1,7 @@
+import { bold } from 'kleur/colors';
 import * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
+import type { Logger } from '../../core/logger/core.js';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
 import type {
 	CssRenderer,
@@ -25,8 +27,6 @@ import type {
 	PreloadData,
 } from './types.js';
 import { pickFontFaceProperty, unifontFontFaceDataToProperties } from './utils.js';
-import { bold } from 'kleur/colors';
-import type { Logger } from '../../core/logger/core.js';
 
 /**
  * Manages how fonts are resolved:
