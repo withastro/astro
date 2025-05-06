@@ -16,7 +16,6 @@ import { createUrlProxy } from '../../../../dist/assets/fonts/implementations/ur
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
 import {
-	createSpyLogger,
 	createSpyStorage,
 	fakeFontMetricsResolver,
 	fakeHasher,
@@ -30,8 +29,6 @@ describe('fonts orchestrate()', () => {
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const hasher = fakeHasher;
-		const { logger, messages } = createSpyLogger();
-
 		const { fontFileDataMap, consumableMap } = await orchestrate({
 			families: [
 				{
@@ -59,7 +56,6 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
-			logger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
@@ -73,7 +69,6 @@ describe('fonts orchestrate()', () => {
 			},
 			defaults: DEFAULTS,
 		});
-
 		assert.deepStrictEqual(
 			[...fontFileDataMap.entries()],
 			[
@@ -101,12 +96,10 @@ describe('fonts orchestrate()', () => {
 		assert.equal(entry?.css.includes(':root{--test:Test-'), true);
 		// Fallback
 		assert.equal(entry?.css.includes('fallback: Arial"'), true);
-
-		assert.equal(messages.length, 0);
 	});
 
 	it('works with a remote provider', async () => {
-		const fakeUnifontProvider = defineFontProvider('normal', () => {
+		const fakeUnifontProvider = defineFontProvider('test', () => {
 			return {
 				resolveFont: () => {
 					return {
@@ -130,14 +123,7 @@ describe('fonts orchestrate()', () => {
 			};
 		});
 		const fakeAstroProvider = defineAstroFontProvider({
-			entrypoint: 'normal',
-		});
-
-		const fakeEmptyUnifontProvider = defineFontProvider('empty', () => ({
-			resolveFont: () => ({ fonts: [] }),
-		}));
-		const fakeEmptyAstroProvider = defineAstroFontProvider({
-			entrypoint: 'empty',
+			entrypoint: 'test',
 		});
 
 		const root = new URL(import.meta.url);
@@ -145,8 +131,6 @@ describe('fonts orchestrate()', () => {
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const hasher = fakeHasher;
-		const { logger, messages } = createSpyLogger();
-
 		const { fontFileDataMap, consumableMap } = await orchestrate({
 			families: [
 				{
@@ -155,20 +139,14 @@ describe('fonts orchestrate()', () => {
 					provider: fakeAstroProvider,
 					fallbacks: ['serif'],
 				},
-				{
-					name: 'Foo',
-					cssVariable: '--foo',
-					provider: fakeEmptyAstroProvider,
-					fallbacks: ['serif'],
-				},
 			],
 			hasher,
 			remoteFontProviderResolver: createRemoteFontProviderResolver({
 				root,
 				errorHandler,
 				modResolver: {
-					resolve: async (id) => ({
-						provider: id.endsWith('empty') ? fakeEmptyUnifontProvider : fakeUnifontProvider,
+					resolve: async () => ({
+						provider: fakeUnifontProvider,
 					}),
 				},
 			}),
@@ -178,7 +156,6 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
-			logger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
@@ -206,7 +183,7 @@ describe('fonts orchestrate()', () => {
 				],
 			],
 		);
-		assert.deepStrictEqual([...consumableMap.keys()], ['--test', '--foo']);
+		assert.deepStrictEqual([...consumableMap.keys()], ['--test']);
 		const entry = consumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{ url: 'https://example.com/foo.woff2.woff2', type: 'woff2' },
@@ -217,7 +194,5 @@ describe('fonts orchestrate()', () => {
 		assert.equal(entry?.css.includes(':root{--test:Test-'), true);
 		// Fallback
 		assert.equal(entry?.css.includes('fallback: Times New Roman"'), true);
-
-		assert.equal(messages.length, 1);
 	});
 });
