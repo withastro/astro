@@ -100,7 +100,3 @@ export interface FontFetcher {
 export interface FontTypeExtractor {
 	extract: (url: string) => FontType;
 }
-
-export interface FontLogger {
-	log: (type: 'warn', message: string) => void;
-}
