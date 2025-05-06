@@ -7,12 +7,12 @@ import {
 	renderFontFace,
 	withFamily,
 } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
+import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
 import { createAstroErrorHandler } from '../../../../dist/assets/fonts/implementations/error-handler.js';
 import { createCachedFontFetcher } from '../../../../dist/assets/fonts/implementations/font-fetcher.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/implementations/font-metrics-resolver.js';
-import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import { createSpyStorage, simpleErrorHandler } from './utils.js';
 
 describe('fonts implementations', () => {
@@ -301,11 +301,11 @@ describe('fonts implementations', () => {
 						xWidthAvg: 1,
 					},
 					properties: {
-						src: undefined
-					}
+						src: undefined,
+					},
 				});
 
-				assert.equal(css.includes('src:local("Arial")'), true)
+				assert.equal(css.includes('src:local("Arial")'), true);
 			});
 		});
 	});
