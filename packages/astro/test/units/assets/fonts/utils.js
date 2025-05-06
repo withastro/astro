@@ -81,16 +81,3 @@ export const fakeFontMetricsResolver = {
 		return JSON.stringify(input, null, 2) + `,`;
 	},
 };
-
-export function createSpyLogger() {
-	/** @type {Array<string>} */
-	const messages = [];
-	/** @type {import('../../../../dist/assets/fonts/definitions').FontLogger} */
-	const logger = {
-		log: (_type, message) => {
-			messages.push(message);
-		},
-	};
-
-	return { logger, messages };
-}
