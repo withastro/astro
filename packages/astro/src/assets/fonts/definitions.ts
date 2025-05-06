@@ -107,6 +107,5 @@ export interface FontFileReader {
 	extract: (input: { family: string; url: string }) => {
 		weight: string;
 		style: Style;
-		unicodeRange: Array<string>;
 	};
 }

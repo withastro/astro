@@ -20,17 +20,15 @@ export function resolveLocalFont({
 } {
 	return {
 		fonts: family.variants.map((variant) => {
-			const tryInfer =
-				variant.weight === undefined || variant.style === undefined || variant.unicodeRange === undefined;
+			const infer = variant.weight === undefined || variant.style === undefined;
 
 			// We prepare the data
 			const data: unifont.FontFaceData = {
 				// If it should be inferred, we don't want to set the value
 				weight: variant.weight,
 				style: variant.style,
-				unicodeRange: variant.unicodeRange,
-				// Gotta please TypeScript! We'll fill it after
 				src: [],
+				unicodeRange: variant.unicodeRange,
 				display: variant.display,
 				stretch: variant.stretch,
 				featureSettings: variant.featureSettings,
@@ -39,11 +37,10 @@ export function resolveLocalFont({
 			// We proxy each source
 			data.src = variant.src.map((source, index) => {
 				// We only try to infer for the first source
-				if (tryInfer && index === 0) {
+				if (infer && index === 0) {
 					const result = fontFileReader.extract({ family: family.name, url: source.url });
 					if (variant.weight === undefined) data.weight = result.weight;
 					if (variant.style === undefined) data.style = result.style;
-					if (variant.unicodeRange === undefined) data.unicodeRange = result.unicodeRange;
 				}
 
 				return {

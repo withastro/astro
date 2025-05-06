@@ -75,13 +75,11 @@ describe('fonts providers', () => {
 						{
 							weight: '400',
 							style: 'normal',
-							unicodeRange: [],
 							src: [{ url: '/test.woff2' }, { url: '/ignored.woff' }],
 						},
 						{
 							weight: '500',
 							style: 'normal',
-							unicodeRange: [],
 							src: [{ url: '/2.woff2' }],
 						},
 					],
@@ -124,13 +122,11 @@ describe('fonts providers', () => {
 						{
 							weight: '400',
 							style: 'normal',
-							unicodeRange: [],
 							src: [{ url: '/test.woff2' }, { url: '/ignored.woff' }],
 						},
 						{
 							weight: '500',
 							style: 'normal',
-							unicodeRange: [],
 							src: [{ url: '/2.woff2' }, { url: '/also-ignored.woff' }],
 						},
 					],
@@ -187,7 +183,6 @@ describe('fonts providers', () => {
 							return {
 								weight: '300',
 								style: 'italic',
-								unicodeRange: ['foo'],
 							};
 						},
 					},
@@ -207,7 +202,7 @@ describe('fonts providers', () => {
 						],
 						stretch: undefined,
 						style: 'italic',
-						unicodeRange: ['foo'],
+						unicodeRange: undefined,
 						variationSettings: undefined,
 						weight: '300',
 					},

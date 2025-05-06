@@ -1320,7 +1320,7 @@ export const CannotExtractFontData = {
 	name: 'CannotExtractFontType',
 	title: 'Cannot extract the font data from the given URL.',
 	message: (family: string, url: string) => `An error occurred while trying to extract the font data from local font family "${family}" (url: ${url})`,
-	hint: 'Update your family config and disable weight, style and unicodeRange inference. You must set the value manually instead.',
+	hint: 'Update your family config and disable weight and style inference. You must set the value manually instead.',
 } satisfies ErrorData;
 
 /**
