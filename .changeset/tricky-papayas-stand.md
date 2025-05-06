@@ -4,7 +4,7 @@
 
 Allows inferring `weight` and `style` when using the local provider of the experimental fonts API
 
-If you want Astro to infer those properties directly from your local font files, let them undefined:
+If you want Astro to infer those properties directly from your local font files, leave them undefined:
 
 ```js
 {
