@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-refactor: replace Error with AstroError
+Improved the error handling of certain error cases. 
