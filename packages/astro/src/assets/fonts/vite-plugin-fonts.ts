@@ -45,6 +45,7 @@ import {
 import { createUrlProxy } from './implementations/url-proxy.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap } from './types.js';
+import { createAstroFontLogger } from './implementations/logger.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -143,6 +144,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			systemFallbacksProvider,
 			fontMetricsResolver,
 			fontTypeExtractor,
+			logger: createAstroFontLogger({ logger }),
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = local
