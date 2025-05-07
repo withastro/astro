@@ -20,7 +20,7 @@ export function resolveLocalFont({
 } {
 	return {
 		fonts: family.variants.map((variant) => {
-			const infer = variant.weight === undefined || variant.style === undefined;
+			const shouldInfer = variant.weight === undefined || variant.style === undefined;
 
 			// We prepare the data
 			const data: unifont.FontFaceData = {
@@ -36,8 +36,9 @@ export function resolveLocalFont({
 			};
 			// We proxy each source
 			data.src = variant.src.map((source, index) => {
-				// We only try to infer for the first source
-				if (infer && index === 0) {
+				// We only try to infer for the first source. Indeed if it doesn't work, the function
+				// call will throw an error so that will be interruped anyways
+				if (shouldInfer && index === 0) {
 					const result = fontFileReader.extract({ family: family.name, url: source.url });
 					if (variant.weight === undefined) data.weight = result.weight;
 					if (variant.style === undefined) data.style = result.style;

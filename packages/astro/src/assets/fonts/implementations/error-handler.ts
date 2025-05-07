@@ -21,8 +21,8 @@ function getProps(input: ErrorHandlerInput): ConstructorParameters<typeof AstroE
 		};
 	} else if (input.type === 'cannot-extract-data') {
 		return {
-			...AstroErrorData.CannotExtractFontData,
-			message: AstroErrorData.CannotExtractFontData.message(input.data.family, input.data.url),
+			...AstroErrorData.CannotDetermineWeightAndStyleFromFontFile,
+			message: AstroErrorData.CannotDetermineWeightAndStyleFromFontFile.message(input.data.family, input.data.url),
 		};
 	}
 	input satisfies never;

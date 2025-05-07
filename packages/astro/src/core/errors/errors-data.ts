@@ -1312,15 +1312,16 @@ export const CannotExtractFontType = {
 /**
  * @docs
  * @description
- * Cannot extract the font data from the given URL.
+ * Cannot determine weight and style from font file.
  * @message
- * An error occured while trying to extract the font data from the given URL.
+ * An error occured while determining the weight and style from the local font file.
  */
-export const CannotExtractFontData = {
-	name: 'CannotExtractFontType',
-	title: 'Cannot extract the font data from the given URL.',
-	message: (family: string, url: string) => `An error occurred while trying to extract the font data from local font family "${family}" (url: ${url})`,
-	hint: 'Update your family config and set \`weight\` and \`style\` manually instead.',
+export const CannotDetermineWeightAndStyleFromFontFile = {
+	name: 'CannotDetermineWeightAndStyleFromFontFile',
+	title: 'Cannot determine weight and style from font file.',
+	message: (family: string, url: string) =>
+		`An error occurred while determining the \`weight\` and \`style\` from local family "${family}" font file: ${url}`,
+	hint: 'Update your family config and set `weight` and `style` manually instead.',
 } satisfies ErrorData;
 
 /**
