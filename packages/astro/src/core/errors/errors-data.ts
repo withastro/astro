@@ -1676,6 +1676,25 @@ export const ContentEntryDataError = {
  * @docs
  * @message
  * **Example error message:**<br/>
+ * The schema cannot be a function for live collections. Please use a schema object instead. Check your collection definitions in your live content config file.
+ * @description
+ * Error in live content config.
+ * @see
+ * - [Experimental live content](https://astro.build/en/reference/experimental-flags/live-content/)
+ */
+
+export const LiveContentConfigError = {
+	name: 'LiveContentConfigError',
+	title: 'Error in live content config.',
+	message: (error: string, filename?: string) =>
+		`${error} Check your collection definitions in ${filename ?? 'your live content config file'}.`,
+	hint: 'See https://docs.astro.build/en/reference/experimental-flags/live-content/ for more information on live content collections.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
  * The loader for **blog** returned invalid data.<br/>
  * Object is missing required property "id".
  * @description

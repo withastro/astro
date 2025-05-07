@@ -19,6 +19,7 @@ import {
 	render as serverRender,
 	unescapeHTML,
 } from '../runtime/server/index.js';
+import type { LiveDataEntry } from '../types/public/content.js';
 import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX, LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { LiveLoader } from './loaders/types.js';
@@ -30,18 +31,18 @@ type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
 type LiveCollectionConfigMap = Record<
 	string,
-	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE }
+	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: z.ZodType }
 >;
 
 export function getImporterFilename() {
 	// The 4th line in the stack trace should be the importer filename
 	const stackLine = new Error().stack?.split('\n')?.[3];
 	if (!stackLine) {
-		return null;
+		return undefined;
 	}
 	// Extract the relative path from the stack line
 	const match = /\/(src\/.*?):\d+:\d+/.exec(stackLine);
-	return match?.[1] ?? null;
+	return match?.[1] ?? undefined;
 }
 
 export function defineCollection(config: any) {
@@ -49,21 +50,44 @@ export function defineCollection(config: any) {
 
 	if (config.type === LIVE_CONTENT_TYPE) {
 		if (!isInLiveConfig) {
-			throw new AstroUserError(
-				`Collections with type "live" must be defined in a \`src/live.config.ts\` file. Check your collection definitions in ${getImporterFilename() ?? 'your content config file'}.`,
-			);
+			throw new AstroError({
+				...AstroErrorData.LiveContentConfigError,
+				message: AstroErrorData.LiveContentConfigError.message(
+					'Collections with type `live` must be defined in a `src/live.config.ts` file.',
+					getImporterFilename() ?? 'your content config file',
+				),
+			});
 		}
 		if (!config.loader) {
-			throw new AstroUserError(
-				`Collections that use the Live Content API must have a \`loader\` defined. Check your collection definitions in ${getImporterFilename() ?? 'your live content config file'}.`,
-			);
+			throw new AstroError({
+				...AstroErrorData.LiveContentConfigError,
+				message: AstroErrorData.LiveContentConfigError.message(
+					'Collections with type `live` must have a `loader` defined.',
+					getImporterFilename(),
+				),
+			});
+		}
+		if (config.schema) {
+			if (typeof config.schema === 'function') {
+				throw new AstroError({
+					...AstroErrorData.LiveContentConfigError,
+					message: AstroErrorData.LiveContentConfigError.message(
+						'The schema cannot be a function for live collections. Please use a schema object instead.',
+						getImporterFilename(),
+					),
+				});
+			}
 		}
 		return config;
 	}
 	if (isInLiveConfig) {
-		throw new AstroUserError(
-			`Collections in a \`live.config.ts\` file must be defined with the type "live". Check your collection definitions.`,
-		);
+		throw new AstroError({
+			...AstroErrorData.LiveContentConfigError,
+			message: AstroErrorData.LiveContentConfigError.message(
+				'Collections in a `live.config.ts` file must have a type of `live`.',
+				getImporterFilename(),
+			),
+		});
 	}
 
 	if ('loader' in config) {
@@ -95,6 +119,28 @@ export function createCollectionToGlobResultMap({
 		collectionToGlobResultMap[collection][key] = globResult[key];
 	}
 	return collectionToGlobResultMap;
+}
+
+async function parseLiveEntry(
+	entry: LiveDataEntry,
+	schema: z.ZodType,
+	collection: string,
+): Promise<LiveDataEntry> {
+	const parsed = await schema.safeParseAsync(entry.data);
+	if (!parsed.success) {
+		throw new AstroError({
+			...AstroErrorData.InvalidContentEntryDataError,
+			message: AstroErrorData.InvalidContentEntryDataError.message(
+				collection,
+				entry.id,
+				parsed.error,
+			),
+		});
+	}
+	return {
+		...entry,
+		data: parsed.data,
+	};
 }
 
 export function createGetCollection({
@@ -129,6 +175,14 @@ export function createGetCollection({
 			const response = await (
 				liveCollections[collection].loader as LiveLoader<any, any, Record<string, unknown>>
 			)?.loadCollection?.(context);
+
+			const { schema } = liveCollections[collection];
+
+			if (schema) {
+				response.entries = await Promise.all(
+					response.entries.map((entry) => parseLiveEntry(entry, schema, collection)),
+				);
+			}
 
 			return {
 				...response,
@@ -394,7 +448,7 @@ export function createGetEntry({
 				filter: typeof lookup === 'string' ? { id: lookup } : lookup,
 			};
 
-			const entry = await (
+			let entry = await (
 				liveCollections[collection].loader as LiveLoader<
 					Record<string, unknown>,
 					Record<string, unknown>
@@ -404,6 +458,12 @@ export function createGetEntry({
 			if (!entry) {
 				return;
 			}
+
+			const { schema } = liveCollections[collection];
+			if (schema) {
+				entry = await parseLiveEntry(entry, schema, collection);
+			}
+
 			return {
 				...entry,
 				collection,

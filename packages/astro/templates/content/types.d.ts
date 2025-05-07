@@ -179,9 +179,12 @@ declare module 'astro:content' {
 	type ExtractEntryFilterType<T> = ExtractLoaderTypes<T>['entryFilter'];
 	type ExtractCollectionFilterType<T> = ExtractLoaderTypes<T>['collectionFilter'];
 
-	type LiveLoaderDataType<C extends keyof LiveContentConfig['collections']> = ExtractDataType<
-		LiveContentConfig['collections'][C]['loader']
-	>;
+	type LiveLoaderDataType<C extends keyof LiveContentConfig['collections']> =
+		LiveContentConfig['collections'][C]['schema'] extends undefined
+			? ExtractDataType<LiveContentConfig['collections'][C]['loader']>
+			: import('astro/zod').infer<
+					Exclude<LiveContentConfig['collections'][C]['schema'], undefined>
+				>;
 	type LiveLoaderEntryFilterType<C extends keyof LiveContentConfig['collections']> =
 		ExtractEntryFilterType<LiveContentConfig['collections'][C]['loader']>;
 	type LiveLoaderCollectionFilterType<C extends keyof LiveContentConfig['collections']> =
