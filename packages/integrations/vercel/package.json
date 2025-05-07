@@ -53,7 +53,7 @@
     "@vercel/nft": "^0.29.2",
     "@vercel/routing-utils": "^5.0.4",
     "esbuild": "^0.25.0",
-    "tinyglobby": "^0.2.12"
+    "tinyglobby": "^0.2.13"
   },
   "peerDependencies": {
     "astro": "^5.0.0"
