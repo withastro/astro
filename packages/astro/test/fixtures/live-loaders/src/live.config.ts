@@ -1,4 +1,4 @@
-import { defineCollection, z, type BaseSchema } from 'astro:content';
+import { defineCollection, z } from 'astro:content';
 import type { LiveLoader } from 'astro/loaders';
 
 type Entry = {
@@ -26,6 +26,10 @@ const loader: LiveLoader<Entry, { id: keyof typeof entries }> = {
 const liveStuff = defineCollection({
 	type: 'live',
 	loader,
+	schema: z.object({
+		title: z.string(),
+		age: z.number().optional(),
+	}),
 });
 
 export const collections = { liveStuff };
