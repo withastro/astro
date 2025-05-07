@@ -22,7 +22,10 @@ function getProps(input: ErrorHandlerInput): ConstructorParameters<typeof AstroE
 	} else if (input.type === 'cannot-extract-data') {
 		return {
 			...AstroErrorData.CannotDetermineWeightAndStyleFromFontFile,
-			message: AstroErrorData.CannotDetermineWeightAndStyleFromFontFile.message(input.data.family, input.data.url),
+			message: AstroErrorData.CannotDetermineWeightAndStyleFromFontFile.message(
+				input.data.family,
+				input.data.url,
+			),
 		};
 	}
 	input satisfies never;

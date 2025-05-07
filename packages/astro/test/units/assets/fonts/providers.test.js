@@ -1,6 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/implementations/font-file-reader.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
@@ -10,7 +11,6 @@ import * as googleEntrypoint from '../../../../dist/assets/fonts/providers/entry
 import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
 import { createSpyUrlProxy, simpleErrorHandler } from './utils.js';
-import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/implementations/font-file-reader.js';
 
 describe('fonts providers', () => {
 	describe('config objects', () => {

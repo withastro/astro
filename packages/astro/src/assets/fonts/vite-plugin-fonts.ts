@@ -27,6 +27,7 @@ import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
 import { createDataCollector } from './implementations/data-collector.js';
 import { createAstroErrorHandler } from './implementations/error-handler.js';
 import { createCachedFontFetcher } from './implementations/font-fetcher.js';
+import { createFontaceFontFileReader } from './implementations/font-file-reader.js';
 import { createCapsizeFontMetricsResolver } from './implementations/font-metrics-resolver.js';
 import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
 import { createXxHasher } from './implementations/hasher.js';
@@ -45,7 +46,6 @@ import {
 import { createUrlProxy } from './implementations/url-proxy.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap } from './types.js';
-import { createFontaceFontFileReader } from './implementations/font-file-reader.js';
 
 interface Options {
 	settings: AstroSettings;

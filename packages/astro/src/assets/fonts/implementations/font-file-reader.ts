@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
-import type { ErrorHandler, FontFileReader } from '../definitions.js';
 import { fontace } from 'fontace';
+import type { ErrorHandler, FontFileReader } from '../definitions.js';
 import type { Style } from '../types.js';
 
 export function createFontaceFontFileReader({
