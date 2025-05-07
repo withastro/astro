@@ -1539,8 +1539,6 @@ export const FileParserNotFound = {
 	title: 'File parser not found',
 	message: (fileName: string) =>
 		`No parser was found for '${fileName}'. Pass a parser function (e.g. \`parser: mdx\`) to the \`file\` loader.`,
-	hint:
-		'See https://docs.astro.build/en/guides/imports/#parsers for the list of available parser options.',
 } satisfies ErrorData;
 
 /**
@@ -1556,6 +1554,8 @@ export const FileGlobNotSupported = {
 	title: 'Glob patterns are not supported in the file loader',
 	message:
 		'Glob patterns are not supported in the `file` loader. Use the `glob` loader instead.',
+	hint:
+		'See https://docs.astro.build/en/guides/imports/#glob-patterns for supported glob usage.',
 } satisfies ErrorData;
 /**
  * @docs
