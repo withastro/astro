@@ -36,8 +36,8 @@ export function createCapsizeFontMetricsResolver({
 	const cache: Record<string, FontFaceMetrics | null> = {};
 
 	return {
-		async getMetrics(name, { hash, url }) {
-			cache[name] ??= filterRequiredMetrics(await fromBuffer(await fontFetcher.fetch(hash, url)));
+		async getMetrics(name, input) {
+			cache[name] ??= filterRequiredMetrics(await fromBuffer(await fontFetcher.fetch(input)));
 			return cache[name];
 		},
 		// Source: https://github.com/unjs/fontaine/blob/f00f84032c5d5da72c8798eae4cd68d3ddfbf340/src/css.ts#L170
@@ -61,12 +61,12 @@ export function createCapsizeFontMetricsResolver({
 			const lineGapOverride = metrics.lineGap / adjustedEmSquare;
 
 			return cssRenderer.generateFontFace(fallbackName, {
+				...properties,
 				src: renderFontSrc([{ name: fallbackFontName }]),
 				'size-adjust': toPercentage(sizeAdjust),
 				'ascent-override': toPercentage(ascentOverride),
 				'descent-override': toPercentage(descentOverride),
 				'line-gap-override': toPercentage(lineGapOverride),
-				...properties,
 			});
 		},
 	};

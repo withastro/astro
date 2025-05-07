@@ -1,5 +1,7 @@
+import { bold } from 'kleur/colors';
 import * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
+import type { Logger } from '../../core/logger/core.js';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
 import type {
 	CssRenderer,
@@ -16,7 +18,14 @@ import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js
 import { type CollectedFontForMetrics, optimizeFallbacks } from './logic/optimize-fallbacks.js';
 import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
-import type { CreateUrlProxyParams, Defaults, FontFamily, PreloadData } from './types.js';
+import type {
+	ConsumableMap,
+	CreateUrlProxyParams,
+	Defaults,
+	FontFamily,
+	FontFileDataMap,
+	PreloadData,
+} from './types.js';
 import { pickFontFaceProperty, unifontFontFaceDataToProperties } from './utils.js';
 
 /**
@@ -47,6 +56,7 @@ export async function orchestrate({
 	systemFallbacksProvider,
 	fontMetricsResolver,
 	fontTypeExtractor,
+	logger,
 	createUrlProxy,
 	defaults,
 }: {
@@ -59,9 +69,14 @@ export async function orchestrate({
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
 	fontTypeExtractor: FontTypeExtractor;
+	// TODO: follow this implementation: https://github.com/withastro/astro/pull/13756/commits/e30ac2b7082a3eed36225da6e88449890cbcbe6b
+	logger: Logger;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
-}) {
+}): Promise<{
+	fontFileDataMap: FontFileDataMap;
+	consumableMap: ConsumableMap;
+}> {
 	let resolvedFamilies = await resolveFamilies({
 		families,
 		hasher,
@@ -84,11 +99,11 @@ export async function orchestrate({
 	 * Holds associations of hash and original font file URLs, so they can be
 	 * downloaded whenever the hash is requested.
 	 */
-	const hashToUrlMap = new Map<string, string>();
+	const fontFileDataMap: FontFileDataMap = new Map();
 	/**
 	 * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
 	 */
-	const resolvedMap = new Map<string, { preloadData: Array<PreloadData>; css: string }>();
+	const consumableMap: ConsumableMap = new Map();
 
 	for (const family of resolvedFamilies) {
 		const preloadData: Array<PreloadData> = [];
@@ -106,9 +121,9 @@ export async function orchestrate({
 		 */
 		const urlProxy = createUrlProxy({
 			local: family.provider === LOCAL_PROVIDER_NAME,
-			hasUrl: (hash) => hashToUrlMap.has(hash),
-			saveUrl: (hash, url) => {
-				hashToUrlMap.set(hash, url);
+			hasUrl: (hash) => fontFileDataMap.has(hash),
+			saveUrl: ({ hash, url, init }) => {
+				fontFileDataMap.set(hash, { url, init });
 			},
 			savePreload: (preload) => {
 				preloadData.push(preload);
@@ -153,6 +168,12 @@ export async function orchestrate({
 				// from families (inside extractUnifontProviders).
 				[family.provider.name!],
 			);
+			if (result.fonts.length === 0) {
+				logger.warn(
+					'assets',
+					`No data found for font family ${bold(family.name)}. Review your configuration`,
+				);
+			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
 			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy });
 		}
@@ -195,8 +216,8 @@ export async function orchestrate({
 
 		css += cssRenderer.generateCssVariable(family.cssVariable, cssVarValues);
 
-		resolvedMap.set(family.cssVariable, { preloadData, css });
+		consumableMap.set(family.cssVariable, { preloadData, css });
 	}
 
-	return { hashToUrlMap, resolvedMap };
+	return { fontFileDataMap, consumableMap };
 }

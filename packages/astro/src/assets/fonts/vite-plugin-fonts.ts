@@ -44,7 +44,7 @@ import {
 } from './implementations/url-proxy-content-resolver.js';
 import { createUrlProxy } from './implementations/url-proxy.js';
 import { orchestrate } from './orchestrate.js';
-import type { PreloadData } from './types.js';
+import type { ConsumableMap, FontFileDataMap } from './types.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -79,18 +79,15 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	// to trailingSlash: never)
 	const baseUrl = removeTrailingForwardSlash(settings.config.base) + URL_PREFIX;
 
-	let resolvedMap: Map<string, { preloadData: Array<PreloadData>; css: string }> | null = null;
-	// Key is `${hash}.${ext}`, value is a URL.
-	// When a font file is requested (eg. /_astro/fonts/abc.woff), we use the hash
-	// to download the original file, or retrieve it from cache
-	let hashToUrlMap: Map<string, string> | null = null;
+	let fontFileDataMap: FontFileDataMap | null = null;
+	let consumableMap: ConsumableMap | null = null;
 	let isBuild: boolean;
 	let fontFetcher: FontFetcher | null = null;
 	let fontTypeExtractor: FontTypeExtractor | null = null;
 
 	const cleanup = () => {
-		resolvedMap = null;
-		hashToUrlMap = null;
+		consumableMap = null;
+		fontFileDataMap = null;
 		fontFetcher = null;
 	};
 
@@ -146,6 +143,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			systemFallbacksProvider,
 			fontMetricsResolver,
 			fontTypeExtractor,
+			logger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = local
@@ -163,8 +161,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		});
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory
-		hashToUrlMap = res.hashToUrlMap;
-		resolvedMap = res.resolvedMap;
+		fontFileDataMap = res.fontFileDataMap;
+		consumableMap = res.consumableMap;
 	}
 
 	return {
@@ -190,7 +188,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			});
 			// The map is always defined at this point. Its values contains urls from remote providers
 			// as well as local paths for the local provider. We filter them to only keep the filepaths
-			const localPaths = [...hashToUrlMap!.values()].filter((url) => isAbsolute(url));
+			const localPaths = [...fontFileDataMap!.values()]
+				.filter(({ url }) => isAbsolute(url))
+				.map((v) => v.url);
 			server.watcher.on('change', (path) => {
 				if (localPaths.includes(path)) {
 					logger.info('assets', 'Font file updated');
@@ -214,8 +214,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					return next();
 				}
 				const hash = req.url.slice(1);
-				const url = hashToUrlMap?.get(hash);
-				if (!url) {
+				const associatedData = fontFileDataMap?.get(hash);
+				if (!associatedData) {
 					return next();
 				}
 				// We don't want the request to be cached in dev because we cache it already internally,
@@ -228,7 +228,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					// Storage should be defined at this point since initialize it called before registering
 					// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
 					// no url will be matched and this line will not be reached.
-					const data = await fontFetcher!.fetch(hash, url);
+					const data = await fontFetcher!.fetch({ hash, ...associatedData });
 
 					res.setHeader('Content-Length', data.length);
 					res.setHeader('Content-Type', `font/${fontTypeExtractor!.extract(hash)}`);
@@ -255,7 +255,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 				return {
-					code: `export const fontsData = new Map(${JSON.stringify(Array.from(resolvedMap?.entries() ?? []))})`,
+					code: `export const fontsData = new Map(${JSON.stringify(Array.from(consumableMap?.entries() ?? []))})`,
 				};
 			}
 		},
@@ -273,11 +273,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				} catch (cause) {
 					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 				}
-				if (hashToUrlMap) {
+				if (fontFileDataMap) {
 					logger.info('assets', 'Copying fonts...');
 					await Promise.all(
-						Array.from(hashToUrlMap.entries()).map(async ([hash, url]) => {
-							const data = await fontFetcher!.fetch(hash, url);
+						Array.from(fontFileDataMap.entries()).map(async ([hash, associatedData]) => {
+							const data = await fontFetcher!.fetch({ hash, ...associatedData });
 							try {
 								writeFileSync(new URL(hash, fontsDir), data);
 							} catch (cause) {

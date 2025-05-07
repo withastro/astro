@@ -389,21 +389,24 @@ describe('fonts logic', () => {
 					url: '/',
 					collectPreload: true,
 					data: { weight: '400', style: 'normal' },
+					init: null,
 				},
 				{
 					url: '/ignored',
 					collectPreload: false,
 					data: { weight: '400', style: 'normal' },
+					init: null,
 				},
 				{
 					url: '/2',
 					collectPreload: true,
 					data: { weight: '500', style: 'normal' },
+					init: null,
 				},
 			]);
 		});
 
-		it('collect preloads correctly', () => {
+		it('collects preloads correctly', () => {
 			const { collected, urlProxy } = createSpyUrlProxy();
 			normalizeRemoteFontFaces({
 				urlProxy,
@@ -425,21 +428,25 @@ describe('fonts logic', () => {
 					url: '/',
 					collectPreload: true,
 					data: { weight: '400', style: 'normal' },
+					init: null,
 				},
 				{
 					url: '/ignored',
 					collectPreload: false,
 					data: { weight: '400', style: 'normal' },
+					init: null,
 				},
 				{
 					url: '/2',
 					collectPreload: true,
 					data: { weight: '500', style: 'normal' },
+					init: null,
 				},
 				{
 					url: '/also-ignored',
 					collectPreload: false,
 					data: { weight: '500', style: 'normal' },
+					init: null,
 				},
 			]);
 		});
@@ -458,7 +465,7 @@ describe('fonts logic', () => {
 				await optimizeFallbacks({
 					family,
 					fallbacks: [],
-					collectedFonts: [{ url: '', hash: '', data: {} }],
+					collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
 					enabled: true,
 					systemFallbacksProvider,
 					fontMetricsResolver,
@@ -472,7 +479,7 @@ describe('fonts logic', () => {
 				await optimizeFallbacks({
 					family,
 					fallbacks: ['foo'],
-					collectedFonts: [{ url: '', hash: '', data: {} }],
+					collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
 					enabled: false,
 					systemFallbacksProvider,
 					fontMetricsResolver,
@@ -500,7 +507,7 @@ describe('fonts logic', () => {
 				await optimizeFallbacks({
 					family,
 					fallbacks: ['foo'],
-					collectedFonts: [{ url: '', hash: '', data: {} }],
+					collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
 					enabled: true,
 					systemFallbacksProvider,
 					fontMetricsResolver,
@@ -514,7 +521,7 @@ describe('fonts logic', () => {
 				await optimizeFallbacks({
 					family,
 					fallbacks: ['cursive'],
-					collectedFonts: [{ url: '', hash: '', data: {} }],
+					collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
 					enabled: true,
 					systemFallbacksProvider,
 					fontMetricsResolver,
@@ -531,7 +538,7 @@ describe('fonts logic', () => {
 						nameWithHash: 'Arial-xxx',
 					},
 					fallbacks: ['sans-serif'],
-					collectedFonts: [{ url: '', hash: '', data: {} }],
+					collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
 					enabled: true,
 					systemFallbacksProvider,
 					fontMetricsResolver,
@@ -544,7 +551,7 @@ describe('fonts logic', () => {
 			const result = await optimizeFallbacks({
 				family,
 				fallbacks: ['foo', 'sans-serif'],
-				collectedFonts: [{ url: '', hash: '', data: {} }],
+				collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
 				enabled: true,
 				systemFallbacksProvider,
 				fontMetricsResolver,
@@ -557,8 +564,8 @@ describe('fonts logic', () => {
 				family,
 				fallbacks: ['foo', 'sans-serif'],
 				collectedFonts: [
-					{ url: '', hash: '', data: { weight: '400' } },
-					{ url: '', hash: '', data: { weight: '500' } },
+					{ url: '', hash: '', data: { weight: '400' }, init: null },
+					{ url: '', hash: '', data: { weight: '500' }, init: null },
 				],
 				enabled: true,
 				systemFallbacksProvider,

@@ -20,16 +20,17 @@ export function createUrlProxy({
 	fontTypeExtractor: FontTypeExtractor;
 }): UrlProxy {
 	return {
-		proxy({ url: originalUrl, data, collectPreload }) {
+		proxy({ url: originalUrl, data, collectPreload, init }) {
 			const type = fontTypeExtractor.extract(originalUrl);
 			const hash = `${hasher.hashString(contentResolver.resolve(originalUrl))}.${type}`;
 			const url = base + hash;
 
 			dataCollector.collect({
-				originalUrl,
+				url: originalUrl,
 				hash,
 				preload: collectPreload ? { url, type } : null,
 				data,
+				init,
 			});
 
 			return url;
