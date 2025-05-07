@@ -45,6 +45,7 @@ import {
 import { createUrlProxy } from './implementations/url-proxy.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap } from './types.js';
+import { createFontaceFontFileReader } from './implementations/font-file-reader.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -132,6 +133,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		fontFetcher = createCachedFontFetcher({ storage, errorHandler, fetch, readFile });
 		const fontMetricsResolver = createCapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
 		fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const fontFileReader = createFontaceFontFileReader({ errorHandler });
 
 		const res = await orchestrate({
 			families: settings.config.experimental.fonts!,
@@ -143,6 +145,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			systemFallbacksProvider,
 			fontMetricsResolver,
 			fontTypeExtractor,
+			fontFileReader,
 			logger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);

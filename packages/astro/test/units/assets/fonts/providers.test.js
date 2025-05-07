@@ -10,6 +10,7 @@ import * as googleEntrypoint from '../../../../dist/assets/fonts/providers/entry
 import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
 import { createSpyUrlProxy, simpleErrorHandler } from './utils.js';
+import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/implementations/font-file-reader.js';
 
 describe('fonts providers', () => {
 	describe('config objects', () => {
@@ -83,6 +84,7 @@ describe('fonts providers', () => {
 						},
 					],
 				},
+				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
 			});
 			assert.deepStrictEqual(collected, [
 				{
@@ -129,6 +131,7 @@ describe('fonts providers', () => {
 						},
 					],
 				},
+				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
 			});
 			assert.deepStrictEqual(collected, [
 				{
@@ -156,6 +159,121 @@ describe('fonts providers', () => {
 					init: null,
 				},
 			]);
+		});
+
+		describe('properties inference', () => {
+			it('infers properties correctly', async () => {
+				const { collected, urlProxy } = createSpyUrlProxy();
+				const { fonts } = resolveLocalFont({
+					urlProxy,
+					fontTypeExtractor,
+					family: {
+						name: 'Test',
+						nameWithHash: 'Test-xxx',
+						cssVariable: '--test',
+						provider: 'local',
+						variants: [
+							{
+								src: [{ url: '/test.woff2' }],
+							},
+						],
+					},
+					fontFileReader: {
+						extract() {
+							return {
+								weight: '300',
+								style: 'italic',
+							};
+						},
+					},
+				});
+
+				assert.deepStrictEqual(fonts, [
+					{
+						display: undefined,
+						featureSettings: undefined,
+						src: [
+							{
+								format: 'woff2',
+								originalURL: '/test.woff2',
+								tech: undefined,
+								url: '/test.woff2',
+							},
+						],
+						stretch: undefined,
+						style: 'italic',
+						unicodeRange: undefined,
+						variationSettings: undefined,
+						weight: '300',
+					},
+				]);
+				assert.deepStrictEqual(collected, [
+					{
+						url: '/test.woff2',
+						collectPreload: true,
+						data: { weight: '300', style: 'italic' },
+						init: null,
+					},
+				]);
+			});
+
+			it('respects what property should be inferred', async () => {
+				const { collected, urlProxy } = createSpyUrlProxy();
+				const { fonts } = resolveLocalFont({
+					urlProxy,
+					fontTypeExtractor,
+					family: {
+						name: 'Test',
+						nameWithHash: 'Test-xxx',
+						cssVariable: '--test',
+						provider: 'local',
+						variants: [
+							{
+								style: 'normal',
+								unicodeRange: ['bar'],
+								src: [{ url: '/test.woff2' }],
+							},
+						],
+					},
+					fontFileReader: {
+						extract() {
+							return {
+								weight: '300',
+								style: 'italic',
+								unicodeRange: ['foo'],
+							};
+						},
+					},
+				});
+
+				assert.deepStrictEqual(fonts, [
+					{
+						display: undefined,
+						featureSettings: undefined,
+						src: [
+							{
+								format: 'woff2',
+								originalURL: '/test.woff2',
+								tech: undefined,
+								url: '/test.woff2',
+							},
+						],
+						stretch: undefined,
+						style: 'normal',
+						unicodeRange: ['bar'],
+						variationSettings: undefined,
+						weight: '300',
+					},
+				]);
+				assert.deepStrictEqual(collected, [
+					{
+						url: '/test.woff2',
+						collectPreload: true,
+						data: { weight: '300', style: 'normal' },
+						init: null,
+					},
+				]);
+			});
 		});
 	});
 });

@@ -139,6 +139,7 @@
     "esbuild": "^0.25.0",
     "estree-walker": "^3.0.3",
     "flattie": "^1.1.1",
+    "fontace": "~0.3.0",
     "github-slugger": "^2.0.0",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.1.1",
