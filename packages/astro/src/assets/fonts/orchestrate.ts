@@ -1,5 +1,7 @@
+import { bold } from 'kleur/colors';
 import * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
+import type { Logger } from '../../core/logger/core.js';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
 import type {
 	CssRenderer,
@@ -56,6 +58,7 @@ export async function orchestrate({
 	fontMetricsResolver,
 	fontTypeExtractor,
 	fontFileReader,
+	logger,
 	createUrlProxy,
 	defaults,
 }: {
@@ -69,6 +72,8 @@ export async function orchestrate({
 	fontMetricsResolver: FontMetricsResolver;
 	fontTypeExtractor: FontTypeExtractor;
 	fontFileReader: FontFileReader;
+	// TODO: follow this implementation: https://github.com/withastro/astro/pull/13756/commits/e30ac2b7082a3eed36225da6e88449890cbcbe6b
+	logger: Logger;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
 }): Promise<{
@@ -167,6 +172,12 @@ export async function orchestrate({
 				// from families (inside extractUnifontProviders).
 				[family.provider.name!],
 			);
+			if (result.fonts.length === 0) {
+				logger.warn(
+					'assets',
+					`No data found for font family ${bold(family.name)}. Review your configuration`,
+				);
+			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
 			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy });
 		}

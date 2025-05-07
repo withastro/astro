@@ -146,6 +146,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			fontMetricsResolver,
 			fontTypeExtractor,
 			fontFileReader,
+			logger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = local
