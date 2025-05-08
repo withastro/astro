@@ -96,33 +96,18 @@ export function findRouteToRewrite({
 	let foundRoute;
 	for (const route of routes) {
 		if (route.pattern.test(decodedPathname)) {
-			// Named prerendered route (eg. src/pages/about.astro)
-			if (route.prerender && route.pathname === decodedPathname) {
-				foundRoute = route;
-				break;
-			}
-			// Prerendered dynamic route
-			if (
-				route.prerender &&
-				route.params &&
-				route.params.length !== 0 &&
-				route.distURL &&
-				route.distURL.length !== 0
-			) {
-				// Check that the route generates a matching pathname
-				let matchedRoute = route.distURL.find((url) =>
-					url.pathname
-						.replace(/(?:\/index\.html|\.html)$/, '')
-						.endsWith(removeTrailingForwardSlash(decodedPathname)),
-				);
-				if (matchedRoute) {
-					foundRoute = route;
-					break;
-				} else {
+			// Extra check to make sure a dynamic route actually matches
+			if (route.params && route.distURL && route.distURL.length !== 0) {
+				if (
+					!route.distURL.find((url) =>
+						url.href
+							.replace(/(?:\/index\.html|\.html)$/, '')
+							.endsWith(removeTrailingForwardSlash(decodedPathname)),
+					)
+				) {
 					continue;
 				}
 			}
-			// If we get this far, it should be safe to match the route
 			foundRoute = route;
 			break;
 		}

@@ -501,24 +501,11 @@ async function generatePath(
 		// Check if there is a translated page with the same path
 		Object.values(options.allPages).some((val) => {
 			if (val.route.pattern.test(pathname)) {
-				// prerendered dynamic route
-				if (val.route.prerender && val.route.params && val.route.params.length !== 0) {
-					// Check the distURL array for a matching path
-					if (val.route.distURL && val.route.distURL.length !== 0) {
-						let matchedRoute = val.route.distURL.find((url) =>
-							url.href
-								.replace(/(?:\/index\.html|\.html)$/, '')
-								.endsWith(removeTrailingForwardSlash(pathname)),
-						);
-						// Didn't find a match
-						if (!matchedRoute) return false;
-					}
-					// If there are no distURLs, don't match
-					if (!val.route.distURL || val.route.distURL.length === 0) {
-						return false;
-					}
+				// Check that the matched route is in a locale folder
+				if (val.route.segments && val.route.segments.length !== 0) {
+					let locale = removeLeadingForwardSlash(pathname).split('/')[0];
+					if (val.route.segments[0][0].content !== locale) return false;
 				}
-				// Not a dynamic route, safe to match
 				return true;
 			} else {
 				// Pattern doesn't match
@@ -526,7 +513,7 @@ async function generatePath(
 			}
 		})
 	) {
-		return undefined;
+		return void 0;
 	}
 
 	const url = getUrlForPath(
