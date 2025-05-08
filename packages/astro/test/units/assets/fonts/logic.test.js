@@ -493,20 +493,12 @@ describe('fonts logic', () => {
 					{
 						weight: '400',
 						style: 'normal',
-						src: [
-							{ name: 'Arial' },
-							{ url: '/', format: 'woff2' },
-							{ url: '/ignored.ttf' },
-						],
+						src: [{ name: 'Arial' }, { url: '/', format: 'woff2' }, { url: '/ignored.ttf' }],
 					},
 					{
 						weight: '500',
 						style: 'normal',
-						src: [
-							{ url: '/2', format: 'woff2' },
-							{ name: 'Foo' },
-							{ url: '/also-ignored.ttf' },
-						],
+						src: [{ url: '/2', format: 'woff2' }, { name: 'Foo' }, { url: '/also-ignored.ttf' }],
 					},
 				],
 				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
@@ -576,6 +568,54 @@ describe('fonts logic', () => {
 					type: 'ttf',
 					collectPreload: false,
 					data: { weight: '500', style: 'normal' },
+					init: null,
+				},
+			]);
+		});
+
+		it('turns relative protocols into https', () => {
+			const { collected, urlProxy } = createSpyUrlProxy();
+			const fonts = normalizeRemoteFontFaces({
+				urlProxy,
+				fonts: [
+					{
+						weight: '400',
+						style: 'normal',
+						src: [{ url: '//example.com/font.woff2' }, { url: 'http://example.com/font.woff' }],
+					},
+				],
+				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+			});
+
+			assert.deepStrictEqual(fonts, [
+				{
+					src: [
+						{
+							originalURL: 'https://example.com/font.woff2',
+							url: 'https://example.com/font.woff2',
+						},
+						{
+							originalURL: 'http://example.com/font.woff',
+							url: 'http://example.com/font.woff',
+						},
+					],
+					style: 'normal',
+					weight: '400',
+				},
+			]);
+			assert.deepStrictEqual(collected, [
+				{
+					url: 'https://example.com/font.woff2',
+					collectPreload: true,
+					type: 'woff2',
+					data: { weight: '400', style: 'normal' },
+					init: null,
+				},
+				{
+					url: 'http://example.com/font.woff',
+					collectPreload: false,
+					type: 'woff',
+					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 			]);
