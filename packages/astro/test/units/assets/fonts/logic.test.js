@@ -6,7 +6,13 @@ import { extractUnifontProviders } from '../../../../dist/assets/fonts/logic/ext
 import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/logic/normalize-remote-font-faces.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/logic/optimize-fallbacks.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/logic/resolve-families.js';
-import { createSpyUrlProxy, fakeFontMetricsResolver, fakeHasher } from './utils.js';
+import {
+	createSpyUrlProxy,
+	fakeFontMetricsResolver,
+	fakeHasher,
+	simpleErrorHandler,
+} from './utils.js';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 
 describe('fonts logic', () => {
 	describe('resolveFamily()', () => {
@@ -336,7 +342,14 @@ describe('fonts logic', () => {
 	describe('normalizeRemoteFontFaces()', () => {
 		it('filters font data based on priority', () => {
 			const { urlProxy } = createSpyUrlProxy();
-			assert.equal(normalizeRemoteFontFaces({ fonts: [], urlProxy }).length, 0);
+			assert.equal(
+				normalizeRemoteFontFaces({
+					fonts: [],
+					urlProxy,
+					fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				}).length,
+				0,
+			);
 			assert.equal(
 				normalizeRemoteFontFaces({
 					fonts: [
@@ -362,6 +375,7 @@ describe('fonts logic', () => {
 						},
 					],
 					urlProxy,
+					fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
 				}).length,
 				4,
 			);
@@ -375,30 +389,37 @@ describe('fonts logic', () => {
 					{
 						weight: '400',
 						style: 'normal',
-						src: [{ url: '/' }, { url: '/ignored' }],
+						src: [
+							{ url: '/', format: 'woff2' },
+							{ url: '/ignored', format: 'woff2' },
+						],
 					},
 					{
 						weight: '500',
 						style: 'normal',
-						src: [{ url: '/2' }],
+						src: [{ url: '/2', format: 'woff2' }],
 					},
 				],
+				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
 			});
 			assert.deepStrictEqual(collected, [
 				{
 					url: '/',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/ignored',
+					type: 'woff2',
 					collectPreload: false,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/2',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '500', style: 'normal' },
 					init: null,
@@ -414,36 +435,137 @@ describe('fonts logic', () => {
 					{
 						weight: '400',
 						style: 'normal',
-						src: [{ name: 'Arial' }, { url: '/' }, { url: '/ignored' }],
+						src: [
+							{ name: 'Arial' },
+							{ url: '/', format: 'woff2' },
+							{ url: '/ignored', format: 'woff2' },
+						],
 					},
 					{
 						weight: '500',
 						style: 'normal',
-						src: [{ url: '/2' }, { name: 'Foo' }, { url: '/also-ignored' }],
+						src: [
+							{ url: '/2', format: 'woff2' },
+							{ name: 'Foo' },
+							{ url: '/also-ignored', format: 'woff2' },
+						],
 					},
 				],
+				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
 			});
 			assert.deepStrictEqual(collected, [
 				{
 					url: '/',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/ignored',
+					type: 'woff2',
 					collectPreload: false,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/2',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '500', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/also-ignored',
+					type: 'woff2',
+					collectPreload: false,
+					data: { weight: '500', style: 'normal' },
+					init: null,
+				},
+			]);
+		});
+
+		it('computes type and format correctly', () => {
+			const { collected, urlProxy } = createSpyUrlProxy();
+			const fonts = normalizeRemoteFontFaces({
+				urlProxy,
+				fonts: [
+					{
+						weight: '400',
+						style: 'normal',
+						src: [{ name: 'Arial' }, { url: '/', format: 'woff2' }, { url: '/ignored.ttf' }],
+					},
+					{
+						weight: '500',
+						style: 'normal',
+						src: [{ url: '/2', format: 'woff2' }, { name: 'Foo' }, { url: '/also-ignored.ttf' }],
+					},
+				],
+				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+			});
+			assert.deepStrictEqual(fonts, [
+				{
+					src: [
+						{
+							name: 'Arial',
+						},
+						{
+							format: 'woff2',
+							originalURL: '/',
+							url: '/',
+						},
+						{
+							originalURL: '/ignored.ttf',
+							url: '/ignored.ttf',
+						},
+					],
+					style: 'normal',
+					weight: '400',
+				},
+				{
+					src: [
+						{
+							format: 'woff2',
+							originalURL: '/2',
+							url: '/2',
+						},
+						{
+							name: 'Foo',
+						},
+						{
+							originalURL: '/also-ignored.ttf',
+							url: '/also-ignored.ttf',
+						},
+					],
+					style: 'normal',
+					weight: '500',
+				},
+			]);
+			assert.deepStrictEqual(collected, [
+				{
+					url: '/',
+					type: 'woff2',
+					collectPreload: true,
+					data: { weight: '400', style: 'normal' },
+					init: null,
+				},
+				{
+					url: '/ignored.ttf',
+					type: 'ttf',
+					collectPreload: false,
+					data: { weight: '400', style: 'normal' },
+					init: null,
+				},
+				{
+					url: '/2',
+					type: 'woff2',
+					collectPreload: true,
+					data: { weight: '500', style: 'normal' },
+					init: null,
+				},
+				{
+					url: '/also-ignored.ttf',
+					type: 'ttf',
 					collectPreload: false,
 					data: { weight: '500', style: 'normal' },
 					init: null,
@@ -462,6 +584,7 @@ describe('fonts logic', () => {
 						src: [{ url: '//example.com/font.woff2' }, { url: 'http://example.com/font.woff' }],
 					},
 				],
+				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
 			});
 
 			assert.deepStrictEqual(fonts, [
@@ -484,12 +607,14 @@ describe('fonts logic', () => {
 				{
 					url: 'https://example.com/font.woff2',
 					collectPreload: true,
+					type: 'woff2',
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: 'http://example.com/font.woff',
 					collectPreload: false,
+					type: 'woff',
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},

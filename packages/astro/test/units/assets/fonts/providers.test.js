@@ -89,18 +89,21 @@ describe('fonts providers', () => {
 			assert.deepStrictEqual(collected, [
 				{
 					url: '/test.woff2',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/ignored.woff',
+					type: 'woff',
 					collectPreload: false,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/2.woff2',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '500', style: 'normal' },
 					init: null,
@@ -136,27 +139,78 @@ describe('fonts providers', () => {
 			assert.deepStrictEqual(collected, [
 				{
 					url: '/test.woff2',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/ignored.woff',
+					type: 'woff',
 					collectPreload: false,
 					data: { weight: '400', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/2.woff2',
+					type: 'woff2',
 					collectPreload: true,
 					data: { weight: '500', style: 'normal' },
 					init: null,
 				},
 				{
 					url: '/also-ignored.woff',
+					type: 'woff',
 					collectPreload: false,
 					data: { weight: '500', style: 'normal' },
 					init: null,
+				},
+			]);
+		});
+
+		it('computes the format correctly', () => {
+			const { urlProxy } = createSpyUrlProxy();
+			const { fonts } = resolveLocalFont({
+				urlProxy,
+				fontTypeExtractor,
+				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
+				family: {
+					name: 'Test',
+					nameWithHash: 'Test-xxx',
+					cssVariable: '--test',
+					provider: 'local',
+					variants: [
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ url: '/test.woff2' }, { url: '/ignored.ttf' }],
+						},
+					],
+				},
+			});
+			assert.deepStrictEqual(fonts, [
+				{
+					display: undefined,
+					featureSettings: undefined,
+					src: [
+						{
+							format: 'woff2',
+							originalURL: '/test.woff2',
+							tech: undefined,
+							url: '/test.woff2',
+						},
+						{
+							format: 'truetype',
+							originalURL: '/ignored.ttf',
+							tech: undefined,
+							url: '/ignored.ttf',
+						},
+					],
+					stretch: undefined,
+					style: 'normal',
+					unicodeRange: undefined,
+					variationSettings: undefined,
+					weight: '400',
 				},
 			]);
 		});
@@ -211,6 +265,7 @@ describe('fonts providers', () => {
 					{
 						url: '/test.woff2',
 						collectPreload: true,
+						type: 'woff2',
 						data: { weight: '300', style: 'italic' },
 						init: null,
 					},
@@ -269,6 +324,7 @@ describe('fonts providers', () => {
 					{
 						url: '/test.woff2',
 						collectPreload: true,
+						type: 'woff2',
 						data: { weight: '300', style: 'normal' },
 						init: null,
 					},
