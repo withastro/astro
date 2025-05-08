@@ -121,6 +121,11 @@ export function createCollectionToGlobResultMap({
 	return collectionToGlobResultMap;
 }
 
+const cacheHintSchema = z.object({
+	tags: z.array(z.string()).optional(),
+	maxAge: z.number().optional(),
+});
+
 async function parseLiveEntry(
 	entry: LiveDataEntry,
 	schema: z.ZodType,
@@ -136,6 +141,21 @@ async function parseLiveEntry(
 				parsed.error,
 			),
 		});
+	}
+	if (entry.cacheHint) {
+		const cacheHint = cacheHintSchema.safeParse(entry.cacheHint);
+
+		if (!cacheHint.success) {
+			throw new AstroError({
+				...AstroErrorData.InvalidCacheHintError,
+				message: AstroErrorData.InvalidCacheHintError.message(
+					collection,
+					entry.id,
+					cacheHint.error,
+				),
+			});
+		}
+		entry.cacheHint = cacheHint.data;
 	}
 	return {
 		...entry,
@@ -182,6 +202,22 @@ export function createGetCollection({
 				response.entries = await Promise.all(
 					response.entries.map((entry) => parseLiveEntry(entry, schema, collection)),
 				);
+			}
+
+			if (response.cacheHint) {
+				const cacheHint = cacheHintSchema.safeParse(response.cacheHint);
+
+				if (!cacheHint.success) {
+					throw new AstroError({
+						...AstroErrorData.InvalidCacheHintError,
+						message: AstroErrorData.InvalidCacheHintError.message(
+							collection,
+							undefined,
+							cacheHint.error,
+						),
+					});
+				}
+				response.cacheHint = cacheHint.data;
 			}
 
 			return {
