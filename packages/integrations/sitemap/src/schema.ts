@@ -7,6 +7,7 @@ const localeKeySchema = z.string().min(1);
 export const SitemapOptionsSchema = z
 	.object({
 		filter: z.function().args(z.string()).returns(z.boolean()).optional(),
+		customSitemaps: z.string().url().array().optional(),
 		customPages: z.string().url().array().optional(),
 		canonicalURL: z.string().url().optional(),
 		xslURL: z.string().optional(),

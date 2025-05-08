@@ -19,6 +19,7 @@ export type LinkItem = LinkItemBase;
 export type SitemapOptions =
 	| {
 			filter?(page: string): boolean;
+			customSitemaps?: string[];
 			customPages?: string[];
 
 			i18n?: {
@@ -88,7 +89,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					const opts = validateOptions(config.site, options);
 
-					const { filter, customPages, serialize, entryLimit } = opts;
+					const { filter, customPages, customSitemaps, serialize, entryLimit } = opts;
 
 					const finalSiteUrl = new URL(config.base, config.site);
 					const shouldIgnoreStatus = isStatusCodePage(Object.keys(opts.i18n?.locales ?? {}));
@@ -178,6 +179,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							publicBasePath: config.base,
 							sourceData: urlData,
 							limit: entryLimit,
+              customSitemaps,
 							xslURL: xslURL,
 						},
 						config,
