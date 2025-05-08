@@ -6,6 +6,7 @@ import { defineFontProvider } from 'unifont';
 import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
 import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
+import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/implementations/font-file-reader.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import { createRequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/implementations/local-provider-url-resolver.js';
 import { createBuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-mod-resolver.js';
@@ -56,6 +57,7 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
@@ -155,6 +157,7 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();

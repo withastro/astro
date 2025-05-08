@@ -1,6 +1,7 @@
 import { promises as fs, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import { AstroError } from '../../core/errors/index.js';
 import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
 
@@ -21,8 +22,10 @@ interface FileOptions {
  */
 export function file(fileName: string, options?: FileOptions): Loader {
 	if (fileName.includes('*')) {
-		// TODO: AstroError
-		throw new Error('Glob patterns are not supported in `file` loader. Use `glob` loader instead.');
+		throw new AstroError({
+			name: 'Glob Pattern Error',
+			message: 'Glob patterns are not supported in `file` loader. Use `glob` loader instead.',
+		});
 	}
 
 	let parse: ((text: string) => any) | null = null;
@@ -39,10 +42,10 @@ export function file(fileName: string, options?: FileOptions): Loader {
 	if (options?.parser) parse = options.parser;
 
 	if (parse === null) {
-		// TODO: AstroError
-		throw new Error(
-			`No parser found for file '${fileName}'. Try passing a parser to the \`file\` loader.`,
-		);
+		throw new AstroError({
+			name: 'Parser Not Found',
+			message: `No parser found for file '${fileName}'. Try passing a parser to the \`file\` loader.`,
+		});
 	}
 
 	async function syncData(filePath: string, { logger, parseData, store, config }: LoaderContext) {
