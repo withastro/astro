@@ -464,25 +464,22 @@ describe('fonts logic', () => {
 				],
 			});
 
-			assert.deepStrictEqual(
-				fonts,
-				[
-					{
-						src: [
-							{
-								originalURL: 'https://example.com/font.woff2',
-								url: 'https://example.com/font.woff2',
-							},
-							{
-								originalURL: 'http://example.com/font.woff',
-								url: 'http://example.com/font.woff',
-							},
-						],
-						style: 'normal',
-						weight: '400',
-					},
-				],
-			);
+			assert.deepStrictEqual(fonts, [
+				{
+					src: [
+						{
+							originalURL: 'https://example.com/font.woff2',
+							url: 'https://example.com/font.woff2',
+						},
+						{
+							originalURL: 'http://example.com/font.woff',
+							url: 'http://example.com/font.woff',
+						},
+					],
+					style: 'normal',
+					weight: '400',
+				},
+			]);
 			assert.deepStrictEqual(collected, [
 				{
 					url: 'https://example.com/font.woff2',
