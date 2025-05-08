@@ -7,9 +7,11 @@ import {
 	renderFontFace,
 	withFamily,
 } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
+import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
 import { createAstroErrorHandler } from '../../../../dist/assets/fonts/implementations/error-handler.js';
 import { createCachedFontFetcher } from '../../../../dist/assets/fonts/implementations/font-fetcher.js';
+import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/implementations/font-metrics-resolver.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import { createSpyStorage, simpleErrorHandler } from './utils.js';
 
@@ -269,8 +271,44 @@ describe('fonts implementations', () => {
 		});
 	});
 
-	// TODO: find a good way to test this
-	// describe('createCapsizeFontMetricsResolver()', () => {});
+	describe('createCapsizeFontMetricsResolver()', () => {
+		describe('generateFontFace()', () => {
+			it('returns a src', () => {
+				const fontMetricsResolver = createCapsizeFontMetricsResolver({
+					cssRenderer: createMinifiableCssRenderer({ minify: true }),
+					fontFetcher: {
+						async fetch() {
+							return Buffer.from('');
+						},
+					},
+				});
+
+				const css = fontMetricsResolver.generateFontFace({
+					name: 'Roboto-xxx fallback: Arial',
+					font: 'Arial',
+					metrics: {
+						ascent: 1,
+						descent: 1,
+						lineGap: 1,
+						unitsPerEm: 1,
+						xWidthAvg: 1,
+					},
+					fallbackMetrics: {
+						ascent: 1,
+						descent: 1,
+						lineGap: 1,
+						unitsPerEm: 1,
+						xWidthAvg: 1,
+					},
+					properties: {
+						src: undefined,
+					},
+				});
+
+				assert.equal(css.includes('src:local("Arial")'), true);
+			});
+		});
+	});
 
 	it('createFontTypeExtractor()', () => {
 		/** @type {Array<[string, false | string]>} */

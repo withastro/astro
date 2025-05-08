@@ -27,6 +27,7 @@ import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
 import { createDataCollector } from './implementations/data-collector.js';
 import { createAstroErrorHandler } from './implementations/error-handler.js';
 import { createCachedFontFetcher } from './implementations/font-fetcher.js';
+import { createFontaceFontFileReader } from './implementations/font-file-reader.js';
 import { createCapsizeFontMetricsResolver } from './implementations/font-metrics-resolver.js';
 import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
 import { createXxHasher } from './implementations/hasher.js';
@@ -132,6 +133,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		fontFetcher = createCachedFontFetcher({ storage, errorHandler, fetch, readFile });
 		const fontMetricsResolver = createCapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
 		fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const fontFileReader = createFontaceFontFileReader({ errorHandler });
 
 		const res = await orchestrate({
 			families: settings.config.experimental.fonts!,
@@ -143,6 +145,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			systemFallbacksProvider,
 			fontMetricsResolver,
 			fontTypeExtractor,
+			fontFileReader,
+			logger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = local

@@ -34,13 +34,13 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "vite": "^6.3.4",
+    "vite": "^6.3.5",
     "vite-plugin-solid": "^2.11.6"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^1.9.5"
+    "solid-js": "^1.9.6"
   },
   "peerDependencies": {
     "solid-devtools": "^0.30.1",
