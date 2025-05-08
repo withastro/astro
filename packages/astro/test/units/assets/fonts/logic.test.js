@@ -450,6 +450,54 @@ describe('fonts logic', () => {
 				},
 			]);
 		});
+
+		it('turns relative protocols into https', () => {
+			const { collected, urlProxy } = createSpyUrlProxy();
+			const fonts = normalizeRemoteFontFaces({
+				urlProxy,
+				fonts: [
+					{
+						weight: '400',
+						style: 'normal',
+						src: [{ url: '//example.com/font.woff2' }, { url: 'http://example.com/font.woff' }],
+					},
+				],
+			});
+
+			assert.deepStrictEqual(
+				fonts,
+				[
+					{
+						src: [
+							{
+								originalURL: 'https://example.com/font.woff2',
+								url: 'https://example.com/font.woff2',
+							},
+							{
+								originalURL: 'http://example.com/font.woff',
+								url: 'http://example.com/font.woff',
+							},
+						],
+						style: 'normal',
+						weight: '400',
+					},
+				],
+			);
+			assert.deepStrictEqual(collected, [
+				{
+					url: 'https://example.com/font.woff2',
+					collectPreload: true,
+					data: { weight: '400', style: 'normal' },
+					init: null,
+				},
+				{
+					url: 'http://example.com/font.woff',
+					collectPreload: false,
+					data: { weight: '400', style: 'normal' },
+					init: null,
+				},
+			]);
+		});
 	});
 
 	describe('optimizeFallbacks()', () => {

@@ -23,11 +23,14 @@ export function normalizeRemoteFontFaces({
 						if ('name' in source) {
 							return source;
 						}
+						// We handle protocol relative URLs here, otherwise they're considered absolute by the font
+						// fetcher which will try to read them from the file system
+						const url = source.url.startsWith('//') ? `https:${source.url}` : source.url;
 						const proxied = {
 							...source,
-							originalURL: source.url,
+							originalURL: url,
 							url: urlProxy.proxy({
-								url: source.url,
+								url,
 								// We only collect the first URL to avoid preloading fallback sources (eg. we only
 								// preload woff2 if woff is available)
 								collectPreload: index === 0,
