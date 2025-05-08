@@ -1,6 +1,6 @@
 import type * as unifont from 'unifont';
-import type { FontTypeExtractor, UrlProxy } from '../definitions.js';
 import { FONT_FORMATS } from '../constants.js';
+import type { FontTypeExtractor, UrlProxy } from '../definitions.js';
 
 export function normalizeRemoteFontFaces({
 	fonts,

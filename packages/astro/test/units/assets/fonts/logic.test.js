@@ -1,6 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
 import { extractUnifontProviders } from '../../../../dist/assets/fonts/logic/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/logic/normalize-remote-font-faces.js';
@@ -12,7 +13,6 @@ import {
 	fakeHasher,
 	simpleErrorHandler,
 } from './utils.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 
 describe('fonts logic', () => {
 	describe('resolveFamily()', () => {
