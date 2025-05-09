@@ -1543,7 +1543,7 @@ export const FileParserNotFound = {
 /**
  * @docs
  * @see
- *  - [glob patterns](https://docs.astro.build/en/guides/imports/#glob-patterns)
+ *  - [Astro's built-in loaders](https://docs.astro.build/en/guides/content-collections/#built-in-loaders)
  * @description
  * Thrown when a glob pattern is supplied to the `file` loader.
  */
