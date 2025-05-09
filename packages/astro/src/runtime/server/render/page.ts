@@ -6,6 +6,7 @@ import { isAstroComponentFactory } from './astro/index.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
 import { isDeno, isNode } from './util.js';
+import { getPropagationHint } from './astro/factory.js';
 
 export async function renderPage(
 	result: SSRResult,
@@ -43,8 +44,9 @@ export async function renderPage(
 
 	// Mark if this page component contains a <head> within its tree. If it does
 	// We avoid implicit head injection entirely.
+	const propagationHint = getPropagationHint(result, componentFactory);
 	result._metadata.headInTree =
-		result.componentMetadata.get(componentFactory.moduleId!)?.containsHead ?? false;
+		result.componentMetadata.get(componentFactory.moduleId!)?.containsHead ?? propagationHint === 'in-tree';
 
 	let body: BodyInit | Response;
 	if (streaming) {

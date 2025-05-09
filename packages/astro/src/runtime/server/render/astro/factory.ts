@@ -26,3 +26,14 @@ export function isAPropagatingComponent(
 	}
 	return hint === 'in-tree' || hint === 'self';
 }
+
+export function getPropagationHint(
+	result: SSRResult,
+	factory: AstroComponentFactory,
+): PropagationHint {
+	let hint: PropagationHint = factory.propagation || 'none';
+	if (factory.moduleId && result.componentMetadata.has(factory.moduleId) && hint === 'none') {
+		hint = result.componentMetadata.get(factory.moduleId)!.propagation;
+	}
+	return hint;
+}
