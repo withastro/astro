@@ -1528,7 +1528,6 @@ export const GenerateContentTypesError = {
 } satisfies ErrorData;
 /**
  * @docs
- * @message No parser found for file `users.csv`. Pass a parser to the `file` loader (e.g. `parser: csv`).
  * @see
  *  - [parsers](https://docs.astro.build/en/guides/imports/#parsers)
  * @description
