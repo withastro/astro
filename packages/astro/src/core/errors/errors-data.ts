@@ -1553,7 +1553,7 @@ export const FileGlobNotSupported = {
 	message:
 		'Glob patterns are not supported in the `file` loader. Use the `glob` loader instead.',
 	hint:
-		'See https://docs.astro.build/en/guides/imports/#glob-patterns for supported glob usage.',
+		'See Astro's built-in file and glob loaders https://docs.astro.build/en/guides/content-collections/#built-in-loaders for supported usage.',
 } satisfies ErrorData;
 /**
  * @docs
