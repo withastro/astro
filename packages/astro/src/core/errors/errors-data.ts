@@ -1529,7 +1529,7 @@ export const GenerateContentTypesError = {
 /**
  * @docs
  * @see
- *  - [parsers](https://docs.astro.build/en/guides/imports/#parsers)
+ *  - [Passing a `parser` to the `file` loader](https://docs.astro.build/en/guides/imports/#parsers)
  * @description
  * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. `toml.parse` or `csv-parse`) to create a collection from your file type.
  */
