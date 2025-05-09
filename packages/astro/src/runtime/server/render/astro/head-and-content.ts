@@ -8,6 +8,13 @@ export type HeadAndContent = {
 	content: RenderTemplateResult;
 };
 
+/**
+ * A head that doesn't contain any content
+ */
+export type ThinHead = {
+	[headAndContentSym]: true;
+};
+
 export function isHeadAndContent(obj: unknown): obj is HeadAndContent {
 	return typeof obj === 'object' && obj !== null && !!(obj as any)[headAndContentSym];
 }
@@ -17,5 +24,11 @@ export function createHeadAndContent(head: string, content: RenderTemplateResult
 		[headAndContentSym]: true,
 		head,
 		content,
+	};
+}
+
+export function createThinHead(): ThinHead {
+	return {
+		[headAndContentSym]: true,
 	};
 }

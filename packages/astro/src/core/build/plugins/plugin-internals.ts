@@ -1,8 +1,8 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
-import { normalizeEntryId } from './plugin-component-entry.js';
 import type { StaticBuildOptions } from '../types.js';
+import { normalizeEntryId } from './plugin-component-entry.js';
 
 function vitePluginInternals(
 	input: Set<string>,
