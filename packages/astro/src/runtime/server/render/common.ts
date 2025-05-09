@@ -81,7 +81,12 @@ function stringifyChunk(
 				return renderAllHeadContent(result);
 			}
 			case 'maybe-head': {
-				if (result._metadata.hasRenderedHead || result._metadata.headInTree || result.partial) {
+				if (
+					result._metadata.hasRenderedHead ||
+					result._metadata.headInTree ||
+					result.partial ||
+					result._metadata.hasInTreePropagators
+				) {
 					return '';
 				}
 				return renderAllHeadContent(result);

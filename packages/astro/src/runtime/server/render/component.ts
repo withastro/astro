@@ -26,7 +26,7 @@ import {
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
-import { containsServerDirective, renderServerIsland } from './server-islands.js';
+import { ServerIslandComponent, containsServerDirective } from './server-islands.js';
 import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
@@ -442,7 +442,9 @@ function renderAstroComponent(
 	slots: any = {},
 ): RenderInstance {
 	if (containsServerDirective(props)) {
-		return renderServerIsland(result, displayName, props, slots);
+		const serverIslandComponent = new ServerIslandComponent(result, props, slots, displayName);
+		result._metadata.propagators.add(serverIslandComponent);
+		return serverIslandComponent;
 	}
 
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
