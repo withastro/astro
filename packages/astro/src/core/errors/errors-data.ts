@@ -1545,7 +1545,7 @@ export const FileParserNotFound = {
  * @see
  *  - [Astro's built-in loaders](https://docs.astro.build/en/guides/content-collections/#built-in-loaders)
  * @description
- * Thrown when a glob pattern is supplied to the `file` loader.
+ * The `file` loader must be passed a single local file. Glob patterns are not supported. Use the built-in `glob` loader to create entries from patterns of multiple local files.
  */
 export const FileGlobNotSupported = {
 	name: 'FileGlobNotSupported',
