@@ -1537,7 +1537,7 @@ export const FileParserNotFound = {
 	name: 'FileParserNotFound',
 	title: 'File parser not found',
 	message: (fileName: string) =>
-		`No parser was found for '${fileName}'. Pass a parser function (e.g. \`parser: mdx\`) to the \`file\` loader.`,
+		`No parser was found for '${fileName}'. Pass a parser function (e.g. \`parser: csv\`) to the \`file\` loader.`,
 } satisfies ErrorData;
 
 /**
