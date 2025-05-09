@@ -89,9 +89,9 @@ function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: st
 		return {
 			... config,
 			syncInterval: config.syncInterval ? parseInt(options.syncInterval) : undefined,
-			readYourWrites: config.readYourWrites ? !!config.readYourWrites : undefined,
-			offline: config.offline ? !!config.offline : undefined,
-			tls: config.tls ? !!config.tls : undefined,
+			readYourWrites: 'readYourWrites' in config ? config.readYourWrites !== 'false' : undefined,
+			offline: 'offline' in config ? config.offline !== 'false' : undefined,
+			tls: 'tls' in config ? config.tls !== 'false' : undefined,
 			concurrency: config.concurrency ? parseInt(options.concurrency) : undefined,
 			authToken: appToken,
 			url,
