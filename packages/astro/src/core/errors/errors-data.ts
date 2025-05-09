@@ -1531,7 +1531,7 @@ export const GenerateContentTypesError = {
  * @see
  *  - [parsers](https://docs.astro.build/en/guides/imports/#parsers)
  * @description
- * Thrown when the `file` loader can’t determine which parser to use.
+ * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. `toml.parse` or `csv-parse`) to create a collection from your file type.
  */
 export const FileParserNotFound = {
 	name: 'FileParserNotFound',
