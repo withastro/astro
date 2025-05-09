@@ -1312,7 +1312,7 @@ export const CannotExtractFontType = {
 /**
  * @docs
  * @description
- * Cannot determine weight and style from font file.
+ * Cannot determine weight and style from font file, update your family config and set `weight` and `style` manually instead.
  * @message
  * An error occured while determining the weight and style from the local font file.
  */
