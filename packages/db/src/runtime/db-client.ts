@@ -56,6 +56,21 @@ export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
 		: createRemoteLibSQLClient(options.appToken, remoteUrl, options.remoteUrl.toString());
 }
 
+// this function parses the options from a `Record<string, string>`
+// provided from the object conversion of the searchParams and properly
+// verifies that the Config object is providing the correct types.
+// without this, there is runtime errors due to incorrect values
+export function parseOpts(config: Record<string, string>): Partial<LibSQLConfig> {
+	return {
+		... config,
+		syncInterval: config.syncInterval ? parseInt(config.syncInterval) : undefined,
+		readYourWrites: 'readYourWrites' in config ? config.readYourWrites !== 'false' : undefined,
+		offline: 'offline' in config ? config.offline !== 'false' : undefined,
+		tls: 'tls' in config ? config.tls !== 'false' : undefined,
+		concurrency: config.concurrency ? parseInt(config.concurrency) : undefined,
+	}
+}
+
 function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: string) {
 	const options: Record<string, string> = Object.fromEntries(remoteDbURL.searchParams.entries());
 	remoteDbURL.search = '';
@@ -81,24 +96,7 @@ function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: st
 		url = 'file:' + remoteDbURL.pathname.substring(1);
 	}
 
-	// this function parses the options from a `Record<string, string>`
-	// provided from the object conversion of the searchParams and properly
-	// verifies that the Config object is providing the correct types.
-	// without this, there is runtime errors due to incorrect values
-	function parseOpts(config: Record<string, string>): LibSQLConfig {
-		return {
-			... config,
-			syncInterval: config.syncInterval ? parseInt(options.syncInterval) : undefined,
-			readYourWrites: 'readYourWrites' in config ? config.readYourWrites !== 'false' : undefined,
-			offline: 'offline' in config ? config.offline !== 'false' : undefined,
-			tls: 'tls' in config ? config.tls !== 'false' : undefined,
-			concurrency: config.concurrency ? parseInt(options.concurrency) : undefined,
-			authToken: appToken,
-			url,
-		}
-	}
-
-	const client = createClient(parseOpts(options));
+	const client = createClient({ ...parseOpts(options), url, authToken: appToken, });
 	return drizzleLibsql(client);
 }
 
