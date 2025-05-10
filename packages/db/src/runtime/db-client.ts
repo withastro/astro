@@ -62,13 +62,13 @@ export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
 // without this, there is runtime errors due to incorrect values
 export function parseOpts(config: Record<string, string>): Partial<LibSQLConfig> {
 	return {
-		... config,
+		...config,
 		...(config.syncInterval ? { syncInterval: parseInt(config.syncInterval) } : {}),
 		...('readYourWrites' in config ? { readYourWrites: config.readYourWrites !== 'false' } : {}),
 		...('offline' in config ? { offline: config.offline !== 'false' } : {}),
 		...('tls' in config ? { tls: config.tls !== 'false' } : {}),
 		...(config.concurrency ? { concurrency: parseInt(config.concurrency) } : {}),
-	}
+	};
 }
 
 function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: string) {
@@ -96,7 +96,7 @@ function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: st
 		url = 'file:' + remoteDbURL.pathname.substring(1);
 	}
 
-	const client = createClient({ ...parseOpts(options), url, authToken: appToken, });
+	const client = createClient({ ...parseOpts(options), url, authToken: appToken });
 	return drizzleLibsql(client);
 }
 
