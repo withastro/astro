@@ -6,7 +6,7 @@ Here is an overview of the architecture of the fonts in Astro:
   - It resolves font families (eg. import remote font providers)
   - It prepares [`unifont`](https://github.com/unjs/unifont) providers
   - It initializes `unifont`
-  - For each family, it resolves fonts data and normalize them
+  - For each family, it resolves fonts data and normalizes them
   - For each family, optimized fallbacks (and related CSS) are generated if applicable
   - It returns the data
 - [`/logic`](./logic/) contains the sub steps of `orchestrate()` so they can be easily tested
