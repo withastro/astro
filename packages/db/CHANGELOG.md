@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.14.14
+
+### Patch Changes
+
+- [#13772](https://github.com/withastro/astro/pull/13772) [`83193d4`](https://github.com/withastro/astro/commit/83193d43cfb7fb28254f0ff3fb717a7bdd65977b) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Fix options parsing for the libsql client connection to ensure that proper values are being set when adding URLSearchParams to the `ASTRO_DB_REMOTE_URL`
+
 ## 0.14.13
 
 ### Patch Changes
