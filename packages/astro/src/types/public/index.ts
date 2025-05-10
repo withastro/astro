@@ -34,6 +34,7 @@ export type {
 	ImageQuality,
 	ImageQualityPreset,
 	ImageTransform,
+	SvgComponent,
 	UnresolvedImageTransform,
 } from '../../assets/types.js';
 export type { AssetsPrefix, SSRManifest } from '../../core/app/types.js';
