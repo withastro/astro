@@ -56,8 +56,23 @@ export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
 		: createRemoteLibSQLClient(options.appToken, remoteUrl, options.remoteUrl.toString());
 }
 
+// this function parses the options from a `Record<string, string>`
+// provided from the object conversion of the searchParams and properly
+// verifies that the Config object is providing the correct types.
+// without this, there is runtime errors due to incorrect values
+export function parseOpts(config: Record<string, string>): Partial<LibSQLConfig> {
+	return {
+		... config,
+		...(config.syncInterval ? { syncInterval: parseInt(config.syncInterval) } : {}),
+		...('readYourWrites' in config ? { readYourWrites: config.readYourWrites !== 'false' } : {}),
+		...('offline' in config ? { offline: config.offline !== 'false' } : {}),
+		...('tls' in config ? { tls: config.tls !== 'false' } : {}),
+		...(config.concurrency ? { concurrency: parseInt(config.concurrency) } : {}),
+	}
+}
+
 function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: string) {
-	const options: Partial<LibSQLConfig> = Object.fromEntries(remoteDbURL.searchParams.entries());
+	const options: Record<string, string> = Object.fromEntries(remoteDbURL.searchParams.entries());
 	remoteDbURL.search = '';
 
 	let url = remoteDbURL.toString();
@@ -81,11 +96,7 @@ function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: st
 		url = 'file:' + remoteDbURL.pathname.substring(1);
 	}
 
-	const client = createClient({
-		...options,
-		authToken: appToken,
-		url,
-	});
+	const client = createClient({ ...parseOpts(options), url, authToken: appToken, });
 	return drizzleLibsql(client);
 }
 
