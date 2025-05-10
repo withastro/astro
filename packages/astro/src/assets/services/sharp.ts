@@ -108,7 +108,20 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 				}
 			}
 
-			result.toFormat(transform.format as keyof FormatEnum, { quality: quality });
+			const isGifInput =
+				inputBuffer[0] === 0x47 && // 'G'
+				inputBuffer[1] === 0x49 && // 'I'
+				inputBuffer[2] === 0x46 && // 'F'
+				inputBuffer[3] === 0x38 && // '8'
+				(inputBuffer[4] === 0x39 || inputBuffer[4] === 0x37) && // '9' or '7'
+				inputBuffer[5] === 0x61; // 'a'
+
+			if (transform.format === 'webp' && isGifInput) {
+				// Convert animated GIF to animated WebP with loop=0 (infinite)
+				result.webp({ quality: typeof quality === 'number' ? quality : undefined, loop: 0 });
+			} else {
+				result.toFormat(transform.format as keyof FormatEnum, { quality });
+			}
 		}
 
 		const { data, info } = await result.toBuffer({ resolveWithObject: true });
