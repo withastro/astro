@@ -63,11 +63,11 @@ export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
 export function parseOpts(config: Record<string, string>): Partial<LibSQLConfig> {
 	return {
 		... config,
-		syncInterval: config.syncInterval ? parseInt(config.syncInterval) : undefined,
-		readYourWrites: 'readYourWrites' in config ? config.readYourWrites !== 'false' : undefined,
-		offline: 'offline' in config ? config.offline !== 'false' : undefined,
-		tls: 'tls' in config ? config.tls !== 'false' : undefined,
-		concurrency: config.concurrency ? parseInt(config.concurrency) : undefined,
+		...(config.syncInterval ? { syncInterval: parseInt(config.syncInterval) } : {}),
+		...('readYourWrites' in config ? { readYourWrites: config.readYourWrites !== 'false' } : {}),
+		...('offline' in config ? { offline: config.offline !== 'false' } : {}),
+		...('tls' in config ? { tls: config.tls !== 'false' } : {}),
+		...(config.concurrency ? { concurrency: parseInt(config.concurrency) } : {}),
 	}
 }
 
