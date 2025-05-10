@@ -297,7 +297,7 @@ async function generatePage(
 				const path = paths[i];
 				promises.push(limit(() => generatePathWithLogs(path, route, i, paths, true)));
 			}
-			await Promise.allSettled(promises);
+			await Promise.all(promises);
 		} else {
 			for (let i = 0; i < paths.length; i++) {
 				const path = paths[i];

@@ -2426,6 +2426,12 @@ importers:
         specifier: ^10.26.4
         version: 10.26.6
 
+  packages/astro/test/fixtures/build-concurrency:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/build-readonly-file:
     dependencies:
       astro:
