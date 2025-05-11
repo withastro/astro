@@ -1,4 +1,4 @@
-import type { Defaults } from './types.js';
+import type { Defaults, FontType } from './types.js';
 
 export const LOCAL_PROVIDER_NAME = 'local';
 
@@ -19,13 +19,14 @@ export const URL_PREFIX = '/_astro/fonts/';
 export const CACHE_DIR = './fonts/';
 
 export const FONT_TYPES = ['woff2', 'woff', 'otf', 'ttf', 'eot'] as const;
-export const FONT_FORMAT_MAP: Record<(typeof FONT_TYPES)[number], string> = {
-	woff2: 'woff2',
-	woff: 'woff',
-	otf: 'opentype',
-	ttf: 'truetype',
-	eot: 'embedded-opentype',
-};
+
+export const FONT_FORMATS: Array<{ type: FontType; format: string }> = [
+	{ type: 'woff2', format: 'woff2' },
+	{ type: 'woff', format: 'woff' },
+	{ type: 'otf', format: 'opentype' },
+	{ type: 'ttf', format: 'truetype' },
+	{ type: 'eot', format: 'embedded-opentype' },
+];
 
 export const GENERIC_FALLBACK_NAMES = [
 	'serif',

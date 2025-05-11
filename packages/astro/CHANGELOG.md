@@ -1,5 +1,26 @@
 # astro
 
+## 5.7.12
+
+### Patch Changes
+
+- [#13752](https://github.com/withastro/astro/pull/13752) [`a079c21`](https://github.com/withastro/astro/commit/a079c21629ecf95b7539d9afdf90831266d00daf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves handling of font URLs not ending with a file extension when using the experimental fonts API
+
+- [#13750](https://github.com/withastro/astro/pull/13750) [`7d3127d`](https://github.com/withastro/astro/commit/7d3127db9191556d2ead8a1ea35acb972ee67ec3) Thanks [@martrapp](https://github.com/martrapp)! - Allows the ClientRouter to open new tabs or windows when submitting forms by clicking while holding the Cmd, Ctrl, or Shift key.
+
+- [#13765](https://github.com/withastro/astro/pull/13765) [`d874fe0`](https://github.com/withastro/astro/commit/d874fe08f903a44cd8017313accbc02bcf9cb7d9) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where font sources with relative protocol URLs would fail when using the experimental fonts API
+
+- [#13640](https://github.com/withastro/astro/pull/13640) [`5e582e7`](https://github.com/withastro/astro/commit/5e582e7b4d56425d622c97ad933b1da0e7434155) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Allows inferring `weight` and `style` when using the local provider of the experimental fonts API
+
+  If you want Astro to infer those properties directly from your local font files, leave them undefined:
+
+  ```js
+  {
+    // No weight specified: infer
+    style: 'normal'; // Do not infer
+  }
+  ```
+
 ## 5.7.11
 
 ### Patch Changes

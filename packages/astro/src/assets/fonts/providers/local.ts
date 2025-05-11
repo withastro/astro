@@ -1,5 +1,5 @@
 import type * as unifont from 'unifont';
-import { FONT_FORMAT_MAP } from '../constants.js';
+import { FONT_FORMATS } from '../constants.js';
 import type { FontFileReader, FontTypeExtractor, UrlProxy } from '../definitions.js';
 import type { ResolvedLocalFontFamily } from '../types.js';
 
@@ -44,10 +44,13 @@ export function resolveLocalFont({
 					if (variant.style === undefined) data.style = result.style;
 				}
 
+				const type = fontTypeExtractor.extract(source.url);
+
 				return {
 					originalURL: source.url,
 					url: urlProxy.proxy({
 						url: source.url,
+						type,
 						// We only use the first source for preloading. For example if woff2 and woff
 						// are available, we only keep woff2.
 						collectPreload: index === 0,
@@ -57,7 +60,7 @@ export function resolveLocalFont({
 						},
 						init: null,
 					}),
-					format: FONT_FORMAT_MAP[fontTypeExtractor.extract(source.url)],
+					format: FONT_FORMATS.find((e) => e.type === type)?.format,
 					tech: source.tech,
 				};
 			});

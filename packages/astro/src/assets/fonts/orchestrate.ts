@@ -179,7 +179,7 @@ export async function orchestrate({
 				);
 			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
-			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy });
+			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor });
 		}
 
 		for (const data of fonts) {
