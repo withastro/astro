@@ -1,4 +1,5 @@
 import cssesc from 'cssesc';
+import { generateDigest } from '../../core/encryption.js';
 import { fade, slide } from '../../transitions/index.js';
 import type { SSRResult } from '../../types/public/internal.js';
 import type {
@@ -8,7 +9,6 @@ import type {
 	TransitionDirectionalAnimations,
 } from '../../types/public/view-transitions.js';
 import { markHTMLString } from './escape.js';
-import { generateDigest } from '../../core/encryption.js';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
 function incrementTransitionNumber(result: SSRResult) {

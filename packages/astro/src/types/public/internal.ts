@@ -3,7 +3,7 @@
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { SSRManifest } from '../../core/app/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
-import type { AstroComponentInstance } from '../../runtime/server/index.js';
+import type { AstroComponentInstance, ServerIslandComponent } from '../../runtime/server/index.js';
 import type { Params } from './common.js';
 import type { AstroConfig, RedirectConfig } from './config.js';
 import type { AstroGlobal, AstroGlobalPartial } from './context.js';
@@ -292,6 +292,10 @@ export interface SSRMetadata {
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	hasRenderedServerIslandRuntime: boolean;
+	/**
+	 * Used to signal the rendering engine if the current route (page) contains the
+	 * <head> element.
+	 */
 	headInTree: boolean;
 	extraHead: string[];
 	/**
@@ -299,7 +303,8 @@ export interface SSRMetadata {
 	 * For example, this is used by view transitions
 	 */
 	extraStyleHashes: string[];
-	propagators: Set<AstroComponentInstance>;
+	extraScriptHashes: string[];
+	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
 }
 
 export type SSRError = Error & ViteErrorPayload['err'];

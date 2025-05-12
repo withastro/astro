@@ -1,6 +1,5 @@
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
 import type { AstroComponentFactory } from './index.js';
-
 import type { RouteData, SSRResult } from '../../../types/public/internal.js';
 import { isAstroComponentFactory } from './astro/index.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
