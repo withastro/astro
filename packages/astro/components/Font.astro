@@ -14,7 +14,7 @@ interface Props {
 	preload?: boolean;
 }
 
-const { cssVariable, preload = false } = Astro.props;
+const { cssVariable, preload = false } = Astro.props as Props;
 const data = fontsData.get(cssVariable);
 if (!data) {
 	throw new AstroError({
