@@ -12,7 +12,7 @@ import {
 import type { DBColumn, DBTable } from '../core/types.js';
 import { type SerializedSQL, isSerializedSQL } from './types.js';
 import { pathToFileURL } from './utils.js';
-export type Database = Omit<LibSQLDatabase, 'transaction'>;
+export type Database = LibSQLDatabase;
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
 

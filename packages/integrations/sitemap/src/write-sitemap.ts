@@ -11,6 +11,7 @@ import type { AstroConfig } from 'astro';
 import type { SitemapItem } from './index.js';
 
 type WriteSitemapConfig = {
+	filenameBase: string;
 	hostname: string;
 	sitemapHostname?: string;
 	sourceData: SitemapItem[];
@@ -23,6 +24,7 @@ type WriteSitemapConfig = {
 // adapted from sitemap.js/sitemap-simple
 export async function writeSitemap(
 	{
+		filenameBase,
 		hostname,
 		sitemapHostname = hostname,
 		sourceData,
@@ -43,7 +45,7 @@ export async function writeSitemap(
 				hostname,
 				xslUrl,
 			});
-			const path = `./sitemap-${i}.xml`;
+			const path = `./${filenameBase}-${i}.xml`;
 			const writePath = resolve(destinationDir, path);
 			if (!publicBasePath.endsWith('/')) {
 				publicBasePath += '/';
@@ -68,6 +70,6 @@ export async function writeSitemap(
 	});
 
 	const src = Readable.from(sourceData);
-	const indexPath = resolve(destinationDir, `./sitemap-index.xml`);
+	const indexPath = resolve(destinationDir, `./${filenameBase}-index.xml`);
 	return promisify(pipeline)(src, sitemapAndIndexStream, createWriteStream(indexPath));
 }
