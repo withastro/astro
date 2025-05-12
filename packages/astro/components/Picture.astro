@@ -54,6 +54,7 @@ if (useResponsive) {
 
 for (const key in props) {
 	if (key.startsWith('data-astro-cid')) {
+		// @ts-expect-error
 		pictureAttributes[key] = props[key];
 	}
 }
