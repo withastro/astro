@@ -1,76 +1,110 @@
 // @ts-check
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import { fontProviders } from 'astro/config';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('astro:fonts', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
-	/** @type {import('./test-utils.js').DevServer} */
-	let devServer;
+/**
+ * @param {Omit<import("./test-utils.js").AstroInlineConfig, 'root'>} inlineConfig
+ */
+async function createDevFixture(inlineConfig) {
+	const fixture = await loadFixture({ root: './fixtures/fonts/', ...inlineConfig });
+	const devServer = await fixture.startDevServer();
 
-	describe('<Font /> component', () => {
-		// TODO: remove once fonts are stabilized
-		describe('Fonts are not enabled', () => {
-			before(async () => {
-				fixture = await loadFixture({
-					root: './fixtures/fonts/',
-				});
-				devServer = await fixture.startDevServer();
-			});
-
-			after(async () => {
+	return {
+		fixture,
+		devServer,
+		run: async (/** @type {() => any} */ cb) => {
+			try {
+				return await cb();
+			} finally {
 				await devServer.stop();
-			});
+			}
+		},
+	};
+}
+/**
+ * @param {Omit<import("./test-utils.js").AstroInlineConfig, 'root'>} inlineConfig
+ */
+async function createBuildFixture(inlineConfig) {
+	const fixture = await loadFixture({ root: './fixtures/fonts/', ...inlineConfig });
+	await fixture.build({});
 
-			it('Throws an error if fonts are not enabled', async () => {
+	return {
+		fixture,
+	};
+}
+
+/*
+TODO: clean up
+dev
+- respects build.assets
+- respects build.assetsPrefix
+build
+- respects build.assets
+- respects build.assetsPrefix
+*/
+
+describe('astro fonts', () => {
+	describe('dev', () => {
+		it('Includes styles', async () => {
+			const { fixture, run } = await createDevFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+			await run(async () => {
 				const res = await fixture.fetch('/');
-				const body = await res.text();
-				assert.equal(
-					body.includes('<script type="module" src="/@vite/client">'),
-					true,
-					'Body does not include Vite error overlay script',
-				);
+				const html = await res.text();
+				const $ = cheerio.load(html);
+				assert.equal(html.includes('<style>'), true);
+				assert.equal($('link[rel=preload][type=font/woff2]').attr('href'), undefined);
 			});
 		});
 
-		describe('Fonts are enabled', () => {
-			before(async () => {
-				fixture = await loadFixture({
-					root: './fixtures/fonts/',
-					experimental: {
-						fonts: [
-							{
-								name: 'Roboto',
-								cssVariable: '--font-roboto',
-								provider: fontProviders.fontsource(),
-							},
-						],
-					},
-				});
-				devServer = await fixture.startDevServer();
+		it('Includes links when preloading', async () => {
+			const { fixture, run } = await createDevFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
 			});
-
-			after(async () => {
-				await devServer.stop();
-			});
-
-			it('Includes styles', async () => {
-				const res = await fixture.fetch('/');
-				const html = await res.text();
-				assert.equal(html.includes('<style>'), true);
-			});
-
-			it('Includes links when preloading', async () => {
+			await run(async () => {
 				const res = await fixture.fetch('/preload');
 				const html = await res.text();
-				assert.equal(html.includes('<link rel="preload"'), true);
+				const $ = cheerio.load(html);
+				const href = $('link[rel=preload][type=font/woff2]').attr('href');
+				assert.equal(href?.startsWith('/_astro/fonts/'), true);
+			});
+		});
+
+		it('Has correct headers in dev', async () => {
+			const { fixture, run } = await createDevFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
 			});
 
-			it('Has correct headers in dev', async () => {
-				let res = await fixture.fetch('/preload');
+			await run(async () => {
+				const res = await fixture.fetch('/preload');
 				const html = await res.text();
 				const $ = cheerio.load(html);
 				const href = $('link[rel=preload][type^=font/woff2]').attr('href');
@@ -89,6 +123,44 @@ describe('astro:fonts', () => {
 				assert.equal(headers.get('Pragma'), 'no-cache');
 				assert.equal(headers.get('Expires'), '0');
 			});
+		});
+	});
+
+	describe('build', () => {
+		it('Includes styles', async () => {
+			const { fixture } = await createBuildFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			assert.equal(html.includes('<style>'), true);
+			assert.equal($('link[rel=preload][type=font/woff2]').attr('href'), undefined);
+		});
+
+		it('Includes links when preloading', async () => {
+			const { fixture } = await createBuildFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+			const html = await fixture.readFile('/preload/index.html');
+			const $ = cheerio.load(html);
+			const href = $('link[rel=preload][type=font/woff2]').attr('href');
+			assert.equal(href?.startsWith('/_astro/fonts/'), true);
 		});
 	});
 });
