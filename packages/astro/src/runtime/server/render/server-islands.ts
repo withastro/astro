@@ -149,9 +149,7 @@ let response = await fetch('${serverIslandUrl}', {
 	async render(destination: RenderDestination) {
 		// Render the slots
 		for (const name in this.slots) {
-			if (name !== 'fallback') {
-				destination.write(await renderSlotToString(this.result, this.slots[name]));
-			} else {
+			if (name === 'fallback') {
 				await renderChild(destination, this.slots.fallback(this.result));
 			}
 		}
