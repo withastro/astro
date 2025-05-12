@@ -29,6 +29,7 @@ import { maybeRenderHead } from './head.js';
 import { containsServerDirective, renderServerIsland } from './server-islands.js';
 import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
+import { wrapWithTracing } from '../tracing.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -457,7 +458,7 @@ function renderAstroComponent(
 	};
 }
 
-export function renderComponent(
+function innerRenderComponent(
 	result: SSRResult,
 	displayName: string,
 	Component: unknown,
@@ -466,7 +467,7 @@ export function renderComponent(
 ): RenderInstance | Promise<RenderInstance> {
 	if (isPromise(Component)) {
 		return Component.catch(handleCancellation).then((x) => {
-			return renderComponent(result, displayName, x, props, slots);
+			return innerRenderComponent(result, displayName, x, props, slots);
 		});
 	}
 
@@ -498,6 +499,21 @@ export function renderComponent(
 		throw e;
 	}
 }
+
+export const renderComponent = wrapWithTracing(
+	'componentRender',
+	innerRenderComponent,
+	(_, displayName, Component) => {
+		const moduleId = isAstroComponentFactory(Component) ? Component.moduleId : undefined;
+		const name = typeof Component === 'function' ? Component.name : displayName;
+
+    return {
+      moduleId: moduleId,
+      componentName: name || displayName,
+      displayName: displayName,
+    };
+  },
+);
 
 function normalizeProps(props: Record<string, any>): Record<string, any> {
 	if (props['class:list'] !== undefined) {

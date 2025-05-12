@@ -1,6 +1,7 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { PropagationHint } from '../../types/public/internal.js';
 import type { AstroComponentFactory } from './render/index.js';
+import { wrapWithTracing } from './tracing.js';
 
 function validateArgs(args: unknown[]): args is Parameters<AstroComponentFactory> {
 	if (args.length !== 3) return false;
@@ -13,15 +14,21 @@ function baseCreateComponent(
 	propagation?: PropagationHint,
 ): AstroComponentFactory {
 	const name = moduleId?.split('/').pop()?.replace('.astro', '') ?? '';
-	const fn = (...args: Parameters<AstroComponentFactory>) => {
-		if (!validateArgs(args)) {
-			throw new AstroError({
-				...AstroErrorData.InvalidComponentArgs,
-				message: AstroErrorData.InvalidComponentArgs.message(name),
-			});
-		}
-		return cb(...args);
-	};
+
+	const fn: AstroComponentFactory = wrapWithTracing(
+		'componentFrontmatter',
+		(...args: Parameters<AstroComponentFactory>) => {
+			if (!validateArgs(args)) {
+				throw new AstroError({
+					...AstroErrorData.InvalidComponentArgs,
+					message: AstroErrorData.InvalidComponentArgs.message(name),
+				});
+			}
+			return cb(...args);
+		},
+		{ name, moduleId },
+	);
+
 	Object.defineProperty(fn, 'name', { value: name, writable: false });
 	// Add a flag to this callback to mark it as an Astro component
 	fn.isAstroComponentFactory = true;

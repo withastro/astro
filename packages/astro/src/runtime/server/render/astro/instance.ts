@@ -7,6 +7,7 @@ import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
+import { wrapWithTracing } from '../../tracing.js';
 
 type ComponentProps = Record<string | number, any>;
 
@@ -31,6 +32,8 @@ export class AstroComponentInstance {
 		this.factory = factory;
 		this.slotValues = {};
 		for (const name in slots) {
+			// add tracing to slots functions so each call is traced individually
+			slots[name] = wrapWithTracing('slotRender', slots[name], { slotName: name });
 			// prerender the slots eagerly to make collection entries propagate styles and scripts
 			let didRender = false;
 			let value = slots[name](result);
