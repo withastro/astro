@@ -40,7 +40,7 @@ async function createBuildFixture(inlineConfig) {
 TODO: clean up
 dev
 - respects build.assets
-- respects build.assetsPrefix
+- build.assetsPrefix is not taken into account
 build
 - respects build.assets
 - respects build.assetsPrefix
