@@ -24,6 +24,7 @@ import {
 	fakeHasher,
 	simpleErrorHandler,
 } from './utils.js';
+import { joinPaths } from '../../../../../internal-helpers/dist/path.js';
 
 describe('fonts orchestrate()', () => {
 	it('works with local fonts', async () => {
@@ -90,7 +91,7 @@ describe('fonts orchestrate()', () => {
 		const entry = consumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{
-				url: '/test' + fileURLToPath(new URL('my-font.woff2.woff2', root)),
+				url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
 				type: 'woff2',
 			},
 		]);
