@@ -2,7 +2,6 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Plugin } from 'vite';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
@@ -11,10 +10,10 @@ import { formatErrorMessage } from '../../core/messages.js';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import {
+	ASSETS_DIR,
 	CACHE_DIR,
 	DEFAULTS,
 	RESOLVED_VIRTUAL_MODULE_ID,
-	URL_PREFIX,
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
 import type {
@@ -46,6 +45,8 @@ import {
 import { createUrlProxy } from './implementations/url-proxy.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap } from './types.js';
+import { joinPaths, prependForwardSlash } from '../../core/path.js';
+import { getAssetsPrefix } from '../utils/getAssetsPrefix.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -78,7 +79,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	// We don't need to take the trailing slash and build output configuration options
 	// into account because we only serve (dev) or write (build) static assets (equivalent
 	// to trailingSlash: never)
-	const baseUrl = removeTrailingForwardSlash(settings.config.base) + URL_PREFIX;
+	const assetsDir = joinPaths(settings.config.build.assets, ASSETS_DIR);
+	const baseUrl = joinPaths(settings.config.base, assetsDir);
 
 	let fontFileDataMap: FontFileDataMap | null = null;
 	let consumableMap: ConsumableMap | null = null;
@@ -153,7 +155,15 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					? createLocalUrlProxyContentResolver({ errorHandler })
 					: createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
-					base: baseUrl,
+					getUrl: (hash) => {
+						const prefix = settings.config.build.assetsPrefix
+							? getAssetsPrefix(hash, settings.config.build.assetsPrefix)
+							: undefined;
+						if (prefix) {
+							return joinPaths(prefix, baseUrl, hash);
+						}
+						return prependForwardSlash(joinPaths(baseUrl, hash));
+					},
 					contentResolver,
 					hasher,
 					dataCollector,
@@ -209,9 +219,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			});
 
-			// Base is taken into account by default. The prefix contains a traling slash,
-			// so it matches correctly any hash, eg. /_astro/fonts/abc.woff => abc.woff
-			server.middlewares.use(URL_PREFIX, async (req, res, next) => {
+			server.middlewares.use(prependForwardSlash(assetsDir), async (req, res, next) => {
 				if (!req.url) {
 					return next();
 				}
@@ -269,7 +277,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 			try {
 				const dir = getClientOutputDirectory(settings);
-				const fontsDir = new URL('.' + baseUrl, dir);
+				const fontsDir = new URL(`.${prependForwardSlash(baseUrl)}`, dir);
 				try {
 					mkdirSync(fontsDir, { recursive: true });
 				} catch (cause) {
