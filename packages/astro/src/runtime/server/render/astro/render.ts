@@ -192,7 +192,7 @@ async function bufferHeadContent(result: SSRResult) {
 		}
 		// Call component instances that might have head content to be propagated up.
 		const returnValue = await value.init(result);
-		if (isHeadAndContent(returnValue)) {
+		if (isHeadAndContent(returnValue) && returnValue.head) {
 			result._metadata.extraHead.push(returnValue.head);
 		}
 	}

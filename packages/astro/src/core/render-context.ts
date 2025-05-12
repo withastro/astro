@@ -460,6 +460,7 @@ export class RenderContext {
 				headInTree: false,
 				extraHead: [],
 				extraStyleHashes: [],
+				extraScriptHashes: [],
 				propagators: new Set(),
 			},
 			shouldInjectCspMetaTags: manifest.shouldInjectCspMetaTags,
