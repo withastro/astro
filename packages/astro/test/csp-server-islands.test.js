@@ -13,11 +13,10 @@ describe('Server islands', () => {
 				root: './fixtures/server-islands/ssr',
 				adapter: testAdapter(),
 				experimental: {
-					csp: true
-				}
+					csp: true,
+				},
 			});
 		});
-
 
 		describe('prod', () => {
 			before(async () => {
@@ -104,8 +103,8 @@ describe('Server islands', () => {
 			fixture = await loadFixture({
 				root: './fixtures/server-islands/hybrid',
 				experimental: {
-					csp: true
-				}
+					csp: true,
+				},
 			});
 		});
 

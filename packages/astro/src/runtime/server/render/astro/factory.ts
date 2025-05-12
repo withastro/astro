@@ -30,7 +30,6 @@ export function getPropagationHint(
 ): PropagationHint {
 	let hint: PropagationHint = factory.propagation || 'none';
 	if (factory.moduleId && result.componentMetadata.has(factory.moduleId) && hint === 'none') {
-		console.log(result.componentMetadata.get(factory.moduleId), factory.moduleId)
 		hint = result.componentMetadata.get(factory.moduleId)!.propagation;
 	}
 	return hint;

@@ -293,7 +293,7 @@ export interface SSRMetadata {
 	hasRenderedHead: boolean;
 	hasRenderedServerIslandRuntime: boolean;
 	/**
-	 * Used to signal the rendering engine if the current route (page) contains the 
+	 * Used to signal the rendering engine if the current route (page) contains the
 	 * <head> element.
 	 */
 	headInTree: boolean;

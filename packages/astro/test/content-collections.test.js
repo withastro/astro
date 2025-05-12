@@ -133,7 +133,6 @@ describe('Content Collections', () => {
 		describe('Propagation', () => {
 			it('Applies styles', async () => {
 				const html = await fixture.readFile('/propagation/index.html');
-				console.log(html);
 				const $ = cheerio.load(html);
 				assert.equal($('style').text().includes('content:"works!"'), true);
 			});
