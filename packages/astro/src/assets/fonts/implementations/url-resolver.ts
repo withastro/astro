@@ -1,7 +1,7 @@
-import type { UrlResolver } from '../definitions.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../../core/path.js';
 import type { AssetsPrefix } from '../../../types/public/index.js';
 import { getAssetsPrefix } from '../../utils/getAssetsPrefix.js';
+import type { UrlResolver } from '../definitions.js';
 
 export function createDevUrlResolver({ base }: { base: string }): UrlResolver {
 	return {

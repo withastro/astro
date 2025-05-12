@@ -14,16 +14,16 @@ import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/
 import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
 import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-content-resolver.js';
 import { createUrlProxy } from '../../../../dist/assets/fonts/implementations/url-proxy.js';
+import { createDevUrlResolver } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
+import { defaultLogger } from '../../test-utils.js';
 import {
 	createSpyStorage,
 	fakeFontMetricsResolver,
 	fakeHasher,
 	simpleErrorHandler,
 } from './utils.js';
-import { defaultLogger } from '../../test-utils.js';
-import { createDevUrlResolver } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 
 describe('fonts orchestrate()', () => {
 	it('works with local fonts', async () => {

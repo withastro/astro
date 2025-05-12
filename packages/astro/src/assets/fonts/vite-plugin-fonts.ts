@@ -7,6 +7,7 @@ import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
 import { formatErrorMessage } from '../../core/messages.js';
+import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import {
@@ -44,10 +45,9 @@ import {
 	createRemoteUrlProxyContentResolver,
 } from './implementations/url-proxy-content-resolver.js';
 import { createUrlProxy } from './implementations/url-proxy.js';
+import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap } from './types.js';
-import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
-import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
 
 interface Options {
 	settings: AstroSettings;

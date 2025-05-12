@@ -1,10 +1,10 @@
 // @ts-check
 import assert from 'node:assert/strict';
+import { readdir } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 import { fontProviders } from 'astro/config';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import { readdir } from 'node:fs/promises';
 
 /**
  * @param {Omit<import("./test-utils.js").AstroInlineConfig, 'root'>} inlineConfig
