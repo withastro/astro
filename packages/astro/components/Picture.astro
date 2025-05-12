@@ -54,7 +54,7 @@ if (useResponsive) {
 
 for (const key in props) {
 	if (key.startsWith('data-astro-cid')) {
-		// @ts-expect-error
+		// @ts-expect-error This is for island props so they're not properly typed
 		pictureAttributes[key] = props[key];
 	}
 }
