@@ -1,28 +1,46 @@
-import { EventEmitter, captureRejectionSymbol } from "node:events";
 import type { TraceEvents, TraceListener } from "../../types/public/tracing.js";
 
 type EventArgs = {
 	[K in keyof TraceEvents]: [event: K, payload: TraceEvents[K]];
 }[keyof TraceEvents];
 
-const tracingEvents = new EventEmitter<{
-	before: EventArgs,
-	after: EventArgs,
-}>({ captureRejections: true });
+const eventLifecycle: Record<'before' | 'after', TraceListener[]> = {
+	before: [],
+	after: [],
+};
 
-// Log errors on trace listeners to the console
-tracingEvents[captureRejectionSymbol] = console.error;
+function onTrace(lifecycle: 'before' | 'after', listener: TraceListener, signal?: AbortSignal) {
+	const wrapped: TraceListener = (...args) => {
+		try {
+			const res: unknown = listener(...args);
+			// Attach an error handler to avoid unhandled promise rejections
+			if (res instanceof Promise) res.catch(console.error);
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
-let tracingEnabled = false;
-
-export function onBeforeTrace(listener: TraceListener) {
-	tracingEnabled = true;
-	tracingEvents.on('before', listener);
+	const listeners = eventLifecycle[lifecycle];
+	listeners.push(wrapped);
+	if (signal) {
+		signal.addEventListener('abort', () => {
+			listeners.splice(listeners.indexOf(wrapped), 1);
+		});
+	}
 }
 
-export function onAfterTrace(listener: TraceListener) {
-	tracingEnabled = false;
-	tracingEvents.on('after', listener);
+/**
+ * @experimental
+ */
+export function onBeforeTrace(listener: TraceListener, signal?: AbortSignal) {
+	onTrace('before', listener, signal);
+}
+
+/**
+ * @experimental
+ */
+export function onAfterTrace(listener: TraceListener, signal?: AbortSignal) {
+	onTrace('after', listener, signal);
 }
 
 export function wrapWithTracing<This, Args extends any[], Return, Event extends keyof TraceEvents>(
@@ -31,7 +49,7 @@ export function wrapWithTracing<This, Args extends any[], Return, Event extends 
 	payload: TraceEvents[Event] | ((this: This, ...args: Args) => TraceEvents[Event]),
 ): (this: This, ...args: Args) => Return {
 	return function (this: This, ...args: Args): Return {
-		if (tracingEnabled) {
+		if (eventLifecycle.before.length === 0 && eventLifecycle.after.length === 0) {
 			// Avoid constructing payloads and emitting events if no listeners are attached
 			return fn.apply(this, args);
 		}
@@ -40,9 +58,17 @@ export function wrapWithTracing<This, Args extends any[], Return, Event extends 
 			event,
 			typeof payload === 'function' ? payload.apply(this, args) : payload,
 		] as EventArgs;
-		tracingEvents.emit('before', ...eventArgs);
+
+		for (const listener of eventLifecycle.before) {
+			listener(...eventArgs);
+		}
+
 		const result = fn.apply(this, args);
-		tracingEvents.emit('after', ...eventArgs);
+
+		for (const listener of eventLifecycle.before) {
+			listener(...eventArgs);
+		}
+
 		return result;
 	};
 }

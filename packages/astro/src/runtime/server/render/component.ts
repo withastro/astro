@@ -357,13 +357,12 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	const template =
 		unrenderedSlots.length > 0
 			? unrenderedSlots
-					.map(
-						(key) =>
-							`<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${
-								children[key]
-							}</template>`,
-					)
-					.join('')
+				.map(
+					(key) =>
+						`<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${children[key]
+						}</template>`,
+				)
+				.join('')
 			: '';
 
 	island.children = `${html ?? ''}${template}`;
@@ -494,25 +493,27 @@ function innerRenderComponent(
 	function handleCancellation(e: unknown) {
 		if (result.cancelled)
 			return {
-				render() {},
+				render() { },
 			};
 		throw e;
 	}
 }
 
 export const renderComponent = wrapWithTracing(
-	'componentRender',
+	'prepareComponentRender',
 	innerRenderComponent,
-	(_, displayName, Component) => {
+	(result, displayName, Component) => {
 		const moduleId = isAstroComponentFactory(Component) ? Component.moduleId : undefined;
 		const name = typeof Component === 'function' ? Component.name : displayName;
 
-    return {
-      moduleId: moduleId,
-      componentName: name || displayName,
-      displayName: displayName,
-    };
-  },
+		return {
+			moduleId: moduleId,
+			componentName: name || displayName,
+			displayName: displayName,
+			request: result.request,
+			response: result.response,
+		};
+	},
 );
 
 function normalizeProps(props: Record<string, any>): Record<string, any> {

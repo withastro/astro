@@ -1,5 +1,5 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import type { PropagationHint } from '../../types/public/internal.js';
+import type { PropagationHint, SSRResult } from '../../types/public/internal.js';
 import type { AstroComponentFactory } from './render/index.js';
 import { wrapWithTracing } from './tracing.js';
 
@@ -26,7 +26,11 @@ function baseCreateComponent(
 			}
 			return cb(...args);
 		},
-		{ name, moduleId },
+		(result: SSRResult) => ({
+			name, moduleId,
+			request: result.request,
+			response: result.response,
+		}),
 	);
 
 	Object.defineProperty(fn, 'name', { value: name, writable: false });
