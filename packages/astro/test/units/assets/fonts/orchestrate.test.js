@@ -14,8 +14,10 @@ import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/
 import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
 import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-content-resolver.js';
 import { createUrlProxy } from '../../../../dist/assets/fonts/implementations/url-proxy.js';
+import { createDevUrlResolver } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
+import { defaultLogger } from '../../test-utils.js';
 import {
 	createSpyStorage,
 	fakeFontMetricsResolver,
@@ -58,11 +60,12 @@ describe('fonts orchestrate()', () => {
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
 			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger: defaultLogger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
-					base: '/test',
+					urlResolver: createDevUrlResolver({ base: 'test' }),
 					contentResolver,
 					hasher,
 					dataCollector,
@@ -158,11 +161,14 @@ describe('fonts orchestrate()', () => {
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
 			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger: defaultLogger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
-					base: '',
+					urlResolver: {
+						resolve: (hash) => hash,
+					},
 					contentResolver,
 					hasher,
 					dataCollector,
