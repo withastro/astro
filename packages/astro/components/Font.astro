@@ -1,10 +1,12 @@
 ---
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import * as mod from 'virtual:astro:assets/fonts/internal';
 
-// TODO: remove dynamic import when fonts are stabilized
-const { fontsData } = await import('virtual:astro:assets/fonts/internal').catch(() => {
+// TODO: remove check when fonts are stabilized
+const { fontsData } = mod;
+if (!fontsData) {
 	throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
-});
+}
 
 interface Props {
 	/** The `cssVariable` registered in your Astro configuration. */
