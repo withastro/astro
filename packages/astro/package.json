@@ -52,7 +52,7 @@
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.ts",
-    "./components/*": "./components/*.astro",
+    "./components/*": "./components/*",
     "./components/viewtransitions.css": "./components/viewtransitions.css",
     "./toolbar": "./dist/toolbar/index.js",
     "./actions/runtime/*": "./dist/actions/runtime/*",
