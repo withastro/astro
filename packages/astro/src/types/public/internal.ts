@@ -299,13 +299,6 @@ export interface SSRMetadata {
 	headInTree: boolean;
 	extraHead: string[];
 	/**
-	 * A flag used by the rendering engine. Set to `true` when any component 
-	 * has a propagation hint set to `in-tree`.
-	 * 
-	 * When `true` the rendering engine waits for the rendering of head from those components
-	 */
-	hasInTreePropagators: boolean;
-	/**
 	 * Used by the rendering engine to store hashes that are **generated** at runtime.
 	 * For example, this is used by view transitions
 	 */

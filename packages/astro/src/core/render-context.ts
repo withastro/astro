@@ -461,7 +461,6 @@ export class RenderContext {
 				headInTree: false,
 				extraHead: [],
 				extraStyleHashes: [],
-				hasInTreePropagators: false,
 				extraScriptHashes: [],
 				propagators: new Set(),
 			},

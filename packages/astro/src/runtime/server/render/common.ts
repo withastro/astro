@@ -75,7 +75,7 @@ function stringifyChunk(
 				}
 			}
 			case 'head': {
-				if (result._metadata.hasRenderedHead || result.partial) {
+				if (result._metadata.hasRenderedHead || result.partial ) {
 					return '';
 				}
 				return renderAllHeadContent(result);
@@ -84,8 +84,7 @@ function stringifyChunk(
 				if (
 					result._metadata.hasRenderedHead ||
 					result._metadata.headInTree ||
-					result.partial ||
-					result._metadata.hasInTreePropagators
+					result.partial 
 				) {
 					return '';
 				}
