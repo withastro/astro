@@ -17,6 +17,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../../types/public/internal.js';
+import { wrapWithTracing } from '../tracing.js';
 import {
 	Fragment,
 	type RenderDestination,
@@ -29,7 +30,6 @@ import { maybeRenderHead } from './head.js';
 import { containsServerDirective, renderServerIsland } from './server-islands.js';
 import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
-import { wrapWithTracing } from '../tracing.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -357,12 +357,13 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	const template =
 		unrenderedSlots.length > 0
 			? unrenderedSlots
-				.map(
-					(key) =>
-						`<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${children[key]
-						}</template>`,
-				)
-				.join('')
+					.map(
+						(key) =>
+							`<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${
+								children[key]
+							}</template>`,
+					)
+					.join('')
 			: '';
 
 	island.children = `${html ?? ''}${template}`;
@@ -493,7 +494,7 @@ function innerRenderComponent(
 	function handleCancellation(e: unknown) {
 		if (result.cancelled)
 			return {
-				render() { },
+				render() {},
 			};
 		throw e;
 	}

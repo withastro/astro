@@ -27,7 +27,8 @@ function baseCreateComponent(
 			return cb(...args);
 		},
 		(result: SSRResult) => ({
-			name, moduleId,
+			name,
+			moduleId,
 			request: result.request,
 			response: result.response,
 		}),

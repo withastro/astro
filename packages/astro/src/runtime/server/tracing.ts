@@ -1,4 +1,4 @@
-import type { TraceEvents, TraceListener } from "../../types/public/tracing.js";
+import type { TraceEvents, TraceListener } from '../../types/public/tracing.js';
 
 type EventArgs = {
 	[K in keyof TraceEvents]: [event: K, payload: TraceEvents[K]];

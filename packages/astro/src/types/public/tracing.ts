@@ -1,5 +1,5 @@
-import type { AstroGlobal } from "./context.js";
-import type { RouteData } from "./internal.js";
+import type { AstroGlobal } from './context.js';
+import type { RouteData } from './internal.js';
 
 export interface TraceEvents {
 	prepareComponentRender: {
@@ -21,7 +21,7 @@ export interface TraceEvents {
 		displayName: string;
 		request: AstroGlobal['request'];
 		response: AstroGlobal['response'];
-	},
+	};
 	slotRender: {
 		slotName: string;
 		componentModuleId?: string;

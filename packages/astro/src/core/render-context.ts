@@ -10,6 +10,7 @@ import {
 } from '../i18n/utils.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
+import { wrapWithTracing } from '../runtime/server/tracing.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal, AstroGlobalPartial } from '../types/public/context.js';
@@ -35,7 +36,6 @@ import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
-import { wrapWithTracing } from '../runtime/server/tracing.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -63,7 +63,7 @@ export class RenderContext {
 		public session: AstroSession | undefined = pipeline.manifest.sessionConfig
 			? new AstroSession(cookies, pipeline.manifest.sessionConfig, pipeline.runtimeMode)
 			: undefined,
-	) { }
+	) {}
 
 	/**
 	 * A flag that tells the render content if the rewriting was triggered
@@ -132,14 +132,14 @@ export class RenderContext {
 			Object.keys(this.props).length > 0
 				? this.props
 				: await getProps({
-					mod: componentInstance,
-					routeData: this.routeData,
-					routeCache: this.pipeline.routeCache,
-					pathname: this.pathname,
-					logger,
-					serverLike,
-					base: manifest.base,
-				});
+						mod: componentInstance,
+						routeData: this.routeData,
+						routeCache: this.pipeline.routeCache,
+						pathname: this.pathname,
+						logger,
+						serverLike,
+						base: manifest.base,
+					});
 		const actionApiContext = this.createActionAPIContext();
 		const apiContext = this.createAPIContext(props, actionApiContext);
 
@@ -725,5 +725,5 @@ RenderContext.prototype.render = wrapWithTracing(
 			url: this.url,
 			partial: this.partial,
 		};
-	}
+	},
 );
