@@ -1,8 +1,9 @@
 ---
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
-import { fontsData } from 'virtual:astro:assets/fonts/internal';
+import * as mod from 'virtual:astro:assets/fonts/internal';
 
 // TODO: remove check when fonts are stabilized
+const { fontsData } = mod;
 if (!fontsData) {
 	throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
 }
