@@ -22,6 +22,8 @@ import {
 	fakeHasher,
 	simpleErrorHandler,
 } from './utils.js';
+import { defaultLogger } from '../../test-utils.js';
+import { createDevUrlResolver } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 
 describe('fonts orchestrate()', () => {
 	it('works with local fonts', async () => {
@@ -58,11 +60,12 @@ describe('fonts orchestrate()', () => {
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
 			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger: defaultLogger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
-					base: '/test',
+					urlResolver: createDevUrlResolver({ base: 'test' }),
 					contentResolver,
 					hasher,
 					dataCollector,
@@ -158,11 +161,14 @@ describe('fonts orchestrate()', () => {
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
 			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger: defaultLogger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
-					base: '',
+					urlResolver: {
+						resolve: (hash) => hash,
+					},
 					contentResolver,
 					hasher,
 					dataCollector,

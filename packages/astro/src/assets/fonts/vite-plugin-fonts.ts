@@ -2,7 +2,6 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Plugin } from 'vite';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
@@ -11,10 +10,10 @@ import { formatErrorMessage } from '../../core/messages.js';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import {
+	ASSETS_DIR,
 	CACHE_DIR,
 	DEFAULTS,
 	RESOLVED_VIRTUAL_MODULE_ID,
-	URL_PREFIX,
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
 import type {
@@ -22,6 +21,7 @@ import type {
 	FontFetcher,
 	FontTypeExtractor,
 	RemoteFontProviderModResolver,
+	UrlResolver,
 } from './definitions.js';
 import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
 import { createDataCollector } from './implementations/data-collector.js';
@@ -46,6 +46,8 @@ import {
 import { createUrlProxy } from './implementations/url-proxy.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap } from './types.js';
+import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
+import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -75,10 +77,12 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		};
 	}
 
-	// We don't need to take the trailing slash and build output configuration options
-	// into account because we only serve (dev) or write (build) static assets (equivalent
-	// to trailingSlash: never)
-	const baseUrl = removeTrailingForwardSlash(settings.config.base) + URL_PREFIX;
+	// We don't need to worry about config.trailingSlash because we are dealing with
+	// static assets only, ie. trailingSlash: 'never'
+	const assetsDir = prependForwardSlash(
+		appendForwardSlash(joinPaths(settings.config.build.assets, ASSETS_DIR)),
+	);
+	const baseUrl = joinPaths(settings.config.base, assetsDir);
 
 	let fontFileDataMap: FontFileDataMap | null = null;
 	let consumableMap: ConsumableMap | null = null;
@@ -96,10 +100,12 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		cacheDir,
 		modResolver,
 		cssRenderer,
+		urlResolver,
 	}: {
 		cacheDir: URL;
 		modResolver: RemoteFontProviderModResolver;
 		cssRenderer: CssRenderer;
+		urlResolver: UrlResolver;
 	}) {
 		const { root } = settings.config;
 		// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
@@ -153,7 +159,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					? createLocalUrlProxyContentResolver({ errorHandler })
 					: createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
-					base: baseUrl,
+					urlResolver,
 					contentResolver,
 					hasher,
 					dataCollector,
@@ -178,6 +184,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					cacheDir: new URL(CACHE_DIR, settings.config.cacheDir),
 					modResolver: createBuildRemoteFontProviderModResolver(),
 					cssRenderer: createMinifiableCssRenderer({ minify: true }),
+					urlResolver: createBuildUrlResolver({
+						base: baseUrl,
+						assetsPrefix: settings.config.build.assetsPrefix,
+					}),
 				});
 			}
 		},
@@ -187,6 +197,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
 				modResolver: createDevServerRemoteFontProviderModResolver({ server }),
 				cssRenderer: createMinifiableCssRenderer({ minify: false }),
+				urlResolver: createDevUrlResolver({ base: baseUrl }),
 			});
 			// The map is always defined at this point. Its values contains urls from remote providers
 			// as well as local paths for the local provider. We filter them to only keep the filepaths
@@ -209,9 +220,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			});
 
-			// Base is taken into account by default. The prefix contains a traling slash,
-			// so it matches correctly any hash, eg. /_astro/fonts/abc.woff => abc.woff
-			server.middlewares.use(URL_PREFIX, async (req, res, next) => {
+			server.middlewares.use(assetsDir, async (req, res, next) => {
 				if (!req.url) {
 					return next();
 				}
@@ -269,7 +278,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 			try {
 				const dir = getClientOutputDirectory(settings);
-				const fontsDir = new URL('.' + baseUrl, dir);
+				const fontsDir = new URL(`.${assetsDir}`, dir);
 				try {
 					mkdirSync(fontsDir, { recursive: true });
 				} catch (cause) {
