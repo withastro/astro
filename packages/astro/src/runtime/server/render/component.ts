@@ -501,7 +501,7 @@ function innerRenderComponent(
 }
 
 export const renderComponent = wrapWithTracing(
-	'prepareComponentRender',
+	'instantiateComponent',
 	innerRenderComponent,
 	(result, displayName, Component) => {
 		const moduleId = isAstroComponentFactory(Component) ? Component.moduleId : undefined;

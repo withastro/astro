@@ -2,7 +2,7 @@ import type { AstroGlobal } from './context.js';
 import type { RouteData } from './internal.js';
 
 export interface TraceEvents {
-	prepareComponentRender: {
+	instantiateComponent: {
 		moduleId?: string;
 		componentName: string;
 		displayName: string;
