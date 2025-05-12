@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { defineFontProvider } from 'unifont';
+import { joinPaths } from '../../../../../internal-helpers/dist/path.js';
 import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
 import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
@@ -24,7 +25,6 @@ import {
 	fakeHasher,
 	simpleErrorHandler,
 } from './utils.js';
-import { joinPaths } from '../../../../../internal-helpers/dist/path.js';
 
 describe('fonts orchestrate()', () => {
 	it('works with local fonts', async () => {
