@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import { fontProviders } from 'astro/config';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
+import { readdir } from 'node:fs/promises';
 
 /**
  * @param {Omit<import("./test-utils.js").AstroInlineConfig, 'root'>} inlineConfig
@@ -35,16 +36,6 @@ async function createBuildFixture(inlineConfig) {
 		fixture,
 	};
 }
-
-/*
-TODO: clean up
-dev
-- respects build.assets
-- build.assetsPrefix is not taken into account
-build
-- respects build.assets
-- respects build.assetsPrefix
-*/
 
 describe('astro fonts', () => {
 	describe('dev', () => {
@@ -124,6 +115,32 @@ describe('astro fonts', () => {
 				assert.equal(headers.get('Expires'), '0');
 			});
 		});
+
+		it('Respects config to build links', async () => {
+			const { fixture, run } = await createDevFixture({
+				base: '/my-base',
+				build: {
+					assets: '_custom',
+					assetsPrefix: 'https//cdn.example.com',
+				},
+				experimental: {
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+			await run(async () => {
+				const res = await fixture.fetch('/my-base/preload');
+				const html = await res.text();
+				const $ = cheerio.load(html);
+				const href = $('link[rel=preload][type=font/woff2]').attr('href');
+				assert.equal(href?.startsWith('/my-base/_custom/fonts/'), true);
+			});
+		});
 	});
 
 	describe('build', () => {
@@ -161,6 +178,31 @@ describe('astro fonts', () => {
 			const $ = cheerio.load(html);
 			const href = $('link[rel=preload][type=font/woff2]').attr('href');
 			assert.equal(href?.startsWith('/_astro/fonts/'), true);
+		});
+
+		it('Respects config to build links', async () => {
+			const { fixture } = await createBuildFixture({
+				base: '/my-base',
+				build: {
+					assets: '_custom',
+					assetsPrefix: 'https://cdn.example.com',
+				},
+				experimental: {
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+			const html = await fixture.readFile('/preload/index.html');
+			const $ = cheerio.load(html);
+			const href = $('link[rel=preload][type=font/woff2]').attr('href');
+			assert.equal(href?.startsWith('https://cdn.example.com/my-base/_custom/fonts/'), true);
+			const files = await readdir(new URL('./dist/_custom/fonts/', fixture.config.root));
+			assert.equal(files.length > 0, true);
 		});
 	});
 });

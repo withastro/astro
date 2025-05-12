@@ -80,7 +80,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	// We don't need to take the trailing slash and build output configuration options
 	// into account because we only serve (dev) or write (build) static assets (equivalent
 	// to trailingSlash: never)
-	const assetsDir = joinPaths(settings.config.build.assets, ASSETS_DIR);
+	const assetsDir = prependForwardSlash(
+		appendForwardSlash(joinPaths(settings.config.build.assets, ASSETS_DIR)),
+	);
 	const baseUrl = joinPaths(settings.config.base, assetsDir);
 
 	let fontFileDataMap: FontFileDataMap | null = null;
@@ -219,46 +221,43 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			});
 
-			server.middlewares.use(
-				prependForwardSlash(appendForwardSlash(assetsDir)),
-				async (req, res, next) => {
-					if (!req.url) {
-						return next();
-					}
-					const hash = req.url.slice(1);
-					const associatedData = fontFileDataMap?.get(hash);
-					if (!associatedData) {
-						return next();
-					}
-					// We don't want the request to be cached in dev because we cache it already internally,
-					// and it makes it easier to debug without needing hard refreshes
-					res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-					res.setHeader('Pragma', 'no-cache');
-					res.setHeader('Expires', 0);
+			server.middlewares.use(assetsDir, async (req, res, next) => {
+				if (!req.url) {
+					return next();
+				}
+				const hash = req.url.slice(1);
+				const associatedData = fontFileDataMap?.get(hash);
+				if (!associatedData) {
+					return next();
+				}
+				// We don't want the request to be cached in dev because we cache it already internally,
+				// and it makes it easier to debug without needing hard refreshes
+				res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+				res.setHeader('Pragma', 'no-cache');
+				res.setHeader('Expires', 0);
 
-					try {
-						// Storage should be defined at this point since initialize it called before registering
-						// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
-						// no url will be matched and this line will not be reached.
-						const data = await fontFetcher!.fetch({ hash, ...associatedData });
+				try {
+					// Storage should be defined at this point since initialize it called before registering
+					// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
+					// no url will be matched and this line will not be reached.
+					const data = await fontFetcher!.fetch({ hash, ...associatedData });
 
-						res.setHeader('Content-Length', data.length);
-						res.setHeader('Content-Type', `font/${fontTypeExtractor!.extract(hash)}`);
+					res.setHeader('Content-Length', data.length);
+					res.setHeader('Content-Type', `font/${fontTypeExtractor!.extract(hash)}`);
 
-						res.end(data);
-					} catch (err) {
-						logger.error('assets', 'Cannot download font file');
-						if (isAstroError(err)) {
-							logger.error(
-								'SKIP_FORMAT',
-								formatErrorMessage(collectErrorMetadata(err), logger.level() === 'debug'),
-							);
-						}
-						res.statusCode = 500;
-						res.end();
+					res.end(data);
+				} catch (err) {
+					logger.error('assets', 'Cannot download font file');
+					if (isAstroError(err)) {
+						logger.error(
+							'SKIP_FORMAT',
+							formatErrorMessage(collectErrorMetadata(err), logger.level() === 'debug'),
+						);
 					}
-				},
-			);
+					res.statusCode = 500;
+					res.end();
+				}
+			});
 		},
 		resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
@@ -280,7 +279,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 			try {
 				const dir = getClientOutputDirectory(settings);
-				const fontsDir = new URL(`.${prependForwardSlash(baseUrl)}`, dir);
+				const fontsDir = new URL(`.${assetsDir}`, dir);
 				try {
 					mkdirSync(fontsDir, { recursive: true });
 				} catch (cause) {
