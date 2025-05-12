@@ -77,9 +77,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		};
 	}
 
-	// We don't need to take the trailing slash and build output configuration options
-	// into account because we only serve (dev) or write (build) static assets (equivalent
-	// to trailingSlash: never)
+	// We don't need to worry about config.trailingSlash because we are dealing with
+	// static assets only, ie. trailingSlash: 'never'
 	const assetsDir = prependForwardSlash(
 		appendForwardSlash(joinPaths(settings.config.build.assets, ASSETS_DIR)),
 	);
