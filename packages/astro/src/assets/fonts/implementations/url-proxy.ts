@@ -1,20 +1,26 @@
-import type { DataCollector, Hasher, UrlProxy, UrlProxyContentResolver } from '../definitions.js';
+import type {
+	DataCollector,
+	Hasher,
+	UrlProxy,
+	UrlProxyContentResolver,
+	UrlResolver,
+} from '../definitions.js';
 
 export function createUrlProxy({
-	base,
 	contentResolver,
 	hasher,
 	dataCollector,
+	urlResolver,
 }: {
-	base: string;
 	contentResolver: UrlProxyContentResolver;
 	hasher: Hasher;
 	dataCollector: DataCollector;
+	urlResolver: UrlResolver;
 }): UrlProxy {
 	return {
 		proxy({ url: originalUrl, type, data, collectPreload, init }) {
 			const hash = `${hasher.hashString(contentResolver.resolve(originalUrl))}.${type}`;
-			const url = base + hash;
+			const url = urlResolver.resolve(hash);
 
 			dataCollector.collect({
 				url: originalUrl,

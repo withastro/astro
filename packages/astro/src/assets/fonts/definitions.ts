@@ -60,6 +60,10 @@ export interface UrlProxy {
 	) => string;
 }
 
+export interface UrlResolver {
+	resolve: (hash: string) => string;
+}
+
 export interface UrlProxyContentResolver {
 	resolve: (url: string) => string;
 }
