@@ -1541,6 +1541,7 @@ export const GenerateContentTypesError = {
 	hint: (fileName?: string) =>
 		`This error is often caused by a syntax error inside your content, or your content configuration file. Check your ${fileName ?? 'content config'} file for typos.`,
 } satisfies ErrorData;
+
 /**
  * @docs
  * @kind heading
@@ -1813,6 +1814,36 @@ export const UnsupportedConfigTransformError = {
 	message: (parseError: string) =>
 		`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ *  - [Passing a `parser` to the `file` loader](https://docs.astro.build/en/guides/imports/#parsers)
+ * @description
+ * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. `toml.parse` or `csv-parse`) to create a collection from your file type.
+ */
+export const FileParserNotFound = {
+	name: 'FileParserNotFound',
+	title: 'File parser not found',
+	message: (fileName: string) =>
+		`No parser was found for '${fileName}'. Pass a parser function (e.g. \`parser: csv\`) to the \`file\` loader.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ *  - [Astro's built-in loaders](https://docs.astro.build/en/guides/content-collections/#built-in-loaders)
+ * @description
+ * The `file` loader must be passed a single local file. Glob patterns are not supported. Use the built-in `glob` loader to create entries from patterns of multiple local files.
+ */
+export const FileGlobNotSupported = {
+	name: 'FileGlobNotSupported',
+	title: 'Glob patterns are not supported in the file loader',
+	message:
+		'Glob patterns are not supported in the `file` loader. Use the `glob` loader instead.',
+	hint:
+		`See Astro's built-in file and glob loaders https://docs.astro.build/en/guides/content-collections/#built-in-loaders for supported usage.`,
 } satisfies ErrorData;
 
 /**
