@@ -1,10 +1,10 @@
 import { promises as fs, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import { FileGlobNotSupported, FileParserNotFound } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/index.js';
 import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
-import { FileGlobNotSupported, FileParserNotFound } from '../../core/errors/errors-data.js';
 
 interface FileOptions {
 	/**

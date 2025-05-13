@@ -1840,10 +1840,8 @@ export const FileParserNotFound = {
 export const FileGlobNotSupported = {
 	name: 'FileGlobNotSupported',
 	title: 'Glob patterns are not supported in the file loader',
-	message:
-		'Glob patterns are not supported in the `file` loader. Use the `glob` loader instead.',
-	hint:
-		`See Astro's built-in file and glob loaders https://docs.astro.build/en/guides/content-collections/#built-in-loaders for supported usage.`,
+	message: 'Glob patterns are not supported in the `file` loader. Use the `glob` loader instead.',
+	hint: `See Astro's built-in file and glob loaders https://docs.astro.build/en/guides/content-collections/#built-in-loaders for supported usage.`,
 } satisfies ErrorData;
 
 /**
