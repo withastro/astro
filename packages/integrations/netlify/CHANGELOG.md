@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 6.3.3
+
+### Patch Changes
+
+- [#13792](https://github.com/withastro/astro/pull/13792) [`7910fea`](https://github.com/withastro/astro/commit/7910feaf4f9895b67ea9eb3242ba451928bd6cda) Thanks [@alexeyzimarev](https://github.com/alexeyzimarev)! - Unify imported images detection across adapters
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.1
+
 ## 6.3.2
 
 ### Patch Changes
