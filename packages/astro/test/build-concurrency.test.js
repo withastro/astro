@@ -14,16 +14,16 @@ describe('Building with concurrency > 1', () => {
 			},
 		});
 	});
-	
+
 	it('Errors and exits', async () => {
-		let built = false
+		let built = false;
 		try {
 			await fixture.build();
-			built = true
+			built = true;
 		} catch (err) {
-			assert.match(err.message, /This is a test/)
+			assert.match(err.message, /This is a test/);
 		}
-		
+
 		assert.equal(built, false, 'Build should not complete');
 	});
 });
