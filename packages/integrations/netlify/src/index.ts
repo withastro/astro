@@ -515,7 +515,7 @@ export default function netlifyIntegration(
 				rootDir = config.root;
 				await cleanFunctions();
 
-				outDir = new URL('./dist/', rootDir);
+				outDir = new URL(config.outDir, rootDir);
 
 				const enableImageCDN = isRunningInNetlify && (integrationConfig?.imageCDN ?? true);
 
