@@ -2,4 +2,4 @@
 '@astrojs/netlify': patch
 ---
 
-Fix to let the integration respect the set AstroConfig.outDir
+Fixes an issue where the adapter didn't take into consideration the `outDir` configuration.
