@@ -5,19 +5,19 @@ export function renderCspContent(result: SSRResult): string {
 	const finalStyleHashes = new Set();
 
 	for (const scriptHash of result.clientScriptHashes) {
-		finalScriptHashes.add(`'sha256-${scriptHash}'`);
+		finalScriptHashes.add(`'${scriptHash}'`);
 	}
 
 	for (const styleHash of result.clientStyleHashes) {
-		finalStyleHashes.add(`'sha256-${styleHash}'`);
+		finalStyleHashes.add(`'${styleHash}'`);
 	}
 
 	for (const styleHash of result._metadata.extraStyleHashes) {
-		finalStyleHashes.add(`'sha256-${styleHash}'`);
+		finalStyleHashes.add(`'${styleHash}'`);
 	}
 
 	for (const scriptHash of result._metadata.extraScriptHashes) {
-		finalScriptHashes.add(`'sha256-${scriptHash}'`);
+		finalScriptHashes.add(`'${scriptHash}'`);
 	}
 
 	const scriptSrc = `style-src 'self' ${Array.from(finalStyleHashes).join(' ')};`;

@@ -13,7 +13,6 @@ import type {
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
 import type { SSRActions } from './app/types.js';
-import { createCSPMiddleware } from './csp/middleware.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 import type { Logger } from './logger/core.js';
@@ -117,10 +116,6 @@ export abstract class Pipeline {
 			if (this.manifest.checkOrigin) {
 				// this middleware must be placed at the beginning because it needs to block incoming requests
 				internalMiddlewares.unshift(createOriginCheckMiddleware());
-			}
-			if (this.manifest.shouldInjectCspMetaTags) {
-				// this middleware must be placed at the end because it needs to inject the CSP headers
-				internalMiddlewares.push(createCSPMiddleware());
 			}
 			this.resolvedMiddleware = sequence(...internalMiddlewares);
 			return this.resolvedMiddleware;

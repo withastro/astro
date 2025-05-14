@@ -474,7 +474,12 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.preserveScriptOrder),
 			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
-			csp: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
+			csp: z.union([
+				z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
+				z.object({
+					algorithm: z.enum(['SHA-512', 'SHA-384', 'SHA-256']).optional().default('SHA-256'),
+				}),
+			]).optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

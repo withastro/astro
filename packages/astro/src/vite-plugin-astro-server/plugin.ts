@@ -4,8 +4,8 @@ import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
-import { shouldTrackCspHashes } from '../core/csp/common.js';
+import type { SSRManifestCSP, SSRManifest, SSRManifestI18n } from '../core/app/types.js';
+import { getAlgorithm, shouldTrackCspHashes } from '../core/csp/common.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
@@ -162,7 +162,8 @@ export default function createVitePluginAstroServer({
  * @param settings
  */
 export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
-	let i18nManifest: SSRManifestI18n | undefined = undefined;
+	let i18nManifest: SSRManifestI18n | undefined;
+	let csp: SSRManifestCSP | undefined;
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
@@ -171,6 +172,15 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
 			fallbackType: toFallbackType(settings.config.i18n.routing),
+		};
+	}
+
+	if (shouldTrackCspHashes(settings.config)) {
+		csp = {
+			clientScriptHashes: [],
+			clientStyleHashes: [],
+			shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config),
+			algorithm: getAlgorithm(settings.config),
 		};
 	}
 
@@ -207,8 +217,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			};
 		},
 		sessionConfig: settings.config.session,
-		clientScriptHashes: [],
-		clientStyleHashes: [],
-		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config),
+		csp,
 	};
 }

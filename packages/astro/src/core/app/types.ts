@@ -3,7 +3,12 @@ import type { ActionAccept, ActionClient } from '../../actions/runtime/virtual/s
 import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
-import type { AstroConfig, Locales, ResolvedSessionConfig } from '../../types/public/config.js';
+import type {
+	AstroConfig,
+	CspAlgorithm,
+	Locales,
+	ResolvedSessionConfig,
+} from '../../types/public/config.js';
 import type {
 	RouteData,
 	SSRComponentMetadata,
@@ -86,12 +91,7 @@ export type SSRManifest = {
 	publicDir: string | URL;
 	buildClientDir: string | URL;
 	buildServerDir: string | URL;
-	clientScriptHashes: string[];
-	clientStyleHashes: string[];
-	/**
-	 * When enabled, Astro tracks the hashes of script and styles, and eventually it will render the `<meta>` tag
-	 */
-	shouldInjectCspMetaTags: boolean;
+	csp: SSRManifestCSP | undefined;
 };
 
 export type SSRActions = {
@@ -105,6 +105,16 @@ export type SSRManifestI18n = {
 	locales: Locales;
 	defaultLocale: string;
 	domainLookupTable: Record<string, string>;
+};
+
+export type SSRManifestCSP = {
+	algorithm: CspAlgorithm;
+	clientScriptHashes: string[];
+	clientStyleHashes: string[];
+	/**
+	 * When enabled, Astro tracks the hashes of script and styles, and eventually it will render the `<meta>` tag
+	 */
+	shouldInjectCspMetaTags: boolean;
 };
 
 /** Public type exposed through the `astro:build:ssr` integration hook */

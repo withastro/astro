@@ -32,13 +32,72 @@ describe('CSP', () => {
 			const $ = cheerio.load(await response.text());
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			for (const hash of manifest.clientStyleHashes) {
+			for (const hash of manifest.csp.clientStyleHashes) {
 				assert.match(
 					meta.attr('content'),
-					new RegExp(`'sha256-${hash}'`),
+					new RegExp(`'${hash}'`),
 					`Should have a CSP meta tag for ${hash}`,
 				);
 			}
+		} else {
+			assert.fail('Should have the manifest');
+		}
+	});
+	it('should generate the hash with the sha512 algorithm', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			adapter: testAdapter({
+				setManifest(_manifest) {
+					manifest = _manifest;
+				},
+			}),
+			experimental: {
+				csp: {
+					algorithm: 'SHA-512',
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+
+		if (manifest) {
+			const request = new Request('http://example.com/index.html');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			assert.ok(meta.attr('content').toString().includes('sha512-'));
+		} else {
+			assert.fail('Should have the manifest');
+		}
+	});
+
+	it('should generate the hash with the sha384 algorithm', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			adapter: testAdapter({
+				setManifest(_manifest) {
+					manifest = _manifest;
+				},
+			}),
+			experimental: {
+				csp: {
+					algorithm: 'SHA-384',
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+
+		if (manifest) {
+			const request = new Request('http://example.com/index.html');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			assert.ok(meta.attr('content').toString().includes('sha384-'));
 		} else {
 			assert.fail('Should have the manifest');
 		}
