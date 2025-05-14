@@ -28,6 +28,36 @@ export function getAlgorithm(config: AstroConfig): CspAlgorithm {
 	return config.experimental.csp.algorithm;
 }
 
+/**
+ * Use this function when after you checked that CSP is enabled, or it throws an error.
+ * @param config
+ */
+export function getScriptHashes(config: AstroConfig): string[] {
+	if (!config.experimental?.csp) {
+		throw new Error('CSP is not enabled');
+	}
+	if (config.experimental?.csp === true) {
+		return [];
+	} else {
+		return config.experimental.csp.scriptHashes ?? [];
+	}
+}
+
+/**
+ * Use this function when after you checked that CSP is enabled, or it throws an error.
+ * @param config
+ */
+export function getStyleHashes(config: AstroConfig): string[] {
+	if (!config.experimental?.csp) {
+		throw new Error('CSP is not enabled');
+	}
+	if (config.experimental?.csp === true) {
+		return [];
+	} else {
+		return config.experimental.csp.styleHashes ?? [];
+	}
+}
+
 export async function trackStyleHashes(
 	internals: BuildInternals,
 	settings: AstroSettings,

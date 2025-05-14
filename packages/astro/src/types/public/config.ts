@@ -2244,7 +2244,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			| {
 					/**
 					 * @name experimental.csp.algorithm
-					 * @type {string}
+					 * @type {"SHA-256" | "SHA-384" | "SHA-512"}
 					 * @default `'SHA-256'`
 					 * @version 5.5.x
 					 * @description
@@ -2255,6 +2255,34 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 *
 					 */
 					algorithm?: CspAlgorithm;
+
+					/**
+					 * @name experimental.csp.styleHashes
+					 * @type {string[]}
+					 * @default `[]`
+					 * @version 5.5.x
+					 * @description
+					 *
+					 * A list of style hashes to include in all pages. These hashes are added to the `style-src` policy.
+					 *
+					 * The default value is `[]`.
+					 *
+					 */
+					styleHashes?: string[];
+
+					/**
+					 * @name experimental.csp.scriptHashes
+					 * @type {string[]}
+					 * @default `[]`
+					 * @version 5.5.x
+					 * @description
+					 *
+					 * A list of script hashes to include in all pages. These hashes are added to the `script-src` policy.
+					 *
+					 * The default value is `[]`.
+					 *
+					 */
+					scriptHashes?: string[];
 			  };
 
 		/**

@@ -203,4 +203,35 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 			}
 		}
 	}
+
+	if (config.experimental.csp && typeof config.experimental.csp === 'object') {
+		const { scriptHashes, styleHashes } = config.experimental.csp;
+		if (scriptHashes) {
+			for (const hash of scriptHashes) {
+				if (
+					!(hash.startsWith('sha256-') || hash.startsWith('sha384-') || hash.startsWith('sha512-'))
+				) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `**scriptHashes** property "${hash}" must start with "sha256-", "sha384-" or "sha512-" to be valid.`,
+						path: ['experimental', 'csp', 'scriptHashes'],
+					});
+				}
+			}
+		}
+
+		if (styleHashes) {
+			for (const hash of styleHashes) {
+				if (
+					!(hash.startsWith('sha256-') || hash.startsWith('sha384-') || hash.startsWith('sha512-'))
+				) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `**styleHashes** property "${hash}" must start with "sha256-", "sha384-" or "sha512-" to be valid.`,
+						path: ['experimental', 'csp', 'styleHashes'],
+					});
+				}
+			}
+		}
+	}
 });
