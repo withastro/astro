@@ -1,10 +1,12 @@
 import { promises as fs, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import { FileGlobNotSupported, FileParserNotFound } from '../../core/errors/errors-data.js';
+import { AstroError } from '../../core/errors/index.js';
 import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
 
-export interface FileOptions {
+interface FileOptions {
 	/**
 	 * the parsing function to use for this data
 	 * @default JSON.parse or yaml.load, depending on the extension of the file
@@ -21,8 +23,7 @@ export interface FileOptions {
  */
 export function file(fileName: string, options?: FileOptions): Loader {
 	if (fileName.includes('*')) {
-		// TODO: AstroError
-		throw new Error('Glob patterns are not supported in `file` loader. Use `glob` loader instead.');
+		throw new AstroError(FileGlobNotSupported);
 	}
 
 	let parse: ((text: string) => any) | null = null;
@@ -39,10 +40,10 @@ export function file(fileName: string, options?: FileOptions): Loader {
 	if (options?.parser) parse = options.parser;
 
 	if (parse === null) {
-		// TODO: AstroError
-		throw new Error(
-			`No parser found for file '${fileName}'. Try passing a parser to the \`file\` loader.`,
-		);
+		throw new AstroError({
+			...FileParserNotFound,
+			message: FileParserNotFound.message(fileName),
+		});
 	}
 
 	async function syncData(filePath: string, { logger, parseData, store, config }: LoaderContext) {

@@ -1,10 +1,7 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
-import type { AstroConfig, ImageMetadata, RemotePattern } from 'astro';
+import type { AstroConfig, RemotePattern } from 'astro';
 
-export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
-	return typeof src === 'object';
-}
-export function matchHostname(url: URL, hostname?: string, allowWildcard?: boolean) {
+function matchHostname(url: URL, hostname?: string, allowWildcard?: boolean) {
 	if (!hostname) {
 		return true;
 	}
@@ -26,13 +23,13 @@ export function matchHostname(url: URL, hostname?: string, allowWildcard?: boole
 
 	return false;
 }
-export function matchPort(url: URL, port?: string) {
+function matchPort(url: URL, port?: string) {
 	return !port || port === url.port;
 }
-export function matchProtocol(url: URL, protocol?: string) {
+function matchProtocol(url: URL, protocol?: string) {
 	return !protocol || protocol === url.protocol.slice(0, -1);
 }
-export function matchPathname(url: URL, pathname?: string, allowWildcard?: boolean) {
+function matchPathname(url: URL, pathname?: string, allowWildcard?: boolean) {
 	if (!pathname) {
 		return true;
 	}
@@ -54,7 +51,7 @@ export function matchPathname(url: URL, pathname?: string, allowWildcard?: boole
 
 	return false;
 }
-export function matchPattern(url: URL, remotePattern: RemotePattern) {
+function matchPattern(url: URL, remotePattern: RemotePattern) {
 	return (
 		matchProtocol(url, remotePattern.protocol) &&
 		matchHostname(url, remotePattern.hostname, true) &&
@@ -76,7 +73,4 @@ export function isRemoteAllowed(
 		domains.some((domain) => matchHostname(url, domain)) ||
 		remotePatterns.some((remotePattern) => matchPattern(url, remotePattern))
 	);
-}
-export function isString(path: unknown): path is string {
-	return typeof path === 'string' || path instanceof String;
 }

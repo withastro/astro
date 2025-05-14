@@ -86,22 +86,16 @@ describe('astro:image:layout', () => {
 
 			it('sets the style', () => {
 				let $img = $('#local-both img');
-				assert.match($img.attr('style'), /--w: 300/);
-				assert.match($img.attr('style'), /--h: 400/);
-				assert.equal($img.data('astro-image'), 'responsive');
+				assert.equal($img.data('astro-image'), 'constrained');
 			});
 
 			it('sets the style when no dimensions set', () => {
 				let $img = $('#local img');
-				assert.match($img.attr('style'), /--w: 2316/);
-				assert.match($img.attr('style'), /--h: 1544/);
-				assert.equal($img.data('astro-image'), 'responsive');
+				assert.equal($img.data('astro-image'), 'constrained');
 			});
 
 			it('sets style for fixed image', () => {
 				let $img = $('#local-fixed img');
-				assert.match($img.attr('style'), /--w: 800/);
-				assert.match($img.attr('style'), /--h: 600/);
 				assert.equal($img.data('astro-image'), 'fixed');
 			});
 
@@ -396,8 +390,8 @@ describe('astro:image:layout', () => {
 				it('adds inline style attributes', () => {
 					let $img = $('#picture-attributes img');
 					const style = $img.attr('style');
-					assert.match(style, /--w:/);
-					assert.match(style, /--h:/);
+					assert.match(style, /--fit:/);
+					assert.match(style, /--pos:/);
 				});
 
 				it('passing in style as an object', () => {
@@ -645,22 +639,16 @@ describe('astro:image:layout', () => {
 
 			it('sets the style', () => {
 				let $img = $('#local-both img');
-				assert.match($img.attr('style'), /--w: 300/);
-				assert.match($img.attr('style'), /--h: 400/);
-				assert.equal($img.data('astro-image'), 'responsive');
+				assert.equal($img.data('astro-image'), 'constrained');
 			});
 
 			it('sets the style when no dimensions set', () => {
 				let $img = $('#local img');
-				assert.match($img.attr('style'), /--w: 2316/);
-				assert.match($img.attr('style'), /--h: 1544/);
-				assert.equal($img.data('astro-image'), 'responsive');
+				assert.equal($img.data('astro-image'), 'constrained');
 			});
 
 			it('sets style for fixed image', () => {
 				let $img = $('#local-fixed img');
-				assert.match($img.attr('style'), /--w: 800/);
-				assert.match($img.attr('style'), /--h: 600/);
 				assert.equal($img.data('astro-image'), 'fixed');
 			});
 

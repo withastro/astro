@@ -1,101 +1,46 @@
-import type { FontFaceMetrics } from './metrics.js';
-import type { ResolvedRemoteFontFamily } from './types.js';
+import type { Defaults, FontType } from './types.js';
 
 export const LOCAL_PROVIDER_NAME = 'local';
 
-export const DEFAULTS = {
+export const DEFAULTS: Defaults = {
 	weights: ['400'],
 	styles: ['normal', 'italic'],
 	subsets: ['cyrillic-ext', 'cyrillic', 'greek-ext', 'greek', 'vietnamese', 'latin-ext', 'latin'],
 	// Technically serif is the browser default but most websites these days use sans-serif
 	fallbacks: ['sans-serif'],
 	optimizedFallbacks: true,
-} satisfies Partial<ResolvedRemoteFontFamily>;
+};
 
 export const VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/internal';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
-// Requires a trailing slash
-export const URL_PREFIX = '/_astro/fonts/';
+export const ASSETS_DIR = 'fonts';
 export const CACHE_DIR = './fonts/';
 
 export const FONT_TYPES = ['woff2', 'woff', 'otf', 'ttf', 'eot'] as const;
-export const FONT_FORMAT_MAP: Record<(typeof FONT_TYPES)[number], string> = {
-	woff2: 'woff2',
-	woff: 'woff',
-	otf: 'opentype',
-	ttf: 'truetype',
-	eot: 'embedded-opentype',
-};
 
-// Extracted from https://raw.githubusercontent.com/seek-oss/capsize/refs/heads/master/packages/metrics/src/entireMetricsCollection.json
-export const SYSTEM_METRICS = {
-	'Times New Roman': {
-		ascent: 1825,
-		descent: -443,
-		lineGap: 87,
-		unitsPerEm: 2048,
-		xWidthAvg: 832,
-	},
-	Arial: {
-		ascent: 1854,
-		descent: -434,
-		lineGap: 67,
-		unitsPerEm: 2048,
-		xWidthAvg: 913,
-	},
-	'Courier New': {
-		ascent: 1705,
-		descent: -615,
-		lineGap: 0,
-		unitsPerEm: 2048,
-		xWidthAvg: 1229,
-	},
-	BlinkMacSystemFont: {
-		ascent: 1980,
-		descent: -432,
-		lineGap: 0,
-		unitsPerEm: 2048,
-		xWidthAvg: 853,
-	},
-	'Segoe UI': {
-		ascent: 2210,
-		descent: -514,
-		lineGap: 0,
-		unitsPerEm: 2048,
-		xWidthAvg: 908,
-	},
-	Roboto: {
-		ascent: 1900,
-		descent: -500,
-		lineGap: 0,
-		unitsPerEm: 2048,
-		xWidthAvg: 911,
-	},
-	'Helvetica Neue': {
-		ascent: 952,
-		descent: -213,
-		lineGap: 28,
-		unitsPerEm: 1000,
-		xWidthAvg: 450,
-	},
-} satisfies Record<string, FontFaceMetrics>;
+export const FONT_FORMATS: Array<{ type: FontType; format: string }> = [
+	{ type: 'woff2', format: 'woff2' },
+	{ type: 'woff', format: 'woff' },
+	{ type: 'otf', format: 'opentype' },
+	{ type: 'ttf', format: 'truetype' },
+	{ type: 'eot', format: 'embedded-opentype' },
+];
 
-// Source: https://github.com/nuxt/fonts/blob/3a3eb6dfecc472242b3011b25f3fcbae237d0acc/src/module.ts#L55-L75
-export const DEFAULT_FALLBACKS = {
-	serif: ['Times New Roman'],
-	'sans-serif': ['Arial'],
-	monospace: ['Courier New'],
-	cursive: [],
-	fantasy: [],
-	'system-ui': ['BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial'],
-	'ui-serif': ['Times New Roman'],
-	'ui-sans-serif': ['Arial'],
-	'ui-monospace': ['Courier New'],
-	'ui-rounded': [],
-	emoji: [],
-	math: [],
-	fangsong: [],
-} as const satisfies Record<string, Array<keyof typeof SYSTEM_METRICS>>;
+export const GENERIC_FALLBACK_NAMES = [
+	'serif',
+	'sans-serif',
+	'monospace',
+	'cursive',
+	'fantasy',
+	'system-ui',
+	'ui-serif',
+	'ui-sans-serif',
+	'ui-monospace',
+	'ui-rounded',
+	'emoji',
+	'math',
+	'fangsong',
+] as const;
 
 export const FONTS_TYPES_FILE = 'fonts.d.ts';

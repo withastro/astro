@@ -4,7 +4,7 @@ import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 
 export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';
-export const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
+const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
 const serverIslandPlaceholder = "'$$server-islands$$'";
 
 export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions): VitePlugin {

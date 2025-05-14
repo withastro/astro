@@ -1,5 +1,164 @@
 # astro
 
+## 5.7.13
+
+### Patch Changes
+
+- [#13761](https://github.com/withastro/astro/pull/13761) [`a2e8463`](https://github.com/withastro/astro/commit/a2e84631ad0a8dbc466d1301cc07a031334ffe5b) Thanks [@jp-knj](https://github.com/jp-knj)! - Adds new content collections errors
+
+- [#13788](https://github.com/withastro/astro/pull/13788) [`7d0b7ac`](https://github.com/withastro/astro/commit/7d0b7acb38d5140939d9660b2cf5718e9a8b2c15) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where an error would not be thrown when using the `<Font />` component from the experimental fonts API without adding fonts in the Astro config
+
+- [#13784](https://github.com/withastro/astro/pull/13784) [`d7a1889`](https://github.com/withastro/astro/commit/d7a188988427d1b157d27b789f918c208ece41f7) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes the experimental fonts API to correctly take `config.base`, `config.build.assets` and `config.build.assetsPrefix` into account
+
+- [#13777](https://github.com/withastro/astro/pull/13777) [`a56b8ea`](https://github.com/withastro/astro/commit/a56b8eaec486d26cbc61a7c94c152f4ee8cabc7a) Thanks [@L4Ph](https://github.com/L4Ph)! - Fixed an issue where looping GIF animation would stop when converted to WebP
+
+- [#13566](https://github.com/withastro/astro/pull/13566) [`0489d8f`](https://github.com/withastro/astro/commit/0489d8fe96fb8ee90284277358e38f55c8e0ab1d) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Fix build errors being ignored when build.concurrency > 1
+
+## 5.7.12
+
+### Patch Changes
+
+- [#13752](https://github.com/withastro/astro/pull/13752) [`a079c21`](https://github.com/withastro/astro/commit/a079c21629ecf95b7539d9afdf90831266d00daf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves handling of font URLs not ending with a file extension when using the experimental fonts API
+
+- [#13750](https://github.com/withastro/astro/pull/13750) [`7d3127d`](https://github.com/withastro/astro/commit/7d3127db9191556d2ead8a1ea35acb972ee67ec3) Thanks [@martrapp](https://github.com/martrapp)! - Allows the ClientRouter to open new tabs or windows when submitting forms by clicking while holding the Cmd, Ctrl, or Shift key.
+
+- [#13765](https://github.com/withastro/astro/pull/13765) [`d874fe0`](https://github.com/withastro/astro/commit/d874fe08f903a44cd8017313accbc02bcf9cb7d9) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where font sources with relative protocol URLs would fail when using the experimental fonts API
+
+- [#13640](https://github.com/withastro/astro/pull/13640) [`5e582e7`](https://github.com/withastro/astro/commit/5e582e7b4d56425d622c97ad933b1da0e7434155) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Allows inferring `weight` and `style` when using the local provider of the experimental fonts API
+
+  If you want Astro to infer those properties directly from your local font files, leave them undefined:
+
+  ```js
+  {
+    // No weight specified: infer
+    style: 'normal'; // Do not infer
+  }
+  ```
+
+## 5.7.11
+
+### Patch Changes
+
+- [#13734](https://github.com/withastro/astro/pull/13734) [`30aec73`](https://github.com/withastro/astro/commit/30aec7372b630649e1e484d9453842d3c36eaa26) Thanks [@ascorbic](https://github.com/ascorbic)! - Loosen content layer schema types
+
+- [#13751](https://github.com/withastro/astro/pull/13751) [`5816b8a`](https://github.com/withastro/astro/commit/5816b8a6d1295b297c9562ec245db6c60c37f1b1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `unifont` to support subsets when using the `google` provider with the experimental fonts API
+
+- [#13756](https://github.com/withastro/astro/pull/13756) [`d4547ba`](https://github.com/withastro/astro/commit/d4547bafef559b4f9ecd6e407d531aa51c46f7be) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a terminal warning when a remote provider returns no data for a family when using the experimental fonts API
+
+- [#13742](https://github.com/withastro/astro/pull/13742) [`f599463`](https://github.com/withastro/astro/commit/f5994639120552e38e65c5d4d9688c1a3aa92f90) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes optimized fallback css generation to properly add a `src` when using the experimental fonts API
+
+- [#13740](https://github.com/withastro/astro/pull/13740) [`6935540`](https://github.com/withastro/astro/commit/6935540e44e5c75fd2106e3ae37add5e8ae7c67f) Thanks [@vixalien](https://github.com/vixalien)! - Fix cookies set after middleware did a rewrite with `next(url)` not being applied
+
+- [#13759](https://github.com/withastro/astro/pull/13759) [`4a56d0a`](https://github.com/withastro/astro/commit/4a56d0a44fb472ef2e3a9999c1b69a52da1afed3) Thanks [@jp-knj](https://github.com/jp-knj)! - Improved the error handling of certain error cases.
+
+## 5.7.10
+
+### Patch Changes
+
+- [#13731](https://github.com/withastro/astro/pull/13731) [`c3e80c2`](https://github.com/withastro/astro/commit/c3e80c25b90c803e2798b752583a8e77cdad3146) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update vite to latest version for fixing CVE
+
+## 5.7.9
+
+### Patch Changes
+
+- [#13711](https://github.com/withastro/astro/pull/13711) [`2103991`](https://github.com/withastro/astro/commit/210399155a6004e8e975f9024ae6d7e9945ae9a9) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes height for responsive images
+
+## 5.7.8
+
+### Patch Changes
+
+- [#13715](https://github.com/withastro/astro/pull/13715) [`b32dffa`](https://github.com/withastro/astro/commit/b32dffab6e16388c87fb5e8bb423ed02d88586bb) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `unifont` to fix a case where a `unicodeRange` related error would be thrown when using the experimental fonts API
+
+## 5.7.7
+
+### Patch Changes
+
+- [#13705](https://github.com/withastro/astro/pull/13705) [`28f8716`](https://github.com/withastro/astro/commit/28f8716ceef8b30ebb4da8c6ef32acc72405c1e6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates unifont to latest and adds support for `fetch` options from remote providers when using the experimental fonts API
+
+- [#13692](https://github.com/withastro/astro/pull/13692) [`60d5be4`](https://github.com/withastro/astro/commit/60d5be4af49a72e3739f74424c3d5c423f98c133) Thanks [@Le0Developer](https://github.com/Le0Developer)! - Fixes a bug where Astro couldn't probably use `inferSize` for images that contain apostrophe `'` in their name.
+
+- [#13698](https://github.com/withastro/astro/pull/13698) [`ab98f88`](https://github.com/withastro/astro/commit/ab98f884f2f8639a8f385cdbc919bc829014f64d) Thanks [@sarah11918](https://github.com/sarah11918)! - Improves the configuration reference docs for the `adapter` entry with more relevant text and links.
+
+- [#13706](https://github.com/withastro/astro/pull/13706) [`b4929ae`](https://github.com/withastro/astro/commit/b4929ae9e77f74bde251e81abc0a80e160de774a) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes typechecking for content config schema
+
+- [#13653](https://github.com/withastro/astro/pull/13653) [`a7b2dc6`](https://github.com/withastro/astro/commit/a7b2dc60ca94f42a66575feb190e8b0f36b48e7c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Reduces the amount of preloaded files for the local provider when using the experimental fonts API
+
+- [#13653](https://github.com/withastro/astro/pull/13653) [`a7b2dc6`](https://github.com/withastro/astro/commit/a7b2dc60ca94f42a66575feb190e8b0f36b48e7c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where invalid CSS was emitted when using an experimental fonts API family name containing a space
+
+## 5.7.6
+
+### Patch Changes
+
+- [#13703](https://github.com/withastro/astro/pull/13703) [`659904b`](https://github.com/withastro/astro/commit/659904bd999c6abdd62f18230954b7097dcbb7fe) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug where empty fallbacks could not be provided when using the experimental fonts API
+
+- [#13680](https://github.com/withastro/astro/pull/13680) [`18e1b97`](https://github.com/withastro/astro/commit/18e1b978f045f4c21d9cb4241a8c7fbb956d2efe) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the `UnsupportedExternalRedirect` error message to include more details such as the concerned destination
+
+- [#13703](https://github.com/withastro/astro/pull/13703) [`659904b`](https://github.com/withastro/astro/commit/659904bd999c6abdd62f18230954b7097dcbb7fe) Thanks [@ascorbic](https://github.com/ascorbic)! - Simplifies styles for experimental responsive images
+
+  :warning: **BREAKING CHANGE FOR EXPERIMENTAL RESPONSIVE IMAGES ONLY** :warning:
+
+  The generated styles for image layouts are now simpler and easier to override. Previously the responsive image component used CSS to set the size and aspect ratio of the images, but this is no longer needed. Now the styles just include `object-fit` and `object-position` for all images, and sets `max-width: 100%` for constrained images and `width: 100%` for full-width images.
+
+  This is an implementation change only, and most users will see no change. However, it may affect any custom styles you have added to your responsive images. Please check your rendered images to determine whether any change to your CSS is needed.
+
+  The styles now use the [`:where()` pseudo-class](https://developer.mozilla.org/en-US/docs/Web/CSS/:where), which has a [specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_cascade/Specificity) of 0, meaning that it is easy to override with your own styles. You can now be sure that your own classes will always override the applied styles, as will global styles on `img`.
+
+  An exception is Tailwind 4, which uses [cascade layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer), meaning the rules are always lower specificity. Astro supports browsers that do not support cascade layers, so we cannot use this. If you need to override the styles using Tailwind 4, you must use `!important` classes. Do check if this is needed though: there may be a layout that is more appropriate for your use case.
+
+- [#13703](https://github.com/withastro/astro/pull/13703) [`659904b`](https://github.com/withastro/astro/commit/659904bd999c6abdd62f18230954b7097dcbb7fe) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds warnings about using local font files in the `publicDir` when the experimental fonts API is enabled.
+
+- [#13703](https://github.com/withastro/astro/pull/13703) [`659904b`](https://github.com/withastro/astro/commit/659904bd999c6abdd62f18230954b7097dcbb7fe) Thanks [@ascorbic](https://github.com/ascorbic)! - Renames experimental responsive image layout option from "responsive" to "constrained"
+
+  :warning: **BREAKING CHANGE FOR EXPERIMENTAL RESPONSIVE IMAGES ONLY** :warning:
+
+  The layout option called `"responsive"` is renamed to `"constrained"` to better reflect its behavior.
+
+  The previous name was causing confusion, because it is also the name of the feature. The `responsive` layout option is specifically for images that are displayed at the requested size, unless they do not fit the width of their container, at which point they would be scaled down to fit. They do not get scaled beyond the intrinsic size of the source image, or the `width` prop if provided.
+
+  It became clear from user feedback that many people (understandably) thought that they needed to set `layout` to `responsive` if they wanted to use responsive images. They then struggled with overriding styles to make the image scale up for full-width hero images, for example, when they should have been using `full-width` layout. Renaming the layout to `constrained` should make it clearer that this layout is for when you want to constrain the maximum size of the image, but allow it to scale-down.
+
+  ### Upgrading
+
+  If you set a default `image.experimentalLayout` in your `astro.config.mjs`, or set it on a per-image basis using the `layout` prop, you will need to change all occurences to `constrained`:
+
+  ```diff lang="ts"
+  // astro.config.mjs
+  export default {
+    image: {
+  -    experimentalLayout: 'responsive',
+  +    experimentalLayout: 'constrained',
+    },
+  }
+  ```
+
+  ```diff lang="astro"
+  // src/pages/index.astro
+  ---
+  import { Image } from 'astro:assets';
+  ---
+  - <Image src="/image.jpg" layout="responsive" />
+  + <Image src="/image.jpg" layout="constrained" />
+  ```
+
+  Please [give feedback on the RFC](https://github.com/withastro/roadmap/pull/1051) if you have any questions or comments about the responsive images API.
+
+## 5.7.5
+
+### Patch Changes
+
+- [#13660](https://github.com/withastro/astro/pull/13660) [`620d15d`](https://github.com/withastro/astro/commit/620d15d8483dfb1822cd47833bc1653e0b704ccb) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Adds `server.allowedHosts` docs comment to `AstroUserConfig`
+
+- [#13591](https://github.com/withastro/astro/pull/13591) [`5dd2d3f`](https://github.com/withastro/astro/commit/5dd2d3fde8a138ed611dedf39ffa5dfeeed315f8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes unused code
+
+- [#13669](https://github.com/withastro/astro/pull/13669) [`73f24d4`](https://github.com/withastro/astro/commit/73f24d400acdc48462a7bc5277b8cee2bcf97580) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `Astro.originPathname` wasn't returning the correct value when using rewrites.
+
+- [#13674](https://github.com/withastro/astro/pull/13674) [`42388b2`](https://github.com/withastro/astro/commit/42388b24d6eb866a3129118d22b2f6c71071d0bd) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where an experimental fonts API error would be thrown when using another `astro:assets` API
+
+- [#13654](https://github.com/withastro/astro/pull/13654) [`4931457`](https://github.com/withastro/astro/commit/49314575a76b52b43e491a0a33c0ccaf9cafb058) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes `fontProviders.google()` so it can forward options to the unifont provider, when using the experimental fonts API
+
+- Updated dependencies [[`5dd2d3f`](https://github.com/withastro/astro/commit/5dd2d3fde8a138ed611dedf39ffa5dfeeed315f8)]:
+  - @astrojs/telemetry@3.2.1
+
 ## 5.7.4
 
 ### Patch Changes
