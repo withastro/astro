@@ -639,7 +639,7 @@ async function createBuildManifest(
 			clientStyleHashes,
 			clientScriptHashes,
 			shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config),
-			algorithm: getAlgorithm(settings.config),
+			algorithm
 		};
 	}
 	return {
