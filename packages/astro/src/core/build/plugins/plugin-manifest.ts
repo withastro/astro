@@ -301,7 +301,7 @@ async function buildManifest(
 			clientStyleHashes,
 			clientScriptHashes,
 			algorithm,
-			directives: getDirectives(settings.config),
+			directives: getDirectives(settings.config.experimental.csp),
 		};
 	}
 

@@ -37,20 +37,11 @@ export function getStyleHashes(csp: EnabledCsp): string[] {
 	}
 }
 
-/**
- * Use this function when after you checked that CSP is enabled, or it throws an error.
- * @param config
- */
-export function getDirectives(config: AstroConfig): string[] {
-	if (!config.experimental?.csp) {
-		// A regular error is fine here because this code should never be reached
-		// if CSP is not enabled
-		throw new Error('CSP is not enabled');
-	}
-	if (config.experimental.csp === true) {
+export function getDirectives(csp: EnabledCsp): string[] {
+	if (csp === true) {
 		return [];
 	}
-	return config.experimental.csp.directives ?? [];
+	return csp.directives ?? [];
 }
 
 export async function trackStyleHashes(

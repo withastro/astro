@@ -186,7 +186,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			clientScriptHashes: getScriptHashes(settings.config.experimental.csp),
 			clientStyleHashes: getStyleHashes(settings.config.experimental.csp),
 			algorithm: getAlgorithm(settings.config.experimental.csp),
-			directives: getDirectives(settings.config),
+			directives: getDirectives(settings.config.experimental.csp),
 		};
 	}
 
