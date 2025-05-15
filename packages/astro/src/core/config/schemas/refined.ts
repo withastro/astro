@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { AstroConfig } from '../../../types/public/config.js';
+import { ALGORITHM_VALUES } from '../../csp/config.js';
 
 export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((config, ctx) => {
 	if (
@@ -208,28 +209,28 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		const { scriptHashes, styleHashes } = config.experimental.csp;
 		if (scriptHashes) {
 			for (const hash of scriptHashes) {
-				if (
-					!(hash.startsWith('sha256-') || hash.startsWith('sha384-') || hash.startsWith('sha512-'))
-				) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: `**scriptHashes** property "${hash}" must start with "sha256-", "sha384-" or "sha512-" to be valid.`,
-						path: ['experimental', 'csp', 'scriptHashes'],
-					});
+				for (const allowedValue of ALGORITHM_VALUES) {
+					if (!hash.startsWith(allowedValue)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `**scriptHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}`,
+							path: ['experimental', 'csp', 'scriptHashes'],
+						});
+					}
 				}
 			}
 		}
 
 		if (styleHashes) {
 			for (const hash of styleHashes) {
-				if (
-					!(hash.startsWith('sha256-') || hash.startsWith('sha384-') || hash.startsWith('sha512-'))
-				) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: `**styleHashes** property "${hash}" must start with "sha256-", "sha384-" or "sha512-" to be valid.`,
-						path: ['experimental', 'csp', 'styleHashes'],
-					});
+				for (const allowedValue of ALGORITHM_VALUES) {
+					if (!hash.startsWith(allowedValue)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `**styleHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}`,
+							path: ['experimental', 'csp', 'styleHashes'],
+						});
+					}
 				}
 			}
 		}

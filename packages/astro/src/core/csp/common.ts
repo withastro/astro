@@ -8,22 +8,20 @@ import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
 import type { BuildInternals } from '../build/internal.js';
 import { generateCspDigest } from '../encryption.js';
 
-export function shouldTrackCspHashes(
-	csp: any,
-): csp is Exclude<AstroConfig['experimental']['csp'], false> {
+type EnabledCsp = Exclude<AstroConfig['experimental']['csp'], false>;
+
+export function shouldTrackCspHashes(csp: any): csp is EnabledCsp {
 	return csp === true || typeof csp === 'object';
 }
 
-export function getAlgorithm(
-	csp: Exclude<AstroConfig['experimental']['csp'], false>,
-): CspAlgorithm {
+export function getAlgorithm(csp: EnabledCsp): CspAlgorithm {
 	if (csp === true) {
 		return 'SHA-256';
 	}
 	return csp.algorithm;
 }
 
-export function getScriptHashes(csp: Exclude<AstroConfig['experimental']['csp'], false>): string[] {
+export function getScriptHashes(csp: EnabledCsp): string[] {
 	if (csp === true) {
 		return [];
 	} else {
@@ -31,7 +29,7 @@ export function getScriptHashes(csp: Exclude<AstroConfig['experimental']['csp'],
 	}
 }
 
-export function getStyleHashes(csp: Exclude<AstroConfig['experimental']['csp'], false>): string[] {
+export function getStyleHashes(csp: EnabledCsp): string[] {
 	if (csp === true) {
 		return [];
 	} else {
