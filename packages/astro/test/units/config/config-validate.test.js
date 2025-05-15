@@ -479,4 +479,40 @@ describe('Config Validation', () => {
 			);
 		});
 	});
+
+	describe('csp', () => {
+		it('should throw an error if incorrect scriptHashes are passed', async () => {
+			let configError = await validateConfig({
+				experimental: {
+					csp: {
+						scriptHashes: ['fancy-1234567890'],
+					},
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'**scriptHashes** property "fancy-1234567890" must start with with one of following values: sha256-, sha384-, sha512-.',
+				),
+				true,
+			);
+		});
+
+		it('should throw an error if incorrect styleHashes are passed', async () => {
+			let configError = await validateConfig({
+				experimental: {
+					csp: {
+						styleHashes: ['fancy-1234567890'],
+					},
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message.includes(
+					'**styleHashes** property "fancy-1234567890" must start with with one of following values: sha256-, sha384-, sha512-.',
+				),
+				true,
+			);
+		});
+	});
 });

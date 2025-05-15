@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { AstroConfig } from '../../../types/public/config.js';
+import { ALGORITHM_VALUES } from '../../csp/config.js';
 
 export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((config, ctx) => {
 	if (
@@ -200,6 +201,37 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 					message: `**cssVariable** property "${cssVariable}" contains invalid characters for CSS variable generation. It must start with -- and be a valid indent: https://developer.mozilla.org/en-US/docs/Web/CSS/ident.`,
 					path: ['fonts', i, 'cssVariable'],
 				});
+			}
+		}
+	}
+
+	if (config.experimental.csp && typeof config.experimental.csp === 'object') {
+		const { scriptHashes, styleHashes } = config.experimental.csp;
+		if (scriptHashes) {
+			for (const hash of scriptHashes) {
+				for (const allowedValue of ALGORITHM_VALUES) {
+					if (!hash.startsWith(allowedValue)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `**scriptHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}.`,
+							path: ['experimental', 'csp', 'scriptHashes'],
+						});
+					}
+				}
+			}
+		}
+
+		if (styleHashes) {
+			for (const hash of styleHashes) {
+				for (const allowedValue of ALGORITHM_VALUES) {
+					if (!hash.startsWith(allowedValue)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `**styleHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}.`,
+							path: ['experimental', 'csp', 'styleHashes'],
+						});
+					}
+				}
 			}
 		}
 	}

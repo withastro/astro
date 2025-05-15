@@ -5,7 +5,12 @@ import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { SSRManifestCSP, SSRManifest, SSRManifestI18n } from '../core/app/types.js';
-import { getAlgorithm, shouldTrackCspHashes } from '../core/csp/common.js';
+import {
+	getAlgorithm,
+	getScriptHashes,
+	getStyleHashes,
+	shouldTrackCspHashes,
+} from '../core/csp/common.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
@@ -175,11 +180,11 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		};
 	}
 
-	if (shouldTrackCspHashes(settings.config)) {
+	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
 		csp = {
-			clientScriptHashes: [],
-			clientStyleHashes: [],
-			algorithm: getAlgorithm(settings.config),
+			clientScriptHashes: getScriptHashes(settings.config.experimental.csp),
+			clientStyleHashes: getStyleHashes(settings.config.experimental.csp),
+			algorithm: getAlgorithm(settings.config.experimental.csp),
 		};
 	}
 

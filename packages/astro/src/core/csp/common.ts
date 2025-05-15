@@ -8,24 +8,33 @@ import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
 import type { BuildInternals } from '../build/internal.js';
 import { generateCspDigest } from '../encryption.js';
 
-export function shouldTrackCspHashes(config: AstroConfig): boolean {
-	return config.experimental?.csp === true || typeof config.experimental?.csp === 'object';
+type EnabledCsp = Exclude<AstroConfig['experimental']['csp'], false>;
+
+export function shouldTrackCspHashes(csp: any): csp is EnabledCsp {
+	return csp === true || typeof csp === 'object';
 }
 
-/**
- * Use this function when after you checked that CSP is enabled, or it throws an error.
- * @param config
- */
-export function getAlgorithm(config: AstroConfig): CspAlgorithm {
-	if (!config.experimental?.csp) {
-		// A regular error is fine here because this code should never be reached
-		// if CSP is not enabled
-		throw new Error('CSP is not enabled');
-	}
-	if (config.experimental.csp === true) {
+export function getAlgorithm(csp: EnabledCsp): CspAlgorithm {
+	if (csp === true) {
 		return 'SHA-256';
 	}
-	return config.experimental.csp.algorithm;
+	return csp.algorithm;
+}
+
+export function getScriptHashes(csp: EnabledCsp): string[] {
+	if (csp === true) {
+		return [];
+	} else {
+		return csp.scriptHashes ?? [];
+	}
+}
+
+export function getStyleHashes(csp: EnabledCsp): string[] {
+	if (csp === true) {
+		return [];
+	} else {
+		return csp.styleHashes ?? [];
+	}
 }
 
 export async function trackStyleHashes(

@@ -16,6 +16,8 @@ import type {
 } from '../../app/types.js';
 import {
 	getAlgorithm,
+	getScriptHashes,
+	getStyleHashes,
 	shouldTrackCspHashes,
 	trackScriptHashes,
 	trackStyleHashes,
@@ -302,10 +304,16 @@ async function buildManifest(
 
 	let csp = undefined;
 
-	if (shouldTrackCspHashes(settings.config)) {
-		const algorithm = getAlgorithm(settings.config);
-		const clientScriptHashes = await trackScriptHashes(internals, opts.settings, algorithm);
-		const clientStyleHashes = await trackStyleHashes(internals, opts.settings, algorithm);
+	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+		const algorithm = getAlgorithm(settings.config.experimental.csp);
+		const clientScriptHashes = [
+			...getScriptHashes(settings.config.experimental.csp),
+			...(await trackScriptHashes(internals, settings, algorithm)),
+		];
+		const clientStyleHashes = [
+			...getStyleHashes(settings.config.experimental.csp),
+			...(await trackStyleHashes(internals, settings, algorithm)),
+		];
 
 		csp = {
 			clientStyleHashes,
