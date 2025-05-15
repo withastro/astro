@@ -2283,6 +2283,36 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 *
 					 */
 					scriptHashes?: `${CspAlgorithmValue}${string}`[];
+
+					/**
+					 * @name experimental.csp.directives
+					 * @type {string[]}
+					 * @default `[]`
+					 * @version 5.5.x
+					 * @description
+					 *
+					 * An array of additional directives to add the content of the `Content-Security-Policy` `<meta>` element.
+					 *
+					 * Use this configuration to add other directive definitions such as `default-src`, `image-src`, etc.
+					 *
+					 * ##### Example
+					 *
+					 * You can define a directive to fetch images only from a CDN `cdn.example.com`.
+					 *
+					 * ```js
+					 * export default defineConfig({
+					 * 	experimental: {
+					 * 		csp: {
+					 * 			directives: [
+					 * 				"image-src: 'https://cdn.example.com'"
+					 * 			]
+					 * 		}
+					 * 	}
+					 * })
+					 * ```
+					 *
+					 */
+					directives?: string[];
 			  };
 
 		/**

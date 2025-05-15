@@ -254,6 +254,7 @@ export interface SSRResult {
 	cspAlgorithm: SSRManifestCSP['algorithm'];
 	clientScriptHashes: SSRManifestCSP['clientScriptHashes'];
 	clientStyleHashes: SSRManifestCSP['clientStyleHashes'];
+	directives: SSRManifestCSP['directives'];
 }
 
 /**

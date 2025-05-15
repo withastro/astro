@@ -514,5 +514,17 @@ describe('Config Validation', () => {
 				true,
 			);
 		});
+
+		it('should not throw an error when the directives are correct', () => {
+			assert.doesNotThrow(() =>
+				validateConfig({
+					experimental: {
+						csp: {
+							directives: ["image-src 'self'"],
+						},
+					},
+				}).catch((err) => err),
+			);
+		});
 	});
 });

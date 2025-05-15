@@ -467,6 +467,7 @@ export class RenderContext {
 			clientScriptHashes: manifest.csp?.clientScriptHashes ?? [],
 			clientStyleHashes: manifest.csp?.clientStyleHashes ?? [],
 			cspAlgorithm: manifest.csp?.algorithm ?? 'SHA-256',
+			directives: manifest.csp?.directives ?? [],
 		};
 
 		return result;
