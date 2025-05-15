@@ -179,7 +179,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		csp = {
 			clientScriptHashes: [],
 			clientStyleHashes: [],
-			shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config),
 			algorithm: getAlgorithm(settings.config),
 		};
 	}

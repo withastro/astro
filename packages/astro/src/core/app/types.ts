@@ -111,10 +111,6 @@ export type SSRManifestCSP = {
 	algorithm: CspAlgorithm;
 	clientScriptHashes: string[];
 	clientStyleHashes: string[];
-	/**
-	 * When enabled, Astro tracks the hashes of script and styles, and eventually it will render the `<meta>` tag
-	 */
-	shouldInjectCspMetaTags: boolean;
 };
 
 /** Public type exposed through the `astro:build:ssr` integration hook */

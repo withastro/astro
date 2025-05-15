@@ -289,7 +289,6 @@ async function buildManifest(
 		const clientStyleHashes = await trackStyleHashes(internals, opts.settings, algorithm);
 
 		csp = {
-			shouldInjectCspMetaTags: shouldTrackCspHashes(opts.settings.config),
 			clientStyleHashes,
 			clientScriptHashes,
 			algorithm,

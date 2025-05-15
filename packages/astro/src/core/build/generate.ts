@@ -638,8 +638,7 @@ async function createBuildManifest(
 		csp = {
 			clientStyleHashes,
 			clientScriptHashes,
-			shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config),
-			algorithm
+			algorithm,
 		};
 	}
 	return {
