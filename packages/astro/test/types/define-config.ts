@@ -174,4 +174,27 @@ describe('defineConfig()', () => {
 			},
 		);
 	});
+
+	it('Validates CSP hashes', () => {
+		defineConfig({
+			experimental: {
+				csp: {
+					scriptHashes: [
+						'sha256-xx',
+						'sha384-xx',
+						'sha512-xx',
+						// @ts-expect-error doesn't have the correct prefix
+						'fancy-1234567890',
+					],
+					styleHashes: [
+						'sha256-xx',
+						'sha384-xx',
+						'sha512-xx',
+						// @ts-expect-error doesn't have the correct prefix
+						'fancy-1234567890',
+					],
+				},
+			},
+		});
+	});
 });
