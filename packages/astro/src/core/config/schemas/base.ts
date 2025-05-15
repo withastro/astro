@@ -480,6 +480,8 @@ export const AstroConfigSchema = z.object({
 					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
 					z.object({
 						algorithm: cspAlgorithmSchema,
+						styleHashes: z.array(z.string()).optional(),
+						scriptHashes: z.array(z.string()).optional(),
 					}),
 				])
 				.optional()

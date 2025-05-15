@@ -102,4 +102,38 @@ describe('CSP', () => {
 			assert.fail('Should have the manifest');
 		}
 	});
+
+	it('should render hashes provided by the user', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			adapter: testAdapter({
+				setManifest(_manifest) {
+					manifest = _manifest;
+				},
+			}),
+			experimental: {
+				csp: {
+					styleHashes: ['sha512-hash1', 'sha384-hash2'],
+					scriptHashes: ['sha512-hash3', 'sha384-hash4'],
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+
+		if (manifest) {
+			const request = new Request('http://example.com/index.html');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			assert.ok(meta.attr('content').toString().includes('sha384-hash2'));
+			assert.ok(meta.attr('content').toString().includes('sha384-hash4'));
+			assert.ok(meta.attr('content').toString().includes('sha512-hash1'));
+			assert.ok(meta.attr('content').toString().includes('sha512-hash3'));
+		} else {
+			assert.fail('Should have the manifest');
+		}
+	});
 });
