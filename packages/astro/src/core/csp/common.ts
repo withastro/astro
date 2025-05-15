@@ -8,53 +8,34 @@ import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
 import type { BuildInternals } from '../build/internal.js';
 import { generateCspDigest } from '../encryption.js';
 
-export function shouldTrackCspHashes(config: AstroConfig): boolean {
-	return config.experimental?.csp === true || typeof config.experimental?.csp === 'object';
+export function shouldTrackCspHashes(
+	csp: any,
+): csp is Exclude<AstroConfig['experimental']['csp'], false> {
+	return csp === true || typeof csp === 'object';
 }
 
-/**
- * Use this function when after you checked that CSP is enabled, or it throws an error.
- * @param config
- */
-export function getAlgorithm(config: AstroConfig): CspAlgorithm {
-	if (!config.experimental?.csp) {
-		// A regular error is fine here because this code should never be reached
-		// if CSP is not enabled
-		throw new Error('CSP is not enabled');
-	}
-	if (config.experimental.csp === true) {
+export function getAlgorithm(
+	csp: Exclude<AstroConfig['experimental']['csp'], false>,
+): CspAlgorithm {
+	if (csp === true) {
 		return 'SHA-256';
 	}
-	return config.experimental.csp.algorithm;
+	return csp.algorithm;
 }
 
-/**
- * Use this function when after you checked that CSP is enabled, or it throws an error.
- * @param config
- */
-export function getScriptHashes(config: AstroConfig): string[] {
-	if (!config.experimental?.csp) {
-		throw new Error('CSP is not enabled');
-	}
-	if (config.experimental?.csp === true) {
+export function getScriptHashes(csp: Exclude<AstroConfig['experimental']['csp'], false>): string[] {
+	if (csp === true) {
 		return [];
 	} else {
-		return config.experimental.csp.scriptHashes ?? [];
+		return csp.scriptHashes ?? [];
 	}
 }
 
-/**
- * Use this function when after you checked that CSP is enabled, or it throws an error.
- * @param config
- */
-export function getStyleHashes(config: AstroConfig): string[] {
-	if (!config.experimental?.csp) {
-		throw new Error('CSP is not enabled');
-	}
-	if (config.experimental?.csp === true) {
+export function getStyleHashes(csp: Exclude<AstroConfig['experimental']['csp'], false>): string[] {
+	if (csp === true) {
 		return [];
 	} else {
-		return config.experimental.csp.styleHashes ?? [];
+		return csp.styleHashes ?? [];
 	}
 }
 

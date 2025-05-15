@@ -285,14 +285,14 @@ async function buildManifest(
 
 	let csp = undefined;
 
-	if (shouldTrackCspHashes(settings.config)) {
-		const algorithm = getAlgorithm(settings.config);
+	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+		const algorithm = getAlgorithm(settings.config.experimental.csp);
 		const clientScriptHashes = [
-			...getScriptHashes(settings.config),
+			...getScriptHashes(settings.config.experimental.csp),
 			...(await trackScriptHashes(internals, settings, algorithm)),
 		];
 		const clientStyleHashes = [
-			...getStyleHashes(settings.config),
+			...getStyleHashes(settings.config.experimental.csp),
 			...(await trackStyleHashes(internals, settings, algorithm)),
 		];
 

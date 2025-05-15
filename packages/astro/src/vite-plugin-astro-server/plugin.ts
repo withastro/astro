@@ -180,11 +180,11 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		};
 	}
 
-	if (shouldTrackCspHashes(settings.config)) {
+	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
 		csp = {
-			clientScriptHashes: getScriptHashes(settings.config),
-			clientStyleHashes: getStyleHashes(settings.config),
-			algorithm: getAlgorithm(settings.config),
+			clientScriptHashes: getScriptHashes(settings.config.experimental.csp),
+			clientStyleHashes: getStyleHashes(settings.config.experimental.csp),
+			algorithm: getAlgorithm(settings.config.experimental.csp),
 		};
 	}
 

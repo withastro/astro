@@ -2268,7 +2268,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * The default value is `[]`.
 					 *
 					 */
-					styleHashes?: string[];
+					styleHashes?: `${'sha256' | 'sha512' | 'sha384'}-${string}`[];
 
 					/**
 					 * @name experimental.csp.scriptHashes
@@ -2282,7 +2282,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * The default value is `[]`.
 					 *
 					 */
-					scriptHashes?: string[];
+					scriptHashes?: `${'sha256' | 'sha512' | 'sha384'}-${string}`[];
 			  };
 
 		/**
