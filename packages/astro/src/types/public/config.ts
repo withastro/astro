@@ -18,7 +18,7 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-import type { CspAlgorithm } from '../../core/csp/config.js';
+import type { CspAlgorithm, CspAlgorithmValue } from '../../core/csp/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -2268,7 +2268,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * The default value is `[]`.
 					 *
 					 */
-					styleHashes?: `${CspAlgorithm}-${string}`[];
+					styleHashes?: `${CspAlgorithmValue}${string}`[];
 
 					/**
 					 * @name experimental.csp.scriptHashes
@@ -2282,7 +2282,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * The default value is `[]`.
 					 *
 					 */
-					scriptHashes?: `${CspAlgorithm}-${string}`[];
+					scriptHashes?: `${CspAlgorithmValue}${string}`[];
 			  };
 
 		/**
