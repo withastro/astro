@@ -117,21 +117,7 @@ export async function decryptString(key: CryptoKey, encoded: string) {
  * @param {'sha256' | 'sha512' | 'sha384'} algorithm The algorithm to use.
  */
 export async function generateCspDigest(data: string, algorithm: CspAlgorithm): Promise<string> {
-	let hashBuffer;
-	switch (algorithm) {
-		case 'SHA-256': {
-			hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
-			break;
-		}
-		case 'SHA-512': {
-			hashBuffer = await crypto.subtle.digest('SHA-512', encoder.encode(data));
-			break;
-		}
-		case 'SHA-384': {
-			hashBuffer = await crypto.subtle.digest('SHA-384', encoder.encode(data));
-			break;
-		}
-	}
+	let hashBuffer = await crypto.subtle.digest(algorithm, encoder.encode(data));
 
 	const hash = encodeBase64(new Uint8Array(hashBuffer));
 

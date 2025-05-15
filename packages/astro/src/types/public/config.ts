@@ -12,7 +12,7 @@ import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions
 import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
-import type { AstroConfigType } from '../../core/config/schemas/index.js';
+import type { AstroConfigType, CspAlgorithm } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
@@ -22,6 +22,8 @@ import type { AstroIntegration } from './integrations.js';
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
 export type { AstroFontProvider as FontProvider };
+
+export type { CspAlgorithm };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -171,8 +173,6 @@ export type ResolvedSessionConfig<TDriver extends SessionDriverName> = SessionCo
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
 }
-
-export type CspAlgorithm = 'SHA-256' | 'SHA-384' | 'SHA-512';
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
 // we can add JSDoc-style documentation and link to the definition file in our repo.
@@ -2244,13 +2244,13 @@ export type CspAlgorithm = 'SHA-256' | 'SHA-384' | 'SHA-512';
 					/**
 					 * @name experimental.csp.algorithm
 					 * @type {string}
-					 * @default `'sha256'`
+					 * @default `'SHA-256'`
 					 * @version 5.5.x
 					 * @description
 					 *
 					 * The hashing algorithm to use for the CSP.
 					 *
-					 * The default value is `'sha256'`.
+					 * The default value is `'SHA-256'`.
 					 *
 					 */
 					algorithm?: CspAlgorithm;

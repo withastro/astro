@@ -107,6 +107,8 @@ const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
 	.default(syntaxHighlightDefaults.type);
 
+const cspAlgorithmSchema = z.enum(['SHA-512', 'SHA-384', 'SHA-256']).optional().default('SHA-256');
+
 export const AstroConfigSchema = z.object({
 	root: z
 		.string()
@@ -474,12 +476,15 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.preserveScriptOrder),
 			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
-			csp: z.union([
-				z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
-				z.object({
-					algorithm: z.enum(['SHA-512', 'SHA-384', 'SHA-256']).optional().default('SHA-256'),
-				}),
-			]).optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
+			csp: z
+				.union([
+					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
+					z.object({
+						algorithm: cspAlgorithmSchema,
+					}),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
@@ -491,5 +496,7 @@ export const AstroConfigSchema = z.object({
 		})
 		.default({}),
 });
+
+export type CspAlgorithm = z.infer<typeof cspAlgorithmSchema>;
 
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
