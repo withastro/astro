@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {  describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -134,36 +134,36 @@ describe('CSP', () => {
 			assert.fail('Should have the manifest');
 		}
 	});
-	//
-	// it.skip('should contain the additional directives', async () => {
-	// 	fixture = await loadFixture({
-	// 		root: './fixtures/csp/',
-	// 		adapter: testAdapter({
-	// 			setManifest(_manifest) {
-	// 				manifest = _manifest;
-	// 			},
-	// 		}),
-	// 		experimental: {
-	// 			csp: {
-	// 				directives: ["image-src: 'self' 'https://example.com'"],
-	// 			},
-	// 		},
-	// 	});
-	// 	await fixture.build();
-	// 	app = await fixture.loadTestAdapterApp();
-	//
-	// 	if (manifest) {
-	// 		const request = new Request('http://example.com/index.html');
-	// 		const response = await app.render(request);
-	// 		const html = await response.text();
-	// 		const $ = cheerio.load(html);
-	//
-	// 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
-	// 		assert.ok(
-	// 			meta.attr('content').toString().includes("image-src: 'self' 'https://example.com'"),
-	// 		);
-	// 	} else {
-	// 		assert.fail('Should have the manifest');
-	// 	}
-	// });
+
+	it('should contain the additional directives', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			adapter: testAdapter({
+				setManifest(_manifest) {
+					manifest = _manifest;
+				},
+			}),
+			experimental: {
+				csp: {
+					directives: ["image-src: 'self' 'https://example.com'"],
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+
+		if (manifest) {
+			const request = new Request('http://example.com/index.html');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			assert.ok(
+				meta.attr('content').toString().includes("image-src: 'self' 'https://example.com'"),
+			);
+		} else {
+			assert.fail('Should have the manifest');
+		}
+	});
 });
