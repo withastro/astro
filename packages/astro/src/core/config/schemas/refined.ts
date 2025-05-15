@@ -210,7 +210,6 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		if (scriptHashes) {
 			for (const hash of scriptHashes) {
 				for (const allowedValue of ALGORITHM_VALUES) {
-					console.log(hash, allowedValue);
 					if (!hash.startsWith(allowedValue)) {
 						ctx.addIssue({
 							code: z.ZodIssueCode.custom,
