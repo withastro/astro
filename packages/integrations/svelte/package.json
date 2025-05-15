@@ -50,7 +50,7 @@
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
+    "node": "18.20.4 || ^20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true
