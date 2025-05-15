@@ -1682,7 +1682,7 @@ export const ContentEntryDataError = {
  * **maxAge**: Expected number, received string
  * @description
  * The loader for a live content collection returned an invalid cache hint.
- * Make sure that if you are using a cache hint, it is a valid object.
+ * Make sure that `cacheHint` is an object with the correct properties, or is undefined.
  * @see
  * - [Experimental live content](https://astro.build/en/reference/experimental-flags/live-content/)
  */
