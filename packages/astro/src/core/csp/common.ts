@@ -18,6 +18,8 @@ export function shouldTrackCspHashes(config: AstroConfig): boolean {
  */
 export function getAlgorithm(config: AstroConfig): CspAlgorithm {
 	if (!config.experimental?.csp) {
+		// A regular error is fine here because this code should never be reached
+		// if CSP is not enabled
 		throw new Error('CSP is not enabled');
 	}
 	if (config.experimental.csp === true) {
