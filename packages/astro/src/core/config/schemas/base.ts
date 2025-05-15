@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
+import { cspAlgorithmSchema } from '../../csp/config.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
@@ -106,8 +107,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
 	.default(syntaxHighlightDefaults.type);
-
-const cspAlgorithmSchema = z.enum(['SHA-512', 'SHA-384', 'SHA-256']).optional().default('SHA-256');
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -496,7 +495,5 @@ export const AstroConfigSchema = z.object({
 		})
 		.default({}),
 });
-
-export type CspAlgorithm = z.infer<typeof cspAlgorithmSchema>;
 
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;

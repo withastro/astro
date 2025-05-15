@@ -12,12 +12,13 @@ import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions
 import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
-import type { AstroConfigType, CspAlgorithm } from '../../core/config/schemas/index.js';
+import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { CspAlgorithm } from '../../core/csp/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
