@@ -27,8 +27,13 @@ import type {
 	SSRError,
 	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
-import type { SSRActions, SSRManifest, SSRManifestI18n } from '../app/types.js';
-import { shouldTrackCspHashes, trackScriptHashes, trackStyleHashes } from '../csp/common.js';
+import type { SSRActions, SSRManifestCSP, SSRManifest, SSRManifestI18n } from '../app/types.js';
+import {
+	getAlgorithm,
+	shouldTrackCspHashes,
+	trackScriptHashes,
+	trackStyleHashes,
+} from '../csp/common.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
@@ -612,14 +617,7 @@ async function createBuildManifest(
 	key: Promise<CryptoKey>,
 ): Promise<SSRManifest> {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
-
-	let clientStyleHashes: string[] = [];
-	let clientScriptHashes: string[] = [];
-
-	if (shouldTrackCspHashes(settings.config)) {
-		clientScriptHashes = await trackScriptHashes(internals, settings);
-		clientStyleHashes = await trackStyleHashes(internals, settings);
-	}
+	let csp: SSRManifestCSP | undefined = undefined;
 
 	if (settings.config.i18n) {
 		i18nManifest = {
@@ -629,6 +627,18 @@ async function createBuildManifest(
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
+		};
+	}
+
+	if (shouldTrackCspHashes(settings.config)) {
+		const algorithm = getAlgorithm(settings.config);
+		const clientScriptHashes = await trackScriptHashes(internals, settings, algorithm);
+		const clientStyleHashes = await trackStyleHashes(internals, settings, algorithm);
+
+		csp = {
+			clientStyleHashes,
+			clientScriptHashes,
+			algorithm,
 		};
 	}
 	return {
@@ -664,8 +674,6 @@ async function createBuildManifest(
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,
-		clientStyleHashes,
-		clientScriptHashes,
-		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config),
+		csp,
 	};
 }

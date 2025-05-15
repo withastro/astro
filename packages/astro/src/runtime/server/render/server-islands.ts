@@ -1,4 +1,4 @@
-import { encryptString, generateDigest } from '../../../core/encryption.js';
+import { encryptString, generateCspDigest } from '../../../core/encryption.js';
 import type { SSRResult } from '../../../types/public/internal.js';
 import { markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
@@ -137,8 +137,10 @@ let response = await fetch('${serverIslandUrl}', {
 		const content = `${method}replaceServerIsland('${hostId}', response);`;
 
 		if (this.result.shouldInjectCspMetaTags) {
-			this.result._metadata.extraScriptHashes.push(await generateDigest(SERVER_ISLAND_REPLACER));
-			const contentDigest = await generateDigest(content);
+			this.result._metadata.extraScriptHashes.push(
+				await generateCspDigest(SERVER_ISLAND_REPLACER, this.result.cspAlgorithm),
+			);
+			const contentDigest = await generateCspDigest(content, this.result.cspAlgorithm);
 			this.result._metadata.extraScriptHashes.push(contentDigest);
 		}
 		this.islandContent = content;

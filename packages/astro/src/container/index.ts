@@ -161,9 +161,7 @@ function createManifest(
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
-		clientScriptHashes: manifest?.clientScriptHashes ?? [],
-		clientStyleHashes: manifest?.clientStyleHashes ?? [],
-		shouldInjectCspMetaTags: manifest?.shouldInjectCspMetaTags ?? false,
+		csp: manifest?.csp,
 	};
 }
 
@@ -249,9 +247,7 @@ type AstroContainerManifest = Pick<
 	| 'publicDir'
 	| 'outDir'
 	| 'cacheDir'
-	| 'clientScriptHashes'
-	| 'clientStyleHashes'
-	| 'shouldInjectCspMetaTags'
+	| 'csp'
 >;
 
 type AstroContainerConstructor = {

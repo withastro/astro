@@ -1,5 +1,5 @@
 import cssesc from 'cssesc';
-import { generateDigest } from '../../core/encryption.js';
+import { generateCspDigest } from '../../core/encryption.js';
 import { fade, slide } from '../../transitions/index.js';
 import type { SSRResult } from '../../types/public/internal.js';
 import type {
@@ -113,7 +113,7 @@ export async function renderTransition(
 
 	const css = sheet.toString();
 	if (result.shouldInjectCspMetaTags) {
-		result._metadata.extraStyleHashes.push(await generateDigest(css));
+		result._metadata.extraStyleHashes.push(await generateCspDigest(css, result.cspAlgorithm));
 	}
 	result._metadata.extraHead.push(markHTMLString(`<style>${css}</style>`));
 	return scope;
