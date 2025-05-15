@@ -210,10 +210,11 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		if (scriptHashes) {
 			for (const hash of scriptHashes) {
 				for (const allowedValue of ALGORITHM_VALUES) {
+					console.log(hash, allowedValue);
 					if (!hash.startsWith(allowedValue)) {
 						ctx.addIssue({
 							code: z.ZodIssueCode.custom,
-							message: `**scriptHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}`,
+							message: `**scriptHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}.`,
 							path: ['experimental', 'csp', 'scriptHashes'],
 						});
 					}
@@ -227,7 +228,7 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 					if (!hash.startsWith(allowedValue)) {
 						ctx.addIssue({
 							code: z.ZodIssueCode.custom,
-							message: `**styleHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}`,
+							message: `**styleHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}.`,
 							path: ['experimental', 'csp', 'styleHashes'],
 						});
 					}

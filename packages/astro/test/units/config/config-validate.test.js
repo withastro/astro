@@ -490,9 +490,10 @@ describe('Config Validation', () => {
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
+			console.log(configError.errors[0].message);
 			assert.equal(
 				configError.errors[0].message.includes(
-					'**scriptHashes** property "fancy-1234567890" must start with "sha256-", "sha384-" or "sha512-" to be valid.',
+					'**scriptHashes** property "fancy-1234567890" must start with with one of following values: sha256-, sha384-, sha512-.',
 				),
 				true,
 			);
@@ -509,7 +510,7 @@ describe('Config Validation', () => {
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
 				configError.errors[0].message.includes(
-					'**styleHashes** property "fancy-1234567890" must start with "sha256-", "sha384-" or "sha512-" to be valid.',
+					'**styleHashes** property "fancy-1234567890" must start with with one of following values: sha256-, sha384-, sha512-.',
 				),
 				true,
 			);
