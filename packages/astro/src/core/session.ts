@@ -447,7 +447,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
 
-		const driverPackage = await resolveSessionDriver(this.#config.driver);
+		const driverPackage = resolveSessionDriver(this.#config.driver);
 		try {
 			if (this.#config.driverModule) {
 				driver = (await this.#config.driverModule()).default;
@@ -500,17 +500,16 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 	}
 }
-// TODO: make this sync when we drop support for Node < 18.19.0
-export async function resolveSessionDriver(driver: string | undefined): Promise<string | null> {
+export function resolveSessionDriver(driver: string | undefined): string | null {
 	if (!driver) {
 		return null;
 	}
 	try {
 		if (driver === 'fs') {
-			return await import.meta.resolve(builtinDrivers.fsLite);
+			return import.meta.resolve(builtinDrivers.fsLite);
 		}
 		if (driver in builtinDrivers) {
-			return await import.meta.resolve(builtinDrivers[driver as keyof typeof builtinDrivers]);
+			return import.meta.resolve(builtinDrivers[driver as keyof typeof builtinDrivers]);
 		}
 	} catch {
 		return null;
