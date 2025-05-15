@@ -20,11 +20,10 @@ export function getAlgorithm(config: AstroConfig): CspAlgorithm {
 	if (!config.experimental?.csp) {
 		throw new Error('CSP is not enabled');
 	}
-	if (config.experimental?.csp === true) {
+	if (config.experimental.csp === true) {
 		return 'SHA-256';
-	} else {
-		return config.experimental.csp.algorithm;
 	}
+	return config.experimental.csp.algorithm;
 }
 
 export async function trackStyleHashes(
