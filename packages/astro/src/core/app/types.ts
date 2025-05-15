@@ -16,6 +16,7 @@ import type {
 	SSRResult,
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
+import type { CspDirective } from '../csp/config.js';
 
 type ComponentPath = string;
 
@@ -111,7 +112,7 @@ export type SSRManifestCSP = {
 	algorithm: CspAlgorithm;
 	clientScriptHashes: string[];
 	clientStyleHashes: string[];
-	directives: string[];
+	directives: CspDirective;
 };
 
 /** Public type exposed through the `astro:build:ssr` integration hook */

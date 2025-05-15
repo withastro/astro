@@ -237,19 +237,4 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 			}
 		}
 	}
-
-	if (config.experimental.csp && typeof config.experimental.csp === 'object') {
-		const { directives } = config.experimental.csp;
-		if (directives) {
-			for (const directive of directives) {
-				if (directive.includes('script-src') || directive.includes('style-src')) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: `**directives** contains "script-src" or "style-src" directive, which are handled by Astro. Adding your own directives will risk to make the hashes invalid. Use **scriptDirectives** or **styleDirectives** instead.'`,
-						path: ['experimental', 'csp', 'directives'],
-					});
-				}
-			}
-		}
-	}
 });

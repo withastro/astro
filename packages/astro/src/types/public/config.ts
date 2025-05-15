@@ -18,7 +18,7 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-import type { CspAlgorithm, CspAlgorithmValue } from '../../core/csp/config.js';
+import type { CspAlgorithm, CspAlgorithmValue, CspDirective } from '../../core/csp/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -2303,16 +2303,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * export default defineConfig({
 					 * 	experimental: {
 					 * 		csp: {
-					 * 			directives: [
-					 * 				"image-src: 'https://cdn.example.com'"
-					 * 			]
+					 * 			directives: [{
+					 * 				type: "image-src"
+					 * 				content:	'https://cdn.example.com'"
+					 * 			}]
 					 * 		}
 					 * 	}
 					 * })
 					 * ```
 					 *
 					 */
-					directives?: string[];
+					directives?: CspDirective;
 			  };
 
 		/**
