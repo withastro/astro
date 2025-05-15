@@ -463,9 +463,10 @@ export class RenderContext {
 				extraScriptHashes: [],
 				propagators: new Set(),
 			},
-			shouldInjectCspMetaTags: manifest.shouldInjectCspMetaTags,
-			clientScriptHashes: manifest.clientScriptHashes,
-			clientStyleHashes: manifest.clientStyleHashes,
+			shouldInjectCspMetaTags: !!manifest.csp,
+			clientScriptHashes: manifest.csp?.clientScriptHashes ?? [],
+			clientStyleHashes: manifest.csp?.clientStyleHashes ?? [],
+			cspAlgorithm: manifest.csp?.algorithm ?? 'SHA-256',
 		};
 
 		return result;

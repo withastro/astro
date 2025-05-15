@@ -14,7 +14,12 @@ import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
 } from '../../app/types.js';
-import { shouldTrackCspHashes, trackScriptHashes, trackStyleHashes } from '../../csp/common.js';
+import {
+	getAlgorithm,
+	shouldTrackCspHashes,
+	trackScriptHashes,
+	trackStyleHashes,
+} from '../../csp/common.js';
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
@@ -295,12 +300,18 @@ async function buildManifest(
 		};
 	}
 
-	let clientScriptHashes: string[] = [];
-	let clientStyleHashes: string[] = [];
+	let csp = undefined;
 
 	if (shouldTrackCspHashes(settings.config)) {
-		clientScriptHashes = await trackScriptHashes(internals, opts.settings);
-		clientStyleHashes = await trackStyleHashes(internals, opts.settings);
+		const algorithm = getAlgorithm(settings.config);
+		const clientScriptHashes = await trackScriptHashes(internals, opts.settings, algorithm);
+		const clientStyleHashes = await trackStyleHashes(internals, opts.settings, algorithm);
+
+		csp = {
+			clientStyleHashes,
+			clientScriptHashes,
+			algorithm,
+		};
 	}
 
 	return {
@@ -332,8 +343,6 @@ async function buildManifest(
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
 		sessionConfig: settings.config.session,
-		shouldInjectCspMetaTags: shouldTrackCspHashes(opts.settings.config),
-		clientStyleHashes,
-		clientScriptHashes,
+		csp,
 	};
 }

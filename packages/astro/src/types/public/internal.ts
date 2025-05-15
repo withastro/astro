@@ -1,7 +1,7 @@
 // TODO: Should the types here really be public?
 
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
-import type { SSRManifest } from '../../core/app/types.js';
+import type { SSRManifestCSP } from '../../core/app/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { AstroComponentInstance, ServerIslandComponent } from '../../runtime/server/index.js';
 import type { Params } from './common.js';
@@ -251,8 +251,9 @@ export interface SSRResult {
 	 * Whether Astro should inject the CSP <meta> tag into the head of the component.
 	 */
 	shouldInjectCspMetaTags: boolean;
-	clientScriptHashes: SSRManifest['clientScriptHashes'];
-	clientStyleHashes: SSRManifest['clientStyleHashes'];
+	cspAlgorithm: SSRManifestCSP['algorithm'];
+	clientScriptHashes: SSRManifestCSP['clientScriptHashes'];
+	clientStyleHashes: SSRManifestCSP['clientStyleHashes'];
 }
 
 /**

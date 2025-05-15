@@ -18,10 +18,13 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { CspAlgorithm } from '../../core/csp/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
 export type { AstroFontProvider as FontProvider };
+
+export type { CspAlgorithm };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -2227,10 +2230,32 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		headingIdCompat?: boolean;
 
 		/**
+		 * @name experimental.csp
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.5.x
+		 * @description
+		 *
+		 * Enables built-in support for Content Security Policy (CSP).
 		 *
 		 */
-		// TODO: add docs once we are reaching the end
-		csp?: boolean;
+		csp?:
+			| boolean
+			| {
+					/**
+					 * @name experimental.csp.algorithm
+					 * @type {string}
+					 * @default `'SHA-256'`
+					 * @version 5.5.x
+					 * @description
+					 *
+					 * The hashing algorithm to use for the CSP.
+					 *
+					 * The default value is `'SHA-256'`.
+					 *
+					 */
+					algorithm?: CspAlgorithm;
+			  };
 
 		/**
 		 * @name experimental.preserveScriptOrder
