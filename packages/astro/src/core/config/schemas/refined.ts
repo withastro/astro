@@ -209,28 +209,30 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		const { scriptHashes, styleHashes } = config.experimental.csp;
 		if (scriptHashes) {
 			for (const hash of scriptHashes) {
-				for (const allowedValue of ALGORITHM_VALUES) {
-					if (!hash.startsWith(allowedValue)) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: `**scriptHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}.`,
-							path: ['experimental', 'csp', 'scriptHashes'],
-						});
-					}
+				const allowed = ALGORITHM_VALUES.some((allowedValue) => {
+					return hash.startsWith(allowedValue);
+				});
+				if (!allowed) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `**scriptHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}.`,
+						path: ['experimental', 'csp', 'scriptHashes'],
+					});
 				}
 			}
 		}
 
 		if (styleHashes) {
 			for (const hash of styleHashes) {
-				for (const allowedValue of ALGORITHM_VALUES) {
-					if (!hash.startsWith(allowedValue)) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: `**styleHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}.`,
-							path: ['experimental', 'csp', 'styleHashes'],
-						});
-					}
+				const allowed = ALGORITHM_VALUES.some((allowedValue) => {
+					return hash.startsWith(allowedValue);
+				});
+				if (!allowed) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `**styleHashes** property "${hash}" must start with with one of following values: ${ALGORITHM_VALUES.join(', ')}.`,
+						path: ['experimental', 'csp', 'styleHashes'],
+					});
 				}
 			}
 		}

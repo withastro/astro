@@ -515,6 +515,18 @@ describe('Config Validation', () => {
 			);
 		});
 
+		it('should not throw an error for correct hashes', async () => {
+			assert.doesNotThrow(() => {
+				validateConfig({
+					experimental: {
+						csp: {
+							styleHashes: ['sha256-1234567890'],
+						},
+					},
+				});
+			});
+		});
+
 		it('should not throw an error when the directives are correct', () => {
 			assert.doesNotThrow(() =>
 				validateConfig({
