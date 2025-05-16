@@ -12,7 +12,7 @@ type UnionToTuple<T> = UnionToIntersection<T extends never ? never : (t: T) => T
 	? [...UnionToTuple<Exclude<T, W>>, W]
 	: [];
 
-const ALGORITHMS = {
+export const ALGORITHMS = {
 	'SHA-256': 'sha256-',
 	'SHA-384': 'sha384-',
 	'SHA-512': 'sha512-',
