@@ -20,7 +20,7 @@ import { type CollectedFontForMetrics, optimizeFallbacks } from './logic/optimiz
 import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
 import type {
-	ConsumableMap,
+	InternalConsumableMap,
 	CreateUrlProxyParams,
 	Defaults,
 	FontFamily,
@@ -78,7 +78,7 @@ export async function orchestrate({
 	defaults: Defaults;
 }): Promise<{
 	fontFileDataMap: FontFileDataMap;
-	consumableMap: ConsumableMap;
+	internalConsumableMap: InternalConsumableMap;
 }> {
 	let resolvedFamilies = await resolveFamilies({
 		families,
@@ -104,9 +104,9 @@ export async function orchestrate({
 	 */
 	const fontFileDataMap: FontFileDataMap = new Map();
 	/**
-	 * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
+	 * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
 	 */
-	const consumableMap: ConsumableMap = new Map();
+	const internalConsumableMap: InternalConsumableMap = new Map();
 
 	for (const family of resolvedFamilies) {
 		const preloadData: Array<PreloadData> = [];
@@ -220,8 +220,8 @@ export async function orchestrate({
 
 		css += cssRenderer.generateCssVariable(family.cssVariable, cssVarValues);
 
-		consumableMap.set(family.cssVariable, { preloadData, css });
+		internalConsumableMap.set(family.cssVariable, { preloadData, css });
 	}
 
-	return { fontFileDataMap, consumableMap };
+	return { fontFileDataMap, internalConsumableMap };
 }

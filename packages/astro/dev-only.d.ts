@@ -5,5 +5,5 @@ declare module 'virtual:astro:env/internal' {
 }
 
 declare module 'virtual:astro:assets/fonts/internal' {
-	export const fontsData: import('./src/assets/fonts/types.js').ConsumableMap;
+	export const fontsData: import('./src/assets/fonts/types.js').InternalConsumableMap;
 }

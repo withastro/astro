@@ -99,8 +99,11 @@ export interface CreateUrlProxyParams {
 export type FontFileDataMap = Map<FontFileData['hash'], Pick<FontFileData, 'url' | 'init'>>;
 
 /**
- * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
+ * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
  */
-export type ConsumableMap = Map<string, { preloadData: Array<PreloadData>; css: string }>;
+export type InternalConsumableMap = Map<string, { preloadData: Array<PreloadData>; css: string }>;
+
+// TODO: comment
+// export type Public
 
 export type Style = z.output<typeof styleSchema>;
