@@ -114,7 +114,9 @@ export async function orchestrate({
 	 * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
 	 */
 	const internalConsumableMap: InternalConsumableMap = new Map();
-	// TODO: comment
+	/**
+	 * Holds associations of CSS variables and font data to be exposed via virtual module.
+	 */
 	const consumableMap: ConsumableMap = new Map();
 
 	for (const family of resolvedFamilies) {

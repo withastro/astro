@@ -8,7 +8,6 @@ export function createGetFontData({ consumableMap }: { consumableMap?: Consumabl
 		}
 		const data = consumableMap.get(cssVariable);
 		if (!data) {
-			// TODO: tweak error to also mention this function
 			throw new AstroError({
 				...AstroErrorData.FontFamilyNotFound,
 				message: AstroErrorData.FontFamilyNotFound.message(cssVariable),

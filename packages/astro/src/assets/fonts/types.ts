@@ -109,7 +109,9 @@ export type ConsumableMapValue = Array<{
 	style?: string;
 }>;
 
-// TODO: comment
+/**
+ * Holds associations of CSS variables and font data to be exposed via virtual module.
+ */
 export type ConsumableMap = Map<string, ConsumableMapValue>;
 
 export type Style = z.output<typeof styleSchema>;

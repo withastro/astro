@@ -24,7 +24,6 @@ export function unifontFontFaceDataToProperties(
 	};
 }
 
-// TODO: test
 export function renderFontWeight(weight: unifont.FontFaceData['weight']): string | undefined {
 	return Array.isArray(weight) ? weight.join(' ') : weight?.toString();
 }
