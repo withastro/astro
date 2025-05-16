@@ -18,7 +18,7 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-import type { CspAlgorithm, CspAlgorithmValue } from '../../core/csp/config.js';
+import type { CspAlgorithm, CspAlgorithmValue, CspDirective } from '../../core/csp/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -2283,6 +2283,37 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 *
 					 */
 					scriptHashes?: `${CspAlgorithmValue}${string}`[];
+
+					/**
+					 * @name experimental.csp.directives
+					 * @type {string[]}
+					 * @default `[]`
+					 * @version 5.5.x
+					 * @description
+					 *
+					 * An array of additional directives to add the content of the `Content-Security-Policy` `<meta>` element.
+					 *
+					 * Use this configuration to add other directive definitions such as `default-src`, `image-src`, etc.
+					 *
+					 * ##### Example
+					 *
+					 * You can define a directive to fetch images only from a CDN `cdn.example.com`.
+					 *
+					 * ```js
+					 * export default defineConfig({
+					 * 	experimental: {
+					 * 		csp: {
+					 * 			directives: [{
+					 * 				type: "image-src"
+					 * 				content:	'https://cdn.example.com'"
+					 * 			}]
+					 * 		}
+					 * 	}
+					 * })
+					 * ```
+					 *
+					 */
+					directives?: CspDirective;
 			  };
 
 		/**

@@ -7,6 +7,7 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
 import type { BuildInternals } from '../build/internal.js';
 import { generateCspDigest } from '../encryption.js';
+import type { CspDirective } from './config.js';
 
 type EnabledCsp = Exclude<AstroConfig['experimental']['csp'], false>;
 
@@ -35,6 +36,13 @@ export function getStyleHashes(csp: EnabledCsp): string[] {
 	} else {
 		return csp.styleHashes ?? [];
 	}
+}
+
+export function getDirectives(csp: EnabledCsp): CspDirective {
+	if (csp === true) {
+		return [];
+	}
+	return csp.directives ?? [];
 }
 
 export async function trackStyleHashes(

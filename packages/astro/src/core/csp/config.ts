@@ -29,3 +29,33 @@ export const cspAlgorithmSchema = z
 	.enum(Object.keys(ALGORITHMS) as UnionToTuple<CspAlgorithm>)
 	.optional()
 	.default('SHA-256');
+
+export const ALLOWED_DIRECTIVES = [
+	'base-uri',
+	'child-src',
+	'connect-src',
+	'default-src',
+	'fenced-frame-src',
+	'font-src',
+	'form-action',
+	'frame-ancestors',
+	'frame-src',
+	'img-src',
+	'manifest-src',
+	'media-src',
+	'object-src',
+	'referrer',
+	'report-to',
+	'require-trusted-types-for',
+	'sandbox',
+	'trusted-types',
+	'upgrade-insecure-requests',
+	'worker-src',
+] as const;
+
+type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
+
+export type CspDirective = {
+	type: AllowedDirectives;
+	value: string;
+}[];
