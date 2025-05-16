@@ -133,8 +133,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							import { getImage as getImageInternal } from "astro/assets";
 							export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
 							export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
-							export { default as Font } from "astro/components/Font.astro";
 							export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
+
+							export { default as Font } from "astro/components/Font.astro";
+							import * as fontsMod from 'virtual:astro:assets/fonts/internal';
+							import { createGetFontData } from "astro/assets/fonts/runtime";
 
 							export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
 							// This is used by the @astrojs/node integration to locate images.
@@ -154,6 +157,8 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 								settings.config.build.assets,
 							)}, outDir);
 							export const getImage = async (options) => await getImageInternal(options, imageConfig);
+
+							export const getFontData = createGetFontData(fontsMod);
 						`,
 					};
 				}
