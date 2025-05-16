@@ -26,16 +26,29 @@ export function getScriptHashes(csp: EnabledCsp): string[] {
 	if (csp === true) {
 		return [];
 	} else {
-		return csp.scriptHashes ?? [];
+		return csp.scriptDirective?.hashes ?? [];
 	}
+}
+
+export function getScriptResources(csp: EnabledCsp): string[] {
+	if (csp === true) {
+		return [];
+	}
+	return csp.scriptDirective?.resources ?? [];
 }
 
 export function getStyleHashes(csp: EnabledCsp): string[] {
 	if (csp === true) {
 		return [];
-	} else {
-		return csp.styleHashes ?? [];
 	}
+	return csp.styleDirective?.hashes ?? [];
+}
+
+export function getStyleResources(csp: EnabledCsp): string[] {
+	if (csp === true) {
+		return [];
+	}
+	return csp.styleDirective?.resources ?? [];
 }
 
 export function getDirectives(csp: EnabledCsp): CspDirective {

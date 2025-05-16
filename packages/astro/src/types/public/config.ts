@@ -18,7 +18,7 @@ import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-import type { CspAlgorithm, CspAlgorithmValue, CspDirective } from '../../core/csp/config.js';
+import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -2257,32 +2257,76 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					algorithm?: CspAlgorithm;
 
 					/**
-					 * @name experimental.csp.styleHashes
-					 * @type {string[]}
-					 * @default `[]`
+					 * @name experimental.csp.styleDirective
+					 * @type {CspHash[]}
+					 * @default `undefined`
 					 * @version 5.5.x
 					 * @description
 					 *
-					 * A list of style hashes to include in all pages. These hashes are added to the `style-src` policy.
-					 *
-					 * The default value is `[]`.
+					 * Allows controlling the `style-src` directive.
 					 *
 					 */
-					styleHashes?: `${CspAlgorithmValue}${string}`[];
+					styleDirective?: {
+						/**
+						 * @name experimental.csp.styleDirective.hashes
+						 * @type {CspHash[]}
+						 * @default `[]`
+						 * @version 5.5.x
+						 * @description
+						 *
+						 * A list of style hashes to include in all pages. These hashes are added to the `style-src` directive.
+						 *
+						 */
+						hashes?: CspHash[];
+
+						/**
+						 * @name experimental.csp.styleDirective.resources
+						 * @type {string[]}
+						 * @default `[]`
+						 * @version 5.5.x
+						 * @description
+						 *
+						 * A list of resources applied to the `style-src` directive.
+						 *
+						 */
+						resources?: string[];
+					};
 
 					/**
-					 * @name experimental.csp.scriptHashes
-					 * @type {string[]}
-					 * @default `[]`
+					 * @name experimental.csp.styleDirective
+					 * @type {CspHash[]}
+					 * @default `undefined`
 					 * @version 5.5.x
 					 * @description
 					 *
-					 * A list of script hashes to include in all pages. These hashes are added to the `script-src` policy.
-					 *
-					 * The default value is `[]`.
+					 * Allows controlling the `style-src` directive.
 					 *
 					 */
-					scriptHashes?: `${CspAlgorithmValue}${string}`[];
+					scriptDirective?: {
+						/**
+						 * @name experimental.csp.scriptDirective.hashes
+						 * @type {CspHash[]}
+						 * @default `[]`
+						 * @version 5.5.x
+						 * @description
+						 *
+						 * A list of script hashes to include in all pages. These hashes are added to the `script-src` directive.
+						 *
+						 */
+						hashes?: CspHash[];
+
+						/**
+						 * @name experimental.csp.scriptDirective.resources
+						 * @type {string[]}
+						 * @default `[]`
+						 * @version 5.5.x
+						 * @description
+						 *
+						 * A list of resources applied to the `script-src` directive.
+						 *
+						 */
+						resources?: string[];
+					};
 
 					/**
 					 * @name experimental.csp.directives

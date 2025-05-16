@@ -10,7 +10,9 @@ import {
 	getScriptHashes,
 	getStyleHashes,
 	shouldTrackCspHashes,
-	getDirectives
+	getDirectives,
+	getScriptResources,
+	getStyleResources,
 } from '../core/csp/common.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
@@ -183,8 +185,10 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 
 	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
 		csp = {
-			clientScriptHashes: getScriptHashes(settings.config.experimental.csp),
-			clientStyleHashes: getStyleHashes(settings.config.experimental.csp),
+			scriptHashes: getScriptHashes(settings.config.experimental.csp),
+			scriptResources: getScriptResources(settings.config.experimental.csp),
+			styleHashes: getStyleHashes(settings.config.experimental.csp),
+			styleResources: getStyleResources(settings.config.experimental.csp),
 			algorithm: getAlgorithm(settings.config.experimental.csp),
 			directives: getDirectives(settings.config.experimental.csp),
 		};

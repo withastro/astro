@@ -12,7 +12,7 @@ type UnionToTuple<T> = UnionToIntersection<T extends never ? never : (t: T) => T
 	? [...UnionToTuple<Exclude<T, W>>, W]
 	: [];
 
-const ALGORITHMS = {
+export const ALGORITHMS = {
 	'SHA-256': 'sha256-',
 	'SHA-384': 'sha384-',
 	'SHA-512': 'sha512-',
@@ -21,14 +21,25 @@ const ALGORITHMS = {
 type Algorithms = typeof ALGORITHMS;
 
 export type CspAlgorithm = keyof Algorithms;
-export type CspAlgorithmValue = Algorithms[keyof Algorithms];
+type CspAlgorithmValue = Algorithms[keyof Algorithms];
 
-export const ALGORITHM_VALUES = Object.values(ALGORITHMS) as UnionToTuple<CspAlgorithmValue>;
+const ALGORITHM_VALUES = Object.values(ALGORITHMS) as UnionToTuple<CspAlgorithmValue>;
 
 export const cspAlgorithmSchema = z
 	.enum(Object.keys(ALGORITHMS) as UnionToTuple<CspAlgorithm>)
 	.optional()
 	.default('SHA-256');
+
+export const CspHashSchema = z.custom<`${CspAlgorithmValue}${string}`>((value) => {
+	if (typeof value !== 'string') {
+		return false;
+	}
+	return ALGORITHM_VALUES.some((allowedValue) => {
+		return value.startsWith(allowedValue);
+	});
+});
+
+export type CspHash = z.infer<typeof CspHashSchema>;
 
 export const ALLOWED_DIRECTIVES = [
 	'base-uri',

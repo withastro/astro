@@ -252,8 +252,10 @@ export interface SSRResult {
 	 */
 	shouldInjectCspMetaTags: boolean;
 	cspAlgorithm: SSRManifestCSP['algorithm'];
-	clientScriptHashes: SSRManifestCSP['clientScriptHashes'];
-	clientStyleHashes: SSRManifestCSP['clientStyleHashes'];
+	scriptHashes: SSRManifestCSP['scriptHashes'];
+	scriptResources: SSRManifestCSP['scriptResources'];
+	styleHashes: SSRManifestCSP['styleHashes'];
+	styleResources: SSRManifestCSP['styleResources'];
 	directives: SSRManifestCSP['directives'];
 }
 

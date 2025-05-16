@@ -4,11 +4,11 @@ export function renderCspContent(result: SSRResult): string {
 	const finalScriptHashes = new Set();
 	const finalStyleHashes = new Set();
 
-	for (const scriptHash of result.clientScriptHashes) {
+	for (const scriptHash of result.scriptHashes) {
 		finalScriptHashes.add(`'${scriptHash}'`);
 	}
 
-	for (const styleHash of result.clientStyleHashes) {
+	for (const styleHash of result.styleHashes) {
 		finalStyleHashes.add(`'${styleHash}'`);
 	}
 
@@ -24,7 +24,18 @@ export function renderCspContent(result: SSRResult): string {
 			return `${type} ${value}`;
 		})
 		.join(';');
-	const scriptSrc = `style-src 'self' ${Array.from(finalStyleHashes).join(' ')};`;
-	const styleSrc = `script-src 'self' ${Array.from(finalScriptHashes).join(' ')};`;
+
+	let scriptResources = 'self';
+	if (result.scriptResources.length > 0) {
+		scriptResources = result.scriptResources.map((r) => `'${r}'`).join(' ');
+	}
+
+	let styleResources = 'self';
+	if (result.styleResources.length > 0) {
+		styleResources = result.styleResources.map((r) => `'${r}'`).join(' ');
+	}
+
+	const scriptSrc = `style-src ${styleResources} ${Array.from(finalStyleHashes).join(' ')};`;
+	const styleSrc = `script-src ${scriptResources} ${Array.from(finalScriptHashes).join(' ')};`;
 	return `${directives} ${scriptSrc} ${styleSrc}`;
 }
