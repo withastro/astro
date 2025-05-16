@@ -53,7 +53,7 @@ export const ALLOWED_DIRECTIVES = [
 	'worker-src',
 ] as const;
 
-export type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
+type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
 
 export type CspDirective = {
 	type: AllowedDirectives;
