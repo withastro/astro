@@ -3,8 +3,8 @@ import * as mod from 'virtual:astro:assets/fonts/internal';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 
 // TODO: remove check when fonts are stabilized
-const { fontsData } = mod;
-if (!fontsData) {
+const { internalConsumableMap } = mod;
+if (!internalConsumableMap) {
 	throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
 }
 
@@ -16,7 +16,7 @@ interface Props {
 }
 
 const { cssVariable, preload = false } = Astro.props as Props;
-const data = fontsData.get(cssVariable);
+const data = internalConsumableMap.get(cssVariable);
 if (!data) {
 	throw new AstroError({
 		...AstroErrorData.FontFamilyNotFound,

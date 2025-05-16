@@ -26,8 +26,14 @@ import type {
 	FontFamily,
 	FontFileDataMap,
 	PreloadData,
+	ConsumableMap,
+	ConsumableMapValue,
 } from './types.js';
-import { pickFontFaceProperty, unifontFontFaceDataToProperties } from './utils.js';
+import {
+	pickFontFaceProperty,
+	renderFontWeight,
+	unifontFontFaceDataToProperties,
+} from './utils.js';
 
 /**
  * Manages how fonts are resolved:
@@ -79,6 +85,7 @@ export async function orchestrate({
 }): Promise<{
 	fontFileDataMap: FontFileDataMap;
 	internalConsumableMap: InternalConsumableMap;
+	consumableMap: ConsumableMap;
 }> {
 	let resolvedFamilies = await resolveFamilies({
 		families,
@@ -107,9 +114,12 @@ export async function orchestrate({
 	 * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
 	 */
 	const internalConsumableMap: InternalConsumableMap = new Map();
+	// TODO: comment
+	const consumableMap: ConsumableMap = new Map();
 
 	for (const family of resolvedFamilies) {
 		const preloadData: Array<PreloadData> = [];
+		const consumableMapValue: ConsumableMapValue = [];
 		let css = '';
 
 		/**
@@ -198,6 +208,18 @@ export async function orchestrate({
 					variationSettings: pickFontFaceProperty('variationSettings', { data, family }),
 				}),
 			);
+
+			consumableMapValue.push({
+				weight: renderFontWeight(data.weight),
+				style: data.style,
+				src: data.src
+					.filter((src) => 'url' in src)
+					.map((src) => ({
+						url: src.url,
+						format: src.format,
+						tech: src.tech,
+					})),
+			});
 		}
 
 		const cssVarValues = [family.nameWithHash];
@@ -221,7 +243,8 @@ export async function orchestrate({
 		css += cssRenderer.generateCssVariable(family.cssVariable, cssVarValues);
 
 		internalConsumableMap.set(family.cssVariable, { preloadData, css });
+		consumableMap.set(family.cssVariable, consumableMapValue);
 	}
 
-	return { fontFileDataMap, internalConsumableMap };
+	return { fontFileDataMap, internalConsumableMap, consumableMap };
 }

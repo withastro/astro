@@ -16,12 +16,17 @@ export function unifontFontFaceDataToProperties(
 		src: font.src ? renderFontSrc(font.src) : undefined,
 		'font-display': font.display ?? 'swap',
 		'unicode-range': font.unicodeRange?.length ? font.unicodeRange.join(',') : undefined,
-		'font-weight': Array.isArray(font.weight) ? font.weight.join(' ') : font.weight?.toString(),
+		'font-weight': renderFontWeight(font.weight),
 		'font-style': font.style,
 		'font-stretch': font.stretch,
 		'font-feature-settings': font.featureSettings,
 		'font-variation-settings': font.variationSettings,
 	};
+}
+
+// TODO: test
+export function renderFontWeight(weight: unifont.FontFaceData['weight']): string | undefined {
+	return Array.isArray(weight) ? weight.join(' ') : weight?.toString();
 }
 
 /**
