@@ -30,6 +30,17 @@ export const cspAlgorithmSchema = z
 	.optional()
 	.default('SHA-256');
 
+export const CspHashSchema = z.custom<`${CspAlgorithmValue}${string}`>((value) => {
+	if (typeof value !== 'string') {
+		return false;
+	}
+	return ALGORITHM_VALUES.some((allowedValue) => {
+		return value.startsWith(allowedValue);
+	});
+});
+
+export type CspHash = z.infer<typeof CspHashSchema>;
+
 export const ALLOWED_DIRECTIVES = [
 	'base-uri',
 	'child-src',
