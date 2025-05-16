@@ -13,6 +13,9 @@ export function runHighlighterWithAstro(lang: string | undefined, code: string) 
 		if (language && !Prism.languages[language]) {
 			loadLanguages([language]);
 		}
+		if (/^css$|^js$|^php$/.test(language)) {
+			loadLanguages([language + "-extras"]);
+		}
 	};
 
 	if (languageMap.has(lang)) {
