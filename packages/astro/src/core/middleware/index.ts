@@ -123,6 +123,7 @@ function createContext({
 		set locals(_) {
 			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
+		insertDirective() {},
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),

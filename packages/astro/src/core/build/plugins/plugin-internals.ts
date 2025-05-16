@@ -1,9 +1,14 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
+import type { StaticBuildOptions } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 
-function vitePluginInternals(input: Set<string>, internals: BuildInternals): VitePlugin {
+function vitePluginInternals(
+	input: Set<string>,
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+): VitePlugin {
 	return {
 		name: '@astro/plugin-build-internals',
 
@@ -40,7 +45,11 @@ function vitePluginInternals(input: Set<string>, internals: BuildInternals): Vit
 				);
 			}
 			await Promise.all(promises);
-			for (const [, chunk] of Object.entries(bundle)) {
+			for (const [_, chunk] of Object.entries(bundle)) {
+				if (chunk.fileName.startsWith(opts.settings.config.build.assets)) {
+					internals.clientChunksAndAssets.add(chunk.fileName);
+				}
+
 				if (chunk.type === 'chunk' && chunk.facadeModuleId) {
 					const specifiers = mapping.get(chunk.facadeModuleId) || new Set([chunk.facadeModuleId]);
 					for (const specifier of specifiers) {
@@ -52,13 +61,16 @@ function vitePluginInternals(input: Set<string>, internals: BuildInternals): Vit
 	};
 }
 
-export function pluginInternals(internals: BuildInternals): AstroBuildPlugin {
+export function pluginInternals(
+	options: StaticBuildOptions,
+	internals: BuildInternals,
+): AstroBuildPlugin {
 	return {
 		targets: ['client', 'server'],
 		hooks: {
 			'build:before': ({ input }) => {
 				return {
-					vitePlugin: vitePluginInternals(input, internals),
+					vitePlugin: vitePluginInternals(input, options, internals),
 				};
 			},
 		},

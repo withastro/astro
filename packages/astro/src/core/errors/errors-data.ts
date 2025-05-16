@@ -1382,6 +1382,19 @@ export const FontFamilyNotFound = {
 
 /**
  * @docs
+ * @description
+ * The CSP feature isn't enabled
+ * @message
+ * The `experimental.csp` configuration isn't enabled.
+ */
+export const CspNotEnabled = {
+	name: 'CspNotEnabled',
+	title: "CSP feature isn't enabled",
+	message: "The `experimental.csp` configuration isn't enabled.",
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */

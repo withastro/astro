@@ -46,7 +46,7 @@ export class AstroComponentInstance {
 		}
 	}
 
-	init(result: SSRResult) {
+	init(result: SSRResult): AstroFactoryReturnValue | Promise<AstroFactoryReturnValue> {
 		if (this.returnValue !== undefined) {
 			return this.returnValue;
 		}

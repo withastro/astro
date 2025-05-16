@@ -1,5 +1,6 @@
 import type { SSRResult } from '../../../types/public/internal.js';
 import { markHTMLString } from '../escape.js';
+import { renderCspContent } from './csp.js';
 import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instruction.js';
 import { createRenderInstruction } from './instruction.js';
 import { renderElement } from './util.js';
@@ -49,6 +50,20 @@ export function renderAllHeadContent(result: SSRResult) {
 		for (const part of result._metadata.extraHead) {
 			content += part;
 		}
+	}
+
+	if (result.shouldInjectCspMetaTags) {
+		content += renderElement(
+			'meta',
+			{
+				props: {
+					'http-equiv': 'content-security-policy',
+					content: renderCspContent(result),
+				},
+				children: '',
+			},
+			false,
+		);
 	}
 
 	return markHTMLString(content);

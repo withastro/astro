@@ -9,7 +9,6 @@ import {
 	getStaticImageList,
 	prepareAssetsGenerationEnv,
 } from '../../assets/build/generate.js';
-import { type BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import {
 	isRelativePath,
 	joinPaths,
@@ -28,7 +27,16 @@ import type {
 	SSRError,
 	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
-import type { SSRActions, SSRManifest, SSRManifestI18n } from '../app/types.js';
+import type { SSRActions, SSRManifestCSP, SSRManifest, SSRManifestI18n } from '../app/types.js';
+import {
+	getAlgorithm,
+	getScriptHashes,
+	getStyleHashes,
+	getDirectives,
+	shouldTrackCspHashes,
+	trackScriptHashes,
+	trackStyleHashes,
+} from '../csp/common.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
@@ -41,6 +49,7 @@ import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
+import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import { cssOrder, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type {
@@ -68,7 +77,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		const actions: SSRActions = internals.astroActionsEntryPoint
 			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
 			: NOOP_ACTIONS_MOD;
-		manifest = createBuildManifest(
+		manifest = await createBuildManifest(
 			options.settings,
 			internals,
 			renderers.renderers as SSRLoadedRenderer[],
@@ -601,18 +610,18 @@ function getPrettyRouteName(route: RouteData): string {
  * It creates a `SSRManifest` from the `AstroSettings`.
  *
  * Renderers needs to be pulled out from the page module emitted during the build.
- * @param settings
- * @param renderers
  */
-function createBuildManifest(
+async function createBuildManifest(
 	settings: AstroSettings,
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[],
 	middleware: MiddlewareHandler,
 	actions: SSRActions,
 	key: Promise<CryptoKey>,
-): SSRManifest {
+): Promise<SSRManifest> {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
+	let csp: SSRManifestCSP | undefined = undefined;
+
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
@@ -621,6 +630,25 @@ function createBuildManifest(
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
+		};
+	}
+
+	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+		const algorithm = getAlgorithm(settings.config.experimental.csp);
+		const clientScriptHashes = [
+			...getScriptHashes(settings.config.experimental.csp),
+			...(await trackScriptHashes(internals, settings, algorithm)),
+		];
+		const clientStyleHashes = [
+			...getStyleHashes(settings.config.experimental.csp),
+			...(await trackStyleHashes(internals, settings, algorithm)),
+		];
+
+		csp = {
+			clientStyleHashes,
+			clientScriptHashes,
+			algorithm,
+			directives: getDirectives(settings.config.experimental.csp),
 		};
 	}
 	return {
@@ -656,5 +684,6 @@ function createBuildManifest(
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,
+		csp,
 	};
 }

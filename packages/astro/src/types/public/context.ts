@@ -11,6 +11,7 @@ import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { Params, RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
 import type { AstroInstance, MDXInstance, MarkdownInstance } from './content.js';
+import type { CspDirective } from '../../core/csp/config.js';
 
 /**
  * Astro global available in all contexts in .astro files
@@ -354,6 +355,12 @@ export interface AstroSharedContext<
 	 * Whether the current route is prerendered or not.
 	 */
 	isPrerendered: boolean;
+
+	/**
+	 * When CSP is enabled, it allows
+	 * @param payload
+	 */
+	insertDirective: (payload: CspDirective) => void;
 }
 
 /**
