@@ -1,8 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 
-
 const collection = await getCollection("liveStuff")
+
 export const prerender = false;
 
 ---
@@ -18,7 +18,7 @@ export const prerender = false;
 	<body>
 		<h1>Astro</h1>
 		<ul>
-			{collection.entries.map((item) => (
+			{collection?.entries.map((item) => (
 				<li>
 					{item.data.title}
 				</li>
