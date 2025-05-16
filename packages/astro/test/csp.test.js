@@ -145,7 +145,12 @@ describe('CSP', () => {
 			}),
 			experimental: {
 				csp: {
-					directives: ["image-src: 'self' 'https://example.com'"],
+					directives: [
+						{
+							type: 'img-src',
+							value: "'self' 'https://example.com'",
+						},
+					],
 				},
 			},
 		});
@@ -159,9 +164,7 @@ describe('CSP', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			assert.ok(
-				meta.attr('content').toString().includes("image-src: 'self' 'https://example.com'"),
-			);
+			assert.ok(meta.attr('content').toString().includes("img-src 'self' 'https://example.com'"));
 		} else {
 			assert.fail('Should have the manifest');
 		}
