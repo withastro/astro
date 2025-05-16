@@ -125,16 +125,26 @@ export interface DataEntryType {
 
 export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawData?: string };
 
+export interface CacheHint {
+	/** Cache tags */
+	tags?: Array<string>;
+	/** Maximum age of the response in seconds */
+	maxAge?: number;
+}
+
 export interface LiveDataEntry<TData extends Record<string, unknown> = Record<string, unknown>> {
 	/** The ID of the entry. Unique per collection. */
 	id: string;
 	/** The parsed entry data */
 	data: TData;
+	/** A hint for how to cache this entry */
+	cacheHint?: CacheHint;
 }
 
 export interface LiveDataCollection<
 	TData extends Record<string, unknown> = Record<string, unknown>,
 > {
 	entries: Array<LiveDataEntry<TData>>;
-	// TODO: pagination etc.
+	/** A hint for how to cache this collection. Individual entries can also have cache hints */
+	cacheHint?: CacheHint;
 }

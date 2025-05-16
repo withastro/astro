@@ -14,11 +14,24 @@ const entries = {
 const loader: LiveLoader<Entry, { id: keyof typeof entries }> = {
 	name: 'test-loader',
 	loadEntry: async (context) => {
-		return entries[context.filter.id] || null;
+		if(!entries[context.filter.id]) {
+			return;
+		}
+		return {
+			...entries[context.filter.id],
+			cacheHint: {
+				tags: [`page:${context.filter.id}`],
+				maxAge: 60,
+			},
+		};
 	},
 	loadCollection: async (context) => {
 		return {
 			entries: Object.values(entries),
+			cacheHint: {
+				tags: ['page'],
+				maxAge: 60,
+			},
 		};
 	},
 };
