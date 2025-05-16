@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -12,7 +12,8 @@ describe('CSP', () => {
 	let manifest;
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
-	before(async () => {
+
+	it('should contain the meta style hashes when CSS is imported from Astro component', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			adapter: testAdapter({
@@ -23,9 +24,6 @@ describe('CSP', () => {
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
-	});
-
-	it('should contain the meta style hashes when CSS is imported from Astro component', async () => {
 		if (manifest) {
 			const request = new Request('http://example.com/index.html');
 			const response = await app.render(request);
@@ -132,6 +130,41 @@ describe('CSP', () => {
 			assert.ok(meta.attr('content').toString().includes('sha384-hash4'));
 			assert.ok(meta.attr('content').toString().includes('sha512-hash1'));
 			assert.ok(meta.attr('content').toString().includes('sha512-hash3'));
+		} else {
+			assert.fail('Should have the manifest');
+		}
+	});
+
+	it('should contain the additional directives', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			adapter: testAdapter({
+				setManifest(_manifest) {
+					manifest = _manifest;
+				},
+			}),
+			experimental: {
+				csp: {
+					directives: [
+						{
+							type: 'img-src',
+							value: "'self' 'https://example.com'",
+						},
+					],
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+
+		if (manifest) {
+			const request = new Request('http://example.com/index.html');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			assert.ok(meta.attr('content').toString().includes("img-src 'self' 'https://example.com'"));
 		} else {
 			assert.fail('Should have the manifest');
 		}

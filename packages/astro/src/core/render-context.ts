@@ -26,7 +26,7 @@ import {
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
-import { ForbiddenRewrite } from './errors/errors-data.js';
+import { CspNotEnabled, ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
@@ -394,6 +394,12 @@ export class RenderContext {
 				}
 				return renderContext.session;
 			},
+			insertDirective(_payload) {
+				if (!!pipeline.manifest.csp === false) {
+					throw new AstroError(CspNotEnabled);
+				}
+				// 	TODO: add the directive
+			},
 		};
 	}
 
@@ -467,6 +473,7 @@ export class RenderContext {
 			clientScriptHashes: manifest.csp?.clientScriptHashes ?? [],
 			clientStyleHashes: manifest.csp?.clientStyleHashes ?? [],
 			cspAlgorithm: manifest.csp?.algorithm ?? 'SHA-256',
+			directives: manifest.csp?.directives ?? [],
 		};
 
 		return result;
@@ -605,6 +612,12 @@ export class RenderContext {
 			url,
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
+			},
+			insertDirective(_payload) {
+				if (!!pipeline.manifest.csp === false) {
+					throw new AstroError(CspNotEnabled);
+				}
+				// 	TODO: add the directive
 			},
 		};
 	}

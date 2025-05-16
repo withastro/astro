@@ -32,6 +32,7 @@ import {
 	getAlgorithm,
 	getScriptHashes,
 	getStyleHashes,
+	getDirectives,
 	shouldTrackCspHashes,
 	trackScriptHashes,
 	trackStyleHashes,
@@ -647,6 +648,7 @@ async function createBuildManifest(
 			clientStyleHashes,
 			clientScriptHashes,
 			algorithm,
+			directives: getDirectives(settings.config.experimental.csp),
 		};
 	}
 	return {
