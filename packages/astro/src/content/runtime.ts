@@ -35,7 +35,6 @@ type LiveCollectionConfigMap = Record<
 	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: z.ZodType }
 >;
 
-
 export function createCollectionToGlobResultMap({
 	globResult,
 	contentDir,
@@ -818,10 +817,14 @@ function isPropagatedAssetsModule(module: any): module is PropagatedAssetsModule
 	return typeof module === 'object' && module != null && '__astroPropagation' in module;
 }
 
-
 export function defineCollection(config: any) {
-	if(config.type === 'live') {
-		throw new Error('You must import defineCollection from "astro/config" to use live collections.');
+	if (config.type === 'live') {
+		throw new AstroError({
+			...AstroErrorData.LiveContentConfigError,
+			message: AstroErrorData.LiveContentConfigError.message(
+				'You must import defineCollection from "astro/config" to use live collections.',
+			),
+		});
 	}
 	return defineCollectionOrig(config);
 }
