@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { emptyDir } from '@astrojs/internal-helpers/fs';
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
+import netlifyVitePlugin from "@netlify/vite-plugin"
 import type {
 	AstroConfig,
 	AstroIntegration,
@@ -554,6 +555,7 @@ export default function netlifyIntegration(
 					},
 					session,
 					vite: {
+						plugins: [netlifyVitePlugin({ middleware: false })],
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
