@@ -1,24 +1,45 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro/config';
+import { z } from 'astro/zod';
 import type { LiveLoader } from 'astro/loaders';
 
 type Entry = {
 	title: string;
+	age?: number;
 };
+
+interface CollectionFilter {
+	addToAge?: number;
+}
+
+type EntryFilter = {
+	id: keyof typeof entries;
+	addToAge?: number;
+};
+
 
 const entries = {
-	'123': { id: '123', data: { title: 'Page 123' } },
-	'456': { id: '456', data: { title: 'Page 456' } },
-	'789': { id: '789', data: { title: 'Page 789' } },
+	'123': { id: '123', data: { title: 'Page 123', age: 10 } },
+	'456': { id: '456', data: { title: 'Page 456', age: 20 } },
+	'789': { id: '789', data: { title: 'Page 789', age: 30 } },
 };
 
-const loader: LiveLoader<Entry, { id: keyof typeof entries }> = {
+const loader: LiveLoader<Entry, EntryFilter, CollectionFilter> = {
 	name: 'test-loader',
 	loadEntry: async (context) => {
-		if(!entries[context.filter.id]) {
+		const entry = entries[context.filter.id];
+		if (!entry) {
 			return;
 		}
 		return {
-			...entries[context.filter.id],
+			...entry,
+			data: {
+				...entry.data,
+				age: context.filter?.addToAge
+					? entry.data.age
+						? entry.data.age + context.filter.addToAge
+						: context.filter.addToAge
+					: entry.data.age,
+			},
 			cacheHint: {
 				tags: [`page:${context.filter.id}`],
 				maxAge: 60,
@@ -27,7 +48,15 @@ const loader: LiveLoader<Entry, { id: keyof typeof entries }> = {
 	},
 	loadCollection: async (context) => {
 		return {
-			entries: Object.values(entries),
+			entries: context.filter?.addToAge
+				? Object.values(entries).map((entry) => ({
+						...entry,
+						data: {
+							...entry.data,
+							age: entry.data.age ? entry.data.age + context.filter!.addToAge! : undefined,
+						},
+					}))
+				: Object.values(entries),
 			cacheHint: {
 				tags: ['page'],
 				maxAge: 60,

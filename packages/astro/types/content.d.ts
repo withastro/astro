@@ -1,96 +1,17 @@
 declare module 'astro:content' {
 	export { z } from 'astro/zod';
+	export type {
+		ImageFunction,
+		DataEntry,
+		DataStore,
+		MetaStore,
+		BaseSchema,
+		SchemaContext,
+	} from 'astro/config';
 
-	// This needs to be in sync with ImageMetadata
-	export type ImageFunction = () => import('astro/zod').ZodObject<{
-		src: import('astro/zod').ZodString;
-		width: import('astro/zod').ZodNumber;
-		height: import('astro/zod').ZodNumber;
-		format: import('astro/zod').ZodUnion<
-			[
-				import('astro/zod').ZodLiteral<'png'>,
-				import('astro/zod').ZodLiteral<'jpg'>,
-				import('astro/zod').ZodLiteral<'jpeg'>,
-				import('astro/zod').ZodLiteral<'tiff'>,
-				import('astro/zod').ZodLiteral<'webp'>,
-				import('astro/zod').ZodLiteral<'gif'>,
-				import('astro/zod').ZodLiteral<'svg'>,
-				import('astro/zod').ZodLiteral<'avif'>,
-			]
-		>;
-	}>;
-
-	export interface DataEntry {
-		id: string;
-		data: Record<string, unknown>;
-		filePath?: string;
-		body?: string;
-	}
-
-	export interface DataStore {
-		get: (key: string) => DataEntry;
-		entries: () => Array<[id: string, DataEntry]>;
-		set: (key: string, data: Record<string, unknown>, body?: string, filePath?: string) => void;
-		values: () => Array<DataEntry>;
-		keys: () => Array<string>;
-		delete: (key: string) => void;
-		clear: () => void;
-		has: (key: string) => boolean;
-	}
-
-	export interface MetaStore {
-		get: (key: string) => string | undefined;
-		set: (key: string, value: string) => void;
-		delete: (key: string) => void;
-		has: (key: string) => boolean;
-	}
-
-	export type BaseSchema = import('astro/zod').ZodType;
-
-	export type SchemaContext = { image: ImageFunction };
-
-	type ContentLayerConfig<S extends BaseSchema, TData extends { id: string } = { id: string }> = {
-		type?: 'content_layer';
-		schema?: S | ((context: SchemaContext) => S);
-		loader:
-			| import('astro/loaders').Loader
-			| (() =>
-					| Array<TData>
-					| Promise<Array<TData>>
-					| Record<string, Omit<TData, 'id'> & { id?: string }>
-					| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
-	};
-
-	type DataCollectionConfig<S extends BaseSchema> = {
-		type: 'data';
-		schema?: S | ((context: SchemaContext) => S);
-	};
-
-	type ContentCollectionConfig<S extends BaseSchema> = {
-		type?: 'content';
-		schema?: S | ((context: SchemaContext) => S);
-		loader?: never;
-	};
-
-	type LiveDataCollectionConfig<
-		S extends BaseSchema,
-		L extends import('astro/loaders').LiveLoader,
-	> = {
-		type: 'live';
-		schema?: S;
-		loader: L;
-	};
-
-	export type CollectionConfig<
-		S extends BaseSchema,
-		TLiveLoader = never,
-	> = TLiveLoader extends import('astro/loaders').LiveLoader
-		? LiveDataCollectionConfig<S, TLiveLoader>
-		: ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S>;
-
-	export function defineCollection<S extends BaseSchema, TLiveLoader = undefined>(
-		input: CollectionConfig<S, TLiveLoader>,
-	): CollectionConfig<S, TLiveLoader>;
+	export function defineCollection<S extends import('astro/config').BaseSchema>(
+		input: import('astro/config').CollectionConfig<S, never>,
+	): import('astro/config').CollectionConfig<S, never>;
 
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getEntryBySlug: (...args: any[]) => any;

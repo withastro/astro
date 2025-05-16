@@ -63,9 +63,9 @@ export interface LoadCollectionContext<TCollectionFilter = unknown> {
 }
 
 export interface LiveLoader<
-	TData extends Record<string, unknown> = Record<string, unknown>,
-	TEntryFilter extends Record<string, unknown> | never = never,
-	TCollectionFilter extends Record<string, unknown> | never = never,
+	TData extends Record<string, any> = Record<string, unknown>,
+	TEntryFilter extends Record<string, any> | never = never,
+	TCollectionFilter extends Record<string, any> | never = never,
 > {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
