@@ -47,14 +47,14 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 				return Date.now().toString();
 			}
 		},
-		async load(id) {
+		load(id) {
 			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 				const imports = [
 					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
 					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
 				];
 
-				const resolvedDriver = await resolveSessionDriver(options.settings.config.session?.driver);
+				const resolvedDriver = resolveSessionDriver(options.settings.config.session?.driver);
 
 				const contents = [
 					`const manifest = _deserializeManifest('${manifestReplace}');`,
