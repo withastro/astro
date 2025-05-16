@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 6.3.4
+
+### Patch Changes
+
+- [#13799](https://github.com/withastro/astro/pull/13799) [`7036b05`](https://github.com/withastro/astro/commit/7036b057053494512cd2443cafa58a55960ee83c) Thanks [@Lofty-Brambles](https://github.com/Lofty-Brambles)! - Fixes an issue where the adapter didn't take into consideration the `outDir` configuration.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.1
+
 ## 6.3.3
 
 ### Patch Changes
