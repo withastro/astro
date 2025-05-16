@@ -21,9 +21,9 @@ const ALGORITHMS = {
 type Algorithms = typeof ALGORITHMS;
 
 export type CspAlgorithm = keyof Algorithms;
-export type CspAlgorithmValue = Algorithms[keyof Algorithms];
+type CspAlgorithmValue = Algorithms[keyof Algorithms];
 
-export const ALGORITHM_VALUES = Object.values(ALGORITHMS) as UnionToTuple<CspAlgorithmValue>;
+const ALGORITHM_VALUES = Object.values(ALGORITHMS) as UnionToTuple<CspAlgorithmValue>;
 
 export const cspAlgorithmSchema = z
 	.enum(Object.keys(ALGORITHMS) as UnionToTuple<CspAlgorithm>)
