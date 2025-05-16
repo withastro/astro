@@ -1,6 +1,6 @@
 import type { Loader } from 'esbuild';
-import type { ZodObject, ZodString, ZodNumber, ZodUnion, ZodLiteral, ZodType } from 'zod';
-import { LIVE_CONTENT_TYPE, CONTENT_LAYER_TYPE } from '../content/consts.js';
+import type { ZodLiteral, ZodNumber, ZodObject, ZodString, ZodType, ZodUnion } from 'zod';
+import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from '../content/consts.js';
 import type { LiveLoader } from '../content/loaders/types.js';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 
@@ -111,7 +111,7 @@ export function defineCollection<S extends BaseSchema, TLiveLoader = undefined>(
 	config: CollectionConfig<S, TLiveLoader>,
 ): CollectionConfig<S, TLiveLoader> {
 	const importerFilename = getImporterFilename();
-	const isInLiveConfig = importerFilename?.includes('live.config')
+	const isInLiveConfig = importerFilename?.includes('live.config');
 
 	if (config.type === LIVE_CONTENT_TYPE) {
 		if (!isInLiveConfig) {

@@ -4,8 +4,8 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import { Logger } from '../dist/core/logger/core.js';
 
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 describe('Live content loaders', () => {
 	let fixture;
 	before(async () => {

@@ -5,9 +5,9 @@ import pLimit from 'p-limit';
 import { ZodIssueCode, z } from 'zod';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
+import { defineCollection as defineCollectionOrig } from '../config/content.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
-import { defineCollection as defineCollectionOrig } from '../config/content.js';
 
 import {
 	type AstroComponentFactory,
@@ -21,7 +21,7 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import type { LiveDataEntry } from '../types/public/content.js';
-import { IMAGE_IMPORT_PREFIX, LIVE_CONTENT_TYPE } from './consts.js';
+import { IMAGE_IMPORT_PREFIX, type LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { LiveLoader } from './loaders/types.js';
 import type { ContentLookupMap } from './utils.js';
