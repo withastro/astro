@@ -1630,8 +1630,9 @@ export const InvalidContentEntryDataError = {
 	title: 'Content entry data does not match schema.',
 	message(collection: string, entryId: string, error: ZodError) {
 		return [
-			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.`,
-			...error.errors.map((zodError) => zodError.message),
+			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
+			...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			'',
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
@@ -1681,11 +1682,56 @@ export const ContentEntryDataError = {
 	title: 'Content entry data does not match schema.',
 	message(collection: string, entryId: string, error: ZodError) {
 		return [
-			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.`,
-			...error.errors.map((zodError) => zodError.message),
+			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
+			...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			'',
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * **blog** → **post** returned an invalid cache hint.<br/>
+ * **maxAge**: Expected number, received string
+ * @description
+ * The loader for a live content collection returned an invalid cache hint.
+ * Make sure that `cacheHint` is an object with the correct properties, or is undefined.
+ * @see
+ * - [Experimental live content](https://astro.build/en/reference/experimental-flags/live-content/)
+ */
+export const InvalidCacheHintError = {
+	name: 'InvalidCacheHintError',
+	title: 'Invalid cache hint.',
+	message(collection: string, entryId: string | undefined, error: ZodError) {
+		return [
+			`**${String(collection)}${entryId ? ` → ${String(entryId)}` : ''}** returned an invalid cache hint.\n`,
+			...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			'',
+		].join('\n');
+	},
+	hint: 'See https://docs.astro.build/en/reference/experimental-flags/live-content/ for more information.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * The schema cannot be a function for live collections. Please use a schema object instead. Check your collection definitions in your live content config file.
+ * @description
+ * Error in live content config.
+ * @see
+ * - [Experimental live content](https://astro.build/en/reference/experimental-flags/live-content/)
+ */
+
+export const LiveContentConfigError = {
+	name: 'LiveContentConfigError',
+	title: 'Error in live content config.',
+	message: (error: string, filename?: string) =>
+		`${error} Check your collection definitions in ${filename ?? 'your live content config file'}.`,
+	hint: 'See https://docs.astro.build/en/reference/experimental-flags/live-content/ for more information on live content collections.',
 } satisfies ErrorData;
 
 /**
