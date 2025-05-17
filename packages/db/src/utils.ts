@@ -7,7 +7,7 @@ export function asDrizzleTable<
 	TableName extends string = string,
 	TColumns extends ColumnsConfig = ColumnsConfig,
 >(name: TableName, tableConfig: TableConfig<TColumns>) {
-	return internal_asDrizzleTable(name, tableSchema.parse(tableConfig)) as Table<
+	return internal_asDrizzleTable(name, tableSchema.parse(tableConfig)) as unknown as Table<
 		TableName,
 		TColumns
 	>;
