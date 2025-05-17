@@ -17,6 +17,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../../types/public/internal.js';
+import { wrapWithTracing } from '../tracing.js';
 import {
 	Fragment,
 	type RenderDestination,
@@ -457,7 +458,7 @@ function renderAstroComponent(
 	};
 }
 
-export function renderComponent(
+function innerRenderComponent(
 	result: SSRResult,
 	displayName: string,
 	Component: unknown,
@@ -466,7 +467,7 @@ export function renderComponent(
 ): RenderInstance | Promise<RenderInstance> {
 	if (isPromise(Component)) {
 		return Component.catch(handleCancellation).then((x) => {
-			return renderComponent(result, displayName, x, props, slots);
+			return innerRenderComponent(result, displayName, x, props, slots);
 		});
 	}
 
@@ -498,6 +499,23 @@ export function renderComponent(
 		throw e;
 	}
 }
+
+export const renderComponent = wrapWithTracing(
+	'prepareComponentRender',
+	innerRenderComponent,
+	(result, displayName, Component) => {
+		const moduleId = isAstroComponentFactory(Component) ? Component.moduleId : undefined;
+		const name = typeof Component === 'function' ? Component.name : displayName;
+
+		return {
+			moduleId: moduleId,
+			componentName: name || displayName,
+			displayName: displayName,
+			request: result.request,
+			response: result.response,
+		};
+	},
+);
 
 function normalizeProps(props: Record<string, any>): Record<string, any> {
 	if (props['class:list'] !== undefined) {
