@@ -25,13 +25,13 @@ import {
 } from './utils/cloudflare-module-loader.js';
 import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
-import { setImageConfig } from './utils/image-config.js';
+import { type ImageService, setImageConfig } from './utils/image-config.js';
 
 export type { Runtime } from './entrypoints/server.js';
 
 export type Options = {
 	/** Options for handling images. */
-	imageService?: 'passthrough' | 'cloudflare' | 'compile' | 'custom';
+	imageService?: ImageService;
 	/** Configuration for `_routes.json` generation. A _routes.json file controls when your Function is invoked. This file will include three different properties:
 	 *
 	 * - version: Defines the version of the schema. Currently there is only one version of the schema (version 1), however, we may add more in the future and aim to be backwards compatible.
@@ -148,12 +148,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if (!session?.driver) {
 					const sessionDir = isBuild ? undefined : createCodegenDir();
 					const bindingName = args?.sessionKVBindingName ?? 'SESSION';
+
 					logger.info(
-						`Enabling sessions with ${isBuild ? 'Cloudflare KV' : 'filesystem storage'}. Be sure to define a KV binding named "${bindingName}".`,
+						`Enabling sessions with Cloudflare KV for production with the "${bindingName}" KV binding.`,
 					);
-					logger.info(
-						`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
-					);
+
+					if (isBuild) {
+						logger.info(
+							`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
+						);
+					}
+
 					session = isBuild
 						? {
 								...session,
@@ -238,11 +243,16 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						hybridOutput: 'stable',
 						staticOutput: 'unsupported',
 						i18nDomains: 'experimental',
-						sharpImageService: {
-							support: 'limited',
-							message:
-								'Cloudflare does not support sharp. You can use the `compile` image service to compile images at build time. It will not work for any on-demand rendered images.',
-						},
+						// For explicitly set image services, this hack is used to suppress the warning about using `sharp`
+						// by inferring the user is aware of its implications.
+						// TODO: If an option to supress the warnings for `supportedAstroFeatures` is added, we should use it instead.
+						sharpImageService: args?.imageService
+							? 'stable'
+							: {
+									support: 'limited',
+									message:
+										'Cloudflare does not support sharp at runtime, but the `compile` image service can be used to optimize images with sharp on pre-rendered pages during build time.',
+								},
 						envGetSecret: 'stable',
 					},
 				});
