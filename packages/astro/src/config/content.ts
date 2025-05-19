@@ -4,7 +4,7 @@ import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from '../content/consts.js';
 import type { LiveLoader } from '../content/loaders/types.js';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 
-export function getImporterFilename() {
+function getImporterFilename() {
 	// Find the first line in the stack trace that doesn't include 'defineCollection' or 'getImporterFilename'
 	const stackLine = new Error().stack
 		?.split('\n')

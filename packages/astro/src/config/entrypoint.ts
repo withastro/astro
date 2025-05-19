@@ -10,6 +10,7 @@ export {
 	type MetaStore,
 	type BaseSchema,
 	type SchemaContext,
+	type CollectionConfig,
 } from './content.js';
 export { defineConfig, getViteConfig } from './index.js';
 export { envField } from '../env/config.js';
