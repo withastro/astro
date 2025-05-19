@@ -7,7 +7,7 @@ export type ImageQualityPreset = 'low' | 'mid' | 'high' | 'max' | (string & {});
 export type ImageQuality = ImageQualityPreset | number;
 export type ImageInputFormat = (typeof VALID_INPUT_FORMATS)[number];
 export type ImageOutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string & {});
-export type ImageLayout = 'responsive' | 'fixed' | 'full-width' | 'none';
+export type ImageLayout = 'constrained' | 'fixed' | 'full-width' | 'none';
 export type ImageFit = 'fill' | 'contain' | 'cover' | 'none' | 'scale-down' | (string & {});
 
 export type AssetsGlobalStaticImagesList = Map<
@@ -163,15 +163,15 @@ type ImageSharedProps<T> = T & {
 				/**
 				 * The layout type for responsive images. Requires the `experimental.responsiveImages` flag to be enabled in the Astro config.
 				 *
-				 * Allowed values are `responsive`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
+				 * Allowed values are `constrained`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
 				 *
-				 * - `responsive` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
+				 * - `constrained` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
 				 * - `fixed` - The image will maintain its original dimensions.
 				 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio, even if that means the image will exceed its original dimensions.
 				 *
 				 * **Example**:
 				 * ```astro
-				 * <Image src={...} layout="responsive" alt="..." />
+				 * <Image src={...} layout="constrained" alt="..." />
 				 * ```
 				 */
 

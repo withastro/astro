@@ -91,7 +91,7 @@ async function astroAdd({
 
 async function install({ packageManager, cwd }: { packageManager: string; cwd: string }) {
 	if (packageManager === 'yarn') await ensureYarnLock({ cwd });
-	return shell(packageManager, ['add'], { cwd, timeout: 90_000, stdio: 'ignore' });
+	return shell(packageManager, ['install'], { cwd, timeout: 90_000, stdio: 'ignore' });
 }
 
 /**

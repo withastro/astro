@@ -6,7 +6,7 @@ import type { RuntimeMode } from '../../types/public/config.js';
 import type { RouteData, SSRLoadedRenderer } from '../../types/public/internal.js';
 import type { Logger } from '../logger/core.js';
 
-export type ComponentPath = string;
+type ComponentPath = string;
 export type ViteID = string;
 
 export type StylesheetAsset =

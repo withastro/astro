@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/vue",
-  "version": "5.0.10",
+  "version": "5.0.13",
   "description": "Use Vue components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -22,21 +22,15 @@
   "exports": {
     ".": "./dist/index.js",
     "./editor": "./dist/editor.cjs",
-    "./*": "./*",
-    "./client.js": "./client.js",
-    "./server.js": "./server.js",
+    "./client.js": "./dist/client.js",
+    "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist",
-    "client.js",
-    "context.js",
-    "server.js",
-    "server.d.ts",
-    "static-html.js"
+    "dist"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "astro-scripts test \"test/**/*.test.js\""
@@ -45,14 +39,14 @@
     "@vitejs/plugin-vue": "5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.1.2",
     "@vue/compiler-sfc": "^3.5.13",
-    "vite": "^6.2.6",
-    "vite-plugin-vue-devtools": "^7.7.2"
+    "vite": "^6.3.5",
+    "vite-plugin-vue-devtools": "^7.7.6"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
-    "linkedom": "^0.18.9",
+    "linkedom": "^0.18.10",
     "vue": "^3.5.13"
   },
   "peerDependencies": {

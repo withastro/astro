@@ -30,7 +30,7 @@ export interface Container {
 	close: () => Promise<void>;
 }
 
-export interface CreateContainerParams {
+interface CreateContainerParams {
 	logger: Logger;
 	settings: AstroSettings;
 	inlineConfig?: AstroInlineConfig;

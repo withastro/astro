@@ -1,13 +1,10 @@
-import type { ExternalImageService, ImageMetadata } from 'astro';
+import type { ExternalImageService } from 'astro';
 import { baseService } from 'astro/assets';
+import { isESMImportedImage } from 'astro/assets/utils';
 import { AstroError } from 'astro/errors';
 
 const SUPPORTED_FORMATS = ['avif', 'jpg', 'png', 'webp'];
 const QUALITY_NAMES: Record<string, number> = { low: 25, mid: 50, high: 90, max: 100 };
-
-export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
-	return typeof src === 'object';
-}
 
 function removeLeadingForwardSlash(path: string) {
 	return path.startsWith('/') ? path.substring(1) : path;

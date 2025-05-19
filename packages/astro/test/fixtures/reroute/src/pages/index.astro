@@ -1,5 +1,6 @@
 ---
 const auth = Astro.locals.auth;
+const origin = Astro.originPathname;
 ---
 <html>
 	<head>
@@ -8,5 +9,6 @@ const auth = Astro.locals.auth;
 	<body>
 		<h1>Index</h1>
 		{auth ? <p>Called auth</p>: ""}
+		<h2>Origin: {origin}</h2>
 	</body>
 </html>

@@ -94,7 +94,7 @@ export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	}
 }
 
-export default async function copyTemplate(tmpl: string, ctx: Context) {
+async function copyTemplate(tmpl: string, ctx: Context) {
 	const templateTarget = getTemplateTarget(tmpl, ctx.ref);
 	// Copy
 	if (!ctx.dryRun) {

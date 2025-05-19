@@ -17,7 +17,7 @@ import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
 import {
-	CONTENT_FLAGS,
+	type CONTENT_FLAGS,
 	CONTENT_LAYER_TYPE,
 	CONTENT_MODULE_FLAG,
 	DEFERRED_MODULE,
@@ -495,15 +495,6 @@ export function safeParseFrontmatter(source: string, id?: string) {
  */
 export const globalContentConfigObserver = contentObservable({ status: 'init' });
 
-export function hasAnyContentFlag(viteId: string): boolean {
-	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
-	const flag = Array.from(flags.keys()).at(0);
-	if (typeof flag !== 'string') {
-		return false;
-	}
-	return CONTENT_FLAGS.includes(flag as any);
-}
-
 export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[number]): boolean {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(flag);
@@ -542,7 +533,7 @@ async function loadContentConfig({
 	}
 }
 
-export async function autogenerateCollections({
+async function autogenerateCollections({
 	config,
 	settings,
 	fs,
@@ -679,7 +670,7 @@ type Observable<C> = {
 
 export type ContentObservable = Observable<ContentCtx>;
 
-export function contentObservable(initialCtx: ContentCtx): ContentObservable {
+function contentObservable(initialCtx: ContentCtx): ContentObservable {
 	type Subscriber = (ctx: ContentCtx) => void;
 	const subscribers = new Set<Subscriber>();
 	let ctx = initialCtx;
@@ -809,7 +800,7 @@ export function globWithUnderscoresIgnored(relContentDir: string, exts: string[]
 /**
  * Convert a platform path to a posix path.
  */
-export function posixifyPath(filePath: string) {
+function posixifyPath(filePath: string) {
 	return filePath.split(path.sep).join('/');
 }
 

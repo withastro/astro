@@ -1,5 +1,17 @@
 # @astrojs/mdx
 
+## 4.2.6
+
+### Patch Changes
+
+- [#13731](https://github.com/withastro/astro/pull/13731) [`c3e80c2`](https://github.com/withastro/astro/commit/c3e80c25b90c803e2798b752583a8e77cdad3146) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update vite to latest version for fixing CVE
+
+## 4.2.5
+
+### Patch Changes
+
+- [#13591](https://github.com/withastro/astro/pull/13591) [`5dd2d3f`](https://github.com/withastro/astro/commit/5dd2d3fde8a138ed611dedf39ffa5dfeeed315f8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes unused code
+
 ## 4.2.4
 
 ### Patch Changes

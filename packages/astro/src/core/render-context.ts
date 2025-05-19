@@ -153,6 +153,7 @@ export class RenderContext {
 		}
 		const lastNext = async (ctx: APIContext, payload?: RewritePayload) => {
 			if (payload) {
+				const oldPathname = this.pathname;
 				pipeline.logger.debug('router', 'Called rewriting to:', payload);
 				// we intentionally let the error bubble up
 				const {
@@ -193,10 +194,10 @@ export class RenderContext {
 				}
 				this.isRewriting = true;
 				this.url = new URL(this.request.url);
-				this.cookies = new AstroCookies(this.request);
 				this.params = getParams(routeData, pathname);
 				this.pathname = pathname;
 				this.status = 200;
+				setOriginPathname(this.request, oldPathname);
 			}
 			let response: Response;
 
@@ -296,6 +297,7 @@ export class RenderContext {
 
 	async #executeRewrite(reroutePayload: RewritePayload) {
 		this.pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
+		const oldPathname = this.pathname;
 		const { routeData, componentInstance, newUrl, pathname } = await this.pipeline.tryRewrite(
 			reroutePayload,
 			this.request,
@@ -331,6 +333,7 @@ export class RenderContext {
 		this.isRewriting = true;
 		// we found a route and a component, we can change the status code to 200
 		this.status = 200;
+		setOriginPathname(this.request, oldPathname);
 		return await this.render(componentInstance);
 	}
 

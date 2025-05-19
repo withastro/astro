@@ -10,6 +10,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
-    "stripInternal": true
+    "stripInternal": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   }
 }

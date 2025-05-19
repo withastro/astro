@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.7.3",
+  "version": "5.7.13",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -47,10 +47,7 @@
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
     "./runtime/*": "./dist/runtime/*",
     "./config": "./dist/config/entrypoint.js",
-    "./container": {
-      "types": "./dist/container/index.d.ts",
-      "default": "./dist/container/index.js"
-    },
+    "./container": "./dist/container/index.js",
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
@@ -76,17 +73,14 @@
       "default": "./zod.mjs"
     },
     "./errors": "./dist/core/errors/userError.js",
-    "./middleware": {
-      "types": "./dist/core/middleware/index.d.ts",
-      "default": "./dist/core/middleware/index.js"
-    },
+    "./middleware": "./dist/core/middleware/index.js",
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
   "bin": {
     "astro": "astro.js"
   },
   "files": [
-    "components",
+    "components/*.{astro,css,ts}",
     "tsconfigs",
     "dist",
     "types",
@@ -105,7 +99,7 @@
   ],
   "scripts": {
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
-    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm && tsc",
+    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm && tsc && astro-check --root ./components",
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm",
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:types",
@@ -145,6 +139,7 @@
     "esbuild": "^0.25.0",
     "estree-walker": "^3.0.3",
     "flattie": "^1.1.1",
+    "fontace": "~0.3.0",
     "github-slugger": "^2.0.0",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.1.1",
@@ -166,11 +161,11 @@
     "tinyglobby": "^0.2.12",
     "tsconfck": "^3.1.5",
     "ultrahtml": "^1.6.0",
-    "unifont": "~0.2.0",
+    "unifont": "~0.5.0",
     "unist-util-visit": "^5.0.0",
     "unstorage": "^1.15.0",
     "vfile": "^6.0.3",
-    "vite": "^6.2.6",
+    "vite": "^6.3.4",
     "vitefu": "^1.0.6",
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^21.1.1",
@@ -215,6 +210,7 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^4.37.0",
     "sass": "^1.86.0",
+    "typescript": "^5.8.3",
     "undici": "^7.5.0",
     "unified": "^11.0.5",
     "vitest": "^3.0.9"

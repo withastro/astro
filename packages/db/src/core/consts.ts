@@ -1,14 +1,12 @@
 import { readFileSync } from 'node:fs';
 
-export const PACKAGE_NAME = JSON.parse(
+const PACKAGE_NAME = JSON.parse(
 	readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
 ).name;
 
 export const RUNTIME_IMPORT = JSON.stringify(`${PACKAGE_NAME}/runtime`);
 
 export const RUNTIME_VIRTUAL_IMPORT = JSON.stringify(`${PACKAGE_NAME}/dist/runtime/virtual.js`);
-
-export const DB_TYPES_FILE = 'db-types.d.ts';
 
 export const VIRTUAL_MODULE_ID = 'astro:db';
 

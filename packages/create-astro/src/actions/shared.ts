@@ -41,7 +41,7 @@ export function isEmpty(dirPath: string) {
 	return conflicts.length === 0;
 }
 
-export function isValidName(projectName: string) {
+function isValidName(projectName: string) {
 	return /^(?:@[a-z\d\-*~][a-z\d\-*._~]*\/)?[a-z\d\-~][a-z\d\-._~]*$/.test(projectName);
 }
 

@@ -16,7 +16,7 @@ import {
 	getRemoteDatabaseInfo,
 } from '../utils.js';
 
-export const resolved = {
+const resolved = {
 	module: '\0' + VIRTUAL_MODULE_ID,
 	importedFromSeedFile: '\0' + VIRTUAL_MODULE_ID + ':seed',
 };

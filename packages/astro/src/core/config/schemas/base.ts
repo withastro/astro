@@ -31,6 +31,7 @@ import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/conf
 // Also, make sure to not index the complexified type, as it would return a simplified value type, which goes
 // back to the issue again. The complexified type should be the base representation that we want to expose.
 
+/** @lintignore */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ComplexifyUnionObj {}
 
@@ -42,6 +43,7 @@ type ShikiTheme = ComplexifyWithUnion<NonNullable<ShikiConfig['theme']>>;
 type ShikiTransformer = ComplexifyWithUnion<NonNullable<ShikiConfig['transformers']>[number]>;
 type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
 type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
+/** @lintignore */
 export type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 
 export const ASTRO_CONFIG_DEFAULTS = {
@@ -268,7 +270,7 @@ export const AstroConfigSchema = z.object({
 					}),
 				)
 				.default([]),
-			experimentalLayout: z.enum(['responsive', 'fixed', 'full-width', 'none']).optional(),
+			experimentalLayout: z.enum(['constrained', 'fixed', 'full-width', 'none']).optional(),
 			experimentalObjectFit: z.string().optional(),
 			experimentalObjectPosition: z.string().optional(),
 			experimentalBreakpoints: z.array(z.number()).optional(),
