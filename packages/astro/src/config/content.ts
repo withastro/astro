@@ -1,0 +1,168 @@
+import type { Loader } from 'esbuild';
+import type { ZodLiteral, ZodNumber, ZodObject, ZodString, ZodType, ZodUnion } from 'zod';
+import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from '../content/consts.js';
+import type { LiveLoader } from '../content/loaders/types.js';
+import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
+
+function getImporterFilename() {
+	// Find the first line in the stack trace that doesn't include 'defineCollection' or 'getImporterFilename'
+	const stackLine = new Error().stack
+		?.split('\n')
+		.find(
+			(line) =>
+				!line.includes('defineCollection') &&
+				!line.includes('getImporterFilename') &&
+				line !== 'Error',
+		);
+	if (!stackLine) {
+		return undefined;
+	}
+	// Extract the relative path from the stack line
+	const match = /\/((?:src|chunks)\/.*?):\d+:\d+/.exec(stackLine);
+
+	return match?.[1] ?? undefined;
+}
+
+// This needs to be in sync with ImageMetadata
+export type ImageFunction = () => ZodObject<{
+	src: ZodString;
+	width: ZodNumber;
+	height: ZodNumber;
+	format: ZodUnion<
+		[
+			ZodLiteral<'png'>,
+			ZodLiteral<'jpg'>,
+			ZodLiteral<'jpeg'>,
+			ZodLiteral<'tiff'>,
+			ZodLiteral<'webp'>,
+			ZodLiteral<'gif'>,
+			ZodLiteral<'svg'>,
+			ZodLiteral<'avif'>,
+		]
+	>;
+}>;
+
+export interface DataEntry {
+	id: string;
+	data: Record<string, unknown>;
+	filePath?: string;
+	body?: string;
+}
+
+export interface DataStore {
+	get: (key: string) => DataEntry;
+	entries: () => Array<[id: string, DataEntry]>;
+	set: (key: string, data: Record<string, unknown>, body?: string, filePath?: string) => void;
+	values: () => Array<DataEntry>;
+	keys: () => Array<string>;
+	delete: (key: string) => void;
+	clear: () => void;
+	has: (key: string) => boolean;
+}
+
+export interface MetaStore {
+	get: (key: string) => string | undefined;
+	set: (key: string, value: string) => void;
+	delete: (key: string) => void;
+	has: (key: string) => boolean;
+}
+
+export type BaseSchema = ZodType;
+
+export type SchemaContext = { image: ImageFunction };
+
+type ContentLayerConfig<S extends BaseSchema, TData extends { id: string } = { id: string }> = {
+	type?: 'content_layer';
+	schema?: S | ((context: SchemaContext) => S);
+	loader:
+		| Loader
+		| (() =>
+				| Array<TData>
+				| Promise<Array<TData>>
+				| Record<string, Omit<TData, 'id'> & { id?: string }>
+				| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
+};
+
+type DataCollectionConfig<S extends BaseSchema> = {
+	type: 'data';
+	schema?: S | ((context: SchemaContext) => S);
+};
+
+type ContentCollectionConfig<S extends BaseSchema> = {
+	type?: 'content';
+	schema?: S | ((context: SchemaContext) => S);
+	loader?: never;
+};
+
+type LiveDataCollectionConfig<S extends BaseSchema, L extends LiveLoader> = {
+	type: 'live';
+	schema?: S;
+	loader: L;
+};
+
+export type CollectionConfig<
+	S extends BaseSchema,
+	TLiveLoader = never,
+> = TLiveLoader extends LiveLoader
+	? LiveDataCollectionConfig<S, TLiveLoader>
+	: ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S>;
+
+export function defineCollection<S extends BaseSchema, TLiveLoader = undefined>(
+	config: CollectionConfig<S, TLiveLoader>,
+): CollectionConfig<S, TLiveLoader> {
+	const importerFilename = getImporterFilename();
+	const isInLiveConfig = importerFilename?.includes('live.config');
+
+	if (config.type === LIVE_CONTENT_TYPE) {
+		if (!isInLiveConfig) {
+			throw new AstroError({
+				...AstroErrorData.LiveContentConfigError,
+				message: AstroErrorData.LiveContentConfigError.message(
+					'Collections with type `live` must be defined in a `src/live.config.ts` file.',
+					importerFilename ?? 'your content config file',
+				),
+			});
+		}
+		if (!config.loader) {
+			throw new AstroError({
+				...AstroErrorData.LiveContentConfigError,
+				message: AstroErrorData.LiveContentConfigError.message(
+					'Collections with type `live` must have a `loader` defined.',
+					importerFilename,
+				),
+			});
+		}
+		if (config.schema) {
+			if (typeof config.schema === 'function') {
+				throw new AstroError({
+					...AstroErrorData.LiveContentConfigError,
+					message: AstroErrorData.LiveContentConfigError.message(
+						'The schema cannot be a function for live collections. Please use a schema object instead.',
+						importerFilename,
+					),
+				});
+			}
+		}
+		return config;
+	}
+	if (isInLiveConfig) {
+		throw new AstroError({
+			...AstroErrorData.LiveContentConfigError,
+			message: AstroErrorData.LiveContentConfigError.message(
+				'Collections in a `live.config.ts` file must have a type of `live`.',
+				getImporterFilename(),
+			),
+		});
+	}
+
+	if ('loader' in config) {
+		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
+			throw new AstroUserError(
+				`Collections that use the Content Layer API must have a \`loader\` defined and no \`type\` set. Check your collection definitions in ${getImporterFilename() ?? 'your content config file'}.`,
+			);
+		}
+		config.type = CONTENT_LAYER_TYPE;
+	}
+	if (!config.type) config.type = 'content';
+	return config;
+}

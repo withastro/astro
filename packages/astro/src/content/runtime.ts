@@ -5,7 +5,8 @@ import pLimit from 'p-limit';
 import { ZodIssueCode, z } from 'zod';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
-import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
+import { defineCollection as defineCollectionOrig } from '../config/content.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 
 import {
@@ -20,7 +21,7 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import type { LiveDataEntry } from '../types/public/content.js';
-import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX, LIVE_CONTENT_TYPE } from './consts.js';
+import { IMAGE_IMPORT_PREFIX, type LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { LiveLoader } from './loaders/types.js';
 import type { ContentLookupMap } from './utils.js';
@@ -33,74 +34,6 @@ type LiveCollectionConfigMap = Record<
 	string,
 	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: z.ZodType }
 >;
-
-export function getImporterFilename() {
-	// The 4th line in the stack trace should be the importer filename
-	const stackLine = new Error().stack?.split('\n')?.[3];
-	if (!stackLine) {
-		return undefined;
-	}
-	// Extract the relative path from the stack line
-	const match = /\/(src\/.*?):\d+:\d+/.exec(stackLine);
-	return match?.[1] ?? undefined;
-}
-
-export function defineCollection(config: any) {
-	const isInLiveConfig = getImporterFilename()?.endsWith('/live.config.ts');
-
-	if (config.type === LIVE_CONTENT_TYPE) {
-		if (!isInLiveConfig) {
-			throw new AstroError({
-				...AstroErrorData.LiveContentConfigError,
-				message: AstroErrorData.LiveContentConfigError.message(
-					'Collections with type `live` must be defined in a `src/live.config.ts` file.',
-					getImporterFilename() ?? 'your content config file',
-				),
-			});
-		}
-		if (!config.loader) {
-			throw new AstroError({
-				...AstroErrorData.LiveContentConfigError,
-				message: AstroErrorData.LiveContentConfigError.message(
-					'Collections with type `live` must have a `loader` defined.',
-					getImporterFilename(),
-				),
-			});
-		}
-		if (config.schema) {
-			if (typeof config.schema === 'function') {
-				throw new AstroError({
-					...AstroErrorData.LiveContentConfigError,
-					message: AstroErrorData.LiveContentConfigError.message(
-						'The schema cannot be a function for live collections. Please use a schema object instead.',
-						getImporterFilename(),
-					),
-				});
-			}
-		}
-		return config;
-	}
-	if (isInLiveConfig) {
-		throw new AstroError({
-			...AstroErrorData.LiveContentConfigError,
-			message: AstroErrorData.LiveContentConfigError.message(
-				'Collections in a `live.config.ts` file must have a type of `live`.',
-				getImporterFilename(),
-			),
-		});
-	}
-
-	if ('loader' in config) {
-		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
-			throw new AstroUserError(
-				`Collections that use the Content Layer API must have a \`loader\` defined and no \`type\` set. Check your collection definitions in ${getImporterFilename() ?? 'your content config file'}.`,
-			);
-		}
-		config.type = CONTENT_LAYER_TYPE;
-	}
-	if (!config.type) config.type = 'content';
-	return config;
-}
 
 export function createCollectionToGlobResultMap({
 	globResult,
@@ -882,4 +815,16 @@ type PropagatedAssetsModule = {
 
 function isPropagatedAssetsModule(module: any): module is PropagatedAssetsModule {
 	return typeof module === 'object' && module != null && '__astroPropagation' in module;
+}
+
+export function defineCollection(config: any) {
+	if (config.type === 'live') {
+		throw new AstroError({
+			...AstroErrorData.LiveContentConfigError,
+			message: AstroErrorData.LiveContentConfigError.message(
+				'You must import defineCollection from "astro/config" to use live collections.',
+			),
+		});
+	}
+	return defineCollectionOrig(config);
 }
