@@ -36,6 +36,8 @@ import {
 	shouldTrackCspHashes,
 	trackScriptHashes,
 	trackStyleHashes,
+	getScriptResources,
+	getStyleResources,
 } from '../csp/common.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -635,18 +637,20 @@ async function createBuildManifest(
 
 	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
 		const algorithm = getAlgorithm(settings.config.experimental.csp);
-		const clientScriptHashes = [
+		const scriptHashes = [
 			...getScriptHashes(settings.config.experimental.csp),
 			...(await trackScriptHashes(internals, settings, algorithm)),
 		];
-		const clientStyleHashes = [
+		const styleHashes = [
 			...getStyleHashes(settings.config.experimental.csp),
 			...(await trackStyleHashes(internals, settings, algorithm)),
 		];
 
 		csp = {
-			clientStyleHashes,
-			clientScriptHashes,
+			styleHashes,
+			styleResources: getStyleResources(settings.config.experimental.csp),
+			scriptHashes,
+			scriptResources: getScriptResources(settings.config.experimental.csp),
 			algorithm,
 			directives: getDirectives(settings.config.experimental.csp),
 		};

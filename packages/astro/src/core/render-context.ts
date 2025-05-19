@@ -470,8 +470,10 @@ export class RenderContext {
 				propagators: new Set(),
 			},
 			shouldInjectCspMetaTags: !!manifest.csp,
-			clientScriptHashes: manifest.csp?.clientScriptHashes ?? [],
-			clientStyleHashes: manifest.csp?.clientStyleHashes ?? [],
+			scriptHashes: manifest.csp?.scriptHashes ?? [],
+			scriptResources: manifest.csp?.scriptResources ?? [],
+			styleHashes: manifest.csp?.styleHashes ?? [],
+			styleResources: manifest.csp?.styleResources ?? [],
 			cspAlgorithm: manifest.csp?.algorithm ?? 'SHA-256',
 			directives: manifest.csp?.directives ?? [],
 		};

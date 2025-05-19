@@ -30,17 +30,39 @@ describe('CSP', () => {
 			const $ = cheerio.load(await response.text());
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			for (const hash of manifest.csp.clientStyleHashes) {
-				assert.match(
-					meta.attr('content'),
-					new RegExp(`'${hash}'`),
-					`Should have a CSP meta tag for ${hash}`,
-				);
+			for (const hash of manifest.csp.styleHashes) {
+				assert.ok(meta.attr('content').includes(hash), `Should have a CSP meta tag for ${hash}`);
 			}
 		} else {
 			assert.fail('Should have the manifest');
 		}
 	});
+
+	it('should contain the meta script hashes when using client island', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			adapter: testAdapter({
+				setManifest(_manifest) {
+					manifest = _manifest;
+				},
+			}),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+		if (manifest) {
+			const request = new Request('http://example.com/index.html');
+			const response = await app.render(request);
+			const $ = cheerio.load(await response.text());
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			for (const hash of manifest.csp.scriptHashes) {
+				assert.ok(meta.attr('content').includes(hash), `Should have a CSP meta tag for ${hash}`);
+			}
+		} else {
+			assert.fail('Should have the manifest');
+		}
+	});
+
 	it('should generate the hash with the sha512 algorithm', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
@@ -58,17 +80,13 @@ describe('CSP', () => {
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
 
-		if (manifest) {
-			const request = new Request('http://example.com/index.html');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
+		const request = new Request('http://example.com/index.html');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
 
-			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			assert.ok(meta.attr('content').toString().includes('sha512-'));
-		} else {
-			assert.fail('Should have the manifest');
-		}
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		assert.ok(meta.attr('content').toString().includes('sha512-'));
 	});
 
 	it('should generate the hash with the sha384 algorithm', async () => {
@@ -88,17 +106,13 @@ describe('CSP', () => {
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
 
-		if (manifest) {
-			const request = new Request('http://example.com/index.html');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
+		const request = new Request('http://example.com/index.html');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
 
-			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			assert.ok(meta.attr('content').toString().includes('sha384-'));
-		} else {
-			assert.fail('Should have the manifest');
-		}
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		assert.ok(meta.attr('content').toString().includes('sha384-'));
 	});
 
 	it('should render hashes provided by the user', async () => {
@@ -111,28 +125,28 @@ describe('CSP', () => {
 			}),
 			experimental: {
 				csp: {
-					styleHashes: ['sha512-hash1', 'sha384-hash2'],
-					scriptHashes: ['sha512-hash3', 'sha384-hash4'],
+					styleDirective: {
+						hashes: ['sha512-hash1', 'sha384-hash2'],
+					},
+					scriptDirective: {
+						hashes: ['sha512-hash3', 'sha384-hash4'],
+					},
 				},
 			},
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
 
-		if (manifest) {
-			const request = new Request('http://example.com/index.html');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
+		const request = new Request('http://example.com/index.html');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
 
-			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			assert.ok(meta.attr('content').toString().includes('sha384-hash2'));
-			assert.ok(meta.attr('content').toString().includes('sha384-hash4'));
-			assert.ok(meta.attr('content').toString().includes('sha512-hash1'));
-			assert.ok(meta.attr('content').toString().includes('sha512-hash3'));
-		} else {
-			assert.fail('Should have the manifest');
-		}
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		assert.ok(meta.attr('content').toString().includes('sha384-hash2'));
+		assert.ok(meta.attr('content').toString().includes('sha384-hash4'));
+		assert.ok(meta.attr('content').toString().includes('sha512-hash1'));
+		assert.ok(meta.attr('content').toString().includes('sha512-hash3'));
 	});
 
 	it('should contain the additional directives', async () => {
@@ -157,16 +171,54 @@ describe('CSP', () => {
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
 
-		if (manifest) {
-			const request = new Request('http://example.com/index.html');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
+		const request = new Request('http://example.com/index.html');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
 
-			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			assert.ok(meta.attr('content').toString().includes("img-src 'self' 'https://example.com'"));
-		} else {
-			assert.fail('Should have the manifest');
-		}
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		assert.ok(meta.attr('content').toString().includes("img-src 'self' 'https://example.com'"));
+	});
+
+	it('should contain the custom resources for "script-src" and "style-src"', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			adapter: testAdapter({
+				setManifest(_manifest) {
+					manifest = _manifest;
+				},
+			}),
+			experimental: {
+				csp: {
+					styleDirective: {
+						resources: ['https://cdn.example.com', 'https://styles.cdn.example.com'],
+					},
+					scriptDirective: {
+						resources: ['https://cdn.example.com', 'https://scripts.cdn.example.com'],
+					},
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+
+		const request = new Request('http://example.com/index.html');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		assert.ok(
+			meta
+				.attr('content')
+				.toString()
+				.includes("script-src 'https://cdn.example.com' 'https://scripts.cdn.example.com'"),
+		);
+		assert.ok(
+			meta
+				.attr('content')
+				.toString()
+				.includes("style-src 'https://cdn.example.com' 'https://styles.cdn.example.com'"),
+		);
 	});
 });
