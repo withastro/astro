@@ -41,7 +41,7 @@ export const cspHashSchema = z.custom<`${CspAlgorithmValue}${string}`>((value) =
 
 export type CspHash = z.infer<typeof cspHashSchema>;
 
-export const ALLOWED_DIRECTIVES = [
+const ALLOWED_DIRECTIVES = [
 	'base-uri',
 	'child-src',
 	'connect-src',

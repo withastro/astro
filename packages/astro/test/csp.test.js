@@ -259,7 +259,6 @@ describe('CSP', () => {
 		const request = new Request('http://example.com/styles/index.html');
 		const response = await app.render(request);
 		const html = await response.text();
-		console.log(html);
 		const $ = cheerio.load(html);
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
