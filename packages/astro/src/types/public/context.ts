@@ -357,10 +357,59 @@ export interface AstroSharedContext<
 	isPrerendered: boolean;
 
 	/**
-	 * When CSP is enabled, it allows
-	 * @param payload
+	 * It adds a specific CSP directive to the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
+	 * ```
 	 */
-	insertDirective: (payload: CspDirective) => void;
+	insertDirective: (directive: CspDirective) => void;
+
+	/**
+	 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertStyleResource("https://styles.cdn.example.com/")
+	 * ```
+	 */
+	insertStyleResource: (payload: string) => void;
+
+	/**
+	 * Insert a single style hash to the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
+	 * ```
+	 */
+	insertStyleHash: (hash: string) => void;
+
+	/**
+	 * It set the resource for the directive `script-src` in the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
+	 * ```
+	 */
+	insertScriptResource: (resource: string) => void;
+
+	/**
+	 * Insert a single script hash to the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
+	 * ```
+	 */
+	insertScriptHash: (hash: string) => void;
 }
 
 /**

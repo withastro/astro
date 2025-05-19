@@ -30,7 +30,7 @@ export const cspAlgorithmSchema = z
 	.optional()
 	.default('SHA-256');
 
-export const CspHashSchema = z.custom<`${CspAlgorithmValue}${string}`>((value) => {
+export const cspHashSchema = z.custom<`${CspAlgorithmValue}${string}`>((value) => {
 	if (typeof value !== 'string') {
 		return false;
 	}
@@ -39,7 +39,7 @@ export const CspHashSchema = z.custom<`${CspAlgorithmValue}${string}`>((value) =
 	});
 });
 
-export type CspHash = z.infer<typeof CspHashSchema>;
+export type CspHash = z.infer<typeof cspHashSchema>;
 
 export const ALLOWED_DIRECTIVES = [
 	'base-uri',
@@ -64,9 +64,15 @@ export const ALLOWED_DIRECTIVES = [
 	'worker-src',
 ] as const;
 
-type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
+export type CspDirective = `${AllowedDirectives} ${string}`;
 
-export type CspDirective = {
-	type: AllowedDirectives;
-	value: string;
-}[];
+export const allowedDirectivesSchema = z.custom<CspDirective>((value) => {
+	if (typeof value !== 'string') {
+		return false;
+	}
+	return ALLOWED_DIRECTIVES.some((allowedValue) => {
+		return value.startsWith(allowedValue);
+	});
+});
+
+type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];

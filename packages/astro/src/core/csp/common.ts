@@ -51,7 +51,7 @@ export function getStyleResources(csp: EnabledCsp): string[] {
 	return csp.styleDirective?.resources ?? [];
 }
 
-export function getDirectives(csp: EnabledCsp): CspDirective {
+export function getDirectives(csp: EnabledCsp): CspDirective[] {
 	if (csp === true) {
 		return [];
 	}

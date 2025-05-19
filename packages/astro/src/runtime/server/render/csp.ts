@@ -19,11 +19,11 @@ export function renderCspContent(result: SSRResult): string {
 	for (const scriptHash of result._metadata.extraScriptHashes) {
 		finalScriptHashes.add(`'${scriptHash}'`);
 	}
-	const directives = result.directives
-		.map(({ type, value }) => {
-			return `${type} ${value}`;
-		})
-		.join(';');
+
+	let directives = '';
+	if (result.directives.length > 0) {
+		directives = result.directives.join(';') + ';';
+	}
 
 	let scriptResources = "'self'";
 	if (result.scriptResources.length > 0) {

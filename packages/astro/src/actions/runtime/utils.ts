@@ -41,6 +41,10 @@ export type ActionAPIContext = Pick<
 	| 'originPathname'
 	| 'session'
 	| 'insertDirective'
+	| 'insertScriptResource'
+	| 'insertStyleResource'
+	| 'insertScriptHash'
+	| 'insertStyleHash'
 > & {
 	// TODO: remove in Astro 6.0
 	/**
