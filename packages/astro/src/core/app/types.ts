@@ -110,8 +110,10 @@ export type SSRManifestI18n = {
 
 export type SSRManifestCSP = {
 	algorithm: CspAlgorithm;
-	clientScriptHashes: string[];
-	clientStyleHashes: string[];
+	scriptHashes: string[];
+	scriptResources: string[];
+	styleHashes: string[];
+	styleResources: string[];
 	directives: CspDirective;
 };
 

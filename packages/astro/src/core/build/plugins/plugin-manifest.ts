@@ -13,6 +13,7 @@ import type {
 	SSRManifestI18n,
 	SerializedRouteInfo,
 	SerializedSSRManifest,
+	SSRManifestCSP,
 } from '../../app/types.js';
 import {
 	getAlgorithm,
@@ -22,6 +23,8 @@ import {
 	shouldTrackCspHashes,
 	trackScriptHashes,
 	trackStyleHashes,
+	getScriptResources,
+	getStyleResources,
 } from '../../csp/common.js';
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
@@ -303,22 +306,24 @@ async function buildManifest(
 		};
 	}
 
-	let csp = undefined;
+	let csp: SSRManifestCSP | undefined = undefined;
 
 	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
 		const algorithm = getAlgorithm(settings.config.experimental.csp);
-		const clientScriptHashes = [
+		const scriptHashes = [
 			...getScriptHashes(settings.config.experimental.csp),
 			...(await trackScriptHashes(internals, settings, algorithm)),
 		];
-		const clientStyleHashes = [
+		const styleHashes = [
 			...getStyleHashes(settings.config.experimental.csp),
 			...(await trackStyleHashes(internals, settings, algorithm)),
 		];
 
 		csp = {
-			clientStyleHashes,
-			clientScriptHashes,
+			scriptHashes,
+			scriptResources: getScriptResources(settings.config.experimental.csp),
+			styleHashes,
+			styleResources: getStyleResources(settings.config.experimental.csp),
 			algorithm,
 			directives: getDirectives(settings.config.experimental.csp),
 		};
