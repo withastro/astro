@@ -25,12 +25,12 @@ export function renderCspContent(result: SSRResult): string {
 		})
 		.join(';');
 
-	let scriptResources = 'self';
+	let scriptResources = "'self'";
 	if (result.scriptResources.length > 0) {
 		scriptResources = result.scriptResources.map((r) => `'${r}'`).join(' ');
 	}
 
-	let styleResources = 'self';
+	let styleResources = "'self'";
 	if (result.styleResources.length > 0) {
 		styleResources = result.styleResources.map((r) => `'${r}'`).join(' ');
 	}
