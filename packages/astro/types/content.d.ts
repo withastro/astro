@@ -10,8 +10,8 @@ declare module 'astro:content' {
 	} from 'astro/config';
 
 	export function defineCollection<S extends import('astro/config').BaseSchema>(
-		input: import('astro/config').CollectionConfig<S, never>,
-	): import('astro/config').CollectionConfig<S, never>;
+		input: import('astro/config').BaseCollectionConfig<S>,
+	): import('astro/config').BaseCollectionConfig<S>;
 
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getEntryBySlug: (...args: any[]) => any;

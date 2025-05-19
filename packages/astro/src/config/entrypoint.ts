@@ -11,6 +11,7 @@ export {
 	type BaseSchema,
 	type SchemaContext,
 	type CollectionConfig,
+	type BaseCollectionConfig
 } from './content.js';
 export { defineConfig, getViteConfig } from './index.js';
 export { envField } from '../env/config.js';
