@@ -1,0 +1,13 @@
+---
+const { status, location } = Astro.props;
+---
+<html>
+  <head>
+    <title>Custom Redirect</title>
+  </head>
+  <body>
+    <h1>Custom Redirect Page</h1>
+    <p class="destination">{location}</p>
+    <p class="status">{status}</p>
+  </body>
+</html>

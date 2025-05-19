@@ -16,7 +16,7 @@ import { getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 import { matchAllRoutes } from '../core/routing/index.js';
-import { isRoute404, isRoute500 } from '../core/routing/match.js';
+import { isRoute3xx, isRoute404, isRoute500 } from '../core/routing/match.js';
 import { PERSIST_SYMBOL } from '../core/session.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { ComponentInstance, RoutesList } from '../types/astro.js';
@@ -48,6 +48,10 @@ function getCustom404Route(manifestData: RoutesList): RouteData | undefined {
 
 function getCustom500Route(manifestData: RoutesList): RouteData | undefined {
 	return manifestData.routes.find((r) => isRoute500(r.route));
+}
+
+function getCustom3xxRoute(manifestData: RoutesList): RouteData | undefined {
+	return manifestData.routes.find((r) => isRoute3xx(r.route));
 }
 
 export async function matchRoute(
@@ -117,6 +121,20 @@ export async function matchRoute(
 
 		return {
 			route: custom404,
+			filePath,
+			resolvedPathname: pathname,
+			preloadedComponent,
+			mod: preloadedComponent,
+		};
+	}
+
+	const custom3xx = getCustom3xxRoute(routesList);
+	if (custom3xx) {
+		const filePath = new URL(`./${custom3xx.component}`, config.root);
+		const preloadedComponent = await pipeline.preload(custom3xx, filePath);
+
+		return {
+			route: custom3xx,
 			filePath,
 			resolvedPathname: pathname,
 			preloadedComponent,
@@ -292,10 +310,40 @@ export async function handleRoute({
 	//
 	// By default, we should give priority to the status code passed, although it's possible that
 	// the `Response` emitted by the user is a redirect. If so, then return the returned response.
-	if (response.status < 400 && response.status >= 300) {
-		if (
-			response.status >= 300 &&
-			response.status < 400 &&
+	const isStatus3xx = response.status < 400 && response.status >= 300;
+
+	if (isStatus3xx) {
+		const threeXXRoute = await matchRoute('/3xx', routesList, pipeline);
+
+		if (threeXXRoute) {
+			const location = response.headers.get('location')!;
+
+			renderContext = await RenderContext.create({
+				locals,
+				pipeline,
+				pathname,
+				middleware,
+				request,
+				routeData: threeXXRoute.route,
+				clientAddress: incomingRequest.socket.remoteAddress,
+			});
+
+			renderContext.props = {
+				status: response.status,
+				location,
+				from: pathname,
+			};
+
+			const redirectResponse = await renderContext.render(threeXXRoute.preloadedComponent);
+
+			response = new Response(redirectResponse.body, {
+				status: response.status,
+				headers: {
+					...redirectResponse.headers,
+					location,
+				},
+			});
+		} else if (
 			routeIsRedirect(route) &&
 			!config.build.redirects &&
 			pipeline.settings.buildOutput === 'static'
