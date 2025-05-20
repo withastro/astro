@@ -149,11 +149,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const sessionDir = isBuild ? undefined : createCodegenDir();
 					const bindingName = args?.sessionKVBindingName ?? 'SESSION';
 
-					logger.info(
-						`Enabling sessions with Cloudflare KV for production with the "${bindingName}" KV binding.`,
-					);
-
 					if (isBuild) {
+						logger.info(
+							`Enabling sessions with Cloudflare KV for production with the "${bindingName}" KV binding.`,
+						);
 						logger.info(
 							`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
 						);
