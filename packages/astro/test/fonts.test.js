@@ -44,9 +44,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -65,9 +66,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -81,14 +83,43 @@ describe('astro fonts', () => {
 			});
 		});
 
+		it('Can filter preloads', async () => {
+			const { fixture, run } = await createDevFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+							weights: [400, 500],
+						},
+					],
+				},
+			});
+			await run(async () => {
+				let res = await fixture.fetch('/preload');
+				let html = await res.text();
+				let $ = cheerio.load(html);
+				const allPreloads = $('link[rel=preload][type=font/woff2]');
+
+				res = await fixture.fetch('/granular-preload');
+				html = await res.text();
+				$ = cheerio.load(html);
+				const filteredPreloads = $('link[rel=preload][type=font/woff2]');
+
+				assert.equal(filteredPreloads.length < allPreloads.length, true);
+			});
+		});
+
 		it('Has correct headers in dev', async () => {
 			const { fixture, run } = await createDevFixture({
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -126,9 +157,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -149,9 +181,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -167,9 +200,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -178,6 +212,31 @@ describe('astro fonts', () => {
 			const $ = cheerio.load(html);
 			const href = $('link[rel=preload][type=font/woff2]').attr('href');
 			assert.equal(href?.startsWith('/_astro/fonts/'), true);
+		});
+
+		it('Can filter preloads', async () => {
+			const { fixture } = await createBuildFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+							weights: [400, 500],
+						},
+					],
+				},
+			});
+
+			let html = await fixture.readFile('/preload/index.html');
+			let $ = cheerio.load(html);
+			const allPreloads = $('link[rel=preload][type=font/woff2]');
+
+			html = await fixture.readFile('/granular-preload/index.html');
+			$ = cheerio.load(html);
+			const filteredPreloads = $('link[rel=preload][type=font/woff2]');
+
+			assert.equal(filteredPreloads.length < allPreloads.length, true);
 		});
 
 		it('Respects config to build links', async () => {
@@ -190,9 +249,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
