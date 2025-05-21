@@ -1,5 +1,218 @@
 # @astrojs/cloudflare
 
+## 12.5.3
+
+### Patch Changes
+
+- [#13792](https://github.com/withastro/astro/pull/13792) [`7910fea`](https://github.com/withastro/astro/commit/7910feaf4f9895b67ea9eb3242ba451928bd6cda) Thanks [@alexeyzimarev](https://github.com/alexeyzimarev)! - Unify imported images detection across adapters
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.1
+
+## 12.5.2
+
+### Patch Changes
+
+- [#13731](https://github.com/withastro/astro/pull/13731) [`c3e80c2`](https://github.com/withastro/astro/commit/c3e80c25b90c803e2798b752583a8e77cdad3146) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update vite to latest version for fixing CVE
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.1
+
+## 12.5.1
+
+### Patch Changes
+
+- [#13591](https://github.com/withastro/astro/pull/13591) [`5dd2d3f`](https://github.com/withastro/astro/commit/5dd2d3fde8a138ed611dedf39ffa5dfeeed315f8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes unused code
+
+- Updated dependencies [[`5dd2d3f`](https://github.com/withastro/astro/commit/5dd2d3fde8a138ed611dedf39ffa5dfeeed315f8)]:
+  - @astrojs/underscore-redirects@0.6.1
+
+## 12.5.0
+
+### Minor Changes
+
+- [#13527](https://github.com/withastro/astro/pull/13527) [`2fd6a6b`](https://github.com/withastro/astro/commit/2fd6a6b7aa51a4713af7fac37d5dfd824543c1bc) Thanks [@ascorbic](https://github.com/ascorbic)! - The experimental session API introduced in Astro 5.1 is now stable and ready for production use.
+
+  Sessions are used to store user state between requests for [on-demand rendered pages](https://astro.build/en/guides/on-demand-rendering/). You can use them to store user data, such as authentication tokens, shopping cart contents, or any other data that needs to persist across requests:
+
+  ```astro
+  ---
+  export const prerender = false; // Not needed with 'server' output
+  const cart = await Astro.session.get('cart');
+  ---
+
+  <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
+  ```
+
+  #### Configuring session storage
+
+  Sessions require a storage driver to store the data. The Node, Cloudflare and Netlify adapters automatically configure a default driver for you, but other adapters currently require you to specify a custom storage driver in your configuration.
+
+  If you are using an adapter that doesn't have a default driver, or if you want to choose a different driver, you can configure it using the `session` configuration option:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import vercel from '@astrojs/vercel';
+
+  export default defineConfig({
+    adapter: vercel(),
+    session: {
+      driver: 'upstash',
+    },
+  });
+  ```
+
+  #### Using sessions
+
+  Sessions are available in on-demand rendered pages, API endpoints, actions and middleware.
+
+  In pages and components, you can access the session using `Astro.session`:
+
+  ```astro
+  ---
+  const cart = await Astro.session.get('cart');
+  ---
+
+  <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
+  ```
+
+  In endpoints, actions, and middleware, you can access the session using `context.session`:
+
+  ```js
+  export async function GET(context) {
+    const cart = await context.session.get('cart');
+    return Response.json({ cart });
+  }
+  ```
+
+  If you attempt to access the session when there is no storage driver configured, or in a prerendered page, the session object will be `undefined` and an error will be logged in the console:
+
+  ```astro
+  ---
+  export const prerender = true;
+  const cart = await Astro.session?.get('cart'); // Logs an error. Astro.session is undefined
+  ---
+  ```
+
+  #### Upgrading from Experimental to Stable
+
+  If you were previously using the experimental API, please remove the `experimental.session` flag from your configuration:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+  import node from '@astrojs/node';
+
+  export default defineConfig({
+     adapter: node({
+       mode: "standalone",
+     }),
+  -  experimental: {
+  -    session: true,
+  -  },
+  });
+  ```
+
+  See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
+## 12.4.1
+
+### Patch Changes
+
+- [#13596](https://github.com/withastro/astro/pull/13596) [`3752519`](https://github.com/withastro/astro/commit/375251966d1b28a570bff45ff0fe7e7d2fe46f72) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update vite to latest version to fix CVE
+
+- [#13547](https://github.com/withastro/astro/pull/13547) [`360cb91`](https://github.com/withastro/astro/commit/360cb9199a4314f90825c5639ff4396760e9cfcc) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates vite to the latest version
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
+## 12.4.0
+
+### Minor Changes
+
+- [#13514](https://github.com/withastro/astro/pull/13514) [`a9aafec`](https://github.com/withastro/astro/commit/a9aafec47a4d8a92c826663dca2f9850643651ec) Thanks [@ascorbic](https://github.com/ascorbic)! - Automatically configures Cloudflare KV storage when experimental sessions are enabled
+
+  If the `experimental.session` flag is enabled when using the Cloudflare adapter, Astro will automatically configure the session storage using the Cloudflare KV driver. You can still manually configure the session storage if you need to use a different driver or want to customize the session storage configuration. If you want to use sessions, you will need to create the KV namespace and declare it in your wrangler config. You can do this using the Wrangler CLI:
+
+  ```sh
+  npx wrangler kv namespace create SESSION
+  ```
+
+  This will log the id of the created namespace. You can then add it to your `wrangler.json`/`wrangler.toml` file like this:
+
+  ```jsonc
+  // wrangler.json
+  {
+    "kv_namespaces": [
+      {
+        "binding": "SESSION",
+        "id": "<your kv namespace id here>",
+      },
+    ],
+  }
+  ```
+
+  By default it uses the binding name `SESSION`, but if you want to use a different binding name you can do so by passing the `sessionKVBindingName` option to the adapter. For example:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import cloudflare from '@astrojs/cloudflare';
+  export default defineConfig({
+    output: 'server',
+    site: `http://example.com`,
+    adapter: cloudflare({
+      platformProxy: {
+        enabled: true,
+      },
+      sessionKVBindingName: 'MY_SESSION',
+    }),
+    experimental: {
+      session: true,
+    },
+  });
+  ```
+
+  See [the Cloudflare KV docs](https://developers.cloudflare.com/kv/concepts/kv-namespaces/) for more details on setting up KV namespaces.
+
+  See [the experimental session docs](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information on configuring session storage.
+
+### Patch Changes
+
+- [#13526](https://github.com/withastro/astro/pull/13526) [`ff9d69e`](https://github.com/withastro/astro/commit/ff9d69e3443c80059c54f6296d19f66bb068ead3) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update `vite` to the latest version
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
+## 12.3.1
+
+### Patch Changes
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
+## 12.3.0
+
+### Minor Changes
+
+- [#13444](https://github.com/withastro/astro/pull/13444) [`9721f4a`](https://github.com/withastro/astro/commit/9721f4a69f0fca389f146a5b8051cc17a34cdb0f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds global `astro:env` support
+
+  Cloudflare workers [now support importing `env` in the global scope](https://developers.cloudflare.com/changelog/2025-03-17-importable-env/). Until now, calling `astro:env` APIs had to be done within request scope or the values were `undefined`.
+
+  With this release, they can be called anywhere server-side, like any other official adapter.
+
+### Patch Changes
+
+- [#13463](https://github.com/withastro/astro/pull/13463) [`d5ad591`](https://github.com/withastro/astro/commit/d5ad591230918db302edc89c1a98436c16a4e0d2) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused builds to fail when a base directory is configured
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.0
+
 ## 12.2.4
 
 ### Patch Changes

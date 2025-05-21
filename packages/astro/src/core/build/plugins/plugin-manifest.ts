@@ -63,7 +63,7 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 				];
 				const exports = [`export { manifest }`];
 
-				return [...imports, ...contents, ...exports].join('\n');
+				return { code: [...imports, ...contents, ...exports].join('\n') };
 			}
 		},
 

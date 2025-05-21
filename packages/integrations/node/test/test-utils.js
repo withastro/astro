@@ -38,7 +38,7 @@ export function createRequestAndResponse(reqOptions) {
 	return { req, res, done, text };
 }
 
-export function toPromise(res) {
+function toPromise(res) {
 	return new Promise((resolve) => {
 		// node-mocks-http doesn't correctly handle non-Buffer typed arrays,
 		// so override the write method to fix it.
@@ -56,7 +56,7 @@ export function toPromise(res) {
 	});
 }
 
-export function buffersToString(buffers) {
+function buffersToString(buffers) {
 	const decoder = new TextDecoder();
 	let str = '';
 	for (const buffer of buffers) {

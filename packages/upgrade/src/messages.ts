@@ -79,7 +79,7 @@ export const bye = [
 	'See you around, astronaut.',
 ];
 
-export const log = (message: string) => stdout.write(message + '\n');
+const log = (message: string) => stdout.write(message + '\n');
 
 export const newline = () => stdout.write('\n');
 

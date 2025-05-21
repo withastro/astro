@@ -4,24 +4,61 @@
     "config:recommended",
     "schedule:weekly",
     "group:allNonMajor",
-    ":disablePeerDependencies", 
+    ":disablePeerDependencies",
     "regexManagers:biomeVersions",
     "helpers:pinGitHubActionDigestsToSemver"
   ],
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "rangeStrategy": "bump",
-  "postUpdateOptions": ["pnpmDedupe"],
-  "ignorePaths": ["**/node_modules/**"],
+  "postUpdateOptions": [
+    "pnpmDedupe"
+  ],
+  "ignorePaths": [
+    "**/node_modules/**"
+  ],
   "packageRules": [
-    // TODO: remove once the tailwind integration is removed
-    {
-      "matchPackageNames": ["tailwindcss"],
-      "ignorePaths": ["packages/integrations/tailwind"]
-    },
     {
       "groupName": "github-actions",
       "matchManagers": [
         "github-actions"
+      ]
+    },
+    {
+      "groupName": "astro dependencies",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "packages/astro/**",
+        "packages/integrations/mdx/**",
+        "packages/integrations/remark/**",
+      ]
+    },
+    {
+      "groupName": "astro adapters",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "packages/integrations/node/**",
+        "packages/integrations/netlify/**",
+        "packages/integrations/cloudflare/**",
+        "packages/integrations/vercel/**",
+      ]
+    },
+    {
+      "groupName": "astro client runtimes",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "packages/integrations/react/**",
+        "packages/integrations/solid/**",
+        "packages/integrations/preact/**",
+        "packages/integrations/svelte/**",
+        "packages/integrations/vue/**",
       ]
     }
   ],
@@ -29,20 +66,23 @@
     // manually bumping deps
     "@biomejs/biome",
     "@types/node",
-    "astro-embed", // TODO: investigate upgrade (zod import issues with atproto)
-    "drizzle-orm", // TODO: investigate upgrade (has type issues)
+    
+    // TODO: investigate upgrade (zod import issues with atproto)
+    "astro-embed",
+    
+    // TODO: investigate upgrade (has type issues)
+    "drizzle-orm",
     "sharp",
-
     // manually bumping workflow actions
     "actions/labeler",
-
     // ignore "engines" update
     "node",
     "npm",
     "pnpm",
-
     // follow vite deps version
     "postcss-load-config",
     "esbuild",
+    // TODO: follow https://github.com/withastro/astro/pull/13478
+    "@vitejs/plugin-vue"
   ],
 }

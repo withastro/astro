@@ -6,7 +6,7 @@ import type { StaticBuildOptions } from '../types.js';
 export const RENDERERS_MODULE_ID = '@astro-renderers';
 export const RESOLVED_RENDERERS_MODULE_ID = `\0${RENDERERS_MODULE_ID}`;
 
-export function vitePluginRenderers(opts: StaticBuildOptions): VitePlugin {
+function vitePluginRenderers(opts: StaticBuildOptions): VitePlugin {
 	return {
 		name: '@astro/plugin-renderers',
 
@@ -37,9 +37,9 @@ export function vitePluginRenderers(opts: StaticBuildOptions): VitePlugin {
 
 					exports.push(`export const renderers = [${rendererItems}];`);
 
-					return `${imports.join('\n')}\n${exports.join('\n')}`;
+					return { code: `${imports.join('\n')}\n${exports.join('\n')}` };
 				} else {
-					return `export const renderers = [];`;
+					return { code: `export const renderers = [];` };
 				}
 			}
 		},

@@ -19,22 +19,27 @@ import VueCounter from '../components/vue/VueCounter.vue';
 		<main>
 			<react.Counter id="react-counter" client:only="react">
 				<h1>react</h1>
+				<p slot="fallback" data-fallback="react">Loading React...</p>
 			</react.Counter>
 
 			<PreactCounter id="preact-counter" client:only="preact">
 				<h1>preact</h1>
+				<p slot="fallback" data-fallback="preact">Loading Preact...</p>
 			</PreactCounter>
 
 			<SolidCounter id="solid-counter" client:only="solid-js">
 				<h1>solid</h1>
+				<p slot="fallback" data-fallback="solid">Loading Solid...</p>
 			</SolidCounter>
 
 			<VueCounter id="vue-counter" client:only="vue">
 				<h1>vue</h1>
+				<p slot="fallback" data-fallback="vue">Loading Vue...</p>
 			</VueCounter>
 
 			<SvelteCounter id="svelte-counter" client:only="svelte">
 				<h1>svelte</h1>
+				<p slot="fallback" data-fallback="svelte">Loading Svelte...</p>
 			</SvelteCounter>
 		</main>
 	</body>

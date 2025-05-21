@@ -81,7 +81,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 export type ExternalImageService<T extends Record<string, any> = Record<string, any>> =
 	SharedServiceProps<T>;
 
-export type LocalImageTransform = {
+type LocalImageTransform = {
 	src: string;
 	[key: string]: any;
 };

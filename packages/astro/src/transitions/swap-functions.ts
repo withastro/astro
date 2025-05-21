@@ -6,6 +6,8 @@ export type SavedFocus = {
 
 const PERSIST_ATTR = 'data-astro-transition-persist';
 
+const NON_OVERRIDABLE_ASTRO_ATTRS = ['data-astro-transition', 'data-astro-transition-fallback'];
+
 const scriptsAlreadyRan = new Set<string>();
 export function detectScriptExecuted(script: HTMLScriptElement) {
 	const key = script.src ? new URL(script.src, location.href).href : script.textContent!;
@@ -36,15 +38,15 @@ export function deselectScripts(doc: Document) {
  * swap attributes of the html element
  * delete all attributes from the current document
  * insert all attributes from doc
- * reinsert all original attributes that are named 'data-astro-*'
+ * reinsert all original attributes that are referenced in NON_OVERRIDABLE_ASTRO_ATTRS'
  */
-export function swapRootAttributes(doc: Document) {
-	const html = document.documentElement;
-	const astroAttributes = [...html.attributes].filter(
-		({ name }) => (html.removeAttribute(name), name.startsWith('data-astro-')),
+export function swapRootAttributes(newDoc: Document) {
+	const currentRoot = document.documentElement;
+	const nonOverridableAstroAttributes = [...currentRoot.attributes].filter(
+		({ name }) => (currentRoot.removeAttribute(name), NON_OVERRIDABLE_ASTRO_ATTRS.includes(name)),
 	);
-	[...doc.documentElement.attributes, ...astroAttributes].forEach(({ name, value }) =>
-		html.setAttribute(name, value),
+	[...newDoc.documentElement.attributes, ...nonOverridableAstroAttributes].forEach(
+		({ name, value }) => currentRoot.setAttribute(name, value),
 	);
 }
 

@@ -1701,6 +1701,19 @@ describe('[SSR] i18n routing', () => {
 			assert.equal(text.includes('Locale list: en, pt, it'), true);
 		});
 
+		it('should render the preferred locale when a locale is configured with codes', async () => {
+			let request = new Request('http://example.com/preferred-locale', {
+				headers: {
+					'Accept-Language': 'es-SP;q=0.9,es;q=0.8,en-US;q=0.7,en;q=0.6',
+				},
+			});
+			let response = await app.render(request);
+			const text = await response.text();
+			assert.equal(response.status, 200);
+			assert.equal(text.includes('Locale: es-SP'), true);
+			assert.equal(text.includes('Locale list: es-SP, es, en'), true);
+		});
+
 		describe('in case the configured locales use underscores', () => {
 			before(async () => {
 				fixture = await loadFixture({
@@ -1751,8 +1764,8 @@ describe('[SSR] i18n routing', () => {
 				let response = await app.render(request);
 				const text = await response.text();
 				assert.equal(response.status, 200);
-				assert.equal(text.includes('Locale: spanish'), true);
-				assert.equal(text.includes('Locale list: spanish'), true);
+				assert.equal(text.includes('Locale: es'), true);
+				assert.equal(text.includes('Locale list: es'), true);
 			});
 		});
 	});

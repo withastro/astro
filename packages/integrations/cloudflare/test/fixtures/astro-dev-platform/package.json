@@ -7,6 +7,6 @@
     "astro": "workspace:*"
   },
   "devDependencies": {
-    "wrangler": "^3.112.0"
+    "wrangler": "^4.14.1"
   }
 }

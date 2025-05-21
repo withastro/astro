@@ -1,4 +1,5 @@
 import type { ZodType } from 'zod';
+import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 import type { ActionAccept, ActionClient } from '../actions/runtime/virtual/server.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { ComponentInstance } from '../types/astro.js';
@@ -131,9 +132,9 @@ export abstract class Pipeline {
 		if (this.resolvedActions) {
 			return this.resolvedActions;
 		} else if (this.actions) {
-			return this.actions;
+			return await this.actions();
 		}
-		return { server: {} };
+		return NOOP_ACTIONS_MOD;
 	}
 
 	async getAction(path: string): Promise<ActionClient<unknown, ActionAccept, ZodType>> {

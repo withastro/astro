@@ -13,9 +13,10 @@ import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
+import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
-import { validateSessionConfig } from '../core/session.js';
+import { getClientOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {
@@ -38,15 +39,15 @@ import { validateSupportedFeatures } from './features-validation.js';
 async function withTakingALongTimeMsg<T>({
 	name,
 	hookName,
-	hookResult,
-	timeoutMs = 3000,
+	hookFn,
 	logger,
+	integrationLogger,
 }: {
 	name: string;
 	hookName: keyof BaseIntegrationHooks;
-	hookResult: T | Promise<T>;
-	timeoutMs?: number;
+	hookFn: () => T | Promise<T>;
 	logger: Logger;
+	integrationLogger: AstroIntegrationLogger;
 }): Promise<T> {
 	const timeout = setTimeout(() => {
 		logger.info(
@@ -55,10 +56,43 @@ async function withTakingALongTimeMsg<T>({
 				JSON.stringify(hookName),
 			)}...`,
 		);
-	}, timeoutMs);
-	const result = await hookResult;
-	clearTimeout(timeout);
-	return result;
+	}, 3000);
+	try {
+		return await hookFn();
+	} catch (err) {
+		integrationLogger.error(
+			`An unhandled error occurred while running the ${bold(JSON.stringify(hookName))} hook`,
+		);
+		throw err;
+	} finally {
+		clearTimeout(timeout);
+	}
+}
+
+/** Executes the specified hook of the integration if present, and handles loggers */
+async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
+	integration,
+	hookName,
+	logger,
+	params,
+}: {
+	integration: AstroIntegration;
+	hookName: THook;
+	logger: Logger;
+	params: () => Omit<HookParameters<NoInfer<THook>>, 'logger'>;
+}) {
+	const hook = integration?.hooks?.[hookName];
+	const integrationLogger = getLogger(integration, logger);
+	if (hook) {
+		await withTakingALongTimeMsg({
+			name: integration.name,
+			hookName,
+			hookFn: () => hook(Object.assign(params(), { logger: integrationLogger }) as any),
+			logger,
+			integrationLogger,
+		});
+	}
+	return { integrationLogger };
 }
 
 // Used internally to store instances of loggers.
@@ -171,139 +205,153 @@ export async function runHookConfigSetup({
 		 * ]
 		 * ```
 		 */
-		if (integration.hooks?.['astro:config:setup']) {
-			const integrationLogger = getLogger(integration, logger);
 
-			const hooks: HookParameters<'astro:config:setup'> = {
-				config: updatedConfig,
-				command,
-				isRestart,
-				addRenderer(renderer: AstroRenderer) {
-					if (!renderer.name) {
-						throw new Error(`Integration ${bold(integration.name)} has an unnamed renderer.`);
-					}
+		const { integrationLogger } = await runHookInternal({
+			integration,
+			hookName: 'astro:config:setup',
+			logger,
+			params: () => {
+				const hooks: Omit<HookParameters<'astro:config:setup'>, 'logger'> = {
+					config: updatedConfig,
+					command,
+					isRestart,
+					addRenderer(renderer: AstroRenderer) {
+						if (!renderer.name) {
+							throw new Error(`Integration ${bold(integration.name)} has an unnamed renderer.`);
+						}
 
-					if (!renderer.serverEntrypoint) {
-						throw new Error(`Renderer ${bold(renderer.name)} does not provide a serverEntrypoint.`);
-					}
+						if (!renderer.serverEntrypoint) {
+							throw new Error(
+								`Renderer ${bold(renderer.name)} does not provide a serverEntrypoint.`,
+							);
+						}
 
-					if (renderer.name === 'astro:jsx') {
-						astroJSXRenderer = renderer;
-					} else {
-						updatedSettings.renderers.push(renderer);
-					}
-				},
-				injectScript: (stage, content) => {
-					updatedSettings.scripts.push({ stage, content });
-				},
-				updateConfig: (newConfig) => {
-					updatedConfig = mergeConfig(updatedConfig, newConfig);
-					return { ...updatedConfig };
-				},
-				injectRoute: (injectRoute) => {
-					if (injectRoute.entrypoint == null && 'entryPoint' in injectRoute) {
-						logger.warn(
-							null,
-							`The injected route "${injectRoute.pattern}" by ${integration.name} specifies the entry point with the "entryPoint" property. This property is deprecated, please use "entrypoint" instead.`,
+						if (renderer.name === 'astro:jsx') {
+							astroJSXRenderer = renderer;
+						} else {
+							updatedSettings.renderers.push(renderer);
+						}
+					},
+					injectScript: (stage, content) => {
+						updatedSettings.scripts.push({ stage, content });
+					},
+					updateConfig: (newConfig) => {
+						updatedConfig = mergeConfig(updatedConfig, newConfig);
+						return { ...updatedConfig };
+					},
+					injectRoute: (injectRoute) => {
+						if (injectRoute.entrypoint == null && 'entryPoint' in injectRoute) {
+							logger.warn(
+								null,
+								`The injected route "${injectRoute.pattern}" by ${integration.name} specifies the entry point with the "entryPoint" property. This property is deprecated, please use "entrypoint" instead.`,
+							);
+							injectRoute.entrypoint = injectRoute.entryPoint as string;
+						}
+						updatedSettings.injectedRoutes.push({ ...injectRoute, origin: 'external' });
+					},
+					addWatchFile: (path) => {
+						updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
+					},
+					addDevToolbarApp: (entrypoint) => {
+						updatedSettings.devToolbarApps.push(entrypoint);
+					},
+					addClientDirective: ({ name, entrypoint }) => {
+						if (updatedSettings.clientDirectives.has(name) || addedClientDirectives.has(name)) {
+							throw new Error(
+								`The "${integration.name}" integration is trying to add the "${name}" client directive, but it already exists.`,
+							);
+						}
+						// TODO: this should be performed after astro:config:done
+						addedClientDirectives.set(
+							name,
+							buildClientDirectiveEntrypoint(name, entrypoint, settings.config.root),
 						);
-						injectRoute.entrypoint = injectRoute.entryPoint as string;
-					}
-					updatedSettings.injectedRoutes.push({ ...injectRoute, origin: 'external' });
-				},
-				addWatchFile: (path) => {
-					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
-				},
-				addDevToolbarApp: (entrypoint) => {
-					updatedSettings.devToolbarApps.push(entrypoint);
-				},
-				addClientDirective: ({ name, entrypoint }) => {
-					if (updatedSettings.clientDirectives.has(name) || addedClientDirectives.has(name)) {
-						throw new Error(
-							`The "${integration.name}" integration is trying to add the "${name}" client directive, but it already exists.`,
+					},
+					addMiddleware: ({ order, entrypoint }) => {
+						if (typeof updatedSettings.middlewares[order] === 'undefined') {
+							throw new Error(
+								`The "${integration.name}" integration is trying to add middleware but did not specify an order.`,
+							);
+						}
+						logger.debug(
+							'middleware',
+							`The integration ${integration.name} has added middleware that runs ${
+								order === 'pre' ? 'before' : 'after'
+							} any application middleware you define.`,
 						);
-					}
-					// TODO: this should be performed after astro:config:done
-					addedClientDirectives.set(
-						name,
-						buildClientDirectiveEntrypoint(name, entrypoint, settings.config.root),
-					);
-				},
-				addMiddleware: ({ order, entrypoint }) => {
-					if (typeof updatedSettings.middlewares[order] === 'undefined') {
-						throw new Error(
-							`The "${integration.name}" integration is trying to add middleware but did not specify an order.`,
+						updatedSettings.middlewares[order].push(
+							typeof entrypoint === 'string' ? entrypoint : fileURLToPath(entrypoint),
 						);
-					}
-					logger.debug(
-						'middleware',
-						`The integration ${integration.name} has added middleware that runs ${
-							order === 'pre' ? 'before' : 'after'
-						} any application middleware you define.`,
+					},
+					createCodegenDir: () => {
+						const codegenDir = new URL(normalizeCodegenDir(integration.name), settings.dotAstroDir);
+						fs.mkdirSync(codegenDir, { recursive: true });
+						return codegenDir;
+					},
+				};
+
+				// Public, intentionally undocumented hooks - not subject to semver.
+				// Intended for internal integrations (ex. `@astrojs/mdx`),
+				// though accessible to integration authors if discovered.
+
+				function addPageExtension(...input: (string | string[])[]) {
+					const exts = (input.flat(Infinity) as string[]).map(
+						(ext) => `.${ext.replace(/^\./, '')}`,
 					);
-					updatedSettings.middlewares[order].push(
-						typeof entrypoint === 'string' ? entrypoint : fileURLToPath(entrypoint),
-					);
-				},
-				createCodegenDir: () => {
-					const codegenDir = new URL(normalizeCodegenDir(integration.name), settings.dotAstroDir);
-					fs.mkdirSync(codegenDir, { recursive: true });
-					return codegenDir;
-				},
-				logger: integrationLogger,
-			};
+					updatedSettings.pageExtensions.push(...exts);
+				}
 
-			// ---
-			// Public, intentionally undocumented hooks - not subject to semver.
-			// Intended for internal integrations (ex. `@astrojs/mdx`),
-			// though accessible to integration authors if discovered.
+				function addContentEntryType(contentEntryType: ContentEntryType) {
+					updatedSettings.contentEntryTypes.push(contentEntryType);
+				}
 
-			function addPageExtension(...input: (string | string[])[]) {
-				const exts = (input.flat(Infinity) as string[]).map((ext) => `.${ext.replace(/^\./, '')}`);
-				updatedSettings.pageExtensions.push(...exts);
-			}
+				function addDataEntryType(dataEntryType: DataEntryType) {
+					updatedSettings.dataEntryTypes.push(dataEntryType);
+				}
 
-			function addContentEntryType(contentEntryType: ContentEntryType) {
-				updatedSettings.contentEntryTypes.push(contentEntryType);
-			}
+				Object.defineProperty(hooks, 'addPageExtension', {
+					value: addPageExtension,
+					writable: false,
+					enumerable: false,
+				});
+				Object.defineProperty(hooks, 'addContentEntryType', {
+					value: addContentEntryType,
+					writable: false,
+					enumerable: false,
+				});
+				Object.defineProperty(hooks, 'addDataEntryType', {
+					value: addDataEntryType,
+					writable: false,
+					enumerable: false,
+				});
 
-			function addDataEntryType(dataEntryType: DataEntryType) {
-				updatedSettings.dataEntryTypes.push(dataEntryType);
-			}
+				return hooks;
+			},
+		});
 
-			Object.defineProperty(hooks, 'addPageExtension', {
-				value: addPageExtension,
-				writable: false,
-				enumerable: false,
-			});
-			Object.defineProperty(hooks, 'addContentEntryType', {
-				value: addContentEntryType,
-				writable: false,
-				enumerable: false,
-			});
-			Object.defineProperty(hooks, 'addDataEntryType', {
-				value: addDataEntryType,
-				writable: false,
-				enumerable: false,
-			});
-			// ---
+		// Add custom client directives to settings, waiting for compiled code by esbuild
+		for (const [name, compiled] of addedClientDirectives) {
+			updatedSettings.clientDirectives.set(name, await compiled);
+		}
 
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:config:setup',
-				hookResult: integration.hooks['astro:config:setup'](hooks),
-				logger,
-			});
-
-			// Add custom client directives to settings, waiting for compiled code by esbuild
-			for (const [name, compiled] of addedClientDirectives) {
-				updatedSettings.clientDirectives.set(name, await compiled);
-			}
+		try {
+			updatedConfig = await validateConfigRefined(updatedConfig);
+		} catch (error) {
+			integrationLogger.error('An error occurred while updating the config');
+			throw error;
 		}
 	}
 
 	// The astro:jsx renderer should come last, to not interfere with others.
 	if (astroJSXRenderer) {
 		updatedSettings.renderers.push(astroJSXRenderer);
+	}
+
+	// TODO: Astro 6.0
+	// Remove this hack to avoid breaking changes, and change the default value of redirectToDefaultLocale
+	if (updatedConfig.i18n && typeof updatedConfig.i18n.routing !== 'string') {
+		updatedConfig.i18n.routing.redirectToDefaultLocale ??=
+			updatedConfig.i18n.routing.prefixDefaultLocale || false;
 	}
 
 	updatedSettings.config = updatedConfig;
@@ -320,62 +368,54 @@ export async function runHookConfigDone({
 	command?: 'dev' | 'build' | 'preview' | 'sync';
 }) {
 	for (const integration of settings.config.integrations) {
-		if (integration?.hooks?.['astro:config:done']) {
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:config:done',
-				hookResult: integration.hooks['astro:config:done']({
-					config: settings.config,
-					setAdapter(adapter) {
-						validateSetAdapter(logger, settings, adapter, integration.name, command);
+		await runHookInternal({
+			integration,
+			hookName: 'astro:config:done',
+			logger,
+			params: () => ({
+				config: settings.config,
+				setAdapter(adapter) {
+					validateSetAdapter(logger, settings, adapter, integration.name, command);
 
-						if (adapter.adapterFeatures?.buildOutput !== 'static') {
-							settings.buildOutput = 'server';
-						}
+					if (adapter.adapterFeatures?.buildOutput !== 'static') {
+						settings.buildOutput = 'server';
+					}
 
-						if (!adapter.supportedAstroFeatures) {
-							throw new Error(
-								`The adapter ${adapter.name} doesn't provide a feature map. It is required in Astro 4.0.`,
-							);
-						} else {
-							validateSupportedFeatures(
-								adapter.name,
-								adapter.supportedAstroFeatures,
-								settings,
-								logger,
-							);
-						}
-						settings.adapter = adapter;
-					},
-					injectTypes(injectedType) {
-						const normalizedFilename = normalizeInjectedTypeFilename(
-							injectedType.filename,
-							integration.name,
+					if (!adapter.supportedAstroFeatures) {
+						throw new Error(
+							`The adapter ${adapter.name} doesn't provide a feature map. It is required in Astro 4.0.`,
 						);
+					} else {
+						validateSupportedFeatures(
+							adapter.name,
+							adapter.supportedAstroFeatures,
+							settings,
+							logger,
+						);
+					}
+					settings.adapter = adapter;
+				},
+				injectTypes(injectedType) {
+					const normalizedFilename = normalizeInjectedTypeFilename(
+						injectedType.filename,
+						integration.name,
+					);
 
-						settings.injectedTypes.push({
-							filename: normalizedFilename,
-							content: injectedType.content,
-						});
+					settings.injectedTypes.push({
+						filename: normalizedFilename,
+						content: injectedType.content,
+					});
 
-						// It must be relative to dotAstroDir here and not inside normalizeInjectedTypeFilename
-						// because injectedTypes are handled relatively to the dotAstroDir already
-						return new URL(normalizedFilename, settings.dotAstroDir);
-					},
-					logger: getLogger(integration, logger),
-					get buildOutput() {
-						return settings.buildOutput!; // settings.buildOutput is always set at this point
-					},
-				}),
-				logger,
-			});
-		}
+					// It must be relative to dotAstroDir here and not inside normalizeInjectedTypeFilename
+					// because injectedTypes are handled relatively to the dotAstroDir already
+					return new URL(normalizedFilename, settings.dotAstroDir);
+				},
+				get buildOutput() {
+					return settings.buildOutput!; // settings.buildOutput is always set at this point
+				},
+			}),
+		});
 	}
-	// Session config is validated after all integrations have had a chance to
-	// register a default session driver, and we know the output type.
-	// This can't happen in the Zod schema because it that happens before adapters run
-	// and also doesn't know whether it's a server build or static build.
-	validateSessionConfig(settings);
 }
 
 export async function runHookServerSetup({
@@ -404,19 +444,16 @@ export async function runHookServerSetup({
 	};
 
 	for (const integration of config.integrations) {
-		if (integration?.hooks?.['astro:server:setup']) {
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:server:setup',
-				hookResult: integration.hooks['astro:server:setup']({
-					server,
-					logger: getLogger(integration, logger),
-					toolbar: getToolbarServerCommunicationHelpers(server),
-					refreshContent,
-				}),
-				logger,
-			});
-		}
+		await runHookInternal({
+			integration,
+			hookName: 'astro:server:setup',
+			logger,
+			params: () => ({
+				server,
+				toolbar: getToolbarServerCommunicationHelpers(server),
+				refreshContent,
+			}),
+		});
 	}
 }
 
@@ -430,17 +467,12 @@ export async function runHookServerStart({
 	logger: Logger;
 }) {
 	for (const integration of config.integrations) {
-		if (integration?.hooks?.['astro:server:start']) {
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:server:start',
-				hookResult: integration.hooks['astro:server:start']({
-					address,
-					logger: getLogger(integration, logger),
-				}),
-				logger,
-			});
-		}
+		await runHookInternal({
+			integration,
+			hookName: 'astro:server:start',
+			logger,
+			params: () => ({ address }),
+		});
 	}
 }
 
@@ -452,37 +484,29 @@ export async function runHookServerDone({
 	logger: Logger;
 }) {
 	for (const integration of config.integrations) {
-		if (integration?.hooks?.['astro:server:done']) {
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:server:done',
-				hookResult: integration.hooks['astro:server:done']({
-					logger: getLogger(integration, logger),
-				}),
-				logger,
-			});
-		}
+		await runHookInternal({
+			integration,
+			hookName: 'astro:server:done',
+			logger,
+			params: () => ({}),
+		});
 	}
 }
 
 export async function runHookBuildStart({
 	config,
-	logging,
+	logger,
 }: {
 	config: AstroConfig;
-	logging: Logger;
+	logger: Logger;
 }) {
 	for (const integration of config.integrations) {
-		if (integration?.hooks?.['astro:build:start']) {
-			const logger = getLogger(integration, logging);
-
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:build:start',
-				hookResult: integration.hooks['astro:build:start']({ logger }),
-				logger: logging,
-			});
-		}
+		await runHookInternal({
+			integration,
+			hookName: 'astro:build:start',
+			logger,
+			params: () => ({}),
+		});
 	}
 }
 
@@ -502,23 +526,20 @@ export async function runHookBuildSetup({
 	let updatedConfig = vite;
 
 	for (const integration of config.integrations) {
-		if (integration?.hooks?.['astro:build:setup']) {
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:build:setup',
-				hookResult: integration.hooks['astro:build:setup']({
-					vite,
-					pages,
-					target,
-					updateConfig: (newConfig) => {
-						updatedConfig = mergeViteConfig(updatedConfig, newConfig);
-						return { ...updatedConfig };
-					},
-					logger: getLogger(integration, logger),
-				}),
-				logger,
-			});
-		}
+		await runHookInternal({
+			integration,
+			hookName: 'astro:build:setup',
+			logger,
+			params: () => ({
+				vite,
+				pages,
+				target,
+				updateConfig: (newConfig) => {
+					updatedConfig = mergeViteConfig(updatedConfig, newConfig);
+					return { ...updatedConfig };
+				},
+			}),
+		});
 	}
 
 	return updatedConfig;
@@ -544,19 +565,16 @@ export async function runHookBuildSsr({
 		entryPointsMap.set(toIntegrationRouteData(key), value);
 	}
 	for (const integration of config.integrations) {
-		if (integration?.hooks?.['astro:build:ssr']) {
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:build:ssr',
-				hookResult: integration.hooks['astro:build:ssr']({
-					manifest,
-					entryPoints: entryPointsMap,
-					middlewareEntryPoint,
-					logger: getLogger(integration, logger),
-				}),
-				logger,
-			});
-		}
+		await runHookInternal({
+			integration,
+			hookName: 'astro:build:ssr',
+			logger,
+			params: () => ({
+				manifest,
+				entryPoints: entryPointsMap,
+				middlewareEntryPoint,
+			}),
+		});
 	}
 }
 
@@ -571,17 +589,12 @@ export async function runHookBuildGenerated({
 		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
 
 	for (const integration of settings.config.integrations) {
-		if (integration?.hooks?.['astro:build:generated']) {
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:build:generated',
-				hookResult: integration.hooks['astro:build:generated']({
-					dir,
-					logger: getLogger(integration, logger),
-				}),
-				logger,
-			});
-		}
+		await runHookInternal({
+			integration,
+			hookName: 'astro:build:generated',
+			logger,
+			params: () => ({ dir }),
+		});
 	}
 }
 
@@ -589,33 +602,28 @@ type RunHookBuildDone = {
 	settings: AstroSettings;
 	pages: string[];
 	routes: RouteData[];
-	logging: Logger;
+	logger: Logger;
 };
 
-export async function runHookBuildDone({ settings, pages, routes, logging }: RunHookBuildDone) {
-	const dir =
-		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
+export async function runHookBuildDone({ settings, pages, routes, logger }: RunHookBuildDone) {
+	const dir = getClientOutputDirectory(settings);
 	await fsMod.promises.mkdir(dir, { recursive: true });
 	const integrationRoutes = routes.map(toIntegrationRouteData);
-	for (const integration of settings.config.integrations) {
-		if (integration?.hooks?.['astro:build:done']) {
-			const logger = getLogger(integration, logging);
 
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:build:done',
-				hookResult: integration.hooks['astro:build:done']({
-					pages: pages.map((p) => ({ pathname: p })),
-					dir,
-					routes: integrationRoutes,
-					assets: new Map(
-						routes.filter((r) => r.distURL !== undefined).map((r) => [r.route, r.distURL!]),
-					),
-					logger,
-				}),
-				logger: logging,
-			});
-		}
+	for (const integration of settings.config.integrations) {
+		await runHookInternal({
+			integration,
+			hookName: 'astro:build:done',
+			logger,
+			params: () => ({
+				pages: pages.map((p) => ({ pathname: p })),
+				dir,
+				routes: integrationRoutes,
+				assets: new Map(
+					routes.filter((r) => r.distURL !== undefined).map((r) => [r.route, r.distURL!]),
+				),
+			}),
+		});
 	}
 }
 
@@ -631,23 +639,15 @@ export async function runHookRouteSetup({
 	const prerenderChangeLogs: { integrationName: string; value: boolean | undefined }[] = [];
 
 	for (const integration of settings.config.integrations) {
-		if (integration?.hooks?.['astro:route:setup']) {
-			const originalRoute = { ...route };
-			const integrationLogger = getLogger(integration, logger);
-
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:route:setup',
-				hookResult: integration.hooks['astro:route:setup']({
-					route,
-					logger: integrationLogger,
-				}),
-				logger,
-			});
-
-			if (route.prerender !== originalRoute.prerender) {
-				prerenderChangeLogs.push({ integrationName: integration.name, value: route.prerender });
-			}
+		const originalRoute = { ...route };
+		await runHookInternal({
+			integration,
+			hookName: 'astro:route:setup',
+			logger,
+			params: () => ({ route }),
+		});
+		if (route.prerender !== originalRoute.prerender) {
+			prerenderChangeLogs.push({ integrationName: integration.name, value: route.prerender });
 		}
 	}
 
@@ -666,19 +666,14 @@ export async function runHookRoutesResolved({
 	logger,
 }: { routes: Array<RouteData>; settings: AstroSettings; logger: Logger }) {
 	for (const integration of settings.config.integrations) {
-		if (integration?.hooks?.['astro:routes:resolved']) {
-			const integrationLogger = getLogger(integration, logger);
-
-			await withTakingALongTimeMsg({
-				name: integration.name,
-				hookName: 'astro:routes:resolved',
-				hookResult: integration.hooks['astro:routes:resolved']({
-					routes: routes.map((route) => toIntegrationResolvedRoute(route)),
-					logger: integrationLogger,
-				}),
-				logger,
-			});
-		}
+		await runHookInternal({
+			integration,
+			hookName: 'astro:routes:resolved',
+			logger,
+			params: () => ({
+				routes: routes.map((route) => toIntegrationResolvedRoute(route)),
+			}),
+		});
 	}
 }
 

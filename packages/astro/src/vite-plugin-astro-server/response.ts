@@ -1,29 +1,11 @@
 import type http from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
-import type { ErrorWithMetadata } from '../core/errors/index.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
-
 import { Readable } from 'node:stream';
 import { getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
+import type { ErrorWithMetadata } from '../core/errors/index.js';
+import type { ModuleLoader } from '../core/module-loader/index.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
-import notFoundTemplate from '../template/4xx.js';
-
-export async function handle404Response(
-	origin: string,
-	req: http.IncomingMessage,
-	res: http.ServerResponse,
-) {
-	const pathname = decodeURI(new URL(origin + req.url).pathname);
-
-	const html = notFoundTemplate({
-		statusCode: 404,
-		title: 'Not found',
-		tabTitle: '404: Not Found',
-		pathname,
-	});
-	writeHtmlResponse(res, 404, html);
-}
 
 export async function handle500Response(
 	loader: ModuleLoader,
@@ -59,7 +41,11 @@ export function writeRedirectResponse(
 	statusCode: number,
 	location: string,
 ) {
-	const html = redirectTemplate({ status: statusCode, location });
+	const html = redirectTemplate({
+		status: statusCode,
+		absoluteLocation: location,
+		relativeLocation: location,
+	});
 	res.writeHead(statusCode, {
 		Location: location,
 		'Content-Type': 'text/html',

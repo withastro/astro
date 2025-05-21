@@ -52,7 +52,7 @@ export async function printInfo({ flags }: InfoOptions) {
 	await copyToClipboard(output, flags.copy);
 }
 
-export async function copyToClipboard(text: string, force?: boolean) {
+async function copyToClipboard(text: string, force?: boolean) {
 	text = text.trim();
 	const system = platform();
 	let command = '';

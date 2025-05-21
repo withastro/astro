@@ -15,8 +15,9 @@ describe('Astro.callAction', () => {
 				return { name };
 			},
 		});
-		const result = await context.callAction(action, { name: 'Ben' });
-		expectTypeOf<typeof result>().toEqualTypeOf<ActionReturnType<typeof action>>();
+		expectTypeOf(await context.callAction(action, { name: 'Ben' })).toEqualTypeOf<
+			ActionReturnType<typeof action>
+		>();
 	});
 
 	it('Infers form action result on callAction', async () => {
@@ -30,8 +31,9 @@ describe('Astro.callAction', () => {
 				return { name };
 			},
 		});
-		const result = await context.callAction(action, new FormData());
-		expectTypeOf<typeof result>().toEqualTypeOf<ActionReturnType<typeof action>>();
+		expectTypeOf(await context.callAction(action, new FormData())).toEqualTypeOf<
+			ActionReturnType<typeof action>
+		>();
 	});
 
 	it('Infers orThrow action result on callAction', async () => {
@@ -45,7 +47,8 @@ describe('Astro.callAction', () => {
 				return { name };
 			},
 		});
-		const result = await context.callAction(action.orThrow, new FormData());
-		expectTypeOf<typeof result>().toEqualTypeOf<ActionReturnType<(typeof action)['orThrow']>>();
+		expectTypeOf(await context.callAction(action.orThrow, new FormData())).toEqualTypeOf<
+			ActionReturnType<(typeof action)['orThrow']>
+		>();
 	});
 });

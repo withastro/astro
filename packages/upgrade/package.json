@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/upgrade",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -30,12 +30,12 @@
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
     "@astrojs/cli-kit": "^0.4.1",
-    "package-manager-detector": "^1.0.0",
+    "package-manager-detector": "^1.1.0",
     "semver": "^7.7.1",
     "terminal-link": "^3.0.0"
   },
   "devDependencies": {
-    "@types/semver": "^7.5.8",
+    "@types/semver": "^7.7.0",
     "arg": "^5.0.2",
     "astro-scripts": "workspace:*"
   },

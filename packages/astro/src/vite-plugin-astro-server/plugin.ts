@@ -26,7 +26,7 @@ import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
 
-export interface AstroPluginOptions {
+interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
 	fs: typeof fs;
@@ -206,6 +206,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 				onRequest: NOOP_MIDDLEWARE_FN,
 			};
 		},
-		sessionConfig: settings.config.experimental.session ? settings.config.session : undefined,
+		sessionConfig: settings.config.session,
 	};
 }

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "9.1.3",
+  "version": "9.2.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
-    "send": "^1.1.0",
+    "send": "^1.2.0",
     "server-destroy": "^1.0.1"
   },
   "peerDependencies": {
@@ -48,7 +48,7 @@
     "cheerio": "1.0.0",
     "devalue": "^5.1.1",
     "express": "^4.21.2",
-    "node-mocks-http": "^1.16.2"
+    "node-mocks-http": "^1.17.2"
   },
   "publishConfig": {
     "provenance": true

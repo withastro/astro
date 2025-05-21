@@ -4,7 +4,7 @@ import { addRollupInput } from '../core/build/add-rollup-input.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
-import { getOutputDirectory } from '../prerender/utils.js';
+import { getServerOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
 	ASTRO_ACTIONS_INTERNAL_MODULE_ID,
@@ -73,7 +73,7 @@ export function vitePluginActionsBuild(
 					chunk.type !== 'asset' &&
 					chunk.facadeModuleId === RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID
 				) {
-					const outputDirectory = getOutputDirectory(opts.settings);
+					const outputDirectory = getServerOutputDirectory(opts.settings);
 					internals.astroActionsEntryPoint = new URL(chunkName, outputDirectory);
 				}
 			}
@@ -126,7 +126,7 @@ export function vitePluginActions({
 					shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
 				),
 			);
-			return code;
+			return { code };
 		},
 	};
 }

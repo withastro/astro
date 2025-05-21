@@ -33,7 +33,7 @@ import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
-export interface BuildOptions {
+interface BuildOptions {
 	/**
 	 * Output a development-based build similar to code transformed in `astro dev`. This
 	 * can be useful to test build-only issues with additional debugging information included.
@@ -173,7 +173,7 @@ class AstroBuilder {
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
-		await runHookBuildStart({ config: this.settings.config, logging: this.logger });
+		await runHookBuildStart({ config: this.settings.config, logger: this.logger });
 		this.validateConfig();
 
 		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
@@ -248,7 +248,7 @@ class AstroBuilder {
 				.flat()
 				.map((pageData) => pageData.route)
 				.concat(hasServerIslands ? getServerIslandRouteData(this.settings.config) : []),
-			logging: this.logger,
+			logger: this.logger,
 		});
 
 		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {

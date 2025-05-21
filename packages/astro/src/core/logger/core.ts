@@ -11,7 +11,7 @@ export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // sam
  * rather than specific to a single command, function, use, etc. The label will be
  * shown in the log message to the user, so it should be relevant.
  */
-export type LoggerLabel =
+type LoggerLabel =
 	| 'add'
 	| 'build'
 	| 'check'
@@ -28,6 +28,7 @@ export type LoggerLabel =
 	| 'preferences'
 	| 'redirects'
 	| 'sync'
+	| 'session'
 	| 'toolbar'
 	| 'assets'
 	| 'env'
@@ -52,6 +53,7 @@ export interface LogOptions {
 // Here be the dragons we've slain:
 // https://github.com/withastro/astro/issues/2625
 // https://github.com/withastro/astro/issues/3309
+/** @lintignore */
 export const dateTimeFormat = new Intl.DateTimeFormat([], {
 	hour: '2-digit',
 	minute: '2-digit',
@@ -75,7 +77,7 @@ export const levels: Record<LoggerLevel, number> = {
 };
 
 /** Full logging API */
-export function log(
+function log(
 	opts: LogOptions,
 	level: LoggerLevel,
 	label: string | null,
@@ -104,17 +106,17 @@ export function isLogLevelEnabled(configuredLogLevel: LoggerLevel, level: Logger
 }
 
 /** Emit a user-facing message. Useful for UI and other console messages. */
-export function info(opts: LogOptions, label: string | null, message: string, newLine = true) {
+function info(opts: LogOptions, label: string | null, message: string, newLine = true) {
 	return log(opts, 'info', label, message, newLine);
 }
 
 /** Emit a warning message. Useful for high-priority messages that aren't necessarily errors. */
-export function warn(opts: LogOptions, label: string | null, message: string, newLine = true) {
+function warn(opts: LogOptions, label: string | null, message: string, newLine = true) {
 	return log(opts, 'warn', label, message, newLine);
 }
 
 /** Emit a error message, Useful when Astro can't recover from some error. */
-export function error(opts: LogOptions, label: string | null, message: string, newLine = true) {
+function error(opts: LogOptions, label: string | null, message: string, newLine = true) {
 	return log(opts, 'error', label, message, newLine);
 }
 

@@ -3,6 +3,7 @@ import os from 'node:os';
 import { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } from 'kleur/colors';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
+import { NOOP_ACTIONS_MOD } from '../../actions/noop-actions.js';
 import {
 	generateImagesForPath,
 	getStaticImageList,
@@ -17,7 +18,7 @@ import {
 } from '../../core/path.js';
 import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated } from '../../integrations/hooks.js';
-import { getOutputDirectory } from '../../prerender/utils.js';
+import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
 import type { GetStaticPathsItem, MiddlewareHandler } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/config.js';
@@ -57,7 +58,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	if (ssr) {
 		manifest = await BuildPipeline.retrieveManifest(options.settings, internals);
 	} else {
-		const baseDirectory = getOutputDirectory(options.settings);
+		const baseDirectory = getServerOutputDirectory(options.settings);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
 		const middleware: MiddlewareHandler = internals.middlewareEntryPoint
@@ -66,7 +67,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 
 		const actions: SSRActions = internals.astroActionsEntryPoint
 			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
-			: { server: {} };
+			: NOOP_ACTIONS_MOD;
 		manifest = createBuildManifest(
 			options.settings,
 			internals,
@@ -296,7 +297,7 @@ async function generatePage(
 				const path = paths[i];
 				promises.push(limit(() => generatePathWithLogs(path, route, i, paths, true)));
 			}
-			await Promise.allSettled(promises);
+			await Promise.all(promises);
 		} else {
 			for (let i = 0; i < paths.length; i++) {
 				const path = paths[i];
@@ -548,7 +549,12 @@ async function generatePath(
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		body = redirectTemplate({ status: response.status, location, from: fromPath });
+		body = redirectTemplate({
+			status: response.status,
+			absoluteLocation: location,
+			relativeLocation: locationSite,
+			from: fromPath,
+		});
 		if (config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}
@@ -646,7 +652,7 @@ function createBuildManifest(
 				onRequest: middleware,
 			};
 		},
-		actions,
+		actions: () => actions,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,

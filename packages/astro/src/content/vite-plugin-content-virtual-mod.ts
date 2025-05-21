@@ -141,7 +141,7 @@ export function astroContentVirtualModPlugin({
 			}
 			if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
 				if (!fs.existsSync(dataStoreFile)) {
-					return 'export default new Map()';
+					return { code: 'export default new Map()' };
 				}
 				const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
@@ -161,18 +161,20 @@ export function astroContentVirtualModPlugin({
 
 			if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
 				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
-				if (!fs.existsSync(assetImportsFile)) {
-					return 'export default new Map()';
-				}
-				return fs.readFileSync(assetImportsFile, 'utf-8');
+				return {
+					code: fs.existsSync(assetImportsFile)
+						? fs.readFileSync(assetImportsFile, 'utf-8')
+						: 'export default new Map()',
+				};
 			}
 
 			if (id === MODULES_MJS_VIRTUAL_ID) {
 				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
-				if (!fs.existsSync(modules)) {
-					return 'export default new Map()';
-				}
-				return fs.readFileSync(modules, 'utf-8');
+				return {
+					code: fs.existsSync(modules)
+						? fs.readFileSync(modules, 'utf-8')
+						: 'export default new Map()',
+				};
 			}
 		},
 
@@ -196,7 +198,7 @@ export function astroContentVirtualModPlugin({
 	};
 }
 
-export async function generateContentEntryFile({
+async function generateContentEntryFile({
 	settings,
 	lookupMap,
 	isClient,
@@ -256,7 +258,7 @@ export async function generateContentEntryFile({
  * This is used internally to resolve entry imports when using `getEntry()`.
  * @see `templates/content/module.mjs`
  */
-export async function generateLookupMap({
+async function generateLookupMap({
 	settings,
 	fs,
 }: {

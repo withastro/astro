@@ -300,13 +300,20 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					}
 					throw e;
 				}
-				const {
-					props: _props,
-					getActionResult: _getActionResult,
-					callAction: _callAction,
-					redirect: _redirect,
-					...actionAPIContext
-				} = context;
+
+				const omitKeys = ['props', 'getActionResult', 'callAction', 'redirect'];
+
+				// Clones the context, preserving accessors and methods but omitting
+				// the properties that are not needed in the action handler.
+				const actionAPIContext = Object.create(
+					Object.getPrototypeOf(context),
+					Object.fromEntries(
+						Object.entries(Object.getOwnPropertyDescriptors(context)).filter(
+							([key]) => !omitKeys.includes(key),
+						),
+					),
+				);
+
 				Reflect.set(actionAPIContext, ACTION_API_CONTEXT_SYMBOL, true);
 				const handler = baseAction.bind(actionAPIContext satisfies ActionAPIContext);
 				return handler(input);

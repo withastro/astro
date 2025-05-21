@@ -1,5 +1,17 @@
 # @astrojs/vercel
 
+## 8.1.4
+
+### Patch Changes
+
+- [#13591](https://github.com/withastro/astro/pull/13591) [`5dd2d3f`](https://github.com/withastro/astro/commit/5dd2d3fde8a138ed611dedf39ffa5dfeeed315f8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes unused code
+
+## 8.1.3
+
+### Patch Changes
+
+- [#13480](https://github.com/withastro/astro/pull/13480) [`12cc4d8`](https://github.com/withastro/astro/commit/12cc4d88f216ba3f684ddffb33d117baa7197726) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused external redirects to fail
+
 ## 8.1.2
 
 ### Patch Changes

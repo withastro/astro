@@ -30,7 +30,7 @@ type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	? R
 	: any;
 
-export interface MatchedRoute {
+interface MatchedRoute {
 	route: RouteData;
 	filePath: URL;
 	resolvedPathname: string;
@@ -302,10 +302,12 @@ export async function handleRoute({
 		) {
 			// If we're here, it means that the calling static redirect that was configured by the user
 			// We try to replicate the same behaviour that we provide during a static build
+			const location = response.headers.get('location')!;
 			response = new Response(
 				redirectTemplate({
 					status: response.status,
-					location: response.headers.get('location')!,
+					absoluteLocation: location,
+					relativeLocation: location,
 					from: pathname,
 				}),
 				{

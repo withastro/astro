@@ -9,16 +9,19 @@ import type {
 } from '@astrojs/markdown-remark';
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
+import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
-import type { SvgRenderMode } from '../../assets/utils/svg.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
-import type { AstroConfigType } from '../../core/config/schema.js';
+import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
+
+export type { AstroFontProvider as FontProvider };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -185,6 +188,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */ export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
+	TFontFamilies extends FontFamily[] = never,
 > {
 	/**
 	 * @docs
@@ -298,7 +302,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *    '/news': {
 	 *      status: 302,
 	 *      destination: 'https://example.com/news'
-	 *  	},
+	 *    },
 	 *    // '/product1/', '/product1' // Note, this is not supported
 	 * 	}
 	 * })
@@ -359,9 +363,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @see output
 	 * @description
 	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssr), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters ([Cloudflare](/en/guides/integrations-guide/cloudflare/), [Netlify](/en/guides/integrations-guide/netlify/), [Node.js](/en/guides/integrations-guide/node/), [Vercel](/en/guides/integrations-guide/vercel/)) or explore [community adapters](https://astro.build/integrations/2/?search=&categories%5B%5D=adapters) to enable on-demand rendering in your Astro project.
 	 *
-	 * [See our On-demand Rendering guide](https://docs.astro.build/en/guides/on-demand-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
+	 * See our [on-demand rendering guide](/en/guides/on-demand-rendering/) for more on Astro's server rendering options.
 	 *
 	 * ```js
 	 * import netlify from '@astrojs/netlify';
@@ -577,36 +581,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		checkOrigin?: boolean;
 	};
-
-	/**
-	 * @docs
-	 * @name session
-	 * @type {SessionConfig}
-	 * @version 5.3.0
-	 * @description
-	 *
-	 * Configures experimental session support by specifying a storage `driver` as well as any associated `options`.
-	 * You must enable the `experimental.session` flag to use this feature.
-	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
-	 *
-	 * You can specify [any driver from Unstorage](https://unstorage.unjs.io/drivers) or provide a custom config which will override your adapter's default.
-	 *
-	 * See [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/) for more information.
-	 *
-	 * ```js title="astro.config.mjs"
-	 *   {
-	 *     session: {
-	 *       // Required: the name of the Unstorage driver
-	 *       driver: 'redis',
-	 *       // The required options depend on the driver
-	 *       options: {
-	 *         url: process.env.REDIS_URL,
-	 *       },
-	 *     }
-	 *   }
-	 * ```
-	 */
-	session?: SessionConfig<TSession>;
 
 	/**
 	 * @docs
@@ -934,6 +908,26 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 	/**
 	 * @docs
+	 * @name server.allowedHosts
+	 * @type {string[] | true}
+	 * @default `[]`
+	 * @version 5.4.0
+	 * @description
+	 *
+	 * A list of hostnames that Astro is allowed to respond to. When the value is set to `true`, any
+	 * hostname is allowed.
+	 *
+	 * ```js
+	 * {
+	 *   server: {
+	 *   	allowedHosts: ['staging.example.com', 'qa.example.com']
+	 *   }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @docs
 	 * @name server.open
 	 * @type {string | boolean}
 	 * @default `false`
@@ -961,6 +955,151 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 */
 
 	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @version 5.7.0
+	 * @name Session Options
+	 * @description
+	 *
+	 * Configures session storage for your Astro project. This is used to store session data in a persistent way, so that it can be accessed across different requests.
+	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
+	 *
+	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
+	 *
+	 * ```js title="astro.config.mjs"
+	 *   {
+	 *     session: {
+	 *       // The name of the Unstorage driver
+	 *       driver: 'redis',
+	 *       // The required options depend on the driver
+	 *       options: {
+	 *         url: process.env.REDIS_URL,
+	 *       },
+	 *       ttl: 3600, // 1 hour
+	 *     }
+	 *   }
+	 * ```
+	 */
+	session?: SessionConfig<TSession>;
+
+	/**
+	 * @docs
+	 * @name session.driver
+	 * @type {string | undefined}
+	 * @version 5.7.0
+	 * @description
+	 *
+	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions),
+	 * [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#sessions), and
+	 * [Netlify](/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
+	 * but you can specify your own if you would prefer or if you are using an adapter that does not provide one.
+	 *
+	 * The value is the "Driver name" from the [Unstorage driver documentation](https://unstorage.unjs.io/drivers).
+	 *
+	 * ```js title="astro.config.mjs" ins={4}
+	 * {
+	 *   adapter: vercel(),
+	 *   session: {
+	 *     driver: "redis",
+	 *   },
+	 * }
+	 * ```
+	 * :::note
+	 * Some drivers may need extra packages to be installed. Some drivers may also require environment variables or credentials to be set. See the [Unstorage documentation](https://unstorage.unjs.io/drivers) for more information.
+	 * :::
+	 *
+	 */
+
+	/**
+	 * @docs
+	 * @name session.options
+	 * @type {Record<string, unknown> | undefined}
+	 * @version 5.7.0
+	 * @default `{}`
+	 * @description
+	 *
+	 * The driver-specific options to use for session storage. The options depend on the driver you are using. See the [Unstorage documentation](https://unstorage.unjs.io/drivers)
+	 * for more information on the options available for each driver.
+	 *
+	 * ```js title="astro.config.mjs" ins={4-6}
+	 * {
+	 *    session: {
+	 *      driver: "redis",
+	 *      options: {
+	 *        url: process.env.REDIS_URL
+	 *      },
+	 *    }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name session.cookie
+	 * @type {string | AstroCookieSetOptions | undefined}
+	 * @version 5.7.0
+	 * @default `{ name: "astro-session", sameSite: "lax", httpOnly: true, secure: true }`
+	 * @description
+	 *
+	 * The session cookie configuration. If set to a string, it will be used as the cookie name.
+	 * Alternatively, you can pass an object with additional options. These will be merged with the defaults.
+	 *
+	 * ```js title="astro.config.mjs" ins={3-4}
+	 * {
+	 *  session: {
+	 *    // If set to a string, it will be used as the cookie name.
+	 *    cookie: "my-session-cookie",
+	 *  }
+	 * }
+	 *
+	 * ```
+	 *
+	 * ```js title="astro.config.mjs" ins={4-8}
+	 * {
+	 *  session: {
+	 *    // If set to an object, it will be used as the cookie options.
+	 *    cookie: {
+	 *      name: "my-session-cookie",
+	 *      sameSite: "lax",
+	 *      secure: true,
+	 *    }
+	 *  }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name session.ttl
+	 * @version 5.7.0
+	 * @type {number | undefined}
+	 * @default {Infinity}
+	 * @description
+	 *
+	 * An optional default time-to-live expiration period for session values, in seconds.
+	 *
+	 * By default, session values persist until they are deleted or the session is destroyed, and do not automatically expire because a particular amount of time has passed.
+	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://docs.astro.build/en/reference/api-reference/#set) will override the global default
+	 * for that individual entry.
+	 *
+	 * ```js title="astro.config.mjs" ins={3-4}
+	 * {
+	 *  session: {
+	 *    // Set a default expiration period of 1 hour (3600 seconds)
+	 *    ttl: 3600,
+	 *  }
+	 * }
+	 * ```
+	 * :::note
+	 * Setting a value for `ttl` does not automatically delete the value from storage after the time limit has passed.
+	 *
+	 * Values from storage will only be deleted when there is an attempt to access them after the `ttl` period has expired. At this time, the session value will be undefined and only then will the value be deleted.
+	 *
+	 * Individual drivers may also support a `ttl` option that will automatically delete sessions after the specified time. See your chosen driver's documentation for more information.
+	 * :::
+	 */
 
 	/**
 	 * @docs
@@ -1192,7 +1331,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @description
 		 * The default layout type for responsive images. Can be overridden by the `layout` prop on the image component.
 		 * Requires the `experimental.responsiveImages` flag to be enabled.
-		 * - `responsive` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
+		 * - `constrained` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
 		 * - `fixed` - The image will maintain its original dimensions.
 		 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
 		 */
@@ -1951,20 +2090,20 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * ```js title=astro.config.mjs
 		 * {
-		 *  	experimental: {
+		 *    experimental: {
 		 * 			responsiveImages: true,
 		 * 		},
 		 * }
 		 * ```
 		 *
-		 * When enabled, you can pass a `layout` props to any `<Image />` or `<Picture />` component to create a responsive image. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `responsive` and `full-width` layouts will have styles applied to ensure they resize according to their container.
+		 * When enabled, you can pass a `layout` props to any `<Image />` or `<Picture />` component to create a responsive image. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `constrained` and `full-width` layouts will have styles applied to ensure they resize according to their container.
 		 *
 		 * ```astro title=MyComponent.astro
 		 * ---
 		 * import { Image, Picture } from 'astro:assets';
 		 * import myImage from '../assets/my_image.png';
 		 * ---
-		 * <Image src={myImage} alt="A description of my image." layout='responsive' width={800} height={600} />
+		 * <Image src={myImage} alt="A description of my image." layout='constrained' width={800} height={600} />
 		 * <Picture src={myImage} alt="A description of my image." layout='full-width' formats={['avif', 'webp', 'jpeg']} />
 		 * ```
 		 * This `<Image />` component will generate the following HTML output:
@@ -1986,31 +2125,28 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *		fetchpriority="auto"
 		 *		width="800"
 		 *		height="600"
-		 *		style="--w: 800; --h: 600; --fit: cover; --pos: center;"
-		 *		data-astro-image="responsive"
+		 *		style="--fit: cover; --pos: center;"
+		 *		data-astro-image="constrained"
 		 *  >
 		 * ```
 		 *
 		 * The following styles are applied to ensure the images resize correctly:
 		 *
 		 * ```css title="Responsive Image Styles"
-		 * [data-astro-image] {
-		 * 		width: 100%;
-		 * 		height: auto;
-		 * 		object-fit: var(--fit);
-		 * 		object-position: var(--pos);
-		 * 		aspect-ratio: var(--w) / var(--h)
+		 *
+		 * :where([data-astro-image]) {
+		 *   object-fit: var(--fit);
+		 *   object-position: var(--pos);
 		 * }
 		 *
-		 * [data-astro-image=responsive] {
-		 * 		max-width: calc(var(--w) * 1px);
-		 * 		max-height: calc(var(--h) * 1px)
+		 * :where([data-astro-image='full-width']) {
+		 *   width: 100%;
 		 * }
 		 *
-		 * [data-astro-image=fixed] {
-		 * 		width: calc(var(--w) * 1px);
-		 * 		height: calc(var(--h) * 1px)
+		 * :where([data-astro-image='constrained']) {
+		 *   max-width: 100%;
 		 * }
+		 *
 		 * ```
 		 * You can enable responsive images for all `<Image />` and `<Picture />` components by setting `image.experimentalLayout` with a default value. This can be overridden by the `layout` prop on each component.
 		 *
@@ -2019,7 +2155,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * {
 		 * 		image: {
 		 * 			// Used for all `<Image />` and `<Picture />` components unless overridden
-		 * 			experimentalLayout: 'responsive',
+		 * 			experimentalLayout: 'constrained',
 		 * 		},
 		 * 		experimental: {
 		 * 			responsiveImages: true,
@@ -2044,12 +2180,12 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * These are additional properties available to the `<Image />` and `<Picture />` components when responsive images are enabled:
 		 *
-		 * - `layout`: The layout type for the image. Can be `responsive`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
+		 * - `layout`: The layout type for the image. Can be `constrained`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
 		 * - `fit`: Defines how the image should be cropped if the aspect ratio is changed. Values match those of CSS `object-fit`. Defaults to `cover`, or the value of `image.experimentalObjectFit` if set.
 		 * - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
 		 * - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
 		 *
-		 * The `widths` and `sizes` attributes are automatically generated based on the image's dimensions and the layout type, and in most cases should not be set manually. The generated `sizes` attribute for `responsive` and `full-width` images
+		 * The `widths` and `sizes` attributes are automatically generated based on the image's dimensions and the layout type, and in most cases should not be set manually. The generated `sizes` attribute for `constrained` and `full-width` images
 		 * is based on the assumption that the image is displayed at close to the full width of the screen when the viewport is smaller than the image's width. If it is significantly different (e.g. if it's in a multi-column layout on small screens) you may need to adjust the `sizes` attribute manually for best results.
 		 *
 		 * The `densities` attribute is not compatible with responsive images and will be ignored if set.
@@ -2059,102 +2195,22 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 *
-		 * @name experimental.session
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 5.0.0
+		 * @name experimental.fonts
+		 * @type {FontFamily[]}
+		 * @version 5.7
 		 * @description
 		 *
-		 * Enables support for sessions in Astro. Sessions are used to store user data across requests, such as user authentication state.
+		 * This experimental feature allows you to use fonts from your filesystem and various providers
+		 * (eg. Google, Fontsource, Bunny...) through a unified, fully customizable and type-safe API.
 		 *
-		 * When enabled you can access the `Astro.session` object to read and write data that persists across requests. You can configure the session driver using the [`session` option](#session), or use the default provided by your adapter.
-		 *
-		 * ```astro title=src/components/CartButton.astro
-		 * ---
-		 * export const prerender = false; // Not needed in 'server' mode
-		 * const cart = await Astro.session.get('cart');
-		 * ---
-		 *
-		 * <a href="/checkout">🛒 {cart?.length ?? 0} items</a>
-		 *
-		 * ```
-		 *
-		 * For more details, see [the experimental session guide](https://docs.astro.build/en/reference/experimental-flags/sessions/).
-		 *
-		 */
-
-		session?: boolean;
-		/**
-		 *
-		 * @name experimental.svg
-		 * @type {boolean|object}
-		 * @default `undefined`
-		 * @version 5.x
-		 * @description
-		 *
-		 * This feature allows you to import SVG files directly into your Astro project. By default, Astro will inline the SVG content into your HTML output.
-		 *
-		 * To enable this feature, set `experimental.svg` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 * 	   svg: true,
-		 * 	 },
-		 * }
-		 * ```
-		 *
-		 * To use this feature, import an SVG file in your Astro project, passing any common SVG attributes to the imported component.
-		 * Astro also provides a `size` attribute to set equal `height` and `width` properties:
-		 *
-		 * ```astro
-		 * ---
-		 * import Logo from './path/to/svg/file.svg';
-		 * ---
-		 *
-		 * <Logo size={24} />
-		 * ```
+		 * Web fonts can impact page performance at both load time and rendering time. This feature provides
+		 * automatic [optimization](https://web.dev/learn/performance/optimize-web-fonts) by creating
+		 * preload links and optimized fallbacks. This API includes opinionated defaults to keep your sites lightweight and performant (e.g. minimal font files downloaded) while allowing for extensive customization so you can opt in to greater control.
 		 *
 		 * For a complete overview, and to give feedback on this experimental API,
-		 * see the [Feature RFC](https://github.com/withastro/roadmap/pull/1035).
+		 * see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039).
 		 */
-		svg?:
-			| boolean
-			| {
-					/**
-					 *
-					 * @name experimental.svg.mode
-					 * @type {string}
-					 * @default 'inline'
-					 *
-					 * The default technique for handling imported SVG files. Astro will inline the SVG content into your HTML output if not specified.
-					 *
-					 * - `inline`: Astro will inline the SVG content into your HTML output.
-					 * - `sprite`: Astro will generate a sprite sheet with all imported SVG files.
-					 *
-					 * ```astro
-					 * ---
-					 * import Logo from './path/to/svg/file.svg';
-					 * ---
-					 *
-					 * <Logo size={24} mode="sprite" />
-					 * ```
-					 */
-					mode: SvgRenderMode;
-			  };
-
-		/**
-		 * @name experimental.serializeConfig
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 5.x
-		 * @description
-		 *
-		 * Enables the use of the experimental virtual modules `astro:config/server` and `astro:config/client`.
-		 *
-		 * These two virtual modules contain a serializable subset of the Astro configuration.
-		 */
-		serializeConfig?: boolean;
+		fonts?: [TFontFamilies] extends [never] ? FontFamily[] : TFontFamilies;
 
 		/**
 		 * @name experimental.headingIdCompat

@@ -1,3 +1,4 @@
+import { green } from 'kleur/colors';
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
 import { getActionContext } from '../actions/runtime/virtual/server.js';
 import { deserializeActionResult } from '../actions/runtime/virtual/shared.js';
@@ -59,7 +60,7 @@ export class RenderContext {
 		public props: Props = {},
 		public partial: undefined | boolean = undefined,
 		public session: AstroSession | undefined = pipeline.manifest.sessionConfig
-			? new AstroSession(cookies, pipeline.manifest.sessionConfig)
+			? new AstroSession(cookies, pipeline.manifest.sessionConfig, pipeline.runtimeMode)
 			: undefined,
 	) {}
 
@@ -152,6 +153,7 @@ export class RenderContext {
 		}
 		const lastNext = async (ctx: APIContext, payload?: RewritePayload) => {
 			if (payload) {
+				const oldPathname = this.pathname;
 				pipeline.logger.debug('router', 'Called rewriting to:', payload);
 				// we intentionally let the error bubble up
 				const {
@@ -192,10 +194,10 @@ export class RenderContext {
 				}
 				this.isRewriting = true;
 				this.url = new URL(this.request.url);
-				this.cookies = new AstroCookies(this.request);
 				this.params = getParams(routeData, pathname);
 				this.pathname = pathname;
 				this.status = 200;
+				setOriginPathname(this.request, oldPathname);
 			}
 			let response: Response;
 
@@ -282,6 +284,7 @@ export class RenderContext {
 	createAPIContext(props: APIContext['props'], context: ActionAPIContext): APIContext {
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
+
 		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
 
 		return Object.assign(context, {
@@ -294,6 +297,7 @@ export class RenderContext {
 
 	async #executeRewrite(reroutePayload: RewritePayload) {
 		this.pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
+		const oldPathname = this.pathname;
 		const { routeData, componentInstance, newUrl, pathname } = await this.pipeline.tryRewrite(
 			reroutePayload,
 			this.request,
@@ -301,11 +305,7 @@ export class RenderContext {
 		// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
 		// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 		// so Astro can't retrieve it from the emitted manifest.
-		if (
-			this.pipeline.serverLike === true &&
-			this.routeData.prerender === false &&
-			routeData.prerender === true
-		) {
+		if (this.pipeline.serverLike && !this.routeData.prerender && routeData.prerender) {
 			throw new AstroError({
 				...ForbiddenRewrite,
 				message: ForbiddenRewrite.message(this.pathname, pathname, routeData.component),
@@ -333,12 +333,13 @@ export class RenderContext {
 		this.isRewriting = true;
 		// we found a route and a component, we can change the status code to 200
 		this.status = 200;
+		setOriginPathname(this.request, oldPathname);
 		return await this.render(componentInstance);
 	}
 
 	createActionAPIContext(): ActionAPIContext {
 		const renderContext = this;
-		const { cookies, params, pipeline, url, session } = this;
+		const { cookies, params, pipeline, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
@@ -376,7 +377,23 @@ export class RenderContext {
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
 			},
-			session,
+			get session() {
+				if (this.isPrerendered) {
+					pipeline.logger.warn(
+						'session',
+						`context.session was used when rendering the route ${green(this.routePattern)}, but it is not available on prerendered routes. If you need access to sessions, make sure that the route is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your routes server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
+					);
+					return undefined;
+				}
+				if (!renderContext.session) {
+					pipeline.logger.warn(
+						'session',
+						`context.session was used when rendering the route ${green(this.routePattern)}, but no storage configuration was provided. Either configure the storage manually or use an adapter that provides session storage. For more information, see https://docs.astro.build/en/guides/sessions/`,
+					);
+					return undefined;
+				}
+				return renderContext.session;
+			},
 		};
 	}
 
@@ -439,6 +456,7 @@ export class RenderContext {
 				hasRenderedHead: false,
 				renderedScripts: new Set(),
 				hasDirectives: new Set(),
+				hasRenderedServerIslandRuntime: false,
 				headInTree: false,
 				extraHead: [],
 				propagators: new Set(),
@@ -514,7 +532,7 @@ export class RenderContext {
 		apiContext: ActionAPIContext,
 	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const renderContext = this;
-		const { cookies, locals, params, pipeline, url, session } = this;
+		const { cookies, locals, params, pipeline, url } = this;
 		const { response } = result;
 		const redirect = (path: string, status = 302) => {
 			// If the response is already sent, error as we cannot proceed with the redirect.
@@ -538,7 +556,23 @@ export class RenderContext {
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			cookies,
-			session,
+			get session() {
+				if (this.isPrerendered) {
+					pipeline.logger.warn(
+						'session',
+						`Astro.session was used when rendering the route ${green(this.routePattern)}, but it is not available on prerendered pages. If you need access to sessions, make sure that the page is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
+					);
+					return undefined;
+				}
+				if (!renderContext.session) {
+					pipeline.logger.warn(
+						'session',
+						`Astro.session was used when rendering the route ${green(this.routePattern)}, but no storage configuration was provided. Either configure the storage manually or use an adapter that provides session storage. For more information, see https://docs.astro.build/en/guides/sessions/`,
+					);
+					return undefined;
+				}
+				return renderContext.session;
+			},
 			get clientAddress() {
 				return renderContext.getClientAddress();
 			},
@@ -573,7 +607,10 @@ export class RenderContext {
 		const { pipeline, request, routeData, clientAddress } = this;
 
 		if (routeData.prerender) {
-			throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
+			throw new AstroError({
+				...AstroErrorData.PrerenderClientAddressNotAvailable,
+				message: AstroErrorData.PrerenderClientAddressNotAvailable.message(routeData.component),
+			});
 		}
 
 		if (clientAddress) {

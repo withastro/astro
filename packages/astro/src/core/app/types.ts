@@ -12,7 +12,7 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 
-export type ComponentPath = string;
+type ComponentPath = string;
 
 export type StylesheetAsset =
 	| { type: 'inline'; content: string }
@@ -35,7 +35,7 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 	routeData: SerializedRouteData;
 };
 
-export type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
+type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
 export type AssetsPrefix =
 	| string
@@ -77,7 +77,7 @@ export type SSRManifest = {
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
-	actions?: SSRActions;
+	actions?: () => Promise<SSRActions> | SSRActions;
 	checkOrigin: boolean;
 	sessionConfig?: ResolvedSessionConfig<any>;
 	cacheDir: string | URL;

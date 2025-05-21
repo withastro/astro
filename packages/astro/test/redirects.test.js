@@ -131,6 +131,7 @@ describe('Astro.redirect', () => {
 						'/more/old/[dynamic]/[route]': '/more/[dynamic]/[route]',
 						'/more/old/[...spread]': '/more/new/[...spread]',
 						'/external/redirect': 'https://example.com/',
+						'/relative/redirect': '../../test',
 					},
 				});
 				await fixture.build();
@@ -213,6 +214,12 @@ describe('Astro.redirect', () => {
 				const html = await fixture.readFile('/external/redirect/index.html');
 				assert.equal(html.includes('http-equiv="refresh'), true);
 				assert.equal(html.includes('url=https://example.com/'), true);
+			});
+
+			it('supports redirecting to a relative destination', async () => {
+				const html = await fixture.readFile('/relative/redirect/index.html');
+				assert.equal(html.includes('http-equiv="refresh'), true);
+				assert.equal(html.includes('url=../../test'), true);
 			});
 		});
 
@@ -315,6 +322,27 @@ describe('Astro.redirect', () => {
 			let secretHtml = await fixture.readFile('/secret/index.html');
 			assert.equal(secretHtml.includes('Redirecting from <code>/secret/</code>'), true);
 			assert.equal(secretHtml.includes('to <code>/login</code>'), true);
+		});
+	});
+
+	describe('when site is specified', () => {
+		before(async () => {
+			process.env.STATIC_MODE = true;
+			fixture = await loadFixture({
+				root: './fixtures/redirects/',
+				output: 'static',
+				redirects: {
+					'/one': '/',
+				},
+				site: 'https://example.com',
+			});
+			await fixture.build();
+		});
+
+		it('Does not add it to the generated HTML file', async () => {
+			const secretHtml = await fixture.readFile('/secret/index.html');
+			assert.equal(secretHtml.includes('url=https://example.com/login'), false);
+			assert.equal(secretHtml.includes('url=/login'), true);
 		});
 	});
 });

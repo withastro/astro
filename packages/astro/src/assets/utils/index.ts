@@ -5,7 +5,13 @@
  * If some functions don't need to be exposed, just import the file that contains the functions.
  */
 
-export { emitESMImage } from './node/emitAsset.js';
+export {
+	/**
+	 * @deprecated
+	 */
+	emitESMImage,
+	emitImageMetadata,
+} from './node/emitAsset.js';
 export { isESMImportedImage, isRemoteImage } from './imageKind.js';
 export { imageMetadata } from './metadata.js';
 export { getOrigQueryParams } from './queryParams.js';

@@ -284,6 +284,7 @@ export interface SSRMetadata {
 	renderedScripts: Set<string>;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
+	hasRenderedServerIslandRuntime: boolean;
 	headInTree: boolean;
 	extraHead: string[];
 	propagators: Set<AstroComponentInstance>;

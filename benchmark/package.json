@@ -24,7 +24,7 @@
     "tinyexec": "^0.3.2"
   },
   "devDependencies": {
-    "@codspeed/vitest-plugin": "4.0.0",
-    "vitest": "^3.0.8"
+    "@codspeed/vitest-plugin": "4.0.1",
+    "vitest": "^3.1.1"
   }
 }

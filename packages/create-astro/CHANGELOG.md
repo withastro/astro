@@ -1,5 +1,23 @@
 # create-astro
 
+## 4.11.4
+
+### Patch Changes
+
+- [#13703](https://github.com/withastro/astro/pull/13703) [`659904b`](https://github.com/withastro/astro/commit/659904bd999c6abdd62f18230954b7097dcbb7fe) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue when installing dependencies with `pnpm`.
+
+## 4.11.3
+
+### Patch Changes
+
+- [#13591](https://github.com/withastro/astro/pull/13591) [`5dd2d3f`](https://github.com/withastro/astro/commit/5dd2d3fde8a138ed611dedf39ffa5dfeeed315f8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes unused code
+
+## 4.11.2
+
+### Patch Changes
+
+- [#13636](https://github.com/withastro/astro/pull/13636) [`a9fd03f`](https://github.com/withastro/astro/commit/a9fd03fd82f2ea09c7bec9fd06ef20f5612e0a56) Thanks [@sarah11918](https://github.com/sarah11918)! - Updates the wording for choosing the "minimal" starter template options
+
 ## 4.11.1
 
 ### Patch Changes

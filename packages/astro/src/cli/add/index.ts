@@ -165,7 +165,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} else {
 						logger.info(
 							'SKIP_FORMAT',
-							`\n  @astrojs/tailwind requires additional configuration. Please refer to https://docs.astro.build/en/guides/integrations-guide/tailwind/`,
+							`\n  @tailwindcss/vite requires additional configuration. Please refer to https://docs.astro.build/en/guides/integrations-guide/tailwind/`,
 						);
 					}
 				} else {
@@ -503,11 +503,7 @@ function addVitePlugin(mod: ProxifiedModule<any>, pluginId: string, packageName:
 	}
 }
 
-export function setAdapter(
-	mod: ProxifiedModule<any>,
-	adapter: IntegrationInfo,
-	exportName: string,
-) {
+function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo, exportName: string) {
 	const config = getDefaultExportOptions(mod);
 	const adapterId = toIdent(adapter.id);
 
@@ -675,7 +671,12 @@ async function tryToInstallIntegrations({
 	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', inheritedFlags);
 	if (!installCommand) return UpdateResult.none;
 
-	const installSpecifiers = await convertIntegrationsToInstallSpecifiers(integrations);
+	const installSpecifiers = await convertIntegrationsToInstallSpecifiers(integrations).then(
+		(specifiers) =>
+			installCommand.command === 'deno'
+				? specifiers.map((specifier) => `npm:${specifier}`) // Deno requires npm prefix to install packages
+				: specifiers,
+	);
 
 	const coloredOutput = `${bold(installCommand.command)} ${installCommand.args.join(' ')} ${cyan(installSpecifiers.join(' '))}`;
 	const message = `\n${boxen(coloredOutput, {

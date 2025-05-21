@@ -17,6 +17,14 @@ export const server = {
 			return await context.session.get('cart');
 		},
 	}),
+	loadCart: defineAction({
+		input: z.object({ id: z.string() }),
+		handler: async (input, context) => {
+			context.session.load(input.id);
+			const cart = await context.session.get('cart');
+			return { cart };
+		}
+	}),
 	clearCart: defineAction({
 		accept: 'json',
 		handler: async (input, context) => {

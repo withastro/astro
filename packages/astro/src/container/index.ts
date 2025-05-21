@@ -1,7 +1,7 @@
 import './polyfill.js';
 import { posix } from 'node:path';
 import { getDefaultClientDirectives } from '../core/client-directive/index.js';
-import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
+import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/index.js';
 import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
 import { Logger } from '../core/logger/core.js';
@@ -123,10 +123,6 @@ export type AddClientRenderer = {
 	name: string;
 	entrypoint: string;
 };
-
-type ContainerImportRendererFn = (
-	containerRenderer: ContainerRenderer,
-) => Promise<SSRLoadedRenderer>;
 
 function createManifest(
 	manifest?: AstroContainerManifest,
@@ -269,12 +265,6 @@ export class experimental_AstroContainer {
 	 */
 	#withManifest = false;
 
-	/**
-	 * Internal function responsible for importing a renderer
-	 * @private
-	 */
-	#getRenderer: ContainerImportRendererFn | undefined;
-
 	private constructor({
 		streaming = false,
 		manifest,
@@ -414,7 +404,7 @@ export class experimental_AstroContainer {
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
-	// @ematipico: I plan to use it for a possible integration that could help people
+	// @ts-expect-error @ematipico: I plan to use it for a possible integration that could help people
 	private static async createFromManifest(
 		manifest: SSRManifest,
 	): Promise<experimental_AstroContainer> {

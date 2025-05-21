@@ -13,7 +13,7 @@ import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { getVirtualModulePageName } from './util.js';
 
-export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
+const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
 
 const ADAPTER_VIRTUAL_MODULE_ID = '@astrojs-ssr-adapter';
@@ -30,7 +30,7 @@ function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
 		},
 		async load(id) {
 			if (id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
-				return `export * from ${JSON.stringify(adapter.serverEntrypoint)};`;
+				return { code: `export * from ${JSON.stringify(adapter.serverEntrypoint)};` };
 			}
 		},
 	};
@@ -103,7 +103,7 @@ function vitePluginSSR(
 				const ssrCode = generateSSRCode(adapter, middleware!.id);
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
-				return [...imports, ...contents, ...exports].join('\n');
+				return { code: [...imports, ...contents, ...exports].join('\n') };
 			}
 		},
 		async generateBundle(_opts, bundle) {
@@ -168,7 +168,6 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 
 	const imports = [
 		`import { renderers } from '${RENDERERS_MODULE_ID}';`,
-		`import * as actions from '${ASTRO_ACTIONS_INTERNAL_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		`import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`,
@@ -180,7 +179,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`    pageMap,`,
 		`    serverIslandMap,`,
 		`    renderers,`,
-		`    actions,`,
+		`    actions: () => import("${ASTRO_ACTIONS_INTERNAL_MODULE_ID}"),`,
 		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${middlewareId}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,

@@ -515,15 +515,15 @@ export default function netlifyIntegration(
 				rootDir = config.root;
 				await cleanFunctions();
 
-				outDir = new URL('./dist/', rootDir);
+				outDir = new URL(config.outDir, rootDir);
 
 				const enableImageCDN = isRunningInNetlify && (integrationConfig?.imageCDN ?? true);
 
 				let session = config.session;
 
-				if (config.experimental.session && !session?.driver) {
+				if (!session?.driver) {
 					logger.info(
-						`Configuring experimental session support using ${isRunningInNetlify ? 'Netlify Blobs' : 'filesystem storage'}`,
+						`Enabling sessions with ${isRunningInNetlify ? 'Netlify Blobs' : 'filesystem storage'}`,
 					);
 					session = isRunningInNetlify
 						? {

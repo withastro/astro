@@ -493,7 +493,7 @@ describe('astro:image', () => {
 				$ = cheerio.load(html);
 
 				let $img = $('img');
-				assert.equal($img.length, 3);
+				assert.equal($img.length, 4);
 				$img.each((_, el) => {
 					assert.equal(el.attribs.src?.startsWith('/_image'), true);
 				});

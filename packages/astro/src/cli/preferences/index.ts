@@ -26,7 +26,7 @@ const PREFERENCES_SUBCOMMANDS = [
 	'reset',
 	'list',
 ] as const;
-export type Subcommand = (typeof PREFERENCES_SUBCOMMANDS)[number];
+type Subcommand = (typeof PREFERENCES_SUBCOMMANDS)[number];
 
 type AnnotatedValue = { annotation: string; value: string | number | boolean };
 type AnnotatedValues = Record<string, AnnotatedValue>;

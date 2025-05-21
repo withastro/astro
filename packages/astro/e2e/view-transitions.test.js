@@ -739,6 +739,10 @@ test.describe('View Transitions', () => {
 		await expect(h, 'should have content').toHaveAttribute('data-other-name', 'value');
 		await expect(h, 'should have content').toHaveAttribute('data-astro-fake', 'value');
 		await expect(h, 'should have content').toHaveAttribute('data-astro-transition', 'forward');
+		await expect(h, 'should have swap rest of data-astro-* attributes').toHaveAttribute(
+			'data-astro-transition-scope',
+			'scope-y',
+		);
 		await expect(h, 'should be absent').not.toHaveAttribute('class', /.*/);
 	});
 

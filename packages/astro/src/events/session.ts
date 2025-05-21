@@ -1,4 +1,4 @@
-import { AstroConfigSchema } from '../core/config/schema.js';
+import { AstroConfigSchema } from '../core/config/schemas/index.js';
 import type { AstroUserConfig } from '../types/public/config.js';
 import type { AstroIntegration } from '../types/public/integrations.js';
 
@@ -17,7 +17,7 @@ type ConfigInfoRecord = Record<string, ConfigInfoValue>;
 type ConfigInfoBase = {
 	[alias in keyof AstroUserConfig]: ConfigInfoValue | ConfigInfoRecord;
 };
-export interface ConfigInfo extends ConfigInfoBase {
+interface ConfigInfo extends ConfigInfoBase {
 	build: ConfigInfoRecord;
 	image: ConfigInfoRecord;
 	markdown: ConfigInfoRecord;

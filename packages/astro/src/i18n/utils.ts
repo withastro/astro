@@ -1,6 +1,6 @@
 import type { SSRManifest } from '../core/app/types.js';
 import type { AstroConfig, Locales } from '../types/public/config.js';
-import { normalizeTheLocale, toCodes } from './index.js';
+import { getAllCodes, normalizeTheLocale } from './index.js';
 
 type BrowserLocale = {
 	locale: string;
@@ -62,7 +62,7 @@ export function parseLocale(header: string): BrowserLocale[] {
 }
 
 function sortAndFilterLocales(browserLocaleList: BrowserLocale[], locales: Locales) {
-	const normalizedLocales = toCodes(locales).map(normalizeTheLocale);
+	const normalizedLocales = getAllCodes(locales).map(normalizeTheLocale);
 	return browserLocaleList
 		.filter((browserLocale) => {
 			if (browserLocale.locale !== '*') {
@@ -96,11 +96,13 @@ export function computePreferredLocale(request: Request, locales: Locales): stri
 				if (typeof currentLocale === 'string') {
 					if (normalizeTheLocale(currentLocale) === normalizeTheLocale(firstResult.locale)) {
 						result = currentLocale;
+						break;
 					}
 				} else {
 					for (const currentCode of currentLocale.codes) {
 						if (normalizeTheLocale(currentCode) === normalizeTheLocale(firstResult.locale)) {
-							result = currentLocale.path;
+							result = currentCode;
+							break;
 						}
 					}
 				}
@@ -119,14 +121,7 @@ export function computePreferredLocaleList(request: Request, locales: Locales): 
 
 		// SAFETY: bang operator is safe because checked by the previous condition
 		if (browserLocaleList.length === 1 && browserLocaleList.at(0)!.locale === '*') {
-			return locales.map((locale) => {
-				if (typeof locale === 'string') {
-					return locale;
-				} else {
-					// SAFETY: codes is never empty
-					return locale.codes.at(0)!;
-				}
-			});
+			return getAllCodes(locales);
 		} else if (browserLocaleList.length > 0) {
 			for (const browserLocale of browserLocaleList) {
 				for (const loopLocale of locales) {
@@ -137,7 +132,7 @@ export function computePreferredLocaleList(request: Request, locales: Locales): 
 					} else {
 						for (const code of loopLocale.codes) {
 							if (code === browserLocale.locale) {
-								result.push(loopLocale.path);
+								result.push(code);
 							}
 						}
 					}

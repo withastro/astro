@@ -2,14 +2,14 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 
-export const astroEntryPrefix = '\0astro-entry:';
+const astroEntryPrefix = '\0astro-entry:';
 
 /**
  * When adding hydrated or client:only components as Rollup inputs, sometimes we're not using all
  * of the export names, e.g. `import { Counter } from './ManyComponents.jsx'`. This plugin proxies
  * entries to re-export only the names the user is using.
  */
-export function vitePluginComponentEntry(internals: BuildInternals): VitePlugin {
+function vitePluginComponentEntry(internals: BuildInternals): VitePlugin {
 	const componentToExportNames = new Map<string, string[]>();
 
 	mergeComponentExportNames(internals.discoveredHydratedComponents);
@@ -64,7 +64,9 @@ export function vitePluginComponentEntry(internals: BuildInternals): VitePlugin 
 				const componentId = id.slice(astroEntryPrefix.length);
 				const exportNames = componentToExportNames.get(componentId);
 				if (exportNames) {
-					return `export { ${exportNames.join(', ')} } from ${JSON.stringify(componentId)}`;
+					return {
+						code: `export { ${exportNames.join(', ')} } from ${JSON.stringify(componentId)}`,
+					};
 				}
 			}
 		},

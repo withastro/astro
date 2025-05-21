@@ -14,7 +14,7 @@ import {
 import { createRequest } from '../request.js';
 import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';
 
-export type FindRouteToRewrite = {
+type FindRouteToRewrite = {
 	payload: RewritePayload;
 	routes: RouteData[];
 	request: Request;
@@ -23,7 +23,7 @@ export type FindRouteToRewrite = {
 	base: AstroConfig['base'];
 };
 
-export interface FindRouteToRewriteResult {
+interface FindRouteToRewriteResult {
 	routeData: RouteData;
 	newUrl: URL;
 	pathname: string;
@@ -52,28 +52,45 @@ export function findRouteToRewrite({
 	}
 
 	let pathname = newUrl.pathname;
-
 	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
 
-	if (base !== '/' && newUrl.pathname.startsWith(base)) {
-		pathname = shouldAppendSlash
-			? appendForwardSlash(newUrl.pathname)
-			: removeTrailingForwardSlash(newUrl.pathname);
-		pathname = pathname.slice(base.length);
+	// Special handling for base path
+	if (base !== '/') {
+		// Check if this is a request to the base path
+		const isBasePathRequest =
+			newUrl.pathname === base || newUrl.pathname === removeTrailingForwardSlash(base);
+
+		if (isBasePathRequest) {
+			// For root path requests at the base URL
+			// When trailingSlash is 'never', we should match '' (empty string pathname)
+			// When trailingSlash is 'always', we should match '/' pathname
+			pathname = shouldAppendSlash ? '/' : '';
+		} else if (newUrl.pathname.startsWith(base)) {
+			// For non-root paths under the base
+			pathname = shouldAppendSlash
+				? appendForwardSlash(newUrl.pathname)
+				: removeTrailingForwardSlash(newUrl.pathname);
+			pathname = pathname.slice(base.length);
+		}
 	}
 
+	// Ensure pathname starts with '/' when needed
 	if (!pathname.startsWith('/') && shouldAppendSlash && newUrl.pathname.endsWith('/')) {
-		// when base is in the rewrite call and trailingSlash is 'always' this is needed or it will 404.
 		pathname = prependForwardSlash(pathname);
 	}
 
+	// Convert '/' to '' for trailingSlash: 'never'
 	if (pathname === '/' && base !== '/' && !shouldAppendSlash) {
-		// when rewriting to index and trailingSlash is 'never' this is needed or it will 404
-		// in this case the pattern will look for '/^$/' so '/' will never match
 		pathname = '';
 	}
 
-	newUrl.pathname = joinPaths(...[base, pathname].filter(Boolean));
+	// Set the final URL pathname
+	if (base !== '/' && (pathname === '' || pathname === '/') && !shouldAppendSlash) {
+		// Special case for root path at base URL with trailingSlash: 'never'
+		newUrl.pathname = removeTrailingForwardSlash(base);
+	} else {
+		newUrl.pathname = joinPaths(...[base, pathname].filter(Boolean));
+	}
 
 	const decodedPathname = decodeURI(pathname);
 	let foundRoute;

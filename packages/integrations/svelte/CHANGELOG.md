@@ -1,5 +1,49 @@
 # @astrojs/svelte
 
+## 7.0.13
+
+### Patch Changes
+
+- [#13731](https://github.com/withastro/astro/pull/13731) [`c3e80c2`](https://github.com/withastro/astro/commit/c3e80c25b90c803e2798b752583a8e77cdad3146) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update vite to latest version for fixing CVE
+
+## 7.0.12
+
+### Patch Changes
+
+- [#13720](https://github.com/withastro/astro/pull/13720) [`e1cd1ae`](https://github.com/withastro/astro/commit/e1cd1ae52199c927ad5300a2eaed3996c6af5a64) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes SSR renderer type
+
+## 7.0.11
+
+### Patch Changes
+
+- [#13663](https://github.com/withastro/astro/pull/13663) [`a19a185`](https://github.com/withastro/astro/commit/a19a185efd75334f2f417b433fcfaa0017fe41ee) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves type-safety of renderers
+
+## 7.0.10
+
+### Patch Changes
+
+- [#13596](https://github.com/withastro/astro/pull/13596) [`3752519`](https://github.com/withastro/astro/commit/375251966d1b28a570bff45ff0fe7e7d2fe46f72) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update vite to latest version to fix CVE
+
+- [#13547](https://github.com/withastro/astro/pull/13547) [`360cb91`](https://github.com/withastro/astro/commit/360cb9199a4314f90825c5639ff4396760e9cfcc) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates vite to the latest version
+
+## 7.0.9
+
+### Patch Changes
+
+- [#13526](https://github.com/withastro/astro/pull/13526) [`ff9d69e`](https://github.com/withastro/astro/commit/ff9d69e3443c80059c54f6296d19f66bb068ead3) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update `vite` to the latest version
+
+## 7.0.8
+
+### Patch Changes
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
+## 7.0.7
+
+### Patch Changes
+
+- [#13470](https://github.com/withastro/astro/pull/13470) [`ecadb6b`](https://github.com/withastro/astro/commit/ecadb6b02e942feccf584547fe9c14d3d1e21ba6) Thanks [@ascorbic](https://github.com/ascorbic)! - Hides fallback content when rendering `client:only` island
+
 ## 7.0.6
 
 ### Patch Changes
