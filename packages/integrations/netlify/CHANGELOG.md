@@ -1,5 +1,16 @@
 # @astrojs/netlify
 
+## 6.3.4
+
+### Patch Changes
+
+- [#13799](https://github.com/withastro/astro/pull/13799) [`7036b05`](https://github.com/withastro/astro/commit/7036b057053494512cd2443cafa58a55960ee83c) Thanks [@Lofty-Brambles](https://github.com/Lofty-Brambles)! - Fixes an issue where the adapter didn't take into consideration the `outDir` configuration.
+
+- [#13830](https://github.com/withastro/astro/pull/13830) [`9371a67`](https://github.com/withastro/astro/commit/9371a67d453fd996d579ed51c6de3ba34199ac86) Thanks [@Lofty-Brambles](https://github.com/Lofty-Brambles)! - Fixes an issue with SVGs not rendering with image-cdn enabled, due to invalid source path parsing.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.1
+
 ## 6.3.3
 
 ### Patch Changes
