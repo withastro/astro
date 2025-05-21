@@ -4,13 +4,11 @@ import {
 	HTMLString,
 	escapeHTML,
 	markHTMLString,
-	renderTemplate,
 	spreadAttributes,
 	voidElementNames,
 } from './index.js';
 import { isAstroComponentFactory } from './render/astro/factory.js';
-import { renderTemplateResultToString } from './render/astro/render.js';
-import { renderComponent, renderComponentToString } from './render/component.js';
+import { renderComponentToString } from './render/component.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -66,13 +64,13 @@ Did you forget to import the component or is it possible there is a typo?`);
 						props[key] = value;
 					}
 				}
-				const str = await renderTemplateResultToString(
+				const str = await renderComponentToString(
 					result,
-					renderTemplate`${await renderComponent(result, vnode.type.name, vnode.type, props, slots)}`,
+					vnode.type.name,
+					vnode.type,
+					props,
+					slots,
 				);
-				if (str instanceof Response) {
-					throw str;
-				}
 				const html = markHTMLString(str);
 				return html;
 			}

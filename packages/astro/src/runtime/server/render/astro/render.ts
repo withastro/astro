@@ -5,7 +5,7 @@ import { type RenderDestination, chunkToByteArray, chunkToString, encoder } from
 import { promiseWithResolvers } from '../util.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
-import { isRenderTemplateResult, type RenderTemplateResult } from './render-template.js';
+import { isRenderTemplateResult } from './render-template.js';
 
 const DOCTYPE_EXP = /<!doctype html/i;
 
@@ -26,16 +26,9 @@ export async function renderToString(
 		route,
 	);
 
-	return await renderTemplateResultToString(result, templateResult, isPage);
-}
-
-export async function renderTemplateResultToString(
-	result: SSRResult,
-	templateResult: RenderTemplateResult | Response,
-	isPage = false,
-): Promise<string | Response> {
-	// If the Astro component returns a Response on init, return that response
-	if (templateResult instanceof Response) return templateResult;
+	if (templateResult instanceof Response)
+		// If the Astro component returns a Response on init, return that response
+		return templateResult;
 
 	let str = '';
 	let renderedFirstPageChunk = false;
