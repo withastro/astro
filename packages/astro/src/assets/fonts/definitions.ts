@@ -53,10 +53,15 @@ export interface ErrorHandler {
 export interface UrlProxy {
 	proxy: (
 		input: Pick<FontFileData, 'url' | 'init'> & {
+			type: FontType;
 			collectPreload: boolean;
 			data: Partial<unifont.FontFaceData>;
 		},
 	) => string;
+}
+
+export interface UrlResolver {
+	resolve: (hash: string) => string;
 }
 
 export interface UrlProxyContentResolver {

@@ -18,6 +18,7 @@ export type LinkItem = LinkItemBase;
 
 export type SitemapOptions =
 	| {
+			filenameBase?: string;
 			filter?(page: string): boolean;
 			customPages?: string[];
 
@@ -46,7 +47,6 @@ function formatConfigErrorMessage(err: ZodError) {
 }
 
 const PKG_NAME = '@astrojs/sitemap';
-const OUTFILE = 'sitemap-index.xml';
 const STATUS_CODE_PAGES = new Set(['404', '500']);
 
 const isStatusCodePage = (locales: string[]) => {
@@ -88,8 +88,9 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					const opts = validateOptions(config.site, options);
 
-					const { filter, customPages, serialize, entryLimit } = opts;
+					const { filenameBase, filter, customPages, serialize, entryLimit } = opts;
 
+					const outFile = `${filenameBase}-index.xml`;
 					const finalSiteUrl = new URL(config.base, config.site);
 					const shouldIgnoreStatus = isStatusCodePage(Object.keys(opts.i18n?.locales ?? {}));
 					let pageUrls = pages
@@ -144,7 +145,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					}
 
 					if (pageUrls.length === 0) {
-						logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
+						logger.warn(`No pages found!\n\`${outFile}\` not created.`);
 						return;
 					}
 
@@ -173,6 +174,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					const xslURL = opts.xslURL ? new URL(opts.xslURL, finalSiteUrl).href : undefined;
 					await writeSitemap(
 						{
+							filenameBase: filenameBase,
 							hostname: finalSiteUrl.href,
 							destinationDir: destDir,
 							publicBasePath: config.base,
@@ -182,7 +184,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						},
 						config,
 					);
-					logger.info(`\`${OUTFILE}\` created at \`${path.relative(process.cwd(), destDir)}\``);
+					logger.info(`\`${outFile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {
 					if (err instanceof ZodError) {
 						logger.warn(formatConfigErrorMessage(err));
