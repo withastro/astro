@@ -3740,6 +3740,9 @@ importers:
 
   packages/astro/test/fixtures/server-islands/ssr:
     dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../../integrations/mdx
       '@astrojs/svelte':
         specifier: workspace:*
         version: link:../../../../../integrations/svelte
