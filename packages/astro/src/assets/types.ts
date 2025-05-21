@@ -210,7 +210,10 @@ type ImageSharedProps<T> = T & {
 				 * ```
 				 */
 				priority?: boolean;
-
+				/**
+				 * Loading behavior for the image, e.g., "lazy" or "eager".
+				 */
+				loading?: string;
 				/**
 				 * A list of widths to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
 				 *
