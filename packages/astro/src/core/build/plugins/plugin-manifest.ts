@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve as importMetaResolve } from 'import-meta-resolve';
 import type { OutputChunk } from 'rollup';
 import { glob } from 'tinyglobby';
-import { builtinDrivers, type BuiltinDriverName } from 'unstorage';
+import { type BuiltinDriverName, builtinDrivers } from 'unstorage';
 import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
@@ -40,10 +40,7 @@ function resolveSessionDriver(driver: string | undefined): string | null {
 			return importMetaResolve(builtinDrivers.fsLite, import.meta.url);
 		}
 		if (driver in builtinDrivers) {
-			return importMetaResolve(
-				builtinDrivers[driver as BuiltinDriverName],
-				import.meta.url,
-			);
+			return importMetaResolve(builtinDrivers[driver as BuiltinDriverName], import.meta.url);
 		}
 	} catch {
 		return null;
