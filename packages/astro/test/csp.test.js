@@ -66,11 +66,7 @@ describe('CSP', () => {
 	it('should generate the hash with the sha512 algorithm', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter({
-				setManifest(_manifest) {
-					manifest = _manifest;
-				},
-			}),
+			adapter: testAdapter(),
 			experimental: {
 				csp: {
 					algorithm: 'SHA-512',
@@ -92,11 +88,7 @@ describe('CSP', () => {
 	it('should generate the hash with the sha384 algorithm', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter({
-				setManifest(_manifest) {
-					manifest = _manifest;
-				},
-			}),
+			adapter: testAdapter(),
 			experimental: {
 				csp: {
 					algorithm: 'SHA-384',
@@ -118,11 +110,7 @@ describe('CSP', () => {
 	it('should render hashes provided by the user', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter({
-				setManifest(_manifest) {
-					manifest = _manifest;
-				},
-			}),
+			adapter: testAdapter(),
 			experimental: {
 				csp: {
 					styleDirective: {
@@ -152,11 +140,7 @@ describe('CSP', () => {
 	it('should contain the additional directives', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter({
-				setManifest(_manifest) {
-					manifest = _manifest;
-				},
-			}),
+			adapter: testAdapter(),
 			experimental: {
 				csp: {
 					directives: ["img-src 'self' 'https://example.com'"],
@@ -178,11 +162,7 @@ describe('CSP', () => {
 	it('should contain the custom resources for "script-src" and "style-src"', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter({
-				setManifest(_manifest) {
-					manifest = _manifest;
-				},
-			}),
+			adapter: testAdapter(),
 			experimental: {
 				csp: {
 					styleDirective: {
@@ -220,11 +200,7 @@ describe('CSP', () => {
 	it('allows injecting custom script resources and hashes based on pages', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter({
-				setManifest(_manifest) {
-					manifest = _manifest;
-				},
-			}),
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
@@ -269,5 +245,29 @@ describe('CSP', () => {
 		assert.ok(meta.attr('content').toString().includes("script-src 'self'"));
 		// correctness for hashes
 		assert.ok(meta.attr('content').toString().includes("default-src 'self';"));
+	});
+
+	it('allows add `strict-dynamic` when enabled', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			adapter: testAdapter(),
+			experimental: {
+				csp: {
+					scriptDirective: {
+						strictDynamic: true,
+					},
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+
+		const request = new Request('http://example.com/index.html');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		assert.ok(meta.attr('content').toString().includes('strict-dynamic;'));
 	});
 });

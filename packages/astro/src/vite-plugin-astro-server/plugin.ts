@@ -13,6 +13,7 @@ import {
 	getDirectives,
 	getScriptResources,
 	getStyleResources,
+	getStrictDynamic,
 } from '../core/csp/common.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
@@ -191,6 +192,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			styleResources: getStyleResources(settings.config.experimental.csp),
 			algorithm: getAlgorithm(settings.config.experimental.csp),
 			directives: getDirectives(settings.config.experimental.csp),
+			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
 		};
 	}
 

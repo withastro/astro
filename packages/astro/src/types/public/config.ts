@@ -2326,6 +2326,18 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 						 *
 						 */
 						resources?: string[];
+
+						/**
+						 * @name experimental.csp.scriptDirective.strictDynamic
+						 * @type {boolean}
+						 * @default `false`
+						 * @version 5.5.x
+						 * @description
+						 *
+						 * Enables the keyword `strict-dynamic`, to support the dynamic injection of scripts.
+						 *
+						 */
+						strictDynamic?: boolean;
 					};
 
 					/**
