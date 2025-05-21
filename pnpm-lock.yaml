@@ -553,6 +553,9 @@ importers:
       http-cache-semantics:
         specifier: ^4.1.1
         version: 4.1.1
+      import-meta-resolve:
+        specifier: ^4.1.0
+        version: 4.1.0
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.0

@@ -143,6 +143,7 @@
     "github-slugger": "^2.0.0",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.1.1",
+    "import-meta-resolve": "^4.1.0",
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.5",
     "magic-string": "^0.30.17",

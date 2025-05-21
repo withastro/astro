@@ -1,4 +1,6 @@
 import { stringify as rawStringify, unflatten as rawUnflatten } from 'devalue';
+import { resolve as importMetaResolve } from 'import-meta-resolve';
+
 import {
 	type BuiltinDriverOptions,
 	type Driver,
@@ -507,10 +509,13 @@ export async function resolveSessionDriver(driver: string | undefined): Promise<
 	}
 	try {
 		if (driver === 'fs') {
-			return await import.meta.resolve(builtinDrivers.fsLite);
+			return importMetaResolve(builtinDrivers.fsLite, import.meta.url);
 		}
 		if (driver in builtinDrivers) {
-			return await import.meta.resolve(builtinDrivers[driver as keyof typeof builtinDrivers]);
+			return importMetaResolve(
+				builtinDrivers[driver as keyof typeof builtinDrivers],
+				import.meta.url,
+			);
 		}
 	} catch {
 		return null;
