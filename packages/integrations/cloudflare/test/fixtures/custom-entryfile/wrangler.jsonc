@@ -1,0 +1,24 @@
+{
+  "compatibility_date": "2025-05-21",
+  "main": "dist/_worker.js/index.js",
+  "name": "astro-cloudflare-custom-entryfile",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "queues": {
+    "producers": [
+      {
+        "queue": "MY-QUEUE-NAME",
+        "binding": "MY_QUEUE"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "MY-QUEUE-NAME",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5
+      }
+    ]
+  }
+}
