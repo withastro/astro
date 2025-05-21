@@ -153,9 +153,6 @@ importers:
       '@astrojs/mdx':
         specifier: ^4.2.6
         version: link:../../packages/integrations/mdx
-      '@astrojs/node':
-        specifier: ^9.2.1
-        version: link:../../packages/integrations/node
       '@astrojs/rss':
         specifier: ^4.0.11
         version: link:../../packages/astro-rss
