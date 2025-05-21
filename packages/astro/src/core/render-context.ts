@@ -37,7 +37,6 @@ import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rew
 import { AstroSession } from './session.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
-
 /**
  * Each request is rendered using a `RenderContext`.
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
@@ -72,6 +71,8 @@ export class RenderContext {
 	 * A safety net in case of loops
 	 */
 	counter = 0;
+
+	result: SSRResult | undefined = undefined;
 
 	static async create({
 		locals = {},
@@ -223,10 +224,10 @@ export class RenderContext {
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
-					const result = await this.createResult(componentInstance!, actionApiContext);
+					this.result = await this.createResult(componentInstance!, actionApiContext);
 					try {
 						response = await renderPage(
-							result,
+							this.result,
 							componentInstance?.default as any,
 							props,
 							slots,
@@ -236,7 +237,7 @@ export class RenderContext {
 					} catch (e) {
 						// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
 						// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
-						result.cancelled = true;
+						this.result.cancelled = true;
 						throw e;
 					}
 
@@ -394,11 +395,37 @@ export class RenderContext {
 				}
 				return renderContext.session;
 			},
-			insertDirective(_payload) {
+			insertDirective(payload) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.directives.push(payload);
+			},
+
+			insertScriptResource(resource) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.scriptResources.push(resource);
+			},
+			insertStyleResource(resource) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+
+				renderContext.result?.styleResources.push(resource);
+			},
+			insertStyleHash(hash) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.styleHashes.push(hash);
+			},
+			insertScriptHash(hash) {
 				if (!!pipeline.manifest.csp === false) {
 					throw new AstroError(CspNotEnabled);
 				}
-				// 	TODO: add the directive
+				renderContext.result?.scriptHashes.push(hash);
 			},
 		};
 	}
@@ -470,12 +497,13 @@ export class RenderContext {
 				propagators: new Set(),
 			},
 			shouldInjectCspMetaTags: !!manifest.csp,
-			scriptHashes: manifest.csp?.scriptHashes ?? [],
-			scriptResources: manifest.csp?.scriptResources ?? [],
-			styleHashes: manifest.csp?.styleHashes ?? [],
-			styleResources: manifest.csp?.styleResources ?? [],
 			cspAlgorithm: manifest.csp?.algorithm ?? 'SHA-256',
-			directives: manifest.csp?.directives ?? [],
+			// The following arrays must be cloned, otherwise they become mutable across routes.
+			scriptHashes: manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
+			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
+			styleHashes: manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],
+			styleResources: manifest.csp?.styleResources ? [...manifest.csp.styleResources] : [],
+			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
 		};
 
 		return result;
@@ -615,11 +643,37 @@ export class RenderContext {
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
 			},
-			insertDirective(_payload) {
+			insertDirective(payload) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.directives.push(payload);
+			},
+
+			insertScriptResource(resource) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.scriptResources.push(resource);
+			},
+			insertStyleResource(resource) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+
+				renderContext.result?.styleResources.push(resource);
+			},
+			insertStyleHash(hash) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.styleHashes.push(hash);
+			},
+			insertScriptHash(hash) {
 				if (!!pipeline.manifest.csp === false) {
 					throw new AstroError(CspNotEnabled);
 				}
-				// 	TODO: add the directive
+				renderContext.result?.scriptHashes.push(hash);
 			},
 		};
 	}

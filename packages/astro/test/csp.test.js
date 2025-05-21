@@ -159,12 +159,7 @@ describe('CSP', () => {
 			}),
 			experimental: {
 				csp: {
-					directives: [
-						{
-							type: 'img-src',
-							value: "'self' 'https://example.com'",
-						},
-					],
+					directives: ["img-src 'self' 'https://example.com'"],
 				},
 			},
 		});
@@ -220,5 +215,59 @@ describe('CSP', () => {
 				.toString()
 				.includes("style-src 'https://cdn.example.com' 'https://styles.cdn.example.com'"),
 		);
+	});
+
+	it('allows injecting custom script resources and hashes based on pages', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			adapter: testAdapter({
+				setManifest(_manifest) {
+					manifest = _manifest;
+				},
+			}),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+
+		const request = new Request('http://example.com/scripts/index.html');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		// correctness for resources
+		assert.ok(
+			meta.attr('content').toString().includes("script-src 'https://scripts.cdn.example.com'"),
+		);
+		assert.ok(meta.attr('content').toString().includes("style-src 'self'"));
+		// correctness for hashes
+		assert.ok(meta.attr('content').toString().includes("default-src 'self';"));
+	});
+
+	it('allows injecting custom styles resources and hashes based on pages', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			adapter: testAdapter({
+				setManifest(_manifest) {
+					manifest = _manifest;
+				},
+			}),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+
+		const request = new Request('http://example.com/styles/index.html');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		// correctness for resources
+		assert.ok(
+			meta.attr('content').toString().includes("style-src 'https://styles.cdn.example.com'"),
+		);
+		assert.ok(meta.attr('content').toString().includes("script-src 'self'"));
+		// correctness for hashes
+		assert.ok(meta.attr('content').toString().includes("default-src 'self';"));
 	});
 });
