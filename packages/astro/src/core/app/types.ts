@@ -114,7 +114,7 @@ export type SSRManifestCSP = {
 	scriptResources: string[];
 	styleHashes: string[];
 	styleResources: string[];
-	directives: CspDirective;
+	directives: CspDirective[];
 };
 
 /** Public type exposed through the `astro:build:ssr` integration hook */

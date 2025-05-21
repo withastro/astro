@@ -2357,7 +2357,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * ```
 					 *
 					 */
-					directives?: CspDirective;
+					directives?: CspDirective[];
 			  };
 
 		/**
