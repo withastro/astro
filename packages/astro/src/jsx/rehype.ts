@@ -87,9 +87,9 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 				addClientMetadata(node, matchedImport, resolvedPath);
 			} else if (hasServerDeferDirective(node)) {
 				metadata.serverComponents.push({
-					exportName: '*',
+					exportName: matchedImport.name,
 					localName: tagName,
-					specifier: tagName,
+					specifier: matchedImport.path,
 					resolvedPath,
 				});
 				// Mutate node with additional island attributes
