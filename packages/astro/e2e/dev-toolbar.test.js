@@ -266,11 +266,11 @@ test.describe('Dev Toolbar', () => {
 
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
 		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
-		const highlight = auditHighlights.nth(1)
+		const highlight = auditHighlights.nth(1);
 
-		await expect(async() => {
-			await highlight.hover({timeout: 100});
-		}).rejects.toThrowError()
+		await expect(async () => {
+			await highlight.hover({ timeout: 100 });
+		}).rejects.toThrowError();
 	});
 
 	test('can open Settings app', async ({ page, astro }) => {
