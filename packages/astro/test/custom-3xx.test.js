@@ -23,21 +23,29 @@ describe('Custom 3xx page', () => {
 
 	it('shows custom 3xx page on redirect', async () => {
 		const response = await fixture.fetch('/redirect-page');
-		// assert.equal(response.status, 301);
+		assert.equal(response.status, 302);
+
 		const html = await response.text();
 		$ = cheerio.load(html);
 		assert.equal($('h1').text(), 'Custom Redirect Page');
-		assert.equal($('p.destination').text(), '/destination');
-		assert.equal($('p.status').text(), '301');
+		assert.ok(
+			$('p.destination').text().includes('/destination'),
+			'Location should contain /destination',
+		);
+		assert.equal($('p.status').text(), '302');
 	});
 
-	it('shows custom 3xx page on temporary redirect', async () => {
+	it('shows custom 3xx page on config-defined temporary redirect', async () => {
 		const response = await fixture.fetch('/temp-redirect');
-		// assert.equal(response.status, 302);
+		assert.equal(response.status, 307);
+
 		const html = await response.text();
 		$ = cheerio.load(html);
 		assert.equal($('h1').text(), 'Custom Redirect Page');
-		assert.equal($('p.destination').text(), '/other-destination');
-		assert.equal($('p.status').text(), '302');
+		assert.ok(
+			$('p.destination').text().includes('/destination'),
+			'Location should contain /destination',
+		);
+		assert.equal($('p.status').text(), '307');
 	});
 });

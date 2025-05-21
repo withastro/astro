@@ -310,6 +310,7 @@ export async function handleRoute({
 	//
 	// By default, we should give priority to the status code passed, although it's possible that
 	// the `Response` emitted by the user is a redirect. If so, then return the returned response.
+
 	const isStatus3xx = response.status < 400 && response.status >= 300;
 
 	if (isStatus3xx) {
@@ -335,12 +336,25 @@ export async function handleRoute({
 			};
 
 			const redirectResponse = await renderContext.render(threeXXRoute.preloadedComponent);
+			const headers = Object.fromEntries(redirectResponse.headers.entries());
 
-			response = new Response(redirectResponse.body, {
+			const html = await redirectResponse.text();
+
+			const delay = response.status === 302 ? 2 : 0;
+
+			const injectedHtml = html.replace(
+				/<head[^>]*>/i,
+				`$&
+				<meta http-equiv="refresh" content="${delay};url=${location}">
+				<meta name="robots" content="noindex">
+				<link rel="canonical" href="${location}">`,
+			);
+
+			response = new Response(injectedHtml, {
 				status: response.status,
 				headers: {
-					...redirectResponse.headers,
-					location,
+					...headers,
+					'content-type': 'text/html',
 				},
 			});
 		} else if (

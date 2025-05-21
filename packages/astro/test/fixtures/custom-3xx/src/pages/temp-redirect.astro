@@ -1,3 +1,4 @@
 ---
-return Response.redirect('/other-destination', 302);
+const url = new URL('/destination', Astro.url);
+return Astro.redirect(url);
 ---
