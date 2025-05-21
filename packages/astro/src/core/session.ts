@@ -505,7 +505,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	}
 }
 
-export function resolveSessionDriverName(driver: string | undefined): string | null {
+function resolveSessionDriverName(driver: string | undefined): string | null {
 	if (!driver) {
 		return null;
 	}
