@@ -506,7 +506,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			// See: https://www.w3.org/WAI/standards-guidelines/act/rules/0ssw9k/proposed/
 			const isScrollable =
 				element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
-				if (isScrollable) return false;
+			if (isScrollable) return false;
 
 			if (element.localName === 'pre') return false;
 
