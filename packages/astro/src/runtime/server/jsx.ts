@@ -4,11 +4,13 @@ import {
 	HTMLString,
 	escapeHTML,
 	markHTMLString,
-	renderToString,
+	renderTemplate,
 	spreadAttributes,
 	voidElementNames,
 } from './index.js';
-import { renderComponentToString } from './render/component.js';
+import { isAstroComponentFactory } from './render/astro/factory.js';
+import { renderTemplateResultToString } from './render/astro/render.js';
+import { renderComponent, renderComponentToString } from './render/component.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -54,7 +56,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 			}
 			case (vnode.type as any) === Symbol.for('astro:fragment'):
 				return renderJSX(result, vnode.props.children);
-			case (vnode.type as any).isAstroComponentFactory: {
+			case isAstroComponentFactory(vnode.type): {
 				let props: Record<string, any> = {};
 				let slots: Record<string, any> = {};
 				for (const [key, value] of Object.entries(vnode.props ?? {})) {
@@ -64,7 +66,10 @@ Did you forget to import the component or is it possible there is a typo?`);
 						props[key] = value;
 					}
 				}
-				const str = await renderToString(result, vnode.type as any, props, slots);
+				const str = await renderTemplateResultToString(
+					result,
+					renderTemplate`${await renderComponent(result, vnode.type.name, vnode.type, props, slots)}`,
+				);
 				if (str instanceof Response) {
 					throw str;
 				}

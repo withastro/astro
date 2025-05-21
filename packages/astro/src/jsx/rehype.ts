@@ -33,8 +33,7 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 			if (
 				!tagName ||
 				!isComponent(tagName) ||
-				!hasClientDirective(node) ||
-				!hasServerDeferDirective(node)
+				!(hasClientDirective(node) || hasServerDeferDirective(node))
 			)
 				return;
 
@@ -89,7 +88,7 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 			} else if (hasServerDeferDirective(node)) {
 				metadata.serverComponents.push({
 					exportName: '*',
-					localName: '',
+					localName: tagName,
 					specifier: tagName,
 					resolvedPath,
 				});
@@ -354,7 +353,7 @@ function addServerDeferMetadata(
 	if (!attributeNames.includes('server:component-directive')) {
 		node.attributes.push({
 			type: 'mdxJsxAttribute',
-			name: 'server:directive',
+			name: 'server:component-directive',
 			value: 'server:defer',
 		});
 	}
