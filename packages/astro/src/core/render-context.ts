@@ -396,27 +396,27 @@ export class RenderContext {
 				return renderContext.session;
 			},
 			insertDirective(payload) {
-				if (!!pipeline.manifest.csp === false) {
+				if (!pipeline.manifest.csp) {
 					throw new AstroError(CspNotEnabled);
 				}
 				renderContext.result?.directives.push(payload);
 			},
 
 			insertScriptResource(resource) {
-				if (!!pipeline.manifest.csp === false) {
+				if (!pipeline.manifest.csp) {
 					throw new AstroError(CspNotEnabled);
 				}
 				renderContext.result?.scriptResources.push(resource);
 			},
 			insertStyleResource(resource) {
-				if (!!pipeline.manifest.csp === false) {
+				if (!pipeline.manifest.csp) {
 					throw new AstroError(CspNotEnabled);
 				}
 
 				renderContext.result?.styleResources.push(resource);
 			},
 			insertStyleHash(hash) {
-				if (!!pipeline.manifest.csp === false) {
+				if (!pipeline.manifest.csp) {
 					throw new AstroError(CspNotEnabled);
 				}
 				renderContext.result?.styleHashes.push(hash);
@@ -499,11 +499,11 @@ export class RenderContext {
 			shouldInjectCspMetaTags: !!manifest.csp,
 			cspAlgorithm: manifest.csp?.algorithm ?? 'SHA-256',
 			// The following arrays must be cloned, otherwise they become mutable across routes.
-			scriptHashes: !!manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
-			scriptResources: !!manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
-			styleHashes: !!manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],
-			styleResources: !!manifest.csp?.styleResources ? [...manifest.csp.styleResources] : [],
-			directives: !!manifest.csp?.directives ? [...manifest.csp.directives] : [],
+			scriptHashes: manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
+			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
+			styleHashes: manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],
+			styleResources: manifest.csp?.styleResources ? [...manifest.csp.styleResources] : [],
+			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
 		};
 
 		return result;
@@ -644,27 +644,27 @@ export class RenderContext {
 				return getOriginPathname(renderContext.request);
 			},
 			insertDirective(payload) {
-				if (!!pipeline.manifest.csp === false) {
+				if (!pipeline.manifest.csp) {
 					throw new AstroError(CspNotEnabled);
 				}
 				renderContext.result?.directives.push(payload);
 			},
 
 			insertScriptResource(resource) {
-				if (!!pipeline.manifest.csp === false) {
+				if (!pipeline.manifest.csp) {
 					throw new AstroError(CspNotEnabled);
 				}
 				renderContext.result?.scriptResources.push(resource);
 			},
 			insertStyleResource(resource) {
-				if (!!pipeline.manifest.csp === false) {
+				if (!pipeline.manifest.csp) {
 					throw new AstroError(CspNotEnabled);
 				}
 
 				renderContext.result?.styleResources.push(resource);
 			},
 			insertStyleHash(hash) {
-				if (!!pipeline.manifest.csp === false) {
+				if (!pipeline.manifest.csp) {
 					throw new AstroError(CspNotEnabled);
 				}
 				renderContext.result?.styleHashes.push(hash);
