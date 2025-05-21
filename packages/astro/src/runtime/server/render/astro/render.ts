@@ -26,9 +26,8 @@ export async function renderToString(
 		route,
 	);
 
-	if (templateResult instanceof Response)
-		// If the Astro component returns a Response on init, return that response
-		return templateResult;
+	// If the Astro component returns a Response on init, return that response
+	if (templateResult instanceof Response) return templateResult;
 
 	let str = '';
 	let renderedFirstPageChunk = false;
