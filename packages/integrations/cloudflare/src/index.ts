@@ -98,8 +98,14 @@ export type Options = {
 	 * See https://developers.cloudflare.com/kv/concepts/kv-namespaces/ for more details on using KV namespaces.
 	 *
 	 */
-
 	sessionKVBindingName?: string;
+
+	/**
+	 * The path to the entry file for the server. This is used to determine the entry point for the server.
+	 * By default, this is set to `@astrojs/cloudflare/entrypoints/server.js`.
+	 */
+	entryfilePath?: string;
+	entryfileExports?: string[];
 };
 
 function wrapWithSlashes(path: string): string {
@@ -231,8 +237,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				setAdapter({
 					name: '@astrojs/cloudflare',
-					serverEntrypoint: '@astrojs/cloudflare/entrypoints/server.js',
-					exports: ['default'],
+					serverEntrypoint: args?.entryfilePath
+						? new URL(args?.entryfilePath, config.root)
+						: '@astrojs/cloudflare/entrypoints/server.js',
+					exports: args?.entryfileExports ? ['default', ...args.entryfileExports] : ['default'],
 					adapterFeatures: {
 						edgeMiddleware: false,
 						buildOutput: 'server',
