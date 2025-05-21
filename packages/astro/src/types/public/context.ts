@@ -11,7 +11,7 @@ import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { Params, RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
 import type { AstroInstance, MDXInstance, MarkdownInstance } from './content.js';
-import type { CspDirective } from '../../core/csp/config.js';
+import type { CspDirective, CspHash } from '../../core/csp/config.js';
 
 /**
  * Astro global available in all contexts in .astro files
@@ -387,7 +387,7 @@ export interface AstroSharedContext<
 	 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
 	 * ```
 	 */
-	insertStyleHash: (hash: string) => void;
+	insertStyleHash: (hash: CspHash) => void;
 
 	/**
 	 * It set the resource for the directive `script-src` in the route being rendered.
@@ -409,7 +409,7 @@ export interface AstroSharedContext<
 	 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
 	 * ```
 	 */
-	insertScriptHash: (hash: string) => void;
+	insertScriptHash: (hash: CspHash) => void;
 }
 
 /**
