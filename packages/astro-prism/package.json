@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/prism",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Add Prism syntax highlighting support to your Astro site",
   "author": "withastro",
   "type": "module",

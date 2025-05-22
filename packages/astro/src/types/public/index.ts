@@ -43,3 +43,4 @@ export type {
 	AstroCookies,
 } from '../../core/cookies/index.js';
 export type { ContainerRenderer } from '../../container/index.js';
+export { AstroSession } from '../../core/session.js';
