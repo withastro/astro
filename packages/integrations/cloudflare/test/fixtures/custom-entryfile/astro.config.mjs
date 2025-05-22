@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
 	adapter: cloudflare({
-		entryfilePath: 'src/worker.ts'
+		entryfilePath: 'src/worker.ts',
+		entryfileExports: ['MyDurableObject']
 	}),
 });

@@ -2,6 +2,14 @@ import type { SSRManifest } from 'astro';
 
 import { App } from 'astro/app';
 import { handle } from '@astrojs/cloudflare/handler'
+import { DurableObject } from 'cloudflare:workers';
+
+class MyDurableObject extends DurableObject<Env> {
+  constructor(ctx: DurableObjectState, env: Env) {
+    // Required, as we're extending the base class.
+    super(ctx, env)
+  }
+}
 
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
@@ -18,6 +26,7 @@ export function createExports(manifest: SSRManifest) {
 				let messages = JSON.stringify(batch.messages);
     		console.log(`consumed from our queue: ${messages}`);
 			}
-		} satisfies ExportedHandler<Env>
+		} satisfies ExportedHandler<Env>,
+		MyDurableObject: MyDurableObject,
 	}
 }

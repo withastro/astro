@@ -27,7 +27,7 @@ import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 
-export type { Runtime } from './entrypoints/server.js';
+export type { Runtime } from './utils/handler.js';
 
 export type Options = {
 	/** Options for handling images. */

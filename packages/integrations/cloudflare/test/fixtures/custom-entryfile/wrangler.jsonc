@@ -20,5 +20,21 @@
         "max_batch_timeout": 5
       }
     ]
-  }
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "MY_DURABLE_OBJECT",
+        "class_name": "MyDurableObject"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "MyDurableObject"
+      ]
+    }
+  ]
 }
