@@ -38,6 +38,7 @@ import {
 	trackStyleHashes,
 	getScriptResources,
 	getStyleResources,
+	getStrictDynamic,
 } from '../csp/common.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -653,6 +654,7 @@ async function createBuildManifest(
 			scriptResources: getScriptResources(settings.config.experimental.csp),
 			algorithm,
 			directives: getDirectives(settings.config.experimental.csp),
+			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
 		};
 	}
 	return {

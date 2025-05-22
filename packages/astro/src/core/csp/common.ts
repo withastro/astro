@@ -58,6 +58,13 @@ export function getDirectives(csp: EnabledCsp): CspDirective[] {
 	return csp.directives ?? [];
 }
 
+export function getStrictDynamic(csp: EnabledCsp): boolean {
+	if (csp === true) {
+		return false;
+	}
+	return csp.scriptDirective?.strictDynamic ?? false;
+}
+
 export async function trackStyleHashes(
 	internals: BuildInternals,
 	settings: AstroSettings,

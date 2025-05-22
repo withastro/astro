@@ -257,6 +257,7 @@ export interface SSRResult {
 	styleHashes: SSRManifestCSP['styleHashes'];
 	styleResources: SSRManifestCSP['styleResources'];
 	directives: SSRManifestCSP['directives'];
+	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 }
 
 /**

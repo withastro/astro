@@ -491,6 +491,7 @@ export const AstroConfigSchema = z.object({
 							.object({
 								resources: z.array(z.string()).optional(),
 								hashes: z.array(cspHashSchema).optional(),
+								strictDynamic: z.boolean().optional(),
 							})
 							.optional(),
 					}),

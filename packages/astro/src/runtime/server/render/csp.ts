@@ -35,7 +35,8 @@ export function renderCspContent(result: SSRResult): string {
 		styleResources = result.styleResources.map((r) => `'${r}'`).join(' ');
 	}
 
-	const scriptSrc = `style-src ${styleResources} ${Array.from(finalStyleHashes).join(' ')};`;
+	const strictDynamic = result.isStrictDynamic ? ` strict-dynamic` : '';
+	const scriptSrc = `style-src ${styleResources} ${Array.from(finalStyleHashes).join(' ')}${strictDynamic};`;
 	const styleSrc = `script-src ${scriptResources} ${Array.from(finalScriptHashes).join(' ')};`;
 	return `${directives} ${scriptSrc} ${styleSrc}`;
 }

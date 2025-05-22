@@ -25,6 +25,7 @@ import {
 	trackStyleHashes,
 	getScriptResources,
 	getStyleResources,
+	getStrictDynamic,
 } from '../../csp/common.js';
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
@@ -326,6 +327,7 @@ async function buildManifest(
 			styleResources: getStyleResources(settings.config.experimental.csp),
 			algorithm,
 			directives: getDirectives(settings.config.experimental.csp),
+			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
 		};
 	}
 
