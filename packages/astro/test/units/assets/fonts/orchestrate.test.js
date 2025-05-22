@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { defineFontProvider } from 'unifont';
+import { joinPaths } from '../../../../../internal-helpers/dist/path.js';
 import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
 import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
@@ -90,7 +91,7 @@ describe('fonts orchestrate()', () => {
 		const entry = consumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{
-				url: '/test' + fileURLToPath(new URL('my-font.woff2.woff2', root)),
+				url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
 				type: 'woff2',
 			},
 		]);
