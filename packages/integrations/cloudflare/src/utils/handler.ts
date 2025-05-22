@@ -1,9 +1,14 @@
+import { env as globalEnv } from 'cloudflare:workers';
 import type { App } from 'astro/app';
 import type { SSRManifest } from 'astro';
 import type {
 	Request as CLOUDFLARE_REQUEST,
 	CacheStorage as CLOUDFLARE_CACHESTORAGE,
 } from '@cloudflare/workers-types';
+import { setGetEnv } from 'astro/env/setup';
+import { createGetEnv } from '../utils/env.js';
+
+setGetEnv(createGetEnv(globalEnv as Env));
 
 type Env = {
 	[key: string]: unknown;
@@ -18,6 +23,16 @@ export interface Runtime<T extends object = object> {
 		caches: CLOUDFLARE_CACHESTORAGE;
 		ctx: ExecutionContext;
 	};
+}
+
+declare global {
+	// This is not a real global, but is injected using Vite define to allow us to specify the session binding name in the config.
+	// eslint-disable-next-line no-var
+	var __ASTRO_SESSION_BINDING_NAME: string;
+
+	// Just used to pass the KV binding to unstorage.
+	// eslint-disable-next-line no-var
+	var __env__: Partial<Env>;
 }
 
 export async function handle(

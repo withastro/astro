@@ -105,6 +105,10 @@ export type Options = {
 	 * By default, this is set to `@astrojs/cloudflare/entrypoints/server.js`.
 	 */
 	entryfilePath?: string;
+
+	/**
+	 * The exports to use for the server entry file. By default, this is set to `['default']`. If you need to have other top level exports, e.g. DurableObjects you need to provide them here.
+	 */
 	entryfileExports?: string[];
 };
 
