@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.7.13",
+  "version": "5.7.14",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -143,6 +143,7 @@
     "github-slugger": "^2.0.0",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.1.1",
+    "import-meta-resolve": "^4.1.0",
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.5",
     "magic-string": "^0.30.17",
