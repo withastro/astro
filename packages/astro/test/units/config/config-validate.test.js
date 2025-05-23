@@ -479,4 +479,58 @@ describe('Config Validation', () => {
 			);
 		});
 	});
+
+	describe('csp', () => {
+		it('should throw an error if incorrect scriptHashes are passed', async () => {
+			let configError = await validateConfig({
+				experimental: {
+					csp: {
+						scriptDirective: {
+							hashes: ['fancy-1234567890'],
+						},
+					},
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+		});
+
+		it('should throw an error if incorrect styleHashes are passed', async () => {
+			let configError = await validateConfig({
+				experimental: {
+					csp: {
+						styleDirective: {
+							hashes: ['fancy-1234567890'],
+						},
+					},
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+		});
+
+		it('should not throw an error for correct hashes', async () => {
+			assert.doesNotThrow(() => {
+				validateConfig({
+					experimental: {
+						csp: {
+							styleDirective: {
+								hashes: ['sha256-1234567890'],
+							},
+						},
+					},
+				});
+			});
+		});
+
+		it('should not throw an error when the directives are correct', () => {
+			assert.doesNotThrow(() =>
+				validateConfig({
+					experimental: {
+						csp: {
+							directives: ["image-src 'self'"],
+						},
+					},
+				}).catch((err) => err),
+			);
+		});
+	});
 });

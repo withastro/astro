@@ -99,17 +99,19 @@ export default async function prebuild(...args) {
 			const code = result.build.outputFiles[0].text.trim();
 			const rootURL = new URL('../../', import.meta.url);
 			const rel = path.relative(fileURLToPath(rootURL), filepath);
+			const generatedCode = escapeTemplateLiterals(code);
 			const mod = `/**
  * This file is prebuilt from ${rel}
  * Do not edit this directly, but instead edit that file and rerun the prebuild
  * to generate this file.
  */
 
-export default \`${escapeTemplateLiterals(code)}\`;`;
+export default \`${generatedCode}\`;`;
 			const url = getPrebuildURL(filepath, result.dev);
 			await fs.promises.writeFile(url, mod, 'utf-8');
 		}
 	}
-
-	await Promise.all(entryPoints.map(prebuildFile));
+	for (const entrypoint of entryPoints) {
+		await prebuildFile(entrypoint);
+	}
 }

@@ -39,6 +39,7 @@ export type {
 	ComponentSlots,
 	RenderInstruction,
 } from './render/index.js';
+export type { ServerIslandComponent } from './render/server-islands.js';
 export { createTransitionScope, renderTransition } from './transition.js';
 
 import { markHTMLString } from './escape.js';

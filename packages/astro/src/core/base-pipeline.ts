@@ -112,11 +112,12 @@ export abstract class Pipeline {
 		else if (this.middleware) {
 			const middlewareInstance = await this.middleware();
 			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
+			const internalMiddlewares = [onRequest];
 			if (this.manifest.checkOrigin) {
-				this.resolvedMiddleware = sequence(createOriginCheckMiddleware(), onRequest);
-			} else {
-				this.resolvedMiddleware = onRequest;
+				// this middleware must be placed at the beginning because it needs to block incoming requests
+				internalMiddlewares.unshift(createOriginCheckMiddleware());
 			}
+			this.resolvedMiddleware = sequence(...internalMiddlewares);
 			return this.resolvedMiddleware;
 		} else {
 			this.resolvedMiddleware = NOOP_MIDDLEWARE_FN;
