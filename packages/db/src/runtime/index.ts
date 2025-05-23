@@ -66,13 +66,13 @@ export function asDrizzleTable(name: string, table: DBTable) {
 		columns[columnName] = columnMapper(columnName, column);
 	}
 	const drizzleTable = sqliteTable(name, columns, (ormTable) => {
-		const indexes: Record<string, IndexBuilder> = {};
+		const indexes: Array<IndexBuilder> = [];
 		for (const [indexName, indexProps] of Object.entries(table.indexes ?? {})) {
 			const onColNames = Array.isArray(indexProps.on) ? indexProps.on : [indexProps.on];
 			const onCols = onColNames.map((colName) => ormTable[colName]);
 			if (!atLeastOne(onCols)) continue;
 
-			indexes[indexName] = index(indexName).on(...onCols);
+			indexes.push(index(indexName).on(...onCols));
 		}
 		return indexes;
 	});
