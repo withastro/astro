@@ -23,12 +23,21 @@ const entries = {
 	'789': { id: '789', data: { title: 'Page 789', age: 30 } },
 };
 
-const loader: LiveLoader<Entry, EntryFilter, CollectionFilter> = {
+class CustomError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'CustomError';
+	}
+}
+
+const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 	name: 'test-loader',
 	loadEntry: async (context) => {
 		const entry = entries[context.filter.id];
 		if (!entry) {
-			return;
+			return {
+				error: new CustomError(`Entry ${context.filter.id} not found`),
+			}
 		}
 		return {
 			...entry,

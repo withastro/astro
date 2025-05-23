@@ -99,7 +99,10 @@ type LiveDataCollectionConfig<S extends BaseSchema, L extends LiveLoader> = {
 	loader: L;
 };
 
-export type BaseCollectionConfig<S extends BaseSchema> = ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S>
+export type BaseCollectionConfig<S extends BaseSchema> =
+	| ContentCollectionConfig<S>
+	| DataCollectionConfig<S>
+	| ContentLayerConfig<S>;
 
 export type CollectionConfig<
 	S extends BaseSchema,

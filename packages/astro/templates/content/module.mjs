@@ -6,6 +6,8 @@ import {
 	createGetEntries,
 	createGetEntry,
 	createGetEntryBySlug,
+	createGetLiveCollection,
+	createGetLiveEntry,
 	createReference,
 } from 'astro/content/runtime';
 
@@ -84,3 +86,11 @@ export const getDataEntryById = createGetDataEntryById({
 export const getEntries = createGetEntries(getEntry);
 
 export const reference = createReference({ lookupMap });
+
+export const getLiveCollection = createGetLiveCollection({
+	liveCollections,
+});
+
+export const getLiveEntry = createGetLiveEntry({
+	liveCollections,
+});

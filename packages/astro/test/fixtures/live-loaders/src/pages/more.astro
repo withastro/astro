@@ -1,7 +1,7 @@
 ---
-import { getEntry } from "astro:content";
+import { getLiveEntry } from "astro:content";
 
-const data = await getEntry("liveStuff", "123")
+const { entry } = await getLiveEntry("liveStuff", "123")
 export const prerender = false;
 
 ---
@@ -15,7 +15,6 @@ export const prerender = false;
 		<title>Astro</title>
 	</head>
 	<body>
-		<h1>{data.data.title}</h1>
-		
+		<h1>{entry?.data.title}</h1>
 	</body>
 </html>
