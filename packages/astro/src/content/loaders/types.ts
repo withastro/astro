@@ -66,15 +66,16 @@ export interface LiveLoader<
 	TData extends Record<string, any> = Record<string, unknown>,
 	TEntryFilter extends Record<string, any> | never = never,
 	TCollectionFilter extends Record<string, any> | never = never,
+	TError extends Error = Error,
 > {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
 	/** Load a single entry */
 	loadEntry: (
 		context: LoadEntryContext<TEntryFilter>,
-	) => Promise<LiveDataEntry<TData> | undefined | { error: Error }>;
+	) => Promise<LiveDataEntry<TData> | undefined | { error: TError }>;
 	/** Load a collection of entries */
 	loadCollection: (
 		context: LoadCollectionContext<TCollectionFilter>,
-	) => Promise<LiveDataCollection<TData> | { error: Error }>;
+	) => Promise<LiveDataCollection<TData> | { error: TError }>;
 }

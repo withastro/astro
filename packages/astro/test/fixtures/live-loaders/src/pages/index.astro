@@ -3,6 +3,10 @@ import { getLiveCollection } from "astro:content";
 
 const collection = await getLiveCollection("liveStuff")
 
+if(collection.error) {
+	throw collection.error;
+}
+
 export const prerender = false;
 
 ---

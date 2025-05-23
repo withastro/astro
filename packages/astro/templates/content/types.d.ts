@@ -80,7 +80,7 @@ declare module 'astro:content' {
 	export function getLiveCollection<C extends keyof LiveContentConfig['collections']>(
 		collection: C,
 		filter?: LiveLoaderCollectionFilterType<C>,
-	): Promise<import('astro').LiveDataCollectionResult<LiveLoaderDataType<C>>>;
+	): Promise<import('astro').LiveDataCollectionResult<LiveLoaderDataType<C>, LiveLoaderErrorType<C>>>;
 
 	export function getEntry<
 		C extends keyof ContentEntryMap,
@@ -121,7 +121,7 @@ declare module 'astro:content' {
 	export function getLiveEntry<C extends keyof LiveContentConfig['collections']>(
 		collection: C,
 		filter: string | LiveLoaderEntryFilterType<C>,
-	): Promise<import('astro').LiveDataEntryResult<LiveLoaderDataType<C>>>;
+	): Promise<import('astro').LiveDataEntryResult<LiveLoaderDataType<C>, LiveLoaderErrorType<C>>>;
 
 	/** Resolve an array of entry references from the same collection */
 	export function getEntries<C extends keyof ContentEntryMap>(
@@ -130,9 +130,6 @@ declare module 'astro:content' {
 	export function getEntries<C extends keyof DataEntryMap>(
 		entries: ReferenceDataEntry<C, keyof DataEntryMap[C]>[],
 	): Promise<CollectionEntry<C>[]>;
-	export function getEntries<C extends keyof LiveContentConfig['collections']>(
-		entries: ReferenceLiveEntry<C>[],
-	): Promise<import('astro').LiveDataEntry<LiveLoaderDataType<C>>[]>;
 
 	export function render<C extends keyof AnyEntryMap>(
 		entry: AnyEntryMap[C][string],
@@ -171,13 +168,15 @@ declare module 'astro:content' {
 	type ExtractLoaderTypes<T> = T extends import('astro/loaders').LiveLoader<
 		infer TData,
 		infer TEntryFilter,
-		infer TCollectionFilter
+		infer TCollectionFilter,
+		infer TError
 	>
-		? { data: TData; entryFilter: TEntryFilter; collectionFilter: TCollectionFilter }
-		: { data: never; entryFilter: never; collectionFilter: never };
+		? { data: TData; entryFilter: TEntryFilter; collectionFilter: TCollectionFilter; error: TError }
+		: { data: never; entryFilter: never; collectionFilter: never; error: never };
 	type ExtractDataType<T> = ExtractLoaderTypes<T>['data'];
 	type ExtractEntryFilterType<T> = ExtractLoaderTypes<T>['entryFilter'];
 	type ExtractCollectionFilterType<T> = ExtractLoaderTypes<T>['collectionFilter'];
+	type ExtractErrorType<T> = ExtractLoaderTypes<T>['error'];
 
 	type LiveLoaderDataType<C extends keyof LiveContentConfig['collections']> =
 		LiveContentConfig['collections'][C]['schema'] extends undefined
@@ -189,6 +188,8 @@ declare module 'astro:content' {
 		ExtractEntryFilterType<LiveContentConfig['collections'][C]['loader']>;
 	type LiveLoaderCollectionFilterType<C extends keyof LiveContentConfig['collections']> =
 		ExtractCollectionFilterType<LiveContentConfig['collections'][C]['loader']>;
+	type LiveLoaderErrorType<C extends keyof LiveContentConfig['collections']> =
+		ExtractErrorType<LiveContentConfig['collections'][C]['loader']>;
 
 	export type ContentConfig = '@@CONTENT_CONFIG_TYPE@@';
 	export type LiveContentConfig = '@@LIVE_CONTENT_CONFIG_TYPE@@';

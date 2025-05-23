@@ -3,6 +3,7 @@ import type * as rollup from 'rollup';
 import type { DataEntry, RenderedContent } from '../../content/data-store.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { AstroConfig } from './config.js';
+import type { AstroError } from '../../core/errors/index.js';
 
 export interface AstroInstance {
 	file: string;
@@ -151,16 +152,18 @@ export interface LiveDataCollection<
 
 export interface LiveDataCollectionResult<
 	TData extends Record<string, unknown> = Record<string, unknown>,
+	TError extends Error = Error,
 > {
 	entries?: Array<LiveDataEntry<TData>>;
-	error?: Error;
+	error?: TError | AstroError
 	cacheHint?: CacheHint;
 }
 
 export interface LiveDataEntryResult<
 	TData extends Record<string, unknown> = Record<string, unknown>,
+	TError extends Error = Error,
 > {
 	entry?: LiveDataEntry<TData>;
-	error?: Error;
+	error?: TError | AstroError;
 	cacheHint?: CacheHint;
 }
