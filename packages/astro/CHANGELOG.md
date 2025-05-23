@@ -1,5 +1,11 @@
 # astro
 
+## 5.8.1
+
+### Patch Changes
+
+- [#13843](https://github.com/withastro/astro/pull/13843) [`fbcfa68`](https://github.com/withastro/astro/commit/fbcfa683d38f13378678c25b53cd789107752087) Thanks [@z1haze](https://github.com/z1haze)! - Export type `AstroSession` to allow use in explicitly typed safe code.
+
 ## 5.8.0
 
 ### Minor Changes
