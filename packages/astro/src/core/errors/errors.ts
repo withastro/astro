@@ -27,7 +27,7 @@ type ErrorTypes =
 	| 'AggregateError';
 
 export function isAstroError(e: unknown): e is AstroError {
-	return e instanceof AstroError;
+	return e instanceof AstroError || AstroError.is(e);
 }
 
 export class AstroError extends Error {
