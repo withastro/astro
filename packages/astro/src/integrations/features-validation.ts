@@ -108,6 +108,10 @@ function getSupportMessage(supportKind: AdapterSupport): string | undefined {
 	return typeof supportKind === 'object' ? supportKind.message : undefined;
 }
 
+function getSupportMessageSuppression(supportKind: AdapterSupport): 'all' | 'default' | undefined {
+	return typeof supportKind === 'object' ? supportKind.suppress : undefined;
+}
+
 function validateSupportKind(
 	supportKind: AdapterSupport,
 	adapterName: string,
@@ -117,6 +121,7 @@ function validateSupportKind(
 ): boolean {
 	const supportValue = unwrapSupportKind(supportKind);
 	const message = getSupportMessage(supportKind);
+	const suppress = getSupportMessageSuppression(supportKind);
 
 	if (!supportValue) {
 		return false;
@@ -126,7 +131,7 @@ function validateSupportKind(
 		return true;
 	} else if (hasCorrectConfig()) {
 		// If the user has the relevant configuration, but the adapter doesn't support it, warn the user
-		logFeatureSupport(adapterName, logger, featureName, supportValue, message);
+		logFeatureSupport(adapterName, logger, featureName, supportValue, message, suppress);
 	}
 
 	return false;
@@ -138,38 +143,41 @@ function logFeatureSupport(
 	featureName: string,
 	supportKind: AdapterSupport,
 	adapterMessage?: string,
+	suppress?: 'all' | 'default',
 ) {
-	switch (supportKind) {
-		case AdapterFeatureStability.STABLE:
-			break;
-		case AdapterFeatureStability.DEPRECATED:
-			logger.warn(
-				'config',
-				`The adapter ${adapterName} has deprecated its support for "${featureName}", and future compatibility is not guaranteed. The adapter may completely remove support for this feature without warning.`,
-			);
-			break;
-		case AdapterFeatureStability.EXPERIMENTAL:
-			logger.warn(
-				'config',
-				`The adapter ${adapterName} provides experimental support for "${featureName}". You may experience issues or breaking changes until this feature is fully supported by the adapter.`,
-			);
-			break;
-		case AdapterFeatureStability.LIMITED:
-			logger.warn(
-				'config',
-				`The adapter ${adapterName} has limited support for "${featureName}". Certain features may not work as expected.`,
-			);
-			break;
-		case AdapterFeatureStability.UNSUPPORTED:
-			logger.error(
-				'config',
-				`The adapter ${adapterName} does not currently support the feature "${featureName}". Your project may not build correctly.`,
-			);
-			break;
+	if (!suppress) {
+		switch (supportKind) {
+			case AdapterFeatureStability.STABLE:
+				break;
+			case AdapterFeatureStability.DEPRECATED:
+				logger.warn(
+					'config',
+					`The adapter ${adapterName} has deprecated its support for "${featureName}", and future compatibility is not guaranteed. The adapter may completely remove support for this feature without warning.`,
+				);
+				break;
+			case AdapterFeatureStability.EXPERIMENTAL:
+				logger.warn(
+					'config',
+					`The adapter ${adapterName} provides experimental support for "${featureName}". You may experience issues or breaking changes until this feature is fully supported by the adapter.`,
+				);
+				break;
+			case AdapterFeatureStability.LIMITED:
+				logger.warn(
+					'config',
+					`The adapter ${adapterName} has limited support for "${featureName}". Certain features may not work as expected.`,
+				);
+				break;
+			case AdapterFeatureStability.UNSUPPORTED:
+				logger.error(
+					'config',
+					`The adapter ${adapterName} does not currently support the feature "${featureName}". Your project may not build correctly.`,
+				);
+				break;
+		}
 	}
 
-	// If the adapter specified a custom message, log it after the default message
-	if (adapterMessage) {
+	// If the adapter specified a custom message, log it after the default message (when not suppressed)
+	if (adapterMessage && suppress !== 'all') {
 		logger.warn('adapter', adapterMessage);
 	}
 }

@@ -67,6 +67,15 @@ export type AdapterSupportsKind =
 export type AdapterSupportWithMessage = {
 	support: Exclude<AdapterSupportsKind, 'stable'>;
 	message: string;
+	/**
+	 * Determines if a feature support warning/error in the adapter should be suppressed:
+	 * - `"default"`: Suppresses the default warning/error message.
+	 * - `"all"`: Suppresses both the custom and the default warning/error message.
+	 *
+	 * This is useful when the warning/error might not be aplicable in certain contexts.
+	 * Or the default message might cause confusion and conflict with the custom one.
+	 */
+	suppress?: 'all' | 'default';
 };
 
 export type AdapterSupport = AdapterSupportsKind | AdapterSupportWithMessage;
