@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-add AstroSession to exports
+Export type `AstroSession` to allow use in explicitly typed safe code.
