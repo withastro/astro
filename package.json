@@ -39,8 +39,7 @@
     "lint:fix": "biome lint --write --unsafe",
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
-    "preinstall": "npx only-allow pnpm",
-    "knip": "knip"
+    "preinstall": "npx only-allow pnpm"
   },
   "workspaces": [
     "packages/markdown/*",
