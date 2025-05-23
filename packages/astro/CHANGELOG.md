@@ -1,5 +1,53 @@
 # astro
 
+## 5.8.0
+
+### Minor Changes
+
+- [#13809](https://github.com/withastro/astro/pull/13809) [`3c3b492`](https://github.com/withastro/astro/commit/3c3b492375bd6a63f1fb6cede3685aff999be3c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Increases minimum Node.js version to 18.20.8
+
+  Node.js 18 has now reached end-of-life and should not be used. For now, Astro will continue to support Node.js 18.20.8, which is the final LTS release of Node.js 18, as well as Node.js 20 and Node.js 22 or later. We will drop support for Node.js 18 in a future release, so we recommend upgrading to Node.js 22 as soon as possible. See Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support) for more details.
+
+  :warning: **Important note for users of Cloudflare Pages**: The current build image for Cloudflare Pages uses Node.js 18.17.1 by default, which is no longer supported by Astro. If you are using Cloudflare Pages you should [override the default Node.js version](https://developers.cloudflare.com/pages/configuration/build-image/#override-default-versions) to Node.js 22. This does not affect users of Cloudflare Workers, which uses Node.js 22 by default.
+
+### Patch Changes
+
+- Updated dependencies [[`3c3b492`](https://github.com/withastro/astro/commit/3c3b492375bd6a63f1fb6cede3685aff999be3c9)]:
+  - @astrojs/telemetry@3.3.0
+  - @astrojs/markdown-remark@6.3.2
+
+## 5.7.14
+
+### Patch Changes
+
+- [#13773](https://github.com/withastro/astro/pull/13773) [`3aa5337`](https://github.com/withastro/astro/commit/3aa5337eaf01dbcc987dee9413c6985514ef7d6b) Thanks [@sijad](https://github.com/sijad)! - Ignores lightningcss unsupported pseudo-class warning.
+
+- [#13833](https://github.com/withastro/astro/pull/13833) [`5a6d2ae`](https://github.com/withastro/astro/commit/5a6d2aede4b397227be5acecfa9bfefb9a1af0f8) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue where session modules would fail to resolve in Node.js < 20.6
+
+- [#13383](https://github.com/withastro/astro/pull/13383) [`f7f712c`](https://github.com/withastro/astro/commit/f7f712cc29f80c4f8096489d7368c2fda223e097) Thanks [@Haberkamp](https://github.com/Haberkamp)! - Stop toolbar settings from overflowing
+
+- [#13794](https://github.com/withastro/astro/pull/13794) [`85b19d8`](https://github.com/withastro/astro/commit/85b19d87b6416957c245bd3e239fbf6da2038075) Thanks [@alexcarpenter](https://github.com/alexcarpenter)! - Exclude pre tags from `a11y-no-noninteractive-tabindex` audit check.
+
+- [#13373](https://github.com/withastro/astro/pull/13373) [`50ef568`](https://github.com/withastro/astro/commit/50ef568413b5fe7add36c089b77f9f180739f43f) Thanks [@jpwienekus](https://github.com/jpwienekus)! - Fixes a bug where highlights and tooltips render over the audit list window.
+
+- [#13769](https://github.com/withastro/astro/pull/13769) [`e9fc456`](https://github.com/withastro/astro/commit/e9fc456b58511da3ae2f932256217b3db4c42998) Thanks [@romanstetsyk](https://github.com/romanstetsyk)! - Expand ActionError codes to include all IANA-registered HTTP error codes.
+
+- [#13668](https://github.com/withastro/astro/pull/13668) [`866285a`](https://github.com/withastro/astro/commit/866285a5fb3e4ba9d8ca6aadb129d3a6ed2b0f69) Thanks [@sapphi-red](https://github.com/sapphi-red)! - Replaces internal CSS chunking behavior for Astro components' scoped styles to use Vite's `cssScopeTo` feature. The feature is a port of Astro's implementation so this should not change the behavior.
+
+## 5.7.13
+
+### Patch Changes
+
+- [#13761](https://github.com/withastro/astro/pull/13761) [`a2e8463`](https://github.com/withastro/astro/commit/a2e84631ad0a8dbc466d1301cc07a031334ffe5b) Thanks [@jp-knj](https://github.com/jp-knj)! - Adds new content collections errors
+
+- [#13788](https://github.com/withastro/astro/pull/13788) [`7d0b7ac`](https://github.com/withastro/astro/commit/7d0b7acb38d5140939d9660b2cf5718e9a8b2c15) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where an error would not be thrown when using the `<Font />` component from the experimental fonts API without adding fonts in the Astro config
+
+- [#13784](https://github.com/withastro/astro/pull/13784) [`d7a1889`](https://github.com/withastro/astro/commit/d7a188988427d1b157d27b789f918c208ece41f7) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes the experimental fonts API to correctly take `config.base`, `config.build.assets` and `config.build.assetsPrefix` into account
+
+- [#13777](https://github.com/withastro/astro/pull/13777) [`a56b8ea`](https://github.com/withastro/astro/commit/a56b8eaec486d26cbc61a7c94c152f4ee8cabc7a) Thanks [@L4Ph](https://github.com/L4Ph)! - Fixed an issue where looping GIF animation would stop when converted to WebP
+
+- [#13566](https://github.com/withastro/astro/pull/13566) [`0489d8f`](https://github.com/withastro/astro/commit/0489d8fe96fb8ee90284277358e38f55c8e0ab1d) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Fix build errors being ignored when build.concurrency > 1
+
 ## 5.7.12
 
 ### Patch Changes
