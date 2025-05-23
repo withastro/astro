@@ -499,9 +499,21 @@ async function generatePath(
 		// always be rendered
 		route.pathname !== '/' &&
 		// Check if there is a translated page with the same path
-		Object.values(options.allPages).some((val) => val.route.pattern.test(pathname))
+		Object.values(options.allPages).some((val) => {
+			if (val.route.pattern.test(pathname)) {
+				// Check that the matched route is in a locale folder
+				if (val.route.segments && val.route.segments.length !== 0) {
+					let locale = removeLeadingForwardSlash(pathname).split('/')[0];
+					if (val.route.segments[0][0].content !== locale) return false;
+				}
+				return true;
+			} else {
+				// Pattern doesn't match
+				return false;
+			}
+		})
 	) {
-		return undefined;
+		return void 0;
 	}
 
 	const url = getUrlForPath(

@@ -96,6 +96,18 @@ export function findRouteToRewrite({
 	let foundRoute;
 	for (const route of routes) {
 		if (route.pattern.test(decodedPathname)) {
+			// Extra check to make sure a dynamic route actually matches
+			if (route.params && route.distURL && route.distURL.length !== 0) {
+				if (
+					!route.distURL.find((url) =>
+						url.href
+							.replace(/(?:\/index\.html|\.html)$/, '')
+							.endsWith(removeTrailingForwardSlash(decodedPathname)),
+					)
+				) {
+					continue;
+				}
+			}
 			foundRoute = route;
 			break;
 		}
