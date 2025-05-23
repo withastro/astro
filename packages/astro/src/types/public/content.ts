@@ -148,3 +148,19 @@ export interface LiveDataCollection<
 	/** A hint for how to cache this collection. Individual entries can also have cache hints */
 	cacheHint?: CacheHint;
 }
+
+export interface LiveDataCollectionResult<
+	TData extends Record<string, unknown> = Record<string, unknown>,
+> {
+	entries?: Array<LiveDataEntry<TData>>;
+	error?: Error;
+	cacheHint?: CacheHint;
+}
+
+export interface LiveDataEntryResult<
+	TData extends Record<string, unknown> = Record<string, unknown>,
+> {
+	entry?: LiveDataEntry<TData>;
+	error?: Error;
+	cacheHint?: CacheHint;
+}

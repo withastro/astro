@@ -70,9 +70,11 @@ export interface LiveLoader<
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
 	/** Load a single entry */
-	loadEntry: (context: LoadEntryContext<TEntryFilter>) => Promise<LiveDataEntry<TData> | undefined>;
+	loadEntry: (
+		context: LoadEntryContext<TEntryFilter>,
+	) => Promise<LiveDataEntry<TData> | undefined | { error: Error }>;
 	/** Load a collection of entries */
 	loadCollection: (
 		context: LoadCollectionContext<TCollectionFilter>,
-	) => Promise<LiveDataCollection<TData>>;
+	) => Promise<LiveDataCollection<TData> | { error: Error }>;
 }

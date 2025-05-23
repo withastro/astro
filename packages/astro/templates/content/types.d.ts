@@ -77,10 +77,10 @@ declare module 'astro:content' {
 		filter?: (entry: CollectionEntry<C>) => unknown,
 	): Promise<CollectionEntry<C>[]>;
 
-	export function getCollection<C extends keyof LiveContentConfig['collections']>(
+	export function getLiveCollection<C extends keyof LiveContentConfig['collections']>(
 		collection: C,
 		filter?: LiveLoaderCollectionFilterType<C>,
-	): Promise<import('astro').LiveDataCollection<LiveLoaderDataType<C>>>;
+	): Promise<import('astro').LiveDataCollectionResult<LiveLoaderDataType<C>>>;
 
 	export function getEntry<
 		C extends keyof ContentEntryMap,
@@ -118,10 +118,10 @@ declare module 'astro:content' {
 			? Promise<DataEntryMap[C][E]> | undefined
 			: Promise<DataEntryMap[C][E]>
 		: Promise<CollectionEntry<C> | undefined>;
-	export function getEntry<C extends keyof LiveContentConfig['collections']>(
+	export function getLiveEntry<C extends keyof LiveContentConfig['collections']>(
 		collection: C,
 		filter: string | LiveLoaderEntryFilterType<C>,
-	): Promise<import('astro').LiveDataEntry<LiveLoaderDataType<C>>>;
+	): Promise<import('astro').LiveDataEntryResult<LiveLoaderDataType<C>>>;
 
 	/** Resolve an array of entry references from the same collection */
 	export function getEntries<C extends keyof ContentEntryMap>(
