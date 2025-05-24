@@ -173,14 +173,12 @@ const images = defineCollection({
 		}),
 });
 
-const markdownContent = `---
-hello: world
----
+const markdownContent = `
 # heading 1
 hello
 ## heading 2
-![image](image.png)
-![image 2](https://exmaple.com/image.png)
+![image](./image.png)
+![image 2](https://example.com/image.png)
 `
 
 const increment = defineCollection({

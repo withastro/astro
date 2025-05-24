@@ -90,6 +90,12 @@ describe('Content Layer', () => {
 			]);
 		});
 
+		it('can render markdown in loaders', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			assert.ok($('section h1').text().includes('heading 1'));
+		})
+
 		it('handles negative matches in glob() loader', async () => {
 			assert.ok(json.hasOwnProperty('probes'));
 			assert.ok(Array.isArray(json.probes));

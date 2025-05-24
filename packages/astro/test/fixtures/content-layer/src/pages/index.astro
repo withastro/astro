@@ -20,7 +20,9 @@ const { Content } = await render(increment);
 			<li><a href={`/dogs/${dog.id}`}>{ dog.data?.breed }</a></li>
 		))}
 	</ul>
-	<Content />
+	<section>
+		<Content />
+	</section>
 	<h1>Blog Posts</h1>
 
 	<h2>{first.data.title}</h2>

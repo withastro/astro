@@ -148,9 +148,7 @@ class ContentLayer {
 		content: string,
 		options?: MarkdownProcessorRenderOptions,
 	): Promise<RenderedContent> {
-		if (!this.#markdownProcessor) {
-			this.#markdownProcessor = await createMarkdownProcessor(this.#settings.config.markdown);
-		}
+		this.#markdownProcessor ??= await createMarkdownProcessor(this.#settings.config.markdown);
 		const { code, metadata } = await this.#markdownProcessor.render(content, options);
 		return {
 			html: code,
