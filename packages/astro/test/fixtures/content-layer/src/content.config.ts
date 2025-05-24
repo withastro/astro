@@ -173,10 +173,21 @@ const images = defineCollection({
 		}),
 });
 
+const markdownContent = `---
+hello: world
+---
+# heading 1
+hello
+## heading 2
+![image](image.png)
+![image 2](https://exmaple.com/image.png)
+`
+
 const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
-		load: async ({ store, refreshContextData, parseData }) => {
+		load: async ({ store, refreshContextData, parseData, parseMarkdown }) => {
+			console.log(parseMarkdown)
 			const entry = store.get<{ lastValue: number }>('value');
 			const lastValue = entry?.data.lastValue ?? 0;
 			const raw = {
@@ -192,6 +203,7 @@ const increment = defineCollection({
 			store.set({
 				id: raw.id,
 				data: parsed,
+				rendered: await parseMarkdown(markdownContent)
 			});
 		},
 		// Example of a loader that returns an async schema function

@@ -25,6 +25,12 @@ import {
 	safeStringify,
 } from './utils.js';
 import { type WrappedWatcher, createWatcherWrapper } from './watcher.js';
+import {
+	createMarkdownProcessor,
+	type MarkdownProcessor,
+	type MarkdownProcessorRenderOptions,
+} from '@astrojs/markdown-remark';
+import type { RenderedContent } from './data-store.js';
 
 interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -46,7 +52,7 @@ class ContentLayer {
 	#watcher?: WrappedWatcher;
 	#lastConfigDigest?: string;
 	#unsubscribe?: () => void;
-
+	#markdownProcessor?: MarkdownProcessor;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 
 	#queue: PQueue;
@@ -127,6 +133,7 @@ class ContentLayer {
 			logger: this.#logger.forkIntegrationLogger(loaderName),
 			config: this.#settings.config,
 			parseData,
+			parseMarkdown: this.#processMarkdown.bind(this),
 			generateDigest: await this.#getGenerateDigest(),
 			watcher: this.#watcher,
 			refreshContextData,
@@ -134,6 +141,20 @@ class ContentLayer {
 				...this.#settings.contentEntryTypes,
 				...this.#settings.dataEntryTypes,
 			] as Array<ContentEntryType>),
+		};
+	}
+
+	async #processMarkdown(
+		content: string,
+		options?: MarkdownProcessorRenderOptions,
+	): Promise<RenderedContent> {
+		if (!this.#markdownProcessor) {
+			this.#markdownProcessor = await createMarkdownProcessor(this.#settings.config.markdown);
+		}
+		const { code, metadata } = await this.#markdownProcessor.render(content, options);
+		return {
+			html: code,
+			metadata,
 		};
 	}
 

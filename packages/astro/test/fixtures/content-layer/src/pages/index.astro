@@ -1,10 +1,11 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 
 const blog = await getCollection('blog');
 const first = await getEntry('blog', 1);
 const dogs = await getCollection('dogs');
 const increment = await getEntry('increment', 'value');
+const { Content } = await render(increment);
 ---
 <html>
 <head>
@@ -19,6 +20,7 @@ const increment = await getEntry('increment', 'value');
 			<li><a href={`/dogs/${dog.id}`}>{ dog.data?.breed }</a></li>
 		))}
 	</ul>
+	<Content />
 	<h1>Blog Posts</h1>
 
 	<h2>{first.data.title}</h2>
