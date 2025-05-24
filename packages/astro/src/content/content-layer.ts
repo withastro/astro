@@ -1,4 +1,9 @@
 import { promises as fs, existsSync } from 'node:fs';
+import {
+	type MarkdownProcessor,
+	type MarkdownProcessorRenderOptions,
+	createMarkdownProcessor,
+} from '@astrojs/markdown-remark';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -14,6 +19,7 @@ import {
 	DATA_STORE_FILE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
+import type { RenderedContent } from './data-store.js';
 import type { LoaderContext } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import {
@@ -25,12 +31,6 @@ import {
 	safeStringify,
 } from './utils.js';
 import { type WrappedWatcher, createWatcherWrapper } from './watcher.js';
-import {
-	createMarkdownProcessor,
-	type MarkdownProcessor,
-	type MarkdownProcessorRenderOptions,
-} from '@astrojs/markdown-remark';
-import type { RenderedContent } from './data-store.js';
 
 interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -133,7 +133,7 @@ class ContentLayer {
 			logger: this.#logger.forkIntegrationLogger(loaderName),
 			config: this.#settings.config,
 			parseData,
-			parseMarkdown: this.#processMarkdown.bind(this),
+			renderMarkdown: this.#processMarkdown.bind(this),
 			generateDigest: await this.#getGenerateDigest(),
 			watcher: this.#watcher,
 			refreshContextData,

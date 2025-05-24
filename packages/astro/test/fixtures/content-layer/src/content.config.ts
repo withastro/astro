@@ -186,8 +186,7 @@ hello
 const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
-		load: async ({ store, refreshContextData, parseData, parseMarkdown }) => {
-			console.log(parseMarkdown)
+		load: async ({ store, refreshContextData, parseData, renderMarkdown }) => {
 			const entry = store.get<{ lastValue: number }>('value');
 			const lastValue = entry?.data.lastValue ?? 0;
 			const raw = {
@@ -203,7 +202,7 @@ const increment = defineCollection({
 			store.set({
 				id: raw.id,
 				data: parsed,
-				rendered: await parseMarkdown(markdownContent)
+				rendered: await renderMarkdown(markdownContent)
 			});
 		},
 		// Example of a loader that returns an async schema function

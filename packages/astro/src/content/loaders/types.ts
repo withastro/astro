@@ -1,11 +1,11 @@
+import type { MarkdownProcessorRenderOptions } from '@astrojs/markdown-remark';
 import type { FSWatcher } from 'vite';
 import type { ZodSchema } from 'zod';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { ContentEntryType } from '../../types/public/content.js';
-import type { DataStore, MetaStore } from '../mutable-data-store.js';
-import type { MarkdownProcessorRenderOptions } from '@astrojs/markdown-remark';
 import type { RenderedContent } from '../data-store.js';
+import type { DataStore, MetaStore } from '../mutable-data-store.js';
 
 export type { DataStore, MetaStore };
 
@@ -31,8 +31,11 @@ export interface LoaderContext {
 	/** Validates and parses the data according to the collection schema */
 	parseData<TData extends Record<string, unknown>>(props: ParseDataOptions<TData>): Promise<TData>;
 
-	/** Parses markdown content to HTML and metadata */
-	parseMarkdown(content: string, options?: MarkdownProcessorRenderOptions): Promise<RenderedContent>;
+	/** Renders markdown content to HTML and metadata */
+	renderMarkdown(
+		content: string,
+		options?: MarkdownProcessorRenderOptions,
+	): Promise<RenderedContent>;
 
 	/** Generates a non-cryptographic content digest. This can be used to check if the data has changed */
 	generateDigest(data: Record<string, unknown> | string): string;
