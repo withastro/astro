@@ -683,7 +683,7 @@ describe('astro:image:layout', () => {
 				assert.match(style, /\[data-astro-image\]/);
 			});
 		});
-				describe('disabling global styles', async () => {
+		describe('disabling global styles', async () => {
 			it('allows disabling global styles', async () => {
 				const fixtureWithoutStyles = await loadFixture({
 					root: './fixtures/core-image-layout/',
