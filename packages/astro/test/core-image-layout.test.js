@@ -584,7 +584,6 @@ describe('astro:image:layout', () => {
 
 			await fixture.build();
 		});
-
 		describe('basics', () => {
 			let $;
 			let html;
@@ -682,6 +681,23 @@ describe('astro:image:layout', () => {
 			it('injects a style tag', () => {
 				const style = $('style').text();
 				assert.match(style, /\[data-astro-image\]/);
+			});
+		});
+				describe('disabling global styles', async () => {
+			it('allows disabling global styles', async () => {
+				const fixtureWithoutStyles = await loadFixture({
+					root: './fixtures/core-image-layout/',
+					image: {
+						service: testImageService({ foo: 'bar' }),
+						domains: ['avatars.githubusercontent.com'],
+						experimentalDefaultStyles: false,
+					},
+				});
+				await fixtureWithoutStyles.build();
+				const html = await fixtureWithoutStyles.readFile('/index.html');
+				const $ = cheerio.load(html);
+				const style = $('style').text();
+				assert.ok(!style.includes('[data-astro-image]'));
 			});
 		});
 	});
