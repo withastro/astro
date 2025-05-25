@@ -15,6 +15,7 @@ node: "^>=18.17.1"
 pnpm: "^9.12.1"
 # otherwise, your build will fail
 ```
+chishin-lin
 
 We recommend using Corepack, [read PNPM docs](https://pnpm.io/installation#using-corepack).
 
