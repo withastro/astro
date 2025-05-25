@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.7.14",
+  "version": "5.8.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -217,7 +217,7 @@
     "vitest": "^3.0.9"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=22.0.0",
+    "node": "18.20.8 || ^20.3.0 || >=22.0.0",
     "npm": ">=9.6.5",
     "pnpm": ">=7.1.0"
   },
