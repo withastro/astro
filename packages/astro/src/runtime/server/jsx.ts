@@ -64,6 +64,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 						props[key] = value;
 					}
 				}
+				// We don't use renderToString because it doesn't contain the server island script handling
 				const str = await renderComponentToString(
 					result,
 					vnode.type.name,

@@ -31,6 +31,7 @@ export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions
 			}
 		},
 		transform(_code, id) {
+			// We run the transform for all file extensions to support transformed files, eg. mdx
 			const info = this.getModuleInfo(id);
 			if (!info?.meta?.astro) return;
 
