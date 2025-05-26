@@ -9,6 +9,10 @@ import {
 	renderTemplate,
 } from '../../../dist/runtime/server/index.js';
 
+const DEFAULT_RESULT = {
+	clientDirectives: new Map(),
+};
+
 describe('rendering', () => {
 	const evaluated = [];
 
@@ -38,7 +42,7 @@ describe('rendering', () => {
 			</nested>`;
 		});
 
-		const result = await renderToString(Root({}, { id: 'root' }, {}));
+		const result = await renderToString(Root(DEFAULT_RESULT, { id: 'root' }, {}));
 		const rendered = getRenderedIds(result);
 
 		assert.deepEqual(evaluated, [
@@ -71,7 +75,7 @@ describe('rendering', () => {
 			</root>`;
 		});
 
-		const result = renderToString(Root({}, { id: 'root' }, {}));
+		const result = renderToString(Root(DEFAULT_RESULT, { id: 'root' }, {}));
 		assert.ok(!isPromise(result));
 
 		const rendered = getRenderedIds(result);
@@ -110,7 +114,7 @@ describe('rendering', () => {
 			</asyncnested>`;
 		});
 
-		const result = await renderToString(Root({}, { id: 'root' }, {}));
+		const result = await renderToString(Root(DEFAULT_RESULT, { id: 'root' }, {}));
 
 		const rendered = getRenderedIds(result);
 
@@ -148,7 +152,7 @@ describe('rendering', () => {
 			</asyncnested>`;
 		});
 
-		const awaitableResult = renderToString(Root({}, { id: 'root' }, {}));
+		const awaitableResult = renderToString(Root(DEFAULT_RESULT, { id: 'root' }, {}));
 
 		assert.deepEqual(evaluated, ['root', 'root/asyncnested_1', 'root/asyncnested_2']);
 
@@ -183,7 +187,7 @@ describe('rendering', () => {
 			return renderTemplate`${message}`;
 		});
 
-		const renderInstance = await renderComponent({}, '', Root, {});
+		const renderInstance = await renderComponent(DEFAULT_RESULT, '', Root, {});
 
 		const chunks = [];
 		const destination = {
@@ -226,7 +230,7 @@ describe('rendering', () => {
 			</root>`;
 		});
 
-		const result = await renderToString(Root({}, { id: 'root' }, {}));
+		const result = await renderToString(Root(DEFAULT_RESULT, { id: 'root' }, {}));
 
 		const rendered = getRenderedIds(result);
 
