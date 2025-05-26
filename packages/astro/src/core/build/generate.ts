@@ -501,11 +501,13 @@ async function generatePath(
 		// Check if there is a translated page with the same path
 		Object.values(options.allPages).some((val) => {
 			if (val.route.pattern.test(pathname)) {
-				// Check that the matched route is in a locale folder
+				// Check if we've matched a dynamic route
 				if (val.route.segments && val.route.segments.length !== 0) {
 					let locale = removeLeadingForwardSlash(pathname).split('/')[0];
+					// Check that the route is in a matching locale folder
 					if (val.route.segments[0][0].content !== locale) return false;
 				}
+				// Route matches
 				return true;
 			} else {
 				// Pattern doesn't match
