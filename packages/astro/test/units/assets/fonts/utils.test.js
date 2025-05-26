@@ -82,6 +82,36 @@ describe('fonts utils', () => {
 				'font-variation-settings': 'bar',
 			},
 		);
+		assert.deepStrictEqual(
+			unifontFontFaceDataToProperties({
+				unicodeRange: [],
+			}),
+			{
+				src: undefined,
+				'font-weight': undefined,
+				'font-style': undefined,
+				'font-stretch': undefined,
+				'font-feature-settings': undefined,
+				'font-variation-settings': undefined,
+				'unicode-range': undefined,
+				'font-display': 'swap',
+			},
+		);
+		assert.deepStrictEqual(
+			unifontFontFaceDataToProperties({
+				unicodeRange: undefined,
+			}),
+			{
+				src: undefined,
+				'font-weight': undefined,
+				'font-style': undefined,
+				'font-stretch': undefined,
+				'font-feature-settings': undefined,
+				'font-variation-settings': undefined,
+				'unicode-range': undefined,
+				'font-display': 'swap',
+			},
+		);
 	});
 
 	it('sortObjectByKey()', () => {

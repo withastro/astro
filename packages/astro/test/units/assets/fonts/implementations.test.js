@@ -7,10 +7,16 @@ import {
 	renderFontFace,
 	withFamily,
 } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
+import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
 import { createAstroErrorHandler } from '../../../../dist/assets/fonts/implementations/error-handler.js';
 import { createCachedFontFetcher } from '../../../../dist/assets/fonts/implementations/font-fetcher.js';
+import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/implementations/font-metrics-resolver.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
+import {
+	createBuildUrlResolver,
+	createDevUrlResolver,
+} from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 import { createSpyStorage, simpleErrorHandler } from './utils.js';
 
 describe('fonts implementations', () => {
@@ -269,8 +275,44 @@ describe('fonts implementations', () => {
 		});
 	});
 
-	// TODO: find a good way to test this
-	// describe('createCapsizeFontMetricsResolver()', () => {});
+	describe('createCapsizeFontMetricsResolver()', () => {
+		describe('generateFontFace()', () => {
+			it('returns a src', () => {
+				const fontMetricsResolver = createCapsizeFontMetricsResolver({
+					cssRenderer: createMinifiableCssRenderer({ minify: true }),
+					fontFetcher: {
+						async fetch() {
+							return Buffer.from('');
+						},
+					},
+				});
+
+				const css = fontMetricsResolver.generateFontFace({
+					name: 'Roboto-xxx fallback: Arial',
+					font: 'Arial',
+					metrics: {
+						ascent: 1,
+						descent: 1,
+						lineGap: 1,
+						unitsPerEm: 1,
+						xWidthAvg: 1,
+					},
+					fallbackMetrics: {
+						ascent: 1,
+						descent: 1,
+						lineGap: 1,
+						unitsPerEm: 1,
+						xWidthAvg: 1,
+					},
+					properties: {
+						src: undefined,
+					},
+				});
+
+				assert.equal(css.includes('src:local("Arial")'), true);
+			});
+		});
+	});
 
 	it('createFontTypeExtractor()', () => {
 		/** @type {Array<[string, false | string]>} */
@@ -304,5 +346,51 @@ describe('fonts implementations', () => {
 				}
 			}
 		}
+	});
+
+	it('createDevUrlResolver()', () => {
+		assert.equal(
+			createDevUrlResolver({ base: 'base/_astro/fonts' }).resolve('xxx.woff2'),
+			'/base/_astro/fonts/xxx.woff2',
+		);
+	});
+
+	describe('createBuildUrlResolver()', () => {
+		const base = 'foo/_custom/fonts';
+
+		it('works with no assetsPrefix', () => {
+			assert.equal(
+				createBuildUrlResolver({ base, assetsPrefix: undefined }).resolve('abc.ttf'),
+				'/foo/_custom/fonts/abc.ttf',
+			);
+		});
+
+		it('works with assetsPrefix as string', () => {
+			assert.equal(
+				createBuildUrlResolver({ base, assetsPrefix: 'https://cdn.example.com' }).resolve(
+					'foo.woff',
+				),
+				'https://cdn.example.com/foo/_custom/fonts/foo.woff',
+			);
+		});
+
+		it('works with assetsPrefix object', () => {
+			const resolver = createBuildUrlResolver({
+				base,
+				assetsPrefix: {
+					woff2: 'https://fonts.cdn.example.com',
+					fallback: 'https://cdn.example.com',
+				},
+			});
+
+			assert.equal(
+				resolver.resolve('bar.woff2'),
+				'https://fonts.cdn.example.com/foo/_custom/fonts/bar.woff2',
+			);
+			assert.equal(
+				resolver.resolve('xyz.ttf'),
+				'https://cdn.example.com/foo/_custom/fonts/xyz.ttf',
+			);
+		});
 	});
 });

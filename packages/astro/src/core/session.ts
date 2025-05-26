@@ -1,5 +1,7 @@
 import { stringify as rawStringify, unflatten as rawUnflatten } from 'devalue';
+
 import {
+	type BuiltinDriverName,
 	type BuiltinDriverOptions,
 	type Driver,
 	type Storage,
@@ -447,12 +449,14 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
 
-		const driverPackage = await resolveSessionDriver(this.#config.driver);
 		try {
 			if (this.#config.driverModule) {
 				driver = (await this.#config.driverModule()).default;
-			} else if (driverPackage) {
-				driver = (await import(driverPackage)).default;
+			} else if (this.#config.driver) {
+				const driverName = resolveSessionDriverName(this.#config.driver);
+				if (driverName) {
+					driver = (await import(driverName)).default;
+				}
 			}
 		} catch (err: any) {
 			// If the driver failed to load, throw an error.
@@ -461,7 +465,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 					{
 						...SessionStorageInitError,
 						message: SessionStorageInitError.message(
-							err.message.includes(`Cannot find package '${driverPackage}'`)
+							err.message.includes(`Cannot find package`)
 								? 'The driver module could not be found.'
 								: err.message,
 							this.#config.driver,
@@ -500,17 +504,17 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 	}
 }
-// TODO: make this sync when we drop support for Node < 18.19.0
-export async function resolveSessionDriver(driver: string | undefined): Promise<string | null> {
+
+function resolveSessionDriverName(driver: string | undefined): string | null {
 	if (!driver) {
 		return null;
 	}
 	try {
 		if (driver === 'fs') {
-			return await import.meta.resolve(builtinDrivers.fsLite);
+			return builtinDrivers.fsLite;
 		}
 		if (driver in builtinDrivers) {
-			return await import.meta.resolve(builtinDrivers[driver as keyof typeof builtinDrivers]);
+			return builtinDrivers[driver as BuiltinDriverName];
 		}
 	} catch {
 		return null;
