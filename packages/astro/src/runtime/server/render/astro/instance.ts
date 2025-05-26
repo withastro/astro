@@ -86,9 +86,13 @@ export class AstroComponentInstance {
 }
 
 // Issue warnings for invalid props for Astro components
-function validateComponentProps(props: any, clientDirectives: string[], displayName: string) {
+function validateComponentProps(
+	props: any,
+	clientDirectives: SSRResult['clientDirectives'],
+	displayName: string,
+) {
 	if (props != null) {
-		const directives = clientDirectives.map((directive) => `client:${directive}`);
+		const directives = [...clientDirectives.keys()].map((directive) => `client:${directive}`);
 		for (const prop of Object.keys(props)) {
 			if (directives.includes(prop)) {
 				console.warn(
@@ -106,7 +110,7 @@ export function createAstroComponentInstance(
 	props: ComponentProps,
 	slots: any = {},
 ) {
-	validateComponentProps(props, [...result.clientDirectives.keys()], displayName);
+	validateComponentProps(props, result.clientDirectives, displayName);
 	const instance = new AstroComponentInstance(result, props, slots, factory);
 	if (isAPropagatingComponent(result, factory)) {
 		result._metadata.propagators.add(instance);
