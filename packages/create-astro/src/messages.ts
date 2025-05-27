@@ -51,7 +51,12 @@ export const getName = () =>
 		});
 	});
 
-export const getVersion = (packageManager: string, packageName: string, packageTag = 'latest', fallback = '') =>
+export const getVersion = (
+	packageManager: string,
+	packageName: string,
+	packageTag = 'latest',
+	fallback = '',
+) =>
 	new Promise<string>(async (resolve) => {
 		let registry = await getRegistry(packageManager);
 		const { version } = await fetch(`${registry}/${packageName}/${packageTag}`, {
