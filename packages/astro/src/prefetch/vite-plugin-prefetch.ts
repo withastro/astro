@@ -40,7 +40,7 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
 				if (!prefetch) throwPrefetchNotEnabledError();
-				return `export { prefetch } from "astro/virtual-modules/prefetch.js";`;
+				return { code: `export { prefetch } from "astro/virtual-modules/prefetch.js";` };
 			}
 		},
 		transform(code, id) {

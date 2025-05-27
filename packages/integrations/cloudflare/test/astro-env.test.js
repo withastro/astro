@@ -62,4 +62,11 @@ describe('astro:env', () => {
 		const $ = cheerio.load(html);
 		assert.equal($('#secret').text().includes('123456789'), true);
 	});
+
+	it('action secret', async () => {
+		const res = await fetch('http://127.0.0.1:8788/test');
+		const html = await res.text();
+		const $ = cheerio.load(html);
+		assert.equal($('#secret').text().includes('123456789'), true);
+	});
 });

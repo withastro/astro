@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import netlify from '@astrojs/netlify';
 import * as cheerio from 'cheerio';
-import glob from 'fast-glob';
+import { globSync } from 'tinyglobby';
 import { loadFixture } from '../../../../astro/test/test-utils.js';
 
 describe(
@@ -32,7 +32,7 @@ describe(
 
 		it('Emits vite assets files', async () => {
 			for (const pattern of expectedAssetsInclude) {
-				const files = glob.sync(pattern);
+				const files = globSync(pattern);
 				for (const file of files) {
 					assert.ok(
 						existsSync(new URL(file, expectedCwd)),
@@ -158,7 +158,7 @@ describe(
 
 		it('Does not include files when excluded', async () => {
 			for (const pattern of includeFiles) {
-				const files = glob.sync(pattern, { ignore: excludedTxt });
+				const files = globSync(pattern, { ignore: excludedTxt });
 				for (const file of files) {
 					assert.ok(
 						existsSync(new URL(file, expectedCwd)),

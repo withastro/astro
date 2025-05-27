@@ -56,7 +56,7 @@ export type VercelImageConfig = {
 	contentSecurityPolicy?: string;
 };
 
-export const qualityTable: Record<ImageQualityPreset, number> = {
+const qualityTable: Record<ImageQualityPreset, number> = {
 	low: 25,
 	mid: 50,
 	high: 80,
@@ -69,6 +69,7 @@ export function getAstroImageConfig(
 	command: string,
 	devImageService: DevImageService,
 	astroImageConfig: AstroConfig['image'],
+	responsiveImages?: boolean,
 ) {
 	let devService = '@astrojs/vercel/dev-image-service';
 
@@ -86,12 +87,14 @@ export function getAstroImageConfig(
 	}
 
 	if (images) {
+		const config = imagesConfig ? imagesConfig : getDefaultImageConfig(astroImageConfig);
 		return {
 			image: {
 				service: {
 					entrypoint: command === 'dev' ? devService : '@astrojs/vercel/build-image-service',
-					config: imagesConfig ? imagesConfig : getDefaultImageConfig(astroImageConfig),
+					config,
 				},
+				experimentalBreakpoints: responsiveImages ? config.sizes : undefined,
 			},
 		};
 	}
@@ -148,6 +151,15 @@ export function sharedValidateOptions(
 			// Save the width the user asked for to inform the `width` and `height` on the `img` tag
 			options.inputtedWidth = options.width;
 			options.width = nearestWidth;
+		}
+	}
+
+	if (options.widths) {
+		// Vercel only supports a fixed set of widths, so remove any that aren't in the list
+		options.widths = options.widths.filter((w) => configuredWidths.includes(w));
+		// Oh no, we've removed all the widths! Let's add the nearest one back in
+		if (options.widths.length === 0) {
+			options.widths = [options.width];
 		}
 	}
 

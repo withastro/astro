@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "12.2.1",
+  "version": "12.5.3",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -30,19 +30,16 @@
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "0.4.2",
-    "@astrojs/underscore-redirects": "^0.6.0",
-    "@cloudflare/workers-types": "^4.20250109.0",
-    "esbuild": "^0.24.0",
-    "estree-walker": "^3.0.3",
-    "magic-string": "^0.30.17",
-    "miniflare": "^3.20241230.1",
-    "tiny-glob": "^0.2.9",
-    "vite": "^6.0.7",
-    "wrangler": "^3.101.0"
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/underscore-redirects": "workspace:*",
+    "@cloudflare/workers-types": "^4.20250507.0",
+    "tinyglobby": "^0.2.13",
+    "vite": "^6.3.5",
+    "wrangler": "^4.14.1"
   },
   "peerDependencies": {
     "astro": "^5.0.0"
@@ -51,10 +48,9 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
+    "devalue": "^5.1.1",
     "execa": "^8.0.1",
-    "fast-glob": "^3.3.3",
-    "rollup": "^4.30.1",
-    "strip-ansi": "^7.1.0"
+    "rollup": "^4.40.2"
   },
   "publishConfig": {
     "provenance": true

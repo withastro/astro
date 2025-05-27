@@ -20,6 +20,10 @@ export async function dev({ flags }: DevOptions) {
 					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
 					['--open', 'Automatically open the app in the browser on server start'],
 					['--force', 'Clear the content layer cache, forcing a full rebuild.'],
+					[
+						'--allowed-hosts',
+						'Specify a comma-separated list of allowed hosts or allow any hostname.',
+					],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},

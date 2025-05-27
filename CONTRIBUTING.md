@@ -234,20 +234,21 @@ This paragraph provides some guidance to the maintainers of the monorepo. The gu
 
 ```mermaid
 graph TD;
-    start{Followed issue\ntemplate?}
-    start --NO--> close1[Close and ask to\nfollow template]
+    start{Followed issue <br/> template?}
+    start --NO--> close1[Close and ask to <br/> follow template.]
     start --YES--> dupe{Is duplicate?}
-    dupe --YES--> close2[Close and point\nto duplicate]
-    dupe --NO--> repro{Has proper\nreproduction?}
-    repro --NO--> close3[Label: 'needs reproduction'\nbot will auto close if no update\nhas been made in 3 days]
+    dupe --YES--> close2[Close and point <br/> to duplicate.]
+    dupe --NO--> repro{Has proper <br/> reproduction?}
+    repro --NO--> close3[Add&nbsp;label:&nbsp;'needs&nbsp;discussion'. <br/> Bot will auto close if no <br/>update was made in 3 days.]
     repro --YES--> real{Is actually a bug?}
     real --NO--> maybefeat{Is it a feature request?}
-    maybefeat -- YES --> roadmap[Close the issue.\n Point user to the roadmap.]
-    maybefeat -- NO --> intended{Is the intended\nbehaviour?}
-    intended --YES--> explain[Explain and close\npoint to docs if needed]
-    intended --NO--> open[Add label 'needs discussion'\nRemove 'needs triage' label]
-    real --YES--> real2["1. Remove 'needs triage' label\n2. Add related feature label if\napplicable (e.g. 'feat: ssr')\n3. Add priority and meta labels (see below)"]
-    real2 --> tolabel[Use the framework below to decide the priority of the issue,\nand choose the correct label]
+    maybefeat -- YES --> roadmap[Close the issue. <br/> Point user to the roadmap.]
+    maybefeat -- NO --> intended{Is the intended <br/> behaviour?}
+    intended --YES--> explain[Explain and close. <br/> Point to docs if needed.]
+    intended --NO--> open[Add&nbsp;label:&nbsp;'needs&nbsp;discussion'.<br/>Remove&nbsp;label:&nbsp;'needs&nbsp;triage'.]
+    real --YES--> real2["∙&nbsp;Remove&nbsp;label:&nbsp;'needs&nbsp;triage'. <br/> ∙ Add related feature label if <br/> applicable. (e.g. 'feat: ssr') <br/> ∙ Add priority and meta labels. (see below)"]
+    style real2 text-wrap:balance
+    real2 --> tolabel[Use the framework below <br/> to decide the priority <br/> of the issue and choose <br/> the correct label.]
 
 ```
 
@@ -282,6 +283,12 @@ Assigning labels isn't always easy and many times the distinction between the di
 - Astro has **many** features, but there are some that have a larger impact than others: development server, build command, HMR (TBD, we don't have a page that explains expectations of HMR in Astro), **evident** regressions in performance.
 - In case the number of reactions of an issue grows, the number of users affected grows, or a discussion uncovers some insights that weren't clear before, it's OK to change the priority of the issue. The maintainer **should** provide an explanation when assigning a different label.
   As with any other contribution, triaging is voluntary and best-efforts. We welcome and appreciate all the help you're happy to give (including reading this!) and nothing more. If you are not confident about an issue, you are welcome to leave an issue untriaged for someone who would have more context, or to bring it to their attention.
+
+### Preview releases
+
+You can trigger a preview release **from a PR** anytime by using the label `pr preview`. Add this label, and a workflow will trigger, which at the end will add a comment with the instructions of how to install the preview release.
+
+If you're in need to trigger multiple preview releases from the same PR, remove the label and add it again.
 
 ## Code Structure
 

@@ -4,6 +4,7 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type FSWatcher, type HMRPayload, createServer } from 'vite';
+import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { createContentTypesGenerator } from '../../content/index.js';
@@ -35,7 +36,7 @@ import { createRoutesList } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
 
-export type SyncOptions = {
+type SyncOptions = {
 	mode: string;
 	/**
 	 * @internal only used for testing
@@ -181,6 +182,7 @@ export async function syncInternal({
 		}
 	}
 	syncAstroEnv(settings);
+	syncFonts(settings);
 
 	writeInjectedTypes(settings, fs);
 	logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);

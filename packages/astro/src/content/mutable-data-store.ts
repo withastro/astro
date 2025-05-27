@@ -25,6 +25,9 @@ export class MutableDataStore extends ImmutableDataStore {
 	#assetsSaveTimeout: NodeJS.Timeout | undefined;
 	#modulesSaveTimeout: NodeJS.Timeout | undefined;
 
+	#savePromise: Promise<void> | undefined;
+	#savePromiseResolve: (() => void) | undefined;
+
 	#dirty = false;
 	#assetsDirty = false;
 	#modulesDirty = false;
@@ -152,15 +155,36 @@ export default new Map([\n${lines.join(',\n')}]);
 		this.#modulesDirty = false;
 	}
 
+	#maybeResolveSavePromise() {
+		if (
+			!this.#saveTimeout &&
+			!this.#assetsSaveTimeout &&
+			!this.#modulesSaveTimeout &&
+			this.#savePromiseResolve
+		) {
+			this.#savePromiseResolve();
+			this.#savePromiseResolve = undefined;
+			this.#savePromise = undefined;
+		}
+	}
+
 	#writeAssetsImportsDebounced() {
 		this.#assetsDirty = true;
 		if (this.#assetsFile) {
 			if (this.#assetsSaveTimeout) {
 				clearTimeout(this.#assetsSaveTimeout);
 			}
-			this.#assetsSaveTimeout = setTimeout(() => {
+
+			if (!this.#savePromise) {
+				this.#savePromise = new Promise<void>((resolve) => {
+					this.#savePromiseResolve = resolve;
+				});
+			}
+
+			this.#assetsSaveTimeout = setTimeout(async () => {
 				this.#assetsSaveTimeout = undefined;
-				this.writeAssetImports(this.#assetsFile!);
+				await this.writeAssetImports(this.#assetsFile!);
+				this.#maybeResolveSavePromise();
 			}, SAVE_DEBOUNCE_MS);
 		}
 	}
@@ -171,11 +195,31 @@ export default new Map([\n${lines.join(',\n')}]);
 			if (this.#modulesSaveTimeout) {
 				clearTimeout(this.#modulesSaveTimeout);
 			}
-			this.#modulesSaveTimeout = setTimeout(() => {
+
+			if (!this.#savePromise) {
+				this.#savePromise = new Promise<void>((resolve) => {
+					this.#savePromiseResolve = resolve;
+				});
+			}
+
+			this.#modulesSaveTimeout = setTimeout(async () => {
 				this.#modulesSaveTimeout = undefined;
-				this.writeModuleImports(this.#modulesFile!);
+				await this.writeModuleImports(this.#modulesFile!);
+				this.#maybeResolveSavePromise();
 			}, SAVE_DEBOUNCE_MS);
 		}
+	}
+
+	// Skips the debounce and writes to disk immediately
+	async #saveToDiskNow() {
+		if (this.#saveTimeout) {
+			clearTimeout(this.#saveTimeout);
+		}
+		this.#saveTimeout = undefined;
+		if (this.#file) {
+			await this.writeToDisk();
+		}
+		this.#maybeResolveSavePromise();
 	}
 
 	#saveToDiskDebounced() {
@@ -183,11 +227,19 @@ export default new Map([\n${lines.join(',\n')}]);
 		if (this.#saveTimeout) {
 			clearTimeout(this.#saveTimeout);
 		}
-		this.#saveTimeout = setTimeout(() => {
+
+		if (!this.#savePromise) {
+			this.#savePromise = new Promise<void>((resolve) => {
+				this.#savePromiseResolve = resolve;
+			});
+		}
+
+		this.#saveTimeout = setTimeout(async () => {
 			this.#saveTimeout = undefined;
 			if (this.#file) {
-				this.writeToDisk();
+				await this.writeToDisk();
 			}
+			this.#maybeResolveSavePromise();
 		}, SAVE_DEBOUNCE_MS);
 	}
 
@@ -331,6 +383,19 @@ export default new Map([\n${lines.join(',\n')}]);
 		};
 	}
 
+	/**
+	 * Returns a promise that resolves when all pending saves are complete.
+	 * This includes any in-progress debounced saves for the data store, asset imports, and module imports.
+	 */
+	async waitUntilSaveComplete(): Promise<void> {
+		// If there's no save promise, all saves are complete
+		if (!this.#savePromise) {
+			return Promise.resolve();
+		}
+		await this.#saveToDiskNow();
+		return this.#savePromise;
+	}
+
 	toString() {
 		return devalue.stringify(this._collections);
 	}
@@ -343,8 +408,9 @@ export default new Map([\n${lines.join(',\n')}]);
 			throw new AstroError(AstroErrorData.UnknownFilesystemError);
 		}
 		try {
-			await this.#writeFileAtomic(this.#file, this.toString());
+			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
+			await this.#writeFileAtomic(this.#file, this.toString());
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}

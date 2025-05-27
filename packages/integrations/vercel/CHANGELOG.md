@@ -1,5 +1,73 @@
 # @astrojs/vercel
 
+## 8.1.4
+
+### Patch Changes
+
+- [#13591](https://github.com/withastro/astro/pull/13591) [`5dd2d3f`](https://github.com/withastro/astro/commit/5dd2d3fde8a138ed611dedf39ffa5dfeeed315f8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes unused code
+
+## 8.1.3
+
+### Patch Changes
+
+- [#13480](https://github.com/withastro/astro/pull/13480) [`12cc4d8`](https://github.com/withastro/astro/commit/12cc4d88f216ba3f684ddffb33d117baa7197726) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused external redirects to fail
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`042d1de`](https://github.com/withastro/astro/commit/042d1de901fd9aa66157ce078b28bcd9786e1373)]:
+  - @astrojs/internal-helpers@0.6.1
+
+## 8.1.1
+
+### Patch Changes
+
+- [#13351](https://github.com/withastro/astro/pull/13351) [`fac32ad`](https://github.com/withastro/astro/commit/fac32ad98d66b73382f35d26a69352e566cd94d9) Thanks [@ascorbic](https://github.com/ascorbic)! - Ensures `srcset` for responsive images only contains allowed sizes
+
+## 8.1.0
+
+### Minor Changes
+
+- [#13211](https://github.com/withastro/astro/pull/13211) [`7ea0aba`](https://github.com/withastro/astro/commit/7ea0aba053a70cc572c59cef2adc7cd07becfcd2) Thanks [@slawekkolodziej](https://github.com/slawekkolodziej)! - Adds support for regular expressions in ISR exclude list
+
+  Previously, excluding a page from ISR required explicitly listing it in `isr.exclude`. As websites grew larger, maintaining this list became increasingly difficult, especially for multiple API routes and pages that needed server-side rendering.
+
+  To address this, ISR exclusions now support regular expressions, allowing for more flexible and scalable configurations.
+
+  ```js
+  // astro.config.mjs
+  import vercel from '@astrojs/vercel/serverless';
+
+  export default defineConfig({
+    output: 'server',
+    adapter: vercel({
+      isr: {
+        exclude: [
+          '/preview', // Excludes a specific route (e.g., pages/preview.astro)
+          '/auth/[page]', // Excludes a dynamic route (e.g., pages/auth/[page].astro)
+          /^\/api\/.+/, // Excludes all routes starting with /api/
+        ],
+      },
+    }),
+  });
+  ```
+
+### Patch Changes
+
+- [#13323](https://github.com/withastro/astro/pull/13323) [`80926fa`](https://github.com/withastro/astro/commit/80926fadc06492fcae55f105582b9dc8279da6b3) Thanks [@ematipico](https://github.com/ematipico)! - Updates `esbuild` and `vite` to the latest to avoid false positives audits warnings caused by `esbuild`.
+
+- Updated dependencies [[`1e11f5e`](https://github.com/withastro/astro/commit/1e11f5e8b722b179e382f3c792cd961b2b51f61b)]:
+  - @astrojs/internal-helpers@0.6.0
+
+## 8.0.8
+
+### Patch Changes
+
+- [#13304](https://github.com/withastro/astro/pull/13304) [`6efd57d`](https://github.com/withastro/astro/commit/6efd57d1747052e9a61d8867dd5941d0bf65ff22) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a small issue where the package was pulling an outdated version of its internal dependencies.
+
+- [#13299](https://github.com/withastro/astro/pull/13299) [`2e1321e`](https://github.com/withastro/astro/commit/2e1321e9d5b27da3e86bc4021e4136661a8055aa) Thanks [@bluwy](https://github.com/bluwy)! - Uses `tinyglobby` for globbing files
+
 ## 8.0.7
 
 ### Patch Changes

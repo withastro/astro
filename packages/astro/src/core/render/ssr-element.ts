@@ -14,7 +14,7 @@ export function createAssetLink(href: string, base?: string, assetsPrefix?: Asse
 	}
 }
 
-export function createStylesheetElement(
+function createStylesheetElement(
 	stylesheet: StylesheetAsset,
 	base?: string,
 	assetsPrefix?: AssetsPrefix,
@@ -60,7 +60,7 @@ export function createModuleScriptElement(
 	}
 }
 
-export function createModuleScriptElementWithSrc(
+function createModuleScriptElementWithSrc(
 	src: string,
 	base?: string,
 	assetsPrefix?: AssetsPrefix,

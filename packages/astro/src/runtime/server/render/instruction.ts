@@ -25,24 +25,19 @@ export type MaybeRenderHeadInstruction = {
 	type: 'maybe-head';
 };
 
+export type ServerIslandRuntimeInstruction = {
+	type: 'server-island-runtime';
+};
+
 export type RenderInstruction =
 	| RenderDirectiveInstruction
 	| RenderHeadInstruction
 	| MaybeRenderHeadInstruction
-	| RendererHydrationScriptInstruction;
+	| RendererHydrationScriptInstruction
+	| ServerIslandRuntimeInstruction;
 
-export function createRenderInstruction(
-	instruction: RenderDirectiveInstruction,
-): RenderDirectiveInstruction;
-export function createRenderInstruction(
-	instruction: RendererHydrationScriptInstruction,
-): RendererHydrationScriptInstruction;
-export function createRenderInstruction(instruction: RenderHeadInstruction): RenderHeadInstruction;
-export function createRenderInstruction(
-	instruction: MaybeRenderHeadInstruction,
-): MaybeRenderHeadInstruction;
-export function createRenderInstruction(instruction: { type: string }): RenderInstruction {
-	return Object.defineProperty(instruction as RenderInstruction, RenderInstructionSymbol, {
+export function createRenderInstruction<T extends RenderInstruction>(instruction: T): T {
+	return Object.defineProperty(instruction as T, RenderInstructionSymbol, {
 		value: true,
 	});
 }

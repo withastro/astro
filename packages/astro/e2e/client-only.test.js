@@ -20,6 +20,9 @@ test.describe('Client only', () => {
 		const counter = await page.locator('#react-counter');
 		await expect(counter, 'component is visible').toBeVisible();
 
+		const fallback = await page.locator('[data-fallback=react]');
+		await expect(fallback, 'fallback content is hidden').not.toBeVisible();
+
 		const count = await counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -37,6 +40,9 @@ test.describe('Client only', () => {
 
 		const counter = await page.locator('#preact-counter');
 		await expect(counter, 'component is visible').toBeVisible();
+
+		const fallback = await page.locator('[data-fallback=preact]');
+		await expect(fallback, 'fallback content is hidden').not.toBeVisible();
 
 		const count = await counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
@@ -56,6 +62,9 @@ test.describe('Client only', () => {
 		const counter = await page.locator('#solid-counter');
 		await expect(counter, 'component is visible').toBeVisible();
 
+		const fallback = await page.locator('[data-fallback=solid]');
+		await expect(fallback, 'fallback content is hidden').not.toBeVisible();
+
 		const count = await counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -74,6 +83,9 @@ test.describe('Client only', () => {
 		const counter = await page.locator('#vue-counter');
 		await expect(counter, 'component is visible').toBeVisible();
 
+		const fallback = await page.locator('[data-fallback=vue]');
+		await expect(fallback, 'fallback content is hidden').not.toBeVisible();
+
 		const count = await counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -91,6 +103,9 @@ test.describe('Client only', () => {
 
 		const counter = await page.locator('#svelte-counter');
 		await expect(counter, 'component is visible').toBeVisible();
+
+		const fallback = await page.locator('[data-fallback=svelte]');
+		await expect(fallback, 'fallback content is hidden').not.toBeVisible();
 
 		const count = await counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');

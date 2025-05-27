@@ -2,14 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { teardown } from '@astrojs/compiler';
-import glob from 'fast-glob';
 import { bgGreen, black, green } from 'kleur/colors';
+import { glob } from 'tinyglobby';
 import * as vite from 'vite';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
-import { getOutputDirectory } from '../../prerender/utils.js';
+import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { routeIsRedirect } from '../redirects/index.js';
@@ -142,7 +142,7 @@ async function ssrBuild(
 ) {
 	const { allPages, settings, viteConfig } = opts;
 	const ssr = settings.buildOutput === 'server';
-	const out = getOutputDirectory(settings);
+	const out = getServerOutputDirectory(settings);
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
 	const viteBuildConfig: vite.InlineConfig = {
@@ -247,8 +247,8 @@ async function clientBuild(
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
 		// If SSR, copy public over
-		if (ssr) {
-			await copyFiles(settings.config.publicDir, out, true);
+		if (ssr && fs.existsSync(settings.config.publicDir)) {
+			await fs.promises.cp(settings.config.publicDir, out, { recursive: true, force: true });
 		}
 
 		return null;
@@ -384,29 +384,10 @@ async function cleanServerOutput(
 				.map((fileName) => fs.promises.rm(new URL(fileName, out))),
 		);
 		// Copy assets before cleaning directory if outside root
-		await copyFiles(out, opts.settings.config.outDir, true);
+		await fs.promises.cp(out, opts.settings.config.outDir, { recursive: true, force: true });
 		await fs.promises.rm(out, { recursive: true });
 		return;
 	}
-}
-
-export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles = false) {
-	const files = await glob('**/*', {
-		cwd: fileURLToPath(fromFolder),
-		dot: includeDotfiles,
-	});
-	if (files.length === 0) return;
-	return await Promise.all(
-		files.map(async function copyFile(filename) {
-			const from = new URL(filename, fromFolder);
-			const to = new URL(filename, toFolder);
-			const lastFolder = new URL('./', to);
-			return fs.promises.mkdir(lastFolder, { recursive: true }).then(async function fsCopyFile() {
-				const p = await fs.promises.copyFile(from, to, fs.constants.COPYFILE_FICLONE);
-				return p;
-			});
-		}),
-	);
 }
 
 async function ssrMoveAssets(opts: StaticBuildOptions) {

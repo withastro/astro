@@ -1,4 +1,4 @@
-import type { APIContext } from '../../types/public/context.js';
+import type { APIContext, AstroSharedContext } from '../../types/public/context.js';
 import type { SerializedActionResult } from './virtual/shared.js';
 
 export type ActionPayload = {
@@ -22,10 +22,33 @@ export function hasContentType(contentType: string, expected: string[]) {
 	return expected.some((t) => type === t);
 }
 
-export type ActionAPIContext = Omit<
+export type ActionAPIContext = Pick<
 	APIContext,
-	'getActionResult' | 'callAction' | 'props' | 'redirect'
->;
+	| 'rewrite'
+	| 'request'
+	| 'url'
+	| 'isPrerendered'
+	| 'locals'
+	| 'clientAddress'
+	| 'cookies'
+	| 'currentLocale'
+	| 'generator'
+	| 'routePattern'
+	| 'site'
+	| 'params'
+	| 'preferredLocale'
+	| 'preferredLocaleList'
+	| 'originPathname'
+	| 'session'
+> & {
+	// TODO: remove in Astro 6.0
+	/**
+	 * @deprecated
+	 * The use of `rewrite` in Actions is deprecated
+	 */
+	rewrite: AstroSharedContext['rewrite'];
+};
+
 export type MaybePromise<T> = T | Promise<T>;
 
 /**

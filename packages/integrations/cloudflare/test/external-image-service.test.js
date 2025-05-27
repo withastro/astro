@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import glob from 'tiny-glob';
+import { glob } from 'tinyglobby';
 import { astroCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/external-image-service/', import.meta.url);

@@ -26,7 +26,7 @@ import {
 } from './utils.js';
 import { type WrappedWatcher, createWatcherWrapper } from './watcher.js';
 
-export interface ContentLayerOptions {
+interface ContentLayerOptions {
 	store: MutableDataStore;
 	settings: AstroSettings;
 	logger: Logger;
@@ -39,7 +39,7 @@ type CollectionLoader<TData> = () =>
 	| Record<string, Record<string, unknown>>
 	| Promise<Record<string, Record<string, unknown>>>;
 
-export class ContentLayer {
+class ContentLayer {
 	#logger: Logger;
 	#store: MutableDataStore;
 	#settings: AstroSettings;
@@ -270,7 +270,8 @@ export class ContentLayer {
 						},
 						collectionWithResolvedSchema,
 						false,
-						!!this.#settings.config.experimental.svg,
+						// FUTURE: Remove in this in v6
+						id.endsWith('.svg'),
 					);
 
 					return parsedData;
@@ -296,11 +297,11 @@ export class ContentLayer {
 		);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
-		await this.#store.writeToDisk();
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeAssetImports(assetImportsFile);
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeModuleImports(modulesImportsFile);
+		await this.#store.waitUntilSaveComplete();
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
@@ -341,7 +342,7 @@ export class ContentLayer {
 	}
 }
 
-export async function simpleLoader<TData extends { id: string }>(
+async function simpleLoader<TData extends { id: string }>(
 	handler: CollectionLoader<TData>,
 	context: LoaderContext,
 ) {

@@ -200,6 +200,14 @@ export interface PrefetchOptions {
 	 * Should prefetch even on data saver mode or slow connection. (default `false`)
 	 */
 	ignoreSlowConnection?: boolean;
+	/**
+	 * A string providing a hint to the browser as to how eagerly it should prefetch/prerender link targets in order to balance performance advantages against resource overheads. (default `immediate`)
+	 * Only works if `clientPrerender` is enabled and browser supports Speculation Rules API.
+	 * The browser takes this hint into consideration along with its own heuristics, so it may select a link that the author has hinted as less eager than another, if the less eager candidate is considered a better choice.
+	 *
+	 * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/speculationrules#eagerness
+	 */
+	eagerness?: 'immediate' | 'eager' | 'moderate' | 'conservative';
 }
 
 /**
@@ -225,7 +233,7 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 	// NOTE: This condition is tree-shaken if `clientPrerender` is false as its a static value
 	if (clientPrerender && HTMLScriptElement.supports?.('speculationrules')) {
 		debug?.(`[astro] Prefetching ${url} with <script type="speculationrules">`);
-		appendSpeculationRules(url);
+		appendSpeculationRules(url, opts?.eagerness ?? 'immediate');
 	}
 	// Prefetch with link if supported
 	else if (
@@ -324,8 +332,10 @@ function onPageLoad(cb: () => void) {
  * A new script must be added for each `url`.
  *
  * @param url The url of the page to prerender.
+ *
+ * @param eagerness Hint to the browser as to how eagerly it should prefetch/prerender link targets
  */
-function appendSpeculationRules(url: string) {
+function appendSpeculationRules(url: string, eagerness: PrefetchOptions['eagerness']) {
 	const script = document.createElement('script');
 	script.type = 'speculationrules';
 	script.textContent = JSON.stringify({
@@ -333,6 +343,7 @@ function appendSpeculationRules(url: string) {
 			{
 				source: 'list',
 				urls: [url],
+				eagerness: eagerness,
 			},
 		],
 		// Currently, adding `prefetch` is required to fallback if `prerender` fails.
@@ -342,6 +353,7 @@ function appendSpeculationRules(url: string) {
 			{
 				source: 'list',
 				urls: [url],
+				eagerness: eagerness,
 			},
 		],
 	});

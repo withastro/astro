@@ -13,7 +13,7 @@ import type {
 	IntegrationResolvedRoute,
 } from 'astro';
 import { build } from 'esbuild';
-import glob from 'fast-glob';
+import { glob, globSync } from 'tinyglobby';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import type { Args } from './ssr-function.js';
 
@@ -283,6 +283,7 @@ export default function netlifyIntegration(
 			cwd: fileURLToPath(rootDir),
 			absolute: true,
 			ignore: exclude,
+			expandDirectories: false,
 		});
 		return files.map((file) => pathToFileURL(file));
 	}
@@ -306,7 +307,7 @@ export default function netlifyIntegration(
 			if (_config.vite.assetsInclude) {
 				const mergeGlobbedIncludes = (globPattern: unknown) => {
 					if (typeof globPattern === 'string') {
-						const entries = glob.sync(globPattern).map((p) => pathToFileURL(p));
+						const entries = globSync(globPattern).map((p) => pathToFileURL(p));
 						extraFilesToInclude.push(...entries);
 					} else if (Array.isArray(globPattern)) {
 						for (const pattern of globPattern) {
@@ -514,15 +515,15 @@ export default function netlifyIntegration(
 				rootDir = config.root;
 				await cleanFunctions();
 
-				outDir = new URL('./dist/', rootDir);
+				outDir = new URL(config.outDir, rootDir);
 
 				const enableImageCDN = isRunningInNetlify && (integrationConfig?.imageCDN ?? true);
 
 				let session = config.session;
 
-				if (config.experimental.session && !session?.driver) {
+				if (!session?.driver) {
 					logger.info(
-						`Configuring experimental session support using ${isRunningInNetlify ? 'Netlify Blobs' : 'filesystem storage'}`,
+						`Enabling sessions with ${isRunningInNetlify ? 'Netlify Blobs' : 'filesystem storage'}`,
 					);
 					session = isRunningInNetlify
 						? {

@@ -2,6 +2,7 @@
 /// <reference path="./types/content.d.ts" />
 /// <reference path="./types/actions.d.ts" />
 /// <reference path="./types/env.d.ts" />
+/// <reference path="./types/fonts.d.ts" />
 
 interface ImportMetaEnv {
 	/**
@@ -54,6 +55,7 @@ declare module 'astro:assets' {
 		inferRemoteSize: typeof import('./dist/assets/utils/index.js').inferRemoteSize;
 		Image: typeof import('./components/Image.astro').default;
 		Picture: typeof import('./components/Picture.astro').default;
+		Font: typeof import('./components/Font.astro').default;
 	};
 
 	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
@@ -73,6 +75,7 @@ declare module 'astro:assets' {
 		imageConfig,
 		Image,
 		Picture,
+		Font,
 		inferRemoteSize,
 	}: AstroAssets;
 }
@@ -108,22 +111,7 @@ declare module '*.avif' {
 	export default metadata;
 }
 declare module '*.svg' {
-	type Props = {
-		/**
-		 * Accessible, short-text description
-		 *
-		 *  {@link https://developer.mozilla.org/en-US/docs/Web/SVG/Element/title|MDN Reference}
-		 */
-		title?: string;
-		/**
-		 * Shorthand for setting the `height` and `width` properties
-		 */
-		size?: number | string;
-		/**
-		 * Override the default rendering mode for SVGs
-		 */
-		mode?: import('./dist/assets/utils/svg.js').SvgRenderMode;
-	} & astroHTML.JSX.SVGAttributes;
+	type Props = astroHTML.JSX.SVGAttributes;
 
 	const Component: ((_props: Props) => any) & ImageMetadata;
 	export default Component;
@@ -193,14 +181,14 @@ declare module 'astro:config/server' {
 	// biome-ignore format: bug
 	type ServerConfigSerialized = import('./dist/types/public/manifest.js').ServerDeserializedManifest;
 	const manifest: ServerConfigSerialized;
-	export default manifest;
+	export = manifest;
 }
 
 declare module 'astro:config/client' {
 	// biome-ignore format: bug
 	type ClientConfigSerialized = import('./dist/types/public/manifest.js').ClientDeserializedManifest;
 	const manifest: ClientConfigSerialized;
-	export default manifest;
+	export = manifest;
 }
 
 declare module 'astro:components' {

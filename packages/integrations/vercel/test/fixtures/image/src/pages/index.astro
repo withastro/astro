@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import astro from "../assets/astro.jpeg";
 import penguin from "../assets/penguin.svg";
+import bigPenguin from "../assets/penguin.jpg";
 ---
 
 <div id="basic-image">
@@ -10,4 +11,8 @@ import penguin from "../assets/penguin.svg";
 
 <div id="svg">
 	<Image src={penguin} alt="Astro" />
+</div>
+
+<div id="responsive">
+	<Image src={bigPenguin} alt="Astro" layout="constrained" width="1000" />
 </div>

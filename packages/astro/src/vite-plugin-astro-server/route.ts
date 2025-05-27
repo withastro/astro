@@ -1,4 +1,5 @@
 import type http from 'node:http';
+import { loadActions } from '../actions/loadActions.js';
 import {
 	DEFAULT_404_COMPONENT,
 	NOOP_MIDDLEWARE_HEADER,
@@ -29,7 +30,7 @@ type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	? R
 	: any;
 
-export interface MatchedRoute {
+interface MatchedRoute {
 	route: RouteData;
 	filePath: URL;
 	resolvedPathname: string;
@@ -159,6 +160,8 @@ export async function handleRoute({
 	let renderContext: RenderContext;
 	let mod: ComponentInstance | undefined = undefined;
 	let route: RouteData;
+	const actions = await loadActions(loader);
+	pipeline.setActions(actions);
 	const middleware = (await loadMiddleware(loader)).onRequest;
 	// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
 	const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
@@ -192,6 +195,7 @@ export async function handleRoute({
 		request,
 		routeData: route,
 		clientAddress: incomingRequest.socket.remoteAddress,
+		actions,
 	});
 
 	let response;
@@ -298,10 +302,12 @@ export async function handleRoute({
 		) {
 			// If we're here, it means that the calling static redirect that was configured by the user
 			// We try to replicate the same behaviour that we provide during a static build
+			const location = response.headers.get('location')!;
 			response = new Response(
 				redirectTemplate({
 					status: response.status,
-					location: response.headers.get('location')!,
+					absoluteLocation: location,
+					relativeLocation: location,
 					from: pathname,
 				}),
 				{

@@ -89,6 +89,11 @@ export class ContainerPipeline extends Pipeline {
 	}
 
 	// At the moment it's not used by the container via any public API
-	// @ts-expect-error It needs to be implemented.
-	async getComponentByRoute(_routeData: RouteData): Promise<ComponentInstance> {}
+	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
+		const page = this.#componentsInterner.get(routeData);
+		if (page) {
+			return page.page();
+		}
+		throw new Error("Couldn't find component for route " + routeData.pathname);
+	}
 }

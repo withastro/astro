@@ -86,6 +86,17 @@ describe('NodeApp', () => {
 				});
 				assert.equal(result.url, 'https://example.com/');
 			});
+
+			it('bad values are ignored and fallback to host header', () => {
+				const result = NodeApp.createRequest({
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com',
+						'x-forwarded-host': ':123',
+					},
+				});
+				assert.equal(result.url, 'https://example.com/');
+			});
 		});
 
 		describe('x-forwarded-proto', () => {

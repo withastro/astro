@@ -7,13 +7,13 @@ import { debug } from '../logger/core.js';
 import { DEFAULT_COMPONENTS } from '../routing/default.js';
 import { makePageDataKey } from './plugins/util.js';
 
-export interface CollectPagesDataOptions {
+interface CollectPagesDataOptions {
 	settings: AstroSettings;
 	logger: Logger;
 	manifest: RoutesList;
 }
 
-export interface CollectPagesDataResult {
+interface CollectPagesDataResult {
 	assets: Record<string, string>;
 	allPages: AllPagesData;
 }

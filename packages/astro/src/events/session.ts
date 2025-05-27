@@ -1,4 +1,4 @@
-import { AstroConfigSchema } from '../core/config/schema.js';
+import { AstroConfigSchema } from '../core/config/schemas/index.js';
 import type { AstroUserConfig } from '../types/public/config.js';
 import type { AstroIntegration } from '../types/public/integrations.js';
 
@@ -17,7 +17,7 @@ type ConfigInfoRecord = Record<string, ConfigInfoValue>;
 type ConfigInfoBase = {
 	[alias in keyof AstroUserConfig]: ConfigInfoValue | ConfigInfoRecord;
 };
-export interface ConfigInfo extends ConfigInfoBase {
+interface ConfigInfo extends ConfigInfoBase {
 	build: ConfigInfoRecord;
 	image: ConfigInfoRecord;
 	markdown: ConfigInfoRecord;
@@ -107,7 +107,10 @@ function createAnonymousConfigInfo(userConfig: AstroUserConfig) {
 	};
 	// Measure string literal/enum configuration values
 	configInfo.build.format = measureStringLiteral(userConfig.build?.format);
-	configInfo.markdown.syntaxHighlight = measureStringLiteral(userConfig.markdown?.syntaxHighlight);
+	const syntaxHighlight = userConfig.markdown?.syntaxHighlight;
+	const syntaxHighlightType =
+		typeof syntaxHighlight === 'object' ? syntaxHighlight.type : syntaxHighlight;
+	configInfo.markdown.syntaxHighlight = measureStringLiteral(syntaxHighlightType);
 	configInfo.output = measureStringLiteral(userConfig.output);
 	configInfo.scopedStyleStrategy = measureStringLiteral(userConfig.scopedStyleStrategy);
 	configInfo.trailingSlash = measureStringLiteral(userConfig.trailingSlash);

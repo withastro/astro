@@ -14,7 +14,7 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
-import glob from 'tiny-glob';
+import { glob } from 'tinyglobby';
 
 // Copied from https://github.com/withastro/astro/blob/3776ecf0aa9e08a992d3ae76e90682fd04093721/packages/astro/src/core/routing/manifest/create.ts#L45-L70
 // We're not sure how to improve this regex yet
@@ -205,9 +205,8 @@ export async function createRoutesFile(
 	}
 
 	if (existsSync(fileURLToPath(_config.publicDir))) {
-		const staticFiles = await glob(`${fileURLToPath(_config.publicDir)}/**/*`, {
+		const staticFiles = await glob(`**/*`, {
 			cwd: fileURLToPath(_config.publicDir),
-			filesOnly: true,
 			dot: true,
 		});
 		for (const staticFile of staticFiles) {

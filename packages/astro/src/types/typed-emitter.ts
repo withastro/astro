@@ -4,7 +4,7 @@
  * https://github.com/andywer/typed-emitter/blob/9a139b6fa0ec6b0db6141b5b756b784e4f7ef4e4/LICENSE
  */
 
-export type EventMap = {
+type EventMap = {
 	[key: string]: (...args: any[]) => void;
 };
 

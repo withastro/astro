@@ -1,3 +1,6 @@
+import type { ZodType } from 'zod';
+import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
+import type { ActionAccept, ActionClient } from '../actions/runtime/virtual/server.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
@@ -9,6 +12,9 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
+import type { SSRActions } from './app/types.js';
+import { ActionNotFoundError } from './errors/errors-data.js';
+import { AstroError } from './errors/index.js';
 import type { Logger } from './logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
@@ -24,6 +30,7 @@ import { createDefaultRoutes } from './routing/default.js';
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
+	resolvedActions: SSRActions | undefined = undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -58,6 +65,8 @@ export abstract class Pipeline {
 		 * Used to find the route module
 		 */
 		readonly defaultRoutes = createDefaultRoutes(manifest),
+
+		readonly actions = manifest.actions,
 	) {
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup
@@ -113,6 +122,47 @@ export abstract class Pipeline {
 			this.resolvedMiddleware = NOOP_MIDDLEWARE_FN;
 			return this.resolvedMiddleware;
 		}
+	}
+
+	setActions(actions: SSRActions) {
+		this.resolvedActions = actions;
+	}
+
+	async getActions(): Promise<SSRActions> {
+		if (this.resolvedActions) {
+			return this.resolvedActions;
+		} else if (this.actions) {
+			return await this.actions();
+		}
+		return NOOP_ACTIONS_MOD;
+	}
+
+	async getAction(path: string): Promise<ActionClient<unknown, ActionAccept, ZodType>> {
+		const pathKeys = path.split('.').map((key) => decodeURIComponent(key));
+		let { server } = await this.getActions();
+
+		if (!server || !(typeof server === 'object')) {
+			throw new TypeError(
+				`Expected \`server\` export in actions file to be an object. Received ${typeof server}.`,
+			);
+		}
+
+		for (const key of pathKeys) {
+			if (!(key in server)) {
+				throw new AstroError({
+					...ActionNotFoundError,
+					message: ActionNotFoundError.message(pathKeys.join('.')),
+				});
+			}
+			// @ts-expect-error we are doing a recursion... it's ugly
+			server = server[key];
+		}
+		if (typeof server !== 'function') {
+			throw new TypeError(
+				`Expected handler for action ${pathKeys.join('.')} to be a function. Received ${typeof server}.`,
+			);
+		}
+		return server;
 	}
 }
 

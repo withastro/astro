@@ -1,3 +1,5 @@
+import type { ZodType } from 'zod';
+import type { ActionAccept, ActionClient } from '../../actions/runtime/virtual/server.js';
 import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
@@ -10,7 +12,7 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 
-export type ComponentPath = string;
+type ComponentPath = string;
 
 export type StylesheetAsset =
 	| { type: 'inline'; content: string }
@@ -33,7 +35,7 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 	routeData: SerializedRouteData;
 };
 
-export type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
+type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
 export type AssetsPrefix =
 	| string
@@ -48,6 +50,13 @@ export type SSRManifest = {
 	routes: RouteInfo[];
 	site?: string;
 	base: string;
+	/**
+	 * The base of the assets generated **by the user**. For example, scripts created by the user falls under this category.
+	 *
+	 * The value of this field comes from `vite.base`. We aren't usually this tight to vite in our code base, so probably
+	 * this should be refactored somehow.
+	 */
+	userAssetsBase: string | undefined;
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
 	compressHTML: boolean;
@@ -68,6 +77,7 @@ export type SSRManifest = {
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
+	actions?: () => Promise<SSRActions> | SSRActions;
 	checkOrigin: boolean;
 	sessionConfig?: ResolvedSessionConfig<any>;
 	cacheDir: string | URL;
@@ -76,6 +86,10 @@ export type SSRManifest = {
 	publicDir: string | URL;
 	buildClientDir: string | URL;
 	buildServerDir: string | URL;
+};
+
+export type SSRActions = {
+	server: Record<string, ActionClient<unknown, ActionAccept, ZodType>>;
 };
 
 export type SSRManifestI18n = {

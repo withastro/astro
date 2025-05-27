@@ -6,25 +6,30 @@ export type SavedFocus = {
 
 const PERSIST_ATTR = 'data-astro-transition-persist';
 
+const NON_OVERRIDABLE_ASTRO_ATTRS = ['data-astro-transition', 'data-astro-transition-fallback'];
+
+const scriptsAlreadyRan = new Set<string>();
+export function detectScriptExecuted(script: HTMLScriptElement) {
+	const key = script.src ? new URL(script.src, location.href).href : script.textContent!;
+	if (scriptsAlreadyRan.has(key)) return true;
+	scriptsAlreadyRan.add(key);
+	return false;
+}
+
 /*
  * 	Mark new scripts that should not execute
  */
 export function deselectScripts(doc: Document) {
-	for (const s1 of document.scripts) {
-		for (const s2 of doc.scripts) {
-			if (
-				// Check if the script should be rerun regardless of it being the same
-				!s2.hasAttribute('data-astro-rerun') &&
-				// Inline
-				((!s1.src && s1.textContent === s2.textContent) ||
-					// External
-					(s1.src && s1.type === s2.type && s1.src === s2.src))
-			) {
-				// the old script is in the new document and doesn't have the rerun attribute
-				// we mark it as executed to prevent re-execution
-				s2.dataset.astroExec = '';
-				break;
-			}
+	for (const s2 of doc.scripts) {
+		if (
+			// Check if the script should be rerun regardless of it being the same
+			!s2.hasAttribute('data-astro-rerun') &&
+			// Check if the script has already been executed
+			detectScriptExecuted(s2)
+		) {
+			// the old script is in the new document and doesn't have the rerun attribute
+			// we mark it as executed to prevent re-execution
+			s2.dataset.astroExec = '';
 		}
 	}
 }
@@ -33,15 +38,15 @@ export function deselectScripts(doc: Document) {
  * swap attributes of the html element
  * delete all attributes from the current document
  * insert all attributes from doc
- * reinsert all original attributes that are named 'data-astro-*'
+ * reinsert all original attributes that are referenced in NON_OVERRIDABLE_ASTRO_ATTRS'
  */
-export function swapRootAttributes(doc: Document) {
-	const html = document.documentElement;
-	const astroAttributes = [...html.attributes].filter(
-		({ name }) => (html.removeAttribute(name), name.startsWith('data-astro-')),
+export function swapRootAttributes(newDoc: Document) {
+	const currentRoot = document.documentElement;
+	const nonOverridableAstroAttributes = [...currentRoot.attributes].filter(
+		({ name }) => (currentRoot.removeAttribute(name), NON_OVERRIDABLE_ASTRO_ATTRS.includes(name)),
 	);
-	[...doc.documentElement.attributes, ...astroAttributes].forEach(({ name, value }) =>
-		html.setAttribute(name, value),
+	[...newDoc.documentElement.attributes, ...nonOverridableAstroAttributes].forEach(
+		({ name, value }) => currentRoot.setAttribute(name, value),
 	);
 }
 

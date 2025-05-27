@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/web-vitals",
   "description": "Track your website’s performance with Astro DB",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -41,7 +41,7 @@
     "@astrojs/db": "workspace:*",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "linkedom": "^0.18.7"
+    "linkedom": "^0.18.9"
   },
   "publishConfig": {
     "provenance": true

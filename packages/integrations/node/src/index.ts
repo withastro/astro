@@ -37,8 +37,8 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 			'astro:config:setup': async ({ updateConfig, config, logger }) => {
 				let session = config.session;
 
-				if (config.experimental.session && !session?.driver) {
-					logger.info('Configuring experimental session support using filesystem storage');
+				if (!session?.driver) {
+					logger.info('Enabling sessions with filesystem storage');
 					session = {
 						...session,
 						driver: 'fs-lite',
@@ -50,7 +50,10 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 
 				updateConfig({
 					image: {
-						endpoint: config.image.endpoint ?? 'astro/assets/endpoint/node',
+						endpoint: {
+							route: config.image.endpoint.route ?? '_image',
+							entrypoint: config.image.endpoint.entrypoint ?? 'astro/assets/endpoint/node',
+						},
 					},
 					session,
 					vite: {

@@ -1,6 +1,8 @@
 import { fileURLToPath } from 'node:url';
-import glob from 'fast-glob';
+import { resolve as importMetaResolve } from 'import-meta-resolve';
 import type { OutputChunk } from 'rollup';
+import { glob } from 'tinyglobby';
+import { type BuiltinDriverName, builtinDrivers } from 'unstorage';
 import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
@@ -16,7 +18,6 @@ import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { serializeRouteData } from '../../routing/index.js';
-import { resolveSessionDriver } from '../../session.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
@@ -29,6 +30,24 @@ const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
 
 export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
 export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
+
+function resolveSessionDriver(driver: string | undefined): string | null {
+	if (!driver) {
+		return null;
+	}
+	try {
+		if (driver === 'fs') {
+			return importMetaResolve(builtinDrivers.fsLite, import.meta.url);
+		}
+		if (driver in builtinDrivers) {
+			return importMetaResolve(builtinDrivers[driver as BuiltinDriverName], import.meta.url);
+		}
+	} catch {
+		return null;
+	}
+
+	return driver;
+}
 
 function vitePluginManifest(options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
@@ -47,14 +66,14 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 				return Date.now().toString();
 			}
 		},
-		async load(id) {
+		load(id) {
 			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 				const imports = [
 					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
 					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
 				];
 
-				const resolvedDriver = await resolveSessionDriver(options.settings.config.session?.driver);
+				const resolvedDriver = resolveSessionDriver(options.settings.config.session?.driver);
 
 				const contents = [
 					`const manifest = _deserializeManifest('${manifestReplace}');`,
@@ -63,7 +82,7 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 				];
 				const exports = [`export { manifest }`];
 
-				return [...imports, ...contents, ...exports].join('\n');
+				return { code: [...imports, ...contents, ...exports].join('\n') };
 			}
 		},
 
@@ -287,6 +306,7 @@ function buildManifest(
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,
+		userAssetsBase: settings.config?.vite?.base,
 		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,

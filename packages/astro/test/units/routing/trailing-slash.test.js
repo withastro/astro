@@ -15,12 +15,15 @@ const fileSystem = {
 };
 
 describe('trailingSlash', () => {
+	let fixture;
 	let container;
-	let settings;
+	let baseContainer;
 
 	before(async () => {
-		const fixture = await createFixture(fileSystem);
-		settings = await createBasicSettings({
+		fixture = await createFixture(fileSystem);
+
+		// Create the first container with trailingSlash: 'always'
+		const settings = await createBasicSettings({
 			root: fixture.path,
 			trailingSlash: 'always',
 			output: 'server',
@@ -47,12 +50,44 @@ describe('trailingSlash', () => {
 			settings,
 			logger: defaultLogger,
 		});
+
+		// Create the second container with base path and trailingSlash: 'never'
+		const baseSettings = await createBasicSettings({
+			root: fixture.path,
+			trailingSlash: 'never',
+			base: 'base',
+			output: 'server',
+			adapter: testAdapter(),
+			integrations: [
+				{
+					name: 'test',
+					hooks: {
+						'astro:config:setup': ({ injectRoute }) => {
+							injectRoute({
+								pattern: '/',
+								entrypoint: './src/pages/api.ts',
+							});
+							injectRoute({
+								pattern: '/injected',
+								entrypoint: './src/pages/api.ts',
+							});
+						},
+					},
+				},
+			],
+		});
+		baseContainer = await createContainer({
+			settings: baseSettings,
+			logger: defaultLogger,
+		});
 	});
 
 	after(async () => {
 		await container.close();
+		await baseContainer.close();
 	});
 
+	// Tests for trailingSlash: 'always'
 	it('should match the API route when request has a trailing slash', async () => {
 		const { req, res, text } = createRequestAndResponse({
 			method: 'GET',
@@ -123,5 +158,27 @@ describe('trailingSlash', () => {
 		container.handle(req, res);
 		const json = await text();
 		assert.equal(json, '{"success":true}');
+	});
+
+	// Tests for trailingSlash: 'never' with base path
+	it('should not have trailing slash on root path when base is set and trailingSlash is never', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/base',
+		});
+		baseContainer.handle(req, res);
+		const json = await text();
+		assert.equal(json, '{"success":true}');
+	});
+
+	it('should not match root path with trailing slash when base is set and trailingSlash is never', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/base/',
+		});
+		baseContainer.handle(req, res);
+		const html = await text();
+		assert.equal(html.includes(`<span class="statusMessage">Not found</span>`), true);
+		assert.equal(res.statusCode, 404);
 	});
 });

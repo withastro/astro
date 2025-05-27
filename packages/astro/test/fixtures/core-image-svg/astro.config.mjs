@@ -3,7 +3,4 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   integrations: [mdx()],
-	experimental: {
-		svg: {}
-	}
 });

@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "4.11.0",
+  "version": "4.12.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -36,11 +36,10 @@
   },
   "devDependencies": {
     "arg": "^5.0.2",
-    "astro-scripts": "workspace:*",
-    "strip-json-comments": "^5.0.1"
+    "astro-scripts": "workspace:*"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
+    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true

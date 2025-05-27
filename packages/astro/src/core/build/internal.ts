@@ -87,7 +87,8 @@ export interface BuildInternals {
 	manifestFileName?: string;
 	entryPoints: Map<RouteData, URL>;
 	componentMetadata: SSRResult['componentMetadata'];
-	middlewareEntryPoint?: URL;
+	middlewareEntryPoint: URL | undefined;
+	astroActionsEntryPoint: URL | undefined;
 
 	/**
 	 * Chunks in the bundle that are only used in prerendering that we can delete later
@@ -118,6 +119,8 @@ export function createBuildInternals(): BuildInternals {
 		componentMetadata: new Map(),
 		entryPoints: new Map(),
 		prerenderOnlyChunks: [],
+		astroActionsEntryPoint: undefined,
+		middlewareEntryPoint: undefined,
 	};
 }
 

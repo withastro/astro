@@ -74,5 +74,16 @@ describe('Image', () => {
 			assert.equal(res.status, 200);
 			assert.equal(res.headers.get('content-type'), 'image/svg+xml');
 		});
+
+		it('generates valid srcset for responsive images', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerio.load(html);
+			const img = $('#responsive img');
+			const widths = img
+				.attr('srcset')
+				.split(', ')
+				.map((entry) => entry.split(' ')[1]);
+			assert.deepEqual(widths, ['640w', '750w', '828w', '1080w', '1200w', '1920w']);
+		});
 	});
 });

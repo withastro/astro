@@ -72,12 +72,12 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 		load(id, options) {
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.client)) {
 				ensureTemplateAreLoaded();
-				return templates!.client;
+				return { code: templates!.client };
 			}
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.server)) {
 				if (options?.ssr) {
 					ensureTemplateAreLoaded();
-					return templates!.server;
+					return { code: templates!.server };
 				}
 				throw new AstroError({
 					...AstroErrorData.ServerOnlyModule,
@@ -86,7 +86,7 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 			}
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.internal)) {
 				ensureTemplateAreLoaded();
-				return templates!.internal;
+				return { code: templates!.internal };
 			}
 		},
 	};

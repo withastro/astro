@@ -12,7 +12,7 @@ import type {
 	IntegrationResolvedRoute,
 } from 'astro';
 import { AstroError } from 'astro/errors';
-import glob from 'fast-glob';
+import { globSync } from 'tinyglobby';
 import {
 	type DevImageService,
 	type VercelImageConfig,
@@ -157,7 +157,7 @@ interface VercelISRConfig {
 	 *
 	 * @default `[]`
 	 */
-	exclude?: string[];
+	exclude?: (string | RegExp)[];
 }
 
 export default function vercelAdapter({
@@ -241,6 +241,7 @@ export default function vercelAdapter({
 						command,
 						devImageService,
 						config.image,
+						config.experimental.responsiveImages,
 					),
 				});
 			},
@@ -353,7 +354,7 @@ export default function vercelAdapter({
 					if (_config.vite.assetsInclude) {
 						const mergeGlobbedIncludes = (globPattern: unknown) => {
 							if (typeof globPattern === 'string') {
-								const entries = glob.sync(globPattern).map((p) => pathToFileURL(p));
+								const entries = globSync(globPattern).map((p) => pathToFileURL(p));
 								extraFilesToInclude.push(...entries);
 							} else if (Array.isArray(globPattern)) {
 								for (const pattern of globPattern) {
@@ -407,20 +408,44 @@ export default function vercelAdapter({
 							const isrConfig = typeof isr === 'object' ? isr : {};
 							await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 							if (isrConfig.exclude?.length) {
+								const expandedExclusions = isrConfig.exclude.reduce<string[]>((acc, exclusion) => {
+									if (exclusion instanceof RegExp) {
+										return [
+											...acc,
+											...routes
+												.filter((route) => exclusion.test(route.pattern))
+												.map((route) => route.pattern),
+										];
+									}
+
+									return [...acc, exclusion];
+								}, []);
+
 								const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
-								for (const route of isrConfig.exclude) {
+								for (const route of expandedExclusions) {
 									// vercel interprets src as a regex pattern, so we need to escape it
 									routeDefinitions.push({ src: escapeRegex(route), dest });
 								}
 							}
 							await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
 							for (const route of routes) {
-								const src = route.patternRegex.source;
-								const dest =
-									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
-										? NODE_PATH
-										: ISR_PATH;
-								if (!route.isPrerendered) routeDefinitions.push({ src, dest });
+								// Do not create _isr route entries for excluded routes
+								const excludeRouteFromIsr = isrConfig.exclude?.some((exclusion) => {
+									if (exclusion instanceof RegExp) {
+										return exclusion.test(route.pattern);
+									}
+
+									return exclusion === route.pattern;
+								});
+
+								if (!excludeRouteFromIsr) {
+									const src = route.patternRegex.source;
+									const dest =
+										src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
+											? NODE_PATH
+											: ISR_PATH;
+									if (!route.isPrerendered) routeDefinitions.push({ src, dest });
+								}
 							}
 						} else {
 							await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);

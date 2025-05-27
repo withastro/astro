@@ -3,7 +3,7 @@
  */
 
 // Parses multiple header and returns first value if available.
-export function getFirstForwardedValue(multiValueHeader?: string | string[] | null) {
+function getFirstForwardedValue(multiValueHeader?: string | string[] | null) {
 	return multiValueHeader
 		?.toString()
 		?.split(',')

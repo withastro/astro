@@ -1,7 +1,9 @@
+import type * as fsMod from 'node:fs';
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import type { Logger } from '../core/logger/core.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -12,6 +14,7 @@ import {
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
+import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
 import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/imageKind.js';
@@ -90,7 +93,14 @@ const addStaticImageFactory = (
 	};
 };
 
-export default function assets({ settings }: { settings: AstroSettings }): vite.Plugin[] {
+interface Options {
+	settings: AstroSettings;
+	sync: boolean;
+	logger: Logger;
+	fs: typeof fsMod;
+}
+
+export default function assets({ fs, settings, sync, logger }: Options): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 	let shouldEmitFile = false;
 	let isBuild = false;
@@ -117,32 +127,35 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 			},
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
-					return /* ts */ `
-					export { getConfiguredImageService, isLocalService } from "astro/assets";
-					import { getImage as getImageInternal } from "astro/assets";
-					export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
-					export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
-					export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
+					return {
+						code: `
+							export { getConfiguredImageService, isLocalService } from "astro/assets";
+							import { getImage as getImageInternal } from "astro/assets";
+							export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
+							export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
+							export { default as Font } from "astro/components/Font.astro";
+							export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
-					export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
-					// This is used by the @astrojs/node integration to locate images.
-					// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
-					// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
-					// in the Lambda bundle, which would bloat the bundle with images.
-					// To prevent this, we mark the URL construction as pure,
-					// so that it's tree-shaken away for all platforms that don't need it.
-					export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
-						new URL(
-							settings.buildOutput === 'server'
-								? settings.config.build.client
-								: settings.config.outDir,
-						),
-					)});
-					export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(
-						settings.config.build.assets,
-					)}, outDir);
-					export const getImage = async (options) => await getImageInternal(options, imageConfig);
-				`;
+							export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
+							// This is used by the @astrojs/node integration to locate images.
+							// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
+							// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
+							// in the Lambda bundle, which would bloat the bundle with images.
+							// To prevent this, we mark the URL construction as pure,
+							// so that it's tree-shaken away for all platforms that don't need it.
+							export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
+								new URL(
+									settings.buildOutput === 'server'
+										? settings.config.build.client
+										: settings.config.outDir,
+								),
+							)});
+							export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(
+								settings.config.build.assets,
+							)}, outDir);
+							export const getImage = async (options) => await getImageInternal(options, imageConfig);
+						`,
+					};
 				}
 			},
 			buildStart() {
@@ -151,7 +164,7 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 			},
 			// In build, rewrite paths to ESM imported images in code to their final location
 			async renderChunk(code) {
-				const assetUrlRE = /__ASTRO_ASSET_IMAGE__([\w$]{8})__(?:_(.*?)__)?/g;
+				const assetUrlRE = /__ASTRO_ASSET_IMAGE__([\w$]+)__(?:_(.*?)__)?/g;
 
 				let match;
 				let s;
@@ -205,11 +218,11 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 						return;
 					}
 
-					const emitFile = shouldEmitFile ? this.emitFile : undefined;
+					const emitFile = shouldEmitFile ? this.emitFile.bind(this) : undefined;
 					const imageMetadata = await emitESMImage(
 						id,
 						this.meta.watchMode,
-						!!settings.config.experimental.svg,
+						id.endsWith('.svg'),
 						emitFile,
 					);
 
@@ -220,28 +233,31 @@ export default function assets({ settings }: { settings: AstroSettings }): vite.
 						});
 					}
 
-					if (settings.config.experimental.svg && /\.svg$/.test(id)) {
-						const { contents, ...metadata } = imageMetadata;
+					if (id.endsWith('.svg')) {
+						const contents = await fs.promises.readFile(imageMetadata.fsPath, { encoding: 'utf8' });
 						// We know that the contents are present, as we only emit this property for SVG files
-						return makeSvgComponent(metadata, contents!, {
-							mode: settings.config.experimental.svg.mode,
-						});
+						return { code: makeSvgComponent(imageMetadata, contents) };
 					}
 
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
 					if (options?.ssr) {
-						return `export default ${getProxyCode(
-							imageMetadata,
-							settings.buildOutput === 'server',
-						)}`;
+						return {
+							code: `export default ${getProxyCode(
+								imageMetadata,
+								settings.buildOutput === 'server',
+							)}`,
+						};
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
-						return `export default ${JSON.stringify(imageMetadata)}`;
+						return {
+							code: `export default ${JSON.stringify(imageMetadata)}`,
+						};
 					}
 				}
 			},
 		},
+		fontsPlugin({ settings, sync, logger }),
 	];
 }

@@ -30,7 +30,7 @@ export interface Container {
 	close: () => Promise<void>;
 }
 
-export interface CreateContainerParams {
+interface CreateContainerParams {
 	logger: Logger;
 	settings: AstroSettings;
 	inlineConfig?: AstroInlineConfig;
@@ -56,7 +56,7 @@ export async function createContainer({
 
 	const {
 		base,
-		server: { host, headers, open: serverOpen },
+		server: { host, headers, open: serverOpen, allowedHosts },
 	} = settings.config;
 
 	// serverOpen = true, isRestart = false
@@ -92,7 +92,7 @@ export async function createContainer({
 	const mode = inlineConfig?.mode ?? 'development';
 	const viteConfig = await createVite(
 		{
-			server: { host, headers, open },
+			server: { host, headers, open, allowedHosts },
 			optimizeDeps: {
 				include: rendererClientEntries,
 			},
