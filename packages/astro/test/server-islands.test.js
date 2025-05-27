@@ -98,6 +98,14 @@ describe('Server islands', () => {
 					'should re-encrypt props on each request with a different IV',
 				);
 			});
+			it('supports mdx', async () => {
+				const res = await fixture.fetch('/test');
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
+			});
 		});
 
 		describe('prod', () => {
@@ -175,6 +183,16 @@ describe('Server islands', () => {
 					'should re-encrypt props on each request with a different IV',
 				);
 			});
+			it('supports mdx', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/test/');
+				const res = await app.render(request);
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
+			});
 		});
 	});
 
@@ -202,7 +220,21 @@ describe('Server islands', () => {
 				assert.equal(serverIslandEl.length, 0);
 
 				const serverIslandScript = $('script[data-island-id]');
-				assert.equal(serverIslandScript.length, 1, 'has the island script');
+				assert.equal(serverIslandScript.length, 2, 'has the island script');
+			});
+
+			it('includes the server island runtime script once', async () => {
+				let html = await fixture.readFile('/client/index.html');
+
+				const $ = cheerio.load(html);
+				const serverIslandScript = $('script').filter((_, el) =>
+					$(el).html().trim().startsWith('async function replaceServerIsland'),
+				);
+				assert.equal(
+					serverIslandScript.length,
+					1,
+					'should include the server island runtime script once',
+				);
 			});
 		});
 

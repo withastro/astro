@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
-    "@astrojs/node": "^9.0.1",
+    "@astrojs/node": "workspace:*",
     "@benchmark/timer": "workspace:*",
     "@benchmark/adapter": "workspace:*",
     "astro": "workspace:*",
@@ -24,7 +24,7 @@
     "tinyexec": "^0.3.2"
   },
   "devDependencies": {
-    "@codspeed/vitest-plugin": "4.0.0",
-    "vitest": "^3.0.2"
+    "@codspeed/vitest-plugin": "4.0.1",
+    "vitest": "^3.1.1"
   }
 }

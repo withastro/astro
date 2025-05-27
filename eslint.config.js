@@ -23,6 +23,7 @@ export default [
 			'packages/**/*.min.js',
 			'packages/**/dist/',
 			'packages/**/fixtures/',
+			'packages/**/_temp-fixtures/',
 			'packages/astro/vendor/vite/',
 			'benchmark/**/dist/',
 			'examples/',
@@ -54,7 +55,18 @@ export default [
 			'no-console': 'off',
 
 			// Todo: do we want these?
-			'@typescript-eslint/no-unused-vars': 'off',
+			'@typescript-eslint/no-unused-vars': [
+				'error',
+				{
+					args: 'all',
+					argsIgnorePattern: '^_',
+					caughtErrors: 'all',
+					caughtErrorsIgnorePattern: '^_',
+					destructuredArrayIgnorePattern: '^_',
+					varsIgnorePattern: '^_',
+					ignoreRestSiblings: true,
+				},
+			],
 			'@typescript-eslint/array-type': 'off',
 			'@typescript-eslint/ban-ts-comment': 'off',
 			'@typescript-eslint/class-literal-property-style': 'off',

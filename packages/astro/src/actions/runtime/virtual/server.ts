@@ -17,7 +17,6 @@ import {
 	isActionAPIContext,
 } from '../utils.js';
 import type { Locals } from '../utils.js';
-import { getAction } from './get-action.js';
 import {
 	ACTION_QUERY_PARAMS,
 	ActionError,
@@ -239,7 +238,7 @@ function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 	return schema;
 }
 
-export type ActionMiddlewareContext = {
+export type AstroActionContext = {
 	/** Information about an incoming action request. */
 	action?: {
 		/** Whether an action was called using an RPC function or by using an HTML form action. */
@@ -268,7 +267,7 @@ export type ActionMiddlewareContext = {
 /**
  * Access information about Action requests from middleware.
  */
-export function getActionContext(context: APIContext): ActionMiddlewareContext {
+export function getActionContext(context: APIContext): AstroActionContext {
 	const callerInfo = getCallerInfo(context);
 
 	// Prevents action results from being handled on a rewrite.
@@ -276,7 +275,7 @@ export function getActionContext(context: APIContext): ActionMiddlewareContext {
 	// if the user's middleware has already handled the result.
 	const actionResultAlreadySet = Boolean((context.locals as Locals)._actionPayload);
 
-	let action: ActionMiddlewareContext['action'] = undefined;
+	let action: AstroActionContext['action'] = undefined;
 
 	if (callerInfo && context.request.method === 'POST' && !actionResultAlreadySet) {
 		action = {
@@ -291,7 +290,7 @@ export function getActionContext(context: APIContext): ActionMiddlewareContext {
 					? removeTrailingForwardSlash(callerInfo.name)
 					: callerInfo.name;
 
-				const baseAction = await getAction(callerInfoName);
+				const baseAction = await pipeline.getAction(callerInfoName);
 				let input;
 				try {
 					input = await parseRequestBody(context.request);
@@ -301,13 +300,20 @@ export function getActionContext(context: APIContext): ActionMiddlewareContext {
 					}
 					throw e;
 				}
-				const {
-					props: _props,
-					getActionResult: _getActionResult,
-					callAction: _callAction,
-					redirect: _redirect,
-					...actionAPIContext
-				} = context;
+
+				const omitKeys = ['props', 'getActionResult', 'callAction', 'redirect'];
+
+				// Clones the context, preserving accessors and methods but omitting
+				// the properties that are not needed in the action handler.
+				const actionAPIContext = Object.create(
+					Object.getPrototypeOf(context),
+					Object.fromEntries(
+						Object.entries(Object.getOwnPropertyDescriptors(context)).filter(
+							([key]) => !omitKeys.includes(key),
+						),
+					),
+				);
+
 				Reflect.set(actionAPIContext, ACTION_API_CONTEXT_SYMBOL, true);
 				const handler = baseAction.bind(actionAPIContext satisfies ActionAPIContext);
 				return handler(input);

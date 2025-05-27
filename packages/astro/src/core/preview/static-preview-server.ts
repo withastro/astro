@@ -8,7 +8,7 @@ import * as msg from '../messages.js';
 import { getResolvedHostForHttpServer } from './util.js';
 import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
 
-export interface PreviewServer {
+interface PreviewServer {
 	host?: string;
 	port: number;
 	server: http.Server;
@@ -36,6 +36,7 @@ export default async function createStaticPreviewServer(
 				port: settings.config.server.port,
 				headers: settings.config.server.headers,
 				open: settings.config.server.open,
+				allowedHosts: settings.config.server.allowedHosts,
 			},
 			plugins: [vitePluginAstroPreview(settings)],
 		});

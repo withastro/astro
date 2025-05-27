@@ -1,5 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
+import { ASTRO_ACTIONS_INTERNAL_MODULE_ID } from '../../../actions/consts.js';
 import type { AstroAdapter } from '../../../types/public/integrations.js';
+import { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
 import { addRollupInput } from '../add-rollup-input.js';
@@ -7,12 +9,11 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
-import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { getVirtualModulePageName } from './util.js';
 
-export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
+const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
 
 const ADAPTER_VIRTUAL_MODULE_ID = '@astrojs-ssr-adapter';
@@ -29,7 +30,7 @@ function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
 		},
 		async load(id) {
 			if (id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
-				return `export * from ${JSON.stringify(adapter.serverEntrypoint)};`;
+				return { code: `export * from ${JSON.stringify(adapter.serverEntrypoint)};` };
 			}
 		},
 	};
@@ -102,7 +103,7 @@ function vitePluginSSR(
 				const ssrCode = generateSSRCode(adapter, middleware!.id);
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
-				return [...imports, ...contents, ...exports].join('\n');
+				return { code: [...imports, ...contents, ...exports].join('\n') };
 			}
 		},
 		async generateBundle(_opts, bundle) {
@@ -178,6 +179,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`    pageMap,`,
 		`    serverIslandMap,`,
 		`    renderers,`,
+		`    actions: () => import("${ASTRO_ACTIONS_INTERNAL_MODULE_ID}"),`,
 		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${middlewareId}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,

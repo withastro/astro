@@ -11,8 +11,10 @@ import {
 	runHookConfigDone,
 	runHookConfigSetup,
 } from '../../integrations/hooks.js';
-import type { AstroSettings, ManifestData } from '../../types/astro.js';
+import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
+import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
+import type { SSRManifest } from '../app/types.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
@@ -22,7 +24,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-import { createRouteManifest } from '../routing/index.js';
+import { createRoutesList } from '../routing/index.js';
 import { getServerIslandRouteData } from '../server-islands/endpoint.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
@@ -31,7 +33,7 @@ import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
-export interface BuildOptions {
+interface BuildOptions {
 	/**
 	 * Output a development-based build similar to code transformed in `astro dev`. This
 	 * can be useful to test build-only issues with additional debugging information included.
@@ -43,7 +45,9 @@ export interface BuildOptions {
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.
 	 *
-	 * @internal only used for testing
+	 * When building multiple projects in the same execution (e.g. during tests), disabling
+	 * this option can greatly improve performance at the cost of some extra memory usage.
+	 *
 	 * @default true
 	 */
 	teardownCompiler?: boolean;
@@ -93,9 +97,10 @@ class AstroBuilder {
 	private mode: string;
 	private runtimeMode: RuntimeMode;
 	private origin: string;
-	private manifest: ManifestData;
+	private routesList: RoutesList;
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
+	private manifest: SSRManifest;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		this.mode = options.mode;
@@ -106,7 +111,10 @@ class AstroBuilder {
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
-		this.manifest = { routes: [] };
+		this.routesList = { routes: [] };
+		// NOTE: this manifest is only used by the first build pass to make the `astro:manifest` function.
+		// After the first build, the BuildPipeline comes into play, and it creates the proper manifest for generating the pages.
+		this.manifest = createDevelopmentManifest(settings);
 		this.timer = {};
 	}
 
@@ -121,7 +129,7 @@ class AstroBuilder {
 			logger: logger,
 		});
 
-		this.manifest = await createRouteManifest({ settings: this.settings }, this.logger);
+		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 
@@ -144,6 +152,7 @@ class AstroBuilder {
 				mode: this.mode,
 				command: 'build',
 				sync: false,
+				routesList: this.routesList,
 				manifest: this.manifest,
 			},
 		);
@@ -154,8 +163,9 @@ class AstroBuilder {
 			settings: this.settings,
 			logger,
 			fs,
-			manifest: this.manifest,
+			routesList: this.routesList,
 			command: 'build',
+			manifest: this.manifest,
 		});
 
 		return { viteConfig };
@@ -163,10 +173,11 @@ class AstroBuilder {
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
-		await runHookBuildStart({ config: this.settings.config, logging: this.logger });
+		await runHookBuildStart({ config: this.settings.config, logger: this.logger });
 		this.validateConfig();
 
-		this.logger.info('build', `output: ${blue('"' + this.settings.buildOutput + '"')}`);
+		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
+		this.logger.info('build', `mode: ${blue('"' + this.settings.buildOutput + '"')}`);
 		this.logger.info('build', `directory: ${blue(fileURLToPath(this.settings.config.outDir))}`);
 		if (this.settings.adapter) {
 			this.logger.info('build', `adapter: ${green(this.settings.adapter.name)}`);
@@ -176,7 +187,7 @@ class AstroBuilder {
 		const { assets, allPages } = collectPagesData({
 			settings: this.settings,
 			logger: this.logger,
-			manifest: this.manifest,
+			manifest: this.routesList,
 		});
 
 		this.logger.debug('build', timerMessage('All pages loaded', this.timer.loadStart));
@@ -199,7 +210,7 @@ class AstroBuilder {
 			allPages,
 			settings: this.settings,
 			logger: this.logger,
-			manifest: this.manifest,
+			routesList: this.routesList,
 			runtimeMode: this.runtimeMode,
 			origin: this.origin,
 			pageNames,
@@ -237,7 +248,7 @@ class AstroBuilder {
 				.flat()
 				.map((pageData) => pageData.route)
 				.concat(hasServerIslands ? getServerIslandRouteData(this.settings.config) : []),
-			logging: this.logger,
+			logger: this.logger,
 		});
 
 		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {

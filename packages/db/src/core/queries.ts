@@ -66,7 +66,7 @@ export function getCreateIndexQueries(tableName: string, table: Pick<DBTable, 'i
 	return queries;
 }
 
-export function getCreateForeignKeyQueries(tableName: string, table: DBTable) {
+function getCreateForeignKeyQueries(tableName: string, table: DBTable) {
 	let queries: string[] = [];
 	for (const foreignKey of table.foreignKeys ?? []) {
 		const columns = asArray(foreignKey.columns);

@@ -5,7 +5,7 @@ import process from 'node:process';
 import dget from 'dlv';
 import { dset } from 'dset';
 
-export interface ConfigOptions {
+interface ConfigOptions {
 	name: string;
 }
 

@@ -1,4 +1,9 @@
-import type { AstroMarkdownOptions, MarkdownProcessor } from './types.js';
+import type {
+	AstroMarkdownOptions,
+	AstroMarkdownProcessorOptions,
+	MarkdownProcessor,
+	SyntaxHighlightConfig,
+} from './types.js';
 
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
@@ -14,8 +19,8 @@ import remarkRehype from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
+import { defaultExcludeLanguages } from './highlight.js';
 import { rehypeImages } from './rehype-images.js';
-
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export { rehypePrism } from './rehype-prism.js';
@@ -35,8 +40,13 @@ export {
 } from './shiki.js';
 export * from './types.js';
 
+export const syntaxHighlightDefaults: Required<SyntaxHighlightConfig> = {
+	type: 'shiki',
+	excludeLangs: defaultExcludeLanguages,
+};
+
 export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
-	syntaxHighlight: 'shiki',
+	syntaxHighlight: syntaxHighlightDefaults,
 	shikiConfig: {
 		langs: [],
 		theme: 'github-dark',
@@ -59,7 +69,7 @@ const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
  * Create a markdown preprocessor to render multiple markdown files
  */
 export async function createMarkdownProcessor(
-	opts?: AstroMarkdownOptions,
+	opts?: AstroMarkdownProcessorOptions,
 ): Promise<MarkdownProcessor> {
 	const {
 		syntaxHighlight = markdownConfigDefaults.syntaxHighlight,
@@ -69,6 +79,7 @@ export async function createMarkdownProcessor(
 		remarkRehype: remarkRehypeOptions = markdownConfigDefaults.remarkRehype,
 		gfm = markdownConfigDefaults.gfm,
 		smartypants = markdownConfigDefaults.smartypants,
+		experimentalHeadingIdCompat = false,
 	} = opts ?? {};
 
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
@@ -93,7 +104,7 @@ export async function createMarkdownProcessor(
 
 	if (!isPerformanceBenchmark) {
 		// Apply later in case user plugins resolve relative image paths
-		parser.use(remarkCollectImages);
+		parser.use(remarkCollectImages, opts?.image);
 	}
 
 	// Remark -> Rehype
@@ -103,12 +114,16 @@ export async function createMarkdownProcessor(
 		...remarkRehypeOptions,
 	});
 
-	if (!isPerformanceBenchmark) {
+	if (syntaxHighlight && !isPerformanceBenchmark) {
+		const syntaxHighlightType =
+			typeof syntaxHighlight === 'string' ? syntaxHighlight : syntaxHighlight?.type;
+		const excludeLangs =
+			typeof syntaxHighlight === 'object' ? syntaxHighlight?.excludeLangs : undefined;
 		// Syntax highlighting
-		if (syntaxHighlight === 'shiki') {
-			parser.use(rehypeShiki, shikiConfig);
-		} else if (syntaxHighlight === 'prism') {
-			parser.use(rehypePrism);
+		if (syntaxHighlightType === 'shiki') {
+			parser.use(rehypeShiki, shikiConfig, excludeLangs);
+		} else if (syntaxHighlightType === 'prism') {
+			parser.use(rehypePrism, excludeLangs);
 		}
 	}
 
@@ -118,11 +133,11 @@ export async function createMarkdownProcessor(
 	}
 
 	// Images / Assets support
-	parser.use(rehypeImages());
+	parser.use(rehypeImages);
 
 	// Headings
 	if (!isPerformanceBenchmark) {
-		parser.use(rehypeHeadingIds);
+		parser.use(rehypeHeadingIds, { experimentalHeadingIdCompat });
 	}
 
 	// Stringify to HTML
@@ -152,7 +167,8 @@ export async function createMarkdownProcessor(
 				code: String(result.value),
 				metadata: {
 					headings: result.data.astro?.headings ?? [],
-					imagePaths: result.data.astro?.imagePaths ?? [],
+					localImagePaths: result.data.astro?.localImagePaths ?? [],
+					remoteImagePaths: result.data.astro?.remoteImagePaths ?? [],
 					frontmatter: result.data.astro?.frontmatter ?? {},
 				},
 			};

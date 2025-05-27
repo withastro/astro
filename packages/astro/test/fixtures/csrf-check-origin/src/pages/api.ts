@@ -27,3 +27,15 @@ export const PATCH = () => {
 		something: 'true',
 	});
 };
+
+export const HEAD = () => {
+	return Response.json({
+		something: 'true',
+	});
+};
+
+export const OPTIONS = () => {
+	return Response.json({
+		something: 'true',
+	});
+};

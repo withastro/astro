@@ -15,7 +15,7 @@ export function generatePaginateFunction(
 	base: AstroConfig['base'],
 ): (...args: Parameters<PaginateFunction>) => ReturnType<PaginateFunction> {
 	return function paginateUtility(
-		data: any[],
+		data: readonly any[],
 		args: PaginateOptions<Props, Params> = {},
 	): ReturnType<PaginateFunction> {
 		let { pageSize: _pageSize, params: _params, props: _props } = args;

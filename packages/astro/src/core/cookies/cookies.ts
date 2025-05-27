@@ -1,9 +1,9 @@
-import type { CookieSerializeOptions } from 'cookie';
+import type { SerializeOptions } from 'cookie';
 import { parse, serialize } from 'cookie';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export type AstroCookieSetOptions = Pick<
-	CookieSerializeOptions,
+	SerializeOptions,
 	'domain' | 'path' | 'expires' | 'maxAge' | 'httpOnly' | 'sameSite' | 'secure' | 'encode'
 >;
 
@@ -35,6 +35,8 @@ const DELETED_EXPIRATION = new Date(0);
 const DELETED_VALUE = 'deleted';
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
+const identity = (value: string) => value;
+
 class AstroCookie implements AstroCookieInterface {
 	constructor(public value: string) {}
 	json() {
@@ -55,7 +57,7 @@ class AstroCookie implements AstroCookieInterface {
 
 class AstroCookies implements AstroCookiesInterface {
 	#request: Request;
-	#requestValues: Record<string, string> | null;
+	#requestValues: Record<string, string | undefined> | null;
 	#outgoing: Map<string, [string, string, boolean]> | null;
 	#consumed: boolean;
 	constructor(request: Request) {
@@ -83,7 +85,7 @@ class AstroCookies implements AstroCookiesInterface {
 			expires: _ignoredExpires,
 			...sanitizedOptions
 		} = options || {};
-		const serializeOptions: CookieSerializeOptions = {
+		const serializeOptions: SerializeOptions = {
 			expires: DELETED_EXPIRATION,
 			...sanitizedOptions,
 		};
@@ -116,11 +118,15 @@ class AstroCookies implements AstroCookiesInterface {
 				return undefined;
 			}
 		}
+		// decodeURIComponent is the default decode function for cookies
+		const decode = options?.decode ?? decodeURIComponent;
 
-		const values = this.#ensureParsed(options);
+		const values = this.#ensureParsed();
 		if (key in values) {
 			const value = values[key];
-			return new AstroCookie(value);
+			if (value) {
+				return new AstroCookie(decode(value));
+			}
 		}
 	}
 
@@ -128,15 +134,16 @@ class AstroCookies implements AstroCookiesInterface {
 	 * Astro.cookies.has(key) returns a boolean indicating whether this cookie is either
 	 * part of the initial request or set via Astro.cookies.set(key)
 	 * @param key The cookie to check for.
+	 * @param _options This parameter is no longer used.
 	 * @returns
 	 */
-	has(key: string, options: AstroCookieGetOptions | undefined = undefined): boolean {
+	has(key: string, _options?: AstroCookieGetOptions): boolean {
 		if (this.#outgoing?.has(key)) {
 			let [, , isSetValue] = this.#outgoing.get(key)!;
 			return isSetValue;
 		}
-		const values = this.#ensureParsed(options);
-		return !!values[key];
+		const values = this.#ensureParsed();
+		return values[key] !== undefined;
 	}
 
 	/**
@@ -172,7 +179,7 @@ class AstroCookies implements AstroCookiesInterface {
 			}
 		}
 
-		const serializeOptions: CookieSerializeOptions = {};
+		const serializeOptions: SerializeOptions = {};
 		if (options) {
 			Object.assign(serializeOptions, options);
 		}
@@ -225,9 +232,9 @@ class AstroCookies implements AstroCookiesInterface {
 		return cookies.headers();
 	}
 
-	#ensureParsed(options: AstroCookieGetOptions | undefined = undefined): Record<string, string> {
+	#ensureParsed(): Record<string, string | undefined> {
 		if (!this.#requestValues) {
-			this.#parse(options);
+			this.#parse();
 		}
 		if (!this.#requestValues) {
 			this.#requestValues = {};
@@ -242,13 +249,14 @@ class AstroCookies implements AstroCookiesInterface {
 		return this.#outgoing;
 	}
 
-	#parse(options: AstroCookieGetOptions | undefined = undefined) {
+	#parse() {
 		const raw = this.#request.headers.get('cookie');
 		if (!raw) {
 			return;
 		}
-
-		this.#requestValues = parse(raw, options);
+		// Pass identity function for decoding so it doesn't use the default.
+		// We'll do the actual decoding when we read the value.
+		this.#requestValues = parse(raw, { decode: identity });
 	}
 }
 

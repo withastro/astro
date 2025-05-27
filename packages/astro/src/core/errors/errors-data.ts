@@ -17,6 +17,7 @@ export interface ErrorData {
  * @name Astro Errors
  */
 // Astro Errors, most errors will go here!
+
 /**
  * @docs
  * @message
@@ -59,7 +60,8 @@ export const ClientAddressNotAvailable = {
 export const PrerenderClientAddressNotAvailable = {
 	name: 'PrerenderClientAddressNotAvailable',
 	title: '`Astro.clientAddress` cannot be used inside prerendered routes.',
-	message: `\`Astro.clientAddress\` cannot be used inside prerendered routes`,
+	message: (name: string) =>
+		`\`Astro.clientAddress\` cannot be used inside prerendered route ${name}`,
 } satisfies ErrorData;
 /**
  * @docs
@@ -870,38 +872,6 @@ export const AstroResponseHeadersReassigned = {
 
 /**
  * @docs
- * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
- * @see
- * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
- * @description
- * Thrown when the session storage could not be initialized.
- */
-export const SessionStorageInitError = {
-	name: 'SessionStorageInitError',
-	title: 'Session storage could not be initialized.',
-	message: (error: string, driver?: string) =>
-		`Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
-	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @message Error when saving session data with driver `DRIVER`. `ERROR`
- * @see
- * 	- [experimental.session](https://docs.astro.build/en/reference/experimental-flags/sessions/)
- * @description
- * Thrown when the session data could not be saved.
- */
-export const SessionStorageSaveError = {
-	name: 'SessionStorageSaveError',
-	title: 'Session data could not be saved.',
-	message: (error: string, driver?: string) =>
-		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
-	hint: 'For more information, see https://docs.astro.build/en/reference/experimental-flags/sessions/',
-} satisfies ErrorData;
-
-/**
- * @docs
  * @description
  * Thrown in development mode when middleware throws an error while attempting to loading it.
  *
@@ -995,6 +965,22 @@ export const RedirectWithNoLocation = {
 	name: 'RedirectWithNoLocation',
 	title: 'A redirect must be given a location with the `Location` header.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#redirect)
+ * @description
+ * An external redirect must start with http or https, and must be a valid URL.
+ */
+export const UnsupportedExternalRedirect = {
+	name: 'UnsupportedExternalRedirect',
+	title: 'Unsupported or malformed URL.',
+	message: (from: string, to: string) =>
+		`The destination URL in the external redirect from "${from}" to "${to}" is unsupported.`,
+	hint: 'An external redirect must start with http or https, and must be a valid URL.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @see
@@ -1311,6 +1297,91 @@ export const UnknownFilesystemError = {
 
 /**
  * @docs
+ * @description
+ * Cannot extract the font type from the given URL.
+ * @message
+ * An error occured while trying to extract the font type from the given URL.
+ */
+export const CannotExtractFontType = {
+	name: 'CannotExtractFontType',
+	title: 'Cannot extract the font type from the given URL.',
+	message: (url: string) => `An error occurred while trying to extract the font type from ${url}`,
+	hint: 'Open an issue at https://github.com/withastro/astro/issues.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Cannot determine weight and style from font file, update your family config and set `weight` and `style` manually instead.
+ * @message
+ * An error occured while determining the weight and style from the local font file.
+ */
+export const CannotDetermineWeightAndStyleFromFontFile = {
+	name: 'CannotDetermineWeightAndStyleFromFontFile',
+	title: 'Cannot determine weight and style from font file.',
+	message: (family: string, url: string) =>
+		`An error occurred while determining the \`weight\` and \`style\` from local family "${family}" font file: ${url}`,
+	hint: 'Update your family config and set `weight` and `style` manually instead.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Cannot fetch the given font file
+ * @message
+ * An error occured while fetching font file from the given URL.
+ */
+export const CannotFetchFontFile = {
+	name: 'CannotFetchFontFile',
+	title: 'Cannot fetch the given font file.',
+	message: (url: string) => `An error occurred while fetching the font file from ${url}`,
+	hint: 'This is often caused by connectivity issues. If the error persists, open an issue at https://github.com/withastro/astro/issues.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Cannot load font provider
+ * @message
+ * Astro is unable to load the given font provider. Open an issue on the corresponding provider's repository.
+ */
+export const CannotLoadFontProvider = {
+	name: 'CannotLoadFontProvider',
+	title: 'Cannot load font provider',
+	message: (entrypoint: string) => `An error occured while loading the "${entrypoint}" provider.`,
+	hint: 'This is an issue with the font provider. Please open an issue on their repository.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Font component is used but experimental fonts have not been registered in the config.
+ */
+export const ExperimentalFontsNotEnabled = {
+	name: 'ExperimentalFontsNotEnabled',
+	title: 'Experimental fonts are not enabled',
+	message:
+		'The Font component is used but experimental fonts have not been registered in the config.',
+	hint: 'Check that you have enabled experimental fonts and also configured your preferred fonts.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Font family not found
+ * @message
+ * No data was found for the family passed to the Font component.
+ */
+export const FontFamilyNotFound = {
+	name: 'FontFamilyNotFound',
+	title: 'Font family not found',
+	message: (family: string) =>
+		`No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
+	hint: 'This is often caused by a typo. Check that your Font component is using a `cssVariable` specified in your config.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */
@@ -1470,6 +1541,7 @@ export const GenerateContentTypesError = {
 	hint: (fileName?: string) =>
 		`This error is often caused by a syntax error inside your content, or your content configuration file. Check your ${fileName ?? 'content config'} file for typos.`,
 } satisfies ErrorData;
+
 /**
  * @docs
  * @kind heading
@@ -1563,6 +1635,32 @@ export const InvalidContentEntryDataError = {
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * The content loader for the collection **blog** returned an entry with an invalid `id`:<br/>
+ * &#123;<br/>
+ *   "id": 1,<br/>
+ *   "title": "Hello, World!"<br/>
+ * &#125;
+ * @description
+ * A content loader returned an invalid `id`.
+ * Make sure that the `id` of the entry is a string.
+ * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ */
+export const ContentLoaderReturnsInvalidId = {
+	name: 'ContentLoaderReturnsInvalidId',
+	title: 'Content loader returned an entry with an invalid `id`.',
+	message(collection: string, entry: any) {
+		return [
+			`The content loader for the collection **${String(collection)}** returned an entry with an invalid \`id\`:`,
+			JSON.stringify(entry, null, 2),
+		].join('\n');
+	},
+	hint: 'Make sure that the `id` of the entry is a string. See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders.',
 } satisfies ErrorData;
 
 /**
@@ -1720,6 +1818,34 @@ export const UnsupportedConfigTransformError = {
 
 /**
  * @docs
+ * @see
+ *  - [Passing a `parser` to the `file` loader](https://docs.astro.build/en/guides/content-collections/#parser-function)
+ * @description
+ * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. `toml.parse` or `csv-parse`) to create a collection from your file type.
+ */
+export const FileParserNotFound = {
+	name: 'FileParserNotFound',
+	title: 'File parser not found',
+	message: (fileName: string) =>
+		`No parser was found for '${fileName}'. Pass a parser function (e.g. \`parser: csv\`) to the \`file\` loader.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ *  - [Astro's built-in loaders](https://docs.astro.build/en/guides/content-collections/#built-in-loaders)
+ * @description
+ * The `file` loader must be passed a single local file. Glob patterns are not supported. Use the built-in `glob` loader to create entries from patterns of multiple local files.
+ */
+export const FileGlobNotSupported = {
+	name: 'FileGlobNotSupported',
+	title: 'Glob patterns are not supported in the file loader',
+	message: 'Glob patterns are not supported in the `file` loader. Use the `glob` loader instead.',
+	hint: `See Astro's built-in file and glob loaders https://docs.astro.build/en/guides/content-collections/#built-in-loaders for supported usage.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name Action Errors
  */
@@ -1784,6 +1910,104 @@ export const ActionCalledFromServerError = {
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Thrown in development mode when the actions file can't be loaded.
+ *
+ */
+export const ActionsCantBeLoaded = {
+	name: 'ActionsCantBeLoaded',
+	title: "Can't load the Astro actions.",
+	message: 'An unknown error was thrown while loading the Astro actions file.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @kind heading
+ * @name Session Errors
+ */
+// Session Errors
+/**
+ * @docs
+ * @message Error when initializing session storage with driver `DRIVER`. `ERROR`
+ * @see
+ * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
+ * @description
+ * Thrown when the session storage could not be initialized.
+ */
+export const SessionStorageInitError = {
+	name: 'SessionStorageInitError',
+	title: 'Session storage could not be initialized.',
+	message: (error: string, driver?: string) =>
+		`Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Error when saving session data with driver `DRIVER`. `ERROR`
+ * @see
+ * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
+ * @description
+ * Thrown when the session data could not be saved.
+ */
+export const SessionStorageSaveError = {
+	name: 'SessionStorageSaveError',
+	title: 'Session data could not be saved.',
+	message: (error: string, driver?: string) =>
+		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
+	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
+ * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
+ * @description
+ * Your adapter must support server output to use sessions.
+ */
+export const SessionWithoutSupportedAdapterOutputError = {
+	name: 'SessionWithoutSupportedAdapterOutputError',
+	title: "Sessions cannot be used with an adapter that doesn't support server output.",
+	message:
+		'Sessions require an adapter that supports server output. The adapter must set `"server"` in the `buildOutput` adapter feature.',
+	hint: 'Ensure your adapter supports `buildOutput: "server"`: https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter',
+} satisfies ErrorData;
+/**
+ * @docs
+ * @message The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage.
+ * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
+ * @see
+ * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
+ * @description
+ * Thrown when session storage is enabled but not configured.
+ */
+export const SessionConfigMissingError = {
+	name: 'SessionConfigMissingError',
+	title: 'Session storage was enabled but not configured.',
+	message:
+		'The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage',
+	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message Session config was provided without enabling the `experimental.session` flag
+ * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
+ * @see
+ * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
+ * @description
+ * Thrown when session storage is configured but the `experimental.session` flag is not enabled.
+ */
+export const SessionConfigWithoutFlagError = {
+	name: 'SessionConfigWithoutFlagError',
+	title: 'Session flag not set',
+	message: 'Session config was provided without enabling the `experimental.session` flag',
+	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
+} satisfies ErrorData;
 
 /*
  * Adding an error? Follow these steps:

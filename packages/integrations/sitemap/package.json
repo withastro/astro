@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/sitemap",
   "description": "Generate a sitemap for your Astro site",
-  "version": "3.2.1",
+  "version": "3.4.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -35,10 +35,9 @@
   "dependencies": {
     "sitemap": "^8.0.0",
     "stream-replace-string": "^2.0.0",
-    "zod": "^3.24.1"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@astrojs/node": "^9.0.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "xml2js": "0.6.2"

@@ -36,13 +36,12 @@ describe('Astro.redirect', () => {
 			assert.equal(response.headers.get('location'), '/login');
 		});
 
-		// ref: https://github.com/withastro/astro/pull/9287#discussion_r1420739810
-		it.skip('Ignores external redirect', async () => {
+		it('Allows external redirect', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/external/redirect');
 			const response = await app.render(request);
-			assert.equal(response.status, 404);
-			assert.equal(response.headers.get('location'), null);
+			assert.equal(response.status, 301);
+			assert.equal(response.headers.get('location'), 'https://example.com/');
 		});
 
 		it('Warns when used inside a component', async () => {
@@ -131,6 +130,8 @@ describe('Astro.redirect', () => {
 						'/more/old/[dynamic]': '/more/[dynamic]',
 						'/more/old/[dynamic]/[route]': '/more/[dynamic]/[route]',
 						'/more/old/[...spread]': '/more/new/[...spread]',
+						'/external/redirect': 'https://example.com/',
+						'/relative/redirect': '../../test',
 					},
 				});
 				await fixture.build();
@@ -208,6 +209,18 @@ describe('Astro.redirect', () => {
 				assert.equal(html.includes('http-equiv="refresh'), true);
 				assert.equal(html.includes('url=/more/new/welcome/world'), true);
 			});
+
+			it('supports redirecting to an external destination', async () => {
+				const html = await fixture.readFile('/external/redirect/index.html');
+				assert.equal(html.includes('http-equiv="refresh'), true);
+				assert.equal(html.includes('url=https://example.com/'), true);
+			});
+
+			it('supports redirecting to a relative destination', async () => {
+				const html = await fixture.readFile('/relative/redirect/index.html');
+				assert.equal(html.includes('http-equiv="refresh'), true);
+				assert.equal(html.includes('url=../../test'), true);
+			});
 		});
 
 		describe('dev', () => {
@@ -263,6 +276,22 @@ describe('Astro.redirect', () => {
 				assert.equal(response.headers.get('Location'), '/more/new/welcome/world');
 			});
 		});
+
+		describe('with i18n, build step', () => {
+			before(async () => {
+				process.env.STATIC_MODE = true;
+				fixture = await loadFixture({
+					root: './fixtures/redirects-i18n/',
+				});
+				await fixture.build();
+			});
+
+			it('should render the external redirect', async () => {
+				const html = await fixture.readFile('/mytest/index.html');
+				assert.equal(html.includes('http-equiv="refresh'), true);
+				assert.equal(html.includes('url=https://example.com/about'), true);
+			});
+		});
 	});
 
 	describe('config.build.redirects = false', () => {
@@ -293,6 +322,27 @@ describe('Astro.redirect', () => {
 			let secretHtml = await fixture.readFile('/secret/index.html');
 			assert.equal(secretHtml.includes('Redirecting from <code>/secret/</code>'), true);
 			assert.equal(secretHtml.includes('to <code>/login</code>'), true);
+		});
+	});
+
+	describe('when site is specified', () => {
+		before(async () => {
+			process.env.STATIC_MODE = true;
+			fixture = await loadFixture({
+				root: './fixtures/redirects/',
+				output: 'static',
+				redirects: {
+					'/one': '/',
+				},
+				site: 'https://example.com',
+			});
+			await fixture.build();
+		});
+
+		it('Does not add it to the generated HTML file', async () => {
+			const secretHtml = await fixture.readFile('/secret/index.html');
+			assert.equal(secretHtml.includes('url=https://example.com/login'), false);
+			assert.equal(secretHtml.includes('url=/login'), true);
 		});
 	});
 });

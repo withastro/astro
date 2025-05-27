@@ -27,6 +27,10 @@ export function renderAllHeadContent(result: SSRResult) {
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
 		.map((script) => {
+			if (result.userAssetsBase) {
+				script.props.src =
+					(result.base === '/' ? '' : result.base) + result.userAssetsBase + script.props.src;
+			}
 			return renderElement('script', script, false);
 		});
 	const links = Array.from(result.links)

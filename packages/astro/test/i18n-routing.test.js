@@ -1701,6 +1701,19 @@ describe('[SSR] i18n routing', () => {
 			assert.equal(text.includes('Locale list: en, pt, it'), true);
 		});
 
+		it('should render the preferred locale when a locale is configured with codes', async () => {
+			let request = new Request('http://example.com/preferred-locale', {
+				headers: {
+					'Accept-Language': 'es-SP;q=0.9,es;q=0.8,en-US;q=0.7,en;q=0.6',
+				},
+			});
+			let response = await app.render(request);
+			const text = await response.text();
+			assert.equal(response.status, 200);
+			assert.equal(text.includes('Locale: es-SP'), true);
+			assert.equal(text.includes('Locale list: es-SP, es, en'), true);
+		});
+
 		describe('in case the configured locales use underscores', () => {
 			before(async () => {
 				fixture = await loadFixture({
@@ -1751,8 +1764,8 @@ describe('[SSR] i18n routing', () => {
 				let response = await app.render(request);
 				const text = await response.text();
 				assert.equal(response.status, 200);
-				assert.equal(text.includes('Locale: spanish'), true);
-				assert.equal(text.includes('Locale list: spanish'), true);
+				assert.equal(text.includes('Locale: es'), true);
+				assert.equal(text.includes('Locale list: es'), true);
 			});
 		});
 	});
@@ -2166,5 +2179,58 @@ describe('Fallback rewrite SSR', () => {
 		assert.equal(response.status, 200);
 		const text = await response.text();
 		assert.match(text, /Hello world/);
+	});
+});
+
+describe('i18n routing with server islands', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	/** @type {import('./test-utils').DevServer} */
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-server-island/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should render the en locale with server island', async () => {
+		const res = await fixture.fetch('/en/island');
+		const html = await res.text();
+		const $ = cheerio.load(html);
+		const serverIslandScript = $('script[data-island-id]');
+		assert.equal(serverIslandScript.length, 1, 'has the island script');
+	});
+});
+
+describe('i18n routing with server islands and base path', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	/** @type {import('./test-utils').DevServer} */
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-server-island/',
+			base: '/custom',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should render the en locale with server island', async () => {
+		const res = await fixture.fetch('/custom/en/island');
+		const html = await res.text();
+		const $ = cheerio.load(html);
+		const serverIslandScript = $('script[data-island-id]');
+		assert.equal(serverIslandScript.length, 1, 'has the island script');
 	});
 });

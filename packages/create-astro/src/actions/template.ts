@@ -21,9 +21,10 @@ export async function template(
 			message: 'How would you like to start your new project?',
 			initial: 'basics',
 			choices: [
-				{ value: 'basics', label: 'A basic, minimal starter', hint: '(recommended)' },
+				{ value: 'basics', label: 'A basic, helpful starter project', hint: '(recommended)' },
 				{ value: 'blog', label: 'Use blog template' },
 				{ value: 'starlight', label: 'Use docs (Starlight) template' },
+				{ value: 'minimal', label: 'Use minimal (empty) template' },
 			],
 		});
 		ctx.template = tmpl;
@@ -93,7 +94,7 @@ export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	}
 }
 
-export default async function copyTemplate(tmpl: string, ctx: Context) {
+async function copyTemplate(tmpl: string, ctx: Context) {
 	const templateTarget = getTemplateTarget(tmpl, ctx.ref);
 	// Copy
 	if (!ctx.dryRun) {
@@ -103,6 +104,19 @@ export default async function copyTemplate(tmpl: string, ctx: Context) {
 				cwd: ctx.cwd,
 				dir: '.',
 			});
+
+			// Modify the README file to reflect the correct package manager
+			if (ctx.packageManager !== 'npm') {
+				const readmePath = path.resolve(ctx.cwd, 'README.md');
+				const readme = fs.readFileSync(readmePath, 'utf8');
+
+				// `run` is removed since it's optional in other package managers
+				const updatedReadme = readme
+					.replace(/\bnpm run\b/g, ctx.packageManager)
+					.replace(/\bnpm\b/g, ctx.packageManager);
+
+				fs.writeFileSync(readmePath, updatedReadme);
+			}
 		} catch (err: any) {
 			// Only remove the directory if it's most likely created by us.
 			if (ctx.cwd !== '.' && ctx.cwd !== './' && !ctx.cwd.startsWith('../')) {

@@ -30,22 +30,28 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 
 		async load(id) {
 			if (id === BEFORE_HYDRATION_SCRIPT_ID) {
-				return settings.scripts
-					.filter((s) => s.stage === 'before-hydration')
-					.map((s) => s.content)
-					.join('\n');
+				return {
+					code: settings.scripts
+						.filter((s) => s.stage === 'before-hydration')
+						.map((s) => s.content)
+						.join('\n'),
+				};
 			}
 			if (id === PAGE_SCRIPT_ID) {
-				return settings.scripts
-					.filter((s) => s.stage === 'page')
-					.map((s) => s.content)
-					.join('\n');
+				return {
+					code: settings.scripts
+						.filter((s) => s.stage === 'page')
+						.map((s) => s.content)
+						.join('\n'),
+				};
 			}
 			if (id === PAGE_SSR_SCRIPT_ID) {
-				return settings.scripts
-					.filter((s) => s.stage === 'page-ssr')
-					.map((s) => s.content)
-					.join('\n');
+				return {
+					code: settings.scripts
+						.filter((s) => s.stage === 'page-ssr')
+						.map((s) => s.content)
+						.join('\n'),
+				};
 			}
 			return null;
 		},

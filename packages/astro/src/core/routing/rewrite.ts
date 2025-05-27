@@ -5,11 +5,16 @@ import { shouldAppendForwardSlash } from '../build/util.js';
 import { originPathnameSymbol } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { appendForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import {
+	appendForwardSlash,
+	joinPaths,
+	prependForwardSlash,
+	removeTrailingForwardSlash,
+} from '../path.js';
 import { createRequest } from '../request.js';
 import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';
 
-export type FindRouteToRewrite = {
+type FindRouteToRewrite = {
 	payload: RewritePayload;
 	routes: RouteData[];
 	request: Request;
@@ -18,7 +23,7 @@ export type FindRouteToRewrite = {
 	base: AstroConfig['base'];
 };
 
-export interface FindRouteToRewriteResult {
+interface FindRouteToRewriteResult {
 	routeData: RouteData;
 	newUrl: URL;
 	pathname: string;
@@ -45,17 +50,52 @@ export function findRouteToRewrite({
 	} else {
 		newUrl = new URL(payload, new URL(request.url).origin);
 	}
+
 	let pathname = newUrl.pathname;
-	if (base !== '/' && newUrl.pathname.startsWith(base)) {
-		pathname = shouldAppendForwardSlash(trailingSlash, buildFormat)
-			? appendForwardSlash(newUrl.pathname)
-			: removeTrailingForwardSlash(newUrl.pathname);
-		pathname = pathname.slice(base.length);
+	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
+
+	// Special handling for base path
+	if (base !== '/') {
+		// Check if this is a request to the base path
+		const isBasePathRequest =
+			newUrl.pathname === base || newUrl.pathname === removeTrailingForwardSlash(base);
+
+		if (isBasePathRequest) {
+			// For root path requests at the base URL
+			// When trailingSlash is 'never', we should match '' (empty string pathname)
+			// When trailingSlash is 'always', we should match '/' pathname
+			pathname = shouldAppendSlash ? '/' : '';
+		} else if (newUrl.pathname.startsWith(base)) {
+			// For non-root paths under the base
+			pathname = shouldAppendSlash
+				? appendForwardSlash(newUrl.pathname)
+				: removeTrailingForwardSlash(newUrl.pathname);
+			pathname = pathname.slice(base.length);
+		}
 	}
 
+	// Ensure pathname starts with '/' when needed
+	if (!pathname.startsWith('/') && shouldAppendSlash && newUrl.pathname.endsWith('/')) {
+		pathname = prependForwardSlash(pathname);
+	}
+
+	// Convert '/' to '' for trailingSlash: 'never'
+	if (pathname === '/' && base !== '/' && !shouldAppendSlash) {
+		pathname = '';
+	}
+
+	// Set the final URL pathname
+	if (base !== '/' && (pathname === '' || pathname === '/') && !shouldAppendSlash) {
+		// Special case for root path at base URL with trailingSlash: 'never'
+		newUrl.pathname = removeTrailingForwardSlash(base);
+	} else {
+		newUrl.pathname = joinPaths(...[base, pathname].filter(Boolean));
+	}
+
+	const decodedPathname = decodeURI(pathname);
 	let foundRoute;
 	for (const route of routes) {
-		if (route.pattern.test(decodeURI(pathname))) {
+		if (route.pattern.test(decodedPathname)) {
 			foundRoute = route;
 			break;
 		}
@@ -65,7 +105,7 @@ export function findRouteToRewrite({
 		return {
 			routeData: foundRoute,
 			newUrl,
-			pathname,
+			pathname: decodedPathname,
 		};
 	} else {
 		const custom404 = routes.find((route) => route.route === '/404');

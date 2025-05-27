@@ -1,7 +1,10 @@
 import { parse as devalueParse, stringify as devalueStringify } from 'devalue';
 import type { z } from 'zod';
 import { REDIRECT_STATUS_CODES } from '../../../core/constants.js';
-import { ActionsReturnedInvalidDataError } from '../../../core/errors/errors-data.js';
+import {
+	ActionCalledFromServerError,
+	ActionsReturnedInvalidDataError,
+} from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
 import { appendForwardSlash as _appendForwardSlash } from '../../../core/path.js';
 import { ACTION_QUERY_PARAMS as _ACTION_QUERY_PARAMS } from '../../consts.js';
@@ -19,37 +22,87 @@ export const appendForwardSlash = _appendForwardSlash;
 export const ACTION_ERROR_CODES = [
 	'BAD_REQUEST',
 	'UNAUTHORIZED',
+	'PAYMENT_REQUIRED',
 	'FORBIDDEN',
 	'NOT_FOUND',
-	'TIMEOUT',
+	'METHOD_NOT_ALLOWED',
+	'NOT_ACCEPTABLE',
+	'PROXY_AUTHENTICATION_REQUIRED',
+	'REQUEST_TIMEOUT',
 	'CONFLICT',
+	'GONE',
+	'LENGTH_REQUIRED',
 	'PRECONDITION_FAILED',
-	'PAYLOAD_TOO_LARGE',
+	'CONTENT_TOO_LARGE',
+	'URI_TOO_LONG',
 	'UNSUPPORTED_MEDIA_TYPE',
+	'RANGE_NOT_SATISFIABLE',
+	'EXPECTATION_FAILED',
+	'MISDIRECTED_REQUEST',
 	'UNPROCESSABLE_CONTENT',
+	'LOCKED',
+	'FAILED_DEPENDENCY',
+	'TOO_EARLY',
+	'UPGRADE_REQUIRED',
+	'PRECONDITION_REQUIRED',
 	'TOO_MANY_REQUESTS',
-	'CLIENT_CLOSED_REQUEST',
+	'REQUEST_HEADER_FIELDS_TOO_LARGE',
+	'UNAVAILABLE_FOR_LEGAL_REASONS',
 	'INTERNAL_SERVER_ERROR',
+	'NOT_IMPLEMENTED',
+	'BAD_GATEWAY',
+	'SERVICE_UNAVAILABLE',
+	'GATEWAY_TIMEOUT',
+	'HTTP_VERSION_NOT_SUPPORTED',
+	'VARIANT_ALSO_NEGOTIATES',
+	'INSUFFICIENT_STORAGE',
+	'LOOP_DETECTED',
+	'NETWORK_AUTHENTICATION_REQUIRED',
 ] as const;
 
 export type ActionErrorCode = (typeof ACTION_ERROR_CODES)[number];
 
 const codeToStatusMap: Record<ActionErrorCode, number> = {
-	// Implemented from tRPC error code table
-	// https://trpc.io/docs/server/error-handling#error-codes
+	// Implemented from IANA HTTP Status Code Registry
+	// https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
 	BAD_REQUEST: 400,
 	UNAUTHORIZED: 401,
+	PAYMENT_REQUIRED: 402,
 	FORBIDDEN: 403,
 	NOT_FOUND: 404,
-	TIMEOUT: 405,
+	METHOD_NOT_ALLOWED: 405,
+	NOT_ACCEPTABLE: 406,
+	PROXY_AUTHENTICATION_REQUIRED: 407,
+	REQUEST_TIMEOUT: 408,
 	CONFLICT: 409,
+	GONE: 410,
+	LENGTH_REQUIRED: 411,
 	PRECONDITION_FAILED: 412,
-	PAYLOAD_TOO_LARGE: 413,
+	CONTENT_TOO_LARGE: 413,
+	URI_TOO_LONG: 414,
 	UNSUPPORTED_MEDIA_TYPE: 415,
+	RANGE_NOT_SATISFIABLE: 416,
+	EXPECTATION_FAILED: 417,
+	MISDIRECTED_REQUEST: 421,
 	UNPROCESSABLE_CONTENT: 422,
+	LOCKED: 423,
+	FAILED_DEPENDENCY: 424,
+	TOO_EARLY: 425,
+	UPGRADE_REQUIRED: 426,
+	PRECONDITION_REQUIRED: 428,
 	TOO_MANY_REQUESTS: 429,
-	CLIENT_CLOSED_REQUEST: 499,
+	REQUEST_HEADER_FIELDS_TOO_LARGE: 431,
+	UNAVAILABLE_FOR_LEGAL_REASONS: 451,
 	INTERNAL_SERVER_ERROR: 500,
+	NOT_IMPLEMENTED: 501,
+	BAD_GATEWAY: 502,
+	SERVICE_UNAVAILABLE: 503,
+	GATEWAY_TIMEOUT: 504,
+	HTTP_VERSION_NOT_SUPPORTED: 505,
+	VARIANT_ALSO_NEGOTIATES: 506,
+	INSUFFICIENT_STORAGE: 507,
+	LOOP_DETECTED: 508,
+	NETWORK_AUTHENTICATION_REQUIRED: 511,
 };
 
 const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToStatusMap).reduce(
@@ -309,3 +362,7 @@ const actionResultErrorStack = (function actionResultErrorStackFn() {
 		},
 	};
 })();
+
+export function astroCalledServerError(): AstroError {
+	return new AstroError(ActionCalledFromServerError);
+}

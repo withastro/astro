@@ -1,7 +1,9 @@
 import { encryptString } from '../../../core/encryption.js';
 import type { SSRResult } from '../../../types/public/internal.js';
+import { markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
 import type { RenderInstance } from './common.js';
+import { createRenderInstruction } from './instruction.js';
 import { type ComponentSlots, renderSlotToString } from './slot.js';
 
 const internalProps = new Set([
@@ -67,6 +69,7 @@ export function renderServerIsland(
 					delete props[key];
 				}
 			}
+			destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
 
 			destination.write('<!--[if astro]>server-island-start<![endif]-->');
 
@@ -105,48 +108,49 @@ export function renderServerIsland(
 				);
 			}
 
-			destination.write(`<script async type="module" data-island-id="${hostId}">
-let script = document.querySelector('script[data-island-id="${hostId}"]');
-
-${
-	useGETRequest
-		? // GET request
-			`let response = await fetch('${serverIslandUrl}');
-`
-		: // POST request
-			`let data = {
+			destination.write(`<script type="module" data-astro-rerun data-island-id="${hostId}">${
+				useGETRequest
+					? // GET request
+						`let response = await fetch('${serverIslandUrl}');`
+					: // POST request
+						`let data = {
 	componentExport: ${safeJsonStringify(componentExport)},
 	encryptedProps: ${safeJsonStringify(propsEncrypted)},
 	slots: ${safeJsonStringify(renderedSlots)},
 };
-
 let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
-});
-`
-}
-if (script) {
-	if(
-		response.status === 200 
-		&& response.headers.has('content-type') 
-		&& response.headers.get('content-type').split(";")[0].trim() === 'text/html') {
-		let html = await response.text();
-	
-		// Swap!
-		while(script.previousSibling &&
-			script.previousSibling.nodeType !== 8 &&
-			script.previousSibling.data !== '[if astro]>server-island-start<![endif]') {
-			script.previousSibling.remove();
-		}
-		script.previousSibling?.remove();
-	
-		let frag = document.createRange().createContextualFragment(html);
-		script.before(frag);
-	}
-	script.remove();
-}
-</script>`);
+});`
+			}
+replaceServerIsland('${hostId}', response);</script>`);
 		},
 	};
 }
+
+export const renderServerIslandRuntime = () =>
+	markHTMLString(
+		`
+	<script>
+		async function replaceServerIsland(id, r) {
+			let s = document.querySelector(\`script[data-island-id="\${id}"]\`);
+			// If there's no matching script, or the request fails then return
+			if (!s || r.status !== 200 || r.headers.get('content-type')?.split(';')[0].trim() !== 'text/html') return;
+			// Load the HTML before modifying the DOM in case of errors
+			let html = await r.text();
+			// Remove any placeholder content before the island script
+			while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '[if astro]>server-island-start<![endif]')
+				s.previousSibling.remove();
+			s.previousSibling?.remove();
+			// Insert the new HTML
+			s.before(document.createRange().createContextualFragment(html));
+			// Remove the script. Prior to v5.4.2, this was the trick to force rerun of scripts.  Keeping it to minimize change to the existing behavior.
+			s.remove();
+		}
+	</script>`
+			// Very basic minification
+			.split('\n')
+			.map((line) => line.trim())
+			.filter((line) => line && !line.startsWith('//'))
+			.join(' '),
+	);

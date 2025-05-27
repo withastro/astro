@@ -58,61 +58,63 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 		},
 		async load(id) {
 			if (id === resolvedPrivateVirtualModuleId) {
-				return `
-					export const loadDevToolbarApps = async () => {
-						return (await Promise.all([${settings.devToolbarApps
-							.map(
-								(plugin) =>
-									`safeLoadPlugin(${JSON.stringify(
-										plugin,
-									)}, async () => (await import(${JSON.stringify(
-										typeof plugin === 'string' ? plugin : plugin.entrypoint.toString(),
-									)})).default, ${JSON.stringify(
-										typeof plugin === 'string' ? plugin : plugin.entrypoint.toString(),
-									)})`,
-							)
-							.join(',')}]));
-					};
+				return {
+					code: `
+						export const loadDevToolbarApps = async () => {
+							return (await Promise.all([${settings.devToolbarApps
+								.map(
+									(plugin) =>
+										`safeLoadPlugin(${JSON.stringify(
+											plugin,
+										)}, async () => (await import(${JSON.stringify(
+											typeof plugin === 'string' ? plugin : plugin.entrypoint.toString(),
+										)})).default, ${JSON.stringify(
+											typeof plugin === 'string' ? plugin : plugin.entrypoint.toString(),
+										)})`,
+								)
+								.join(',')}]));
+						};
 
-					async function safeLoadPlugin(appDefinition, importEntrypoint, entrypoint) {
-						try {
-							let app;
-							if (typeof appDefinition === 'string') {
-								app = await importEntrypoint();
+						async function safeLoadPlugin(appDefinition, importEntrypoint, entrypoint) {
+							try {
+								let app;
+								if (typeof appDefinition === 'string') {
+									app = await importEntrypoint();
 
-								if (typeof app !== 'object' || !app.id || !app.name) {
-									throw new Error("Apps must default export an object with an id, and a name.");
+									if (typeof app !== 'object' || !app.id || !app.name) {
+										throw new Error("Apps must default export an object with an id, and a name.");
+									}
+								} else {
+									app = appDefinition;
+
+									if (typeof app !== 'object' || !app.id || !app.name || !app.entrypoint) {
+										throw new Error("Apps must be an object with an id, a name and an entrypoint.");
+									}
+
+									const loadedApp = await importEntrypoint();
+
+									if (typeof loadedApp !== 'object') {
+										throw new Error("App entrypoint must default export an object.");
+									}
+
+									app = { ...app, ...loadedApp };
 								}
-							} else {
-								app = appDefinition;
 
-								if (typeof app !== 'object' || !app.id || !app.name || !app.entrypoint) {
-									throw new Error("Apps must be an object with an id, a name and an entrypoint.");
+								return app;
+							} catch (err) {
+								console.error(\`Failed to load dev toolbar app from \${entrypoint}: \${err.message}\`);
+
+								if (import.meta.hot) {
+								import.meta.hot.send('astro:devtoolbar:error:load', { entrypoint: entrypoint, error: err.message })
 								}
 
-								const loadedApp = await importEntrypoint();
-
-								if (typeof loadedApp !== 'object') {
-									throw new Error("App entrypoint must default export an object.");
-								}
-
-								app = { ...app, ...loadedApp };
-							}
-
-							return app;
-						} catch (err) {
-							console.error(\`Failed to load dev toolbar app from \${entrypoint}: \${err.message}\`);
-
-							if (import.meta.hot) {
-  							import.meta.hot.send('astro:devtoolbar:error:load', { entrypoint: entrypoint, error: err.message })
+								return undefined;
 							}
 
 							return undefined;
 						}
-
-						return undefined;
-					}
-				`;
+					`,
+				};
 			}
 		},
 	};

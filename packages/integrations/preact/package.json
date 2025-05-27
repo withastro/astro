@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/preact",
   "description": "Use Preact components within Astro",
-  "version": "4.0.3",
+  "version": "4.1.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -35,24 +35,21 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.25.9",
-    "@babel/plugin-transform-react-jsx-development": "^7.25.9",
-    "@preact/preset-vite": "2.8.2",
-    "@preact/signals": "^2.0.1",
-    "babel-plugin-transform-hook-names": "^1.0.2",
+    "@preact/preset-vite": "^2.10.1",
+    "@preact/signals": "^2.0.5",
     "preact-render-to-string": "^6.5.13",
-    "vite": "^6.0.9"
+    "vite": "^6.3.5"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "preact": "^10.25.4"
+    "preact": "^10.26.7"
   },
   "peerDependencies": {
     "preact": "^10.6.5"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
+    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true

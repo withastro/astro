@@ -7,12 +7,14 @@ import type { Logger } from '../core/logger/core.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
 import { normalizePath, rootRelativePath } from '../core/viteUtils.js';
-import type { AstroSettings, ManifestData } from '../types/astro.js';
+import type { AstroSettings, RoutesList } from '../types/astro.js';
+import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
+import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
-export interface AstroPluginScannerOptions {
+interface AstroPluginScannerOptions {
 	settings: AstroSettings;
 	logger: Logger;
-	manifest: ManifestData;
+	routesList: RoutesList;
 }
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
@@ -20,7 +22,7 @@ const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
 export default function astroScannerPlugin({
 	settings,
 	logger,
-	manifest,
+	routesList,
 }: AstroPluginScannerOptions): VitePlugin {
 	return {
 		name: 'astro:scanner',
@@ -42,7 +44,7 @@ export default function astroScannerPlugin({
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 
-			const route = manifest.routes.find((r) => {
+			const route = routesList.routes.find((r) => {
 				const filePath = new URL(`./${r.component}`, settings.config.root);
 				return normalizePath(fileURLToPath(filePath)) === filename;
 			});
@@ -73,11 +75,11 @@ export default function astroScannerPlugin({
 				meta: {
 					...meta,
 					astro: {
-						...(meta.astro ?? { hydratedComponents: [], clientOnlyComponents: [], scripts: [] }),
+						...(meta.astro ?? createDefaultAstroMetadata()),
 						pageOptions: {
 							prerender: route.prerender,
 						},
-					},
+					} satisfies PluginMetadata['astro'],
 				},
 			};
 		},
@@ -97,7 +99,7 @@ export default function astroScannerPlugin({
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 
-			const route = manifest.routes.find((r) => {
+			const route = routesList.routes.find((r) => {
 				const filePath = new URL(`./${r.component}`, settings.config.root);
 				return normalizePath(fileURLToPath(filePath)) === filename;
 			});

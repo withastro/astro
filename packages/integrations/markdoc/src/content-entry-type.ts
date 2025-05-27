@@ -49,7 +49,11 @@ export async function getContentEntryType({
 			const userMarkdocConfig = markdocConfigResult?.config ?? {};
 			const markdocConfigUrl = markdocConfigResult?.fileUrl;
 			const pluginContext = this;
-			const markdocConfig = await setupConfig(userMarkdocConfig, options);
+			const markdocConfig = await setupConfig(
+				userMarkdocConfig,
+				options,
+				astroConfig.experimental.headingIdCompat,
+			);
 			const filePath = fileURLToPath(fileUrl);
 			raiseValidationErrors({
 				ast,
@@ -116,6 +120,7 @@ markdocConfig.nodes = { ...assetsConfig.nodes, ...markdocConfig.nodes };
 
 ${getStringifiedImports(componentConfigByTagMap, 'Tag', astroConfig.root)}
 ${getStringifiedImports(componentConfigByNodeMap, 'Node', astroConfig.root)}
+const experimentalHeadingIdCompat = ${JSON.stringify(astroConfig.experimental.headingIdCompat || false)}
 
 const tagComponentMap = ${getStringifiedMap(componentConfigByTagMap, 'Tag')};
 const nodeComponentMap = ${getStringifiedMap(componentConfigByNodeMap, 'Node')};
@@ -126,7 +131,7 @@ const stringifiedAst = ${JSON.stringify(
 				/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast),
 			)};
 
-export const getHeadings = createGetHeadings(stringifiedAst, markdocConfig, options);
+export const getHeadings = createGetHeadings(stringifiedAst, markdocConfig, options, experimentalHeadingIdCompat);
 export const Content = createContentComponent(
 	Renderer,
 	stringifiedAst,
@@ -134,6 +139,7 @@ export const Content = createContentComponent(
   options,
 	tagComponentMap,
 	nodeComponentMap,
+	experimentalHeadingIdCompat,
 )`;
 			return { code: res };
 		},
@@ -312,7 +318,8 @@ async function emitOptimizedImages(
 					const src = await emitESMImage(
 						resolved.id,
 						ctx.pluginContext.meta.watchMode,
-						!!ctx.astroConfig.experimental.svg,
+						// FUTURE: Remove in this in v6
+						resolved.id.endsWith('.svg'),
 						ctx.pluginContext.emitFile,
 					);
 

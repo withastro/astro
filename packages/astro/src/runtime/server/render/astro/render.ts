@@ -1,5 +1,6 @@
 import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
 import type { RouteData, SSRResult } from '../../../../types/public/internal.js';
+import { isPromise } from '../../util.js';
 import { type RenderDestination, chunkToByteArray, chunkToString, encoder } from '../common.js';
 import { promiseWithResolvers } from '../util.js';
 import type { AstroComponentFactory } from './factory.js';
@@ -317,16 +318,13 @@ export async function renderToAsyncIterable(
 		},
 	};
 
-	const renderPromise = templateResult.render(destination);
-	renderPromise
-		.then(() => {
-			// Once rendering is complete, calling resolve() allows the iterator to finish running.
-			renderingComplete = true;
-			next?.resolve();
-		})
+	const renderResult = toPromise(() => templateResult.render(destination));
+
+	renderResult
 		.catch((err) => {
-			// If an error occurs, save it in the scope so that we throw it when next() is called.
 			error = err;
+		})
+		.finally(() => {
 			renderingComplete = true;
 			next?.resolve();
 		});
@@ -338,4 +336,13 @@ export async function renderToAsyncIterable(
 			return iterator;
 		},
 	};
+}
+
+function toPromise<T>(fn: () => T | Promise<T>): Promise<T> {
+	try {
+		const result = fn();
+		return isPromise(result) ? result : Promise.resolve(result);
+	} catch (err) {
+		return Promise.reject(err);
+	}
 }

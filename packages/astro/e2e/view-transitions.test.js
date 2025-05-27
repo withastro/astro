@@ -647,13 +647,28 @@ test.describe('View Transitions', () => {
 	test('Scripts are only executed once', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
-		const p = page.locator('#one');
+		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
 		// go to page 2
 		await page.click('#click-two');
 		const article = page.locator('#twoarticle');
 		await expect(article, 'should have script content').toHaveText('works');
+
+		// Go back to page 1
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// Go to page 8
+		await page.click('#click-eight');
+		const article8 = page.locator('#eight');
+		await expect(article8, 'should have content').toHaveText('Page 8');
+
+		// Go back to page 1
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
 
 		const meta = page.locator('[name="script-executions"]');
 		await expect(meta).toHaveAttribute('content', '0');
@@ -724,6 +739,10 @@ test.describe('View Transitions', () => {
 		await expect(h, 'should have content').toHaveAttribute('data-other-name', 'value');
 		await expect(h, 'should have content').toHaveAttribute('data-astro-fake', 'value');
 		await expect(h, 'should have content').toHaveAttribute('data-astro-transition', 'forward');
+		await expect(h, 'should have swap rest of data-astro-* attributes').toHaveAttribute(
+			'data-astro-transition-scope',
+			'scope-y',
+		);
 		await expect(h, 'should be absent').not.toHaveAttribute('class', /.*/);
 	});
 
@@ -1587,5 +1606,55 @@ test.describe('View Transitions', () => {
 		}
 		await page.click('#click-two');
 		expect(lines.join('\n')).toBe(expected);
+	});
+
+	test('astro-data-rerun reruns known scripts', async ({ page, astro }) => {
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
+		});
+		await page.goto(astro.resolveUrl('/page1-with-scripts'));
+		await expect(page).toHaveTitle('Page 1');
+		await page.click('#link');
+		await expect(page).toHaveTitle('Page 2');
+		await page.click('#link');
+		await expect(page).toHaveTitle('Page 3');
+		await page.click('#link');
+		await expect(page).toHaveTitle('Page 1');
+		expect(lines.join('')).toBe('312233');
+	});
+
+	test('initial scripts are not re-executed after partial swap', async ({ page, astro }) => {
+		let consoleErrors = [];
+		page.on('console', (msg) => {
+			const txt = msg.text();
+			txt.startsWith('[test] ') && consoleErrors.push(txt.substring(7));
+		});
+		await page.goto(astro.resolveUrl('/partial-swap'));
+		await page.waitForURL('**/partial-swap');
+		await page.click('#link2');
+		await page.waitForURL('**/partial-swap?v=2');
+		await page.click('#link3');
+		await page.waitForURL('**/partial-swap?v=3');
+		expect(consoleErrors.join(', '), 'There should only be two executions').toEqual(
+			'head script, body script',
+		);
+	});
+
+	test('page-load event waits for inlined module scripts', async ({ page, astro }) => {
+		let lines = [];
+		page.on('console', (msg) => {
+			const txt = msg.text();
+			txt.startsWith('[test] ') && lines.push(txt.substring(7));
+		});
+
+		await page.goto(astro.resolveUrl('/one'));
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+		await page.click('#click-inline-module');
+		await page.waitForURL('**/inline-module');
+		await page.waitForLoadState('networkidle');
+		expect(lines.join(', '), 'should raise page-load after inline module').toBe(
+			'inline module, page-load',
+		);
 	});
 });

@@ -18,13 +18,18 @@ const defaultConfig = {
 };
 
 // Helper to create a new session instance with mocked dependencies
-function createSession(config = defaultConfig, cookies = defaultMockCookies, mockStorage) {
+function createSession(
+	config = defaultConfig,
+	cookies = defaultMockCookies,
+	mockStorage,
+	runtimeMode = 'production',
+) {
 	if (mockStorage) {
 		config.driver = 'test';
 		config.options ??= {};
 		config.options.mockStorage = mockStorage;
 	}
-	return new AstroSession(cookies, config);
+	return new AstroSession(cookies, config, runtimeMode);
 }
 
 test('AstroSession - Basic Operations', async (t) => {
@@ -380,7 +385,7 @@ test('AstroSession - Cookie Security', async (t) => {
 		assert.equal(cookieOptions.httpOnly, true);
 	});
 
-	await t.test('should set secure and sameSite by default', async () => {
+	await t.test('should set secure and sameSite by default in production', async () => {
 		let cookieOptions;
 		const mockCookies = {
 			...defaultMockCookies,
@@ -393,6 +398,22 @@ test('AstroSession - Cookie Security', async (t) => {
 
 		session.set('key', 'value');
 		assert.equal(cookieOptions.secure, true);
+		assert.equal(cookieOptions.sameSite, 'lax');
+	});
+
+	await t.test('should set secure to false in development', async () => {
+		let cookieOptions;
+		const mockCookies = {
+			...defaultMockCookies,
+			set: (_name, _value, options) => {
+				cookieOptions = options;
+			},
+		};
+
+		const session = createSession(defaultConfig, mockCookies, undefined, 'development');
+
+		session.set('key', 'value');
+		assert.equal(cookieOptions.secure, false);
 		assert.equal(cookieOptions.sameSite, 'lax');
 	});
 });

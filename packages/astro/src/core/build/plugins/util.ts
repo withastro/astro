@@ -46,7 +46,7 @@ export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendMa
 export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
 // This is an arbitrary string that we use to make a pageData key
 // Has to be a invalid character for a route, to avoid conflicts.
-export const ASTRO_PAGE_KEY_SEPARATOR = '&';
+const ASTRO_PAGE_KEY_SEPARATOR = '&';
 
 /**
  * Generate a unique key to identify each page in the build process.
@@ -103,10 +103,7 @@ export function getPagesFromVirtualModulePageName(
  * @param virtualModulePrefix The prefix at the beginning of the virtual module
  * @param id Virtual module name
  */
-export function getComponentFromVirtualModulePageName(
-	virtualModulePrefix: string,
-	id: string,
-): string {
+function getComponentFromVirtualModulePageName(virtualModulePrefix: string, id: string): string {
 	return id.slice(virtualModulePrefix.length).replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
 }
 

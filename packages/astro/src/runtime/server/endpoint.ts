@@ -19,8 +19,12 @@ export async function renderEndpoint(
 
 	const method = request.method.toUpperCase();
 	// use the exact match on `method`, fallback to ALL
-	const handler = mod[method] ?? mod['ALL'];
-	if (isPrerendered && method !== 'GET') {
+	let handler = mod[method] ?? mod['ALL'];
+	// use GET handler for HEAD requests
+	if (!handler && method === 'HEAD' && mod['GET']) {
+		handler = mod['GET'];
+	}
+	if (isPrerendered && !['GET', 'HEAD'].includes(method)) {
 		logger.warn(
 			'router',
 			`${url.pathname} ${bold(
@@ -76,6 +80,11 @@ export async function renderEndpoint(
 				throw err;
 			}
 		}
+	}
+
+	if (method === 'HEAD') {
+		// make sure HEAD responses doesnt have body
+		return new Response(null, response);
 	}
 
 	return response;

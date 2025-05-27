@@ -33,10 +33,9 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 					.join('')}$`,
 			);
 
-			/** Internal index used to calculate the matching id in a replacement. */
-			let matchId = 0;
-
 			for (const value of values) {
+				/** Internal index used to calculate the matching id in a replacement. */
+				let matchId = 0;
 				/** String used to replace a matched path. */
 				const replacement = [...normalizePath(path.resolve(resolvedBaseUrl, value))]
 					.map((segment) => (segment === '*' ? `$${++matchId}` : segment === '$' ? '$$' : segment))

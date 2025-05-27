@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { execa } from 'execa';
-import fastGlob from 'fast-glob';
+import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/content-layer.js';
@@ -12,7 +12,6 @@ import { globalContentConfigObserver } from '../dist/content/utils.js';
 import build from '../dist/core/build/index.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
-import { nodeLogDestination } from '../dist/core/logger/node.js';
 import sync from '../dist/core/sync/index.js';
 
 // Disable telemetry when running tests
@@ -49,6 +48,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {typeof check} check
  * @property {typeof sync} sync
  * @property {AstroConfig} config
+ * @property {() => void} resetAllFiles
  *
  * This function returns an instance of the Check
  *
@@ -67,18 +67,6 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * });
  * ```
  */
-
-/** @type {import('../src/core/logger/core').LogOptions} */
-export const defaultLogging = {
-	dest: nodeLogDestination,
-	level: 'error',
-};
-
-/** @type {import('../src/core/logger/core').LogOptions} */
-export const silentLogging = {
-	dest: nodeLogDestination,
-	level: 'silent',
-};
 
 /**
  * Load Astro fixture
@@ -251,8 +239,9 @@ export async function loadFixture(inlineConfig) {
 			),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
 		glob: (p) =>
-			fastGlob(p, {
+			glob(p, {
 				cwd: fileURLToPath(config.outDir),
+				expandDirectories: false,
 			}),
 		clean: async () => {
 			await fs.promises.rm(config.outDir, {
@@ -374,7 +363,6 @@ export async function cliServerLogSetup(flags = [], cmd = 'dev') {
 	return { local, network };
 }
 
-export const isLinux = os.platform() === 'linux';
 export const isMacOS = os.platform() === 'darwin';
 export const isWindows = os.platform() === 'win32';
 

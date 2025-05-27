@@ -1,8 +1,63 @@
 {
   "name": "@astrojs/netlify",
-  "version": "0.0.0",
-  "private": true,
+  "description": "Deploy your site to Netlify",
+  "version": "6.3.4",
   "type": "module",
-  "keywords": [],
-  "dont_remove": "This is a placeholder for the sake of the docs smoke test"
+  "types": "./dist/index.d.ts",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/netlify"
+  },
+  "keywords": [
+    "withastro",
+    "astro-adapter"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/netlify/",
+  "exports": {
+    ".": "./dist/index.js",
+    "./static": "./dist/static.js",
+    "./functions": "./dist/functions.js",
+    "./ssr-function.js": "./dist/ssr-function.js",
+    "./image-service.js": "./dist/image-service.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "test": "pnpm run test-fn && pnpm run test-static",
+    "test-fn": "astro-scripts test \"test/functions/*.test.js\"",
+    "test-static": "astro-scripts test \"test/static/*.test.js\"",
+    "test:hosted": "astro-scripts test \"test/hosted/*.test.js\""
+  },
+  "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/underscore-redirects": "workspace:*",
+    "@netlify/blobs": "^8.2.0",
+    "@netlify/functions": "^3.1.5",
+    "@vercel/nft": "^0.29.2",
+    "esbuild": "^0.25.0",
+    "tinyglobby": "^0.2.13",
+    "vite": "^6.3.5"
+  },
+  "peerDependencies": {
+    "astro": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.6",
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*",
+    "cheerio": "1.0.0",
+    "devalue": "^5.1.1",
+    "typescript": "^5.8.3"
+  },
+  "astro": {
+    "external": true
+  }
 }

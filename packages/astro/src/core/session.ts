@@ -1,5 +1,7 @@
 import { stringify as rawStringify, unflatten as rawUnflatten } from 'devalue';
+
 import {
+	type BuiltinDriverName,
 	type BuiltinDriverOptions,
 	type Driver,
 	type Storage,
@@ -8,6 +10,7 @@ import {
 } from 'unstorage';
 import type {
 	ResolvedSessionConfig,
+	RuntimeMode,
 	SessionConfig,
 	SessionDriverName,
 } from '../types/public/config.js';
@@ -69,12 +72,15 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	// preserving in-memory changes and deletions.
 	#partial = true;
 
+	static #sharedStorage = new Map<string, Storage>();
+
 	constructor(
 		cookies: AstroCookies,
 		{
 			cookie: cookieConfig = DEFAULT_COOKIE_NAME,
 			...config
 		}: Exclude<ResolvedSessionConfig<TDriver>, undefined>,
+		runtimeMode?: RuntimeMode,
 	) {
 		this.#cookies = cookies;
 		let cookieConfigObject: AstroCookieSetOptions | undefined;
@@ -87,7 +93,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 		this.#cookieConfig = {
 			sameSite: 'lax',
-			secure: true,
+			secure: runtimeMode === 'production',
 			path: '/',
 			...cookieConfigObject,
 			httpOnly: true,
@@ -98,7 +104,11 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	/**
 	 * Gets a session value. Returns `undefined` if the session or value does not exist.
 	 */
-	async get<T = any>(key: string): Promise<T | undefined> {
+	async get<T = void, K extends string = keyof App.SessionData | (string & {})>(
+		key: K,
+	): Promise<
+		(T extends void ? (K extends keyof App.SessionData ? App.SessionData[K] : any) : T) | undefined
+	> {
 		return (await this.#ensureData()).get(key)?.data;
 	}
 
@@ -145,7 +155,15 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	 * Sets a session value. The session is created if it does not exist.
 	 */
 
-	set<T = any>(key: string, value: T, { ttl }: { ttl?: number } = {}) {
+	set<T = void, K extends string = keyof App.SessionData | (string & {})>(
+		key: K,
+		value: T extends void
+			? K extends keyof App.SessionData
+				? App.SessionData[K]
+				: any
+			: NoInfer<T>,
+		{ ttl }: { ttl?: number } = {},
+	) {
 		if (!key) {
 			throw new AstroError({
 				...SessionStorageSaveError,
@@ -272,6 +290,20 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	}
 
 	/**
+	 * Loads a session from storage with the given ID, and replaces the current session.
+	 * Any changes made to the current session will be lost.
+	 * This is not normally needed, as the session is automatically loaded using the cookie.
+	 * However it can be used to restore a session where the ID has been recorded somewhere
+	 * else (e.g. in a database).
+	 */
+	async load(sessionID: string) {
+		this.#sessionID = sessionID;
+		this.#data = undefined;
+		await this.#setCookie();
+		await this.#ensureData();
+	}
+
+	/**
 	 * Sets the session cookie.
 	 */
 	async #setCookie() {
@@ -383,6 +415,14 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			return this.#storage;
 		}
 
+		// We reuse the storage object if it has already been created.
+		// We don't need to worry about the config changing because editing it
+		// will always restart the process.
+		if (AstroSession.#sharedStorage.has(this.#config.driver)) {
+			this.#storage = AstroSession.#sharedStorage.get(this.#config.driver);
+			return this.#storage!;
+		}
+
 		if (this.#config.driver === 'test') {
 			this.#storage = (this.#config as SessionConfig<'test'>).options.mockStorage;
 			return this.#storage!;
@@ -409,12 +449,14 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
 
-		const driverPackage = await resolveSessionDriver(this.#config.driver);
 		try {
 			if (this.#config.driverModule) {
 				driver = (await this.#config.driverModule()).default;
-			} else if (driverPackage) {
-				driver = (await import(driverPackage)).default;
+			} else if (this.#config.driver) {
+				const driverName = resolveSessionDriverName(this.#config.driver);
+				if (driverName) {
+					driver = (await import(driverName)).default;
+				}
 			}
 		} catch (err: any) {
 			// If the driver failed to load, throw an error.
@@ -423,7 +465,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 					{
 						...SessionStorageInitError,
 						message: SessionStorageInitError.message(
-							err.message.includes(`Cannot find package '${driverPackage}'`)
+							err.message.includes(`Cannot find package`)
 								? 'The driver module could not be found.'
 								: err.message,
 							this.#config.driver,
@@ -449,6 +491,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			this.#storage = createStorage({
 				driver: driver(this.#config.options),
 			});
+			AstroSession.#sharedStorage.set(this.#config.driver, this.#storage);
 			return this.#storage;
 		} catch (err) {
 			throw new AstroError(
@@ -461,16 +504,21 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 	}
 }
-// TODO: make this sync when we drop support for Node < 18.19.0
-export function resolveSessionDriver(driver: string | undefined): Promise<string> | string | null {
+
+function resolveSessionDriverName(driver: string | undefined): string | null {
 	if (!driver) {
 		return null;
 	}
-	if (driver === 'fs') {
-		return import.meta.resolve(builtinDrivers.fsLite);
+	try {
+		if (driver === 'fs') {
+			return builtinDrivers.fsLite;
+		}
+		if (driver in builtinDrivers) {
+			return builtinDrivers[driver as BuiltinDriverName];
+		}
+	} catch {
+		return null;
 	}
-	if (driver in builtinDrivers) {
-		return import.meta.resolve(builtinDrivers[driver as keyof typeof builtinDrivers]);
-	}
+
 	return driver;
 }

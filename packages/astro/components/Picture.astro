@@ -1,8 +1,7 @@
 ---
 import { type LocalImageProps, type RemoteImageProps, getImage, imageConfig } from 'astro:assets';
 import * as mime from 'mrmime';
-import { applyResponsiveAttributes } from '../dist/assets/utils/imageAttributes';
-import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind';
+import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import type {
 	GetImageResult,
@@ -55,6 +54,7 @@ if (useResponsive) {
 
 for (const key in props) {
 	if (key.startsWith('data-astro-cid')) {
+		// @ts-expect-error This is for island props so they're not properly typed
 		pictureAttributes[key] = props[key];
 	}
 }
@@ -101,18 +101,14 @@ if (fallbackImage.srcSet.values.length > 0) {
 	imgAdditionalAttributes.srcset = fallbackImage.srcSet.attribute;
 }
 
-const { class: className, ...attributes } = useResponsive
-	? applyResponsiveAttributes({
-			layout,
-			image: fallbackImage,
-			props,
-			additionalAttributes: imgAdditionalAttributes,
-		})
-	: { ...imgAdditionalAttributes, ...fallbackImage.attributes };
-
 if (import.meta.env.DEV) {
 	imgAdditionalAttributes['data-image-component'] = 'true';
 }
+
+const { class: className, ...attributes } = {
+	...imgAdditionalAttributes,
+	...fallbackImage.attributes,
+};
 ---
 
 <picture {...pictureAttributes}>

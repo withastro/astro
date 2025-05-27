@@ -4,7 +4,7 @@ import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 
 export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';
-export const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
+const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
 const serverIslandPlaceholder = "'$$server-islands$$'";
 
 export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions): VitePlugin {
@@ -27,56 +27,54 @@ export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions
 		},
 		load(id) {
 			if (id === RESOLVED_VIRTUAL_ISLAND_MAP_ID) {
-				return `export const serverIslandMap = ${serverIslandPlaceholder};`;
+				return { code: `export const serverIslandMap = ${serverIslandPlaceholder};` };
 			}
 		},
 		transform(_code, id) {
-			if (id.endsWith('.astro')) {
-				const info = this.getModuleInfo(id);
-				if (info?.meta) {
-					const astro = info.meta.astro as AstroPluginMetadata['astro'] | undefined;
-					if (astro?.serverComponents.length) {
-						for (const comp of astro.serverComponents) {
-							if (!settings.serverIslandNameMap.has(comp.resolvedPath)) {
-								if (!settings.adapter) {
-									logger.error(
-										'islands',
-										'You tried to render a server island without an adapter added to your project. An adapter is required to use the `server:defer` attribute on any component. Your project will fail to build unless you add an adapter or remove the attribute.',
-									);
-								}
+			// We run the transform for all file extensions to support transformed files, eg. mdx
+			const info = this.getModuleInfo(id);
+			if (!info?.meta?.astro) return;
 
-								let name = comp.localName;
-								let idx = 1;
+			const astro = info.meta.astro as AstroPluginMetadata['astro'];
 
-								while (true) {
-									// Name not taken, let's use it.
-									if (!settings.serverIslandMap.has(name)) {
-										break;
-									}
-									// Increment a number onto the name: Avatar -> Avatar1
-									name += idx++;
-								}
+			for (const comp of astro.serverComponents) {
+				if (!settings.serverIslandNameMap.has(comp.resolvedPath)) {
+					if (!settings.adapter) {
+						logger.error(
+							'islands',
+							'You tried to render a server island without an adapter added to your project. An adapter is required to use the `server:defer` attribute on any component. Your project will fail to build unless you add an adapter or remove the attribute.',
+						);
+					}
 
-								// Append the name map, for prod
-								settings.serverIslandNameMap.set(comp.resolvedPath, name);
+					let name = comp.localName;
+					let idx = 1;
 
-								settings.serverIslandMap.set(name, () => {
-									return viteServer?.ssrLoadModule(comp.resolvedPath) as any;
-								});
-
-								// Build mode
-								if (command === 'build') {
-									let referenceId = this.emitFile({
-										type: 'chunk',
-										id: comp.specifier,
-										importer: id,
-										name: comp.localName,
-									});
-
-									referenceIdMap.set(comp.resolvedPath, referenceId);
-								}
-							}
+					while (true) {
+						// Name not taken, let's use it.
+						if (!settings.serverIslandMap.has(name)) {
+							break;
 						}
+						// Increment a number onto the name: Avatar -> Avatar1
+						name += idx++;
+					}
+
+					// Append the name map, for prod
+					settings.serverIslandNameMap.set(comp.resolvedPath, name);
+
+					settings.serverIslandMap.set(name, () => {
+						return viteServer?.ssrLoadModule(comp.resolvedPath) as any;
+					});
+
+					// Build mode
+					if (command === 'build') {
+						let referenceId = this.emitFile({
+							type: 'chunk',
+							id: comp.specifier,
+							importer: id,
+							name: comp.localName,
+						});
+
+						referenceIdMap.set(comp.resolvedPath, referenceId);
 					}
 				}
 			}

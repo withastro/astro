@@ -82,7 +82,7 @@ export type PaginateFunction = <
 	AdditionalPaginateProps extends Props,
 	AdditionalPaginateParams extends Params,
 >(
-	data: PaginateData[],
+	data: readonly PaginateData[],
 	args?: PaginateOptions<AdditionalPaginateProps, AdditionalPaginateParams>,
 ) => {
 	params: Simplify<

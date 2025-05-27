@@ -2,9 +2,8 @@ import { createRequire } from 'node:module';
 import boxen from 'boxen';
 import ci from 'ci-info';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
-import preferredPM from 'preferred-pm';
+import { detect, resolveCommand } from 'package-manager-detector';
 import prompts from 'prompts';
-import whichPm from 'which-pm';
 import yoctoSpinner from 'yocto-spinner';
 import type { Logger } from '../core/logger/core.js';
 import { exec } from './exec.js';
@@ -56,62 +55,26 @@ export async function getPackage<T>(
 	}
 }
 
-function getInstallCommand(packages: string[], packageManager: string) {
-	switch (packageManager) {
-		case 'npm':
-			return { pm: 'npm', command: 'install', flags: [], dependencies: packages };
-		case 'yarn':
-			return { pm: 'yarn', command: 'add', flags: [], dependencies: packages };
-		case 'pnpm':
-			return { pm: 'pnpm', command: 'add', flags: [], dependencies: packages };
-		case 'bun':
-			return { pm: 'bun', command: 'add', flags: [], dependencies: packages };
-		default:
-			return null;
-	}
-}
-
-/**
- * Get the command to execute and download a package (e.g. `npx`, `yarn dlx`, `pnpm dlx`, etc.)
- * @param packageManager - Optional package manager to use. If not provided, Astro will attempt to detect the preferred package manager.
- * @returns The command to execute and download a package
- */
-export async function getExecCommand(packageManager?: string): Promise<string> {
-	if (!packageManager) {
-		packageManager = (await preferredPM(process.cwd()))?.name ?? 'npm';
-	}
-
-	switch (packageManager) {
-		case 'npm':
-			return 'npx';
-		case 'yarn':
-			return 'yarn dlx';
-		case 'pnpm':
-			return 'pnpm dlx';
-		case 'bun':
-			return 'bunx';
-		default:
-			return 'npx';
-	}
-}
-
 async function installPackage(
 	packageNames: string[],
 	options: GetPackageOptions,
 	logger: Logger,
 ): Promise<boolean> {
 	const cwd = options.cwd ?? process.cwd();
-	const packageManager = (await whichPm(cwd))?.name ?? 'npm';
-	const installCommand = getInstallCommand(packageNames, packageManager);
+	const packageManager = await detect({
+		cwd,
+		// Include the `install-metadata` strategy to have the package manager that's
+		// used for installation take precedence
+		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
+	});
+	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', []);
+	if (!installCommand) return false;
 
-	if (!installCommand) {
-		return false;
+	if (installCommand.command === 'deno') {
+		// Deno requires npm prefix to install packages
+		packageNames = packageNames.map((name) => `npm:${name}`);
 	}
-
-	const coloredOutput = `${bold(installCommand.pm)} ${installCommand.command}${[
-		'',
-		...installCommand.flags,
-	].join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
+	const coloredOutput = `${bold(installCommand.command)} ${installCommand.args.join(' ')} ${cyan(packageNames.join(' '))}`;
 	const message = `\n${boxen(coloredOutput, {
 		margin: 0.5,
 		padding: 0.5,
@@ -141,17 +104,13 @@ async function installPackage(
 	if (Boolean(response)) {
 		const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
 		try {
-			await exec(
-				installCommand.pm,
-				[installCommand.command, ...installCommand.flags, ...installCommand.dependencies],
-				{
-					nodeOptions: {
-						cwd,
-						// reset NODE_ENV to ensure install command run in dev mode
-						env: { NODE_ENV: undefined },
-					},
+			await exec(installCommand.command, [...installCommand.args, ...packageNames], {
+				nodeOptions: {
+					cwd,
+					// reset NODE_ENV to ensure install command run in dev mode
+					env: { NODE_ENV: undefined },
 				},
-			);
+			});
 			spinner.success();
 
 			return true;
@@ -207,7 +166,7 @@ let _registry: string;
 async function getRegistry(): Promise<string> {
 	if (_registry) return _registry;
 	const fallback = 'https://registry.npmjs.org';
-	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
+	const packageManager = (await detect())?.name || 'npm';
 	try {
 		const { stdout } = await exec(packageManager, ['config', 'get', 'registry']);
 		_registry = stdout.trim()?.replace(/\/$/, '') || fallback;

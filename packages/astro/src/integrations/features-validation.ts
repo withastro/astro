@@ -96,7 +96,7 @@ export function validateSupportedFeatures(
 	return validationResult;
 }
 
-export function unwrapSupportKind(supportKind?: AdapterSupport): AdapterSupportsKind | undefined {
+function unwrapSupportKind(supportKind?: AdapterSupport): AdapterSupportsKind | undefined {
 	if (!supportKind) {
 		return undefined;
 	}
@@ -104,7 +104,7 @@ export function unwrapSupportKind(supportKind?: AdapterSupport): AdapterSupports
 	return typeof supportKind === 'object' ? supportKind.support : supportKind;
 }
 
-export function getSupportMessage(supportKind: AdapterSupport): string | undefined {
+function getSupportMessage(supportKind: AdapterSupport): string | undefined {
 	return typeof supportKind === 'object' ? supportKind.message : undefined;
 }
 

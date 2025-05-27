@@ -35,6 +35,7 @@ describe('Custom 404 with Static', () => {
 		it('renders 404 for /a', async () => {
 			const res = await fixture.fetch('/a');
 			assert.equal(res.status, 404);
+			assert.equal(res.statusText, 'Not Found');
 
 			const html = await res.text();
 			$ = cheerio.load(html);

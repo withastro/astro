@@ -11,6 +11,7 @@ import {
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
 import { isRenderInstruction } from './instruction.js';
+import { renderServerIslandRuntime } from './server-islands.js';
 import { type SlotString, isSlotString } from './slot.js';
 
 /**
@@ -98,6 +99,13 @@ function stringifyChunk(
 					return instruction.render();
 				}
 				return '';
+			}
+			case 'server-island-runtime': {
+				if (result._metadata.hasRenderedServerIslandRuntime) {
+					return '';
+				}
+				result._metadata.hasRenderedServerIslandRuntime = true;
+				return renderServerIslandRuntime();
 			}
 			default: {
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);

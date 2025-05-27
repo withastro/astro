@@ -1,17 +1,21 @@
 export type MarkdownImagePath = { raw: string; safeName: string };
 
-export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: string) {
+export function getMarkdownCodeForImages(
+	localImagePaths: MarkdownImagePath[],
+	remoteImagePaths: string[],
+	html: string,
+) {
 	return `
 			import { getImage } from "astro:assets";
-			${imagePaths
+			${localImagePaths
 				.map((entry) => `import Astro__${entry.safeName} from ${JSON.stringify(entry.raw)};`)
 				.join('\n')}
 
 			const images = async function(html) {
 					const imageSources = {};
-					${imagePaths
+					${localImagePaths
 						.map((entry) => {
-							const rawUrl = JSON.stringify(entry.raw);
+							const rawUrl = JSON.stringify(entry.raw).replace(/'/g, '&#x27;');
 							return `{
 											const regex = new RegExp('__ASTRO_IMAGE_="([^"]*' + ${rawUrl.replace(
 												/[.*+?^${}()|[\]\\]/g,
@@ -21,9 +25,28 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 											let occurrenceCounter = 0;
 											while ((match = regex.exec(html)) !== null) {
 													const matchKey = ${rawUrl} + '_' + occurrenceCounter;
-													const imageProps = JSON.parse(match[1].replace(/&#x22;/g, '"'));
+													const imageProps = JSON.parse(match[1].replace(/&#x22;/g, '"').replace(/&#x27;/g, "'"));
 													const { src, ...props } = imageProps;
 													imageSources[matchKey] = await getImage({src: Astro__${entry.safeName}, ...props});
+													occurrenceCounter++;
+											}
+									}`;
+						})
+						.join('\n')}
+					${remoteImagePaths
+						.map((raw) => {
+							const rawUrl = JSON.stringify(raw).replace(/'/g, '&#x27;');
+							return `{
+											const regex = new RegExp('__ASTRO_IMAGE_="([^"]*' + ${rawUrl.replace(
+												/[.*+?^${}()|[\]\\]/g,
+												'\\\\$&',
+											)} + '[^"]*)"', 'g');
+											let match;
+											let occurrenceCounter = 0;
+											while ((match = regex.exec(html)) !== null) {
+													const matchKey = ${rawUrl} + '_' + occurrenceCounter;
+													const props = JSON.parse(match[1].replace(/&#x22;/g, '"').replace(/&#x27;/g, "'"));
+													imageSources[matchKey] = await getImage(props);
 													occurrenceCounter++;
 											}
 									}`;

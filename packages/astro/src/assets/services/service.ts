@@ -1,3 +1,4 @@
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
 import type { AstroConfig } from '../../types/public/config.js';
@@ -9,7 +10,6 @@ import type {
 	UnresolvedSrcSetValue,
 } from '../types.js';
 import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
-import { isRemoteAllowed } from '../utils/remotePattern.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -81,7 +81,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 export type ExternalImageService<T extends Record<string, any> = Record<string, any>> =
 	SharedServiceProps<T>;
 
-export type LocalImageTransform = {
+type LocalImageTransform = {
 	src: string;
 	[key: string]: any;
 };

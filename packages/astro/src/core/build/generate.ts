@@ -3,6 +3,7 @@ import os from 'node:os';
 import { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } from 'kleur/colors';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
+import { NOOP_ACTIONS_MOD } from '../../actions/noop-actions.js';
 import {
 	generateImagesForPath,
 	getStaticImageList,
@@ -17,7 +18,7 @@ import {
 } from '../../core/path.js';
 import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated } from '../../integrations/hooks.js';
-import { getOutputDirectory } from '../../prerender/utils.js';
+import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
 import type { GetStaticPathsItem, MiddlewareHandler } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/config.js';
@@ -27,7 +28,7 @@ import type {
 	SSRError,
 	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
-import type { SSRManifest, SSRManifestI18n } from '../app/types.js';
+import type { SSRActions, SSRManifest, SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
@@ -55,19 +56,24 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	const ssr = options.settings.buildOutput === 'server';
 	let manifest: SSRManifest;
 	if (ssr) {
-		manifest = await BuildPipeline.retrieveManifest(options, internals);
+		manifest = await BuildPipeline.retrieveManifest(options.settings, internals);
 	} else {
-		const baseDirectory = getOutputDirectory(options.settings);
+		const baseDirectory = getServerOutputDirectory(options.settings);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
 		const middleware: MiddlewareHandler = internals.middlewareEntryPoint
 			? await import(internals.middlewareEntryPoint.toString()).then((mod) => mod.onRequest)
 			: NOOP_MIDDLEWARE_FN;
+
+		const actions: SSRActions = internals.astroActionsEntryPoint
+			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
+			: NOOP_ACTIONS_MOD;
 		manifest = createBuildManifest(
 			options.settings,
 			internals,
 			renderers.renderers as SSRLoadedRenderer[],
 			middleware,
+			actions,
 			options.key,
 		);
 	}
@@ -291,7 +297,7 @@ async function generatePage(
 				const path = paths[i];
 				promises.push(limit(() => generatePathWithLogs(path, route, i, paths, true)));
 			}
-			await Promise.allSettled(promises);
+			await Promise.all(promises);
 		} else {
 			for (let i = 0; i < paths.length; i++) {
 				const path = paths[i];
@@ -360,7 +366,7 @@ async function getPathsForRoute(
 				// NOTE: The same URL may match multiple routes in the manifest.
 				// Routing priority needs to be verified here for any duplicate
 				// paths to ensure routing priority rules are enforced in the final build.
-				const matchedRoute = matchRoute(staticPath, options.manifest);
+				const matchedRoute = matchRoute(decodeURI(staticPath), options.routesList);
 				return matchedRoute === route;
 			});
 
@@ -451,8 +457,7 @@ function getUrlForPath(
 			removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
 		buildPathname = joinPaths(base, buildPathRelative);
 	}
-	const url = new URL(buildPathname, origin);
-	return url;
+	return new URL(buildPathname, origin);
 }
 
 interface GeneratePathOptions {
@@ -544,7 +549,12 @@ async function generatePath(
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		body = redirectTemplate({ status: response.status, location, from: fromPath });
+		body = redirectTemplate({
+			status: response.status,
+			absoluteLocation: location,
+			relativeLocation: locationSite,
+			from: fromPath,
+		});
 		if (config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}
@@ -599,6 +609,7 @@ function createBuildManifest(
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[],
 	middleware: MiddlewareHandler,
+	actions: SSRActions,
 	key: Promise<CryptoKey>,
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
@@ -614,6 +625,12 @@ function createBuildManifest(
 	}
 	return {
 		hrefRoot: settings.config.root.toString(),
+		srcDir: settings.config.srcDir,
+		buildClientDir: settings.config.build.client,
+		buildServerDir: settings.config.build.server,
+		publicDir: settings.config.publicDir,
+		outDir: settings.config.outDir,
+		cacheDir: settings.config.cacheDir,
 		trailingSlash: settings.config.trailingSlash,
 		assets: new Set(),
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
@@ -624,6 +641,7 @@ function createBuildManifest(
 		compressHTML: settings.config.compressHTML,
 		renderers,
 		base: settings.config.base,
+		userAssetsBase: settings.config?.vite?.base,
 		assetsPrefix: settings.config.build.assetsPrefix,
 		site: settings.config.site,
 		componentMetadata: internals.componentMetadata,
@@ -634,6 +652,7 @@ function createBuildManifest(
 				onRequest: middleware,
 			};
 		},
+		actions: () => actions,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,

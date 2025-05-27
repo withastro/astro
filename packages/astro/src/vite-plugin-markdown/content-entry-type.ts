@@ -18,7 +18,10 @@ export const markdownContentEntryType: ContentEntryType = {
 	handlePropagation: true,
 
 	async getRenderFunction(config) {
-		const processor = await createMarkdownProcessor(config.markdown);
+		const processor = await createMarkdownProcessor({
+			image: config.image,
+			...config.markdown,
+		});
 		return async function renderToString(entry) {
 			// Process markdown even if it's empty as remark/rehype plugins may add content or frontmatter dynamically
 			const result = await processor.render(entry.body ?? '', {
@@ -28,7 +31,10 @@ export const markdownContentEntryType: ContentEntryType = {
 			});
 			return {
 				html: result.code,
-				metadata: result.metadata,
+				metadata: {
+					...result.metadata,
+					imagePaths: result.metadata.localImagePaths.concat(result.metadata.remoteImagePaths),
+				},
 			};
 		};
 	},

@@ -28,6 +28,14 @@ describe('Config', () => {
 		});
 
 		it('xslURL: Includes xml-stylesheet', async () => {
+			const indexXml = await fixture.readFile('/sitemap-index.xml');
+			assert.ok(
+				indexXml.includes(
+					'<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>',
+				),
+				indexXml,
+			);
+
 			const xml = await fixture.readFile('/sitemap-0.xml');
 			assert.ok(
 				xml.includes('<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>'),
@@ -57,11 +65,45 @@ describe('Config', () => {
 		});
 
 		it('xslURL: Includes xml-stylesheet', async () => {
+			const indexXml = await fixture.readFile('/client/sitemap-index.xml');
+			assert.ok(
+				indexXml.includes(
+					'<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>',
+				),
+				indexXml,
+			);
+
 			const xml = await fixture.readFile('/client/sitemap-0.xml');
 			assert.ok(
 				xml.includes('<?xml-stylesheet type="text/xsl" href="http://example.com/sitemap.xsl"?>'),
 				xml,
 			);
+		});
+	});
+
+	describe('Configuring the filename', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/static/',
+				integrations: [
+					sitemap({
+						filter: (page) => page === 'http://example.com/one/',
+						filenameBase: 'my-sitemap',
+					}),
+				],
+			});
+			await fixture.build();
+		});
+
+		it('filenameBase: Sets the generated sitemap filename', async () => {
+			const data = await readXML(fixture.readFile('/my-sitemap-0.xml'));
+			const urls = data.urlset.url;
+			assert.equal(urls.length, 1);
+
+			const indexData = await readXML(fixture.readFile('/my-sitemap-index.xml'));
+			const sitemapUrls = indexData.sitemapindex.sitemap;
+			assert.equal(sitemapUrls.length, 1);
+			assert.equal(sitemapUrls[0].loc[0], 'http://example.com/my-sitemap-0.xml');
 		});
 	});
 });

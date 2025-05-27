@@ -17,7 +17,7 @@ import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
 import {
-	CONTENT_FLAGS,
+	type CONTENT_FLAGS,
 	CONTENT_LAYER_TYPE,
 	CONTENT_MODULE_FLAG,
 	DEFERRED_MODULE,
@@ -26,8 +26,9 @@ import {
 } from './consts.js';
 import { glob } from './loaders/glob.js';
 import { createImage } from './runtime-assets.js';
+
 /**
- * Amap from a collection + slug to the local file path.
+ * A map from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
  * @see `templates/content/module.mjs`
  */
@@ -37,14 +38,28 @@ export type ContentLookupMap = {
 
 const entryTypeSchema = z
 	.object({
-		id: z
-			.string({
-				invalid_type_error: 'Content entry `id` must be a string',
-				// Default to empty string so we can validate properly in the loader
-			})
-			.catch(''),
+		id: z.string({
+			invalid_type_error: 'Content entry `id` must be a string',
+			// Default to empty string so we can validate properly in the loader
+		}),
 	})
-	.catchall(z.unknown());
+	.passthrough();
+
+export const loaderReturnSchema = z.union([
+	z.array(entryTypeSchema),
+	z.record(
+		z.string(),
+		z
+			.object({
+				id: z
+					.string({
+						invalid_type_error: 'Content entry `id` must be a string',
+					})
+					.optional(),
+			})
+			.passthrough(),
+	),
+]);
 
 const collectionConfigParser = z.union([
 	z.object({
@@ -59,39 +74,7 @@ const collectionConfigParser = z.union([
 		type: z.literal(CONTENT_LAYER_TYPE),
 		schema: z.any().optional(),
 		loader: z.union([
-			z.function().returns(
-				z.union([
-					z.array(entryTypeSchema),
-					z.promise(z.array(entryTypeSchema)),
-					z.record(
-						z.string(),
-						z
-							.object({
-								id: z
-									.string({
-										invalid_type_error: 'Content entry `id` must be a string',
-									})
-									.optional(),
-							})
-							.catchall(z.unknown()),
-					),
-
-					z.promise(
-						z.record(
-							z.string(),
-							z
-								.object({
-									id: z
-										.string({
-											invalid_type_error: 'Content entry `id` must be a string',
-										})
-										.optional(),
-								})
-								.catchall(z.unknown()),
-						),
-					),
-				]),
-			),
+			z.function(),
 			z.object({
 				name: z.string(),
 				load: z.function(
@@ -512,15 +495,6 @@ export function safeParseFrontmatter(source: string, id?: string) {
  */
 export const globalContentConfigObserver = contentObservable({ status: 'init' });
 
-export function hasAnyContentFlag(viteId: string): boolean {
-	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
-	const flag = Array.from(flags.keys()).at(0);
-	if (typeof flag !== 'string') {
-		return false;
-	}
-	return CONTENT_FLAGS.includes(flag as any);
-}
-
 export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[number]): boolean {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(flag);
@@ -559,7 +533,7 @@ async function loadContentConfig({
 	}
 }
 
-export async function autogenerateCollections({
+async function autogenerateCollections({
 	config,
 	settings,
 	fs,
@@ -696,7 +670,7 @@ type Observable<C> = {
 
 export type ContentObservable = Observable<ContentCtx>;
 
-export function contentObservable(initialCtx: ContentCtx): ContentObservable {
+function contentObservable(initialCtx: ContentCtx): ContentObservable {
 	type Subscriber = (ctx: ContentCtx) => void;
 	const subscribers = new Set<Subscriber>();
 	let ctx = initialCtx;
@@ -826,7 +800,7 @@ export function globWithUnderscoresIgnored(relContentDir: string, exts: string[]
 /**
  * Convert a platform path to a posix path.
  */
-export function posixifyPath(filePath: string) {
+function posixifyPath(filePath: string) {
 	return filePath.split(path.sep).join('/');
 }
 

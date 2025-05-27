@@ -144,6 +144,14 @@ describe('Aliases with tsconfig.json', () => {
 			assert.equal($('#alias').text(), 'foo');
 		});
 
+		it('handles multiple replacements in one alias', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+
+			assert.equal($('#bar').text(), 'bar');
+			assert.equal($('#baz').text(), 'baz');
+		});
+
 		it('works for import.meta.glob', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);

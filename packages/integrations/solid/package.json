@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/solid-js",
-  "version": "5.0.4",
+  "version": "5.1.0",
   "description": "Use Solid components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -21,7 +21,6 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/solid-js/",
   "exports": {
     ".": "./dist/index.js",
-    "./*": "./*",
     "./client.js": "./dist/client.js",
     "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
@@ -35,13 +34,13 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "vite-plugin-solid": "^2.11.0",
-    "vite": "^6.0.9"
+    "vite": "^6.3.5",
+    "vite-plugin-solid": "^2.11.6"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^1.9.4"
+    "solid-js": "^1.9.7"
   },
   "peerDependencies": {
     "solid-devtools": "^0.30.1",
@@ -53,7 +52,7 @@
     }
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
+    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true

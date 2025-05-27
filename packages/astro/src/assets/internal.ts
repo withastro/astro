@@ -16,6 +16,7 @@ import {
 	type UnresolvedImageTransform,
 	isImageMetadata,
 } from './types.js';
+import { addCSSVarsToStyle, cssFitValues } from './utils/imageAttributes.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
 
@@ -151,6 +152,17 @@ export async function getImage(
 		}
 		delete resolvedOptions.priority;
 		delete resolvedOptions.densities;
+
+		if (layout !== 'none') {
+			resolvedOptions.style = addCSSVarsToStyle(
+				{
+					fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
+					pos: resolvedOptions.position,
+				},
+				resolvedOptions.style,
+			);
+			resolvedOptions['data-astro-image'] = layout;
+		}
 	}
 
 	const validatedOptions = service.validateOptions

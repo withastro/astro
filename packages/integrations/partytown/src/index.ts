@@ -37,7 +37,7 @@ export default function createPlugin(options?: PartytownOptions): AstroIntegrati
 				injectScript('head-inline', partytownSnippetHtml);
 			},
 			'astro:server:setup': ({ server }) => {
-				const lib = `/~partytown/`;
+				const lib = options?.config?.lib ?? `/~partytown/`;
 				server.middlewares.use(
 					sirv(partytownLibDirectory, {
 						mount: lib,
@@ -48,9 +48,12 @@ export default function createPlugin(options?: PartytownOptions): AstroIntegrati
 				);
 			},
 			'astro:build:done': async ({ dir }) => {
-				await copyLibFiles(fileURLToPath(new URL('~partytown', dir)), {
-					debugDir: options?.config?.debug ?? false,
-				});
+				await copyLibFiles(
+					fileURLToPath(new URL(options?.config?.lib?.replace(/^\/?/, '') ?? '~partytown', dir)),
+					{
+						debugDir: options?.config?.debug ?? false,
+					},
+				);
 			},
 			'astro:build:ssr': async ({ manifest }) => {
 				const dirpath = libDirPath({ debugDir: false });

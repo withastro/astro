@@ -106,13 +106,16 @@ async function getViteConfiguration(
 	command: HookParameters<'astro:config:setup'>['command'],
 	options?: Options,
 ): Promise<UserConfig> {
-	let vueOptions = {
+	const vueOptions = {
 		...options,
 		template: {
 			...options?.template,
 			transformAssetUrls: false,
 		},
 	} satisfies VueOptions;
+
+	// The vue vite plugin may not manage to resolve it automatically
+	vueOptions.compiler ??= await import('vue/compiler-sfc');
 
 	const config: UserConfig = {
 		optimizeDeps: {

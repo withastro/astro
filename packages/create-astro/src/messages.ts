@@ -1,7 +1,7 @@
 import { exec } from 'node:child_process';
 import { stripVTControlCharacters } from 'node:util';
 /* eslint no-console: 'off' */
-import { color, say as houston, label, spinner as load } from '@astrojs/cli-kit';
+import { color, say as houston, label } from '@astrojs/cli-kit';
 import { align, sleep } from '@astrojs/cli-kit/utils';
 import { shell } from './shell.js';
 
@@ -34,15 +34,6 @@ export async function say(messages: string | string[], { clear = false, hat = ''
 	return houston(messages, { clear, hat, tie, stdout });
 }
 
-export async function spinner(args: {
-	start: string;
-	end: string;
-	onError?: (error: any) => void;
-	while: (...args: any) => Promise<any>;
-}) {
-	await load(args, { stdout });
-}
-
 export const title = (text: string) => align(label(text), 'end', 7) + ' ';
 
 export const getName = () =>
@@ -60,10 +51,15 @@ export const getName = () =>
 		});
 	});
 
-export const getVersion = (packageManager: string, packageName: string, fallback = '') =>
+export const getVersion = (
+	packageManager: string,
+	packageName: string,
+	packageTag = 'latest',
+	fallback = '',
+) =>
 	new Promise<string>(async (resolve) => {
 		let registry = await getRegistry(packageManager);
-		const { version } = await fetch(`${registry}/${packageName}/latest`, {
+		const { version } = await fetch(`${registry}/${packageName}/${packageTag}`, {
 			redirect: 'follow',
 		})
 			.then((res) => res.json())
@@ -97,12 +93,6 @@ export const error = async (prefix: string, text: string) => {
 	} else {
 		log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)} ${color.dim(text)}`);
 	}
-};
-
-export const typescriptByDefault = async () => {
-	await info(`No worries!`, 'TypeScript is supported in Astro by default,');
-	log(`${' '.repeat(9)}${color.dim('but you are free to continue writing JavaScript instead.')}`);
-	await sleep(1000);
 };
 
 export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string; devCmd: string }) => {

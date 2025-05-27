@@ -4,7 +4,7 @@ import { highlightCodeBlocks } from './highlight.js';
 import { type ShikiHighlighter, createShikiHighlighter } from './shiki.js';
 import type { ShikiConfig } from './types.js';
 
-export const rehypeShiki: Plugin<[ShikiConfig?], Root> = (config) => {
+export const rehypeShiki: Plugin<[ShikiConfig, string[]?], Root> = (config, excludeLangs) => {
 	let highlighterAsync: Promise<ShikiHighlighter> | undefined;
 
 	return async (tree) => {
@@ -16,13 +16,17 @@ export const rehypeShiki: Plugin<[ShikiConfig?], Root> = (config) => {
 		});
 		const highlighter = await highlighterAsync;
 
-		await highlightCodeBlocks(tree, (code, language, options) => {
-			return highlighter.codeToHast(code, language, {
-				meta: options?.meta,
-				wrap: config?.wrap,
-				defaultColor: config?.defaultColor,
-				transformers: config?.transformers,
-			});
-		});
+		await highlightCodeBlocks(
+			tree,
+			(code, language, options) => {
+				return highlighter.codeToHast(code, language, {
+					meta: options?.meta,
+					wrap: config?.wrap,
+					defaultColor: config?.defaultColor,
+					transformers: config?.transformers,
+				});
+			},
+			excludeLangs,
+		);
 	};
 };

@@ -1,3 +1,4 @@
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
@@ -11,7 +12,8 @@ declare module 'vfile' {
 	interface DataMap {
 		astro: {
 			headings?: MarkdownHeading[];
-			imagePaths?: string[];
+			localImagePaths?: string[];
+			remoteImagePaths?: string[];
 			frontmatter?: Record<string, any>;
 		};
 	}
@@ -35,18 +37,39 @@ export type RemarkRehype = RemarkRehypeOptions;
 
 export type ThemePresets = BuiltinTheme | 'css-variables';
 
+export type SyntaxHighlightConfigType = 'shiki' | 'prism';
+
+export interface SyntaxHighlightConfig {
+	type: SyntaxHighlightConfigType;
+	excludeLangs?: string[];
+}
+
 export interface ShikiConfig
 	extends Pick<CreateShikiHighlighterOptions, 'langs' | 'theme' | 'themes' | 'langAlias'>,
 		Pick<ShikiHighlighterHighlightOptions, 'defaultColor' | 'wrap' | 'transformers'> {}
 
+/**
+ * Configuration options that end up in the markdown section of AstroConfig
+ */
 export interface AstroMarkdownOptions {
-	syntaxHighlight?: 'shiki' | 'prism' | false;
+	syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfigType | false;
 	shikiConfig?: ShikiConfig;
 	remarkPlugins?: RemarkPlugins;
 	rehypePlugins?: RehypePlugins;
 	remarkRehype?: RemarkRehype;
 	gfm?: boolean;
 	smartypants?: boolean;
+}
+
+/**
+ * Extra configuration options from other parts of AstroConfig that get injected into this plugin
+ */
+export interface AstroMarkdownProcessorOptions extends AstroMarkdownOptions {
+	image?: {
+		domains?: string[];
+		remotePatterns?: RemotePattern[];
+	};
+	experimentalHeadingIdCompat?: boolean;
 }
 
 export interface MarkdownProcessor {
@@ -67,7 +90,8 @@ export interface MarkdownProcessorRenderResult {
 	code: string;
 	metadata: {
 		headings: MarkdownHeading[];
-		imagePaths: string[];
+		localImagePaths: string[];
+		remoteImagePaths: string[];
 		frontmatter: Record<string, any>;
 	};
 }

@@ -1,5 +1,6 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
-import { createRouteManifest } from '../core/routing/index.js';
+import type { FontFamily } from '../assets/fonts/types.js';
+import { createRoutesList } from '../core/routing/index.js';
 import type {
 	AstroInlineConfig,
 	AstroUserConfig,
@@ -15,7 +16,8 @@ import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js
 export function defineConfig<
 	const TLocales extends Locales = never,
 	const TDriver extends SessionDriverName = never,
->(config: AstroUserConfig<TLocales, TDriver>) {
+	const TFontFamilies extends FontFamily[] = never,
+>(config: AstroUserConfig<TLocales, TDriver, TFontFamilies>) {
 	return config;
 }
 
@@ -53,8 +55,8 @@ export function getViteConfig(
 		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
 		let settings = await createSettings(config, userViteConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
-		const manifest = await createRouteManifest({ settings }, logger);
-		const devSSRManifest = createDevelopmentManifest(settings);
+		const routesList = await createRoutesList({ settings }, logger);
+		const manifest = createDevelopmentManifest(settings);
 		const viteConfig = await createVite(
 			{
 				plugins: config.legacy.collections
@@ -64,7 +66,7 @@ export function getViteConfig(
 						]
 					: [],
 			},
-			{ settings, command: cmd, logger, mode, sync: false, manifest, ssrManifest: devSSRManifest },
+			{ settings, command: cmd, logger, mode, sync: false, manifest, routesList },
 		);
 		await runHookConfigDone({ settings, logger });
 		return mergeConfig(viteConfig, userViteConfig);

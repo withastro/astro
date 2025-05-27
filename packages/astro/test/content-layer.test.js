@@ -252,6 +252,10 @@ describe('Content Layer', () => {
 			assert.ok($('img[alt="shuttle"]').attr('src').startsWith('/_astro'));
 		});
 
+		it('escapes alt text in markdown', async () => {
+			assert.equal($('img[alt^="xss"]').attr('alt'), 'xss "><script>alert(1)</script>');
+		});
+
 		it('returns a referenced entry', async () => {
 			assert.ok(json.hasOwnProperty('referencedEntry'));
 			assert.deepEqual(json.referencedEntry, {

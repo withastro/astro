@@ -1,5 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
-import { getOutputDirectory } from '../../prerender/utils.js';
+import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { addRollupInput } from '../build/add-rollup-input.js';
 import type { BuildInternals } from '../build/internal.js';
@@ -44,7 +44,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
 					throw new AstroError(MissingMiddlewareForInternationalization);
 				}
-				return 'export const onRequest = (_, next) => next()';
+				return { code: 'export const onRequest = (_, next) => next()' };
 			} else if (id === MIDDLEWARE_MODULE_ID) {
 				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
 					throw new AstroError(MissingMiddlewareForInternationalization);
@@ -53,7 +53,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
 				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
 
-				const source = `
+				const code = `
 				${
 					userMiddlewareIsPresent
 						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
@@ -69,7 +69,7 @@ export const onRequest = sequence(
 );
 `.trim();
 
-				return source;
+				return { code };
 			}
 		},
 	};
@@ -112,7 +112,7 @@ export function vitePluginMiddlewareBuild(
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'asset' && chunk.facadeModuleId === MIDDLEWARE_MODULE_ID) {
-					const outputDirectory = getOutputDirectory(opts.settings);
+					const outputDirectory = getServerOutputDirectory(opts.settings);
 					internals.middlewareEntryPoint = new URL(chunkName, outputDirectory);
 				}
 			}

@@ -1,5 +1,78 @@
 # @astrojs/db
 
+## 0.14.14
+
+### Patch Changes
+
+- [#13772](https://github.com/withastro/astro/pull/13772) [`83193d4`](https://github.com/withastro/astro/commit/83193d43cfb7fb28254f0ff3fb717a7bdd65977b) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Fix options parsing for the libsql client connection to ensure that proper values are being set when adding URLSearchParams to the `ASTRO_DB_REMOTE_URL`
+
+- [#13783](https://github.com/withastro/astro/pull/13783) [`1609044`](https://github.com/withastro/astro/commit/1609044face6f58fff1dc82ceb14b3fd13b5ff67) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Modify Database type to allow transactions to be properly typed now that Astro Studio has sunset.
+
+## 0.14.13
+
+### Patch Changes
+
+- [#13731](https://github.com/withastro/astro/pull/13731) [`c3e80c2`](https://github.com/withastro/astro/commit/c3e80c25b90c803e2798b752583a8e77cdad3146) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update vite to latest version for fixing CVE
+
+- Updated dependencies [[`c3e80c2`](https://github.com/withastro/astro/commit/c3e80c25b90c803e2798b752583a8e77cdad3146)]:
+  - @astrojs/studio@0.1.9
+
+## 0.14.12
+
+### Patch Changes
+
+- [#13591](https://github.com/withastro/astro/pull/13591) [`5dd2d3f`](https://github.com/withastro/astro/commit/5dd2d3fde8a138ed611dedf39ffa5dfeeed315f8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes unused code
+
+- Updated dependencies [[`5dd2d3f`](https://github.com/withastro/astro/commit/5dd2d3fde8a138ed611dedf39ffa5dfeeed315f8)]:
+  - @astrojs/studio@0.1.8
+
+## 0.14.11
+
+### Patch Changes
+
+- [#13596](https://github.com/withastro/astro/pull/13596) [`3752519`](https://github.com/withastro/astro/commit/375251966d1b28a570bff45ff0fe7e7d2fe46f72) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update vite to latest version to fix CVE
+
+- [#13547](https://github.com/withastro/astro/pull/13547) [`360cb91`](https://github.com/withastro/astro/commit/360cb9199a4314f90825c5639ff4396760e9cfcc) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates vite to the latest version
+
+- Updated dependencies [[`3752519`](https://github.com/withastro/astro/commit/375251966d1b28a570bff45ff0fe7e7d2fe46f72), [`360cb91`](https://github.com/withastro/astro/commit/360cb9199a4314f90825c5639ff4396760e9cfcc)]:
+  - @astrojs/studio@0.1.7
+
+## 0.14.10
+
+### Patch Changes
+
+- [#13526](https://github.com/withastro/astro/pull/13526) [`ff9d69e`](https://github.com/withastro/astro/commit/ff9d69e3443c80059c54f6296d19f66bb068ead3) Thanks [@jsparkdev](https://github.com/jsparkdev)! - update `vite` to the latest version
+
+- Updated dependencies [[`ff9d69e`](https://github.com/withastro/astro/commit/ff9d69e3443c80059c54f6296d19f66bb068ead3)]:
+  - @astrojs/studio@0.1.6
+
+## 0.14.9
+
+### Patch Changes
+
+- [#13505](https://github.com/withastro/astro/pull/13505) [`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `vite` to the latest.
+
+- Updated dependencies [[`a98ae5b`](https://github.com/withastro/astro/commit/a98ae5b8f5c33900379012e9e253a755c0a8927e)]:
+  - @astrojs/studio@0.1.5
+
+## 0.14.8
+
+### Patch Changes
+
+- [#13343](https://github.com/withastro/astro/pull/13343) [`a001a75`](https://github.com/withastro/astro/commit/a001a75d6ec08378d607531dc73959bf0a9e079e) Thanks [@dreyfus92](https://github.com/dreyfus92)! - Fix Astro DB seed failing when project path contains spaces. This resolves by properly decoding URL pathnames that contain encoded spaces (%20) before passing them to Vite's ssrLoadModule.
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.4
+
+## 0.14.7
+
+### Patch Changes
+
+- [#13314](https://github.com/withastro/astro/pull/13314) [`797a948`](https://github.com/withastro/astro/commit/797a9480b23303329dd618633194cbfb3dccb459) Thanks [@jlebras](https://github.com/jlebras)! - Expose `ilike` function from `drizzle-orm`
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.4
+
 ## 0.14.6
 
 ### Patch Changes
