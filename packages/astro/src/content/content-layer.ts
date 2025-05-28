@@ -146,10 +146,9 @@ class ContentLayer {
 
 	async #processMarkdown(
 		content: string,
-		options?: MarkdownProcessorRenderOptions,
 	): Promise<RenderedContent> {
 		this.#markdownProcessor ??= await createMarkdownProcessor(this.#settings.config.markdown);
-		const { code, metadata } = await this.#markdownProcessor.render(content, options);
+		const { code, metadata } = await this.#markdownProcessor.render(content);
 		return {
 			html: code,
 			metadata,

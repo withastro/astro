@@ -34,7 +34,6 @@ export interface LoaderContext {
 	/** Renders markdown content to HTML and metadata */
 	renderMarkdown(
 		content: string,
-		options?: MarkdownProcessorRenderOptions,
 	): Promise<RenderedContent>;
 
 	/** Generates a non-cryptographic content digest. This can be used to check if the data has changed */
