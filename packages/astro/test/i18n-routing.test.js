@@ -1072,6 +1072,31 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 
+	describe('i18n routing with fallback rewrite from dynamic route', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-fallback-rewrite/',
+			});
+			await fixture.build();
+		});
+
+		it('should rewrite dynamic fallback route', async () => {
+			let html = await fixture.readFile('/es/slug-1/index.html');
+			assert.equal(html.includes('slug-1'), true);
+		});
+		it('should rewrite dynamic fallback route with rest parameter', async () => {
+			let html = await fixture.readFile('/es/page-1/index.html');
+			assert.equal(html.includes('page-1'), true);
+		});
+		it('should rewrite dynamic fallback route with rest parameter and different depths', async () => {
+			let html = await fixture.readFile('/es/page/page-1/index.html');
+			assert.equal(html.includes('page/page-1'), true);
+		});
+	});
+
 	describe('i18n routing with fallback and trailing slash', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
