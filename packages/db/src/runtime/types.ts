@@ -15,6 +15,9 @@ type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
 		driverParam: string;
 		enumValues: never;
 		baseColumn: never;
+		isPrimaryKey: boolean;
+		isAutoincrement: boolean;
+		hasRuntimeDefault: boolean;
 	}
 >;
 
@@ -26,6 +29,9 @@ type AstroDate<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 		driverParam: string;
 		enumValues: never;
 		baseColumn: never;
+		isPrimaryKey: boolean;
+		isAutoincrement: boolean;
+		hasRuntimeDefault: boolean;
 	}
 >;
 
@@ -37,6 +43,9 @@ type AstroBoolean<T extends GeneratedConfig<'boolean'>> = SQLiteColumn<
 		driverParam: number;
 		enumValues: never;
 		baseColumn: never;
+		isPrimaryKey: boolean;
+		isAutoincrement: boolean;
+		hasRuntimeDefault: boolean;
 	}
 >;
 
@@ -48,6 +57,9 @@ type AstroNumber<T extends GeneratedConfig<'number'>> = SQLiteColumn<
 		driverParam: number;
 		enumValues: never;
 		baseColumn: never;
+		isPrimaryKey: boolean;
+		isAutoincrement: boolean;
+		hasRuntimeDefault: boolean;
 	}
 >;
 
@@ -59,6 +71,9 @@ type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 		driverParam: string;
 		enumValues: never;
 		baseColumn: never;
+		isPrimaryKey: boolean;
+		isAutoincrement: boolean;
+		hasRuntimeDefault: boolean;
 	}
 >;
 
