@@ -1700,7 +1700,7 @@ export const ContentEntryDataError = {
  * The loader for a live content collection returned an invalid cache hint.
  * Make sure that `cacheHint` is an object with the correct properties, or is undefined.
  * @see
- * - [Experimental live content](https://astro.build/en/reference/experimental-flags/live-content/)
+ * - [Experimental live content collections](https://astro.build/en/reference/experimental-flags/live-content-collections/)
  */
 export const InvalidCacheHintError = {
 	name: 'InvalidCacheHintError',
@@ -1712,7 +1712,7 @@ export const InvalidCacheHintError = {
 			'',
 		].join('\n');
 	},
-	hint: 'See https://docs.astro.build/en/reference/experimental-flags/live-content/ for more information.',
+	hint: 'See https://docs.astro.build/en/reference/experimental-flags/live-content-collections/ for more information.',
 } satisfies ErrorData;
 
 /**
@@ -1723,7 +1723,7 @@ export const InvalidCacheHintError = {
  * @description
  * Error in live content config.
  * @see
- * - [Experimental live content](https://astro.build/en/reference/experimental-flags/live-content/)
+ * - [Experimental live content](https://astro.build/en/reference/experimental-flags/live-content-collections/)
  */
 
 export const LiveContentConfigError = {
@@ -1731,7 +1731,7 @@ export const LiveContentConfigError = {
 	title: 'Error in live content config.',
 	message: (error: string, filename?: string) =>
 		`${error} Check your collection definitions in ${filename ?? 'your live content config file'}.`,
-	hint: 'See https://docs.astro.build/en/reference/experimental-flags/live-content/ for more information on live content collections.',
+	hint: 'See https://docs.astro.build/en/reference/experimental-flags/live-content-collections/ for more information on live content collections.',
 } satisfies ErrorData;
 
 /**
