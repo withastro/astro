@@ -729,7 +729,7 @@ export function getContentPaths(
 	fs: typeof fsMod = fsMod,
 ): ContentPaths {
 	const configStats = searchConfig(fs, srcDir, legacy?.collections);
-	const liveConfigStats = experimental?.liveContentLoaders
+	const liveConfigStats = experimental?.liveContentCollections
 		? searchLiveConfig(fs, srcDir)
 		: { exists: false, url: new URL('./', srcDir) };
 	const pkgBase = new URL('../../', import.meta.url);
