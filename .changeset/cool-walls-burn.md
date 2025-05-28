@@ -1,5 +1,5 @@
 ---
-'astro': major
+'astro': patch
 ---
 
-Fixes attribute rendering for `popover`
+Fixes rendering of the `popover` attribute when it has a boolean value
