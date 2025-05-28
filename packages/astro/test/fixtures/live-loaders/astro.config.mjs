@@ -9,6 +9,6 @@ export default defineConfig({
     mode: 'standalone'
   }),
 	experimental: {
-		liveContentLoaders: true
+		liveContentCollections: true
 	}
 });

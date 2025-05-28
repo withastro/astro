@@ -100,7 +100,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		responsiveImages: false,
 		headingIdCompat: false,
 		preserveScriptOrder: false,
-		liveContentLoaders: false,
+		liveContentCollections: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -478,10 +478,10 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.preserveScriptOrder),
 			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
-			liveContentLoaders: z
+			liveContentCollections: z
 				.boolean()
 				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.liveContentLoaders),
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.liveContentCollections),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

@@ -1698,7 +1698,7 @@ export const ContentEntryDataError = {
  * @description
  * Error in live content config.
  * @see
- * - [Experimental live content](https://astro.build/en/reference/experimental-flags/live-content/)
+ * - [Experimental live content](https://astro.build/en/reference/experimental-flags/live-content-collections/)
  */
 
 export const LiveContentConfigError = {
@@ -1706,7 +1706,7 @@ export const LiveContentConfigError = {
 	title: 'Error in live content config.',
 	message: (error: string, filename?: string) =>
 		`${error} Check your collection definitions in ${filename ?? 'your live content config file'}.`,
-	hint: 'See https://docs.astro.build/en/reference/experimental-flags/live-content/ for more information on live content collections.',
+	hint: 'See https://docs.astro.build/en/reference/experimental-flags/live-content-collections/ for more information on live content collections.',
 } satisfies ErrorData;
 
 /**

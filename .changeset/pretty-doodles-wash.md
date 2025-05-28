@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-Adds support for live content loaders
+Adds support for live content collections
