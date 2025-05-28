@@ -29,7 +29,18 @@ import { IMAGE_IMPORT_PREFIX, type LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { LiveLoader } from './loaders/types.js';
 import type { ContentLookupMap } from './utils.js';
-
+import {
+	LiveCollectionError,
+	LiveCollectionCacheHintError,
+	LiveEntryNotFoundError,
+	LiveCollectionValidationError,
+} from './loaders/index.js';
+export {
+	LiveCollectionError,
+	LiveCollectionCacheHintError,
+	LiveEntryNotFoundError,
+	LiveCollectionValidationError,
+};
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
@@ -67,19 +78,12 @@ async function parseLiveEntry(
 	entry: LiveDataEntry,
 	schema: z.ZodType,
 	collection: string,
-): Promise<{ entry?: LiveDataEntry; error?: Error }> {
+): Promise<{ entry?: LiveDataEntry; error?: LiveCollectionError }> {
 	try {
 		const parsed = await schema.safeParseAsync(entry.data);
 		if (!parsed.success) {
 			return {
-				error: new AstroError({
-					...AstroErrorData.InvalidContentEntryDataError,
-					message: AstroErrorData.InvalidContentEntryDataError.message(
-						collection,
-						entry.id,
-						parsed.error,
-					),
-				}),
+				error: new LiveCollectionValidationError(collection, entry.id, parsed.error),
 			};
 		}
 		if (entry.cacheHint) {
@@ -87,14 +91,7 @@ async function parseLiveEntry(
 
 			if (!cacheHint.success) {
 				return {
-					error: new AstroError({
-						...AstroErrorData.InvalidCacheHintError,
-						message: AstroErrorData.InvalidCacheHintError.message(
-							collection,
-							entry.id,
-							cacheHint.error,
-						),
-					}),
+					error: new LiveCollectionCacheHintError(collection, entry.id, cacheHint.error),
 				};
 			}
 			entry.cacheHint = cacheHint.data;
@@ -107,12 +104,10 @@ async function parseLiveEntry(
 		};
 	} catch (error) {
 		return {
-			error: new AstroError(
-				{
-					...AstroErrorData.UnknownContentCollectionError,
-					message: `Unexpected error parsing entry ${entry.id} in collection ${collection}`,
-				},
-				{ cause: error },
+			error: new LiveCollectionError(
+				collection,
+				`Unexpected error parsing entry ${entry.id} in collection ${collection}`,
+				error as Error,
 			),
 		};
 	}
@@ -478,10 +473,10 @@ export function createGetLiveCollection({
 	): Promise<LiveDataCollectionResult> {
 		if (!(collection in liveCollections)) {
 			return {
-				error: new AstroError({
-					...AstroErrorData.UnknownContentCollectionError,
-					message: `Collection "${collection}" is not a live collection. Use getCollection() instead of getLiveCollection() to load regular content collections.`,
-				}),
+				error: new LiveCollectionError(
+					collection,
+					`Collection "${collection}" is not a live collection. Use getCollection() instead of getLiveCollection() to load regular content collections.`,
+				),
 			};
 		}
 
@@ -510,6 +505,7 @@ export function createGetLiveCollection({
 				// Check for parsing errors
 				for (const result of entryResults) {
 					if (result.error) {
+						// Return early on the first error
 						return { error: result.error };
 					}
 				}
@@ -523,14 +519,7 @@ export function createGetLiveCollection({
 
 				if (!cacheHintResult.success) {
 					return {
-						error: new AstroError({
-							...AstroErrorData.InvalidCacheHintError,
-							message: AstroErrorData.InvalidCacheHintError.message(
-								collection,
-								undefined,
-								cacheHintResult.error,
-							),
-						}),
+						error: new LiveCollectionCacheHintError(collection, undefined, cacheHintResult.error),
 					};
 				}
 				cacheHint = cacheHintResult.data;
@@ -577,14 +566,10 @@ export function createGetLiveCollection({
 			};
 		} catch (error) {
 			return {
-				error: new AstroError(
-					{
-						...AstroErrorData.UnknownContentCollectionError,
-						message: `Unexpected error loading collection ${collection}`,
-					},
-					{
-						cause: error,
-					},
+				error: new LiveCollectionError(
+					collection,
+					`Unexpected error loading collection ${collection}`,
+					error as Error,
 				),
 			};
 		}
@@ -602,10 +587,10 @@ export function createGetLiveEntry({
 	): Promise<LiveDataEntryResult> {
 		if (!(collection in liveCollections)) {
 			return {
-				error: new AstroError({
-					...AstroErrorData.UnknownContentCollectionError,
-					message: `Collection "${collection}" is not a live collection. Use getCollection() instead of getLiveCollection() to load regular content collections.`,
-				}),
+				error: new LiveCollectionError(
+					collection,
+					`Collection "${collection}" is not a live collection. Use getCollection() instead of getLiveEntry() to load regular content collections.`,
+				),
 			};
 		}
 
@@ -628,10 +613,7 @@ export function createGetLiveEntry({
 
 			if (!entry) {
 				return {
-					error: new AstroError({
-						...AstroErrorData.UnknownContentCollectionError,
-						message: `Entry ${collection} → ${lookup} was not found.`,
-					}),
+					error: new LiveEntryNotFoundError(collection, lookup),
 				};
 			}
 
@@ -650,12 +632,10 @@ export function createGetLiveEntry({
 			};
 		} catch (error) {
 			return {
-				error: new AstroError(
-					{
-						...AstroErrorData.UnknownContentCollectionError,
-						message: `Unexpected error loading entry from collection ${collection}`,
-					},
-					{ cause: error },
+				error: new LiveCollectionError(
+					collection,
+					`Unexpected error loading entry ${collection} → ${typeof lookup === 'string' ? lookup : JSON.stringify(lookup)}`,
+					error as Error,
 				),
 			};
 		}

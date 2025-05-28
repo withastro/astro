@@ -132,6 +132,13 @@ describe('Live content loaders', () => {
 			);
 		});
 
+		it('returns an error for invalid data', async () => {
+			const res = await fixture.fetch('/api/?returnInvalid=true&addToAge=1');
+			const data = await res.json();
+			assert.ok(data.collection.error.message.includes('data does not match the collection schema'));
+			assert.equal(data.collection.error.name, 'LiveCollectionValidationError');
+		});
+
 		it('old API throws helpful errors for live collections', async () => {
 			const response = await fixture.fetch('/test-old-api');
 			const data = await response.json();
