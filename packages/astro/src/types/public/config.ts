@@ -2272,7 +2272,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name experimental.liveContentCollections
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 5.7
+		 * @version 5.x
 		 * @description
 		 * Enables the use of live content collections.
 		 *
