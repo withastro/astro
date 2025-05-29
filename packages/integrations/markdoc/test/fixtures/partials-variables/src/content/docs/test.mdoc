@@ -1,0 +1,20 @@
+---
+title: Test
+---
+
+## Before
+
+The partial is about to be injected.
+
+{% partial
+     file="./_partial.mdoc"
+     variables={
+       name: "foo",
+       version: 42,
+       test: true,
+     }
+/%}
+
+## After
+
+The partial has been injected.
