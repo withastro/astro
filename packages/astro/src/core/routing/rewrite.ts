@@ -97,7 +97,14 @@ export function findRouteToRewrite({
 	for (const route of routes) {
 		if (route.pattern.test(decodedPathname)) {
 			// If it's a dynamic route, make sure it actually generates the pathname
-			if (route.params && route.distURL && route.distURL.length !== 0) {
+			// Checking for params to make sure it's a dynamic route
+			if (
+				route.params &&
+				route.params.length !== 0 &&
+				route.distURL &&
+				route.distURL.length !== 0
+			) {
+				// remove /index.html or .html from distURL and compare with pathname
 				if (
 					!route.distURL.find((url) =>
 						url.href
