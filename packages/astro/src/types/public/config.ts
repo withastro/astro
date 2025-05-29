@@ -2237,7 +2237,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @description
 		 *
 		 * Enables built-in support for Content Security Policy (CSP). For more information, 
-		 * refer to the [documentation page](https://docs.astro.build/en/reference/experimental-flags/csp/)
+		 * refer to the [experimental CSP documentation](https://docs.astro.build/en/reference/experimental-flags/csp/)
 		 *
 		 */
 		csp?:
@@ -2296,7 +2296,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * @version 5.9.0
 					 * @description
 					 *
-					 * Object that allows controlling the `script-src` directive.					 *
+					 * Object that allows controlling the `style-src` directive.					 *
 					 */
 					scriptDirective?: {
 						/**
