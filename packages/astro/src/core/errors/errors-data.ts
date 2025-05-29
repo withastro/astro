@@ -1370,14 +1370,14 @@ export const ExperimentalFontsNotEnabled = {
  * @description
  * Font family not found
  * @message
- * No data was found for the family passed to the Font component.
+ * No data was found for the cssVariable passed to the Font component or getFontData function.
  */
 export const FontFamilyNotFound = {
 	name: 'FontFamilyNotFound',
 	title: 'Font family not found',
 	message: (family: string) =>
 		`No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
-	hint: 'This is often caused by a typo. Check that your Font component is using a `cssVariable` specified in your config.',
+	hint: 'This is often caused by a typo. Check that the Font component and getFontData function are using a `cssVariable` specified in your config.',
 } satisfies ErrorData;
 
 /**

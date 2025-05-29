@@ -11,7 +11,7 @@ export function syncFonts(settings: AstroSettings): void {
 		filename: FONTS_TYPES_FILE,
 		content: `declare module 'astro:assets' {
 	/** @internal */
-	export type FontFamily = (${JSON.stringify(settings.config.experimental.fonts.map((family) => family.cssVariable))})[number];
+	export type CssVariable = (${JSON.stringify(settings.config.experimental.fonts.map((family) => family.cssVariable))})[number];
 }
 `,
 	});
