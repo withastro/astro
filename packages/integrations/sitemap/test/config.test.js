@@ -106,4 +106,16 @@ describe('Config', () => {
 			assert.equal(sitemapUrls[0].loc[0], 'http://example.com/my-sitemap-0.xml');
 		});
 	});
+
+	describe('Filtering pages - error handling', () => {
+		it('filter: uncaught errors are thrown', async () => {
+			fixture = await loadFixture({
+				root: './fixtures/static/',
+				integrations: [sitemap({ filter: () => {
+					throw new Error('filter error');
+				} })],
+			});
+			await assert.rejects(fixture.build(), /^Error: filter error$/);
+		});
+	});
 });
