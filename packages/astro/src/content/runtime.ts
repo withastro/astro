@@ -34,7 +34,7 @@ import {
 	LiveCollectionCacheHintError,
 	LiveEntryNotFoundError,
 	LiveCollectionValidationError,
-} from './loaders/index.js';
+} from './loaders/errors.js';
 export {
 	LiveCollectionError,
 	LiveCollectionCacheHintError,
