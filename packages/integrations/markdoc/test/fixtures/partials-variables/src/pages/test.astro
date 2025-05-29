@@ -1,0 +1,16 @@
+---
+import { getEntry } from 'astro:content';
+
+const entry = await getEntry('docs', 'test');
+const { Content } = await entry.render();
+---
+
+<html>
+<head>
+    <title>{entry.data.title}</title>
+</head>
+<body>
+    <h1>{entry.data.title}</h1>
+    <Content />
+</body>
+</html>
