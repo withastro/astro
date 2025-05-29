@@ -67,6 +67,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	image: {
 		endpoint: { entrypoint: undefined, route: '/_image' },
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
+		experimentalDefaultStyles: true,
 	},
 	devToolbar: {
 		enabled: true,
@@ -274,6 +275,9 @@ export const AstroConfigSchema = z.object({
 			experimentalObjectFit: z.string().optional(),
 			experimentalObjectPosition: z.string().optional(),
 			experimentalBreakpoints: z.array(z.number()).optional(),
+			experimentalDefaultStyles: z
+				.boolean()
+				.default(ASTRO_CONFIG_DEFAULTS.image.experimentalDefaultStyles),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
 	devToolbar: z
