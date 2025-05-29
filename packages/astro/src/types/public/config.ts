@@ -2233,10 +2233,11 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name experimental.csp
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 5.5.x
+		 * @version 5.9.0
 		 * @description
 		 *
-		 * Enables built-in support for Content Security Policy (CSP).
+		 * Enables built-in support for Content Security Policy (CSP). For more information, 
+		 * refer to the [documentation page](https://docs.astro.build/en/reference/experimental-flags/csp/)
 		 *
 		 */
 		csp?:
@@ -2246,13 +2247,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * @name experimental.csp.algorithm
 					 * @type {"SHA-256" | "SHA-384" | "SHA-512"}
 					 * @default `'SHA-256'`
-					 * @version 5.5.x
+					 * @version 5.9.0
 					 * @description
 					 *
-					 * The hashing algorithm to use for the CSP.
-					 *
-					 * The default value is `'SHA-256'`.
-					 *
+					 * The hashing algorithm to use when calculating the hashes of styles and scripts emitted by Astro.
 					 */
 					algorithm?: CspAlgorithm;
 
@@ -2260,21 +2258,20 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * @name experimental.csp.styleDirective
 					 * @type {CspHash[]}
 					 * @default `undefined`
-					 * @version 5.5.x
+					 * @version 5.9.0
 					 * @description
 					 *
-					 * Allows controlling the `style-src` directive.
-					 *
+					 * Object that allows controlling the `script-src` directive.
 					 */
 					styleDirective?: {
 						/**
 						 * @name experimental.csp.styleDirective.hashes
 						 * @type {CspHash[]}
 						 * @default `[]`
-						 * @version 5.5.x
+						 * @version 5.9.0
 						 * @description
 						 *
-						 * A list of style hashes to include in all pages. These hashes are added to the `style-src` directive.
+						 * A list of hashes to include in all pages. These hashes are added to the `style-src` directive.
 						 *
 						 */
 						hashes?: CspHash[];
@@ -2283,31 +2280,30 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 						 * @name experimental.csp.styleDirective.resources
 						 * @type {string[]}
 						 * @default `[]`
-						 * @version 5.5.x
+						 * @version 5.9.0
 						 * @description
 						 *
-						 * A list of resources applied to the `style-src` directive.
+						 * A list of resources applied to the `style-src` directive. These resources will override Astro's defaults.
 						 *
 						 */
 						resources?: string[];
 					};
 
 					/**
-					 * @name experimental.csp.styleDirective
+					 * @name experimental.csp.scriptDirective
 					 * @type {CspHash[]}
 					 * @default `undefined`
-					 * @version 5.5.x
+					 * @version 5.9.0
 					 * @description
 					 *
-					 * Allows controlling the `style-src` directive.
-					 *
+					 * Object that allows controlling the `script-src` directive.					 *
 					 */
 					scriptDirective?: {
 						/**
 						 * @name experimental.csp.scriptDirective.hashes
 						 * @type {CspHash[]}
 						 * @default `[]`
-						 * @version 5.5.x
+						 * @version 5.9.0
 						 * @description
 						 *
 						 * A list of script hashes to include in all pages. These hashes are added to the `script-src` directive.
@@ -2319,7 +2315,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 						 * @name experimental.csp.scriptDirective.resources
 						 * @type {string[]}
 						 * @default `[]`
-						 * @version 5.5.x
+						 * @version 5.9.0
 						 * @description
 						 *
 						 * A list of resources applied to the `script-src` directive.
@@ -2331,7 +2327,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 						 * @name experimental.csp.scriptDirective.strictDynamic
 						 * @type {boolean}
 						 * @default `false`
-						 * @version 5.5.x
+						 * @version 5.9.0
 						 * @description
 						 *
 						 * Enables the keyword `strict-dynamic`, to support the dynamic injection of scripts.
@@ -2344,7 +2340,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * @name experimental.csp.directives
 					 * @type {string[]}
 					 * @default `[]`
-					 * @version 5.5.x
+					 * @version 5.9.0
 					 * @description
 					 *
 					 * An array of additional directives to add the content of the `Content-Security-Policy` `<meta>` element.
@@ -2359,10 +2355,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * export default defineConfig({
 					 * 	experimental: {
 					 * 		csp: {
-					 * 			directives: [{
-					 * 				type: "image-src"
-					 * 				content:	'https://cdn.example.com'"
-					 * 			}]
+					 * 			directives: [
+					 * 				"image-src 'https://cdn.example.com"
+					 * 			]
 					 * 		}
 					 * 	}
 					 * })
