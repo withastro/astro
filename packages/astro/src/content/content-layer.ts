@@ -1,9 +1,5 @@
 import { promises as fs, existsSync } from 'node:fs';
-import {
-	type MarkdownProcessor,
-	type MarkdownProcessorRenderOptions,
-	createMarkdownProcessor,
-} from '@astrojs/markdown-remark';
+import { type MarkdownProcessor, createMarkdownProcessor } from '@astrojs/markdown-remark';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -144,9 +140,7 @@ class ContentLayer {
 		};
 	}
 
-	async #processMarkdown(
-		content: string,
-	): Promise<RenderedContent> {
+	async #processMarkdown(content: string): Promise<RenderedContent> {
 		this.#markdownProcessor ??= await createMarkdownProcessor(this.#settings.config.markdown);
 		const { code, metadata } = await this.#markdownProcessor.render(content);
 		return {

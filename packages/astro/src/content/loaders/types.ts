@@ -1,4 +1,3 @@
-import type { MarkdownProcessorRenderOptions } from '@astrojs/markdown-remark';
 import type { FSWatcher } from 'vite';
 import type { ZodSchema } from 'zod';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
@@ -32,9 +31,7 @@ export interface LoaderContext {
 	parseData<TData extends Record<string, unknown>>(props: ParseDataOptions<TData>): Promise<TData>;
 
 	/** Renders markdown content to HTML and metadata */
-	renderMarkdown(
-		content: string,
-	): Promise<RenderedContent>;
+	renderMarkdown(content: string): Promise<RenderedContent>;
 
 	/** Generates a non-cryptographic content digest. This can be used to check if the data has changed */
 	generateDigest(data: Record<string, unknown> | string): string;
