@@ -111,9 +111,13 @@ describe('Config', () => {
 		it('filter: uncaught errors are thrown', async () => {
 			fixture = await loadFixture({
 				root: './fixtures/static/',
-				integrations: [sitemap({ filter: () => {
-					throw new Error('filter error');
-				} })],
+				integrations: [
+					sitemap({
+						filter: () => {
+							throw new Error('filter error');
+						},
+					}),
+				],
 			});
 			await assert.rejects(fixture.build(), /^Error: filter error$/);
 		});
