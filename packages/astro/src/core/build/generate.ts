@@ -50,6 +50,7 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { pathHasLocale } from '../../i18n/index.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
@@ -493,29 +494,32 @@ async function generatePath(
 
 	// Do not render the fallback route if there is already a translated page
 	// with the same path
-	if (
-		route.type === 'fallback' &&
-		// If route is index page, continue rendering. The index page should
-		// always be rendered
-		route.pathname !== '/' &&
-		// Check if there is a translated page with the same path
-		Object.values(options.allPages).some((val) => {
-			if (val.route.pattern.test(pathname)) {
-				// Check if we've matched a dynamic route
-				if (val.route.segments && val.route.segments.length !== 0) {
-					let locale = removeLeadingForwardSlash(pathname).split('/')[0];
-					// Check that the route is in a matching locale folder
-					if (val.route.segments[0][0].content !== locale) return false;
+	if (route.type === 'fallback' && route.pathname !== '/') {
+		// Get the locale from the pathname, accounting for /base
+		let locale: string | undefined;
+		if (config.i18n?.locales && pathHasLocale(pathname, config.i18n?.locales)) {
+			locale =
+				config.base === '/'
+					? removeLeadingForwardSlash(pathname).split('/')[0]
+					: removeLeadingForwardSlash(pathname).split('/')[1];
+		}
+		if (
+			Object.values(options.allPages).some((val) => {
+				if (val.route.pattern.test(pathname)) {
+					// Check if we've matched a dynamic route
+					if (val.route.segments && val.route.segments.length !== 0) {
+						// Check that the route is in a matching locale folder
+						if (val.route.segments[0][0].content !== locale) return false;
+					}
+					// Route matches
+					return true;
+				} else {
+					return false;
 				}
-				// Route matches
-				return true;
-			} else {
-				// Pattern doesn't match
-				return false;
-			}
-		})
-	) {
-		return void 0;
+			})
+		) {
+			return undefined;
+		}
 	}
 
 	const url = getUrlForPath(
