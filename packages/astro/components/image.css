@@ -1,0 +1,11 @@
+:where([data-astro-image]) {
+	object-fit: var(--fit);
+	object-position: var(--pos);
+	height: auto;
+}
+:where([data-astro-image='full-width']) {
+	width: 100%;
+}
+:where([data-astro-image='constrained']) {
+	max-width: 100%;
+}
