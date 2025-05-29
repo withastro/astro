@@ -1369,7 +1369,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		experimentalBreakpoints?: number[];
 		/**
 		 * @docs
-		 * @name experimentalDefaultStyles
+		 * @name image.experimentalDefaultStyles
 		 * @type {boolean}
 		 * @default `true`
 		 * @description
