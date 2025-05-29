@@ -27,7 +27,7 @@ import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { setImageConfig } from './utils/image-config.js';
 
-export type { Runtime } from './entrypoints/server.js';
+export type { Runtime } from './utils/handler.js';
 
 export type Options = {
 	/** Options for handling images. */
@@ -98,8 +98,18 @@ export type Options = {
 	 * See https://developers.cloudflare.com/kv/concepts/kv-namespaces/ for more details on using KV namespaces.
 	 *
 	 */
-
 	sessionKVBindingName?: string;
+
+	/**
+	 * The path to the entry file for the server. This is used to determine the entry point for the server.
+	 * By default, this is set to `@astrojs/cloudflare/entrypoints/server.js`.
+	 */
+	entryfilePath?: string;
+
+	/**
+	 * The exports to use for the server entry file. By default, this is set to `['default']`. If you need to have other top level exports, e.g. DurableObjects you need to provide them here.
+	 */
+	entryfileExports?: string[];
 };
 
 function wrapWithSlashes(path: string): string {
@@ -227,8 +237,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				setAdapter({
 					name: '@astrojs/cloudflare',
-					serverEntrypoint: '@astrojs/cloudflare/entrypoints/server.js',
-					exports: ['default'],
+					serverEntrypoint: args?.entryfilePath
+						? new URL(args?.entryfilePath, config.root)
+						: '@astrojs/cloudflare/entrypoints/server.js',
+					exports: args?.entryfileExports ? ['default', ...args.entryfileExports] : ['default'],
 					adapterFeatures: {
 						edgeMiddleware: false,
 						buildOutput: 'server',
