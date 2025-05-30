@@ -1,6 +1,6 @@
 import { sequence, defineMiddleware } from 'astro/middleware';
 
-const middleware1 = defineMiddleware((_, next) => next());
+const middleware1 = defineMiddleware((_, next) => next('/'));
 
 const middleware2 = defineMiddleware(async ({ request }, next) => {
 	console.log(await request.clone().text());
