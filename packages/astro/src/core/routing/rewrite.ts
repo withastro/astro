@@ -10,6 +10,7 @@ import {
 	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
+	trimSlashes,
 } from '../path.js';
 import { createRequest } from '../request.js';
 import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';
@@ -21,6 +22,7 @@ type FindRouteToRewrite = {
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: AstroConfig['build']['format'];
 	base: AstroConfig['base'];
+	outDir: AstroConfig['outDir'];
 };
 
 interface FindRouteToRewriteResult {
@@ -41,6 +43,7 @@ export function findRouteToRewrite({
 	trailingSlash,
 	buildFormat,
 	base,
+	outDir,
 }: FindRouteToRewrite): FindRouteToRewriteResult {
 	let newUrl: URL | undefined = undefined;
 	if (payload instanceof URL) {
@@ -83,7 +86,10 @@ export function findRouteToRewrite({
 	if (pathname === '/' && base !== '/' && !shouldAppendSlash) {
 		pathname = '';
 	}
-
+	// If config.build.format = 'file' then pathname includes .html, so we need to remove it
+	if (buildFormat === 'file') {
+		pathname = pathname.replace('.html', '');
+	}
 	// Set the final URL pathname
 	if (base !== '/' && (pathname === '' || pathname === '/') && !shouldAppendSlash) {
 		// Special case for root path at base URL with trailingSlash: 'never'
@@ -104,12 +110,13 @@ export function findRouteToRewrite({
 				route.distURL &&
 				route.distURL.length !== 0
 			) {
-				// remove /index.html or .html from distURL and compare with pathname
+				// Split the distURL using config.outDir to get the relative path
+				// Remove /index.html or .html from distURL and compare with decodedPathname
 				if (
-					!route.distURL.find((url) =>
-						url.href
-							.replace(/(?:\/index\.html|\.html)$/, '')
-							.endsWith(removeTrailingForwardSlash(decodedPathname)),
+					!route.distURL.find(
+						(url) =>
+							url.href.split(outDir.toString())[1].replace(/(?:\/index\.html|\.html)$/, '') ==
+							trimSlashes(decodedPathname),
 					)
 				) {
 					continue;
