@@ -1,5 +1,36 @@
 # astro
 
+## 5.8.1
+
+### Patch Changes
+
+- [#13037](https://github.com/withastro/astro/pull/13037) [`de2fc9b`](https://github.com/withastro/astro/commit/de2fc9b3c406c21683b8a692fafa3cbc77ca552b) Thanks [@nanarino](https://github.com/nanarino)! - Fixes rendering of the `popover` attribute when it has a boolean value
+
+- [#13851](https://github.com/withastro/astro/pull/13851) [`45ae95a`](https://github.com/withastro/astro/commit/45ae95a507d5e83b5e38ce1b338c3202ab7e8d76) Thanks [@ascorbic](https://github.com/ascorbic)! - Allows disabling default styles for responsive images
+
+  This change adds a new `image.experimentalDefaultStyles` option that allows you to disable the default styles applied to responsive images.
+
+  When using experimental responsive images, Astro applies default styles to ensure the images resize correctly. In most cases this is what you want – and they are applied with low specificity so your own styles override them. However in some cases you may want to disable these default styles entirely. This is particularly useful when using Tailwind 4, because it uses CSS cascade layers to apply styles, making it difficult to override the default styles.
+
+  `image.experimentalDefaultStyles` is a boolean option that defaults to `true`, so you can change it in your Astro config file like this:
+
+  ```js
+  export default {
+    image: {
+      experimentalDefaultStyles: false,
+    },
+    experimental: {
+      responsiveImages: true,
+    },
+  };
+  ```
+
+- [#13858](https://github.com/withastro/astro/pull/13858) [`cb1a168`](https://github.com/withastro/astro/commit/cb1a1681c844737477670ac42bb051bf93fae0a3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes the warning shown when client directives are used on Astro components
+
+- [#12574](https://github.com/withastro/astro/pull/12574) [`da266d0`](https://github.com/withastro/astro/commit/da266d0578c1a603d6f57913c6fa8eefd61a354e) Thanks [@apatel369](https://github.com/apatel369)! - Allows using server islands in mdx files
+
+- [#13843](https://github.com/withastro/astro/pull/13843) [`fbcfa68`](https://github.com/withastro/astro/commit/fbcfa683d38f13378678c25b53cd789107752087) Thanks [@z1haze](https://github.com/z1haze)! - Export type `AstroSession` to allow use in explicitly typed safe code.
+
 ## 5.8.0
 
 ### Minor Changes
