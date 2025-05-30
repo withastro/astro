@@ -161,7 +161,17 @@ export function copyRequest(
 	});
 }
 
-export function setOriginPathname(request: Request, pathname: string): void {
+export function setOriginPathname(
+	request: Request,
+	pathname: string,
+	trailingSlash: AstroConfig['trailingSlash'],
+	buildFormat: AstroConfig['build']['format'],
+): void {
+	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
+	pathname = shouldAppendSlash
+		? appendForwardSlash(pathname)
+		: removeTrailingForwardSlash(pathname);
+
 	Reflect.set(request, originPathnameSymbol, encodeURIComponent(pathname));
 }
 
