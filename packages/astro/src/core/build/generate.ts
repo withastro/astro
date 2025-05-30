@@ -50,7 +50,6 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
-import { pathHasLocale } from '../../i18n/index.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
@@ -495,14 +494,8 @@ async function generatePath(
 	// Do not render the fallback route if there is already a translated page
 	// with the same path
 	if (route.type === 'fallback' && route.pathname !== '/') {
-		// Get the locale from the pathname, accounting for /base
-		let locale: string | undefined;
-		if (config.i18n?.locales && pathHasLocale(pathname, config.i18n?.locales)) {
-			locale =
-				config.base === '/'
-					? removeLeadingForwardSlash(pathname).split('/')[0]
-					: removeLeadingForwardSlash(pathname).split('/')[1];
-		}
+		// Get the locale from the pathname
+		let locale = removeLeadingForwardSlash(pathname).split('/')[0];
 		if (
 			Object.values(options.allPages).some((val) => {
 				if (val.route.pattern.test(pathname)) {
