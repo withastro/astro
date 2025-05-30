@@ -16,6 +16,11 @@ describe('Attributes', async () => {
 		const $ = cheerio.load(html);
 
 		const attrs = {
+			'download-undefined': { attribute: 'download', value: undefined },
+			'download-booelan-false': { attribute: 'download', value: 'false' },
+			'download-booelan-true': { attribute: 'download', value: 'true' },
+			'download-string': { attribute: 'download', value: 'my-document.pdf' },
+			'download-empty-string': { attribute: 'download', value: '' },
 			'popover-auto': { attribute: 'popover', value: 'auto' },
 			'popover-true': { attribute: 'popover', value: '' },
 			'popover-false': { attribute: 'popover', value: undefined },
