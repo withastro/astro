@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.12.1
+
+### Patch Changes
+
+- [#12529](https://github.com/withastro/astro/pull/12529) [`485c2f0`](https://github.com/withastro/astro/commit/485c2f0f1617a79ed997970c2cc439dde89e9be2) Thanks [@apatel369](https://github.com/apatel369)! - Fixes an issue where installing Astro beta using `create-astro` displays the wrong Astro version in the installation messages.
+
 ## 4.12.0
 
 ### Minor Changes

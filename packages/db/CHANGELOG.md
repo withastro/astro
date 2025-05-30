@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.15.0
+
+### Minor Changes
+
+- [#13815](https://github.com/withastro/astro/pull/13815) [`03435f8`](https://github.com/withastro/astro/commit/03435f8269b91ce8973bc8ded8e8071481d39dda) Thanks [@jonaspm](https://github.com/jonaspm)! - Upgraded drizzle-orm to latest v0.42.0
+
 ## 0.14.14
 
 ### Patch Changes
