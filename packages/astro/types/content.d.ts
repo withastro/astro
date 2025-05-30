@@ -38,4 +38,8 @@ declare module 'astro:content' {
 	export type ContentConfig = any;
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const render: (entry: any) => any;
+	/** Run `astro dev` or `astro sync` to generate high fidelity types */
+	export const getLiveCollection: (...args: any[]) => any;
+	/** Run `astro dev` or `astro sync` to generate high fidelity types */
+	export const getLiveEntry: (...args: any[]) => any;
 }

@@ -41,22 +41,32 @@ describe('Live content collections', () => {
 			assert.equal(res.status, 200);
 			const data = await res.json();
 			assert.deepEqual(data.entryByString, {
-				id: '123',
-				data: { title: 'Page 123', age: 10 },
+				entry: {
+					id: '123',
+					data: { title: 'Page 123', age: 10 },
+					cacheHint: {
+						tags: [`page:123`],
+						maxAge: 60,
+					},
+				},
 				cacheHint: {
 					tags: [`page:123`],
 					maxAge: 60,
 				},
-				collection: 'liveStuff',
 			});
 			assert.deepEqual(data.entryByObject, {
-				id: '456',
-				data: { title: 'Page 456', age: 20 },
+				entry: {
+					id: '456',
+					data: { title: 'Page 456', age: 20 },
+					cacheHint: {
+						tags: [`page:456`],
+						maxAge: 60,
+					},
+				},
 				cacheHint: {
 					tags: [`page:456`],
 					maxAge: 60,
 				},
-				collection: 'liveStuff',
 			});
 			assert.deepEqual(data.collection, {
 				entries: [
@@ -73,7 +83,6 @@ describe('Live content collections', () => {
 						data: { title: 'Page 789', age: 30 },
 					},
 				],
-				collection: 'liveStuff',
 				cacheHint: {
 					tags: ['page'],
 					maxAge: 60,
@@ -88,13 +97,18 @@ describe('Live content collections', () => {
 			assert.deepEqual(
 				data.entryByObject,
 				{
-					id: '456',
-					data: { title: 'Page 456', age: 25 },
+					entry: {
+						id: '456',
+						data: { title: 'Page 456', age: 25 },
+						cacheHint: {
+							tags: [`page:456`],
+							maxAge: 60,
+						},
+					},
 					cacheHint: {
 						tags: [`page:456`],
 						maxAge: 60,
 					},
-					collection: 'liveStuff',
 				},
 				'passes dynamic filter to getEntry',
 			);
@@ -117,6 +131,19 @@ describe('Live content collections', () => {
 				'passes dynamic filter to getCollection',
 			);
 		});
+
+		it('returns an error for invalid data', async () => {
+			const res = await fixture.fetch('/api/?returnInvalid=true&addToAge=1');
+			const data = await res.json();
+			assert.ok(data.collection.error.message.includes('data does not match the collection schema'));
+			assert.equal(data.collection.error.name, 'LiveCollectionValidationError');
+		});
+
+		it('old API throws helpful errors for live collections', async () => {
+			const response = await fixture.fetch('/test-old-api');
+			const data = await response.json();
+			assert.ok(data.error.includes('Use getLiveCollection() instead of getCollection()'));
+		});
 	});
 
 	describe('SSR', () => {
@@ -134,13 +161,18 @@ describe('Live content collections', () => {
 			assert.equal(response.status, 200);
 			const data = await response.json();
 			assert.deepEqual(data.entryByString, {
-				id: '123',
-				data: { title: 'Page 123', age: 10 },
+				entry: {
+					id: '123',
+					data: { title: 'Page 123', age: 10 },
+					cacheHint: {
+						tags: [`page:123`],
+						maxAge: 60,
+					},
+				},
 				cacheHint: {
 					tags: [`page:123`],
 					maxAge: 60,
 				},
-				collection: 'liveStuff',
 			});
 		});
 		it('loads live data with dynamic filtering', async () => {
@@ -152,16 +184,29 @@ describe('Live content collections', () => {
 			assert.deepEqual(
 				data.entryByObject,
 				{
-					id: '456',
-					data: { title: 'Page 456', age: 25 },
+					entry: {
+						id: '456',
+						data: { title: 'Page 456', age: 25 },
+						cacheHint: {
+							tags: [`page:456`],
+							maxAge: 60,
+						},
+					},
 					cacheHint: {
 						tags: [`page:456`],
 						maxAge: 60,
 					},
-					collection: 'liveStuff',
 				},
 				'passes dynamic filter to getEntry',
 			);
+		});
+
+		it('old API throws helpful errors for live collections', async () => {
+			const request = new Request('http://example.com/test-old-api');
+			const response = await app.render(request);
+			assert.equal(response.status, 500);
+			const data = await response.json();
+			assert.ok(data.error.includes('Use getLiveCollection() instead of getCollection()'));
 		});
 	});
 });

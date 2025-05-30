@@ -9,6 +9,7 @@ type Entry = {
 
 interface CollectionFilter {
 	addToAge?: number;
+	returnInvalid?: boolean;
 }
 
 type EntryFilter = {
@@ -16,44 +17,52 @@ type EntryFilter = {
 	addToAge?: number;
 };
 
-
 const entries = {
 	'123': { id: '123', data: { title: 'Page 123', age: 10 } },
 	'456': { id: '456', data: { title: 'Page 456', age: 20 } },
 	'789': { id: '789', data: { title: 'Page 789', age: 30 } },
 };
 
-const loader: LiveLoader<Entry, EntryFilter, CollectionFilter> = {
+class CustomError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'CustomError';
+	}
+}
+
+const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 	name: 'test-loader',
-	loadEntry: async (context) => {
-		const entry = entries[context.filter.id];
+	loadEntry: async ({ filter }) => {
+		const entry = entries[filter.id];
 		if (!entry) {
-			return;
+			return {
+				error: new CustomError(`Entry ${filter.id} not found`),
+			};
 		}
 		return {
 			...entry,
 			data: {
-				...entry.data,
-				age: context.filter?.addToAge
+				title: entry.data.title,
+				age: filter?.addToAge
 					? entry.data.age
-						? entry.data.age + context.filter.addToAge
-						: context.filter.addToAge
+						? entry.data.age + filter.addToAge
+						: filter.addToAge
 					: entry.data.age,
 			},
 			cacheHint: {
-				tags: [`page:${context.filter.id}`],
+				tags: [`page:${filter.id}`],
 				maxAge: 60,
 			},
 		};
 	},
-	loadCollection: async (context) => {
+	loadCollection: async ({filter}) => {
 		return {
-			entries: context.filter?.addToAge
+			entries: filter?.addToAge
 				? Object.values(entries).map((entry) => ({
 						...entry,
 						data: {
-							...entry.data,
-							age: entry.data.age ? entry.data.age + context.filter!.addToAge! : undefined,
+							title: filter.returnInvalid ? 99 as any : entry.data.title,
+							age: entry.data.age ? entry.data.age + filter!.addToAge! : undefined,
 						},
 					}))
 				: Object.values(entries),
