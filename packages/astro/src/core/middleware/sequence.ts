@@ -40,11 +40,11 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						if (payload instanceof Request) {
 							newRequest = payload;
 						} else if (payload instanceof URL) {
-							newRequest = new Request(payload, handleContext.request);
+							newRequest = new Request(payload, handleContext.request.clone());
 						} else {
 							newRequest = new Request(
 								new URL(payload, handleContext.url.origin),
-								handleContext.request,
+								handleContext.request.clone(),
 							);
 						}
 						const oldPathname = handleContext.url.pathname;

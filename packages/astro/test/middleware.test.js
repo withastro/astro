@@ -388,3 +388,21 @@ describe('Middleware with tailwind', () => {
 		assert.equal(bundledCSS.includes('--tw'), true);
 	});
 });
+
+describe('Middleware should support clone request', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-sequence-request-clone/',
+		});
+		await fixture.build();
+	});
+
+	it('should correctly render page', async () => {
+		const res = await fixture.fetch('/clone');
+		const html = await res.text();
+		assert.equal(html.includes('Hello Sequence and Request Clone'), true);
+	});
+});
