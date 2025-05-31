@@ -1,10 +1,24 @@
+import type { AstroUserConfig } from '../../types/public/index.js';
+
 import { parse, renderSync } from 'ultrahtml';
+import { optimize } from 'svgo';
+
 import type { SvgComponentProps } from '../runtime.js';
 import { dropAttributes } from '../runtime.js';
 import type { ImageMetadata } from '../types.js';
 
-function parseSvg(contents: string) {
-	const root = parse(contents);
+function parseSvg(contents: string, svgConfig?: AstroUserConfig['svg']) {
+	let processedContents = contents;
+	if (svgConfig?.optimize) {
+		try {
+			const result = optimize(contents, svgConfig.svgoConfig);
+			processedContents = result.data;
+		} catch (error) {
+			console.warn('SVGO optimization failed:', error);
+			processedContents = contents;
+		}
+	}
+	const root = parse(processedContents);
 	const svgNode = root.children.find(
 		({ name, type }: { name: string; type: number }) => type === 1 /* Element */ && name === 'svg',
 	);
@@ -17,9 +31,13 @@ function parseSvg(contents: string) {
 	return { attributes, body };
 }
 
-export function makeSvgComponent(meta: ImageMetadata, contents: Buffer | string) {
+export function makeSvgComponent(
+	meta: ImageMetadata,
+	contents: Buffer | string,
+	svgConfig?: AstroUserConfig['svg'],
+): string {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
-	const { attributes, body: children } = parseSvg(file);
+	const { attributes, body: children } = parseSvg(file, svgConfig);
 	const props: SvgComponentProps = {
 		meta,
 		attributes: dropAttributes(attributes),
