@@ -58,7 +58,7 @@ export function getSnippetCompletions(frontmatter: FrontmatterStatus): Completio
 					'[Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#configuring-individual-routes)',
 				].join('\n'),
 			},
-			insertText: 'export const prerender = ${1|true,false,import.meta.env.|}',
+			insertText: 'export const prerender = ${1|true,false|}',
 			insertTextFormat: 2,
 		},
 	];
