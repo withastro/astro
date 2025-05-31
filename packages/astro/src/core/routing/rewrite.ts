@@ -22,7 +22,7 @@ type FindRouteToRewrite = {
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: AstroConfig['build']['format'];
 	base: AstroConfig['base'];
-	outDir: AstroConfig['outDir'];
+	outDir: AstroConfig['outDir'] | string;
 };
 
 interface FindRouteToRewriteResult {
@@ -88,7 +88,7 @@ export function findRouteToRewrite({
 	}
 	// If config.build.format = 'file' then pathname includes .html, so we need to remove it
 	if (buildFormat === 'file') {
-		pathname = pathname.replace('.html', '');
+		pathname = pathname.replace(/\.html$/, '');
 	}
 	// Set the final URL pathname
 	if (base !== '/' && (pathname === '' || pathname === '/') && !shouldAppendSlash) {
@@ -110,12 +110,12 @@ export function findRouteToRewrite({
 				route.distURL &&
 				route.distURL.length !== 0
 			) {
-				// Split the distURL using config.outDir to get the relative path
-				// Remove /index.html or .html from distURL and compare with decodedPathname
+				// Remove outDir from beginning of distURL
+				// Remove /index.html or .html from end of distURL and compare with decodedPathname
 				if (
 					!route.distURL.find(
 						(url) =>
-							url.href.split(outDir.toString())[1].replace(/(?:\/index\.html|\.html)$/, '') ==
+							url.href.replace(outDir.toString(), '').replace(/(?:\/index\.html|\.html)$/, '') ==
 							trimSlashes(decodedPathname),
 					)
 				) {
