@@ -273,7 +273,7 @@ export class BuildPipeline extends Pipeline {
 			trailingSlash: this.config.trailingSlash,
 			buildFormat: this.config.build.format,
 			base: this.config.base,
-			outDir: new URL(this.manifest.outDir),
+			outDir: this.manifest.outDir,
 		});
 
 		const componentInstance = await this.getComponentByRoute(routeData);

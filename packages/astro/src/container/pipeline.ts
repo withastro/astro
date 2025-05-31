@@ -72,7 +72,7 @@ export class ContainerPipeline extends Pipeline {
 			trailingSlash: this.manifest.trailingSlash,
 			buildFormat: this.manifest.buildFormat,
 			base: this.manifest.base,
-			outDir: new URL(this.manifest.outDir),
+			outDir: this.manifest.outDir,
 		});
 
 		const componentInstance = await this.getComponentByRoute(routeData);
