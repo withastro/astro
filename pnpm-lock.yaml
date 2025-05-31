@@ -2881,6 +2881,12 @@ importers:
         specifier: ^19.1.1
         version: 19.1.1(react@19.1.1)
 
+  packages/astro/test/fixtures/core-image-svg-optimized:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/core-image-unconventional-settings:
     dependencies:
       astro:
