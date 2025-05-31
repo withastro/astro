@@ -13,6 +13,7 @@ import {
 } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
+import type { AstroUserConfig } from '../types/public/index.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
 import type { ImageTransform } from './types.js';
@@ -239,6 +240,18 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							...AstroErrorData.ImageNotFound,
 							message: AstroErrorData.ImageNotFound.message(id),
 						});
+					}
+
+					if (id.endsWith('.svg')) {
+						const contents = await fs.promises.readFile(imageMetadata.fsPath, { encoding: 'utf8' });
+						// We know that the contents are present, as we only emit this property for SVG files
+						return {
+							code: makeSvgComponent(
+								imageMetadata,
+								contents,
+								settings.config.svg as AstroUserConfig['svg'],
+							),
+						};
 					}
 
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.

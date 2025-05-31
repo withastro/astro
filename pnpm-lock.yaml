@@ -608,6 +608,9 @@ importers:
       smol-toml:
         specifier: ^1.4.2
         version: 1.4.2
+      svgo:
+        specifier: ^4.0.0
+        version: 4.0.0
       tinyexec:
         specifier: ^1.0.1
         version: 1.0.1

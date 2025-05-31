@@ -70,6 +70,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 		responsiveStyles: false,
 	},
+	svg: {
+		optimize: true,
+		svgoConfig: {},
+	},
 	devToolbar: {
 		enabled: true,
 	},
@@ -284,6 +288,12 @@ export const AstroConfigSchema = z.object({
 			responsiveStyles: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.responsiveStyles),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
+	svg: z
+		.object({
+			optimize: z.boolean().default(true),
+			svgoConfig: z.record(z.any()).optional(),
+		})
+		.optional(),
 	devToolbar: z
 		.object({
 			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devToolbar.enabled),
