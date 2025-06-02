@@ -119,6 +119,9 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	if (key === 'popover' && typeof value === 'boolean') {
 		return markHTMLString(value ? ` popover` : '');
 	}
+	if (key === 'download' && typeof value === 'boolean') {
+		return markHTMLString(value ? ` download` : '');
+	}
 
 	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
 }
