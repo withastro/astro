@@ -51,8 +51,7 @@
   },
   "packageManager": "pnpm@10.5.1",
   "dependencies": {
-    "astro-benchmark": "workspace:*",
-    "sharp": "^0.34.2"
+    "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
