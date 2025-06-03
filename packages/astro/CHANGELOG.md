@@ -1,5 +1,70 @@
 # astro
 
+## 5.8.1
+
+### Patch Changes
+
+- [#13037](https://github.com/withastro/astro/pull/13037) [`de2fc9b`](https://github.com/withastro/astro/commit/de2fc9b3c406c21683b8a692fafa3cbc77ca552b) Thanks [@nanarino](https://github.com/nanarino)! - Fixes rendering of the `popover` attribute when it has a boolean value
+
+- [#13851](https://github.com/withastro/astro/pull/13851) [`45ae95a`](https://github.com/withastro/astro/commit/45ae95a507d5e83b5e38ce1b338c3202ab7e8d76) Thanks [@ascorbic](https://github.com/ascorbic)! - Allows disabling default styles for responsive images
+
+  This change adds a new `image.experimentalDefaultStyles` option that allows you to disable the default styles applied to responsive images.
+
+  When using experimental responsive images, Astro applies default styles to ensure the images resize correctly. In most cases this is what you want – and they are applied with low specificity so your own styles override them. However in some cases you may want to disable these default styles entirely. This is particularly useful when using Tailwind 4, because it uses CSS cascade layers to apply styles, making it difficult to override the default styles.
+
+  `image.experimentalDefaultStyles` is a boolean option that defaults to `true`, so you can change it in your Astro config file like this:
+
+  ```js
+  export default {
+    image: {
+      experimentalDefaultStyles: false,
+    },
+    experimental: {
+      responsiveImages: true,
+    },
+  };
+  ```
+
+- [#13858](https://github.com/withastro/astro/pull/13858) [`cb1a168`](https://github.com/withastro/astro/commit/cb1a1681c844737477670ac42bb051bf93fae0a3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes the warning shown when client directives are used on Astro components
+
+- [#12574](https://github.com/withastro/astro/pull/12574) [`da266d0`](https://github.com/withastro/astro/commit/da266d0578c1a603d6f57913c6fa8eefd61a354e) Thanks [@apatel369](https://github.com/apatel369)! - Allows using server islands in mdx files
+
+- [#13843](https://github.com/withastro/astro/pull/13843) [`fbcfa68`](https://github.com/withastro/astro/commit/fbcfa683d38f13378678c25b53cd789107752087) Thanks [@z1haze](https://github.com/z1haze)! - Export type `AstroSession` to allow use in explicitly typed safe code.
+
+## 5.8.0
+
+### Minor Changes
+
+- [#13809](https://github.com/withastro/astro/pull/13809) [`3c3b492`](https://github.com/withastro/astro/commit/3c3b492375bd6a63f1fb6cede3685aff999be3c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Increases minimum Node.js version to 18.20.8
+
+  Node.js 18 has now reached end-of-life and should not be used. For now, Astro will continue to support Node.js 18.20.8, which is the final LTS release of Node.js 18, as well as Node.js 20 and Node.js 22 or later. We will drop support for Node.js 18 in a future release, so we recommend upgrading to Node.js 22 as soon as possible. See Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support) for more details.
+
+  :warning: **Important note for users of Cloudflare Pages**: The current build image for Cloudflare Pages uses Node.js 18.17.1 by default, which is no longer supported by Astro. If you are using Cloudflare Pages you should [override the default Node.js version](https://developers.cloudflare.com/pages/configuration/build-image/#override-default-versions) to Node.js 22. This does not affect users of Cloudflare Workers, which uses Node.js 22 by default.
+
+### Patch Changes
+
+- Updated dependencies [[`3c3b492`](https://github.com/withastro/astro/commit/3c3b492375bd6a63f1fb6cede3685aff999be3c9)]:
+  - @astrojs/telemetry@3.3.0
+  - @astrojs/markdown-remark@6.3.2
+
+## 5.7.14
+
+### Patch Changes
+
+- [#13773](https://github.com/withastro/astro/pull/13773) [`3aa5337`](https://github.com/withastro/astro/commit/3aa5337eaf01dbcc987dee9413c6985514ef7d6b) Thanks [@sijad](https://github.com/sijad)! - Ignores lightningcss unsupported pseudo-class warning.
+
+- [#13833](https://github.com/withastro/astro/pull/13833) [`5a6d2ae`](https://github.com/withastro/astro/commit/5a6d2aede4b397227be5acecfa9bfefb9a1af0f8) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue where session modules would fail to resolve in Node.js < 20.6
+
+- [#13383](https://github.com/withastro/astro/pull/13383) [`f7f712c`](https://github.com/withastro/astro/commit/f7f712cc29f80c4f8096489d7368c2fda223e097) Thanks [@Haberkamp](https://github.com/Haberkamp)! - Stop toolbar settings from overflowing
+
+- [#13794](https://github.com/withastro/astro/pull/13794) [`85b19d8`](https://github.com/withastro/astro/commit/85b19d87b6416957c245bd3e239fbf6da2038075) Thanks [@alexcarpenter](https://github.com/alexcarpenter)! - Exclude pre tags from `a11y-no-noninteractive-tabindex` audit check.
+
+- [#13373](https://github.com/withastro/astro/pull/13373) [`50ef568`](https://github.com/withastro/astro/commit/50ef568413b5fe7add36c089b77f9f180739f43f) Thanks [@jpwienekus](https://github.com/jpwienekus)! - Fixes a bug where highlights and tooltips render over the audit list window.
+
+- [#13769](https://github.com/withastro/astro/pull/13769) [`e9fc456`](https://github.com/withastro/astro/commit/e9fc456b58511da3ae2f932256217b3db4c42998) Thanks [@romanstetsyk](https://github.com/romanstetsyk)! - Expand ActionError codes to include all IANA-registered HTTP error codes.
+
+- [#13668](https://github.com/withastro/astro/pull/13668) [`866285a`](https://github.com/withastro/astro/commit/866285a5fb3e4ba9d8ca6aadb129d3a6ed2b0f69) Thanks [@sapphi-red](https://github.com/sapphi-red)! - Replaces internal CSS chunking behavior for Astro components' scoped styles to use Vite's `cssScopeTo` feature. The feature is a port of Astro's implementation so this should not change the behavior.
+
 ## 5.7.13
 
 ### Patch Changes

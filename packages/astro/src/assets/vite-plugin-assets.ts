@@ -109,7 +109,10 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 		referencedImages: new Set(),
 	};
 
-	const imageComponentPrefix = settings.config.experimental.responsiveImages ? 'Responsive' : '';
+	const imageComponentPrefix =
+		settings.config.experimental.responsiveImages && settings.config.image.experimentalDefaultStyles
+			? 'Responsive'
+			: '';
 	return [
 		// Expose the components and different utilities from `astro:assets`
 		{

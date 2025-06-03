@@ -12,6 +12,12 @@ function removeLeadingForwardSlash(path: string) {
 
 const service: ExternalImageService = {
 	getURL(options) {
+		// For SVG files, return the original source path
+		if (isESMImportedImage(options.src) && options.src.format === 'svg') {
+			return options.src.src;
+		}
+
+		// For non-SVG files, continue with the Netlify's image processing
 		const query = new URLSearchParams();
 
 		const fileSrc = isESMImportedImage(options.src)
