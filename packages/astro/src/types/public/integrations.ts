@@ -72,8 +72,8 @@ export type AdapterSupportWithMessage = {
 	 * - `"default"`: Suppresses the default warning/error message.
 	 * - `"all"`: Suppresses both the custom and the default warning/error message.
 	 *
-	 * This is useful when the warning/error might not be aplicable in certain contexts.
-	 * Or the default message might cause confusion and conflict with the custom one.
+	 * This is useful when the warning/error might not be applicable in certain contexts,
+	 * or the default message might cause confusion and conflict with a custom one.
 	 */
 	suppress?: 'all' | 'default';
 };
