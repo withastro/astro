@@ -36,7 +36,7 @@ import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.
 import { RenderContext } from '../render-context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
-import { redirectTemplate } from '../routing/3xx.js';
+import redirectTemplate from '../../template/3xx.js';
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename } from '../util.js';
