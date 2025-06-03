@@ -115,6 +115,14 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return markHTMLString(` ${key}`);
 	}
 
+	// We cannot add it to htmlBooleanAttributes because it can be: boolean | "auto" | "manual"
+	if (key === 'popover' && typeof value === 'boolean') {
+		return markHTMLString(value ? ` popover` : '');
+	}
+	if (key === 'download' && typeof value === 'boolean') {
+		return markHTMLString(value ? ` download` : '');
+	}
+
 	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
 }
 

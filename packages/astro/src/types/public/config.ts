@@ -1370,6 +1370,16 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * the more comprehensive list is used, because only the required sizes are generated. For local services, the list is shorter to reduce the number of images generated.
 		 */
 		experimentalBreakpoints?: number[];
+		/**
+		 * @docs
+		 * @name image.experimentalDefaultStyles
+		 * @type {boolean}
+		 * @default `true`
+		 * @description
+		 * Whether to automatically add global styles to ensure that experimental images resize correctly. This is enabled by default, but can be disabled if you want to manage the styles yourself.
+		 * This option is only used when the `experimental.responsiveImages` flag is enabled.
+		 */
+		experimentalDefaultStyles?: boolean;
 	};
 
 	/**
