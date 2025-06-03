@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds experimental support for Content Security Protection (CSP) in Astro. 
+Adds experimental Content Security Policy (CSP) support
 
 CSP is an important feature to provide fine-grained control over resources that can or cannot be downloaded and executed by a document. In particular, it can help protect against [cross-site scripting (XSS)](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) attacks.
 
