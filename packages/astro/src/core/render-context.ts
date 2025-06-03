@@ -10,6 +10,7 @@ import {
 } from '../i18n/utils.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
+import { wrapWithTracing } from '../runtime/server/tracing.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal, AstroGlobalPartial } from '../types/public/context.js';
@@ -710,3 +711,19 @@ export class RenderContext {
 		return (this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales));
 	}
 }
+
+RenderContext.prototype.render = wrapWithTracing(
+	'routeRender',
+	RenderContext.prototype.render,
+	function (this: RenderContext, component: ComponentInstance) {
+		return {
+			rootModuleId: component.default.moduleId,
+			request: this.request,
+			clientAddress: this.clientAddress,
+			pathname: this.pathname,
+			routeData: this.routeData,
+			url: this.url,
+			partial: this.partial,
+		};
+	},
+);
