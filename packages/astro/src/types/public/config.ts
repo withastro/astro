@@ -2353,7 +2353,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * with the `resources` property, or to provide additional `hashes` to be rendered.
 					 *
 					 * These properties are added to all pages and completely override Astro's default resources, not add to them.
-					 * Therefore, you must explicitly specify any default values that you want to be included.				 *
+					 * Therefore, you must explicitly specify any default values that you want to be included.
+					 *
 					 */
 					scriptDirective?: {
 						/**
@@ -2425,7 +2426,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 						 * @version 5.9.0
 						 * @description
 						 *
-						 * Enables the keyword `strict-dynamic`, to support the dynamic injection of scripts.
+						 * Enables the keyword `strict-dynamic` to support the dynamic injection of scripts.
 						 *
 						 * ```js
 						 * import { defineConfig } from 'astro/config';
