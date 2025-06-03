@@ -39,12 +39,12 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.4.1",
+    "@vitejs/plugin-react": "^4.5.0",
     "ultrahtml": "^1.6.0",
     "vite": "^6.3.5"
   },
   "devDependencies": {
-    "@types/react": "^18.3.22",
+    "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
