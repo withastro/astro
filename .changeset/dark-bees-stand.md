@@ -2,11 +2,11 @@
 'astro': minor
 ---
 
-Provides a markdown renderer to content loaders
+Provides a Markdown renderer to content loaders
 
-When creating a content loader, you will now have access to a `renderMarkdown` function that allows you to render markdown content directly within your loaders. It uses the same settings and plugins as renderer used for markdown files in Astro, and follows any markdown settings you have configured in your Astro project.
+When creating a content loader, you will now have access to a `renderMarkdown` function that allows you to render Markdown content directly within your loaders. It uses the same settings and plugins as the renderer used for Markdown files in Astro, and follows any Markdown settings you have configured in your Astro project.
 
-This allows you to render markdown content from various sources, such as CMS or other data sources, directly in your loaders without needing to preprocess the markdown content separately.
+This allows you to render Markdown content from various sources, such as a CMS or other data sources, directly in your loaders without needing to preprocess the Markdown content separately.
 
 ```ts
 import type { Loader } from 'astro/loaders';
@@ -43,3 +43,5 @@ const { Content } = await render(entry);
 ---
 <Content />
 ```
+
+For more information, see the [Content Loader API docs](https://docs.astro.build/en/reference/content-loader-reference/#rendermarkdown).
