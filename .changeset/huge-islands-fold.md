@@ -2,4 +2,4 @@
 '@astrojs/rss': patch
 ---
 
-Fix missing type-attribute in xml-stylesheet with xslt extension
+Fixes a missing type attribute when providing a XSLT stylesheet
