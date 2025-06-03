@@ -1,4 +1,5 @@
-import type { AstroConfig, ImageMetadata, ImageQualityPreset, ImageTransform } from 'astro';
+import type { AstroConfig, ImageQualityPreset, ImageTransform } from 'astro';
+import { isESMImportedImage } from 'astro/assets/utils';
 
 export function getDefaultImageConfig(astroImageConfig: AstroConfig['image']): VercelImageConfig {
 	return {
@@ -7,10 +8,6 @@ export function getDefaultImageConfig(astroImageConfig: AstroConfig['image']): V
 		// Cast is necessary here because Vercel's types are slightly different from ours regarding allowed protocols. Behavior should be the same, however.
 		remotePatterns: (astroImageConfig.remotePatterns as VercelImageConfig['remotePatterns']) ?? [],
 	};
-}
-
-export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
-	return typeof src === 'object' || (typeof src === 'function' && 'src' in src);
 }
 
 export type DevImageService = 'sharp' | (string & {});
