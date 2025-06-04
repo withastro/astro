@@ -1,4 +1,5 @@
 import cssesc from 'cssesc';
+import { generateCspDigest } from '../../core/encryption.js';
 import { fade, slide } from '../../transitions/index.js';
 import type { SSRResult } from '../../types/public/internal.js';
 import type {
@@ -85,7 +86,7 @@ function reEncode(s: string) {
 	return reEncodeInValidStart[result.codePointAt(0) ?? 0] ? '_' + result : result;
 }
 
-export function renderTransition(
+export async function renderTransition(
 	result: SSRResult,
 	hash: string,
 	animationName: TransitionAnimationValue | undefined,
@@ -110,7 +111,11 @@ export function renderTransition(
 		sheet.addModern('group', 'animation: none');
 	}
 
-	result._metadata.extraHead.push(markHTMLString(`<style>${sheet.toString()}</style>`));
+	const css = sheet.toString();
+	if (result.shouldInjectCspMetaTags) {
+		result._metadata.extraStyleHashes.push(await generateCspDigest(css, result.cspAlgorithm));
+	}
+	result._metadata.extraHead.push(markHTMLString(`<style>${css}</style>`));
 	return scope;
 }
 

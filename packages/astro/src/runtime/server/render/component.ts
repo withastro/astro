@@ -26,9 +26,10 @@ import {
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
-import { containsServerDirective, renderServerIsland } from './server-islands.js';
+import { ServerIslandComponent, containsServerDirective } from './server-islands.js';
 import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
+import { bufferHeadContent } from './astro/render.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -442,7 +443,9 @@ function renderAstroComponent(
 	slots: any = {},
 ): RenderInstance {
 	if (containsServerDirective(props)) {
-		return renderServerIsland(result, displayName, props, slots);
+		const serverIslandComponent = new ServerIslandComponent(result, props, slots, displayName);
+		result._metadata.propagators.add(serverIslandComponent);
+		return serverIslandComponent;
 	}
 
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
@@ -550,6 +553,9 @@ export async function renderComponentToString(
 		};
 
 		const renderInstance = await renderComponent(result, displayName, Component, props, slots);
+		if (containsServerDirective(props)) {
+			await bufferHeadContent(result);
+		}
 		await renderInstance.render(destination);
 	} catch (e) {
 		// We don't have a lot of information downstream, and upstream we can't catch the error properly
