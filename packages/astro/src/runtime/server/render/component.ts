@@ -17,6 +17,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../../types/public/internal.js';
+import { bufferHeadContent } from './astro/render.js';
 import {
 	Fragment,
 	type RenderDestination,
@@ -29,7 +30,6 @@ import { maybeRenderHead } from './head.js';
 import { ServerIslandComponent, containsServerDirective } from './server-islands.js';
 import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
-import { bufferHeadContent } from './astro/render.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);

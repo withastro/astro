@@ -27,18 +27,18 @@ import type {
 	SSRError,
 	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
-import type { SSRActions, SSRManifestCSP, SSRManifest, SSRManifestI18n } from '../app/types.js';
+import type { SSRActions, SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../app/types.js';
 import {
 	getAlgorithm,
-	getScriptHashes,
-	getStyleHashes,
 	getDirectives,
+	getScriptHashes,
+	getScriptResources,
+	getStrictDynamic,
+	getStyleHashes,
+	getStyleResources,
 	shouldTrackCspHashes,
 	trackScriptHashes,
 	trackStyleHashes,
-	getScriptResources,
-	getStyleResources,
-	getStrictDynamic,
 } from '../csp/common.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';

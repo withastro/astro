@@ -4,16 +4,16 @@ import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import type { SSRManifestCSP, SSRManifest, SSRManifestI18n } from '../core/app/types.js';
+import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
 import {
 	getAlgorithm,
-	getScriptHashes,
-	getStyleHashes,
-	shouldTrackCspHashes,
 	getDirectives,
+	getScriptHashes,
 	getScriptResources,
-	getStyleResources,
 	getStrictDynamic,
+	getStyleHashes,
+	getStyleResources,
+	shouldTrackCspHashes,
 } from '../core/csp/common.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';

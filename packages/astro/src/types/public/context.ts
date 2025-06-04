@@ -6,12 +6,12 @@ import type {
 } from '../../actions/runtime/virtual/server.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../core/constants.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
+import type { CspDirective, CspHash } from '../../core/csp/config.js';
 import type { AstroSession } from '../../core/session.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { Params, RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
 import type { AstroInstance, MDXInstance, MarkdownInstance } from './content.js';
-import type { CspDirective, CspHash } from '../../core/csp/config.js';
 
 /**
  * Astro global available in all contexts in .astro files

@@ -10,22 +10,22 @@ import { toFallbackType, toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type {
+	SSRManifestCSP,
 	SSRManifestI18n,
 	SerializedRouteInfo,
 	SerializedSSRManifest,
-	SSRManifestCSP,
 } from '../../app/types.js';
 import {
 	getAlgorithm,
-	getScriptHashes,
-	getStyleHashes,
 	getDirectives,
+	getScriptHashes,
+	getScriptResources,
+	getStrictDynamic,
+	getStyleHashes,
+	getStyleResources,
 	shouldTrackCspHashes,
 	trackScriptHashes,
 	trackStyleHashes,
-	getScriptResources,
-	getStyleResources,
-	getStrictDynamic,
 } from '../../csp/common.js';
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
