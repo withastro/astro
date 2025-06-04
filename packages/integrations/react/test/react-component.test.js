@@ -7,6 +7,15 @@ let fixture;
 
 describe('React Components', () => {
 	before(async () => {
+		/**
+		 * Ensures that the NODE_ENV is set to "production" for this runner.
+		 * This is necessary to make `react` and `react-dom` use their production builds.
+		 *
+		 * Note: Astro overrides the NODE_ENV during the build process. However, the `react` module
+		 * is already imported prior to this in `loadFixture`, causing the mismatch
+		 */
+		process.env.NODE_ENV = 'production';
+		
 		fixture = await loadFixture({
 			root: new URL('./fixtures/react-component/', import.meta.url),
 		});

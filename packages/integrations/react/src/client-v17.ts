@@ -1,4 +1,5 @@
 import { createElement } from 'react';
+// @ts-expect-error types for v17 are not present in v19
 import { hydrate, render, unmountComponentAtNode } from 'react-dom';
 import StaticHtml from './static-html.js';
 
