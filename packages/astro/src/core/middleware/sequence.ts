@@ -40,6 +40,8 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						if (payload instanceof Request) {
 							newRequest = payload;
 						} else if (payload instanceof URL) {
+							// Cloning the original request ensures that the new Request gets its own copy of the body stream
+							// Without this it will throw an error if they both try to consume the stream, which will happen in a rewrite
 							newRequest = new Request(payload, handleContext.request.clone());
 						} else {
 							newRequest = new Request(
