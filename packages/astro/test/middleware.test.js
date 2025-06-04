@@ -408,7 +408,7 @@ describe('Middleware should support clone request', () => {
 	it('should correctly render page', async () => {
 		const res = await fixture.fetch('/', {
 			method: 'POST',
-			body: 'TEST BODY'
+			body: 'TEST BODY',
 		});
 		const html = await res.text();
 		assert.equal(html.includes('Hello Sequence and Request Clone'), true);
