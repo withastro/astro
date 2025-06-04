@@ -3411,6 +3411,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/middleware-sequence-request-clone:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/middleware-ssg:
     dependencies:
       astro:
