@@ -183,7 +183,7 @@ async function callComponentAsTemplateResultOrResponse(
 
 // Recursively calls component instances that might have head content
 // to be propagated up.
-async function bufferHeadContent(result: SSRResult) {
+export async function bufferHeadContent(result: SSRResult) {
 	const iterator = result._metadata.propagators.values();
 	while (true) {
 		const { value, done } = iterator.next();
