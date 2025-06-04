@@ -242,16 +242,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						hybridOutput: 'stable',
 						staticOutput: 'unsupported',
 						i18nDomains: 'experimental',
-						// For explicitly set image services, this hack is used to suppress the warning about using `sharp`
-						// by inferring the user is aware of its implications.
-						// TODO: If an option to supress the warnings for `supportedAstroFeatures` is added, we should use it instead.
-						sharpImageService: args?.imageService
-							? 'stable'
-							: {
-									support: 'limited',
-									message:
-										'Cloudflare does not support sharp at runtime. However, you can configure `image service:  "compile"` to optimize images with sharp on prerendered pages during build time.',
-								},
+						sharpImageService: {
+							support: 'limited',
+							message:
+								'Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.',
+							// For explicitly set image services, we suppress the warning about sharp not being supported at runtime,
+							// inferring the user is aware of the limitations.
+							suppress: args?.imageService ? 'all' : 'default',
+						},
 						envGetSecret: 'stable',
 					},
 				});
