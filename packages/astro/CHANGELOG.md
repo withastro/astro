@@ -1,5 +1,13 @@
 # astro
 
+## 5.8.2
+
+### Patch Changes
+
+- [#13877](https://github.com/withastro/astro/pull/13877) [`5a7797f`](https://github.com/withastro/astro/commit/5a7797fdd6ad3f1377e2719c79da9486a232dfcd) Thanks [@yuhang-dong](https://github.com/yuhang-dong)! - Fixes a bug that caused `Astro.rewrite` to fail when used in `sequence`d middleware
+
+- [#13872](https://github.com/withastro/astro/pull/13872) [`442b841`](https://github.com/withastro/astro/commit/442b8413dc9d29892499cfa97e54798a3a6ee136) Thanks [@isVivek99](https://github.com/isVivek99)! - Fixes rendering of the `download` attribute when it has a boolean value
+
 ## 5.8.1
 
 ### Patch Changes
