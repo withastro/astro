@@ -1,8 +1,9 @@
 // TODO: Should the types here really be public?
 
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
+import type { SSRManifestCSP } from '../../core/app/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
-import type { AstroComponentInstance } from '../../runtime/server/index.js';
+import type { AstroComponentInstance, ServerIslandComponent } from '../../runtime/server/index.js';
 import type { Params } from './common.js';
 import type { AstroConfig, RedirectConfig } from './config.js';
 import type { AstroGlobal, AstroGlobalPartial } from './context.js';
@@ -246,6 +247,17 @@ export interface SSRResult {
 	trailingSlash: AstroConfig['trailingSlash'];
 	key: Promise<CryptoKey>;
 	_metadata: SSRMetadata;
+	/**
+	 * Whether Astro should inject the CSP <meta> tag into the head of the component.
+	 */
+	shouldInjectCspMetaTags: boolean;
+	cspAlgorithm: SSRManifestCSP['algorithm'];
+	scriptHashes: SSRManifestCSP['scriptHashes'];
+	scriptResources: SSRManifestCSP['scriptResources'];
+	styleHashes: SSRManifestCSP['styleHashes'];
+	styleResources: SSRManifestCSP['styleResources'];
+	directives: SSRManifestCSP['directives'];
+	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 }
 
 /**
@@ -285,9 +297,19 @@ export interface SSRMetadata {
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	hasRenderedServerIslandRuntime: boolean;
+	/**
+	 * Used to signal the rendering engine if the current route (page) contains the
+	 * <head> element.
+	 */
 	headInTree: boolean;
 	extraHead: string[];
-	propagators: Set<AstroComponentInstance>;
+	/**
+	 * Used by the rendering engine to store hashes that are **generated** at runtime.
+	 * For example, this is used by view transitions
+	 */
+	extraStyleHashes: string[];
+	extraScriptHashes: string[];
+	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
 }
 
 export type SSRError = Error & ViteErrorPayload['err'];

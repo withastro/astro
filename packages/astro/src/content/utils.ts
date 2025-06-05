@@ -89,6 +89,7 @@ const collectionConfigParser = z.union([
 								config: z.any(),
 								entryTypes: z.any(),
 								parseData: z.any(),
+								renderMarkdown: z.any(),
 								generateDigest: z.function(z.tuple([z.any()], z.string())),
 								watcher: z.any().optional(),
 								refreshContextData: z.record(z.unknown()).optional(),
