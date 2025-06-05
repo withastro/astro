@@ -1858,9 +1858,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			: Partial<Record<NormalizeLocales<NoInfer<TLocales>>, string>>;
 	};
 
-	/** ! WARNING: SUBJECT TO CHANGE */
-	db?: Config.Database;
-
 	/**
 	 * @docs
 	 * @kind heading
@@ -2586,12 +2583,4 @@ export interface AstroInlineOnlyConfig {
 	 * @internal for testing only, use `logLevel` instead.
 	 */
 	logger?: Logger;
-}
-
-// HACK! astro:db augment this type that is used in the config
-declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace Config {
-		type Database = Record<string, any>;
-	}
 }
