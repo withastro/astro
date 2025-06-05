@@ -181,13 +181,13 @@ describe('astro:db', () => {
 
 		before(async () => {
 			clearEnvironment();
-			process.env.ASTRO_STUDIO_APP_TOKEN = 'some token';
+			process.env.ASTRO_DB_APP_TOKEN = 'some token';
 			remoteDbServer = await setupRemoteDbServer(fixture.config);
 			await fixture.build();
 		});
 
 		after(async () => {
-			process.env.ASTRO_STUDIO_APP_TOKEN = '';
+			process.env.ASTRO_DB_APP_TOKEN = '';
 			await remoteDbServer?.stop();
 		});
 

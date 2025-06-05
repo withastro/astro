@@ -21,7 +21,7 @@ let portIncrementer = 8030;
  */
 export async function setupRemoteDbServer(astroConfig) {
 	const port = portIncrementer++;
-	process.env.ASTRO_STUDIO_REMOTE_DB_URL = `http://localhost:${port}`;
+	process.env.ASTRO_DB_REMOTE_DB_URL = `http://localhost:${port}`;
 	process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
 	const server = createRemoteDbServer().listen(port);
 
@@ -50,7 +50,7 @@ export async function setupRemoteDbServer(astroConfig) {
 	return {
 		server,
 		async stop() {
-			delete process.env.ASTRO_STUDIO_REMOTE_DB_URL;
+			delete process.env.ASTRO_DB_REMOTE_DB_URL;
 			delete process.env.ASTRO_INTERNAL_TEST_REMOTE;
 			return new Promise((resolve, reject) => {
 				server.close((err) => {
@@ -83,12 +83,12 @@ export async function initializeRemoteDb(astroConfig) {
 }
 
 /**
- * Clears the environment variables related to Astro DB and Astro Studio.
+ * Clears the environment variables related to Astro DB.
  */
 export function clearEnvironment() {
 	const keys = Array.from(Object.keys(process.env));
 	for (const key of keys) {
-		if (key.startsWith('ASTRO_DB_') || key.startsWith('ASTRO_STUDIO_')) {
+		if (key.startsWith('ASTRO_DB_')) {
 			delete process.env[key];
 		}
 	}
