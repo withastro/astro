@@ -1,5 +1,101 @@
 # astro
 
+## 5.9.0
+
+### Minor Changes
+
+- [#13802](https://github.com/withastro/astro/pull/13802) [`0eafe14`](https://github.com/withastro/astro/commit/0eafe14b08c627b116842ea0a5299a00f9baa3d1) Thanks [@ematipico](https://github.com/ematipico)! - Adds experimental Content Security Policy (CSP) support
+
+  CSP is an important feature to provide fine-grained control over resources that can or cannot be downloaded and executed by a document. In particular, it can help protect against [cross-site scripting (XSS)](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) attacks.
+
+  Enabling this feature adds additional security to Astro's handling of processed and bundled scripts and styles by default, and allows you to further configure these, and additional, content types. This new experimental feature has been designed to work in every Astro rendering environment (static pages, dynamic pages and single page applications), while giving you maximum flexibility and with type-safety in mind.
+
+  It is compatible with most of Astro's features such as client islands, and server islands, although Astro's view transitions using the `<ClientRouter />` are not yet fully supported. Inline scripts are not supported out of the box, but you can provide your own hashes for external and inline scripts.
+
+  To enable this feature, add the experimental flag in your Astro config:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      csp: true,
+    },
+  });
+  ```
+
+  For more information on enabling and using this feature in your project, see the [Experimental CSP docs](https://docs.astro.build/en/reference/experimental-flags/csp/).
+
+  For a complete overview, and to give feedback on this experimental API, see the [Content Security Policy RFC](https://github.com/withastro/roadmap/blob/feat/rfc-csp/proposals/0055-csp.md).
+
+- [#13850](https://github.com/withastro/astro/pull/13850) [`1766d22`](https://github.com/withastro/astro/commit/1766d222e7bb4adb6d15090e2d6331a0d8978303) Thanks [@ascorbic](https://github.com/ascorbic)! - Provides a Markdown renderer to content loaders
+
+  When creating a content loader, you will now have access to a `renderMarkdown` function that allows you to render Markdown content directly within your loaders. It uses the same settings and plugins as the renderer used for Markdown files in Astro, and follows any Markdown settings you have configured in your Astro project.
+
+  This allows you to render Markdown content from various sources, such as a CMS or other data sources, directly in your loaders without needing to preprocess the Markdown content separately.
+
+  ```ts
+  import type { Loader } from 'astro/loaders';
+  import { loadFromCMS } from './cms';
+
+  export function myLoader(settings): Loader {
+    return {
+      name: 'my-loader',
+      async load({ renderMarkdown, store }) {
+        const entries = await loadFromCMS();
+
+        store.clear();
+
+        for (const entry of entries) {
+          // Assume each entry has a 'content' field with markdown content
+          store.set(entry.id, {
+            id: entry.id,
+            data: entry,
+            rendered: await renderMarkdown(entry.content),
+          });
+        }
+      },
+    };
+  }
+  ```
+
+  The return value of `renderMarkdown` is an object with two properties: `html` and `metadata`. These match the `rendered` property of content entries in content collections, so you can use them to render the content in your components or pages.
+
+  ```astro
+  ---
+  import { getEntry, render } from 'astro:content';
+  const entry = await getEntry('my-collection', Astro.params.id);
+  const { Content } = await render(entry);
+  ---
+
+  <Content />
+  ```
+
+  For more information, see the [Content Loader API docs](https://docs.astro.build/en/reference/content-loader-reference/#rendermarkdown).
+
+- [#13887](https://github.com/withastro/astro/pull/13887) [`62f0668`](https://github.com/withastro/astro/commit/62f0668aa1e066c1c07ee0e774192def4cac43c4) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Adds an option for integration authors to suppress adapter warning/errors in `supportedAstroFeatures`. This is useful when either an warning/error isn't applicable in a specific context or the default one might conflict and confuse users.
+
+  To do so, you can add `suppress: "all"` (to suppress both the default and custom message) or `suppress: "default"` (to only suppress the default one):
+
+  ```ts
+  setAdapter({
+    name: 'my-astro-integration',
+    supportedAstroFeatures: {
+      staticOutput: 'stable',
+      hybridOutput: 'stable',
+      sharpImageService: {
+        support: 'limited',
+        message:
+          "The sharp image service isn't available in the deploy environment, but will be used by prerendered pages on build.",
+        suppress: 'default',
+      },
+    },
+  });
+  ```
+
+  For more information, see the [Adapter API reference docs](https://docs.astro.build/en/reference/adapter-reference/#astro-features).
+
 ## 5.8.2
 
 ### Patch Changes

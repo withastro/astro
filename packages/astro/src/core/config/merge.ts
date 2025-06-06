@@ -15,7 +15,7 @@ function mergeConfigRecursively(
 			continue;
 		}
 
-		let existing = merged[key];
+		const existing = merged[key];
 
 		if (existing == null) {
 			merged[key] = value;
@@ -43,14 +43,6 @@ function mergeConfigRecursively(
 		// for server.allowedHosts, if the value is a boolean
 		if (key === 'allowedHosts' && rootPath === 'server' && typeof existing === 'boolean') {
 			continue;
-		}
-
-		if (key === 'data' && rootPath === 'db') {
-			// db.data can be a function or an array of functions. When
-			// merging, make sure they become an array
-			if (!Array.isArray(existing) && !Array.isArray(value)) {
-				existing = [existing];
-			}
 		}
 
 		if (Array.isArray(existing) || Array.isArray(value)) {
