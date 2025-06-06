@@ -1,5 +1,16 @@
 # @astrojs/cloudflare
 
+## 12.5.4
+
+### Patch Changes
+
+- [#13817](https://github.com/withastro/astro/pull/13817) [`b7258f1`](https://github.com/withastro/astro/commit/b7258f1243189218604346f5e0301dbdd363a57f) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Clarifies and reduces a few logs when starting the dev server with `@astrojs/cloudflare`.
+
+  Warnings about sharp support will now be suppressed when you have explicitly set an `imageService` option.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.1
+
 ## 12.5.3
 
 ### Patch Changes

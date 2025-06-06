@@ -161,6 +161,7 @@ function createManifest(
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
+		csp: manifest?.csp,
 	};
 }
 
@@ -246,6 +247,7 @@ type AstroContainerManifest = Pick<
 	| 'publicDir'
 	| 'outDir'
 	| 'cacheDir'
+	| 'csp'
 >;
 
 type AstroContainerConstructor = {

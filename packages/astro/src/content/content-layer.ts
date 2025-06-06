@@ -1,4 +1,5 @@
 import { promises as fs, existsSync } from 'node:fs';
+import { type MarkdownProcessor, createMarkdownProcessor } from '@astrojs/markdown-remark';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -14,6 +15,7 @@ import {
 	DATA_STORE_FILE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
+import type { RenderedContent } from './data-store.js';
 import type { LoaderContext } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import {
@@ -46,7 +48,7 @@ class ContentLayer {
 	#watcher?: WrappedWatcher;
 	#lastConfigDigest?: string;
 	#unsubscribe?: () => void;
-
+	#markdownProcessor?: MarkdownProcessor;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 
 	#queue: PQueue;
@@ -127,6 +129,7 @@ class ContentLayer {
 			logger: this.#logger.forkIntegrationLogger(loaderName),
 			config: this.#settings.config,
 			parseData,
+			renderMarkdown: this.#processMarkdown.bind(this),
 			generateDigest: await this.#getGenerateDigest(),
 			watcher: this.#watcher,
 			refreshContextData,
@@ -134,6 +137,15 @@ class ContentLayer {
 				...this.#settings.contentEntryTypes,
 				...this.#settings.dataEntryTypes,
 			] as Array<ContentEntryType>),
+		};
+	}
+
+	async #processMarkdown(content: string): Promise<RenderedContent> {
+		this.#markdownProcessor ??= await createMarkdownProcessor(this.#settings.config.markdown);
+		const { code, metadata } = await this.#markdownProcessor.render(content);
+		return {
+			html: code,
+			metadata,
 		};
 	}
 
