@@ -5,6 +5,7 @@ import type {
 	RemarkRehype as _RemarkRehype,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
+import type { Config as SvgoConfig } from 'svgo';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import { z } from 'zod';
@@ -291,7 +292,7 @@ export const AstroConfigSchema = z.object({
 	svg: z
 		.object({
 			optimize: z.boolean().default(true),
-			svgoConfig: z.record(z.any()).optional(),
+			svgoConfig: z.custom<SvgoConfig>((value) => value && typeof value === 'object').optional(),
 		})
 		.optional(),
 	devToolbar: z
