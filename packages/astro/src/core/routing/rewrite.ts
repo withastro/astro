@@ -10,6 +10,7 @@ import {
 	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
+	trimSlashes,
 } from '../path.js';
 import { createRequest } from '../request.js';
 import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';
@@ -21,6 +22,7 @@ type FindRouteToRewrite = {
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: AstroConfig['build']['format'];
 	base: AstroConfig['base'];
+	outDir: AstroConfig['outDir'] | string;
 };
 
 interface FindRouteToRewriteResult {
@@ -41,6 +43,7 @@ export function findRouteToRewrite({
 	trailingSlash,
 	buildFormat,
 	base,
+	outDir,
 }: FindRouteToRewrite): FindRouteToRewriteResult {
 	let newUrl: URL | undefined = undefined;
 	if (payload instanceof URL) {
@@ -83,7 +86,10 @@ export function findRouteToRewrite({
 	if (pathname === '/' && base !== '/' && !shouldAppendSlash) {
 		pathname = '';
 	}
-
+	// If config.build.format = 'file' then pathname includes .html, so we need to remove it
+	if (buildFormat === 'file') {
+		pathname = pathname.replace(/\.html$/, '');
+	}
 	// Set the final URL pathname
 	if (base !== '/' && (pathname === '' || pathname === '/') && !shouldAppendSlash) {
 		// Special case for root path at base URL with trailingSlash: 'never'
@@ -96,6 +102,26 @@ export function findRouteToRewrite({
 	let foundRoute;
 	for (const route of routes) {
 		if (route.pattern.test(decodedPathname)) {
+			// If it's a dynamic route, make sure it actually generates the pathname
+			// Checking for params to make sure it's a dynamic route
+			if (
+				route.params &&
+				route.params.length !== 0 &&
+				route.distURL &&
+				route.distURL.length !== 0
+			) {
+				// Remove outDir from beginning of distURL
+				// Remove /index.html or .html from end of distURL and compare with decodedPathname
+				if (
+					!route.distURL.find(
+						(url) =>
+							url.href.replace(outDir.toString(), '').replace(/(?:\/index\.html|\.html)$/, '') ==
+							trimSlashes(decodedPathname),
+					)
+				) {
+					continue;
+				}
+			}
 			foundRoute = route;
 			break;
 		}

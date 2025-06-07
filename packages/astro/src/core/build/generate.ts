@@ -505,15 +505,26 @@ async function generatePath(
 
 	// Do not render the fallback route if there is already a translated page
 	// with the same path
-	if (
-		route.type === 'fallback' &&
-		// If route is index page, continue rendering. The index page should
-		// always be rendered
-		route.pathname !== '/' &&
-		// Check if there is a translated page with the same path
-		Object.values(options.allPages).some((val) => val.route.pattern.test(pathname))
-	) {
-		return undefined;
+	if (route.type === 'fallback' && route.pathname !== '/') {
+		// Get the locale from the pathname
+		let locale = removeLeadingForwardSlash(pathname).split('/')[0];
+		if (
+			Object.values(options.allPages).some((val) => {
+				if (val.route.pattern.test(pathname)) {
+					// Check if we've matched a dynamic route
+					if (val.route.segments && val.route.segments.length !== 0) {
+						// Check that the route is in a matching locale folder
+						if (val.route.segments[0][0].content !== locale) return false;
+					}
+					// Route matches
+					return true;
+				} else {
+					return false;
+				}
+			})
+		) {
+			return undefined;
+		}
 	}
 
 	const url = getUrlForPath(
