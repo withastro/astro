@@ -1582,7 +1582,6 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
-	// It weirdly fails
 	test('animation get canceled when view transition is interrupted', async ({
 		page,
 		astro,
