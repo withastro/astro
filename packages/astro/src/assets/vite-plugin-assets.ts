@@ -2,6 +2,7 @@ import type * as fsMod from 'node:fs';
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
+import type { AstroConfigType } from '../core/config/schemas/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import {
@@ -13,7 +14,6 @@ import {
 } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
-import type { AstroUserConfig } from '../types/public/index.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
 import type { ImageTransform } from './types.js';
@@ -249,7 +249,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							code: makeSvgComponent(
 								imageMetadata,
 								contents,
-								settings.config.svg as AstroUserConfig['svg'],
+								settings.config.experimental?.svg as AstroConfigType['experimental']['svg'],
 							),
 						};
 					}

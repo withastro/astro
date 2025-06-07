@@ -7,8 +7,8 @@ import type {
 	ShikiConfig,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
-import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { Config as SvgoConfig } from 'svgo';
+import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
@@ -1447,54 +1447,6 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name SVG Options
-	 */
-	svg?: {
-		/**
-		 * @docs
-		 * @name svg.optimize
-		 * @type {boolean}
-		 * @default `true`
-		 * @description
-		 * Whether to enable SVG optimization using SVGO during build time.
-		 *
-		 * When enabled, all imported SVG files will be optimized for smaller file sizes
-		 * and better performance while maintaining visual quality.
-		 */
-		optimize: boolean;
-
-		/**
-		 * @docs
-		 * @name svg.svgoConfig
-		 * @type {SvgoConfig}
-		 * @default `{}`
-		 * @description
-		 * Configuration object passed directly to SVGO for customizing SVG optimization.
-		 *
-		 * See [SVGO documentation](https://svgo.dev/) for available options.
-		 *
-		 * ```js
-		 * {
-		 *   svg: {
-		 *     svgoConfig: {
-		 *       plugins: [
-		 *         'preset-default',
-		 *         {
-		 *           name: 'removeViewBox',
-		 *           active: false
-		 *         }
-		 *       ]
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 */
-		svgoConfig: SvgoConfig;
-	};
-
-	/**
-	 * @docs
-	 * @kind heading
 	 * @name Markdown Options
 	 */
 	markdown?: {
@@ -2586,6 +2538,54 @@ export interface AstroUserConfig<
 		 * See the [experimental Chrome DevTools workspace feature documentation](https://docs.astro.build/en/reference/experimental-flags/chrome-devtools-workspace/) for more information.
 		 */
 		chromeDevtoolsWorkspace?: boolean;
+
+		/**
+		 * @docs
+		 * @kind heading
+		 * @name SVG Options
+		 */
+		svg?: {
+			/**
+			 * @docs
+			 * @name svg.optimize
+			 * @type {boolean}
+			 * @default `true`
+			 * @description
+			 * Whether to enable SVG optimization using SVGO during build time.
+			 *
+			 * When enabled, all imported SVG files will be optimized for smaller file sizes
+			 * and better performance while maintaining visual quality.
+			 */
+			optimize?: boolean;
+
+			/**
+			 * @docs
+			 * @name svg.svgoConfig
+			 * @type {SvgoConfig}
+			 * @default `{}`
+			 * @description
+			 * Configuration object passed directly to SVGO for customizing SVG optimization.
+			 *
+			 * See [SVGO documentation](https://svgo.dev/) for available options.
+			 *
+			 * ```js
+			 * {
+			 *   svg: {
+			 *     svgoConfig: {
+			 *       plugins: [
+			 *         'preset-default',
+			 *         {
+			 *           name: 'removeViewBox',
+			 *           active: false
+			 *         }
+			 *       ]
+			 *     }
+			 *   }
+			 * }
+			 * ```
+			 */
+			svgoConfig?: SvgoConfig;
+		};
 	};
 }
 

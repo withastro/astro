@@ -5,9 +5,9 @@ import type {
 	RemarkRehype as _RemarkRehype,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
-import type { Config as SvgoConfig } from 'svgo';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
+import type { Config as SvgoConfig } from 'svgo';
 import { z } from 'zod';
 import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
@@ -71,10 +71,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 		responsiveStyles: false,
 	},
-	svg: {
-		optimize: true,
-		svgoConfig: {},
-	},
 	devToolbar: {
 		enabled: true,
 	},
@@ -111,6 +107,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		staticImportMetaEnv: false,
 		chromeDevtoolsWorkspace: false,
 		failOnPrerenderConflict: false,
+		svg: {
+			optimize: true,
+			svgoConfig: {},
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -289,12 +289,6 @@ export const AstroConfigSchema = z.object({
 			responsiveStyles: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.responsiveStyles),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
-	svg: z
-		.object({
-			optimize: z.boolean().default(true),
-			svgoConfig: z.custom<SvgoConfig>((value) => value && typeof value === 'object').optional(),
-		})
-		.optional(),
 	devToolbar: z
 		.object({
 			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devToolbar.enabled),
@@ -537,6 +531,14 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.failOnPrerenderConflict),
+			svg: z
+				.object({
+					optimize: z.boolean().default(true),
+					svgoConfig: z
+						.custom<SvgoConfig>((value) => value && typeof value === 'object')
+						.optional(),
+				})
+				.optional(),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
