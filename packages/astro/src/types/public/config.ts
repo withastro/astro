@@ -2547,7 +2547,7 @@ export interface AstroUserConfig<
 		svg?: {
 			/**
 			 * @docs
-			 * @name svg.optimize
+			 * @name experimental.svg.optimize
 			 * @type {boolean}
 			 * @default `true`
 			 * @description
@@ -2560,7 +2560,7 @@ export interface AstroUserConfig<
 
 			/**
 			 * @docs
-			 * @name svg.svgoConfig
+			 * @name experimental.svg.svgoConfig
 			 * @type {SvgoConfig}
 			 * @default `{}`
 			 * @description

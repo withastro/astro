@@ -1,7 +1,7 @@
-import type { AstroConfigType } from '../../core/config/schemas/index.js';
+import { optimize } from 'svgo';
 
 import { parse, renderSync } from 'ultrahtml';
-import { optimize } from 'svgo';
+import type { AstroConfigType } from '../../core/config/schemas/index.js';
 
 import type { SvgComponentProps } from '../runtime.js';
 import { dropAttributes } from '../runtime.js';
