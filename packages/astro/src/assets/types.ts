@@ -210,12 +210,25 @@ type ImageSharedProps<T> = T & {
 				 * ```
 				 */
 				priority?: boolean;
-
+				/**
+				 * Loading behavior for the image, e.g., "lazy" or "eager".
+				 */
+				loading?: string;
 				/**
 				 * A list of widths to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
 				 *
 				 * This attribute is incompatible with `densities`.
 				 */
+	    	title?: string;
+		    /** 
+		     * Class name for the image element. This will be passed to the `class` attribute of the final `img` element.
+		    */
+		    class?: string;
+		    /**
+		     * A list of widths to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
+		     *
+		     * This attribute is incompatible with `densities`.
+		     */
 				widths?: number[];
 				densities?: never;
 		  }
