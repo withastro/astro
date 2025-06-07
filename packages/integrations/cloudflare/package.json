@@ -23,6 +23,7 @@
     "./entrypoints/middleware.js": "./dist/entrypoints/middleware.js",
     "./image-service": "./dist/entrypoints/image-service.js",
     "./image-endpoint": "./dist/entrypoints/image-endpoint.js",
+    "./handler": "./dist/utils/handler.js",
     "./package.json": "./package.json"
   },
   "files": [
