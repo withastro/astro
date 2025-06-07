@@ -79,6 +79,13 @@ test.describe('Server islands', () => {
 			let el = page.locator('#first');
 			await expect(el).toHaveCount(1);
 		});
+
+		test('Fallback is deleted when server island is rendered', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/base/'));
+			await page.waitForLoadState('networkidle');
+			let el = page.locator('#fallback');
+			await expect(el).toHaveCount(0);
+		});
 	});
 
 	test.describe('Development - trailingSlash: ignore', () => {
