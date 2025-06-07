@@ -101,6 +101,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		responsiveImages: false,
 		headingIdCompat: false,
 		preserveScriptOrder: false,
+		liveContentCollections: false,
 		csp: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -479,6 +480,10 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.preserveScriptOrder),
 			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
+			liveContentCollections: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.liveContentCollections),
 			csp: z
 				.union([
 					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
