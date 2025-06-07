@@ -71,10 +71,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 		responsiveStyles: false,
 	},
-	svg: {
-		optimize: true,
-		svgoConfig: {},
-	},
 	devToolbar: {
 		enabled: true,
 	},
@@ -107,6 +103,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		preserveScriptOrder: false,
 		liveContentCollections: false,
 		csp: false,
+		svg: {
+			optimize: true,
+			svgoConfig: {},
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -285,12 +285,6 @@ export const AstroConfigSchema = z.object({
 			responsiveStyles: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.responsiveStyles),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
-	svg: z
-		.object({
-			optimize: z.boolean().default(true),
-			svgoConfig: z.custom<SvgoConfig>((value) => value && typeof value === 'object').optional(),
-		})
-		.optional(),
 	devToolbar: z
 		.object({
 			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devToolbar.enabled),
@@ -511,6 +505,14 @@ export const AstroConfigSchema = z.object({
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
+			svg: z
+				.object({
+					optimize: z.boolean().default(true),
+					svgoConfig: z
+						.custom<SvgoConfig>((value) => value && typeof value === 'object')
+						.optional(),
+				})
+				.optional(),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

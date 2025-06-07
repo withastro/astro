@@ -1401,54 +1401,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name SVG Options
-	 */
-	svg?: {
-		/**
-		 * @docs
-		 * @name svg.optimize
-		 * @type {boolean}
-		 * @default `true`
-		 * @description
-		 * Whether to enable SVG optimization using SVGO during build time.
-		 *
-		 * When enabled, all imported SVG files will be optimized for smaller file sizes
-		 * and better performance while maintaining visual quality.
-		 */
-		optimize: boolean;
-
-		/**
-		 * @docs
-		 * @name svg.svgoConfig
-		 * @type {SvgoConfig}
-		 * @default `{}`
-		 * @description
-		 * Configuration object passed directly to SVGO for customizing SVG optimization.
-		 *
-		 * See [SVGO documentation](https://svgo.dev/) for available options.
-		 *
-		 * ```js
-		 * {
-		 *   svg: {
-		 *     svgoConfig: {
-		 *       plugins: [
-		 *         'preset-default',
-		 *         {
-		 *           name: 'removeViewBox',
-		 *           active: false
-		 *         }
-		 *       ]
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 */
-		svgoConfig: SvgoConfig;
-	};
-
-	/**
-	 * @docs
-	 * @kind heading
 	 * @name Markdown Options
 	 */
 	markdown?: {
@@ -2484,6 +2436,54 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 */
 		liveContentCollections?: boolean;
+
+		/**
+		 * @docs
+		 * @kind heading
+		 * @name SVG Options
+		 */
+		svg?: {
+			/**
+			 * @docs
+			 * @name svg.optimize
+			 * @type {boolean}
+			 * @default `true`
+			 * @description
+			 * Whether to enable SVG optimization using SVGO during build time.
+			 *
+			 * When enabled, all imported SVG files will be optimized for smaller file sizes
+			 * and better performance while maintaining visual quality.
+			 */
+			optimize?: boolean;
+
+			/**
+			 * @docs
+			 * @name svg.svgoConfig
+			 * @type {SvgoConfig}
+			 * @default `{}`
+			 * @description
+			 * Configuration object passed directly to SVGO for customizing SVG optimization.
+			 *
+			 * See [SVGO documentation](https://svgo.dev/) for available options.
+			 *
+			 * ```js
+			 * {
+			 *   svg: {
+			 *     svgoConfig: {
+			 *       plugins: [
+			 *         'preset-default',
+			 *         {
+			 *           name: 'removeViewBox',
+			 *           active: false
+			 *         }
+			 *       ]
+			 *     }
+			 *   }
+			 * }
+			 * ```
+			 */
+			svgoConfig?: SvgoConfig;
+		};
 	};
 }
 
