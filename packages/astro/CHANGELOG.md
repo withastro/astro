@@ -1,5 +1,19 @@
 # astro
 
+## 5.9.1
+
+### Patch Changes
+
+- [#13899](https://github.com/withastro/astro/pull/13899) [`7a1303d`](https://github.com/withastro/astro/commit/7a1303dbcebe0f0b5c8c3278669af5577115c0a3) Thanks [@reknih](https://github.com/reknih)! - Fix bug where error pages would return invalid bodies if the upstream response was compressed
+
+- [#13902](https://github.com/withastro/astro/pull/13902) [`051bc30`](https://github.com/withastro/astro/commit/051bc3025523756474ff5be350a7680e9fed3384) Thanks [@arHSM](https://github.com/arHSM)! - Fixes a bug where vite virtual module ids were incorrectly added in the dev server
+
+- [#13905](https://github.com/withastro/astro/pull/13905) [`81f71ca`](https://github.com/withastro/astro/commit/81f71ca6fd8b313b055eb4659c02a8e0e0335204) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Fixes wrong contents in CSP meta tag.
+
+- [#13907](https://github.com/withastro/astro/pull/13907) [`8246bcc`](https://github.com/withastro/astro/commit/8246bcc0008880a49d9374136ec44488b629a2c3) Thanks [@martrapp](https://github.com/martrapp)! - Fixes a bug that caused view transition names to be lost.
+
+- [#13901](https://github.com/withastro/astro/pull/13901) [`37fa0a2`](https://github.com/withastro/astro/commit/37fa0a228cdfdaf20dd135835fdc84337f2d9637) Thanks [@ansg191](https://github.com/ansg191)! - fix fallback not being removed when server island is rendered
+
 ## 5.9.0
 
 ### Minor Changes
