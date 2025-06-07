@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
-    "@types/send": "^0.17.4",
+    "@types/send": "^0.17.5",
     "@types/server-destroy": "^1.0.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",

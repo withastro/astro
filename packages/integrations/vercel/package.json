@@ -50,10 +50,10 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@vercel/analytics": "^1.5.0",
     "@vercel/edge": "^1.2.1",
-    "@vercel/nft": "^0.29.2",
-    "@vercel/routing-utils": "^5.0.4",
+    "@vercel/nft": "^0.29.4",
+    "@vercel/routing-utils": "^5.0.5",
     "esbuild": "^0.25.0",
-    "tinyglobby": "^0.2.13"
+    "tinyglobby": "^0.2.14"
   },
   "peerDependencies": {
     "astro": "^5.0.0"
