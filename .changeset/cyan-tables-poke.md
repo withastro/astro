@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Add SVGO optimization support for SVG assets
+Add experimental SVGO optimization support for SVG assets
