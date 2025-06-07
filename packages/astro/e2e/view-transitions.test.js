@@ -1582,10 +1582,7 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
-	test('animation get canceled when view transition is interrupted', async ({
-		page,
-		astro,
-	}) => {
+	test('animation get canceled when view transition is interrupted', async ({ page, astro }) => {
 		let lines = [];
 		page.on('console', (msg) => {
 			msg.text().startsWith('[test]') && lines.push(msg.text());
