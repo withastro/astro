@@ -18,8 +18,7 @@ export function createExports(manifest: SSRManifest) {
 			async fetch(request, env, ctx) {
 				console.log("env", env)
 				await env.MY_QUEUE.send("log");
-				// TODO: try to figure out why this type doesn't match
-				// @ts-expect-error
+				// @ts-expect-error - The types are identical, I don't get why this is an error.
 				return handle(manifest, app, request, env, ctx);
 			},
 			async queue(batch, _env) {

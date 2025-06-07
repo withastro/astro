@@ -1,14 +1,14 @@
+// @ts-expect-error - It is safe to expect the error here.
 import { env as globalEnv } from 'cloudflare:workers';
 import type { App } from 'astro/app';
 import type { SSRManifest } from 'astro';
 import type {
-	Request as CLOUDFLARE_REQUEST,
-	CacheStorage as CLOUDFLARE_CACHESTORAGE,
+	CacheStorage as CloudflareCacheStorage,
+	ExecutionContext,
+	ExportedHandlerFetchHandler,
 } from '@cloudflare/workers-types';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
-
-setGetEnv(createGetEnv(globalEnv as Env));
 
 type Env = {
 	[key: string]: unknown;
@@ -16,11 +16,13 @@ type Env = {
 	ASTRO_STUDIO_APP_TOKEN?: string;
 };
 
+setGetEnv(createGetEnv(globalEnv as Env));
+
 export interface Runtime<T extends object = object> {
 	runtime: {
 		env: Env & T;
-		cf: CLOUDFLARE_REQUEST['cf'];
-		caches: CLOUDFLARE_CACHESTORAGE;
+		cf: Parameters<ExportedHandlerFetchHandler>[0]['cf'];
+		caches: CloudflareCacheStorage;
 		ctx: ExecutionContext;
 	};
 }
@@ -38,7 +40,7 @@ declare global {
 export async function handle(
 	manifest: SSRManifest,
 	app: App,
-	request: Request & CLOUDFLARE_REQUEST,
+	request: Parameters<ExportedHandlerFetchHandler>[0],
 	env: Env,
 	context: ExecutionContext,
 ) {
@@ -54,7 +56,7 @@ export async function handle(
 		return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));
 	}
 
-	const routeData = app.match(request);
+	const routeData = app.match(request as Request & Parameters<ExportedHandlerFetchHandler>[0]);
 	if (!routeData) {
 		// https://developers.cloudflare.com/pages/functions/api-reference/#envassetsfetch
 		const asset = await env.ASSETS.fetch(
@@ -77,7 +79,7 @@ export async function handle(
 		runtime: {
 			env: env,
 			cf: request.cf,
-			caches: caches as unknown as CLOUDFLARE_CACHESTORAGE,
+			caches: caches as unknown as CloudflareCacheStorage,
 			ctx: {
 				waitUntil: (promise: Promise<any>) => context.waitUntil(promise),
 				// Currently not available: https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions
@@ -91,7 +93,10 @@ export async function handle(
 		},
 	};
 
-	const response = await app.render(request, { routeData, locals });
+	const response = await app.render(
+		request as Request & Parameters<ExportedHandlerFetchHandler>[0],
+		{ routeData, locals },
+	);
 
 	if (app.setCookieHeaders) {
 		for (const setCookieHeader of app.setCookieHeaders(response)) {

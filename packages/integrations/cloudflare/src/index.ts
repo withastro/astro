@@ -101,15 +101,25 @@ export type Options = {
 	sessionKVBindingName?: string;
 
 	/**
-	 * The path to the entry file for the server. This is used to determine the entry point for the server.
-	 * By default, this is set to `@astrojs/cloudflare/entrypoints/server.js`.
+	 * This configuration option allows you to specify a custom entryPoint for your Cloudflare Worker.
+	 * The entry point is the file that will be executed when your Worker is invoked.
+	 * By default, this is set to `@astrojs/cloudflare/entrypoints/server.js` and `['default']`.
+	 * @docs https://deploy-preview-11743--astro-docs-2.netlify.app/en/guides/integrations-guide/cloudflare/#workerEntryPoint
 	 */
-	entryfilePath?: string;
-
-	/**
-	 * The exports to use for the server entry file. By default, this is set to `['default']`. If you need to have other top level exports, e.g. DurableObjects you need to provide them here.
-	 */
-	entryfileExports?: string[];
+	workerEntryPoint?: {
+		/**
+		 * The path to the entry file. This should be a relative path from the root of your Astro project.
+		 * @example`'src/worker.ts'`
+		 * @docs https://docs.astro.build/en/reference/adapter-reference/#server-entrypoint
+		 */
+		path: string | URL;
+		/**
+		 * The exports to use for the entry file. By default, this is set to `['default']`. If you need to have other top level exports, e.g. DurableObjects you need to provide them here.
+		 * @example `['default', 'MyDurableObject']`
+		 * @docs https://docs.astro.build/en/reference/adapter-reference/#server-entrypoint
+		 */
+		exports: string[];
+	};
 };
 
 function wrapWithSlashes(path: string): string {
@@ -239,12 +249,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				_config = config;
 				finalBuildOutput = buildOutput;
 
+				let customWorkerEntryPoint: URL | undefined;
+				if (args?.workerEntryPoint?.path && typeof args.workerEntryPoint.path === 'string') {
+					customWorkerEntryPoint = new URL(args.workerEntryPoint.path, config.root);
+				}
+
 				setAdapter({
 					name: '@astrojs/cloudflare',
-					serverEntrypoint: args?.entryfilePath
-						? new URL(args?.entryfilePath, config.root)
+					serverEntrypoint: customWorkerEntryPoint
+						? customWorkerEntryPoint
 						: '@astrojs/cloudflare/entrypoints/server.js',
-					exports: args?.entryfileExports ? ['default', ...args.entryfileExports] : ['default'],
+					exports: args?.workerEntryPoint?.exports ? args.workerEntryPoint.exports : ['default'],
 					adapterFeatures: {
 						edgeMiddleware: false,
 						buildOutput: 'server',

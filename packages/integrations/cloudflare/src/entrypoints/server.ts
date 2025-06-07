@@ -1,4 +1,4 @@
-import type { Request as CLOUDFLARE_REQUEST, ExecutionContext } from '@cloudflare/workers-types';
+import type { ExecutionContext, ExportedHandlerFetchHandler } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 
 import { App } from 'astro/app';
@@ -14,7 +14,7 @@ export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
 	const fetch = async (
-		request: Request & CLOUDFLARE_REQUEST,
+		request: Parameters<ExportedHandlerFetchHandler>[0],
 		env: Env,
 		context: ExecutionContext,
 	) => {
