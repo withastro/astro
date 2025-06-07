@@ -101,6 +101,7 @@ export function viteID(filePath: URL): string {
 
 export const VALID_ID_PREFIX = `/@id/`;
 const NULL_BYTE_PLACEHOLDER = `__x00__`;
+const NULL_BYTE_REGEX = /^\0/;
 
 // Strip valid id prefix and replace null byte placeholder. Both are prepended to resolved ids
 // as they are not valid browser import specifiers (by the Vite's importAnalysis plugin)
@@ -108,6 +109,11 @@ export function unwrapId(id: string): string {
 	return id.startsWith(VALID_ID_PREFIX)
 		? id.slice(VALID_ID_PREFIX.length).replace(NULL_BYTE_PLACEHOLDER, '\0')
 		: id;
+}
+
+// Reverses `unwrapId` function
+export function wrapId(id: string): string {
+	return id.replace(NULL_BYTE_REGEX, `${VALID_ID_PREFIX}${NULL_BYTE_PLACEHOLDER}`);
 }
 
 export function resolvePages(config: AstroConfig) {
