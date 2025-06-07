@@ -2534,7 +2534,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		svg?: {
 			/**
 			 * @docs
-			 * @name svg.optimize
+			 * @name experimental.svg.optimize
 			 * @type {boolean}
 			 * @default `true`
 			 * @description
@@ -2547,7 +2547,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 			/**
 			 * @docs
-			 * @name svg.svgoConfig
+			 * @name experimental.svg.svgoConfig
 			 * @type {SvgoConfig}
 			 * @default `{}`
 			 * @description
