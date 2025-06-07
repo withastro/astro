@@ -32,6 +32,7 @@ describe('Astro.session', () => {
 			blobServer = new BlobsServer({
 				directory: dataDir,
 				token,
+				debug: true,
 				port: 8971,
 			});
 			await blobServer.start();
