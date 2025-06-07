@@ -26,14 +26,12 @@ export async function cmd({
 	}
 	const dbInfo = getRemoteDatabaseInfo();
 	if (flags.remote) {
-		const appToken = await getManagedRemoteToken(flags.token, dbInfo);
 		const db = createRemoteDatabaseClient({
 			dbType: dbInfo.type,
 			remoteUrl: dbInfo.url,
-			appToken: appToken.token,
+			appToken: getManagedRemoteToken(flags.token),
 		});
 		const result = await db.run(sql.raw(query));
-		await appToken.destroy();
 		console.log(result);
 	} else {
 		const { ASTRO_DATABASE_FILE } = getAstroEnv();

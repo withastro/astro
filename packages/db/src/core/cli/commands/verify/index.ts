@@ -20,10 +20,9 @@ export async function cmd({
 }) {
 	const isJson = flags.json;
 	const dbInfo = getRemoteDatabaseInfo();
-	const appToken = await getManagedRemoteToken(flags.token, dbInfo);
 	const productionSnapshot = await getProductionCurrentSnapshot({
 		dbInfo,
-		appToken: appToken.token,
+		appToken: getManagedRemoteToken(flags.token),
 	});
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
@@ -53,6 +52,5 @@ export async function cmd({
 		console.log(result.message);
 	}
 
-	await appToken.destroy();
 	process.exit(result.exitCode);
 }

@@ -2,7 +2,6 @@ import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { ManagedAppToken } from '@astrojs/studio';
 import type { AstroIntegration } from 'astro';
 import { blue, yellow } from 'kleur/colors';
 import {
@@ -33,7 +32,6 @@ function astroDBIntegration(): AstroIntegration {
 	let connectToRemote = false;
 	let configFileDependencies: string[] = [];
 	let root: URL;
-	let appToken: ManagedAppToken | undefined;
 	// Used during production builds to load seed files.
 	let tempViteServer: ViteDevServer | undefined;
 
@@ -72,10 +70,9 @@ function astroDBIntegration(): AstroIntegration {
 				connectToRemote = process.env.ASTRO_INTERNAL_TEST_REMOTE || args['remote'];
 
 				if (connectToRemote) {
-					appToken = await getManagedRemoteToken();
 					dbPlugin = vitePluginDb({
-						connectToStudio: connectToRemote,
-						appToken: appToken.token,
+						connectToRemote: connectToRemote,
+						appToken: getManagedRemoteToken(),
 						tables,
 						root: config.root,
 						srcDir: config.srcDir,
@@ -84,7 +81,7 @@ function astroDBIntegration(): AstroIntegration {
 					});
 				} else {
 					dbPlugin = vitePluginDb({
-						connectToStudio: false,
+						connectToRemote: false,
 						tables,
 						seedFiles,
 						root: config.root,
@@ -161,7 +158,7 @@ function astroDBIntegration(): AstroIntegration {
 				if (!connectToRemote && !databaseFileEnvDefined() && finalBuildOutput === 'server') {
 					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
 					const hint =
-						'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
+						'Learn more connecting to libSQL: https://docs.astro.build/en/guides/astro-db/#connect-a-libsql-database-for-production';
 					throw new AstroDbError(message, hint);
 				}
 
@@ -174,7 +171,6 @@ function astroDBIntegration(): AstroIntegration {
 				};
 			},
 			'astro:build:done': async ({}) => {
-				await appToken?.destroy();
 				await tempViteServer?.close();
 			},
 		},
