@@ -104,7 +104,7 @@ export type Options = {
 	 * This configuration option allows you to specify a custom entryPoint for your Cloudflare Worker.
 	 * The entry point is the file that will be executed when your Worker is invoked.
 	 * By default, this is set to `@astrojs/cloudflare/entrypoints/server.js` and `['default']`.
-	 * @docs https://deploy-preview-11743--astro-docs-2.netlify.app/en/guides/integrations-guide/cloudflare/#workerEntryPoint
+	 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerEntryPoint
 	 */
 	workerEntryPoint?: {
 		/**
