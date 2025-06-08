@@ -1,8 +1,9 @@
-import { encryptString } from '../../../core/encryption.js';
+import { encryptString, generateCspDigest } from '../../../core/encryption.js';
 import type { SSRResult } from '../../../types/public/internal.js';
 import { markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
-import type { RenderInstance } from './common.js';
+import { type ThinHead, createThinHead } from './astro/head-and-content.js';
+import type { RenderDestination } from './common.js';
 import { createRenderInstruction } from './instruction.js';
 import { type ComponentSlots, renderSlotToString } from './slot.js';
 
@@ -47,73 +48,83 @@ function isWithinURLLimit(pathname: string, params: URLSearchParams) {
 	return chars < 2048;
 }
 
-export function renderServerIsland(
-	result: SSRResult,
-	_displayName: string,
-	props: Record<string | number, any>,
-	slots: ComponentSlots,
-): RenderInstance {
-	return {
-		async render(destination) {
-			const componentPath = props['server:component-path'];
-			const componentExport = props['server:component-export'];
-			const componentId = result.serverIslandNameMap.get(componentPath);
+export class ServerIslandComponent {
+	result: SSRResult;
+	props: Record<string | number, any>;
+	slots: ComponentSlots;
+	displayName: string;
+	hostId: string | undefined;
+	islandContent: string | undefined;
+	constructor(
+		result: SSRResult,
+		props: Record<string | number, any>,
+		slots: ComponentSlots,
+		displayName: string,
+	) {
+		this.result = result;
+		this.props = props;
+		this.slots = slots;
+		this.displayName = displayName;
+	}
 
-			if (!componentId) {
-				throw new Error(`Could not find server component name`);
+	async init(): Promise<ThinHead> {
+		const componentPath = this.props['server:component-path'];
+		const componentExport = this.props['server:component-export'];
+		const componentId = this.result.serverIslandNameMap.get(componentPath);
+
+		if (!componentId) {
+			throw new Error(`Could not find server component name`);
+		}
+
+		// Remove internal props
+		for (const key of Object.keys(this.props)) {
+			if (internalProps.has(key)) {
+				delete this.props[key];
 			}
+		}
 
-			// Remove internal props
-			for (const key of Object.keys(props)) {
-				if (internalProps.has(key)) {
-					delete props[key];
-				}
+		// Render the slots
+		const renderedSlots: Record<string, string> = {};
+		for (const name in this.slots) {
+			if (name !== 'fallback') {
+				const content = await renderSlotToString(this.result, this.slots[name]);
+				renderedSlots[name] = content.toString();
 			}
-			destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
+		}
 
-			destination.write('<!--[if astro]>server-island-start<![endif]-->');
+		const key = await this.result.key;
+		const propsEncrypted =
+			Object.keys(this.props).length === 0
+				? ''
+				: await encryptString(key, JSON.stringify(this.props));
 
-			// Render the slots
-			const renderedSlots: Record<string, string> = {};
-			for (const name in slots) {
-				if (name !== 'fallback') {
-					const content = await renderSlotToString(result, slots[name]);
-					renderedSlots[name] = content.toString();
-				} else {
-					await renderChild(destination, slots.fallback(result));
-				}
-			}
+		const hostId = crypto.randomUUID();
 
-			const key = await result.key;
-			const propsEncrypted =
-				Object.keys(props).length === 0 ? '' : await encryptString(key, JSON.stringify(props));
+		const slash = this.result.base.endsWith('/') ? '' : '/';
+		let serverIslandUrl = `${this.result.base}${slash}_server-islands/${componentId}${this.result.trailingSlash === 'always' ? '/' : ''}`;
 
-			const hostId = crypto.randomUUID();
+		// Determine if its safe to use a GET request
+		const potentialSearchParams = createSearchParams(
+			componentExport,
+			propsEncrypted,
+			safeJsonStringify(renderedSlots),
+		);
+		const useGETRequest = isWithinURLLimit(serverIslandUrl, potentialSearchParams);
 
-			const slash = result.base.endsWith('/') ? '' : '/';
-			let serverIslandUrl = `${result.base}${slash}_server-islands/${componentId}${result.trailingSlash === 'always' ? '/' : ''}`;
-
-			// Determine if its safe to use a GET request
-			const potentialSearchParams = createSearchParams(
-				componentExport,
-				propsEncrypted,
-				safeJsonStringify(renderedSlots),
-			);
-			const useGETRequest = isWithinURLLimit(serverIslandUrl, potentialSearchParams);
-
-			if (useGETRequest) {
-				serverIslandUrl += '?' + potentialSearchParams.toString();
-				destination.write(
+		if (useGETRequest) {
+			serverIslandUrl += '?' + potentialSearchParams.toString();
+			this.result._metadata.extraHead.push(
+				markHTMLString(
 					`<link rel="preload" as="fetch" href="${serverIslandUrl}" crossorigin="anonymous">`,
-				);
-			}
+				),
+			);
+		}
 
-			destination.write(`<script type="module" data-astro-rerun data-island-id="${hostId}">${
-				useGETRequest
-					? // GET request
-						`let response = await fetch('${serverIslandUrl}');`
-					: // POST request
-						`let data = {
+		const method = useGETRequest
+			? // GET request
+				`let response = await fetch('${serverIslandUrl}');`
+			: // POST request
+				`let data = {
 	componentExport: ${safeJsonStringify(componentExport)},
 	encryptedProps: ${safeJsonStringify(propsEncrypted)},
 	slots: ${safeJsonStringify(renderedSlots)},
@@ -121,36 +132,59 @@ export function renderServerIsland(
 let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
-});`
+});`;
+
+		const content = `${method}replaceServerIsland('${hostId}', response);`;
+
+		if (this.result.shouldInjectCspMetaTags) {
+			this.result._metadata.extraScriptHashes.push(
+				await generateCspDigest(SERVER_ISLAND_REPLACER, this.result.cspAlgorithm),
+			);
+			const contentDigest = await generateCspDigest(content, this.result.cspAlgorithm);
+			this.result._metadata.extraScriptHashes.push(contentDigest);
+		}
+		this.islandContent = content;
+		this.hostId = hostId;
+
+		return createThinHead();
+	}
+	async render(destination: RenderDestination) {
+		destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
+		destination.write('<!--[if astro]>server-island-start<![endif]-->');
+		// Render the slots
+		for (const name in this.slots) {
+			if (name === 'fallback') {
+				await renderChild(destination, this.slots.fallback(this.result));
 			}
-replaceServerIsland('${hostId}', response);</script>`);
-		},
-	};
+		}
+		destination.write(
+			`<script type="module" data-astro-rerun data-island-id="${this.hostId}">${this.islandContent}</script>`,
+		);
+	}
 }
 
-export const renderServerIslandRuntime = () =>
-	markHTMLString(
-		`
-	<script>
-		async function replaceServerIsland(id, r) {
-			let s = document.querySelector(\`script[data-island-id="\${id}"]\`);
-			// If there's no matching script, or the request fails then return
-			if (!s || r.status !== 200 || r.headers.get('content-type')?.split(';')[0].trim() !== 'text/html') return;
-			// Load the HTML before modifying the DOM in case of errors
-			let html = await r.text();
-			// Remove any placeholder content before the island script
-			while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '[if astro]>server-island-start<![endif]')
-				s.previousSibling.remove();
-			s.previousSibling?.remove();
-			// Insert the new HTML
-			s.before(document.createRange().createContextualFragment(html));
-			// Remove the script. Prior to v5.4.2, this was the trick to force rerun of scripts.  Keeping it to minimize change to the existing behavior.
-			s.remove();
-		}
-	</script>`
-			// Very basic minification
-			.split('\n')
-			.map((line) => line.trim())
-			.filter((line) => line && !line.startsWith('//'))
-			.join(' '),
-	);
+export const renderServerIslandRuntime = () => {
+	return `<script>${SERVER_ISLAND_REPLACER}</script>`;
+};
+
+const SERVER_ISLAND_REPLACER = markHTMLString(
+	`async function replaceServerIsland(id, r) {
+	let s = document.querySelector(\`script[data-island-id="\${id}"]\`);
+	// If there's no matching script, or the request fails then return
+	if (!s || r.status !== 200 || r.headers.get('content-type')?.split(';')[0].trim() !== 'text/html') return;
+	// Load the HTML before modifying the DOM in case of errors
+	let html = await r.text();
+	// Remove any placeholder content before the island script
+	while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '[if astro]>server-island-start<![endif]')
+		s.previousSibling.remove();
+	s.previousSibling?.remove();
+	// Insert the new HTML
+	s.before(document.createRange().createContextualFragment(html));
+	// Remove the script. Prior to v5.4.2, this was the trick to force rerun of scripts.  Keeping it to minimize change to the existing behavior.
+	s.remove();
+}` // Very basic minification
+		.split('\n')
+		.map((line) => line.trim())
+		.filter((line) => line && !line.startsWith('//'))
+		.join(' '),
+);

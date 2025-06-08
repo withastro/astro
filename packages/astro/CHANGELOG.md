@@ -1,5 +1,123 @@
 # astro
 
+## 5.9.1
+
+### Patch Changes
+
+- [#13899](https://github.com/withastro/astro/pull/13899) [`7a1303d`](https://github.com/withastro/astro/commit/7a1303dbcebe0f0b5c8c3278669af5577115c0a3) Thanks [@reknih](https://github.com/reknih)! - Fix bug where error pages would return invalid bodies if the upstream response was compressed
+
+- [#13902](https://github.com/withastro/astro/pull/13902) [`051bc30`](https://github.com/withastro/astro/commit/051bc3025523756474ff5be350a7680e9fed3384) Thanks [@arHSM](https://github.com/arHSM)! - Fixes a bug where vite virtual module ids were incorrectly added in the dev server
+
+- [#13905](https://github.com/withastro/astro/pull/13905) [`81f71ca`](https://github.com/withastro/astro/commit/81f71ca6fd8b313b055eb4659c02a8e0e0335204) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Fixes wrong contents in CSP meta tag.
+
+- [#13907](https://github.com/withastro/astro/pull/13907) [`8246bcc`](https://github.com/withastro/astro/commit/8246bcc0008880a49d9374136ec44488b629a2c3) Thanks [@martrapp](https://github.com/martrapp)! - Fixes a bug that caused view transition names to be lost.
+
+- [#13901](https://github.com/withastro/astro/pull/13901) [`37fa0a2`](https://github.com/withastro/astro/commit/37fa0a228cdfdaf20dd135835fdc84337f2d9637) Thanks [@ansg191](https://github.com/ansg191)! - fix fallback not being removed when server island is rendered
+
+## 5.9.0
+
+### Minor Changes
+
+- [#13802](https://github.com/withastro/astro/pull/13802) [`0eafe14`](https://github.com/withastro/astro/commit/0eafe14b08c627b116842ea0a5299a00f9baa3d1) Thanks [@ematipico](https://github.com/ematipico)! - Adds experimental Content Security Policy (CSP) support
+
+  CSP is an important feature to provide fine-grained control over resources that can or cannot be downloaded and executed by a document. In particular, it can help protect against [cross-site scripting (XSS)](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) attacks.
+
+  Enabling this feature adds additional security to Astro's handling of processed and bundled scripts and styles by default, and allows you to further configure these, and additional, content types. This new experimental feature has been designed to work in every Astro rendering environment (static pages, dynamic pages and single page applications), while giving you maximum flexibility and with type-safety in mind.
+
+  It is compatible with most of Astro's features such as client islands, and server islands, although Astro's view transitions using the `<ClientRouter />` are not yet fully supported. Inline scripts are not supported out of the box, but you can provide your own hashes for external and inline scripts.
+
+  To enable this feature, add the experimental flag in your Astro config:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      csp: true,
+    },
+  });
+  ```
+
+  For more information on enabling and using this feature in your project, see the [Experimental CSP docs](https://docs.astro.build/en/reference/experimental-flags/csp/).
+
+  For a complete overview, and to give feedback on this experimental API, see the [Content Security Policy RFC](https://github.com/withastro/roadmap/blob/feat/rfc-csp/proposals/0055-csp.md).
+
+- [#13850](https://github.com/withastro/astro/pull/13850) [`1766d22`](https://github.com/withastro/astro/commit/1766d222e7bb4adb6d15090e2d6331a0d8978303) Thanks [@ascorbic](https://github.com/ascorbic)! - Provides a Markdown renderer to content loaders
+
+  When creating a content loader, you will now have access to a `renderMarkdown` function that allows you to render Markdown content directly within your loaders. It uses the same settings and plugins as the renderer used for Markdown files in Astro, and follows any Markdown settings you have configured in your Astro project.
+
+  This allows you to render Markdown content from various sources, such as a CMS or other data sources, directly in your loaders without needing to preprocess the Markdown content separately.
+
+  ```ts
+  import type { Loader } from 'astro/loaders';
+  import { loadFromCMS } from './cms';
+
+  export function myLoader(settings): Loader {
+    return {
+      name: 'my-loader',
+      async load({ renderMarkdown, store }) {
+        const entries = await loadFromCMS();
+
+        store.clear();
+
+        for (const entry of entries) {
+          // Assume each entry has a 'content' field with markdown content
+          store.set(entry.id, {
+            id: entry.id,
+            data: entry,
+            rendered: await renderMarkdown(entry.content),
+          });
+        }
+      },
+    };
+  }
+  ```
+
+  The return value of `renderMarkdown` is an object with two properties: `html` and `metadata`. These match the `rendered` property of content entries in content collections, so you can use them to render the content in your components or pages.
+
+  ```astro
+  ---
+  import { getEntry, render } from 'astro:content';
+  const entry = await getEntry('my-collection', Astro.params.id);
+  const { Content } = await render(entry);
+  ---
+
+  <Content />
+  ```
+
+  For more information, see the [Content Loader API docs](https://docs.astro.build/en/reference/content-loader-reference/#rendermarkdown).
+
+- [#13887](https://github.com/withastro/astro/pull/13887) [`62f0668`](https://github.com/withastro/astro/commit/62f0668aa1e066c1c07ee0e774192def4cac43c4) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Adds an option for integration authors to suppress adapter warning/errors in `supportedAstroFeatures`. This is useful when either an warning/error isn't applicable in a specific context or the default one might conflict and confuse users.
+
+  To do so, you can add `suppress: "all"` (to suppress both the default and custom message) or `suppress: "default"` (to only suppress the default one):
+
+  ```ts
+  setAdapter({
+    name: 'my-astro-integration',
+    supportedAstroFeatures: {
+      staticOutput: 'stable',
+      hybridOutput: 'stable',
+      sharpImageService: {
+        support: 'limited',
+        message:
+          "The sharp image service isn't available in the deploy environment, but will be used by prerendered pages on build.",
+        suppress: 'default',
+      },
+    },
+  });
+  ```
+
+  For more information, see the [Adapter API reference docs](https://docs.astro.build/en/reference/adapter-reference/#astro-features).
+
+## 5.8.2
+
+### Patch Changes
+
+- [#13877](https://github.com/withastro/astro/pull/13877) [`5a7797f`](https://github.com/withastro/astro/commit/5a7797fdd6ad3f1377e2719c79da9486a232dfcd) Thanks [@yuhang-dong](https://github.com/yuhang-dong)! - Fixes a bug that caused `Astro.rewrite` to fail when used in `sequence`d middleware
+
+- [#13872](https://github.com/withastro/astro/pull/13872) [`442b841`](https://github.com/withastro/astro/commit/442b8413dc9d29892499cfa97e54798a3a6ee136) Thanks [@isVivek99](https://github.com/isVivek99)! - Fixes rendering of the `download` attribute when it has a boolean value
+
 ## 5.8.1
 
 ### Patch Changes
