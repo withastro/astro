@@ -59,8 +59,23 @@ export function formatList(values: string[]): string {
 	}
 	return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
 }
+
 function isCustomElement(tagName: string) {
 	return tagName.includes('-');
+}
+
+function handleBooleanAttribute(
+	key: string,
+	value: any,
+	shouldEscape: boolean,
+	tagName?: string
+): string {
+	// For custom elements, always render as string attributes
+	if (tagName && isCustomElement(tagName)) {
+		return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
+	}
+	// For regular HTML elements, use boolean attribute logic
+	return markHTMLString(value ? ` ${key}` : '');
 }
 
 // A helper used to turn expressions into attribute key/value
@@ -69,9 +84,7 @@ export function addAttribute(value: any, key: string, shouldEscape = true, tagNa
 		return '';
 	}
 
-	if (tagName && isCustomElement(tagName)) {
-		return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
-	}
+	
 
 	// compiler directives cannot be applied dynamically, log a warning and ignore.
 	if (STATIC_DIRECTIVES.has(key)) {
@@ -114,7 +127,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// Boolean values only need the key
 	if (htmlBooleanAttributes.test(key)) {
-		return markHTMLString(value ? ` ${key}` : '');
+		return handleBooleanAttribute(key, value, shouldEscape, tagName);
 	}
 
 	// Other attributes with an empty string value can omit rendering the value
@@ -124,10 +137,10 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// We cannot add it to htmlBooleanAttributes because it can be: boolean | "auto" | "manual"
 	if (key === 'popover' && typeof value === 'boolean') {
-		return markHTMLString(value ? ` popover` : '');
+		return handleBooleanAttribute(key, value, shouldEscape, tagName);
 	}
 	if (key === 'download' && typeof value === 'boolean') {
-		return markHTMLString(value ? ` download` : '');
+		return handleBooleanAttribute(key, value, shouldEscape, tagName);
 	}
 
 	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
