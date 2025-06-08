@@ -59,11 +59,18 @@ export function formatList(values: string[]): string {
 	}
 	return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
 }
+function isCustomElement(tagName: string) {
+	return tagName.includes('-');
+}
 
 // A helper used to turn expressions into attribute key/value
-export function addAttribute(value: any, key: string, shouldEscape = true) {
+export function addAttribute(value: any, key: string, shouldEscape = true, tagName?: string) {
 	if (value == null) {
 		return '';
+	}
+
+	if (tagName && isCustomElement(tagName)) {
+		return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
 	}
 
 	// compiler directives cannot be applied dynamically, log a warning and ignore.
@@ -124,10 +131,14 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 }
 
 // Adds support for `<Component {...value} />
-export function internalSpreadAttributes(values: Record<any, any>, shouldEscape = true) {
+export function internalSpreadAttributes(
+	values: Record<any, any>,
+	shouldEscape = true,
+	tagName?: string,
+) {
 	let output = '';
 	for (const [key, value] of Object.entries(values)) {
-		output += addAttribute(value, key, shouldEscape);
+		output += addAttribute(value, key, shouldEscape, tagName);
 	}
 	return markHTMLString(output);
 }
@@ -150,9 +161,9 @@ export function renderElement(
 		}
 	}
 	if ((children == null || children == '') && voidElementNames.test(name)) {
-		return `<${name}${internalSpreadAttributes(props, shouldEscape)}>`;
+		return `<${name}${internalSpreadAttributes(props, shouldEscape, name)}>`;
 	}
-	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
+	return `<${name}${internalSpreadAttributes(props, shouldEscape, name)}>${children}</${name}>`;
 }
 
 const noop = () => {};

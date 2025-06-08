@@ -284,6 +284,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 		const renderTemplateResult = renderTemplate`<${Tag}${internalSpreadAttributes(
 			props,
+			true,
+			Tag,
 		)}${markHTMLString(
 			childSlots === '' && voidElementNames.test(Tag) ? `/>` : `>${childSlots}</${Tag}>`,
 		)}`;
