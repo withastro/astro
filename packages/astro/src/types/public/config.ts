@@ -1,44 +1,26 @@
-import type { OutgoingHttpHeaders } from "node:http";
-import type { RemotePattern } from "@astrojs/internal-helpers/remote";
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
 	SyntaxHighlightConfigType,
-} from "@astrojs/markdown-remark";
-import type {
-	BuiltinDriverName,
-	BuiltinDriverOptions,
-	Driver,
-	Storage,
-} from "unstorage";
-import type {
-	UserConfig as OriginalViteUserConfig,
-	SSROptions as ViteSSROptions,
-} from "vite";
-import type {
-	AstroFontProvider,
-	FontFamily,
-} from "../../assets/fonts/types.js";
-import type { ImageFit, ImageLayout } from "../../assets/types.js";
-import type { AssetsPrefix } from "../../core/app/types.js";
-import type { AstroConfigType } from "../../core/config/schemas/index.js";
-import type { REDIRECT_STATUS_CODES } from "../../core/constants.js";
-import type { AstroCookieSetOptions } from "../../core/cookies/cookies.js";
-import type {
-	CspAlgorithm,
-	CspDirective,
-	CspHash,
-} from "../../core/csp/config.js";
-import type { Logger, LoggerLevel } from "../../core/logger/core.js";
-import type { EnvSchema } from "../../env/schema.js";
-import type { AstroIntegration } from "./integrations.js";
+} from '@astrojs/markdown-remark';
+import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
+import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
+import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
+import type { ImageFit, ImageLayout } from '../../assets/types.js';
+import type { AssetsPrefix } from '../../core/app/types.js';
+import type { AstroConfigType } from '../../core/config/schemas/index.js';
+import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
+import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
+import type { Logger, LoggerLevel } from '../../core/logger/core.js';
+import type { EnvSchema } from '../../env/schema.js';
+import type { AstroIntegration } from './integrations.js';
 
-export type Locales = (
-	| string
-	| { codes: [string, ...string[]]; path: string }
-)[];
+export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
 export type { AstroFontProvider as FontProvider };
 
@@ -48,18 +30,16 @@ type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
 		? T[K]
 		: T[K] extends { codes: Array<string> }
-			? T[K]["codes"][number]
+			? T[K]['codes'][number]
 			: never;
 }[number];
 
-export interface ImageServiceConfig<
-	T extends Record<string, any> = Record<string, any>,
-> {
-	entrypoint: "astro/assets/services/sharp" | (string & {});
+export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
+	entrypoint: 'astro/assets/services/sharp' | (string & {});
 	config?: T;
 }
 
-export type RuntimeMode = "development" | "production";
+export type RuntimeMode = 'development' | 'production';
 
 export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
 
@@ -144,7 +124,7 @@ export type ServerConfig = {
 	open?: string | boolean;
 };
 
-export type SessionDriverName = BuiltinDriverName | "custom" | "test";
+export type SessionDriverName = BuiltinDriverName | 'custom' | 'test';
 
 interface CommonSessionConfig {
 	/**
@@ -153,7 +133,7 @@ interface CommonSessionConfig {
 	 */
 	cookie?:
 		| string
-		| (Omit<AstroCookieSetOptions, "httpOnly" | "expires" | "encode"> & {
+		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & {
 				name?: string;
 		  });
 
@@ -176,7 +156,7 @@ interface CustomSessionConfig extends CommonSessionConfig {
 }
 
 interface TestSessionConfig extends CommonSessionConfig {
-	driver: "test";
+	driver: 'test';
 	options: {
 		mockStorage: Storage;
 	};
@@ -185,14 +165,13 @@ interface TestSessionConfig extends CommonSessionConfig {
 export type SessionConfig<TDriver extends SessionDriverName> =
 	TDriver extends keyof BuiltinDriverOptions
 		? BuiltinSessionConfig<TDriver>
-		: TDriver extends "test"
+		: TDriver extends 'test'
 			? TestSessionConfig
 			: CustomSessionConfig;
 
-export type ResolvedSessionConfig<TDriver extends SessionDriverName> =
-	SessionConfig<TDriver> & {
-		driverModule?: () => Promise<{ default: () => Driver }>;
-	};
+export type ResolvedSessionConfig<TDriver extends SessionDriverName> = SessionConfig<TDriver> & {
+	driverModule?: () => Promise<{ default: () => Driver }>;
+};
 
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
@@ -304,7 +283,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * }
 	 * ```
 	 */
-	trailingSlash?: "always" | "never" | "ignore";
+	trailingSlash?: 'always' | 'never' | 'ignore';
 
 	/**
 	 * @docs
@@ -380,7 +359,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * })
 	 * ```
 	 */
-	output?: "static" | "server";
+	output?: 'static' | 'server';
 
 	/**
 	 * @docs
@@ -423,11 +402,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```
 	 */
 	integrations?: Array<
-		| AstroIntegration
-		| (AstroIntegration | false | undefined | null)[]
-		| false
-		| undefined
-		| null
+		AstroIntegration | (AstroIntegration | false | undefined | null)[] | false | undefined | null
 	>;
 
 	/**
@@ -563,7 +538,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * Using `'where'` gives you more control over specificity, but requires that you use higher-specificity selectors, layers, and other tools to control which selectors are applied.
 	 * Using `'attribute'` is useful when you are manipulating the `class` attribute of elements and need to avoid conflicts between your own styling logic and Astro's application of styles.
 	 */
-	scopedStyleStrategy?: "where" | "class" | "attribute";
+	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
 
 	/**
 	 * @docs
@@ -685,7 +660,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * - `directory` - Set `trailingSlash: 'always'`
 		 * - `file` - Set `trailingSlash: 'never'`
 		 */
-		format?: "file" | "directory" | "preserve";
+		format?: 'file' | 'directory' | 'preserve';
 		/**
 		 * @docs
 		 * @name build.client
@@ -852,7 +827,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * }
 		 * ```
 		 */
-		inlineStylesheets?: "always" | "auto" | "never";
+		inlineStylesheets?: 'always' | 'auto' | 'never';
 		/**
 		 * @docs
 		 * @name build.concurrency
@@ -984,9 +959,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
 	 */
 
-	server?:
-		| ServerConfig
-		| ((options: { command: "dev" | "preview" }) => ServerConfig);
+	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
 
 	/**
 	 * @docs
@@ -1216,7 +1189,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 				 * <a href="/about" data-astro-prefetch="viewport">About</a>
 				 * ```
 				 */
-				defaultStrategy?: "tap" | "hover" | "viewport" | "load";
+				defaultStrategy?: 'tap' | 'hover' | 'viewport' | 'load';
 		  };
 
 	/**
@@ -1247,7 +1220,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * ```
 		 */
 		endpoint?: {
-			route: "/_image" | (string & {});
+			route: '/_image' | (string & {});
 			entrypoint: undefined | string;
 		};
 
@@ -1666,9 +1639,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * No particular language format or syntax is enforced, but we suggest using lower-case and hyphens as needed (e.g. "es", "pt-br") for greatest compatibility.
 		 */
-		defaultLocale: [TLocales] extends [never]
-			? string
-			: NormalizeLocales<NoInfer<TLocales>>;
+		defaultLocale: [TLocales] extends [never] ? string : NormalizeLocales<NoInfer<TLocales>>;
 
 		/**
 		 * @docs
@@ -1841,9 +1812,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * })
 					 * ```
 					 */
-					fallbackType?: "redirect" | "rewrite";
+					fallbackType?: 'redirect' | 'rewrite';
 			  }
-			| "manual";
+			| 'manual';
 
 		/**
 		 * @docs
@@ -2573,9 +2544,7 @@ export interface AstroConfig extends AstroConfigType {
  * An inline Astro config that takes highest priority when merging with the user config,
  * and includes inline-specific options to configure how Astro runs.
  */
-export interface AstroInlineConfig
-	extends AstroUserConfig,
-		AstroInlineOnlyConfig {}
+export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig {}
 export interface AstroInlineOnlyConfig {
 	/**
 	 * A custom path to the Astro config file. If relative, it'll resolve based on the current working directory.
