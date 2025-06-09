@@ -187,13 +187,13 @@ describe('CSP', () => {
 			meta
 				.attr('content')
 				.toString()
-				.includes("script-src 'https://cdn.example.com' 'https://scripts.cdn.example.com'"),
+				.includes('script-src https://cdn.example.com https://scripts.cdn.example.com'),
 		);
 		assert.ok(
 			meta
 				.attr('content')
 				.toString()
-				.includes("style-src 'https://cdn.example.com' 'https://styles.cdn.example.com'"),
+				.includes('style-src https://cdn.example.com https://styles.cdn.example.com'),
 		);
 	});
 
@@ -213,7 +213,7 @@ describe('CSP', () => {
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		// correctness for resources
 		assert.ok(
-			meta.attr('content').toString().includes("script-src 'https://scripts.cdn.example.com'"),
+			meta.attr('content').toString().includes('script-src https://scripts.cdn.example.com'),
 		);
 		assert.ok(meta.attr('content').toString().includes("style-src 'self'"));
 		// correctness for hashes
@@ -239,9 +239,7 @@ describe('CSP', () => {
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		// correctness for resources
-		assert.ok(
-			meta.attr('content').toString().includes("style-src 'https://styles.cdn.example.com'"),
-		);
+		assert.ok(meta.attr('content').toString().includes('style-src https://styles.cdn.example.com'));
 		assert.ok(meta.attr('content').toString().includes("script-src 'self'"));
 		// correctness for hashes
 		assert.ok(meta.attr('content').toString().includes("default-src 'self';"));

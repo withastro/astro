@@ -149,14 +149,14 @@ let response = await fetch('${serverIslandUrl}', {
 		return createThinHead();
 	}
 	async render(destination: RenderDestination) {
+		destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
+		destination.write('<!--[if astro]>server-island-start<![endif]-->');
 		// Render the slots
 		for (const name in this.slots) {
 			if (name === 'fallback') {
 				await renderChild(destination, this.slots.fallback(this.result));
 			}
 		}
-		destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
-		destination.write('<!--[if astro]>server-island-start<![endif]-->');
 		destination.write(
 			`<script type="module" data-astro-rerun data-island-id="${this.hostId}">${this.islandContent}</script>`,
 		);
