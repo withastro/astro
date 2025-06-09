@@ -1,5 +1,51 @@
 # astro
 
+## 5.9.2
+
+### Patch Changes
+
+- [#13919](https://github.com/withastro/astro/pull/13919) [`423fe60`](https://github.com/withastro/astro/commit/423fe6048dfb4c24d198611f60a5815459efacd3) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Astro added quotes to the CSP resources.
+
+  Only certain resources require quotes (e.g. `'self'` but not `https://cdn.example.com`), so Astro no longer adds quotes to any resources. You must now provide the quotes yourself for resources such as `'self'` when necessary:
+
+  ```diff
+  export default defineConfig({
+    experimental: {
+      csp: {
+        styleDirective: {
+          resources: [
+  -          "self",
+  +          "'self'",
+            "https://cdn.example.com"
+          ]
+        }
+      }
+    }
+  })
+  ```
+
+- [#13914](https://github.com/withastro/astro/pull/13914) [`76c5480`](https://github.com/withastro/astro/commit/76c5480ac0ab1f64df38c23a848f8d28f7640562) Thanks [@ematipico](https://github.com/ematipico)! - **BREAKING CHANGE to the experimental Content Security Policy feature only**
+
+  Removes support for experimental Content Security Policy (CSP) when using the `<ClientRouter />` component for view transitions.
+
+  It is no longer possible to enable experimental CSP while using Astro's view transitions. Support was already unstable with the `<ClientRouter />` because CSP required making its underlying implementation asynchronous. This caused breaking changes for several users and therefore, this PR removes support completely.
+
+  If you are currently using the component for view transitions, please remove the experimental CSP flag as they cannot be used together.
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+  -   csp: true
+     }
+  });
+  ```
+
+  Alternatively, to continue using experimental CSP in your project, you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) and remove the `<ClientRouter />` from your project. You may be able to achieve similar results if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
+
+  Support might be reintroduced in future releases. You can follow this experimental feature's development in [the CSP RFC](https://github.com/withastro/roadmap/blob/feat/rfc-csp/proposals/0055-csp.md).
+
 ## 5.9.1
 
 ### Patch Changes
