@@ -39,13 +39,9 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 	return globalThis.astroAsset.imageService;
 }
 
-type ImageConfig = AstroConfig['image'] & {
-	experimentalResponsiveImages: boolean;
-};
-
 export async function getImage(
 	options: UnresolvedImageTransform,
-	imageConfig: ImageConfig,
+	imageConfig: AstroConfig['image'],
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
 		throw new AstroError({
@@ -126,15 +122,15 @@ export async function getImage(
 	}
 	resolvedOptions.src = clonedSrc;
 
-	const layout = options.layout ?? imageConfig.experimentalLayout;
+	const layout = options.layout ?? imageConfig.layout;
 
-	if (imageConfig.experimentalResponsiveImages && layout) {
+	if (layout) {
 		resolvedOptions.widths ||= getWidths({
 			width: resolvedOptions.width,
 			layout,
 			originalWidth,
-			breakpoints: imageConfig.experimentalBreakpoints?.length
-				? imageConfig.experimentalBreakpoints
+			breakpoints: imageConfig.breakpoints?.length
+				? imageConfig.breakpoints
 				: isLocalService(service)
 					? LIMITED_RESOLUTIONS
 					: DEFAULT_RESOLUTIONS,
