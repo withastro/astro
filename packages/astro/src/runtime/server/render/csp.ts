@@ -1,4 +1,4 @@
-import type { SSRResult } from '../../../types/public/index.js';
+import type { SSRResult } from "../../../types/public/index.js";
 
 export function renderCspContent(result: SSRResult): string {
 	const finalScriptHashes = new Set();
@@ -20,23 +20,23 @@ export function renderCspContent(result: SSRResult): string {
 		finalScriptHashes.add(`'${scriptHash}'`);
 	}
 
-	let directives = '';
+	let directives = "";
 	if (result.directives.length > 0) {
-		directives = result.directives.join(';') + ';';
+		directives = result.directives.join(";") + ";";
 	}
 
 	let scriptResources = "'self'";
 	if (result.scriptResources.length > 0) {
-		scriptResources = result.scriptResources.map((r) => `'${r}'`).join(' ');
+		scriptResources = result.scriptResources.map((r) => `${r}`).join(" ");
 	}
 
 	let styleResources = "'self'";
 	if (result.styleResources.length > 0) {
-		styleResources = result.styleResources.map((r) => `'${r}'`).join(' ');
+		styleResources = result.styleResources.map((r) => `${r}`).join(" ");
 	}
 
-	const strictDynamic = result.isStrictDynamic ? ` strict-dynamic` : '';
-	const scriptSrc = `script-src ${scriptResources} ${Array.from(finalScriptHashes).join(' ')}${strictDynamic};`;
-	const styleSrc = `style-src ${styleResources} ${Array.from(finalStyleHashes).join(' ')};`;
+	const strictDynamic = result.isStrictDynamic ? ` strict-dynamic` : "";
+	const scriptSrc = `script-src ${scriptResources} ${Array.from(finalScriptHashes).join(" ")}${strictDynamic};`;
+	const styleSrc = `style-src ${styleResources} ${Array.from(finalStyleHashes).join(" ")};`;
 	return `${directives} ${scriptSrc} ${styleSrc}`;
 }
