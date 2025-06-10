@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { AstroIntegration } from 'astro';
+import type { AstroIntegration, HookParameters } from 'astro';
 import { blue, yellow } from 'kleur/colors';
 import {
 	type HMRPayload,
@@ -54,7 +54,7 @@ function astroDBIntegration(): AstroIntegration {
 		inProgress: false,
 	};
 
-	let command: 'dev' | 'build' | 'preview' | 'sync';
+	let command: HookParameters<'astro:config:setup'>['command'];
 	let finalBuildOutput: string;
 	return {
 		name: 'astro:db',
@@ -71,7 +71,7 @@ function astroDBIntegration(): AstroIntegration {
 
 				if (connectToRemote) {
 					dbPlugin = vitePluginDb({
-						connectToRemote: connectToRemote,
+						connectToRemote,
 						appToken: getManagedRemoteToken(),
 						tables,
 						root: config.root,
@@ -81,7 +81,7 @@ function astroDBIntegration(): AstroIntegration {
 					});
 				} else {
 					dbPlugin = vitePluginDb({
-						connectToRemote: false,
+						connectToRemote,
 						tables,
 						seedFiles,
 						root: config.root,

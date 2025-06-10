@@ -144,7 +144,6 @@ export async function bundleFile({
 		format: 'esm',
 		sourcemap: 'inline',
 		metafile: true,
-		// TODO: use astro:env
 		define: {
 			'import.meta.env.ASTRO_DB_REMOTE_DB_URL': 'undefined',
 			'import.meta.env.ASTRO_DATABASE_FILE': JSON.stringify(ASTRO_DATABASE_FILE ?? ''),
