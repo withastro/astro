@@ -20,15 +20,6 @@ export function shouldTrackCspHashes(csp: any): csp is EnabledCsp {
 	return csp === true || typeof csp === 'object';
 }
 
-export function shouldInjectMetaTag(manifest: SSRManifest, route: RouteData): boolean {
-	if (manifest.csp?.strategy === 'auto') {
-		return route.prerender;
-	} else if (manifest.csp?.strategy === 'meta') {
-		return true;
-	}
-	return false;
-}
-
 export function getAlgorithm(csp: EnabledCsp): CspAlgorithm {
 	if (csp === true) {
 		return 'SHA-256';
