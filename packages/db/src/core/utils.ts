@@ -37,8 +37,6 @@ export function defineDbIntegration(integration: AstroIntegration): AstroIntegra
 	return integration;
 }
 
-export type Result<T> = { success: true; data: T } | { success: false; data: unknown };
-
 /**
  * Map an object's values to a new set of values
  * while preserving types.

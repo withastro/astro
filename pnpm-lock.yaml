@@ -4380,36 +4380,24 @@ importers:
       '@libsql/client':
         specifier: ^0.15.2
         version: 0.15.2
-      async-listen:
-        specifier: ^3.1.0
-        version: 3.1.0
       deep-diff:
         specifier: ^1.0.2
         version: 1.0.2
       drizzle-orm:
         specifier: ^0.42.0
         version: 0.42.0(@cloudflare/workers-types@4.20250507.0)(@libsql/client@0.15.2)
-      github-slugger:
-        specifier: ^2.0.0
-        version: 2.0.0
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5
-      open:
-        specifier: ^10.1.0
-        version: 10.1.0
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
       yargs-parser:
         specifier: ^21.1.1
         version: 21.1.1
-      yocto-spinner:
-        specifier: ^0.2.1
-        version: 0.2.1
       zod:
         specifier: ^3.24.2
         version: 3.24.2
@@ -8930,10 +8918,6 @@ packages:
   astro-remote@0.3.4:
     resolution: {integrity: sha512-jL5skNQLA0YBc1R3bVGXyHew3FqGqsT7AgLzWAVeTLzFkwVMUYvs4/lKJSmS7ygcF1GnHnoKG6++8GL9VtWwGQ==}
     engines: {node: '>=18.14.1'}
-
-  async-listen@3.1.0:
-    resolution: {integrity: sha512-TkOhqze98lP+6e7SPbrBpyhTpfvqqX8VYKGn4uckrgPan4WQIHnTaUD2zZzZS18eVVDj4rHPcIZa1PGgvo1DfA==}
-    engines: {node: '>= 14'}
 
   async-sema@3.1.1:
     resolution: {integrity: sha512-tLRNUXati5MFePdAk8dw7Qt7DpxPB60ofAgn8WRhW6a2rcimZnYBP9oxHiv0OHy+Wz7kPMG+t4LGdt31+4EmGg==}
@@ -16162,8 +16146,6 @@ snapshots:
       marked-footnote: 1.2.4(marked@12.0.2)
       marked-smartypants: 1.1.8(marked@12.0.2)
       ultrahtml: 1.6.0
-
-  async-listen@3.1.0: {}
 
   async-sema@3.1.1: {}
 
