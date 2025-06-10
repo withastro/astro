@@ -180,9 +180,8 @@ export function getRemoteVirtualModContents({
 import {asDrizzleTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
 export const db = await createRemoteDatabaseClient({
-  dbType: ${JSON.stringify(dbInfo.type)},
-  remoteUrl: ${dbUrlArg()},
-  appToken: ${appTokenArg()},
+  url: ${dbUrlArg()},
+  token: ${appTokenArg()},
 });
 
 export * from ${RUNTIME_VIRTUAL_IMPORT};
@@ -205,10 +204,9 @@ function getStringifiedTableExports(tables: DBTables) {
 const sqlite = new SQLiteAsyncDialect();
 
 async function recreateTables({ tables, root }: { tables: LateTables; root: URL }) {
-	const dbInfo = getRemoteDatabaseInfo();
 	const { ASTRO_DATABASE_FILE } = getAstroEnv();
 	const dbUrl = normalizeDatabaseUrl(ASTRO_DATABASE_FILE, new URL(DB_PATH, root).href);
-	const db = createLocalDatabaseClient({ dbUrl, enableTransactions: dbInfo.type === 'libsql' });
+	const db = createLocalDatabaseClient({ dbUrl });
 	const setupQueries: SQL[] = [];
 	for (const [name, table] of Object.entries(tables.get() ?? {})) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);

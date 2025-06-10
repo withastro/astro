@@ -18,7 +18,7 @@ import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
 import { SEED_DEV_FILE_NAME } from '../queries.js';
-import { type VitePlugin, getDbDirectoryUrl, getManagedRemoteToken } from '../utils.js';
+import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseInfo } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
 import { getDtsContent } from './typegen.js';
 import {
@@ -72,7 +72,7 @@ function astroDBIntegration(): AstroIntegration {
 				if (connectToRemote) {
 					dbPlugin = vitePluginDb({
 						connectToRemote,
-						appToken: getManagedRemoteToken(),
+						appToken: getRemoteDatabaseInfo().token,
 						tables,
 						root: config.root,
 						srcDir: config.srcDir,

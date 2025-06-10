@@ -1,46 +1,29 @@
 import { type Config as LibSQLConfig, createClient } from '@libsql/client';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
-import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
-function applyTransactionNotSupported(db: SqliteRemoteDatabase) {
-	Object.assign(db, {
-		transaction() {
-			throw new Error(
-				'`db.transaction()` is not currently supported. We recommend `db.batch()` for automatic error rollbacks across multiple queries.',
-			);
-		},
-	});
-}
-
 type LocalDbClientOptions = {
 	dbUrl: string;
-	enableTransactions: boolean;
 };
 
 export function createLocalDatabaseClient(options: LocalDbClientOptions): LibSQLDatabase {
 	const url = isWebContainer ? 'file:content.db' : options.dbUrl;
 	const client = createClient({ url });
 	const db = drizzleLibsql(client);
-
-	if (!options.enableTransactions) {
-		applyTransactionNotSupported(db);
-	}
 	return db;
 }
 
 type RemoteDbClientOptions = {
-	dbType: 'libsql';
-	appToken: string;
-	remoteUrl: string | URL;
+	token: string;
+	url: string | URL;
 };
 
 export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
-	const remoteUrl = new URL(options.remoteUrl);
+	const url = new URL(options.url);
 
-	return createRemoteLibSQLClient(options.appToken, remoteUrl, options.remoteUrl.toString());
+	return createRemoteLibSQLClient(options.token, url, options.url.toString());
 }
 
 // this function parses the options from a `Record<string, string>`
@@ -58,18 +41,18 @@ export function parseOpts(config: Record<string, string>): Partial<LibSQLConfig>
 	};
 }
 
-function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: string) {
-	const options: Record<string, string> = Object.fromEntries(remoteDbURL.searchParams.entries());
-	remoteDbURL.search = '';
+function createRemoteLibSQLClient(authToken: string, dbURL: URL, rawUrl: string) {
+	const options: Record<string, string> = Object.fromEntries(dbURL.searchParams.entries());
+	dbURL.search = '';
 
-	let url = remoteDbURL.toString();
-	if (remoteDbURL.protocol === 'memory:') {
+	let url = dbURL.toString();
+	if (dbURL.protocol === 'memory:') {
 		// libSQL expects a special string in place of a URL
 		// for in-memory DBs.
 		url = ':memory:';
 	} else if (
-		remoteDbURL.protocol === 'file:' &&
-		remoteDbURL.pathname.startsWith('/') &&
+		dbURL.protocol === 'file:' &&
+		dbURL.pathname.startsWith('/') &&
 		!rawUrl.startsWith('file:/')
 	) {
 		// libSQL accepts relative and absolute file URLs
@@ -80,9 +63,9 @@ function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL, rawUrl: st
 		// This detects when such a conversion happened during parsing
 		// and undoes it so that the URL given to libSQL is the
 		// same as given by the user.
-		url = 'file:' + remoteDbURL.pathname.substring(1);
+		url = 'file:' + dbURL.pathname.substring(1);
 	}
 
-	const client = createClient({ ...parseOpts(options), url, authToken: appToken });
+	const client = createClient({ ...parseOpts(options), url, authToken });
 	return drizzleLibsql(client);
 }

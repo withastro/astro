@@ -10,23 +10,17 @@ export function getAstroEnv(envMode = ''): Record<`ASTRO_${string}`, string> {
 }
 
 export type RemoteDatabaseInfo = {
-	type: 'libsql';
 	url: string;
+	token: string;
 };
 
 export function getRemoteDatabaseInfo(): RemoteDatabaseInfo {
 	const astroEnv = getAstroEnv();
 
 	return {
-		type: 'libsql',
 		url: astroEnv.ASTRO_DB_REMOTE_URL,
+		token: astroEnv.ASTRO_DB_APP_TOKEN,
 	};
-}
-
-export function getManagedRemoteToken(token?: string): string {
-	const astroEnv = getAstroEnv();
-
-	return token ?? astroEnv.ASTRO_DB_APP_TOKEN;
 }
 
 export function getDbDirectoryUrl(root: URL | string) {

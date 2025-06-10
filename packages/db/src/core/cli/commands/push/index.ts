@@ -5,11 +5,7 @@ import type { Arguments } from 'yargs-parser';
 import { createRemoteDatabaseClient } from '../../../../runtime/index.js';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import type { DBConfig, DBSnapshot } from '../../../types.js';
-import {
-	type RemoteDatabaseInfo,
-	getManagedRemoteToken,
-	getRemoteDatabaseInfo,
-} from '../../../utils.js';
+import { type RemoteDatabaseInfo, getRemoteDatabaseInfo } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -29,11 +25,7 @@ export async function cmd({
 	const isDryRun = flags.dryRun;
 	const isForceReset = flags.forceReset;
 	const dbInfo = getRemoteDatabaseInfo();
-	const appToken = getManagedRemoteToken(flags.token);
-	const productionSnapshot = await getProductionCurrentSnapshot({
-		dbInfo,
-		appToken: appToken,
-	});
+	const productionSnapshot = await getProductionCurrentSnapshot(dbInfo);
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const isFromScratch = !productionSnapshot;
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
@@ -75,7 +67,7 @@ export async function cmd({
 		await pushSchema({
 			statements: migrationQueries,
 			dbInfo,
-			appToken: appToken,
+			appToken: flags.token ?? dbInfo.token,
 			isDryRun,
 			currentSnapshot: currentSnapshot,
 		});
@@ -117,9 +109,8 @@ type RequestBody = {
 
 async function pushToDb(requestBody: RequestBody, appToken: string, remoteUrl: string) {
 	const client = createRemoteDatabaseClient({
-		dbType: 'libsql',
-		appToken,
-		remoteUrl,
+		token: appToken,
+		url: remoteUrl,
 	});
 
 	await client.run(sql`create table if not exists _astro_db_snapshot (

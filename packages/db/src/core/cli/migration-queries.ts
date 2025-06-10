@@ -424,11 +424,11 @@ function hasRuntimeDefault(column: DBColumn): column is DBColumnWithDefault {
 	return !!(column.schema.default && isSerializedSQL(column.schema.default));
 }
 
-export function getProductionCurrentSnapshot(options: {
-	dbInfo: RemoteDatabaseInfo;
-	appToken: string;
-}): Promise<DBSnapshot | undefined> {
-	return getDbCurrentSnapshot(options.appToken, options.dbInfo.url);
+export function getProductionCurrentSnapshot({
+	url,
+	token,
+}: RemoteDatabaseInfo): Promise<DBSnapshot | undefined> {
+	return getDbCurrentSnapshot(token, url);
 }
 
 async function getDbCurrentSnapshot(
@@ -436,9 +436,8 @@ async function getDbCurrentSnapshot(
 	remoteUrl: string,
 ): Promise<DBSnapshot | undefined> {
 	const client = createRemoteDatabaseClient({
-		dbType: 'libsql',
-		appToken,
-		remoteUrl,
+		token: appToken,
+		url: remoteUrl,
 	});
 
 	try {
