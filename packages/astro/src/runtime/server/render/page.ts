@@ -5,6 +5,7 @@ import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
 import type { AstroComponentFactory } from './index.js';
 import { isDeno, isNode } from './util.js';
+import { renderCspContent } from './csp.js';
 
 export async function renderPage(
 	result: SSRResult,
@@ -31,12 +32,15 @@ export async function renderPage(
 		);
 
 		const bytes = encoder.encode(str);
-
+		const headers = new Headers([
+			['Content-Type', 'text/html'],
+			['Content-Length', bytes.byteLength.toString()],
+		]);
+		if (result.cspDestination === 'header') {
+			headers.set('content-security-policy', renderCspContent(result));
+		}
 		return new Response(bytes, {
-			headers: new Headers([
-				['Content-Type', 'text/html'],
-				['Content-Length', bytes.byteLength.toString()],
-			]),
+			headers,
 		});
 	}
 
@@ -74,6 +78,9 @@ export async function renderPage(
 	// Create final response from body
 	const init = result.response;
 	const headers = new Headers(init.headers);
+	if (result.cspDestination === 'header') {
+		headers.set('content-security-policy', renderCspContent(result));
+	}
 	// For non-streaming, convert string to byte array to calculate Content-Length
 	if (!streaming && typeof body === 'string') {
 		body = encoder.encode(body);

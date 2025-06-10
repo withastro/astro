@@ -1,4 +1,4 @@
-import { viteID } from '../dist/core/util.js';
+import { viteID } from "../dist/core/util.js";
 
 /**
  * @typedef {import('../src/types/public/integrations.js').AstroAdapter} AstroAdapter
@@ -30,23 +30,25 @@ export default function ({
 	env,
 } = {}) {
 	return {
-		name: 'my-ssr-adapter',
+		name: "my-ssr-adapter",
 		hooks: {
-			'astro:config:setup': ({ updateConfig }) => {
+			"astro:config:setup": ({ updateConfig }) => {
 				updateConfig({
 					vite: {
 						plugins: [
 							{
 								resolveId(id) {
-									if (id === '@my-ssr') {
+									if (id === "@my-ssr") {
 										return id;
-									} else if (id === 'astro/app') {
-										const viteId = viteID(new URL('../dist/core/app/index.js', import.meta.url));
+									} else if (id === "astro/app") {
+										const viteId = viteID(
+											new URL("../dist/core/app/index.js", import.meta.url),
+										);
 										return viteId;
 									}
 								},
 								load(id) {
-									if (id === '@my-ssr') {
+									if (id === "@my-ssr") {
 										return {
 											code: `
 											import { App } from 'astro/app';
@@ -61,7 +63,7 @@ export default function ({
 													return data[key];
 												}))
 												.catch(() => {});`
-													: ''
+													: ""
 											}
 
 											class MyApp extends App {
@@ -82,7 +84,7 @@ export default function ({
 													${
 														provideAddress
 															? `request[Symbol.for('astro.clientAddress')] = clientAddress ?? '0.0.0.0';`
-															: ''
+															: ""
 													}
 													return super.render(request, { routeData, locals, addCookieHeader, prerenderedErrorPageFetch });
 												}
@@ -103,26 +105,27 @@ export default function ({
 					},
 				});
 			},
-			'astro:config:done': ({ setAdapter }) => {
+			"astro:config:done": ({ setAdapter }) => {
 				setAdapter({
-					name: 'my-ssr-adapter',
-					serverEntrypoint: '@my-ssr',
-					exports: ['manifest', 'createApp'],
+					name: "my-ssr-adapter",
+					serverEntrypoint: "@my-ssr",
+					exports: ["manifest", "createApp"],
 					supportedAstroFeatures: {
-						serverOutput: 'stable',
-						envGetSecret: 'stable',
-						staticOutput: 'stable',
-						hybridOutput: 'stable',
-						assets: 'stable',
-						i18nDomains: 'stable',
+						serverOutput: "stable",
+						envGetSecret: "stable",
+						staticOutput: "stable",
+						hybridOutput: "stable",
+						assets: "stable",
+						i18nDomains: "stable",
+						cspHeader: "stable",
 					},
 					adapterFeatures: {
-						buildOutput: 'server',
+						buildOutput: "server",
 					},
 					...extendAdapter,
 				});
 			},
-			'astro:build:ssr': ({ entryPoints, middlewareEntryPoint, manifest }) => {
+			"astro:build:ssr": ({ entryPoints, middlewareEntryPoint, manifest }) => {
 				if (setEntryPoints) {
 					setEntryPoints(entryPoints);
 				}
@@ -133,7 +136,7 @@ export default function ({
 					setManifest(manifest);
 				}
 			},
-			'astro:build:done': ({ routes }) => {
+			"astro:build:done": ({ routes }) => {
 				if (setRoutes) {
 					setRoutes(routes);
 				}

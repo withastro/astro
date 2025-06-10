@@ -268,4 +268,36 @@ describe('CSP', () => {
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		assert.ok(meta.attr('content').toString().includes('strict-dynamic;'));
 	});
+
+	it('should serve hashes via headers for dynamic pages, when the strategy is "auto"', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			adapter: testAdapter(),
+			experimental: {
+				csp: {
+					strategy: 'auto',
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+
+		const request = new Request('http://example.com/ssr');
+		const response = await app.render(request);
+
+		const header = response.headers.get('content-security-policy');
+
+		assert.ok(header.includes('style-src https://styles.cdn.example.com'));
+
+		// correctness for resources
+		assert.ok(header.includes("script-src 'self'"));
+		// correctness for hashes
+		assert.ok(header.includes("default-src 'self';"));
+
+		const html = await response.text();
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		assert.equal(meta.attr('content'), undefined, 'meta tag should not be present');
+	});
 });

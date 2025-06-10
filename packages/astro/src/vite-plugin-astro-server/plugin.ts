@@ -10,6 +10,7 @@ import {
 	getDirectives,
 	getScriptHashes,
 	getScriptResources,
+	getStrategy,
 	getStrictDynamic,
 	getStyleHashes,
 	getStyleResources,
@@ -186,6 +187,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 
 	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
 		csp = {
+			strategy: getStrategy(settings.config.experimental.csp),
 			scriptHashes: getScriptHashes(settings.config.experimental.csp),
 			scriptResources: getScriptResources(settings.config.experimental.csp),
 			styleHashes: getStyleHashes(settings.config.experimental.csp),

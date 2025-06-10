@@ -33,6 +33,7 @@ import {
 	getDirectives,
 	getScriptHashes,
 	getScriptResources,
+	getStrategy,
 	getStrictDynamic,
 	getStyleHashes,
 	getStyleResources,
@@ -638,6 +639,7 @@ async function createBuildManifest(
 
 	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
 		const algorithm = getAlgorithm(settings.config.experimental.csp);
+		const strategy = getStrategy(settings.config.experimental.csp);
 		const scriptHashes = [
 			...getScriptHashes(settings.config.experimental.csp),
 			...(await trackScriptHashes(internals, settings, algorithm)),
@@ -648,6 +650,7 @@ async function createBuildManifest(
 		];
 
 		csp = {
+			strategy,
 			styleHashes,
 			styleResources: getStyleResources(settings.config.experimental.csp),
 			scriptHashes,
