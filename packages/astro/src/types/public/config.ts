@@ -15,7 +15,7 @@ import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
-import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
+import type { CspAlgorithm, CspDirective, CspHash, CspStrategy } from '../../core/csp/config.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
@@ -2252,6 +2252,19 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		csp?:
 			| boolean
 			| {
+					/**
+					 * @name experimental.csp.algorithm
+					 * @type {"meta" | "auto"}
+					 * @default `'meta'`
+					 * @version 5.9.0
+					 * @description
+					 *
+					 * Determine the strategy of how the CSP hashes should be injected:
+					 * - `meta`: all hashes are served via the element meta.
+					 * - `auto`: hashes for static pages are served via element meta, hashes for dynamic pages are served via response headers.
+					 */
+					strategy?: CspStrategy;
+
 					/**
 					 * @name experimental.csp.algorithm
 					 * @type {"SHA-256" | "SHA-384" | "SHA-512"}

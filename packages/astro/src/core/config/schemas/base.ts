@@ -11,7 +11,12 @@ import { z } from 'zod';
 import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
-import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
+import {
+	allowedDirectivesSchema,
+	cspAlgorithmSchema,
+	cspHashSchema,
+	cspStrategySchema,
+} from '../../csp/config.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
@@ -483,6 +488,7 @@ export const AstroConfigSchema = z.object({
 				.union([
 					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
 					z.object({
+						strategy: cspStrategySchema,
 						algorithm: cspAlgorithmSchema,
 						directives: z.array(allowedDirectivesSchema).optional(),
 						styleDirective: z

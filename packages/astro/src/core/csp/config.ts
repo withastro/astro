@@ -74,3 +74,7 @@ export const allowedDirectivesSchema = z.custom<CspDirective>((value) => {
 		return value.startsWith(allowedValue);
 	});
 });
+
+export const cspStrategySchema = z.enum(['auto', 'meta']).optional().default('meta');
+
+export type CspStrategy = z.infer<typeof cspStrategySchema>;
