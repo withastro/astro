@@ -133,7 +133,9 @@ interface CommonSessionConfig {
 	 */
 	cookie?:
 		| string
-		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & { name?: string });
+		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & {
+				name?: string;
+		  });
 
 	/**
 	 * Default session duration in seconds. If not set, the session will be stored until deleted, or until the cookie expires.
@@ -1858,9 +1860,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			: Partial<Record<NormalizeLocales<NoInfer<TLocales>>, string>>;
 	};
 
-	/** ! WARNING: SUBJECT TO CHANGE */
-	db?: Config.Database;
-
 	/**
 	 * @docs
 	 * @kind heading
@@ -2340,7 +2339,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 						 *     csp: {
 						 *       styleDirective: {
 						 *         resources: [
-						 *           "self",
+						 *           "'self'",
 						 *           "https://styles.cdn.example.com"
 						 *         ]
 						 *       }
@@ -2417,7 +2416,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 						 *     csp: {
 						 *       scriptDirective: {
 						 *         resources: [
-						 *           "self",
+						 *           "'self'",
 						 *           "https://cdn.example.com"
 						 *         ]
 						 *       }
@@ -2586,12 +2585,4 @@ export interface AstroInlineOnlyConfig {
 	 * @internal for testing only, use `logLevel` instead.
 	 */
 	logger?: Logger;
-}
-
-// HACK! astro:db augment this type that is used in the config
-declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace Config {
-		type Database = Record<string, any>;
-	}
 }

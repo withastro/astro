@@ -1,0 +1,9 @@
+{
+  "name": "@e2e/vite-virtual-modules",
+	"type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*"
+  }
+}
