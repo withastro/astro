@@ -4,12 +4,7 @@ import { ISLAND_STYLES } from '../../runtime/server/astro-island-styles.js';
 import astroIslandPrebuiltDev from '../../runtime/server/astro-island.prebuilt-dev.js';
 import astroIslandPrebuilt from '../../runtime/server/astro-island.prebuilt.js';
 import type { AstroSettings } from '../../types/astro.js';
-import type {
-	AstroConfig,
-	CspAlgorithm,
-	RouteData,
-	SSRManifest,
-} from '../../types/public/index.js';
+import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
 import type { BuildInternals } from '../build/internal.js';
 import { generateCspDigest } from '../encryption.js';
 import type { CspDirective, CspStrategy } from './config.js';
