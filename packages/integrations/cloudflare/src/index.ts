@@ -250,21 +250,19 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				_config = config;
 				finalBuildOutput = buildOutput;
 
-				let customWorkerEntryPoint: URL | string | undefined;
+				let customWorkerEntryPoint: URL | undefined;
 				if (args?.workerEntryPoint && typeof args.workerEntryPoint.path === 'string') {
 					const require = createRequire(config.root);
 					try {
-						customWorkerEntryPoint = pathToFileURL(require.resolve(args?.workerEntryPoint?.path));
+						customWorkerEntryPoint = pathToFileURL(require.resolve(args.workerEntryPoint.path));
 					} catch {
-						customWorkerEntryPoint = new URL(args?.workerEntryPoint?.path, config.root);
+						customWorkerEntryPoint = new URL(args.workerEntryPoint.path, config.root);
 					}
 				}
 
 				setAdapter({
 					name: '@astrojs/cloudflare',
-					serverEntrypoint: customWorkerEntryPoint
-						? customWorkerEntryPoint
-						: '@astrojs/cloudflare/entrypoints/server.js',
+					serverEntrypoint: customWorkerEntryPoint ?? '@astrojs/cloudflare/entrypoints/server.js',
 					exports: args?.workerEntryPoint?.namedExports
 						? ['default', ...args.workerEntryPoint.namedExports]
 						: ['default'],
