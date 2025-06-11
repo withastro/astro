@@ -9,7 +9,8 @@ import type { PluginOption } from 'vite';
 import { createReadStream } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
 import {
 	appendForwardSlash,
 	prependForwardSlash,
@@ -110,15 +111,15 @@ export type Options = {
 		/**
 		 * The path to the entry file. This should be a relative path from the root of your Astro project.
 		 * @example`'src/worker.ts'`
-		 * @docs https://docs.astro.build/en/reference/adapter-reference/#server-entrypoint
+		 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerentrypointpath
 		 */
 		path: string | URL;
 		/**
-		 * The exports to use for the entry file. By default, this is set to `['default']`. If you need to have other top level exports, e.g. DurableObjects you need to provide them here.
-		 * @example `['default', 'MyDurableObject']`
-		 * @docs https://docs.astro.build/en/reference/adapter-reference/#server-entrypoint
+		 * Additional named exports to use for the entry file. Astro always includes the default export (`['default']`). If you need to have other top level named exports use this option.
+		 * @example ['MyDurableObject', 'namedExport']
+		 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerentrypointnamedexports
 		 */
-		exports: string[];
+		namedExports?: string[];
 	};
 };
 
@@ -249,9 +250,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				_config = config;
 				finalBuildOutput = buildOutput;
 
-				let customWorkerEntryPoint: URL | undefined;
-				if (args?.workerEntryPoint?.path && typeof args.workerEntryPoint.path === 'string') {
-					customWorkerEntryPoint = new URL(args.workerEntryPoint.path, config.root);
+				let customWorkerEntryPoint: URL | string | undefined;
+				if (args?.workerEntryPoint && typeof args.workerEntryPoint.path === 'string') {
+					const require = createRequire(config.root);
+					try {
+						customWorkerEntryPoint = pathToFileURL(require.resolve(args?.workerEntryPoint?.path));
+					} catch {
+						customWorkerEntryPoint = new URL(args?.workerEntryPoint?.path, config.root);
+					}
 				}
 
 				setAdapter({
@@ -259,7 +265,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					serverEntrypoint: customWorkerEntryPoint
 						? customWorkerEntryPoint
 						: '@astrojs/cloudflare/entrypoints/server.js',
-					exports: args?.workerEntryPoint?.exports ? args.workerEntryPoint.exports : ['default'],
+					exports: args?.workerEntryPoint?.namedExports
+						? ['default', ...args.workerEntryPoint.namedExports]
+						: ['default'],
 					adapterFeatures: {
 						edgeMiddleware: false,
 						buildOutput: 'server',
