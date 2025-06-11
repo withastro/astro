@@ -29,7 +29,6 @@ export function renderAllHeadContent(result: SSRResult) {
 			},
 			false,
 		);
-		content += '\n';
 	}
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
