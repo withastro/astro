@@ -108,7 +108,7 @@ export interface AstroAdapter {
 
 export type AstroAdapterFeatureMap = {
 	/**
-	 * The adapter is able serve static pages
+	 * The adapter is able to serve static pages
 	 */
 	staticOutput?: AdapterSupport;
 
@@ -136,6 +136,12 @@ export type AstroAdapterFeatureMap = {
 	 * The adapter supports image transformation using the built-in Sharp image service
 	 */
 	sharpImageService?: AdapterSupport;
+
+	/**
+	 * The adapter is able to provide CSP hashes using the Response header `Content-Security-Policy`. Either via hosting configuration
+	 * for static pages or at runtime using `Response` headers for dynamic pages.
+	 */
+	cspHeader?: AdapterSupport;
 };
 
 /**
@@ -197,13 +203,16 @@ export interface BaseIntegrationHooks {
 		address: AddressInfo;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
-	'astro:server:done': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+	'astro:server:done': (options: {
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
 	'astro:build:ssr': (options: {
 		manifest: SerializedSSRManifest;
 		/**
 		 * This maps a {@link RouteData} to an {@link URL}, this URL represents
 		 * the physical file you should import.
 		 */
+		// TODO: Change in Astro 6.0
 		entryPoints: Map<IntegrationRouteData, URL>;
 		/**
 		 * File path of the emitted middleware
@@ -211,7 +220,9 @@ export interface BaseIntegrationHooks {
 		middlewareEntryPoint: URL | undefined;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
-	'astro:build:start': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+	'astro:build:start': (options: {
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
 	'astro:build:setup': (options: {
 		vite: ViteInlineConfig;
 		pages: Map<string, PageBuildData>;

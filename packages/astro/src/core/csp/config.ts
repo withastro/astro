@@ -63,7 +63,7 @@ const ALLOWED_DIRECTIVES = [
 	'upgrade-insecure-requests',
 	'worker-src',
 ] as const;
-
+type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
 export type CspDirective = `${AllowedDirectives} ${string}`;
 
 export const allowedDirectivesSchema = z.custom<CspDirective>((value) => {
@@ -74,5 +74,3 @@ export const allowedDirectivesSchema = z.custom<CspDirective>((value) => {
 		return value.startsWith(allowedValue);
 	});
 });
-
-type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];

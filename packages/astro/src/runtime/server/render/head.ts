@@ -52,7 +52,7 @@ export function renderAllHeadContent(result: SSRResult) {
 		}
 	}
 
-	if (result.shouldInjectCspMetaTags) {
+	if (result.cspDestination === 'meta') {
 		content += renderElement(
 			'meta',
 			{
