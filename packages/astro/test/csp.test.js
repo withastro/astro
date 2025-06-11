@@ -52,7 +52,8 @@ describe('CSP', () => {
 		if (manifest) {
 			const request = new Request('http://example.com/index.html');
 			const response = await app.render(request);
-			const $ = cheerio.load(await response.text());
+			const html = await response.text();
+			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
 			for (const hash of manifest.csp.scriptHashes) {

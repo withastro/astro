@@ -259,7 +259,9 @@ export interface SSRResult {
 	 * - nothing for static pages (the adapter does this)
 	 * - Response header for dynamic pages
 	 */
-	cspDestination: CspDestination;
+	// NOTE: we use a different type here because at runtime we must provide a value, which is
+	// eventually computed from RouteData.prerender
+	cspDestination: NonNullable<SSRManifestCSP['cspDestination']>;
 	shouldInjectCspMetaTags: boolean;
 	cspAlgorithm: SSRManifestCSP['algorithm'];
 	scriptHashes: SSRManifestCSP['scriptHashes'];
@@ -269,8 +271,6 @@ export interface SSRResult {
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 }
-
-export type CspDestination = 'header' | 'meta' | 'adapter';
 
 /**
  * A hint on whether the Astro runtime needs to wait on a component to render head

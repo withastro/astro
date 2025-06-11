@@ -109,6 +109,7 @@ export type SSRManifestI18n = {
 };
 
 export type SSRManifestCSP = {
+	cspDestination: 'adapter' | 'meta' | 'header' | undefined;
 	algorithm: CspAlgorithm;
 	scriptHashes: string[];
 	scriptResources: string[];

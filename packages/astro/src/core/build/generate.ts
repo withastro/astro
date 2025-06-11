@@ -671,6 +671,9 @@ async function createBuildManifest(
 		];
 
 		csp = {
+			cspDestination: settings.adapter?.adapterFeatures?._experimentalStaticHeaders
+				? 'adapter'
+				: undefined,
 			styleHashes,
 			styleResources: getStyleResources(settings.config.experimental.csp),
 			scriptHashes,

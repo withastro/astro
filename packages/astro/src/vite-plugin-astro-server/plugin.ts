@@ -186,6 +186,9 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 
 	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
 		csp = {
+			cspDestination: settings.adapter?.adapterFeatures?._experimentalStaticHeaders
+				? 'adapter'
+				: undefined,
 			scriptHashes: getScriptHashes(settings.config.experimental.csp),
 			scriptResources: getScriptResources(settings.config.experimental.csp),
 			styleHashes: getStyleHashes(settings.config.experimental.csp),

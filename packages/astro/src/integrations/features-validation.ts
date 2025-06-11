@@ -1,4 +1,3 @@
-import { shouldTrackCspHashes } from '../core/csp/common.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type {
