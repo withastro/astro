@@ -27,12 +27,12 @@ export function renderCspContent(result: SSRResult): string {
 
 	let scriptResources = "'self'";
 	if (result.scriptResources.length > 0) {
-		scriptResources = result.scriptResources.map((r) => `'${r}'`).join(' ');
+		scriptResources = result.scriptResources.map((r) => `${r}`).join(' ');
 	}
 
 	let styleResources = "'self'";
 	if (result.styleResources.length > 0) {
-		styleResources = result.styleResources.map((r) => `'${r}'`).join(' ');
+		styleResources = result.styleResources.map((r) => `${r}`).join(' ');
 	}
 
 	const strictDynamic = result.isStrictDynamic ? ` strict-dynamic` : '';

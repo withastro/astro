@@ -133,7 +133,9 @@ interface CommonSessionConfig {
 	 */
 	cookie?:
 		| string
-		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & { name?: string });
+		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & {
+				name?: string;
+		  });
 
 	/**
 	 * Default session duration in seconds. If not set, the session will be stored until deleted, or until the cookie expires.
@@ -2232,7 +2234,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 						 *     csp: {
 						 *       styleDirective: {
 						 *         resources: [
-						 *           "self",
+						 *           "'self'",
 						 *           "https://styles.cdn.example.com"
 						 *         ]
 						 *       }
@@ -2309,7 +2311,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 						 *     csp: {
 						 *       scriptDirective: {
 						 *         resources: [
-						 *           "self",
+						 *           "'self'",
 						 *           "https://cdn.example.com"
 						 *         ]
 						 *       }
