@@ -103,7 +103,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
-	const pathToCsp = new Map<IntegrationResolvedRoute, string>();
+	const routeToHeaders = new Map<IntegrationResolvedRoute, Headers>();
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
@@ -118,13 +118,13 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 				const ssrEntryPage = await pipeline.retrieveSsrEntry(pageData.route, filePath);
 
 				const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-				await generatePage(pageData, ssrEntry, builtPaths, pipeline, pathToCsp);
+				await generatePage(pageData, ssrEntry, builtPaths, pipeline, routeToHeaders);
 			}
 		}
 	} else {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			const entry = await pipeline.retrieveSsrEntry(pageData.route, filePath);
-			await generatePage(pageData, entry, builtPaths, pipeline, pathToCsp);
+			await generatePage(pageData, entry, builtPaths, pipeline, routeToHeaders);
 		}
 	}
 	logger.info(
@@ -224,7 +224,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	await runHookBuildGenerated({
 		settings: options.settings,
 		logger,
-		_experimentalCspMapping: pathToCsp,
+		_experimentalRouteToHeaders: routeToHeaders,
 	});
 }
 
@@ -235,7 +235,7 @@ async function generatePage(
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>,
 	pipeline: BuildPipeline,
-	pathToCsp: Map<IntegrationResolvedRoute, string>,
+	routeToHeaders: Map<IntegrationResolvedRoute, Headers>,
 ) {
 	// prepare information we need
 	const { config, logger } = pipeline;
@@ -282,7 +282,7 @@ async function generatePage(
 			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
 		}
 
-		const created = await generatePath(path, pipeline, generationOptions, route, pathToCsp);
+		const created = await generatePath(path, pipeline, generationOptions, route, routeToHeaders);
 
 		const timeEnd = performance.now();
 		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
@@ -500,7 +500,7 @@ async function generatePath(
 	pipeline: BuildPipeline,
 	gopts: GeneratePathOptions,
 	route: RouteData,
-	pathToCsp: Map<IntegrationResolvedRoute, string>,
+	routeToHeaders: Map<IntegrationResolvedRoute, Headers>,
 ): Promise<boolean | undefined> {
 	const { mod } = gopts;
 	const { config, logger, options } = pipeline;
@@ -570,9 +570,8 @@ async function generatePath(
 		throw err;
 	}
 
-	const cspHeader = response.headers.get('Content-Security-Policy');
-	if (cspHeader && pipeline.cspDestination(route) === 'adapter') {
-		pathToCsp.set(toIntegrationResolvedRoute(route), cspHeader);
+	if (pipeline.settings.adapter?.adapterFeatures?._experimentalStaticHeaders) {
+		routeToHeaders.set(toIntegrationResolvedRoute(route), response.headers);
 	}
 
 	if (response.status >= 300 && response.status < 400) {

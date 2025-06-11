@@ -2,7 +2,7 @@
 'astro': patch
 ---
 
-Adds a new **experimental** Astro Adapter Feature called `_experimentalHostedCspHeader`. 
+Adds a new **experimental** Astro Adapter Feature called `_experimentalStatiHeaders`. 
 
 When enabled, and the `experimental.csp` feature is enabled, Astro **won't** serve the CSP `<meta http-equiv="content-security-policy">` element in static pages;
 instead the value of the header is served inside a map that can be retrieved from the hook `astro:build:generated`.

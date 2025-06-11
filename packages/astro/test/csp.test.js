@@ -261,23 +261,30 @@ describe('CSP', () => {
 	});
 
 	it('should return CSP header inside a hook', async () => {
-		let pathToCsp;
+		let routeToHeaders;
 		fixture = await loadFixture({
 			root: './fixtures/csp-adapter/',
 			adapter: testAdapter({
-				setPathToCsp(cspHeader) {
-					pathToCsp = cspHeader;
+				staticHeaders: true,
+				setRouteToHeaders(payload) {
+					routeToHeaders = payload;
 				},
 			}),
 			experimental: {
-				csp: {
-					strategy: 'auto',
-				},
+				csp: true,
 			},
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
 
-		assert.equal(pathToCsp.size, 4, 'four routes: /, /scripts, /title/foo, /title/bar');
+		assert.equal(
+			routeToHeaders.size,
+			4,
+			'expected four routes: /, /scripts, /title/foo, /title/bar',
+		);
+
+		for (const headers of routeToHeaders.values()) {
+			assert.ok(headers.has('content-security-policy'), 'should have a CSP header');
+		}
 	});
 });
