@@ -79,3 +79,5 @@ The `layout`, `fit`, and `position` props on `<Image>` and `<Picture>` component
 ```
 
 If you weren't using the experimental responsive images feature, no changes are required.
+
+Please see the [Image guide](https://docs.astro.build/en/guides/images/#responsive-image-behavior) for more information on using responsive images in Astro.

@@ -2,17 +2,21 @@
 'astro': minor
 ---
 
-Introduces a `priority` attribute for the `Image` component.
+Adds a new `priority` attribute for Astro's image components.
 
-By default, the Astro [`<Image />` component](https://docs.astro.build/en/guides/images/#display-optimized-images-with-the-image--component) generates `<img>` tags that lazy-load their content by setting `loading="lazy"` and `decoding="async"`. This improves performance by deferring the loading of images that are not immediately visible in the viewport, and gives the best scores in performance audits like Lighthouse. However, for the main, above-the-fold images, you should tell the browser to load them immediately. Currently you can do this by setting the `loading` attribute to `"eager"` and `decoding` to `"sync"` on the `<img>` tag, but this is a bit cumbersome. It also does not currently set the `fetchpriority` attribute, which is a new HTML attribute that allows you to specify the priority of resource fetching.
+This change introduces a new `priority` option for the `<Image />` and `<Picture />` components, which automatically sets the `loading`, `decoding`, and `fetchpriority` attributes to their optimal values for above-the-fold images which should be loaded immediately, even at the expense of performance.
 
-This change introduces a new `priority` option for the `<Image />` and `<Picture />` components, which automatically sets the `loading`, `decoding`, and `fetchpriority` attributes to their optimal values for above-the-fold images. It is a boolean prop, and you can use the shorthand syntax by simply adding `priority` as a prop to the `<Image />` or `<Picture />` component. When set, it will apply the following attributes:
+It is a boolean prop, and you can use the shorthand syntax by simply adding `priority` as a prop to the `<Image />` or `<Picture />` component. When set, it will apply the following attributes:
 
 - `loading="eager"`
 - `decoding="sync"`
 - `fetchpriority="high"`
 
-The individual attributes can still be set manually if you need to customize them further.
+The individual attributes can still be set manually if you need to customize your images further.
+
+By default, the Astro [`<Image />` component](https://docs.astro.build/en/guides/images/#display-optimized-images-with-the-image--component) generates `<img>` tags that lazy-load their content by setting `loading="lazy"` and `decoding="async"`. This improves performance by deferring the loading of images that are not immediately visible in the viewport, and gives the best scores in performance audits like Lighthouse. 
+
+The new `priority` attribute will override those defaults and automatically add the best settings for your high-priority assets.
 
 This option was previously available for experimental responsive images, but now it is a standard feature for all images.
 

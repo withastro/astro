@@ -1337,6 +1337,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * - `constrained` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
 		 * - `fixed` - The image will maintain its original dimensions.
 		 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
+		 *
+		 * See [the layout component property](https://docs.astro.build/en/reference/modules/astro-assets/#layout) for more details.
 		 */
 		layout?: ImageLayout | undefined;
 		/**
