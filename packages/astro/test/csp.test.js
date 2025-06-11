@@ -274,9 +274,7 @@ describe('CSP', () => {
 			root: './fixtures/csp/',
 			adapter: testAdapter(),
 			experimental: {
-				csp: {
-					strategy: 'auto',
-				},
+				csp: true,
 			},
 		});
 		await fixture.build();

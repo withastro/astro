@@ -16,7 +16,7 @@ import type {
 	SSRResult,
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
-import type { CspDirective, CspStrategy } from '../csp/config.js';
+import type { CspDirective } from '../csp/config.js';
 
 type ComponentPath = string;
 
@@ -109,7 +109,6 @@ export type SSRManifestI18n = {
 };
 
 export type SSRManifestCSP = {
-	strategy: CspStrategy;
 	algorithm: CspAlgorithm;
 	scriptHashes: string[];
 	scriptResources: string[];

@@ -455,10 +455,8 @@ export class RenderContext {
 		} satisfies AstroGlobal['response'];
 
 		let cspDestination: 'meta' | 'header' = 'meta';
-		if (manifest.csp?.strategy === 'auto') {
-			if (!routeData.prerender) {
-				cspDestination = 'header';
-			}
+		if (!routeData.prerender) {
+			cspDestination = 'header';
 		}
 
 		// Create the result object that will be passed into the renderPage function.
