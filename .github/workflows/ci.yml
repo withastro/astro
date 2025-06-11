@@ -34,7 +34,7 @@ jobs:
   build:
     name: "Build: ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 3
+    timeout-minutes: 5
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]

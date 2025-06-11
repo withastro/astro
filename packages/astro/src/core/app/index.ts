@@ -487,9 +487,17 @@ export class App {
 				if (statusURL.toString() !== request.url) {
 					const response = await prerenderedErrorPageFetch(statusURL.toString() as ErrorPagePath);
 
-					// response for /404.html and 500.html is 200, which is not meaningful
-					// so we create an override
-					const override = { status };
+					// In order for the response of the remote to be usable as a response
+					// for this request, it needs to have our status code in the response
+					// instead of the likely successful 200 code it returned when fetching
+					// the error page.
+					//
+					// Furthermore, remote may have returned a compressed page
+					// (the Content-Encoding header was set to e.g. `gzip`). The fetch
+					// implementation in the `mergeResponses` method will make a decoded
+					// response available, so Content-Length and Content-Encoding will
+					// not match the body we provide and need to be removed.
+					const override = { status, removeContentEncodingHeaders: true };
 
 					return this.#mergeResponses(response, originalResponse, override);
 				}
@@ -536,14 +544,32 @@ export class App {
 	#mergeResponses(
 		newResponse: Response,
 		originalResponse?: Response,
-		override?: { status: 404 | 500 },
+		override?: {
+			status: 404 | 500;
+			removeContentEncodingHeaders: boolean;
+		},
 	) {
+		let newResponseHeaders = newResponse.headers;
+
+		// In order to set the body of a remote response as the new response body, we need to remove
+		// headers about encoding in transit, as Node's standard fetch implementation `undici`
+		// currently does not do so.
+		//
+		// Also see https://github.com/nodejs/undici/issues/2514
+		if (override?.removeContentEncodingHeaders) {
+			// The original headers are immutable, so we need to clone them here.
+			newResponseHeaders = new Headers(newResponseHeaders);
+
+			newResponseHeaders.delete('Content-Encoding');
+			newResponseHeaders.delete('Content-Length');
+		}
+
 		if (!originalResponse) {
 			if (override !== undefined) {
 				return new Response(newResponse.body, {
 					status: override.status,
 					statusText: newResponse.statusText,
-					headers: newResponse.headers,
+					headers: newResponseHeaders,
 				});
 			}
 			return newResponse;
@@ -564,7 +590,7 @@ export class App {
 		} catch {}
 		// we use a map to remove duplicates
 		const mergedHeaders = new Map([
-			...Array.from(newResponse.headers),
+			...Array.from(newResponseHeaders),
 			...Array.from(originalResponse.headers),
 		]);
 		const newHeaders = new Headers();
