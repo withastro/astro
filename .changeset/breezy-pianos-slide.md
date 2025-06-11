@@ -17,7 +17,7 @@ export default defineConfig({
 	adapter: cloudflare({
 		workerEntryPoint: {
 			path: 'src/worker.ts',
-			exports: ['default','MyDurableObject']
+			namedExports: ['MyDurableObject']
 		}
 	}),
 });
@@ -32,9 +32,9 @@ import { handle } from '@astrojs/cloudflare/handler'
 import { DurableObject } from 'cloudflare:workers';
 
 class MyDurableObject extends DurableObject<Env> {
-  constructor(ctx: DurableObjectState, env: Env) {
-    super(ctx, env)
-  }
+	constructor(ctx: DurableObjectState, env: Env) {
+		super(ctx, env)
+	}
 }
 
 export function createExports(manifest: SSRManifest) {
@@ -47,10 +47,10 @@ export function createExports(manifest: SSRManifest) {
 			},
 			async queue(batch, _env) {
 				let messages = JSON.stringify(batch.messages);
-    		console.log(`consumed from our queue: ${messages}`);
+				console.log(`consumed from our queue: ${messages}`);
 			}
 		} satisfies ExportedHandler<Env>,
-		MyDurableObject: MyDurableObject,
+		MyDurableObject,
 	}
 }
 ```
