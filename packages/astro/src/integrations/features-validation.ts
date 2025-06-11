@@ -1,3 +1,4 @@
+import { shouldTrackCspHashes } from '../core/csp/common.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type {
@@ -5,7 +6,6 @@ import type {
 	AdapterSupportsKind,
 	AstroAdapterFeatureMap,
 } from '../types/public/integrations.js';
-import { shouldTrackCspHashes } from '../core/csp/common.js';
 
 export const AdapterFeatureStability = {
 	STABLE: 'stable',
