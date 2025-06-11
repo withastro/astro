@@ -2,7 +2,11 @@
 '@astrojs/cloudflare': minor
 ---
 
-Adds the option to set a custom workerEntryPoint. This feature is only supported for Cloudflare Workers and when you use `astro build`. Below is an example on how to use it to register a Durable Object and a queue handler.
+Adds new configuration options to allow you to set a custom `workerEntryPoint` for Cloudflare Workers. This is useful if you want to use features that require handlers (e.g. Durable Objects, Cloudflare Queues, Scheduled Invocations) not supported by the basic generic entry file.
+
+This feature is not supported when running the Astro dev server. However, you can run `astro build` followed by either `wrangler deploy` (to deploy it) or `wrangler dev` to preview it.
+
+The following example configures a custom entry file registers a Durable Object and a queue handler:
 
 ```ts
 // astro.config.ts
