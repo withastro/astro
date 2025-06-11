@@ -251,6 +251,7 @@ export interface SSRResult {
 	 * Whether Astro should inject the CSP <meta> tag into the head of the component.
 	 */
 	cspDestination: 'header' | 'meta';
+	shouldInjectCspMetaTags: boolean;
 	cspAlgorithm: SSRManifestCSP['algorithm'];
 	scriptHashes: SSRManifestCSP['scriptHashes'];
 	scriptResources: SSRManifestCSP['scriptResources'];

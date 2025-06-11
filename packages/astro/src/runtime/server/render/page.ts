@@ -78,7 +78,7 @@ export async function renderPage(
 	// Create final response from body
 	const init = result.response;
 	const headers = new Headers(init.headers);
-	if (result.cspDestination === 'header') {
+	if (result.shouldInjectCspMetaTags && result.cspDestination === 'header') {
 		headers.set('content-security-policy', renderCspContent(result));
 	}
 	// For non-streaming, convert string to byte array to calculate Content-Length
