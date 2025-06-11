@@ -2,4 +2,6 @@
 'astro': patch
 ---
 
-Adds a new option to the CSP called `strategy`. When `strategy` is set to `auto`, the hashes of dynamic pages will be served using the `Response` headers.
+Changes to the behavior of the CSP solution. Now Astro CSP hashes are served differntely:
+- Via the `<meta>` element for static pages
+- Via the `Response` header `content-security-policy` for dynamic pages
