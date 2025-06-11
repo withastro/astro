@@ -7,7 +7,7 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
 import type { BuildInternals } from '../build/internal.js';
 import { generateCspDigest } from '../encryption.js';
-import type { CspDirective, CspStrategy } from './config.js';
+import type { CspDirective } from './config.js';
 
 type EnabledCsp = Exclude<AstroConfig['experimental']['csp'], false>;
 
@@ -20,13 +20,6 @@ export function getAlgorithm(csp: EnabledCsp): CspAlgorithm {
 		return 'SHA-256';
 	}
 	return csp.algorithm;
-}
-
-export function getStrategy(csp: EnabledCsp): CspStrategy {
-	if (csp === true) {
-		return 'meta';
-	}
-	return csp.strategy;
 }
 
 export function getScriptHashes(csp: EnabledCsp): string[] {
