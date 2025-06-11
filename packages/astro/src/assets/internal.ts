@@ -122,9 +122,20 @@ export async function getImage(
 	}
 	resolvedOptions.src = clonedSrc;
 
-	const layout = options.layout ?? imageConfig.layout;
+	const layout = options.layout ?? imageConfig.layout ?? 'none';
 
-	if (layout) {
+	if (resolvedOptions.priority) {
+		resolvedOptions.loading ??= 'eager';
+		resolvedOptions.decoding ??= 'sync';
+		resolvedOptions.fetchpriority ??= 'high';
+		delete resolvedOptions.priority;
+	} else {
+		resolvedOptions.loading ??= 'lazy';
+		resolvedOptions.decoding ??= 'async';
+		resolvedOptions.fetchpriority ??= 'auto';
+	}
+
+	if (layout !== 'none') {
 		resolvedOptions.widths ||= getWidths({
 			width: resolvedOptions.width,
 			layout,
@@ -136,29 +147,16 @@ export async function getImage(
 					: DEFAULT_RESOLUTIONS,
 		});
 		resolvedOptions.sizes ||= getSizesAttribute({ width: resolvedOptions.width, layout });
-
-		if (resolvedOptions.priority) {
-			resolvedOptions.loading ??= 'eager';
-			resolvedOptions.decoding ??= 'sync';
-			resolvedOptions.fetchpriority ??= 'high';
-		} else {
-			resolvedOptions.loading ??= 'lazy';
-			resolvedOptions.decoding ??= 'async';
-			resolvedOptions.fetchpriority ??= 'auto';
-		}
-		delete resolvedOptions.priority;
+		// The densities option is incompatible with the `layout` option
 		delete resolvedOptions.densities;
-
-		if (layout !== 'none') {
-			resolvedOptions.style = addCSSVarsToStyle(
-				{
-					fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
-					pos: resolvedOptions.position,
-				},
-				resolvedOptions.style,
-			);
-			resolvedOptions['data-astro-image'] = layout;
-		}
+		resolvedOptions.style = addCSSVarsToStyle(
+			{
+				fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
+				pos: resolvedOptions.position,
+			},
+			resolvedOptions.style,
+		);
+		resolvedOptions['data-astro-image'] = layout;
 	}
 
 	const validatedOptions = service.validateOptions

@@ -3,7 +3,9 @@
 '@astrojs/vercel': patch
 ---
 
-Responsive images are now stable! The experimental responsive images feature is now stable and enabled by default. The `experimental.responsiveImages` flag has been removed, and all experimental image configuration options have been renamed to their final names.
+Responsive images are now stable.
+
+The responsive images feature is now stable and enabled by default. The `experimental.responsiveImages` flag has been removed, and all experimental image configuration options have been renamed to their final names.
 
 ## Migration Guide
 
@@ -11,23 +13,25 @@ If you were using the experimental responsive images feature, you'll need to upd
 
 ### Remove the experimental flag
 
-**Before:**
-```js
+```diff
 export default defineConfig({
-  experimental: {
-    responsiveImages: true, // Remove this
-  },
-});
-```
-
-**After:**
-```js
-export default defineConfig({
-  // No experimental flag needed
+   experimental: {
+-    responsiveImages: true,
+   },
 });
 ```
 
 ### Update image configuration options
+
+During the experimental phase, default styles were applied automatically to responsive images. Now, you need to explicitly set the `responsiveStyles` option to `true` if you want these styles applied.
+
+```diff
+export default defineConfig({
+  image: {
++    responsiveStyles: true,
+  },
+});
+```
 
 The experimental image configuration options have been renamed:
 
@@ -39,7 +43,7 @@ export default defineConfig({
     experimentalObjectFit: 'cover', 
     experimentalObjectPosition: 'center',
     experimentalBreakpoints: [640, 750, 828, 1080, 1280],
-    experimentalDefaultStyles: true, // This is true by default for responsive images
+    experimentalDefaultStyles: true, 
   },
   experimental: {
     responsiveImages: true,
@@ -55,7 +59,7 @@ export default defineConfig({
     objectFit: 'cover',
     objectPosition: 'center', 
     breakpoints: [640, 750, 828, 1080, 1280],
-    defaultStyles: true, // This is true by default for responsive images
+    responsiveStyles: true, // This is now *false* by default
   },
 });
 ```

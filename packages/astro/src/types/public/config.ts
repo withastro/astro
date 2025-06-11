@@ -1371,14 +1371,14 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		breakpoints?: number[];
 		/**
 		 * @docs
-		 * @name image.defaultStyles
+		 * @name image.responsiveStyles
 		 * @type {boolean}
 		 * @default `true`
 		 * @description
 		 * Whether to automatically add global styles to ensure that responsive images resize correctly. This is enabled by default, but can be disabled if you want to manage the styles yourself.
 		 * This option is only used when `layout` is set.
 		 */
-		defaultStyles?: boolean;
+		responsiveStyles?: boolean;
 	};
 
 	/**
