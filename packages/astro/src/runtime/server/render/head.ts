@@ -16,6 +16,21 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 
 export function renderAllHeadContent(result: SSRResult) {
 	result._metadata.hasRenderedHead = true;
+	let content = '';
+	if (result.cspDestination === 'meta') {
+		content += renderElement(
+			'meta',
+			{
+				props: {
+					'http-equiv': 'content-security-policy',
+					content: renderCspContent(result),
+				},
+				children: '',
+			},
+			false,
+		);
+		content += '\n';
+	}
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) =>
@@ -44,26 +59,12 @@ export function renderAllHeadContent(result: SSRResult) {
 	// consist of CSS modules which should naturally take precedence over CSS styles, so the
 	// order will still work. In prod, all CSS are stylesheet links.
 	// In the future, it may be better to have only an array of head elements to avoid these assumptions.
-	let content = styles.join('\n') + links.join('\n') + scripts.join('\n');
+	content += styles.join('\n') + links.join('\n') + scripts.join('\n');
 
 	if (result._metadata.extraHead.length > 0) {
 		for (const part of result._metadata.extraHead) {
 			content += part;
 		}
-	}
-
-	if (result.cspDestination === 'meta') {
-		content += renderElement(
-			'meta',
-			{
-				props: {
-					'http-equiv': 'content-security-policy',
-					content: renderCspContent(result),
-				},
-				children: '',
-			},
-			false,
-		);
 	}
 
 	return markHTMLString(content);
