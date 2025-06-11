@@ -583,9 +583,11 @@ export async function runHookBuildSsr({
 export async function runHookBuildGenerated({
 	settings,
 	logger,
+	_experimentalCspMapping,
 }: {
 	settings: AstroSettings;
 	logger: Logger;
+	_experimentalCspMapping: Map<IntegrationResolvedRoute, string>;
 }) {
 	const dir =
 		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
@@ -595,7 +597,7 @@ export async function runHookBuildGenerated({
 			integration,
 			hookName: 'astro:build:generated',
 			logger,
-			params: () => ({ dir }),
+			params: () => ({ dir, _experimentalCspMapping }),
 		});
 	}
 }
@@ -679,7 +681,7 @@ export async function runHookRoutesResolved({
 	}
 }
 
-function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute {
+export function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute {
 	return {
 		isPrerendered: route.prerender,
 		entrypoint: route.component,

@@ -416,6 +416,18 @@ export const AdapterSupportOutputMismatch = {
 
 /**
  * @docs
+ * @description
+ *
+ * The adapter tried to enable hosted CSP headers, but the project is not using the CSP feature.
+ */
+export const AdapterExperimentalCspDisabled = {
+	name: 'AdapterExperimentalCspDisabled',
+	title:
+		'The adapter tried to enable hosted CSP headers, but the project is not using the CSP feature.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @see
  * - [On-demand Rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
  * @description

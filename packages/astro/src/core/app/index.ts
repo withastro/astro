@@ -125,7 +125,8 @@ export class App {
 		this.#pipeline = this.#createPipeline(streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
 			this.#logger.options,
-			this.#manifest.adapterName,
+			// SAFETY: adapters always have a name
+			this.#manifest.adapterName!,
 		);
 	}
 

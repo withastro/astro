@@ -248,9 +248,18 @@ export interface SSRResult {
 	key: Promise<CryptoKey>;
 	_metadata: SSRMetadata;
 	/**
-	 * Whether Astro should inject the CSP <meta> tag into the head of the component.
+	 * `header`:
+	 * - <meta> for static pages
+	 * - Response header for dynamic pages
+	 *
+	 * `meta`:
+	 * - <meta> for all pages
+	 *
+	 * `adapter`:
+	 * - nothing for static pages (the adapter does this)
+	 * - Response header for dynamic pages
 	 */
-	cspDestination: 'header' | 'meta';
+	cspDestination: CspDestination;
 	shouldInjectCspMetaTags: boolean;
 	cspAlgorithm: SSRManifestCSP['algorithm'];
 	scriptHashes: SSRManifestCSP['scriptHashes'];
@@ -260,6 +269,8 @@ export interface SSRResult {
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 }
+
+export type CspDestination = 'header' | 'meta' | 'adapter';
 
 /**
  * A hint on whether the Astro runtime needs to wait on a component to render head

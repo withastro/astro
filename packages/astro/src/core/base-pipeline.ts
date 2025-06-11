@@ -6,6 +6,7 @@ import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
 import type { RuntimeMode } from '../types/public/config.js';
 import type {
+	CspDestination,
 	RouteData,
 	SSRLoadedRenderer,
 	SSRManifest,
@@ -164,6 +165,17 @@ export abstract class Pipeline {
 			);
 		}
 		return server;
+	}
+
+	cspDestination(route: RouteData): CspDestination {
+		if (route.prerender) {
+			if (this.manifest.adapterName && this.manifest.adapterName.length > 0) {
+				return 'adapter';
+			} else {
+				return 'meta';
+			}
+		}
+		return 'header';
 	}
 }
 

@@ -27,6 +27,7 @@ export default function ({
 	setMiddlewareEntryPoint,
 	setRoutes,
 	setManifest,
+	setPathToCsp,
 	env,
 } = {}) {
 	return {
@@ -115,7 +116,6 @@ export default function ({
 						hybridOutput: 'stable',
 						assets: 'stable',
 						i18nDomains: 'stable',
-						cspHeader: 'stable',
 					},
 					adapterFeatures: {
 						buildOutput: 'server',
@@ -137,6 +137,11 @@ export default function ({
 			'astro:build:done': ({ routes }) => {
 				if (setRoutes) {
 					setRoutes(routes);
+				}
+			},
+			'astro:build:generated': ({ pathToCsp }) => {
+				if (setPathToCsp) {
+					setPathToCsp(pathToCsp);
 				}
 			},
 		},

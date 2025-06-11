@@ -89,6 +89,13 @@ export interface AstroAdapterFeatures {
 	 * Determine the type of build output the adapter is intended for. Defaults to `server`;
 	 */
 	buildOutput?: 'static' | 'server';
+
+	/**
+	 * If supported by the adapter and enabled, Astro won't provide CSP hashes for static pages anymore.
+	 * Instead, those hashes will be provided inside the integration hook `astro:build:done`, so adapters
+	 * can consume them and add them inside their hosting headers configuration file.
+	 */
+	_experimentalHostedCspHeader?: boolean;
 }
 
 export interface AstroAdapter {
@@ -136,12 +143,6 @@ export type AstroAdapterFeatureMap = {
 	 * The adapter supports image transformation using the built-in Sharp image service
 	 */
 	sharpImageService?: AdapterSupport;
-
-	/**
-	 * The adapter is able to provide CSP hashes using the Response header `Content-Security-Policy`. Either via hosting configuration
-	 * for static pages or at runtime using `Response` headers for dynamic pages.
-	 */
-	cspHeader?: AdapterSupport;
 };
 
 /**
@@ -233,6 +234,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:generated': (options: {
 		dir: URL;
 		logger: AstroIntegrationLogger;
+		_experimentalCspMapping: Map<IntegrationResolvedRoute, string>;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];

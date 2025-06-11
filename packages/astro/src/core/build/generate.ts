@@ -16,7 +16,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
-import { runHookBuildGenerated } from '../../integrations/hooks.js';
+import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
 import type { GetStaticPathsItem, MiddlewareHandler } from '../../types/public/common.js';
@@ -62,6 +62,7 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import type { IntegrationResolvedRoute } from '../../types/public/index.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
@@ -102,6 +103,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
+	const pathToCsp = new Map<IntegrationResolvedRoute, string>();
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
@@ -116,13 +118,13 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 				const ssrEntryPage = await pipeline.retrieveSsrEntry(pageData.route, filePath);
 
 				const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-				await generatePage(pageData, ssrEntry, builtPaths, pipeline);
+				await generatePage(pageData, ssrEntry, builtPaths, pipeline, pathToCsp);
 			}
 		}
 	} else {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			const entry = await pipeline.retrieveSsrEntry(pageData.route, filePath);
-			await generatePage(pageData, entry, builtPaths, pipeline);
+			await generatePage(pageData, entry, builtPaths, pipeline, pathToCsp);
 		}
 	}
 	logger.info(
@@ -219,7 +221,11 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
 
-	await runHookBuildGenerated({ settings: options.settings, logger });
+	await runHookBuildGenerated({
+		settings: options.settings,
+		logger,
+		_experimentalCspMapping: pathToCsp,
+	});
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
@@ -229,6 +235,7 @@ async function generatePage(
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>,
 	pipeline: BuildPipeline,
+	pathToCsp: Map<IntegrationResolvedRoute, string>,
 ) {
 	// prepare information we need
 	const { config, logger } = pipeline;
@@ -275,7 +282,7 @@ async function generatePage(
 			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
 		}
 
-		const created = await generatePath(path, pipeline, generationOptions, route);
+		const created = await generatePath(path, pipeline, generationOptions, route, pathToCsp);
 
 		const timeEnd = performance.now();
 		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
@@ -493,6 +500,7 @@ async function generatePath(
 	pipeline: BuildPipeline,
 	gopts: GeneratePathOptions,
 	route: RouteData,
+	pathToCsp: Map<IntegrationResolvedRoute, string>,
 ): Promise<boolean | undefined> {
 	const { mod } = gopts;
 	const { config, logger, options } = pipeline;
@@ -560,6 +568,11 @@ async function generatePath(
 			(err as SSRError).id = route.component;
 		}
 		throw err;
+	}
+
+	const cspHeader = response.headers.get('Content-Security-Policy');
+	if (cspHeader && pipeline.cspDestination(route) === 'adapter') {
+		pathToCsp.set(toIntegrationResolvedRoute(route), cspHeader);
 	}
 
 	if (response.status >= 300 && response.status < 400) {
@@ -681,7 +694,6 @@ async function createBuildManifest(
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
 		inlinedScripts: internals.inlinedScripts,
 		routes: [],
-		adapterName: '',
 		clientDirectives: settings.clientDirectives,
 		compressHTML: settings.config.compressHTML,
 		renderers,
