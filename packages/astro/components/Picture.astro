@@ -45,7 +45,7 @@ if (scopedStyleClass) {
 const layout = props.layout ?? imageConfig.layout ?? 'none';
 const useResponsive = layout !== 'none';
 
-if (layout !== 'none') {
+if (useResponsive) {
 	// Apply defaults from imageConfig if not provided
 	props.layout ??= imageConfig.layout;
 	props.fit ??= imageConfig.objectFit ?? 'cover';

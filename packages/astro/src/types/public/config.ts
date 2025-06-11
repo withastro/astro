@@ -1331,6 +1331,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name image.layout
 		 * @type {ImageLayout}
 		 * @default `undefined`
+		 * @version 5.10.0
 		 * @description
 		 * The default layout type for responsive images. Can be overridden by the `layout` prop on the image component.
 		 * - `constrained` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
@@ -1343,6 +1344,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name image.objectFit
 		 * @type {ImageFit}
 		 * @default `"cover"`
+		 * @version 5.10.0
 		 * @description
 		 * The default object-fit value for responsive images. Can be overridden by the `fit` prop on the image component.
 		 * Requires a value for `layout` to be set.
@@ -1353,6 +1355,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name image.objectPosition
 		 * @type {string}
 		 * @default `"center"`
+		 * @version 5.10.0
 		 * @description
 		 * The default object-position value for responsive images. Can be overridden by the `position` prop on the image component.
 		 * Requires a value for `layout` to be set.
@@ -1363,6 +1366,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name image.breakpoints
 		 * @type {number[]}
 		 * @default `[640, 750, 828, 1080, 1280, 1668, 2048, 2560] | [640, 750, 828, 960, 1080, 1280, 1668, 1920, 2048, 2560, 3200, 3840, 4480, 5120, 6016]`
+		 * @version 5.10.0
 		 * @description
 		 * The breakpoints used to generate responsive images. Requires a value for `layout` to be set. The full list is not normally used,
 		 * but is filtered according to the source and output size. The defaults used depend on whether a local or remote image service is used. For remote services
@@ -1373,10 +1377,11 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @docs
 		 * @name image.responsiveStyles
 		 * @type {boolean}
-		 * @default `true`
+		 * @default `false`
+		 * @version 5.10.0
 		 * @description
-		 * Whether to automatically add global styles to ensure that responsive images resize correctly. This is enabled by default, but can be disabled if you want to manage the styles yourself.
-		 * This option is only used when `layout` is set.
+		 * Whether to automatically add global styles to ensure that responsive images resize correctly.
+		 * This option is only used when `layout` is set to `constrained`, `full-width`, or `fixed` using the configuration or the `layout` prop on the image component.
 		 */
 		responsiveStyles?: boolean;
 	};
