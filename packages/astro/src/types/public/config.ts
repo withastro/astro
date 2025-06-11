@@ -1338,7 +1338,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * - `fixed` - The image will maintain its original dimensions.
 		 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
 		 *
-		 * See [the layout component property](https://docs.astro.build/en/reference/modules/astro-assets/#layout) for more details.
+		 * See [the `layout` component property](https://docs.astro.build/en/reference/modules/astro-assets/#layout) for more details.
 		 */
 		layout?: ImageLayout | undefined;
 		/**
@@ -1350,6 +1350,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @description
 		 * The default object-fit value for responsive images. Can be overridden by the `fit` prop on the image component.
 		 * Requires a value for `layout` to be set.
+		 * 
+		 * See [the `fit` component property](https://docs.astro.build/en/reference/modules/astro-assets/#fit) for more details.
 		 */
 		objectFit?: ImageFit;
 		/**
@@ -1361,6 +1363,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @description
 		 * The default object-position value for responsive images. Can be overridden by the `position` prop on the image component.
 		 * Requires a value for `layout` to be set.
+		 * 
+		 * See [the `position` component property](https://docs.astro.build/en/reference/modules/astro-assets/#position) for more details.
 		 */
 		objectPosition?: string;
 		/**
