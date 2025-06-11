@@ -4189,6 +4189,12 @@ importers:
 
   packages/astro/test/fixtures/static-build/pkg: {}
 
+  packages/astro/test/fixtures/static-redirect:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/streaming:
     dependencies:
       '@astrojs/react':
