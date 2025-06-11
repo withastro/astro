@@ -3,9 +3,9 @@
 '@astrojs/vercel': patch
 ---
 
-Responsive images are now stable.
+The responsive images feature introduced behind a flag in [v5.0.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#500) is no longer experimental and is available for general use.
 
-The responsive images feature is now stable and enabled by default. The `experimental.responsiveImages` flag has been removed, and all experimental image configuration options have been renamed to their final names.
+The `experimental.responsiveImages` flag has been removed, and all experimental image configuration options have been renamed to their final names.
 
 ## Migration Guide
 
