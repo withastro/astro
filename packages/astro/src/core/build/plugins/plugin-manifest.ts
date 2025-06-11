@@ -342,7 +342,7 @@ async function buildManifest(
 		publicDir: opts.settings.config.publicDir.toString(),
 		buildClientDir: opts.settings.config.build.client.toString(),
 		buildServerDir: opts.settings.config.build.server.toString(),
-		adapterName: opts.settings.adapter?.name,
+		adapterName: opts.settings.adapter?.name ?? '',
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,

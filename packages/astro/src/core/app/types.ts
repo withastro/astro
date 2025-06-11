@@ -52,7 +52,7 @@ export type AssetsPrefix =
 
 export type SSRManifest = {
 	hrefRoot: string;
-	adapterName?: string;
+	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
 	base: string;

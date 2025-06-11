@@ -213,7 +213,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		assets: new Set(),
 		entryModules: {},
 		routes: [],
-		adapterName: settings?.adapter?.name,
+		adapterName: settings?.adapter?.name ?? '',
 		clientDirectives: settings.clientDirectives,
 		renderers: [],
 		base: settings.config.base,

@@ -696,6 +696,7 @@ async function createBuildManifest(
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
 		inlinedScripts: internals.inlinedScripts,
 		routes: [],
+		adapterName: settings.adapter?.name ?? '',
 		clientDirectives: settings.clientDirectives,
 		compressHTML: settings.config.compressHTML,
 		renderers,

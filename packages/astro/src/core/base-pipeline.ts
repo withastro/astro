@@ -11,7 +11,6 @@ import type {
 	SSRManifest,
 	SSRResult,
 	SSRActions,
-	SSRManifestCSP,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
@@ -165,17 +164,6 @@ export abstract class Pipeline {
 			);
 		}
 		return server;
-	}
-
-	cspDestination(route: RouteData): SSRManifestCSP['cspDestination'] {
-		if (route.prerender) {
-			if (this.manifest.adapterName && this.manifest.adapterName.length > 0) {
-				return 'adapter';
-			} else {
-				return 'meta';
-			}
-		}
-		return 'header';
 	}
 }
 
