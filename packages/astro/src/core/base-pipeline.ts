@@ -6,14 +6,14 @@ import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
 import type { RuntimeMode } from '../types/public/config.js';
 import type {
-	CspDestination,
 	RouteData,
 	SSRLoadedRenderer,
 	SSRManifest,
 	SSRResult,
+	SSRActions,
+	SSRManifestCSP,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
-import type { SSRActions } from './app/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 import type { Logger } from './logger/core.js';
@@ -167,7 +167,7 @@ export abstract class Pipeline {
 		return server;
 	}
 
-	cspDestination(route: RouteData): CspDestination {
+	cspDestination(route: RouteData): SSRManifestCSP['cspDestination'] {
 		if (route.prerender) {
 			if (this.manifest.adapterName && this.manifest.adapterName.length > 0) {
 				return 'adapter';

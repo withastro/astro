@@ -9,7 +9,7 @@ import type { AstroConfig, RedirectConfig } from './config.js';
 import type { AstroGlobal, AstroGlobalPartial } from './context.js';
 import type { AstroRenderer } from './integrations.js';
 
-export type { SSRManifest } from '../../core/app/types.js';
+export type { SSRManifest, SSRManifestCSP, SSRActions } from '../../core/app/types.js';
 
 export interface NamedSSRLoadedRendererValue extends SSRLoadedRendererValue {
 	name: string;
