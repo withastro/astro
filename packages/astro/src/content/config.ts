@@ -93,7 +93,7 @@ type ContentCollectionConfig<S extends BaseSchema> = {
 	loader?: never;
 };
 
-type LiveDataCollectionConfig<S extends BaseSchema, L extends LiveLoader> = {
+type LiveDataCollectionConfig<S extends BaseSchema | undefined, L extends LiveLoader> = {
 	type: 'live';
 	schema?: S;
 	loader: L;

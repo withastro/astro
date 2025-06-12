@@ -9,7 +9,7 @@ declare module 'astro:content' {
 		SchemaContext,
 	} from 'astro/content/config';
 
-export function defineCollection<S extends import('astro/content/config').BaseSchema, TLiveLoader = undefined>(
+export function defineCollection<S extends import('astro/content/config').BaseSchema | undefined = undefined, TLiveLoader = undefined>(
 	config: import('astro/content/config').CollectionConfig<S, TLiveLoader>,
 ): import('astro/content/config').CollectionConfig<S, TLiveLoader> 
 
