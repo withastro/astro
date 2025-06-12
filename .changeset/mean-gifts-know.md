@@ -5,17 +5,15 @@
 
 The responsive images feature introduced behind a flag in [v5.0.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#500) is no longer experimental and is available for general use.
 
-Displaying images correctly on the web can be challenging, and is one of the most common performance issues seen in sites. While the venerable `<img>` tag makes it easy to display a basic image, for the best performance you need to understand a panoply of attributes and tags. While the Astro image components have helped to simplify this process, generating optimized, lazy-loaded images, you have still been left with the most challenging part: responsive images.
+The new responsive images feature in Astro automatically generates optimized images for different screen sizes and resolutions, and applies the correct attributes to ensure that images are displayed correctly on all devices. 
 
-The new responsive images feature in Astro provides a simple way to handle this, automatically generating optimized images for different screen sizes and resolutions, and applying the correct attributes to ensure that images are displayed correctly on all devices. 
+Enable the `image.responsiveStyles` option in your Astro config. Then, set a `layout` attribute on any <Image /> or <Picture /> component, or configure a default `image.layout`, for instantly responsive images with automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type.
 
-## Usage
+Displaying images correctly on the web can be challenging, and is one of the most common performance issues seen in sites. This new feature simplifies the most challenging part of the process: serving your site visitor an image optimized for their viewing experience, and for your website's performance.
 
-To enable responsive images, set the `image.layout` option in the Astro config, or the `layout` attribute on the `<Image>` or `<Picture>` components. You should also enable the `image.responsiveStyles` option in your Astro config. 
+For full details, see the updated [Image guide](https://docs.astro.build/en/guides/images/#responsive-image-behavior).
 
-For full details, see the new [Image guide](https://docs.astro.build/en/guides/images/#responsive-image-behavior).
-
-## Migration Guide
+## Migration from Experimental Responsive Images
 
 The `experimental.responsiveImages` flag has been removed, and all experimental image configuration options have been renamed to their final names.
 
