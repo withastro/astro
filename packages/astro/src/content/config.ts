@@ -1,6 +1,6 @@
 import type { ZodLiteral, ZodNumber, ZodObject, ZodString, ZodType, ZodUnion } from 'zod';
-import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from '../content/consts.js';
-import type { LiveLoader, Loader } from '../content/loaders/types.js';
+import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
+import type { LiveLoader, Loader } from './loaders/types.js';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 
 function getImporterFilename() {
@@ -107,7 +107,7 @@ export type BaseCollectionConfig<S extends BaseSchema> =
 export type CollectionConfig<
 	S extends BaseSchema,
 	TLiveLoader = never,
-> = TLiveLoader extends LiveLoader
+> = TLiveLoader extends LiveLoader<any, any, any, any>
 	? LiveDataCollectionConfig<S, TLiveLoader>
 	: BaseCollectionConfig<S>;
 

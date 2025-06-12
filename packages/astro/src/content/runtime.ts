@@ -5,7 +5,7 @@ import pLimit from 'p-limit';
 import { ZodIssueCode, z } from 'zod';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
-import { defineCollection as defineCollectionOrig } from '../config/content.js';
+import { defineCollection as defineCollectionOrig } from './config.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 
@@ -953,7 +953,7 @@ export function defineCollection(config: any) {
 		throw new AstroError({
 			...AstroErrorData.LiveContentConfigError,
 			message: AstroErrorData.LiveContentConfigError.message(
-				'You must import defineCollection from "astro/config" to use live collections.',
+				'Collections with type `live` must be defined in a `src/live.config.ts` file.',
 			),
 		});
 	}

@@ -63,11 +63,16 @@ export function astroContentVirtualModPlugin({
 }: AstroContentVirtualModPluginParams): Plugin {
 	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
+	let liveConfig: string;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		config(_, env) {
 			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+			const contentPaths = getContentPaths(settings.config); 
+			if (contentPaths.liveConfig.exists) {
+				liveConfig = fileURLToPath(contentPaths.liveConfig.url);
+			}
 		},
 		buildStart() {
 			if (devServer) {
@@ -77,8 +82,16 @@ export function astroContentVirtualModPlugin({
 				invalidateDataStore(devServer);
 			}
 		},
-		async resolveId(id) {
+		async resolveId(id, importer) {
 			if (id === VIRTUAL_MODULE_ID) {
+				// Live content config can't import the virtual module directly,
+				// because it would create a circular dependency from the colleciton exports.
+				// Instead, we resolve the config util module, because that's all that it should use anyway.
+				if(liveConfig && liveConfig === importer) {
+					return this.resolve("astro/content/config", importer, {
+						skipSelf: true,
+					});
+				}
 				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
 			if (id === DATA_STORE_VIRTUAL_ID) {
