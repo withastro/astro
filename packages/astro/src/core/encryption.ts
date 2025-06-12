@@ -121,5 +121,5 @@ export async function generateCspDigest(data: string, algorithm: CspAlgorithm): 
 	const hashBuffer = await crypto.subtle.digest(algorithm, encoder.encode(data));
 
 	const hash = encodeBase64(new Uint8Array(hashBuffer));
-	return `${ALGORITHMS[algorithm]}${hash}`;
+	return `'${ALGORITHMS[algorithm]}${hash}'`;
 }

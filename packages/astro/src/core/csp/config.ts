@@ -30,12 +30,12 @@ export const cspAlgorithmSchema = z
 	.optional()
 	.default('SHA-256');
 
-export const cspHashSchema = z.custom<`${CspAlgorithmValue}${string}`>((value) => {
+export const cspHashSchema = z.custom<`'${CspAlgorithmValue}${string}'`>((value) => {
 	if (typeof value !== 'string') {
 		return false;
 	}
 	return ALGORITHM_VALUES.some((allowedValue) => {
-		return value.startsWith(allowedValue);
+		return value.startsWith("'") && value.endsWith("'") && value.includes(allowedValue);
 	});
 });
 

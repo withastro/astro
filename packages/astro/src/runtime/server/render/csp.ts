@@ -5,19 +5,19 @@ export function renderCspContent(result: SSRResult): string {
 	const finalStyleHashes = new Set();
 
 	for (const scriptHash of result.scriptHashes) {
-		finalScriptHashes.add(`'${scriptHash}'`);
+		finalScriptHashes.add(`'${scriptHash}`);
 	}
 
 	for (const styleHash of result.styleHashes) {
-		finalStyleHashes.add(`'${styleHash}'`);
+		finalStyleHashes.add(`${styleHash}`);
 	}
 
 	for (const styleHash of result._metadata.extraStyleHashes) {
-		finalStyleHashes.add(`'${styleHash}'`);
+		finalStyleHashes.add(`${styleHash}`);
 	}
 
 	for (const scriptHash of result._metadata.extraScriptHashes) {
-		finalScriptHashes.add(`'${scriptHash}'`);
+		finalScriptHashes.add(`${scriptHash}`);
 	}
 
 	let directives = '';

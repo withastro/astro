@@ -114,10 +114,10 @@ describe('CSP', () => {
 			experimental: {
 				csp: {
 					styleDirective: {
-						hashes: ['sha512-hash1', 'sha384-hash2'],
+						hashes: ["'sha512-hash1'", "'sha384-hash2'"],
 					},
 					scriptDirective: {
-						hashes: ['sha512-hash3', 'sha384-hash4'],
+						hashes: ["'sha512-hash3'", "'sha384-hash4'"],
 					},
 				},
 			},
