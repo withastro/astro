@@ -570,7 +570,10 @@ async function generatePath(
 		throw err;
 	}
 
-	if (pipeline.settings.adapter?.adapterFeatures?.experimentalStaticHeaders) {
+	if (
+		pipeline.settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
+		pipeline.settings.config.experimental?.csp
+	) {
 		routeToHeaders.set(toIntegrationResolvedRoute(route), response.headers);
 	}
 

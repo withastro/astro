@@ -30,11 +30,6 @@ export function validateSetAdapter(
 		);
 	}
 
-	// Throw an error if the adapter attempts to enable hosted CSP header, but the CSP feature is disabled
-	if (adapter.adapterFeatures?.experimentalStaticHeaders && !settings.config.experimental.csp) {
-		throw new AstroError(AstroErrorData.AdapterExperimentalCspDisabled);
-	}
-
 	if (settings.buildOutput === 'server' && adapter.adapterFeatures?.buildOutput === 'static') {
 		// If the adapter is not compatible with the build output, throw an error
 		if (command === 'build') {

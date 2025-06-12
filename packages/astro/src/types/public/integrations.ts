@@ -91,10 +91,13 @@ export interface AstroAdapterFeatures {
 	buildOutput?: 'static' | 'server';
 
 	/**
-	 * If supported by the adapter and enabled, Astro won't add any `<meta>` tags
+	 * If supported by the adapter and enabled, Astro won't add any `<meta http-equiv>` tags
 	 * in the static pages, instead it will return a mapping in the
 	 * `astro:build:generated` hook, so adapters can consume them and add them inside
 	 * their hosting headers configuration file.
+	 *
+	 * NOTE: the semantics and list of headers might change until the feature
+	 * is out of experimental
 	 */
 	experimentalStaticHeaders?: boolean;
 }

@@ -2,9 +2,9 @@
 'astro': patch
 ---
 
-Adds a new Astro Adapter Feature called `experimentalStaticHeaders` to allow your adapter to control serving CSP in static pages.
+Adds a new Astro Adapter Feature called `experimentalStaticHeaders` to allow your adapter to receive the `Headers` that belong to the rendered static pages.
 
-For adapters that enable support for this feature, Astro will not serve the CSP `<meta http-equiv="content-security-policy">` element in static pages.
+For adapters that enable support for this feature, for example, Astro will not serve the CSP `<meta http-equiv="content-security-policy">` element in static pages.
 
 Instead, Astro will serve the value of the header inside a map that can be retrieved from the hook `astro:build:generated`. Adapters can read this mapping and use their hosting headers capabilities to create a configuration file.
 
