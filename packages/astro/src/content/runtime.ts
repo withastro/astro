@@ -953,7 +953,7 @@ export function defineCollection(config: any) {
 		throw new AstroError({
 			...AstroErrorData.LiveContentConfigError,
 			message: AstroErrorData.LiveContentConfigError.message(
-				'You must import defineCollection from "astro/content/config" to use live collections.',
+				'Collections with type `live` must be defined in a `src/live.config.ts` file.',
 			),
 		});
 	}

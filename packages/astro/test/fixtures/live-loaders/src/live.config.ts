@@ -1,4 +1,4 @@
-import { defineCollection } from 'astro/config';
+import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import type { LiveLoader } from 'astro/loaders';
 
