@@ -6,7 +6,7 @@ Adds new configuration options to allow you to set a custom `workerEntryPoint` f
 
 This feature is not supported when running the Astro dev server. However, you can run `astro build` followed by either `wrangler deploy` (to deploy it) or `wrangler dev` to preview it.
 
-The following example configures a custom entry file registers a Durable Object and a queue handler:
+The following example configures a custom entry file that registers a Durable Object and a queue handler:
 
 ```ts
 // astro.config.ts
