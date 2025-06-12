@@ -115,6 +115,7 @@ export default function ({
 						hybridOutput: 'stable',
 						assets: 'stable',
 						i18nDomains: 'stable',
+						cspHeader: 'stable',
 					},
 					adapterFeatures: {
 						buildOutput: 'server',
