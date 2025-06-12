@@ -23,7 +23,7 @@ export default function createIntegration() {
           name: '@example/my-adapter',
           serverEntrypoint: '@example/my-adapter/server.js',
           adapterFeatures: {
-            experimentalRouteToHeaders: true
+            experimentalStaticHeaders: true
           }
         });
       },
