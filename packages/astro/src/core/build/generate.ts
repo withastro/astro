@@ -224,7 +224,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	await runHookBuildGenerated({
 		settings: options.settings,
 		logger,
-		_experimentalRouteToHeaders: routeToHeaders,
+		experimentalRouteToHeaders: routeToHeaders,
 	});
 }
 
@@ -570,7 +570,7 @@ async function generatePath(
 		throw err;
 	}
 
-	if (pipeline.settings.adapter?.adapterFeatures?._experimentalStaticHeaders) {
+	if (pipeline.settings.adapter?.adapterFeatures?.experimentalStaticHeaders) {
 		routeToHeaders.set(toIntegrationResolvedRoute(route), response.headers);
 	}
 
@@ -671,7 +671,7 @@ async function createBuildManifest(
 		];
 
 		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?._experimentalStaticHeaders
+			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
 				? 'adapter'
 				: undefined,
 			styleHashes,

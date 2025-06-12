@@ -321,7 +321,7 @@ async function buildManifest(
 		];
 
 		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?._experimentalStaticHeaders
+			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
 				? 'adapter'
 				: undefined,
 			scriptHashes,

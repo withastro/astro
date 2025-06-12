@@ -120,7 +120,7 @@ export default function ({
 					},
 					adapterFeatures: {
 						buildOutput: 'server',
-						_experimentalStaticHeaders: staticHeaders,
+						experimentalStaticHeaders: staticHeaders,
 					},
 					...extendAdapter,
 				});
@@ -141,9 +141,9 @@ export default function ({
 					setRoutes(routes);
 				}
 			},
-			'astro:build:generated': ({ _experimentalRouteToHeaders }) => {
+			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
 				if (setRouteToHeaders) {
-					setRouteToHeaders(_experimentalRouteToHeaders);
+					setRouteToHeaders(experimentalRouteToHeaders);
 				}
 			},
 		},

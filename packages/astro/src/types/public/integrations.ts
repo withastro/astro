@@ -95,7 +95,7 @@ export interface AstroAdapterFeatures {
 	 * Instead, those hashes will be provided inside the integration hook `astro:build:done`, so adapters
 	 * can consume them and add them inside their hosting headers configuration file.
 	 */
-	_experimentalStaticHeaders?: boolean;
+	experimentalStaticHeaders?: boolean;
 }
 
 export interface AstroAdapter {
@@ -234,7 +234,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:generated': (options: {
 		dir: URL;
 		logger: AstroIntegrationLogger;
-		_experimentalRouteToHeaders: Map<IntegrationResolvedRoute, Headers>;
+		experimentalRouteToHeaders: Map<IntegrationResolvedRoute, Headers>;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
