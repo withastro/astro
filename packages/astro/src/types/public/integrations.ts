@@ -91,9 +91,10 @@ export interface AstroAdapterFeatures {
 	buildOutput?: 'static' | 'server';
 
 	/**
-	 * If supported by the adapter and enabled, Astro won't provide CSP hashes for static pages anymore.
-	 * Instead, those hashes will be provided inside the integration hook `astro:build:done`, so adapters
-	 * can consume them and add them inside their hosting headers configuration file.
+	 * If supported by the adapter and enabled, Astro won't add any `<meta>` tags
+	 * in the static pages, instead it will return a mapping in the
+	 * `astro:build:generated` hook, so adapters can consume them and add them inside
+	 * their hosting headers configuration file.
 	 */
 	experimentalStaticHeaders?: boolean;
 }
