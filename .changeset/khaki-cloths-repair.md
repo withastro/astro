@@ -4,7 +4,7 @@
 
 Adds a new `priority` attribute for Astro's image components.
 
-This change introduces a new `priority` option for the `<Image />` and `<Picture />` components, which automatically sets the `loading`, `decoding`, and `fetchpriority` attributes to their optimal values for above-the-fold images which should be loaded immediately, even at the expense of performance.
+This change introduces a new `priority` option for the `<Image />` and `<Picture />` components, which automatically sets the `loading`, `decoding`, and `fetchpriority` attributes to their optimal values for above-the-fold images which should be loaded immediately.
 
 It is a boolean prop, and you can use the shorthand syntax by simply adding `priority` as a prop to the `<Image />` or `<Picture />` component. When set, it will apply the following attributes:
 
@@ -31,4 +31,4 @@ This option was previously available for experimental responsive images, but now
 ```
 
 > [!Note]
-> You should only use the `priority` option for images that are critical to the initial rendering of the page, and ideally only one image per page. Using it for too many images will lead to performance issues, as it forces the browser to load those images immediately, potentially blocking the rendering of other content.
+> You should only use the `priority` option for images that are critical to the initial rendering of the page, and ideally only one image per page. This is often an image identified as the [LCP element](https://web.dev/articles/lcp) when running Lighthouse tests. Using it for too many images will lead to performance issues, as it forces the browser to load those images immediately, potentially blocking the rendering of other content.
