@@ -10,7 +10,7 @@ Instead, Astro will serve the value of the header inside a map that can be retri
 
 A new field called `experimentalRouteToHeaders` will contain a map of `Map<IntegrationResolvedRoute, Headers>` where the `Headers` type contains the headers emitted by the rendered static route. 
 
-To enable support for this experimental Astro Adapter Feature, add it to your `supportedAstroFeatures` in your adapter config:
+To enable support for this experimental Astro Adapter Feature, add it to your `adapterFeatures` in your adapter config:
 
 ```js
 // my-adapter.mjs
@@ -22,7 +22,7 @@ export default function createIntegration() {
         setAdapter({
           name: '@example/my-adapter',
           serverEntrypoint: '@example/my-adapter/server.js',
-          supportedAstroFeatures: {
+          adapterFeatures: {
             experimentalStaticHeaders: true
           }
         });
@@ -30,19 +30,6 @@ export default function createIntegration() {
     },
   };
 }
-```
-
-To use this adapter feature, users must also have the `experimental.csp` feature flag set in their Astro config:
-
-```js
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-
-export default defineConfig({
-  experimental: {
-    csp: true,
-  },
-});
 ```
 
 See the [Adapter API docs](https://docs.astro.build/en/reference/adapter-reference/#adapter-features) for more information about providing adapter features.
