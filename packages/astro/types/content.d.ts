@@ -7,11 +7,11 @@ declare module 'astro:content' {
 		MetaStore,
 		BaseSchema,
 		SchemaContext,
-	} from 'astro/config';
+	} from 'astro/content/config';
 
-	export function defineCollection<S extends import('astro/config').BaseSchema>(
-		input: import('astro/config').BaseCollectionConfig<S>,
-	): import('astro/config').BaseCollectionConfig<S>;
+	export function defineCollection<S extends import('astro/content/config').BaseSchema>(
+		input: import('astro/content/config').BaseCollectionConfig<S>,
+	): import('astro/content/config').BaseCollectionConfig<S>;
 
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getEntryBySlug: (...args: any[]) => any;
