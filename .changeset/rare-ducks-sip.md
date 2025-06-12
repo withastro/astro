@@ -22,7 +22,7 @@ export default function createIntegration() {
         setAdapter({
           name: '@example/my-adapter',
           serverEntrypoint: '@example/my-adapter/server.js',
-          adapterFeatures: {
+          supportedAstroFeatures: {
             experimentalStaticHeaders: true
           }
         });
