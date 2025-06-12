@@ -8,9 +8,6 @@ For adapters that enable support for this feature, Astro will not serve the CSP 
 
 Instead, Astro will serve the value of the header inside a map that can be retrieved from the hook `astro:build:generated`. Adapters can read this mapping and use their hosting headers capabilities to create a configuration file.
 
-The name of the new field is called `experimentalRouteToHeaders` and it contains a map of `Map<IntegrationResolvedRoute, Headers>` where
-the `Headers` contain the headers emitted during the rendering of the static pages.
-
 A new field called `experimentalRouteToHeaders` will contain a map of `Map<IntegrationResolvedRoute, Headers>` where the `Headers` type contains the headers emitted by the rendered static route. 
 
 To enable support for this experimental Astro Adapter Feature, add it to your `supportedAstroFeatures` in your adapter config:
@@ -47,3 +44,5 @@ export default defineConfig({
   },
 });
 ```
+
+See the [Adapter API docs](https://docs.astro.build/en/reference/adapter-reference/#adapter-features) for more information about providing adapter features.
