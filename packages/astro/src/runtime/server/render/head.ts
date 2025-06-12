@@ -17,7 +17,7 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 export function renderAllHeadContent(result: SSRResult) {
 	result._metadata.hasRenderedHead = true;
 	let content = '';
-	if (result.cspDestination === 'meta') {
+	if (result.shouldInjectCspMetaTags && result.cspDestination === 'meta') {
 		content += renderElement(
 			'meta',
 			{
