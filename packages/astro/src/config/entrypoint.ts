@@ -2,17 +2,6 @@
 
 import type { SharpImageServiceConfig } from '../assets/services/sharp.js';
 import type { ImageServiceConfig } from '../types/public/index.js';
-export {
-	defineCollection,
-	type ImageFunction,
-	type DataEntry,
-	type DataStore,
-	type MetaStore,
-	type BaseSchema,
-	type SchemaContext,
-	type CollectionConfig,
-	type BaseCollectionConfig,
-} from './content.js';
 export { defineConfig, getViteConfig } from './index.js';
 export { envField } from '../env/config.js';
 export { mergeConfig } from '../core/config/merge.js';
