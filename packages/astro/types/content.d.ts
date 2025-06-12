@@ -11,7 +11,7 @@ declare module 'astro:content' {
 
 export function defineCollection<S extends import('astro/content/config').BaseSchema, TLiveLoader = undefined>(
 	config: import('astro/content/config').CollectionConfig<S, TLiveLoader>,
-): import('astro/content/config').CollectionConfig<S, TLiveLoader> {
+): import('astro/content/config').CollectionConfig<S, TLiveLoader> 
 
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getEntryBySlug: (...args: any[]) => any;

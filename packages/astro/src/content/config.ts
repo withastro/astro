@@ -107,7 +107,7 @@ export type BaseCollectionConfig<S extends BaseSchema> =
 export type CollectionConfig<
 	S extends BaseSchema,
 	TLiveLoader = never,
-> = TLiveLoader extends LiveLoader
+> = TLiveLoader extends LiveLoader<any, any, any, any>
 	? LiveDataCollectionConfig<S, TLiveLoader>
 	: BaseCollectionConfig<S>;
 
