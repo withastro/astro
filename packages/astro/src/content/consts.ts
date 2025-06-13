@@ -41,3 +41,4 @@ export const COLLECTIONS_MANIFEST_FILE = 'collections/collections.json';
 export const COLLECTIONS_DIR = 'collections/';
 
 export const CONTENT_LAYER_TYPE = 'content_layer';
+export const LIVE_CONTENT_TYPE = 'live';
