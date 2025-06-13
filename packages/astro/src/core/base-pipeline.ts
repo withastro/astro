@@ -7,10 +7,10 @@ import type { MiddlewareHandler, RewritePayload } from '../types/public/common.j
 import type { RuntimeMode } from '../types/public/config.js';
 import type {
 	RouteData,
+	SSRActions,
 	SSRLoadedRenderer,
 	SSRManifest,
 	SSRResult,
-	SSRActions,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
