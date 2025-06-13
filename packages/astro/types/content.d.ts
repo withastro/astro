@@ -13,7 +13,7 @@ export function defineLiveCollection<C extends import('astro/content/config').Li
 
 export function defineCollection<S extends import('astro/content/config').BaseSchema>(
 	config: import('astro/content/config').CollectionConfig<S>,
-): import('astro/content/config').CollectionConfig<S> {
+): import('astro/content/config').CollectionConfig<S> 
 
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getEntryBySlug: (...args: any[]) => any;
