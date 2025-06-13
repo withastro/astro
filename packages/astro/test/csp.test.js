@@ -52,7 +52,8 @@ describe('CSP', () => {
 		if (manifest) {
 			const request = new Request('http://example.com/index.html');
 			const response = await app.render(request);
-			const $ = cheerio.load(await response.text());
+			const html = await response.text();
+			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
 			for (const hash of manifest.csp.scriptHashes) {
@@ -66,7 +67,6 @@ describe('CSP', () => {
 	it('should generate the hash with the sha512 algorithm', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter(),
 			experimental: {
 				csp: {
 					algorithm: 'SHA-512',
@@ -74,11 +74,7 @@ describe('CSP', () => {
 			},
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
-
-		const request = new Request('http://example.com/index.html');
-		const response = await app.render(request);
-		const html = await response.text();
+		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
@@ -88,7 +84,6 @@ describe('CSP', () => {
 	it('should generate the hash with the sha384 algorithm', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter(),
 			experimental: {
 				csp: {
 					algorithm: 'SHA-384',
@@ -96,11 +91,8 @@ describe('CSP', () => {
 			},
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
 
-		const request = new Request('http://example.com/index.html');
-		const response = await app.render(request);
-		const html = await response.text();
+		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
@@ -110,7 +102,6 @@ describe('CSP', () => {
 	it('should render hashes provided by the user', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter(),
 			experimental: {
 				csp: {
 					styleDirective: {
@@ -123,11 +114,8 @@ describe('CSP', () => {
 			},
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
 
-		const request = new Request('http://example.com/index.html');
-		const response = await app.render(request);
-		const html = await response.text();
+		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
@@ -140,7 +128,6 @@ describe('CSP', () => {
 	it('should contain the additional directives', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter(),
 			experimental: {
 				csp: {
 					directives: ["img-src 'self' 'https://example.com'"],
@@ -148,11 +135,8 @@ describe('CSP', () => {
 			},
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
 
-		const request = new Request('http://example.com/index.html');
-		const response = await app.render(request);
-		const html = await response.text();
+		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
@@ -162,7 +146,6 @@ describe('CSP', () => {
 	it('should contain the custom resources for "script-src" and "style-src"', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter(),
 			experimental: {
 				csp: {
 					styleDirective: {
@@ -175,11 +158,8 @@ describe('CSP', () => {
 			},
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
 
-		const request = new Request('http://example.com/index.html');
-		const response = await app.render(request);
-		const html = await response.text();
+		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
@@ -200,14 +180,10 @@ describe('CSP', () => {
 	it('allows injecting custom script resources and hashes based on pages', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter(),
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
 
-		const request = new Request('http://example.com/scripts/index.html');
-		const response = await app.render(request);
-		const html = await response.text();
+		const html = await fixture.readFile('/scripts/index.html');
 		const $ = cheerio.load(html);
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
@@ -223,18 +199,9 @@ describe('CSP', () => {
 	it('allows injecting custom styles resources and hashes based on pages', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter({
-				setManifest(_manifest) {
-					manifest = _manifest;
-				},
-			}),
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
-
-		const request = new Request('http://example.com/styles/index.html');
-		const response = await app.render(request);
-		const html = await response.text();
+		const html = await fixture.readFile('/styles/index.html');
 		const $ = cheerio.load(html);
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
@@ -248,7 +215,6 @@ describe('CSP', () => {
 	it('allows add `strict-dynamic` when enabled', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			adapter: testAdapter(),
 			experimental: {
 				csp: {
 					scriptDirective: {
@@ -258,11 +224,7 @@ describe('CSP', () => {
 			},
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
-
-		const request = new Request('http://example.com/index.html');
-		const response = await app.render(request);
-		const html = await response.text();
+		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
@@ -271,7 +233,7 @@ describe('CSP', () => {
 
 	it('should serve hashes via headers for dynamic pages, when the strategy is "auto"', async () => {
 		fixture = await loadFixture({
-			root: './fixtures/csp/',
+			root: './fixtures/csp-adapter/',
 			adapter: testAdapter(),
 			experimental: {
 				csp: true,
@@ -297,5 +259,33 @@ describe('CSP', () => {
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		assert.equal(meta.attr('content'), undefined, 'meta tag should not be present');
+	});
+
+	it('should return CSP header inside a hook', async () => {
+		let routeToHeaders;
+		fixture = await loadFixture({
+			root: './fixtures/csp-adapter/',
+			adapter: testAdapter({
+				staticHeaders: true,
+				setRouteToHeaders(payload) {
+					routeToHeaders = payload;
+				},
+			}),
+			experimental: {
+				csp: true,
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+
+		assert.equal(
+			routeToHeaders.size,
+			4,
+			'expected four routes: /, /scripts, /title/foo, /title/bar',
+		);
+
+		for (const headers of routeToHeaders.values()) {
+			assert.ok(headers.has('content-security-policy'), 'should have a CSP header');
+		}
 	});
 });

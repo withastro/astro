@@ -454,11 +454,6 @@ export class RenderContext {
 			},
 		} satisfies AstroGlobal['response'];
 
-		let cspDestination: 'meta' | 'header' = 'meta';
-		if (!routeData.prerender) {
-			cspDestination = 'header';
-		}
-
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
 		// calling the render() function will populate the object with scripts, styles, etc.
@@ -501,7 +496,7 @@ export class RenderContext {
 				extraScriptHashes: [],
 				propagators: new Set(),
 			},
-			cspDestination,
+			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
 			shouldInjectCspMetaTags: !!manifest.csp,
 			cspAlgorithm: manifest.csp?.algorithm ?? 'SHA-256',
 			// The following arrays must be cloned, otherwise they become mutable across routes.

@@ -89,6 +89,17 @@ export interface AstroAdapterFeatures {
 	 * Determine the type of build output the adapter is intended for. Defaults to `server`;
 	 */
 	buildOutput?: 'static' | 'server';
+
+	/**
+	 * If supported by the adapter and enabled, Astro won't add any `<meta http-equiv>` tags
+	 * in the static pages, instead it will return a mapping in the
+	 * `astro:build:generated` hook, so adapters can consume them and add them inside
+	 * their hosting headers configuration file.
+	 *
+	 * NOTE: the semantics and list of headers might change until the feature
+	 * is out of experimental
+	 */
+	experimentalStaticHeaders?: boolean;
 }
 
 export interface AstroAdapter {
@@ -136,12 +147,6 @@ export type AstroAdapterFeatureMap = {
 	 * The adapter supports image transformation using the built-in Sharp image service
 	 */
 	sharpImageService?: AdapterSupport;
-
-	/**
-	 * The adapter is able to provide CSP hashes using the Response header `Content-Security-Policy`. Either via hosting configuration
-	 * for static pages or at runtime using `Response` headers for dynamic pages.
-	 */
-	cspHeader?: AdapterSupport;
 };
 
 /**
@@ -233,6 +238,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:generated': (options: {
 		dir: URL;
 		logger: AstroIntegrationLogger;
+		experimentalRouteToHeaders: Map<IntegrationResolvedRoute, Headers>;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
