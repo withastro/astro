@@ -87,7 +87,7 @@ export function spreadAttributes(
 		}
 	}
 	for (const [key, value] of Object.entries(values)) {
-		output += addAttribute(value, key, true);
+		output += addAttribute(value, key, true, _name);
 	}
 	return markHTMLString(output);
 }

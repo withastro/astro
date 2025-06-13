@@ -147,4 +147,56 @@ describe('core/render components', () => {
 			},
 		);
 	});
+
+	it('should render custom element attributes as strings instead of boolean attributes', async () => {
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `
+				---
+				const selectedColor = "blue";
+				const autoplay = 2000;
+				---
+				<html>
+					<head><title>Custom Element Attributes Test</title></head>
+					<body>
+						<!-- Custom elements with hyphenated names should render string attributes -->
+						<color-picker selected={selectedColor}></color-picker>
+						<test-a autoplay={autoplay}>Test with autoplay prop working</test-a>
+					</body>
+				</html>
+			`,
+		});
+
+		await runInContainer(
+			{
+				inlineConfig: {
+					root: fixture.path,
+					logLevel: 'silent',
+					integrations: [],
+				},
+			},
+			async (container) => {
+				const { req, res, done, text } = createRequestAndResponse({
+					method: 'GET',
+					url: '/',
+				});
+				container.handle(req, res);
+
+				await done;
+				const html = await text();
+				
+				// Extract test data - following same pattern as class merging test
+				const hasSelectedBlue = html.includes('selected="blue"');
+				const hasAutoplay2000 = html.includes('autoplay="2000"');
+				const hasBooleanSelected = html.includes('<color-picker selected>');
+				const hasBooleanAutoplay = html.includes('<test-a autoplay>');
+				
+				// Test custom elements render string attributes correctly
+				assert.ok(hasSelectedBlue, 'selected="blue"');
+				assert.ok(hasAutoplay2000, 'autoplay="2000"');
+				assert.ok(!hasBooleanSelected, 'no boolean selected');
+				assert.ok(!hasBooleanAutoplay, 'no boolean autoplay');
+			},
+		);
+	});
+
 });
