@@ -94,7 +94,7 @@ type ContentCollectionConfig<S extends BaseSchema> = {
 	loader?: never;
 };
 
-export type LiveCollectionConfig<S extends BaseSchema | undefined, L extends LiveLoader> = {
+export type LiveCollectionConfig<L extends LiveLoader, S extends BaseSchema | undefined = undefined> = {
 	type: 'live';
 	schema?: S;
 	loader: L;
@@ -105,7 +105,10 @@ export type CollectionConfig<S extends BaseSchema> =
 	| DataCollectionConfig<S>
 	| ContentLayerConfig<S>;
 
-export function defineLiveCollection<C extends LiveCollectionConfig<any, any>>(config: C): C {
+export function defineLiveCollection<
+L extends LiveLoader,
+S extends BaseSchema | undefined = undefined,
+>(config: LiveCollectionConfig<L, S>): LiveCollectionConfig<L, S> {
 	const importerFilename = getImporterFilename();
 	if (!importerFilename?.includes('live.config')) {
 		throw new AstroError({
