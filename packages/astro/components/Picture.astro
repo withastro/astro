@@ -42,14 +42,14 @@ if (scopedStyleClass) {
 	}
 }
 
-const layout = props.layout ?? imageConfig.experimentalLayout ?? 'none';
-const useResponsive = imageConfig.experimentalResponsiveImages && layout !== 'none';
+const layout = props.layout ?? imageConfig.layout ?? 'none';
+const useResponsive = layout !== 'none';
 
 if (useResponsive) {
 	// Apply defaults from imageConfig if not provided
-	props.layout ??= imageConfig.experimentalLayout;
-	props.fit ??= imageConfig.experimentalObjectFit ?? 'cover';
-	props.position ??= imageConfig.experimentalObjectPosition ?? 'center';
+	props.layout ??= imageConfig.layout;
+	props.fit ??= imageConfig.objectFit ?? 'cover';
+	props.position ??= imageConfig.objectPosition ?? 'center';
 }
 
 for (const key in props) {

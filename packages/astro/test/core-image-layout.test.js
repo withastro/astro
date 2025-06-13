@@ -690,7 +690,7 @@ describe('astro:image:layout', () => {
 					image: {
 						service: testImageService({ foo: 'bar' }),
 						domains: ['avatars.githubusercontent.com'],
-						experimentalDefaultStyles: false,
+						responsiveStyles: false,
 					},
 				});
 				await fixtureWithoutStyles.build();

@@ -6,8 +6,6 @@ export default defineConfig({
 	integrations: [mdx()],
 	image: {
 		service: testImageService(),
-	},
-	experimental: {
-		responsiveImages: true,
+		responsiveStyles: true
 	}
 })

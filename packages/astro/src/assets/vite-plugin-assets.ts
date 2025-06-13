@@ -109,10 +109,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 		referencedImages: new Set(),
 	};
 
-	const imageComponentPrefix =
-		settings.config.experimental.responsiveImages && settings.config.image.experimentalDefaultStyles
-			? 'Responsive'
-			: '';
+	const imageComponentPrefix = settings.config.image.responsiveStyles ? 'Responsive' : '';
 	return [
 		// Expose the components and different utilities from `astro:assets`
 		{
@@ -139,7 +136,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							export { default as Font } from "astro/components/Font.astro";
 							export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
-							export const imageConfig = ${JSON.stringify({ ...settings.config.image, experimentalResponsiveImages: settings.config.experimental.responsiveImages })};
+							export const imageConfig = ${JSON.stringify(settings.config.image)};
 							// This is used by the @astrojs/node integration to locate images.
 							// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
 							// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
