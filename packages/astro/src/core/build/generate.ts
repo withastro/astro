@@ -16,11 +16,12 @@ import {
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
-import { runHookBuildGenerated } from '../../integrations/hooks.js';
+import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
 import type { GetStaticPathsItem, MiddlewareHandler } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/config.js';
+import type { IntegrationResolvedRoute } from '../../types/public/index.js';
 import type {
 	RouteData,
 	RouteType,
@@ -102,6 +103,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
+	const routeToHeaders = new Map<IntegrationResolvedRoute, Headers>();
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
@@ -116,13 +118,13 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 				const ssrEntryPage = await pipeline.retrieveSsrEntry(pageData.route, filePath);
 
 				const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-				await generatePage(pageData, ssrEntry, builtPaths, pipeline);
+				await generatePage(pageData, ssrEntry, builtPaths, pipeline, routeToHeaders);
 			}
 		}
 	} else {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			const entry = await pipeline.retrieveSsrEntry(pageData.route, filePath);
-			await generatePage(pageData, entry, builtPaths, pipeline);
+			await generatePage(pageData, entry, builtPaths, pipeline, routeToHeaders);
 		}
 	}
 	logger.info(
@@ -219,7 +221,11 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
 
-	await runHookBuildGenerated({ settings: options.settings, logger });
+	await runHookBuildGenerated({
+		settings: options.settings,
+		logger,
+		experimentalRouteToHeaders: routeToHeaders,
+	});
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
@@ -229,6 +235,7 @@ async function generatePage(
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>,
 	pipeline: BuildPipeline,
+	routeToHeaders: Map<IntegrationResolvedRoute, Headers>,
 ) {
 	// prepare information we need
 	const { config, logger } = pipeline;
@@ -275,7 +282,7 @@ async function generatePage(
 			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
 		}
 
-		const created = await generatePath(path, pipeline, generationOptions, route);
+		const created = await generatePath(path, pipeline, generationOptions, route, routeToHeaders);
 
 		const timeEnd = performance.now();
 		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
@@ -493,6 +500,7 @@ async function generatePath(
 	pipeline: BuildPipeline,
 	gopts: GeneratePathOptions,
 	route: RouteData,
+	routeToHeaders: Map<IntegrationResolvedRoute, Headers>,
 ): Promise<boolean | undefined> {
 	const { mod } = gopts;
 	const { config, logger, options } = pipeline;
@@ -505,15 +513,26 @@ async function generatePath(
 
 	// Do not render the fallback route if there is already a translated page
 	// with the same path
-	if (
-		route.type === 'fallback' &&
-		// If route is index page, continue rendering. The index page should
-		// always be rendered
-		route.pathname !== '/' &&
-		// Check if there is a translated page with the same path
-		Object.values(options.allPages).some((val) => val.route.pattern.test(pathname))
-	) {
-		return undefined;
+	if (route.type === 'fallback' && route.pathname !== '/') {
+		// Get the locale from the pathname
+		let locale = removeLeadingForwardSlash(pathname).split('/')[0];
+		if (
+			Object.values(options.allPages).some((val) => {
+				if (val.route.pattern.test(pathname)) {
+					// Check if we've matched a dynamic route
+					if (val.route.segments && val.route.segments.length !== 0) {
+						// Check that the route is in a matching locale folder
+						if (val.route.segments[0][0].content !== locale) return false;
+					}
+					// Route matches
+					return true;
+				} else {
+					return false;
+				}
+			})
+		) {
+			return undefined;
+		}
 	}
 
 	const url = getUrlForPath(
@@ -549,6 +568,13 @@ async function generatePath(
 			(err as SSRError).id = route.component;
 		}
 		throw err;
+	}
+
+	if (
+		pipeline.settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
+		pipeline.settings.config.experimental?.csp
+	) {
+		routeToHeaders.set(toIntegrationResolvedRoute(route), response.headers);
 	}
 
 	if (response.status >= 300 && response.status < 400) {
@@ -648,6 +674,9 @@ async function createBuildManifest(
 		];
 
 		csp = {
+			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
+				? 'adapter'
+				: undefined,
 			styleHashes,
 			styleResources: getStyleResources(settings.config.experimental.csp),
 			scriptHashes,
@@ -670,7 +699,7 @@ async function createBuildManifest(
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
 		inlinedScripts: internals.inlinedScripts,
 		routes: [],
-		adapterName: '',
+		adapterName: settings.adapter?.name ?? '',
 		clientDirectives: settings.clientDirectives,
 		compressHTML: settings.config.compressHTML,
 		renderers,

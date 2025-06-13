@@ -37,7 +37,8 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
+        # windows-latest is still windows-2022 for some reason, even though the windows-2025 image is GA
+        OS: [ubuntu-latest, windows-2025]
         NODE_VERSION: [22]
       fail-fast: true
     steps:
@@ -104,7 +105,7 @@ jobs:
   test:
     name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 30
     needs: build
     strategy:
       matrix:
@@ -113,7 +114,7 @@ jobs:
         include:
           - os: macos-14
             NODE_VERSION: 22
-          - os: windows-latest
+          - os: windows-2025
             NODE_VERSION: 22
       fail-fast: false
     env:
@@ -146,11 +147,11 @@ jobs:
   e2e:
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 30
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
+        OS: [ubuntu-latest, windows-2025]
         NODE_VERSION: [22]
       fail-fast: false
     env:
@@ -183,11 +184,11 @@ jobs:
   smoke:
     name: "Test (Smoke): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 30
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
+        OS: [ubuntu-latest, windows-2025]
         NODE_VERSION: [22]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}

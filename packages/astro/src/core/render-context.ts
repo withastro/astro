@@ -496,6 +496,7 @@ export class RenderContext {
 				extraScriptHashes: [],
 				propagators: new Set(),
 			},
+			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
 			shouldInjectCspMetaTags: !!manifest.csp,
 			cspAlgorithm: manifest.csp?.algorithm ?? 'SHA-256',
 			// The following arrays must be cloned, otherwise they become mutable across routes.
