@@ -1,4 +1,3 @@
-import { shouldTrackCspHashes } from '../core/csp/common.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type {
@@ -39,7 +38,6 @@ export function validateSupportedFeatures(
 		i18nDomains = AdapterFeatureStability.UNSUPPORTED,
 		envGetSecret = AdapterFeatureStability.UNSUPPORTED,
 		sharpImageService = AdapterFeatureStability.UNSUPPORTED,
-		cspHeader = AdapterFeatureStability.UNSUPPORTED,
 	} = featureMap;
 	const validationResult: ValidationResult = {};
 
@@ -93,17 +91,6 @@ export function validateSupportedFeatures(
 		logger,
 		'sharp',
 		() => settings.config?.image?.service?.entrypoint === 'astro/assets/services/sharp',
-	);
-
-	validationResult.cspHeader = validateSupportKind(
-		cspHeader,
-		adapterName,
-		logger,
-		'cspHeader',
-		() =>
-			settings?.config?.experimental?.csp
-				? shouldTrackCspHashes(settings.config.experimental.csp)
-				: false,
 	);
 
 	return validationResult;
