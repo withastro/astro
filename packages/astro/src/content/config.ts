@@ -10,6 +10,7 @@ function getImporterFilename() {
 		.find(
 			(line) =>
 				!line.includes('defineCollection') &&
+				!line.includes('defineLiveCollection') &&
 				!line.includes('getImporterFilename') &&
 				line !== 'Error',
 		);
@@ -93,68 +94,70 @@ type ContentCollectionConfig<S extends BaseSchema> = {
 	loader?: never;
 };
 
-type LiveDataCollectionConfig<S extends BaseSchema | undefined, L extends LiveLoader> = {
+export type LiveCollectionConfig<S extends BaseSchema | undefined, L extends LiveLoader> = {
 	type: 'live';
 	schema?: S;
 	loader: L;
 };
 
-export type BaseCollectionConfig<S extends BaseSchema> =
+export type CollectionConfig<S extends BaseSchema> =
 	| ContentCollectionConfig<S>
 	| DataCollectionConfig<S>
 	| ContentLayerConfig<S>;
 
-export type CollectionConfig<
-	S extends BaseSchema,
-	TLiveLoader = never,
-> = TLiveLoader extends LiveLoader<any, any, any, any>
-	? LiveDataCollectionConfig<S, TLiveLoader>
-	: BaseCollectionConfig<S>;
-
-export function defineCollection<S extends BaseSchema, TLiveLoader = undefined>(
-	config: CollectionConfig<S, TLiveLoader>,
-): CollectionConfig<S, TLiveLoader> {
+export function defineLiveCollection<C extends LiveCollectionConfig<any, any>>(config: C): C {
 	const importerFilename = getImporterFilename();
-	const isInLiveConfig = importerFilename?.includes('live.config');
-
-	if (config.type === LIVE_CONTENT_TYPE) {
-		if (!isInLiveConfig) {
-			throw new AstroError({
-				...AstroErrorData.LiveContentConfigError,
-				message: AstroErrorData.LiveContentConfigError.message(
-					'Collections with type `live` must be defined in a `src/live.config.ts` file.',
-					importerFilename ?? 'your content config file',
-				),
-			});
-		}
-		if (!config.loader) {
-			throw new AstroError({
-				...AstroErrorData.LiveContentConfigError,
-				message: AstroErrorData.LiveContentConfigError.message(
-					'Collections with type `live` must have a `loader` defined.',
-					importerFilename,
-				),
-			});
-		}
-		if (config.schema) {
-			if (typeof config.schema === 'function') {
-				throw new AstroError({
-					...AstroErrorData.LiveContentConfigError,
-					message: AstroErrorData.LiveContentConfigError.message(
-						'The schema cannot be a function for live collections. Please use a schema object instead.',
-						importerFilename,
-					),
-				});
-			}
-		}
-		return config;
-	}
-	if (isInLiveConfig) {
+	if (!importerFilename?.includes('live.config')) {
 		throw new AstroError({
 			...AstroErrorData.LiveContentConfigError,
 			message: AstroErrorData.LiveContentConfigError.message(
-				'Collections in a `live.config.ts` file must have a type of `live`.',
-				getImporterFilename(),
+				'Live collections must be defined in a `src/live.config.ts` file.',
+				importerFilename ?? 'your content config file',
+			),
+		});
+	}
+	if (config.type !== LIVE_CONTENT_TYPE) {
+		throw new AstroError({
+			...AstroErrorData.LiveContentConfigError,
+			message: AstroErrorData.LiveContentConfigError.message(
+				'Collections in a live config file must have a type of `live`.',
+				importerFilename,
+			),
+		});
+	}
+
+	if (!config.loader) {
+		throw new AstroError({
+			...AstroErrorData.LiveContentConfigError,
+			message: AstroErrorData.LiveContentConfigError.message(
+				'Live collections must have a `loader` defined.',
+				importerFilename,
+			),
+		});
+	}
+	if (typeof config.schema === 'function') {
+		throw new AstroError({
+			...AstroErrorData.LiveContentConfigError,
+			message: AstroErrorData.LiveContentConfigError.message(
+				'The schema cannot be a function for live collections. Please use a schema object instead.',
+				importerFilename,
+			),
+		});
+	}
+	return config;
+}
+
+export function defineCollection<S extends BaseSchema>(
+	config: CollectionConfig<S>,
+): CollectionConfig<S> {
+	const importerFilename = getImporterFilename();
+
+	if (importerFilename?.includes('live.config')) {
+		throw new AstroError({
+			...AstroErrorData.LiveContentConfigError,
+			message: AstroErrorData.LiveContentConfigError.message(
+				'Collections in a live config file must use `defineLiveCollection`.',
+				importerFilename,
 			),
 		});
 	}
@@ -162,7 +165,7 @@ export function defineCollection<S extends BaseSchema, TLiveLoader = undefined>(
 	if ('loader' in config) {
 		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
 			throw new AstroUserError(
-				`Collections that use the Content Layer API must have a \`loader\` defined and no \`type\` set. Check your collection definitions in ${getImporterFilename() ?? 'your content config file'}.`,
+				`Collections that use the Content Layer API must have a \`loader\` defined and no \`type\` set. Check your collection definitions in ${importerFilename ?? 'your content config file'}.`,
 			);
 		}
 		config.type = CONTENT_LAYER_TYPE;
