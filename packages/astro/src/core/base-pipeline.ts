@@ -10,9 +10,9 @@ import type {
 	SSRLoadedRenderer,
 	SSRManifest,
 	SSRResult,
+	SSRActions,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
-import type { SSRActions } from './app/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 import type { Logger } from './logger/core.js';

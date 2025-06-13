@@ -9,7 +9,7 @@ import type { AstroConfig, RedirectConfig } from './config.js';
 import type { AstroGlobal, AstroGlobalPartial } from './context.js';
 import type { AstroRenderer } from './integrations.js';
 
-export type { SSRManifest } from '../../core/app/types.js';
+export type { SSRManifest, SSRManifestCSP, SSRActions } from '../../core/app/types.js';
 
 export interface NamedSSRLoadedRendererValue extends SSRLoadedRendererValue {
 	name: string;
@@ -248,9 +248,20 @@ export interface SSRResult {
 	key: Promise<CryptoKey>;
 	_metadata: SSRMetadata;
 	/**
-	 * Whether Astro should inject the CSP <meta> tag into the head of the component.
+	 * `header`:
+	 * - <meta> for static pages
+	 * - Response header for dynamic pages
+	 *
+	 * `meta`:
+	 * - <meta> for all pages
+	 *
+	 * `adapter`:
+	 * - nothing for static pages (the adapter does this)
+	 * - Response header for dynamic pages
 	 */
-	cspDestination: 'header' | 'meta';
+	// NOTE: we use a different type here because at runtime we must provide a value, which is
+	// eventually computed from RouteData.prerender
+	cspDestination: NonNullable<SSRManifestCSP['cspDestination']>;
 	shouldInjectCspMetaTags: boolean;
 	cspAlgorithm: SSRManifestCSP['algorithm'];
 	scriptHashes: SSRManifestCSP['scriptHashes'];

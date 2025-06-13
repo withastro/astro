@@ -36,7 +36,7 @@ export async function renderPage(
 			['Content-Type', 'text/html'],
 			['Content-Length', bytes.byteLength.toString()],
 		]);
-		if (result.cspDestination === 'header') {
+		if (result.cspDestination === 'header' || result.cspDestination === 'adapter') {
 			headers.set('content-security-policy', renderCspContent(result));
 		}
 		return new Response(bytes, {
@@ -78,7 +78,7 @@ export async function renderPage(
 	// Create final response from body
 	const init = result.response;
 	const headers = new Headers(init.headers);
-	if (result.shouldInjectCspMetaTags && result.cspDestination === 'header') {
+	if (result.shouldInjectCspMetaTags && result.cspDestination === 'header' || result.cspDestination === 'adapter') {
 		headers.set('content-security-policy', renderCspContent(result));
 	}
 	// For non-streaming, convert string to byte array to calculate Content-Length
