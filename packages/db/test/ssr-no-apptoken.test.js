@@ -17,7 +17,7 @@ describe('missing app token', () => {
 		remoteDbServer = await setupRemoteDbServer(fixture.config);
 		await fixture.build();
 		// Ensure there's no token at runtime
-		delete process.env.ASTRO_STUDIO_APP_TOKEN;
+		delete process.env.ASTRO_DB_APP_TOKEN;
 	});
 
 	after(async () => {
