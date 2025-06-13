@@ -15,7 +15,7 @@
   "kv_namespaces": [
     {
       "binding": "SESSION",
-      "id": "<SESSION_ID>"
+      "id": "SESSION_ID"
     }
   ],
   "upload_source_maps": true

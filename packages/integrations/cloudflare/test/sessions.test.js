@@ -12,7 +12,10 @@ describe('astro:env', () => {
 	before(async () => {
 		await astroCli(fileURLToPath(root), 'build');
 
-		wrangler = wranglerCli(fileURLToPath(root));
+		wrangler = wranglerCli(fileURLToPath(root))
+		wrangler.catch((err) => {
+			console.error('Wrangler error:', err);
+		});
 		await new Promise((resolve) => {
 			wrangler.stdout.on('data', (data) => {
 				// console.log('[stdout]', data.toString());

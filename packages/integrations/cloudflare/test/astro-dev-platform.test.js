@@ -10,11 +10,13 @@ describe('AstroDevPlatform', () => {
 	before(async () => {
 		cli = astroCli(fileURLToPath(root), 'dev', '--host', '127.0.0.1');
 		await new Promise((resolve) => {
-			cli.stdout.on('data', (data) => {
+			const handler = (data) => {
 				if (data.includes('http://127.0.0.1:4321/')) {
 					resolve();
+					cli.stdout.removeListener('data', handler);
 				}
-			});
+			}
+			cli.stdout.on('data', handler);
 		});
 	});
 
