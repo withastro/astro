@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 12.5.5
+
+### Patch Changes
+
+- [#13930](https://github.com/withastro/astro/pull/13930) [`acb9b30`](https://github.com/withastro/astro/commit/acb9b302f56e38833a1ab01147f7fde0bf967889) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue where setting values for `Astro.response` resulted in a Cloudflare runtime exception.
+
 ## 12.5.4
 
 ### Patch Changes
