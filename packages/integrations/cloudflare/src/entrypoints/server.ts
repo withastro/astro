@@ -97,7 +97,13 @@ export function createExports(manifest: SSRManifest) {
 			},
 		};
 
-		const response = await app.render(request, { routeData, locals });
+		const response = await app.render(request, {
+			routeData,
+			locals,
+			prerenderedErrorPageFetch: async (url) => {
+				return env.ASSETS.fetch(url.replace(/\.html$/, ''));
+			},
+		});
 
 		if (app.setCookieHeaders) {
 			for (const setCookieHeader of app.setCookieHeaders(response)) {
