@@ -1,6 +1,6 @@
 import type { RewritePayload } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/config.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import { originPathnameSymbol } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -187,7 +187,17 @@ export function copyRequest(
 	});
 }
 
-export function setOriginPathname(request: Request, pathname: string): void {
+export function setOriginPathname(
+	request: Request,
+	pathname: string,
+	trailingSlash: SSRManifest['trailingSlash'],
+	buildFormat: SSRManifest['buildFormat'],
+): void {
+	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
+	pathname = shouldAppendSlash
+		? appendForwardSlash(pathname)
+		: removeTrailingForwardSlash(pathname);
+
 	Reflect.set(request, originPathnameSymbol, encodeURIComponent(pathname));
 }
 

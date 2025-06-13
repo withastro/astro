@@ -106,6 +106,8 @@ export function createBasicPipeline(options = {}) {
 		options.logger ?? defaultLogger,
 		options.manifest ?? {
 			hrefRoot: import.meta.url,
+			trailingSlash: 'ignore',
+			buildFormat: 'directory',
 		},
 		options.mode ?? 'development',
 		options.renderers ?? [],
