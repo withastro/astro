@@ -1,4 +1,5 @@
 import type { YAMLException } from 'js-yaml';
+import type { TomlError } from 'smol-toml';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { SSRError } from '../../types/public/internal.js';
 
@@ -82,6 +83,21 @@ export function formatYAMLException(e: YAMLException): ViteErrorPayload['err'] {
 		id: e.mark.name,
 		loc: { file: e.mark.name, line: e.mark.line + 1, column: e.mark.column },
 		message: e.reason,
+		stack: e.stack ?? '',
+	};
+}
+
+export function isTOMLError(err: unknown): err is TomlError {
+	return err instanceof Error && err.name === 'TomlError';
+}
+
+/** Format TOML exceptions as Vite errors */
+export function formatTOMLError(e: TomlError): ViteErrorPayload['err'] {
+	return {
+		name: e.name,
+		// id: e.name,
+		loc: { line: e.line + 1, column: e.column },
+		message: e.message,
 		stack: e.stack ?? '',
 	};
 }
