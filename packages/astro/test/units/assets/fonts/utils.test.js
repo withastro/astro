@@ -5,6 +5,7 @@ import {
 	isFontType,
 	isGenericFontFamily,
 	renderFontSrc,
+	renderFontWeight,
 	sortObjectByKey,
 	unifontFontFaceDataToProperties,
 } from '../../../../dist/assets/fonts/utils.js';
@@ -58,6 +59,13 @@ describe('fonts utils', () => {
 		it('returns local if it has a name', () => {
 			assert.equal(renderFontSrc([{ name: 'Arial' }]), 'local("Arial")');
 		});
+	});
+
+	it('renderFontWeight()', () => {
+		assert.equal(renderFontWeight(undefined), undefined);
+		assert.equal(renderFontWeight('400'), '400');
+		assert.equal(renderFontWeight(400), '400');
+		assert.equal(renderFontWeight([300, 500]), '300 500');
 	});
 
 	it('unifontFontFaceDataToProperties()', () => {
