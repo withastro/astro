@@ -45,8 +45,8 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.0.0",
-    "linkedom": "^0.18.10",
+    "cheerio": "1.1.0",
+    "linkedom": "^0.18.11",
     "vue": "^3.5.16"
   },
   "peerDependencies": {
