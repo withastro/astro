@@ -1784,7 +1784,7 @@ export const ContentCollectionTypeMismatchError = {
  * @docs
  * @message `COLLECTION_ENTRY_NAME` failed to parse.
  * @description
- * Collection entries of `type: 'data'` must return an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).
+ * Collection entries of `type: 'data'` must return an object with valid JSON (for `.json` entries), YAML (for `.yaml` entries) or TOML (for `.toml` entries).'
  */
 export const DataCollectionEntryParseError = {
 	name: 'DataCollectionEntryParseError',
@@ -1792,7 +1792,7 @@ export const DataCollectionEntryParseError = {
 	message(entryId: string, errorMessage: string) {
 		return `**${entryId}** failed to parse: ${errorMessage}`;
 	},
-	hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
+	hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries), YAML (for `.yaml` entries) or TOML (for `.toml` entries).',
 } satisfies ErrorData;
 /**
  * @docs
@@ -1834,7 +1834,7 @@ export const UnsupportedConfigTransformError = {
  * @see
  *  - [Passing a `parser` to the `file` loader](https://docs.astro.build/en/guides/content-collections/#parser-function)
  * @description
- * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. `toml.parse` or `csv-parse`) to create a collection from your file type.
+ * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. or `csv-parse`) to create a collection from your file type.
  */
 export const FileParserNotFound = {
 	name: 'FileParserNotFound',

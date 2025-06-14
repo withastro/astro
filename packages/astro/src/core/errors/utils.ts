@@ -95,7 +95,7 @@ export function isTOMLError(err: unknown): err is TomlError {
 export function formatTOMLError(e: TomlError): ViteErrorPayload['err'] {
 	return {
 		name: e.name,
-		// id: e.name,
+		id: e.name,
 		loc: { line: e.line + 1, column: e.column },
 		message: e.message,
 		stack: e.stack ?? '',

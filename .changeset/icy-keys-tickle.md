@@ -5,5 +5,6 @@
 
 Add TOML support to the built-in content loaders.
 
-This change extends the existing support for TOML frontmatter in markdown files in
-content collections to directly supporting TOML files in content collections.
+In Astro 5.2, Markdown gained support for TOML frontmatter, including for use within content collections.
+
+This changeset extends that functionality to directly support TOML files in content collections.
