@@ -95,7 +95,13 @@ export async function handle(
 
 	const response = await app.render(
 		request as Request & Parameters<ExportedHandlerFetchHandler>[0],
-		{ routeData, locals },
+		{
+			routeData,
+			locals,
+			prerenderedErrorPageFetch: async (url) => {
+				return env.ASSETS.fetch(url.replace(/\.html$/, ''));
+			},
+		},
 	);
 
 	if (app.setCookieHeaders) {
