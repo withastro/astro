@@ -142,6 +142,7 @@ async function runInstallCommand(
 						installCommand.command,
 						[
 							...installCommand.args,
+              installCommand.command === "deno" ? "--npm" : "",
 							...dependencies.map(
 								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`,
 							),
