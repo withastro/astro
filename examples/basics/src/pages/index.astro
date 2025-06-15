@@ -1,11 +1,260 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import { fetchFIFASchedule } from '../utils/api';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Fetch real data from API
+const scheduleData = await fetchFIFASchedule();
+
+// Get unique groups for filter
+const groups = [...new Set(scheduleData.flatMap(day => 
+    day.matches.map(match => match.group)
+))].sort();
 ---
 
 <Layout>
-	<Welcome />
+    <main class="container mx-auto px-4 py-8 mt-20">
+        <!-- Page Title -->
+        <h1 class="text-3xl font-bold text-center mb-8">FIFA World Cup 2025 Schedule</h1>
+
+        <!-- Search and Filters -->
+        <div class="mb-8 bg-white rounded-lg shadow p-4 space-y-4">
+            <!-- Search Box -->
+            <div class="relative">
+                <input 
+                    type="text" 
+                    id="search-input"
+                    placeholder="Search teams, venues, or cities..." 
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <div class="absolute right-3 top-2.5 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div>
+                <h2 class="text-xl font-semibold mb-4">Filters</h2>
+                <div class="flex flex-wrap gap-4" id="filters">
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors active" data-group="all">
+                        All Matches
+                    </button>
+                    {groups.map(group => (
+                        <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors" data-group={group}>
+                            Group {group}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule -->
+        <div class="space-y-8" id="matches-container">
+            {scheduleData.map(day => (
+                <div class="match-day" data-date={day.date}>
+                    <h3 class="text-xl font-semibold mb-4 bg-gray-100 p-4 rounded-t-lg">
+                        {new Date(day.date).toLocaleDateString('en-US', { 
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}
+                    </h3>
+                    <div class="grid gap-4">
+                        {day.matches.map(match => (
+                            <div 
+                                class="match-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+                                data-group={match.group}
+                                data-search={`${match.homeTeam} ${match.awayTeam} ${match.venue}`}
+                            >
+                                <!-- Match Status -->
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-sm font-medium text-gray-500">Group {match.group}</span>
+                                    <span class={`text-sm font-medium px-2 py-1 rounded ${
+                                        match.status === 'live' ? 'bg-red-100 text-red-700' :
+                                        match.status === 'finished' ? 'bg-gray-100 text-gray-700' :
+                                        'bg-green-100 text-green-700'
+                                    }`}>
+                                        {match.status.toUpperCase()}
+                                    </span>
+                                </div>
+
+                                <!-- Teams and Score -->
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="flex items-center space-x-4 flex-1">
+                                        <span class="text-2xl">{match.homeFlag}</span>
+                                        <div>
+                                            <span class="font-semibold">{match.homeTeam}</span>
+                                            {match.homeScore !== undefined && (
+                                                <span class="ml-2 font-bold text-xl">{match.homeScore}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div class="px-4 py-2 bg-gray-100 rounded-full font-bold">
+                                        {match.status === 'scheduled' ? (
+                                            match.time
+                                        ) : (
+                                            'VS'
+                                        )}
+                                    </div>
+                                    <div class="flex items-center space-x-4 flex-1 justify-end">
+                                        <div>
+                                            <span class="font-semibold">{match.awayTeam}</span>
+                                            {match.awayScore !== undefined && (
+                                                <span class="ml-2 font-bold text-xl">{match.awayScore}</span>
+                                            )}
+                                        </div>
+                                        <span class="text-2xl">{match.awayFlag}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Venue and Weather -->
+                                <div class="text-sm text-gray-500 flex justify-between items-center">
+                                    <span>{match.venue}</span>
+                                    {match.weather && (
+                                        <span class="flex items-center gap-2">
+                                            {match.weather.condition === 'Clear' && '☀️'}
+                                            {match.weather.condition === 'Partly Cloudy' && '⛅'}
+                                            {match.weather.condition === 'Hot' && '🌡️'}
+                                            {match.weather.temperature}°C | {match.weather.humidity}% Humidity
+                                        </span>
+                                    )}
+                                </div>
+
+                                <!-- Match Statistics -->
+                                {match.statistics && (
+                                    <div class="mt-4 pt-4 border-t border-gray-200">
+                                        <h4 class="text-sm font-semibold mb-2">Match Statistics</h4>
+                                        <div class="space-y-2">
+                                            <div class="stat-row">
+                                                <span>Possession</span>
+                                                <div class="stat-bar">
+                                                    <div class="bg-blue-500" style={`width: ${match.statistics.possession.home}%`}></div>
+                                                    <div class="bg-red-500" style={`width: ${match.statistics.possession.away}%`}></div>
+                                                </div>
+                                                <span>{match.statistics.possession.home}% - {match.statistics.possession.away}%</span>
+                                            </div>
+                                            <div class="stat-row">
+                                                <span>Shots</span>
+                                                <div class="flex justify-between">
+                                                    <span>{match.statistics.shots.home}</span>
+                                                    <span>{match.statistics.shots.away}</span>
+                                                </div>
+                                            </div>
+                                            <div class="stat-row">
+                                                <span>Shots on Target</span>
+                                                <div class="flex justify-between">
+                                                    <span>{match.statistics.shotsOnTarget.home}</span>
+                                                    <span>{match.statistics.shotsOnTarget.away}</span>
+                                                </div>
+                                            </div>
+                                            <div class="stat-row">
+                                                <span>Corners</span>
+                                                <div class="flex justify-between">
+                                                    <span>{match.statistics.corners.home}</span>
+                                                    <span>{match.statistics.corners.away}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+
+        <!-- No Results Message -->
+        <div id="no-results" class="hidden text-center py-8 text-gray-500">
+            No matches found for your search criteria
+        </div>
+    </main>
 </Layout>
+
+<script>
+    // Filter and search functionality
+    const filterButtons = document.querySelectorAll('#filters button');
+    const matchCards = document.querySelectorAll('.match-card');
+    const searchInput = document.getElementById('search-input') as HTMLInputElement;
+    const noResults = document.getElementById('no-results');
+    let currentGroup = 'all';
+
+    function updateVisibility() {
+        let visibleCount = 0;
+        const searchTerm = searchInput.value.toLowerCase();
+
+        matchCards.forEach(card => {
+            const matchCard = card as HTMLElement;
+            const matchesGroup = currentGroup === 'all' || matchCard.dataset.group === currentGroup;
+            const matchesSearch = matchCard.dataset.search?.toLowerCase().includes(searchTerm);
+
+            if (matchesGroup && matchesSearch) {
+                matchCard.style.display = 'block';
+                visibleCount++;
+            } else {
+                matchCard.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        if (noResults) {
+            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+    }
+
+    // Filter button click handlers
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-500', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+
+            button.classList.remove('bg-gray-200', 'text-gray-700');
+            button.classList.add('active', 'bg-blue-500', 'text-white');
+
+            currentGroup = (button as HTMLElement).dataset.group || 'all';
+            updateVisibility();
+        });
+    });
+
+    // Search input handler
+    searchInput.addEventListener('input', updateVisibility);
+
+    // Auto-refresh for live matches
+    function refreshLiveMatches() {
+        // In a real application, you would fetch updated data from the API here
+        console.log('Refreshing live matches...');
+    }
+
+    // Refresh live matches every 60 seconds
+    setInterval(refreshLiveMatches, 60000);
+</script>
+
+<style>
+    @reference "tailwindcss";
+    .match-card {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .match-card[style*="display: none"] {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .stat-row {
+        @apply flex justify-between items-center text-sm;
+    }
+
+    .stat-bar {
+        @apply flex w-full max-w-xs h-2 bg-gray-200 rounded overflow-hidden mx-4;
+    }
+
+    .stat-bar > div {
+        @apply h-full transition-all duration-500;
+    }
+</style>

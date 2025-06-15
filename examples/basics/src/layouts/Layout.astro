@@ -1,14 +1,23 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>Văn Lang Sport - TRỰC TIẾP BÓNG ĐÁ ĐỈNH CAO</title>
 	</head>
-	<body>
-		<slot />
+	<body class="bg-gray-950">
+		<Header />
+		<main class="container mx-auto px-4">
+			<slot />
+		</main>
+		<Footer />
 	</body>
 </html>
 
