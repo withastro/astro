@@ -1,0 +1,42 @@
+---
+// Test different SVG import methods
+import Logo1 from '../assets/logo1.svg';
+import Logo2 from '../assets/logo2.svg';
+import Logo3 from '../assets/logo3.svg';
+import LogoDifferent from '../assets/logo-different.svg';
+import { Image } from 'astro:assets';
+---
+
+<div class="svg-test">
+  <h2>SVG Deduplication Test</h2>
+  
+  <!-- ESM Component imports (should be deduplicated) -->
+  <div class="esm-imports">
+    <h3>ESM Component Imports</h3>
+    <Logo1 width="50" height="20" />
+    <Logo2 width="50" height="20" />
+    <Logo3 width="50" height="20" />
+    <LogoDifferent width="50" height="20" />
+  </div>
+  
+  <!-- Image component usage (should be deduplicated) -->
+  <div class="image-components">
+    <h3>Image Component Usage</h3>
+    <Image src={Logo1} alt="Logo 1" width="50" height="20" />
+    <Image src={Logo2} alt="Logo 2" width="50" height="20" />
+    <Image src={Logo3} alt="Logo 3" width="50" height="20" />
+    <Image src={LogoDifferent} alt="Different Logo" width="50" height="20" />
+  </div>
+  
+  <!-- Public directory reference -->
+  <div class="public-refs">
+    <h3>Public Directory Reference</h3>
+    <img src="/logo4.svg" alt="Logo 4" width="50" height="20" />
+  </div>
+</div>
+
+<style>
+  .svg-test { padding: 20px; }
+  .svg-test > div { margin: 20px 0; }
+  h3 { color: #666; }
+</style>
