@@ -245,7 +245,7 @@ export interface NetlifyIntegrationConfig {
 	 * Here the list of the headers that are added:
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
-	experimentalUseStaticHeaders?: boolean;
+	experimentalStaticHeaders?: boolean;
 }
 
 export default function netlifyIntegration(
@@ -618,16 +618,16 @@ export default function netlifyIntegration(
 
 				finalBuildOutput = buildOutput;
 
-				const edgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
-				const experimentalStaticHeaders = integrationConfig?.experimentalUseStaticHeaders ?? false;
+				const useEdgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
+				const useStaticHeaders = integrationConfig?.experimentalStaticHeaders ?? false;
 
 				setAdapter({
 					name: '@astrojs/netlify',
 					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
 					exports: ['default'],
 					adapterFeatures: {
-						edgeMiddleware,
-						experimentalStaticHeaders,
+						edgeMiddleware: useEdgeMiddleware,
+						experimentalStaticHeaders: useStaticHeaders,
 					},
 					args: { middlewareSecret } satisfies Args,
 					supportedAstroFeatures: {
