@@ -1,4 +1,5 @@
 import type * as fsMod from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
@@ -22,6 +23,7 @@ import { emitESMImage } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { createHash } from 'node:crypto';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -40,11 +42,49 @@ const addStaticImageFactory = (
 				}
 			>();
 		}
+		// Initialize SVG content hash map for deduplication
+		if (!globalThis.astroAsset.svgContentHashes) {
+			globalThis.astroAsset.svgContentHashes = new Map<string, string>();
+		}
 
 		// Rollup will copy the file to the output directory, as such this is the path in the output directory, including the asset prefix / base
 		const ESMImportedImageSrc = isESMImportedImage(options.src) ? options.src.src : options.src;
 		const fileExtension = extname(ESMImportedImageSrc);
 		const assetPrefix = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix);
+
+		// Calculate hash early for both deduplication and normal processing
+		const hash = hashTransform(options, settings.config.image.service.entrypoint, hashProperties);
+
+		// SVG deduplication: Check if this SVG content already exists
+		if (fileExtension.toLowerCase() === '.svg' && originalFSPath) {
+			try {
+				const svgContent = readFileSync(originalFSPath, 'utf-8');
+				const contentHash = createHash('sha256').update(svgContent).digest('hex').slice(0, 16);
+				
+				// Check if we've seen this SVG content before
+				const existingPath = globalThis.astroAsset.svgContentHashes!.get(contentHash);
+				if (existingPath && existingPath !== originalFSPath) {
+					// Return the existing image's path instead of creating a duplicate
+					const existingImage = globalThis.astroAsset.staticImages.get(existingPath);
+					if (existingImage) {
+						const existingTransform = existingImage.transforms.get(hash);
+						if (existingTransform) {
+							if (settings.config.build.assetsPrefix) {
+								return encodeURI(joinPaths(assetPrefix, existingTransform.finalPath));
+							} else {
+								return encodeURI(prependForwardSlash(joinPaths(settings.config.base, existingTransform.finalPath)));
+							}
+						}
+					}
+				}
+				
+				// Store this SVG content hash for future deduplication
+				globalThis.astroAsset.svgContentHashes!.set(contentHash, originalFSPath);
+			} catch (error) {
+				// If we can't read the file, continue with normal processing
+				console.warn(`Failed to read SVG file for deduplication: ${originalFSPath}`, error);
+			}
+		}
 
 		// This is the path to the original image, from the dist root, without the base or the asset prefix (e.g. /_astro/image.hash.png)
 		const finalOriginalPath = removeBase(
@@ -52,7 +92,7 @@ const addStaticImageFactory = (
 			assetPrefix,
 		);
 
-		const hash = hashTransform(options, settings.config.image.service.entrypoint, hashProperties);
+		// Hash already calculated above for SVG deduplication
 
 		let finalFilePath: string;
 		let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalPath);
@@ -235,6 +275,23 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 
 					if (id.endsWith('.svg')) {
 						const contents = await fs.promises.readFile(imageMetadata.fsPath, { encoding: 'utf8' });
+						
+						// SVG component deduplication: Check if we've seen this SVG content before
+						if (!globalThis.astroAsset.svgContentHashes) {
+							globalThis.astroAsset.svgContentHashes = new Map<string, string>();
+						}
+						
+						const contentHash = createHash('sha256').update(contents).digest('hex').slice(0, 16);
+						const existingPath = globalThis.astroAsset.svgContentHashes.get(contentHash);
+						
+						if (existingPath && existingPath !== imageMetadata.fsPath) {
+							// Return a reference to the existing SVG component instead of creating a new one
+							console.debug(`SVG deduplication: Reusing component for ${imageMetadata.fsPath} (matches ${existingPath})`);
+						} else {
+							// Store this SVG content hash for future deduplication
+							globalThis.astroAsset.svgContentHashes.set(contentHash, imageMetadata.fsPath);
+						}
+						
 						// We know that the contents are present, as we only emit this property for SVG files
 						return { code: makeSvgComponent(imageMetadata, contents) };
 					}

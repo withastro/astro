@@ -1,4 +1,5 @@
 import { decodeBase64, decodeHex, encodeBase64, encodeHexUpperCase } from '@oslojs/encoding';
+import { AstroError } from './errors/index.js';
 
 // Chose this algorithm for no particular reason, can change.
 // This algo does check against text manipulation though. See
@@ -43,9 +44,11 @@ export function hasEnvironmentKey(): boolean {
 export async function getEnvironmentKey(): Promise<CryptoKey> {
 	// This should never happen, because we always check `hasEnvironmentKey` before this is called.
 	if (!hasEnvironmentKey()) {
-		throw new Error(
-			`There is no environment key defined. If you see this error there is a bug in Astro.`,
-		);
+		throw new AstroError({
+			name: 'NoEnvironmentKeyDefined',
+			title: 'No environment key defined.',
+			message: `There is no environment key defined. If you see this error there is a bug in Astro.`,
+		});
 	}
 	const encodedKey = getEncodedEnvironmentKey();
 	return decodeKey(encodedKey);

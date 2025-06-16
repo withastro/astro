@@ -26,6 +26,7 @@ declare global {
 			| undefined;
 		staticImages?: AssetsGlobalStaticImagesList;
 		referencedImages?: Set<string>;
+		svgContentHashes?: Map<string, string>;
 	};
 }
 
