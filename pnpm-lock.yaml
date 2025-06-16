@@ -5404,6 +5404,12 @@ importers:
         specifier: 'workspace:'
         version: link:../../../..
 
+  packages/integrations/netlify/test/static/fixtures/static-headers:
+    dependencies:
+      '@astrojs/netlify':
+        specifier: 'workspace:'
+        version: link:../../../..
+
   packages/integrations/node:
     dependencies:
       '@astrojs/internal-helpers':

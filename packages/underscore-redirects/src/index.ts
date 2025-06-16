@@ -1,2 +1,6 @@
-export { createRedirectsFromAstroRoutes } from './astro.js';
-export { Redirects, type RedirectDefinition } from './redirects.js';
+export { printAsRedirects } from './print.js';
+export {
+	createRedirectsFromAstroRoutes,
+	createHostedRouteDefinition,
+} from './astro.js';
+export { HostRoutes } from './host-route.js';
