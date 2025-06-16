@@ -211,8 +211,8 @@ describe('CSP', () => {
 		// correctness for hashes
 		assert.ok(meta.attr('content').toString().includes("default-src 'self';"));
 	});
-	// FIXME temporarily skip this test due to failure on main
-	it.skip('allows add `strict-dynamic` when enabled', async () => {
+
+	it('allows add `strict-dynamic` when enabled', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			experimental: {
