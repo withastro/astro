@@ -245,7 +245,7 @@ export interface NetlifyIntegrationConfig {
 	 * Here the list of the headers that are added:
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
-	experimentalStaticHeaders?: boolean;
+	experimentalUseStaticHeaders?: boolean;
 }
 
 export default function netlifyIntegration(
@@ -259,7 +259,7 @@ export default function netlifyIntegration(
 	let outDir: URL;
 	let rootDir: URL;
 	let astroMiddlewareEntryPoint: URL | undefined = undefined;
-	let _experimentalStaticHeaders: Map<IntegrationResolvedRoute, Headers> | undefined = undefined;
+	let staticHeadersMap: Map<IntegrationResolvedRoute, Headers> | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
@@ -619,7 +619,7 @@ export default function netlifyIntegration(
 				finalBuildOutput = buildOutput;
 
 				const edgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
-				const experimentalStaticHeaders = integrationConfig?.experimentalStaticHeaders ?? false;
+				const experimentalStaticHeaders = integrationConfig?.experimentalUseStaticHeaders ?? false;
 
 				setAdapter({
 					name: '@astrojs/netlify',
@@ -640,7 +640,7 @@ export default function netlifyIntegration(
 				});
 			},
 			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
-				_experimentalStaticHeaders = experimentalRouteToHeaders;
+				staticHeadersMap = experimentalRouteToHeaders;
 			},
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
 				astroMiddlewareEntryPoint = middlewareEntryPoint;
@@ -662,7 +662,7 @@ export default function netlifyIntegration(
 					logger.info('Generated Middleware Edge Function');
 				}
 
-				await writeNetlifyFrameworkConfig(_config, _experimentalStaticHeaders, logger);
+				await writeNetlifyFrameworkConfig(_config, staticHeadersMap, logger);
 			},
 
 			// local dev

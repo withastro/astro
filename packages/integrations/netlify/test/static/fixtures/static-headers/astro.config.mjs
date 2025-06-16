@@ -4,7 +4,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	output: 'static',
 	adapter: netlify({
-		experimentalStaticHeaders: true
+		experimentalUseStaticHeaders: true
 	}),
 	site: "http://example.com",
 	experimental: {
