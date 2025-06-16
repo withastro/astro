@@ -3,3 +3,4 @@ export {
 	createRedirectsFromAstroRoutes,
 	createHostedRouteDefinition,
 } from './astro.js';
+export { HostRoutes } from './host-route.js';
