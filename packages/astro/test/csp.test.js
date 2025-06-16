@@ -228,7 +228,7 @@ describe('CSP', () => {
 		const $ = cheerio.load(html);
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
-		assert.ok(meta.attr('content').toString().includes("'strict-dynamic;'"));
+		assert.ok(meta.attr('content').toString().includes("'strict-dynamic';"));
 	});
 
 	it('should serve hashes via headers for dynamic pages, when the strategy is "auto"', async () => {
