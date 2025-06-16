@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import pLimit from 'p-limit';
 import { glob } from 'tinyglobby';
-import type { Plugin, ViteDevServer } from 'vite';
+import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -71,7 +71,7 @@ export function astroContentVirtualModPlugin({
 			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
 			const contentPaths = getContentPaths(settings.config); 
 			if (contentPaths.liveConfig.exists) {
-				liveConfig = fileURLToPath(contentPaths.liveConfig.url);
+				liveConfig = normalizePath(fileURLToPath(contentPaths.liveConfig.url));
 			}
 		},
 		buildStart() {
@@ -87,7 +87,7 @@ export function astroContentVirtualModPlugin({
 				// Live content config can't import the virtual module directly,
 				// because it would create a circular dependency from the colleciton exports.
 				// Instead, we resolve the config util module, because that's all that it should use anyway.
-				if(liveConfig && liveConfig === importer) {
+				if(liveConfig && importer && liveConfig === normalizePath(importer)) {
 					return this.resolve("astro/content/config", importer, {
 						skipSelf: true,
 					});
