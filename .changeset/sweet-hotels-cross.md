@@ -2,7 +2,7 @@
 '@astrojs/netlify': minor
 ---
 
-Adds the experimental support for the [static headers Astro feature](https://docs.astro.build/en/reference/adapter-reference/#experimentalstaticheaders).
+Adds support for the [experimental static headers Astro feature](https://docs.astro.build/en/reference/adapter-reference/#experimentalstaticheaders).
 
 When the feature is enabled via option `experimentalUseStaticHeaders`, and CSP is enabled, the integration will the CSP headers to the `config.json` file.
 
