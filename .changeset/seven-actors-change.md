@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-fix: add quotes around 'strict-dynamic' in CSP directive
+Fixes a bug where quotes were not added to the  'strict-dynamic' CSP directive
