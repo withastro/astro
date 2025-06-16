@@ -1,5 +1,68 @@
 # astro
 
+## 5.9.3
+
+### Patch Changes
+
+- [#13923](https://github.com/withastro/astro/pull/13923) [`a9ac5ed`](https://github.com/withastro/astro/commit/a9ac5ed3ff461d1c8e66fc40df3205df67c63059) Thanks [@ematipico](https://github.com/ematipico)! - **BREAKING CHANGE to the experimental Content Security Policy (CSP) only**
+
+  Changes the behavior of experimental Content Security Policy (CSP) to now serve hashes differently depending on whether or not a page is prerendered:
+
+  - Via the `<meta>` element for static pages.
+  - Via the `Response` header `content-security-policy` for on-demand rendered pages.
+
+  This new strategy allows you to add CSP content that is not supported in a `<meta>` element (e.g. `report-uri`, `frame-ancestors`, and sandbox directives) to on-demand rendered pages.
+
+  No change to your project code is required as this is an implementation detail. However, this will result in a different HTML output for pages that are rendered on demand. Please check your production site to verify that CSP is working as intended.
+
+  To keep up to date with this developing feature, or to leave feedback, visit the [CSP Roadmap proposal](https://github.com/withastro/roadmap/blob/feat/rfc-csp/proposals/0055-csp.md).
+
+- [#13926](https://github.com/withastro/astro/pull/13926) [`953a249`](https://github.com/withastro/astro/commit/953a24924eda1ea564c97d10d68c97cbbc9db7a4) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new Astro Adapter Feature called `experimentalStaticHeaders` to allow your adapter to receive the `Headers` for rendered static pages.
+
+  Adapters that enable support for this feature can access header values directly, affecting their handling of some Astro features such as Content Security Policy (CSP). For example, Astro will no longer serve the CSP `<meta http-equiv="content-security-policy">` element in static pages to adapters with this support.
+
+  Astro will serve the value of the header inside a map that can be retrieved from the hook `astro:build:generated`. Adapters can read this mapping and use their hosting headers capabilities to create a configuration file.
+
+  A new field called `experimentalRouteToHeaders` will contain a map of `Map<IntegrationResolvedRoute, Headers>` where the `Headers` type contains the headers emitted by the rendered static route.
+
+  To enable support for this experimental Astro Adapter Feature, add it to your `adapterFeatures` in your adapter config:
+
+  ```js
+  // my-adapter.mjs
+  export default function createIntegration() {
+    return {
+      name: '@example/my-adapter',
+      hooks: {
+        'astro:config:done': ({ setAdapter }) => {
+          setAdapter({
+            name: '@example/my-adapter',
+            serverEntrypoint: '@example/my-adapter/server.js',
+            adapterFeatures: {
+              experimentalStaticHeaders: true,
+            },
+          });
+        },
+      },
+    };
+  }
+  ```
+
+  See the [Adapter API docs](https://docs.astro.build/en/reference/adapter-reference/#adapter-features) for more information about providing adapter features.
+
+- [#13697](https://github.com/withastro/astro/pull/13697) [`af83b85`](https://github.com/withastro/astro/commit/af83b85d6ea1e2e27ee2b9357f794fee0418f453) Thanks [@benosmac](https://github.com/benosmac)! - Fixes issues with fallback route pattern matching when `i18n.routing.fallbackType` is `rewrite`.
+
+  - Adds conditions for route matching in `generatePath` when building fallback routes and checking for existing translated pages
+
+  Now for a route to be matched it needs to be inside a named `[locale]` folder. This fixes an issue where `route.pattern.test()` incorrectly matched dynamic routes, causing the page to be skipped.
+
+  - Adds conditions for route matching in `findRouteToRewrite`
+
+  Now the requested pathname must exist in `route.distURL` for a dynamic route to match. This fixes an issue where `route.pattern.test()` incorrectly matched dynamic routes, causing the build to fail.
+
+- [#13924](https://github.com/withastro/astro/pull/13924) [`1cd8c3b`](https://github.com/withastro/astro/commit/1cd8c3bafca39f3cfe2178d5db72480d30ed28c2) Thanks [@qw-in](https://github.com/qw-in)! - Fixes an edge case where `isPrerendered` was incorrectly set to `false` for static redirects.
+
+- [#13926](https://github.com/withastro/astro/pull/13926) [`953a249`](https://github.com/withastro/astro/commit/953a24924eda1ea564c97d10d68c97cbbc9db7a4) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the experimental CSP `meta` element wasn't placed in the `<head>` element as early as possible, causing these policies to not apply to styles and scripts that came before the `meta` element.
+
 ## 5.9.2
 
 ### Patch Changes
