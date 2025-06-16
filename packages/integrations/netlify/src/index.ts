@@ -3,7 +3,11 @@ import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { IncomingMessage } from 'node:http';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { emptyDir } from '@astrojs/internal-helpers/fs';
-import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
+import {
+	createHostedRouteDefinition,
+	createRedirectsFromAstroRoutes,
+	printAsRedirects,
+} from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
 import type {
 	AstroConfig,
@@ -103,7 +107,11 @@ export function remotePatternToRegex(
 	return regexStr;
 }
 
-async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroIntegrationLogger) {
+async function writeNetlifyFrameworkConfig(
+	config: AstroConfig,
+	staticHeaders: Map<IntegrationResolvedRoute, Headers> | undefined,
+	logger: AstroIntegrationLogger,
+) {
 	const remoteImages: Array<string> = [];
 	// Domains get a simple regex match
 	remoteImages.push(
@@ -116,16 +124,41 @@ async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroInt
 			.filter(Boolean as unknown as (pattern?: string) => pattern is string),
 	);
 
-	const headers = config.build.assetsPrefix
-		? undefined
-		: [
-				{
-					for: `${config.base}${config.base.endsWith('/') ? '' : '/'}${config.build.assets}/*`,
-					values: {
-						'Cache-Control': 'public, max-age=31536000, immutable',
-					},
-				},
-			];
+	const headers = [];
+	if (!config.build.assetsPrefix) {
+		headers.push({
+			for: `${config.base}${config.base.endsWith('/') ? '' : '/'}${config.build.assets}/*`,
+			values: {
+				'Cache-Control': 'public, max-age=31536000, immutable',
+			},
+		});
+	}
+
+	if (staticHeaders && staticHeaders.size > 0) {
+		for (const [route, routeHeaders] of staticHeaders.entries()) {
+			if (!route.isPrerendered) {
+				continue;
+			}
+			if (route.redirect) {
+				continue;
+			}
+
+			const definition = createHostedRouteDefinition(route, config);
+
+			if (config.experimental.csp) {
+				const csp = routeHeaders.get('Content-Security-Policy');
+
+				if (csp) {
+					headers.push({
+						for: definition.input,
+						values: {
+							'Content-Security-Policy': csp,
+						},
+					});
+				}
+			}
+		}
+	}
 
 	// See https://docs.netlify.com/image-cdn/create-integration/
 	const deployConfigDir = new URL('.netlify/v1/', config.root);
@@ -205,6 +238,14 @@ export interface NetlifyIntegrationConfig {
 	 * @default {true}
 	 */
 	imageCDN?: boolean;
+
+	/**
+	 * If enabled, the adapter will save [static headers in the framework API file](https://docs.netlify.com/frameworks-api/#headers).
+	 *
+	 * Here the list of the headers that are added:
+	 * - The CSP header of the static pages is added when CSP support is enabled.
+	 */
+	experimentalStaticHeaders?: boolean;
 }
 
 export default function netlifyIntegration(
@@ -218,6 +259,7 @@ export default function netlifyIntegration(
 	let outDir: URL;
 	let rootDir: URL;
 	let astroMiddlewareEntryPoint: URL | undefined = undefined;
+	let staticHeadersMap: Map<IntegrationResolvedRoute, Headers> | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
@@ -271,7 +313,7 @@ export default function netlifyIntegration(
 		});
 
 		if (!redirects.empty()) {
-			await appendFile(new URL('_redirects', outDir), `\n${redirects.print()}\n`);
+			await appendFile(new URL('_redirects', outDir), `\n${printAsRedirects(redirects)}\n`);
 		}
 	}
 
@@ -570,22 +612,22 @@ export default function netlifyIntegration(
 			'astro:routes:resolved': (params) => {
 				routes = params.routes;
 			},
-			'astro:config:done': async ({ config, setAdapter, logger, buildOutput }) => {
+			'astro:config:done': async ({ config, setAdapter, buildOutput }) => {
 				rootDir = config.root;
 				_config = config;
 
 				finalBuildOutput = buildOutput;
 
-				await writeNetlifyFrameworkConfig(config, logger);
-
-				const edgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
+				const useEdgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
+				const useStaticHeaders = integrationConfig?.experimentalStaticHeaders ?? false;
 
 				setAdapter({
 					name: '@astrojs/netlify',
 					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
 					exports: ['default'],
 					adapterFeatures: {
-						edgeMiddleware,
+						edgeMiddleware: useEdgeMiddleware,
+						experimentalStaticHeaders: useStaticHeaders,
 					},
 					args: { middlewareSecret } satisfies Args,
 					supportedAstroFeatures: {
@@ -596,6 +638,9 @@ export default function netlifyIntegration(
 						envGetSecret: 'stable',
 					},
 				});
+			},
+			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
+				staticHeadersMap = experimentalRouteToHeaders;
 			},
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
 				astroMiddlewareEntryPoint = middlewareEntryPoint;
@@ -616,6 +661,8 @@ export default function netlifyIntegration(
 					await writeMiddleware(astroMiddlewareEntryPoint);
 					logger.info('Generated Middleware Edge Function');
 				}
+
+				await writeNetlifyFrameworkConfig(_config, staticHeadersMap, logger);
 			},
 
 			// local dev

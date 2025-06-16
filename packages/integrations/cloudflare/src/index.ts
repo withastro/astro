@@ -15,7 +15,7 @@ import {
 	prependForwardSlash,
 	removeLeadingForwardSlash,
 } from '@astrojs/internal-helpers/path';
-import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
+import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { AstroError } from 'astro/errors';
 import { defaultClientConditions } from 'vite';
 import { type GetPlatformProxyOptions, getPlatformProxy } from 'wrangler';
@@ -408,7 +408,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				if (!trueRedirects.empty()) {
 					try {
-						await appendFile(new URL('./_redirects', _config.outDir), trueRedirects.print());
+						await appendFile(
+							new URL('./_redirects', _config.outDir),
+							printAsRedirects(trueRedirects),
+						);
 					} catch (_error) {
 						logger.error('Failed to write _redirects file');
 					}
