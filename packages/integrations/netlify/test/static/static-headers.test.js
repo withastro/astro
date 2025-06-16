@@ -25,13 +25,5 @@ describe('Static headers', () => {
 			index.values['Content-Security-Policy'].includes('script-src'),
 			'must contain the script-src directive because of the server island',
 		);
-		// assert.deepEqual(headers, [
-		// 	{
-		// 		for: '/index',
-		// 		values: {
-		// 			'Conte': 'public, max-age=31536000, immutable',
-		// 		},
-		// 	},
-		// ]);
 	});
 });

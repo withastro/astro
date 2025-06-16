@@ -144,15 +144,18 @@ async function writeNetlifyFrameworkConfig(
 			}
 
 			const definition = createHostedRouteDefinition(route, config);
-			const csp = routeHeaders.get('Content-Security-Policy');
 
-			if (csp) {
-				headers.push({
-					for: definition.input,
-					values: {
-						'Content-Security-Policy': csp,
-					},
-				});
+			if (config.experimental.csp) {
+				const csp = routeHeaders.get('Content-Security-Policy');
+
+				if (csp) {
+					headers.push({
+						for: definition.input,
+						values: {
+							'Content-Security-Policy': csp,
+						},
+					});
+				}
 			}
 		}
 	}
