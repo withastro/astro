@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.4.1
+
+### Patch Changes
+
+- [#13871](https://github.com/withastro/astro/pull/13871) [`8a1e849`](https://github.com/withastro/astro/commit/8a1e8499dbd1ed98e971635e86eb89f910f0ce78) Thanks [@blimmer](https://github.com/blimmer)! - Uncaught errors in the `filter` method will now bubble, causing the astro build to fail.
+
 ## 3.4.0
 
 ### Minor Changes

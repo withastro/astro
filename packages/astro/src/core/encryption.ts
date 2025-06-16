@@ -1,5 +1,7 @@
 import { decodeBase64, decodeHex, encodeBase64, encodeHexUpperCase } from '@oslojs/encoding';
+import type { CspAlgorithm } from '../types/public/index.js';
 import { AstroError } from './errors/index.js';
+import { ALGORITHMS, type CspHash } from './csp/config.js';
 
 // Chose this algorithm for no particular reason, can change.
 // This algo does check against text manipulation though. See
@@ -111,4 +113,16 @@ export async function decryptString(key: CryptoKey, encoded: string) {
 	);
 	const decryptedString = decoder.decode(decryptedBuffer);
 	return decryptedString;
+}
+
+/**
+ * Generates an SHA-256 digest of the given string.
+ * @param {string} data The string to hash.
+ * @param {CspAlgorithm} algorithm The algorithm to use.
+ */
+export async function generateCspDigest(data: string, algorithm: CspAlgorithm): Promise<CspHash> {
+	const hashBuffer = await crypto.subtle.digest(algorithm, encoder.encode(data));
+
+	const hash = encodeBase64(new Uint8Array(hashBuffer));
+	return `${ALGORITHMS[algorithm]}${hash}`;
 }

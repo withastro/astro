@@ -3,6 +3,7 @@ import type { ZodSchema } from 'zod';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { ContentEntryType } from '../../types/public/content.js';
+import type { RenderedContent } from '../data-store.js';
 import type { DataStore, MetaStore } from '../mutable-data-store.js';
 
 export type { DataStore, MetaStore };
@@ -28,6 +29,9 @@ export interface LoaderContext {
 	config: AstroConfig;
 	/** Validates and parses the data according to the collection schema */
 	parseData<TData extends Record<string, unknown>>(props: ParseDataOptions<TData>): Promise<TData>;
+
+	/** Renders markdown content to HTML and metadata */
+	renderMarkdown(content: string): Promise<RenderedContent>;
 
 	/** Generates a non-cryptographic content digest. This can be used to check if the data has changed */
 	generateDigest(data: Record<string, unknown> | string): string;

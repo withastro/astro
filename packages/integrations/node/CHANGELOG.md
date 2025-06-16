@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 9.2.2
+
+### Patch Changes
+
+- [#13507](https://github.com/withastro/astro/pull/13507) [`660e83f`](https://github.com/withastro/astro/commit/660e83fddf0829ea37cbcc0d3f4194a5a1956ab5) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Handle errors where a module is not found when loading the server entrypoint
+
 ## 9.2.1
 
 ### Patch Changes
