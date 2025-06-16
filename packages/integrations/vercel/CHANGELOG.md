@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 8.1.5
+
+### Patch Changes
+
+- [#13679](https://github.com/withastro/astro/pull/13679) [`4a8f193`](https://github.com/withastro/astro/commit/4a8f193c444c30d154f868fc444a153a26124347) Thanks [@moonclavedev](https://github.com/moonclavedev)! - Handle SVG images correctly in build image service
+
 ## 8.1.4
 
 ### Patch Changes

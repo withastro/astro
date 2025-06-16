@@ -6,6 +6,7 @@ import type {
 } from '../../actions/runtime/virtual/server.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../core/constants.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
+import type { CspDirective, CspHash } from '../../core/csp/config.js';
 import type { AstroSession } from '../../core/session.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { Params, RewritePayload } from './common.js';
@@ -354,6 +355,61 @@ export interface AstroSharedContext<
 	 * Whether the current route is prerendered or not.
 	 */
 	isPrerendered: boolean;
+
+	/**
+	 * It adds a specific CSP directive to the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
+	 * ```
+	 */
+	insertDirective: (directive: CspDirective) => void;
+
+	/**
+	 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertStyleResource("https://styles.cdn.example.com/")
+	 * ```
+	 */
+	insertStyleResource: (payload: string) => void;
+
+	/**
+	 * Insert a single style hash to the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
+	 * ```
+	 */
+	insertStyleHash: (hash: CspHash) => void;
+
+	/**
+	 * It set the resource for the directive `script-src` in the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
+	 * ```
+	 */
+	insertScriptResource: (resource: string) => void;
+
+	/**
+	 * Insert a single script hash to the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
+	 * ```
+	 */
+	insertScriptHash: (hash: CspHash) => void;
 }
 
 /**
