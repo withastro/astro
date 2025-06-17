@@ -151,7 +151,7 @@ interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
 
 interface CustomSessionConfig extends CommonSessionConfig {
 	/** Entrypoint for a custom session driver */
-	driver: string;
+	driver?: string;
 	options?: Record<string, unknown>;
 }
 
