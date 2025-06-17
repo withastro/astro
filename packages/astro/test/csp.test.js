@@ -231,6 +231,31 @@ describe('CSP', () => {
 		assert.ok(meta.attr('content').toString().includes("'strict-dynamic';"));
 	});
 
+	it("allows the use of directives that don't require values, and deprecated ones", async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			experimental: {
+				csp: {
+					directives: [
+						'upgrade-insecure-requests',
+						'sandbox',
+						'trusted-types',
+						'report-uri https://endpoint.example.com',
+					],
+				},
+			},
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		assert.ok(meta.attr('content').toString().includes('upgrade-insecure-requests'));
+		assert.ok(meta.attr('content').toString().includes('sandbox'));
+		assert.ok(meta.attr('content').toString().includes('trusted-types'));
+		assert.ok(meta.attr('content').toString().includes('report-uri https://endpoint.example.com'));
+	});
+
 	it('should serve hashes via headers for dynamic pages, when the strategy is "auto"', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp-adapter/',
