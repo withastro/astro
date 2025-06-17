@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 12.5.5
+
+### Patch Changes
+
+- [#13930](https://github.com/withastro/astro/pull/13930) [`acb9b30`](https://github.com/withastro/astro/commit/acb9b302f56e38833a1ab01147f7fde0bf967889) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue where setting values for `Astro.response` resulted in a Cloudflare runtime exception.
+
+- Updated dependencies [[`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3), [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3), [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3)]:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 12.5.4
 
 ### Patch Changes

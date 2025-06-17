@@ -1,5 +1,13 @@
 # astro
 
+## 5.9.4
+
+### Patch Changes
+
+- [#13951](https://github.com/withastro/astro/pull/13951) [`7eb88f1`](https://github.com/withastro/astro/commit/7eb88f1e9113943b47e35e9f0033ab516f0a4f40) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a issue that caused errors when using an adapter-provided session driver with custom options
+
+- [#13953](https://github.com/withastro/astro/pull/13953) [`448bddc`](https://github.com/withastro/astro/commit/448bddc49492c6a92a23735cd29a93baec0dda48) Thanks [@zaitovalisher](https://github.com/zaitovalisher)! - Fixes a bug where quotes were not added to the 'strict-dynamic' CSP directive
+
 ## 5.9.3
 
 ### Patch Changes
