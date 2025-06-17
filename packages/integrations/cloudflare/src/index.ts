@@ -24,12 +24,22 @@ import {
 	cloudflareModuleLoader,
 } from './utils/cloudflare-module-loader.js';
 import { createGetEnv } from './utils/env.js';
+import { createHeadersFile } from './utils/generate-headers-file.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 
 export type { Runtime } from './entrypoints/server.js';
 
 export type Options = {
+	/**
+	 * If enabled, the adapter will save static headers in the framework API file,
+	 * as documented for [pages](https://developers.cloudflare.com/pages/configuration/headers/) and [workers](https://developers.cloudflare.com/workers/static-assets/headers).
+	 *
+	 * Here the list of the headers that are added:
+	 * - The CSP header of the static pages is added when CSP support is enabled.
+	 */
+	experimentalStaticHeaders?: boolean;
+
 	/** Options for handling images. */
 	imageService?: ImageService;
 	/** Configuration for `_routes.json` generation. A _routes.json file controls when your Function is invoked. This file will include three different properties:
@@ -122,6 +132,7 @@ function setProcessEnv(config: AstroConfig, env: Record<string, unknown>) {
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
+	let staticHeadersMap: Map<IntegrationResolvedRoute, Headers> | undefined = undefined;
 
 	const cloudflareModulePlugin: PluginOption & CloudflareModulePluginExtra = cloudflareModuleLoader(
 		args?.cloudflareModules ?? true,
@@ -236,6 +247,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					adapterFeatures: {
 						edgeMiddleware: false,
 						buildOutput: 'server',
+						experimentalStaticHeaders: args?.experimentalStaticHeaders ?? false,
 					},
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
@@ -332,6 +344,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					};
 				}
 			},
+			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
+				staticHeadersMap = experimentalRouteToHeaders;
+			},
 			'astro:build:done': async ({ pages, dir, logger, assets }) => {
 				await cloudflareModulePlugin.afterBuildCompleted(_config);
 
@@ -391,6 +406,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						args?.routes?.extend?.exclude,
 					);
 				}
+
+				await createHeadersFile(_config, logger, staticHeadersMap);
 
 				const trueRedirects = createRedirectsFromAstroRoutes({
 					config: _config,

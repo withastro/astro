@@ -1,0 +1,2 @@
+/has-header
+  cdn-cache-control: public, max-age=3600

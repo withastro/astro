@@ -4785,6 +4785,12 @@ importers:
         specifier: ^4.14.1
         version: 4.14.1(@cloudflare/workers-types@4.20250507.0)
 
+  packages/integrations/cloudflare/test/fixtures/static-headers:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: 'workspace:'
+        version: link:../../..
+
   packages/integrations/cloudflare/test/fixtures/with-base:
     dependencies:
       '@astrojs/cloudflare':

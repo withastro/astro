@@ -1,0 +1,19 @@
+---
+import Island  from "../components/Island.astro"
+
+const { slug } = Astro.params;
+
+export async function getStaticPaths() {
+  return [
+    { params: { slug: '1' } }, 
+    { params: { slug: '2' } },
+  ];
+}
+---
+<html>
+<head><title>{slug}</title></head>
+<body>
+<h1>{slug}</h1>
+<Island server:defer />
+</body>
+</html>

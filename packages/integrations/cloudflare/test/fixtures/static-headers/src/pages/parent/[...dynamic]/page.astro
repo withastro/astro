@@ -1,0 +1,18 @@
+---
+import Island  from "../../../components/Island.astro"
+
+const { dynamic } = Astro.params;
+
+export async function getStaticPaths() {
+  return [
+    { params: { dynamic: '1' } }, 
+  ];
+}
+---
+<html>
+<head><title>{dynamic}</title></head>
+<body>
+<h1>{dynamic}</h1>
+<Island server:defer />
+</body>
+</html>
