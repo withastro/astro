@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
-import { astroCli, wranglerCli, loadFixture } from './_test-utils.js';
 import cloudflare from '../dist/index.js';
+import { astroCli, loadFixture, wranglerCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/sessions/', import.meta.url);
 
@@ -97,15 +97,19 @@ describe('sessions with custom options', () => {
 	it('can build with custom options', async () => {
 		let fixture;
 
-		await assert.doesNotReject(async () => {
-			fixture = await loadFixture({
-				root,
-				adapter: cloudflare({}),
-				session: {
-					cookie: 'custom-session',
-				},
-			});
-			await fixture.build();
-		}, undefined, 'Building with custom session options should not throw an error');
+		await assert.doesNotReject(
+			async () => {
+				fixture = await loadFixture({
+					root,
+					adapter: cloudflare({}),
+					session: {
+						cookie: 'custom-session',
+					},
+				});
+				await fixture.build();
+			},
+			undefined,
+			'Building with custom session options should not throw an error',
+		);
 	});
 });

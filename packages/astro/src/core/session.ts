@@ -47,8 +47,9 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	// The cookies object.
 	#cookies: AstroCookies;
 	// The session configuration.
-	#config: Omit<ResolvedSessionConfig<TDriver>, 'cookie'> &
-		{ driver: NonNullable<ResolvedSessionConfig<TDriver>["driver"]> };
+	#config: Omit<ResolvedSessionConfig<TDriver>, 'cookie'> & {
+		driver: NonNullable<ResolvedSessionConfig<TDriver>['driver']>;
+	};
 	// The cookie config
 	#cookieConfig?: AstroCookieSetOptions;
 	// The cookie name
