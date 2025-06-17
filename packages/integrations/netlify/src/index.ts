@@ -555,7 +555,7 @@ export default function netlifyIntegration(
 					},
 					session,
 					vite: {
-						plugins: [netlifyVitePlugin({ middleware: false })],
+						plugins: [netlifyVitePlugin()],
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
@@ -622,6 +622,12 @@ export default function netlifyIntegration(
 
 			// local dev
 			'astro:server:setup': async ({ server }) => {
+				server.httpServer?.on('listening', () => {
+          const addr = server.httpServer?.address();
+          if (addr && typeof addr === 'object' && addr.port) {
+            console.log(`Server is running on port: ${addr.port}`);
+          }
+        });
 				server.middlewares.use((req, _res, next) => {
 					const locals = Symbol.for('astro.locals');
 					Reflect.set(req, locals, {
