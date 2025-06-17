@@ -15,7 +15,7 @@ export default defineConfig({
     experimentalStaticHeaders: true
   }),
   experimental: {
-    cps: true
+    csp: true
   }
 })
 ```
