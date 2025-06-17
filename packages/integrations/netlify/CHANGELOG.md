@@ -1,5 +1,52 @@
 # @astrojs/netlify
 
+## 6.4.0
+
+### Minor Changes
+
+- [#13952](https://github.com/withastro/astro/pull/13952) [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for the [experimental static headers Astro feature](https://docs.astro.build/en/reference/adapter-reference/#experimentalstaticheaders).
+
+  When the feature is enabled via option `experimentalStaticHeaders`, and [experimental Content Security Policy](https://docs.astro.build/en/reference/experimental-flags/csp/) is enabled, the adapter will generate `Response` headers for static pages, which allows support for CSP directives that are not supported inside a `<meta>` tag (e.g. `frame-ancestors`).
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify';
+
+  export default defineConfig({
+    adapter: netlify({
+      experimentalStaticHeaders: true,
+    }),
+    experimental: {
+      cps: true,
+    },
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3), [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3), [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3)]:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.3.4
+
+### Patch Changes
+
+- [#13799](https://github.com/withastro/astro/pull/13799) [`7036b05`](https://github.com/withastro/astro/commit/7036b057053494512cd2443cafa58a55960ee83c) Thanks [@Lofty-Brambles](https://github.com/Lofty-Brambles)! - Fixes an issue where the adapter didn't take into consideration the `outDir` configuration.
+
+- [#13830](https://github.com/withastro/astro/pull/13830) [`9371a67`](https://github.com/withastro/astro/commit/9371a67d453fd996d579ed51c6de3ba34199ac86) Thanks [@Lofty-Brambles](https://github.com/Lofty-Brambles)! - Fixes an issue with SVGs not rendering with image-cdn enabled, due to invalid source path parsing.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.1
+
+## 6.3.3
+
+### Patch Changes
+
+- [#13792](https://github.com/withastro/astro/pull/13792) [`7910fea`](https://github.com/withastro/astro/commit/7910feaf4f9895b67ea9eb3242ba451928bd6cda) Thanks [@alexeyzimarev](https://github.com/alexeyzimarev)! - Unify imported images detection across adapters
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.1
+
 ## 6.3.2
 
 ### Patch Changes

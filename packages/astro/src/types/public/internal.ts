@@ -1,14 +1,15 @@
 // TODO: Should the types here really be public?
 
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
+import type { SSRManifestCSP } from '../../core/app/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
-import type { AstroComponentInstance } from '../../runtime/server/index.js';
+import type { AstroComponentInstance, ServerIslandComponent } from '../../runtime/server/index.js';
 import type { Params } from './common.js';
 import type { AstroConfig, RedirectConfig } from './config.js';
 import type { AstroGlobal, AstroGlobalPartial } from './context.js';
 import type { AstroRenderer } from './integrations.js';
 
-export type { SSRManifest } from '../../core/app/types.js';
+export type { SSRManifest, SSRManifestCSP, SSRActions } from '../../core/app/types.js';
 
 export interface NamedSSRLoadedRendererValue extends SSRLoadedRendererValue {
 	name: string;
@@ -246,6 +247,29 @@ export interface SSRResult {
 	trailingSlash: AstroConfig['trailingSlash'];
 	key: Promise<CryptoKey>;
 	_metadata: SSRMetadata;
+	/**
+	 * `header`:
+	 * - <meta> for static pages
+	 * - Response header for dynamic pages
+	 *
+	 * `meta`:
+	 * - <meta> for all pages
+	 *
+	 * `adapter`:
+	 * - nothing for static pages (the adapter does this)
+	 * - Response header for dynamic pages
+	 */
+	// NOTE: we use a different type here because at runtime we must provide a value, which is
+	// eventually computed from RouteData.prerender
+	cspDestination: NonNullable<SSRManifestCSP['cspDestination']>;
+	shouldInjectCspMetaTags: boolean;
+	cspAlgorithm: SSRManifestCSP['algorithm'];
+	scriptHashes: SSRManifestCSP['scriptHashes'];
+	scriptResources: SSRManifestCSP['scriptResources'];
+	styleHashes: SSRManifestCSP['styleHashes'];
+	styleResources: SSRManifestCSP['styleResources'];
+	directives: SSRManifestCSP['directives'];
+	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 }
 
 /**
@@ -285,9 +309,19 @@ export interface SSRMetadata {
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	hasRenderedServerIslandRuntime: boolean;
+	/**
+	 * Used to signal the rendering engine if the current route (page) contains the
+	 * <head> element.
+	 */
 	headInTree: boolean;
 	extraHead: string[];
-	propagators: Set<AstroComponentInstance>;
+	/**
+	 * Used by the rendering engine to store hashes that are **generated** at runtime.
+	 * For example, this is used by view transitions
+	 */
+	extraStyleHashes: string[];
+	extraScriptHashes: string[];
+	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
 }
 
 export type SSRError = Error & ViteErrorPayload['err'];

@@ -1,8 +1,8 @@
 import type { PropagationHint, SSRResult } from '../../../../types/public/internal.js';
-import type { HeadAndContent } from './head-and-content.js';
+import type { HeadAndContent, ThinHead } from './head-and-content.js';
 import type { RenderTemplateResult } from './render-template.js';
 
-export type AstroFactoryReturnValue = RenderTemplateResult | Response | HeadAndContent;
+export type AstroFactoryReturnValue = RenderTemplateResult | Response | HeadAndContent | ThinHead;
 
 // The callback passed to to $$createComponent
 export interface AstroComponentFactory {
@@ -20,9 +20,17 @@ export function isAPropagatingComponent(
 	result: SSRResult,
 	factory: AstroComponentFactory,
 ): boolean {
+	const hint = getPropagationHint(result, factory);
+	return hint === 'in-tree' || hint === 'self';
+}
+
+export function getPropagationHint(
+	result: SSRResult,
+	factory: AstroComponentFactory,
+): PropagationHint {
 	let hint: PropagationHint = factory.propagation || 'none';
 	if (factory.moduleId && result.componentMetadata.has(factory.moduleId) && hint === 'none') {
 		hint = result.componentMetadata.get(factory.moduleId)!.propagation;
 	}
-	return hint === 'in-tree' || hint === 'self';
+	return hint;
 }
