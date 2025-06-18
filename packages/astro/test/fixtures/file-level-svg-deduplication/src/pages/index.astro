@@ -1,0 +1,37 @@
+---
+import Duplicate1 from '../assets/duplicate1.svg';
+import Duplicate2 from '../assets/duplicate2.svg';
+import Unique from '../assets/unique.svg';
+import { Image } from 'astro:assets';
+---
+
+<html>
+<head>
+    <title>SVG Deduplication Test - Strict Version</title>
+</head>
+<body>
+    <h1>SVG Deduplication Test - Strict Version</h1>
+    
+    <!-- Test with Image component only (this is where deduplication should happen) -->
+    <div id="img-duplicate1">
+        <Image src={Duplicate1} alt="Duplicate 1" />
+    </div>
+    
+    <div id="img-duplicate2">
+        <Image src={Duplicate2} alt="Duplicate 2 (same as 1)" />
+    </div>
+    
+    <div id="img-unique">
+        <Image src={Unique} alt="Unique" />
+    </div>
+    
+    <!-- Multiple usages of the same duplicates -->
+    <div id="img-duplicate1-again">
+        <Image src={Duplicate1} alt="Duplicate 1 Again" />
+    </div>
+    
+    <div id="img-duplicate2-again">
+        <Image src={Duplicate2} alt="Duplicate 2 Again" />
+    </div>
+</body>
+</html>
