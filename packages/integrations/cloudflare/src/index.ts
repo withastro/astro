@@ -259,9 +259,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const platformProxy = await getPlatformProxy(args?.platformProxy);
 
 					// Ensures the dev server doesn't hang
-					server.httpServer?.on('close', async () =>{
-						await platformProxy.dispose()
-					})
+					server.httpServer?.on('close', async () => {
+						await platformProxy.dispose();
+					});
 
 					setProcessEnv(_config, platformProxy.env);
 
