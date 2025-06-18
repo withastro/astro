@@ -1,4 +1,5 @@
 import fs, { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { basename } from 'node:path/posix';
 import { dim, green } from 'kleur/colors';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
@@ -40,6 +41,8 @@ type AssetEnv = {
 	clientRoot: URL;
 	imageConfig: AstroConfig['image'];
 	assetsFolder: AstroConfig['build']['assets'];
+	// Track content hashes to prevent duplicate files
+	contentHashMap: Map<string, string>;
 };
 
 type ImageData = {
@@ -79,6 +82,28 @@ export async function prepareAssetsGenerationEnv(
 		clientRoot = config.outDir;
 	}
 
+	const contentHashMap = new Map();
+	
+	// Pre-populate contentHashMap with existing SVG files from Vite build
+	// This enables content-based deduplication across build phases
+	try {
+		const assetsDir = new URL(config.build.assets + '/', clientRoot);
+		const files = await fs.promises.readdir(assetsDir);
+		for (const file of files) {
+			if (file.endsWith('.svg')) {
+				const filePath = new URL(file, assetsDir);
+				const content = await fs.promises.readFile(filePath);
+				const contentHash = createHash('sha256').update(content).digest('hex').slice(0, 16);
+				const relativePath = `/${config.build.assets}/${file}`;
+				contentHashMap.set(contentHash, relativePath);
+				logger.debug('assets', `Pre-loaded SVG for deduplication: ${relativePath}`);
+			}
+		}
+	} catch (e) {
+		// If scanning fails, continue without pre-population
+		logger.debug('assets', `Failed to scan existing SVG files: ${e}`);
+	}
+
 	return {
 		logger,
 		isSSR: isServerOutput,
@@ -89,6 +114,7 @@ export async function prepareAssetsGenerationEnv(
 		clientRoot,
 		imageConfig: config.image,
 		assetsFolder: config.build.assets,
+		contentHashMap,
 	};
 }
 
@@ -157,6 +183,45 @@ export async function generateImagesForPath(
 
 		const finalFolderURL = new URL('./', finalFileURL);
 		await fs.promises.mkdir(finalFolderURL, { recursive: true });
+
+		// For SVG files, check if we already have a file with the same content
+		const isSvg = filepath.endsWith('.svg');
+		if (isSvg && isLocalImage) {
+			// Read the source file to get its content hash
+			const sourceFilePath = getFullImagePath(originalFilePath, env);
+			try {
+				const sourceContent = await fs.promises.readFile(sourceFilePath);
+				const contentHash = createHash('sha256').update(sourceContent).digest('hex').slice(0, 16);
+				
+				// Check if we already have a file with this content
+				const existingFile = env.contentHashMap.get(contentHash);
+				if (existingFile && existingFile !== filepath) {
+					// Create a hard link to reuse the existing file (saves space and prevents duplicates)
+					const existingFileURL = new URL('.' + existingFile, env.clientRoot);
+					try {
+						await fs.promises.link(existingFileURL, finalFileURL);
+						env.logger.info(null, `  ${green('▶')} ${filepath} (deduplicated from ${existingFile})`);
+						return { cached: 'hit' };
+					} catch (e) {
+						// If hard linking fails, try copying
+						try {
+							await fs.promises.copyFile(existingFileURL, finalFileURL);
+							env.logger.info(null, `  ${green('▶')} ${filepath} (copied from ${existingFile})`);
+							return { cached: 'hit' };
+						} catch (e2) {
+							// If both fail, continue with normal generation
+							env.logger.debug('assets', `Failed to reuse ${existingFile} for ${filepath}: ${e2}`);
+						}
+					}
+				} else {
+					// Track this content hash for future deduplication
+					env.contentHashMap.set(contentHash, filepath);
+				}
+			} catch (e) {
+				// If reading source fails, continue with normal generation
+				env.logger.debug('assets', `Failed to read source for deduplication: ${e}`);
+			}
+		}
 
 		const cacheFile = basename(filepath);
 		const cachedFileURL = new URL(cacheFile, env.assetsCacheDir);

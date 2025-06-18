@@ -70,6 +70,12 @@ export async function emitESMImage(
 			});
 
 			emittedImage.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
+			
+			// Track this Vite-emitted asset to prevent duplicates
+			if (!globalThis.astroAsset.viteEmittedAssets) {
+				globalThis.astroAsset.viteEmittedAssets = new Map();
+			}
+			globalThis.astroAsset.viteEmittedAssets.set(id, emittedImage.src);
 		} catch {
 			isBuild = false;
 		}

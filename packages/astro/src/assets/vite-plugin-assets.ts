@@ -41,6 +41,30 @@ const addStaticImageFactory = (
 			>();
 		}
 
+		// Check if this is an ESM imported image that was already emitted by Vite
+		if (isESMImportedImage(options.src) && originalFSPath) {
+			const viteEmittedSrc = globalThis.astroAsset.viteEmittedAssets?.get(originalFSPath);
+			const isSvg = originalFSPath.endsWith('.svg');
+			
+			if (viteEmittedSrc && isSvg) {
+				// For SVG files, check if this is an identity transform (no meaningful changes)
+				const originalFormat = (options.src as any).format;
+				const hasTransforms = Boolean(
+					options.width || 
+					options.height || 
+					(options.format && options.format !== originalFormat) ||
+					options.quality ||
+					options.fit ||
+					options.position
+				);
+				
+				// If this SVG doesn't have any transforms, reuse the Vite-emitted asset
+				if (!hasTransforms) {
+					return viteEmittedSrc;
+				}
+			}
+		}
+
 		// Rollup will copy the file to the output directory, as such this is the path in the output directory, including the asset prefix / base
 		const ESMImportedImageSrc = isESMImportedImage(options.src) ? options.src.src : options.src;
 		const fileExtension = extname(ESMImportedImageSrc);
@@ -107,6 +131,8 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 
 	globalThis.astroAsset = {
 		referencedImages: new Set(),
+		// Track Vite-emitted files to prevent duplicates
+		viteEmittedAssets: new Map(),
 	};
 
 	const imageComponentPrefix =
