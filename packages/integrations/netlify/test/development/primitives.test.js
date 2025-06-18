@@ -13,7 +13,7 @@ describe('Netlify primitives', () => {
 		let devServer;
 		before(async () => {
 			fixture = await loadFixture({
-				root: '../../integrations/netlify/test/development/fixtures/primitives/',
+				root: new URL('./fixtures/primitives/', import.meta.url),
 				output: 'server',
 				adapter: netlifyAdapter()
 			});
