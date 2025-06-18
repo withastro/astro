@@ -1,0 +1,34 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+
+const slug = Astro.params.slug || 'index';
+const entry = await getEntry('blog', slug);
+---
+
+<html>
+<head>
+    <title>Blog: {entry?.data.title || slug}</title>
+    <style>
+        .blog-content {
+            color: blue;
+            background: lightblue;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .blog-title {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="blog-title">Blog Route: {slug}</h1>
+    {entry && (
+        <div class="blog-content">
+            <h2>{entry.data.title}</h2>
+            <p>{entry.data.description}</p>
+            <div set:html={entry.body} />
+        </div>
+    )}
+</body>
+</html>

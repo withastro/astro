@@ -1,0 +1,40 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+
+const path = Astro.params.path || 'index';
+const entry = await getEntry('docs', path);
+---
+
+<html>
+<head>
+    <title>Docs: {entry?.data.title || path}</title>
+    <style>
+        .docs-content {
+            color: green;
+            background: lightgreen;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid darkgreen;
+        }
+        .docs-title {
+            font-size: 1.8rem;
+            color: darkgreen;
+        }
+        .docs-category {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="docs-title">Docs Route: {path}</h1>
+    {entry && (
+        <div class="docs-content">
+            <div class="docs-category">{entry.data.category}</div>
+            <h2>{entry.data.title}</h2>
+            <div set:html={entry.body} />
+        </div>
+    )}
+</body>
+</html>

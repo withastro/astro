@@ -1,0 +1,51 @@
+---
+import { getCollection } from 'astro:content';
+
+const { category, items } = Astro.params;
+const allEntries = await getCollection('docs');
+const categoryEntries = allEntries.filter(entry => entry.data.category === category);
+---
+
+<html>
+<head>
+    <title>Category: {category} | Items: {items}</title>
+    <style>
+        .category-header {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 2rem;
+            margin-bottom: 1rem;
+        }
+        .category-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .category-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .item-title {
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="category-header">
+        <h1>Category: {category}</h1>
+        <p>Items: {items}</p>
+    </div>
+    
+    <div class="category-items">
+        {categoryEntries.map((entry) => (
+            <div class="category-item">
+                <h3 class="item-title">{entry.data.title}</h3>
+                <p>Category: {entry.data.category}</p>
+            </div>
+        ))}
+    </div>
+</body>
+</html>
