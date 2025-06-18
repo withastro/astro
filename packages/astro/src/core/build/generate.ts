@@ -545,16 +545,53 @@ async function generatePath(
 		if (routeIsRedirect(route) && !config.build.redirects) {
 			return undefined;
 		}
+
 		const locationSite = getRedirectLocationOrThrow(response.headers);
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		body = redirectTemplate({
-			status: response.status,
-			absoluteLocation: location,
-			relativeLocation: locationSite,
-			from: fromPath,
-		});
+
+		const threeXXRoute = matchRoute('/3xx', options.routesList);
+
+		if (threeXXRoute) {
+			const threeXXRenderContext = await RenderContext.create({
+				pipeline,
+				pathname: pathname,
+				request,
+				routeData: threeXXRoute,
+				clientAddress: undefined,
+			});
+
+			// Set props for 3xx page
+			threeXXRenderContext.props = {
+				status: response.status,
+				location: locationSite,
+				from: fromPath,
+			};
+
+			// Render the 3xx page
+			const redirectResponse = await threeXXRenderContext.render(mod);
+			let html = await redirectResponse.text();
+
+			const delay = response.status === 302 ? 2 : 0;
+			html = html.replace(
+				/<head[^>]*>/i,
+				`$&
+				<meta http-equiv="refresh" content="${delay};url=${locationSite}">
+				<meta name="robots" content="noindex">
+				<link rel="canonical" href="${location}">`,
+			);
+
+			body = html;
+		} else {
+			body = redirectTemplate({
+				status: response.status,
+				absoluteLocation: location,
+				relativeLocation: locationSite,
+				from: fromPath,
+			});
+		}
+
 		if (config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}
