@@ -2,6 +2,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
+import { createHostedRouteDefinition } from '@astrojs/underscore-redirects';
 import {
 	type Header,
 	type Route,
@@ -32,7 +33,6 @@ import {
 	getInjectableWebAnalyticsContent,
 } from './lib/web-analytics.js';
 import { generateEdgeMiddleware } from './serverless/middleware.js';
-import { createHostedRouteDefinition } from '@astrojs/underscore-redirects';
 
 const PACKAGE_NAME = '@astrojs/vercel';
 
