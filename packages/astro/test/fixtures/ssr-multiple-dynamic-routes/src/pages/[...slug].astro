@@ -1,0 +1,26 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+
+const slug = Astro.params.slug || 'index';
+const entry = await getEntry('blog', slug);
+---
+
+<html>
+<head>
+    <title>Slug Route</title>
+    <style>
+        .slug-content {
+            color: blue;
+            background: lightblue;
+        }
+    </style>
+</head>
+<body>
+    <h1>Slug Route: {slug}</h1>
+    {entry && (
+        <div class="slug-content">
+            <h2>{entry.data.title}</h2>
+        </div>
+    )}
+</body>
+</html>
