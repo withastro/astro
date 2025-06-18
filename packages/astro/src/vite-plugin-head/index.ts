@@ -59,7 +59,13 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				return this.resolve(source, importer, { skipSelf: true }).then((result) => {
 					if (result) {
 						let info = this.getModuleInfo(result.id);
-						const astro = info && getAstroMetadata(info);
+						// If module info is not available yet (can happen with dynamic routes),
+						// defer the metadata propagation to the transform hook
+						if (!info) {
+							// Mark this module for deferred propagation check
+							return result;
+						}
+						const astro = getAstroMetadata(info);
 						if (astro) {
 							if (astro.propagation === 'self' || astro.propagation === 'in-tree') {
 								propagateMetadata.call(this, importer, 'propagation', 'in-tree');
@@ -78,13 +84,11 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				return;
 			}
 
-			// TODO This could probably be removed now that this is handled in resolveId
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
-			// TODO This could probably be removed now that this is handled in resolveId
 			if (info && getAstroMetadata(info)?.propagation === 'self') {
 				const mod = server.moduleGraph.getModuleById(id);
 				for (const parent of mod?.importers ?? []) {
