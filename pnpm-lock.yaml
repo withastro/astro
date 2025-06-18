@@ -5779,6 +5779,9 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../../internal-helpers
+      '@astrojs/underscore-redirects':
+        specifier: workspace:*
+        version: link:../../underscore-redirects
       '@vercel/analytics':
         specifier: ^1.5.0
         version: 1.5.0(react@19.1.0)(svelte@5.33.14)(vue@3.5.16(typescript@5.8.3))
@@ -5947,6 +5950,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/vercel/test/fixtures/static-assets:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/static-headers:
     dependencies:
       '@astrojs/vercel':
         specifier: workspace:*
