@@ -14,6 +14,7 @@ import { routeIsRedirect } from '../core/redirects/index.js';
 import { RenderContext } from '../core/render-context.js';
 import { getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
+import { redirectTemplate } from '../core/routing/3xx.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { isRoute3xx, isRoute404, isRoute500 } from '../core/routing/match.js';
 import { PERSIST_SYMBOL } from '../core/session.js';
@@ -22,7 +23,6 @@ import type { ComponentInstance, RoutesList } from '../types/astro.js';
 import type { RouteData } from '../types/public/internal.js';
 import type { DevPipeline } from './pipeline.js';
 import { writeSSRResult, writeWebResponse } from './response.js';
-import { injectRedirectMetaTags } from '../core/routing/3xx.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -339,7 +339,16 @@ export async function handleRoute({
 			const headers = Object.fromEntries(redirectResponse.headers.entries());
 
 			const html = await redirectResponse.text();
-			const injectedHtml = await injectRedirectMetaTags(html, location, response.status);
+
+			const delay = response.status === 302 ? 2 : 0;
+
+			const injectedHtml = html.replace(
+				/<head[^>]*>/i,
+				`$&
+				<meta http-equiv="refresh" content="${delay};url=${location}">
+				<meta name="robots" content="noindex">
+				<link rel="canonical" href="${location}">`,
+			);
 
 			response = new Response(injectedHtml, {
 				status: response.status,

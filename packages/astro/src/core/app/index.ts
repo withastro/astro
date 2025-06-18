@@ -22,12 +22,12 @@ import {
 } from '../path.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
+import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session.js';
 import { AppPipeline } from './pipeline.js';
-import { default3xxPage } from '../routing/3xx.js';
 
 export { deserializeManifest } from './common.js';
 
@@ -313,12 +313,20 @@ export class App {
 
 		if (redirect !== url.pathname) {
 			const status = request.method === 'GET' ? 301 : 308;
-			return default3xxPage({
-				status,
-				relativeLocation: url.pathname,
-				absoluteLocation: redirect,
-				from: request.url,
-			});
+			return new Response(
+				redirectTemplate({
+					status,
+					relativeLocation: url.pathname,
+					absoluteLocation: redirect,
+					from: request.url,
+				}),
+				{
+					status,
+					headers: {
+						location: redirect + url.search,
+					},
+				},
+			);
 		}
 
 		addCookieHeader = renderOptions?.addCookieHeader;
