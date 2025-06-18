@@ -57,6 +57,7 @@ const ALLOWED_DIRECTIVES = [
 	'object-src',
 	'referrer',
 	'report-to',
+	'report-uri',
 	'require-trusted-types-for',
 	'sandbox',
 	'trusted-types',
@@ -64,7 +65,7 @@ const ALLOWED_DIRECTIVES = [
 	'worker-src',
 ] as const;
 type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
-export type CspDirective = `${AllowedDirectives} ${string}`;
+export type CspDirective = `${AllowedDirectives}${string | undefined}`;
 
 export const allowedDirectivesSchema = z.custom<CspDirective>((value) => {
 	if (typeof value !== 'string') {

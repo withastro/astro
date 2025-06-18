@@ -434,7 +434,7 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.env),
 	session: z
 		.object({
-			driver: z.string(),
+			driver: z.string().optional(),
 			options: z.record(z.any()).optional(),
 			cookie: z
 				.object({

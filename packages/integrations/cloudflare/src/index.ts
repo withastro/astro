@@ -291,6 +291,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if ((args?.platformProxy?.enabled ?? true) === true) {
 					const platformProxy = await getPlatformProxy(args?.platformProxy);
 
+					// Ensures the dev server doesn't hang
+					server.httpServer?.on('close', async () => {
+						await platformProxy.dispose();
+					});
+
 					setProcessEnv(_config, platformProxy.env);
 
 					const clientLocalsSymbol = Symbol.for('astro.locals');
