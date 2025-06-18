@@ -33,6 +33,18 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
+			if (app.headersMap && app.headersMap.length > 0) {
+				const routeData = app.match(req, true);
+				if (routeData) {
+					const matchedRoute = app.headersMap.find((header) => header.source === routeData.route);
+					if (matchedRoute) {
+						for (const header of matchedRoute.headers) {
+							res.setHeader(header.key, header.value);
+						}
+					}
+				}
+			}
+
 			switch (trailingSlash) {
 				case 'never': {
 					if (isDirectory && urlPath !== '/' && hasSlash) {
