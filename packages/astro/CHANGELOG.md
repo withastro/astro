@@ -22,7 +22,7 @@
 
   This option was previously available for experimental responsive images, but now it is a standard feature for all images.
 
-  ## Usage
+  #### Usage
 
   ```astro
   <Image src="/path/to/image.jpg" alt="An example image" priority />
@@ -41,13 +41,13 @@
 
   For full details, see the updated [Image guide](https://docs.astro.build/en/guides/images/#responsive-image-behavior).
 
-  ## Migration from Experimental Responsive Images
+  #### Migration from Experimental Responsive Images
 
   The `experimental.responsiveImages` flag has been removed, and all experimental image configuration options have been renamed to their final names.
 
   If you were using the experimental responsive images feature, you'll need to update your configuration:
 
-  ### Remove the experimental flag
+  ##### Remove the experimental flag
 
   ```diff
   export default defineConfig({
@@ -57,7 +57,7 @@
   });
   ```
 
-  ### Update image configuration options
+  ##### Update image configuration options
 
   During the experimental phase, default styles were applied automatically to responsive images. Now, you need to explicitly set the `responsiveStyles` option to `true` if you want these styles applied.
 
@@ -102,7 +102,7 @@
   });
   ```
 
-  ### Component usage remains the same
+  ##### Component usage remains the same
 
   The `layout`, `fit`, and `position` props on `<Image>` and `<Picture>` components work exactly the same as before:
 
@@ -124,7 +124,7 @@
 
   Live content collections are a new type of [content collection](https://docs.astro.build/en/guides/content-collections/) that fetch their data at runtime rather than build time. This allows you to access frequently-updated data from CMSs, APIs, databases, or other sources using a unified API, without needing to rebuild your site when the data changes.
 
-  ## Live collections vs build-time collections
+  #### Live collections vs build-time collections
 
   In Astro 5.0, the content layer API added support for adding diverse content sources to content collections. You can create loaders that fetch data from any source at build time, and then access it inside a page via `getEntry()` and `getCollection()`. The data is cached between builds, giving fast access and updates.
 
@@ -132,7 +132,7 @@
 
   Live content collections solve this problem by allowing you to create loaders that fetch data at runtime, rather than build time. This means that the data is always up-to-date, without needing to rebuild the site.
 
-  ## How to use
+  #### How to use
 
   To enable live collections add the `experimental.liveContentCollections` flag to your `astro.config.mjs` file:
 
@@ -622,7 +622,7 @@
 
   It became clear from user feedback that many people (understandably) thought that they needed to set `layout` to `responsive` if they wanted to use responsive images. They then struggled with overriding styles to make the image scale up for full-width hero images, for example, when they should have been using `full-width` layout. Renaming the layout to `constrained` should make it clearer that this layout is for when you want to constrain the maximum size of the image, but allow it to scale-down.
 
-  ### Upgrading
+  #### Upgrading
 
   If you set a default `image.experimentalLayout` in your `astro.config.mjs`, or set it on a per-image basis using the `layout` prop, you will need to change all occurences to `constrained`:
 
@@ -1404,7 +1404,7 @@
 
 - [#12052](https://github.com/withastro/astro/pull/12052) [`5be12b2`](https://github.com/withastro/astro/commit/5be12b2bc9f359d3ecfa29b766f13ed2aabd119f) Thanks [@Fryuni](https://github.com/Fryuni)! - Exposes extra APIs for scripting and testing.
 
-  ### Config helpers
+  #### Config helpers
 
   Two new helper functions exported from `astro/config`:
 
@@ -1413,7 +1413,7 @@
 
   These helpers are particularly useful for integration authors and for developers writing scripts that need to manipulate Astro configurations programmatically.
 
-  ### Programmatic build
+  #### Programmatic build
 
   The `build` API now receives a second optional `BuildOptions` argument where users can specify:
 

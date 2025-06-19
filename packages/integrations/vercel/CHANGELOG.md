@@ -34,13 +34,13 @@
 
   For full details, see the updated [Image guide](https://docs.astro.build/en/guides/images/#responsive-image-behavior).
 
-  ## Migration from Experimental Responsive Images
+  #### Migration from Experimental Responsive Images
 
   The `experimental.responsiveImages` flag has been removed, and all experimental image configuration options have been renamed to their final names.
 
   If you were using the experimental responsive images feature, you'll need to update your configuration:
 
-  ### Remove the experimental flag
+  ##### Remove the experimental flag
 
   ```diff
   export default defineConfig({
@@ -50,7 +50,7 @@
   });
   ```
 
-  ### Update image configuration options
+  ##### Update image configuration options
 
   During the experimental phase, default styles were applied automatically to responsive images. Now, you need to explicitly set the `responsiveStyles` option to `true` if you want these styles applied.
 
@@ -95,7 +95,7 @@
   });
   ```
 
-  ### Component usage remains the same
+  ##### Component usage remains the same
 
   The `layout`, `fit`, and `position` props on `<Image>` and `<Picture>` components work exactly the same as before:
 
