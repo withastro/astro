@@ -1,5 +1,210 @@
 # astro
 
+## 5.10.0
+
+### Minor Changes
+
+- [#13917](https://github.com/withastro/astro/pull/13917) [`e615216`](https://github.com/withastro/astro/commit/e615216c55bca5d61b8c5c1b49d62671f0238509) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a new `priority` attribute for Astro's image components.
+
+  This change introduces a new `priority` option for the `<Image />` and `<Picture />` components, which automatically sets the `loading`, `decoding`, and `fetchpriority` attributes to their optimal values for above-the-fold images which should be loaded immediately.
+
+  It is a boolean prop, and you can use the shorthand syntax by simply adding `priority` as a prop to the `<Image />` or `<Picture />` component. When set, it will apply the following attributes:
+
+  - `loading="eager"`
+  - `decoding="sync"`
+  - `fetchpriority="high"`
+
+  The individual attributes can still be set manually if you need to customize your images further.
+
+  By default, the Astro [`<Image />` component](https://docs.astro.build/en/guides/images/#display-optimized-images-with-the-image--component) generates `<img>` tags that lazy-load their content by setting `loading="lazy"` and `decoding="async"`. This improves performance by deferring the loading of images that are not immediately visible in the viewport, and gives the best scores in performance audits like Lighthouse.
+
+  The new `priority` attribute will override those defaults and automatically add the best settings for your high-priority assets.
+
+  This option was previously available for experimental responsive images, but now it is a standard feature for all images.
+
+  ## Usage
+
+  ```astro
+  <Image src="/path/to/image.jpg" alt="An example image" priority />
+  ```
+
+  > [!Note]
+  > You should only use the `priority` option for images that are critical to the initial rendering of the page, and ideally only one image per page. This is often an image identified as the [LCP element](https://web.dev/articles/lcp) when running Lighthouse tests. Using it for too many images will lead to performance issues, as it forces the browser to load those images immediately, potentially blocking the rendering of other content.
+
+- [#13917](https://github.com/withastro/astro/pull/13917) [`e615216`](https://github.com/withastro/astro/commit/e615216c55bca5d61b8c5c1b49d62671f0238509) Thanks [@ascorbic](https://github.com/ascorbic)! - The responsive images feature introduced behind a flag in [v5.0.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#500) is no longer experimental and is available for general use.
+
+  The new responsive images feature in Astro automatically generates optimized images for different screen sizes and resolutions, and applies the correct attributes to ensure that images are displayed correctly on all devices.
+
+  Enable the `image.responsiveStyles` option in your Astro config. Then, set a `layout` attribute on any <Image /> or <Picture /> component, or configure a default `image.layout`, for instantly responsive images with automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type.
+
+  Displaying images correctly on the web can be challenging, and is one of the most common performance issues seen in sites. This new feature simplifies the most challenging part of the process: serving your site visitor an image optimized for their viewing experience, and for your website's performance.
+
+  For full details, see the updated [Image guide](https://docs.astro.build/en/guides/images/#responsive-image-behavior).
+
+  ## Migration from Experimental Responsive Images
+
+  The `experimental.responsiveImages` flag has been removed, and all experimental image configuration options have been renamed to their final names.
+
+  If you were using the experimental responsive images feature, you'll need to update your configuration:
+
+  ### Remove the experimental flag
+
+  ```diff
+  export default defineConfig({
+     experimental: {
+  -    responsiveImages: true,
+     },
+  });
+  ```
+
+  ### Update image configuration options
+
+  During the experimental phase, default styles were applied automatically to responsive images. Now, you need to explicitly set the `responsiveStyles` option to `true` if you want these styles applied.
+
+  ```diff
+  export default defineConfig({
+    image: {
+  +    responsiveStyles: true,
+    },
+  });
+  ```
+
+  The experimental image configuration options have been renamed:
+
+  **Before:**
+
+  ```js
+  export default defineConfig({
+    image: {
+      experimentalLayout: 'constrained',
+      experimentalObjectFit: 'cover',
+      experimentalObjectPosition: 'center',
+      experimentalBreakpoints: [640, 750, 828, 1080, 1280],
+      experimentalDefaultStyles: true,
+    },
+    experimental: {
+      responsiveImages: true,
+    },
+  });
+  ```
+
+  **After:**
+
+  ```js
+  export default defineConfig({
+    image: {
+      layout: 'constrained',
+      objectFit: 'cover',
+      objectPosition: 'center',
+      breakpoints: [640, 750, 828, 1080, 1280],
+      responsiveStyles: true, // This is now *false* by default
+    },
+  });
+  ```
+
+  ### Component usage remains the same
+
+  The `layout`, `fit`, and `position` props on `<Image>` and `<Picture>` components work exactly the same as before:
+
+  ```astro
+  <Image
+    src={myImage}
+    alt="A responsive image"
+    layout="constrained"
+    fit="cover"
+    position="center"
+  />
+  ```
+
+  If you weren't using the experimental responsive images feature, no changes are required.
+
+  Please see the [Image guide](https://docs.astro.build/en/guides/images/#responsive-image-behavior) for more information on using responsive images in Astro.
+
+- [#13685](https://github.com/withastro/astro/pull/13685) [`3c04c1f`](https://github.com/withastro/astro/commit/3c04c1f43027e2f9be0854f65c549fa1832f622a) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds experimental support for live content collections
+
+  Live content collections are a new type of [content collection](https://docs.astro.build/en/guides/content-collections/) that fetch their data at runtime rather than build time. This allows you to access frequently-updated data from CMSs, APIs, databases, or other sources using a unified API, without needing to rebuild your site when the data changes.
+
+  ## Live collections vs build-time collections
+
+  In Astro 5.0, the content layer API added support for adding diverse content sources to content collections. You can create loaders that fetch data from any source at build time, and then access it inside a page via `getEntry()` and `getCollection()`. The data is cached between builds, giving fast access and updates.
+
+  However there is no method for updating the data store between builds, meaning any updates to the data need a full site deploy, even if the pages are rendered on-demand. This means that content collections are not suitable for pages that update frequently. Instead, today these pages tend to access the APIs directly in the frontmatter. This works, but leads to a lot of boilerplate, and means users don't benefit from the simple, unified API that content loaders offer. In most cases users tend to individually create loader libraries that they share between pages.
+
+  Live content collections solve this problem by allowing you to create loaders that fetch data at runtime, rather than build time. This means that the data is always up-to-date, without needing to rebuild the site.
+
+  ## How to use
+
+  To enable live collections add the `experimental.liveContentCollections` flag to your `astro.config.mjs` file:
+
+  ```js title="astro.config.mjs"
+  {
+    experimental: {
+      liveContentCollections: true,
+    },
+  }
+  ```
+
+  Then create a new `src/live.config.ts` file (alongside your `src/content.config.ts` if you have one) to define your live collections with a [live loader](https://docs.astro.build/en/reference/experimental-flags/live-content-collections/#creating-a-live-loader) and optionally a [schema](https://docs.astro.build/en/reference/experimental-flags/live-content-collections/#using-zod-schemas) using the new `defineLiveCollection()` function from the `astro:content` module.
+
+  ```ts title="src/live.config.ts"
+  import { defineLiveCollection } from 'astro:content';
+  import { storeLoader } from '@mystore/astro-loader';
+
+  const products = defineLiveCollection({
+    type: 'live',
+    loader: storeLoader({
+      apiKey: process.env.STORE_API_KEY,
+      endpoint: 'https://api.mystore.com/v1',
+    }),
+  });
+
+  export const collections = { products };
+  ```
+
+  You can then use the dedicated `getLiveCollection()` and `getLiveEntry()` functions to access your live data:
+
+  ```astro
+  ---
+  import { getLiveCollection, getLiveEntry, render } from 'astro:content';
+
+  // Get all products
+  const { entries: allProducts, error } = await getLiveCollection('products');
+  if (error) {
+    // Handle error appropriately
+    console.error(error.message);
+  }
+
+  // Get products with a filter (if supported by your loader)
+  const { entries: electronics } = await getLiveCollection('products', { category: 'electronics' });
+
+  // Get a single product by ID (string syntax)
+  const { entry: product, error: productError } = await getLiveEntry('products', Astro.params.id);
+  if (productError) {
+    return Astro.redirect('/404');
+  }
+
+  // Get a single product with a custom query (if supported by your loader) using a filter object
+  const { entry: productBySlug } = await getLiveEntry('products', { slug: Astro.params.slug });
+
+  const { Content } = await render(product);
+  ---
+
+  <h1>{product.title}</h1>
+  <Content />
+  ```
+
+  See [the docs for the experimental live content collections feature](https://docs.astro.build/en/reference/experimental-flags/live-content-collections/) for more details on how to use this feature, including how to create a live loader. Please give feedback on [the RFC PR](https://github.com/withastro/roadmap/pull/1164) if you have any suggestions or issues.
+
+### Patch Changes
+
+- [#13957](https://github.com/withastro/astro/pull/13957) [`304df34`](https://github.com/withastro/astro/commit/304df34b7c4ef69f3f6d93835b7a1e415666ddc9) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `report-uri` wasn't available in `experimental.csp.directives`, causing a typing error and a runtime validation error.
+
+- [#13957](https://github.com/withastro/astro/pull/13957) [`304df34`](https://github.com/withastro/astro/commit/304df34b7c4ef69f3f6d93835b7a1e415666ddc9) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a type error for the CSP directives `upgrade-insecure-requests`, `sandbox`, and `trusted-type`.
+
+- [#13862](https://github.com/withastro/astro/pull/13862) [`fe8f61a`](https://github.com/withastro/astro/commit/fe8f61ab6dafe2c4da6d55db7316cd614927dd07) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the dev toolbar would crash if it could not retrieve some essential data
+
+- [#13976](https://github.com/withastro/astro/pull/13976) [`0a31d99`](https://github.com/withastro/astro/commit/0a31d9912de6b94f4e8fba3c820a00b6861dff19) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where Astro Actions types would be broken when using a `tsconfig.json` with `"moduleResolution": "nodenext"`
+
 ## 5.9.4
 
 ### Patch Changes
