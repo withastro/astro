@@ -32,12 +32,6 @@ import { App } from 'astro/app';
  			request.headers.get('cf-connecting-ip')
  		);
 
- 		process.env.ASTRO_STUDIO_APP_TOKEN ??= (() => {
- 			if (typeof env.ASTRO_STUDIO_APP_TOKEN === 'string') {
- 				return env.ASTRO_STUDIO_APP_TOKEN;
- 			}
- 		})();
-
  		const locals = {
  			runtime: {
  				env: env,

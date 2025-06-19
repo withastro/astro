@@ -14,7 +14,6 @@ setGetEnv(createGetEnv(globalEnv as Env));
 type Env = {
 	[key: string]: unknown;
 	ASSETS: { fetch: (req: Request | string) => Promise<Response> };
-	ASTRO_STUDIO_APP_TOKEN?: string;
 };
 
 export interface Runtime<T extends object = object> {
@@ -72,12 +71,6 @@ export function createExports(manifest: SSRManifest) {
 			Symbol.for('astro.clientAddress'),
 			request.headers.get('cf-connecting-ip'),
 		);
-
-		process.env.ASTRO_STUDIO_APP_TOKEN ??= (() => {
-			if (typeof env.ASTRO_STUDIO_APP_TOKEN === 'string') {
-				return env.ASTRO_STUDIO_APP_TOKEN;
-			}
-		})();
 
 		const locals: Runtime = {
 			runtime: {
