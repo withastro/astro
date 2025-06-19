@@ -1,0 +1,21 @@
+---
+const runtime = Astro.locals.runtime;
+const db = runtime.env?.D1;
+await db.exec("CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)");
+await db.exec("INSERT INTO test (name) VALUES ('true')");
+const result = await db.prepare("SELECT * FROM test").all();
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D1</title>
+</head>
+<body>
+  <pre id="hasDB">{!!runtime.env?.D1}</pre>
+  <pre id="hasPRODDB">{!!runtime.env?.D1_PROD}</pre>
+  <pre id="hasACCESS">{!!result.results[0].name}</pre>
+</body>
+</html>
