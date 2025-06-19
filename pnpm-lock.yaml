@@ -145,7 +145,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
 
   examples/blog:
@@ -160,7 +160,7 @@ importers:
         specifier: ^3.4.1
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.2
@@ -169,7 +169,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -178,7 +178,7 @@ importers:
         specifier: ^4.3.0
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -209,7 +209,7 @@ importers:
         specifier: ^3.14.9
         version: 3.14.9
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -236,7 +236,7 @@ importers:
         specifier: ^18.3.6
         version: 18.3.7(@types/react@18.3.23)
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.26.5
@@ -266,7 +266,7 @@ importers:
         specifier: ^2.0.3
         version: 2.2.0(preact@10.26.8)
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.26.5
@@ -284,7 +284,7 @@ importers:
         specifier: ^18.3.6
         version: 18.3.7(@types/react@18.3.23)
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -299,7 +299,7 @@ importers:
         specifier: ^5.1.0
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.5
@@ -311,7 +311,7 @@ importers:
         specifier: ^7.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       svelte:
         specifier: ^5.25.7
@@ -323,7 +323,7 @@ importers:
         specifier: ^5.1.0
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.13
@@ -335,25 +335,25 @@ importers:
         specifier: ^9.2.2
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
 
   examples/ssr:
@@ -365,7 +365,7 @@ importers:
         specifier: ^7.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       svelte:
         specifier: ^5.25.7
@@ -374,7 +374,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       sass:
         specifier: ^1.86.3
@@ -389,7 +389,7 @@ importers:
         specifier: ^18.17.8
         version: 18.19.50
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -398,7 +398,7 @@ importers:
         specifier: ^0.15.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -410,7 +410,7 @@ importers:
         specifier: ^4.1.0
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.26.5
@@ -425,7 +425,7 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(nanostores@0.11.4)(preact@10.26.8)
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.11.4
@@ -446,7 +446,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.3
@@ -458,7 +458,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^5.9.4
+        specifier: ^5.10.0
         version: link:../../packages/astro
       vitest:
         specifier: ^3.1.1
@@ -3444,6 +3444,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/live-loaders:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/markdown:
     dependencies:
       '@astrojs/preact':
@@ -4409,7 +4418,7 @@ importers:
         version: 1.0.2
       drizzle-orm:
         specifier: ^0.42.0
-        version: 0.42.0(@cloudflare/workers-types@4.20250507.0)(@libsql/client@0.15.2)
+        version: 0.42.0(@cloudflare/workers-types@4.20250607.0)(@libsql/client@0.15.2)
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -4671,7 +4680,7 @@ importers:
         version: link:../../underscore-redirects
       '@cloudflare/workers-types':
         specifier: ^4.20250507.0
-        version: 4.20250507.0
+        version: 4.20250607.0
       tinyglobby:
         specifier: ^0.2.13
         version: 0.2.13
@@ -4680,7 +4689,7 @@ importers:
         version: 6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.5.1)
       wrangler:
         specifier: ^4.14.1
-        version: 4.14.1(@cloudflare/workers-types@4.20250507.0)
+        version: 4.14.1(@cloudflare/workers-types@4.20250607.0)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -4712,7 +4721,7 @@ importers:
     devDependencies:
       wrangler:
         specifier: ^4.14.1
-        version: 4.14.1(@cloudflare/workers-types@4.20250507.0)
+        version: 4.14.1(@cloudflare/workers-types@4.20250607.0)
 
   packages/integrations/cloudflare/test/fixtures/astro-env:
     dependencies:
@@ -4725,9 +4734,18 @@ importers:
     devDependencies:
       wrangler:
         specifier: ^4.14.1
-        version: 4.14.1(@cloudflare/workers-types@4.20250507.0)
+        version: 4.14.1(@cloudflare/workers-types@4.20250607.0)
 
   packages/integrations/cloudflare/test/fixtures/compile-image-service:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/cloudflare/test/fixtures/custom-entryfile:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
@@ -4783,7 +4801,7 @@ importers:
         version: link:../../../../../astro
       wrangler:
         specifier: ^4.14.1
-        version: 4.14.1(@cloudflare/workers-types@4.20250507.0)
+        version: 4.14.1(@cloudflare/workers-types@4.20250607.0)
 
   packages/integrations/cloudflare/test/fixtures/static-headers:
     dependencies:
@@ -5627,7 +5645,7 @@ importers:
     dependencies:
       '@vitejs/plugin-react':
         specifier: ^4.5.0
-        version: 4.5.1(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.5.1))
+        version: 4.5.0(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.5.1))
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
@@ -5785,6 +5803,9 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../../internal-helpers
+      '@astrojs/underscore-redirects':
+        specifier: workspace:*
+        version: link:../../underscore-redirects
       '@vercel/analytics':
         specifier: ^1.5.0
         version: 1.5.0(react@19.1.0)(svelte@5.33.14)(vue@3.5.16(typescript@5.8.3))
@@ -5953,6 +5974,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/vercel/test/fixtures/static-assets:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/static-headers:
     dependencies:
       '@astrojs/vercel':
         specifier: workspace:*
@@ -6763,8 +6793,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-types@4.20250507.0':
-    resolution: {integrity: sha512-fkrq7A6XWgPEmXJDwu9TS/Zw7qho3eGlrOlicKue32Bdul0Ma4Mym4sh7ZeGbayBXxkOx/fHpm5GfhVEtngRWQ==}
+  '@cloudflare/workers-types@4.20250607.0':
+    resolution: {integrity: sha512-OYmKNzC2eQy6CNj+j0go8Ut3SezjsprCgJyEaBzJql+473WAN9ndVnNZy9lj/tTyLV6wzpQkZWmRAKGDmacvkg==}
 
   '@codspeed/core@4.0.1':
     resolution: {integrity: sha512-fJ53arfgtzCDZa8DuGJhpTZ3Ll9A1uW5nQ2jSJnfO4Hl5MRD2cP8P4vPvIUAGbdbjwCxR1jat6cW8OloMJkJXw==}
@@ -8666,8 +8696,8 @@ packages:
   '@vercel/routing-utils@5.0.4':
     resolution: {integrity: sha512-4ke67zkXVi2fRZdoYckABcsSkRC9CnrdadOGxoS/Bk22+ObHjGQWvUHExRSXh339anwu9YY7ZacNSGH4gUnTQA==}
 
-  '@vitejs/plugin-react@4.5.1':
-    resolution: {integrity: sha512-uPZBqSI0YD4lpkIru6M35sIfylLGTyhGHvDZbNLuMA73lMlwJKz5xweH7FajfcCAc2HnINciejA9qTz0dr0M7A==}
+  '@vitejs/plugin-react@4.5.0':
+    resolution: {integrity: sha512-JuLWaEqypaJmOJPLWwO335Ig6jSgC1FTONCWAxnqcQthLTK/Yc9aH6hr9z/87xciejbQcnP3GnA1FWUSWeXaeg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0
@@ -14055,7 +14085,7 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20250428.0':
     optional: true
 
-  '@cloudflare/workers-types@4.20250507.0': {}
+  '@cloudflare/workers-types@4.20250607.0': {}
 
   '@codspeed/core@4.0.1':
     dependencies:
@@ -15785,7 +15815,7 @@ snapshots:
     optionalDependencies:
       ajv: 6.12.6
 
-  '@vitejs/plugin-react@4.5.1(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.5.1))':
+  '@vitejs/plugin-react@4.5.0(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.5.1))':
     dependencies:
       '@babel/core': 7.27.1
       '@babel/plugin-transform-react-jsx-self': 7.25.9(@babel/core@7.27.1)
@@ -16865,9 +16895,9 @@ snapshots:
 
   dotenv@8.6.0: {}
 
-  drizzle-orm@0.42.0(@cloudflare/workers-types@4.20250507.0)(@libsql/client@0.15.2):
+  drizzle-orm@0.42.0(@cloudflare/workers-types@4.20250607.0)(@libsql/client@0.15.2):
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20250507.0
+      '@cloudflare/workers-types': 4.20250607.0
       '@libsql/client': 0.15.2
 
   dset@3.1.4: {}
@@ -21186,7 +21216,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20250428.0
       '@cloudflare/workerd-windows-64': 1.20250428.0
 
-  wrangler@4.14.1(@cloudflare/workers-types@4.20250507.0):
+  wrangler@4.14.1(@cloudflare/workers-types@4.20250607.0):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.0
       '@cloudflare/unenv-preset': 2.3.1(unenv@2.0.0-rc.15)(workerd@1.20250428.0)
@@ -21197,7 +21227,7 @@ snapshots:
       unenv: 2.0.0-rc.15
       workerd: 1.20250428.0
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20250507.0
+      '@cloudflare/workers-types': 4.20250607.0
       fsevents: 2.3.3
       sharp: 0.33.5
     transitivePeerDependencies:
