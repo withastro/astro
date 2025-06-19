@@ -22,6 +22,7 @@ import {
 	CONTENT_MODULE_FLAG,
 	DEFERRED_MODULE,
 	IMAGE_IMPORT_PREFIX,
+	LIVE_CONTENT_TYPE,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
 import { glob } from './loaders/glob.js';
@@ -103,6 +104,11 @@ const collectionConfigParser = z.union([
 		]),
 		/** deprecated */
 		_legacy: z.boolean().optional(),
+	}),
+	z.object({
+		type: z.literal(LIVE_CONTENT_TYPE),
+		schema: z.any().optional(),
+		loader: z.function(),
 	}),
 ]);
 
@@ -557,7 +563,10 @@ async function autogenerateCollections({
 	const dataPattern = globWithUnderscoresIgnored('', dataExts);
 	let usesContentLayer = false;
 	for (const collectionName of Object.keys(collections)) {
-		if (collections[collectionName]?.type === 'content_layer') {
+		if (
+			collections[collectionName]?.type === 'content_layer' ||
+			collections[collectionName]?.type === 'live'
+		) {
 			usesContentLayer = true;
 			// This is already a content layer, skip
 			continue;
@@ -705,13 +714,25 @@ export type ContentPaths = {
 		exists: boolean;
 		url: URL;
 	};
+	liveConfig: {
+		exists: boolean;
+		url: URL;
+	};
 };
 
 export function getContentPaths(
-	{ srcDir, legacy, root }: Pick<AstroConfig, 'root' | 'srcDir' | 'legacy'>,
+	{
+		srcDir,
+		legacy,
+		root,
+		experimental,
+	}: Pick<AstroConfig, 'root' | 'srcDir' | 'legacy' | 'experimental'>,
 	fs: typeof fsMod = fsMod,
 ): ContentPaths {
-	const configStats = search(fs, srcDir, legacy?.collections);
+	const configStats = searchConfig(fs, srcDir, legacy?.collections);
+	const liveConfigStats = experimental?.liveContentCollections
+		? searchLiveConfig(fs, srcDir)
+		: { exists: false, url: new URL('./', srcDir) };
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
 		root: new URL('./', root),
@@ -720,9 +741,15 @@ export function getContentPaths(
 		typesTemplate: new URL('templates/content/types.d.ts', pkgBase),
 		virtualModTemplate: new URL('templates/content/module.mjs', pkgBase),
 		config: configStats,
+		liveConfig: liveConfigStats,
 	};
 }
-function search(fs: typeof fsMod, srcDir: URL, legacy?: boolean) {
+
+function searchConfig(
+	fs: typeof fsMod,
+	srcDir: URL,
+	legacy?: boolean,
+): { exists: boolean; url: URL } {
 	const paths = [
 		...(legacy
 			? []
@@ -731,13 +758,23 @@ function search(fs: typeof fsMod, srcDir: URL, legacy?: boolean) {
 		'content/config.js',
 		'content/config.mts',
 		'content/config.ts',
-	].map((p) => new URL(`./${p}`, srcDir));
-	for (const file of paths) {
+	];
+	return search(fs, srcDir, paths);
+}
+
+function searchLiveConfig(fs: typeof fsMod, srcDir: URL): { exists: boolean; url: URL } {
+	const paths = ['live.config.mjs', 'live.config.js', 'live.config.mts', 'live.config.ts'];
+	return search(fs, srcDir, paths);
+}
+
+function search(fs: typeof fsMod, srcDir: URL, paths: string[]): { exists: boolean; url: URL } {
+	const urls = paths.map((p) => new URL(`./${p}`, srcDir));
+	for (const file of urls) {
 		if (fs.existsSync(file)) {
 			return { exists: true, url: file };
 		}
 	}
-	return { exists: false, url: paths[0] };
+	return { exists: false, url: urls[0] };
 }
 
 /**

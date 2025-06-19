@@ -2423,6 +2423,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 */
 		preserveScriptOrder?: boolean;
+
+		/**
+		 * @name experimental.liveContentCollections
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 * Enables the use of live content collections.
+		 *
+		 */
+		liveContentCollections?: boolean;
 	};
 }
 

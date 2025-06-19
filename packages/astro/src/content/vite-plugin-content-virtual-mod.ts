@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import pLimit from 'p-limit';
 import { glob } from 'tinyglobby';
-import type { Plugin, ViteDevServer } from 'vite';
+import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -63,11 +63,16 @@ export function astroContentVirtualModPlugin({
 }: AstroContentVirtualModPluginParams): Plugin {
 	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
+	let liveConfig: string;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		config(_, env) {
 			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+			const contentPaths = getContentPaths(settings.config); 
+			if (contentPaths.liveConfig.exists) {
+				liveConfig = normalizePath(fileURLToPath(contentPaths.liveConfig.url));
+			}
 		},
 		buildStart() {
 			if (devServer) {
@@ -77,8 +82,16 @@ export function astroContentVirtualModPlugin({
 				invalidateDataStore(devServer);
 			}
 		},
-		async resolveId(id) {
+		async resolveId(id, importer) {
 			if (id === VIRTUAL_MODULE_ID) {
+				// Live content config can't import the virtual module directly,
+				// because it would create a circular dependency from the colleciton exports.
+				// Instead, we resolve the config util module, because that's all that it should use anyway.
+				if(liveConfig && importer && liveConfig === normalizePath(importer)) {
+					return this.resolve("astro/content/config", importer, {
+						skipSelf: true,
+					});
+				}
 				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
 			if (id === DATA_STORE_VIRTUAL_ID) {
@@ -247,7 +260,14 @@ async function generateContentEntryFile({
 			.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
 			.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
 			.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
-			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`);
+			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`)
+			.replace(
+				'/* @@LIVE_CONTENT_CONFIG@@ */',
+				contentPaths.liveConfig.exists
+					? // Dynamic import so it extracts the chunk and avoids a circular import
+						`const liveCollections = (await import(${JSON.stringify(fileURLToPath(contentPaths.liveConfig.url))})).collections;`
+					: 'const liveCollections = {};',
+			);
 	}
 
 	return virtualModContents;
@@ -258,13 +278,7 @@ async function generateContentEntryFile({
  * This is used internally to resolve entry imports when using `getEntry()`.
  * @see `templates/content/module.mjs`
  */
-async function generateLookupMap({
-	settings,
-	fs,
-}: {
-	settings: AstroSettings;
-	fs: typeof nodeFs;
-}) {
+async function generateLookupMap({ settings, fs }: { settings: AstroSettings; fs: typeof nodeFs }) {
 	const { root } = settings.config;
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(root, contentPaths.contentDir, false);
