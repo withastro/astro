@@ -1,12 +1,12 @@
 // @ts-expect-error - It is safe to expect the error here.
 import { env as globalEnv } from 'cloudflare:workers';
-import type { App } from 'astro/app';
-import type { SSRManifest } from 'astro';
 import type {
 	CacheStorage as CloudflareCacheStorage,
 	ExecutionContext,
 	ExportedHandlerFetchHandler,
 } from '@cloudflare/workers-types';
+import type { SSRManifest } from 'astro';
+import type { App } from 'astro/app';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 

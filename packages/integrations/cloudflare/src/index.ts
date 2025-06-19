@@ -8,9 +8,9 @@ import type { PluginOption } from 'vite';
 
 import { createReadStream } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createRequire } from 'node:module';
 import {
 	appendForwardSlash,
 	prependForwardSlash,
