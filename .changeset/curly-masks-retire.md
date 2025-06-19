@@ -1,5 +1,5 @@
 ---
-'@astrojs/netlify': minor
+'@astrojs/vercel': minor
 ---
 
 Adds support for the [experimental static headers Astro feature](https://docs.astro.build/en/reference/adapter-reference/#experimentalstaticheaders).
@@ -8,10 +8,10 @@ When the feature is enabled via option `experimentalStaticHeaders`, and [experim
 
 ```js
 import { defineConfig } from "astro/config";
-import netlify from "@astrojs/netlify";
+import vercel from "@astrojs/vercel";
 
 export default defineConfig({
-  adapter: netlify({
+  adapter: vercel({
     experimentalStaticHeaders: true
   }),
   experimental: {

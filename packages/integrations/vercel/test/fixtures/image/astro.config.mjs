@@ -6,9 +6,6 @@ export default defineConfig({
 	adapter: vercel({
 		imageService: true,
 	}),
-	experimental: {
-		responsiveImages: true,
-	},
 	image: {
 		service: testImageService(),
 		domains: ['astro.build'],
