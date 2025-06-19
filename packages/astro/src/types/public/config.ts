@@ -1327,7 +1327,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		 */
 		remotePatterns?: Partial<RemotePattern>[];
-		
+
 		/**
 		 * @docs
 		 * @name image.responsiveStyles
@@ -1336,8 +1336,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @version 5.10.0
 		 * @description
 		 * Whether to automatically add global styles for responsive images. You should enable this option unless you are styling the images yourself.
-		 * 
-	 	 * This option is only used when `layout` is set to `constrained`, `full-width`, or `fixed` using the configuration or the `layout` prop on the image component.
+		 *
+		 * This option is only used when `layout` is set to `constrained`, `full-width`, or `fixed` using the configuration or the `layout` prop on the image component.
 		 *
 		 * See [the images docs](https://docs.astro.build/en/guides/images/#responsive-image-styles) for more information.
 		 */
