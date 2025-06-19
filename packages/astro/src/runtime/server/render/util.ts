@@ -79,7 +79,7 @@ function handleBooleanAttribute(
 }
 
 // A helper used to turn expressions into attribute key/value
-export function addAttribute(value: any, key: string, shouldEscape = true, tagName?: string) {
+export function addAttribute(value: any, key: string, shouldEscape = true, tagName: string='') {
 	if (value == null) {
 		return '';
 	}
@@ -150,7 +150,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 export function internalSpreadAttributes(
 	values: Record<any, any>,
 	shouldEscape = true,
-	tagName?: string,
+	tagName: string,
 ) {
 	let output = '';
 	for (const [key, value] of Object.entries(values)) {
