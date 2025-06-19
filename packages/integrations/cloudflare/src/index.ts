@@ -445,7 +445,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					);
 				}
 
-				await createHeadersFile(_config, logger, staticHeadersMap);
+				if (args?.experimentalStaticHeaders && staticHeadersMap?.size) {
+					await createHeadersFile(_config, logger, staticHeadersMap);
+				}
 
 				const trueRedirects = createRedirectsFromAstroRoutes({
 					config: _config,
