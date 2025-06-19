@@ -1,9 +1,9 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import type * as rollup from 'rollup';
 import type { DataEntry, RenderedContent } from '../../content/data-store.js';
+import type { LiveCollectionError } from '../../content/loaders/errors.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { AstroConfig } from './config.js';
-import type { LiveCollectionError } from '../../content/loaders/errors.js';
 
 export interface AstroInstance {
 	file: string;
@@ -142,9 +142,7 @@ export interface LiveDataEntry<TData extends Record<string, any> = Record<string
 	cacheHint?: CacheHint;
 }
 
-export interface LiveDataCollection<
-	TData extends Record<string, any> = Record<string, unknown>,
-> {
+export interface LiveDataCollection<TData extends Record<string, any> = Record<string, unknown>> {
 	entries: Array<LiveDataEntry<TData>>;
 	/** A hint for how to cache this collection. Individual entries can also have cache hints */
 	cacheHint?: CacheHint;
@@ -155,7 +153,7 @@ export interface LiveDataCollectionResult<
 	TError extends Error = Error,
 > {
 	entries?: Array<LiveDataEntry<TData>>;
-	error?: TError | LiveCollectionError
+	error?: TError | LiveCollectionError;
 	cacheHint?: CacheHint;
 }
 

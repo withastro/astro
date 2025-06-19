@@ -1,7 +1,7 @@
 import type { ZodLiteral, ZodNumber, ZodObject, ZodString, ZodType, ZodUnion } from 'zod';
+import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
-import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 
 function getImporterFilename() {
 	// Find the first line in the stack trace that doesn't include 'defineCollection' or 'getImporterFilename'
@@ -94,7 +94,10 @@ type ContentCollectionConfig<S extends BaseSchema> = {
 	loader?: never;
 };
 
-export type LiveCollectionConfig<L extends LiveLoader, S extends BaseSchema | undefined = undefined> = {
+export type LiveCollectionConfig<
+	L extends LiveLoader,
+	S extends BaseSchema | undefined = undefined,
+> = {
 	type: 'live';
 	schema?: S;
 	loader: L;
@@ -106,8 +109,8 @@ export type CollectionConfig<S extends BaseSchema> =
 	| ContentLayerConfig<S>;
 
 export function defineLiveCollection<
-L extends LiveLoader,
-S extends BaseSchema | undefined = undefined,
+	L extends LiveLoader,
+	S extends BaseSchema | undefined = undefined,
 >(config: LiveCollectionConfig<L, S>): LiveCollectionConfig<L, S> {
 	const importerFilename = getImporterFilename();
 	if (!importerFilename?.includes('live.config')) {

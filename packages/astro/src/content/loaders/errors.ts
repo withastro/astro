@@ -1,4 +1,4 @@
-import type { ZodError } from "zod";
+import type { ZodError } from 'zod';
 
 export class LiveCollectionError extends Error {
 	constructor(

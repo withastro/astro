@@ -80,7 +80,9 @@ declare module 'astro:content' {
 	export function getLiveCollection<C extends keyof LiveContentConfig['collections']>(
 		collection: C,
 		filter?: LiveLoaderCollectionFilterType<C>,
-	): Promise<import('astro').LiveDataCollectionResult<LiveLoaderDataType<C>, LiveLoaderErrorType<C>>>;
+	): Promise<
+		import('astro').LiveDataCollectionResult<LiveLoaderDataType<C>, LiveLoaderErrorType<C>>
+	>;
 
 	export function getEntry<
 		C extends keyof ContentEntryMap,
@@ -188,8 +190,9 @@ declare module 'astro:content' {
 		ExtractEntryFilterType<LiveContentConfig['collections'][C]['loader']>;
 	type LiveLoaderCollectionFilterType<C extends keyof LiveContentConfig['collections']> =
 		ExtractCollectionFilterType<LiveContentConfig['collections'][C]['loader']>;
-	type LiveLoaderErrorType<C extends keyof LiveContentConfig['collections']> =
-		ExtractErrorType<LiveContentConfig['collections'][C]['loader']>;
+	type LiveLoaderErrorType<C extends keyof LiveContentConfig['collections']> = ExtractErrorType<
+		LiveContentConfig['collections'][C]['loader']
+	>;
 
 	export type ContentConfig = '@@CONTENT_CONFIG_TYPE@@';
 	export type LiveContentConfig = '@@LIVE_CONTENT_CONFIG_TYPE@@';
