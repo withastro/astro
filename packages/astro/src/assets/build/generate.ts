@@ -83,7 +83,7 @@ export async function prepareAssetsGenerationEnv(
 	}
 
 	const contentHashMap = new Map();
-	
+
 	// Pre-populate contentHashMap with existing SVG files from Vite build
 	// This enables content-based deduplication across build phases
 	try {
@@ -192,7 +192,7 @@ export async function generateImagesForPath(
 			try {
 				const sourceContent = await fs.promises.readFile(sourceFilePath);
 				const contentHash = createHash('sha256').update(sourceContent).digest('hex').slice(0, 16);
-				
+
 				// Check if we already have a file with this content
 				const existingFile = env.contentHashMap.get(contentHash);
 				if (existingFile && existingFile !== filepath) {
@@ -200,9 +200,12 @@ export async function generateImagesForPath(
 					const existingFileURL = new URL('.' + existingFile, env.clientRoot);
 					try {
 						await fs.promises.link(existingFileURL, finalFileURL);
-						env.logger.info(null, `  ${green('▶')} ${filepath} (deduplicated from ${existingFile})`);
+						env.logger.info(
+							null,
+							`  ${green('▶')} ${filepath} (deduplicated from ${existingFile})`,
+						);
 						return { cached: 'hit' };
-					} catch (e) {
+					} catch (_e) {
 						// If hard linking fails, try copying
 						try {
 							await fs.promises.copyFile(existingFileURL, finalFileURL);
