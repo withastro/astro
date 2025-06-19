@@ -182,7 +182,7 @@ export async function runHookConfigSetup({
 	if (settings.config.adapter) {
 		settings.config.integrations.unshift(settings.config.adapter);
 	}
-	const actionsFilename = await isActionsFilePresent(fs, settings.config.srcDir)
+	const actionsFilename = await isActionsFilePresent(fs, settings.config.srcDir);
 	if (actionsFilename) {
 		settings.config.integrations.push(
 			astroIntegrationActionsRouteHandler({ settings, filename: actionsFilename }),
