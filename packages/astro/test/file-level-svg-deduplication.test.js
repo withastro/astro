@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
@@ -19,7 +20,7 @@ describe('SVG File-Level Deduplication', () => {
 	it('should prevent duplicate SVG files from being generated at file level', async () => {
 		// Get all SVG files from the dist directory
 		const distDir = fixture.config.outDir;
-		const assetsDir = join(distDir.pathname, '_astro');
+		const assetsDir = join(fileURLToPath(distDir), '_astro');
 
 		let svgFiles = [];
 		try {
@@ -111,8 +112,7 @@ describe('SVG File-Level Deduplication', () => {
 
 	it('should verify source files are actually identical', async () => {
 		// Verify our test setup is correct - use fixture root directory
-		const fixtureRoot = new URL('./fixtures/file-level-svg-deduplication/', import.meta.url)
-			.pathname;
+		const fixtureRoot = fileURLToPath(new URL('./fixtures/file-level-svg-deduplication/', import.meta.url));
 		const duplicate1Path = join(fixtureRoot, 'src/assets/duplicate1.svg');
 		const duplicate2Path = join(fixtureRoot, 'src/assets/duplicate2.svg');
 		const uniquePath = join(fixtureRoot, 'src/assets/unique.svg');
@@ -167,14 +167,13 @@ describe('SVG File-Level Deduplication', () => {
 
 	it('should have fewer physical SVG files than source files when deduplication works', async () => {
 		// Count source SVG files
-		const fixtureRoot = new URL('./fixtures/file-level-svg-deduplication/', import.meta.url)
-			.pathname;
+		const fixtureRoot = fileURLToPath(new URL('./fixtures/file-level-svg-deduplication/', import.meta.url));
 		const sourceDir = join(fixtureRoot, 'src/assets');
 		const sourceFiles = readdirSync(sourceDir).filter((file) => file.endsWith('.svg'));
 
 		// Count unique generated SVG files by inode
 		const distDir = fixture.config.outDir;
-		const assetsDir = join(distDir.pathname, '_astro');
+		const assetsDir = join(fileURLToPath(distDir), '_astro');
 		const distFiles = readdirSync(assetsDir).filter((file) => file.endsWith('.svg'));
 
 		// Count unique physical files
