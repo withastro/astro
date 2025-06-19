@@ -1352,7 +1352,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @description
 		 * The default object-fit value for responsive images. Can be overridden by the `fit` prop on the image component.
 		 * Requires a value for `layout` to be set.
-		 * 
+		 *
 		 * See [the `fit` component property](https://docs.astro.build/en/reference/modules/astro-assets/#fit) for more details.
 		 */
 		objectFit?: ImageFit;
@@ -1365,7 +1365,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @description
 		 * The default object-position value for responsive images. Can be overridden by the `position` prop on the image component.
 		 * Requires a value for `layout` to be set.
-		 * 
+		 *
 		 * See [the `position` component property](https://docs.astro.build/en/reference/modules/astro-assets/#position) for more details.
 		 */
 		objectPosition?: string;
@@ -1390,7 +1390,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @description
 		 * Whether to automatically add global styles for responsive images. You should enable this option unless you are styling the images yourself.
 		 * This option is only used when `layout` is set to `constrained`, `full-width`, or `fixed` using the configuration or the `layout` prop on the image component.
-		 * 
+		 *
 		 * See [the images docs](https://docs.astro.build/en/guides/images/#responsive-image-styles) for more information.
 		 */
 		responsiveStyles?: boolean;
