@@ -1,5 +1,15 @@
 # astro
 
+## 5.10.1
+
+### Patch Changes
+
+- [#13909](https://github.com/withastro/astro/pull/13909) [`b258d86`](https://github.com/withastro/astro/commit/b258d86d47086d3a17d6d9e6b79ac21f9770f765) Thanks [@isVivek99](https://github.com/isVivek99)! - Fixes rendering of special boolean attributes for custom elements
+
+- [#13983](https://github.com/withastro/astro/pull/13983) [`e718375`](https://github.com/withastro/astro/commit/e718375c1714a631eba75f70118653cf93a4326d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the toolbar audit would incorrectly flag images processed by Astro in content collections documents
+
+- [#13985](https://github.com/withastro/astro/pull/13985) [`0b4c641`](https://github.com/withastro/astro/commit/0b4c641b22b31d0dea15911c0daba995a48261a9) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates wrong link
+
 ## 5.10.0
 
 ### Minor Changes
