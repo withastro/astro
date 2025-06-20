@@ -22,11 +22,13 @@ import { viteID } from '../dist/core/util.js';
  */
 export default function ({
 	provideAddress = true,
+	staticHeaders = false,
 	extendAdapter,
 	setEntryPoints,
 	setMiddlewareEntryPoint,
 	setRoutes,
 	setManifest,
+	setRouteToHeaders,
 	env,
 } = {}) {
 	return {
@@ -115,10 +117,10 @@ export default function ({
 						hybridOutput: 'stable',
 						assets: 'stable',
 						i18nDomains: 'stable',
-						cspHeader: 'stable',
 					},
 					adapterFeatures: {
 						buildOutput: 'server',
+						experimentalStaticHeaders: staticHeaders,
 					},
 					...extendAdapter,
 				});
@@ -137,6 +139,11 @@ export default function ({
 			'astro:build:done': ({ routes }) => {
 				if (setRoutes) {
 					setRoutes(routes);
+				}
+			},
+			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
+				if (setRouteToHeaders) {
+					setRouteToHeaders(experimentalRouteToHeaders);
 				}
 			},
 		},
