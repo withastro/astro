@@ -1,19 +1,23 @@
-import type nodeFs from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import * as vite from 'vite';
-import { globalContentLayer } from '../../content/content-layer.js';
-import { attachContentServerListeners } from '../../content/server-listeners.js';
-import { eventCliSession, telemetry } from '../../events/index.js';
-import { SETTINGS_FILE } from '../../preferences/constants.js';
-import type { AstroSettings } from '../../types/astro.js';
-import type { AstroInlineConfig } from '../../types/public/config.js';
-import { createNodeLogger, createSettings, resolveConfig } from '../config/index.js';
-import { collectErrorMetadata } from '../errors/dev/utils.js';
-import { isAstroConfigZodError } from '../errors/errors.js';
-import { createSafeError } from '../errors/index.js';
-import { formatErrorMessage } from '../messages.js';
-import type { Container } from './container.js';
-import { createContainer, startContainer } from './container.js';
+import type nodeFs from "node:fs";
+import { fileURLToPath } from "node:url";
+import * as vite from "vite";
+import { globalContentLayer } from "../../content/content-layer.js";
+import { attachContentServerListeners } from "../../content/server-listeners.js";
+import { eventCliSession, telemetry } from "../../events/index.js";
+import { SETTINGS_FILE } from "../../preferences/constants.js";
+import type { AstroSettings } from "../../types/astro.js";
+import type { AstroInlineConfig } from "../../types/public/config.js";
+import {
+	createNodeLogger,
+	createSettings,
+	resolveConfig,
+} from "../config/index.js";
+import { collectErrorMetadata } from "../errors/dev/utils.js";
+import { isAstroConfigZodError } from "../errors/errors.js";
+import { createSafeError } from "../errors/index.js";
+import { formatErrorMessage } from "../messages.js";
+import type { Container } from "./container.js";
+import { createContainer, startContainer } from "./container.js";
 
 async function createRestartedContainer(
 	container: Container,
@@ -46,7 +50,8 @@ function shouldRestartContainer(
 
 	// If the config file changed, reload the config and restart the server.
 	if (inlineConfig.configFile) {
-		shouldRestart = vite.normalizePath(inlineConfig.configFile) === normalizedChangedFile;
+		shouldRestart =
+			vite.normalizePath(inlineConfig.configFile) === normalizedChangedFile;
 	}
 	// Otherwise, watch for any astro.config.* file changes in project root
 	else {
@@ -55,7 +60,9 @@ function shouldRestartContainer(
 			fileURLToPath(new URL(SETTINGS_FILE, settings.dotAstroDir)),
 		);
 		if (settingsPath.endsWith(normalizedChangedFile)) {
-			shouldRestart = settings.preferences.ignoreNextPreferenceReload ? false : true;
+			shouldRestart = settings.preferences.ignoreNextPreferenceReload
+				? false
+				: true;
 
 			settings.preferences.ignoreNextPreferenceReload = false;
 		}
@@ -71,13 +78,28 @@ function shouldRestartContainer(
 	return shouldRestart;
 }
 
-async function restartContainer(container: Container): Promise<Container | Error> {
+async function restartContainer(
+	container: Container,
+): Promise<Container | Error> {
 	const { logger, close, settings: existingSettings } = container;
 	container.restartInFlight = true;
 
 	try {
-		const { astroConfig } = await resolveConfig(container.inlineConfig, 'dev', container.fs);
-		const settings = await createSettings(astroConfig, fileURLToPath(existingSettings.config.root));
+		const { astroConfig } = await resolveConfig(
+			container.inlineConfig,
+			"dev",
+			container.fs,
+		);
+		if (astroConfig.experimental.csp) {
+			logger.info(
+				"config",
+				"Be aware that due to the nature of the development server, CSP won't work as expected. To see the final results, you have to build the project and run the preview server.",
+			);
+		}
+		const settings = await createSettings(
+			astroConfig,
+			fileURLToPath(existingSettings.config.root),
+		);
 		await close();
 		return await createRestartedContainer(container, settings);
 	} catch (_err) {
@@ -85,20 +107,23 @@ async function restartContainer(container: Container): Promise<Container | Error
 		// Print all error messages except ZodErrors from AstroConfig as the pre-logged error is sufficient
 		if (!isAstroConfigZodError(_err)) {
 			logger.error(
-				'config',
-				formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
+				"config",
+				formatErrorMessage(
+					collectErrorMetadata(error),
+					logger.level() === "debug",
+				) + "\n",
 			);
 		}
 		// Inform connected clients of the config error
 		container.viteServer.hot.send({
-			type: 'error',
+			type: "error",
 			err: {
 				message: error.message,
-				stack: error.stack || '',
+				stack: error.stack || "",
 			},
 		});
 		container.restartInFlight = false;
-		logger.error(null, 'Continuing with previous valid configuration\n');
+		logger.error(null, "Continuing with previous valid configuration\n");
 		return error;
 	}
 }
@@ -118,12 +143,30 @@ export async function createContainerWithAutomaticRestart({
 	fs,
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
 	const logger = createNodeLogger(inlineConfig ?? {});
-	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
-	telemetry.record(eventCliSession('dev', userConfig));
+	const { userConfig, astroConfig } = await resolveConfig(
+		inlineConfig ?? {},
+		"dev",
+		fs,
+	);
+	if (astroConfig.experimental.csp) {
+		logger.info(
+			"config",
+			"Be aware that due to the nature of the development server, CSP won't work as expected. To see the final results, you have to build the project and run the preview server.",
+		);
+	}
+	telemetry.record(eventCliSession("dev", userConfig));
 
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const settings = await createSettings(
+		astroConfig,
+		fileURLToPath(astroConfig.root),
+	);
 
-	const initialContainer = await createContainer({ settings, logger: logger, inlineConfig, fs });
+	const initialContainer = await createContainer({
+		settings,
+		logger: logger,
+		inlineConfig,
+		fs,
+	});
 
 	let resolveRestart: (value: Error | null) => void;
 	let restartComplete = new Promise<Error | null>((resolve) => {
@@ -137,8 +180,8 @@ export async function createContainerWithAutomaticRestart({
 		},
 	};
 
-	async function handleServerRestart(logMsg = '', server?: vite.ViteDevServer) {
-		logger.info(null, (logMsg + ' Restarting...').trim());
+	async function handleServerRestart(logMsg = "", server?: vite.ViteDevServer) {
+		logger.info(null, (logMsg + " Restarting...").trim());
 		const container = restart.container;
 		const result = await restartContainer(container);
 		if (result instanceof Error) {
@@ -173,15 +216,15 @@ export async function createContainerWithAutomaticRestart({
 	// Set up watchers, vite restart API, and shortcuts
 	function setupContainer() {
 		const watcher = restart.container.viteServer.watcher;
-		watcher.on('change', handleChangeRestart('Configuration file updated.'));
-		watcher.on('unlink', handleChangeRestart('Configuration file removed.'));
-		watcher.on('add', handleChangeRestart('Configuration file added.'));
+		watcher.on("change", handleChangeRestart("Configuration file updated."));
+		watcher.on("unlink", handleChangeRestart("Configuration file removed."));
+		watcher.on("add", handleChangeRestart("Configuration file added."));
 
 		// Restart the Astro dev server instead of Vite's when the API is called by plugins.
 		// Ignore the `forceOptimize` parameter for now.
 		restart.container.viteServer.restart = async () => {
 			if (!restart.container.restartInFlight) {
-				await handleServerRestart('', restart.container.viteServer);
+				await handleServerRestart("", restart.container.viteServer);
 			}
 		};
 
@@ -189,14 +232,14 @@ export async function createContainerWithAutomaticRestart({
 
 		const customShortcuts: Array<vite.CLIShortcut> = [
 			// Disable default Vite shortcuts that don't work well with Astro
-			{ key: 'r', description: '' },
-			{ key: 'u', description: '' },
-			{ key: 'c', description: '' },
+			{ key: "r", description: "" },
+			{ key: "u", description: "" },
+			{ key: "c", description: "" },
 		];
 
 		customShortcuts.push({
-			key: 's',
-			description: 'sync content layer',
+			key: "s",
+			description: "sync content layer",
 			action: () => {
 				globalContentLayer.get()?.sync();
 			},
