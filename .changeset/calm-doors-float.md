@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-fixes rendering of htmlBooleanAttributes for hyphenated components
+Fixes rendering of special boolean attributes for custom elements
