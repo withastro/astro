@@ -649,6 +649,10 @@ importers:
       zod-to-ts:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.8.3)(zod@3.24.2)
+    optionalDependencies:
+      sharp:
+        specifier: ^0.33.3
+        version: 0.33.5
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.4
@@ -758,10 +762,6 @@ importers:
       vitest:
         specifier: ^3.0.9
         version: 3.1.1(@types/debug@4.1.12)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.5.1)
-    optionalDependencies:
-      sharp:
-        specifier: ^0.33.3
-        version: 0.33.5
 
   packages/astro-prism:
     dependencies:
@@ -3166,6 +3166,12 @@ importers:
       vue:
         specifier: ^3.5.13
         version: 3.5.16(typescript@5.8.3)
+
+  packages/astro/test/fixtures/file-level-svg-deduplication:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/fonts:
     dependencies:

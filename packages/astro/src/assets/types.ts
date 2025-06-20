@@ -26,6 +26,8 @@ declare global {
 			| undefined;
 		staticImages?: AssetsGlobalStaticImagesList;
 		referencedImages?: Set<string>;
+		// Track Vite-emitted assets to prevent duplicates
+		viteEmittedAssets?: Map<string, string>;
 	};
 }
 
