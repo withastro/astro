@@ -6,6 +6,7 @@ import { BlobsServer } from '@netlify/blobs/server';
 import * as devalue from 'devalue';
 import { loadFixture } from '../../../../astro/test/test-utils.js';
 import netlify from '../../dist/index.js';
+
 const token = 'mock';
 const siteID = '1';
 const dataDir = '.netlify/sessions';

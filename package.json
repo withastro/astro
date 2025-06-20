@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "2.0.0",
     "@changesets/changelog-github": "^0.5.1",
     "@changesets/cli": "^2.28.1",
     "@types/node": "^18.19.50",

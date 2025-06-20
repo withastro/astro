@@ -4,8 +4,7 @@ import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
-import { hasPrimaryKey } from '../../runtime/index.js';
-import { createRemoteDatabaseClient } from '../../runtime/index.js';
+import { createRemoteDatabaseClient, hasPrimaryKey } from '../../runtime/index.js';
 import { isSerializedSQL } from '../../runtime/types.js';
 import { isDbError, safeFetch } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
@@ -23,11 +22,11 @@ import { columnSchema } from '../schemas.js';
 import type {
 	BooleanColumn,
 	ColumnType,
+	DateColumn,
 	DBColumn,
 	DBColumns,
 	DBConfig,
 	DBSnapshot,
-	DateColumn,
 	JsonColumn,
 	NumberColumn,
 	ResolvedDBTable,

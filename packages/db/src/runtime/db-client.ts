@@ -1,8 +1,8 @@
 import type { InStatement } from '@libsql/client';
-import { type Config as LibSQLConfig, createClient } from '@libsql/client';
+import { createClient, type Config as LibSQLConfig } from '@libsql/client';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
-import { type SqliteRemoteDatabase, drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
+import { drizzle as drizzleProxy, type SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import { z } from 'zod';
 import { DetailedLibsqlError, safeFetch } from './utils.js';
 

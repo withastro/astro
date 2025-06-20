@@ -14,7 +14,10 @@ export function createDevUrlResolver({ base }: { base: string }): UrlResolver {
 export function createBuildUrlResolver({
 	base,
 	assetsPrefix,
-}: { base: string; assetsPrefix: AssetsPrefix }): UrlResolver {
+}: {
+	base: string;
+	assetsPrefix: AssetsPrefix;
+}): UrlResolver {
 	return {
 		resolve(hash) {
 			const prefix = assetsPrefix ? getAssetsPrefix(fileExtension(hash), assetsPrefix) : undefined;

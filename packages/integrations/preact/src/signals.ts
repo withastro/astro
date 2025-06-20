@@ -5,8 +5,8 @@ import type {
 	AstroPreactAttrs,
 	PropNameToSignalMap,
 	SignalLike,
-	SignalToKeyOrIndexMap,
 	Signals,
+	SignalToKeyOrIndexMap,
 } from './types.js';
 
 function isSignal(x: any): x is SignalLike {

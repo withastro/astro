@@ -1,12 +1,11 @@
-import type * as vite from 'vite';
-import type { AstroSettings } from '../types/astro.js';
-
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import { bold } from 'kleur/colors';
+import type * as vite from 'vite';
 import type { Logger } from '../core/logger/core.js';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../template/4xx.js';
+import type { AstroSettings } from '../types/astro.js';
 import { writeHtmlResponse } from './response.js';
 
 export function baseMiddleware(
