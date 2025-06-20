@@ -80,7 +80,7 @@ async function restartContainer(container: Container): Promise<Container | Error
 		if (astroConfig.experimental.csp) {
 			logger.info(
 				'config',
-				"Be aware that due to the nature of the development server, CSP won't work as expected. To see the final results, you have to build the project and run the preview server.",
+				"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
 			);
 		}
 		const settings = await createSettings(astroConfig, fileURLToPath(existingSettings.config.root));
