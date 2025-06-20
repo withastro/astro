@@ -1711,7 +1711,7 @@ export const ContentEntryDataError = {
  * @description
  * Error in live content config.
  * @see
- * - [Experimental live content](https://astro.build/en/reference/experimental-flags/live-content-collections/)
+ * - [Experimental live content](https://docs.astro.build/en/reference/experimental-flags/live-content-collections/)
  */
 
 export const LiveContentConfigError = {
