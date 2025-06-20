@@ -139,3 +139,11 @@ export type SerializedSSRManifest = Omit<
 	serverIslandNameMap: [string, string][];
 	key: string;
 };
+
+export type NodeAppHeadersJson = {
+	source: string;
+	headers: {
+		key: string;
+		value: string;
+	}[];
+}[];
