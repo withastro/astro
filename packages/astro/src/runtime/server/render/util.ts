@@ -79,7 +79,10 @@ function handleBooleanAttribute(
 }
 
 // A helper used to turn expressions into attribute key/value
-export function addAttribute(value: any, key: string, shouldEscape = true, tagName: string='') {
+// In the compiler, addAttribute is only printed to process attributes of elements
+// that may contain dynamic values. We don't need to pass tagName to addAttribute
+// on the compiler side because it is used only for custom elements
+export function addAttribute(value: any, key: string, shouldEscape = true, tagName = '') {
 	if (value == null) {
 		return '';
 	}
