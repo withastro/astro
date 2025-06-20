@@ -12,7 +12,7 @@ function getImporterFilename() {
 				!line.includes('defineCollection') &&
 				!line.includes('defineLiveCollection') &&
 				!line.includes('getImporterFilename') &&
-				line !== 'Error',
+				!line.startsWith('Error'),
 		);
 	if (!stackLine) {
 		return undefined;
