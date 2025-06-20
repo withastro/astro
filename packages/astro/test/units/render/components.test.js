@@ -183,13 +183,13 @@ describe('core/render components', () => {
 
 				await done;
 				const html = await text();
-				
+
 				// Extract test data - following same pattern as class merging test
 				const hasSelectedBlue = html.includes('selected="blue"');
 				const hasAutoplay2000 = html.includes('autoplay="2000"');
 				const hasBooleanSelected = html.includes('<color-picker selected>');
 				const hasBooleanAutoplay = html.includes('<test-a autoplay>');
-				
+
 				// Test custom elements render string attributes correctly
 				assert.ok(hasSelectedBlue, 'selected="blue"');
 				assert.ok(hasAutoplay2000, 'autoplay="2000"');
@@ -198,5 +198,4 @@ describe('core/render components', () => {
 			},
 		);
 	});
-
 });

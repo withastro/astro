@@ -68,7 +68,7 @@ function handleBooleanAttribute(
 	key: string,
 	value: any,
 	shouldEscape: boolean,
-	tagName?: string
+	tagName?: string,
 ): string {
 	// For custom elements, always render as string attributes
 	if (tagName && isCustomElement(tagName)) {
@@ -86,8 +86,6 @@ export function addAttribute(value: any, key: string, shouldEscape = true, tagNa
 	if (value == null) {
 		return '';
 	}
-
-	
 
 	// compiler directives cannot be applied dynamically, log a warning and ignore.
 	if (STATIC_DIRECTIVES.has(key)) {
