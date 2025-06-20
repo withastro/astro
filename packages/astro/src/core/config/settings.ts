@@ -9,7 +9,12 @@ import type { AstroConfig } from '../../types/public/config.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { formatTOMLError, formatYAMLException, isTOMLError, isYAMLException } from '../errors/utils.js';
+import {
+	formatTOMLError,
+	formatYAMLException,
+	isTOMLError,
+	isYAMLException,
+} from '../errors/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';

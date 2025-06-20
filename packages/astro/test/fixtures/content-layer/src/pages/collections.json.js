@@ -33,6 +33,8 @@ export async function GET() {
 
 	const nestedJsonLoader = await getCollection('birds');
 	
+	const csvLoader = await getCollection('plants');
+	
 	const numbers = await getCollection('numbers');
 
 	const numbersYaml = await getCollection('numbersYaml');
@@ -58,6 +60,7 @@ export async function GET() {
 			yamlLoader,
 			tomlLoader,
 			nestedJsonLoader,
+			csvLoader,
 			atlantis,
 			spacecraft: spacecraft.map(({id}) => id).sort((a, b) => a.localeCompare(b)),
 		})

@@ -149,13 +149,32 @@ describe('Content Layer', () => {
 			]);
 		});
 
+		it('Returns csv `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('csvLoader'));
+			assert.ok(Array.isArray(json.csvLoader));
+
+			const ids = json.csvLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, [
+				'lavender',
+				'rose',
+				'sunflower',
+				'basil',
+				'thyme',
+				'sage',
+				'daisy',
+				'marigold',
+				'chamomile',
+				'fern',
+			]);
+		});
+
 		it('Returns yaml `glob()` loader collection', async () => {
 			assert.ok(json.hasOwnProperty('numbersYaml'));
 			assert.ok(Array.isArray(json.numbersYaml));
 
 			const titles = json.numbersYaml.map((item) => item.data.title).sort();
 			assert.deepEqual(titles, ['One', 'Three', 'Two']);
-		});		
+		});
 
 		it('Returns toml `glob()` loader collection', async () => {
 			assert.ok(json.hasOwnProperty('numbersToml'));

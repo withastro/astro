@@ -129,6 +129,22 @@ const birds = defineCollection({
 	}),
 });
 
+const plants = defineCollection({
+	loader: file('src/data/plants.csv', {
+		parser: (text) => {
+			const [headers, ...rows] = text.trim().split('\n');
+			return rows.map(row => Object.fromEntries(
+			    headers.split(',').map((h, i) => [h, row.split(',')[i]])
+			));
+		},
+	}),
+	schema: z.object({
+		id: z.string(),
+		common_name: z.string(),
+		scientific_name: z.string(),
+		color: z.string(),
+	}),
+});
 
 const probes = defineCollection({
 	loader: glob({ pattern: ['*.md', '!voyager-*'], base: 'src/data/space-probes' }),
@@ -243,6 +259,7 @@ export const collections = {
 	cats,
 	fish,
 	birds,
+	plants,
 	numbers,
 	numbersToml,
 	numbersYaml,
