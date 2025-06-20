@@ -33,8 +33,14 @@ export async function GET() {
 
 	const nestedJsonLoader = await getCollection('birds');
 	
+	const csvLoader = await getCollection('plants');
+	
 	const numbers = await getCollection('numbers');
 
+	const numbersYaml = await getCollection('numbersYaml');
+
+	const numbersToml = await getCollection('numbersToml');
+	
 	return new Response(
 		devalue.stringify({
 			customLoader,
@@ -47,11 +53,14 @@ export async function GET() {
 			referencedEntry,
 			increment,
 			numbers,
+			numbersYaml,
+			numbersToml,
 			images, 
 			probes,
 			yamlLoader,
 			tomlLoader,
 			nestedJsonLoader,
+			csvLoader,
 			atlantis,
 			spacecraft: spacecraft.map(({id}) => id).sort((a, b) => a.localeCompare(b)),
 		})
