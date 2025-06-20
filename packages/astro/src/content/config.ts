@@ -113,7 +113,7 @@ export function defineLiveCollection<
 	S extends BaseSchema | undefined = undefined,
 >(config: LiveCollectionConfig<L, S>): LiveCollectionConfig<L, S> {
 	const importerFilename = getImporterFilename();
-	if (!importerFilename?.includes('live.config')) {
+	if (importerFilename && !importerFilename.includes('live.config')) {
 		throw new AstroError({
 			...AstroErrorData.LiveContentConfigError,
 			message: AstroErrorData.LiveContentConfigError.message(
