@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { ensureProcessNodeEnv } from '../../core/util.js';
-import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
 
 export async function check(flags: Flags) {

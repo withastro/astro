@@ -1,5 +1,5 @@
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
-import { Component as BaseComponent, type VNode, h } from 'preact';
+import { Component as BaseComponent, h, type VNode } from 'preact';
 import { renderToStringAsync } from 'preact-render-to-string';
 import { getContext } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';

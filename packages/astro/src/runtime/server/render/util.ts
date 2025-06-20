@@ -1,9 +1,8 @@
-import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
-
 import { clsx } from 'clsx';
 import type { SSRElement } from '../../../types/public/internal.js';
 import { HTMLString, markHTMLString } from '../escape.js';
 import { isPromise } from '../util.js';
+import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;

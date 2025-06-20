@@ -3,10 +3,10 @@ import { stringify as rawStringify, unflatten as rawUnflatten } from 'devalue';
 import {
 	type BuiltinDriverName,
 	type BuiltinDriverOptions,
-	type Driver,
-	type Storage,
 	builtinDrivers,
 	createStorage,
+	type Driver,
+	type Storage,
 } from 'unstorage';
 import type {
 	ResolvedSessionConfig,
@@ -14,8 +14,7 @@ import type {
 	SessionConfig,
 	SessionDriverName,
 } from '../types/public/config.js';
-import type { AstroCookies } from './cookies/cookies.js';
-import type { AstroCookieSetOptions } from './cookies/cookies.js';
+import type { AstroCookieSetOptions, AstroCookies } from './cookies/cookies.js';
 import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 

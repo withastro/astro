@@ -28,6 +28,7 @@ function getSettings() {
 	}
 
 	function log(message: string, level: 'log' | 'warn' | 'error' = 'log') {
+		// biome-ignore lint/suspicious/noConsole: it can't infer types yet
 		console[level](
 			`%cAstro`,
 			'background: linear-gradient(66.77deg, #D83333 0%, #F041FF 100%); color: white; padding-inline: 4px; border-radius: 2px; font-family: monospace;',

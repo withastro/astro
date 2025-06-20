@@ -4,17 +4,17 @@ import type { AstroConfig } from '../types/public/config.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
 import {
 	DEFAULT_RESOLUTIONS,
-	LIMITED_RESOLUTIONS,
 	getSizesAttribute,
 	getWidths,
+	LIMITED_RESOLUTIONS,
 } from './layout.js';
 import { type ImageService, isLocalService } from './services/service.js';
 import {
 	type GetImageResult,
 	type ImageTransform,
+	isImageMetadata,
 	type SrcSetValue,
 	type UnresolvedImageTransform,
-	isImageMetadata,
 } from './types.js';
 import { addCSSVarsToStyle, cssFitValues } from './utils/imageAttributes.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';

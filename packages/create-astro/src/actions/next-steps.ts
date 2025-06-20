@@ -1,7 +1,6 @@
 import path from 'node:path';
-import type { Context } from './context.js';
-
 import { nextSteps, say } from '../messages.js';
+import type { Context } from './context.js';
 
 export async function next(
 	ctx: Pick<Context, 'hat' | 'tie' | 'cwd' | 'packageManager' | 'skipHouston'>,

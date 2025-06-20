@@ -1,8 +1,7 @@
 import nodePath from 'node:path';
 import { isRemotePath, removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
-import type { AstroConfig, IntegrationResolvedRoute, RoutePart } from 'astro';
-
 import type { Redirect } from '@vercel/routing-utils';
+import type { AstroConfig, IntegrationResolvedRoute, RoutePart } from 'astro';
 
 const pathJoin = nodePath.posix.join;
 

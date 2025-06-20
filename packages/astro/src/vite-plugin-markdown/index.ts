@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-	type MarkdownProcessor,
 	createMarkdownProcessor,
 	isFrontmatterValid,
+	type MarkdownProcessor,
 } from '@astrojs/markdown-remark';
 import type { Plugin } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
@@ -15,7 +15,7 @@ import { shorthash } from '../runtime/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { type MarkdownImagePath, getMarkdownCodeForImages } from './images.js';
+import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;

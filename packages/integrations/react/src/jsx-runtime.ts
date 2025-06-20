@@ -3,6 +3,7 @@
 // So we have to use the .js. The .js is not added via the babel automatic JSX transform
 // hence this module as a workaround.
 import jsxr from 'react/jsx-runtime';
+
 const { jsx, jsxs, Fragment } = jsxr;
 
 export { jsx, jsxs, Fragment };

@@ -3,13 +3,14 @@ import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type {
 	AstroFontProvider,
+	FontFaceMetrics,
 	FontFileData,
 	FontType,
+	GenericFallbackName,
 	PreloadData,
 	ResolvedFontProvider,
 	Style,
 } from './types.js';
-import type { FontFaceMetrics, GenericFallbackName } from './types.js';
 
 export interface Hasher {
 	hashString: (input: string) => string;

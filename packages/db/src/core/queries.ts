@@ -12,9 +12,9 @@ import { isSerializedSQL } from '../runtime/types.js';
 import type {
 	BooleanColumn,
 	ColumnType,
+	DateColumn,
 	DBColumn,
 	DBTable,
-	DateColumn,
 	JsonColumn,
 	NumberColumn,
 	TextColumn,
@@ -191,7 +191,7 @@ function getDefaultValueSql(columnName: string, column: DBColumnWithDefault): st
 			try {
 				stringified = JSON.stringify(column.schema.default);
 			} catch {
-				// biome-ignore lint/suspicious/noConsoleLog: allowed
+				// biome-ignore lint/suspicious/noConsole: allowed
 				console.log(
 					`Invalid default value for column ${bold(
 						columnName,

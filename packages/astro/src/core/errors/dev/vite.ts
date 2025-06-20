@@ -1,12 +1,12 @@
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { codeToHtml, createCssVariablesTheme } from 'shiki';
 import type { ShikiTransformer } from 'shiki';
+import { codeToHtml, createCssVariablesTheme } from 'shiki';
 import type { ErrorPayload } from 'vite';
 import type { SSRLoadedRenderer } from '../../../types/public/internal.js';
 import type { ModuleLoader } from '../../module-loader/index.js';
-import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
 import { AstroError, type ErrorWithMetadata } from '../errors.js';
+import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
 import { createSafeError } from '../utils.js';
 import { getDocsForError, renderErrorMarkdown } from './utils.js';
 

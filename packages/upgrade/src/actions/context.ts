@@ -43,11 +43,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		// used for installation take precedence
 		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
 	})) ?? { agent: 'npm', name: 'npm' };
-	const {
-		_: [version = 'latest'] = [],
-		'--help': help = false,
-		'--dry-run': dryRun,
-	} = flags;
+	const { _: [version = 'latest'] = [], '--help': help = false, '--dry-run': dryRun } = flags;
 
 	return {
 		help,

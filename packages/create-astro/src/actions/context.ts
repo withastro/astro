@@ -1,5 +1,5 @@
 import os from 'node:os';
-import { type Task, prompt } from '@astrojs/cli-kit';
+import { prompt, type Task } from '@astrojs/cli-kit';
 import { random } from '@astrojs/cli-kit/utils';
 import arg from 'arg';
 

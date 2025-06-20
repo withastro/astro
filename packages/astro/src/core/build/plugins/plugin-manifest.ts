@@ -10,10 +10,10 @@ import { toFallbackType, toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type {
-	SSRManifestCSP,
-	SSRManifestI18n,
 	SerializedRouteInfo,
 	SerializedSSRManifest,
+	SSRManifestCSP,
+	SSRManifestI18n,
 } from '../../app/types.js';
 import {
 	getAlgorithm,

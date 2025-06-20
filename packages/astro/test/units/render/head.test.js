@@ -3,8 +3,8 @@ import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { RenderContext } from '../../../dist/core/render-context.js';
 import {
-	Fragment,
 	createComponent,
+	Fragment,
 	maybeRenderHead,
 	render,
 	renderComponent,

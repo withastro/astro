@@ -1,11 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
+	find,
+	parse,
 	TSConfckParseError,
 	type TSConfckParseOptions,
 	type TSConfckParseResult,
-	find,
-	parse,
 	toJson,
 } from 'tsconfck';
 import type { CompilerOptions, TypeAcquisition } from 'typescript';

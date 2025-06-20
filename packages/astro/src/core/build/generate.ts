@@ -45,16 +45,15 @@ import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
-import { RenderContext } from '../render-context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
+import { RenderContext } from '../render-context.js';
 import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
-import { type BuildInternals, hasPrerenderedPages } from './internal.js';
-import { cssOrder, mergeInlineCss } from './internal.js';
+import { type BuildInternals, cssOrder, hasPrerenderedPages, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type {
 	PageBuildData,

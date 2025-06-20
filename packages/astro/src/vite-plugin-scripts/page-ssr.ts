@@ -1,5 +1,5 @@
 import MagicString from 'magic-string';
-import { type Plugin as VitePlugin, normalizePath } from 'vite';
+import { normalizePath, type Plugin as VitePlugin } from 'vite';
 import { isPage } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import { PAGE_SSR_SCRIPT_ID } from './index.js';

@@ -1,7 +1,7 @@
 import type { SSRResult } from '../../types/public/internal.js';
-import { ISLAND_STYLES } from './astro-island-styles.js';
-import islandScriptDev from './astro-island.prebuilt-dev.js';
 import islandScript from './astro-island.prebuilt.js';
+import islandScriptDev from './astro-island.prebuilt-dev.js';
+import { ISLAND_STYLES } from './astro-island-styles.js';
 
 export function determineIfNeedsHydrationScript(result: SSRResult): boolean {
 	if (result._metadata.hasHydrationScript) {

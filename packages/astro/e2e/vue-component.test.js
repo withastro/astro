@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 import { prepareTestFactory } from './shared-component-tests.js';
+
 const { test, createTests } = prepareTestFactory(import.meta.url, {
 	root: './fixtures/vue-component/',
 });

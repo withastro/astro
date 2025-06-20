@@ -3,8 +3,8 @@ import type { APIContext } from '../../types/public/context.js';
 import { AstroCookies } from '../cookies/cookies.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
+import { getParams, type Pipeline } from '../render/index.js';
 import { apiContextRoutesSymbol } from '../render-context.js';
-import { type Pipeline, getParams } from '../render/index.js';
 import { setOriginPathname } from '../routing/rewrite.js';
 import { defineMiddleware } from './index.js';
 

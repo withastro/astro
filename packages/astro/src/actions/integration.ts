@@ -1,9 +1,9 @@
-import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
+import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
 import { viteID } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroIntegration } from '../types/public/integrations.js';
-import { ACTIONS_TYPES_FILE, ACTION_RPC_ROUTE_PATTERN, VIRTUAL_MODULE_ID } from './consts.js';
+import { ACTION_RPC_ROUTE_PATTERN, ACTIONS_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 
 /**
  * This integration is applied when the user is using Actions in their project.

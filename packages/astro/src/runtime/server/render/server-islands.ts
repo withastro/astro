@@ -2,7 +2,7 @@ import { encryptString, generateCspDigest } from '../../../core/encryption.js';
 import type { SSRResult } from '../../../types/public/internal.js';
 import { markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
-import { type ThinHead, createThinHead } from './astro/head-and-content.js';
+import { createThinHead, type ThinHead } from './astro/head-and-content.js';
 import type { RenderDestination } from './common.js';
 import { createRenderInstruction } from './instruction.js';
 import { type ComponentSlots, renderSlotToString } from './slot.js';

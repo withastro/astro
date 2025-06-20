@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { prependForwardSlash, slash } from '../core/path.js';
 import type { ModuleLoader } from './module-loader/index.js';
-import { VALID_ID_PREFIX, resolveJsToTs, unwrapId, viteID } from './util.js';
+import { resolveJsToTs, unwrapId, VALID_ID_PREFIX, viteID } from './util.js';
 
 const isWindows = typeof process !== 'undefined' && process.platform === 'win32';
 

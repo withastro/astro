@@ -1,7 +1,6 @@
-import mdx from '@astrojs/mdx';
-
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import mdx from '@astrojs/mdx';
 import { visit as estreeVisit } from 'estree-util-visit';
 import { parseHTML } from 'linkedom';
 import remarkToc from 'remark-toc';

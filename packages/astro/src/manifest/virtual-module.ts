@@ -4,8 +4,8 @@ import { fromRoutingStrategy } from '../i18n/utils.js';
 import type {
 	AstroConfig,
 	ClientDeserializedManifest,
-	SSRManifest,
 	ServerDeserializedManifest,
+	SSRManifest,
 } from '../types/public/index.js';
 
 const VIRTUAL_SERVER_ID = 'astro:config/server';

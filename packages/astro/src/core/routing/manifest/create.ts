@@ -1,6 +1,3 @@
-import type { AstroSettings, RoutesList } from '../../../types/astro.js';
-import type { Logger } from '../../logger/core.js';
-
 import nodeFs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -11,6 +8,7 @@ import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookRoutesResolved } from '../../../integrations/hooks.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
+import type { AstroSettings, RoutesList } from '../../../types/astro.js';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RouteData, RoutePart } from '../../../types/public/internal.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
@@ -19,6 +17,7 @@ import {
 	UnsupportedExternalRedirect,
 } from '../../errors/errors-data.js';
 import { AstroError } from '../../errors/index.js';
+import type { Logger } from '../../logger/core.js';
 import { hasFileExtension, removeLeadingForwardSlash, slash } from '../../path.js';
 import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 import { resolvePages } from '../../util.js';

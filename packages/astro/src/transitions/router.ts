@@ -1,5 +1,5 @@
 import type { TransitionBeforePreparationEvent } from './events.js';
-import { TRANSITION_AFTER_SWAP, doPreparation, doSwap } from './events.js';
+import { doPreparation, doSwap, TRANSITION_AFTER_SWAP } from './events.js';
 import { detectScriptExecuted } from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
 
@@ -564,7 +564,7 @@ async function transition(
 		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be caught when the trigger was a click or history traversal.
 		// Needs more investigation on root causes if errors still occur sporadically
 		const err = e as Error;
-		// biome-ignore lint/suspicious/noConsoleLog: allowed
+		// biome-ignore lint/suspicious/noConsole: allowed
 		console.log('[astro]', err.name, err.message, err.stack);
 	}
 }

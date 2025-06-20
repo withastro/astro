@@ -1,7 +1,7 @@
 import type { ResolvedDevToolbarApp as DevToolbarAppDefinition } from '../../../types/public/toolbar.js';
-import { type ToolbarAppEventTarget, serverHelpers } from './helpers.js';
+import { serverHelpers, type ToolbarAppEventTarget } from './helpers.js';
 import { settings } from './settings.js';
-import { type Icon, getIconElement, isDefinedIcon } from './ui-library/icons.js';
+import { getIconElement, type Icon, isDefinedIcon } from './ui-library/icons.js';
 import type { Placement } from './ui-library/window.js';
 
 export type DevToolbarApp = DevToolbarAppDefinition & {
