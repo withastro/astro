@@ -125,7 +125,8 @@ export async function createVite(
 	});
 
 	const srcDirPattern = convertPathToPattern(fileURLToPath(settings.config.srcDir));
-	const envLoader = createEnvLoader(mode, settings.config);
+	const astroEnvLoader = createEnvLoader(mode, settings.config, true);
+	const importMetaEnvLoader = createEnvLoader(mode, settings.config, false);
 
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
@@ -150,8 +151,8 @@ export async function createVite(
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			command === 'dev' && vitePluginAstroServer({ settings, logger, fs, routesList, manifest }), // manifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
-			importMetaEnv({ envLoader }),
-			astroEnv({ settings, sync, envLoader }),
+			importMetaEnv({ envLoader: importMetaEnvLoader }),
+			astroEnv({ settings, sync, envLoader: astroEnvLoader }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			astroPostprocessVitePlugin(),
