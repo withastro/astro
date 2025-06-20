@@ -128,6 +128,7 @@ class AstroBuilder {
 			command: 'build',
 			logger: logger,
 		});
+		  this.manifest = createDevelopmentManifest(this.settings);
 
 		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
 
