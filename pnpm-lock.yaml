@@ -2699,9 +2699,6 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
-      toml:
-        specifier: ^3.0.0
-        version: 3.0.0
 
   packages/astro/test/fixtures/content-layer-markdoc:
     dependencies:

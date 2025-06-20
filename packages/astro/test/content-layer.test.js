@@ -136,7 +136,7 @@ describe('Content Layer', () => {
 			assert.ok(json.hasOwnProperty('tomlLoader'));
 			assert.ok(Array.isArray(json.tomlLoader));
 
-			const ids = json.tomlLoader.map((item) => item.data.id);
+			const ids = json.tomlLoader.map((item) => item.id);
 			assert.deepEqual(ids, [
 				'crown',
 				'nikes-on-my-feet',
@@ -147,6 +147,22 @@ describe('Content Layer', () => {
 				'somebody',
 				'honest',
 			]);
+		});
+
+		it('Returns yaml `glob()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('numbersYaml'));
+			assert.ok(Array.isArray(json.numbersYaml));
+
+			const titles = json.numbersYaml.map((item) => item.data.title).sort();
+			assert.deepEqual(titles, ['One', 'Three', 'Two']);
+		});		
+
+		it('Returns toml `glob()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('numbersToml'));
+			assert.ok(Array.isArray(json.numbersToml));
+
+			const titles = json.numbersToml.map((item) => item.data.title).sort();
+			assert.deepEqual(titles, ['One', 'Three', 'Two']);
 		});
 
 		it('Returns nested json `file()` loader collection', async () => {

@@ -35,6 +35,10 @@ export async function GET() {
 	
 	const numbers = await getCollection('numbers');
 
+	const numbersYaml = await getCollection('numbersYaml');
+
+	const numbersToml = await getCollection('numbersToml');
+	
 	return new Response(
 		devalue.stringify({
 			customLoader,
@@ -47,6 +51,8 @@ export async function GET() {
 			referencedEntry,
 			increment,
 			numbers,
+			numbersYaml,
+			numbersToml,
 			images, 
 			probes,
 			yamlLoader,

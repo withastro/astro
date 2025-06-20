@@ -1,7 +1,6 @@
 import { defineCollection, z, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { loader } from './loaders/post-loader.js';
-import { parse as parseToml } from 'toml';
 import { readFile } from 'fs/promises';
 
 const blog = defineCollection({
@@ -148,6 +147,14 @@ const numbers = defineCollection({
 	loader: glob({ pattern: 'src/data/glob-data/*', base: '.' }),
 });
 
+const numbersYaml = defineCollection({
+	loader: glob({ pattern: 'src/data/glob-yaml/*', base: '.' }),
+});
+
+const numbersToml = defineCollection({
+	loader: glob({ pattern: 'src/data/glob-toml/*', base: '.' }),
+});
+
 const notADirectory = defineCollection({
 	loader: glob({ pattern: '*', base: 'src/nonexistent' }),
 });
@@ -215,18 +222,16 @@ const increment = defineCollection({
 });
 
 const artists = defineCollection({
-        loader: file('src/data/music.toml', { parser: (text) => parseToml(text).artists }),
+        loader: file('src/data/artists.toml'),
         schema: z.object({
-                id: z.string(),
                 name: z.string(),
                 genre: z.string().array(),
         }),
 });
 
 const songs = defineCollection({
-        loader: file('src/data/music.toml', { parser: (text) => parseToml(text).songs }),
+        loader: file('src/data/songs.toml'),
         schema: z.object({
-                id: z.string(),
                 name: z.string(),
                 artists: z.array(reference('artists')),
         }),
@@ -239,6 +244,8 @@ export const collections = {
 	fish,
 	birds,
 	numbers,
+	numbersToml,
+	numbersYaml,
 	spacecraft,
 	increment,
 	images,
