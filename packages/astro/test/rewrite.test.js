@@ -25,7 +25,7 @@ describe('Dev reroute', () => {
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
-		assert.equal($('h2').text(), 'Origin: /reroute');
+		assert.equal($('h2').text(), 'Origin: /reroute/');
 	});
 
 	it('should render the index page when navigating /blog/hello ', async () => {
