@@ -34,7 +34,7 @@ export default {
 			// Those deps are used in tests but only referenced as strings
 			ignoreDependencies: [
 				'@types/http-cache-semantics', // Types for http-cache-semantics
-				'expect-type', // Used in type tests
+				'expect-type', // Used in type tests but not detected by knip
 				'rehype-autolink-headings',
 				'rehype-slug',
 				'rehype-toc',
