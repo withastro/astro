@@ -198,20 +198,18 @@ export function setOriginPathname(
 		pathname = '/';
 	}
 	
-	let finalPathname = pathname;
+	// Apply trailing slash logic based on configuration
+	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
+	let finalPathname: string;
 	
-	// Preserve original pathname for "ignore" - never modify it
-	if (trailingSlash !== 'ignore') {
-		const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
-		
-		if (pathname === '/') {
-			// Root path always keeps the slash
-			finalPathname = '/';
-		} else if (shouldAppendSlash) {
-			finalPathname = appendForwardSlash(pathname);
-		} else {
-			finalPathname = removeTrailingForwardSlash(pathname);
-		}
+	// Special handling for root path
+	if (pathname === '/') {
+		// Root path always keeps the slash
+		finalPathname = '/';
+	} else if (shouldAppendSlash) {
+		finalPathname = appendForwardSlash(pathname);
+	} else {
+		finalPathname = removeTrailingForwardSlash(pathname);
 	}
 	
 	Reflect.set(request, originPathnameSymbol, encodeURIComponent(finalPathname));
