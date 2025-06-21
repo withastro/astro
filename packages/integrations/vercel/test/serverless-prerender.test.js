@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Serverless prerender', () => {
@@ -12,6 +12,10 @@ describe('Serverless prerender', () => {
 			root: './fixtures/serverless-prerender/',
 		});
 		await fixture.build();
+	});
+
+	after(() => {
+		delete process.env.PRERENDER;
 	});
 
 	it('build successful', async () => {
@@ -51,6 +55,10 @@ describe('Serverless hybrid rendering', () => {
 			output: 'static',
 		});
 		await fixture.build();
+	});
+
+	after(() => {
+		delete process.env.PRERENDER;
 	});
 
 	it('build successful', async () => {

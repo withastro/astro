@@ -38,6 +38,7 @@ describe('Trailing slash', () => {
 				await fixture.clean();
 
 				delete process.env.PRERENDER;
+				delete process.env.ASTRO_NODE_AUTOSTART;
 			});
 
 			it('Can render prerendered base route', async () => {
@@ -117,6 +118,7 @@ describe('Trailing slash', () => {
 				await fixture.clean();
 
 				delete process.env.PRERENDER;
+				delete process.env.ASTRO_NODE_AUTOSTART;
 			});
 
 			it('Can render prerendered base route', async () => {
@@ -201,6 +203,7 @@ describe('Trailing slash', () => {
 				await fixture.clean();
 
 				delete process.env.PRERENDER;
+				delete process.env.ASTRO_NODE_AUTOSTART;
 			});
 
 			it('Can render prerendered base route', async () => {
@@ -262,6 +265,7 @@ describe('Trailing slash', () => {
 				await fixture.clean();
 
 				delete process.env.PRERENDER;
+				delete process.env.ASTRO_NODE_AUTOSTART;
 			});
 
 			it('Can render prerendered base route', async () => {
@@ -326,6 +330,7 @@ describe('Trailing slash', () => {
 				await fixture.clean();
 
 				delete process.env.PRERENDER;
+				delete process.env.ASTRO_NODE_AUTOSTART;
 			});
 
 			it('Can render prerendered base route', async () => {
@@ -405,6 +410,7 @@ describe('Trailing slash', () => {
 				await fixture.clean();
 
 				delete process.env.PRERENDER;
+				delete process.env.ASTRO_NODE_AUTOSTART;
 			});
 
 			it('Can render prerendered base route', async () => {
