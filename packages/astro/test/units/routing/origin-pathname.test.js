@@ -78,6 +78,13 @@ describe('setOriginPathname', () => {
 			const stored = Reflect.get(request, originPathnameSymbol);
 			assert.equal(decodeURIComponent(stored), '/about/');
 		});
+
+		it('should remove trailing slash with file format', () => {
+			const request = new Request('https://example.com/about/');
+			setOriginPathname(request, '/about/', 'ignore', 'file');
+			const stored = Reflect.get(request, originPathnameSymbol);
+			assert.equal(decodeURIComponent(stored), '/about');
+		});
 	});
 
 	describe('special cases', () => {
