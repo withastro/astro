@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Serverless with dynamic routes', () => {
@@ -13,6 +13,10 @@ describe('Serverless with dynamic routes', () => {
 			output: 'server',
 		});
 		await fixture.build();
+	});
+
+	after(() => {
+		delete process.env.PRERENDER;
 	});
 
 	it('build successful', async () => {

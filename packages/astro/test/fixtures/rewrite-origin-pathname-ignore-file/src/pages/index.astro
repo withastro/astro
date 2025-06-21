@@ -1,0 +1,14 @@
+---
+// Index page that will be the target of rewrites
+---
+<html>
+<head>
+	<title>Home</title>
+	<link rel="canonical" href={new URL(Astro.originPathname, Astro.site)} />
+</head>
+<body>
+	<h1>Home</h1>
+	<p>Origin pathname: {Astro.originPathname}</p>
+	<p>Current URL: {Astro.url.href}</p>
+</body>
+</html>

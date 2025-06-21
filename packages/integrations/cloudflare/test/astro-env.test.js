@@ -8,8 +8,14 @@ const root = new URL('./fixtures/astro-env/', import.meta.url);
 
 describe('astro:env', () => {
 	let wrangler;
+	let originalApiUrl;
+	let originalPort;
 
 	before(async () => {
+		// Store original values
+		originalApiUrl = process.env.API_URL;
+		originalPort = process.env.PORT;
+		
 		process.env.API_URL = 'https://google.de';
 		process.env.PORT = '4322';
 		await astroCli(fileURLToPath(root), 'build');
@@ -28,6 +34,19 @@ describe('astro:env', () => {
 
 	after(() => {
 		wrangler.kill();
+		
+		// Restore original values
+		if (originalApiUrl === undefined) {
+			delete process.env.API_URL;
+		} else {
+			process.env.API_URL = originalApiUrl;
+		}
+		
+		if (originalPort === undefined) {
+			delete process.env.PORT;
+		} else {
+			process.env.PORT = originalPort;
+		}
 	});
 
 	it('runtime', async () => {

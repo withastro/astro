@@ -187,7 +187,7 @@ describe('astro:db', () => {
 		});
 
 		after(async () => {
-			process.env.ASTRO_STUDIO_APP_TOKEN = '';
+			delete process.env.ASTRO_STUDIO_APP_TOKEN;
 			await remoteDbServer?.stop();
 		});
 

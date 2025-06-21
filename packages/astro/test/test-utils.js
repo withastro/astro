@@ -14,8 +14,20 @@ import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import sync from '../dist/core/sync/index.js';
 
+// Store original value to restore later
+const originalTelemetryDisabled = process.env.ASTRO_TELEMETRY_DISABLED;
+
 // Disable telemetry when running tests
-process.env.ASTRO_TELEMETRY_DISABLED = true;
+process.env.ASTRO_TELEMETRY_DISABLED = 'true';
+
+// Clean up on process exit
+process.on('exit', () => {
+	if (originalTelemetryDisabled === undefined) {
+		delete process.env.ASTRO_TELEMETRY_DISABLED;
+	} else {
+		process.env.ASTRO_TELEMETRY_DISABLED = originalTelemetryDisabled;
+	}
+});
 
 /**
  * @typedef {import('../src/core/dev/dev').DevServer} DevServer
