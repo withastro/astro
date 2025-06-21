@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 describe('Rewrite origin pathname with trailing slash', () => {

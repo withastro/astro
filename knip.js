@@ -33,6 +33,8 @@ export default {
 			ignore: ['**/e2e/**/{fixtures,_temp-fixtures}/**', 'performance/**/*'],
 			// Those deps are used in tests but only referenced as strings
 			ignoreDependencies: [
+				'@types/http-cache-semantics', // Types for http-cache-semantics
+				'expect-type', // Used in type tests
 				'rehype-autolink-headings',
 				'rehype-slug',
 				'rehype-toc',
