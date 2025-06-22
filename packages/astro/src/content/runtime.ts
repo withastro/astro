@@ -21,6 +21,7 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import type {
+	CacheHint,
 	LiveDataCollectionResult,
 	LiveDataEntry,
 	LiveDataEntryResult,
@@ -530,7 +531,7 @@ export function createGetLiveCollection({
 			if (processedEntries.length > 0) {
 				const entryTags = new Set<string>();
 				let minMaxAge: number | undefined;
-				let latestLastModified: Date | undefined;
+				let latestModified: Date | undefined;
 
 				for (const entry of processedEntries) {
 					if (entry.cacheHint) {
@@ -543,26 +544,18 @@ export function createGetLiveCollection({
 							}
 						}
 						if (entry.cacheHint.lastModified instanceof Date) {
-							if (
-								latestLastModified === undefined ||
-								entry.cacheHint.lastModified > latestLastModified
-							) {
-								latestLastModified = entry.cacheHint.lastModified;
+							if (latestModified === undefined || entry.cacheHint.lastModified > latestModified) {
+								latestModified = entry.cacheHint.lastModified;
 							}
 						}
 					}
 				}
 
 				// Merge collection and entry cache hints
-				if (
-					entryTags.size > 0 ||
-					minMaxAge !== undefined ||
-					latestLastModified !== undefined ||
-					cacheHint
-				) {
-					const mergedCacheHint: any = {};
+				if (entryTags.size > 0 || minMaxAge !== undefined || latestModified || cacheHint) {
+					const mergedCacheHint: CacheHint = {};
 					if (cacheHint?.tags || entryTags.size > 0) {
-						mergedCacheHint.tags = [...(cacheHint?.tags || []), ...entryTags];
+						mergedCacheHint.tags = [...new Set([...(cacheHint?.tags || []), ...entryTags])];
 					}
 					if (cacheHint?.maxAge !== undefined || minMaxAge !== undefined) {
 						mergedCacheHint.maxAge =
@@ -570,13 +563,11 @@ export function createGetLiveCollection({
 								? Math.min(cacheHint.maxAge, minMaxAge)
 								: (cacheHint?.maxAge ?? minMaxAge);
 					}
-					if (cacheHint?.lastModified !== undefined || latestLastModified !== undefined) {
+					if (cacheHint?.lastModified && latestModified) {
 						mergedCacheHint.lastModified =
-							cacheHint?.lastModified !== undefined && latestLastModified !== undefined
-								? cacheHint.lastModified > latestLastModified
-									? cacheHint.lastModified
-									: latestLastModified
-								: (cacheHint?.lastModified ?? latestLastModified);
+							cacheHint.lastModified > latestModified ? cacheHint.lastModified : latestModified;
+					} else if (cacheHint?.lastModified || latestModified) {
+						mergedCacheHint.lastModified = cacheHint?.lastModified ?? latestModified;
 					}
 					cacheHint = mergedCacheHint;
 				}
