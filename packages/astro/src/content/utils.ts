@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
 import { green } from 'kleur/colors';
-import type { PluginContext } from 'rollup';
+import type { PluginContext } from 'rolldown';
 import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
 import { z } from 'zod';

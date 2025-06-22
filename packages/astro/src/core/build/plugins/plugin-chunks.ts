@@ -1,23 +1,13 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroBuildPlugin } from '../plugin.js';
-import { extendManualChunks } from './util.js';
+// extendManualChunks functionality will be implemented inline
 
 function vitePluginChunks(): VitePlugin {
 	return {
 		name: 'astro:chunks',
-		outputOptions(outputOptions) {
-			extendManualChunks(outputOptions, {
-				after(id) {
-					// Place Astro's server runtime in a single `astro/server.mjs` file
-					if (id.includes('astro/dist/runtime/server/')) {
-						return 'astro/server';
-					}
-					// Split the Astro runtime into a separate chunk for readability
-					if (id.includes('astro/dist/runtime')) {
-						return 'astro';
-					}
-				},
-			});
+		outputOptions(_outputOptions) {
+			// Astro runtime chunking removed - rely on natural chunking
+			// If specific runtime chunking is needed, it can be re-added later
 		},
 	};
 }

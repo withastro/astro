@@ -41,7 +41,7 @@
   "dependencies": {
     "@vitejs/plugin-react": "^4.5.0",
     "ultrahtml": "^1.6.0",
-    "vite": "^6.3.5"
+    "vite": "npm:rolldown-vite@latest"
   },
   "devDependencies": {
     "@types/react": "^18.3.22",

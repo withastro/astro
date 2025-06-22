@@ -3,7 +3,7 @@ import { astroHeadBuildPlugin } from '../../../vite-plugin-head/index.js';
 import type { AstroBuildPluginContainer } from '../plugin.js';
 import { pluginActions } from './plugin-actions.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
-import { pluginChunks } from './plugin-chunks.js';
+// import { pluginChunks } from './plugin-chunks.js'; // Disabled - relying on natural chunking
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
 import { pluginInternals } from './plugin-internals.js';
@@ -30,5 +30,5 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(astroConfigBuildPlugin(options, internals));
 	register(pluginScripts(internals));
 	register(pluginSSR(options, internals));
-	register(pluginChunks());
+	// register(pluginChunks()); // Disabled - relying on natural chunking
 }

@@ -1,4 +1,4 @@
-import type { GetModuleInfo, ModuleInfo } from 'rollup';
+import type { GetModuleInfo, ModuleInfo } from 'rolldown';
 
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 

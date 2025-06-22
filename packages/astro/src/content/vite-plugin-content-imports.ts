@@ -2,7 +2,7 @@ import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
-import type { PluginContext } from 'rollup';
+import type { PluginContext } from 'rolldown';
 import type { Plugin } from 'vite';
 import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';

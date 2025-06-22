@@ -34,7 +34,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "vite": "^6.3.5",
+    "vite": "npm:rolldown-vite@latest",
     "vite-plugin-solid": "^2.11.6"
   },
   "devDependencies": {

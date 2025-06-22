@@ -1,4 +1,3 @@
-import type { ModuleInfo } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
@@ -18,7 +17,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		P extends keyof PluginMetadata['astro'],
 		V extends PluginMetadata['astro'][P],
 	>(
-		this: { getModuleInfo(id: string): ModuleInfo | null },
+		this: { getModuleInfo(id: string): vite.Rolldown.ModuleInfo | null },
 		id: string,
 		prop: P,
 		value: V,

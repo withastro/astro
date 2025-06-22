@@ -145,8 +145,8 @@ export default function createVitePluginAstroServer({
 				});
 			};
 		},
-		transform(code, id, opts = {}) {
-			if (opts.ssr) return;
+		transform(code, id, opts) {
+			if (opts?.ssr) return;
 			if (!id.includes('vite/dist/client/client.mjs')) return;
 
 			// Replace the Vite overlay with ours

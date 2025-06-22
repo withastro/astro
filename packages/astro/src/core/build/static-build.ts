@@ -160,13 +160,10 @@ async function ssrBuild(
 			copyPublicDir: !ssr,
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
-				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
-				preserveEntrySignatures: 'exports-only',
 				input: [],
 				output: {
 					hoistTransitiveImports: false,
 					format: 'esm',
-					minifyInternalExports: true,
 					// Server chunks can't go in the assets (_astro) folder
 					// We need to keep these separate
 					chunkFileNames(chunkInfo) {
@@ -275,7 +272,6 @@ async function clientBuild(
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 				},
-				preserveEntrySignatures: 'exports-only',
 			},
 		},
 		plugins: [...vitePlugins, ...(viteConfig.plugins || []), ...lastVitePlugins],

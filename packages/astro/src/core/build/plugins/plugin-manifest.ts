@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { resolve as importMetaResolve } from 'import-meta-resolve';
-import type { OutputChunk } from 'rollup';
+import type { OutputChunk } from 'rolldown';
 import { glob } from 'tinyglobby';
 import { type BuiltinDriverName, builtinDrivers } from 'unstorage';
 import type { Plugin as VitePlugin } from 'vite';

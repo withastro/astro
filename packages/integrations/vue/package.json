@@ -39,7 +39,7 @@
     "@vitejs/plugin-vue": "5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.2.0",
     "@vue/compiler-sfc": "^3.5.15",
-    "vite": "^6.3.5",
+    "vite": "npm:rolldown-vite@latest",
     "vite-plugin-vue-devtools": "^7.7.6"
   },
   "devDependencies": {
