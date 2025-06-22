@@ -131,6 +131,8 @@ export interface CacheHint {
 	tags?: Array<string>;
 	/** Maximum age of the response in seconds */
 	maxAge?: number;
+	/** Last modified time of the content */
+	lastModified?: Date;
 }
 
 export interface LiveDataEntry<TData extends Record<string, any> = Record<string, unknown>> {

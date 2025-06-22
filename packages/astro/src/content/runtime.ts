@@ -72,6 +72,7 @@ export function createCollectionToGlobResultMap({
 const cacheHintSchema = z.object({
 	tags: z.array(z.string()).optional(),
 	maxAge: z.number().optional(),
+	lastModified: z.date().optional(),
 });
 
 async function parseLiveEntry(
@@ -529,6 +530,7 @@ export function createGetLiveCollection({
 			if (processedEntries.length > 0) {
 				const entryTags = new Set<string>();
 				let minMaxAge: number | undefined;
+				let latestLastModified: Date | undefined;
 
 				for (const entry of processedEntries) {
 					if (entry.cacheHint) {
@@ -541,11 +543,24 @@ export function createGetLiveCollection({
 									? entry.cacheHint.maxAge
 									: Math.min(minMaxAge, entry.cacheHint.maxAge);
 						}
+						if (entry.cacheHint.lastModified instanceof Date) {
+							latestLastModified =
+								latestLastModified === undefined
+									? entry.cacheHint.lastModified
+									: latestLastModified > entry.cacheHint.lastModified
+										? latestLastModified
+										: entry.cacheHint.lastModified;
+						}
 					}
 				}
 
 				// Merge collection and entry cache hints
-				if (entryTags.size > 0 || minMaxAge !== undefined || cacheHint) {
+				if (
+					entryTags.size > 0 ||
+					minMaxAge !== undefined ||
+					latestLastModified !== undefined ||
+					cacheHint
+				) {
 					const mergedCacheHint: any = {};
 					if (cacheHint?.tags || entryTags.size > 0) {
 						mergedCacheHint.tags = [...(cacheHint?.tags || []), ...entryTags];
@@ -555,6 +570,14 @@ export function createGetLiveCollection({
 							cacheHint?.maxAge !== undefined && minMaxAge !== undefined
 								? Math.min(cacheHint.maxAge, minMaxAge)
 								: (cacheHint?.maxAge ?? minMaxAge);
+					}
+					if (cacheHint?.lastModified !== undefined || latestLastModified !== undefined) {
+						mergedCacheHint.lastModified =
+							cacheHint?.lastModified !== undefined && latestLastModified !== undefined
+								? cacheHint.lastModified > latestLastModified
+									? cacheHint.lastModified
+									: latestLastModified
+								: (cacheHint?.lastModified ?? latestLastModified);
 					}
 					cacheHint = mergedCacheHint;
 				}
