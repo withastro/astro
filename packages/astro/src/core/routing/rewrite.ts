@@ -161,8 +161,32 @@ export function copyRequest(
 	});
 }
 
-export function setOriginPathname(request: Request, pathname: string): void {
-	Reflect.set(request, originPathnameSymbol, encodeURIComponent(pathname));
+export function setOriginPathname(
+	request: Request,
+	pathname: string,
+	trailingSlash: AstroConfig['trailingSlash'],
+	buildFormat: AstroConfig['build']['format'],
+): void {
+	// Handle undefined pathname
+	if (!pathname) {
+		pathname = '/';
+	}
+	
+	// Apply trailing slash logic based on configuration
+	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
+	let finalPathname: string;
+	
+	// Special handling for root path
+	if (pathname === '/') {
+		// Root path always keeps the slash
+		finalPathname = '/';
+	} else if (shouldAppendSlash) {
+		finalPathname = appendForwardSlash(pathname);
+	} else {
+		finalPathname = removeTrailingForwardSlash(pathname);
+	}
+	
+	Reflect.set(request, originPathnameSymbol, encodeURIComponent(finalPathname));
 }
 
 export function getOriginPathname(request: Request): string {
