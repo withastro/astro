@@ -128,6 +128,9 @@ class AstroBuilder {
 			command: 'build',
 			logger: logger,
 		});
+
+		//Generate the manifest object based on the current user config.
+		// This is used to inject config values and route info into virtual modules and the build pipeline.
 		  this.manifest = createDevelopmentManifest(this.settings);
 
 		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
