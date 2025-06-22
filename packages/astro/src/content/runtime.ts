@@ -538,18 +538,17 @@ export function createGetLiveCollection({
 							entry.cacheHint.tags.forEach((tag) => entryTags.add(tag));
 						}
 						if (typeof entry.cacheHint.maxAge === 'number') {
-							minMaxAge =
-								minMaxAge === undefined
-									? entry.cacheHint.maxAge
-									: Math.min(minMaxAge, entry.cacheHint.maxAge);
+							if (minMaxAge === undefined || entry.cacheHint.maxAge < minMaxAge) {
+								minMaxAge = entry.cacheHint.maxAge;
+							}
 						}
 						if (entry.cacheHint.lastModified instanceof Date) {
-							latestLastModified =
-								latestLastModified === undefined
-									? entry.cacheHint.lastModified
-									: latestLastModified > entry.cacheHint.lastModified
-										? latestLastModified
-										: entry.cacheHint.lastModified;
+							if (
+								latestLastModified === undefined ||
+								entry.cacheHint.lastModified > latestLastModified
+							) {
+								latestLastModified = entry.cacheHint.lastModified;
+							}
 						}
 					}
 				}
