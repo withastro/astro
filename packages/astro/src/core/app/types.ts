@@ -3,7 +3,12 @@ import type { ActionAccept, ActionClient } from '../../actions/runtime/virtual/s
 import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
-import type { AstroConfig, Locales, ResolvedSessionConfig } from '../../types/public/config.js';
+import type {
+	AstroConfig,
+	CspAlgorithm,
+	Locales,
+	ResolvedSessionConfig,
+} from '../../types/public/config.js';
 import type {
 	RouteData,
 	SSRComponentMetadata,
@@ -11,6 +16,7 @@ import type {
 	SSRResult,
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
+import type { CspDirective } from '../csp/config.js';
 
 type ComponentPath = string;
 
@@ -86,6 +92,7 @@ export type SSRManifest = {
 	publicDir: string | URL;
 	buildClientDir: string | URL;
 	buildServerDir: string | URL;
+	csp: SSRManifestCSP | undefined;
 };
 
 export type SSRActions = {
@@ -99,6 +106,17 @@ export type SSRManifestI18n = {
 	locales: Locales;
 	defaultLocale: string;
 	domainLookupTable: Record<string, string>;
+};
+
+export type SSRManifestCSP = {
+	cspDestination: 'adapter' | 'meta' | 'header' | undefined;
+	algorithm: CspAlgorithm;
+	scriptHashes: string[];
+	scriptResources: string[];
+	isStrictDynamic: boolean;
+	styleHashes: string[];
+	styleResources: string[];
+	directives: CspDirective[];
 };
 
 /** Public type exposed through the `astro:build:ssr` integration hook */

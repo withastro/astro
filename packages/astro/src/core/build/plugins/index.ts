@@ -18,7 +18,7 @@ import { pluginSSR } from './plugin-ssr.js';
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
 	register(pluginComponentEntry(internals));
 	register(pluginAnalyzer(internals));
-	register(pluginInternals(internals));
+	register(pluginInternals(options, internals));
 	register(pluginManifest(options, internals));
 	register(pluginRenderers(options));
 	register(pluginMiddleware(options, internals));

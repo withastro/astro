@@ -163,25 +163,30 @@ export function normalizeInjectedTypeFilename(filename: string, integrationName:
 	return `${normalizeCodegenDir(integrationName)}${filename.replace(SAFE_CHARS_RE, '_')}`;
 }
 
+interface RunHookConfigSetup {
+	settings: AstroSettings;
+	command: 'dev' | 'build' | 'preview' | 'sync';
+	logger: Logger;
+	isRestart?: boolean;
+	fs?: typeof fsMod;
+}
+
 export async function runHookConfigSetup({
 	settings,
 	command,
 	logger,
 	isRestart = false,
 	fs = fsMod,
-}: {
-	settings: AstroSettings;
-	command: 'dev' | 'build' | 'preview' | 'sync';
-	logger: Logger;
-	isRestart?: boolean;
-	fs?: typeof fsMod;
-}): Promise<AstroSettings> {
+}: RunHookConfigSetup): Promise<AstroSettings> {
 	// An adapter is an integration, so if one is provided add it to the list of integrations.
 	if (settings.config.adapter) {
 		settings.config.integrations.unshift(settings.config.adapter);
 	}
-	if (await isActionsFilePresent(fs, settings.config.srcDir)) {
-		settings.config.integrations.push(astroIntegrationActionsRouteHandler({ settings }));
+	const actionsFilename = await isActionsFilePresent(fs, settings.config.srcDir);
+	if (actionsFilename) {
+		settings.config.integrations.push(
+			astroIntegrationActionsRouteHandler({ settings, filename: actionsFilename }),
+		);
 	}
 
 	let updatedConfig: AstroConfig = { ...settings.config };
@@ -581,9 +586,11 @@ export async function runHookBuildSsr({
 export async function runHookBuildGenerated({
 	settings,
 	logger,
+	experimentalRouteToHeaders,
 }: {
 	settings: AstroSettings;
 	logger: Logger;
+	experimentalRouteToHeaders: Map<IntegrationResolvedRoute, Headers>;
 }) {
 	const dir =
 		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
@@ -593,7 +600,7 @@ export async function runHookBuildGenerated({
 			integration,
 			hookName: 'astro:build:generated',
 			logger,
-			params: () => ({ dir }),
+			params: () => ({ dir, experimentalRouteToHeaders }),
 		});
 	}
 }
@@ -677,7 +684,7 @@ export async function runHookRoutesResolved({
 	}
 }
 
-function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute {
+export function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute {
 	return {
 		isPrerendered: route.prerender,
 		entrypoint: route.component,

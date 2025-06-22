@@ -67,6 +67,15 @@ export type AdapterSupportsKind =
 export type AdapterSupportWithMessage = {
 	support: Exclude<AdapterSupportsKind, 'stable'>;
 	message: string;
+	/**
+	 * Determines if a feature support warning/error in the adapter should be suppressed:
+	 * - `"default"`: Suppresses the default warning/error message.
+	 * - `"all"`: Suppresses both the custom and the default warning/error message.
+	 *
+	 * This is useful when the warning/error might not be applicable in certain contexts,
+	 * or the default message might cause confusion and conflict with a custom one.
+	 */
+	suppress?: 'all' | 'default';
 };
 
 export type AdapterSupport = AdapterSupportsKind | AdapterSupportWithMessage;
@@ -80,6 +89,17 @@ export interface AstroAdapterFeatures {
 	 * Determine the type of build output the adapter is intended for. Defaults to `server`;
 	 */
 	buildOutput?: 'static' | 'server';
+
+	/**
+	 * If supported by the adapter and enabled, Astro won't add any `<meta http-equiv>` tags
+	 * in the static pages, instead it will return a mapping in the
+	 * `astro:build:generated` hook, so adapters can consume them and add them inside
+	 * their hosting headers configuration file.
+	 *
+	 * NOTE: the semantics and list of headers might change until the feature
+	 * is out of experimental
+	 */
+	experimentalStaticHeaders?: boolean;
 }
 
 export interface AstroAdapter {
@@ -99,7 +119,7 @@ export interface AstroAdapter {
 
 export type AstroAdapterFeatureMap = {
 	/**
-	 * The adapter is able serve static pages
+	 * The adapter is able to serve static pages
 	 */
 	staticOutput?: AdapterSupport;
 
@@ -188,13 +208,16 @@ export interface BaseIntegrationHooks {
 		address: AddressInfo;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
-	'astro:server:done': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+	'astro:server:done': (options: {
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
 	'astro:build:ssr': (options: {
 		manifest: SerializedSSRManifest;
 		/**
 		 * This maps a {@link RouteData} to an {@link URL}, this URL represents
 		 * the physical file you should import.
 		 */
+		// TODO: Change in Astro 6.0
 		entryPoints: Map<IntegrationRouteData, URL>;
 		/**
 		 * File path of the emitted middleware
@@ -202,7 +225,9 @@ export interface BaseIntegrationHooks {
 		middlewareEntryPoint: URL | undefined;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
-	'astro:build:start': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+	'astro:build:start': (options: {
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
 	'astro:build:setup': (options: {
 		vite: ViteInlineConfig;
 		pages: Map<string, PageBuildData>;
@@ -213,6 +238,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:generated': (options: {
 		dir: URL;
 		logger: AstroIntegrationLogger;
+		experimentalRouteToHeaders: Map<IntegrationResolvedRoute, Headers>;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];

@@ -17,6 +17,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../../types/public/internal.js';
+import { bufferHeadContent } from './astro/render.js';
 import {
 	Fragment,
 	type RenderDestination,
@@ -26,7 +27,7 @@ import {
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
-import { containsServerDirective, renderServerIsland } from './server-islands.js';
+import { ServerIslandComponent, containsServerDirective } from './server-islands.js';
 import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
@@ -284,6 +285,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 		const renderTemplateResult = renderTemplate`<${Tag}${internalSpreadAttributes(
 			props,
+			true,
+			Tag,
 		)}${markHTMLString(
 			childSlots === '' && voidElementNames.test(Tag) ? `/>` : `>${childSlots}</${Tag}>`,
 		)}`;
@@ -442,7 +445,9 @@ function renderAstroComponent(
 	slots: any = {},
 ): RenderInstance {
 	if (containsServerDirective(props)) {
-		return renderServerIsland(result, displayName, props, slots);
+		const serverIslandComponent = new ServerIslandComponent(result, props, slots, displayName);
+		result._metadata.propagators.add(serverIslandComponent);
+		return serverIslandComponent;
 	}
 
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
@@ -550,6 +555,9 @@ export async function renderComponentToString(
 		};
 
 		const renderInstance = await renderComponent(result, displayName, Component, props, slots);
+		if (containsServerDirective(props)) {
+			await bufferHeadContent(result);
+		}
 		await renderInstance.render(destination);
 	} catch (e) {
 		// We don't have a lot of information downstream, and upstream we can't catch the error properly

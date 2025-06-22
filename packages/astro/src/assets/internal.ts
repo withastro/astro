@@ -39,13 +39,9 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 	return globalThis.astroAsset.imageService;
 }
 
-type ImageConfig = AstroConfig['image'] & {
-	experimentalResponsiveImages: boolean;
-};
-
 export async function getImage(
 	options: UnresolvedImageTransform,
-	imageConfig: ImageConfig,
+	imageConfig: AstroConfig['image'],
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
 		throw new AstroError({
@@ -126,43 +122,41 @@ export async function getImage(
 	}
 	resolvedOptions.src = clonedSrc;
 
-	const layout = options.layout ?? imageConfig.experimentalLayout;
+	const layout = options.layout ?? imageConfig.layout ?? 'none';
 
-	if (imageConfig.experimentalResponsiveImages && layout) {
+	if (resolvedOptions.priority) {
+		resolvedOptions.loading ??= 'eager';
+		resolvedOptions.decoding ??= 'sync';
+		resolvedOptions.fetchpriority ??= 'high';
+		delete resolvedOptions.priority;
+	} else {
+		resolvedOptions.loading ??= 'lazy';
+		resolvedOptions.decoding ??= 'async';
+		resolvedOptions.fetchpriority ??= 'auto';
+	}
+
+	if (layout !== 'none') {
 		resolvedOptions.widths ||= getWidths({
 			width: resolvedOptions.width,
 			layout,
 			originalWidth,
-			breakpoints: imageConfig.experimentalBreakpoints?.length
-				? imageConfig.experimentalBreakpoints
+			breakpoints: imageConfig.breakpoints?.length
+				? imageConfig.breakpoints
 				: isLocalService(service)
 					? LIMITED_RESOLUTIONS
 					: DEFAULT_RESOLUTIONS,
 		});
 		resolvedOptions.sizes ||= getSizesAttribute({ width: resolvedOptions.width, layout });
-
-		if (resolvedOptions.priority) {
-			resolvedOptions.loading ??= 'eager';
-			resolvedOptions.decoding ??= 'sync';
-			resolvedOptions.fetchpriority ??= 'high';
-		} else {
-			resolvedOptions.loading ??= 'lazy';
-			resolvedOptions.decoding ??= 'async';
-			resolvedOptions.fetchpriority ??= 'auto';
-		}
-		delete resolvedOptions.priority;
+		// The densities option is incompatible with the `layout` option
 		delete resolvedOptions.densities;
-
-		if (layout !== 'none') {
-			resolvedOptions.style = addCSSVarsToStyle(
-				{
-					fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
-					pos: resolvedOptions.position,
-				},
-				resolvedOptions.style,
-			);
-			resolvedOptions['data-astro-image'] = layout;
-		}
+		resolvedOptions.style = addCSSVarsToStyle(
+			{
+				fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
+				pos: resolvedOptions.position,
+			},
+			resolvedOptions.style,
+		);
+		resolvedOptions['data-astro-image'] = layout;
 	}
 
 	const validatedOptions = service.validateOptions

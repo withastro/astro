@@ -39,6 +39,7 @@ export type {
 	ComponentSlots,
 	RenderInstruction,
 } from './render/index.js';
+export type { ServerIslandComponent } from './render/server-islands.js';
 export { createTransitionScope, renderTransition } from './transition.js';
 
 import { markHTMLString } from './escape.js';
@@ -86,7 +87,7 @@ export function spreadAttributes(
 		}
 	}
 	for (const [key, value] of Object.entries(values)) {
-		output += addAttribute(value, key, true);
+		output += addAttribute(value, key, true, _name);
 	}
 	return markHTMLString(output);
 }
