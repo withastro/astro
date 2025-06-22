@@ -127,7 +127,7 @@ function astroDBIntegration(): AstroIntegration {
 			},
 			'astro:server:setup': async ({ server, logger }) => {
 				seedHandler.execute = async (fileUrl) => {
-					await executeSeedFile({ fileUrl, viteServer: server });
+					await executeSeedFile({ fileUrl, viteServer: server as any });
 				};
 				const filesToWatch = [
 					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirectoryUrl(root))),
@@ -168,7 +168,7 @@ function astroDBIntegration(): AstroIntegration {
 				logger.info('database: ' + (connectToRemote ? yellow('remote') : blue('local database.')));
 			},
 			'astro:build:setup': async ({ vite }) => {
-				tempViteServer = await getTempViteServer({ viteConfig: vite });
+				tempViteServer = await getTempViteServer({ viteConfig: vite } as any);
 				seedHandler.execute = async (fileUrl) => {
 					await executeSeedFile({ fileUrl, viteServer: tempViteServer! });
 				};
