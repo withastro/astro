@@ -93,7 +93,7 @@ export class RenderContext {
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = actions ?? (await pipeline.getActions());
-		setOriginPathname(request, pathname);
+		setOriginPathname(request, pathname, pipeline.manifest.trailingSlash, pipeline.manifest.buildFormat);
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -199,7 +199,7 @@ export class RenderContext {
 				this.params = getParams(routeData, pathname);
 				this.pathname = pathname;
 				this.status = 200;
-				setOriginPathname(this.request, oldPathname);
+				setOriginPathname(this.request, oldPathname, this.pipeline.manifest.trailingSlash, this.pipeline.manifest.buildFormat);
 			}
 			let response: Response;
 
@@ -335,7 +335,7 @@ export class RenderContext {
 		this.isRewriting = true;
 		// we found a route and a component, we can change the status code to 200
 		this.status = 200;
-		setOriginPathname(this.request, oldPathname);
+		setOriginPathname(this.request, oldPathname, this.pipeline.manifest.trailingSlash, this.pipeline.manifest.buildFormat);
 		return await this.render(componentInstance);
 	}
 
