@@ -700,6 +700,8 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			...attributes,
 			src: image.src,
 			srcset: image.srcSet.attribute,
+			// This attribute is used by the toolbar audit
+			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})
 			.map(([key, value]) => (value ? `${key}="${escape(value)}"` : ''))
 			.join(' ');
