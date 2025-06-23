@@ -197,11 +197,11 @@ export function setOriginPathname(
 	if (!pathname) {
 		pathname = '/';
 	}
-	
+
 	// Apply trailing slash logic based on configuration
 	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
 	let finalPathname: string;
-	
+
 	// Special handling for root path
 	if (pathname === '/') {
 		// Root path always keeps the slash
@@ -211,7 +211,7 @@ export function setOriginPathname(
 	} else {
 		finalPathname = removeTrailingForwardSlash(pathname);
 	}
-	
+
 	Reflect.set(request, originPathnameSymbol, encodeURIComponent(finalPathname));
 }
 
