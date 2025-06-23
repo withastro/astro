@@ -26,6 +26,7 @@ import {
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
+import { generateCspDigest } from './encryption.js';
 import { CspNotEnabled, ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
@@ -35,7 +36,6 @@ import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
-import { generateCspDigest } from './encryption.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 /**
