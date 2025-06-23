@@ -35,7 +35,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 
 			if (app.headersMap && app.headersMap.length > 0) {
 				const routeData = app.match(req, true);
-				if (routeData) {
+				if (routeData && routeData.prerender) {
 					const matchedRoute = app.headersMap.find((header) => header.source === routeData.route);
 					if (matchedRoute) {
 						for (const header of matchedRoute.headers) {

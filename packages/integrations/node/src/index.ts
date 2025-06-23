@@ -4,6 +4,8 @@ import { AstroError } from 'astro/errors';
 import type { Options, UserOptions } from './types.js';
 import type { AstroConfig, IntegrationResolvedRoute } from 'astro';
 import { writeJson } from '@astrojs/internal-helpers/fs';
+import { STATIC_HEADERS_FILE } from './shared.js';
+
 
 export function getAdapter(options: Options): AstroAdapter {
 	return {
@@ -89,7 +91,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				}
 
 				if (_routeToHeaders && _routeToHeaders.size > 0) {
-					const headersFileUrl = new URL('_headers.json', _config.outDir);
+					const headersFileUrl = new URL(STATIC_HEADERS_FILE, _config.outDir);
 					const headersValue: NodeAppHeadersJson = [];
 
 					for (const [route, routeHeaders] of _routeToHeaders.entries()) {

@@ -9,6 +9,7 @@ import { createStandaloneHandler } from './standalone.js';
 import startServer from './standalone.js';
 import type { Options } from './types.js';
 import { existsSync, readFileSync } from 'node:fs';
+import { STATIC_HEADERS_FILE } from './shared.js';
 
 setGetEnv((key) => process.env[key]);
 
@@ -51,7 +52,7 @@ export function start(manifest: SSRManifest, options: Options) {
 function readHeadersJson(outDir: string | URL): NodeAppHeadersJson | undefined {
 	let headersMap: NodeAppHeadersJson | undefined = undefined;
 
-	const headersUrl = new URL('_headers.json', outDir);
+	const headersUrl = new URL(STATIC_HEADERS_FILE, outDir);
 	if (existsSync(headersUrl)) {
 		const content = readFileSync(headersUrl, 'utf-8');
 		try {

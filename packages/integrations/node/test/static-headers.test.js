@@ -12,7 +12,7 @@ describe('Static headers', () => {
 	});
 
 	it('CSP headers are added when CSP is enabled', async () => {
-		const headers = JSON.parse(await fixture.readFile('../dist/_headers.json'));
+		const headers = JSON.parse(await fixture.readFile('../dist/_experimentalHeaders.json'));
 
 		const csp = headers
 			.find((x) => x.source === '/')
@@ -53,6 +53,15 @@ describe('Static headers', () => {
 
 	it('CSP headers are added to the request', async () => {
 		const res = await fetch(`http://${server.host}:${server.port}/`);
+		const cps = res.headers.get('Content-Security-Policy');
+		assert.ok(
+			cps.includes('script-src'),
+			'should contain script-src directive due to server island',
+		);
+	});
+
+	it('CSP headers are added to dynamic orute', async () => {
+		const res = await fetch(`http://${server.host}:${server.port}/one`);
 		const cps = res.headers.get('Content-Security-Policy');
 		assert.ok(
 			cps.includes('script-src'),
