@@ -555,6 +555,7 @@ export function createGetLiveCollection({
 				if (entryTags.size > 0 || minMaxAge !== undefined || latestModified || cacheHint) {
 					const mergedCacheHint: CacheHint = {};
 					if (cacheHint?.tags || entryTags.size > 0) {
+						// Merge and dedupe tags
 						mergedCacheHint.tags = [...new Set([...(cacheHint?.tags || []), ...entryTags])];
 					}
 					if (cacheHint?.maxAge !== undefined || minMaxAge !== undefined) {
