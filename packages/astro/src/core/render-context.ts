@@ -26,6 +26,7 @@ import {
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
+import { generateCspDigest } from './encryption.js';
 import { CspNotEnabled, ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
@@ -92,7 +93,12 @@ export class RenderContext {
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = actions ?? (await pipeline.getActions());
-		setOriginPathname(request, pathname);
+		setOriginPathname(
+			request,
+			pathname,
+			pipeline.manifest.trailingSlash,
+			pipeline.manifest.buildFormat,
+		);
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -198,7 +204,12 @@ export class RenderContext {
 				this.params = getParams(routeData, pathname);
 				this.pathname = pathname;
 				this.status = 200;
-				setOriginPathname(this.request, oldPathname);
+				setOriginPathname(
+					this.request,
+					oldPathname,
+					this.pipeline.manifest.trailingSlash,
+					this.pipeline.manifest.buildFormat,
+				);
 			}
 			let response: Response;
 
@@ -334,7 +345,12 @@ export class RenderContext {
 		this.isRewriting = true;
 		// we found a route and a component, we can change the status code to 200
 		this.status = 200;
-		setOriginPathname(this.request, oldPathname);
+		setOriginPathname(
+			this.request,
+			oldPathname,
+			this.pipeline.manifest.trailingSlash,
+			this.pipeline.manifest.buildFormat,
+		);
 		return await this.render(componentInstance);
 	}
 
@@ -435,6 +451,21 @@ export class RenderContext {
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
+
+		const extraStyleHashes = [];
+		const extraScriptHashes = [];
+		const shouldInjectCspMetaTags = !!manifest.csp;
+		const cspAlgorithm = manifest.csp?.algorithm ?? 'SHA-256';
+		if (shouldInjectCspMetaTags) {
+			for (const style of styles) {
+				extraStyleHashes.push(await generateCspDigest(style.children, cspAlgorithm));
+			}
+
+			for (const script of scripts) {
+				extraScriptHashes.push(await generateCspDigest(script.children, cspAlgorithm));
+			}
+		}
+
 		const componentMetadata =
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
 		const headers = new Headers({ 'Content-Type': 'text/html' });
@@ -492,13 +523,13 @@ export class RenderContext {
 				hasRenderedServerIslandRuntime: false,
 				headInTree: false,
 				extraHead: [],
-				extraStyleHashes: [],
-				extraScriptHashes: [],
+				extraStyleHashes,
+				extraScriptHashes,
 				propagators: new Set(),
 			},
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
-			shouldInjectCspMetaTags: !!manifest.csp,
-			cspAlgorithm: manifest.csp?.algorithm ?? 'SHA-256',
+			shouldInjectCspMetaTags,
+			cspAlgorithm,
 			// The following arrays must be cloned, otherwise they become mutable across routes.
 			scriptHashes: manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
 			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],

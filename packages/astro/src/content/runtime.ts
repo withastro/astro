@@ -21,6 +21,7 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import type {
+	CacheHint,
 	LiveDataCollectionResult,
 	LiveDataEntry,
 	LiveDataEntryResult,
@@ -72,6 +73,7 @@ export function createCollectionToGlobResultMap({
 const cacheHintSchema = z.object({
 	tags: z.array(z.string()).optional(),
 	maxAge: z.number().optional(),
+	lastModified: z.date().optional(),
 });
 
 async function parseLiveEntry(
@@ -529,6 +531,7 @@ export function createGetLiveCollection({
 			if (processedEntries.length > 0) {
 				const entryTags = new Set<string>();
 				let minMaxAge: number | undefined;
+				let latestModified: Date | undefined;
 
 				for (const entry of processedEntries) {
 					if (entry.cacheHint) {
@@ -536,25 +539,36 @@ export function createGetLiveCollection({
 							entry.cacheHint.tags.forEach((tag) => entryTags.add(tag));
 						}
 						if (typeof entry.cacheHint.maxAge === 'number') {
-							minMaxAge =
-								minMaxAge === undefined
-									? entry.cacheHint.maxAge
-									: Math.min(minMaxAge, entry.cacheHint.maxAge);
+							if (minMaxAge === undefined || entry.cacheHint.maxAge < minMaxAge) {
+								minMaxAge = entry.cacheHint.maxAge;
+							}
+						}
+						if (entry.cacheHint.lastModified instanceof Date) {
+							if (latestModified === undefined || entry.cacheHint.lastModified > latestModified) {
+								latestModified = entry.cacheHint.lastModified;
+							}
 						}
 					}
 				}
 
 				// Merge collection and entry cache hints
-				if (entryTags.size > 0 || minMaxAge !== undefined || cacheHint) {
-					const mergedCacheHint: any = {};
+				if (entryTags.size > 0 || minMaxAge !== undefined || latestModified || cacheHint) {
+					const mergedCacheHint: CacheHint = {};
 					if (cacheHint?.tags || entryTags.size > 0) {
-						mergedCacheHint.tags = [...(cacheHint?.tags || []), ...entryTags];
+						// Merge and dedupe tags
+						mergedCacheHint.tags = [...new Set([...(cacheHint?.tags || []), ...entryTags])];
 					}
 					if (cacheHint?.maxAge !== undefined || minMaxAge !== undefined) {
 						mergedCacheHint.maxAge =
 							cacheHint?.maxAge !== undefined && minMaxAge !== undefined
 								? Math.min(cacheHint.maxAge, minMaxAge)
 								: (cacheHint?.maxAge ?? minMaxAge);
+					}
+					if (cacheHint?.lastModified && latestModified) {
+						mergedCacheHint.lastModified =
+							cacheHint.lastModified > latestModified ? cacheHint.lastModified : latestModified;
+					} else if (cacheHint?.lastModified || latestModified) {
+						mergedCacheHint.lastModified = cacheHint?.lastModified ?? latestModified;
 					}
 					cacheHint = mergedCacheHint;
 				}
@@ -700,6 +714,8 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			...attributes,
 			src: image.src,
 			srcset: image.srcSet.attribute,
+			// This attribute is used by the toolbar audit
+			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})
 			.map(([key, value]) => (value ? `${key}="${escape(value)}"` : ''))
 			.join(' ');
