@@ -12,7 +12,7 @@ import type { Options } from './types.js';
 setGetEnv((key) => process.env[key]);
 
 export function createExports(manifest: SSRManifest, options: Options) {
-	const app = new NodeApp(manifest);
+	const app = new NodeApp(manifest, false);
 	options.trailingSlash = manifest.trailingSlash;
 	return {
 		options: options,
