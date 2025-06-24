@@ -9,6 +9,10 @@ export interface UserOptions {
 	 * - 'standalone' - Build to a standalone server. The server starts up just by running the built script.
 	 */
 	mode: 'middleware' | 'standalone';
+	/**
+	 * Disables HTML streaming. This is useful for example if there are constraints from your host.
+	 */
+	experimentalDisableStreaming?: boolean;
 }
 
 export interface Options extends UserOptions {
