@@ -1,5 +1,25 @@
 # astro
 
+## 5.10.1
+
+### Patch Changes
+
+- [#13988](https://github.com/withastro/astro/pull/13988) [`609044c`](https://github.com/withastro/astro/commit/609044ca6a6254b1db11bb3fc8e0bb54213eab8e) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug in live collections that caused it to incorrectly complain about the collection being defined in the wrong file
+
+- [#13909](https://github.com/withastro/astro/pull/13909) [`b258d86`](https://github.com/withastro/astro/commit/b258d86d47086d3a17d6d9e6b79ac21f9770f765) Thanks [@isVivek99](https://github.com/isVivek99)! - Fixes rendering of special boolean attributes for custom elements
+
+- [#13983](https://github.com/withastro/astro/pull/13983) [`e718375`](https://github.com/withastro/astro/commit/e718375c1714a631eba75f70118653cf93a4326d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the toolbar audit would incorrectly flag images processed by Astro in content collections documents
+
+- [#13999](https://github.com/withastro/astro/pull/13999) [`f077b68`](https://github.com/withastro/astro/commit/f077b68f4debe8d716a8610e561b4fe17b1245b3) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds `lastModified` field to experimental live collection cache hints
+
+  Live loaders can now set a `lastModified` field in the cache hints for entries and collections to indicate when the data was last modified. This is then available in the `cacheHint` field returned by `getCollection` and `getEntry`.
+
+- [#13987](https://github.com/withastro/astro/pull/13987) [`08f34b1`](https://github.com/withastro/astro/commit/08f34b19c8953426ce35093414a27ecd8d405309) Thanks [@ematipico](https://github.com/ematipico)! - Adds an informative message in dev mode when the CSP feature is enabled.
+
+- [#14005](https://github.com/withastro/astro/pull/14005) [`82aad62`](https://github.com/withastro/astro/commit/82aad62efd2b817cc9cff46b606fedaa64e0c922) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where inline styles and scripts didn't work when CSP was enabled. Now when adding `<styles>` elements inside an Astro component, their hashes care correctly computed.
+
+- [#13985](https://github.com/withastro/astro/pull/13985) [`0b4c641`](https://github.com/withastro/astro/commit/0b4c641b22b31d0dea15911c0daba995a48261a9) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates wrong link
+
 ## 5.10.0
 
 ### Minor Changes
