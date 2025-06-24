@@ -422,8 +422,8 @@ importers:
         specifier: ^4.1.0
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
-        specifier: ^0.5.2
-        version: 0.5.2(nanostores@0.11.4)(preact@10.26.9)
+        specifier: ^1.0.0
+        version: 1.0.0(nanostores@0.11.4)(preact@10.26.9)
       astro:
         specifier: ^5.10.1
         version: link:../../packages/astro
@@ -7944,11 +7944,11 @@ packages:
   '@mdx-js/mdx@3.1.0':
     resolution: {integrity: sha512-/QxEhPAvGwbQmy1Px8F899L5Uc2KZ6JtXwlCgJmjSTBedwOZkByYcBG4GceIGPXRDsmfxhHazuS+hlOShRLeDw==}
 
-  '@nanostores/preact@0.5.2':
-    resolution: {integrity: sha512-DZ5G0UuHTJ8NNS8I3Jd6f4RCcWIl4siYD+vaV6jQf0T6xJ3QqTSkJkYNQTZK7O+7NC/mzaLkomyLQqD+w1E0Tg==}
-    engines: {node: ^18.0.0 || >=20.0.0}
+  '@nanostores/preact@1.0.0':
+    resolution: {integrity: sha512-woHYvSwau1YtO9AEnGsh/jRPU2u5DTfNSrDHtKMZOeDUWV6EJfvyv7dJ7AaMps2I9uJcY6OlqXKkA9qTctEjyw==}
+    engines: {node: ^20.0.0 || >=22.0.0}
     peerDependencies:
-      nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0
+      nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0
       preact: '>=10.0.0'
 
   '@neon-rs/load@0.0.4':
@@ -15023,7 +15023,7 @@ snapshots:
       - acorn
       - supports-color
 
-  '@nanostores/preact@0.5.2(nanostores@0.11.4)(preact@10.26.9)':
+  '@nanostores/preact@1.0.0(nanostores@0.11.4)(preact@10.26.9)':
     dependencies:
       nanostores: 0.11.4
       preact: 10.26.9
