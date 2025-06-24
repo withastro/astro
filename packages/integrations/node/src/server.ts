@@ -27,6 +27,6 @@ export function start(manifest: SSRManifest, options: Options) {
 		return;
 	}
 
-	const app = new NodeApp(manifest);
+	const app = new NodeApp(manifest, false);
 	startServer(app, options);
 }
