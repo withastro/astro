@@ -159,7 +159,7 @@ export default function (options?: Options): AstroIntegration {
 				if (options?.jsx) {
 					addRenderer(getJsxRenderer());
 				}
-				updateConfig({ vite: await getViteConfiguration(command, options) });
+				updateConfig({ vite: await getViteConfiguration(command, options) as any });
 			},
 			'astro:config:done': ({ logger, config }) => {
 				if (!options?.jsx) return;

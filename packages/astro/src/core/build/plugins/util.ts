@@ -1,46 +1,7 @@
 import { extname } from 'node:path';
-import type { BuildOptions, Rollup, Plugin as VitePlugin } from 'vite';
+import type { BuildOptions } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { PageBuildData } from '../types.js';
-
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-type OutputOptionsHook = Extract<VitePlugin['outputOptions'], Function>;
-type OutputOptions = Parameters<OutputOptionsHook>[0];
-
-type ExtendManualChunksHooks = {
-	before?: Rollup.GetManualChunk;
-	after?: Rollup.GetManualChunk;
-};
-
-export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendManualChunksHooks) {
-	const manualChunks = outputOptions.manualChunks;
-	outputOptions.manualChunks = function (id, meta) {
-		if (hooks.before) {
-			let value = hooks.before(id, meta);
-			if (value) {
-				return value;
-			}
-		}
-
-		// Defer to user-provided `manualChunks`, if it was provided.
-		if (typeof manualChunks == 'object') {
-			if (id in manualChunks) {
-				let value = manualChunks[id];
-				return value[0];
-			}
-		} else if (typeof manualChunks === 'function') {
-			const outid = manualChunks.call(this, id, meta);
-			if (outid) {
-				return outid;
-			}
-		}
-
-		if (hooks.after) {
-			return hooks.after(id, meta) || null;
-		}
-		return null;
-	};
-}
 
 // This is an arbitrary string that we use to replace the dot of the extension.
 export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';

@@ -101,7 +101,7 @@ export default function (options: Options = {}): AstroIntegration {
 
 				addRenderer(getRenderer());
 				updateConfig({
-					vite: getViteConfiguration(options, devtoolsPlugin),
+					vite: getViteConfiguration(options, devtoolsPlugin) as any,
 				});
 
 				if (devtoolsPlugin) {

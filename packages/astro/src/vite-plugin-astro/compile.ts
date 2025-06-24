@@ -1,4 +1,4 @@
-import { type ESBuildTransformResult, transformWithEsbuild } from 'vite';
+import { transformWithEsbuild } from 'vite';
 import { type CompileProps, type CompileResult, compile } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -11,6 +11,8 @@ interface CompileAstroOption {
 	astroFileToCompileMetadata: Map<string, CompileMetadata>;
 	logger: Logger;
 }
+
+type ESBuildTransformResult = Awaited<ReturnType<typeof transformWithEsbuild>>;
 
 export interface CompileAstroResult extends Omit<CompileResult, 'map'> {
 	map: ESBuildTransformResult['map'];

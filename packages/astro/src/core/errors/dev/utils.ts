@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { escape } from 'html-escaper';
 import { bold, underline } from 'kleur/colors';
-import type { ESBuildTransformResult } from 'vite';
 import type { SSRError } from '../../../types/public/internal.js';
 import { removeLeadingForwardSlashWindows } from '../../path.js';
 import { normalizePath } from '../../viteUtils.js';
@@ -12,8 +11,6 @@ import { AggregateError, type ErrorWithMetadata } from '../errors.js';
 import { AstroErrorData } from '../index.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
-
-type EsbuildMessage = ESBuildTransformResult['warnings'][number];
 
 /**
  * Takes any error-like object and returns a standardized Error + metadata object.
@@ -85,7 +82,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL): ErrorWithMetadat
 	// If we received an array of errors and it's not from us, it's most likely from ESBuild, try to extract info for Vite to display
 	// NOTE: We still need to be defensive here, because it might not necessarily be from ESBuild, it's just fairly likely.
 	if (!AggregateError.is(e) && Array.isArray(e.errors)) {
-		(e.errors as EsbuildMessage[]).forEach((buildError, i) => {
+		(e.errors as any[]).forEach((buildError, i) => {
 			const { location, pluginName, text } = buildError;
 
 			// ESBuild can give us a slightly better error message than the one in the error, so let's use it

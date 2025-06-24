@@ -1,19 +1,19 @@
-import type { GetModuleInfo } from 'rollup';
+import type { GetModuleInfo } from 'rolldown';
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
-import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
+// isBuildableCSSRequest removed - CSS detection now relies on natural chunking
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
 
 import { hasAssetPropagationFlag } from '../../../content/index.js';
-import * as assetName from '../css-asset-name.js';
+// Asset naming for CSS now handled by natural chunking
 import {
 	getParentExtendedModuleInfos,
 	getParentModuleInfos,
 	moduleIsTopLevelPage,
 } from '../graph.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js';
-import { extendManualChunks, shouldInlineAsset } from './util.js';
+import { shouldInlineAsset } from './util.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -61,45 +61,9 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
 
-		outputOptions(outputOptions) {
-			const assetFileNames = outputOptions.assetFileNames;
-			const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
-			const createNameForParentPages = namingIncludesHash
-				? assetName.shortHashedName(settings)
-				: assetName.createSlugger(settings);
-
-			extendManualChunks(outputOptions, {
-				after(id, meta) {
-					// For CSS, create a hash of all of the pages that use it.
-					// This causes CSS to be built into shared chunks when used by multiple pages.
-					if (isBuildableCSSRequest(id)) {
-						// For client builds that has hydrated components as entrypoints, there's no way
-						// to crawl up and find the pages that use it. So we lookup the cache during SSR
-						// build (that has the pages information) to derive the same chunk id so they
-						// match up on build, making sure both builds has the CSS deduped.
-						// NOTE: Components that are only used with `client:only` may not exist in the cache
-						// and that's okay. We can use Rollup's default chunk strategy instead as these CSS
-						// are outside of the SSR build scope, which no dedupe is needed.
-						if (options.target === 'client') {
-							return internals.cssModuleToChunkIdMap.get(id)!;
-						}
-
-						const ctx = { getModuleInfo: meta.getModuleInfo };
-						for (const pageInfo of getParentModuleInfos(id, ctx)) {
-							if (hasAssetPropagationFlag(pageInfo.id)) {
-								// Split delayed assets to separate modules
-								// so they can be injected where needed
-								const chunkId = assetName.createNameHash(id, [id], settings);
-								internals.cssModuleToChunkIdMap.set(id, chunkId);
-								return chunkId;
-							}
-						}
-						const chunkId = createNameForParentPages(id, meta);
-						internals.cssModuleToChunkIdMap.set(id, chunkId);
-						return chunkId;
-					}
-				},
-			});
+		outputOptions(_outputOptions) {
+			// CSS chunking now relies on natural page-based grouping via entrypoints/dynamic imports
+			// Coordination between SSR and client builds handled in generateBundle hook
 		},
 
 		async generateBundle(_outputOptions, bundle) {
@@ -237,8 +201,9 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					// to avoid duplicate CSS.
 					delete bundle[id];
 					for (const chunk of Object.values(bundle)) {
-						if (chunk.type === 'chunk') {
-							chunk.viteMetadata?.importedCss?.delete(id);
+						if (chunk.type === 'chunk' && 'viteMetadata' in chunk) {
+							const meta = chunk.viteMetadata as ViteMetadata;
+							meta?.importedCss?.delete(id);
 						}
 					}
 				}

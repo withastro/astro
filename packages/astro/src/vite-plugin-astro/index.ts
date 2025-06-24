@@ -1,4 +1,4 @@
-import type { SourceDescription } from 'rollup';
+import type { SourceDescription } from 'rolldown';
 import type * as vite from 'vite';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';

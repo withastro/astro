@@ -1,4 +1,4 @@
-import type { PluginContext } from 'rollup';
+import type { PluginContext } from 'rolldown';
 import type { Plugin as VitePlugin } from 'vite';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';

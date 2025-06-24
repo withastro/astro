@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => Alpine.start());`,
 					vite: {
 						plugins: [virtualEntrypoint(options)],
 					},
-				});
+				} as any);
 			},
 		},
 	};

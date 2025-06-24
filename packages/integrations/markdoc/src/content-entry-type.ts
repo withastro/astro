@@ -6,7 +6,8 @@ import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import { emitESMImage } from 'astro/assets/utils';
-import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
+import type { ErrorPayload as ViteErrorPayload } from 'vite';
+import type { PluginContext } from 'rolldown';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
 import type { MarkdocConfigResult } from './load-config.js';
@@ -170,7 +171,7 @@ async function resolvePartials({
 	tokenizer: any;
 	allowHTML?: boolean;
 	markdocConfig: MarkdocConfig;
-	pluginContext: Rollup.PluginContext;
+	pluginContext: PluginContext;
 	raisePartialValidationErrors: (ast: Node, filePath: string) => void;
 }) {
 	const relativePartialPath = path.relative(fileURLToPath(root), fileURLToPath(fileUrl));
@@ -297,7 +298,7 @@ function getUsedTags(markdocAst: Node) {
 async function emitOptimizedImages(
 	nodeChildren: Node[],
 	ctx: {
-		pluginContext: Rollup.PluginContext;
+		pluginContext: PluginContext;
 		filePath: string;
 		astroConfig: AstroConfig;
 	},

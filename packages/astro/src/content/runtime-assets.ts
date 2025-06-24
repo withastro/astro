@@ -1,4 +1,4 @@
-import type { PluginContext } from 'rollup';
+import type { PluginContext } from 'rolldown';
 import { z } from 'zod';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
 import { emitESMImage } from '../assets/utils/node/emitAsset.js';

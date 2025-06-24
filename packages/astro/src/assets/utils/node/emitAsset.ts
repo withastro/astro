@@ -1,12 +1,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type * as vite from 'vite';
+import type { PluginContext } from 'rolldown';
 import { prependForwardSlash, slash } from '../../../core/path.js';
 import type { ImageMetadata } from '../../types.js';
 import { imageMetadata } from '../metadata.js';
 
-type FileEmitter = vite.Rollup.EmitFile;
+type FileEmitter = PluginContext['emitFile'];
 type ImageMetadataWithContents = ImageMetadata & { contents?: Buffer };
 
 /**

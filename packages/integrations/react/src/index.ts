@@ -116,7 +116,7 @@ export default function ({
 					vite: getViteConfiguration(
 						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming },
 						versionConfig,
-					),
+					) as any,
 				});
 				if (command === 'dev') {
 					const preamble = FAST_REFRESH_PREAMBLE.replace(`__BASE__`, '/');
