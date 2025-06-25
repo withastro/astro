@@ -1,7 +1,7 @@
-import { blue, bold, green } from 'kleur/colors';
 import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import { blue, bold, green } from 'kleur/colors';
 import type * as vite from 'vite';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
