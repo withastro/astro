@@ -2,12 +2,19 @@ import type { AstroConfig, ImageQualityPreset, ImageTransform } from 'astro';
 import { isESMImportedImage } from 'astro/assets/utils';
 
 export function getDefaultImageConfig(astroImageConfig: AstroConfig['image']): VercelImageConfig {
-	return {
-		sizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-		domains: astroImageConfig.domains ?? [],
-		// Cast is necessary here because Vercel's types are slightly different from ours regarding allowed protocols. Behavior should be the same, however.
-		remotePatterns: (astroImageConfig.remotePatterns as VercelImageConfig['remotePatterns']) ?? [],
+	const defaultSizes = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
+	const defaultImageConfig = {
+	  sizes: astroImageConfig.sizes ?? defaultSizes,
 	};
+
+	if (astroImageConfig.remotePatterns) {
+		// Cast is necessary here because Vercel's types are slightly different from ours regarding allowed protocols. Behavior should be the same, however.
+		defaultImageConfig.remotePatterns = astroImageConfig.remotePatterns as VercelImageConfig['remotePatterns'];
+	} else {
+		defaultImageConfig.domains = astroImageConfig.domains ?? [];
+	}
+	
+	return defaultImageConfig;
 }
 
 export type DevImageService = 'sharp' | (string & {});
@@ -30,7 +37,7 @@ export type VercelImageConfig = {
 	/**
 	 * Allowed external domains that can use Image Optimization. Leave empty for only allowing the deployment domain to use Image Optimization.
 	 */
-	domains: string[];
+	domains?: string[];
 	/**
 	 * Allowed external patterns that can use Image Optimization. Similar to `domains` but provides more control with RegExp.
 	 */
