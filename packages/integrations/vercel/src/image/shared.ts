@@ -5,7 +5,7 @@ export function getDefaultImageConfig(astroImageConfig: AstroConfig['image']): V
 	const defaultSizes = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
 	const defaultImageConfig = {
 		sizes: astroImageConfig.sizes ?? defaultSizes,
-	} as AstroConfig['image'];
+	} as AstroConfig['image'] & { sizes: VercelImageConfig['sizes'] };
 
 	if (astroImageConfig.remotePatterns) {
 		// Cast is necessary here because Vercel's types are slightly different from ours regarding allowed protocols. Behavior should be the same, however.
