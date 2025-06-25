@@ -256,9 +256,15 @@ async function buildManifest(
 		staticFiles.push(file);
 	}
 
+	const needsStaticHeaders = settings.adapter?.adapterFeatures?.experimentalStaticHeaders ?? false;
+
 	for (const route of opts.routesList.routes) {
 		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
-		if (route.prerender || !pageData) continue;
+		if (!pageData) continue;
+
+		if (route.prerender && !needsStaticHeaders) {
+			continue;
+		}
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			const src = entryModules[PAGE_SCRIPT_ID];
