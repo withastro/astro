@@ -1,7 +1,7 @@
+import { blue, bold, green } from 'kleur/colors';
 import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { blue, bold, green } from 'kleur/colors';
 import type * as vite from 'vite';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
@@ -14,7 +14,6 @@ import {
 import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
 import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
-import type { SSRManifest } from '../app/types.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
@@ -100,7 +99,6 @@ class AstroBuilder {
 	private routesList: RoutesList;
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
-	private manifest: SSRManifest;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		this.mode = options.mode;
@@ -112,9 +110,6 @@ class AstroBuilder {
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
 		this.routesList = { routes: [] };
-		// NOTE: this manifest is only used by the first build pass to make the `astro:manifest` function.
-		// After the first build, the BuildPipeline comes into play, and it creates the proper manifest for generating the pages.
-		this.manifest = createDevelopmentManifest(settings);
 		this.timer = {};
 	}
 
@@ -128,6 +123,9 @@ class AstroBuilder {
 			command: 'build',
 			logger: logger,
 		});
+		// NOTE: this manifest is only used by the first build pass to make the `astro:manifest` function.
+		// After the first build, the BuildPipeline comes into play, and it creates the proper manifest for generating the pages.
+		const manifest = createDevelopmentManifest(this.settings);
 
 		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
 
@@ -153,7 +151,7 @@ class AstroBuilder {
 				command: 'build',
 				sync: false,
 				routesList: this.routesList,
-				manifest: this.manifest,
+				manifest,
 			},
 		);
 
@@ -165,7 +163,7 @@ class AstroBuilder {
 			fs,
 			routesList: this.routesList,
 			command: 'build',
-			manifest: this.manifest,
+			manifest,
 		});
 
 		return { viteConfig };
