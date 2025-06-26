@@ -1,11 +1,10 @@
 import { fileURLToPath } from 'node:url';
-import type { AstroAdapter, AstroIntegration, NodeAppHeadersJson } from 'astro';
+import type { AstroAdapter, AstroIntegration, NodeAppHeadersJson, RouteToHeaders } from 'astro';
 import { AstroError } from 'astro/errors';
 import type { Options, UserOptions } from './types.js';
-import type { AstroConfig, IntegrationResolvedRoute } from 'astro';
+import type { AstroConfig } from 'astro';
 import { writeJson } from '@astrojs/internal-helpers/fs';
 import { STATIC_HEADERS_FILE } from './shared.js';
-
 
 export function getAdapter(options: Options): AstroAdapter {
 	return {
@@ -37,7 +36,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 
 	let _options: Options;
 	let _config: AstroConfig | undefined = undefined;
-	let _routeToHeaders: Map<IntegrationResolvedRoute, Headers> | undefined = undefined;
+	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	return {
 		name: '@astrojs/node',
 		hooks: {
@@ -94,19 +93,12 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					const headersFileUrl = new URL(STATIC_HEADERS_FILE, _config.outDir);
 					const headersValue: NodeAppHeadersJson = [];
 
-					for (const [route, routeHeaders] of _routeToHeaders.entries()) {
-						if (!route.isPrerendered) {
-							continue;
-						}
-						if (route.redirect) {
-							continue;
-						}
+					for (const [_, { headers, pathname }] of _routeToHeaders.entries()) {
 						if (_config.experimental.csp) {
-							const csp = routeHeaders.get('Content-Security-Policy');
-
+							const csp = headers.get('Content-Security-Policy');
 							if (csp) {
 								headersValue.push({
-									source: route.pattern,
+									pathname,
 									headers: [
 										{
 											key: 'Content-Security-Policy',

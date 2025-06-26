@@ -141,7 +141,7 @@ export type SerializedSSRManifest = Omit<
 };
 
 export type NodeAppHeadersJson = {
-	source: string;
+	pathname: string;
 	headers: {
 		key: string;
 		value: string;

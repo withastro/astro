@@ -15,6 +15,7 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
+	RouteToHeaders,
 } from 'astro';
 import { build } from 'esbuild';
 import { glob, globSync } from 'tinyglobby';
@@ -109,7 +110,7 @@ export function remotePatternToRegex(
 
 async function writeNetlifyFrameworkConfig(
 	config: AstroConfig,
-	staticHeaders: Map<IntegrationResolvedRoute, Headers> | undefined,
+	staticHeaders: RouteToHeaders | undefined,
 	logger: AstroIntegrationLogger,
 ) {
 	const remoteImages: Array<string> = [];
@@ -146,7 +147,7 @@ async function writeNetlifyFrameworkConfig(
 			const definition = createHostedRouteDefinition(route, config);
 
 			if (config.experimental.csp) {
-				const csp = routeHeaders.get('Content-Security-Policy');
+				const csp = routeHeaders.headers.get('Content-Security-Policy');
 
 				if (csp) {
 					headers.push({
@@ -259,7 +260,7 @@ export default function netlifyIntegration(
 	let outDir: URL;
 	let rootDir: URL;
 	let astroMiddlewareEntryPoint: URL | undefined = undefined;
-	let staticHeadersMap: Map<IntegrationResolvedRoute, Headers> | undefined = undefined;
+	let staticHeadersMap: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party

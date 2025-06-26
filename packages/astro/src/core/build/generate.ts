@@ -21,7 +21,6 @@ import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
 import type { GetStaticPathsItem, MiddlewareHandler } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/config.js';
-import type { IntegrationResolvedRoute } from '../../types/public/index.js';
 import type {
 	RouteData,
 	RouteType,
@@ -63,6 +62,7 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import type { IntegrationResolvedRoute, RouteToHeaders } from '../../types/public/index.js';
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();
@@ -103,7 +103,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
-	const routeToHeaders = new Map<IntegrationResolvedRoute, Headers>();
+	const routeToHeaders: RouteToHeaders = new Map();
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
@@ -235,7 +235,7 @@ async function generatePage(
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>,
 	pipeline: BuildPipeline,
-	routeToHeaders: Map<IntegrationResolvedRoute, Headers>,
+	routeToHeaders: RouteToHeaders,
 ) {
 	// prepare information we need
 	const { config, logger } = pipeline;
@@ -265,6 +265,7 @@ async function generatePage(
 	async function generatePathWithLogs(
 		path: string,
 		route: RouteData,
+		integrationRoute: IntegrationResolvedRoute,
 		index: number,
 		paths: string[],
 		isConcurrent: boolean,
@@ -282,7 +283,14 @@ async function generatePage(
 			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
 		}
 
-		const created = await generatePath(path, pipeline, generationOptions, route, routeToHeaders);
+		const created = await generatePath(
+			path,
+			pipeline,
+			generationOptions,
+			route,
+			integrationRoute,
+			routeToHeaders,
+		);
 
 		const timeEnd = performance.now();
 		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
@@ -299,6 +307,7 @@ async function generatePage(
 
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
 	for (const route of eachRouteInRouteData(pageData)) {
+		const integrationRoute = toIntegrationResolvedRoute(route);
 		const icon =
 			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
 				? green('▶')
@@ -314,13 +323,15 @@ async function generatePage(
 			const promises: Promise<void>[] = [];
 			for (let i = 0; i < paths.length; i++) {
 				const path = paths[i];
-				promises.push(limit(() => generatePathWithLogs(path, route, i, paths, true)));
+				promises.push(
+					limit(() => generatePathWithLogs(path, route, integrationRoute, i, paths, true)),
+				);
 			}
 			await Promise.all(promises);
 		} else {
 			for (let i = 0; i < paths.length; i++) {
 				const path = paths[i];
-				await generatePathWithLogs(path, route, i, paths, false);
+				await generatePathWithLogs(path, route, integrationRoute, i, paths, false);
 			}
 		}
 	}
@@ -500,7 +511,8 @@ async function generatePath(
 	pipeline: BuildPipeline,
 	gopts: GeneratePathOptions,
 	route: RouteData,
-	routeToHeaders: Map<IntegrationResolvedRoute, Headers>,
+	integrationRoute: IntegrationResolvedRoute,
+	routeToHeaders: RouteToHeaders,
 ): Promise<boolean | undefined> {
 	const { mod } = gopts;
 	const { config, logger, options } = pipeline;
@@ -570,20 +582,14 @@ async function generatePath(
 		throw err;
 	}
 
-	if (
-		pipeline.settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
-		pipeline.settings.config.experimental?.csp
-	) {
-		routeToHeaders.set(toIntegrationResolvedRoute(route), response.headers);
-	}
-
+	const responseHeaders = response.headers;
 	if (response.status >= 300 && response.status < 400) {
 		// Adapters may handle redirects themselves, turning off Astro's redirect handling using `config.build.redirects` in the process.
 		// In that case, we skip rendering static files for the redirect routes.
 		if (routeIsRedirect(route) && !config.build.redirects) {
 			return undefined;
 		}
-		const locationSite = getRedirectLocationOrThrow(response.headers);
+		const locationSite = getRedirectLocationOrThrow(responseHeaders);
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
@@ -615,6 +621,13 @@ async function generatePath(
 		route.distURL.push(outFile);
 	} else {
 		route.distURL = [outFile];
+	}
+
+	if (
+		pipeline.settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
+		pipeline.settings.config.experimental?.csp
+	) {
+		routeToHeaders.set(integrationRoute, { headers: responseHeaders, pathname });
 	}
 
 	await fs.promises.mkdir(outFolder, { recursive: true });

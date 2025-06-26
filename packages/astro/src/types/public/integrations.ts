@@ -238,7 +238,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:generated': (options: {
 		dir: URL;
 		logger: AstroIntegrationLogger;
-		experimentalRouteToHeaders: Map<IntegrationResolvedRoute, Headers>;
+		experimentalRouteToHeaders: RouteToHeaders;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
@@ -279,6 +279,13 @@ export type IntegrationRouteData = Omit<
 	 * {@link RouteData.redirectRoute}
 	 */
 	redirectRoute?: IntegrationRouteData;
+};
+
+export type RouteToHeaders = Map<IntegrationResolvedRoute, HeaderPayload>;
+
+export type HeaderPayload = {
+	headers: Headers;
+	pathname: string;
 };
 
 export interface IntegrationResolvedRoute

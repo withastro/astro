@@ -28,7 +28,7 @@ describe('Static headers', () => {
 	it('CSP headers are added to the request', async () => {});
 });
 
-describe('Static headers', () => {
+describe.only('Static headers', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let server;
@@ -48,7 +48,7 @@ describe('Static headers', () => {
 
 	after(async () => {
 		await server.stop();
-		await fixture.clean();
+		// await fixture.clean();
 	});
 
 	it('CSP headers are added to the request', async () => {
@@ -60,7 +60,7 @@ describe('Static headers', () => {
 		);
 	});
 
-	it('CSP headers are added to dynamic orute', async () => {
+	it.only('CSP headers are added to dynamic orute', async () => {
 		const res = await fetch(`http://${server.host}:${server.port}/one`);
 		const cps = res.headers.get('Content-Security-Policy');
 		assert.ok(
