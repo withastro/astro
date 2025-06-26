@@ -22,7 +22,7 @@ type FindRouteToRewrite = {
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: AstroConfig['build']['format'];
 	base: AstroConfig['base'];
-	outDir: AstroConfig['outDir'] | AstroConfig['build']['client'] | string;
+	outDir: URL | string;
 };
 
 interface FindRouteToRewriteResult {
