@@ -3,11 +3,7 @@ import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { IncomingMessage } from 'node:http';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { emptyDir } from '@astrojs/internal-helpers/fs';
-import {
-	createHostedRouteDefinition,
-	createRedirectsFromAstroRoutes,
-	printAsRedirects,
-} from '@astrojs/underscore-redirects';
+import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
 import type {
 	AstroConfig,
@@ -136,22 +132,13 @@ async function writeNetlifyFrameworkConfig(
 	}
 
 	if (staticHeaders && staticHeaders.size > 0) {
-		for (const [route, routeHeaders] of staticHeaders.entries()) {
-			if (!route.isPrerendered) {
-				continue;
-			}
-			if (route.redirect) {
-				continue;
-			}
-
-			const definition = createHostedRouteDefinition(route, config);
-
+		for (const [pathname, { headers: routeHeaders }] of staticHeaders.entries()) {
 			if (config.experimental.csp) {
-				const csp = routeHeaders.headers.get('Content-Security-Policy');
+				const csp = routeHeaders.get('Content-Security-Policy');
 
 				if (csp) {
 					headers.push({
-						for: definition.input,
+						for: pathname,
 						values: {
 							'Content-Security-Policy': csp,
 						},

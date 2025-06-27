@@ -228,18 +228,6 @@ async function buildManifest(
 	}
 
 	for (const route of opts.routesList.routes) {
-		// If static headers are enabled, we need to save static routes into the manifest,
-		// so when we run App.match, we're able to find the route that requires the headers.
-		if (settings.adapter?.adapterFeatures?.experimentalStaticHeaders) {
-			routes.push({
-				// we don't have a file to store
-				file: '',
-				links: [],
-				scripts: [],
-				styles: [],
-				routeData: serializeRouteData(route, settings.config.trailingSlash),
-			});
-		}
 		if (!route.prerender) continue;
 		if (!route.pathname) continue;
 

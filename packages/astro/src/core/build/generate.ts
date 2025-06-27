@@ -627,7 +627,7 @@ async function generatePath(
 		pipeline.settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
 		pipeline.settings.config.experimental?.csp
 	) {
-		routeToHeaders.set(integrationRoute, { headers: responseHeaders, pathname });
+		routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
 	}
 
 	await fs.promises.mkdir(outFolder, { recursive: true });

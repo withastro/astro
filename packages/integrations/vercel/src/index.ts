@@ -2,7 +2,6 @@ import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
-import { createHostedRouteDefinition } from '@astrojs/underscore-redirects';
 import {
 	type Header,
 	type Route,
@@ -743,15 +742,13 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 
 function createConfigHeaders(staticHeaders: RouteToHeaders, config: AstroConfig): Header[] {
 	const vercelHeaders: Header[] = [];
-	for (const [route, { headers }] of staticHeaders.entries()) {
-		const definition = createHostedRouteDefinition(route, config);
-
+	for (const [pathname, { headers }] of staticHeaders.entries()) {
 		if (config.experimental.csp) {
 			const csp = headers.get('Content-Security-Policy');
 
 			if (csp) {
 				vercelHeaders.push({
-					source: definition.input,
+					source: pathname,
 					headers: [
 						{
 							key: 'Content-Security-Policy',

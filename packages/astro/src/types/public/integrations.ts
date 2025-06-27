@@ -281,11 +281,11 @@ export type IntegrationRouteData = Omit<
 	redirectRoute?: IntegrationRouteData;
 };
 
-export type RouteToHeaders = Map<IntegrationResolvedRoute, HeaderPayload>;
+export type RouteToHeaders = Map<string, HeaderPayload>;
 
 export type HeaderPayload = {
 	headers: Headers;
-	pathname: string;
+	route: IntegrationResolvedRoute;
 };
 
 export interface IntegrationResolvedRoute
