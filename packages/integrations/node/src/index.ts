@@ -93,7 +93,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					const headersFileUrl = new URL(STATIC_HEADERS_FILE, _config.outDir);
 					const headersValue: NodeAppHeadersJson = [];
 
-					for (const [_, { headers, pathname }] of _routeToHeaders.entries()) {
+					for (const [pathname, { headers }] of _routeToHeaders.entries()) {
 						if (_config.experimental.csp) {
 							const csp = headers.get('Content-Security-Policy');
 							if (csp) {

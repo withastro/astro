@@ -15,7 +15,7 @@ describe('Static headers', () => {
 		const headers = JSON.parse(await fixture.readFile('../dist/_experimentalHeaders.json'));
 
 		const csp = headers
-			.find((x) => x.source === '/')
+			.find((x) => x.pathname === '/')
 			.headers.find((x) => x.key === 'Content-Security-Policy');
 
 		assert.notEqual(csp, undefined, 'the index must have CSP headers');
