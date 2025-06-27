@@ -106,7 +106,7 @@ const collectionConfigParser = z.union([
 		_legacy: z.boolean().optional(),
 	}),
 	z.object({
-		type: z.literal(LIVE_CONTENT_TYPE),
+		type: z.literal(LIVE_CONTENT_TYPE).optional().default(LIVE_CONTENT_TYPE),
 		schema: z.any().optional(),
 		loader: z.function(),
 	}),

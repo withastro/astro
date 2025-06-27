@@ -30,7 +30,7 @@ class CustomError extends Error {
 	}
 }
 
-const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
+export const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 	name: 'test-loader',
 	loadEntry: async ({ filter }) => {
 		const entry = entries[filter.id];
@@ -77,7 +77,6 @@ const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 };
 
 const liveStuff = defineLiveCollection({
-	type: 'live',
 	loader,
 	schema: z.object({
 		title: z.string(),
