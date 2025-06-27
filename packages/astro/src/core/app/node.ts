@@ -7,7 +7,7 @@ import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import { App } from './index.js';
 import type { RenderOptions } from './index.js';
-import type { SSRManifest, SerializedSSRManifest } from './types.js';
+import type { SSRManifest, SerializedSSRManifest, NodeAppHeadersJson } from './types.js';
 
 export { apply as applyPolyfills } from '../polyfill.js';
 
@@ -20,13 +20,19 @@ interface NodeRequest extends IncomingMessage {
 }
 
 export class NodeApp extends App {
-	match(req: NodeRequest | Request) {
+	headersMap: NodeAppHeadersJson | undefined = undefined;
+
+	public setHeadersMap(headers: NodeAppHeadersJson) {
+		this.headersMap = headers;
+	}
+
+	match(req: NodeRequest | Request, allowPrerenderedRoutes = false) {
 		if (!(req instanceof Request)) {
 			req = NodeApp.createRequest(req, {
 				skipBody: true,
 			});
 		}
-		return super.match(req);
+		return super.match(req, allowPrerenderedRoutes);
 	}
 	render(request: NodeRequest | Request, options?: RenderOptions): Promise<Response>;
 	/**

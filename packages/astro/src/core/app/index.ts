@@ -191,7 +191,15 @@ export class App {
 		}
 	}
 
-	match(request: Request): RouteData | undefined {
+	/**
+	 * Given a `Request`, it returns the `RouteData` that matches its `pathname`. By default, prerendered
+	 * routes aren't returned, even if they are matched.
+	 *
+	 * When `allowPrerenderedRoutes` is `true`, the function returns matched prerendered routes too.
+	 * @param request
+	 * @param allowPrerenderedRoutes
+	 */
+	match(request: Request, allowPrerenderedRoutes = false): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
@@ -201,8 +209,14 @@ export class App {
 		}
 		let routeData = matchRoute(decodeURI(pathname), this.#manifestData);
 
+		if (!routeData) return undefined;
+		if (allowPrerenderedRoutes) {
+			return routeData;
+		}
 		// missing routes fall-through, pre rendered are handled by static layer
-		if (!routeData || routeData.prerender) return undefined;
+		else if (routeData.prerender) {
+			return undefined;
+		}
 		return routeData;
 	}
 

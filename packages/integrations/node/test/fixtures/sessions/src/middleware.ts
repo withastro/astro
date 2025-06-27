@@ -10,8 +10,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { action, setActionResult, serializeActionResult } =
     getActionContext(context);
 
-		console.log(action?.name)
-
 	const actionPayload = await context.session.get(ACTION_SESSION_KEY);
 
   if (actionPayload) {

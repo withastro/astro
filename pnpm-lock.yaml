@@ -5567,6 +5567,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/node/test/fixtures/static-headers:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/node/test/fixtures/trailing-slash:
     dependencies:
       '@astrojs/node':
@@ -5797,9 +5806,6 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../../internal-helpers
-      '@astrojs/underscore-redirects':
-        specifier: workspace:*
-        version: link:../../underscore-redirects
       '@vercel/analytics':
         specifier: ^1.5.0
         version: 1.5.0(react@19.1.0)(svelte@5.34.7)(vue@3.5.17(typescript@5.8.3))

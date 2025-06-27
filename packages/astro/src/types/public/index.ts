@@ -36,7 +36,7 @@ export type {
 	ImageTransform,
 	UnresolvedImageTransform,
 } from '../../assets/types.js';
-export type { AssetsPrefix, SSRManifest } from '../../core/app/types.js';
+export type { AssetsPrefix, SSRManifest, NodeAppHeadersJson } from '../../core/app/types.js';
 export type {
 	AstroCookieGetOptions,
 	AstroCookieSetOptions,
