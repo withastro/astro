@@ -1,10 +1,9 @@
-import { renderTemplate } from './astro/render-template.js';
-import type { RenderInstruction } from './instruction.js';
-
 import type { SSRResult } from '../../../types/public/internal.js';
 import { HTMLString, markHTMLString, unescapeHTML } from '../escape.js';
 import { renderChild } from './any.js';
-import { type RenderDestination, type RenderInstance, chunkToString } from './common.js';
+import { renderTemplate } from './astro/render-template.js';
+import { chunkToString, type RenderDestination, type RenderInstance } from './common.js';
+import type { RenderInstruction } from './instruction.js';
 
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;

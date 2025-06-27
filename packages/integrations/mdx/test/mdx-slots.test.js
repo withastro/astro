@@ -1,7 +1,6 @@
-import mdx from '@astrojs/mdx';
-
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 

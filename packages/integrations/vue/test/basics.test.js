@@ -2,6 +2,7 @@ import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from './test-utils.js';
+
 describe('Basics', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;

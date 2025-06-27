@@ -1,9 +1,8 @@
-import type { Context } from './context.js';
-
 import dns from 'node:dns/promises';
 import { color } from '@astrojs/cli-kit';
 import { verifyTemplate } from '@bluwy/giget-core';
 import { bannerAbort, error, info, log } from '../messages.js';
+import type { Context } from './context.js';
 import { getTemplateTarget } from './template.js';
 
 export async function verify(

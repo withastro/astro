@@ -1,5 +1,5 @@
 import { setup } from 'virtual:@astrojs/vue/app';
-import { Suspense, createApp, createSSRApp, h } from 'vue';
+import { createApp, createSSRApp, h, Suspense } from 'vue';
 import StaticHtml from './static-html.js';
 
 // keep track of already initialized apps, so we don't hydrate again for view transitions

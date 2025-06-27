@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { type PreactPluginOptions as VitePreactPluginOptions, preact } from '@preact/preset-vite';
+import { preact, type PreactPluginOptions as VitePreactPluginOptions } from '@preact/preset-vite';
 import type { AstroIntegration, AstroRenderer, ContainerRenderer, ViteUserConfig } from 'astro';
 
 const babelCwd = new URL('../', import.meta.url);
