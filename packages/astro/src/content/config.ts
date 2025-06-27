@@ -149,7 +149,7 @@ export function defineLiveCollection<
 		throw new AstroError({
 			...AstroErrorData.LiveContentConfigError,
 			message: AstroErrorData.LiveContentConfigError.message(
-				'Live collection loaders must have `loadCollection` and `loadEntry` methods. Are you using a build-time loader instead?',
+				'Live collection loaders must have `loadCollection()` and `loadEntry()` methods. Please check that you are not using a loader intended for build-time collections',
 				importerFilename,
 			),
 		});
