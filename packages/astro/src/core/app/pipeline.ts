@@ -86,7 +86,7 @@ export class AppPipeline extends Pipeline {
 			trailingSlash: this.manifest.trailingSlash,
 			buildFormat: this.manifest.buildFormat,
 			base: this.manifest.base,
-			outDir: this.manifest.outDir,
+			outDir: this.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
 		});
 
 		const componentInstance = await this.getComponentByRoute(routeData);

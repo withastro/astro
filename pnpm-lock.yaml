@@ -3293,6 +3293,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/i18n-routing-fallback-rewrite-hybrid:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/i18n-routing-manual:
     dependencies:
       astro:
