@@ -141,6 +141,7 @@ async function runInstallCommand(
 						installCommand.command,
 						[
 							...installCommand.args,
+              installCommand.command === "deno" ? "--npm" : "",
 							...dependencies.map(
 								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`,
 							),
@@ -153,6 +154,7 @@ async function runInstallCommand(
 						installCommand.command,
 						[
 							...installCommand.args,
+              installCommand.command === "deno" ? "--npm" : "",
 							...devDependencies.map(
 								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`,
 							),
@@ -164,6 +166,7 @@ async function runInstallCommand(
 				const manualInstallCommand = [
 					installCommand.command,
 					...installCommand.args,
+          installCommand.command === "deno" ? "--npm" : "",
 					...[...dependencies, ...devDependencies].map(
 						({ name, targetVersion }) => `${name}@${targetVersion}`,
 					),
