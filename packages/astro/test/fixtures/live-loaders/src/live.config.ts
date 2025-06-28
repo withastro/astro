@@ -30,7 +30,7 @@ class CustomError extends Error {
 	}
 }
 
-export const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
+const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 	name: 'test-loader',
 	loadEntry: async ({ filter }) => {
 		const entry = entries[filter.id];
