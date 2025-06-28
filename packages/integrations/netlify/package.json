@@ -41,10 +41,10 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
     "@netlify/blobs": "^8.2.0",
-    "@netlify/functions": "^3.1.5",
-    "@vercel/nft": "^0.29.2",
+    "@netlify/functions": "^3.1.10",
+    "@vercel/nft": "^0.29.4",
     "esbuild": "^0.25.0",
-    "tinyglobby": "^0.2.13",
+    "tinyglobby": "^0.2.14",
     "vite": "^6.3.5"
   },
   "peerDependencies": {
@@ -54,7 +54,7 @@
     "@types/node": "^22.10.6",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.0.0",
+    "cheerio": "1.1.0",
     "devalue": "^5.1.1",
     "typescript": "^5.8.3"
   },
