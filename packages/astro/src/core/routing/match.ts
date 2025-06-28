@@ -20,6 +20,7 @@ export function matchAllRoutes(pathname: string, manifest: RoutesList): RouteDat
 
 const ROUTE404_RE = /^\/404\/?$/;
 const ROUTE500_RE = /^\/500\/?$/;
+const ROUTE3XX_RE = /^\/3xx\/?$/;
 
 export function isRoute404(route: string) {
 	return ROUTE404_RE.test(route);
@@ -27,6 +28,10 @@ export function isRoute404(route: string) {
 
 export function isRoute500(route: string) {
 	return ROUTE500_RE.test(route);
+}
+
+export function isRoute3xx(route: string) {
+	return ROUTE3XX_RE.test(route);
 }
 
 /**
