@@ -661,14 +661,19 @@ export async function createRoutesList(
 							// we check if the fallback from locale (the origin) has already this route
 							fallbackFromRoutes.some((route) => {
 								if (fallbackToLocale === i18n.defaultLocale) {
+									// Check both the direct route and the route with locale prefix removed
 									return (
+										route.route === `/${fallbackFromLocale}${fallbackToRoute.route}` ||
 										route.route.replace(`/${fallbackFromLocale}`, '') === fallbackToRoute.route
 									);
 								} else {
-									return (
-										route.route.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`) ===
-										fallbackToRoute.route
+									// Check if the route already exists with the correct locale
+									const expectedRoute = replaceOrKeep(
+										fallbackToRoute.route,
+										fallbackToLocale,
+										fallbackFromLocale,
 									);
+									return route.route === expectedRoute;
 								}
 							});
 
@@ -684,12 +689,11 @@ export async function createRoutesList(
 								}
 								route = `/${fallbackFromLocale}${fallbackToRoute.route}`;
 							} else {
+								// Use the helper to avoid double prefixing
 								pathname = fallbackToRoute.pathname
-									?.replace(`/${fallbackToLocale}/`, `/${fallbackFromLocale}/`)
-									.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`);
-								route = fallbackToRoute.route
-									.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`)
-									.replace(`/${fallbackToLocale}/`, `/${fallbackFromLocale}/`);
+									? replaceOrKeep(fallbackToRoute.pathname, fallbackToLocale, fallbackFromLocale)
+									: undefined;
+								route = replaceOrKeep(fallbackToRoute.route, fallbackToLocale, fallbackFromLocale);
 							}
 							const segments = removeLeadingForwardSlash(route)
 								.split(path.posix.sep)
@@ -764,4 +768,9 @@ function joinSegments(segments: RoutePart[][]): string {
 	});
 
 	return `/${arr.join('/')}`.toLowerCase();
+}
+
+function replaceOrKeep(original: string, from: string, to: string): string {
+	if (original.startsWith(`/${to}/`) || original === `/${to}`) return original;
+	return original.replace(`/${from}/`, `/${to}/`).replace(`/${from}`, `/${to}`);
 }
