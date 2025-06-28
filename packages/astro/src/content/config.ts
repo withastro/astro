@@ -145,7 +145,7 @@ export function defineLiveCollection<
 		});
 	}
 
-	if(!config.loader.loadCollection || !config.loader.loadEntry) {
+	if (!config.loader.loadCollection || !config.loader.loadEntry) {
 		throw new AstroError({
 			...AstroErrorData.LiveContentConfigError,
 			message: AstroErrorData.LiveContentConfigError.message(
@@ -188,7 +188,11 @@ export function defineCollection<S extends BaseSchema>(
 				`Collections that use the Content Layer API must have a \`loader\` defined and no \`type\` set. Check your collection definitions in ${importerFilename ?? 'your content config file'}.`,
 			);
 		}
-		if (typeof config.loader === 'object' && typeof config.loader.load !== 'function' && ('loadEntry' in config.loader || 'loadCollection' in config.loader)) {
+		if (
+			typeof config.loader === 'object' &&
+			typeof config.loader.load !== 'function' &&
+			('loadEntry' in config.loader || 'loadCollection' in config.loader)
+		) {
 			throw new AstroUserError(
 				`Live content collections must be defined in "src/live.config.ts" file. Check your collection definitions in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader.`,
 			);
