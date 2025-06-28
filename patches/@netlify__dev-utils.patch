@@ -1,0 +1,13 @@
+diff --git a/dist/main.js b/dist/main.js
+index a4c8b7f8b655dca2a72cdbcec8d95cab3f777fce..a00389c3e38fa28ce330595f7ec54adfd07d0e36 100644
+--- a/dist/main.js
++++ b/dist/main.js
+@@ -347,7 +347,7 @@ var killProcess = (ps) => {
+     void ps.on("error", reject);
+     try {
+       ps.kill("SIGTERM", {
+-        forceKillAfterTimeout: platform() === "win32" && satisfies(process.version, ">=21") ? false : SERVER_KILL_TIMEOUT
++        forceKillAfterTimeout: SERVER_KILL_TIMEOUT
+       });
+     } catch {
+     }

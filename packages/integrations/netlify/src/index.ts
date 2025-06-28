@@ -9,6 +9,7 @@ import {
 	printAsRedirects,
 } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
+import netlifyVitePlugin from "@netlify/vite-plugin"
 import type {
 	AstroConfig,
 	AstroIntegration,
@@ -596,6 +597,7 @@ export default function netlifyIntegration(
 					},
 					session,
 					vite: {
+						plugins: [netlifyVitePlugin()],
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
