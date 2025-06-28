@@ -2,6 +2,7 @@ import type * as fsMod from 'node:fs';
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
+import type { AstroConfigType } from '../core/config/schemas/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import {
@@ -236,7 +237,13 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					if (id.endsWith('.svg')) {
 						const contents = await fs.promises.readFile(imageMetadata.fsPath, { encoding: 'utf8' });
 						// We know that the contents are present, as we only emit this property for SVG files
-						return { code: makeSvgComponent(imageMetadata, contents) };
+						return {
+							code: makeSvgComponent(
+								imageMetadata,
+								contents,
+								settings.config.experimental?.svg as AstroConfigType['experimental']['svg'],
+							),
+						};
 					}
 
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
