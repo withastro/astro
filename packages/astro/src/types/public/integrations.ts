@@ -208,9 +208,7 @@ export interface BaseIntegrationHooks {
 		address: AddressInfo;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
-	'astro:server:done': (options: {
-		logger: AstroIntegrationLogger;
-	}) => void | Promise<void>;
+	'astro:server:done': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
 	'astro:build:ssr': (options: {
 		manifest: SerializedSSRManifest;
 		/**
@@ -225,9 +223,7 @@ export interface BaseIntegrationHooks {
 		middlewareEntryPoint: URL | undefined;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
-	'astro:build:start': (options: {
-		logger: AstroIntegrationLogger;
-	}) => void | Promise<void>;
+	'astro:build:start': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
 	'astro:build:setup': (options: {
 		vite: ViteInlineConfig;
 		pages: Map<string, PageBuildData>;

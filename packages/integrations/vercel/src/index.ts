@@ -3,10 +3,10 @@ import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
 import {
-	type Header,
-	type Route,
 	getTransformedRoutes,
+	type Header,
 	normalizeRoutes,
+	type Route,
 } from '@vercel/routing-utils';
 import type {
 	AstroAdapter,
@@ -19,18 +19,18 @@ import type {
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import { globSync } from 'tinyglobby';
+import type { RemotePattern } from './image/shared.js';
 import {
 	type DevImageService,
-	type VercelImageConfig,
 	getAstroImageConfig,
 	getDefaultImageConfig,
+	type VercelImageConfig,
 } from './image/shared.js';
-import type { RemotePattern } from './image/shared.js';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import { escapeRegex, getRedirects } from './lib/redirects.js';
 import {
-	type VercelWebAnalyticsConfig,
 	getInjectableWebAnalyticsContent,
+	type VercelWebAnalyticsConfig,
 } from './lib/web-analytics.js';
 import { generateEdgeMiddleware } from './serverless/middleware.js';
 
@@ -260,7 +260,6 @@ export default function vercelAdapter({
 						command,
 						devImageService,
 						config.image,
-						config.experimental.responsiveImages,
 					),
 				});
 			},

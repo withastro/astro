@@ -3,8 +3,8 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
 	type BaseServiceTransform,
-	type LocalImageService,
 	baseService,
+	type LocalImageService,
 	parseQuality,
 } from './service.js';
 

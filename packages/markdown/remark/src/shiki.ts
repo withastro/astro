@@ -1,14 +1,14 @@
 import type { Properties, Root } from 'hast';
 import {
 	type BundledLanguage,
+	createCssVariablesTheme,
+	createHighlighter,
 	type HighlighterCoreOptions,
+	isSpecialLang,
 	type LanguageRegistration,
 	type ShikiTransformer,
 	type ThemeRegistration,
 	type ThemeRegistrationRaw,
-	createCssVariablesTheme,
-	createHighlighter,
-	isSpecialLang,
 } from 'shiki';
 import type { ThemePresets } from './types.js';
 

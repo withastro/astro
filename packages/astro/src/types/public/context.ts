@@ -11,7 +11,7 @@ import type { AstroSession } from '../../core/session.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { Params, RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
-import type { AstroInstance, MDXInstance, MarkdownInstance } from './content.js';
+import type { AstroInstance, MarkdownInstance, MDXInstance } from './content.js';
 
 /**
  * Astro global available in all contexts in .astro files
@@ -144,9 +144,9 @@ export interface AstroGlobal<
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
 	 *
 	 * ## Example
-	 * - The value when rendering `src/pages/index.astro` will `index`.
-	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
-	 * - The value when rendering `src/pages/[...path].astro` will `[...path]`.
+	 * - The value when rendering `src/pages/index.astro` will be `/`.
+	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
+	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
 	 */
 	routePattern: string;
 	/**
@@ -585,9 +585,9 @@ export interface APIContext<
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
 	 *
 	 * ## Example
-	 * - The value when rendering `src/pages/index.astro` will `index`.
-	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
-	 * - The value when rendering `src/pages/[...path].astro` will `[...path]`.
+	 * - The value when rendering `src/pages/index.astro` will be `/`.
+	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
+	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
 	 */
 	routePattern: string;
 }

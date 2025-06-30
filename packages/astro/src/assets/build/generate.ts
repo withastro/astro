@@ -14,7 +14,7 @@ import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
-import { type RemoteCacheEntry, loadRemoteImage, revalidateRemoteImage } from './remote.js';
+import { loadRemoteImage, type RemoteCacheEntry, revalidateRemoteImage } from './remote.js';
 
 interface GenerationDataUncached {
 	cached: 'miss';
