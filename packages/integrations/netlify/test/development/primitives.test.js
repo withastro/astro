@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict';
-import { after, afterEach,before, describe, it } from 'node:test';
+import { after, afterEach, before, describe, it } from 'node:test';
 
 import * as cheerio from 'cheerio';
-
-import netlifyAdapter from "../../dist/index.js"
 import { loadFixture } from '../../../../astro/test/test-utils.js';
+import netlifyAdapter from '../../dist/index.js';
 
 describe('Netlify primitives', () => {
 	describe('Development', () => {
@@ -15,7 +14,7 @@ describe('Netlify primitives', () => {
 			fixture = await loadFixture({
 				root: new URL('./fixtures/primitives/', import.meta.url),
 				output: 'server',
-				adapter: netlifyAdapter()
+				adapter: netlifyAdapter(),
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -25,7 +24,7 @@ describe('Netlify primitives', () => {
 		});
 
 		afterEach(async () => {
-			fixture.resetAllFiles()
+			fixture.resetAllFiles();
 		});
 
 		it('loads Astro routes', async () => {
@@ -38,17 +37,19 @@ describe('Netlify primitives', () => {
 			const $img = cheerio.load(await imgResponse.text());
 
 			assert($img('img').attr('src').startsWith('/_image?href='));
-		})
+		});
 
 		it('loads function routes', async () => {
 			const firstResponse = await fixture.fetch('/function');
-			
+
 			assert.equal(await firstResponse.text(), 'Hello from function');
 
-			await fixture.editFile('netlify/functions/func.mjs', (content) => content.replace('Hello', 'Hello again'));
+			await fixture.editFile('netlify/functions/func.mjs', (content) =>
+				content.replace('Hello', 'Hello again'),
+			);
 
 			const secondResponse = await fixture.fetch('/function');
-			
+
 			assert.equal(await secondResponse.text(), 'Hello again from function');
 		});
 

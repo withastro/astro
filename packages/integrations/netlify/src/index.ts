@@ -9,7 +9,7 @@ import {
 	printAsRedirects,
 } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
-import netlifyVitePlugin from "@netlify/vite-plugin"
+import netlifyVitePlugin from '@netlify/vite-plugin';
 import type {
 	AstroConfig,
 	AstroIntegration,
