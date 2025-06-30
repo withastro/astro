@@ -42,7 +42,7 @@
     "@astrojs/underscore-redirects": "workspace:*",
     "@netlify/blobs": "^8.2.0",
     "@netlify/functions": "^3.1.5",
-    "@netlify/vite-plugin": "^2.3.3",
+    "@netlify/vite-plugin": "^2.3.4",
     "@vercel/nft": "^0.29.2",
     "esbuild": "^0.25.0",
     "tinyglobby": "^0.2.13",

@@ -5327,7 +5327,7 @@ importers:
         specifier: ^3.1.5
         version: 3.1.5(rollup@4.40.2)
       '@netlify/vite-plugin':
-        specifier: ^2.3.3
+        specifier: ^2.3.4
         version: 2.3.4(rollup@4.40.2)(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
       '@vercel/nft':
         specifier: ^0.29.2
