@@ -1,11 +1,3 @@
-import type {
-	AstroConfig,
-	AstroIntegration,
-	HookParameters,
-	IntegrationResolvedRoute,
-} from 'astro';
-import type { PluginOption } from 'vite';
-
 import { createReadStream } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
@@ -17,7 +9,14 @@ import {
 	removeLeadingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
+import type {
+	AstroConfig,
+	AstroIntegration,
+	HookParameters,
+	IntegrationResolvedRoute,
+} from 'astro';
 import { AstroError } from 'astro/errors';
+import type { PluginOption } from 'vite';
 import { defaultClientConditions } from 'vite';
 import { type GetPlatformProxyOptions, getPlatformProxy } from 'wrangler';
 import {
