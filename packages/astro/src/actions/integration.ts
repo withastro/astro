@@ -11,8 +11,10 @@ import { ACTIONS_TYPES_FILE, ACTION_RPC_ROUTE_PATTERN, VIRTUAL_MODULE_ID } from 
  */
 export default function astroIntegrationActionsRouteHandler({
 	settings,
+	filename,
 }: {
 	settings: AstroSettings;
+	filename: string;
 }): AstroIntegration {
 	return {
 		name: VIRTUAL_MODULE_ID,
@@ -33,7 +35,7 @@ export default function astroIntegrationActionsRouteHandler({
 				}
 
 				const stringifiedActionsImport = JSON.stringify(
-					viteID(new URL('./actions', params.config.srcDir)),
+					viteID(new URL(`./${filename}`, params.config.srcDir)),
 				);
 				settings.injectedTypes.push({
 					filename: ACTIONS_TYPES_FILE,

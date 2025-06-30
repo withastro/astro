@@ -5,8 +5,9 @@ import pLimit from 'p-limit';
 import { ZodIssueCode, z } from 'zod';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
-import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
+import { defineCollection as defineCollectionOrig } from './config.js';
 
 import {
 	type AstroComponentFactory,
@@ -19,38 +20,36 @@ import {
 	render as serverRender,
 	unescapeHTML,
 } from '../runtime/server/index.js';
-import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX } from './consts.js';
+import type {
+	CacheHint,
+	LiveDataCollectionResult,
+	LiveDataEntry,
+	LiveDataEntryResult,
+} from '../types/public/content.js';
+import { IMAGE_IMPORT_PREFIX, type LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
+import {
+	LiveCollectionCacheHintError,
+	LiveCollectionError,
+	LiveCollectionValidationError,
+	LiveEntryNotFoundError,
+} from './loaders/errors.js';
+import type { LiveLoader } from './loaders/types.js';
 import type { ContentLookupMap } from './utils.js';
-
+export {
+	LiveCollectionError,
+	LiveCollectionCacheHintError,
+	LiveEntryNotFoundError,
+	LiveCollectionValidationError,
+};
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
-
-export function getImporterFilename() {
-	// The 4th line in the stack trace should be the importer filename
-	const stackLine = new Error().stack?.split('\n')?.[3];
-	if (!stackLine) {
-		return null;
-	}
-	// Extract the relative path from the stack line
-	const match = /\/(src\/.*?):\d+:\d+/.exec(stackLine);
-	return match?.[1] ?? null;
-}
-
-export function defineCollection(config: any) {
-	if ('loader' in config) {
-		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
-			throw new AstroUserError(
-				`Collections that use the Content Layer API must have a \`loader\` defined and no \`type\` set. Check your collection definitions in ${getImporterFilename() ?? 'your content config file'}.`,
-			);
-		}
-		config.type = CONTENT_LAYER_TYPE;
-	}
-	if (!config.type) config.type = 'content';
-	return config;
-}
+type LiveCollectionConfigMap = Record<
+	string,
+	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: z.ZodType }
+>;
 
 export function createCollectionToGlobResultMap({
 	globResult,
@@ -71,18 +70,75 @@ export function createCollectionToGlobResultMap({
 	return collectionToGlobResultMap;
 }
 
+const cacheHintSchema = z.object({
+	tags: z.array(z.string()).optional(),
+	maxAge: z.number().optional(),
+	lastModified: z.date().optional(),
+});
+
+async function parseLiveEntry(
+	entry: LiveDataEntry,
+	schema: z.ZodType,
+	collection: string,
+): Promise<{ entry?: LiveDataEntry; error?: LiveCollectionError }> {
+	try {
+		const parsed = await schema.safeParseAsync(entry.data);
+		if (!parsed.success) {
+			return {
+				error: new LiveCollectionValidationError(collection, entry.id, parsed.error),
+			};
+		}
+		if (entry.cacheHint) {
+			const cacheHint = cacheHintSchema.safeParse(entry.cacheHint);
+
+			if (!cacheHint.success) {
+				return {
+					error: new LiveCollectionCacheHintError(collection, entry.id, cacheHint.error),
+				};
+			}
+			entry.cacheHint = cacheHint.data;
+		}
+		return {
+			entry: {
+				...entry,
+				data: parsed.data,
+			},
+		};
+	} catch (error) {
+		return {
+			error: new LiveCollectionError(
+				collection,
+				`Unexpected error parsing entry ${entry.id} in collection ${collection}`,
+				error as Error,
+			),
+		};
+	}
+}
+
 export function createGetCollection({
 	contentCollectionToEntryMap,
 	dataCollectionToEntryMap,
 	getRenderEntryImport,
 	cacheEntriesByCollection,
+	liveCollections,
 }: {
 	contentCollectionToEntryMap: CollectionToEntryMap;
 	dataCollectionToEntryMap: CollectionToEntryMap;
 	getRenderEntryImport: GetEntryImport;
 	cacheEntriesByCollection: Map<string, any[]>;
+	liveCollections: LiveCollectionConfigMap;
 }) {
-	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
+	return async function getCollection(
+		collection: string,
+		filter?: ((entry: any) => unknown) | Record<string, unknown>,
+	) {
+		if (collection in liveCollections) {
+			throw new AstroError({
+				...AstroErrorData.UnknownContentCollectionError,
+				message: `Collection "${collection}" is a live collection. Use getLiveCollection() instead of getCollection().`,
+			});
+		}
+
 		const hasFilter = typeof filter === 'function';
 		const store = await globalDataStore.get();
 		let type: 'content' | 'data';
@@ -297,27 +353,29 @@ export function createGetEntry({
 	getEntryImport,
 	getRenderEntryImport,
 	collectionNames,
+	liveCollections,
 }: {
 	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
 	collectionNames: Set<string>;
+	liveCollections: LiveCollectionConfigMap;
 }) {
 	return async function getEntry(
 		// Can either pass collection and identifier as 2 positional args,
 		// Or pass a single object with the collection and identifier as properties.
 		// This means the first positional arg can have different shapes.
 		collectionOrLookupObject: string | EntryLookupObject,
-		_lookupId?: string,
+		lookup?: string | Record<string, unknown>,
 	): Promise<ContentEntryResult | DataEntryResult | undefined> {
-		let collection: string, lookupId: string;
+		let collection: string, lookupId: string | Record<string, unknown>;
 		if (typeof collectionOrLookupObject === 'string') {
 			collection = collectionOrLookupObject;
-			if (!_lookupId)
+			if (!lookup)
 				throw new AstroError({
 					...AstroErrorData.UnknownContentCollectionError,
 					message: '`getEntry()` requires an entry identifier as the second argument.',
 				});
-			lookupId = _lookupId;
+			lookupId = lookup;
 		} else {
 			collection = collectionOrLookupObject.collection;
 			// Identifier could be `slug` for content entries, or `id` for data entries
@@ -327,6 +385,18 @@ export function createGetEntry({
 					: collectionOrLookupObject.slug;
 		}
 
+		if (collection in liveCollections) {
+			throw new AstroError({
+				...AstroErrorData.UnknownContentCollectionError,
+				message: `Collection "${collection}" is a live collection. Use getLiveEntry() instead of getEntry().`,
+			});
+		}
+		if (typeof lookupId === 'object') {
+			throw new AstroError({
+				...AstroErrorData.UnknownContentCollectionError,
+				message: `The entry identifier must be a string. Received object.`,
+			});
+		}
 		const store = await globalDataStore.get();
 
 		if (store.hasCollection(collection)) {
@@ -394,6 +464,198 @@ export function createGetEntries(getEntry: ReturnType<typeof createGetEntry>) {
 	};
 }
 
+export function createGetLiveCollection({
+	liveCollections,
+}: {
+	liveCollections: LiveCollectionConfigMap;
+}) {
+	return async function getLiveCollection(
+		collection: string,
+		filter?: Record<string, unknown>,
+	): Promise<LiveDataCollectionResult> {
+		if (!(collection in liveCollections)) {
+			return {
+				error: new LiveCollectionError(
+					collection,
+					`Collection "${collection}" is not a live collection. Use getCollection() instead of getLiveCollection() to load regular content collections.`,
+				),
+			};
+		}
+
+		try {
+			const context = {
+				filter,
+			};
+
+			const response = await (
+				liveCollections[collection].loader as LiveLoader<any, any, Record<string, unknown>>
+			)?.loadCollection?.(context);
+
+			// Check if loader returned an error
+			if (response && 'error' in response) {
+				return { error: response.error };
+			}
+
+			const { schema } = liveCollections[collection];
+
+			let processedEntries = response.entries;
+			if (schema) {
+				const entryResults = await Promise.all(
+					response.entries.map((entry) => parseLiveEntry(entry, schema, collection)),
+				);
+
+				// Check for parsing errors
+				for (const result of entryResults) {
+					if (result.error) {
+						// Return early on the first error
+						return { error: result.error };
+					}
+				}
+
+				processedEntries = entryResults.map((result) => result.entry!);
+			}
+
+			let cacheHint = response.cacheHint;
+			if (cacheHint) {
+				const cacheHintResult = cacheHintSchema.safeParse(cacheHint);
+
+				if (!cacheHintResult.success) {
+					return {
+						error: new LiveCollectionCacheHintError(collection, undefined, cacheHintResult.error),
+					};
+				}
+				cacheHint = cacheHintResult.data;
+			}
+
+			// Aggregate cache hints from individual entries if any
+			if (processedEntries.length > 0) {
+				const entryTags = new Set<string>();
+				let minMaxAge: number | undefined;
+				let latestModified: Date | undefined;
+
+				for (const entry of processedEntries) {
+					if (entry.cacheHint) {
+						if (entry.cacheHint.tags) {
+							entry.cacheHint.tags.forEach((tag) => entryTags.add(tag));
+						}
+						if (typeof entry.cacheHint.maxAge === 'number') {
+							if (minMaxAge === undefined || entry.cacheHint.maxAge < minMaxAge) {
+								minMaxAge = entry.cacheHint.maxAge;
+							}
+						}
+						if (entry.cacheHint.lastModified instanceof Date) {
+							if (latestModified === undefined || entry.cacheHint.lastModified > latestModified) {
+								latestModified = entry.cacheHint.lastModified;
+							}
+						}
+					}
+				}
+
+				// Merge collection and entry cache hints
+				if (entryTags.size > 0 || minMaxAge !== undefined || latestModified || cacheHint) {
+					const mergedCacheHint: CacheHint = {};
+					if (cacheHint?.tags || entryTags.size > 0) {
+						// Merge and dedupe tags
+						mergedCacheHint.tags = [...new Set([...(cacheHint?.tags || []), ...entryTags])];
+					}
+					if (cacheHint?.maxAge !== undefined || minMaxAge !== undefined) {
+						mergedCacheHint.maxAge =
+							cacheHint?.maxAge !== undefined && minMaxAge !== undefined
+								? Math.min(cacheHint.maxAge, minMaxAge)
+								: (cacheHint?.maxAge ?? minMaxAge);
+					}
+					if (cacheHint?.lastModified && latestModified) {
+						mergedCacheHint.lastModified =
+							cacheHint.lastModified > latestModified ? cacheHint.lastModified : latestModified;
+					} else if (cacheHint?.lastModified || latestModified) {
+						mergedCacheHint.lastModified = cacheHint?.lastModified ?? latestModified;
+					}
+					cacheHint = mergedCacheHint;
+				}
+			}
+
+			return {
+				entries: processedEntries,
+				cacheHint,
+			};
+		} catch (error) {
+			return {
+				error: new LiveCollectionError(
+					collection,
+					`Unexpected error loading collection ${collection}`,
+					error as Error,
+				),
+			};
+		}
+	};
+}
+
+export function createGetLiveEntry({
+	liveCollections,
+}: {
+	liveCollections: LiveCollectionConfigMap;
+}) {
+	return async function getLiveEntry(
+		collection: string,
+		lookup: string | Record<string, unknown>,
+	): Promise<LiveDataEntryResult> {
+		if (!(collection in liveCollections)) {
+			return {
+				error: new LiveCollectionError(
+					collection,
+					`Collection "${collection}" is not a live collection. Use getCollection() instead of getLiveEntry() to load regular content collections.`,
+				),
+			};
+		}
+
+		try {
+			const lookupObject = {
+				filter: typeof lookup === 'string' ? { id: lookup } : lookup,
+			};
+
+			let entry = await (
+				liveCollections[collection].loader as LiveLoader<
+					Record<string, unknown>,
+					Record<string, unknown>
+				>
+			)?.loadEntry?.(lookupObject);
+
+			// Check if loader returned an error
+			if (entry && 'error' in entry) {
+				return { error: entry.error };
+			}
+
+			if (!entry) {
+				return {
+					error: new LiveEntryNotFoundError(collection, lookup),
+				};
+			}
+
+			const { schema } = liveCollections[collection];
+			if (schema) {
+				const result = await parseLiveEntry(entry, schema, collection);
+				if (result.error) {
+					return { error: result.error };
+				}
+				entry = result.entry!;
+			}
+
+			return {
+				entry: entry,
+				cacheHint: entry.cacheHint,
+			};
+		} catch (error) {
+			return {
+				error: new LiveCollectionError(
+					collection,
+					`Unexpected error loading entry ${collection} → ${typeof lookup === 'string' ? lookup : JSON.stringify(lookup)}`,
+					error as Error,
+				),
+			};
+		}
+	};
+}
+
 type RenderResult = {
 	Content: AstroComponentFactory;
 	headings: MarkdownHeading[];
@@ -452,6 +714,8 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			...attributes,
 			src: image.src,
 			srcset: image.srcSet.attribute,
+			// This attribute is used by the toolbar audit
+			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})
 			.map(([key, value]) => (value ? `${key}="${escape(value)}"` : ''))
 			.join(' ');
@@ -698,4 +962,16 @@ type PropagatedAssetsModule = {
 
 function isPropagatedAssetsModule(module: any): module is PropagatedAssetsModule {
 	return typeof module === 'object' && module != null && '__astroPropagation' in module;
+}
+
+export function defineCollection(config: any) {
+	if (config.type === 'live') {
+		throw new AstroError({
+			...AstroErrorData.LiveContentConfigError,
+			message: AstroErrorData.LiveContentConfigError.message(
+				'Collections with type `live` must be defined in a `src/live.config.ts` file.',
+			),
+		});
+	}
+	return defineCollectionOrig(config);
 }

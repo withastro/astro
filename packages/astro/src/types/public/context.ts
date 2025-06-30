@@ -144,9 +144,9 @@ export interface AstroGlobal<
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
 	 *
 	 * ## Example
-	 * - The value when rendering `src/pages/index.astro` will `index`.
-	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
-	 * - The value when rendering `src/pages/[...path].astro` will `[...path]`.
+	 * - The value when rendering `src/pages/index.astro` will be `/`.
+	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
+	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
 	 */
 	routePattern: string;
 	/**
@@ -585,9 +585,9 @@ export interface APIContext<
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
 	 *
 	 * ## Example
-	 * - The value when rendering `src/pages/index.astro` will `index`.
-	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
-	 * - The value when rendering `src/pages/[...path].astro` will `[...path]`.
+	 * - The value when rendering `src/pages/index.astro` will be `/`.
+	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
+	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
 	 */
 	routePattern: string;
 }
