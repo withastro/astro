@@ -10,10 +10,11 @@ function validateMod({
 	mod,
 	entrypoint,
 	errorHandler,
-}: { mod: any; entrypoint: string; errorHandler: ErrorHandler }): Pick<
-	ResolvedFontProvider,
-	'provider'
-> {
+}: {
+	mod: any;
+	entrypoint: string;
+	errorHandler: ErrorHandler;
+}): Pick<ResolvedFontProvider, 'provider'> {
 	// We do not throw astro errors directly to avoid duplication. Instead, we throw an error to be used as cause
 	try {
 		if (typeof mod !== 'object' || mod === null) {

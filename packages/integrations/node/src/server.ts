@@ -5,8 +5,7 @@ import type { SSRManifest } from 'astro';
 import { NodeApp } from 'astro/app/node';
 import { setGetEnv } from 'astro/env/setup';
 import createMiddleware from './middleware.js';
-import { createStandaloneHandler } from './standalone.js';
-import startServer from './standalone.js';
+import startServer, { createStandaloneHandler } from './standalone.js';
 import type { Options } from './types.js';
 
 setGetEnv((key) => process.env[key]);

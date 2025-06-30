@@ -3,10 +3,10 @@ import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import {
+	clientAddressSymbol,
 	DEFAULT_404_COMPONENT,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
-	clientAddressSymbol,
 	responseSentSymbol,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
@@ -20,8 +20,8 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '../path.js';
-import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
+import { RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { createDefaultRoutes } from '../routing/default.js';

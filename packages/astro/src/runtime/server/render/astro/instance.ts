@@ -1,10 +1,9 @@
-import type { ComponentSlots } from '../slot.js';
-import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
-
 import type { SSRResult } from '../../../../types/public/internal.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';
+import type { ComponentSlots } from '../slot.js';
+import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 

@@ -1,13 +1,12 @@
-import { type WriteStream, createWriteStream } from 'node:fs';
+import { createWriteStream, type WriteStream } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { normalize, resolve } from 'node:path';
-import { Readable, pipeline } from 'node:stream';
+import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'node:util';
-import replace from 'stream-replace-string';
+import type { AstroConfig } from 'astro';
 
 import { SitemapAndIndexStream, SitemapStream } from 'sitemap';
-
-import type { AstroConfig } from 'astro';
+import replace from 'stream-replace-string';
 import type { SitemapItem } from './index.js';
 
 type WriteSitemapConfig = {

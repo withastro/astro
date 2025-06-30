@@ -77,7 +77,6 @@ const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 };
 
 const liveStuff = defineLiveCollection({
-	type: 'live',
 	loader,
 	schema: z.object({
 		title: z.string(),
