@@ -1,0 +1,20 @@
+---
+import Island from '../components/Island.astro';
+
+const xssMe ="</script><script>alert('xss')</script><!--"
+---
+<html>
+<head>
+	<title>Testing</title>
+</head>
+<body>
+<h1>Testing</h1>
+	<Fragment slot="rest">
+		<Island server:defer>
+			<div slot="fallback">
+				Not working
+			</div>
+		</Island>
+	</Fragment>
+</body>
+</html>
