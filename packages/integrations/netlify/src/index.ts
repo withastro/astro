@@ -573,7 +573,7 @@ export default function netlifyIntegration(
 							consistency: 'strong',
 							...session?.options,
 						},
-					}
+					};
 				}
 
 				updateConfig({
@@ -594,7 +594,12 @@ export default function netlifyIntegration(
 					},
 					image: {
 						service: {
-							entrypoint: integrationConfig?.imageCDN ? '@astrojs/netlify/image-service.js' : undefined,
+							// defaults to true, so should only be disabled if the user has
+							// explicitly set false
+							entrypoint:
+								integrationConfig?.imageCDN === false
+									? undefined
+									: '@astrojs/netlify/image-service.js',
 						},
 					},
 				});
