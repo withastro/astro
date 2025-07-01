@@ -560,32 +560,20 @@ export default function netlifyIntegration(
 
 				outDir = new URL(config.outDir, rootDir);
 
-				const enableImageCDN = isRunningInNetlify && (integrationConfig?.imageCDN ?? true);
-
 				let session = config.session;
 
 				if (!session?.driver) {
-					logger.info(
-						`Enabling sessions with ${isRunningInNetlify ? 'Netlify Blobs' : 'filesystem storage'}`,
-					);
-					session = isRunningInNetlify
-						? {
-								...session,
-								driver: 'netlify-blobs',
-								options: {
-									name: 'astro-sessions',
-									consistency: 'strong',
-									...session?.options,
-								},
-							}
-						: {
-								...session,
-								driver: 'fs-lite',
-								options: {
-									base: fileURLToPath(new URL('sessions', config.cacheDir)),
-									...session?.options,
-								},
-							};
+					logger.info('Enabling sessions with Netlify Blobs');
+
+					session = {
+						...session,
+						driver: 'netlify-blobs',
+						options: {
+							name: 'astro-sessions',
+							consistency: 'strong',
+							...session?.options,
+						},
+					}
 				}
 
 				updateConfig({
@@ -606,7 +594,7 @@ export default function netlifyIntegration(
 					},
 					image: {
 						service: {
-							entrypoint: enableImageCDN ? '@astrojs/netlify/image-service.js' : undefined,
+							entrypoint: integrationConfig?.imageCDN ? '@astrojs/netlify/image-service.js' : undefined,
 						},
 					},
 				});
