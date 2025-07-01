@@ -2,11 +2,11 @@
 '@astrojs/node': minor
 ---
 
-Allows disabling HTML streaming
+Allows disabling Astro's default [HTML streaming](https://docs.astro.build/en/guides/on-demand-rendering/#html-streaming) for pages rendered on demand
 
-Astro [streams HTML](https://docs.astro.build/en/guides/on-demand-rendering/#html-streaming) by default, which helps with performance by allowing the user to see parts of the page as soon as possible. In most cases, you should keep using this behavior.
+HTML streaming helps with performance and generally provides a better visitor experience. In most cases, disabling streaming is not recommended.
 
-However, you may have to disable HTML streaming, for example, if your host only supports non streamed HTML caching at the CDN level. You can opt out of the default behavior:
+However, when you need to disable HTML streaming (e.g. your host only supports non-streamed HTML caching at the CDN level), you can opt out of the default behavior:
 
 ```diff
 import { defineConfig } from 'astro/config';
