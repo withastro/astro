@@ -9,6 +9,7 @@ import {
 	printAsRedirects,
 } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
+import netlifyVitePlugin from '@netlify/vite-plugin';
 import type {
 	AstroConfig,
 	AstroIntegration,
@@ -559,32 +560,20 @@ export default function netlifyIntegration(
 
 				outDir = new URL(config.outDir, rootDir);
 
-				const enableImageCDN = isRunningInNetlify && (integrationConfig?.imageCDN ?? true);
-
 				let session = config.session;
 
 				if (!session?.driver) {
-					logger.info(
-						`Enabling sessions with ${isRunningInNetlify ? 'Netlify Blobs' : 'filesystem storage'}`,
-					);
-					session = isRunningInNetlify
-						? {
-								...session,
-								driver: 'netlify-blobs',
-								options: {
-									name: 'astro-sessions',
-									consistency: 'strong',
-									...session?.options,
-								},
-							}
-						: {
-								...session,
-								driver: 'fs-lite',
-								options: {
-									base: fileURLToPath(new URL('sessions', config.cacheDir)),
-									...session?.options,
-								},
-							};
+					logger.info('Enabling sessions with Netlify Blobs');
+
+					session = {
+						...session,
+						driver: 'netlify-blobs',
+						options: {
+							name: 'astro-sessions',
+							consistency: 'strong',
+							...session?.options,
+						},
+					};
 				}
 
 				updateConfig({
@@ -596,6 +585,7 @@ export default function netlifyIntegration(
 					},
 					session,
 					vite: {
+						plugins: [netlifyVitePlugin()],
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
@@ -604,7 +594,12 @@ export default function netlifyIntegration(
 					},
 					image: {
 						service: {
-							entrypoint: enableImageCDN ? '@astrojs/netlify/image-service.js' : undefined,
+							// defaults to true, so should only be disabled if the user has
+							// explicitly set false
+							entrypoint:
+								integrationConfig?.imageCDN === false
+									? undefined
+									: '@astrojs/netlify/image-service.js',
 						},
 					},
 				});
