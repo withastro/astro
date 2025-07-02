@@ -319,7 +319,12 @@ export class RenderContext {
 		// so Astro can't retrieve it from the emitted manifest.
 		// Allow i18n fallback rewrites - if the target route has fallback routes, this is likely an i18n scenario
 		const isI18nFallback = routeData.fallbackRoutes && routeData.fallbackRoutes.length > 0;
-		if (this.pipeline.serverLike && !this.routeData.prerender && routeData.prerender && !isI18nFallback) {
+		if (
+			this.pipeline.serverLike &&
+			!this.routeData.prerender &&
+			routeData.prerender &&
+			!isI18nFallback
+		) {
 			throw new AstroError({
 				...ForbiddenRewrite,
 				message: ForbiddenRewrite.message(this.pathname, pathname, routeData.component),
