@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture, waitServerListen } from './test-utils.js';
 import nodejs from '../dist/index.js';
+import { loadFixture, waitServerListen } from './test-utils.js';
 
 describe('Static headers', () => {
 	let fixture;

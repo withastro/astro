@@ -1,14 +1,14 @@
 // Keep at the top
 import './polyfill.js';
 
-import type { SSRManifest, NodeAppHeadersJson } from 'astro';
+import { existsSync, readFileSync } from 'node:fs';
+import type { NodeAppHeadersJson, SSRManifest } from 'astro';
 import { NodeApp } from 'astro/app/node';
 import { setGetEnv } from 'astro/env/setup';
 import createMiddleware from './middleware.js';
+import { STATIC_HEADERS_FILE } from './shared.js';
 import startServer, { createStandaloneHandler } from './standalone.js';
 import type { Options } from './types.js';
-import { existsSync, readFileSync } from 'node:fs';
-import { STATIC_HEADERS_FILE } from './shared.js';
 
 setGetEnv((key) => process.env[key]);
 
