@@ -15,7 +15,6 @@ import { Cart } from "../components/Cart.astro";
   <Cart server:defer />
 </>
 
-<Fragment>
 
 <Fragment slot="rest">
   <Cart server:defer>
