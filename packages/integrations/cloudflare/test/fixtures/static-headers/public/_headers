@@ -1,12 +1,3 @@
-/has-header
-  Surrogate-Key: has-header
-  X-Robots-Tag: noindex
-
-/blog/:post
-  Surrogate-Key: blog-post
-
-/parent/*/page
-  Surrogate-Key: parent-page
 
 /
   Surrogate-Key: root
@@ -16,3 +7,13 @@
 
 /unknown-route
   Surrogate-Key: unknown-route
+
+/has-header
+  Surrogate-Key: has-header
+  X-Robots-Tag: noindex
+
+/blog/:post
+  Surrogate-Key: blog-post
+
+/parent/*/page
+  Surrogate-Key: parent-page
