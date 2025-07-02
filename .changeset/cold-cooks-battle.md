@@ -2,7 +2,7 @@
 '@astrojs/node': minor
 ---
 
-Allows disabling Astro's default [HTML streaming](https://docs.astro.build/en/guides/on-demand-rendering/#html-streaming) for pages rendered on demand
+Adds a new experimental configuration option `experimentalDisableStreaming` to allow you to opt out of Astro's default [HTML streaming](https://docs.astro.build/en/guides/on-demand-rendering/#html-streaming) for pages rendered on demand.
 
 HTML streaming helps with performance and generally provides a better visitor experience. In most cases, disabling streaming is not recommended.
 
