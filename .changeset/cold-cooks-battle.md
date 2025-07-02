@@ -6,7 +6,7 @@ Allows disabling Astro's default [HTML streaming](https://docs.astro.build/en/gu
 
 HTML streaming helps with performance and generally provides a better visitor experience. In most cases, disabling streaming is not recommended.
 
-However, when you need to disable HTML streaming (e.g. your host only supports non-streamed HTML caching at the CDN level), you can opt out of the default behavior:
+However, when you need to disable HTML streaming (e.g. your host only supports non-streamed HTML caching at the CDN level), you can now opt out of the default behavior:
 
 ```diff
 import { defineConfig } from 'astro/config';
