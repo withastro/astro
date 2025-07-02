@@ -671,7 +671,11 @@ export async function runHookRoutesResolved({
 	routes,
 	settings,
 	logger,
-}: { routes: Array<RouteData>; settings: AstroSettings; logger: Logger }) {
+}: {
+	routes: Array<RouteData>;
+	settings: AstroSettings;
+	logger: Logger;
+}) {
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
 			integration,

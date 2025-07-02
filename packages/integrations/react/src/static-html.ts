@@ -11,7 +11,11 @@ const StaticHtml = ({
 	value,
 	name,
 	hydrate = true,
-}: { value: string | null; name?: string; hydrate?: boolean }) => {
+}: {
+	value: string | null;
+	name?: string;
+	hydrate?: boolean;
+}) => {
 	if (!value) return null;
 	const tagName = hydrate ? 'astro-slot' : 'astro-static-slot';
 	return h(tagName, {

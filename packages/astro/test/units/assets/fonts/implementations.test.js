@@ -2,12 +2,12 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	createMinifiableCssRenderer,
 	handleValueWithSpaces,
 	renderCssVariable,
 	renderFontFace,
 	withFamily,
 } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
-import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
 import { createAstroErrorHandler } from '../../../../dist/assets/fonts/implementations/error-handler.js';
 import { createCachedFontFetcher } from '../../../../dist/assets/fonts/implementations/font-fetcher.js';

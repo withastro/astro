@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createServer as _createServer } from 'node:http';
-import { SESSION_LOGIN_FILE, getAstroStudioUrl } from '@astrojs/studio';
+import { getAstroStudioUrl, SESSION_LOGIN_FILE } from '@astrojs/studio';
 import type { AstroConfig } from 'astro';
 import { listen } from 'async-listen';
 import { cyan } from 'kleur/colors';

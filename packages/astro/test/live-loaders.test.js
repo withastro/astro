@@ -6,6 +6,7 @@ import { Logger } from '../dist/core/logger/core.js';
 
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
+
 describe('Live content collections', () => {
 	let fixture;
 	before(async () => {
