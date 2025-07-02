@@ -9,6 +9,10 @@ export interface UserOptions {
 	 * - 'standalone' - Build to a standalone server. The server starts up just by running the built script.
 	 */
 	mode: 'middleware' | 'standalone';
+	/**
+	 * Disables HTML streaming. This is useful for example if there are constraints from your host.
+	 */
+	experimentalDisableStreaming?: boolean;
 
 	/**
 	 * If enabled, the adapter will save [static headers in the framework API file](https://docs.netlify.com/frameworks-api/#headers).

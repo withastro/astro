@@ -13,7 +13,7 @@ import type { Options } from './types.js';
 setGetEnv((key) => process.env[key]);
 
 export function createExports(manifest: SSRManifest, options: Options) {
-	const app = new NodeApp(manifest);
+	const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 	let headersMap: NodeAppHeadersJson | undefined = undefined;
 	if (options.experimentalStaticHeaders) {
 		headersMap = readHeadersJson(manifest.outDir);
@@ -41,7 +41,7 @@ export function start(manifest: SSRManifest, options: Options) {
 		headersMap = readHeadersJson(manifest.outDir);
 	}
 
-	const app = new NodeApp(manifest);
+	const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 	if (headersMap) {
 		app.setHeadersMap(headersMap);
 	}
