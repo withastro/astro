@@ -2261,6 +2261,40 @@ describe('Fallback rewrite SSR', () => {
 	});
 });
 
+describe('Fallback rewrite hybrid', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-fallback-rewrite-hybrid/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly prerender es index', async () => {
+		const html = await fixture.readFile('/client/es/index.html');
+		assert.match(html, /ES index/);
+	});
+
+	it('should correctly prerender fallback locale paths with path parameters', async () => {
+		const html = await fixture.readFile('/client/es/slug-1/index.html');
+		assert.match(html, /slug-1 - es/);
+	});
+
+	it('should rewrite fallback locale paths for ssr pages', async () => {
+		let request = new Request('http://example.com/es/about');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.match(text, /about - es/);
+	});
+});
+
 describe('i18n routing with server islands', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;

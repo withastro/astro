@@ -2,7 +2,6 @@ import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
-import { createHostedRouteDefinition } from '@astrojs/underscore-redirects';
 import {
 	getTransformedRoutes,
 	type Header,
@@ -16,6 +15,7 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
+	RouteToHeaders,
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import { globSync } from 'tinyglobby';
@@ -204,7 +204,7 @@ export default function vercelAdapter({
 	let _serverEntry: string;
 	let _entryPoints: Map<Pick<IntegrationResolvedRoute, 'entrypoint' | 'patternRegex'>, URL>;
 	let _middlewareEntryPoint: URL | undefined;
-	let _routeToHeaders: Map<IntegrationResolvedRoute, Headers> | undefined = undefined;
+	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
@@ -739,27 +739,15 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 	return 'nodejs18.x';
 }
 
-function createConfigHeaders(
-	staticHeaders: Map<IntegrationResolvedRoute, Headers>,
-	config: AstroConfig,
-): Header[] {
+function createConfigHeaders(staticHeaders: RouteToHeaders, config: AstroConfig): Header[] {
 	const vercelHeaders: Header[] = [];
-	for (const [route, routeHeaders] of staticHeaders.entries()) {
-		if (!route.isPrerendered) {
-			continue;
-		}
-		if (route.redirect) {
-			continue;
-		}
-
-		const definition = createHostedRouteDefinition(route, config);
-
+	for (const [pathname, { headers }] of staticHeaders.entries()) {
 		if (config.experimental.csp) {
-			const csp = routeHeaders.get('Content-Security-Policy');
+			const csp = headers.get('Content-Security-Policy');
 
 			if (csp) {
 				vercelHeaders.push({
-					source: definition.input,
+					source: pathname,
 					headers: [
 						{
 							key: 'Content-Security-Policy',
