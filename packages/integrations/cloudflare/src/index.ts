@@ -33,7 +33,7 @@ export type { Runtime } from './utils/handler.js';
 export type Options = {
 	/**
 	 * If enabled, the adapter will save static headers in the framework API file,
-	 * as documented for [pages](https://developers.cloudflare.com/pages/configuration/headers/) and [workers](https://developers.cloudflare.com/workers/static-assets/headers).
+	 * as documented for [workers](https://developers.cloudflare.com/workers/static-assets/headers) and [pages](https://developers.cloudflare.com/pages/configuration/headers).
 	 *
 	 * Here the list of the headers that are added:
 	 * - The CSP header of the static pages is added when CSP support is enabled.
