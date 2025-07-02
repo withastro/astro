@@ -2,9 +2,9 @@
 'astro': patch
 ---
 
-Fixes a bug where server islands wouldn't be correctly rendered when they rendered inside fragments.
+Fixes a bug where server islands wouldn't be correctly rendered when they are rendered inside fragments.
 
-Now the following example works as expected:
+Now the following examples work as expected:
 
 ```astro
 ---
