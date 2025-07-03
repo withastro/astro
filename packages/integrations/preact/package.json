@@ -38,7 +38,7 @@
     "@preact/preset-vite": "^2.10.1",
     "@preact/signals": "^2.2.0",
     "preact-render-to-string": "^6.5.13",
-    "vite": "^6.3.5"
+    "vite": "^7.0.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
@@ -49,7 +49,7 @@
     "preact": "^10.6.5"
   },
   "engines": {
-    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
+    "node": "20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true

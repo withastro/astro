@@ -36,10 +36,10 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@vitejs/plugin-vue": "5.2.1",
-    "@vitejs/plugin-vue-jsx": "^4.2.0",
+    "@vitejs/plugin-vue": "6.0.0",
+    "@vitejs/plugin-vue-jsx": "^5.0.0",
     "@vue/compiler-sfc": "^3.5.17",
-    "vite": "^6.3.5",
+    "vite": "^7.0.0",
     "vite-plugin-vue-devtools": "^7.7.7"
   },
   "devDependencies": {
@@ -54,7 +54,7 @@
     "vue": "^3.2.30"
   },
   "engines": {
-    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
+    "node": "20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true

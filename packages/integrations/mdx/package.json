@@ -69,10 +69,10 @@
     "remark-toc": "^9.0.0",
     "shiki": "^3.2.1",
     "unified": "^11.0.5",
-    "vite": "^6.3.4"
+    "vite": "^7.0.0"
   },
   "engines": {
-    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
+    "node": "20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true
