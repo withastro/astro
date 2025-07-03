@@ -175,6 +175,8 @@ interface VercelISRConfig {
 	 * @default `[]`
 	 */
 	exclude?: (string | RegExp)[];
+	allowQuery?: string[];
+	passQuery?: boolean;
 }
 
 export default function vercelAdapter({
@@ -670,8 +672,8 @@ class VercelBuilder {
 		await writeJson(prerenderConfig, {
 			expiration: isr.expiration ?? false,
 			bypassToken: isr.bypassToken,
-			allowQuery: [ASTRO_PATH_PARAM],
-			passQuery: true,
+			allowQuery:  isr.allowQuery,
+			passQuery: isr.passQuery,
 		});
 	}
 
