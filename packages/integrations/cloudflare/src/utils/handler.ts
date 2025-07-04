@@ -4,15 +4,16 @@ import type {
 	CacheStorage as CloudflareCacheStorage,
 	ExecutionContext,
 	ExportedHandlerFetchHandler,
+	Response as CloudflareResponse,
 } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import type { App } from 'astro/app';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 
-type Env = {
+export type Env = {
 	[key: string]: unknown;
-	ASSETS: { fetch: (req: Request | string) => Promise<Response> };
+	ASSETS: { fetch: (req: Request | string) => Promise<CloudflareResponse> };
 	ASTRO_STUDIO_APP_TOKEN?: string;
 };
 
@@ -43,7 +44,8 @@ export async function handle(
 	request: Parameters<ExportedHandlerFetchHandler>[0],
 	env: Env,
 	context: ExecutionContext,
-) {
+): Promise<CloudflareResponse> {
+
 	const { pathname } = new URL(request.url);
 	const bindingName = globalThis.__ASTRO_SESSION_BINDING_NAME;
 	// Assigning the KV binding to globalThis allows unstorage to access it for session storage.
@@ -99,13 +101,13 @@ export async function handle(
 			routeData,
 			locals,
 			prerenderedErrorPageFetch: async (url) => {
-				return env.ASSETS.fetch(url.replace(/\.html$/, ''));
+				return env.ASSETS.fetch(url.replace(/\.html$/, '')) as unknown as Promise<Response>
 			},
 		},
-	);
+	) as unknown as CloudflareResponse;
 
 	if (app.setCookieHeaders) {
-		for (const setCookieHeader of app.setCookieHeaders(response)) {
+		for (const setCookieHeader of app.setCookieHeaders(response as unknown as Response)) {
 			response.headers.append('Set-Cookie', setCookieHeader);
 		}
 	}

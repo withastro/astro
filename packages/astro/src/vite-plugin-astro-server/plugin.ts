@@ -3,8 +3,13 @@ import type fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
-import { normalizePath } from 'vite';
-import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
+import { normalizePath, isRunnableDevEnvironment } from 'vite';
+import type {
+	SerializedSSRManifest,
+	SSRManifest,
+	SSRManifestCSP,
+	SSRManifestI18n,
+} from '../core/app/types.js';
 import {
 	getAlgorithm,
 	getDirectives,
@@ -16,14 +21,14 @@ import {
 	shouldTrackCspHashes,
 } from '../core/csp/common.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
-import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
+import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { createRoutesList } from '../core/routing/index.js';
+import { createRoutesList, serializeRouteData } from '../core/routing/index.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import { runHookRoutesResolved } from '../integrations/hooks.js';
@@ -44,124 +49,164 @@ interface AstroPluginOptions {
 	manifest: SSRManifest;
 }
 
+const manifestVirtualModuleId = 'astro:ssr-manifest';
+const resolvedManifestVirtualModuleId = '\0' + manifestVirtualModuleId;
+
 export default function createVitePluginAstroServer({
 	settings,
 	logger,
 	fs: fsMod,
 	routesList,
 	manifest,
-}: AstroPluginOptions): vite.Plugin {
-	return {
-		name: 'astro:server',
-		async configureServer(viteServer) {
-			const loader = createViteLoader(viteServer);
-			const pipeline = DevPipeline.create(routesList, {
-				loader,
-				logger,
-				manifest,
-				settings,
-			});
-			const controller = createController({ loader });
-			const localStorage = new AsyncLocalStorage();
+}: AstroPluginOptions): Array<vite.Plugin> {
+	let pipeline: DevPipeline | undefined = undefined;
+	return [
+		{
+			name: 'astro:server',
+			async configureServer(viteServer) {
+				const loader = createViteLoader(viteServer);
+				pipeline = DevPipeline.create(routesList, {
+					loader,
+					logger,
+					manifest,
+					settings,
+				});
+				const controller = createController({ loader });
+				const localStorage = new AsyncLocalStorage();
 
-			/** rebuild the route cache + manifest */
-			async function rebuildManifest(path: string | null = null) {
-				pipeline.clearRouteCache();
+				/** rebuild the route cache + manifest */
+				async function rebuildManifest(path: string | null = null) {
+					if (!pipeline) {
+						return;
+					}
+					pipeline.clearRouteCache();
 
-				// If a route changes, we check if it's part of the manifest and check for its prerender value
-				if (path !== null) {
-					const route = routesList.routes.find(
-						(r) =>
-							normalizePath(path) ===
-							normalizePath(fileURLToPath(new URL(r.component, settings.config.root))),
+					// If a route changes, we check if it's part of the manifest and check for its prerender value
+					if (path !== null) {
+						const route = routesList.routes.find(
+							(r) =>
+								normalizePath(path) ===
+								normalizePath(fileURLToPath(new URL(r.component, settings.config.root))),
+						);
+						if (!route) {
+							return;
+						}
+						if (route.type !== 'page' && route.type !== 'endpoint') return;
+
+						const routePath = fileURLToPath(new URL(route.component, settings.config.root));
+						try {
+							const content = await fsMod.promises.readFile(routePath, 'utf-8');
+							await getRoutePrerenderOption(content, route, settings, logger);
+							await runHookRoutesResolved({ routes: routesList.routes, settings, logger });
+						} catch (_) {}
+					} else {
+						routesList = await createRoutesList({ settings, fsMod }, logger, { dev: true });
+					}
+
+					warnMissingAdapter(logger, settings);
+					pipeline.manifest.checkOrigin =
+						settings.config.security.checkOrigin && settings.buildOutput === 'server';
+					pipeline.setManifestData(routesList);
+				}
+
+				// Rebuild route manifest on file change
+				viteServer.watcher.on('add', rebuildManifest.bind(null, null));
+				viteServer.watcher.on('unlink', rebuildManifest.bind(null, null));
+				viteServer.watcher.on('change', rebuildManifest);
+
+				function handleUnhandledRejection(rejection: any) {
+					const error = AstroError.is(rejection)
+						? rejection
+						: new AstroError({
+								...AstroErrorData.UnhandledRejection,
+								message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection),
+							});
+					const store = localStorage.getStore();
+					if (store instanceof IncomingMessage) {
+						setRouteError(controller.state, store.url!, error);
+					}
+					const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
+					setTimeout(
+						async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
+						200,
 					);
-					if (!route) {
-						return;
-					}
-					if (route.type !== 'page' && route.type !== 'endpoint') return;
-
-					const routePath = fileURLToPath(new URL(route.component, settings.config.root));
-					try {
-						const content = await fsMod.promises.readFile(routePath, 'utf-8');
-						await getRoutePrerenderOption(content, route, settings, logger);
-						await runHookRoutesResolved({ routes: routesList.routes, settings, logger });
-					} catch (_) {}
-				} else {
-					routesList = await createRoutesList({ settings, fsMod }, logger, { dev: true });
 				}
 
-				warnMissingAdapter(logger, settings);
-				pipeline.manifest.checkOrigin =
-					settings.config.security.checkOrigin && settings.buildOutput === 'server';
-				pipeline.setManifestData(routesList);
-			}
-
-			// Rebuild route manifest on file change
-			viteServer.watcher.on('add', rebuildManifest.bind(null, null));
-			viteServer.watcher.on('unlink', rebuildManifest.bind(null, null));
-			viteServer.watcher.on('change', rebuildManifest);
-
-			function handleUnhandledRejection(rejection: any) {
-				const error = AstroError.is(rejection)
-					? rejection
-					: new AstroError({
-							...AstroErrorData.UnhandledRejection,
-							message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection),
-						});
-				const store = localStorage.getStore();
-				if (store instanceof IncomingMessage) {
-					setRouteError(controller.state, store.url!, error);
-				}
-				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
-				setTimeout(
-					async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
-					200,
-				);
-			}
-
-			process.on('unhandledRejection', handleUnhandledRejection);
-			viteServer.httpServer?.on('close', () => {
-				process.off('unhandledRejection', handleUnhandledRejection);
-			});
-
-			return () => {
-				// Push this middleware to the front of the stack so that it can intercept responses.
-				// fix(#6067): always inject this to ensure zombie base handling is killed after restarts
-				viteServer.middlewares.stack.unshift({
-					route: '',
-					handle: baseMiddleware(settings, logger),
+				process.on('unhandledRejection', handleUnhandledRejection);
+				viteServer.httpServer?.on('close', () => {
+					process.off('unhandledRejection', handleUnhandledRejection);
 				});
-				viteServer.middlewares.stack.unshift({
-					route: '',
-					handle: trailingSlashMiddleware(settings),
-				});
-				// Note that this function has a name so other middleware can find it.
-				viteServer.middlewares.use(async function astroDevHandler(request, response) {
-					if (request.url === undefined || !request.method) {
-						response.writeHead(500, 'Incomplete request');
-						response.end();
-						return;
-					}
-					localStorage.run(request, () => {
-						handleRequest({
-							pipeline,
-							routesList,
-							controller,
-							incomingRequest: request,
-							incomingResponse: response,
+
+				return () => {
+					// Push this middleware to the front of the stack so that it can intercept responses.
+					// fix(#6067): always inject this to ensure zombie base handling is killed after restarts
+					viteServer.middlewares.stack.unshift({
+						route: '',
+						handle: baseMiddleware(settings, logger),
+					});
+					viteServer.middlewares.stack.unshift({
+						route: '',
+						handle: trailingSlashMiddleware(settings),
+					});
+					// Note that this function has a name so other middleware can find it.
+					viteServer.middlewares.use(async function astroDevHandler(request, response, next) {
+						if (request.url === undefined || !request.method) {
+							response.writeHead(500, 'Incomplete request');
+							response.end();
+							return;
+						}
+						let ssrEnvironment = viteServer.environments.ssr;
+						if (!isRunnableDevEnvironment(ssrEnvironment)) {
+							// We're in a non-runnable environment such as Cloudflare. Let them handle the request.
+							return next();
+						}
+						localStorage.run(request, () => {
+							handleRequest({
+								pipeline: pipeline!,
+								routesList,
+								controller,
+								incomingRequest: request,
+								incomingResponse: response,
+							});
 						});
 					});
-				});
-			};
-		},
-		transform(code, id, opts = {}) {
-			if (opts.ssr) return;
-			if (!id.includes('vite/dist/client/client.mjs')) return;
+				};
+			},
+			transform(code, id, opts = {}) {
+				if (opts.ssr) return;
+				if (!id.includes('vite/dist/client/client.mjs')) return;
 
-			// Replace the Vite overlay with ours
-			return patchOverlay(code);
+				// Replace the Vite overlay with ours
+				return patchOverlay(code);
+			},
+			configResolved(config) {
+				console.log(`Vite server running in ${config.mode} mode`, config.build);
+			},
 		},
-	};
+		{
+			name: 'vite-plugin-astro-ssr-dev-manifest',
+			enforce: 'post',
+			resolveId(id) {
+				if (id === manifestVirtualModuleId) {
+					return resolvedManifestVirtualModuleId;
+				}
+			},
+			async load(id) {
+				if (id === resolvedManifestVirtualModuleId) {
+					console.log(routesList)
+					const serializedManifest = await serializeDevelopmentManifest(pipeline);
+					console.log({serializedManifest})
+					return {
+						code: /* js */ `
+import { deserializeManifest as _deserializeManifest } from 'astro/app';
+export const manifest = _deserializeManifest(${JSON.stringify(serializedManifest)});
+						`,
+						map: { mappings: '' },
+					};
+				}
+			},
+		},
+	];
 }
 
 /**
@@ -233,5 +278,28 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		},
 		sessionConfig: settings.config.session,
 		csp,
+	};
+}
+
+async function serializeDevelopmentManifest({manifest, routesList}: DevPipeline): Promise<SerializedSSRManifest> {
+	return {
+		...manifest,
+		hrefRoot: manifest.hrefRoot,
+		cacheDir: manifest.cacheDir.toString(),
+		outDir: manifest.outDir.toString(),
+		srcDir: manifest.srcDir.toString(),
+		publicDir: manifest.publicDir.toString(),
+		buildServerDir: manifest.buildServerDir.toString(),
+		buildClientDir: manifest.buildClientDir.toString(),
+		routes: manifest.routes.map((route) => ({
+			...route,
+			routeData: serializeRouteData(route.routeData, manifest.trailingSlash),
+		})),
+		clientDirectives: Array.from(manifest.clientDirectives),
+		assets: Array.from(manifest.assets),
+		componentMetadata: Array.from(manifest.componentMetadata),
+		inlinedScripts: Array.from(manifest.inlinedScripts),
+		serverIslandNameMap: Array.from(manifest.serverIslandNameMap ?? []),
+		key: await encodeKey(await manifest.key),
 	};
 }

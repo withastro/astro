@@ -224,7 +224,7 @@ export async function createVite(
 			dedupe: ['astro'],
 		},
 		ssr: {
-			noExternal: [...ALWAYS_NOEXTERNAL, ...astroPkgsConfig.ssr.noExternal],
+			noExternal: [...ALWAYS_NOEXTERNAL, ...(Array.isArray(astroPkgsConfig.ssr.noExternal) ? astroPkgsConfig.ssr.noExternal : [])],
 			external: [...(command === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 		build: { assetsDir: settings.config.build.assets },

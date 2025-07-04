@@ -1,0 +1,9 @@
+{
+	"compatibility_date": "2025-05-21",
+	"main": "src/dev.ts",
+	"name": "astro-cloudflare-custom-entryfile",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS"
+	}
+}

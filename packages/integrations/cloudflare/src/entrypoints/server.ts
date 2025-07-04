@@ -1,4 +1,4 @@
-import type { ExecutionContext, ExportedHandlerFetchHandler } from '@cloudflare/workers-types';
+import type { ExecutionContext, ExportedHandlerFetchHandler, Response as CloudflareResponse } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 
 import { App } from 'astro/app';
@@ -6,7 +6,7 @@ import { handle } from '../utils/handler.js';
 
 type Env = {
 	[key: string]: unknown;
-	ASSETS: { fetch: (req: Request | string) => Promise<Response> };
+	ASSETS: { fetch: (req: Request | string) => Promise<CloudflareResponse> };
 	ASTRO_STUDIO_APP_TOKEN?: string;
 };
 

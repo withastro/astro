@@ -26,6 +26,7 @@ import {
 import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
+import { cloudflare as cfVitePlugin } from "@cloudflare/vite-plugin";
 
 export type { Runtime } from './utils/handler.js';
 
@@ -207,6 +208,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					session,
 					vite: {
 						plugins: [
+							isBuild ? undefined : cfVitePlugin({ viteEnvironment: { name: "ssr" } }),
 							// https://developers.cloudflare.com/pages/functions/module-support/
 							// Allows imports of '.wasm', '.bin', and '.txt' file types
 							cloudflareModulePlugin,
@@ -220,7 +222,20 @@ export default function createIntegration(args?: Options): AstroIntegration {
 									return null;
 								},
 							},
-						],
+							{
+								enforce: 'post',
+								name: 'vite:cf-externals',
+								applyToEnvironment: (environment) => environment.name === 'ssr',
+								config(conf) {
+									if(conf.ssr) {
+										// Cloudflare does not support externalizing modules in the ssr environment
+										conf.ssr.external = undefined
+										conf.ssr.noExternal = true;
+									}
+								},
+							}
+
+						]
 					},
 					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
 				});
@@ -353,6 +368,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.build ||= {};
 					vite.build.rollupOptions ||= {};
 					vite.build.rollupOptions.output ||= {};
+					if(!Array.isArray(vite.build.rollupOptions.output)) {
+						vite.build.rollupOptions.output.inlineDynamicImports = false;
+					}
 					// @ts-expect-error
 					vite.build.rollupOptions.output.banner ||=
 						'globalThis.process ??= {}; globalThis.process.env ??= {};';
