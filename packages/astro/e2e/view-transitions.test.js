@@ -1657,4 +1657,18 @@ test.describe('View Transitions', () => {
 			'inline module, page-load',
 		);
 	});
+
+	test('fallback skipTransition() skips transition', async ({ page, astro, browserName }) => {
+
+		test.skip(browserName !== 'firefox', 'Only makes sense for browser that uses fallback');
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
+		});
+		await page.goto(astro.resolveUrl('/skip'));
+		await expect(page).toHaveTitle('Testing');
+		await page.click('#a1');
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		expect(lines.join('')).toBe("");
+	});
 });
