@@ -1,8 +1,8 @@
-import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type * as vite from 'vite';
+import { generateContentHash } from '../../../core/encryption.js';
 import { prependForwardSlash, slash } from '../../../core/path.js';
 import type { ImageMetadata } from '../../types.js';
 import { imageMetadata } from '../metadata.js';
@@ -14,13 +14,6 @@ type SvgCacheKey = { hash: string };
 
 // Global cache for SVG content deduplication
 const svgContentCache = new WeakMap<SvgCacheKey, { handle: string; filename: string }>();
-
-/**
- * Generate SHA-256 hash of file content for deduplication
- */
-function getContentHash(fileData: Buffer): string {
-	return createHash('sha256').update(fileData).digest('hex').slice(0, 16);
-}
 
 const keyRegistry = new Map<string, SvgCacheKey>();
 
@@ -88,9 +81,9 @@ export async function emitESMImage(
 		try {
 			// SVG deduplication: check if this content already exists
 			if (fileMetadata.format === 'svg') {
-				const contentHash  = getContentHash(fileData);
-				const key          = keyFor(contentHash);
-				const existing     = svgContentCache.get(key);
+				const contentHash = await generateContentHash(fileData);
+				const key = keyFor(contentHash);
+				const existing = svgContentCache.get(key);
 				
 				if (existing) {
 					// Reuse existing handle for duplicate SVG content
@@ -177,7 +170,7 @@ export async function emitImageMetadata(
 		try {
 			// SVG deduplication: check if this content already exists
 			if (fileMetadata.format === 'svg') {
-				const contentHash = getContentHash(fileData);
+				const contentHash = await generateContentHash(fileData);
 				const key = keyFor(contentHash);
 				const existing = svgContentCache.get(key);
 				
