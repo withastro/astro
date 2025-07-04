@@ -12,12 +12,12 @@ but not the _exit_ transition of the current page,
 even though both should be skipped
 (as they are in browsers that support the View Transition API).
 
-Now, the following code will skip both the exit transition of the current page
-and the enter transition of the new page, regardless of View Transition API support,
-so that the behaviour is consistent across browsers:
+The behaviour is now consistent across browsers, regardless of View Transition API support.
+For example, the following code will skip both the exit transition of the current page
+and the enter transition of the new page for self links:
 
 ```javascript
 document.addEventListener('astro:before-swap', (e) => {
-  e.viewTransition?.skipTransition();
+  if (e.from.href === e.to.href) e.viewTransition?.skipTransition();
 });
 ```
