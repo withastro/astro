@@ -10,15 +10,27 @@ import { imageMetadata } from '../metadata.js';
 type FileEmitter = vite.Rollup.EmitFile;
 type ImageMetadataWithContents = ImageMetadata & { contents?: Buffer };
 
+type SvgCacheKey = { hash: string };
+
 // Global cache for SVG content deduplication
-// Maps content hash -> { handle: string, filename: string }
-const svgContentCache = new Map<string, { handle: string; filename: string }>();
+const svgContentCache = new WeakMap<SvgCacheKey, { handle: string; filename: string }>();
 
 /**
  * Generate SHA-256 hash of file content for deduplication
  */
 function getContentHash(fileData: Buffer): string {
 	return createHash('sha256').update(fileData).digest('hex').slice(0, 16);
+}
+
+const keyRegistry = new Map<string, SvgCacheKey>();
+
+function keyFor(hash: string): SvgCacheKey {
+	let key = keyRegistry.get(hash);
+	if (!key) {
+		key = { hash };
+		keyRegistry.set(hash, key);
+	}
+	return key;
 }
 
 /**
@@ -76,12 +88,13 @@ export async function emitESMImage(
 		try {
 			// SVG deduplication: check if this content already exists
 			if (fileMetadata.format === 'svg') {
-				const contentHash = getContentHash(fileData);
-				const existingEntry = svgContentCache.get(contentHash);
+				const contentHash  = getContentHash(fileData);
+				const key          = keyFor(contentHash);
+				const existing     = svgContentCache.get(key);
 				
-				if (existingEntry) {
+				if (existing) {
 					// Reuse existing handle for duplicate SVG content
-					emittedImage.src = `__ASTRO_ASSET_IMAGE__${existingEntry.handle}__`;
+					emittedImage.src = `__ASTRO_ASSET_IMAGE__${existing.handle}__`;
 				} else {
 					// First time seeing this SVG content - emit it
 					const handle = fileEmitter!({
@@ -89,9 +102,7 @@ export async function emitESMImage(
 						source: fileData,
 						type: 'asset',
 					});
-					
-					// Cache this content hash -> handle mapping
-					svgContentCache.set(contentHash, { handle, filename });
+					svgContentCache.set(key, { handle, filename });
 					emittedImage.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
 				}
 			} else {
@@ -167,11 +178,12 @@ export async function emitImageMetadata(
 			// SVG deduplication: check if this content already exists
 			if (fileMetadata.format === 'svg') {
 				const contentHash = getContentHash(fileData);
-				const existingEntry = svgContentCache.get(contentHash);
+				const key = keyFor(contentHash);
+				const existing = svgContentCache.get(key);
 				
-				if (existingEntry) {
+				if (existing) {
 					// Reuse existing handle for duplicate SVG content
-					emittedImage.src = `__ASTRO_ASSET_IMAGE__${existingEntry.handle}__`;
+					emittedImage.src = `__ASTRO_ASSET_IMAGE__${existing.handle}__`;
 				} else {
 					// First time seeing this SVG content - emit it
 					const handle = fileEmitter!({
@@ -179,9 +191,7 @@ export async function emitImageMetadata(
 						source: fileData,
 						type: 'asset',
 					});
-					
-					// Cache this content hash -> handle mapping
-					svgContentCache.set(contentHash, { handle, filename });
+					svgContentCache.set(key, { handle, filename });
 					emittedImage.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
 				}
 			} else {
