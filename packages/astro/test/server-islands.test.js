@@ -106,6 +106,24 @@ describe('Server islands', () => {
 				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
+
+			it('supports fragments', async () => {
+				const res = await fixture.fetch('/fragment');
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
+			});
+
+			it('supports fragments with named slots', async () => {
+				const res = await fixture.fetch('/fragment');
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
+			});
 		});
 
 		describe('prod', () => {
