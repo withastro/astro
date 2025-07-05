@@ -211,7 +211,18 @@ async function resolvePartials({
 				});
 			}
 			if (pluginContext.meta.watchMode) pluginContext.addWatchFile(partialPath);
-			let partialTokens = tokenizer.tokenize(partialContents);
+			
+			// Manually substitute variables in the partial content BEFORE parsing
+			const variables = node.attributes.variables || {};
+			let processedPartialContents = partialContents;
+			
+			// Replace {% $varname %} patterns in the raw content
+			for (const [varName, varValue] of Object.entries(variables)) {
+				const pattern = new RegExp(`{%\\s*\\$${varName}\\s*%}`, 'g');
+				processedPartialContents = processedPartialContents.replace(pattern, String(varValue));
+			}
+			
+			let partialTokens = tokenizer.tokenize(processedPartialContents);
 			if (allowHTML) {
 				partialTokens = htmlTokenTransform(tokenizer, partialTokens);
 			}
