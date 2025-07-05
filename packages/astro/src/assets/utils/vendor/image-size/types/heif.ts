@@ -3,6 +3,7 @@ import { findBox, readUInt32BE, toUTF8String } from './utils.js'
 
 const brandMap = {
   avif: 'avif',
+	avis: 'avif', // avif-sequence
   mif1: 'heif',
   msf1: 'heif', // hief-sequence
   heic: 'heic',
