@@ -3,7 +3,7 @@ import { findBox, readUInt32BE, toUTF8String } from './utils.js'
 
 const brandMap = {
   avif: 'avif',
-	avis: 'avif', // avif-sequence
+  avis: 'avif', // avif-sequence
   mif1: 'heif',
   msf1: 'heif', // hief-sequence
   heic: 'heic',
@@ -22,7 +22,7 @@ function detectBrands(buffer: Uint8Array, start: number, end: number) {
 	}
 
 	// Determine the most relevant type based on detected brands
-	if ('avif' in brandsDetected) {
+	if ('avif' in brandsDetected || 'avis' in brandsDetected) {
 			return 'avif';
 	} else if ('heic' in brandsDetected || 'heix' in brandsDetected || 'hevc' in brandsDetected || 'hevx' in brandsDetected) {
 			return 'heic';
