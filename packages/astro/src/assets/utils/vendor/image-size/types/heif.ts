@@ -5,7 +5,7 @@ const brandMap = {
   avif: 'avif',
   avis: 'avif', // avif-sequence
   mif1: 'heif',
-  msf1: 'heif', // hief-sequence
+  msf1: 'heif', // heif-sequence
   heic: 'heic',
   heix: 'heic',
   hevc: 'heic', // heic-sequence
