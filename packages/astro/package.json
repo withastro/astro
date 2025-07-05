@@ -159,6 +159,7 @@
     "rehype": "^13.0.2",
     "semver": "^7.7.1",
     "shiki": "^3.2.1",
+    "svgo": "^3.3.2",
     "tinyexec": "^0.3.2",
     "tinyglobby": "^0.2.12",
     "tsconfck": "^3.1.5",
