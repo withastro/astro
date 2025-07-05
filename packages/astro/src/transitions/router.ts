@@ -301,21 +301,27 @@ async function updateDOM(
 		return Promise.allSettled(newAnimations.map((a) => a.finished));
 	}
 
-	if (
-		fallback === 'animate' &&
-		!currentTransition.transitionSkipped &&
-		!preparationEvent.signal.aborted
-	) {
-		try {
-			await animate('old');
-		} catch {
-			// animate might reject as a consequence of a call to skipTransition()
-			// ignored on purpose
+	const animateFallbackOld = async () => {
+		if (
+			fallback === 'animate' &&
+			!currentTransition.transitionSkipped &&
+			!preparationEvent.signal.aborted
+		) {
+			try {
+				await animate('old');
+			} catch {
+				// animate might reject as a consequence of a call to skipTransition()
+				// ignored on purpose
+			}
 		}
-	}
+	};
 
 	const pageTitleForBrowserHistory = document.title; // document.title will be overridden by swap()
-	const swapEvent = doSwap(preparationEvent, currentTransition.viewTransition!);
+	const swapEvent = await doSwap(
+		preparationEvent,
+		currentTransition.viewTransition!,
+		animateFallbackOld,
+	);
 	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
 	triggerEvent(TRANSITION_AFTER_SWAP);
 
