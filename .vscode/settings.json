@@ -15,7 +15,7 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "editor.codeActionsOnSave": {
-		"quickFix.biome": "explicit",
-		"source.fixAll.biome": "explicit"
-	}
+    "quickFix.biome": "explicit",
+    "source.fixAll.biome": "explicit"
+  }
 }

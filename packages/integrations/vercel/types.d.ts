@@ -1,5 +1,9 @@
+import { waitUntil } from '@vercel/functions';
+
 export interface EdgeLocals {
 	vercel: {
-		edge: import('@vercel/edge').RequestContext;
+		edge: {
+			waitUntil: typeof waitUntil;
+		};
 	};
 }

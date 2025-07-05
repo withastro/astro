@@ -259,7 +259,6 @@ The Astro project has five levels of priority to issues, where `p5` is the highe
 - `p5`: the bug impacts the majority of Astro projects, it doesn't have a workaround and makes Astro unusable/unstable.
 
   Some examples:
-
   - the dev server crashes;
   - the build breaks and doesn't complete;
   - huge regressions in terms of performance;

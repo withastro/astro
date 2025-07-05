@@ -1,5 +1,6 @@
 <script>
 	import { addToUserCart } from '../api';
+
 	let { id, name } = $props()
 
 	function notifyCartItem(id) {

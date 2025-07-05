@@ -17,10 +17,7 @@ interface Cart {
 	}>;
 }
 
-async function getJson<T>(
-	incomingReq: Request,
-	endpoint: string,
-): Promise<T> {
+async function getJson<T>(incomingReq: Request, endpoint: string): Promise<T> {
 	const origin = new URL(incomingReq.url).origin;
 	try {
 		const response = await fetch(`${origin}${endpoint}`, {

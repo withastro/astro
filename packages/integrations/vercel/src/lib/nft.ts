@@ -23,7 +23,9 @@ export async function copyDependenciesToFunction(
 	},
 	// we want to pass the caching by reference, and not by value
 	cache: object,
-): Promise<{ handler: string }> {
+): Promise<{
+	handler: string;
+}> {
 	const entryPath = fileURLToPath(entry);
 	logger.info(`Bundling function ${relativePath(fileURLToPath(outDir), entryPath)}`);
 

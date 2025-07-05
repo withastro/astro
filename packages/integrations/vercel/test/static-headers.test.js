@@ -6,7 +6,9 @@ describe('Static headers', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/static-headers' });
+		fixture = await loadFixture({
+			root: './fixtures/static-headers',
+		});
 		await fixture.build();
 	});
 

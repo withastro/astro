@@ -1,5 +1,5 @@
-import type { ComponentChildren } from 'preact';
 import type { Signal } from '@preact/signals';
+import type { ComponentChildren } from 'preact';
 import { lazy, Suspense } from 'preact/compat';
 import './Counter.css';
 

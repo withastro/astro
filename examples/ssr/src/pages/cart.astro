@@ -1,7 +1,7 @@
 ---
-import Header from '../components/Header.astro';
-import Container from '../components/Container.astro';
 import { getCart } from '../api';
+import Container from '../components/Container.astro';
+import Header from '../components/Header.astro';
 
 if (!Astro.cookies.get('user-id')) {
 	return Astro.redirect('/');
