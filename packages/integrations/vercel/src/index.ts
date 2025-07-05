@@ -548,11 +548,18 @@ export default function vercelAdapter({
 				let images: VercelImageConfig | undefined;
 				if (imageService || imagesConfig) {
 					if (imagesConfig) {
-						images = {
-							...imagesConfig,
-							domains: [...imagesConfig.domains, ..._config.image.domains],
-							remotePatterns: [...(imagesConfig.remotePatterns ?? [])],
-						};
+						if (imagesConfig.remotePatterns) {
+							images = {
+								...imagesConfig,
+								remotePatterns: [...imagesConfig.remotePatterns],
+							};
+							delete images.domains;
+						} else {
+							images = {
+								...imagesConfig,
+								domains: [...(imagesConfig.domains ?? []), ...(_config.image.domains ?? [])],
+							};
+						}
 						const remotePatterns = _config.image.remotePatterns;
 						for (const pattern of remotePatterns) {
 							if (isAcceptedPattern(pattern)) {
