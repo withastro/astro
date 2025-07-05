@@ -4,9 +4,9 @@ import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
 import {
 	getTransformedRoutes,
-	type Header,
 	normalizeRoutes,
 	type Route,
+	type RouteWithSrc,
 } from '@vercel/routing-utils';
 import type {
 	AstroAdapter,
@@ -574,9 +574,11 @@ export default function vercelAdapter({
 					);
 				}
 
-				let headers: Header[] | undefined = undefined;
 				if (_routeToHeaders && _routeToHeaders.size > 0) {
-					headers = createConfigHeaders(_routeToHeaders, _config);
+					if (!normalized.routes) {
+						normalized.routes = [];
+					}
+					normalized.routes.push(...createConfigHeaders(_routeToHeaders, _config));
 				}
 
 				// Output configuration
@@ -585,7 +587,6 @@ export default function vercelAdapter({
 					version: 3,
 					routes: normalized.routes,
 					images,
-					headers,
 				});
 
 				// Remove temporary folder
@@ -739,21 +740,19 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 	return 'nodejs18.x';
 }
 
-function createConfigHeaders(staticHeaders: RouteToHeaders, config: AstroConfig): Header[] {
-	const vercelHeaders: Header[] = [];
+function createConfigHeaders(staticHeaders: RouteToHeaders, config: AstroConfig): RouteWithSrc[] {
+	const vercelHeaders: RouteWithSrc[] = [];
 	for (const [pathname, { headers }] of staticHeaders.entries()) {
 		if (config.experimental.csp) {
 			const csp = headers.get('Content-Security-Policy');
 
 			if (csp) {
+				const _headers = {
+					'content-security-policy': csp,
+				};
 				vercelHeaders.push({
-					source: pathname,
-					headers: [
-						{
-							key: 'Content-Security-Policy',
-							value: csp,
-						},
-					],
+					src: pathname,
+					headers: _headers,
 				});
 			}
 		}
