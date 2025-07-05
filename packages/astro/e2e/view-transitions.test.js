@@ -1668,9 +1668,11 @@ test.describe('View Transitions', () => {
 		await expect(page).toHaveTitle('Testing');
 		await page.click('#a2');
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		expect(lines.join(' | ')).toBe("data-astro-transition-fallback old | data-astro-transition-fallback old | data-astro-transition-fallback old | data-astro-transition-fallback new | data-astro-transition-fallback null");
+		expect(lines.join(' | ')).toBe(
+			'data-astro-transition-fallback old | data-astro-transition-fallback old | data-astro-transition-fallback old | data-astro-transition-fallback new | data-astro-transition-fallback null',
+		);
 	});
-	
+
 	test('fallback skipTransition() skips transition', async ({ page, astro, browserName }) => {
 		test.skip(browserName !== 'firefox', 'Only makes sense for browser that uses fallback');
 		let lines = [];
@@ -1681,6 +1683,6 @@ test.describe('View Transitions', () => {
 		await expect(page).toHaveTitle('Testing');
 		await page.click('#a1');
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		expect(lines.join('')).toBe("");
+		expect(lines.join('')).toBe('');
 	});
 });
