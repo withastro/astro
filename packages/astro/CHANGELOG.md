@@ -1,5 +1,72 @@
 # astro
 
+## 5.11.0
+
+### Minor Changes
+
+- [#13972](https://github.com/withastro/astro/pull/13972) [`db8f8be`](https://github.com/withastro/astro/commit/db8f8becc9508fa4f292d45c14af92ba59c414d1) Thanks [@ematipico](https://github.com/ematipico)! - Updates the `NodeApp.match()` function in the Adapter API to accept a second, optional parameter to allow adapter authors to add headers to static, prerendered pages.
+
+  `NodeApp.match(request)` currently checks whether there is a route that matches the given `Request`. If there is a prerendered route, the function returns `undefined`, because static routes are already rendered and their headers cannot be updated.
+
+  When the new, optional boolean parameter is passed (e.g. `NodeApp.match(request, true)`), Astro will return the first matched route, even when it's a prerendered route. This allows your adapter to now access static routes and provides the opportunity to set headers for these pages, for example, to implement a Content Security Policy (CSP).
+
+### Patch Changes
+
+- [#14029](https://github.com/withastro/astro/pull/14029) [`42562f9`](https://github.com/withastro/astro/commit/42562f9d7b0bef173aca631f9d59e1bf000133c5) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where server islands wouldn't be correctly rendered when they are rendered inside fragments.
+
+  Now the following examples work as expected:
+
+  ```astro
+  ---
+  import { Cart } from '../components/Cart.astro';
+  ---
+
+  <>
+    <Cart server:defer />
+  </>
+
+  <Fragment slot="rest">
+    <Cart server:defer>
+      <div slot="fallback">Not working</div>
+    </Cart>
+  </Fragment>
+  ```
+
+- [#14017](https://github.com/withastro/astro/pull/14017) [`8d238bc`](https://github.com/withastro/astro/commit/8d238bcb21f1d3863d4e86bf0064d98390936208) Thanks [@dmgawel](https://github.com/dmgawel)! - Fixes a bug where i18n fallback rewrites didn't work in dynamic pages.
+
+## 5.10.2
+
+### Patch Changes
+
+- [#14000](https://github.com/withastro/astro/pull/14000) [`3cbedae`](https://github.com/withastro/astro/commit/3cbedae129579b93f5c18c900ae66c6c11c46da5) Thanks [@feelixe](https://github.com/feelixe)! - Fix routePattern JSDoc examples to show correct return values
+
+- [#13990](https://github.com/withastro/astro/pull/13990) [`de6cfd6`](https://github.com/withastro/astro/commit/de6cfd6dc8e53911190b2b5788e0508e557f86eb) Thanks [@isVivek99](https://github.com/isVivek99)! - Fixes a case where `astro:config/client` and `astro:config/server` virtual modules would not contain config passed to integrations `updateConfig()` during the build
+
+- [#14019](https://github.com/withastro/astro/pull/14019) [`a160d1e`](https://github.com/withastro/astro/commit/a160d1e8b711b7a214e54406fdf85be2b7338ed2) Thanks [@ascorbic](https://github.com/ascorbic)! - Removes the requirement to set `type: 'live'` when defining experimental live content collections
+
+  Previously, live collections required a `type` and `loader` configured. Now, Astro can determine that your collection is a `live` collection without defining it explicitly.
+
+  This means it is now safe to remove `type: 'live'` from your collections defined in `src/live.config.ts`:
+
+  ```diff
+  import { defineLiveCollection } from 'astro:content';
+  import { storeLoader } from '@mystore/astro-loader';
+
+  const products = defineLiveCollection({
+  -  type: 'live',
+    loader: storeLoader({
+      apiKey: process.env.STORE_API_KEY,
+      endpoint: 'https://api.mystore.com/v1',
+    }),
+  });
+
+  export const collections = { products };
+  ```
+
+  This is not a breaking change: your existing live collections will continue to work even if you still include `type: 'live'`. However, we suggest removing this line at your earliest convenience for future compatibility when the feature becomes stable and this config option may be removed entirely.
+
+- [#13966](https://github.com/withastro/astro/pull/13966) [`598da21`](https://github.com/withastro/astro/commit/598da21746a6b9cda023c818804b32dc37b9819b) Thanks [@msamoylov](https://github.com/msamoylov)! - Fixes a broken link on the default 404 page in development
+
 ## 5.10.1
 
 ### Patch Changes

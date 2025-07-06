@@ -3,11 +3,7 @@ import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { IncomingMessage } from 'node:http';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { emptyDir } from '@astrojs/internal-helpers/fs';
-import {
-	createHostedRouteDefinition,
-	createRedirectsFromAstroRoutes,
-	printAsRedirects,
-} from '@astrojs/underscore-redirects';
+import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
 import netlifyVitePlugin from '@netlify/vite-plugin';
 import type {
@@ -16,6 +12,7 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
+	RouteToHeaders,
 } from 'astro';
 import { build } from 'esbuild';
 import { glob, globSync } from 'tinyglobby';
@@ -110,7 +107,7 @@ export function remotePatternToRegex(
 
 async function writeNetlifyFrameworkConfig(
 	config: AstroConfig,
-	staticHeaders: Map<IntegrationResolvedRoute, Headers> | undefined,
+	staticHeaders: RouteToHeaders | undefined,
 	logger: AstroIntegrationLogger,
 ) {
 	const remoteImages: Array<string> = [];
@@ -136,22 +133,13 @@ async function writeNetlifyFrameworkConfig(
 	}
 
 	if (staticHeaders && staticHeaders.size > 0) {
-		for (const [route, routeHeaders] of staticHeaders.entries()) {
-			if (!route.isPrerendered) {
-				continue;
-			}
-			if (route.redirect) {
-				continue;
-			}
-
-			const definition = createHostedRouteDefinition(route, config);
-
+		for (const [pathname, { headers: routeHeaders }] of staticHeaders.entries()) {
 			if (config.experimental.csp) {
 				const csp = routeHeaders.get('Content-Security-Policy');
 
 				if (csp) {
 					headers.push({
-						for: definition.input,
+						for: pathname,
 						values: {
 							'Content-Security-Policy': csp,
 						},
@@ -260,7 +248,7 @@ export default function netlifyIntegration(
 	let outDir: URL;
 	let rootDir: URL;
 	let astroMiddlewareEntryPoint: URL | undefined = undefined;
-	let staticHeadersMap: Map<IntegrationResolvedRoute, Headers> | undefined = undefined;
+	let staticHeadersMap: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
