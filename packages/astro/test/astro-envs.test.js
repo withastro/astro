@@ -93,6 +93,12 @@ describe('Environment Variables', () => {
 
 			assert.equal(found, false, 'found the private env variable in the JS build');
 		});
+
+		it('does not coerce environment variable values when experimental.coerceEnvVarValues is false', async () => {
+			let indexHtml = await fixture.readFile('/index.html');
+			assert.equal(indexHtml.includes('typeof BOOLEAN_VAR is string'), true);
+			assert.equal(indexHtml.includes('typeof NUMBER_VAR is string'), true);
+		});
 	});
 
 	describe('Development', () => {

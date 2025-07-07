@@ -9,6 +9,7 @@ const isValidIdentifierRe = /^[_$a-zA-Z][\w$]*$/;
 function getPrivateEnv(
 	fullEnv: Record<string, string>,
 	astroConfig: AstroConfig,
+	coerceValues: boolean,
 ): Record<string, string> {
 	const viteConfig = astroConfig.vite;
 	let envPrefixes: string[] = ['PUBLIC_'];
@@ -30,7 +31,10 @@ function getPrivateEnv(
 				}
 				// Boolean values should be inlined to support `export const prerender`
 				// We already know that these are NOT sensitive values, so inlining is safe
-				if (value === '0' || value === '1' || value === 'true' || value === 'false') {
+				if (
+					coerceValues &&
+					(value === '0' || value === '1' || value === 'true' || value === 'false')
+				) {
 					privateEnv[key] = value;
 				} else {
 					privateEnv[key] = `process.env.${key}`;
@@ -43,9 +47,9 @@ function getPrivateEnv(
 	return privateEnv;
 }
 
-export const createEnvLoader = (mode: string, config: AstroConfig) => {
+export const createEnvLoader = (mode: string, config: AstroConfig, coerceValues: boolean) => {
 	const loaded = loadEnv(mode, config.vite.envDir ?? fileURLToPath(config.root), '');
-	const privateEnv = getPrivateEnv(loaded, config);
+	const privateEnv = getPrivateEnv(loaded, config, coerceValues);
 	return {
 		get: () => loaded,
 		getPrivateEnv: () => privateEnv,
