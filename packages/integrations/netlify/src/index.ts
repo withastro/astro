@@ -650,6 +650,12 @@ export default function netlifyIntegration(
 
 			// local dev
 			'astro:server:setup': async ({ server }) => {
+				const existingSessionModule = server.moduleGraph.getModuleById('astro:sessions');
+				// if we're restarting the server, we need to recreate the session
+				// module because blobs will have new ports
+				if (existingSessionModule) {
+					server.moduleGraph.invalidateModule(existingSessionModule);
+				}
 				server.middlewares.use((req, _res, next) => {
 					const locals = Symbol.for('astro.locals');
 					Reflect.set(req, locals, {
