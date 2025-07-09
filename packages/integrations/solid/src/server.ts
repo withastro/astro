@@ -1,11 +1,11 @@
 import type { NamedSSRLoadedRendererValue } from 'astro';
 import {
-	NoHydration,
-	Suspense,
 	createComponent,
 	generateHydrationScript,
+	NoHydration,
 	renderToString,
 	renderToStringAsync,
+	Suspense,
 	ssr,
 } from 'solid-js/web';
 import { getContext, incrementId } from './context.js';

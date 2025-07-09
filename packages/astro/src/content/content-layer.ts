@@ -1,5 +1,5 @@
-import { promises as fs, existsSync } from 'node:fs';
-import { type MarkdownProcessor, createMarkdownProcessor } from '@astrojs/markdown-remark';
+import { existsSync, promises as fs } from 'node:fs';
+import { createMarkdownProcessor, type MarkdownProcessor } from '@astrojs/markdown-remark';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -26,7 +26,7 @@ import {
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
-import { type WrappedWatcher, createWatcherWrapper } from './watcher.js';
+import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
 interface ContentLayerOptions {
 	store: MutableDataStore;

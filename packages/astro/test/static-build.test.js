@@ -205,3 +205,16 @@ describe('Static build SSR', () => {
 		assert.ok(await fixture.readFile('/client/.well-known/apple-app-site-association'));
 	});
 });
+
+describe('Static build with configured redirects', () => {
+	it('Sets isPrerendered true in middleware', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/static-redirect/',
+		});
+
+		await assert.doesNotReject(
+			fixture.build(),
+			'isPrerendered unexpectedly true during static build',
+		);
+	});
+});

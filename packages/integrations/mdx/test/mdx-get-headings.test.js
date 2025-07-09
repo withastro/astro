@@ -1,10 +1,9 @@
-import { rehypeHeadingIds } from '@astrojs/markdown-remark';
-import mdx from '@astrojs/mdx';
-import { visit } from 'unist-util-visit';
-
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
+import { visit } from 'unist-util-visit';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 describe('MDX getHeadings', () => {

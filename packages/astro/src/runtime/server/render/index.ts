@@ -1,12 +1,12 @@
-export { createHeadAndContent, renderTemplate, renderToString } from './astro/index.js';
 export type { AstroComponentFactory, AstroComponentInstance } from './astro/index.js';
-export { Fragment, Renderer, chunkToByteArray, chunkToString } from './common.js';
+export { createHeadAndContent, renderTemplate, renderToString } from './astro/index.js';
+export { chunkToByteArray, chunkToString, Fragment, Renderer } from './common.js';
 export { renderComponent, renderComponentToString } from './component.js';
-export { renderScript } from './script.js';
 export { renderHTMLElement } from './dom.js';
 export { maybeRenderHead, renderHead } from './head.js';
 export type { RenderInstruction } from './instruction.js';
 export { renderPage } from './page.js';
-export { renderSlot, renderSlotToString, type ComponentSlots } from './slot.js';
+export { renderScript } from './script.js';
+export { type ComponentSlots, renderSlot, renderSlotToString } from './slot.js';
 export { renderScriptElement, renderUniqueStylesheet } from './tags.js';
 export { addAttribute, defineScriptVars, voidElementNames } from './util.js';

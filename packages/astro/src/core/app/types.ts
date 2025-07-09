@@ -109,6 +109,7 @@ export type SSRManifestI18n = {
 };
 
 export type SSRManifestCSP = {
+	cspDestination: 'adapter' | 'meta' | 'header' | undefined;
 	algorithm: CspAlgorithm;
 	scriptHashes: string[];
 	scriptResources: string[];
@@ -138,3 +139,11 @@ export type SerializedSSRManifest = Omit<
 	serverIslandNameMap: [string, string][];
 	key: string;
 };
+
+export type NodeAppHeadersJson = {
+	pathname: string;
+	headers: {
+		key: string;
+		value: string;
+	}[];
+}[];

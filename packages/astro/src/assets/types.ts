@@ -160,9 +160,9 @@ type ImageSharedProps<T> = T & {
 } & (
 		| {
 				/**
-				 * The layout type for responsive images. Requires the `experimental.responsiveImages` flag to be enabled in the Astro config.
+				 * The layout type for responsive images.
 				 *
-				 * Allowed values are `constrained`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
+				 * Allowed values are `constrained`, `fixed`, `full-width` or `none`. Defaults to value of `image.layout`.
 				 *
 				 * - `constrained` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
 				 * - `fixed` - The image will maintain its original dimensions.
@@ -177,7 +177,7 @@ type ImageSharedProps<T> = T & {
 				layout?: ImageLayout;
 
 				/**
-				 * Defines how the image should be cropped if the aspect ratio is changed. Requires the `experimental.responsiveImages` flag to be enabled in the Astro config.
+				 * Defines how the image should be cropped if the aspect ratio is changed. Requires `layout` to be set.
 				 *
 				 * Default is `cover`. Allowed values are `fill`, `contain`, `cover`, `none` or `scale-down`. These behave like the equivalent CSS `object-fit` values. Other values may be passed if supported by the image service.
 				 *
@@ -190,7 +190,7 @@ type ImageSharedProps<T> = T & {
 				fit?: ImageFit;
 
 				/**
-				 * Defines the position of the image when cropping. Requires the `experimental.responsiveImages` flag to be enabled in the Astro config.
+				 * Defines the position of the image when cropping. Requires `layout` to be set.
 				 *
 				 * The value is a string that specifies the position of the image, which matches the CSS `object-position` property. Other values may be passed if supported by the image service.
 				 *

@@ -1,18 +1,18 @@
 import type http from 'node:http';
 import { loadActions } from '../actions/loadActions.js';
 import {
+	clientLocalsSymbol,
 	DEFAULT_404_COMPONENT,
 	NOOP_MIDDLEWARE_HEADER,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
-	clientLocalsSymbol,
 } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { routeIsRedirect } from '../core/redirects/index.js';
-import { RenderContext } from '../core/render-context.js';
 import { getProps } from '../core/render/index.js';
+import { RenderContext } from '../core/render-context.js';
 import { createRequest } from '../core/request.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 import { matchAllRoutes } from '../core/routing/index.js';

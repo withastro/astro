@@ -1,5 +1,3 @@
-import type { Context, PackageInfo } from './context.js';
-
 import dns from 'node:dns/promises';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
@@ -8,6 +6,7 @@ import semverCoerce from 'semver/functions/coerce.js';
 import semverDiff from 'semver/functions/diff.js';
 import semverParse from 'semver/functions/parse.js';
 import { bannerAbort, error, getRegistry, info, newline } from '../messages.js';
+import type { Context, PackageInfo } from './context.js';
 
 export async function verify(
 	ctx: Pick<Context, 'version' | 'packages' | 'cwd' | 'dryRun' | 'exit'>,

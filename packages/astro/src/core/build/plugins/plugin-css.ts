@@ -1,18 +1,17 @@
 import type { GetModuleInfo } from 'rollup';
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
-import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
-import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
-import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
-
 import { hasAssetPropagationFlag } from '../../../content/index.js';
+import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
 import * as assetName from '../css-asset-name.js';
 import {
 	getParentExtendedModuleInfos,
 	getParentModuleInfos,
 	moduleIsTopLevelPage,
 } from '../graph.js';
+import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js';
+import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
+import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
 import { extendManualChunks, shouldInlineAsset } from './util.js';
 
 interface PluginOptions {

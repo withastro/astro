@@ -77,6 +77,12 @@ async function restartContainer(container: Container): Promise<Container | Error
 
 	try {
 		const { astroConfig } = await resolveConfig(container.inlineConfig, 'dev', container.fs);
+		if (astroConfig.experimental.csp) {
+			logger.warn(
+				'config',
+				"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
+			);
+		}
 		const settings = await createSettings(astroConfig, fileURLToPath(existingSettings.config.root));
 		await close();
 		return await createRestartedContainer(container, settings);
@@ -119,11 +125,22 @@ export async function createContainerWithAutomaticRestart({
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
 	const logger = createNodeLogger(inlineConfig ?? {});
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
+	if (astroConfig.experimental.csp) {
+		logger.warn(
+			'config',
+			"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
+		);
+	}
 	telemetry.record(eventCliSession('dev', userConfig));
 
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
-	const initialContainer = await createContainer({ settings, logger: logger, inlineConfig, fs });
+	const initialContainer = await createContainer({
+		settings,
+		logger: logger,
+		inlineConfig,
+		fs,
+	});
 
 	let resolveRestart: (value: Error | null) => void;
 	let restartComplete = new Promise<Error | null>((resolve) => {

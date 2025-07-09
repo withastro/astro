@@ -1,10 +1,9 @@
+// @ts-expect-error
+import { assetsDir, imageConfig, outDir } from 'astro:assets';
 import { readFile } from 'node:fs/promises';
-
 import os from 'node:os';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-// @ts-expect-error
-import { assetsDir, imageConfig, outDir } from 'astro:assets';
 import { isRemotePath, removeQueryString } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import * as mime from 'mrmime';

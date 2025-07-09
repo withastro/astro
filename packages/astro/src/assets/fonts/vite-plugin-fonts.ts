@@ -40,11 +40,11 @@ import {
 import { createRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
 import { createFsStorage } from './implementations/storage.js';
 import { createSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
+import { createUrlProxy } from './implementations/url-proxy.js';
 import {
 	createLocalUrlProxyContentResolver,
 	createRemoteUrlProxyContentResolver,
 } from './implementations/url-proxy-content-resolver.js';
-import { createUrlProxy } from './implementations/url-proxy.js';
 import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap } from './types.js';

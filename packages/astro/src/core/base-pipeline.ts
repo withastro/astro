@@ -7,12 +7,12 @@ import type { MiddlewareHandler, RewritePayload } from '../types/public/common.j
 import type { RuntimeMode } from '../types/public/config.js';
 import type {
 	RouteData,
+	SSRActions,
 	SSRLoadedRenderer,
 	SSRManifest,
 	SSRResult,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
-import type { SSRActions } from './app/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 import type { Logger } from './logger/core.js';

@@ -1,20 +1,20 @@
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import {
-	type IndexBuilder,
-	type SQLiteColumnBuilderBase,
 	customType,
+	type IndexBuilder,
 	index,
 	integer,
+	type SQLiteColumnBuilderBase,
 	sqliteTable,
 	text,
 } from 'drizzle-orm/sqlite-core';
 import type { DBColumn, DBTable } from '../core/types.js';
-import { type SerializedSQL, isSerializedSQL } from './types.js';
+import { isSerializedSQL, type SerializedSQL } from './types.js';
 import { pathToFileURL } from './utils.js';
 export type Database = LibSQLDatabase;
+export { createLocalDatabaseClient, createRemoteDatabaseClient } from './db-client.js';
 export type { Table } from './types.js';
-export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
 
 export function hasPrimaryKey(column: DBColumn) {
 	return 'primaryKey' in column.schema && !!column.schema.primaryKey;

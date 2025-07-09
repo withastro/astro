@@ -1,13 +1,13 @@
 // NOTE: Although this entrypoint is exported, it is internal API and may change at any time.
 
 export {
-	Fragment,
 	addAttribute,
 	createAstro,
 	createComponent,
 	createTransitionScope,
 	defineScriptVars,
 	defineStyleVars,
+	Fragment,
 	maybeRenderHead,
 	mergeSlots,
 	render,

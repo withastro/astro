@@ -738,8 +738,7 @@ test.describe('View Transitions', () => {
 		await expect(h, 'should have content').toHaveAttribute('style', 'background-color: green');
 		await expect(h, 'should have content').toHaveAttribute('data-other-name', 'value');
 		await expect(h, 'should have content').toHaveAttribute('data-astro-fake', 'value');
-		// TODO: check this assertion
-		// await expect(h, 'should have content').toHaveAttribute('data-astro-transition', 'forward');
+		await expect(h, 'should have content').toHaveAttribute('data-astro-transition', 'forward');
 		await expect(h, 'should have swap rest of data-astro-* attributes').toHaveAttribute(
 			'data-astro-transition-scope',
 			'scope-y',
@@ -1419,8 +1418,7 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
-	// TODO: investigate, it weirdly fails
-	test.skip('transition:name should be escaped correctly', async ({ page, astro }) => {
+	test('transition:name should be escaped correctly', async ({ page, astro }) => {
 		// view-transition-name errors on browser w/o native support
 		if (!(await nativeViewTransition(page))) return;
 		const expectedAnimations = new Set();
@@ -1584,11 +1582,7 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
-	// It weirdly fails
-	test.skip('animation get canceled when view transition is interrupted', async ({
-		page,
-		astro,
-	}) => {
+	test('animation get canceled when view transition is interrupted', async ({ page, astro }) => {
 		let lines = [];
 		page.on('console', (msg) => {
 			msg.text().startsWith('[test]') && lines.push(msg.text());
@@ -1662,5 +1656,33 @@ test.describe('View Transitions', () => {
 		expect(lines.join(', '), 'should raise page-load after inline module').toBe(
 			'inline module, page-load',
 		);
+	});
+
+	test('fallback triggers animation if not skipped', async ({ page, astro, browserName }) => {
+		test.skip(browserName !== 'firefox', 'Only makes sense for browser that uses fallback');
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
+		});
+		await page.goto(astro.resolveUrl('/skip'));
+		await expect(page).toHaveTitle('Testing');
+		await page.click('#a2');
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		expect(lines.join(' | ')).toBe(
+			'data-astro-transition-fallback old | data-astro-transition-fallback old | data-astro-transition-fallback old | data-astro-transition-fallback new | data-astro-transition-fallback null',
+		);
+	});
+
+	test('fallback skipTransition() skips transition', async ({ page, astro, browserName }) => {
+		test.skip(browserName !== 'firefox', 'Only makes sense for browser that uses fallback');
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
+		});
+		await page.goto(astro.resolveUrl('/skip'));
+		await expect(page).toHaveTitle('Testing');
+		await page.click('#a1');
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		expect(lines.join('')).toBe('');
 	});
 });

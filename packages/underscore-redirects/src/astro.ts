@@ -5,7 +5,7 @@ import type {
 	IntegrationResolvedRoute,
 	ValidRedirectStatus,
 } from 'astro';
-import { Redirects } from './redirects.js';
+import { type HostRouteDefinition, HostRoutes } from './host-route.js';
 
 const pathJoin = posix.join;
 
@@ -36,17 +36,17 @@ export function createRedirectsFromAstroRoutes({
 	dir,
 	buildOutput,
 	assets,
-}: CreateRedirectsFromAstroRoutesParams): Redirects {
+}: CreateRedirectsFromAstroRoutesParams): HostRoutes {
 	const base =
 		config.base && config.base !== '/'
 			? config.base.endsWith('/')
 				? config.base.slice(0, -1)
 				: config.base
 			: '';
-	const redirects = new Redirects();
+	const redirects = new HostRoutes();
 
 	for (const [route, dynamicTarget = ''] of routeToDynamicTargetMap) {
-		const distURL = assets.get(route.pattern);
+		const distURL = assets?.get(route.pattern);
 		// A route with a `pathname` is as static route.
 		if (route.pathname) {
 			if (route.redirect) {
@@ -157,4 +157,46 @@ function generateDynamicPattern(route: IntegrationResolvedRoute) {
 
 function prependForwardSlash(str: string) {
 	return str.startsWith('/') ? str : '/' + str;
+}
+
+/**
+ * Creates a hosted route definition from an `IntegrationResolveRoute`
+ * @param route
+ * @param config
+ */
+export function createHostedRouteDefinition(
+	route: IntegrationResolvedRoute,
+	config: AstroConfig,
+): HostRouteDefinition {
+	const base =
+		config.base && config.base !== '/'
+			? config.base.endsWith('/')
+				? config.base.slice(0, -1)
+				: config.base
+			: '';
+
+	if (route.pattern === '/404') {
+		return {
+			dynamic: true,
+			input: '/*',
+			status: 404,
+		};
+	}
+
+	if (route.pathname) {
+		return {
+			input: `${base}${route.pathname}`,
+			status: 200,
+			dynamic: false,
+		};
+	} else {
+		// This is the dynamic route code. This generates a pattern from a dynamic
+		// route formatted with *s in place of the Astro dynamic/spread syntax.
+		const pattern = generateDynamicPattern(route);
+		return {
+			dynamic: true,
+			input: `${base}${pattern}`,
+			status: 200,
+		};
+	}
 }

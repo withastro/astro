@@ -1,5 +1,3 @@
-import type { Context, PackageInfo } from './context.js';
-
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,6 +21,7 @@ import {
 	warn,
 } from '../messages.js';
 import { shell } from '../shell.js';
+import type { Context, PackageInfo } from './context.js';
 
 export async function install(
 	ctx: Pick<

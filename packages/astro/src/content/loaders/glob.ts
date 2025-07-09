@@ -1,4 +1,4 @@
-import { promises as fs, existsSync } from 'node:fs';
+import { existsSync, promises as fs } from 'node:fs';
 import { relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, green } from 'kleur/colors';

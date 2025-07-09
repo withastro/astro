@@ -172,21 +172,6 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		}
 	}
 
-	if (
-		!config.experimental.responsiveImages &&
-		(config.image.experimentalLayout ||
-			config.image.experimentalObjectFit ||
-			config.image.experimentalObjectPosition ||
-			config.image.experimentalBreakpoints)
-	) {
-		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
-			message:
-				'The `experimentalLayout`, `experimentalObjectFit`, `experimentalObjectPosition` and `experimentalBreakpoints` options are only available when `experimental.responsiveImages` is enabled.',
-			path: ['experimental', 'responsiveImages'],
-		});
-	}
-
 	if (config.experimental.fonts && config.experimental.fonts.length > 0) {
 		for (let i = 0; i < config.experimental.fonts.length; i++) {
 			const { cssVariable } = config.experimental.fonts[i];

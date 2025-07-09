@@ -8,7 +8,7 @@ import type { AstroError } from '../errors/errors.js';
 import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
 import { normalizePath, resolvePath } from '../viteUtils.js';
-import { type PartialCompileCssResult, createStylePreprocessor } from './style.js';
+import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
 import type { CompileCssResult } from './types.js';
 
 export interface CompileProps {

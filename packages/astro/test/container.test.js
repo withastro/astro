@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { experimental_AstroContainer } from '../dist/container/index.js';
 import {
-	Fragment,
 	createAstro,
 	createComponent,
 	createHeadAndContent,
+	Fragment,
 	maybeRenderHead,
 	render,
 	renderComponent,

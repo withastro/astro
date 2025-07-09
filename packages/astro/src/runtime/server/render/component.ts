@@ -1,7 +1,11 @@
-import { createRenderInstruction } from './instruction.js';
-
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import type {
+	AstroComponentMetadata,
+	RouteData,
+	SSRLoadedRenderer,
+	SSRResult,
+} from '../../../types/public/internal.js';
 import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
@@ -10,25 +14,19 @@ import { isPromise } from '../util.js';
 import { type AstroComponentFactory, isAstroComponentFactory } from './astro/factory.js';
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
-
-import type {
-	AstroComponentMetadata,
-	RouteData,
-	SSRLoadedRenderer,
-	SSRResult,
-} from '../../../types/public/internal.js';
 import { bufferHeadContent } from './astro/render.js';
 import {
+	chunkToString,
 	Fragment,
 	type RenderDestination,
-	type RenderInstance,
 	Renderer,
-	chunkToString,
+	type RenderInstance,
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
-import { ServerIslandComponent, containsServerDirective } from './server-islands.js';
-import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
+import { createRenderInstruction } from './instruction.js';
+import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
+import { type ComponentSlots, renderSlots, renderSlotToString } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
@@ -285,6 +283,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 		const renderTemplateResult = renderTemplate`<${Tag}${internalSpreadAttributes(
 			props,
+			true,
+			Tag,
 		)}${markHTMLString(
 			childSlots === '' && voidElementNames.test(Tag) ? `/>` : `>${childSlots}</${Tag}>`,
 		)}`;

@@ -1,4 +1,4 @@
-import { Fragment, Renderer, markHTMLString } from '../runtime/server/index.js';
+import { Fragment, markHTMLString, Renderer } from '../runtime/server/index.js';
 
 const AstroJSX = 'astro:jsx';
 const Empty = Symbol('empty');

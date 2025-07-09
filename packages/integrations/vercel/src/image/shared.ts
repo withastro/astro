@@ -66,7 +66,6 @@ export function getAstroImageConfig(
 	command: string,
 	devImageService: DevImageService,
 	astroImageConfig: AstroConfig['image'],
-	responsiveImages?: boolean,
 ) {
 	let devService = '@astrojs/vercel/dev-image-service';
 
@@ -91,7 +90,7 @@ export function getAstroImageConfig(
 					entrypoint: command === 'dev' ? devService : '@astrojs/vercel/build-image-service',
 					config,
 				},
-				experimentalBreakpoints: responsiveImages ? config.sizes : undefined,
+				breakpoints: config.sizes,
 			},
 		};
 	}

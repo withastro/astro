@@ -10,7 +10,7 @@ import { renderAllHeadContent } from './head.js';
 import type { RenderInstruction } from './instruction.js';
 import { isRenderInstruction } from './instruction.js';
 import { renderServerIslandRuntime } from './server-islands.js';
-import { type SlotString, isSlotString } from './slot.js';
+import { isSlotString, type SlotString } from './slot.js';
 
 /**
  * Possible chunk types to be written to the destination, and it'll

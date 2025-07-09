@@ -1,10 +1,9 @@
-import type { Context } from './context.js';
-
 import fs from 'node:fs';
 import path from 'node:path';
 import { color } from '@astrojs/cli-kit';
 import { downloadTemplate } from '@bluwy/giget-core';
 import { error, info, title } from '../messages.js';
+import type { Context } from './context.js';
 
 export async function template(
 	ctx: Pick<Context, 'template' | 'prompt' | 'yes' | 'dryRun' | 'exit' | 'tasks'>,

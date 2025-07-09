@@ -1,16 +1,3 @@
-import type {
-	AstroMarkdownOptions,
-	AstroMarkdownProcessorOptions,
-	MarkdownProcessor,
-	SyntaxHighlightConfig,
-} from './types.js';
-
-import { loadPlugins } from './load-plugins.js';
-import { rehypeHeadingIds } from './rehype-collect-headings.js';
-import { rehypePrism } from './rehype-prism.js';
-import { rehypeShiki } from './rehype-shiki.js';
-import { remarkCollectImages } from './remark-collect-images.js';
-
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import remarkGfm from 'remark-gfm';
@@ -20,22 +7,34 @@ import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
 import { defaultExcludeLanguages } from './highlight.js';
+import { loadPlugins } from './load-plugins.js';
+import { rehypeHeadingIds } from './rehype-collect-headings.js';
 import { rehypeImages } from './rehype-images.js';
-export { rehypeHeadingIds } from './rehype-collect-headings.js';
-export { remarkCollectImages } from './remark-collect-images.js';
-export { rehypePrism } from './rehype-prism.js';
-export { rehypeShiki } from './rehype-shiki.js';
+import { rehypePrism } from './rehype-prism.js';
+import { rehypeShiki } from './rehype-shiki.js';
+import { remarkCollectImages } from './remark-collect-images.js';
+import type {
+	AstroMarkdownOptions,
+	AstroMarkdownProcessorOptions,
+	MarkdownProcessor,
+	SyntaxHighlightConfig,
+} from './types.js';
+
 export {
-	isFrontmatterValid,
 	extractFrontmatter,
-	parseFrontmatter,
+	isFrontmatterValid,
 	type ParseFrontmatterOptions,
 	type ParseFrontmatterResult,
+	parseFrontmatter,
 } from './frontmatter.js';
+export { rehypeHeadingIds } from './rehype-collect-headings.js';
+export { rehypePrism } from './rehype-prism.js';
+export { rehypeShiki } from './rehype-shiki.js';
+export { remarkCollectImages } from './remark-collect-images.js';
 export {
+	type CreateShikiHighlighterOptions,
 	createShikiHighlighter,
 	type ShikiHighlighter,
-	type CreateShikiHighlighterOptions,
 	type ShikiHighlighterHighlightOptions,
 } from './shiki.js';
 export * from './types.js';

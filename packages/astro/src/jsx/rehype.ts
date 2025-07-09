@@ -1,5 +1,7 @@
 import type { RehypePlugin } from '@astrojs/markdown-remark';
 import type { RootContent } from 'hast';
+// biome-ignore lint/correctness/noUnusedImports: This import includes ambient types for hast to include mdx nodes
+import type {} from 'mdast-util-mdx';
 import type {
 	MdxJsxAttribute,
 	MdxJsxFlowElementHast,
@@ -10,11 +12,8 @@ import type { VFile } from 'vfile';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import { resolvePath } from '../core/viteUtils.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types.js';
-
-// This import includes ambient types for hast to include mdx nodes
-import type {} from 'mdast-util-mdx';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
+import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 

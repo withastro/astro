@@ -29,6 +29,10 @@ export const prerender = false;
 			<Island server:defer secret="test" content={content} />
 		</div>
 
+		<Island server:defer>
+			<p slot="fallback" id="fallback">I am a fallback</p>
+		</Island>
+
 		<div id="error-test">
 			<HTMLError server:defer>
 				<script is:inline slot="fallback">

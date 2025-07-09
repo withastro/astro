@@ -1,7 +1,7 @@
 import { bold } from 'kleur/colors';
 import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/constants.js';
-import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
+import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
 import type { Logger } from '../../core/logger/core.js';
 import type { APIRoute } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';

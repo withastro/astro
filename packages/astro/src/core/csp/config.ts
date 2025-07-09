@@ -57,14 +57,15 @@ const ALLOWED_DIRECTIVES = [
 	'object-src',
 	'referrer',
 	'report-to',
+	'report-uri',
 	'require-trusted-types-for',
 	'sandbox',
 	'trusted-types',
 	'upgrade-insecure-requests',
 	'worker-src',
 ] as const;
-
-export type CspDirective = `${AllowedDirectives} ${string}`;
+type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
+export type CspDirective = `${AllowedDirectives}${string | undefined}`;
 
 export const allowedDirectivesSchema = z.custom<CspDirective>((value) => {
 	if (typeof value !== 'string') {
@@ -74,5 +75,3 @@ export const allowedDirectivesSchema = z.custom<CspDirective>((value) => {
 		return value.startsWith(allowedValue);
 	});
 });
-
-type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];

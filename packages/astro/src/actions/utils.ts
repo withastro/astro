@@ -41,7 +41,7 @@ export async function isActionsFilePresent(fs: typeof fsMod, srcDir: URL) {
 
 	let contents: string;
 	try {
-		contents = fs.readFileSync(actionsFile, 'utf-8');
+		contents = fs.readFileSync(actionsFile.url, 'utf-8');
 	} catch {
 		return false;
 	}
@@ -50,17 +50,17 @@ export async function isActionsFilePresent(fs: typeof fsMod, srcDir: URL) {
 	// If not, the user may have an empty `actions` file,
 	// or may be using the `actions` file for another purpose
 	// (possible since actions are non-breaking for v4.X).
-	const [, exports] = eslexer.parse(contents, actionsFile.pathname);
+	const [, exports] = eslexer.parse(contents, actionsFile.url.pathname);
 	for (const exp of exports) {
 		if (exp.n === 'server') {
-			return true;
+			return actionsFile.filename;
 		}
 	}
 	return false;
 }
 
 function search(fs: typeof fsMod, srcDir: URL) {
-	const paths = [
+	const filenames = [
 		'actions.mjs',
 		'actions.js',
 		'actions.mts',
@@ -69,10 +69,11 @@ function search(fs: typeof fsMod, srcDir: URL) {
 		'actions/index.js',
 		'actions/index.mts',
 		'actions/index.ts',
-	].map((p) => new URL(p, srcDir));
-	for (const file of paths) {
-		if (fs.existsSync(file)) {
-			return file;
+	];
+	for (const filename of filenames) {
+		const url = new URL(filename, srcDir);
+		if (fs.existsSync(url)) {
+			return { filename, url };
 		}
 	}
 	return undefined;
