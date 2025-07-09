@@ -1,3 +1,4 @@
+// @ts-check
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -13,15 +14,18 @@ describe('WranglerPreviewPlatform', () => {
 		await astroCli(fileURLToPath(root), 'build');
 
 		wrangler = wranglerCli(fileURLToPath(root));
-		await new Promise((resolve) => {
+		wrangler.catch((err) => {
+			console.error('Wrangler error:', err);
+		});
+		await /** @type {Promise<void>} */(new Promise((resolve) => {
 			wrangler.stdout.on('data', (data) => {
-				// console.log('[stdout]', data.toString());
+				console.log('[stdout]', data.toString());
 				if (data.toString().includes('http://127.0.0.1:8788')) resolve();
 			});
 			wrangler.stderr.on('data', (_data) => {
-				// console.log('[stderr]', data.toString());
+				console.log('[stderr]', _data.toString());
 			});
-		});
+		}));
 	});
 
 	after((_done) => {
