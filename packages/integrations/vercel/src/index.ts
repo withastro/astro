@@ -550,7 +550,10 @@ export default function vercelAdapter({
 					if (imagesConfig) {
 						images = {
 							...imagesConfig,
-							domains: [...imagesConfig.domains, ..._config.image.domains],
+							  domains:
+    imagesConfig.domains || _config.image.domains
+      ? [...(imagesConfig.domains ?? []), ...(_config.image.domains ?? [])]
+      : undefined,
 							remotePatterns: [...(imagesConfig.remotePatterns ?? [])],
 						};
 						const remotePatterns = _config.image.remotePatterns;
