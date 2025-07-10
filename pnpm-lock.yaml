@@ -29,7 +29,7 @@ importers:
         version: 18.19.50
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       eslint:
         specifier: ^9.24.0
         version: 9.24.0(jiti@2.4.2)
@@ -53,7 +53,7 @@ importers:
         version: 0.3.10
       tinyglobby:
         specifier: ^0.2.12
-        version: 0.2.13
+        version: 0.2.14
       turbo:
         specifier: ^2.5.0
         version: 2.5.0
@@ -105,7 +105,7 @@ importers:
     devDependencies:
       '@codspeed/vitest-plugin':
         specifier: 4.0.1
-        version: 4.0.1(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))(vitest@3.1.1(@types/debug@4.1.12)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
+        version: 4.0.1(vite@7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))(vitest@3.1.1(@types/debug@4.1.12)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
       vitest:
         specifier: ^3.1.1
         version: 3.1.1(@types/debug@4.1.12)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
@@ -441,7 +441,7 @@ importers:
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.1.3
-        version: 4.1.3(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
+        version: 4.1.3(vite@7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
@@ -537,7 +537,7 @@ importers:
         version: 1.6.0
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       estree-walker:
         specifier: ^3.0.3
         version: 3.0.3
@@ -606,7 +606,7 @@ importers:
         version: 0.3.2
       tinyglobby:
         specifier: ^0.2.12
-        version: 0.2.13
+        version: 0.2.14
       tsconfck:
         specifier: ^3.1.5
         version: 3.1.5(typescript@5.8.3)
@@ -1589,7 +1589,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.0.17
-        version: 4.1.3(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
+        version: 4.1.3(vite@7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2367,7 +2367,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.0.17
-        version: 4.1.3(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
+        version: 4.1.3(vite@7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3505,7 +3505,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.0.17
-        version: 4.1.3(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
+        version: 4.1.3(vite@7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4259,7 +4259,7 @@ importers:
         version: link:../../../../integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.0.17
-        version: 4.1.3(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
+        version: 4.1.3(vite@7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4475,8 +4475,8 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
       vite:
-        specifier: ^6.3.4
-        version: 6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
+        specifier: ^7.0.4
+        version: 7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
 
   packages/db/test/fixtures/basics:
     dependencies:
@@ -4631,8 +4631,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       vite:
-        specifier: ^6.3.4
-        version: 6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
+        specifier: ^7.0.4
+        version: 7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
 
   packages/integrations/alpinejs/test/fixtures/basics:
     dependencies:
@@ -4692,7 +4692,7 @@ importers:
         version: 4.20250507.0
       tinyglobby:
         specifier: ^0.2.13
-        version: 0.2.13
+        version: 0.2.14
       vite:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
@@ -4891,7 +4891,7 @@ importers:
         version: 0.5.1(@types/react@18.3.23)(react@19.1.0)
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -4915,8 +4915,8 @@ importers:
         specifier: ^0.18.9
         version: 0.18.11
       vite:
-        specifier: ^6.3.4
-        version: 6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
+        specifier: ^7.0.4
+        version: 7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
 
   packages/integrations/markdoc/test/fixtures/content-collections:
     dependencies:
@@ -5340,13 +5340,13 @@ importers:
         version: 2.3.7(rollup@4.40.2)(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
       '@vercel/nft':
         specifier: ^0.29.2
-        version: 0.29.2(rollup@4.40.2)
+        version: 0.29.4(rollup@4.40.2)
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       tinyglobby:
         specifier: ^0.2.13
-        version: 0.2.13
+        version: 0.2.14
       vite:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
@@ -5838,16 +5838,16 @@ importers:
         version: 1.2.1
       '@vercel/nft':
         specifier: ^0.29.2
-        version: 0.29.2(rollup@4.40.2)
+        version: 0.29.4(rollup@4.40.2)
       '@vercel/routing-utils':
         specifier: ^5.0.4
         version: 5.0.4
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       tinyglobby:
         specifier: ^0.2.13
-        version: 0.2.13
+        version: 0.2.14
     devDependencies:
       astro:
         specifier: workspace:*
@@ -6307,8 +6307,8 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
       vite:
-        specifier: ^6.3.4
-        version: 6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
+        specifier: ^7.0.4
+        version: 7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
 
   packages/telemetry:
     dependencies:
@@ -6388,7 +6388,7 @@ importers:
     dependencies:
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -6397,7 +6397,7 @@ importers:
         version: 6.2.0
       tinyglobby:
         specifier: ^0.2.12
-        version: 0.2.13
+        version: 0.2.14
       tsconfck:
         specifier: ^3.1.5
         version: 3.1.5(typescript@5.8.3)
@@ -8786,11 +8786,6 @@ packages:
     resolution: {integrity: sha512-1++yncEyIAi68D3UEOlytYb1IUcIulMWdoSzX2h9LuSeeyR7JtaIgR8DcTQ6+DmYOQn+5MCh6LY+UmK6QBByNA==}
     deprecated: This package is deprecated. You should to use `@vercel/functions` instead.
 
-  '@vercel/nft@0.29.2':
-    resolution: {integrity: sha512-A/Si4mrTkQqJ6EXJKv5EYCDQ3NL6nJXxG8VGXePsaiQigsomHYQC9xSpX8qGk7AEZk4b1ssbYIqJ0ISQQ7bfcA==}
-    engines: {node: '>=18'}
-    hasBin: true
-
   '@vercel/nft@0.29.4':
     resolution: {integrity: sha512-6lLqMNX3TuycBPABycx7A9F1bHQR7kiQln6abjFbPrf5C/05qHM9M5E4PeTE59c7z8g6vHnx1Ioihb2AQl7BTA==}
     engines: {node: '>=18'}
@@ -9306,10 +9301,6 @@ packages:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
 
-  chalk@5.3.0:
-    resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
-    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
-
   chalk@5.4.1:
     resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
@@ -9487,10 +9478,6 @@ packages:
 
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
-
-  consola@3.2.3:
-    resolution: {integrity: sha512-I5qxpzLv+sJhTVEoLYNcTW+bThDCPsit0vLNKShZx6rLtpilNpmmeTPaeqJb9ZE9dV3DGaeby6Vuhrw38WjeyQ==}
-    engines: {node: ^14.18.0 || >=16.10.0}
 
   consola@3.4.2:
     resolution: {integrity: sha512-5IKcdX0nnYavi6G7TtOhwkYzyjfJlatbjMjuLSfE2kYT5pMDOilZ4OvMhi637CcDICTmz3wARPoyhqyX1Y+XvA==}
@@ -10233,8 +10220,8 @@ packages:
   fd-slicer@1.1.0:
     resolution: {integrity: sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==}
 
-  fdir@6.4.4:
-    resolution: {integrity: sha512-1NZP+GK4GfuAv3PqKvxQRDMjdSRZjnkq7KfhlNrCNNlZ0ygQFpebfrnfnq/W7fpUnAv9aGWmY1zKx7FYL3gwhg==}
+  fdir@6.4.6:
+    resolution: {integrity: sha512-hiFoqpyZcfNm1yc4u8oWCf9A2c4D3QjCrks3zmoVKVxpQRzmPNar1hUJcBG2RQHvEVGDN+Jm81ZheVLAQMK6+w==}
     peerDependencies:
       picomatch: ^3 || ^4
     peerDependenciesMeta:
@@ -12874,8 +12861,8 @@ packages:
   tinyexec@0.3.2:
     resolution: {integrity: sha512-KQQR9yN7R5+OSwaK0XQoj22pwHoTlgYqmUscPYoknOoWCWfj/5/ABTMRi69FrKU5ffPVh5QcFikpWJI/P1ocHA==}
 
-  tinyglobby@0.2.13:
-    resolution: {integrity: sha512-mEwzpUgrLySlveBwEVDMKk5B57bhLPYovRfPAXD5gA/98Opn0rCDj3GtLwFvCvH5RK9uPCExUROW5NjDwvqkxw==}
+  tinyglobby@0.2.14:
+    resolution: {integrity: sha512-tX5e7OM1HnYr2+a2C/4V0htOcSQcoSTH9KgJnVvNm5zm/cyEWKJ7j7YutsH9CxMdtOkkLFy2AHrMci9IM8IPZQ==}
     engines: {node: '>=12.0.0'}
 
   tinypool@1.0.2:
@@ -13363,6 +13350,46 @@ packages:
       yaml:
         optional: true
 
+  vite@7.0.4:
+    resolution: {integrity: sha512-SkaSguuS7nnmV7mfJ8l81JGBFV7Gvzp8IzgE8A8t23+AxuNX61Q5H1Tpz5efduSN7NHC8nQXD3sKQKZAu5mNEA==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': ^20.19.0 || >=22.12.0
+      jiti: '>=1.21.0'
+      less: ^4.0.0
+      lightningcss: ^1.21.0
+      sass: ^1.70.0
+      sass-embedded: ^1.70.0
+      stylus: '>=0.54.8'
+      sugarss: ^5.0.0
+      terser: ^5.16.0
+      tsx: ^4.8.1
+      yaml: ^2.4.2
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      jiti:
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      sass-embedded:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+      tsx:
+        optional: true
+      yaml:
+        optional: true
+
   vitefu@1.0.6:
     resolution: {integrity: sha512-+Rex1GlappUyNN6UfwbVZne/9cYC4+R2XDk9xkNXBKMw6HQagdX9PgZ8V2v1WUSK1wfBLp7qbI1+XSNIlB1xmA==}
     peerDependencies:
@@ -13680,11 +13707,6 @@ packages:
     resolution: {integrity: sha512-CBKFWExMn46Foo4cldiChEzn7S7SRV+wqiluAb6xmueD/fGyRHIhX8m14vVGgeFWjN540nKCNVj6P21eQjgTuA==}
     engines: {node: '>= 14'}
 
-  yaml@2.5.1:
-    resolution: {integrity: sha512-bLQOjaX/ADgQ20isPJRvF0iRUHIxVhYvr53Of7wGcWlO2jvtUlH5m87DsmulFVxRpNLOnI4tB6p/oh8D7kpn9Q==}
-    engines: {node: '>= 14'}
-    hasBin: true
-
   yaml@2.8.0:
     resolution: {integrity: sha512-4lLa/EcQCB0cJkyts+FpIRx5G/llPxfP6VQU5KByHEhLxY3IJCH0f0Hy1MHI8sClTvsIb8qwRJ6R/ZdlDJ/leQ==}
     engines: {node: '>= 14.6'}
@@ -13824,7 +13846,7 @@ snapshots:
 
   '@astrojs/cli-kit@0.4.1':
     dependencies:
-      chalk: 5.3.0
+      chalk: 5.4.1
       log-update: 5.0.1
       sisteransi: 1.0.5
 
@@ -13858,7 +13880,7 @@ snapshots:
 
   '@astrojs/yaml2ts@0.2.1':
     dependencies:
-      yaml: 2.5.1
+      yaml: 2.8.0
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -14341,10 +14363,10 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@codspeed/vitest-plugin@4.0.1(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))(vitest@3.1.1(@types/debug@4.1.12)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))':
+  '@codspeed/vitest-plugin@4.0.1(vite@7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))(vitest@3.1.1(@types/debug@4.1.12)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))':
     dependencies:
       '@codspeed/core': 4.0.1
-      vite: 6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
+      vite: 7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
       vitest: 3.1.1(@types/debug@4.1.12)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - debug
@@ -15225,7 +15247,7 @@ snapshots:
 
   '@mapbox/node-pre-gyp@2.0.0':
     dependencies:
-      consola: 3.2.3
+      consola: 3.4.2
       detect-libc: 2.0.4
       https-proxy-agent: 7.0.6
       node-fetch: 2.7.0
@@ -15909,12 +15931,12 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.1.3
       '@tailwindcss/oxide-win32-x64-msvc': 4.1.3
 
-  '@tailwindcss/vite@4.1.3(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))':
+  '@tailwindcss/vite@4.1.3(vite@7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))':
     dependencies:
       '@tailwindcss/node': 4.1.3
       '@tailwindcss/oxide': 4.1.3
       tailwindcss: 4.1.3
-      vite: 6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
+      vite: 7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
 
   '@trysound/sax@0.2.0': {}
 
@@ -16205,25 +16227,6 @@ snapshots:
       vue: 3.5.17(typescript@5.8.3)
 
   '@vercel/edge@1.2.1': {}
-
-  '@vercel/nft@0.29.2(rollup@4.40.2)':
-    dependencies:
-      '@mapbox/node-pre-gyp': 2.0.0
-      '@rollup/pluginutils': 5.1.4(rollup@4.40.2)
-      acorn: 8.14.1
-      acorn-import-attributes: 1.9.5(acorn@8.14.1)
-      async-sema: 3.1.1
-      bindings: 1.5.0
-      estree-walker: 2.0.2
-      glob: 10.4.5
-      graceful-fs: 4.2.11
-      node-gyp-build: 4.8.2
-      picomatch: 4.0.2
-      resolve-from: 5.0.0
-    transitivePeerDependencies:
-      - encoding
-      - rollup
-      - supports-color
 
   '@vercel/nft@0.29.4(rollup@4.40.2)':
     dependencies:
@@ -16796,7 +16799,7 @@ snapshots:
     dependencies:
       ansi-align: 3.0.1
       camelcase: 8.0.0
-      chalk: 5.3.0
+      chalk: 5.4.1
       cli-boxes: 3.0.0
       string-width: 7.2.0
       type-fest: 4.41.0
@@ -16891,8 +16894,6 @@ snapshots:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
-
-  chalk@5.3.0: {}
 
   chalk@5.4.1: {}
 
@@ -17071,8 +17072,6 @@ snapshots:
   concat-map@0.0.1: {}
 
   confbox@0.1.8: {}
-
-  consola@3.2.3: {}
 
   consola@3.4.2: {}
 
@@ -17827,7 +17826,7 @@ snapshots:
     dependencies:
       pend: 1.2.0
 
-  fdir@6.4.4(picomatch@4.0.2):
+  fdir@6.4.6(picomatch@4.0.2):
     optionalDependencies:
       picomatch: 4.0.2
 
@@ -21104,9 +21103,9 @@ snapshots:
 
   tinyexec@0.3.2: {}
 
-  tinyglobby@0.2.13:
+  tinyglobby@0.2.14:
     dependencies:
-      fdir: 6.4.4(picomatch@4.0.2)
+      fdir: 6.4.6(picomatch@4.0.2)
       picomatch: 4.0.2
 
   tinypool@1.0.2: {}
@@ -21539,12 +21538,28 @@ snapshots:
 
   vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0):
     dependencies:
-      esbuild: 0.25.2
-      fdir: 6.4.4(picomatch@4.0.2)
+      esbuild: 0.25.5
+      fdir: 6.4.6(picomatch@4.0.2)
       picomatch: 4.0.2
       postcss: 8.5.6
       rollup: 4.40.2
-      tinyglobby: 0.2.13
+      tinyglobby: 0.2.14
+    optionalDependencies:
+      '@types/node': 22.13.1
+      fsevents: 2.3.3
+      jiti: 2.4.2
+      lightningcss: 1.29.2
+      sass: 1.86.3
+      yaml: 2.8.0
+
+  vite@7.0.4(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0):
+    dependencies:
+      esbuild: 0.25.5
+      fdir: 6.4.6(picomatch@4.0.2)
+      picomatch: 4.0.2
+      postcss: 8.5.6
+      rollup: 4.40.2
+      tinyglobby: 0.2.14
     optionalDependencies:
       '@types/node': 22.13.1
       fsevents: 2.3.3
@@ -21888,8 +21903,6 @@ snapshots:
       prettier: 2.8.7
 
   yaml@2.2.2: {}
-
-  yaml@2.5.1: {}
 
   yaml@2.8.0: {}
 
