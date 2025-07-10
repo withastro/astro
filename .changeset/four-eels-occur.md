@@ -2,8 +2,10 @@
 '@astrojs/netlify': minor
 ---
 
-Switches out the adapter's implementation for Netlify's [vite plugin](https://www.npmjs.com/package/@netlify/vite-plugin).
+Updates the adapter to use Netlify's [Vite plugin](https://www.npmjs.com/package/@netlify/vite-plugin) in development.
 
-Now running `astro dev` with the Netlify adapter [enabled](https://docs.astro.build/en/guides/integrations-guide/netlify/#installation) will populate your environment with the variables from your linked Netlify site.
+This is an implementation update that does not require any change to your project code, but means that `astro dev` will run with an environment closer to a production deploy on Netlify. This brings several benefits you'll now notice working in dev mode!
 
-Enables use of [blobs](https://docs.netlify.com/storage/blobs/overview/) and the Netlify [context object](https://docs.astro.build/en/guides/integrations-guide/netlify/#accessing-edge-context-from-your-site) in during development.
+For example, your project running in development mode will now use local versions of the Netlify Image CDN for images, and a local Blobs server for sessions. It will also will populate your environment with the variables from your linked Netlify site.
+
+While not required for fully static, prerendered web sites, you may still wish to add this for the additional benefits of now working in a dev environment closer to your Netlify production deploy, as well as to take advantage of Netlify-exclusive features such as the Netlify Image CDN.
