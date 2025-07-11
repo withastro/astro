@@ -2435,6 +2435,23 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 */
 		liveContentCollections?: boolean;
+
+		/**
+		 * @name experimental.coerceEnvVarValues
+		 * @type {boolean}
+		 * @default `true`
+		 * @version 5.x
+		 * @description
+		 *
+		 * When enabled, environment variables with the values of `"true"`, `"false"`, `"1"`, or `"0"`, will converted to their respective type on the `import.meta.env` object.
+		 *
+		 * For example, `"true"` (string) becomes `true` (boolean). `"1"` (string) becomes `1` (number).
+		 *
+		 * This default behavior is a holdover from when Astro supported dynamic prerender values in routes which was removed in Astro v5.
+		 *
+		 * Because dynamic prerender values in routes are no longer supported, coercion of these values can be unexpected (because environment variables are generally expected to be strings).
+		 */
+		coerceEnvVarValues?: boolean;
 	};
 }
 
