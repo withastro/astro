@@ -11,7 +11,9 @@ export function createBuildRemoteFontProviderModResolver(): RemoteFontProviderMo
 
 export function createDevServerRemoteFontProviderModResolver({
 	server,
-}: { server: ViteDevServer }): RemoteFontProviderModResolver {
+}: {
+	server: ViteDevServer;
+}): RemoteFontProviderModResolver {
 	return {
 		resolve(id) {
 			return server.ssrLoadModule(id);

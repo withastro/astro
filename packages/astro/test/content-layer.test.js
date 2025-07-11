@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { promises as fs, existsSync } from 'node:fs';
+import { existsSync, promises as fs } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { Writable } from 'node:stream';
@@ -10,6 +10,7 @@ import * as devalue from 'devalue';
 import { Logger } from '../dist/core/logger/core.js';
 
 import { loadFixture } from './test-utils.js';
+
 describe('Content Layer', () => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
@@ -88,6 +89,11 @@ describe('Content Layer', () => {
 				'english-springer-spaniel',
 				'shetland-sheepdog',
 			]);
+		});
+
+		it('can render markdown in loaders', async () => {
+			const html = await fixture.readFile('/index.html');
+			assert.ok(cheerio.load(html)('section h1').text().includes('heading 1'));
 		});
 
 		it('handles negative matches in glob() loader', async () => {

@@ -1,3 +1,7 @@
-export { AstroConfigSchema, ASTRO_CONFIG_DEFAULTS, type AstroConfigType } from './base.js';
-export { createRelativeSchema } from './relative.js';
+export {
+	ASTRO_CONFIG_DEFAULTS,
+	AstroConfigSchema,
+	type AstroConfigType,
+} from './base.js';
 export { AstroConfigRefinedSchema } from './refined.js';
+export { createRelativeSchema } from './relative.js';

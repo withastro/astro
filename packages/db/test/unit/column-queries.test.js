@@ -6,7 +6,7 @@ import {
 } from '../../dist/core/cli/migration-queries.js';
 import { MIGRATION_VERSION } from '../../dist/core/consts.js';
 import { tableSchema } from '../../dist/core/schemas.js';
-import { NOW, column, defineTable } from '../../dist/runtime/virtual.js';
+import { column, defineTable, NOW } from '../../dist/runtime/virtual.js';
 
 const TABLE_NAME = 'Users';
 

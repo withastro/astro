@@ -21,6 +21,8 @@ const viteBuildMsg = /vite.*building.*for production/;
 const viteShortcutTitleMsg = /^\s*Shortcuts\s*$/;
 // capture "press * + enter to ..." messages
 const viteShortcutHelpMsg = /press (.+?) to (.+)$/s;
+// 'global' is not recognized as a valid pseudo-class
+const lightningcssUnsupportedPseudoMsg = /\[lightningcss\] 'global'.*not recognized.*pseudo-class/s;
 
 export function createViteLogger(
 	astroLogger: AstroLogger,
@@ -62,6 +64,8 @@ export function createViteLogger(
 		},
 		warn(msg) {
 			if (!isLogLevelEnabled(viteLogLevel, 'warn')) return;
+
+			if (lightningcssUnsupportedPseudoMsg.test(msg)) return;
 
 			logger.hasWarned = true;
 			astroLogger.warn('vite', msg);

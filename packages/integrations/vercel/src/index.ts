@@ -2,7 +2,12 @@ import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
-import { type Route, getTransformedRoutes, normalizeRoutes } from '@vercel/routing-utils';
+import {
+	getTransformedRoutes,
+	type Header,
+	normalizeRoutes,
+	type Route,
+} from '@vercel/routing-utils';
 import type {
 	AstroAdapter,
 	AstroConfig,
@@ -10,21 +15,22 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
+	RouteToHeaders,
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import { globSync } from 'tinyglobby';
+import type { RemotePattern } from './image/shared.js';
 import {
 	type DevImageService,
-	type VercelImageConfig,
 	getAstroImageConfig,
 	getDefaultImageConfig,
+	type VercelImageConfig,
 } from './image/shared.js';
-import type { RemotePattern } from './image/shared.js';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import { escapeRegex, getRedirects } from './lib/redirects.js';
 import {
-	type VercelWebAnalyticsConfig,
 	getInjectableWebAnalyticsContent,
+	type VercelWebAnalyticsConfig,
 } from './lib/web-analytics.js';
 import { generateEdgeMiddleware } from './serverless/middleware.js';
 
@@ -74,11 +80,13 @@ function getAdapter({
 	middlewareSecret,
 	skewProtection,
 	buildOutput,
+	experimentalStaticHeaders,
 }: {
 	buildOutput: 'server' | 'static';
-	edgeMiddleware: boolean;
+	edgeMiddleware: NonNullable<VercelServerlessConfig['edgeMiddleware']>;
 	middlewareSecret: string;
 	skewProtection: boolean;
+	experimentalStaticHeaders: NonNullable<VercelServerlessConfig['experimentalStaticHeaders']>;
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
@@ -88,6 +96,7 @@ function getAdapter({
 		adapterFeatures: {
 			edgeMiddleware,
 			buildOutput,
+			experimentalStaticHeaders,
 		},
 		supportedAstroFeatures: {
 			hybridOutput: 'stable',
@@ -131,6 +140,14 @@ export interface VercelServerlessConfig {
 	 * It enables Vercel skew protection: https://vercel.com/docs/deployments/skew-protection
 	 */
 	skewProtection?: boolean;
+
+	/**
+	 * If enabled, the adapter will save [static headers in the framework API file](https://docs.netlify.com/frameworks-api/#headers).
+	 *
+	 * Here the list of the headers that are added:
+	 * - The CSP header of the static pages is added when CSP support is enabled.
+	 */
+	experimentalStaticHeaders?: boolean;
 }
 
 interface VercelISRConfig {
@@ -171,6 +188,7 @@ export default function vercelAdapter({
 	maxDuration,
 	isr = false,
 	skewProtection = false,
+	experimentalStaticHeaders = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
@@ -186,6 +204,7 @@ export default function vercelAdapter({
 	let _serverEntry: string;
 	let _entryPoints: Map<Pick<IntegrationResolvedRoute, 'entrypoint' | 'patternRegex'>, URL>;
 	let _middlewareEntryPoint: URL | undefined;
+	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
@@ -241,7 +260,6 @@ export default function vercelAdapter({
 						command,
 						devImageService,
 						config.image,
-						config.experimental.responsiveImages,
 					),
 				});
 			},
@@ -290,6 +308,7 @@ export default function vercelAdapter({
 							edgeMiddleware,
 							middlewareSecret,
 							skewProtection,
+							experimentalStaticHeaders,
 						}),
 					);
 				} else {
@@ -299,6 +318,7 @@ export default function vercelAdapter({
 							middlewareSecret: '',
 							skewProtection,
 							buildOutput: _buildOutput,
+							experimentalStaticHeaders,
 						}),
 					);
 				}
@@ -323,6 +343,10 @@ export default function vercelAdapter({
 						]),
 				);
 				_middlewareEntryPoint = middlewareEntryPoint;
+			},
+
+			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
+				_routeToHeaders = experimentalRouteToHeaders;
 			},
 			'astro:build:done': async ({ logger }: HookParameters<'astro:build:done'>) => {
 				const outDir = new URL('./.vercel/output/', _config.root);
@@ -465,7 +489,7 @@ export default function vercelAdapter({
 					}
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
-				const destination = new URL('./.vercel/output/config.json', _config.root);
+				const vercelConfigJson = new URL('./.vercel/output/config.json', _config.root);
 				const finalRoutes: Route[] = [
 					{
 						src: `^/${_config.build.assets}/(.*)$`,
@@ -522,22 +546,23 @@ export default function vercelAdapter({
 				}
 
 				let images: VercelImageConfig | undefined;
-				if (imageService || imagesConfig) {
-					if (imagesConfig) {
-						images = {
-							...imagesConfig,
-							domains: [...imagesConfig.domains, ..._config.image.domains],
-							remotePatterns: [...(imagesConfig.remotePatterns ?? [])],
-						};
-						const remotePatterns = _config.image.remotePatterns;
-						for (const pattern of remotePatterns) {
-							if (isAcceptedPattern(pattern)) {
-								images.remotePatterns?.push(pattern);
-							}
+				if (imagesConfig) {
+					images = {
+						...imagesConfig,
+						domains:
+							imagesConfig.domains || _config.image.domains
+								? [...(imagesConfig.domains ?? []), ...(_config.image.domains ?? [])]
+								: undefined,
+						remotePatterns: [...(imagesConfig.remotePatterns ?? [])],
+					};
+					const remotePatterns = _config.image.remotePatterns;
+					for (const pattern of remotePatterns) {
+						if (isAcceptedPattern(pattern)) {
+							images.remotePatterns?.push(pattern);
 						}
-					} else {
-						images = getDefaultImageConfig(_config.image);
 					}
+				} else if (imageService) {
+					images = getDefaultImageConfig(_config.image);
 				}
 
 				const normalized = normalizeRoutes([...(redirects ?? []), ...finalRoutes]);
@@ -550,12 +575,18 @@ export default function vercelAdapter({
 					);
 				}
 
+				let headers: Header[] | undefined = undefined;
+				if (_routeToHeaders && _routeToHeaders.size > 0) {
+					headers = createConfigHeaders(_routeToHeaders, _config);
+				}
+
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
-				await writeJson(destination, {
+				await writeJson(vercelConfigJson, {
 					version: 3,
 					routes: normalized.routes,
 					images,
+					headers,
 				});
 
 				// Remove temporary folder
@@ -707,4 +738,27 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		return `nodejs${major}.x`;
 	}
 	return 'nodejs18.x';
+}
+
+function createConfigHeaders(staticHeaders: RouteToHeaders, config: AstroConfig): Header[] {
+	const vercelHeaders: Header[] = [];
+	for (const [pathname, { headers }] of staticHeaders.entries()) {
+		if (config.experimental.csp) {
+			const csp = headers.get('Content-Security-Policy');
+
+			if (csp) {
+				vercelHeaders.push({
+					source: pathname,
+					headers: [
+						{
+							key: 'Content-Security-Policy',
+							value: csp,
+						},
+					],
+				});
+			}
+		}
+	}
+
+	return vercelHeaders;
 }

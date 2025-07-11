@@ -5,6 +5,7 @@ import type {
 	fontProviderSchema,
 	localFontFamilySchema,
 	remoteFontFamilySchema,
+	styleSchema,
 } from './config.js';
 import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
 import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
@@ -28,7 +29,7 @@ export interface ResolvedLocalFontFamily
 		Omit<LocalFontFamily, 'variants'> {
 	variants: Array<
 		Omit<LocalFontFamily['variants'][number], 'weight' | 'src'> & {
-			weight: string;
+			weight?: string;
 			src: Array<{ url: string; tech?: string }>;
 		}
 	>;
@@ -101,3 +102,5 @@ export type FontFileDataMap = Map<FontFileData['hash'], Pick<FontFileData, 'url'
  * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
  */
 export type ConsumableMap = Map<string, { preloadData: Array<PreloadData>; css: string }>;
+
+export type Style = z.output<typeof styleSchema>;

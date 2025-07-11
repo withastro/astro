@@ -3,18 +3,22 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { defineFontProvider } from 'unifont';
+import { joinPaths } from '../../../../../internal-helpers/dist/path.js';
 import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
 import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
+import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/implementations/font-file-reader.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import { createRequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/implementations/local-provider-url-resolver.js';
 import { createBuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-mod-resolver.js';
 import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-resolver.js';
 import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
-import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-content-resolver.js';
 import { createUrlProxy } from '../../../../dist/assets/fonts/implementations/url-proxy.js';
+import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-content-resolver.js';
+import { createDevUrlResolver } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
+import { defaultLogger } from '../../test-utils.js';
 import {
 	createSpyStorage,
 	fakeFontMetricsResolver,
@@ -56,15 +60,16 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger: defaultLogger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
-					base: '/test',
+					urlResolver: createDevUrlResolver({ base: 'test' }),
 					contentResolver,
 					hasher,
 					dataCollector,
-					fontTypeExtractor,
 				});
 			},
 			defaults: DEFAULTS,
@@ -86,7 +91,7 @@ describe('fonts orchestrate()', () => {
 		const entry = consumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{
-				url: '/test' + fileURLToPath(new URL('my-font.woff2.woff2', root)),
+				url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
 				type: 'woff2',
 			},
 		]);
@@ -156,15 +161,18 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger: defaultLogger,
 			createUrlProxy: ({ local, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
-					base: '',
+					urlResolver: {
+						resolve: (hash) => hash,
+					},
 					contentResolver,
 					hasher,
 					dataCollector,
-					fontTypeExtractor,
 				});
 			},
 			defaults: DEFAULTS,

@@ -1,5 +1,5 @@
 import { settings } from '../settings.js';
-import { type Icon, getIconElement, isDefinedIcon } from './icons.js';
+import { getIconElement, type Icon, isDefinedIcon } from './icons.js';
 
 const styles = ['purple', 'gray', 'red', 'green', 'yellow', 'blue'] as const;
 

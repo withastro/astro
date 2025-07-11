@@ -3,12 +3,12 @@
 import type { SharpImageServiceConfig } from '../assets/services/sharp.js';
 import type { ImageServiceConfig } from '../types/public/index.js';
 
-export { defineConfig, getViteConfig } from './index.js';
-export { envField } from '../env/config.js';
+export { defineAstroFontProvider, fontProviders } from '../assets/fonts/providers/index.js';
+export type { AstroFontProvider } from '../assets/fonts/types.js';
 export { mergeConfig } from '../core/config/merge.js';
 export { validateConfig } from '../core/config/validate.js';
-export { fontProviders, defineAstroFontProvider } from '../assets/fonts/providers/index.js';
-export type { AstroFontProvider } from '../assets/fonts/types.js';
+export { envField } from '../env/config.js';
+export { defineConfig, getViteConfig } from './index.js';
 
 /**
  * Return the configuration needed to use the Sharp-based image service

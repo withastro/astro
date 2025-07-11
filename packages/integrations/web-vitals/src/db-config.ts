@@ -1,4 +1,5 @@
 import { column, defineDb, defineTable } from 'astro:db';
+
 // import { asDrizzleTable } from '@astrojs/db/utils';
 
 const Metric = defineTable({

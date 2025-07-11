@@ -18,7 +18,9 @@ const codeTagNames = new Set(['code', 'pre']);
  */
 export function rehypeHeadingIds({
 	experimentalHeadingIdCompat,
-}: { experimentalHeadingIdCompat?: boolean } = {}): ReturnType<RehypePlugin> {
+}: {
+	experimentalHeadingIdCompat?: boolean;
+} = {}): ReturnType<RehypePlugin> {
 	return function (tree, file) {
 		const headings: MarkdownHeading[] = [];
 		const frontmatter = file.data.astro?.frontmatter;

@@ -35,6 +35,8 @@ const validXmlWithCustomDataResult = `<?xml version="1.0" encoding="UTF-8"?><rss
 const validXmlWithStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/feedstylesheet.css"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link></channel></rss>`;
 // biome-ignore format: keep in one line
 const validXmlWithXSLStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/feedstylesheet.xsl" type="text/xsl"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link></channel></rss>`;
+// biome-ignore format: keep in one line
+const validXmlWithXSLTStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/feedstylesheet.xslt" type="text/xsl"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link></channel></rss>`;
 
 function assertXmlDeepEqual(a, b) {
 	const parsedA = parseXmlString(a);
@@ -161,7 +163,23 @@ describe('getRssString', () => {
 			stylesheet: '/feedstylesheet.xsl',
 		});
 
+		// xml2js doesn't parse processing instructions. Assert the type is present.
+		assert.equal(str.includes('type="text/xsl"'), true);
 		assertXmlDeepEqual(str, validXmlWithXSLStylesheet);
+	});
+
+	it('should include xml-stylesheet instruction with xslt type when stylesheet is set to xslt file', async () => {
+		const str = await getRssString({
+			title,
+			description,
+			items: [],
+			site,
+			stylesheet: '/feedstylesheet.xslt',
+		});
+
+		// xml2js doesn't parse processing instructions. Assert the type is present.
+		assert.equal(str.includes('type="text/xsl"'), true);
+		assertXmlDeepEqual(str, validXmlWithXSLTStylesheet);
 	});
 
 	it('should preserve self-closing tags on `customData`', async () => {

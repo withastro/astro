@@ -8,6 +8,8 @@ import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
 import { normalizePath, rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
+import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
+import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 interface AstroPluginScannerOptions {
 	settings: AstroSettings;
@@ -73,11 +75,11 @@ export default function astroScannerPlugin({
 				meta: {
 					...meta,
 					astro: {
-						...(meta.astro ?? { hydratedComponents: [], clientOnlyComponents: [], scripts: [] }),
+						...(meta.astro ?? createDefaultAstroMetadata()),
 						pageOptions: {
 							prerender: route.prerender,
 						},
-					},
+					} satisfies PluginMetadata['astro'],
 				},
 			};
 		},

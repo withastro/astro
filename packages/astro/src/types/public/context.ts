@@ -6,11 +6,12 @@ import type {
 } from '../../actions/runtime/virtual/server.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../core/constants.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
+import type { CspDirective, CspHash } from '../../core/csp/config.js';
 import type { AstroSession } from '../../core/session.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { Params, RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
-import type { AstroInstance, MDXInstance, MarkdownInstance } from './content.js';
+import type { AstroInstance, MarkdownInstance, MDXInstance } from './content.js';
 
 /**
  * Astro global available in all contexts in .astro files
@@ -143,9 +144,9 @@ export interface AstroGlobal<
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
 	 *
 	 * ## Example
-	 * - The value when rendering `src/pages/index.astro` will `index`.
-	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
-	 * - The value when rendering `src/pages/[...path].astro` will `[...path]`.
+	 * - The value when rendering `src/pages/index.astro` will be `/`.
+	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
+	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
 	 */
 	routePattern: string;
 	/**
@@ -354,6 +355,61 @@ export interface AstroSharedContext<
 	 * Whether the current route is prerendered or not.
 	 */
 	isPrerendered: boolean;
+
+	/**
+	 * It adds a specific CSP directive to the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
+	 * ```
+	 */
+	insertDirective: (directive: CspDirective) => void;
+
+	/**
+	 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertStyleResource("https://styles.cdn.example.com/")
+	 * ```
+	 */
+	insertStyleResource: (payload: string) => void;
+
+	/**
+	 * Insert a single style hash to the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
+	 * ```
+	 */
+	insertStyleHash: (hash: CspHash) => void;
+
+	/**
+	 * It set the resource for the directive `script-src` in the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
+	 * ```
+	 */
+	insertScriptResource: (resource: string) => void;
+
+	/**
+	 * Insert a single script hash to the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
+	 * ```
+	 */
+	insertScriptHash: (hash: CspHash) => void;
 }
 
 /**
@@ -529,9 +585,9 @@ export interface APIContext<
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
 	 *
 	 * ## Example
-	 * - The value when rendering `src/pages/index.astro` will `index`.
-	 * - The value when rendering `src/pages/blog/[slug].astro` will `blog/[slug]`.
-	 * - The value when rendering `src/pages/[...path].astro` will `[...path]`.
+	 * - The value when rendering `src/pages/index.astro` will be `/`.
+	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
+	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
 	 */
 	routePattern: string;
 }

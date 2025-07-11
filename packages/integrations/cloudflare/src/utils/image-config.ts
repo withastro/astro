@@ -1,8 +1,10 @@
 import type { AstroConfig, AstroIntegrationLogger, HookParameters } from 'astro';
 import { passthroughImageService, sharpImageService } from 'astro/config';
 
+export type ImageService = 'passthrough' | 'cloudflare' | 'compile' | 'custom';
+
 export function setImageConfig(
-	service: string,
+	service: ImageService,
 	config: AstroConfig['image'],
 	command: HookParameters<'astro:config:setup'>['command'],
 	logger: AstroIntegrationLogger,
@@ -35,7 +37,7 @@ export function setImageConfig(
 		default:
 			if (config.service.entrypoint === 'astro/assets/services/sharp') {
 				logger.warn(
-					`The current configuration does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'noop' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`,
+					`The current configuration does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'passthrough' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`,
 				);
 				return { ...config, service: passthroughImageService() };
 			}

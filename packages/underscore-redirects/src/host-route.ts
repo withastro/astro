@@ -1,19 +1,20 @@
-import { print } from './print.js';
-
-export type RedirectDefinition = {
+export type HostRouteDefinition = {
 	dynamic: boolean;
 	input: string;
-	target: string;
+	/**
+	 * An optional target
+	 */
+	target?: string;
 	// Allows specifying a weight to the definition.
 	// This allows insertion of definitions out of order but having
 	// a priority once inserted.
-	weight: number;
+	weight?: number;
 	status: number;
 	force?: boolean;
 };
 
-export class Redirects {
-	public definitions: RedirectDefinition[] = [];
+export class HostRoutes {
+	public definitions: HostRouteDefinition[] = [];
 	public minInputLength = 4;
 	public minTargetLength = 4;
 
@@ -22,25 +23,28 @@ export class Redirects {
 	 * prioritized by the given weight. This keeps higher priority definitions
 	 * At the top of the list once printed.
 	 */
-	add(definition: RedirectDefinition) {
+	add(definition: HostRouteDefinition) {
 		// Find the longest input, so we can format things nicely
 		if (definition.input.length > this.minInputLength) {
 			this.minInputLength = definition.input.length;
 		}
 		// Same for the target
-		if (definition.target.length > this.minTargetLength) {
+		if (definition.target && definition.target.length > this.minTargetLength) {
 			this.minTargetLength = definition.target.length;
 		}
 
 		binaryInsert(this.definitions, definition, (a, b) => {
-			return a.weight > b.weight;
+			if (a.weight && b.weight) {
+				return a.weight > b.weight;
+			} else {
+				return false;
+			}
 		});
 	}
 
-	print(): string {
-		return print(this.definitions, this.minInputLength, this.minTargetLength);
-	}
-
+	/**
+	 * Removes all the saved route definitions
+	 */
 	empty(): boolean {
 		return this.definitions.length === 0;
 	}

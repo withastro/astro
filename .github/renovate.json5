@@ -65,6 +65,7 @@
   "ignoreDeps": [
     // manually bumping deps
     "@biomejs/biome",
+    "knip",
     "@types/node",
     
     // TODO: investigate upgrade (zod import issues with atproto)

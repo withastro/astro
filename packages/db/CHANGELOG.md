@@ -1,5 +1,19 @@
 # @astrojs/db
 
+## 0.15.0
+
+### Minor Changes
+
+- [#13815](https://github.com/withastro/astro/pull/13815) [`03435f8`](https://github.com/withastro/astro/commit/03435f8269b91ce8973bc8ded8e8071481d39dda) Thanks [@jonaspm](https://github.com/jonaspm)! - Upgraded drizzle-orm to latest v0.42.0
+
+## 0.14.14
+
+### Patch Changes
+
+- [#13772](https://github.com/withastro/astro/pull/13772) [`83193d4`](https://github.com/withastro/astro/commit/83193d43cfb7fb28254f0ff3fb717a7bdd65977b) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Fix options parsing for the libsql client connection to ensure that proper values are being set when adding URLSearchParams to the `ASTRO_DB_REMOTE_URL`
+
+- [#13783](https://github.com/withastro/astro/pull/13783) [`1609044`](https://github.com/withastro/astro/commit/1609044face6f58fff1dc82ceb14b3fd13b5ff67) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Modify Database type to allow transactions to be properly typed now that Astro Studio has sunset.
+
 ## 0.14.13
 
 ### Patch Changes

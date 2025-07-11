@@ -1,9 +1,8 @@
-import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
-
 import { clsx } from 'clsx';
 import type { SSRElement } from '../../../types/public/internal.js';
 import { HTMLString, markHTMLString } from '../escape.js';
 import { isPromise } from '../util.js';
+import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
@@ -60,8 +59,29 @@ export function formatList(values: string[]): string {
 	return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
 }
 
+function isCustomElement(tagName: string) {
+	return tagName.includes('-');
+}
+
+function handleBooleanAttribute(
+	key: string,
+	value: any,
+	shouldEscape: boolean,
+	tagName?: string,
+): string {
+	// For custom elements, always render as string attributes
+	if (tagName && isCustomElement(tagName)) {
+		return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
+	}
+	// For regular HTML elements, use boolean attribute logic
+	return markHTMLString(value ? ` ${key}` : '');
+}
+
 // A helper used to turn expressions into attribute key/value
-export function addAttribute(value: any, key: string, shouldEscape = true) {
+// In the compiler, addAttribute is only printed to process attributes of elements
+// that may contain dynamic values. We don't need to pass tagName to addAttribute
+// on the compiler side because it is used only for custom elements
+export function addAttribute(value: any, key: string, shouldEscape = true, tagName = '') {
 	if (value == null) {
 		return '';
 	}
@@ -107,7 +127,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// Boolean values only need the key
 	if (htmlBooleanAttributes.test(key)) {
-		return markHTMLString(value ? ` ${key}` : '');
+		return handleBooleanAttribute(key, value, shouldEscape, tagName);
 	}
 
 	// Other attributes with an empty string value can omit rendering the value
@@ -115,14 +135,26 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return markHTMLString(` ${key}`);
 	}
 
+	// We cannot add it to htmlBooleanAttributes because it can be: boolean | "auto" | "manual"
+	if (key === 'popover' && typeof value === 'boolean') {
+		return handleBooleanAttribute(key, value, shouldEscape, tagName);
+	}
+	if (key === 'download' && typeof value === 'boolean') {
+		return handleBooleanAttribute(key, value, shouldEscape, tagName);
+	}
+
 	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
 }
 
 // Adds support for `<Component {...value} />
-export function internalSpreadAttributes(values: Record<any, any>, shouldEscape = true) {
+export function internalSpreadAttributes(
+	values: Record<any, any>,
+	shouldEscape = true,
+	tagName: string,
+) {
 	let output = '';
 	for (const [key, value] of Object.entries(values)) {
-		output += addAttribute(value, key, shouldEscape);
+		output += addAttribute(value, key, shouldEscape, tagName);
 	}
 	return markHTMLString(output);
 }
@@ -145,9 +177,9 @@ export function renderElement(
 		}
 	}
 	if ((children == null || children == '') && voidElementNames.test(name)) {
-		return `<${name}${internalSpreadAttributes(props, shouldEscape)}>`;
+		return `<${name}${internalSpreadAttributes(props, shouldEscape, name)}>`;
 	}
-	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
+	return `<${name}${internalSpreadAttributes(props, shouldEscape, name)}>${children}</${name}>`;
 }
 
 const noop = () => {};

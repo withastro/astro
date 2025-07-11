@@ -83,6 +83,8 @@ export default {
 				`<style>
 					:host astro-dev-toolbar-window {
 						height: 480px;
+						overflow-y: auto;
+						color-scheme: dark;
 
 						--color-purple: rgba(224, 204, 250, 1);
 					}
@@ -141,6 +143,9 @@ export default {
 					label > section {
 						max-width: 67%;
 					}
+					label > section.full-width {
+						max-width: 100%;
+					}
 					p {
 						line-height: 1.5em;
 					}
@@ -158,7 +163,7 @@ export default {
 				<hr id="general"/>
 
 				<label class="setting-row">
-					<section>
+					<section class="full-width">
 						<h3>Hide toolbar</h3>
 						Run <code>astro preferences disable devToolbar</code> in your terminal to disable the toolbar. <a href="https://docs.astro.build/en/reference/cli-reference/#astro-preferences" target="_blank">Learn more</a>.
 					</section>

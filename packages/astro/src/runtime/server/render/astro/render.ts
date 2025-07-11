@@ -1,7 +1,7 @@
 import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
 import type { RouteData, SSRResult } from '../../../../types/public/internal.js';
 import { isPromise } from '../../util.js';
-import { type RenderDestination, chunkToByteArray, chunkToString, encoder } from '../common.js';
+import { chunkToByteArray, chunkToString, encoder, type RenderDestination } from '../common.js';
 import { promiseWithResolvers } from '../util.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
@@ -183,7 +183,7 @@ async function callComponentAsTemplateResultOrResponse(
 
 // Recursively calls component instances that might have head content
 // to be propagated up.
-async function bufferHeadContent(result: SSRResult) {
+export async function bufferHeadContent(result: SSRResult) {
 	const iterator = result._metadata.propagators.values();
 	while (true) {
 		const { value, done } = iterator.next();
@@ -192,7 +192,7 @@ async function bufferHeadContent(result: SSRResult) {
 		}
 		// Call component instances that might have head content to be propagated up.
 		const returnValue = await value.init(result);
-		if (isHeadAndContent(returnValue)) {
+		if (isHeadAndContent(returnValue) && returnValue.head) {
 			result._metadata.extraHead.push(returnValue.head);
 		}
 	}

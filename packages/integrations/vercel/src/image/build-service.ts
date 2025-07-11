@@ -1,6 +1,7 @@
 import type { ExternalImageService } from 'astro';
 import { baseService } from 'astro/assets';
-import { isESMImportedImage, sharedValidateOptions } from './shared.js';
+import { isESMImportedImage } from 'astro/assets/utils';
+import { sharedValidateOptions } from './shared.js';
 
 const service: ExternalImageService = {
 	...baseService,
@@ -43,6 +44,12 @@ const service: ExternalImageService = {
 		};
 	},
 	getURL(options) {
+		// For SVG files, return the original source path
+		if (isESMImportedImage(options.src) && options.src.format === 'svg') {
+			return options.src.src;
+		}
+
+		// For non-SVG files, continue with the Vercel image processing
 		const fileSrc = isESMImportedImage(options.src)
 			? removeLeadingForwardSlash(options.src.src)
 			: options.src;

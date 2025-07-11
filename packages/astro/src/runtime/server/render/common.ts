@@ -1,18 +1,16 @@
-import type { RenderInstruction } from './instruction.js';
-
 import type { SSRResult } from '../../../types/public/internal.js';
 import type { HTMLBytes, HTMLString } from '../escape.js';
 import { markHTMLString } from '../escape.js';
 import {
-	type PrescriptType,
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
 	getPrescripts,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
+import type { RenderInstruction } from './instruction.js';
 import { isRenderInstruction } from './instruction.js';
 import { renderServerIslandRuntime } from './server-islands.js';
-import { type SlotString, isSlotString } from './slot.js';
+import { isSlotString, type SlotString } from './slot.js';
 
 /**
  * Possible chunk types to be written to the destination, and it'll
@@ -66,13 +64,11 @@ function stringifyChunk(
 				let needsDirectiveScript =
 					hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
 
-				let prescriptType: PrescriptType = needsHydrationScript
-					? 'both'
-					: needsDirectiveScript
-						? 'directive'
-						: null;
-				if (prescriptType) {
-					let prescripts = getPrescripts(result, prescriptType, hydration.directive);
+				if (needsHydrationScript) {
+					let prescripts = getPrescripts(result, 'both', hydration.directive);
+					return markHTMLString(prescripts);
+				} else if (needsDirectiveScript) {
+					let prescripts = getPrescripts(result, 'directive', hydration.directive);
 					return markHTMLString(prescripts);
 				} else {
 					return '';

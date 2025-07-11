@@ -12,8 +12,8 @@ import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
-import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
 import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
+import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;

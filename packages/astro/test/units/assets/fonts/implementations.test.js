@@ -2,17 +2,21 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	createMinifiableCssRenderer,
 	handleValueWithSpaces,
 	renderCssVariable,
 	renderFontFace,
 	withFamily,
 } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
-import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
 import { createAstroErrorHandler } from '../../../../dist/assets/fonts/implementations/error-handler.js';
 import { createCachedFontFetcher } from '../../../../dist/assets/fonts/implementations/font-fetcher.js';
 import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/implementations/font-metrics-resolver.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
+import {
+	createBuildUrlResolver,
+	createDevUrlResolver,
+} from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 import { createSpyStorage, simpleErrorHandler } from './utils.js';
 
 describe('fonts implementations', () => {
@@ -342,5 +346,51 @@ describe('fonts implementations', () => {
 				}
 			}
 		}
+	});
+
+	it('createDevUrlResolver()', () => {
+		assert.equal(
+			createDevUrlResolver({ base: 'base/_astro/fonts' }).resolve('xxx.woff2'),
+			'/base/_astro/fonts/xxx.woff2',
+		);
+	});
+
+	describe('createBuildUrlResolver()', () => {
+		const base = 'foo/_custom/fonts';
+
+		it('works with no assetsPrefix', () => {
+			assert.equal(
+				createBuildUrlResolver({ base, assetsPrefix: undefined }).resolve('abc.ttf'),
+				'/foo/_custom/fonts/abc.ttf',
+			);
+		});
+
+		it('works with assetsPrefix as string', () => {
+			assert.equal(
+				createBuildUrlResolver({ base, assetsPrefix: 'https://cdn.example.com' }).resolve(
+					'foo.woff',
+				),
+				'https://cdn.example.com/foo/_custom/fonts/foo.woff',
+			);
+		});
+
+		it('works with assetsPrefix object', () => {
+			const resolver = createBuildUrlResolver({
+				base,
+				assetsPrefix: {
+					woff2: 'https://fonts.cdn.example.com',
+					fallback: 'https://cdn.example.com',
+				},
+			});
+
+			assert.equal(
+				resolver.resolve('bar.woff2'),
+				'https://fonts.cdn.example.com/foo/_custom/fonts/bar.woff2',
+			);
+			assert.equal(
+				resolver.resolve('xyz.ttf'),
+				'https://cdn.example.com/foo/_custom/fonts/xyz.ttf',
+			);
+		});
 	});
 });

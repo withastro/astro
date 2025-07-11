@@ -15,7 +15,7 @@ export function unifontFontFaceDataToProperties(
 	return {
 		src: font.src ? renderFontSrc(font.src) : undefined,
 		'font-display': font.display ?? 'swap',
-		'unicode-range': font.unicodeRange?.join(','),
+		'unicode-range': font.unicodeRange?.length ? font.unicodeRange.join(',') : undefined,
 		'font-weight': Array.isArray(font.weight) ? font.weight.join(' ') : font.weight?.toString(),
 		'font-style': font.style,
 		'font-stretch': font.stretch,

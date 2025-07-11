@@ -1,10 +1,9 @@
-import type { ComponentSlots } from '../slot.js';
-import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
-
 import type { SSRResult } from '../../../../types/public/internal.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';
+import type { ComponentSlots } from '../slot.js';
+import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 
@@ -46,7 +45,7 @@ export class AstroComponentInstance {
 		}
 	}
 
-	init(result: SSRResult) {
+	init(result: SSRResult): AstroFactoryReturnValue | Promise<AstroFactoryReturnValue> {
 		if (this.returnValue !== undefined) {
 			return this.returnValue;
 		}
@@ -86,10 +85,15 @@ export class AstroComponentInstance {
 }
 
 // Issue warnings for invalid props for Astro components
-function validateComponentProps(props: any, displayName: string) {
+function validateComponentProps(
+	props: any,
+	clientDirectives: SSRResult['clientDirectives'],
+	displayName: string,
+) {
 	if (props != null) {
+		const directives = [...clientDirectives.keys()].map((directive) => `client:${directive}`);
 		for (const prop of Object.keys(props)) {
-			if (prop.startsWith('client:')) {
+			if (directives.includes(prop)) {
 				console.warn(
 					`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
 				);
@@ -105,7 +109,7 @@ export function createAstroComponentInstance(
 	props: ComponentProps,
 	slots: any = {},
 ) {
-	validateComponentProps(props, displayName);
+	validateComponentProps(props, result.clientDirectives, displayName);
 	const instance = new AstroComponentInstance(result, props, slots, factory);
 	if (isAPropagatingComponent(result, factory)) {
 		result._metadata.propagators.add(instance);

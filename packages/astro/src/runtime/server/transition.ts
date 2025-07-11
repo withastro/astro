@@ -110,7 +110,8 @@ export function renderTransition(
 		sheet.addModern('group', 'animation: none');
 	}
 
-	result._metadata.extraHead.push(markHTMLString(`<style>${sheet.toString()}</style>`));
+	const css = sheet.toString();
+	result._metadata.extraHead.push(markHTMLString(`<style>${css}</style>`));
 	return scope;
 }
 

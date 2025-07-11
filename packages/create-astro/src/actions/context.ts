@@ -1,5 +1,5 @@
 import os from 'node:os';
-import { type Task, prompt } from '@astrojs/cli-kit';
+import { prompt, type Task } from '@astrojs/cli-kit';
 import { random } from '@astrojs/cli-kit/utils';
 import arg from 'arg';
 
@@ -33,7 +33,24 @@ export interface Context {
 	tasks: Task[];
 }
 
+function getPackageTag(packageSpecifier: string | undefined): string | undefined {
+	switch (packageSpecifier) {
+		case 'alpha':
+		case 'beta':
+		case 'rc':
+			return packageSpecifier;
+		// Will fallback to latest
+		case undefined:
+		default:
+			return undefined;
+	}
+}
+
 export async function getContext(argv: string[]): Promise<Context> {
+	const packageSpecifier = argv
+		.find((argItem) => /^(astro|create-astro)@/.exec(argItem))
+		?.split('@')[1];
+
 	const flags = arg(
 		{
 			'--template': String,
@@ -93,7 +110,12 @@ export async function getContext(argv: string[]): Promise<Context> {
 		prompt,
 		packageManager,
 		username: getName(),
-		version: getVersion(packageManager, 'astro', process.env.ASTRO_VERSION),
+		version: getVersion(
+			packageManager,
+			'astro',
+			getPackageTag(packageSpecifier),
+			process.env.ASTRO_VERSION,
+		),
 		skipHouston,
 		fancy,
 		add,

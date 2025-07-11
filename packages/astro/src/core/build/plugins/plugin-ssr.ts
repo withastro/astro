@@ -113,7 +113,6 @@ function vitePluginSSR(
 					internals.staticFiles.add(chunk.fileName);
 				}
 			}
-
 			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					continue;

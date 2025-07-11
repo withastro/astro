@@ -1,10 +1,3 @@
-import type {
-	AstroConfig,
-	AstroIntegrationLogger,
-	IntegrationResolvedRoute,
-	RoutePart,
-} from 'astro';
-
 import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -14,6 +7,12 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
+import type {
+	AstroConfig,
+	AstroIntegrationLogger,
+	IntegrationResolvedRoute,
+	RoutePart,
+} from 'astro';
 import { glob } from 'tinyglobby';
 
 // Copied from https://github.com/withastro/astro/blob/3776ecf0aa9e08a992d3ae76e90682fd04093721/packages/astro/src/core/routing/manifest/create.ts#L45-L70

@@ -98,6 +98,32 @@ describe('Server islands', () => {
 					'should re-encrypt props on each request with a different IV',
 				);
 			});
+			it('supports mdx', async () => {
+				const res = await fixture.fetch('/test');
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
+			});
+
+			it('supports fragments', async () => {
+				const res = await fixture.fetch('/fragment');
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
+			});
+
+			it('supports fragments with named slots', async () => {
+				const res = await fixture.fetch('/fragment');
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
+			});
 		});
 
 		describe('prod', () => {
@@ -174,6 +200,16 @@ describe('Server islands', () => {
 					firstProps,
 					'should re-encrypt props on each request with a different IV',
 				);
+			});
+			it('supports mdx', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/test/');
+				const res = await app.render(request);
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
 		});
 	});

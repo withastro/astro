@@ -1,7 +1,8 @@
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { invalidVariablesToError } from './errors.js';
 import type { ValidationResultInvalid } from './validators.js';
-export { validateEnvVariable, getEnvFieldType } from './validators.js';
+
+export { getEnvFieldType, validateEnvVariable } from './validators.js';
 
 export type GetEnv = (key: string) => string | undefined;
 type OnSetGetEnv = () => void;

@@ -1,10 +1,12 @@
 import { stringify as rawStringify, unflatten as rawUnflatten } from 'devalue';
+
 import {
+	type BuiltinDriverName,
 	type BuiltinDriverOptions,
-	type Driver,
-	type Storage,
 	builtinDrivers,
 	createStorage,
+	type Driver,
+	type Storage,
 } from 'unstorage';
 import type {
 	ResolvedSessionConfig,
@@ -12,8 +14,7 @@ import type {
 	SessionConfig,
 	SessionDriverName,
 } from '../types/public/config.js';
-import type { AstroCookies } from './cookies/cookies.js';
-import type { AstroCookieSetOptions } from './cookies/cookies.js';
+import type { AstroCookieSetOptions, AstroCookies } from './cookies/cookies.js';
 import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 
@@ -45,7 +46,9 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	// The cookies object.
 	#cookies: AstroCookies;
 	// The session configuration.
-	#config: Omit<ResolvedSessionConfig<TDriver>, 'cookie'>;
+	#config: Omit<ResolvedSessionConfig<TDriver>, 'cookie'> & {
+		driver: NonNullable<ResolvedSessionConfig<TDriver>['driver']>;
+	};
 	// The cookie config
 	#cookieConfig?: AstroCookieSetOptions;
 	// The cookie name
@@ -77,9 +80,18 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		{
 			cookie: cookieConfig = DEFAULT_COOKIE_NAME,
 			...config
-		}: Exclude<ResolvedSessionConfig<TDriver>, undefined>,
+		}: NonNullable<ResolvedSessionConfig<TDriver>>,
 		runtimeMode?: RuntimeMode,
 	) {
+		const { driver } = config;
+		if (!driver) {
+			throw new AstroError({
+				...SessionStorageInitError,
+				message: SessionStorageInitError.message(
+					'No driver was defined in the session configuration and the adapter did not provide a default driver.',
+				),
+			});
+		}
 		this.#cookies = cookies;
 		let cookieConfigObject: AstroCookieSetOptions | undefined;
 		if (typeof cookieConfig === 'object') {
@@ -96,7 +108,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			...cookieConfigObject,
 			httpOnly: true,
 		};
-		this.#config = config;
+		this.#config = { ...config, driver };
 	}
 
 	/**
@@ -436,23 +448,16 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			(this.#config.options as BuiltinDriverOptions['fs-lite']).base ??= '.astro/session';
 		}
 
-		if (!this.#config?.driver) {
-			throw new AstroError({
-				...SessionStorageInitError,
-				message: SessionStorageInitError.message(
-					'No driver was defined in the session configuration and the adapter did not provide a default driver.',
-				),
-			});
-		}
-
 		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
 
-		const driverPackage = await resolveSessionDriver(this.#config.driver);
 		try {
 			if (this.#config.driverModule) {
 				driver = (await this.#config.driverModule()).default;
-			} else if (driverPackage) {
-				driver = (await import(driverPackage)).default;
+			} else if (this.#config.driver) {
+				const driverName = resolveSessionDriverName(this.#config.driver);
+				if (driverName) {
+					driver = (await import(driverName)).default;
+				}
 			}
 		} catch (err: any) {
 			// If the driver failed to load, throw an error.
@@ -461,7 +466,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 					{
 						...SessionStorageInitError,
 						message: SessionStorageInitError.message(
-							err.message.includes(`Cannot find package '${driverPackage}'`)
+							err.message.includes(`Cannot find package`)
 								? 'The driver module could not be found.'
 								: err.message,
 							this.#config.driver,
@@ -500,17 +505,17 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 	}
 }
-// TODO: make this sync when we drop support for Node < 18.19.0
-export async function resolveSessionDriver(driver: string | undefined): Promise<string | null> {
+
+function resolveSessionDriverName(driver: string | undefined): string | null {
 	if (!driver) {
 		return null;
 	}
 	try {
 		if (driver === 'fs') {
-			return await import.meta.resolve(builtinDrivers.fsLite);
+			return builtinDrivers.fsLite;
 		}
 		if (driver in builtinDrivers) {
-			return await import.meta.resolve(builtinDrivers[driver as keyof typeof builtinDrivers]);
+			return builtinDrivers[driver as BuiltinDriverName];
 		}
 	} catch {
 		return null;

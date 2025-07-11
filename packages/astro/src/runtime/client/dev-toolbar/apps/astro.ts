@@ -92,8 +92,8 @@ export default {
 				},
 			];
 
-			const hasNewerVersion = (window as DevToolbarMetadata).__astro_dev_toolbar__
-				.latestAstroVersion;
+			const { latestAstroVersion, version, debugInfo } =
+				(window as DevToolbarMetadata).__astro_dev_toolbar__ ?? {};
 
 			const windowComponent = createWindowElement(
 				`<style>
@@ -336,14 +336,10 @@ export default {
 			<header>
 				<section>
 				${astroLogo}
-				<astro-dev-toolbar-badge badge-style="gray" size="large">${
-					(window as DevToolbarMetadata).__astro_dev_toolbar__.version
-				}</astro-dev-toolbar-badge>
+				<astro-dev-toolbar-badge badge-style="gray" size="large">${version}</astro-dev-toolbar-badge>
 				${
-					hasNewerVersion
-						? `<astro-dev-toolbar-badge badge-style="green" size="large">${
-								(window as DevToolbarMetadata).__astro_dev_toolbar__.latestAstroVersion
-							} available!</astro-dev-toolbar-badge>
+					latestAstroVersion
+						? `<astro-dev-toolbar-badge badge-style="green" size="large">${latestAstroVersion} available!</astro-dev-toolbar-badge>
 						`
 						: ''
 				}
@@ -383,9 +379,7 @@ export default {
 				windowComponent.querySelector<HTMLButtonElement>('#copy-debug-button');
 
 			copyDebugButton?.addEventListener('click', () => {
-				navigator.clipboard.writeText(
-					'```\n' + (window as DevToolbarMetadata).__astro_dev_toolbar__.debugInfo + '\n```',
-				);
+				navigator.clipboard.writeText('```\n' + debugInfo + '\n```');
 				copyDebugButton.textContent = 'Copied to clipboard!';
 
 				setTimeout(() => {

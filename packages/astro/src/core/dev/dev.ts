@@ -16,8 +16,8 @@ import { ensureProcessNodeEnv } from '../util.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
 import {
-	MAX_PATCH_DISTANCE,
 	fetchLatestAstroVersion,
+	MAX_PATCH_DISTANCE,
 	shouldCheckForUpdates,
 } from './update-check.js';
 

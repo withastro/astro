@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { ClientAddressNotAvailable } from '../dist/core/errors/errors-data.js';
 import { AstroError } from '../dist/core/errors/errors.js';
+import { ClientAddressNotAvailable } from '../dist/core/errors/errors-data.js';
 import * as events from '../dist/events/index.js';
 
 describe('Events', () => {

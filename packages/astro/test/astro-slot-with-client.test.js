@@ -15,7 +15,7 @@ describe('Slots with client: directives', () => {
 	it('Tags of dynamic tags works', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		assert.equal($('script').length, 1);
+		assert.equal($('script').length, 2);
 	});
 
 	it('Astro slot tags are kept', async () => {

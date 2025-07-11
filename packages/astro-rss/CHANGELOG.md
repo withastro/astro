@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.12
+
+### Patch Changes
+
+- [#13867](https://github.com/withastro/astro/pull/13867) [`c947c28`](https://github.com/withastro/astro/commit/c947c28ae7c385c4bee0a2dd44006b9cd690f690) Thanks [@Adriel-M](https://github.com/Adriel-M)! - Fixes a missing type attribute when providing a XSLT stylesheet
+
 ## 4.0.11
 
 ### Patch Changes

@@ -1,5 +1,5 @@
 import type { Arguments } from 'yargs-parser';
-import { type LogOptions, Logger } from '../core/logger/core.js';
+import { Logger, type LogOptions } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import type { AstroInlineConfig } from '../types/public/config.js';
 

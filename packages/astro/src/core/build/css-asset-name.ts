@@ -1,8 +1,7 @@
-import type { GetModuleInfo, ModuleInfo } from 'rollup';
-
 import crypto from 'node:crypto';
 import npath from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { GetModuleInfo, ModuleInfo } from 'rollup';
 import type { AstroSettings } from '../../types/astro.js';
 import { viteID } from '../util.js';
 import { normalizePath } from '../viteUtils.js';

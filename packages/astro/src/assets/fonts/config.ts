@@ -2,7 +2,8 @@ import { z } from 'zod';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
 
 const weightSchema = z.union([z.string(), z.number()]);
-const styleSchema = z.enum(['normal', 'italic', 'oblique']);
+export const styleSchema = z.enum(['normal', 'italic', 'oblique']);
+const unicodeRangeSchema = z.array(z.string()).nonempty();
 
 const familyPropertiesSchema = z.object({
 	/**
@@ -12,21 +13,17 @@ const familyPropertiesSchema = z.object({
 	 * weight: "100 900"
 	 * ```
 	 */
-	weight: weightSchema,
+	weight: weightSchema.optional(),
 	/**
 	 * A [font style](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
 	 */
-	style: styleSchema,
+	style: styleSchema.optional(),
 	/**
 	 * @default `"swap"`
 	 *
 	 * A [font display](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display).
 	 */
 	display: z.enum(['auto', 'block', 'swap', 'fallback', 'optional']).optional(),
-	/**
-	 * A [unicode range](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range).
-	 */
-	unicodeRange: z.array(z.string()).nonempty().optional(),
 	/**
 	 * A [font stretch](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-stretch).
 	 */
@@ -122,6 +119,10 @@ export const localFontFamilySchema = requiredFamilyAttributesSchema
 										]),
 									)
 									.nonempty(),
+								/**
+								 * A [unicode range](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range).
+								 */
+								unicodeRange: unicodeRangeSchema.optional(),
 								// TODO: find a way to support subsets (through fontkit?)
 							})
 							.strict(),
@@ -168,6 +169,10 @@ export const remoteFontFamilySchema = requiredFamilyAttributesSchema
 			 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
 			 */
 			subsets: z.array(z.string()).nonempty().optional(),
+			/**
+			 * A [unicode range](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range).
+			 */
+			unicodeRange: unicodeRangeSchema.optional(),
 		}),
 	)
 	.strict();

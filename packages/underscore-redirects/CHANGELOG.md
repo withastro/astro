@@ -1,5 +1,27 @@
 # @astrojs/underscore-redirects
 
+## 1.0.0
+
+### Major Changes
+
+- [#13952](https://github.com/withastro/astro/pull/13952) [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3) Thanks [@ematipico](https://github.com/ematipico)! - - The type `Redirects` has been renamed to `HostRoutes`.
+
+  - `RouteDefinition.target` is now optional
+  - `RouteDefinition.weight` is now optional
+  - `Redirects.print` has been removed. Now you need to pass `Redirects` type to the `print` function
+
+  ```diff
+  - redirects.print()
+  + import { printAsRedirects } from "@astrojs/underscore-redirects"
+  + printAsRedirects(redirects)
+  ```
+
+### Minor Changes
+
+- [#13952](https://github.com/withastro/astro/pull/13952) [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new method called `createHostedRouteDefinition`, which returns a `HostRoute` type from a `IntegrationResolvedRoute`.
+
+- [#13952](https://github.com/withastro/astro/pull/13952) [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new method called `printAsRedirects` to print `HostRoutes` as redirects for the `_redirects` file.
+
 ## 0.6.1
 
 ### Patch Changes
