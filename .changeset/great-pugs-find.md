@@ -2,4 +2,5 @@
 'astro': patch
 ---
 
-Fixes a problem where using animated `.avif` file returns a `NoImageMetadata` error.
+Fixes a problem where importing animated `.avif` files would return a `NoImageMetadata` error.
+
