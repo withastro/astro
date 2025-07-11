@@ -2,7 +2,7 @@ import { createReadStream } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import {
 	appendForwardSlash,
 	prependForwardSlash,
@@ -159,42 +159,29 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				logger,
 				addWatchFile,
 				addMiddleware,
-				createCodegenDir,
 			}) => {
 				let session = config.session;
 
 				const isBuild = command === 'build';
 
 				if (!session?.driver) {
-					const sessionDir = isBuild ? undefined : createCodegenDir();
 					const bindingName = args?.sessionKVBindingName ?? 'SESSION';
 
-					if (isBuild) {
-						logger.info(
-							`Enabling sessions with Cloudflare KV for production with the "${bindingName}" KV binding.`,
-						);
-						logger.info(
-							`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
-						);
-					}
+					logger.info(
+						`Enabling sessions with Cloudflare KV for ${isBuild ? 'production' : 'development'} with the "${bindingName}" KV binding.`,
+					);
+					logger.info(
+						`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
+					);
 
-					session = isBuild
-						? {
-								...session,
-								driver: 'cloudflare-kv-binding',
-								options: {
-									binding: bindingName,
-									...session?.options,
-								},
-							}
-						: {
-								...session,
-								driver: 'fs-lite',
-								options: {
-									base: fileURLToPath(new URL('sessions', sessionDir)),
-									...session?.options,
-								},
-							};
+					session = {
+						...session,
+						driver: 'cloudflare-kv-binding',
+						options: {
+							binding: bindingName,
+							...session?.options,
+						},
+					};
 				}
 
 				updateConfig({
@@ -296,6 +283,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					});
 
 					setProcessEnv(_config, platformProxy.env);
+
+					globalThis.__env__ ??= {};
+					globalThis.__env__[args?.sessionKVBindingName ?? 'SESSION'] =
+						platformProxy.env[args?.sessionKVBindingName ?? 'SESSION'];
 
 					const clientLocalsSymbol = Symbol.for('astro.locals');
 
