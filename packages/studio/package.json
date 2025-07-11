@@ -34,13 +34,13 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "ci-info": "^4.2.0",
+    "ci-info": "^4.3.0",
     "kleur": "^4.1.5",
-    "yocto-spinner": "^0.2.1"
+    "yocto-spinner": "^0.2.3"
   },
   "devDependencies": {
     "astro-scripts": "workspace:*",
     "typescript": "^5.8.3",
-    "vite": "^6.3.4"
+    "vite": "^6.3.5"
   }
 }
