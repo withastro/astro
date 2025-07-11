@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 6.4.1
+
+### Patch Changes
+
+- [#13972](https://github.com/withastro/astro/pull/13972) [`db8f8be`](https://github.com/withastro/astro/commit/db8f8becc9508fa4f292d45c14af92ba59c414d1) Thanks [@ematipico](https://github.com/ematipico)! - Fixes the internal implementation of the new feature `experimentalStaticHeaders`, where dynamic routes
+  were mapped to use always the same header.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.4.0
 
 ### Minor Changes

@@ -546,22 +546,23 @@ export default function vercelAdapter({
 				}
 
 				let images: VercelImageConfig | undefined;
-				if (imageService || imagesConfig) {
-					if (imagesConfig) {
-						images = {
-							...imagesConfig,
-							domains: [...imagesConfig.domains, ..._config.image.domains],
-							remotePatterns: [...(imagesConfig.remotePatterns ?? [])],
-						};
-						const remotePatterns = _config.image.remotePatterns;
-						for (const pattern of remotePatterns) {
-							if (isAcceptedPattern(pattern)) {
-								images.remotePatterns?.push(pattern);
-							}
+				if (imagesConfig) {
+					images = {
+						...imagesConfig,
+						domains:
+							imagesConfig.domains || _config.image.domains
+								? [...(imagesConfig.domains ?? []), ...(_config.image.domains ?? [])]
+								: undefined,
+						remotePatterns: [...(imagesConfig.remotePatterns ?? [])],
+					};
+					const remotePatterns = _config.image.remotePatterns;
+					for (const pattern of remotePatterns) {
+						if (isAcceptedPattern(pattern)) {
+							images.remotePatterns?.push(pattern);
 						}
-					} else {
-						images = getDefaultImageConfig(_config.image);
 					}
+				} else if (imageService) {
+					images = getDefaultImageConfig(_config.image);
 				}
 
 				const normalized = normalizeRoutes([...(redirects ?? []), ...finalRoutes]);
