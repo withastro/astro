@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 8.2.2
+
+### Patch Changes
+
+- [#14063](https://github.com/withastro/astro/pull/14063) [`de5a253`](https://github.com/withastro/astro/commit/de5a253aa85400c6b4c76379f4ab60707326cde5) Thanks [@RobbieTheWagner](https://github.com/RobbieTheWagner)! - Allow setting `domains` to `undefined` in `imagesConfig` so that `remotePatterns` can be better utilized for images from a variety of domains.
+
 ## 8.2.1
 
 ### Patch Changes
