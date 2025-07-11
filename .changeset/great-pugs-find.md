@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Add support for 'avis' brand (avif-sequence)
+Add support for `avis` brand (avif-sequence)
