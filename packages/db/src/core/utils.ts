@@ -1,4 +1,4 @@
-import { type ManagedAppToken, getAstroStudioEnv, getManagedAppTokenOrExit } from '@astrojs/studio';
+import { getAstroStudioEnv, getManagedAppTokenOrExit, type ManagedAppToken } from '@astrojs/studio';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { loadEnv } from 'vite';
 import './types.js';

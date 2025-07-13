@@ -13,7 +13,7 @@ import type { MarkdocConfigResult } from './load-config.js';
 import type { MarkdocIntegrationOptions } from './options.js';
 import { setupConfig } from './runtime.js';
 import { getMarkdocTokenizer } from './tokenizer.js';
-import { MarkdocError, isComponentConfig, isValidUrl, prependForwardSlash } from './utils.js';
+import { isComponentConfig, isValidUrl, MarkdocError, prependForwardSlash } from './utils.js';
 
 export async function getContentEntryType({
 	markdocConfigResult,

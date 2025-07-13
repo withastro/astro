@@ -80,7 +80,11 @@ async function astroAdd({
 	integrations,
 	packageManager,
 	cwd,
-}: { integrations: string[]; packageManager: string; cwd: string }) {
+}: {
+	integrations: string[];
+	packageManager: string;
+	cwd: string;
+}) {
 	if (packageManager === 'yarn') await ensureYarnLock({ cwd });
 	return shell(
 		packageManager === 'npm' ? 'npx' : `${packageManager} dlx`,

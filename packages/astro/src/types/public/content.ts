@@ -1,6 +1,7 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import type * as rollup from 'rollup';
 import type { DataEntry, RenderedContent } from '../../content/data-store.js';
+import type { LiveCollectionError } from '../../content/loaders/errors.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { AstroConfig } from './config.js';
 
@@ -124,3 +125,45 @@ export interface DataEntryType {
 }
 
 export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawData?: string };
+
+export interface CacheHint {
+	/** Cache tags */
+	tags?: Array<string>;
+	/** Maximum age of the response in seconds */
+	maxAge?: number;
+	/** Last modified time of the content */
+	lastModified?: Date;
+}
+
+export interface LiveDataEntry<TData extends Record<string, any> = Record<string, unknown>> {
+	/** The ID of the entry. Unique per collection. */
+	id: string;
+	/** The parsed entry data */
+	data: TData;
+	/** A hint for how to cache this entry */
+	cacheHint?: CacheHint;
+}
+
+export interface LiveDataCollection<TData extends Record<string, any> = Record<string, unknown>> {
+	entries: Array<LiveDataEntry<TData>>;
+	/** A hint for how to cache this collection. Individual entries can also have cache hints */
+	cacheHint?: CacheHint;
+}
+
+export interface LiveDataCollectionResult<
+	TData extends Record<string, any> = Record<string, unknown>,
+	TError extends Error = Error,
+> {
+	entries?: Array<LiveDataEntry<TData>>;
+	error?: TError | LiveCollectionError;
+	cacheHint?: CacheHint;
+}
+
+export interface LiveDataEntryResult<
+	TData extends Record<string, any> = Record<string, unknown>,
+	TError extends Error = Error,
+> {
+	entry?: LiveDataEntry<TData>;
+	error?: TError | LiveCollectionError;
+	cacheHint?: CacheHint;
+}

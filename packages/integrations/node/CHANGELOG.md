@@ -1,5 +1,52 @@
 # @astrojs/node
 
+## 9.3.0
+
+### Minor Changes
+
+- [#14012](https://github.com/withastro/astro/pull/14012) [`a125a14`](https://github.com/withastro/astro/commit/a125a14c51c8f66fef0b582e5daf90ff02fce821) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new experimental configuration option `experimentalDisableStreaming` to allow you to opt out of Astro's default [HTML streaming](https://docs.astro.build/en/guides/on-demand-rendering/#html-streaming) for pages rendered on demand.
+
+  HTML streaming helps with performance and generally provides a better visitor experience. In most cases, disabling streaming is not recommended.
+
+  However, when you need to disable HTML streaming (e.g. your host only supports non-streamed HTML caching at the CDN level), you can now opt out of the default behavior:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+  import node from '@astrojs/node';
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+  +    experimentalDisableStreaming: true,
+    }),
+  });
+  ```
+
+- [#13972](https://github.com/withastro/astro/pull/13972) [`db8f8be`](https://github.com/withastro/astro/commit/db8f8becc9508fa4f292d45c14af92ba59c414d1) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for the [experimental static headers Astro feature](https://docs.astro.build/en/reference/adapter-reference/#experimentalstaticheaders).
+
+  When the feature is enabled via the option `experimentalStaticHeaders`, and [experimental Content Security Policy](https://docs.astro.build/en/reference/experimental-flags/csp/) is enabled, the adapter will generate `Response` headers for static pages, which allows support for CSP directives that are not supported inside a `<meta>` tag (e.g. `frame-ancestors`).
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import node from '@astrojs/node';
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+      experimentalStaticHeaders: true,
+    }),
+    experimental: {
+      cps: true,
+    },
+  });
+  ```
+
+## 9.2.2
+
+### Patch Changes
+
+- [#13507](https://github.com/withastro/astro/pull/13507) [`660e83f`](https://github.com/withastro/astro/commit/660e83fddf0829ea37cbcc0d3f4194a5a1956ab5) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Handle errors where a module is not found when loading the server entrypoint
+
 ## 9.2.1
 
 ### Patch Changes

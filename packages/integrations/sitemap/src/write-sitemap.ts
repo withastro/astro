@@ -1,16 +1,16 @@
-import { type WriteStream, createWriteStream } from 'node:fs';
+import { createWriteStream, type WriteStream } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { normalize, resolve } from 'node:path';
-import { Readable, pipeline } from 'node:stream';
+import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'node:util';
-import replace from 'stream-replace-string';
+import type { AstroConfig } from 'astro';
 
 import { SitemapAndIndexStream, SitemapStream } from 'sitemap';
-
-import type { AstroConfig } from 'astro';
+import replace from 'stream-replace-string';
 import type { SitemapItem } from './index.js';
 
 type WriteSitemapConfig = {
+	filenameBase: string;
 	hostname: string;
 	sitemapHostname?: string;
 	sourceData: SitemapItem[];
@@ -23,6 +23,7 @@ type WriteSitemapConfig = {
 // adapted from sitemap.js/sitemap-simple
 export async function writeSitemap(
 	{
+		filenameBase,
 		hostname,
 		sitemapHostname = hostname,
 		sourceData,
@@ -43,7 +44,7 @@ export async function writeSitemap(
 				hostname,
 				xslUrl,
 			});
-			const path = `./sitemap-${i}.xml`;
+			const path = `./${filenameBase}-${i}.xml`;
 			const writePath = resolve(destinationDir, path);
 			if (!publicBasePath.endsWith('/')) {
 				publicBasePath += '/';
@@ -68,6 +69,6 @@ export async function writeSitemap(
 	});
 
 	const src = Readable.from(sourceData);
-	const indexPath = resolve(destinationDir, `./sitemap-index.xml`);
+	const indexPath = resolve(destinationDir, `./${filenameBase}-index.xml`);
 	return promisify(pipeline)(src, sitemapAndIndexStream, createWriteStream(indexPath));
 }

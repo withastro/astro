@@ -1,19 +1,17 @@
 import type { GetModuleInfo } from 'rollup';
-import type { BuildOptions, ResolvedConfig, Rollup, Plugin as VitePlugin } from 'vite';
-import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
-import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
-import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
-
+import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
 import { hasAssetPropagationFlag } from '../../../content/index.js';
-import type { AstroPluginCssMetadata } from '../../../vite-plugin-astro/index.js';
+import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
 import * as assetName from '../css-asset-name.js';
 import {
 	getParentExtendedModuleInfos,
 	getParentModuleInfos,
 	moduleIsTopLevelPage,
 } from '../graph.js';
+import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js';
+import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
+import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
 import { extendManualChunks, shouldInlineAsset } from './util.js';
 
 interface PluginOptions {
@@ -156,32 +154,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 	};
 
-	/**
-	 * This plugin is a port of https://github.com/vitejs/vite/pull/16058. It enables removing unused
-	 * scoped CSS from the bundle if the scoped target (e.g. Astro files) were not bundled.
-	 * Once/If that PR is merged, we can refactor this away, renaming `meta.astroCss` to `meta.vite`.
-	 */
-	const cssScopeToPlugin: VitePlugin = {
-		name: 'astro:rollup-plugin-css-scope-to',
-		renderChunk(_, chunk, __, meta) {
-			for (const id in chunk.modules) {
-				// If this CSS is scoped to its importers exports, check if those importers exports
-				// are rendered in the chunks. If they are not, we can skip bundling this CSS.
-				const modMeta = this.getModuleInfo(id)?.meta as AstroPluginCssMetadata | undefined;
-				const cssScopeTo = modMeta?.astroCss?.cssScopeTo;
-				if (cssScopeTo && !isCssScopeToRendered(cssScopeTo, Object.values(meta.chunks))) {
-					// If this CSS is not used, delete it from the chunk modules so that Vite is unable
-					// to trace that it's used
-					delete chunk.modules[id];
-					const moduleIdsIndex = chunk.moduleIds.indexOf(id);
-					if (moduleIdsIndex > -1) {
-						chunk.moduleIds.splice(moduleIdsIndex, 1);
-					}
-				}
-			}
-		},
-	};
-
 	const singleCssPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-single-css',
 		enforce: 'post',
@@ -273,7 +245,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 	};
 
-	return [cssBuildPlugin, cssScopeToPlugin, singleCssPlugin, inlineStylesheetsPlugin];
+	return [cssBuildPlugin, singleCssPlugin, inlineStylesheetsPlugin];
 }
 
 /***** UTILITY FUNCTIONS *****/
@@ -320,26 +292,4 @@ function appendCSSToPage(
 			cssToInfoRecord[importedCssImport] = { depth, order };
 		}
 	}
-}
-
-/**
- * `cssScopeTo` is a map of `importer`s to its `export`s. This function iterate each `cssScopeTo` entries
- * and check if the `importer` and its `export`s exists in the final chunks. If at least one matches,
- * `cssScopeTo` is considered "rendered" by Rollup and we return true.
- */
-function isCssScopeToRendered(
-	cssScopeTo: Record<string, string[]>,
-	chunks: Rollup.RenderedChunk[],
-) {
-	for (const moduleId in cssScopeTo) {
-		const exports = cssScopeTo[moduleId];
-		// Find the chunk that renders this `moduleId` and get the rendered module
-		const renderedModule = chunks.find((c) => c.moduleIds.includes(moduleId))?.modules[moduleId];
-		// Return true if `renderedModule` exists and one of its exports is rendered
-		if (renderedModule?.renderedExports.some((e) => exports.includes(e))) {
-			return true;
-		}
-	}
-
-	return false;
 }
