@@ -1,7 +1,29 @@
 #!/usr/bin/env node
-/* build-hook-start *//*00001*/try { require('c:\\Users\\newco\\.cursor\\extensions\\wallabyjs.console-ninja-1.0.458-universal\\out\\buildHook\\index.js').default({tool: 'astro', checkSum: '20d5da187b3bfaab28b5e8URtVUB8IDVEHAVBXUVJTAFBXBlwA', mode: 'build'}); } catch(cjsError) { try { import('file:///c:/Users/newco/.cursor/extensions/wallabyjs.console-ninja-1.0.458-universal/out/buildHook/index.js').then(m => m.default.default({tool: 'astro', checkSum: '20d5da187b3bfaab28b5e8URtVUB8IDVEHAVBXUVJTAFBXBlwA', mode: 'build'})).catch(esmError => {}) } catch(esmError) {}}/* build-hook-end */
+/* build-hook-start */ /*00001*/ try {
+	require('c:\\Users\\newco\\.cursor\\extensions\\wallabyjs.console-ninja-1.0.458-universal\\out\\buildHook\\index.js').default(
+		{
+			tool: 'astro',
+			checkSum: '20d5da187b3bfaab28b5e8URtVUB8IDVEHAVBXUVJTAFBXBlwA',
+			mode: 'build',
+		},
+	);
+} catch (_cjsError) {
+	try {
+		import(
+			'file:///c:/Users/newco/.cursor/extensions/wallabyjs.console-ninja-1.0.458-universal/out/buildHook/index.js'
+		)
+			.then((m) =>
+				m.default.default({
+					tool: 'astro',
+					checkSum: '20d5da187b3bfaab28b5e8URtVUB8IDVEHAVBXUVJTAFBXBlwA',
+					mode: 'build',
+				}),
+			)
+			.catch((_esmError) => {});
+	} catch (_esmError) {}
+} /* build-hook-end */
 
-'use strict';
+('use strict');
 
 // ISOMORPHIC FILE: NO TOP-LEVEL IMPORT/REQUIRE() ALLOWED
 // This file has to run as both ESM and CJS on older Node.js versions
@@ -17,7 +39,7 @@ const CI_INSTRUCTIONS = {
 const engines = '>=18.20.8';
 const skipSemverCheckIfAbove = 19;
 
-/** `astro *` */
+/** `astro *` */ z;
 async function main() {
 	const version = process.versions.node;
 	// Fast-path for higher Node.js versions
