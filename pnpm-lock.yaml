@@ -6387,6 +6387,12 @@ importers:
         specifier: ^3.1.5
         version: 3.1.5(typescript@5.8.3)
 
+  test-type-exports:
+    dependencies:
+      astro:
+        specifier: link:..\packages\astro
+        version: link:../packages/astro
+
 packages:
 
   '@ampproject/remapping@2.3.0':
