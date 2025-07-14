@@ -1,5 +1,16 @@
 # astro
 
+## 5.11.1
+
+### Patch Changes
+
+- [#14045](https://github.com/withastro/astro/pull/14045) [`3276b79`](https://github.com/withastro/astro/commit/3276b798d4ecb41c98f97e94d4ddeaa91aa25013) Thanks [@ghubo](https://github.com/ghubo)! - Fixes a problem where importing animated `.avif` files returns a `NoImageMetadata` error.
+
+- [#14041](https://github.com/withastro/astro/pull/14041) [`0c4d5f8`](https://github.com/withastro/astro/commit/0c4d5f8d57d166fc24d12b37cf208d263f330868) Thanks [@dixslyf](https://github.com/dixslyf)! - Fixes a `<ClientRouter />` bug where the fallback view transition animations when exiting a page
+  ran too early for browsers that do not support the View Transition API.
+  This bug prevented `event.viewTransition?.skipTransition()` from skipping the page exit animation
+  when used in an `astro:before-swap` event hook.
+
 ## 5.11.0
 
 ### Minor Changes
