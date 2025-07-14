@@ -1,4 +1,4 @@
-import { promises as fs, existsSync } from 'node:fs';
+import { existsSync, promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
 import toml from 'smol-toml';

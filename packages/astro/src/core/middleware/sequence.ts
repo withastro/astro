@@ -3,8 +3,8 @@ import type { APIContext } from '../../types/public/context.js';
 import { AstroCookies } from '../cookies/cookies.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
+import { getParams, type Pipeline } from '../render/index.js';
 import { apiContextRoutesSymbol } from '../render-context.js';
-import { type Pipeline, getParams } from '../render/index.js';
 import { setOriginPathname } from '../routing/rewrite.js';
 import { defineMiddleware } from './index.js';
 
@@ -80,7 +80,12 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						handleContext.url = new URL(newRequest.url);
 						handleContext.cookies = new AstroCookies(newRequest);
 						handleContext.params = getParams(routeData, pathname);
-						setOriginPathname(handleContext.request, oldPathname);
+						setOriginPathname(
+							handleContext.request,
+							oldPathname,
+							pipeline.manifest.trailingSlash,
+							pipeline.manifest.buildFormat,
+						);
 					}
 					return applyHandle(i + 1, handleContext);
 				} else {

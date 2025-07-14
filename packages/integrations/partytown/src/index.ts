@@ -7,6 +7,7 @@ import { partytownSnippet } from '@qwik.dev/partytown/integration';
 import { copyLibFiles, libDirPath } from '@qwik.dev/partytown/utils';
 import type { AstroIntegration } from 'astro';
 import sirv from './sirv.js';
+
 const resolve = createRequire(import.meta.url).resolve;
 
 export type PartytownOptions = {

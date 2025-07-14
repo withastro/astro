@@ -151,7 +151,7 @@ interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
 
 interface CustomSessionConfig extends CommonSessionConfig {
 	/** Entrypoint for a custom session driver */
-	driver: string;
+	driver?: string;
 	options?: Record<string, unknown>;
 }
 
@@ -1330,58 +1330,71 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 * @docs
-		 * @name image.experimentalLayout
+		 * @name image.responsiveStyles
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.10.0
+		 * @description
+		 * Whether to automatically add global styles for responsive images. You should enable this option unless you are styling the images yourself.
+		 *
+		 * This option is only used when `layout` is set to `constrained`, `full-width`, or `fixed` using the configuration or the `layout` prop on the image component.
+		 *
+		 * See [the images docs](https://docs.astro.build/en/guides/images/#responsive-image-styles) for more information.
+		 */
+		responsiveStyles?: boolean;
+		/**
+		 * @docs
+		 * @name image.layout
 		 * @type {ImageLayout}
 		 * @default `undefined`
+		 * @version 5.10.0
 		 * @description
 		 * The default layout type for responsive images. Can be overridden by the `layout` prop on the image component.
-		 * Requires the `experimental.responsiveImages` flag to be enabled.
 		 * - `constrained` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
 		 * - `fixed` - The image will maintain its original dimensions.
 		 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
+		 *
+		 * See [the `layout` component property](https://docs.astro.build/en/reference/modules/astro-assets/#layout) for more details.
 		 */
-		experimentalLayout?: ImageLayout | undefined;
+		layout?: ImageLayout | undefined;
 		/**
 		 * @docs
-		 * @name image.experimentalObjectFit
+		 * @name image.objectFit
 		 * @type {ImageFit}
 		 * @default `"cover"`
+		 * @version 5.10.0
 		 * @description
-		 * The default object-fit value for responsive images. Can be overridden by the `fit` prop on the image component.
-		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 * The [`object-fit` CSS property value](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) for responsive images. Can be overridden by the `fit` prop on the image component.
+		 * Requires a value for `layout` to be set.
+		 *
+		 * See [the `fit` component property](https://docs.astro.build/en/reference/modules/astro-assets/#fit) for more details.
 		 */
-		experimentalObjectFit?: ImageFit;
+		objectFit?: ImageFit;
 		/**
 		 * @docs
-		 * @name image.experimentalObjectPosition
+		 * @name image.objectPosition
 		 * @type {string}
 		 * @default `"center"`
+		 * @version 5.10.0
 		 * @description
-		 * The default object-position value for responsive images. Can be overridden by the `position` prop on the image component.
-		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 * The default [`object-position` CSS property value](https://developer.mozilla.org/en-US/docs/Web/CSS/object-position) for responsive images. Can be overridden by the `position` prop on the image component.
+		 * Requires a value for `layout` to be set.
+		 *
+		 * See [the `position` component property](https://docs.astro.build/en/reference/modules/astro-assets/#position) for more details.
 		 */
-		experimentalObjectPosition?: string;
+		objectPosition?: string;
 		/**
 		 * @docs
-		 * @name image.experimentalBreakpoints
+		 * @name image.breakpoints
 		 * @type {number[]}
 		 * @default `[640, 750, 828, 1080, 1280, 1668, 2048, 2560] | [640, 750, 828, 960, 1080, 1280, 1668, 1920, 2048, 2560, 3200, 3840, 4480, 5120, 6016]`
+		 * @version 5.10.0
 		 * @description
-		 * The breakpoints used to generate responsive images. Requires the `experimental.responsiveImages` flag to be enabled. The full list is not normally used,
+		 * The breakpoints used to generate responsive images. Requires a value for `layout` to be set. The full list is not normally used,
 		 * but is filtered according to the source and output size. The defaults used depend on whether a local or remote image service is used. For remote services
 		 * the more comprehensive list is used, because only the required sizes are generated. For local services, the list is shorter to reduce the number of images generated.
 		 */
-		experimentalBreakpoints?: number[];
-		/**
-		 * @docs
-		 * @name image.experimentalDefaultStyles
-		 * @type {boolean}
-		 * @default `true`
-		 * @description
-		 * Whether to automatically add global styles to ensure that experimental images resize correctly. This is enabled by default, but can be disabled if you want to manage the styles yourself.
-		 * This option is only used when the `experimental.responsiveImages` flag is enabled.
-		 */
-		experimentalDefaultStyles?: boolean;
+		breakpoints?: number[];
 	};
 
 	/**
@@ -2092,121 +2105,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 *
-		 * @name experimental.responsiveImages
-		 * @type {boolean}
-		 * @default `undefined`
-		 * @version 5.0.0
-		 * @description
-		 *
-		 * Enables automatic responsive images in your project.
-		 *
-		 * ```js title=astro.config.mjs
-		 * {
-		 *    experimental: {
-		 * 			responsiveImages: true,
-		 * 		},
-		 * }
-		 * ```
-		 *
-		 * When enabled, you can pass a `layout` props to any `<Image />` or `<Picture />` component to create a responsive image. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `constrained` and `full-width` layouts will have styles applied to ensure they resize according to their container.
-		 *
-		 * ```astro title=MyComponent.astro
-		 * ---
-		 * import { Image, Picture } from 'astro:assets';
-		 * import myImage from '../assets/my_image.png';
-		 * ---
-		 * <Image src={myImage} alt="A description of my image." layout='constrained' width={800} height={600} />
-		 * <Picture src={myImage} alt="A description of my image." layout='full-width' formats={['avif', 'webp', 'jpeg']} />
-		 * ```
-		 * This `<Image />` component will generate the following HTML output:
-		 * ```html title=Output
-		 *
-		 * 	<img
-		 *		src="/_astro/my_image.hash3.webp"
-		 *		srcset="/_astro/my_image.hash1.webp 640w,
-		 *						/_astro/my_image.hash2.webp 750w,
-		 *						/_astro/my_image.hash3.webp 800w,
-		 *						/_astro/my_image.hash4.webp 828w,
-		 *						/_astro/my_image.hash5.webp 1080w,
-		 *						/_astro/my_image.hash6.webp 1280w,
-		 *						/_astro/my_image.hash7.webp 1600w"
-		 *		alt="A description of my image"
-		 *		sizes="(min-width: 800px) 800px, 100vw"
-		 *		loading="lazy"
-		 *		decoding="async"
-		 *		fetchpriority="auto"
-		 *		width="800"
-		 *		height="600"
-		 *		style="--fit: cover; --pos: center;"
-		 *		data-astro-image="constrained"
-		 *  >
-		 * ```
-		 *
-		 * The following styles are applied to ensure the images resize correctly:
-		 *
-		 * ```css title="Responsive Image Styles"
-		 *
-		 * :where([data-astro-image]) {
-		 *   object-fit: var(--fit);
-		 *   object-position: var(--pos);
-		 * }
-		 *
-		 * :where([data-astro-image='full-width']) {
-		 *   width: 100%;
-		 * }
-		 *
-		 * :where([data-astro-image='constrained']) {
-		 *   max-width: 100%;
-		 * }
-		 *
-		 * ```
-		 * You can enable responsive images for all `<Image />` and `<Picture />` components by setting `image.experimentalLayout` with a default value. This can be overridden by the `layout` prop on each component.
-		 *
-		 * **Example:**
-		 * ```js title=astro.config.mjs
-		 * {
-		 * 		image: {
-		 * 			// Used for all `<Image />` and `<Picture />` components unless overridden
-		 * 			experimentalLayout: 'constrained',
-		 * 		},
-		 * 		experimental: {
-		 * 			responsiveImages: true,
-		 * 		},
-		 * }
-		 * ```
-		 *
-		 * ```astro title=MyComponent.astro
-		 * ---
-		 * import { Image } from 'astro:assets';
-		 * import myImage from '../assets/my_image.png';
-		 * ---
-		 *
-		 * <Image src={myImage} alt="This will use responsive layout" width={800} height={600} />
-		 *
-		 * <Image src={myImage} alt="This will use full-width layout" layout="full-width" />
-		 *
-		 * <Image src={myImage} alt="This will disable responsive images" layout="none" />
-		 * ```
-		 *
-		 * #### Responsive image properties
-		 *
-		 * These are additional properties available to the `<Image />` and `<Picture />` components when responsive images are enabled:
-		 *
-		 * - `layout`: The layout type for the image. Can be `constrained`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
-		 * - `fit`: Defines how the image should be cropped if the aspect ratio is changed. Values match those of CSS `object-fit`. Defaults to `cover`, or the value of `image.experimentalObjectFit` if set.
-		 * - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
-		 * - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
-		 *
-		 * The `widths` and `sizes` attributes are automatically generated based on the image's dimensions and the layout type, and in most cases should not be set manually. The generated `sizes` attribute for `constrained` and `full-width` images
-		 * is based on the assumption that the image is displayed at close to the full width of the screen when the viewport is smaller than the image's width. If it is significantly different (e.g. if it's in a multi-column layout on small screens) you may need to adjust the `sizes` attribute manually for best results.
-		 *
-		 * The `densities` attribute is not compatible with responsive images and will be ignored if set.
-		 */
-
-		responsiveImages?: boolean;
-
-		/**
-		 *
 		 * @name experimental.fonts
 		 * @type {FontFamily[]}
 		 * @version 5.7
@@ -2526,6 +2424,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 */
 		preserveScriptOrder?: boolean;
+
+		/**
+		 * @name experimental.liveContentCollections
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 * Enables the use of live content collections.
+		 *
+		 */
+		liveContentCollections?: boolean;
 	};
 }
 

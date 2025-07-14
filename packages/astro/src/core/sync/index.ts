@@ -3,7 +3,7 @@ import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
-import { type FSWatcher, type HMRPayload, createServer } from 'vite';
+import { createServer, type FSWatcher, type HMRPayload } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
@@ -27,8 +27,8 @@ import {
 	AstroError,
 	AstroErrorData,
 	AstroUserError,
-	type ErrorWithMetadata,
 	createSafeError,
+	type ErrorWithMetadata,
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';

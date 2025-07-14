@@ -32,6 +32,7 @@ import type {
 	IntegrationResolvedRoute,
 	IntegrationRouteData,
 	RouteOptions,
+	RouteToHeaders,
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
@@ -182,8 +183,11 @@ export async function runHookConfigSetup({
 	if (settings.config.adapter) {
 		settings.config.integrations.unshift(settings.config.adapter);
 	}
-	if (await isActionsFilePresent(fs, settings.config.srcDir)) {
-		settings.config.integrations.push(astroIntegrationActionsRouteHandler({ settings }));
+	const actionsFilename = await isActionsFilePresent(fs, settings.config.srcDir);
+	if (actionsFilename) {
+		settings.config.integrations.push(
+			astroIntegrationActionsRouteHandler({ settings, filename: actionsFilename }),
+		);
 	}
 
 	let updatedConfig: AstroConfig = { ...settings.config };
@@ -587,7 +591,7 @@ export async function runHookBuildGenerated({
 }: {
 	settings: AstroSettings;
 	logger: Logger;
-	experimentalRouteToHeaders: Map<IntegrationResolvedRoute, Headers>;
+	experimentalRouteToHeaders: RouteToHeaders;
 }) {
 	const dir =
 		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
@@ -668,7 +672,11 @@ export async function runHookRoutesResolved({
 	routes,
 	settings,
 	logger,
-}: { routes: Array<RouteData>; settings: AstroSettings; logger: Logger }) {
+}: {
+	routes: Array<RouteData>;
+	settings: AstroSettings;
+	logger: Logger;
+}) {
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
 			integration,
