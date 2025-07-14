@@ -2,9 +2,9 @@ import type { ComponentInstance } from '../../types/astro.js';
 import type { SSRManifest } from '../app/types.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import {
+	createEndpoint as createServerIslandEndpoint,
 	SERVER_ISLAND_COMPONENT,
 	SERVER_ISLAND_ROUTE,
-	createEndpoint as createServerIslandEndpoint,
 } from '../server-islands/endpoint.js';
 import { DEFAULT_404_ROUTE, default404Instance } from './astro-designed-error-pages.js';
 

@@ -4,7 +4,9 @@ import { isFontType } from '../utils.js';
 
 export function createFontTypeExtractor({
 	errorHandler,
-}: { errorHandler: ErrorHandler }): FontTypeExtractor {
+}: {
+	errorHandler: ErrorHandler;
+}): FontTypeExtractor {
 	return {
 		extract(url) {
 			const extension = extname(url).slice(1);

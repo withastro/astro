@@ -15,6 +15,7 @@ import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
+import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
@@ -22,6 +23,8 @@ import type { AstroIntegration } from './integrations.js';
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
 export type { AstroFontProvider as FontProvider };
+
+export type { CspAlgorithm };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -130,7 +133,9 @@ interface CommonSessionConfig {
 	 */
 	cookie?:
 		| string
-		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & { name?: string });
+		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & {
+				name?: string;
+		  });
 
 	/**
 	 * Default session duration in seconds. If not set, the session will be stored until deleted, or until the cookie expires.
@@ -146,7 +151,7 @@ interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
 
 interface CustomSessionConfig extends CommonSessionConfig {
 	/** Entrypoint for a custom session driver */
-	driver: string;
+	driver?: string;
 	options?: Record<string, unknown>;
 }
 
@@ -1325,48 +1330,71 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 * @docs
-		 * @name image.experimentalLayout
+		 * @name image.responsiveStyles
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.10.0
+		 * @description
+		 * Whether to automatically add global styles for responsive images. You should enable this option unless you are styling the images yourself.
+		 *
+		 * This option is only used when `layout` is set to `constrained`, `full-width`, or `fixed` using the configuration or the `layout` prop on the image component.
+		 *
+		 * See [the images docs](https://docs.astro.build/en/guides/images/#responsive-image-styles) for more information.
+		 */
+		responsiveStyles?: boolean;
+		/**
+		 * @docs
+		 * @name image.layout
 		 * @type {ImageLayout}
 		 * @default `undefined`
+		 * @version 5.10.0
 		 * @description
 		 * The default layout type for responsive images. Can be overridden by the `layout` prop on the image component.
-		 * Requires the `experimental.responsiveImages` flag to be enabled.
 		 * - `constrained` - The image will scale to fit the container, maintaining its aspect ratio, but will not exceed the specified dimensions.
 		 * - `fixed` - The image will maintain its original dimensions.
 		 * - `full-width` - The image will scale to fit the container, maintaining its aspect ratio.
+		 *
+		 * See [the `layout` component property](https://docs.astro.build/en/reference/modules/astro-assets/#layout) for more details.
 		 */
-		experimentalLayout?: ImageLayout | undefined;
+		layout?: ImageLayout | undefined;
 		/**
 		 * @docs
-		 * @name image.experimentalObjectFit
+		 * @name image.objectFit
 		 * @type {ImageFit}
 		 * @default `"cover"`
+		 * @version 5.10.0
 		 * @description
-		 * The default object-fit value for responsive images. Can be overridden by the `fit` prop on the image component.
-		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 * The [`object-fit` CSS property value](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) for responsive images. Can be overridden by the `fit` prop on the image component.
+		 * Requires a value for `layout` to be set.
+		 *
+		 * See [the `fit` component property](https://docs.astro.build/en/reference/modules/astro-assets/#fit) for more details.
 		 */
-		experimentalObjectFit?: ImageFit;
+		objectFit?: ImageFit;
 		/**
 		 * @docs
-		 * @name image.experimentalObjectPosition
+		 * @name image.objectPosition
 		 * @type {string}
 		 * @default `"center"`
+		 * @version 5.10.0
 		 * @description
-		 * The default object-position value for responsive images. Can be overridden by the `position` prop on the image component.
-		 * Requires the `experimental.responsiveImages` flag to be enabled.
+		 * The default [`object-position` CSS property value](https://developer.mozilla.org/en-US/docs/Web/CSS/object-position) for responsive images. Can be overridden by the `position` prop on the image component.
+		 * Requires a value for `layout` to be set.
+		 *
+		 * See [the `position` component property](https://docs.astro.build/en/reference/modules/astro-assets/#position) for more details.
 		 */
-		experimentalObjectPosition?: string;
+		objectPosition?: string;
 		/**
 		 * @docs
-		 * @name image.experimentalBreakpoints
+		 * @name image.breakpoints
 		 * @type {number[]}
 		 * @default `[640, 750, 828, 1080, 1280, 1668, 2048, 2560] | [640, 750, 828, 960, 1080, 1280, 1668, 1920, 2048, 2560, 3200, 3840, 4480, 5120, 6016]`
+		 * @version 5.10.0
 		 * @description
-		 * The breakpoints used to generate responsive images. Requires the `experimental.responsiveImages` flag to be enabled. The full list is not normally used,
+		 * The breakpoints used to generate responsive images. Requires a value for `layout` to be set. The full list is not normally used,
 		 * but is filtered according to the source and output size. The defaults used depend on whether a local or remote image service is used. For remote services
 		 * the more comprehensive list is used, because only the required sizes are generated. For local services, the list is shorter to reduce the number of images generated.
 		 */
-		experimentalBreakpoints?: number[];
+		breakpoints?: number[];
 	};
 
 	/**
@@ -1845,9 +1873,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 			: Partial<Record<NormalizeLocales<NoInfer<TLocales>>, string>>;
 	};
 
-	/** ! WARNING: SUBJECT TO CHANGE */
-	db?: Config.Database;
-
 	/**
 	 * @docs
 	 * @kind heading
@@ -2080,121 +2105,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 *
-		 * @name experimental.responsiveImages
-		 * @type {boolean}
-		 * @default `undefined`
-		 * @version 5.0.0
-		 * @description
-		 *
-		 * Enables automatic responsive images in your project.
-		 *
-		 * ```js title=astro.config.mjs
-		 * {
-		 *    experimental: {
-		 * 			responsiveImages: true,
-		 * 		},
-		 * }
-		 * ```
-		 *
-		 * When enabled, you can pass a `layout` props to any `<Image />` or `<Picture />` component to create a responsive image. When a layout is set, images have automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type. Images with `constrained` and `full-width` layouts will have styles applied to ensure they resize according to their container.
-		 *
-		 * ```astro title=MyComponent.astro
-		 * ---
-		 * import { Image, Picture } from 'astro:assets';
-		 * import myImage from '../assets/my_image.png';
-		 * ---
-		 * <Image src={myImage} alt="A description of my image." layout='constrained' width={800} height={600} />
-		 * <Picture src={myImage} alt="A description of my image." layout='full-width' formats={['avif', 'webp', 'jpeg']} />
-		 * ```
-		 * This `<Image />` component will generate the following HTML output:
-		 * ```html title=Output
-		 *
-		 * 	<img
-		 *		src="/_astro/my_image.hash3.webp"
-		 *		srcset="/_astro/my_image.hash1.webp 640w,
-		 *						/_astro/my_image.hash2.webp 750w,
-		 *						/_astro/my_image.hash3.webp 800w,
-		 *						/_astro/my_image.hash4.webp 828w,
-		 *						/_astro/my_image.hash5.webp 1080w,
-		 *						/_astro/my_image.hash6.webp 1280w,
-		 *						/_astro/my_image.hash7.webp 1600w"
-		 *		alt="A description of my image"
-		 *		sizes="(min-width: 800px) 800px, 100vw"
-		 *		loading="lazy"
-		 *		decoding="async"
-		 *		fetchpriority="auto"
-		 *		width="800"
-		 *		height="600"
-		 *		style="--fit: cover; --pos: center;"
-		 *		data-astro-image="constrained"
-		 *  >
-		 * ```
-		 *
-		 * The following styles are applied to ensure the images resize correctly:
-		 *
-		 * ```css title="Responsive Image Styles"
-		 *
-		 * :where([data-astro-image]) {
-		 *   object-fit: var(--fit);
-		 *   object-position: var(--pos);
-		 * }
-		 *
-		 * :where([data-astro-image='full-width']) {
-		 *   width: 100%;
-		 * }
-		 *
-		 * :where([data-astro-image='constrained']) {
-		 *   max-width: 100%;
-		 * }
-		 *
-		 * ```
-		 * You can enable responsive images for all `<Image />` and `<Picture />` components by setting `image.experimentalLayout` with a default value. This can be overridden by the `layout` prop on each component.
-		 *
-		 * **Example:**
-		 * ```js title=astro.config.mjs
-		 * {
-		 * 		image: {
-		 * 			// Used for all `<Image />` and `<Picture />` components unless overridden
-		 * 			experimentalLayout: 'constrained',
-		 * 		},
-		 * 		experimental: {
-		 * 			responsiveImages: true,
-		 * 		},
-		 * }
-		 * ```
-		 *
-		 * ```astro title=MyComponent.astro
-		 * ---
-		 * import { Image } from 'astro:assets';
-		 * import myImage from '../assets/my_image.png';
-		 * ---
-		 *
-		 * <Image src={myImage} alt="This will use responsive layout" width={800} height={600} />
-		 *
-		 * <Image src={myImage} alt="This will use full-width layout" layout="full-width" />
-		 *
-		 * <Image src={myImage} alt="This will disable responsive images" layout="none" />
-		 * ```
-		 *
-		 * #### Responsive image properties
-		 *
-		 * These are additional properties available to the `<Image />` and `<Picture />` components when responsive images are enabled:
-		 *
-		 * - `layout`: The layout type for the image. Can be `constrained`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
-		 * - `fit`: Defines how the image should be cropped if the aspect ratio is changed. Values match those of CSS `object-fit`. Defaults to `cover`, or the value of `image.experimentalObjectFit` if set.
-		 * - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
-		 * - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
-		 *
-		 * The `widths` and `sizes` attributes are automatically generated based on the image's dimensions and the layout type, and in most cases should not be set manually. The generated `sizes` attribute for `constrained` and `full-width` images
-		 * is based on the assumption that the image is displayed at close to the full width of the screen when the viewport is smaller than the image's width. If it is significantly different (e.g. if it's in a multi-column layout on small screens) you may need to adjust the `sizes` attribute manually for best results.
-		 *
-		 * The `densities` attribute is not compatible with responsive images and will be ignored if set.
-		 */
-
-		responsiveImages?: boolean;
-
-		/**
-		 *
 		 * @name experimental.fonts
 		 * @type {FontFamily[]}
 		 * @version 5.7
@@ -2225,6 +2135,253 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * include a trailing `-`, matching standard behavior in other Markdown tooling.
 		 */
 		headingIdCompat?: boolean;
+
+		/**
+		 * @name experimental.csp
+		 * @type {boolean | object}
+		 * @default `false`
+		 * @version 5.9.0
+		 * @description
+		 *
+		 * Enables built-in support for Content Security Policy (CSP). For more information,
+		 * refer to the [experimental CSP documentation](https://docs.astro.build/en/reference/experimental-flags/csp/)
+		 *
+		 */
+		csp?:
+			| boolean
+			| {
+					/**
+					 * @name experimental.csp.algorithm
+					 * @type {"SHA-256" | "SHA-384" | "SHA-512"}
+					 * @default `'SHA-256'`
+					 * @version 5.9.0
+					 * @description
+					 *
+					 * The [hash function](https://developer.mozilla.org/en-US/docs/Glossary/Hash_function) to use to generate the hashes of the styles and scripts emitted by Astro.
+					 *
+					 * ```js
+					 * import { defineConfig } from 'astro/config';
+					 *
+					 * export default defineConfig({
+					 *   experimental: {
+					 *     csp: {
+					 *       algorithm: 'SHA-512'
+					 *     }
+					 *   }
+					 * });
+					 * ```
+					 */
+					algorithm?: CspAlgorithm;
+
+					/**
+					 * @name experimental.csp.styleDirective
+					 * @type {{ hashes?: CspHash[], resources?: string[] }}
+					 * @default `undefined`
+					 * @version 5.9.0
+					 * @description
+					 *
+					 * A configuration object that allows you to override the default sources for the `style-src` directive
+					 * with the `resources` property, or to provide additional `hashes` to be rendered.
+					 *
+					 * These properties are added to all pages and completely override Astro's default resources, not add to them.
+					 * Therefore, you must explicitly specify any default values that you want to be included.
+					 */
+					styleDirective?: {
+						/**
+						 * @name experimental.csp.styleDirective.hashes
+						 * @type {CspHash[]}
+						 * @default `[]`
+						 * @version 5.9.0
+						 * @description
+						 *
+						 * A list of additional hashes added to the `style-src` directive.
+						 *
+						 * If you have external styles that aren't generated by Astro, this configuration option allows you to provide additional hashes to be rendered.
+						 *
+						 * You must provide hashes that start with `sha384-`, `sha512-` or `sha256-`. Other values will cause a validation error. These hashes are added to all pages.
+						 *
+						 * ```js
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   experimental: {
+						 *     csp: {
+						 *       styleDirective: {
+						 *         hashes: [
+						 *           "sha384-styleHash",
+						 *           "sha512-styleHash",
+						 *           "sha256-styleHash"
+						 *         ]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 */
+						hashes?: CspHash[];
+
+						/**
+						 * @name experimental.csp.styleDirective.resources
+						 * @type {string[]}
+						 * @default `[]`
+						 * @version 5.9.0
+						 * @description
+						 *
+						 * A list of resources applied to the `style-src` directive. These resources are added to all pages and will override Astro's defaults.
+						 *
+						 * ```js
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   experimental: {
+						 *     csp: {
+						 *       styleDirective: {
+						 *         resources: [
+						 *           "'self'",
+						 *           "https://styles.cdn.example.com"
+						 *         ]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 */
+						resources?: string[];
+					};
+
+					/**
+					 * @name experimental.csp.scriptDirective
+					 * @type {{ hashes?: CspHash[], resources?: string[], strictDynamic?: boolean }}
+					 * @default `undefined`
+					 * @version 5.9.0
+					 * @description
+					 *
+					 * A configuration object that allows you to override the default sources for the `script-src` directive
+					 * with the `resources` property, or to provide additional `hashes` to be rendered.
+					 *
+					 * These properties are added to all pages and completely override Astro's default resources, not add to them.
+					 * Therefore, you must explicitly specify any default values that you want to be included.
+					 *
+					 */
+					scriptDirective?: {
+						/**
+						 * @name experimental.csp.scriptDirective.hashes
+						 * @type {CspHash[]}
+						 * @default `[]`
+						 * @version 5.9.0
+						 * @description
+						 *
+						 * A list of additional hashes added to the `script-src` directive.
+						 *
+						 * If you have external scripts that aren't generated by Astro, or inline scripts, this configuration option allows you to provide additional hashes to be rendered.
+						 *
+						 * You must provide hashes that start with `sha384-`, `sha512-` or `sha256-`. Other values will cause a validation error. These hashes are added to all pages.
+						 *
+						 * ```js
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   experimental: {
+						 *     csp: {
+						 *       scriptDirective: {
+						 *         hashes: [
+						 *           "sha384-scriptHash",
+						 *           "sha512-scriptHash",
+						 *           "sha256-scriptHash"
+						 *         ]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 */
+						hashes?: CspHash[];
+
+						/**
+						 * @name experimental.csp.scriptDirective.resources
+						 * @type {string[]}
+						 * @default `[]`
+						 * @version 5.9.0
+						 * @description
+						 *
+						 * A list of resources applied to the `script-src` directive. These resources are added to all pages and will override Astro's defaults.
+						 *
+						 * ```js
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   experimental: {
+						 *     csp: {
+						 *       scriptDirective: {
+						 *         resources: [
+						 *           "'self'",
+						 *           "https://cdn.example.com"
+						 *         ]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 *
+						 */
+						resources?: string[];
+
+						/**
+						 * @name experimental.csp.scriptDirective.strictDynamic
+						 * @type {boolean}
+						 * @default `false`
+						 * @version 5.9.0
+						 * @description
+						 *
+						 * Enables the keyword `strict-dynamic` to support the dynamic injection of scripts.
+						 *
+						 * ```js
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   experimental: {
+						 *     csp: {
+						 *       scriptDirective: {
+						 *         strictDynamic: true
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 */
+						strictDynamic?: boolean;
+					};
+
+					/**
+					 * @name experimental.csp.directives
+					 * @type {string[]}
+					 * @default `[]`
+					 * @version 5.9.0
+					 * @description
+					 *
+					 * An array of additional directives to add the content of the `Content-Security-Policy` `<meta>` element.
+					 *
+					 * Use this configuration to add other directive definitions such as `default-src`, `image-src`, etc.
+					 *
+					 * ##### Example
+					 *
+					 * You can define a directive to fetch images only from a CDN `cdn.example.com`.
+					 *
+					 * ```js
+					 * export default defineConfig({
+					 * 	experimental: {
+					 * 		csp: {
+					 * 			directives: [
+					 * 				"image-src 'https://cdn.example.com"
+					 * 			]
+					 * 		}
+					 * 	}
+					 * })
+					 * ```
+					 *
+					 */
+					directives?: CspDirective[];
+			  };
 
 		/**
 		 * @name experimental.preserveScriptOrder
@@ -2267,6 +2424,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 */
 		preserveScriptOrder?: boolean;
+
+		/**
+		 * @name experimental.liveContentCollections
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 * Enables the use of live content collections.
+		 *
+		 */
+		liveContentCollections?: boolean;
 	};
 }
 
@@ -2326,12 +2494,4 @@ export interface AstroInlineOnlyConfig {
 	 * @internal for testing only, use `logLevel` instead.
 	 */
 	logger?: Logger;
-}
-
-// HACK! astro:db augment this type that is used in the config
-declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace Config {
-		type Database = Record<string, any>;
-	}
 }

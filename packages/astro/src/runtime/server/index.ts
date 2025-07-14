@@ -12,15 +12,20 @@ export {
 	unescapeHTML,
 } from './escape.js';
 export { renderJSX } from './jsx.js';
+export type {
+	AstroComponentFactory,
+	AstroComponentInstance,
+	ComponentSlots,
+	RenderInstruction,
+} from './render/index.js';
 export {
 	addAttribute,
 	createHeadAndContent,
 	defineScriptVars,
 	Fragment,
 	maybeRenderHead,
-	renderTemplate as render,
-	renderComponent,
 	Renderer as Renderer,
+	renderComponent,
 	renderHead,
 	renderHTMLElement,
 	renderPage,
@@ -28,21 +33,17 @@ export {
 	renderScriptElement,
 	renderSlot,
 	renderSlotToString,
+	renderTemplate as render,
 	renderTemplate,
 	renderToString,
 	renderUniqueStylesheet,
 	voidElementNames,
 } from './render/index.js';
-export type {
-	AstroComponentFactory,
-	AstroComponentInstance,
-	ComponentSlots,
-	RenderInstruction,
-} from './render/index.js';
+export type { ServerIslandComponent } from './render/server-islands.js';
 export { createTransitionScope, renderTransition } from './transition.js';
 
 import { markHTMLString } from './escape.js';
-import { Renderer, addAttribute } from './render/index.js';
+import { addAttribute, Renderer } from './render/index.js';
 
 export function mergeSlots(...slotted: unknown[]) {
 	const slots: Record<string, () => any> = {};
@@ -86,7 +87,7 @@ export function spreadAttributes(
 		}
 	}
 	for (const [key, value] of Object.entries(values)) {
-		output += addAttribute(value, key, true);
+		output += addAttribute(value, key, true, _name);
 	}
 	return markHTMLString(output);
 }

@@ -1,7 +1,6 @@
-import type { Context } from './context.js';
-
 import { color, label } from '@astrojs/cli-kit';
 import { banner, say } from '../messages.js';
+import type { Context } from './context.js';
 
 export async function intro(
 	ctx: Pick<Context, 'skipHouston' | 'welcome' | 'hat' | 'tie' | 'version' | 'username' | 'fancy'>,

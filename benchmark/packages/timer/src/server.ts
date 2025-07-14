@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { SSRManifest } from 'astro';
-import { NodeApp, applyPolyfills } from 'astro/app/node';
+import { applyPolyfills, NodeApp } from 'astro/app/node';
 
 applyPolyfills();
 

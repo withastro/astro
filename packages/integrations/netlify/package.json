@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "6.3.3",
+  "version": "6.4.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -29,6 +29,7 @@
     "dist"
   ],
   "scripts": {
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "test": "pnpm run test-fn && pnpm run test-static",
@@ -39,8 +40,9 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@netlify/blobs": "^8.2.0",
-    "@netlify/functions": "^3.1.5",
+    "@netlify/blobs": "^10.0.4",
+    "@netlify/functions": "^4.1.10",
+    "@netlify/vite-plugin": "^2.3.7",
     "@vercel/nft": "^0.29.2",
     "esbuild": "^0.25.0",
     "tinyglobby": "^0.2.13",

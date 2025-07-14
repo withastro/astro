@@ -5,7 +5,9 @@ import type { Style } from '../types.js';
 
 export function createFontaceFontFileReader({
 	errorHandler,
-}: { errorHandler: ErrorHandler }): FontFileReader {
+}: {
+	errorHandler: ErrorHandler;
+}): FontFileReader {
 	return {
 		extract({ family, url }) {
 			try {
