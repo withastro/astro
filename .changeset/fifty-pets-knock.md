@@ -4,7 +4,7 @@
 
 Adds a new `devFeatures` configuration option to control some of the behaviors introduced in `@astrojs/netlify@6.5.0` which introduced Netlify production features into the dev environment.
 
-You can now individually configure whether or not to populate your environment with the variables from your linked Netlify site (now disabled by default), and using a local version of the Netlify Image CDN for images (still enabled by default) when running `astro dev`.
+You can now individually configure whether or not to populate your environment with the variables from your linked Netlify site (now disabled by default), and use a local version of the Netlify Image CDN for images (still enabled by default) when running `astro dev`.
 
 Additionally, the adapter no longer injects environment variables from Netlify by default when running `astro dev`.
 
