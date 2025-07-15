@@ -587,7 +587,6 @@ export default function netlifyIntegration(
 					images: {
 						// We don't need to disable the feature, because if the user disables it
 						// we'll disable the whole image service.
-						// @ts-expect-error: as yet unreleased API
 						remoteURLPatterns: remoteImagesFromAstroConfig(config, logger),
 					},
 					environmentVariables: {
