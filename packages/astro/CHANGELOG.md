@@ -1,5 +1,50 @@
 # astro
 
+## 5.11.1
+
+### Patch Changes
+
+- [#14045](https://github.com/withastro/astro/pull/14045) [`3276b79`](https://github.com/withastro/astro/commit/3276b798d4ecb41c98f97e94d4ddeaa91aa25013) Thanks [@ghubo](https://github.com/ghubo)! - Fixes a problem where importing animated `.avif` files returns a `NoImageMetadata` error.
+
+- [#14041](https://github.com/withastro/astro/pull/14041) [`0c4d5f8`](https://github.com/withastro/astro/commit/0c4d5f8d57d166fc24d12b37cf208d263f330868) Thanks [@dixslyf](https://github.com/dixslyf)! - Fixes a `<ClientRouter />` bug where the fallback view transition animations when exiting a page
+  ran too early for browsers that do not support the View Transition API.
+  This bug prevented `event.viewTransition?.skipTransition()` from skipping the page exit animation
+  when used in an `astro:before-swap` event hook.
+
+## 5.11.0
+
+### Minor Changes
+
+- [#13972](https://github.com/withastro/astro/pull/13972) [`db8f8be`](https://github.com/withastro/astro/commit/db8f8becc9508fa4f292d45c14af92ba59c414d1) Thanks [@ematipico](https://github.com/ematipico)! - Updates the `NodeApp.match()` function in the Adapter API to accept a second, optional parameter to allow adapter authors to add headers to static, prerendered pages.
+
+  `NodeApp.match(request)` currently checks whether there is a route that matches the given `Request`. If there is a prerendered route, the function returns `undefined`, because static routes are already rendered and their headers cannot be updated.
+
+  When the new, optional boolean parameter is passed (e.g. `NodeApp.match(request, true)`), Astro will return the first matched route, even when it's a prerendered route. This allows your adapter to now access static routes and provides the opportunity to set headers for these pages, for example, to implement a Content Security Policy (CSP).
+
+### Patch Changes
+
+- [#14029](https://github.com/withastro/astro/pull/14029) [`42562f9`](https://github.com/withastro/astro/commit/42562f9d7b0bef173aca631f9d59e1bf000133c5) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where server islands wouldn't be correctly rendered when they are rendered inside fragments.
+
+  Now the following examples work as expected:
+
+  ```astro
+  ---
+  import { Cart } from '../components/Cart.astro';
+  ---
+
+  <>
+    <Cart server:defer />
+  </>
+
+  <Fragment slot="rest">
+    <Cart server:defer>
+      <div slot="fallback">Not working</div>
+    </Cart>
+  </Fragment>
+  ```
+
+- [#14017](https://github.com/withastro/astro/pull/14017) [`8d238bc`](https://github.com/withastro/astro/commit/8d238bcb21f1d3863d4e86bf0064d98390936208) Thanks [@dmgawel](https://github.com/dmgawel)! - Fixes a bug where i18n fallback rewrites didn't work in dynamic pages.
+
 ## 5.10.2
 
 ### Patch Changes
