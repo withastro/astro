@@ -6,7 +6,7 @@ Adds a new `devFeatures` configuration option to control some of the behaviors i
 
 You can now individually configure whether or not to populate your environment with the variables from your linked Netlify site (now disabled by default), and using a local version of the Netlify Image CDN for images (still enabled by default) when running `astro dev`.
 
-Additionally, no longer injects environment variables from Netlify by default when running `astro dev`.
+Additionally, the adapter no longer injects environment variables from Netlify by default when running `astro dev`.
 
 `@astrojs/netlify@6.5.0` introduced a potentially breaking change that enabled injecting Netlify environment variables in `astro dev` by default. This could lead to unexpected behavior in Astro projects that do not expect these variables to be present. This now defaults to disabled, and users can enable it by setting the `devFeatures.environmentVariables` option in their Astro config. Similarly, you can use `devFeatures.images` to disable using the Netlify Image CDN locally if needed:
 
