@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-allow tsconfig paths without baseUrl
+Allows using `tsconfig` `compilerOptions.paths` without setting `compilerOptions.baseUrl`
