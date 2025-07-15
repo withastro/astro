@@ -16,6 +16,7 @@ export default defineConfig({
   adapter: netlify({
     devFeatures: {
       environmentVariables: true,
+      images: false
     },
   }),
 });
