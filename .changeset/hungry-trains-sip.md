@@ -2,9 +2,7 @@
 'astro': minor
 ---
 
-Adds a new experimental configuration option `coerceEnvVarValues` to allow you to opt out of Astro's automatic coercion of specific environment variable values to their respective types.
-
-Note that the default value for this option is `true`, which is consistent with current behavior.
+Adds a new experimental configuration option `rawEnvValues` to allow you to opt out of Astro's automatic coercion of specific environment variable values to their respective types.
 
 Currently, environment variables with the values of `"true"`, `"false"`, `"1"`, or `"0"` are converted to their respective types on the `import.meta.env` object. For example, `"true"` (string) becomes `true` (boolean). `"1"` (string) becomes `1` (number).
 
@@ -19,7 +17,7 @@ import { defineConfig } from "astro/config";
 
 export default defineConfig({
   experimental: {
-    coerceEnvVarValues: true
+    rawEnvValues: true
   }
 })
 ```
