@@ -14,7 +14,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return null;
 
 	const { baseUrl, paths } = tsConfig.compilerOptions as CompilerOptions;
-	
+
 	// If paths exist but baseUrl doesn't, default to "." (tsconfig directory)
 	const effectiveBaseUrl = baseUrl ?? (paths ? '.' : undefined);
 	if (!effectiveBaseUrl) return null;
