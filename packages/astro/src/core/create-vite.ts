@@ -125,11 +125,13 @@ export async function createVite(
 	});
 
 	const srcDirPattern = convertPathToPattern(fileURLToPath(settings.config.srcDir));
-	const astroEnvLoader = createEnvLoader(mode, settings.config, true); // environment variable values are always coerced for 'astro:env'
+	// TODO: use a single non coerced env loader in Astro 7
+	// Coercion is managed by astro:env directly
+	const astroEnvLoader = createEnvLoader(mode, settings.config, false);
 	const importMetaEnvLoader = createEnvLoader(
 		mode,
 		settings.config,
-		settings.config.experimental.coerceEnvVarValues,
+		!settings.config.experimental.rawEnvValues,
 	);
 
 	// Start with the Vite configuration that Astro core needs

@@ -2437,9 +2437,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		liveContentCollections?: boolean;
 
 		/**
-		 * @name experimental.coerceEnvVarValues
+		 * @name experimental.rawEnvValues
 		 * @type {boolean}
-		 * @default `true`
+		 * @default `false`
 		 * @version 5.x
 		 * @description
 		 *
@@ -2451,7 +2451,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * Because dynamic prerender values in routes are no longer supported, coercion of these values can be unexpected (because environment variables are generally expected to be strings).
 		 */
-		coerceEnvVarValues?: boolean;
+		rawEnvValues?: boolean;
 	};
 }
 

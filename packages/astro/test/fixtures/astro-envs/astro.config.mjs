@@ -21,6 +21,6 @@ export default defineConfig({
 		],
 	},
 	experimental: {
-		coerceEnvVarValues: false,
+		rawEnvValues: true,
 	}
 });
