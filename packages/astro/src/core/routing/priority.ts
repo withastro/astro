@@ -22,10 +22,6 @@ import type { RouteData } from '../../types/public/internal.js';
  *   The definition of "alphabetically" is dependent on the default locale of the running system.
  */
 export function routeComparator(a: RouteData, b: RouteData) {
-	// We want to prioritize the user's routes, so any internal routes should always come after no matter what
-	if (a.origin === 'internal' && a.route === '/404') return 1;
-	if (b.origin === 'internal' && a.route === '/404') return -1;
-
 	const commonLength = Math.min(a.segments.length, b.segments.length);
 
 	for (let index = 0; index < commonLength; index++) {
