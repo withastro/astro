@@ -34,6 +34,7 @@
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "test": "pnpm run test-fn && pnpm run test-static",
     "test-fn": "astro-scripts test \"test/functions/*.test.js\"",
+    "test:dev": "astro-scripts test \"test/development/*.test.js\"",
     "test-static": "astro-scripts test \"test/static/*.test.js\"",
     "test:hosted": "astro-scripts test \"test/hosted/*.test.js\""
   },

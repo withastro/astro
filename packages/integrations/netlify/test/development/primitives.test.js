@@ -36,7 +36,9 @@ describe('Netlify primitives', () => {
 			const imgResponse = await fixture.fetch('/astronaut');
 			const $img = cheerio.load(await imgResponse.text());
 
-			assert($img('img').attr('src').startsWith('/_image?href='));
+			assert.equal($img('h1').text(), 'Hello, Astronaut');
+
+			// assert($img('img').attr('src').startsWith('/_image?href='));
 		});
 
 		it('loads function routes', async () => {
@@ -58,6 +60,22 @@ describe('Netlify primitives', () => {
 			const $root = cheerio.load(await efResponse.text());
 
 			assert.equal($root('h1').text(), 'HELLO THERE, ASTRONAUT.');
+		});
+
+		it('loads images in development', async () => {
+			const imgResponse = await fixture.fetch('/astronaut');
+			const $img = cheerio.load(await imgResponse.text());
+			const images = $img('img').map((_i, el) => {
+				return $img(el).attr('src');
+			});
+
+			for (const imgSrc of images) {
+				assert(imgSrc.startsWith('/.netlify/images'));
+				const imageResponse = await fixture.fetch(imgSrc);
+				assert.equal(imageResponse.status, 200);
+				// Images are JPEG by default in development
+				assert.equal(imageResponse.headers.get('content-type'), 'image/jpeg');
+			}
 		});
 	});
 });
