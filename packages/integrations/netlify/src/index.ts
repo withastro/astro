@@ -105,7 +105,10 @@ export function remotePatternToRegex(
 	return regexStr;
 }
 
-function remoteImagesFromAstroConfig(config: AstroConfig, logger: AstroIntegrationLogger): string[] {
+function remoteImagesFromAstroConfig(
+	config: AstroConfig,
+	logger: AstroIntegrationLogger,
+): string[] {
 	const remoteImages: string[] = [];
 	// Domains get a simple regex match
 	remoteImages.push(
