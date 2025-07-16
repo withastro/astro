@@ -2450,6 +2450,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * to a number).
 		 *
 		 * This flag aligns `import.meta.env`'s behavior in Astro with [Vite](https://vite.dev/guide/env-and-mode.html#env-variables).
+		 *
+		 * See the [experimental raw environment variables guide](/en/reference/experimental-flags/raw-env-values/) for more information.
 		 */
 		rawEnvValues?: boolean;
 	};
