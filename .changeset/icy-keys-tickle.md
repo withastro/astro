@@ -23,6 +23,6 @@ const dogs = defineCollection({
 })
 ```
 
-Note that TOML does not support top level arrays. Instead, the `file()` loader considers each top level table to be an independent entry. The table header is populated in the `id` field of the entry object. 
+Note that TOML does not support top-level arrays. Instead, the `file()` loader considers each top-level table to be an independent entry. The table header is populated in the `id` field of the entry object. 
 
 See Astro's [content collections guide](https://docs.astro.build/en/guides/content-collections/#built-in-loaders) for more information on using the built-in content loaders.

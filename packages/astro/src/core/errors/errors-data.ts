@@ -1855,7 +1855,7 @@ export const UnsupportedConfigTransformError = {
  * @see
  *  - [Passing a `parser` to the `file` loader](https://docs.astro.build/en/guides/content-collections/#parser-function)
  * @description
- * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. or `csv-parse`) to create a collection from your file type.
+ * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. `csv-parse`) to create a collection from your file type.
  */
 export const FileParserNotFound = {
 	name: 'FileParserNotFound',
