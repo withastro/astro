@@ -601,6 +601,9 @@ importers:
       shiki:
         specifier: ^3.2.1
         version: 3.2.1
+      svgo:
+        specifier: ^3.3.2
+        version: 3.3.2
       tinyexec:
         specifier: ^0.3.2
         version: 0.3.2
@@ -2828,6 +2831,12 @@ importers:
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../../../integrations/mdx
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/core-image-svg-optimized:
+    dependencies:
       astro:
         specifier: workspace:*
         version: link:../../..
