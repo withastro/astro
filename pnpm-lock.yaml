@@ -29,7 +29,7 @@ importers:
         version: 18.19.50
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       eslint:
         specifier: ^9.24.0
         version: 9.24.0(jiti@2.4.2)
@@ -145,7 +145,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
 
   examples/blog:
@@ -160,7 +160,7 @@ importers:
         specifier: ^3.4.1
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.2
@@ -169,7 +169,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -178,7 +178,7 @@ importers:
         specifier: ^4.3.0
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -209,7 +209,7 @@ importers:
         specifier: ^3.14.9
         version: 3.14.9
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -236,7 +236,7 @@ importers:
         specifier: ^18.3.6
         version: 18.3.7(@types/react@18.3.23)
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       preact:
         specifier: ^10.26.5
@@ -266,7 +266,7 @@ importers:
         specifier: ^2.0.3
         version: 2.2.0(preact@10.26.9)
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       preact:
         specifier: ^10.26.5
@@ -284,7 +284,7 @@ importers:
         specifier: ^18.3.6
         version: 18.3.7(@types/react@18.3.23)
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -299,7 +299,7 @@ importers:
         specifier: ^5.1.0
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.5
@@ -311,7 +311,7 @@ importers:
         specifier: ^7.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       svelte:
         specifier: ^5.25.7
@@ -323,7 +323,7 @@ importers:
         specifier: ^5.1.0
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.13
@@ -335,25 +335,25 @@ importers:
         specifier: ^9.3.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
 
   examples/ssr:
@@ -365,7 +365,7 @@ importers:
         specifier: ^7.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       svelte:
         specifier: ^5.25.7
@@ -374,7 +374,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       sass:
         specifier: ^1.86.3
@@ -389,7 +389,7 @@ importers:
         specifier: ^18.17.8
         version: 18.19.50
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -398,7 +398,7 @@ importers:
         specifier: ^0.15.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -410,7 +410,7 @@ importers:
         specifier: ^4.1.0
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       preact:
         specifier: ^10.26.5
@@ -425,7 +425,7 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(nanostores@0.11.4)(preact@10.26.9)
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.11.4
@@ -446,7 +446,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.3
@@ -458,7 +458,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^5.11.0
+        specifier: ^5.11.1
         version: link:../../packages/astro
       vitest:
         specifier: ^3.1.1
@@ -537,7 +537,7 @@ importers:
         version: 1.6.0
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       estree-walker:
         specifier: ^3.0.3
         version: 3.0.3
@@ -1839,6 +1839,12 @@ importers:
       svelte:
         specifier: ^5.25.3
         version: 5.34.9
+
+  packages/astro/test/fixtures/alias-tsconfig-no-baseurl:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/alias-tsconfig/deps/namespace-package: {}
 
@@ -4891,7 +4897,7 @@ importers:
         version: 0.5.1(@types/react@18.3.23)(react@19.1.0)
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -5340,10 +5346,10 @@ importers:
         version: 2.3.7(rollup@4.40.2)(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
       '@vercel/nft':
         specifier: ^0.29.2
-        version: 0.29.2(rollup@4.40.2)
+        version: 0.29.4(rollup@4.40.2)
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       tinyglobby:
         specifier: ^0.2.13
         version: 0.2.13
@@ -5838,13 +5844,13 @@ importers:
         version: 1.2.1
       '@vercel/nft':
         specifier: ^0.29.2
-        version: 0.29.2(rollup@4.40.2)
+        version: 0.29.4(rollup@4.40.2)
       '@vercel/routing-utils':
         specifier: ^5.0.4
         version: 5.0.4
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       tinyglobby:
         specifier: ^0.2.13
         version: 0.2.13
@@ -6157,40 +6163,6 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
-  packages/integrations/web-vitals:
-    dependencies:
-      web-vitals:
-        specifier: ^4.2.4
-        version: 4.2.4
-    devDependencies:
-      '@astrojs/db':
-        specifier: workspace:*
-        version: link:../../db
-      astro:
-        specifier: workspace:*
-        version: link:../../astro
-      astro-scripts:
-        specifier: workspace:*
-        version: link:../../../scripts
-      linkedom:
-        specifier: ^0.18.9
-        version: 0.18.11
-
-  packages/integrations/web-vitals/test/fixtures/basics:
-    dependencies:
-      '@astrojs/db':
-        specifier: workspace:*
-        version: link:../../../../../db
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../node
-      '@astrojs/web-vitals':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
   packages/internal-helpers:
     devDependencies:
       astro-scripts:
@@ -6388,7 +6360,7 @@ importers:
     dependencies:
       esbuild:
         specifier: ^0.25.0
-        version: 0.25.2
+        version: 0.25.5
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -8786,11 +8758,6 @@ packages:
     resolution: {integrity: sha512-1++yncEyIAi68D3UEOlytYb1IUcIulMWdoSzX2h9LuSeeyR7JtaIgR8DcTQ6+DmYOQn+5MCh6LY+UmK6QBByNA==}
     deprecated: This package is deprecated. You should to use `@vercel/functions` instead.
 
-  '@vercel/nft@0.29.2':
-    resolution: {integrity: sha512-A/Si4mrTkQqJ6EXJKv5EYCDQ3NL6nJXxG8VGXePsaiQigsomHYQC9xSpX8qGk7AEZk4b1ssbYIqJ0ISQQ7bfcA==}
-    engines: {node: '>=18'}
-    hasBin: true
-
   '@vercel/nft@0.29.4':
     resolution: {integrity: sha512-6lLqMNX3TuycBPABycx7A9F1bHQR7kiQln6abjFbPrf5C/05qHM9M5E4PeTE59c7z8g6vHnx1Ioihb2AQl7BTA==}
     engines: {node: '>=18'}
@@ -9306,10 +9273,6 @@ packages:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
 
-  chalk@5.3.0:
-    resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
-    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
-
   chalk@5.4.1:
     resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
@@ -9487,10 +9450,6 @@ packages:
 
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
-
-  consola@3.2.3:
-    resolution: {integrity: sha512-I5qxpzLv+sJhTVEoLYNcTW+bThDCPsit0vLNKShZx6rLtpilNpmmeTPaeqJb9ZE9dV3DGaeby6Vuhrw38WjeyQ==}
-    engines: {node: ^14.18.0 || >=16.10.0}
 
   consola@3.4.2:
     resolution: {integrity: sha512-5IKcdX0nnYavi6G7TtOhwkYzyjfJlatbjMjuLSfE2kYT5pMDOilZ4OvMhi637CcDICTmz3wARPoyhqyX1Y+XvA==}
@@ -13532,9 +13491,6 @@ packages:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
     engines: {node: '>= 8'}
 
-  web-vitals@4.2.4:
-    resolution: {integrity: sha512-r4DIlprAGwJ7YM11VZp4R884m0Vmgr6EAKe3P+kO0PPj3Unqyvv59rczf6UiGcb9Z8QxZVcqKNwv/g0WNdWwsw==}
-
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
@@ -13680,11 +13636,6 @@ packages:
     resolution: {integrity: sha512-CBKFWExMn46Foo4cldiChEzn7S7SRV+wqiluAb6xmueD/fGyRHIhX8m14vVGgeFWjN540nKCNVj6P21eQjgTuA==}
     engines: {node: '>= 14'}
 
-  yaml@2.5.1:
-    resolution: {integrity: sha512-bLQOjaX/ADgQ20isPJRvF0iRUHIxVhYvr53Of7wGcWlO2jvtUlH5m87DsmulFVxRpNLOnI4tB6p/oh8D7kpn9Q==}
-    engines: {node: '>= 14'}
-    hasBin: true
-
   yaml@2.8.0:
     resolution: {integrity: sha512-4lLa/EcQCB0cJkyts+FpIRx5G/llPxfP6VQU5KByHEhLxY3IJCH0f0Hy1MHI8sClTvsIb8qwRJ6R/ZdlDJ/leQ==}
     engines: {node: '>= 14.6'}
@@ -13824,7 +13775,7 @@ snapshots:
 
   '@astrojs/cli-kit@0.4.1':
     dependencies:
-      chalk: 5.3.0
+      chalk: 5.4.1
       log-update: 5.0.1
       sisteransi: 1.0.5
 
@@ -13858,7 +13809,7 @@ snapshots:
 
   '@astrojs/yaml2ts@0.2.1':
     dependencies:
-      yaml: 2.5.1
+      yaml: 2.8.0
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -15225,7 +15176,7 @@ snapshots:
 
   '@mapbox/node-pre-gyp@2.0.0':
     dependencies:
-      consola: 3.2.3
+      consola: 3.4.2
       detect-libc: 2.0.4
       https-proxy-agent: 7.0.6
       node-fetch: 2.7.0
@@ -16206,25 +16157,6 @@ snapshots:
 
   '@vercel/edge@1.2.1': {}
 
-  '@vercel/nft@0.29.2(rollup@4.40.2)':
-    dependencies:
-      '@mapbox/node-pre-gyp': 2.0.0
-      '@rollup/pluginutils': 5.1.4(rollup@4.40.2)
-      acorn: 8.14.1
-      acorn-import-attributes: 1.9.5(acorn@8.14.1)
-      async-sema: 3.1.1
-      bindings: 1.5.0
-      estree-walker: 2.0.2
-      glob: 10.4.5
-      graceful-fs: 4.2.11
-      node-gyp-build: 4.8.2
-      picomatch: 4.0.2
-      resolve-from: 5.0.0
-    transitivePeerDependencies:
-      - encoding
-      - rollup
-      - supports-color
-
   '@vercel/nft@0.29.4(rollup@4.40.2)':
     dependencies:
       '@mapbox/node-pre-gyp': 2.0.0
@@ -16796,7 +16728,7 @@ snapshots:
     dependencies:
       ansi-align: 3.0.1
       camelcase: 8.0.0
-      chalk: 5.3.0
+      chalk: 5.4.1
       cli-boxes: 3.0.0
       string-width: 7.2.0
       type-fest: 4.41.0
@@ -16891,8 +16823,6 @@ snapshots:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
-
-  chalk@5.3.0: {}
 
   chalk@5.4.1: {}
 
@@ -17071,8 +17001,6 @@ snapshots:
   concat-map@0.0.1: {}
 
   confbox@0.1.8: {}
-
-  consola@3.2.3: {}
 
   consola@3.4.2: {}
 
@@ -21539,7 +21467,7 @@ snapshots:
 
   vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0):
     dependencies:
-      esbuild: 0.25.2
+      esbuild: 0.25.5
       fdir: 6.4.4(picomatch@4.0.2)
       picomatch: 4.0.2
       postcss: 8.5.6
@@ -21731,8 +21659,6 @@ snapshots:
 
   web-streams-polyfill@3.3.3: {}
 
-  web-vitals@4.2.4: {}
-
   webidl-conversions@3.0.1: {}
 
   whatwg-encoding@3.1.1:
@@ -21888,8 +21814,6 @@ snapshots:
       prettier: 2.8.7
 
   yaml@2.2.2: {}
-
-  yaml@2.5.1: {}
 
   yaml@2.8.0: {}
 
