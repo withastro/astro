@@ -2440,16 +2440,16 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name experimental.rawEnvValues
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 5.x
+		 * @version 5.12
 		 * @description
 		 *
-		 * When enabled, environment variables with the values of `"true"`, `"false"`, `"1"`, or `"0"`, will converted to their respective type on the `import.meta.env` object.
+		 * Disables coercion of `import.meta.env` values that are populated from `process.env`, allowing you to use the raw value.
 		 *
-		 * For example, `"true"` (string) becomes `true` (boolean). `"1"` (string) becomes `1` (number).
+		 * By default, Astro converts your environment variables used through `import.meta.env` in some cases, and this can prevent
+		 * access to some values such as the strings `"true"` (which is converted to a boolean value), and `"1"` (which is converted
+		 * to a number).
 		 *
-		 * This default behavior is a holdover from when Astro supported dynamic prerender values in routes which was removed in Astro v5.
-		 *
-		 * Because dynamic prerender values in routes are no longer supported, coercion of these values can be unexpected (because environment variables are generally expected to be strings).
+		 * This flag aligns `import.meta.env`'s behavior in Astro with [Vite](https://vite.dev/guide/env-and-mode.html#env-variables).
 		 */
 		rawEnvValues?: boolean;
 	};

@@ -2,22 +2,23 @@
 'astro': minor
 ---
 
-Adds a new experimental configuration option `rawEnvValues` to allow you to opt out of Astro's automatic coercion of specific environment variable values to their respective types.
+Adds an experimental flag `rawEnvValues` to disable coercion of `import.meta.env` values that are populated from `process.env`
 
-Currently, environment variables with the values of `"true"`, `"false"`, `"1"`, or `"0"` are converted to their respective types on the `import.meta.env` object. For example, `"true"` (string) becomes `true` (boolean). `"1"` (string) becomes `1` (number).
+Astro allows you to configure a [type-safe schema for your environment variables](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables), and converts variables imported via `astro:env` into the expected type.
 
-This default behavior is a holdover from when Astro supported dynamic prerender values in routes which was [removed in Astro v5](https://docs.astro.build/en/guides/upgrade-to/v5/#removed-support-for-dynamic-prerender-values-in-routes).
+However, Astro also converts your environment variables used through `import.meta.env` in some cases, and this can prevent access to some values such as the strings `"true"` (which is converted to a boolean value), and `"1"` (which is converted to a number).
 
-Coercion of these values can be unexpected since environment variables are generally expected to be strings. When this option is removed in a future version of Astro, these values will no longer be coerced.
+The `experimental.rawEnvValues` flag disables coercion of `import.meta.env` values that are populated from `process.env`, allowing you to use the raw value.
 
-**This options has no effect on [the `astro:env` module](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables). It only affects the `import.meta.env` object.
+To enable this feature, add the experimental flag in your Astro config:
 
-```js
-import { defineConfig } from "astro/config";
+
+```diff
+import { defineConfig } from "astro/config"
 
 export default defineConfig({
-  experimental: {
-    rawEnvValues: true
-  }
++  experimental: {
++    rawEnvValues: true,
++  }
 })
 ```
