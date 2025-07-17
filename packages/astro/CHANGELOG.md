@@ -1,5 +1,13 @@
 # astro
 
+## 5.11.2
+
+### Patch Changes
+
+- [#14064](https://github.com/withastro/astro/pull/14064) [`2eb77d8`](https://github.com/withastro/astro/commit/2eb77d8f54be3faea38370693d33fb220231ea84) Thanks [@jp-knj](https://github.com/jp-knj)! - Allows using `tsconfig` `compilerOptions.paths` without setting `compilerOptions.baseUrl`
+
+- [#14068](https://github.com/withastro/astro/pull/14068) [`10189c0`](https://github.com/withastro/astro/commit/10189c0b44881fd22bac69acc182834d597d9603) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Fixes the incorrect CSS import path shown in the terminal message during Tailwind integration setup.
+
 ## 5.11.1
 
 ### Patch Changes
