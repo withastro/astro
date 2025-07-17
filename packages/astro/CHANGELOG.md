@@ -1,5 +1,67 @@
 # astro
 
+## 5.12.0
+
+### Minor Changes
+
+- [#13971](https://github.com/withastro/astro/pull/13971) [`fe35ee2`](https://github.com/withastro/astro/commit/fe35ee2835997e7e6c3e1975dc6dacfa1052a765) Thanks [@adamhl8](https://github.com/adamhl8)! - Adds an experimental flag `rawEnvValues` to disable coercion of `import.meta.env` values (e.g. converting strings to other data types) that are populated from `process.env`
+
+  Astro allows you to configure a [type-safe schema for your environment variables](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables), and converts variables imported via `astro:env` into the expected type.
+
+  However, Astro also converts your environment variables used through `import.meta.env` in some cases, and this can prevent access to some values such as the strings `"true"` (which is converted to a boolean value), and `"1"` (which is converted to a number).
+
+  The `experimental.rawEnvValues` flag disables coercion of `import.meta.env` values that are populated from `process.env`, allowing you to use the raw value.
+
+  To enable this feature, add the experimental flag in your Astro config:
+
+  ```diff
+  import { defineConfig } from "astro/config"
+
+  export default defineConfig({
+  +  experimental: {
+  +    rawEnvValues: true,
+  +  }
+  })
+  ```
+
+  If you were relying on this coercion, you may need to update your project code to apply it manually:
+
+  ```ts diff
+  - const enabled: boolean = import.meta.env.ENABLED
+  + const enabled: boolean = import.meta.env.ENABLED === "true"
+  ```
+
+  See the [experimental raw environment variables reference docs](https://docs.astro.build/en/reference/experimental-flags/raw-env-values/) for more information.
+
+- [#13941](https://github.com/withastro/astro/pull/13941) [`6bd5f75`](https://github.com/withastro/astro/commit/6bd5f75806cb4df39d9e4e9b1f2225dcfdd724b0) Thanks [@aditsachde](https://github.com/aditsachde)! - Adds support for TOML files to Astro's built-in `glob()` and `file()` content loaders.
+
+  In Astro 5.2, Astro added support for using TOML frontmatter in Markdown files instead of YAML. However, if you wanted to use TOML files as local content collection entries themselves, you needed to write your own loader.
+
+  Astro 5.12 now directly supports loading data from TOML files in content collections in both the `glob()` and the `file()` loaders.
+
+  If you had added your own TOML content parser for the `file()` loader, you can now remove it as this functionality is now included:
+
+  ```diff
+  // src/content.config.ts
+  import { defineCollection } from "astro:content";
+  import { file } from "astro/loaders";
+  - import { parse as parseToml } from "toml";
+  const dogs = defineCollection({
+  -  loader: file("src/data/dogs.toml", { parser: (text) => parseToml(text) }),
+  + loader: file("src/data/dogs.toml")
+    schema: /* ... */
+  })
+  ```
+
+  Note that TOML does not support top-level arrays. Instead, the `file()` loader considers each top-level table to be an independent entry. The table header is populated in the `id` field of the entry object.
+
+  See Astro's [content collections guide](https://docs.astro.build/en/guides/content-collections/#built-in-loaders) for more information on using the built-in content loaders.
+
+### Patch Changes
+
+- Updated dependencies [[`6bd5f75`](https://github.com/withastro/astro/commit/6bd5f75806cb4df39d9e4e9b1f2225dcfdd724b0)]:
+  - @astrojs/markdown-remark@6.3.3
+
 ## 5.11.2
 
 ### Patch Changes
