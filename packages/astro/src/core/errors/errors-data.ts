@@ -1805,7 +1805,7 @@ export const ContentCollectionTypeMismatchError = {
  * @docs
  * @message `COLLECTION_ENTRY_NAME` failed to parse.
  * @description
- * Collection entries of `type: 'data'` must return an object with valid JSON (for `.json` entries), YAML (for `.yaml` entries) or TOML (for `.toml` entries).'
+ * Collection entries of `type: 'data'` must return an object with valid JSON (for `.json` entries), YAML (for `.yaml` entries) or TOML (for `.toml` entries).
  */
 export const DataCollectionEntryParseError = {
 	name: 'DataCollectionEntryParseError',
