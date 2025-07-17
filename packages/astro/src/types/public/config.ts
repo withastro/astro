@@ -2435,6 +2435,25 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 */
 		liveContentCollections?: boolean;
+
+		/**
+		 * @name experimental.rawEnvValues
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.12
+		 * @description
+		 *
+		 * Disables coercion of `import.meta.env` values that are populated from `process.env`, allowing you to use the raw value.
+		 *
+		 * By default, Astro converts your environment variables used through `import.meta.env` in some cases, and this can prevent
+		 * access to some values such as the strings `"true"` (which is converted to a boolean value), and `"1"` (which is converted
+		 * to a number).
+		 *
+		 * This flag aligns `import.meta.env`'s behavior in Astro with [Vite](https://vite.dev/guide/env-and-mode.html#env-variables).
+		 *
+		 * See the [experimental raw environment variables guide](https://docs.astro.build/en/reference/experimental-flags/raw-env-values/) for more information.
+		 */
+		rawEnvValues?: boolean;
 	};
 }
 
