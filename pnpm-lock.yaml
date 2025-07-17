@@ -601,6 +601,9 @@ importers:
       shiki:
         specifier: ^3.2.1
         version: 3.2.1
+      smol-toml:
+        specifier: ^1.3.4
+        version: 1.3.4
       tinyexec:
         specifier: ^0.3.2
         version: 0.3.2
@@ -2702,9 +2705,6 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
-      toml:
-        specifier: ^3.0.0
-        version: 3.0.0
 
   packages/astro/test/fixtures/content-layer-markdoc:
     dependencies:
@@ -6217,8 +6217,8 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1
       smol-toml:
-        specifier: ^1.3.1
-        version: 1.3.1
+        specifier: ^1.3.4
+        version: 1.3.4
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -12590,8 +12590,8 @@ packages:
     resolution: {integrity: sha512-TzobUYoEft/xBtb2voRPryAUIvYguG0V7Tt3de79I1WfXgCwelqVsGuZSnu3GFGRZhXR90AeEYIM+icuB/S06Q==}
     hasBin: true
 
-  smol-toml@1.3.1:
-    resolution: {integrity: sha512-tEYNll18pPKHroYSmLLrksq233j021G0giwW7P3D24jC54pQ5W5BXMsQ/Mvw1OJCmEYDgY+lrzT+3nNUtoNfXQ==}
+  smol-toml@1.3.4:
+    resolution: {integrity: sha512-UOPtVuYkzYGee0Bd2Szz8d2G3RfMfJ2t3qVdZUAozZyAk+a0Sxa+QKix0YCwjL/A1RR0ar44nCxaoN9FxdJGwA==}
     engines: {node: '>= 18'}
 
   solid-js@1.9.7:
@@ -18540,7 +18540,7 @@ snapshots:
       picocolors: 1.1.1
       picomatch: 4.0.2
       pretty-ms: 9.2.0
-      smol-toml: 1.3.1
+      smol-toml: 1.3.4
       strip-json-comments: 5.0.1
       typescript: 5.8.3
       zod: 3.24.2
@@ -20768,7 +20768,7 @@ snapshots:
 
   smartypants@0.2.2: {}
 
-  smol-toml@1.3.1: {}
+  smol-toml@1.3.4: {}
 
   solid-js@1.9.7:
     dependencies:
