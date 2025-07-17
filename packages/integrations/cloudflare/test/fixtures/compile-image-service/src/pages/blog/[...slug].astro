@@ -1,0 +1,34 @@
+---
+import { Image } from "astro:assets";
+import { getEntry, type CollectionEntry } from "astro:content";
+
+export const prerender = false;
+
+type Props = CollectionEntry<"blog">;
+
+const post = await getEntry("blog", Astro.params.slug!);
+if (!post) return Astro.rewrite("/404");
+
+const { Content } = await post.render();
+
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="aspect-video w-full overflow-hidden flex items-end rounded-lg">
+      <Image
+        class="aspect-[4/3] object-cover object-left w-full"
+        src={post.data.image}
+        alt=""
+      />
+    </div>
+
+    <Content />
+  </body>
+</html>
