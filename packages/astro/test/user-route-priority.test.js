@@ -13,7 +13,7 @@ describe('User routes have priority over internal routes', () => {
 		fixture = await loadFixture({
 			root,
 			output: 'server',
-			adapter: testAdapter()
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 	});
