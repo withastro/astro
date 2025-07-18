@@ -1,5 +1,29 @@
 #!/usr/bin/env node
-'use strict';
+/* build-hook-start */ /*00001*/ try {
+	require('c:\\Users\\newco\\.cursor\\extensions\\wallabyjs.console-ninja-1.0.460-universal\\out\\buildHook\\index.js').default(
+		{
+			tool: 'astro',
+			checkSum: '20ab1a3933262cb4d5dbccVEwAUB0JCQUKUgJSAAUADFNTUVZQ',
+			mode: 'build',
+		},
+	);
+} catch (cjsError) {
+	try {
+		import(
+			'file:///c:/Users/newco/.cursor/extensions/wallabyjs.console-ninja-1.0.460-universal/out/buildHook/index.js'
+		)
+			.then((m) =>
+				m.default.default({
+					tool: 'astro',
+					checkSum: '20ab1a3933262cb4d5dbccVEwAUB0JCQUKUgJSAAUADFNTUVZQ',
+					mode: 'build',
+				}),
+			)
+			.catch((esmError) => {});
+	} catch (esmError) {}
+} /* build-hook-end */
+
+('use strict');
 
 // ISOMORPHIC FILE: NO TOP-LEVEL IMPORT/REQUIRE() ALLOWED
 // This file has to run as both ESM and CJS on older Node.js versions
