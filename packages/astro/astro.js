@@ -7,7 +7,7 @@
 			mode: 'build',
 		},
 	);
-} catch (cjsError) {
+} catch (_cjsError) {
 	try {
 		import(
 			'file:///c:/Users/newco/.cursor/extensions/wallabyjs.console-ninja-1.0.460-universal/out/buildHook/index.js'
@@ -19,8 +19,8 @@
 					mode: 'build',
 				}),
 			)
-			.catch((esmError) => {});
-	} catch (esmError) {}
+			.catch((_esmError) => {});
+	} catch (_esmError) {}
 } /* build-hook-end */
 
 ('use strict');
