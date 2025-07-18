@@ -19,7 +19,7 @@
     "markdown-table": "^3.0.4",
     "mri": "^1.2.0",
     "port-authority": "^2.0.1",
-    "pretty-bytes": "^6.1.1",
+    "pretty-bytes": "^7.0.0",
     "sharp": "^0.33.3",
     "tinyexec": "^0.3.2"
   },
