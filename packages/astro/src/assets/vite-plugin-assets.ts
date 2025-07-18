@@ -117,9 +117,12 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			config(_, env) {
 				isBuild = env.command === 'build';
 			},
-			async resolveId(id) {
+			async resolveId(id, _importer, options) {
 				if (id === VIRTUAL_SERVICE_ID) {
-					return await this.resolve(settings.config.image.service.entrypoint);
+					if (options?.ssr) {
+						return await this.resolve(settings.config.image.service.entrypoint);
+					}
+					return await this.resolve('astro/assets/services/noop');
 				}
 				if (id === VIRTUAL_MODULE_ID) {
 					return resolvedVirtualModuleId;
