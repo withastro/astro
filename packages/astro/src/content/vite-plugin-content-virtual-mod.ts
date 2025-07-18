@@ -88,7 +88,7 @@ export function astroContentVirtualModPlugin({
 				// because it would create a circular dependency from the colleciton exports.
 				// Instead, we resolve the config util module, because that's all that it should use anyway.
 				if (liveConfig && importer && liveConfig === normalizePath(importer)) {
-					return this.resolve('astro/content/config', importer, {
+					return this.resolve('astro/virtual-modules/live-config', importer, {
 						skipSelf: true,
 					});
 				}
