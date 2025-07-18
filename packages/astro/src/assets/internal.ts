@@ -74,7 +74,6 @@ export async function getImage(
 
 	let originalWidth: number | undefined;
 	let originalHeight: number | undefined;
-	let originalFormat: string | undefined;
 
 	// Infer size for remote images if inferSize is true
 	if (
@@ -87,7 +86,6 @@ export async function getImage(
 		resolvedOptions.height ??= result.height;
 		originalWidth = result.width;
 		originalHeight = result.height;
-		originalFormat = result.format;
 		delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
 	}
 
@@ -105,7 +103,6 @@ export async function getImage(
 	if (isESMImportedImage(clonedSrc)) {
 		originalWidth = clonedSrc.width;
 		originalHeight = clonedSrc.height;
-		originalFormat = clonedSrc.format;
 	}
 
 	if (originalWidth && originalHeight) {
@@ -170,16 +167,16 @@ export async function getImage(
 
 	let imageURL = await service.getURL(validatedOptions, imageConfig);
 
-	const matchesOriginal = (transform: ImageTransform) =>
-		transform.width === originalWidth &&
-		transform.height === originalHeight &&
-		transform.format === originalFormat;
+	const matchesValidatedTransform = (transform: ImageTransform) =>
+		transform.width === validatedOptions.width &&
+		transform.height === validatedOptions.height &&
+		transform.format === validatedOptions.format;
 
 	let srcSets: SrcSetValue[] = await Promise.all(
 		srcSetTransforms.map(async (srcSet) => {
 			return {
 				transform: srcSet.transform,
-				url: matchesOriginal(srcSet.transform)
+				url: matchesValidatedTransform(srcSet.transform)
 					? imageURL
 					: await service.getURL(srcSet.transform, imageConfig),
 				descriptor: srcSet.descriptor,
@@ -202,7 +199,7 @@ export async function getImage(
 		srcSets = srcSetTransforms.map((srcSet) => {
 			return {
 				transform: srcSet.transform,
-				url: matchesOriginal(srcSet.transform)
+				url: matchesValidatedTransform(srcSet.transform)
 					? imageURL
 					: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash, originalFilePath),
 				descriptor: srcSet.descriptor,
