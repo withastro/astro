@@ -167,7 +167,6 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	priority?: boolean;
-
 } & (
 		| {
 				/**
