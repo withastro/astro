@@ -13,7 +13,7 @@ export default defineConfig({
       hostname: '*.example.org',
       pathname: '/images/*',
     }],
-    domains: ['example.net', 'secret.example.edu'],
+    domains: ['example.net', 'secret.example.edu', 'images.unsplash.com'],
   },
   site: `http://example.com`
 });
