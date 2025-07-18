@@ -1,6 +1,7 @@
 import './astro-jsx';
 import type { OmitIndexSignature, Simplify } from './dist/type-utils.js';
 import type { AstroBuiltinAttributes } from './dist/types/public/elements.js';
+import type { BundledLanguage, SpecialLanguage, LanguageRegistration } from 'shiki';
 
 /** Any supported HTML or SVG element name, as defined by the HTML specification */
 export type HTMLTag = keyof astroHTML.JSX.DefinedIntrinsicElements;
@@ -30,3 +31,9 @@ export type Polymorphic<P extends { as: HTMLTag }> = PolymorphicAttributes<
 >;
 
 export type ComponentProps<T extends (args: any) => any> = Simplify<Parameters<T>[0]>;
+
+/**
+ * The language type for code highlighting.
+ * Supports all languages listed here: https://shiki.style/languages
+ */
+export type CodeLanguage = BundledLanguage | LanguageRegistration | SpecialLanguage;
