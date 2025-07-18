@@ -581,7 +581,7 @@ export function createGetLiveCollection({
 			return {
 				error: new LiveCollectionError(
 					collection,
-					`Unexpected error loading collection ${collection}`,
+					`Unexpected error loading collection ${collection}${error instanceof Error ? `: ${error.message}` : ''}`,
 					error as Error,
 				),
 			};
