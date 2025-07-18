@@ -4294,6 +4294,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/user-route-priority:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/view-transitions:
     dependencies:
       '@astrojs/react':
