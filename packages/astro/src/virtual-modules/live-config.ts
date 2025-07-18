@@ -1,5 +1,6 @@
-export { defineLiveCollection } from 'astro/content/config';
-export { z } from 'astro/zod';
+export { defineLiveCollection } from '../content/config.js';
+export * as z from 'zod';
+
 
 function createErrorFunction(message: string) {
 	return () => {
