@@ -1,6 +1,7 @@
 ---
 import * as mod from 'virtual:astro:assets/fonts/internal';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import type { Style } from '../dist/assets/fonts/types';
 
 // TODO: remove check when fonts are stabilized
 const { fontsData } = mod;
@@ -12,7 +13,7 @@ interface Props {
 	/** The `cssVariable` registered in your Astro configuration. */
 	cssVariable: import('astro:assets').FontFamily;
 	/** Whether it should output [preload links](https://web.dev/learn/performance/optimize-web-fonts#preload) or not. */
-	preload?: boolean;
+	preload?: boolean | Array<{ weight: string | number; style?: Style }>;
 }
 
 const { cssVariable, preload = false } = Astro.props as Props;
@@ -23,11 +24,27 @@ if (!data) {
 		message: AstroErrorData.FontFamilyNotFound.message(cssVariable),
 	});
 }
+
+const filteredPreloadData = preload
+	? data.preloadData.filter(
+			({ weight, style }) =>
+				// Preload everything
+				preload === true ||
+				// Only preload urls based on weight and style
+				preload.some(
+					(p) =>
+						// Always check the weight
+						p.weight.toString() === weight &&
+						// Only check the style if specified
+						(!p.style || p.style === style),
+				),
+		)
+	: null;
 ---
 
 {
-	preload &&
-		data.preloadData.map(({ url, type }) => (
+	filteredPreloadData &&
+		filteredPreloadData.map(({ url, type }) => (
 			<link rel="preload" href={url} as="font" type={`font/${type}`} crossorigin />
 		))
 }
