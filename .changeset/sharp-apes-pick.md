@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Improve error handling in live collections
+Improves error handling in live collections

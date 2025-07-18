@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Export Zod from "astro:content" virtual module in live collection config
+Fixes a case where zod could not be imported from `astro:content` virtual module in live collection config
