@@ -163,11 +163,15 @@ interface TestSessionConfig extends CommonSessionConfig {
 }
 
 export type SessionConfig<TDriver extends SessionDriverName> =
-	TDriver extends keyof BuiltinDriverOptions
-		? BuiltinSessionConfig<TDriver>
-		: TDriver extends 'test'
-			? TestSessionConfig
-			: CustomSessionConfig;
+	// Distributive conditional tuple trick
+	// https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
+	[TDriver] extends [never]
+		? CustomSessionConfig
+		: TDriver extends keyof BuiltinDriverOptions
+			? BuiltinSessionConfig<TDriver>
+			: TDriver extends 'test'
+				? TestSessionConfig
+				: CustomSessionConfig;
 
 export type ResolvedSessionConfig<TDriver extends SessionDriverName> = SessionConfig<TDriver> & {
 	driverModule?: () => Promise<{ default: () => Driver }>;
