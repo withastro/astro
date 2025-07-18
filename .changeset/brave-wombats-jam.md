@@ -2,4 +2,4 @@
 '@astrojs/vercel': patch
 ---
 
-Changex the default Node.js version of Vercel functions to 22.
+Changes the default Node.js version of Vercel functions to 22
