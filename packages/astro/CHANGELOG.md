@@ -553,7 +553,7 @@
 
         for (const entry of entries) {
           // Assume each entry has a 'content' field with markdown content
-          store.set(entry.id, {
+          store.set({
             id: entry.id,
             data: entry,
             rendered: await renderMarkdown(entry.content),
