@@ -4,10 +4,10 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
 	site: "https://astro.build/",
 	experimental: {
-		experimentalRs: true,
+		markdownRS: true,
 	},
 	markdown: {
-		rsOptions: {
+		markdownRSOptions: {
 			fallbackToJs: true,
 			cacheDir: './node_modules/.astro/mdx-rs',
 			parallelism: 1,
