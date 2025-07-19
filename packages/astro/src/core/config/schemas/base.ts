@@ -103,6 +103,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		liveContentCollections: false,
 		csp: false,
 		rawEnvValues: false,
+		experimentalRs: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -373,6 +374,19 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
 			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
+			experimentalRs: z.boolean().optional().default(false),
+			rsOptions: z
+				.object({
+					fallbackToJs: z.boolean().optional().default(true),
+					cacheDir: z.string().optional().default('./node_modules/.astro/mdx-rs'),
+					parallelism: z.number().min(1).optional().default(1),
+				})
+				.optional()
+				.default({
+					fallbackToJs: true,
+					cacheDir: './node_modules/.astro/mdx-rs',
+					parallelism: 1,
+				}),
 		})
 		.default({}),
 	vite: z
@@ -502,6 +516,10 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
 			rawEnvValues: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rawEnvValues),
+			experimentalRs: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.experimentalRs),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

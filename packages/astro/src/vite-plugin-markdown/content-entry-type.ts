@@ -1,6 +1,6 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 import { safeParseFrontmatter } from '../content/utils.js';
+import { createMarkdownProcessorRouter } from '../core/markdown/processor-router.js';
 import type { ContentEntryType } from '../types/public/content.js';
 
 export const markdownContentEntryType: ContentEntryType = {
@@ -18,8 +18,15 @@ export const markdownContentEntryType: ContentEntryType = {
 	handlePropagation: true,
 
 	async getRenderFunction(config) {
-		const processor = await createMarkdownProcessor({
+		const processor = await createMarkdownProcessorRouter({
 			image: config.image,
+			experimentalHeadingIdCompat: config.experimental?.headingIdCompat || false,
+			experimentalRs: config.experimental?.experimentalRs || false,
+			rsOptions: config.markdown?.rsOptions || {
+				fallbackToJs: true,
+				cacheDir: './node_modules/.astro/mdx-rs',
+				parallelism: 1,
+			},
 			...config.markdown,
 		});
 		return async function renderToString(entry) {
