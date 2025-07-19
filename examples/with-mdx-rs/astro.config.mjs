@@ -4,10 +4,10 @@ import { defineConfig } from 'astro/config';
 // https://astro.build/config
 export default defineConfig({
 	experimental: {
-		experimentalRs: true,
+		markdownRS: true,
 	},
 	markdown: {
-		rsOptions: {
+		markdownRSOptions: {
 			fallbackToJs: false, // Test without fallback
 			cacheDir: './custom-cache-dir',
 			parallelism: 8,

@@ -18,12 +18,12 @@ export const markdownContentEntryType: ContentEntryType = {
 	handlePropagation: true,
 
 	async getRenderFunction(config) {
-		const { experimentalRs: _, rsOptions: __, ...markdownConfig } = config.markdown || {};
+		const { markdownRS: _, markdownRSOptions: __, ...markdownConfig } = config.markdown || {};
 		const processor = await createMarkdownProcessorRouter({
 			image: config.image,
-			experimentalHeadingIdCompat: config.experimental?.headingIdCompat || false,
-			experimentalRs: config.experimental?.experimentalRs || false,
-			rsOptions: config.markdown?.rsOptions || {
+			experimentalHeadingIdCompat: config.experimental?.headingIdCompat ?? false,
+			markdownRS: config.experimental?.markdownRS ?? false,
+			markdownRSOptions: config.markdown?.markdownRSOptions ?? {
 				fallbackToJs: true,
 				cacheDir: './node_modules/.astro/mdx-rs',
 				parallelism: 1,

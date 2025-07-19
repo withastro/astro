@@ -1618,7 +1618,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 * @docs
-		 * @name markdown.experimentalRs
+		 * @name markdown.markdownRS
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 5.12.0
@@ -1631,8 +1631,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * ```js
 		 * {
 		 *   markdown: {
-		 *     experimentalRs: true,
-		 *     rsOptions: {
+		 *     markdownRS: true,
+		 *     markdownRSOptions: {
 		 *       fallbackToJs: true,
 		 *       cacheDir: './node_modules/.astro/mdx-rs',
 		 *       parallelism: 4
@@ -1641,23 +1641,23 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * }
 		 * ```
 		 */
-		experimentalRs?: boolean;
+		markdownRS?: boolean;
 
 		/**
 		 * @docs
-		 * @name markdown.rsOptions
+		 * @name markdown.markdownRSOptions
 		 * @type {object}
 		 * @default `{ fallbackToJs: true, cacheDir: './node_modules/.astro/mdx-rs', parallelism: 1 }`
 		 * @version 5.12.0
 		 * @description
 		 *
 		 * Configuration options for the experimental Rust-based MDX compiler.
-		 * Only used when `experimentalRs` is enabled.
+		 * Only used when `markdownRS` is enabled.
 		 */
-		rsOptions?: {
+		markdownRSOptions?: {
 			/**
 			 * @docs
-			 * @name markdown.rsOptions.fallbackToJs
+			 * @name markdown.markdownRSOptions.fallbackToJs
 			 * @type {boolean}
 			 * @default `true`
 			 * @description
@@ -1669,7 +1669,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 			/**
 			 * @docs
-			 * @name markdown.rsOptions.cacheDir
+			 * @name markdown.markdownRSOptions.cacheDir
 			 * @type {string}
 			 * @default `'./node_modules/.astro/mdx-rs'`
 			 * @description
@@ -1680,7 +1680,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 			/**
 			 * @docs
-			 * @name markdown.rsOptions.parallelism
+			 * @name markdown.markdownRSOptions.parallelism
 			 * @type {number}
 			 * @default `1`
 			 * @description
@@ -2535,7 +2535,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		rawEnvValues?: boolean;
 
 		/**
-		 * @name experimental.experimentalRs
+		 * @name experimental.markdownRS
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 5.12.0
@@ -2552,10 +2552,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * // astro.config.mjs
 		 * export default defineConfig({
 		 *   experimental: {
-		 *     experimentalRs: true,
+		 *     markdownRS: true,
 		 *   },
 		 *   markdown: {
-		 *     rsOptions: {
+		 *     markdownRSOptions: {
 		 *       fallbackToJs: true,
 		 *       cacheDir: './node_modules/.astro/mdx-rs',
 		 *       parallelism: 4
@@ -2566,7 +2566,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * See the [experimental MDX-rs guide](https://docs.astro.build/en/reference/experimental-flags/mdx-rs/) for more information.
 		 */
-		experimentalRs?: boolean;
+		markdownRS?: boolean;
 	};
 }
 
