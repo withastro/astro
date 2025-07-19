@@ -33,8 +33,8 @@ MDX-rs is a high-performance, Rust-based implementation of the MDX compiler that
 import { createMarkdownProcessorRouter } from 'astro/markdown';
 
 const processor = await createMarkdownProcessorRouter({
-  experimentalRs: true,
-  rsOptions: {
+  markdownRS: true,
+  markdownRSOptions: {
     parallelism: 4,
     fallbackToJs: true,
   },
@@ -63,10 +63,10 @@ Enable MDX-rs in your `astro.config.mjs`:
 ```js
 export default defineConfig({
   experimental: {
-    experimentalRs: true,
+    markdownRS: true,
   },
   markdown: {
-    rsOptions: {
+    markdownRSOptions: {
       fallbackToJs: true,
       parallelism: 4,
     },

@@ -57,12 +57,12 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				// Lazily initialize the Markdown processor
 				if (!processor) {
-					const { experimentalRs: _, rsOptions: __, ...markdownConfig } = settings.config.markdown;
+					const { markdownRS: _, markdownRSOptions: __, ...markdownConfig } = settings.config.markdown;
 					processor = createMarkdownProcessorRouter({
 						image: settings.config.image,
 						experimentalHeadingIdCompat: settings.config.experimental.headingIdCompat,
-						experimentalRs: settings.config.experimental.experimentalRs,
-						rsOptions: settings.config.markdown.rsOptions,
+						markdownRS: settings.config.experimental.markdownRS,
+						markdownRSOptions: settings.config.markdown.markdownRSOptions,
 						...markdownConfig,
 					});
 				}

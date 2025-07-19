@@ -77,13 +77,13 @@ function getCompileOptions(
 	const options: RspressMdxRsCompileOptions = {
 		value: content,
 		filepath,
-		root: config.rsOptions?.cacheDir || '.',
+		root: config.markdownRSOptions?.cacheDir || '.',
 		development: process.env.NODE_ENV !== 'production',
 	};
 
-	// Map rsOptions configuration to @rspress/mdx-rs options
-	if (config.rsOptions?.cacheDir) {
-		options.root = config.rsOptions.cacheDir;
+	// Map markdownRSOptions configuration to @rspress/mdx-rs options
+	if (config.markdownRSOptions?.cacheDir) {
+		options.root = config.markdownRSOptions.cacheDir;
 	}
 
 	return options;

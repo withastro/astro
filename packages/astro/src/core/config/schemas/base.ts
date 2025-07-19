@@ -103,7 +103,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		liveContentCollections: false,
 		csp: false,
 		rawEnvValues: false,
-		experimentalRs: false,
+		markdownRS: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -374,8 +374,8 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
 			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
-			experimentalRs: z.boolean().optional().default(false),
-			rsOptions: z
+			markdownRS: z.boolean().optional().default(false),
+			markdownRSOptions: z
 				.object({
 					fallbackToJs: z.boolean().optional().default(true),
 					cacheDir: z.string().optional().default('./node_modules/.astro/mdx-rs'),
@@ -516,10 +516,10 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
 			rawEnvValues: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rawEnvValues),
-			experimentalRs: z
+			markdownRS: z
 				.boolean()
 				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.experimentalRs),
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.markdownRS),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

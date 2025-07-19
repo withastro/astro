@@ -6,8 +6,8 @@ import { createRustMarkdownProcessor } from './rs-processor.js';
 export interface MarkdownProcessorConfig {
 	image: AstroSettings['config']['image'];
 	experimentalHeadingIdCompat: boolean;
-	experimentalRs: boolean;
-	rsOptions: {
+	markdownRS: boolean;
+	markdownRSOptions: {
 		fallbackToJs: boolean;
 		cacheDir: string;
 		parallelism: number;
@@ -23,7 +23,7 @@ export async function createMarkdownProcessorRouter(
 	config: MarkdownProcessorConfig,
 ): Promise<MarkdownProcessor> {
 	// If experimental Rust processor is not enabled, use JavaScript processor
-	if (!config.experimentalRs) {
+	if (!config.markdownRS) {
 		return createMarkdownProcessor(config);
 	}
 
@@ -32,7 +32,7 @@ export async function createMarkdownProcessorRouter(
 		return await createRustMarkdownProcessor(config);
 	} catch (error) {
 		// If Rust processor fails and fallback is enabled, use JavaScript processor
-		if (config.rsOptions.fallbackToJs) {
+		if (config.markdownRSOptions.fallbackToJs) {
 			// Log the error for debugging
 			return createMarkdownProcessor(config);
 		}

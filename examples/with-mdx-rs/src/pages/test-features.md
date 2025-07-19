@@ -53,8 +53,8 @@ The frontmatter above includes:
 ```javascript
 // JavaScript code block
 const processor = await createMarkdownProcessorRouter({
-  experimentalRs: true,
-  rsOptions: {
+  markdownRS: true,
+  markdownRSOptions: {
     parallelism: 4,
     fallbackToJs: true,
   },
