@@ -1,5 +1,92 @@
 import type { MarkdownProcessor, MarkdownProcessorRenderOptions } from '@astrojs/markdown-remark';
+import { parseFrontmatter } from '@astrojs/markdown-remark';
+import { slug as githubSlug } from 'github-slugger';
+import { MarkdownError } from '../errors/index.js';
+import { isYAMLException } from '../errors/utils.js';
 import type { MarkdownProcessorConfig } from './processor-router.js';
+
+/**
+ * Type definitions for @rspress/mdx-rs
+ */
+interface RspressMdxRsCompileOptions {
+	value: string;
+	filepath: string;
+	root?: string;
+	development?: boolean;
+	[key: string]: any;
+}
+
+interface RspressMdxRsCompileResult {
+	code: string;
+	html: string;
+	links: any[];
+	title?: string;
+	toc: any[];
+	languages: string[];
+	frontmatter: Record<string, any>;
+}
+
+interface RspressMdxRsModule {
+	compile: (options: RspressMdxRsCompileOptions) => Promise<RspressMdxRsCompileResult>;
+}
+
+/**
+ * Extended frontmatter parse result
+ */
+interface FrontmatterParseResult {
+	content: string;
+	frontmatter: Record<string, any>;
+}
+
+/**
+ * Safely parse frontmatter from content
+ */
+function safeParseFrontmatter(source: string, id?: string): FrontmatterParseResult {
+	try {
+		return parseFrontmatter(source, { frontmatter: 'empty-with-spaces' });
+	} catch (err: any) {
+		const markdownError = new MarkdownError({
+			name: 'MarkdownError',
+			message: err.message,
+			stack: err.stack,
+			location: id
+				? {
+						file: id,
+					}
+				: undefined,
+		});
+		if (isYAMLException(err)) {
+			markdownError.setLocation({
+				file: id,
+				line: err.mark?.line ? err.mark.line + 1 : undefined,
+				column: err.mark?.column ? err.mark.column + 1 : undefined,
+			});
+		}
+		throw markdownError;
+	}
+}
+
+/**
+ * Get compile options from configuration
+ */
+function getCompileOptions(
+	config: MarkdownProcessorConfig, 
+	content: string, 
+	filepath: string
+): RspressMdxRsCompileOptions {
+	const options: RspressMdxRsCompileOptions = {
+		value: content,
+		filepath,
+		root: '.',
+		development: process.env.NODE_ENV !== 'production',
+	};
+
+	// Add custom rsOptions as needed
+	// Note: @rspress/mdx-rs may not support all these options directly
+	// Future: Add parallelism and cache directory if supported
+
+	return options;
+}
 
 interface RustMarkdownProcessor extends MarkdownProcessor {
 	render(
@@ -20,47 +107,35 @@ interface RustMarkdownProcessor extends MarkdownProcessor {
  * Creates a Rust-based markdown processor using @rspress/mdx-rs
  */
 export async function createRustMarkdownProcessor(
-	_config: MarkdownProcessorConfig,
+	config: MarkdownProcessorConfig,
 ): Promise<RustMarkdownProcessor> {
 	// Dynamic import to check if @rspress/mdx-rs is available
-	let compile: any;
+	let compile: RspressMdxRsModule['compile'];
 	try {
-		const mdxRs = await import('@rspress/mdx-rs');
+		const mdxRs = (await import('@rspress/mdx-rs')) as RspressMdxRsModule;
 		compile = mdxRs.compile;
-	} catch (_error) {
+		if (typeof compile !== 'function') {
+			throw new Error('@rspress/mdx-rs does not export a compile function');
+		}
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
 		throw new Error(
-			'@rspress/mdx-rs package is not installed. Install it with: npm install @rspress/mdx-rs',
+			`@rspress/mdx-rs package is not available: ${message}. Install it with: npm install @rspress/mdx-rs`,
 		);
 	}
 
 	return {
 		async render(content: string, options?: MarkdownProcessorRenderOptions) {
 			try {
-				// Extract frontmatter if present
-				let frontmatter = options?.frontmatter || {};
-				let contentWithoutFrontmatter = content;
-
-				// Simple frontmatter extraction
-				const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);
-				if (frontmatterMatch) {
-					try {
-						// Parse YAML frontmatter
-						const _yamlContent = frontmatterMatch[1];
-						// For now, we'll just pass through the frontmatter from options
-						// In a real implementation, you'd parse the YAML here
-						contentWithoutFrontmatter = frontmatterMatch[2];
-					} catch {
-						// If parsing fails, continue with original content
-					}
-				}
+				// Parse frontmatter using Astro's parser for consistency
+				const parsed = safeParseFrontmatter(content, options?.fileURL?.pathname);
+				const frontmatter = options?.frontmatter || parsed.frontmatter;
+				const contentWithoutFrontmatter = parsed.content;
 
 				// Use the Rust compiler to process the content
-				const result = await compile(contentWithoutFrontmatter, {
-					development: process.env.NODE_ENV !== 'production',
-					filepath: options?.fileURL?.pathname || 'unknown.md',
-					// The @rspress/mdx-rs compile function returns a string directly
-					// We need to handle the result appropriately
-				});
+				const filepath = options?.fileURL?.pathname || 'unknown.md';
+				const compileOptions = getCompileOptions(config, contentWithoutFrontmatter, filepath);
+				const result = await compile(compileOptions);
 
 				// Extract headings from the content (simplified version)
 				const headings = extractHeadingsFromContent(contentWithoutFrontmatter);
@@ -77,23 +152,52 @@ export async function createRustMarkdownProcessor(
 				};
 
 				return {
-					code: result,
+					code: result.code,
 					metadata,
 				};
 			} catch (error) {
-				// Re-throw with more context
-				const enhancedError = new Error(
-					`@rspress/mdx-rs compilation failed: ${error instanceof Error ? error.message : String(error)}`,
+				// Categorize and enhance errors for better debugging
+				const filepath = options?.fileURL?.pathname || 'unknown.md';
+
+				if (error instanceof MarkdownError) {
+					// Re-throw MarkdownError (from frontmatter parsing) as-is
+					throw error;
+				}
+
+				if (error instanceof Error) {
+					// Check for specific @rspress/mdx-rs errors
+					if (error.message.includes('parse') || error.message.includes('syntax')) {
+						const parseError = new MarkdownError({
+							name: 'MarkdownError',
+							message: `MDX compilation failed in ${filepath}: ${error.message}`,
+							stack: error.stack,
+							location: { file: filepath },
+						});
+						parseError.cause = error;
+						throw parseError;
+					}
+
+					// Other compilation errors
+					const compilationError = new Error(
+						`@rspress/mdx-rs compilation failed for ${filepath}: ${error.message}`,
+					);
+					compilationError.cause = error;
+					throw compilationError;
+				}
+
+				// Unknown error type
+				const unknownError = new Error(
+					`Unknown error during MDX compilation in ${filepath}: ${String(error)}`,
 				);
-				enhancedError.cause = error;
-				throw enhancedError;
+				unknownError.cause = error;
+				throw unknownError;
 			}
 		},
 	};
 }
 
 /**
- * Extract headings from markdown content
+ * Extract headings from markdown content using github-slugger for consistency
  */
 function extractHeadingsFromContent(
 	content: string,
@@ -105,12 +209,8 @@ function extractHeadingsFromContent(
 	while ((match = headingRegex.exec(content)) !== null) {
 		const depth = match[1].length;
 		const text = match[2].trim();
-		const slug = text
-			.toLowerCase()
-			.replace(/[^\w\s-]/g, '')
-			.replace(/\s+/g, '-')
-			.replace(/-+/g, '-')
-			.trim();
+		// Use github-slugger for consistent slug generation like Astro
+		const slug = githubSlug(text);
 
 		headings.push({ depth, slug, text });
 	}
@@ -119,19 +219,23 @@ function extractHeadingsFromContent(
 }
 
 /**
- * Extract image paths from markdown content
+ * Extract image paths from markdown content (markdown syntax + HTML img tags)
  */
 function extractImagePathsFromContent(content: string): { local: string[]; remote: string[] } {
 	const local: string[] = [];
 	const remote: string[] = [];
 
 	// Match markdown image syntax ![alt](src)
-	const imageRegex = /!\[.*?\]\((.*?)\)/g;
+	const markdownImageRegex = /!\[.*?\]\((.*?)\)/g;
 
+	// Match HTML img tags <img src="..." />
+	const htmlImageRegex = /<img[^>]+src\s*=\s*["']([^"']+)["'][^>]*>/gi;
+
+	// Extract from markdown syntax
 	let match;
-	while ((match = imageRegex.exec(content)) !== null) {
-		const src = match[1];
-		if (src) {
+	while ((match = markdownImageRegex.exec(content)) !== null) {
+		const src = match[1]?.trim();
+		if (src && !isDataUrl(src)) {
 			if (isRemoteUrl(src)) {
 				remote.push(src);
 			} else {
@@ -140,7 +244,23 @@ function extractImagePathsFromContent(content: string): { local: string[]; remot
 		}
 	}
 
-	return { local, remote };
+	// Extract from HTML img tags
+	while ((match = htmlImageRegex.exec(content)) !== null) {
+		const src = match[1]?.trim();
+		if (src && !isDataUrl(src)) {
+			if (isRemoteUrl(src)) {
+				remote.push(src);
+			} else {
+				local.push(src);
+			}
+		}
+	}
+
+	// Remove duplicates
+	return {
+		local: [...new Set(local)],
+		remote: [...new Set(remote)],
+	};
 }
 
 /**
@@ -153,4 +273,11 @@ function isRemoteUrl(url: string): boolean {
 	} catch {
 		return false;
 	}
+}
+
+/**
+ * Check if a URL is a data URL (base64 encoded)
+ */
+function isDataUrl(url: string): boolean {
+	return url.startsWith('data:');
 }
