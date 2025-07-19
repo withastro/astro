@@ -35,7 +35,7 @@ console.log(hello);
 		smartypants: true,
 		remarkPlugins: [],
 		rehypePlugins: [],
-		rsOptions: {
+		markdownRSOptions: {
 			fallbackToJs: true,
 			cacheDir: './node_modules/.astro/mdx-rs',
 			parallelism: 1,
@@ -46,13 +46,13 @@ console.log(hello);
 		// Create JS processor (control)
 		jsProcessor = await createMarkdownProcessorRouter({
 			...markdownConfig,
-			experimentalRs: false,
+			markdownRS: false,
 		});
 
 		// Create Rust processor (test subject)
 		rustProcessor = await createMarkdownProcessorRouter({
 			...markdownConfig,
-			experimentalRs: true,
+			markdownRS: true,
 		});
 	});
 
@@ -147,9 +147,9 @@ console.log(hello);
 		// Create a processor with invalid Rust config (this should fallback to JS)
 		const fallbackProcessor = await createMarkdownProcessorRouter({
 			...markdownConfig,
-			experimentalRs: true,
-			rsOptions: {
-				...markdownConfig.rsOptions,
+			markdownRS: true,
+			markdownRSOptions: {
+				...markdownConfig.markdownRSOptions,
 				fallbackToJs: true,
 			},
 		});
@@ -274,8 +274,8 @@ Regular image: ![regular](./regular.png)`;
 		// Test processor with parallelism and cache options
 		const configuredProcessor = await createMarkdownProcessorRouter({
 			...markdownConfig,
-			experimentalRs: true,
-			rsOptions: {
+			markdownRS: true,
+			markdownRSOptions: {
 				fallbackToJs: true,
 				cacheDir: './custom-cache',
 				parallelism: 4,
