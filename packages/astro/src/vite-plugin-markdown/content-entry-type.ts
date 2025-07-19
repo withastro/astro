@@ -18,6 +18,7 @@ export const markdownContentEntryType: ContentEntryType = {
 	handlePropagation: true,
 
 	async getRenderFunction(config) {
+		const { experimentalRs: _, rsOptions: __, ...markdownConfig } = config.markdown || {};
 		const processor = await createMarkdownProcessorRouter({
 			image: config.image,
 			experimentalHeadingIdCompat: config.experimental?.headingIdCompat || false,
@@ -27,7 +28,7 @@ export const markdownContentEntryType: ContentEntryType = {
 				cacheDir: './node_modules/.astro/mdx-rs',
 				parallelism: 1,
 			},
-			...config.markdown,
+			...markdownConfig,
 		});
 		return async function renderToString(entry) {
 			// Process markdown even if it's empty as remark/rehype plugins may add content or frontmatter dynamically

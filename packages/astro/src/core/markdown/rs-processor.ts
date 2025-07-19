@@ -23,7 +23,7 @@ interface RspressMdxRsCompileResult {
 	title?: string;
 	toc: any[];
 	languages: string[];
-	frontmatter: Record<string, any>;
+	frontmatter: string; // @rspress/mdx-rs returns frontmatter as string
 }
 
 interface RspressMdxRsModule {
@@ -70,20 +70,21 @@ function safeParseFrontmatter(source: string, id?: string): FrontmatterParseResu
  * Get compile options from configuration
  */
 function getCompileOptions(
-	config: MarkdownProcessorConfig, 
-	content: string, 
-	filepath: string
+	config: MarkdownProcessorConfig,
+	content: string,
+	filepath: string,
 ): RspressMdxRsCompileOptions {
 	const options: RspressMdxRsCompileOptions = {
 		value: content,
 		filepath,
-		root: '.',
+		root: config.rsOptions?.cacheDir || '.',
 		development: process.env.NODE_ENV !== 'production',
 	};
 
-	// Add custom rsOptions as needed
-	// Note: @rspress/mdx-rs may not support all these options directly
-	// Future: Add parallelism and cache directory if supported
+	// Map rsOptions configuration to @rspress/mdx-rs options
+	if (config.rsOptions?.cacheDir) {
+		options.root = config.rsOptions.cacheDir;
+	}
 
 	return options;
 }
@@ -115,25 +116,24 @@ export async function createRustMarkdownProcessor(
 		const mdxRs = (await import('@rspress/mdx-rs')) as RspressMdxRsModule;
 		compile = mdxRs.compile;
 		if (typeof compile !== 'function') {
-			throw new Error('@rspress/mdx-rs does not export a compile function');
+			throw new Error('@rspress/mdx-rs: compile function not found or invalid');
 		}
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		throw new Error(
-			`@rspress/mdx-rs package is not available: ${message}. Install it with: npm install @rspress/mdx-rs`,
-		);
+		throw new Error(`@rspress/mdx-rs is not available or failed to load: ${message}`);
 	}
 
 	return {
 		async render(content: string, options?: MarkdownProcessorRenderOptions) {
 			try {
 				// Parse frontmatter using Astro's parser for consistency
-				const parsed = safeParseFrontmatter(content, options?.fileURL?.pathname);
+				const fileURL = (options as any)?.fileURL; // Handle internal prop
+				const parsed = safeParseFrontmatter(content, fileURL?.pathname);
 				const frontmatter = options?.frontmatter || parsed.frontmatter;
 				const contentWithoutFrontmatter = parsed.content;
 
 				// Use the Rust compiler to process the content
-				const filepath = options?.fileURL?.pathname || 'unknown.md';
+				const filepath = fileURL?.pathname || 'unknown.md';
 				const compileOptions = getCompileOptions(config, contentWithoutFrontmatter, filepath);
 				const result = await compile(compileOptions);
 
@@ -157,7 +157,8 @@ export async function createRustMarkdownProcessor(
 				};
 			} catch (error) {
 				// Categorize and enhance errors for better debugging
-				const filepath = options?.fileURL?.pathname || 'unknown.md';
+				const fileURL = (options as any)?.fileURL; // Handle internal prop
+				const filepath = fileURL?.pathname || 'unknown.md';
 
 				if (error instanceof MarkdownError) {
 					// Re-throw MarkdownError (from frontmatter parsing) as-is
@@ -276,7 +277,7 @@ function isRemoteUrl(url: string): boolean {
 }
 
 /**
- * Check if a URL is a data URL (base64 encoded)
+ * Check if a URL is a data URL
  */
 function isDataUrl(url: string): boolean {
 	return url.startsWith('data:');
