@@ -1615,6 +1615,81 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * ```
 		 */
 		remarkRehype?: RemarkRehype;
+
+		/**
+		 * @docs
+		 * @name markdown.experimentalRs
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.12.0
+		 * @description
+		 *
+		 * Enable experimental Rust-based MDX compiler for improved performance.
+		 * This uses the @rspress/mdx-rs package to provide 7-20x speedup over the JavaScript implementation.
+		 * When enabled, MDX compilation will use the Rust compiler with automatic fallback to JavaScript on errors.
+		 *
+		 * ```js
+		 * {
+		 *   markdown: {
+		 *     experimentalRs: true,
+		 *     rsOptions: {
+		 *       fallbackToJs: true,
+		 *       cacheDir: './node_modules/.astro/mdx-rs',
+		 *       parallelism: 4
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 */
+		experimentalRs?: boolean;
+
+		/**
+		 * @docs
+		 * @name markdown.rsOptions
+		 * @type {object}
+		 * @default `{ fallbackToJs: true, cacheDir: './node_modules/.astro/mdx-rs', parallelism: 1 }`
+		 * @version 5.12.0
+		 * @description
+		 *
+		 * Configuration options for the experimental Rust-based MDX compiler.
+		 * Only used when `experimentalRs` is enabled.
+		 */
+		rsOptions?: {
+			/**
+			 * @docs
+			 * @name markdown.rsOptions.fallbackToJs
+			 * @type {boolean}
+			 * @default `true`
+			 * @description
+			 *
+			 * Automatically fallback to JavaScript compiler if Rust compiler fails.
+			 * When disabled, Rust compiler errors will be thrown instead of falling back.
+			 */
+			fallbackToJs?: boolean;
+
+			/**
+			 * @docs
+			 * @name markdown.rsOptions.cacheDir
+			 * @type {string}
+			 * @default `'./node_modules/.astro/mdx-rs'`
+			 * @description
+			 *
+			 * Directory to store compiled MDX cache for the Rust compiler.
+			 */
+			cacheDir?: string;
+
+			/**
+			 * @docs
+			 * @name markdown.rsOptions.parallelism
+			 * @type {number}
+			 * @default `1`
+			 * @description
+			 *
+			 * Number of parallel worker threads for MDX compilation.
+			 * Higher values can improve performance for large numbers of files.
+			 */
+			parallelism?: number;
+		};
 	};
 
 	/**
@@ -2458,6 +2533,40 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * See the [experimental raw environment variables guide](https://docs.astro.build/en/reference/experimental-flags/raw-env-values/) for more information.
 		 */
 		rawEnvValues?: boolean;
+
+		/**
+		 * @name experimental.experimentalRs
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.12.0
+		 * @description
+		 *
+		 * Enables experimental Rust-based MDX compiler for improved performance.
+		 * This uses the @rspress/mdx-rs package to provide 7-20x speedup over the JavaScript implementation.
+		 * When enabled, MDX compilation will use the Rust compiler with automatic fallback to JavaScript on errors.
+		 *
+		 * Note: This feature requires the @rspress/mdx-rs package to be installed as an optional dependency.
+		 * If the package is not available, compilation will fall back to the JavaScript implementation.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     experimentalRs: true,
+		 *   },
+		 *   markdown: {
+		 *     rsOptions: {
+		 *       fallbackToJs: true,
+		 *       cacheDir: './node_modules/.astro/mdx-rs',
+		 *       parallelism: 4
+		 *     }
+		 *   }
+		 * });
+		 * ```
+		 *
+		 * See the [experimental MDX-rs guide](https://docs.astro.build/en/reference/experimental-flags/mdx-rs/) for more information.
+		 */
+		experimentalRs?: boolean;
 	};
 }
 
