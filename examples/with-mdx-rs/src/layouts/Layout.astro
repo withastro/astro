@@ -1,0 +1,107 @@
+---
+export interface Props {
+	title?: string;
+	description?: string;
+}
+
+const { title = 'MDX-rs Demo', description = 'Rust-based MDX compilation in Astro' } =
+	Astro.props.frontmatter || Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{title}</title>
+		<style>
+			body {
+				font-family: system-ui, sans-serif;
+				line-height: 1.6;
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 2rem;
+				color: #333;
+			}
+
+			h1,
+			h2,
+			h3 {
+				color: #2c3e50;
+			}
+
+			code {
+				background: #f4f4f4;
+				padding: 0.2rem 0.4rem;
+				border-radius: 4px;
+				font-size: 0.9em;
+			}
+
+			pre {
+				background: #2d3748;
+				color: #e2e8f0;
+				padding: 1rem;
+				border-radius: 8px;
+				overflow-x: auto;
+			}
+
+			pre code {
+				background: none;
+				padding: 0;
+				color: inherit;
+			}
+
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				margin: 1rem 0;
+			}
+
+			th,
+			td {
+				border: 1px solid #ddd;
+				padding: 0.5rem;
+				text-align: left;
+			}
+
+			th {
+				background: #f8f9fa;
+				font-weight: bold;
+			}
+
+			blockquote {
+				border-left: 4px solid #3182ce;
+				margin: 1rem 0;
+				padding-left: 1rem;
+				color: #4a5568;
+			}
+
+			.performance-indicator {
+				display: inline-block;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white;
+				padding: 0.5rem 1rem;
+				border-radius: 20px;
+				font-size: 0.9em;
+				margin: 0.5rem 0;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<div class="performance-indicator">⚡ Powered by MDX-rs (Rust)</div>
+		</header>
+		<main>
+			<slot />
+		</main>
+		<footer
+			style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #eee; text-align: center; color: #666;"
+		>
+			<p>
+				Built with <a href="https://astro.build" style="color: #3182ce;">Astro</a> and experimental MDX-rs
+			</p>
+		</footer>
+	</body>
+</html>
