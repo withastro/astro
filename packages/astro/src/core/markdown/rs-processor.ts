@@ -204,7 +204,7 @@ function extractHeadingsFromContent(
 	content: string,
 ): Array<{ depth: number; slug: string; text: string }> {
 	const headings: Array<{ depth: number; slug: string; text: string }> = [];
-	const headingRegex = /^(#{1,6})\s+(.+)$/gm;
+	const headingRegex = /^(#{1,6})\s+(\S.*)$/gm;
 
 	let match;
 	while ((match = headingRegex.exec(content)) !== null) {
