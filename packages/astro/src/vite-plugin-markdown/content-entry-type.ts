@@ -1,6 +1,6 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 import { safeParseFrontmatter } from '../content/utils.js';
+import { createMarkdownProcessorRouter } from '../core/markdown/processor-router.js';
 import type { ContentEntryType } from '../types/public/content.js';
 
 export const markdownContentEntryType: ContentEntryType = {
@@ -18,9 +18,17 @@ export const markdownContentEntryType: ContentEntryType = {
 	handlePropagation: true,
 
 	async getRenderFunction(config) {
-		const processor = await createMarkdownProcessor({
+		const { markdownRS: _, markdownRSOptions: __, ...markdownConfig } = config.markdown || {};
+		const processor = await createMarkdownProcessorRouter({
 			image: config.image,
-			...config.markdown,
+			experimentalHeadingIdCompat: config.experimental?.headingIdCompat ?? false,
+			markdownRS: config.experimental?.markdownRS ?? false,
+			markdownRSOptions: config.markdown?.markdownRSOptions ?? {
+				fallbackToJs: true,
+				cacheDir: './node_modules/.astro/mdx-rs',
+				parallelism: 1,
+			},
+			...markdownConfig,
 		});
 		return async function renderToString(entry) {
 			// Process markdown even if it's empty as remark/rehype plugins may add content or frontmatter dynamically

@@ -1,0 +1,23 @@
+---
+const { frontmatter } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{frontmatter.title || "MDX-rs Test"}</title>
+</head>
+<body>
+	<header>
+		<h1>MDX-rs Test Layout</h1>
+	</header>
+	<main>
+		<slot />
+	</main>
+	<footer>
+		<p>Powered by Astro with MDX-rs</p>
+	</footer>
+</body>
+</html>

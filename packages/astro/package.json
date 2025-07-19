@@ -178,7 +178,8 @@
     "zod-to-ts": "^1.2.0"
   },
   "optionalDependencies": {
-    "sharp": "^0.33.3"
+    "sharp": "^0.33.3",
+    "@rspress/mdx-rs": "^0.5.7"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
