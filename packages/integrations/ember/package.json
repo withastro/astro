@@ -1,0 +1,58 @@
+{
+  "name": "@astrojs/ember",
+  "version": "0.0.0",
+  "description": "Use Ember components within Astro",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/ember"
+  },
+  "keywords": [
+    "astro-integration",
+    "astro-component",
+    "renderer",
+    "ember"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/ember/",
+  "exports": {
+    ".": "./dist/index.js",
+    "./editor": "./dist/editor.cjs",
+    "./client.js": "./dist/client.js",
+    "./server.js": "./dist/server.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
+    "build:ci": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@embroider/vite": "^1.1.5",
+    "@rollup/plugin-babel": "^6.0.4",
+    "vite": "^6.3.5"
+  },
+  "devDependencies": {
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*",
+    "ember-source": "^6.5.0"
+  },
+  "peerDependencies": {
+    "astro": "^5.0.0",
+    "ember-source": "^6.5.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
+  },
+  "publishConfig": {
+    "provenance": true
+  }
+}
