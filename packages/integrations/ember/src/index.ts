@@ -1,35 +1,47 @@
-import type { Options } from '@sveltejs/vite-plugin-svelte';
-import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import type { AstroIntegration, AstroRenderer, ContainerRenderer } from 'astro';
+import { extensions, ember } from '@embroider/vite';
+import { babel } from '@rollup/plugin-babel';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// can be replaced with import.meta.dirname when node22 is minsupported
+const here = dirname(fileURLToPath((import.meta.url)));
 
 function getRenderer(): AstroRenderer {
 	return {
-		name: '@astrojs/svelte',
-		clientEntrypoint: '@astrojs/svelte/client.js',
-		serverEntrypoint: '@astrojs/svelte/server.js',
+		name: '@astrojs/ember',
+		clientEntrypoint: '@astrojs/ember/client.js',
+		serverEntrypoint: '@astrojs/ember/server.js',
 	};
 }
 
 export function getContainerRenderer(): ContainerRenderer {
 	return {
-		name: '@astrojs/svelte',
-		serverEntrypoint: '@astrojs/svelte/server.js',
+		name: '@astrojs/ember',
+		serverEntrypoint: '@astrojs/ember/server.js',
 	};
 }
 
-export default function svelteIntegration(options?: Options): AstroIntegration {
+export default function emberIntegration(options?: unknown): AstroIntegration {
 	return {
-		name: '@astrojs/svelte',
+		name: '@astrojs/ember',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, addRenderer }) => {
 				addRenderer(getRenderer());
 				updateConfig({
 					vite: {
 						optimizeDeps: {
-							include: ['@astrojs/svelte/client.js'],
-							exclude: ['@astrojs/svelte/server.js'],
+							include: ['@astrojs/ember/client.js'],
+							exclude: ['@astrojs/ember/server.js'],
 						},
-						plugins: [svelte(options)],
+						plugins: [
+							ember(),
+							babel({
+								babelHelpers: 'runtime',
+								extensions,
+								configFile: resolve(here, '../babel.config.cjs'),
+							}),
+						],
 					},
 				});
 			},
@@ -37,4 +49,3 @@ export default function svelteIntegration(options?: Options): AstroIntegration {
 	};
 }
 
-export { vitePreprocess };
