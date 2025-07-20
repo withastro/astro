@@ -28,9 +28,9 @@ export type VercelImageConfig = {
 	 */
 	sizes: number[];
 	/**
-	 * Allowed external domains that can use Image Optimization. Leave empty for only allowing the deployment domain to use Image Optimization.
+	 * Allowed external domains that can use Image Optimization. Set to `[]` to only allow the deployment domain to use Image Optimization.
 	 */
-	domains: string[];
+	domains?: string[];
 	/**
 	 * Allowed external patterns that can use Image Optimization. Similar to `domains` but provides more control with RegExp.
 	 */

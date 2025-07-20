@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { emptyDir } from '@astrojs/internal-helpers/fs';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
+import netlifyVitePlugin, { type NetlifyPluginOptions } from '@netlify/vite-plugin';
 import type {
 	AstroConfig,
 	AstroIntegration,
@@ -104,12 +105,11 @@ export function remotePatternToRegex(
 	return regexStr;
 }
 
-async function writeNetlifyFrameworkConfig(
+function remoteImagesFromAstroConfig(
 	config: AstroConfig,
-	staticHeaders: RouteToHeaders | undefined,
 	logger: AstroIntegrationLogger,
-) {
-	const remoteImages: Array<string> = [];
+): string[] {
+	const remoteImages: string[] = [];
 	// Domains get a simple regex match
 	remoteImages.push(
 		...config.image.domains.map((domain) => `https?:\/\/${domain.replaceAll('.', '\\.')}\/.*`),
@@ -120,6 +120,15 @@ async function writeNetlifyFrameworkConfig(
 			.map((pattern) => remotePatternToRegex(pattern, logger))
 			.filter(Boolean as unknown as (pattern?: string) => pattern is string),
 	);
+	return remoteImages;
+}
+
+async function writeNetlifyFrameworkConfig(
+	config: AstroConfig,
+	staticHeaders: RouteToHeaders | undefined,
+	logger: AstroIntegrationLogger,
+) {
+	const remoteImages = remoteImagesFromAstroConfig(config, logger);
 
 	const headers = [];
 	if (!config.build.assetsPrefix) {
@@ -234,6 +243,18 @@ export interface NetlifyIntegrationConfig {
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
 	experimentalStaticHeaders?: boolean;
+
+	/**
+	 * Netlify features to enable when running `astro dev`. These work best when your site is linked to a Netlify site using `netlify link`.
+	 *
+	 * Either a boolean to enable or disable all features, or an object to enable specific features.
+	 *
+	 * - `images`: Enables the Netlify Image CDN in local development. Default: true
+	 * - `environmentVariables`: If your site is linked to a Netlify site, this will automatically load the environment variables from the Netlify site or team. Default: false
+	 *
+	 * @default {{ environmentVariables: false, images: true }}
+	 */
+	devFeatures?: { environmentVariables: boolean; images: boolean } | boolean;
 }
 
 export default function netlifyIntegration(
@@ -541,39 +562,45 @@ export default function netlifyIntegration(
 	return {
 		name: '@astrojs/netlify',
 		hooks: {
-			'astro:config:setup': async ({ config, updateConfig, logger }) => {
+			'astro:config:setup': async ({ config, updateConfig, logger, command }) => {
 				rootDir = config.root;
 				await cleanFunctions();
 
 				outDir = new URL(config.outDir, rootDir);
 
-				const enableImageCDN = isRunningInNetlify && (integrationConfig?.imageCDN ?? true);
-
 				let session = config.session;
 
 				if (!session?.driver) {
-					logger.info(
-						`Enabling sessions with ${isRunningInNetlify ? 'Netlify Blobs' : 'filesystem storage'}`,
-					);
-					session = isRunningInNetlify
-						? {
-								...session,
-								driver: 'netlify-blobs',
-								options: {
-									name: 'astro-sessions',
-									consistency: 'strong',
-									...session?.options,
-								},
-							}
-						: {
-								...session,
-								driver: 'fs-lite',
-								options: {
-									base: fileURLToPath(new URL('sessions', config.cacheDir)),
-									...session?.options,
-								},
-							};
+					logger.info('Enabling sessions with Netlify Blobs');
+
+					session = {
+						...session,
+						driver: 'netlify-blobs',
+						options: {
+							name: 'astro-sessions',
+							consistency: 'strong',
+							...session?.options,
+						},
+					};
 				}
+
+				const features = integrationConfig?.devFeatures;
+
+				const vitePluginOptions: NetlifyPluginOptions = {
+					images: {
+						// We don't need to disable the feature, because if the user disables it
+						// we'll disable the whole image service.
+						remoteURLPatterns: remoteImagesFromAstroConfig(config, logger),
+					},
+					environmentVariables: {
+						// If features is an object, use the `environmentVariables` property
+						// Otherwise, use the boolean value of `features`, defaulting to false
+						enabled:
+							typeof features === 'object'
+								? (features.environmentVariables ?? false)
+								: features === true,
+					},
+				};
 
 				updateConfig({
 					outDir,
@@ -584,6 +611,7 @@ export default function netlifyIntegration(
 					},
 					session,
 					vite: {
+						plugins: [netlifyVitePlugin(vitePluginOptions)],
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
@@ -592,7 +620,13 @@ export default function netlifyIntegration(
 					},
 					image: {
 						service: {
-							entrypoint: enableImageCDN ? '@astrojs/netlify/image-service.js' : undefined,
+							// defaults to true, so should only be disabled if the user has
+							// explicitly set false
+							entrypoint:
+								(command === 'build' && integrationConfig?.imageCDN === false) ||
+								(command === 'dev' && vitePluginOptions?.images?.enabled === false)
+									? undefined
+									: '@astrojs/netlify/image-service.js',
 						},
 					},
 				});
@@ -655,6 +689,12 @@ export default function netlifyIntegration(
 
 			// local dev
 			'astro:server:setup': async ({ server }) => {
+				const existingSessionModule = server.moduleGraph.getModuleById('astro:sessions');
+				// if we're restarting the server, we need to recreate the session
+				// module because blobs will have new ports
+				if (existingSessionModule) {
+					server.moduleGraph.invalidateModule(existingSessionModule);
+				}
 				server.middlewares.use((req, _res, next) => {
 					const locals = Symbol.for('astro.locals');
 					Reflect.set(req, locals, {

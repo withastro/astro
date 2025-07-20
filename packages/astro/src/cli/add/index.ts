@@ -363,15 +363,12 @@ export async function add(names: string[], { flags }: AddOptions) {
 				),
 			);
 			if (integrations.find((integration) => integration.integrationName === 'tailwind')) {
-				const code = boxen(
-					getDiffContent('---\n---', "---\nimport './src/styles/global.css'\n---")!,
-					{
-						margin: 0.5,
-						padding: 0.5,
-						borderStyle: 'round',
-						title: 'src/layouts/Layout.astro',
-					},
-				);
+				const code = boxen(getDiffContent('---\n---', "---\nimport '../styles/global.css'\n---")!, {
+					margin: 0.5,
+					padding: 0.5,
+					borderStyle: 'round',
+					title: 'src/layouts/Layout.astro',
+				});
 				logger.warn(
 					'SKIP_FORMAT',
 					msg.actionRequired(
