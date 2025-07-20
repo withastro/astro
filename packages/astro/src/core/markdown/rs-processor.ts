@@ -74,19 +74,12 @@ function getCompileOptions(
 	content: string,
 	filepath: string,
 ): RspressMdxRsCompileOptions {
-	const options: RspressMdxRsCompileOptions = {
+	return {
 		value: content,
 		filepath,
-		root: config.markdownRSOptions?.cacheDir || '.',
+		root: config.markdownRSOptions?.cacheDir ?? '.',
 		development: process.env.NODE_ENV !== 'production',
 	};
-
-	// Map markdownRSOptions configuration to @rspress/mdx-rs options
-	if (config.markdownRSOptions?.cacheDir) {
-		options.root = config.markdownRSOptions.cacheDir;
-	}
-
-	return options;
 }
 
 interface RustMarkdownProcessor extends MarkdownProcessor {
@@ -127,13 +120,13 @@ export async function createRustMarkdownProcessor(
 		async render(content: string, options?: MarkdownProcessorRenderOptions) {
 			try {
 				// Parse frontmatter using Astro's parser for consistency
-				const fileURL = (options as any)?.fileURL; // Handle internal prop
-				const parsed = safeParseFrontmatter(content, fileURL?.pathname);
-				const frontmatter = options?.frontmatter || parsed.frontmatter;
-				const contentWithoutFrontmatter = parsed.content;
+				const { fileURL } = (options as any) ?? {};
+				const { content: contentWithoutFrontmatter, frontmatter: parsedFrontmatter } = 
+					safeParseFrontmatter(content, fileURL?.pathname);
+				const frontmatter = options?.frontmatter ?? parsedFrontmatter;
 
 				// Use the Rust compiler to process the content
-				const filepath = fileURL?.pathname || 'unknown.md';
+				const filepath = fileURL?.pathname ?? 'unknown.md';
 				const compileOptions = getCompileOptions(config, contentWithoutFrontmatter, filepath);
 				const result = await compile(compileOptions);
 
@@ -203,20 +196,13 @@ export async function createRustMarkdownProcessor(
 function extractHeadingsFromContent(
 	content: string,
 ): Array<{ depth: number; slug: string; text: string }> {
-	const headings: Array<{ depth: number; slug: string; text: string }> = [];
-	const headingRegex = /^(#{1,6})\s+(\S.*)$/gm;
-
-	let match;
-	while ((match = headingRegex.exec(content)) !== null) {
-		const depth = match[1].length;
-		const text = match[2].trim();
-		// Use github-slugger for consistent slug generation like Astro
-		const slug = githubSlug(text);
-
-		headings.push({ depth, slug, text });
-	}
-
-	return headings;
+	return [...content.matchAll(/^(#{1,6})\s+(\S.*)$/gm)]
+		.map(match => ({
+			depth: match[1].length,
+			text: match[2].trim(),
+			// Use github-slugger for consistent slug generation like Astro
+			slug: githubSlug(match[2].trim())
+		}));
 }
 
 /**
