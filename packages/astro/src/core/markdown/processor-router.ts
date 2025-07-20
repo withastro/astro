@@ -33,7 +33,6 @@ export async function createMarkdownProcessorRouter(
 	} catch (error) {
 		// If Rust processor fails and fallback is enabled, use JavaScript processor
 		if (config.markdownRSOptions.fallbackToJs) {
-			// Log the error for debugging
 			return createMarkdownProcessor(config);
 		}
 
