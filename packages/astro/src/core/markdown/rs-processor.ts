@@ -223,44 +223,19 @@ function extractHeadingsFromContent(
  * Extract image paths from markdown content (markdown syntax + HTML img tags)
  */
 function extractImagePathsFromContent(content: string): { local: string[]; remote: string[] } {
-	const local: string[] = [];
-	const remote: string[] = [];
-
 	// Match markdown image syntax ![alt](src)
-	const markdownImageRegex = /!\[.*?\]\((.*?)\)/g;
-
-	// Match HTML img tags <img src="..." />
-	const htmlImageRegex = /<img[^>]+src\s*=\s*["']([^"']+)["'][^>]*>/gi;
-
-	// Extract from markdown syntax
-	let match;
-	while ((match = markdownImageRegex.exec(content)) !== null) {
-		const src = match[1]?.trim();
-		if (src && !isDataUrl(src)) {
-			if (isRemoteUrl(src)) {
-				remote.push(src);
-			} else {
-				local.push(src);
-			}
-		}
-	}
-
-	// Extract from HTML img tags
-	while ((match = htmlImageRegex.exec(content)) !== null) {
-		const src = match[1]?.trim();
-		if (src && !isDataUrl(src)) {
-			if (isRemoteUrl(src)) {
-				remote.push(src);
-			} else {
-				local.push(src);
-			}
-		}
-	}
-
+	const markdownSources = [...content.matchAll(/!\[.*?\]\((.*?)\)/g)].map(m => m[1]);
+	// Match HTML img tags <img src="src" />
+	const htmlSources = [...content.matchAll(/<img[^>]+src\s*=\s*["']([^"']+)["'][^>]*>/gi)].map(m => m[1]);
+	
 	// Remove duplicates
+	const validSources = [...new Set([...markdownSources, ...htmlSources])]
+		.map(src => src?.trim())
+		.filter(src => src && !isDataUrl(src));
+	
 	return {
-		local: [...new Set(local)],
-		remote: [...new Set(remote)],
+		local: validSources.filter(src => !isRemoteUrl(src)),
+		remote: validSources.filter(isRemoteUrl)
 	};
 }
 
