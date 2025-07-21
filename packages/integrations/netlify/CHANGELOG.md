@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 6.5.2
+
+### Patch Changes
+
+- [#14103](https://github.com/withastro/astro/pull/14103) [`69d6871`](https://github.com/withastro/astro/commit/69d6871e2af80903be50173b21743234911738b8) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Netlify Vite plugin to fix error in edge functions.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.5.1
 
 ### Patch Changes
