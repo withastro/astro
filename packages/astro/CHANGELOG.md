@@ -1,5 +1,23 @@
 # astro
 
+## 5.12.1
+
+### Patch Changes
+
+- [#14094](https://github.com/withastro/astro/pull/14094) [`22e9087`](https://github.com/withastro/astro/commit/22e90873f85d7b5b5d556f456362656f04b32341) Thanks [@ascorbic](https://github.com/ascorbic)! - Correct types to allow `priority` on all images
+
+- [#14091](https://github.com/withastro/astro/pull/14091) [`26c6b6d`](https://github.com/withastro/astro/commit/26c6b6db264f9cbd98ddf97c3f7a34ec7f488095) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused a type error when defining session options without a driver
+
+- [#14082](https://github.com/withastro/astro/pull/14082) [`93322cb`](https://github.com/withastro/astro/commit/93322cbe36c40401256eea2a9e34f5fbe13a28ec) Thanks [@louisescher](https://github.com/louisescher)! - Fixes an issue where Astro's default 404 route would incorrectly match routes containing "/404" in dev
+
+- [#14089](https://github.com/withastro/astro/pull/14089) [`687d253`](https://github.com/withastro/astro/commit/687d25365a41ff8a9e6da155d3527f841abb70dd) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `astro:env` would not load the right environments variables in dev
+
+- [#14092](https://github.com/withastro/astro/pull/14092) [`6692c71`](https://github.com/withastro/astro/commit/6692c71ed609690ebf6a697d88582130a5cbfdfb) Thanks [@ascorbic](https://github.com/ascorbic)! - Improves error handling in live collections
+
+- [#14074](https://github.com/withastro/astro/pull/14074) [`144a950`](https://github.com/withastro/astro/commit/144a950b55f22c2beeff710e5672e9fa611520b3) Thanks [@abcfy2](https://github.com/abcfy2)! - Fixes a bug that caused some image service builds to fail
+
+- [#14092](https://github.com/withastro/astro/pull/14092) [`6692c71`](https://github.com/withastro/astro/commit/6692c71ed609690ebf6a697d88582130a5cbfdfb) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a case where zod could not be imported from `astro:content` virtual module in live collection config
+
 ## 5.12.0
 
 ### Minor Changes
