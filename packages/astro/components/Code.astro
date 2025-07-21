@@ -1,15 +1,9 @@
 ---
 import type { ThemePresets } from '@astrojs/markdown-remark';
-import type {
-	BuiltinLanguage,
-	LanguageRegistration,
-	ShikiTransformer,
-	SpecialLanguage,
-	ThemeRegistration,
-	ThemeRegistrationRaw,
-} from 'shiki';
+import type { ShikiTransformer, ThemeRegistration, ThemeRegistrationRaw } from 'shiki';
 import { bundledLanguages } from 'shiki/langs';
 import { getCachedHighlighter } from '../dist/core/shiki.js';
+import type { CodeLanguage } from '../dist/types/public';
 import type { HTMLAttributes } from '../types';
 
 interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
@@ -22,7 +16,7 @@ interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	 *
 	 * @default "plaintext"
 	 */
-	lang?: BuiltinLanguage | SpecialLanguage | LanguageRegistration;
+	lang?: CodeLanguage;
 	/**
 	 * A metastring to pass to the highlighter.
 	 * Allows passing information to transformers: https://shiki.style/guide/transformers#meta
