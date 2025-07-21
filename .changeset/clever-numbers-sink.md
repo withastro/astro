@@ -2,4 +2,8 @@
 'astro': patch
 ---
 
-     Export lang types (BundledLanguage, SpecialLanguage, LanguageRegistration) from Astro for use in custom components. Fixes #14009.
+Exposes the `Code` component `lang` prop type:
+
+```ts
+import type { CodeLanguage } from "astro/types";
+```
