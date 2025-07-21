@@ -8,7 +8,9 @@ import { eventError, telemetry } from '../events/index.js';
 /** Display error and exit */
 export async function throwAndExit(cmd: string, err: unknown) {
 	// Suppress ZodErrors from AstroConfig as the pre-logged error is sufficient
-	if (isAstroConfigZodError(err)) return;
+	if (isAstroConfigZodError(err)) {
+		process.exit(1);
+	}
 
 	let telemetryPromise: Promise<any>;
 	let errorMessage: string;
