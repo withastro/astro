@@ -10,11 +10,11 @@ import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
+import { wrapWithTracing } from '../tracing.js';
 import { isPromise } from '../util.js';
 import { type AstroComponentFactory, isAstroComponentFactory } from './astro/factory.js';
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
-import { wrapWithTracing } from '../tracing.js';
 import { bufferHeadContent } from './astro/render.js';
 import {
 	chunkToString,
@@ -358,12 +358,13 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	const template =
 		unrenderedSlots.length > 0
 			? unrenderedSlots
-				.map(
-					(key) =>
-						`<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${children[key]
-						}</template>`,
-				)
-				.join('')
+					.map(
+						(key) =>
+							`<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${
+								children[key]
+							}</template>`,
+					)
+					.join('')
 			: '';
 
 	island.children = `${html ?? ''}${template}`;
@@ -496,7 +497,7 @@ function innerRenderComponent(
 	function handleCancellation(e: unknown) {
 		if (result.cancelled)
 			return {
-				render() { },
+				render() {},
 			};
 		throw e;
 	}
