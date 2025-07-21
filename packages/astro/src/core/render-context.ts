@@ -18,27 +18,27 @@ import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { SSRActions } from './app/types.js';
 import {
 	ASTRO_VERSION,
+	clientAddressSymbol,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	REWRITE_DIRECTIVE_HEADER_VALUE,
 	ROUTE_TYPE_HEADER,
-	clientAddressSymbol,
 	responseSentSymbol,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
-import { ForbiddenRewrite } from './errors/errors-data.js';
+import { generateCspDigest } from './encryption.js';
+import { CspNotEnabled, ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
-import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
+import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
-
 /**
  * Each request is rendered using a `RenderContext`.
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
@@ -74,6 +74,8 @@ export class RenderContext {
 	 */
 	counter = 0;
 
+	result: SSRResult | undefined = undefined;
+
 	static async create({
 		locals = {},
 		middleware,
@@ -92,7 +94,12 @@ export class RenderContext {
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = actions ?? (await pipeline.getActions());
-		setOriginPathname(request, pathname);
+		setOriginPathname(
+			request,
+			pathname,
+			pipeline.manifest.trailingSlash,
+			pipeline.manifest.buildFormat,
+		);
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -198,7 +205,12 @@ export class RenderContext {
 				this.params = getParams(routeData, pathname);
 				this.pathname = pathname;
 				this.status = 200;
-				setOriginPathname(this.request, oldPathname);
+				setOriginPathname(
+					this.request,
+					oldPathname,
+					this.pipeline.manifest.trailingSlash,
+					this.pipeline.manifest.buildFormat,
+				);
 			}
 			let response: Response;
 
@@ -224,10 +236,10 @@ export class RenderContext {
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
-					const result = await this.createResult(componentInstance!, actionApiContext);
+					this.result = await this.createResult(componentInstance!, actionApiContext);
 					try {
 						response = await renderPage(
-							result,
+							this.result,
 							componentInstance?.default as any,
 							props,
 							slots,
@@ -237,7 +249,7 @@ export class RenderContext {
 					} catch (e) {
 						// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
 						// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
-						result.cancelled = true;
+						this.result.cancelled = true;
 						throw e;
 					}
 
@@ -306,7 +318,14 @@ export class RenderContext {
 		// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
 		// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 		// so Astro can't retrieve it from the emitted manifest.
-		if (this.pipeline.serverLike && !this.routeData.prerender && routeData.prerender) {
+		// Allow i18n fallback rewrites - if the target route has fallback routes, this is likely an i18n scenario
+		const isI18nFallback = routeData.fallbackRoutes && routeData.fallbackRoutes.length > 0;
+		if (
+			this.pipeline.serverLike &&
+			!this.routeData.prerender &&
+			routeData.prerender &&
+			!isI18nFallback
+		) {
 			throw new AstroError({
 				...ForbiddenRewrite,
 				message: ForbiddenRewrite.message(this.pathname, pathname, routeData.component),
@@ -334,7 +353,12 @@ export class RenderContext {
 		this.isRewriting = true;
 		// we found a route and a component, we can change the status code to 200
 		this.status = 200;
-		setOriginPathname(this.request, oldPathname);
+		setOriginPathname(
+			this.request,
+			oldPathname,
+			this.pipeline.manifest.trailingSlash,
+			this.pipeline.manifest.buildFormat,
+		);
 		return await this.render(componentInstance);
 	}
 
@@ -395,6 +419,38 @@ export class RenderContext {
 				}
 				return renderContext.session;
 			},
+			insertDirective(payload) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.directives.push(payload);
+			},
+
+			insertScriptResource(resource) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.scriptResources.push(resource);
+			},
+			insertStyleResource(resource) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+
+				renderContext.result?.styleResources.push(resource);
+			},
+			insertStyleHash(hash) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.styleHashes.push(hash);
+			},
+			insertScriptHash(hash) {
+				if (!!pipeline.manifest.csp === false) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.scriptHashes.push(hash);
+			},
 		};
 	}
 
@@ -403,6 +459,21 @@ export class RenderContext {
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
+
+		const extraStyleHashes = [];
+		const extraScriptHashes = [];
+		const shouldInjectCspMetaTags = !!manifest.csp;
+		const cspAlgorithm = manifest.csp?.algorithm ?? 'SHA-256';
+		if (shouldInjectCspMetaTags) {
+			for (const style of styles) {
+				extraStyleHashes.push(await generateCspDigest(style.children, cspAlgorithm));
+			}
+
+			for (const script of scripts) {
+				extraScriptHashes.push(await generateCspDigest(script.children, cspAlgorithm));
+			}
+		}
+
 		const componentMetadata =
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
 		const headers = new Headers({ 'Content-Type': 'text/html' });
@@ -460,8 +531,20 @@ export class RenderContext {
 				hasRenderedServerIslandRuntime: false,
 				headInTree: false,
 				extraHead: [],
+				extraStyleHashes,
+				extraScriptHashes,
 				propagators: new Set(),
 			},
+			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
+			shouldInjectCspMetaTags,
+			cspAlgorithm,
+			// The following arrays must be cloned, otherwise they become mutable across routes.
+			scriptHashes: manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
+			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
+			styleHashes: manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],
+			styleResources: manifest.csp?.styleResources ? [...manifest.csp.styleResources] : [],
+			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
+			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
 		};
 
 		return result;
@@ -600,6 +683,38 @@ export class RenderContext {
 			url,
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
+			},
+			insertDirective(payload) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.directives.push(payload);
+			},
+
+			insertScriptResource(resource) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.scriptResources.push(resource);
+			},
+			insertStyleResource(resource) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+
+				renderContext.result?.styleResources.push(resource);
+			},
+			insertStyleHash(hash) {
+				if (!pipeline.manifest.csp) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.styleHashes.push(hash);
+			},
+			insertScriptHash(hash) {
+				if (!!pipeline.manifest.csp === false) {
+					throw new AstroError(CspNotEnabled);
+				}
+				renderContext.result?.scriptHashes.push(hash);
 			},
 		};
 	}

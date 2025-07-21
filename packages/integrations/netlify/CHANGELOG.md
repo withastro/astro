@@ -1,5 +1,101 @@
 # @astrojs/netlify
 
+## 6.5.1
+
+### Patch Changes
+
+- [#14078](https://github.com/withastro/astro/pull/14078) [`38c2255`](https://github.com/withastro/astro/commit/38c2255ae7ef916e231b31606104d11c149b71b7) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused remote images to sometimes not display correctly when using the Netlify Image CDN in local dev
+
+- [#14078](https://github.com/withastro/astro/pull/14078) [`38c2255`](https://github.com/withastro/astro/commit/38c2255ae7ef916e231b31606104d11c149b71b7) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a new `devFeatures` configuration option to control some of the behaviors introduced in `@astrojs/netlify@6.5.0`, which introduced Netlify production features into the dev environment.
+
+  You can now individually configure whether or not to populate your environment with the variables from your linked Netlify site (now disabled by default), and use a local version of the Netlify Image CDN for images (still enabled by default) when running `astro dev`.
+
+  Additionally, the adapter no longer injects environment variables from Netlify by default when running `astro dev`.
+
+  `@astrojs/netlify@6.5.0` introduced a potentially breaking change that enabled injecting Netlify environment variables in `astro dev` by default. This could lead to unexpected behavior in Astro projects that do not expect these variables to be present. This now defaults to disabled, and users can enable it by setting the `devFeatures.environmentVariables` option in their Astro config. Similarly, you can use `devFeatures.images` to disable using the Netlify Image CDN locally if needed:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify';
+
+  export default defineConfig({
+    adapter: netlify({
+      devFeatures: {
+        environmentVariables: true,
+        images: false,
+      },
+    }),
+  });
+  ```
+
+  You can also set `devFeatures` to `true` or `false` to enable or disable all configurable dev features:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify';
+  export default defineConfig({
+    adapter: netlify({
+      devFeatures: true,
+    }),
+  });
+  ```
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.0
+
+### Minor Changes
+
+- [#13768](https://github.com/withastro/astro/pull/13768) [`faa0eff`](https://github.com/withastro/astro/commit/faa0effe3159f4979e6e3a45b38c39a4db703b3a) Thanks [@eduardoboucas](https://github.com/eduardoboucas)! - Updates the adapter to use Netlify's [Vite plugin](https://www.npmjs.com/package/@netlify/vite-plugin) in development.
+
+This is an implementation update that does not require any change to your project code, but means that `astro dev` will run with an environment closer to a production deploy on Netlify. This brings several benefits you'll now notice working in dev mode!
+
+For example, your project running in development mode will now use local versions of the Netlify Image CDN for images, and a local Blobs server for sessions. It will also populate your environment with the variables from your linked Netlify site.
+
+While not required for fully static, prerendered web sites, you may still wish to add this for the additional benefits of now working in a dev environment closer to your Netlify production deploy, as well as to take advantage of Netlify-exclusive features such as the Netlify Image CDN.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.4.1
+
+### Patch Changes
+
+- [#13972](https://github.com/withastro/astro/pull/13972) [`db8f8be`](https://github.com/withastro/astro/commit/db8f8becc9508fa4f292d45c14af92ba59c414d1) Thanks [@ematipico](https://github.com/ematipico)! - Fixes the internal implementation of the new feature `experimentalStaticHeaders`, where dynamic routes
+  were mapped to use always the same header.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.4.0
+
+### Minor Changes
+
+- [#13952](https://github.com/withastro/astro/pull/13952) [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for the [experimental static headers Astro feature](https://docs.astro.build/en/reference/adapter-reference/#experimentalstaticheaders).
+
+  When the feature is enabled via option `experimentalStaticHeaders`, and [experimental Content Security Policy](https://docs.astro.build/en/reference/experimental-flags/csp/) is enabled, the adapter will generate `Response` headers for static pages, which allows support for CSP directives that are not supported inside a `<meta>` tag (e.g. `frame-ancestors`).
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify';
+
+  export default defineConfig({
+    adapter: netlify({
+      experimentalStaticHeaders: true,
+    }),
+    experimental: {
+      cps: true,
+    },
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3), [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3), [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3)]:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.3.4
 
 ### Patch Changes

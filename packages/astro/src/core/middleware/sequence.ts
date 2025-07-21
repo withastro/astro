@@ -3,8 +3,8 @@ import type { APIContext } from '../../types/public/context.js';
 import { AstroCookies } from '../cookies/cookies.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
+import { getParams, type Pipeline } from '../render/index.js';
 import { apiContextRoutesSymbol } from '../render-context.js';
-import { type Pipeline, getParams } from '../render/index.js';
 import { setOriginPathname } from '../routing/rewrite.js';
 import { defineMiddleware } from './index.js';
 
@@ -40,11 +40,13 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						if (payload instanceof Request) {
 							newRequest = payload;
 						} else if (payload instanceof URL) {
-							newRequest = new Request(payload, handleContext.request);
+							// Cloning the original request ensures that the new Request gets its own copy of the body stream
+							// Without this it will throw an error if they both try to consume the stream, which will happen in a rewrite
+							newRequest = new Request(payload, handleContext.request.clone());
 						} else {
 							newRequest = new Request(
 								new URL(payload, handleContext.url.origin),
-								handleContext.request,
+								handleContext.request.clone(),
 							);
 						}
 						const oldPathname = handleContext.url.pathname;
@@ -78,7 +80,12 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						handleContext.url = new URL(newRequest.url);
 						handleContext.cookies = new AstroCookies(newRequest);
 						handleContext.params = getParams(routeData, pathname);
-						setOriginPathname(handleContext.request, oldPathname);
+						setOriginPathname(
+							handleContext.request,
+							oldPathname,
+							pipeline.manifest.trailingSlash,
+							pipeline.manifest.buildFormat,
+						);
 					}
 					return applyHandle(i + 1, handleContext);
 				} else {

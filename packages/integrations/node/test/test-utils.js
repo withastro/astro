@@ -38,6 +38,7 @@ export function createRequestAndResponse(reqOptions) {
 	return { req, res, done, text };
 }
 
+/** @returns {Promise<Array<Buffer>>} */
 function toPromise(res) {
 	return new Promise((resolve) => {
 		// node-mocks-http doesn't correctly handle non-Buffer typed arrays,

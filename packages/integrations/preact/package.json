@@ -36,14 +36,14 @@
   },
   "dependencies": {
     "@preact/preset-vite": "^2.10.1",
-    "@preact/signals": "^2.0.5",
+    "@preact/signals": "^2.2.0",
     "preact-render-to-string": "^6.5.13",
     "vite": "^6.3.5"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "preact": "^10.26.7"
+    "preact": "^10.26.9"
   },
   "peerDependencies": {
     "preact": "^10.6.5"

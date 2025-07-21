@@ -10,10 +10,23 @@ import { toFallbackType, toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type {
-	SSRManifestI18n,
 	SerializedRouteInfo,
 	SerializedSSRManifest,
+	SSRManifestCSP,
+	SSRManifestI18n,
 } from '../../app/types.js';
+import {
+	getAlgorithm,
+	getDirectives,
+	getScriptHashes,
+	getScriptResources,
+	getStrictDynamic,
+	getStyleHashes,
+	getStyleResources,
+	shouldTrackCspHashes,
+	trackScriptHashes,
+	trackStyleHashes,
+} from '../../csp/common.js';
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
@@ -160,7 +173,7 @@ async function createManifest(
 
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
-	return buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
+	return await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
 }
 
 /**
@@ -174,12 +187,12 @@ function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputC
 	});
 }
 
-function buildManifest(
+async function buildManifest(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	staticFiles: string[],
 	encodedKey: string,
-): SerializedSSRManifest {
+): Promise<SerializedSSRManifest> {
 	const { settings } = opts;
 
 	const routes: SerializedRouteInfo[] = [];
@@ -231,9 +244,15 @@ function buildManifest(
 		staticFiles.push(file);
 	}
 
+	const needsStaticHeaders = settings.adapter?.adapterFeatures?.experimentalStaticHeaders ?? false;
+
 	for (const route of opts.routesList.routes) {
 		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
-		if (route.prerender || !pageData) continue;
+		if (!pageData) continue;
+
+		if (route.prerender && !needsStaticHeaders) {
+			continue;
+		}
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			const src = entryModules[PAGE_SCRIPT_ID];
@@ -294,6 +313,33 @@ function buildManifest(
 		};
 	}
 
+	let csp: SSRManifestCSP | undefined = undefined;
+
+	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+		const algorithm = getAlgorithm(settings.config.experimental.csp);
+		const scriptHashes = [
+			...getScriptHashes(settings.config.experimental.csp),
+			...(await trackScriptHashes(internals, settings, algorithm)),
+		];
+		const styleHashes = [
+			...getStyleHashes(settings.config.experimental.csp),
+			...(await trackStyleHashes(internals, settings, algorithm)),
+		];
+
+		csp = {
+			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
+				? 'adapter'
+				: undefined,
+			scriptHashes,
+			scriptResources: getScriptResources(settings.config.experimental.csp),
+			styleHashes,
+			styleResources: getStyleResources(settings.config.experimental.csp),
+			algorithm,
+			directives: getDirectives(settings.config.experimental.csp),
+			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
+		};
+	}
+
 	return {
 		hrefRoot: opts.settings.config.root.toString(),
 		cacheDir: opts.settings.config.cacheDir.toString(),
@@ -323,5 +369,6 @@ function buildManifest(
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
 		sessionConfig: settings.config.session,
+		csp,
 	};
 }

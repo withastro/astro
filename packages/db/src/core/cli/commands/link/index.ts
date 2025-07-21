@@ -2,10 +2,10 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { basename } from 'node:path';
 import {
-	MISSING_SESSION_ID_ERROR,
-	PROJECT_ID_FILE,
 	getAstroStudioUrl,
 	getSessionIdFromFile,
+	MISSING_SESSION_ID_ERROR,
+	PROJECT_ID_FILE,
 } from '@astrojs/studio';
 import { slug } from 'github-slugger';
 import { bgRed, cyan } from 'kleur/colors';
