@@ -32,8 +32,4 @@ export type Polymorphic<P extends { as: HTMLTag }> = PolymorphicAttributes<
 
 export type ComponentProps<T extends (args: any) => any> = Simplify<Parameters<T>[0]>;
 
-/**
- * The language type for code highlighting.
- * Supports all languages listed here: https://shiki.style/languages
- */
 export type CodeLanguage = BundledLanguage | LanguageRegistration | SpecialLanguage;
