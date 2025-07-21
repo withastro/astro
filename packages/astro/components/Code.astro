@@ -7,7 +7,8 @@ ThemeRegistrationRaw,
 } from 'shiki';
 import { bundledLanguages } from 'shiki/langs';
 import { getCachedHighlighter } from '../dist/core/shiki.js';
-import type { CodeLanguage, HTMLAttributes } from '../types';
+import type { HTMLAttributes } from '../types';
+import type { CodeLanguage } from '../dist/types/public';
 
 interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	/** The code to highlight. Required. */
