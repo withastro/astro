@@ -5,5 +5,5 @@
 Exposes the `Code` component `lang` prop type:
 
 ```ts
-import type { CodeLanguage } from "astro/types";
+import type { CodeLanguage } from "astro";
 ```
