@@ -1,6 +1,7 @@
 import { existsSync, promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import toml from 'smol-toml';
 import { FileGlobNotSupported, FileParserNotFound } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/index.js';
 import { posixRelative } from '../utils.js';
@@ -36,6 +37,8 @@ export function file(fileName: string, options?: FileOptions): Loader {
 			yaml.load(text, {
 				filename: fileName,
 			});
+	} else if (ext === 'toml') {
+		parse = toml.parse;
 	}
 	if (options?.parser) parse = options.parser;
 

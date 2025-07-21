@@ -9,6 +9,7 @@ const isValidIdentifierRe = /^[_$a-zA-Z][\w$]*$/;
 function getPrivateEnv(
 	fullEnv: Record<string, string>,
 	astroConfig: AstroConfig,
+	useRawValues: boolean,
 ): Record<string, string> {
 	const viteConfig = astroConfig.vite;
 	let envPrefixes: string[] = ['PUBLIC_'];
@@ -30,7 +31,10 @@ function getPrivateEnv(
 				}
 				// Boolean values should be inlined to support `export const prerender`
 				// We already know that these are NOT sensitive values, so inlining is safe
-				if (value === '0' || value === '1' || value === 'true' || value === 'false') {
+				if (
+					!useRawValues &&
+					(value === '0' || value === '1' || value === 'true' || value === 'false')
+				) {
 					privateEnv[key] = value;
 				} else {
 					privateEnv[key] = `process.env.${key}`;
@@ -43,11 +47,22 @@ function getPrivateEnv(
 	return privateEnv;
 }
 
-export const createEnvLoader = (mode: string, config: AstroConfig) => {
+function getEnv(mode: string, config: AstroConfig, useRawValues: boolean) {
 	const loaded = loadEnv(mode, config.vite.envDir ?? fileURLToPath(config.root), '');
-	const privateEnv = getPrivateEnv(loaded, config);
+	const privateEnv = getPrivateEnv(loaded, config, useRawValues);
+
+	return { loaded, privateEnv };
+}
+
+export const createEnvLoader = (mode: string, config: AstroConfig, useRawValues: boolean) => {
+	let { loaded, privateEnv } = getEnv(mode, config, useRawValues);
 	return {
-		get: () => loaded,
+		get: () => {
+			// We refresh the env we have in case process.env has been updated since creating
+			// the env loader. That can happen in eg. integrations
+			({ loaded, privateEnv } = getEnv(mode, config, useRawValues));
+			return loaded;
+		},
 		getPrivateEnv: () => privateEnv,
 	};
 };
