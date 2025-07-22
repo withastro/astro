@@ -72,7 +72,11 @@ function transformSetDirectives(vnode: AstroVNode) {
 	}
 }
 
-function createVNode(type: any, props: Record<string, any> = {}, key?: string | number): AstroVNode {
+function createVNode(
+	type: any,
+	props: Record<string, any> = {},
+	key?: string | number,
+): AstroVNode {
 	if (key) {
 		props.key = key;
 	}
