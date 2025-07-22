@@ -77,7 +77,9 @@ export function file(fileName: string, options?: FileOptions): Loader {
 					continue;
 				}
 				if (idList.has(id)) {
-					logger.warn(`Duplicate id "${id}" found in ${fileName}. Later items with the same id will overwrite earlier ones.`);
+					logger.warn(
+						`Duplicate id "${id}" found in ${fileName}. Later items with the same id will overwrite earlier ones.`,
+					);
 				}
 				idList.add(id);
 				const parsedData = await parseData({ id, data: rawItem, filePath });
