@@ -7,13 +7,13 @@ import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { normalizeDatabaseUrl } from '../../runtime/index.js';
 import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import { getResolvedFileUrl } from '../load-file.js';
-import { SEED_DEV_FILE_NAME, getCreateIndexQueries, getCreateTableQuery } from '../queries.js';
+import { getCreateIndexQueries, getCreateTableQuery, SEED_DEV_FILE_NAME } from '../queries.js';
 import type { DBTables } from '../types.js';
 import {
-	type VitePlugin,
 	getAstroEnv,
 	getDbDirectoryUrl,
 	getRemoteDatabaseInfo,
+	type VitePlugin,
 } from '../utils.js';
 
 const resolved = {
@@ -117,13 +117,7 @@ export function getConfigVirtualModContents() {
 	return `export * from ${RUNTIME_VIRTUAL_IMPORT}`;
 }
 
-export function getLocalVirtualModContents({
-	tables,
-	root,
-}: {
-	tables: DBTables;
-	root: URL;
-}) {
+export function getLocalVirtualModContents({ tables, root }: { tables: DBTables; root: URL }) {
 	const { ASTRO_DATABASE_FILE } = getAstroEnv();
 	const dbInfo = getRemoteDatabaseInfo();
 	const dbUrl = new URL(DB_PATH, root);
@@ -220,13 +214,7 @@ async function recreateTables({ tables, root }: { tables: LateTables; root: URL 
 	]);
 }
 
-function getResolvedSeedFiles({
-	root,
-	seedFiles,
-}: {
-	root: URL;
-	seedFiles: LateSeedFiles;
-}) {
+function getResolvedSeedFiles({ root, seedFiles }: { root: URL; seedFiles: LateSeedFiles }) {
 	const localSeedFiles = SEED_DEV_FILE_NAME.map((name) => new URL(name, getDbDirectoryUrl(root)));
 	const integrationSeedFiles = seedFiles.get().map((s) => getResolvedFileUrl(root, s));
 	return [...integrationSeedFiles, ...localSeedFiles];

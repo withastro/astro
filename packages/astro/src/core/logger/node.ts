@@ -1,6 +1,6 @@
 import type { Writable } from 'node:stream';
 import debugPackage from 'debug';
-import { type LogMessage, type LogWritable, getEventPrefix, levels } from './core.js';
+import { getEventPrefix, type LogMessage, type LogWritable, levels } from './core.js';
 
 type ConsoleStream = Writable & {
 	fd: 1 | 2;

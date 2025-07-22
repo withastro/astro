@@ -1,9 +1,9 @@
 import type { OutgoingHttpHeaders } from 'node:http';
 import type {
-	ShikiConfig,
 	RehypePlugin as _RehypePlugin,
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
+	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -68,7 +68,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	image: {
 		endpoint: { entrypoint: undefined, route: '/_image' },
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
-		experimentalDefaultStyles: true,
+		responsiveStyles: false,
 	},
 	devToolbar: {
 		enabled: true,
@@ -98,10 +98,11 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
-		responsiveImages: false,
 		headingIdCompat: false,
 		preserveScriptOrder: false,
+		liveContentCollections: false,
 		csp: false,
+		rawEnvValues: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -273,13 +274,11 @@ export const AstroConfigSchema = z.object({
 					}),
 				)
 				.default([]),
-			experimentalLayout: z.enum(['constrained', 'fixed', 'full-width', 'none']).optional(),
-			experimentalObjectFit: z.string().optional(),
-			experimentalObjectPosition: z.string().optional(),
-			experimentalBreakpoints: z.array(z.number()).optional(),
-			experimentalDefaultStyles: z
-				.boolean()
-				.default(ASTRO_CONFIG_DEFAULTS.image.experimentalDefaultStyles),
+			layout: z.enum(['constrained', 'fixed', 'full-width', 'none']).optional(),
+			objectFit: z.string().optional(),
+			objectPosition: z.string().optional(),
+			breakpoints: z.array(z.number()).optional(),
+			responsiveStyles: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.responsiveStyles),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.image),
 	devToolbar: z
@@ -434,7 +433,7 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.env),
 	session: z
 		.object({
-			driver: z.string(),
+			driver: z.string().optional(),
 			options: z.record(z.any()).optional(),
 			cookie: z
 				.object({
@@ -466,10 +465,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
-			responsiveImages: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.responsiveImages),
 			headingIdCompat: z
 				.boolean()
 				.optional()
@@ -479,6 +474,10 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.preserveScriptOrder),
 			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
+			liveContentCollections: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.liveContentCollections),
 			csp: z
 				.union([
 					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
@@ -502,6 +501,7 @@ export const AstroConfigSchema = z.object({
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
+			rawEnvValues: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rawEnvValues),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

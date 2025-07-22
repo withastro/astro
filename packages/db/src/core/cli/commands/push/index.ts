@@ -5,7 +5,7 @@ import type { Arguments } from 'yargs-parser';
 import { createRemoteDatabaseClient } from '../../../../runtime/index.js';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import type { DBConfig, DBSnapshot } from '../../../types.js';
-import { type RemoteDatabaseInfo, getRemoteDatabaseInfo } from '../../../utils.js';
+import { getRemoteDatabaseInfo, type RemoteDatabaseInfo } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,

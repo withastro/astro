@@ -1,4 +1,4 @@
-import { type Config as LibSQLConfig, createClient } from '@libsql/client';
+import { createClient, type Config as LibSQLConfig } from '@libsql/client';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 

@@ -93,7 +93,10 @@ export const getWidths = ({
 export const getSizesAttribute = ({
 	width,
 	layout,
-}: { width?: number; layout?: ImageLayout }): string | undefined => {
+}: {
+	width?: number;
+	layout?: ImageLayout;
+}): string | undefined => {
 	if (!width || !layout) {
 		return undefined;
 	}

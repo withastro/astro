@@ -1,8 +1,8 @@
 import { AstroJSX, type AstroVNode, isVNode } from '../../jsx-runtime/index.js';
 import type { SSRResult } from '../../types/public/internal.js';
 import {
-	HTMLString,
 	escapeHTML,
+	HTMLString,
 	markHTMLString,
 	spreadAttributes,
 	voidElementNames,

@@ -5,12 +5,12 @@ import { fileURLToPath } from 'node:url';
 import type { AstroIntegration, HookParameters } from 'astro';
 import { blue, yellow } from 'kleur/colors';
 import {
-	type HMRPayload,
-	type UserConfig,
-	type ViteDevServer,
 	createServer,
+	type HMRPayload,
 	loadEnv,
 	mergeConfig,
+	type UserConfig,
+	type ViteDevServer,
 } from 'vite';
 import parseArgs from 'yargs-parser';
 import { AstroDbError, isDbError } from '../../runtime/utils.js';
@@ -18,7 +18,7 @@ import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
 import { SEED_DEV_FILE_NAME } from '../queries.js';
-import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseInfo } from '../utils.js';
+import { getDbDirectoryUrl, getRemoteDatabaseInfo, type VitePlugin } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
 import { getDtsContent } from './typegen.js';
 import {

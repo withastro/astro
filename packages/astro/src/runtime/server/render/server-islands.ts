@@ -2,7 +2,7 @@ import { encryptString, generateCspDigest } from '../../../core/encryption.js';
 import type { SSRResult } from '../../../types/public/internal.js';
 import { markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
-import { type ThinHead, createThinHead } from './astro/head-and-content.js';
+import { createThinHead, type ThinHead } from './astro/head-and-content.js';
 import type { RenderDestination } from './common.js';
 import { createRenderInstruction } from './instruction.js';
 import { type ComponentSlots, renderSlotToString } from './slot.js';
@@ -55,6 +55,9 @@ export class ServerIslandComponent {
 	displayName: string;
 	hostId: string | undefined;
 	islandContent: string | undefined;
+	componentPath: string | undefined;
+	componentExport: string | undefined;
+	componentId: string | undefined;
 	constructor(
 		result: SSRResult,
 		props: Record<string | number, any>,
@@ -68,8 +71,72 @@ export class ServerIslandComponent {
 	}
 
 	async init(): Promise<ThinHead> {
+		const content = await this.getIslandContent();
+
+		if (this.result.cspDestination) {
+			this.result._metadata.extraScriptHashes.push(
+				await generateCspDigest(SERVER_ISLAND_REPLACER, this.result.cspAlgorithm),
+			);
+			const contentDigest = await generateCspDigest(content, this.result.cspAlgorithm);
+			this.result._metadata.extraScriptHashes.push(contentDigest);
+		}
+
+		return createThinHead();
+	}
+	async render(destination: RenderDestination) {
+		const hostId = await this.getHostId();
+		const islandContent = await this.getIslandContent();
+		destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
+		destination.write('<!--[if astro]>server-island-start<![endif]-->');
+		// Render the slots
+		for (const name in this.slots) {
+			if (name === 'fallback') {
+				await renderChild(destination, this.slots.fallback(this.result));
+			}
+		}
+		destination.write(
+			`<script type="module" data-astro-rerun data-island-id="${hostId}">${islandContent}</script>`,
+		);
+	}
+
+	getComponentPath(): string {
+		if (this.componentPath) {
+			return this.componentPath;
+		}
 		const componentPath = this.props['server:component-path'];
+		if (!componentPath) {
+			throw new Error(`Could not find server component path`);
+		}
+		this.componentPath = componentPath;
+		return componentPath;
+	}
+
+	getComponentExport(): string {
+		if (this.componentExport) {
+			return this.componentExport;
+		}
 		const componentExport = this.props['server:component-export'];
+		if (!componentExport) {
+			throw new Error(`Could not find server component export`);
+		}
+		this.componentExport = componentExport;
+		return componentExport;
+	}
+
+	async getHostId() {
+		if (!this.hostId) {
+			this.hostId = await crypto.randomUUID();
+		}
+		return this.hostId;
+	}
+
+	async getIslandContent() {
+		if (this.islandContent) {
+			return this.islandContent;
+		}
+
+		const componentPath = this.getComponentPath();
+		const componentExport = this.getComponentExport();
 		const componentId = this.result.serverIslandNameMap.get(componentPath);
 
 		if (!componentId) {
@@ -98,8 +165,7 @@ export class ServerIslandComponent {
 				? ''
 				: await encryptString(key, JSON.stringify(this.props));
 
-		const hostId = crypto.randomUUID();
-
+		const hostId = await this.getHostId();
 		const slash = this.result.base.endsWith('/') ? '' : '/';
 		let serverIslandUrl = `${this.result.base}${slash}_server-islands/${componentId}${this.result.trailingSlash === 'always' ? '/' : ''}`;
 
@@ -134,32 +200,8 @@ let response = await fetch('${serverIslandUrl}', {
 	body: JSON.stringify(data),
 });`;
 
-		const content = `${method}replaceServerIsland('${hostId}', response);`;
-
-		if (this.result.shouldInjectCspMetaTags) {
-			this.result._metadata.extraScriptHashes.push(
-				await generateCspDigest(SERVER_ISLAND_REPLACER, this.result.cspAlgorithm),
-			);
-			const contentDigest = await generateCspDigest(content, this.result.cspAlgorithm);
-			this.result._metadata.extraScriptHashes.push(contentDigest);
-		}
-		this.islandContent = content;
-		this.hostId = hostId;
-
-		return createThinHead();
-	}
-	async render(destination: RenderDestination) {
-		destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
-		destination.write('<!--[if astro]>server-island-start<![endif]-->');
-		// Render the slots
-		for (const name in this.slots) {
-			if (name === 'fallback') {
-				await renderChild(destination, this.slots.fallback(this.result));
-			}
-		}
-		destination.write(
-			`<script type="module" data-astro-rerun data-island-id="${this.hostId}">${this.islandContent}</script>`,
-		);
+		this.islandContent = `${method}replaceServerIsland('${hostId}', response);`;
+		return this.islandContent;
 	}
 }
 
