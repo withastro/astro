@@ -1,5 +1,27 @@
 # astro
 
+## 5.12.2
+
+### Patch Changes
+
+- [#14071](https://github.com/withastro/astro/pull/14071) [`d2cb35d`](https://github.com/withastro/astro/commit/d2cb35d2b7ff999fea8aa39c79f9f048c3500aeb) Thanks [@Grisoly](https://github.com/Grisoly)! - Exposes the `Code` component `lang` prop type:
+
+  ```ts
+  import type { CodeLanguage } from 'astro';
+  ```
+
+- [#14111](https://github.com/withastro/astro/pull/14111) [`5452ee6`](https://github.com/withastro/astro/commit/5452ee67f95f51dcfdca8c1988b29f89553efe1c) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented "key" from being used as a prop for Astro components in MDX
+
+- [#14106](https://github.com/withastro/astro/pull/14106) [`b5b39e4`](https://github.com/withastro/astro/commit/b5b39e4d4bf5e5816bccf7fbfd9a48e4d8ee302a) Thanks [@ascorbic](https://github.com/ascorbic)! - Exits with non-zero exit code when config has an error
+
+- [#14112](https://github.com/withastro/astro/pull/14112) [`37458b3`](https://github.com/withastro/astro/commit/37458b31aeee23df0b5a8ab9e319a23ee4eddc6d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that meant that SVG components could no longer be serialized with `JSON.stringify`
+
+- [#14061](https://github.com/withastro/astro/pull/14061) [`c7a7dd5`](https://github.com/withastro/astro/commit/c7a7dd5f612b302f02a0ff468beeadd8e142a5ad) Thanks [@jonasgeiler](https://github.com/jonasgeiler)! - Add module declaration for `?no-inline` asset imports
+
+- [#14109](https://github.com/withastro/astro/pull/14109) [`5a08fa2`](https://github.com/withastro/astro/commit/5a08fa22b4023810fea45876f62152bd196e6062) Thanks [@ascorbic](https://github.com/ascorbic)! - Throw a more helpful error if defineLiveCollection is used outside of a live.config file
+
+- [#14110](https://github.com/withastro/astro/pull/14110) [`e7dd4e1`](https://github.com/withastro/astro/commit/e7dd4e1116103892ddc6a83052c8f1ba25d8abdc) Thanks [@ascorbic](https://github.com/ascorbic)! - Warn if duplicate IDs are found by file loader
+
 ## 5.12.1
 
 ### Patch Changes
