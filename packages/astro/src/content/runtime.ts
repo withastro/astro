@@ -974,3 +974,12 @@ export function defineCollection(config: any) {
 	}
 	return defineCollectionOrig(config);
 }
+
+export function defineLiveCollection() {
+	throw new AstroError({
+		...AstroErrorData.LiveContentConfigError,
+		message: AstroErrorData.LiveContentConfigError.message(
+			'Live collections must be defined in a `src/live.config.ts` file.',
+		),
+	});
+}
