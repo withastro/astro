@@ -1,9 +1,9 @@
 import type { OutgoingHttpHeaders } from 'node:http';
 import type {
-	ShikiConfig,
 	RehypePlugin as _RehypePlugin,
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
+	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -102,6 +102,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		preserveScriptOrder: false,
 		liveContentCollections: false,
 		csp: false,
+		rawEnvValues: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -500,6 +501,7 @@ export const AstroConfigSchema = z.object({
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
+			rawEnvValues: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rawEnvValues),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

@@ -1,8 +1,18 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
   "files": {
-    "ignore": ["**/smoke/**", "**/fixtures/**", "**/_temp-fixtures/**", "**/vendor/**"],
-    "include": ["test/**", "e2e/**", "packages/**", "scripts/**", "benchmark", "biome.jsonc"]
+    "includes": [
+      "**/test/**",
+      "**/e2e/**",
+      "**/packages/**",
+      "**/scripts/**",
+      "**/benchmark/**",
+      "**/biome.jsonc",
+      "!**/smoke/**",
+      "!**/fixtures/**",
+      "!**/_temp-fixtures/**",
+      "!**/vendor/**"
+    ]
   },
   "vcs": {
     "enabled": true,
@@ -13,11 +23,9 @@
     "indentStyle": "tab",
     "indentWidth": 2,
     "lineWidth": 100,
-    "ignore": [".changeset", "pnpm-lock.yaml", "*.astro"]
+    "includes": ["**", "!**/.changeset", "!**/pnpm-lock.yaml", "!**/*.astro"]
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
@@ -29,10 +37,15 @@
       },
       "suspicious": {
         // This one is specific to catch `console.log`. The rest of logs are permitted
-        "noConsoleLog": "warn"
+        "noConsole": { "level": "warn", "options": { "allow": ["error", "warn", "info", "debug"] } }
       },
       "correctness": {
-        "noUnusedVariables": "error",
+        "noUnusedVariables": {
+          "level": "error",
+          "options": {
+            "ignoreRestSiblings": true
+          }
+        },
         "noUnusedFunctionParameters": "error",
         "noUnusedImports": "error"
       }
@@ -58,7 +71,7 @@
   "overrides": [
     {
       // Workaround to format files like npm does
-      "include": ["package.json"],
+      "includes": ["**/package.json"],
       "json": {
         "formatter": {
           "lineWidth": 1
@@ -67,7 +80,7 @@
     },
     {
       // We don"t want to have node modules in code that should be runtime agnostic
-      "include": ["packages/astro/src/runtime/**/*.ts"],
+      "includes": ["**/packages/astro/src/runtime/**/*.ts"],
       "linter": {
         "rules": {
           "correctness": {
@@ -77,7 +90,7 @@
       }
     },
     {
-      "include": ["*.test.js"],
+      "includes": ["**/*.test.js"],
       "linter": {
         "rules": {
           "suspicious": {
@@ -88,7 +101,7 @@
       }
     },
     {
-      "include": ["*.astro", "client.d.ts", "jsx-runtime.d.ts"],
+      "includes": ["**/*.astro", "**/client.d.ts", "**/jsx-runtime.d.ts"],
       "linter": {
         "rules": {
           "correctness": {
@@ -99,7 +112,7 @@
       }
     },
     {
-      "include": ["packages/integrations/**/*.ts"],
+      "includes": ["**/packages/integrations/**/*.ts"],
       "linter": {
         "rules": {
           "suspicious": {
@@ -114,17 +127,16 @@
       }
     },
     {
-      "include": [
-        "packages/db/**/cli/**/*.ts",
-        "benchmark/**/*.js",
-        "packages/astro/src/cli/**/*.ts",
-        "packages/astro/astro.js"
+      "includes": [
+        "**/packages/db/**/cli/**/*.ts",
+        "**/benchmark/**/*.js",
+        "**/packages/astro/src/cli/**/*.ts",
+        "**/packages/astro/astro.js"
       ],
       "linter": {
         "rules": {
           "suspicious": {
-            "noConsole": "off",
-            "noConsoleLog": "off"
+            "noConsole": "off"
           }
         }
       }

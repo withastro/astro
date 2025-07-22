@@ -2,12 +2,11 @@ import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
-import { createHostedRouteDefinition } from '@astrojs/underscore-redirects';
 import {
-	type Header,
-	type Route,
 	getTransformedRoutes,
+	type Header,
 	normalizeRoutes,
+	type Route,
 } from '@vercel/routing-utils';
 import type {
 	AstroAdapter,
@@ -16,21 +15,22 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
+	RouteToHeaders,
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import { globSync } from 'tinyglobby';
+import type { RemotePattern } from './image/shared.js';
 import {
 	type DevImageService,
-	type VercelImageConfig,
 	getAstroImageConfig,
 	getDefaultImageConfig,
+	type VercelImageConfig,
 } from './image/shared.js';
-import type { RemotePattern } from './image/shared.js';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import { escapeRegex, getRedirects } from './lib/redirects.js';
 import {
-	type VercelWebAnalyticsConfig,
 	getInjectableWebAnalyticsContent,
+	type VercelWebAnalyticsConfig,
 } from './lib/web-analytics.js';
 import { generateEdgeMiddleware } from './serverless/middleware.js';
 
@@ -70,7 +70,11 @@ const SUPPORTED_NODE_VERSIONS: Record<
 	| { status: 'retiring'; removal: Date | string; warnDate: Date }
 	| { status: 'deprecated'; removal: Date }
 > = {
-	18: { status: 'retiring', removal: 'Early 2025', warnDate: new Date('October 1 2024') },
+	18: {
+		status: 'retiring',
+		removal: new Date('September 1 2025'),
+		warnDate: new Date('October 1 2024'),
+	},
 	20: { status: 'available' },
 	22: { status: 'default' },
 };
@@ -204,7 +208,7 @@ export default function vercelAdapter({
 	let _serverEntry: string;
 	let _entryPoints: Map<Pick<IntegrationResolvedRoute, 'entrypoint' | 'patternRegex'>, URL>;
 	let _middlewareEntryPoint: URL | undefined;
-	let _routeToHeaders: Map<IntegrationResolvedRoute, Headers> | undefined = undefined;
+	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
@@ -546,22 +550,23 @@ export default function vercelAdapter({
 				}
 
 				let images: VercelImageConfig | undefined;
-				if (imageService || imagesConfig) {
-					if (imagesConfig) {
-						images = {
-							...imagesConfig,
-							domains: [...imagesConfig.domains, ..._config.image.domains],
-							remotePatterns: [...(imagesConfig.remotePatterns ?? [])],
-						};
-						const remotePatterns = _config.image.remotePatterns;
-						for (const pattern of remotePatterns) {
-							if (isAcceptedPattern(pattern)) {
-								images.remotePatterns?.push(pattern);
-							}
+				if (imagesConfig) {
+					images = {
+						...imagesConfig,
+						domains:
+							imagesConfig.domains || _config.image.domains
+								? [...(imagesConfig.domains ?? []), ...(_config.image.domains ?? [])]
+								: undefined,
+						remotePatterns: [...(imagesConfig.remotePatterns ?? [])],
+					};
+					const remotePatterns = _config.image.remotePatterns;
+					for (const pattern of remotePatterns) {
+						if (isAcceptedPattern(pattern)) {
+							images.remotePatterns?.push(pattern);
 						}
-					} else {
-						images = getDefaultImageConfig(_config.image);
 					}
+				} else if (imageService) {
+					images = getDefaultImageConfig(_config.image);
 				}
 
 				const normalized = normalizeRoutes([...(redirects ?? []), ...finalRoutes]);
@@ -702,10 +707,10 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		logger.warn(
 			`\n` +
 				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
-				`\tYour project will use Node.js 18 as the runtime instead.\n` +
-				`\tConsider switching your local version to 18.\n`,
+				`\tYour project will use Node.js 22 as the runtime instead.\n` +
+				`\tConsider switching your local version to 22.\n`,
 		);
-		return 'nodejs18.x';
+		return 'nodejs22.x';
 	}
 	if (support.status === 'default' || support.status === 'available') {
 		return `nodejs${major}.x`;
@@ -732,34 +737,22 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
 				`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
-				`\tConsider upgrading your local version to 18.\n`,
+				`\tConsider upgrading your local version to 22.\n`,
 		);
 		return `nodejs${major}.x`;
 	}
-	return 'nodejs18.x';
+	return 'nodejs22.x';
 }
 
-function createConfigHeaders(
-	staticHeaders: Map<IntegrationResolvedRoute, Headers>,
-	config: AstroConfig,
-): Header[] {
+function createConfigHeaders(staticHeaders: RouteToHeaders, config: AstroConfig): Header[] {
 	const vercelHeaders: Header[] = [];
-	for (const [route, routeHeaders] of staticHeaders.entries()) {
-		if (!route.isPrerendered) {
-			continue;
-		}
-		if (route.redirect) {
-			continue;
-		}
-
-		const definition = createHostedRouteDefinition(route, config);
-
+	for (const [pathname, { headers }] of staticHeaders.entries()) {
 		if (config.experimental.csp) {
-			const csp = routeHeaders.get('Content-Security-Policy');
+			const csp = headers.get('Content-Security-Policy');
 
 			if (csp) {
 				vercelHeaders.push({
-					source: definition.input,
+					source: pathname,
 					headers: [
 						{
 							key: 'Content-Security-Policy',

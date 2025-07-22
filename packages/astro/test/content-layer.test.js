@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { promises as fs, existsSync } from 'node:fs';
+import { existsSync, promises as fs } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { Writable } from 'node:stream';
@@ -10,6 +10,7 @@ import * as devalue from 'devalue';
 import { Logger } from '../dist/core/logger/core.js';
 
 import { loadFixture } from './test-utils.js';
+
 describe('Content Layer', () => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
@@ -136,7 +137,7 @@ describe('Content Layer', () => {
 			assert.ok(json.hasOwnProperty('tomlLoader'));
 			assert.ok(Array.isArray(json.tomlLoader));
 
-			const ids = json.tomlLoader.map((item) => item.data.id);
+			const ids = json.tomlLoader.map((item) => item.id);
 			assert.deepEqual(ids, [
 				'crown',
 				'nikes-on-my-feet',
@@ -147,6 +148,41 @@ describe('Content Layer', () => {
 				'somebody',
 				'honest',
 			]);
+		});
+
+		it('Returns csv `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('csvLoader'));
+			assert.ok(Array.isArray(json.csvLoader));
+
+			const ids = json.csvLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, [
+				'lavender',
+				'rose',
+				'sunflower',
+				'basil',
+				'thyme',
+				'sage',
+				'daisy',
+				'marigold',
+				'chamomile',
+				'fern',
+			]);
+		});
+
+		it('Returns yaml `glob()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('numbersYaml'));
+			assert.ok(Array.isArray(json.numbersYaml));
+
+			const titles = json.numbersYaml.map((item) => item.data.title).sort();
+			assert.deepEqual(titles, ['One', 'Three', 'Two']);
+		});
+
+		it('Returns toml `glob()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('numbersToml'));
+			assert.ok(Array.isArray(json.numbersToml));
+
+			const titles = json.numbersToml.map((item) => item.data.title).sort();
+			assert.deepEqual(titles, ['One', 'Three', 'Two']);
 		});
 
 		it('Returns nested json `file()` loader collection', async () => {

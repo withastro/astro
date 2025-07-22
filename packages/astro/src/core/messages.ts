@@ -395,6 +395,6 @@ export function printHelp({
 		message.push(linebreak(), `${description}`);
 	}
 
-	// biome-ignore lint/suspicious/noConsoleLog: allowed
+	// biome-ignore lint/suspicious/noConsole: allowed
 	console.log(message.join('\n') + '\n');
 }

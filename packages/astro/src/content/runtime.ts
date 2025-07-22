@@ -7,8 +7,6 @@ import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
-import { defineCollection as defineCollectionOrig } from './config.js';
-
 import {
 	type AstroComponentFactory,
 	createComponent,
@@ -26,6 +24,7 @@ import type {
 	LiveDataEntry,
 	LiveDataEntryResult,
 } from '../types/public/content.js';
+import { defineCollection as defineCollectionOrig } from './config.js';
 import { IMAGE_IMPORT_PREFIX, type LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import {
@@ -582,7 +581,7 @@ export function createGetLiveCollection({
 			return {
 				error: new LiveCollectionError(
 					collection,
-					`Unexpected error loading collection ${collection}`,
+					`Unexpected error loading collection ${collection}${error instanceof Error ? `: ${error.message}` : ''}`,
 					error as Error,
 				),
 			};

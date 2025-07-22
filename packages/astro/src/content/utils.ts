@@ -8,7 +8,7 @@ import type { PluginContext } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
 import { z } from 'zod';
-import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
+import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -106,7 +106,7 @@ const collectionConfigParser = z.union([
 		_legacy: z.boolean().optional(),
 	}),
 	z.object({
-		type: z.literal(LIVE_CONTENT_TYPE),
+		type: z.literal(LIVE_CONTENT_TYPE).optional().default(LIVE_CONTENT_TYPE),
 		schema: z.any().optional(),
 		loader: z.function(),
 	}),

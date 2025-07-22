@@ -17,11 +17,11 @@ import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { SSRActions } from './app/types.js';
 import {
 	ASTRO_VERSION,
+	clientAddressSymbol,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	REWRITE_DIRECTIVE_HEADER_VALUE,
 	ROUTE_TYPE_HEADER,
-	clientAddressSymbol,
 	responseSentSymbol,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
@@ -32,7 +32,7 @@ import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
-import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
+import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
@@ -317,7 +317,14 @@ export class RenderContext {
 		// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
 		// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 		// so Astro can't retrieve it from the emitted manifest.
-		if (this.pipeline.serverLike && !this.routeData.prerender && routeData.prerender) {
+		// Allow i18n fallback rewrites - if the target route has fallback routes, this is likely an i18n scenario
+		const isI18nFallback = routeData.fallbackRoutes && routeData.fallbackRoutes.length > 0;
+		if (
+			this.pipeline.serverLike &&
+			!this.routeData.prerender &&
+			routeData.prerender &&
+			!isI18nFallback
+		) {
 			throw new AstroError({
 				...ForbiddenRewrite,
 				message: ForbiddenRewrite.message(this.pathname, pathname, routeData.component),

@@ -11,7 +11,7 @@ import type { AstroSession } from '../../core/session.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { Params, RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
-import type { AstroInstance, MDXInstance, MarkdownInstance } from './content.js';
+import type { AstroInstance, MarkdownInstance, MDXInstance } from './content.js';
 
 /**
  * Astro global available in all contexts in .astro files

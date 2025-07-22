@@ -32,6 +32,7 @@ import type {
 	IntegrationResolvedRoute,
 	IntegrationRouteData,
 	RouteOptions,
+	RouteToHeaders,
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
@@ -590,7 +591,7 @@ export async function runHookBuildGenerated({
 }: {
 	settings: AstroSettings;
 	logger: Logger;
-	experimentalRouteToHeaders: Map<IntegrationResolvedRoute, Headers>;
+	experimentalRouteToHeaders: RouteToHeaders;
 }) {
 	const dir =
 		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
@@ -671,7 +672,11 @@ export async function runHookRoutesResolved({
 	routes,
 	settings,
 	logger,
-}: { routes: Array<RouteData>; settings: AstroSettings; logger: Logger }) {
+}: {
+	routes: Array<RouteData>;
+	settings: AstroSettings;
+	logger: Logger;
+}) {
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
 			integration,

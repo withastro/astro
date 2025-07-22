@@ -1,5 +1,24 @@
 # @astrojs/vercel
 
+## 8.2.3
+
+### Patch Changes
+
+- [#14077](https://github.com/withastro/astro/pull/14077) [`42ef004`](https://github.com/withastro/astro/commit/42ef00442cc685dd7452de13b476e42bffde9df3) Thanks [@jat001](https://github.com/jat001)! - Changes the default Node.js version of Vercel functions to 22
+
+## 8.2.2
+
+### Patch Changes
+
+- [#14063](https://github.com/withastro/astro/pull/14063) [`de5a253`](https://github.com/withastro/astro/commit/de5a253aa85400c6b4c76379f4ab60707326cde5) Thanks [@RobbieTheWagner](https://github.com/RobbieTheWagner)! - Allow setting `domains` to `undefined` in `imagesConfig` so that `remotePatterns` can be better utilized for images from a variety of domains.
+
+## 8.2.1
+
+### Patch Changes
+
+- [#13972](https://github.com/withastro/astro/pull/13972) [`db8f8be`](https://github.com/withastro/astro/commit/db8f8becc9508fa4f292d45c14af92ba59c414d1) Thanks [@ematipico](https://github.com/ematipico)! - Fixes the internal implementation of the new feature `experimentalStaticHeaders`, where dynamic routes
+  were mapped to use always the same header.
+
 ## 8.2.0
 
 ### Minor Changes
